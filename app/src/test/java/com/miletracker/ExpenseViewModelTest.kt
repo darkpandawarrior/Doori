@@ -52,6 +52,16 @@ class ExpenseViewModelTest {
     }
 
     @Test
+    fun `SetSort by amount orders records high to low and keeps the active sort`() {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SetSort(com.miletracker.feature.logging.viewmodel.ExpenseSort.AMOUNT))
+        val data = listData(vm)
+        assertEquals(com.miletracker.feature.logging.viewmodel.ExpenseSort.AMOUNT, data.activeSort)
+        val amounts = data.records.map { it.amountRupees }
+        assertEquals(amounts.sortedDescending(), amounts)
+    }
+
+    @Test
     fun `SelectCategory advances the form to step two`() {
         val vm = viewModel()
         vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.entries.first()))
