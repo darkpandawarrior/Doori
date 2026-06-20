@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -75,6 +74,7 @@ import com.miletracker.core.data.model.network.PolicyViolation
 import com.miletracker.core.data.model.network.ViolationSeverity
 import com.miletracker.core.network.model.BusinessEntity
 import com.miletracker.core.network.model.Office
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.tracking.ocr.OcrResult
 import com.miletracker.feature.tracking.ocr.OdometerOcrAnalyzer
@@ -1146,29 +1146,36 @@ fun OdometerReadingConfirmSheet(
     }
 
     if (showManualDialog) {
-        AlertDialog(
-            onDismissRequest = { showManualDialog = false },
-            title = { Text("Enter ${ if (purpose == OdometerPurpose.START) "Start" else "End" } Reading") },
-            text = {
-                OutlinedTextField(
-                    value = manualInput,
-                    onValueChange = { if (it.length <= 7) manualInput = it.filter { c -> c.isDigit() } },
-                    label = { Text("Odometer reading (km)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                )
-            },
-            confirmButton = {
-                Button(onClick = {
-                    val parsed = manualInput.toIntOrNull() ?: displayedReading
-                    displayedReading = parsed
-                    showManualDialog = false
-                    onUseReading(parsed, true)
-                }) { Text("Confirm") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showManualDialog = false }) { Text("Cancel") }
-            },
-        )
+        AppActionSheet(
+            onDismiss = { showManualDialog = false },
+            title = "Enter ${ if (purpose == OdometerPurpose.START) "Start" else "End" } Reading",
+        ) {
+            OutlinedTextField(
+                value = manualInput,
+                onValueChange = { if (it.length <= 7) manualInput = it.filter { c -> c.isDigit() } },
+                label = { Text("Odometer reading (km)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+            ) {
+                OutlinedButton(
+                    onClick = { showManualDialog = false },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Cancel") }
+                Button(
+                    onClick = {
+                        val parsed = manualInput.toIntOrNull() ?: displayedReading
+                        displayedReading = parsed
+                        showManualDialog = false
+                        onUseReading(parsed, true)
+                    },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Confirm") }
+            }
+        }
     }
 }

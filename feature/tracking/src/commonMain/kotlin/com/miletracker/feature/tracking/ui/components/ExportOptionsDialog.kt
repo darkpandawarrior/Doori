@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -15,17 +16,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 
 // ---------------------------------------------------------------------------
 // Domain types for the export options UI.
@@ -125,200 +127,204 @@ fun ExportOptionsDialog(
 
     var showAdvancedFilters by remember { mutableStateOf(false) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
+    AppActionSheet(
+        onDismiss = onDismiss,
+        title = if (isMultipleTrackExport) "Export Multiple Tracks" else "Export Track Data",
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 460.dp)
+                    .verticalScroll(rememberScrollState()),
+        ) {
+            // Track info
+            trackName?.let {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        ),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Exporting: $it",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            // Format selection
             Text(
-                text = if (isMultipleTrackExport) "Export Multiple Tracks" else "Export Track Data",
-                style = MaterialTheme.typography.headlineSmall,
+                text = "Export Format",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
             )
-        },
-        text = {
+            Spacer(modifier = Modifier.height(8.dp))
+
             Column(
+                modifier = Modifier.selectableGroup(),
+            ) {
+                ExportFormat.values().forEach { format ->
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = selectedFormat == format,
+                                    onClick = { selectedFormat = format },
+                                    role = Role.RadioButton,
+                                )
+                                .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        RadioButton(
+                            selected = selectedFormat == format,
+                            onClick = null,
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Column {
+                            Text(
+                                text = format.displayName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                text = format.description,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Quality filters
+            Text(
+                text = "Data Quality Filters",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Basic filters
+            FilterCheckbox(
+                checked = excludeMock,
+                onCheckedChange = { excludeMock = it },
+                text = "Exclude Mock Locations",
+                description = "Filter out simulated/fake GPS points",
+            )
+
+            FilterCheckbox(
+                checked = excludeAbnormal,
+                onCheckedChange = { excludeAbnormal = it },
+                text = "Exclude Abnormal Points",
+                description = "Remove points flagged as abnormal",
+            )
+
+            FilterCheckbox(
+                checked = excludePaused,
+                onCheckedChange = { excludePaused = it },
+                text = "Exclude Paused Points",
+                description = "Remove points recorded when tracking was paused",
+            )
+
+            FilterCheckbox(
+                checked = onlyCheckpoints,
+                onCheckedChange = { onlyCheckpoints = it },
+                text = "Only Checkpoints",
+                description = "Export only manually marked checkpoint locations",
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Advanced filters toggle
+            Row(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
+                        .padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                // Track info
-                trackName?.let {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors =
-                            CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            ),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Exporting: $it",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                // Format selection
                 Text(
-                    text = "Export Format",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    text = "Advanced Filters",
+                    style = MaterialTheme.typography.titleSmall,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Column(
-                    modifier = Modifier.selectableGroup(),
-                ) {
-                    ExportFormat.values().forEach { format ->
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .selectable(
-                                        selected = selectedFormat == format,
-                                        onClick = { selectedFormat = format },
-                                        role = Role.RadioButton,
-                                    )
-                                    .padding(vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(
-                                selected = selectedFormat == format,
-                                onClick = null,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = format.displayName,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Medium,
-                                )
-                                Text(
-                                    text = format.description,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Quality filters
-                Text(
-                    text = "Data Quality Filters",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                Switch(
+                    checked = showAdvancedFilters,
+                    onCheckedChange = { showAdvancedFilters = it },
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Basic filters
-                FilterCheckbox(
-                    checked = excludeMock,
-                    onCheckedChange = { excludeMock = it },
-                    text = "Exclude Mock Locations",
-                    description = "Filter out simulated/fake GPS points",
-                )
-
-                FilterCheckbox(
-                    checked = excludeAbnormal,
-                    onCheckedChange = { excludeAbnormal = it },
-                    text = "Exclude Abnormal Points",
-                    description = "Remove points flagged as abnormal",
-                )
-
-                FilterCheckbox(
-                    checked = excludePaused,
-                    onCheckedChange = { excludePaused = it },
-                    text = "Exclude Paused Points",
-                    description = "Remove points recorded when tracking was paused",
-                )
-
-                FilterCheckbox(
-                    checked = onlyCheckpoints,
-                    onCheckedChange = { onlyCheckpoints = it },
-                    text = "Only Checkpoints",
-                    description = "Export only manually marked checkpoint locations",
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Advanced filters toggle
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "Advanced Filters",
-                        style = MaterialTheme.typography.titleSmall,
-                    )
-                    Switch(
-                        checked = showAdvancedFilters,
-                        onCheckedChange = { showAdvancedFilters = it },
-                    )
-                }
-
-                if (showAdvancedFilters) {
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Accuracy filters
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        OutlinedTextField(
-                            value = if (minAccuracy > 0) minAccuracy.toString() else "",
-                            onValueChange = { value ->
-                                minAccuracy = value.toFloatOrNull() ?: 0f
-                            },
-                            label = { Text("Min Accuracy (m)") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-
-                        OutlinedTextField(
-                            value = if (maxAccuracy > 0) maxAccuracy.toString() else "",
-                            onValueChange = { value ->
-                                maxAccuracy = value.toFloatOrNull() ?: 0f
-                            },
-                            label = { Text("Max Accuracy (m)") },
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Battery filter
-                    OutlinedTextField(
-                        value = minBatteryText,
-                        onValueChange = { minBatteryText = it },
-                        label = { Text("Min Battery Level (%)") },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        placeholder = { Text("e.g. 20") },
-                    )
-                }
             }
-        },
-        confirmButton = {
-            TextButton(
+
+            if (showAdvancedFilters) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Accuracy filters
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        value = if (minAccuracy > 0) minAccuracy.toString() else "",
+                        onValueChange = { value ->
+                            minAccuracy = value.toFloatOrNull() ?: 0f
+                        },
+                        label = { Text("Min Accuracy (m)") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                    )
+
+                    OutlinedTextField(
+                        value = if (maxAccuracy > 0) maxAccuracy.toString() else "",
+                        onValueChange = { value ->
+                            maxAccuracy = value.toFloatOrNull() ?: 0f
+                        },
+                        label = { Text("Max Accuracy (m)") },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Battery filter
+                OutlinedTextField(
+                    value = minBatteryText,
+                    onValueChange = { minBatteryText = it },
+                    label = { Text("Min Battery Level (%)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("e.g. 20") },
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+            ) {
+                Text("Cancel")
+            }
+            Button(
                 onClick = {
                     val filter =
                         LocationDataFilter(
@@ -332,6 +338,7 @@ fun ExportOptionsDialog(
                         )
                     onExport(selectedFormat, filter)
                 },
+                modifier = Modifier.weight(1f),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
@@ -342,13 +349,8 @@ fun ExportOptionsDialog(
                     Text("Export")
                 }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        },
-    )
+        }
+    }
 }
 
 @Composable
