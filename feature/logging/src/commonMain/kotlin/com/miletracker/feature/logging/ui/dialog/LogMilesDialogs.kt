@@ -13,14 +13,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.WarningAmber
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.model.network.ExpenseSubmissionResponse
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.theme.DesignTokens
 
 /**
@@ -56,50 +57,51 @@ fun VerifyDistanceDialog(
     var text by remember { mutableStateOf(currentKm.formatDecimal(2)) }
     val parsed = text.toDoubleOrNull()
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Verify Distance") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                Text(
-                    "We calculated your journey distance. You can keep it or adjust if needed.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Surface(
-                    shape = DesignTokens.Shape.roundedMd,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(DesignTokens.Spacing.l),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        LabeledValue("Calculated", "${calculatedKm.formatDecimal(2)} km")
-                        LabeledValue("Current", "${currentKm.formatDecimal(2)} km", alignEnd = true)
-                    }
-                }
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    label = { Text("Update distance (km)") },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth(),
-                )
+    AppActionSheet(
+        onDismiss = onDismiss,
+        title = "Verify Distance",
+    ) {
+        Text(
+            "We calculated your journey distance. You can keep it or adjust if needed.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Surface(
+            shape = DesignTokens.Shape.roundedMd,
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(DesignTokens.Spacing.l),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                LabeledValue("Calculated", "${calculatedKm.formatDecimal(2)} km")
+                LabeledValue("Current", "${currentKm.formatDecimal(2)} km", alignEnd = true)
             }
-        },
-        confirmButton = {
-            TextButton(
+        }
+        OutlinedTextField(
+            value = text,
+            onValueChange = { text = it },
+            label = { Text("Update distance (km)") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+        ) {
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            Button(
                 onClick = { parsed?.let(onSave) },
                 enabled = parsed != null && parsed >= 0.0,
+                modifier = Modifier.weight(1f),
             ) { Text("Save") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
-    )
+        }
+    }
 }
 
 @Composable
@@ -135,42 +137,44 @@ fun TaggedEmployeesDialog(
 ) {
     val selected: SnapshotStateList<String> = remember { initiallySelected.toMutableStateList() }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Tag Employees") },
-        text = {
-            Column(
-                modifier =
-                    Modifier
-                        .heightIn(max = 320.dp)
-                        .verticalScroll(rememberScrollState()),
-            ) {
-                allEmployees.forEach { name ->
-                    val isChecked = name in selected
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = DesignTokens.Spacing.xs),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Checkbox(
-                            checked = isChecked,
-                            onCheckedChange = {
-                                if (it) selected.add(name) else selected.remove(name)
-                            },
-                        )
-                        Spacer(Modifier.size(DesignTokens.Spacing.s))
-                        Text(name, style = MaterialTheme.typography.bodyLarge)
-                    }
+    AppActionSheet(
+        onDismiss = onDismiss,
+        title = "Tag Employees",
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .heightIn(max = 320.dp)
+                    .verticalScroll(rememberScrollState()),
+        ) {
+            allEmployees.forEach { name ->
+                val isChecked = name in selected
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = DesignTokens.Spacing.xs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = isChecked,
+                        onCheckedChange = {
+                            if (it) selected.add(name) else selected.remove(name)
+                        },
+                    )
+                    Spacer(Modifier.size(DesignTokens.Spacing.s))
+                    Text(name, style = MaterialTheme.typography.bodyLarge)
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(selected.toList()) }) { Text("Done") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
-    )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+        ) {
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            Button(onClick = { onConfirm(selected.toList()) }, modifier = Modifier.weight(1f)) { Text("Done") }
+        }
+    }
 }
 
 /**
@@ -189,31 +193,26 @@ fun ViolationDialog(
             response.policyViolations.orEmpty().forEach { it.error?.let(::add) }
         }.filter { it.isNotBlank() }.ifEmpty { listOf("This submission has policy violations.") }
 
-    AlertDialog(
-        onDismissRequest = onAcknowledge,
-        icon = {
-            Icon(
-                Icons.Filled.WarningAmber,
-                contentDescription = null,
-                tint = DesignTokens.StatusColors.warning,
-            )
-        },
-        title = { Text("Policy Violations") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                Text(
-                    "Your submission was recorded with ${messages.size} violation${if (messages.size == 1) "" else "s"}:",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                messages.forEach { msg ->
-                    Row(verticalAlignment = Alignment.Top) {
-                        Text("•  ", style = MaterialTheme.typography.bodyMedium)
-                        Text(msg, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
+    AppActionSheet(
+        onDismiss = onAcknowledge,
+        title = "Policy Violations",
+    ) {
+        Icon(
+            Icons.Filled.WarningAmber,
+            contentDescription = null,
+            tint = DesignTokens.StatusColors.warning,
+        )
+        Text(
+            "Your submission was recorded with ${messages.size} violation${if (messages.size == 1) "" else "s"}:",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        messages.forEach { msg ->
+            Row(verticalAlignment = Alignment.Top) {
+                Text("•  ", style = MaterialTheme.typography.bodyMedium)
+                Text(msg, style = MaterialTheme.typography.bodyMedium)
             }
-        },
-        confirmButton = { TextButton(onClick = onAcknowledge) { Text("Acknowledge") } },
-    )
+        }
+        Button(onClick = onAcknowledge, modifier = Modifier.fillMaxWidth()) { Text("Acknowledge") }
+    }
 }
