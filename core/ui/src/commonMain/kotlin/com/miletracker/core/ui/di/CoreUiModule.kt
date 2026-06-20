@@ -1,5 +1,6 @@
 package com.miletracker.core.ui.di
 
+import com.miletracker.core.ui.theme.LocaleController
 import com.miletracker.core.ui.theme.ThemeController
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -18,4 +19,6 @@ val coreUiModule =
     module {
         includes(coreUiPlatformModule)
         single { ThemeController(prefs = get()) }
+        // UX.6: shared in-app locale state (Settings writes it; features observe it).
+        single { LocaleController() }
     }

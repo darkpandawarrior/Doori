@@ -70,11 +70,13 @@ import com.miletracker.core.ui.theme.AccentPalette
 import com.miletracker.core.ui.theme.AppLanguage
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.LocaleController
 import com.miletracker.core.ui.theme.PaletteStyleNames
 import com.miletracker.core.ui.theme.parseHexColor
 import com.miletracker.feature.profile.model.SettingsUiState
 import com.miletracker.feature.profile.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +85,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onOpenDebugMenu: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
+    localeController: LocaleController = koinInject(),
 ) {
     val darkOverride by viewModel.darkThemeOverride.collectAsStateWithLifecycle()
     val useMiles by viewModel.useMiles.collectAsStateWithLifecycle()
@@ -425,6 +428,8 @@ fun SettingsScreen(
                 val picked = AppLanguage.entries.firstOrNull { it.displayName == displayName }
                 if (picked != null) {
                     viewModel.setLanguage(picked)
+                    // UX.6: update the shared app-wide locale state (features observe LocaleController.currentTag).
+                    localeController.setLanguage(picked)
                     // Wire per-app locale via AppCompatDelegate — persisted by the platform.
                     AppCompatDelegate.setApplicationLocales(
                         LocaleListCompat.forLanguageTags(picked.tag),
