@@ -1,10 +1,12 @@
 package com.miletracker.core.platform.di
 
+import com.miletracker.core.platform.AndroidAppShortcuts
 import com.miletracker.core.platform.AndroidBackgroundScheduler
 import com.miletracker.core.platform.AndroidLocationTracker
 import com.miletracker.core.platform.AndroidNotificationScheduler
 import com.miletracker.core.platform.AndroidShareSheet
 import com.miletracker.core.platform.AndroidTextRecognizer
+import com.miletracker.core.platform.AppShortcuts
 import com.miletracker.core.platform.BackgroundScheduler
 import com.miletracker.core.platform.LocationTracker
 import com.miletracker.core.platform.NotificationScheduler
@@ -27,4 +29,6 @@ actual fun platformModule(): Module =
         single<BackgroundScheduler> { AndroidBackgroundScheduler(androidContext()) }
         // SH.1: real system-chooser share sheet (LocalManagerProvider resolves it via Koin).
         single<ShareSheet> { AndroidShareSheet(androidContext()) }
+        // SH.3: home-screen quick actions → deep links.
+        single<AppShortcuts> { AndroidAppShortcuts(androidContext()) }
     }
