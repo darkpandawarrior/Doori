@@ -32,4 +32,6 @@ actual fun platformModule(): Module =
         single<com.miletracker.core.platform.AppShortcuts> { com.miletracker.core.platform.IosAppShortcuts() }
         // UX.2: haptic feedback via UIFeedbackGenerator.
         single<com.miletracker.core.platform.Haptics> { com.miletracker.core.platform.IosHaptics() }
+        // O: cross-platform motion sensors via CoreMotion.
+        single<com.miletracker.core.platform.MotionSensorProvider> { com.miletracker.core.platform.IosMotionSensorProvider() }
     }

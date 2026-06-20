@@ -4,6 +4,7 @@ import com.miletracker.core.platform.AndroidAppShortcuts
 import com.miletracker.core.platform.AndroidBackgroundScheduler
 import com.miletracker.core.platform.AndroidHaptics
 import com.miletracker.core.platform.AndroidLocationTracker
+import com.miletracker.core.platform.AndroidMotionSensorProvider
 import com.miletracker.core.platform.AndroidNotificationScheduler
 import com.miletracker.core.platform.AndroidShareSheet
 import com.miletracker.core.platform.AndroidTextRecognizer
@@ -11,6 +12,7 @@ import com.miletracker.core.platform.AppShortcuts
 import com.miletracker.core.platform.BackgroundScheduler
 import com.miletracker.core.platform.Haptics
 import com.miletracker.core.platform.LocationTracker
+import com.miletracker.core.platform.MotionSensorProvider
 import com.miletracker.core.platform.NotificationScheduler
 import com.miletracker.core.platform.ShareSheet
 import com.miletracker.core.platform.TextRecognizer
@@ -35,4 +37,6 @@ actual fun platformModule(): Module =
         single<AppShortcuts> { AndroidAppShortcuts(androidContext()) }
         // UX.2: haptic feedback.
         single<Haptics> { AndroidHaptics(androidContext()) }
+        // O: cross-platform motion sensors (accelerometer + gyroscope).
+        single<MotionSensorProvider> { AndroidMotionSensorProvider(androidContext()) }
     }
