@@ -10,9 +10,13 @@ import com.miletracker.feature.logging.repository.ExpenseRepository
 
 enum class ExpenseFilter { ALL, DRAFTS, PENDING, SETTLED }
 
+/** Sort key for the expense history list (SHEETS.B). */
+enum class ExpenseSort { DATE, AMOUNT, MERCHANT }
+
 data class ExpenseListData(
     val records: List<ExpenseRecord> = emptyList(),
     val activeFilter: ExpenseFilter = ExpenseFilter.ALL,
+    val activeSort: ExpenseSort = ExpenseSort.DATE,
 )
 
 data class ExpenseFormState(
@@ -35,6 +39,8 @@ sealed interface ExpenseAction {
     data object Refresh : ExpenseAction
 
     data class SetFilter(val filter: ExpenseFilter) : ExpenseAction
+
+    data class SetSort(val sort: ExpenseSort) : ExpenseAction
 
     data class SelectCategory(val category: ExpenseCategory) : ExpenseAction
 
@@ -63,13 +69,14 @@ class ExpenseViewModel(
     private val repository: ExpenseRepository,
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
     init {
-        refresh(ExpenseFilter.ALL)
+        refresh(ExpenseFilter.ALL, ExpenseSort.DATE)
     }
 
     override fun onAction(action: ExpenseAction) {
         when (action) {
-            ExpenseAction.Refresh -> refresh(currentState.listState.activeFilter())
-            is ExpenseAction.SetFilter -> refresh(action.filter)
+            ExpenseAction.Refresh -> refresh(currentState.listState.activeFilter(), currentState.listState.activeSort())
+            is ExpenseAction.SetFilter -> refresh(action.filter, currentState.listState.activeSort())
+            is ExpenseAction.SetSort -> refresh(currentState.listState.activeFilter(), action.sort)
             is ExpenseAction.SelectCategory ->
                 setState { copy(form = form.copy(category = action.category, step = 2)) }
             is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
@@ -84,15 +91,26 @@ class ExpenseViewModel(
 
     private fun ScreenState<ExpenseListData>.activeFilter(): ExpenseFilter = (this as? ScreenState.Content)?.data?.activeFilter ?: ExpenseFilter.ALL
 
-    private fun refresh(filter: ExpenseFilter) {
-        val records =
+    private fun ScreenState<ExpenseListData>.activeSort(): ExpenseSort = (this as? ScreenState.Content)?.data?.activeSort ?: ExpenseSort.DATE
+
+    private fun refresh(
+        filter: ExpenseFilter,
+        sort: ExpenseSort,
+    ) {
+        val filtered =
             when (filter) {
                 ExpenseFilter.ALL -> repository.getAll()
                 ExpenseFilter.DRAFTS -> repository.filterByStatus(ExpenseStatus.DRAFT)
                 ExpenseFilter.PENDING -> repository.filterByStatus(ExpenseStatus.PENDING)
                 ExpenseFilter.SETTLED -> repository.filterByStatus(ExpenseStatus.APPROVED)
             }
-        setState { copy(listState = ScreenState.Content(ExpenseListData(records, filter))) }
+        val records =
+            when (sort) {
+                ExpenseSort.DATE -> filtered.sortedByDescending { it.dateMs }
+                ExpenseSort.AMOUNT -> filtered.sortedByDescending { it.amountRupees }
+                ExpenseSort.MERCHANT -> filtered.sortedBy { it.merchantName.lowercase() }
+            }
+        setState { copy(listState = ScreenState.Content(ExpenseListData(records, filter, sort))) }
     }
 
     private fun submitExpense() {

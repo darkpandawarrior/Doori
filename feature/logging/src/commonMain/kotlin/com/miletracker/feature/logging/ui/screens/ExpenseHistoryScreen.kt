@@ -22,6 +22,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.CurrencyRupee
+import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
@@ -35,6 +39,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +49,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.components.sheet.SortBottomSheet
+import com.miletracker.core.ui.components.sheet.SortOption
 import com.miletracker.core.ui.mvi.DefaultEmptyState
 import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.mvi.dataOrNull
@@ -52,6 +61,7 @@ import com.miletracker.feature.logging.model.ExpenseStatus
 import com.miletracker.feature.logging.viewmodel.ExpenseAction
 import com.miletracker.feature.logging.viewmodel.ExpenseFilter
 import com.miletracker.feature.logging.viewmodel.ExpenseListData
+import com.miletracker.feature.logging.viewmodel.ExpenseSort
 import com.miletracker.feature.logging.viewmodel.ExpenseViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -67,6 +77,25 @@ fun ExpenseHistoryScreen(
 ) {
     val ui by viewModel.state.collectAsState()
     val state = ui.listState.dataOrNull ?: ExpenseListData()
+    var showSortSheet by remember { mutableStateOf(false) }
+
+    if (showSortSheet) {
+        SortBottomSheet(
+            title = "Sort expenses",
+            options =
+                listOf(
+                    SortOption(ExpenseSort.DATE, "Most recent", Icons.Filled.CalendarMonth),
+                    SortOption(ExpenseSort.AMOUNT, "Highest amount", Icons.Filled.CurrencyRupee),
+                    SortOption(ExpenseSort.MERCHANT, "Merchant (A–Z)", Icons.Filled.SortByAlpha),
+                ),
+            selected = state.activeSort,
+            onSelect = {
+                viewModel.onAction(ExpenseAction.SetSort(it))
+                showSortSheet = false
+            },
+            onDismiss = { showSortSheet = false },
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -106,6 +135,9 @@ fun ExpenseHistoryScreen(
                             color = Color.White.copy(alpha = 0.85f),
                         )
                     }
+                    IconButton(onClick = { showSortSheet = true }) {
+                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort", tint = Color.White)
+                    }
                 }
             }
 
@@ -142,10 +174,8 @@ fun ExpenseHistoryScreen(
                         subtitle = "Your expense records will appear here.",
                     )
                 } else {
-                    val grouped =
-                        data.records
-                            .sortedByDescending { it.dateMs }
-                            .groupBy { dateBucket(it.dateMs) }
+                    // Records arrive already sorted from the VM. Keep date-bucket headers only when sorting
+                    // by date; amount / merchant sorts read better as a flat ordered list.
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding =
@@ -155,21 +185,24 @@ fun ExpenseHistoryScreen(
                             ),
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
                     ) {
-                        grouped.forEach { (bucket, records) ->
-                            item(key = bucket) {
-                                Text(
-                                    text = bucket,
-                                    style = MaterialTheme.typography.labelLarge,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.padding(vertical = DesignTokens.Spacing.s),
-                                )
+                        if (data.activeSort == ExpenseSort.DATE) {
+                            data.records.groupBy { dateBucket(it.dateMs) }.forEach { (bucket, records) ->
+                                item(key = bucket) {
+                                    Text(
+                                        text = bucket,
+                                        style = MaterialTheme.typography.labelLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(vertical = DesignTokens.Spacing.s),
+                                    )
+                                }
+                                items(records, key = { it.id }) { expense ->
+                                    ExpenseCard(expense = expense, onClick = { onOpenDetail(expense.id) })
+                                }
                             }
-                            items(records, key = { it.id }) { expense ->
-                                ExpenseCard(
-                                    expense = expense,
-                                    onClick = { onOpenDetail(expense.id) },
-                                )
+                        } else {
+                            items(data.records, key = { it.id }) { expense ->
+                                ExpenseCard(expense = expense, onClick = { onOpenDetail(expense.id) })
                             }
                         }
                     }
