@@ -26,4 +26,6 @@ actual fun platformModule(): Module =
         single<com.miletracker.core.platform.AppUpdateManager> { IosAppUpdateManager() }
         // V15 RV.3: iOS in-app review (SKStoreReviewController window-scene variant).
         single<com.miletracker.core.platform.AppReviewManager> { IosAppReviewManager() }
+        // SH.1: iOS share via UIActivityViewController (LocalManagerProvider resolves it via Koin).
+        single<com.miletracker.core.platform.ShareSheet> { com.miletracker.core.platform.IosShareSheet() }
     }
