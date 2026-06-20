@@ -1,5 +1,6 @@
 package com.miletracker.feature.logging.di
 
+import com.miletracker.core.data.search.SearchProvider
 import com.miletracker.feature.logging.repository.CardsTxnHistoryRepository
 import com.miletracker.feature.logging.repository.ExpenseRepository
 import com.miletracker.feature.logging.repository.LogMilesDraftRepository
@@ -30,4 +31,8 @@ val loggingModule =
         viewModel { VoucherHistoryViewModel(get()) }
         viewModel { SettlementHistoryViewModel(get()) }
         viewModel { CardsTxnHistoryViewModel(get()) }
+        // SP.4: Spends contribution to master search (F0.5 registry).
+        single<SearchProvider> {
+            com.miletracker.feature.logging.search.ExpensesSearchProvider(get(), get(), get(), get())
+        }
     }
