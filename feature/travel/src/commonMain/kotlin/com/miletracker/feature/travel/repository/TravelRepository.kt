@@ -61,4 +61,7 @@ class TravelRepository {
     fun activeBooking(): BookingRecord? = bookings.firstOrNull { it.status == TripStatus.ACTIVE }
 
     fun upcomingBookings(): List<BookingRecord> = bookings.filter { it.status == TripStatus.UPCOMING }
+
+    /** Total illustrative travel spend across all bookings (TR.1 — replaces the old `:stub` AnalyticsMockData read). */
+    fun totalSpend(): Double = bookings.sumOf { it.amountRupees }
 }

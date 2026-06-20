@@ -22,6 +22,12 @@ import com.miletracker.feature.media.viewmodel.CloudLibraryViewModel
 import com.miletracker.feature.media.viewmodel.MediaViewModel
 import com.miletracker.feature.payables.di.payablesModule
 import com.miletracker.feature.payables.viewmodel.PayablesViewModel
+import com.miletracker.feature.events.di.eventsModule
+import com.miletracker.feature.events.viewmodel.CreateEventViewModel
+import com.miletracker.feature.events.viewmodel.EventsHistoryViewModel
+import com.miletracker.feature.payments.di.paymentsModule
+import com.miletracker.feature.payments.viewmodel.CreatePaymentViewModel
+import com.miletracker.feature.payments.viewmodel.PaymentsHistoryViewModel
 import com.miletracker.feature.profile.di.profileModule
 import com.miletracker.core.data.settings.DemoSettingsRepository
 import com.miletracker.feature.profile.viewmodel.AdvanceViewModel
@@ -101,6 +107,8 @@ class KoinGraphTest : KoinTest {
                 payablesModule,
                 agentModule,
                 com.miletracker.feature.cards.di.cardsModule,
+                paymentsModule,
+                eventsModule,
                 appModule
             )
         }
@@ -135,6 +143,10 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<PayablesViewModel>())
         assertNotNull(get<AgentViewModel>())
+        assertNotNull(get<CreatePaymentViewModel>())
+        assertNotNull(get<PaymentsHistoryViewModel>())
+        assertNotNull(get<CreateEventViewModel>())
+        assertNotNull(get<EventsHistoryViewModel>())
     }
 
     @Test

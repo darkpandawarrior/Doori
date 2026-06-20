@@ -69,8 +69,13 @@ import com.miletracker.feature.cards.ui.navigation.CardRoutes
 import com.miletracker.feature.cards.ui.navigation.cardsGraph
 import com.miletracker.feature.payables.ui.navigation.PayablesRoutes
 import com.miletracker.feature.payables.ui.navigation.payablesGraph
+import com.miletracker.feature.events.ui.navigation.EventsRoutes
+import com.miletracker.feature.events.ui.navigation.eventsGraph
+import com.miletracker.feature.payments.ui.navigation.PaymentsRoutes
+import com.miletracker.feature.payments.ui.navigation.paymentsGraph
 import com.miletracker.feature.agent.ui.navigation.agentGraph
-import com.miletracker.feature.travel.ui.screens.TravelHomeScreen
+import com.miletracker.feature.travel.ui.navigation.TravelRoutes
+import com.miletracker.feature.travel.ui.navigation.travelGraph
 import com.miletracker.feature.logging.ui.navigation.LoggingRoutes
 import com.miletracker.feature.logging.ui.navigation.loggingGraph
 import com.miletracker.feature.media.ui.navigation.MediaRoutes
@@ -275,11 +280,17 @@ fun MileTrackerAppRoot(
                     navigation(startDestination = CardRoutes.HOME, route = AppGraph.CARDS) {
                         cardsGraph(navController)
                     }
-                    composable(AppGraph.TRAVEL) {
-                        TravelHomeScreen()
+                    navigation(startDestination = TravelRoutes.HOME, route = AppGraph.TRAVEL) {
+                        travelGraph(navController)
                     }
                     navigation(startDestination = PayablesRoutes.HOME, route = AppGraph.PAYABLES) {
                         payablesGraph(navController)
+                    }
+                    navigation(startDestination = PaymentsRoutes.HOME, route = AppGraph.PAYMENTS) {
+                        paymentsGraph(navController)
+                    }
+                    navigation(startDestination = EventsRoutes.HOME, route = AppGraph.EVENTS) {
+                        eventsGraph(navController)
                     }
                     navigation(startDestination = ApprovalsRoutes.HOME, route = AppGraph.APPROVALS) {
                         approvalsGraph(navController)
