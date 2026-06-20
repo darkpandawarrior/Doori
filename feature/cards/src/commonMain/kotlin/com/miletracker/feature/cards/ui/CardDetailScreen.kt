@@ -16,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -41,11 +42,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miletracker.core.common.asString
+import com.miletracker.core.ui.components.sheet.DetailInfoBottomSheet
+import com.miletracker.core.ui.components.sheet.DetailInfoCard
+import com.miletracker.core.ui.components.sheet.DetailInfoRow
 import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.toast.ToastType
 import com.miletracker.core.ui.toast.Toasts
@@ -325,28 +330,24 @@ private fun TransactionDetailSheet(
     onClaim: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    // SHEETS.D: shared gradient-header + multi-card detail sheet.
+    DetailInfoBottomSheet(
+        title = txn.merchantName,
+        subtitle = formatMoney(txn.amount, txn.currency),
+        headerGradient = listOf(Color(0xFF3730A3), Color(0xFF5C6BC0)),
+        headerIcon = Icons.Filled.ReceiptLong,
+        onDismiss = onDismiss,
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(txn.merchantName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("Txn: ${txn.txnNumber}", style = MaterialTheme.typography.bodySmall)
-            Text("Category: ${txn.category}", style = MaterialTheme.typography.bodySmall)
-            Text("Amount: ${formatMoney(txn.amount, txn.currency)}", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                "Status: ${txn.claimStatus.name.lowercase().replaceFirstChar { it.uppercase() }}",
-                style = MaterialTheme.typography.bodySmall,
-            )
-            if (txn.claimStatus == CardTxnClaimStatus.UNCLAIMED) {
-                Button(onClick = onClaim, modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
-                    Text("Claim expense")
-                }
+        DetailInfoCard(title = "Transaction") {
+            DetailInfoRow("Transaction no.", txn.txnNumber)
+            DetailInfoRow("Category", txn.category)
+            DetailInfoRow("Amount", formatMoney(txn.amount, txn.currency))
+            DetailInfoRow("Status", txn.claimStatus.name.lowercase().replaceFirstChar { it.uppercase() })
+        }
+        if (txn.claimStatus == CardTxnClaimStatus.UNCLAIMED) {
+            Button(onClick = onClaim, modifier = Modifier.fillMaxWidth()) {
+                Text("Claim expense")
             }
-            Spacer(Modifier.height(8.dp))
         }
     }
 }
