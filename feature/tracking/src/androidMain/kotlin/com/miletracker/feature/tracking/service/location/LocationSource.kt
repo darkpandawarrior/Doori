@@ -26,17 +26,45 @@ interface LocationSource {
     fun start(onFix: (GpsFix) -> Unit)
 
     fun stop()
+
+    /**
+     * Request a new location-update cadence (C.2a). The service recomputes this per fix via
+     * [DynamicIntervalCalculator] — faster movement shortens it, low battery / power-saver / long
+     * sessions stretch it. Default no-op for sources with a fixed cadence (e.g. the simulator).
+     */
+    fun updateInterval(intervalMs: Long) = Unit
 }
 
 /** Real GPS via the fused location provider. */
 class FusedLocationSource(
     private val context: Context,
-    private val intervalMs: Long = 4_000L,
+    private val initialIntervalMs: Long = 4_000L,
 ) : LocationSource {
     private val client = LocationServices.getFusedLocationProviderClient(context)
     private var callback: LocationCallback? = null
+    private var onFix: ((GpsFix) -> Unit)? = null
+    private var currentIntervalMs: Long = initialIntervalMs
 
     override fun start(onFix: (GpsFix) -> Unit) {
+        this.onFix = onFix
+        register(currentIntervalMs)
+    }
+
+    /**
+     * Re-register the fused request only when the cadence actually moves (≥1s) — re-registering on
+     * every fix would churn the provider for no benefit. Removes the old callback first so a single
+     * callback is ever active.
+     */
+    override fun updateInterval(intervalMs: Long) {
+        if (onFix == null) return // not started
+        if (kotlin.math.abs(intervalMs - currentIntervalMs) < 1_000L) return
+        currentIntervalMs = intervalMs
+        callback?.let { client.removeLocationUpdates(it) }
+        register(intervalMs)
+    }
+
+    private fun register(intervalMs: Long) {
+        val fix = onFix ?: return
         val request =
             LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalMs)
                 .setMinUpdateIntervalMillis(intervalMs / 2)
@@ -44,7 +72,7 @@ class FusedLocationSource(
         val cb =
             object : LocationCallback() {
                 override fun onLocationResult(result: LocationResult) {
-                    result.lastLocation?.let { onFix(it.toGpsFix()) }
+                    result.lastLocation?.let { fix(it.toGpsFix()) }
                 }
             }
         callback = cb
@@ -58,6 +86,7 @@ class FusedLocationSource(
     override fun stop() {
         callback?.let { client.removeLocationUpdates(it) }
         callback = null
+        onFix = null
     }
 
     private fun Location.toGpsFix(): GpsFix =
