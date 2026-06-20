@@ -16,6 +16,7 @@ import com.miletracker.core.data.model.db.CurrentTrackData
 import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
+import com.miletracker.core.data.model.display.TrackingState
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
@@ -51,6 +52,9 @@ class LocationTrackingService : Service() {
     private val savedTrackDao: SavedTrackDao by inject()
     private val hardwareEventDao: HardwareEventDao by inject()
     private val sessionStore: CurrentTrackDataStore by inject()
+
+    // C.2b: live telemetry the ViewModel observes via TrackingServiceApi.
+    private val statePublisher: TrackingStatePublisher by inject()
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -181,6 +185,14 @@ class LocationTrackingService : Service() {
             if (resumeFrom != null) "Tracking Restored After Restart" else "Tracking Started",
         )
 
+        statePublisher.update {
+            TrackingSnapshot(
+                state = if (isPaused) TrackingState.PAUSED else TrackingState.LIVE_TRACKING,
+                token = token,
+                lastEvent = if (resumeFrom != null) EventType.TRACKING_RESUMED else EventType.TRACKING_STARTED,
+            )
+        }
+
         source = if (SIMULATE_LOCATION) SimulatedLocationSource() else FusedLocationSource(this)
         source?.start { fix -> onFix(token, fix) }
     }
@@ -231,7 +243,7 @@ class LocationTrackingService : Service() {
 
         // C.2a: adapt the GPS request cadence to speed / battery / power-saver / session length.
         // The source re-registers only when the value moves ≥1s, so this is cheap to call per fix.
-        source?.updateInterval(
+        val interval =
             DynamicIntervalCalculator.intervalMs(
                 IntervalInputs(
                     speedMps = fix.speedMps.toDouble(),
@@ -240,17 +252,32 @@ class LocationTrackingService : Service() {
                     isPowerSaver = isPowerSaver(),
                     elapsedMs = durationMs,
                 ),
-            ),
-        )
+            )
+        source?.updateInterval(interval)
 
-        val speedKmh = fix.speedMps * 3.6
-        updateNotification(
-            if (isPaused) {
-                "Paused · %.2f km".format(stats.cleanedDistanceM / 1000)
-            } else {
-                "%.2f km · %.0f km/h".format(stats.cleanedDistanceM / 1000, speedKmh)
-            },
-        )
+        // C.2b: publish live telemetry for the gauge + drive the phase-aware notification from it.
+        statePublisher.update {
+            it.copy(
+                state = if (isPaused) TrackingState.PAUSED else TrackingState.LIVE_TRACKING,
+                token = token,
+                distanceMeters = stats.cleanedDistanceM,
+                durationMs = durationMs,
+                speedMps = fix.speedMps.toDouble(),
+                avgSpeedMps = stats.avgSpeedMps,
+                maxSpeedMps = stats.maxSpeedMps,
+                totalPoints = stats.totalPoints,
+                batteryPct = battery.toInt(),
+                isCharging = isCharging(),
+                currentIntervalMs = interval,
+                lastEvent =
+                    when {
+                        result.isMock -> EventType.MOCK_LOCATION
+                        result.isAbnormal -> EventType.ABNORMAL_LOCATION
+                        else -> null
+                    },
+            )
+        }
+        updateNotification(notificationText(statePublisher.trackingState.value))
     }
 
     private fun setPaused(paused: Boolean) {
@@ -266,7 +293,13 @@ class LocationTrackingService : Service() {
             if (paused) EventType.TRACKING_PAUSED else EventType.TRACKING_RESUMED,
             if (paused) "Tracking Paused" else "Tracking Resumed",
         )
-        updateNotification(if (paused) "Tracking paused" else "Tracking resumed")
+        statePublisher.update {
+            it.copy(
+                state = if (paused) TrackingState.PAUSED else TrackingState.LIVE_TRACKING,
+                lastEvent = if (paused) EventType.TRACKING_PAUSED else EventType.TRACKING_RESUMED,
+            )
+        }
+        updateNotification(notificationText(statePublisher.trackingState.value))
     }
 
     private fun stopAndFinalize() {
@@ -274,6 +307,7 @@ class LocationTrackingService : Service() {
         val proc = processor
         source?.stop()
         sensorMonitor.stop()
+        statePublisher.update { it.copy(state = TrackingState.COMPLETED, lastEvent = EventType.TRACKING_STOPPED) }
         if (token != null && proc != null) {
             val stats = proc.stats()
             val endTime = System.currentTimeMillis()
@@ -435,6 +469,24 @@ class LocationTrackingService : Service() {
 
     private fun updateNotification(text: String) {
         getSystemService(NotificationManager::class.java)?.notify(NOTIFICATION_ID, buildNotification(text))
+    }
+
+    /**
+     * Phase-aware foreground notification copy (C.2b) — one of seven messages derived from the published
+     * [TrackingSnapshot]: acquiring, live, paused, resumed, mock-detected, abnormal-filtered, completed.
+     */
+    private fun notificationText(s: TrackingSnapshot): String {
+        val km = s.distanceMeters / 1000.0
+        val kmh = s.speedMps * 3.6
+        return when {
+            s.state == TrackingState.COMPLETED -> "Journey complete · %.2f km".format(km)
+            s.state == TrackingState.PAUSED -> "Paused · %.2f km".format(km)
+            s.lastEvent == EventType.MOCK_LOCATION -> "⚠ Mock location detected · %.2f km".format(km)
+            s.lastEvent == EventType.ABNORMAL_LOCATION -> "Filtering abnormal GPS · %.2f km".format(km)
+            s.lastEvent == EventType.TRACKING_RESUMED -> "Resumed · %.2f km · %.0f km/h".format(km, kmh)
+            s.totalPoints == 0 -> "Acquiring GPS…"
+            else -> "%.2f km · %.0f km/h".format(km, kmh)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null

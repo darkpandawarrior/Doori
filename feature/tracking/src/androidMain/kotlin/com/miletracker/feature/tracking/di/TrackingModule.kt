@@ -42,6 +42,12 @@ val trackingModule =
         single { LocationTrackingController(androidContext()) }
         single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
 
+        // C.2b/C.3: live tracking telemetry shared from the foreground service to the ViewModel.
+        single { com.miletracker.feature.tracking.service.TrackingStatePublisher() }
+        single<com.miletracker.feature.tracking.service.TrackingServiceApi> {
+            get<com.miletracker.feature.tracking.service.TrackingStatePublisher>()
+        }
+
         // viewModelOf resolves every constructor parameter through Koin — Kotlin default
         // arguments are NOT applied — so the analyzer needs an explicit definition.
         single { RouteAnalyzer() }
