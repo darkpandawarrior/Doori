@@ -17,8 +17,10 @@ import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.session.CurrentTrackDataStore
+import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
 import com.miletracker.feature.tracking.service.location.GpsFix
+import com.miletracker.feature.tracking.service.location.IntervalInputs
 import com.miletracker.feature.tracking.service.location.LocationProcessor
 import com.miletracker.feature.tracking.service.location.LocationSource
 import com.miletracker.feature.tracking.service.location.SimulatedLocationSource
@@ -227,6 +229,20 @@ class LocationTrackingService : Service() {
         if (result.isMock) logEvent(token, EventType.MOCK_LOCATION, "Mock Location detected", fix)
         if (result.isAbnormal) logEvent(token, EventType.ABNORMAL_LOCATION, "Abnormal Location filtered", fix)
 
+        // C.2a: adapt the GPS request cadence to speed / battery / power-saver / session length.
+        // The source re-registers only when the value moves ≥1s, so this is cheap to call per fix.
+        source?.updateInterval(
+            DynamicIntervalCalculator.intervalMs(
+                IntervalInputs(
+                    speedMps = fix.speedMps.toDouble(),
+                    batteryPct = battery.toInt(),
+                    isCharging = isCharging(),
+                    isPowerSaver = isPowerSaver(),
+                    elapsedMs = durationMs,
+                ),
+            ),
+        )
+
         val speedKmh = fix.speedMps * 3.6
         updateNotification(
             if (isPaused) {
@@ -373,6 +389,12 @@ class LocationTrackingService : Service() {
         val pct = bm?.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) ?: -1
         return pct.toDouble()
     }
+
+    /** Whether the device is currently charging — feeds [DynamicIntervalCalculator] (no battery penalty). */
+    private fun isCharging(): Boolean = (getSystemService(BATTERY_SERVICE) as? BatteryManager)?.isCharging ?: false
+
+    /** Whether OS power-saver (battery-saver) mode is on — stretches the GPS cadence. */
+    private fun isPowerSaver(): Boolean = (getSystemService(POWER_SERVICE) as? PowerManager)?.isPowerSaveMode ?: false
 
     private fun appVersionName(): String =
         runCatching {
