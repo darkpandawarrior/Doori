@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CurrencyRupee
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -49,6 +50,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.components.sheet.FilterBottomSheet
+import com.miletracker.core.ui.components.sheet.FilterOption
+import com.miletracker.core.ui.components.sheet.FilterSection
+import com.miletracker.core.ui.components.sheet.FilterSelectionMode
 import com.miletracker.core.ui.components.sheet.SortBottomSheet
 import com.miletracker.core.ui.components.sheet.SortOption
 import com.miletracker.core.ui.mvi.DefaultEmptyState
@@ -56,6 +61,7 @@ import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.mvi.dataOrNull
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.StatusColors
+import com.miletracker.feature.logging.model.ExpenseCategory
 import com.miletracker.feature.logging.model.ExpenseRecord
 import com.miletracker.feature.logging.model.ExpenseStatus
 import com.miletracker.feature.logging.viewmodel.ExpenseAction
@@ -78,6 +84,28 @@ fun ExpenseHistoryScreen(
     val ui by viewModel.state.collectAsState()
     val state = ui.listState.dataOrNull ?: ExpenseListData()
     var showSortSheet by remember { mutableStateOf(false) }
+    var showFilterSheet by remember { mutableStateOf(false) }
+
+    if (showFilterSheet) {
+        val categorySection =
+            FilterSection(
+                key = "category",
+                title = "Category",
+                icon = Icons.Filled.FilterList,
+                mode = FilterSelectionMode.MULTI,
+                options = ExpenseCategory.entries.map { FilterOption(it.name, it.label) },
+            )
+        FilterBottomSheet(
+            sections = listOf(categorySection),
+            initialSelected = mapOf("category" to state.selectedCategories.map { it.name }.toSet()),
+            onApply = { selected ->
+                val categories = selected["category"].orEmpty().map { ExpenseCategory.valueOf(it) }.toSet()
+                viewModel.onAction(ExpenseAction.SetCategories(categories))
+                showFilterSheet = false
+            },
+            onDismiss = { showFilterSheet = false },
+        )
+    }
 
     if (showSortSheet) {
         SortBottomSheet(
@@ -134,6 +162,9 @@ fun ExpenseHistoryScreen(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.85f),
                         )
+                    }
+                    IconButton(onClick = { showFilterSheet = true }) {
+                        Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Color.White)
                     }
                     IconButton(onClick = { showSortSheet = true }) {
                         Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort", tint = Color.White)

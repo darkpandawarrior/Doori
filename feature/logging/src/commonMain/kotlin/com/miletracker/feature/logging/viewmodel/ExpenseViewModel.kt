@@ -17,6 +17,8 @@ data class ExpenseListData(
     val records: List<ExpenseRecord> = emptyList(),
     val activeFilter: ExpenseFilter = ExpenseFilter.ALL,
     val activeSort: ExpenseSort = ExpenseSort.DATE,
+    /** Category drill-down filter (SHEETS.A) — empty means no category constraint. */
+    val selectedCategories: Set<ExpenseCategory> = emptySet(),
 )
 
 data class ExpenseFormState(
@@ -41,6 +43,8 @@ sealed interface ExpenseAction {
     data class SetFilter(val filter: ExpenseFilter) : ExpenseAction
 
     data class SetSort(val sort: ExpenseSort) : ExpenseAction
+
+    data class SetCategories(val categories: Set<ExpenseCategory>) : ExpenseAction
 
     data class SelectCategory(val category: ExpenseCategory) : ExpenseAction
 
@@ -69,14 +73,19 @@ class ExpenseViewModel(
     private val repository: ExpenseRepository,
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
     init {
-        refresh(ExpenseFilter.ALL, ExpenseSort.DATE)
+        refresh(ExpenseFilter.ALL, ExpenseSort.DATE, emptySet())
     }
 
     override fun onAction(action: ExpenseAction) {
         when (action) {
-            ExpenseAction.Refresh -> refresh(currentState.listState.activeFilter(), currentState.listState.activeSort())
-            is ExpenseAction.SetFilter -> refresh(action.filter, currentState.listState.activeSort())
-            is ExpenseAction.SetSort -> refresh(currentState.listState.activeFilter(), action.sort)
+            ExpenseAction.Refresh ->
+                refresh(currentState.listState.activeFilter(), currentState.listState.activeSort(), currentState.listState.activeCategories())
+            is ExpenseAction.SetFilter ->
+                refresh(action.filter, currentState.listState.activeSort(), currentState.listState.activeCategories())
+            is ExpenseAction.SetSort ->
+                refresh(currentState.listState.activeFilter(), action.sort, currentState.listState.activeCategories())
+            is ExpenseAction.SetCategories ->
+                refresh(currentState.listState.activeFilter(), currentState.listState.activeSort(), action.categories)
             is ExpenseAction.SelectCategory ->
                 setState { copy(form = form.copy(category = action.category, step = 2)) }
             is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
@@ -93,24 +102,28 @@ class ExpenseViewModel(
 
     private fun ScreenState<ExpenseListData>.activeSort(): ExpenseSort = (this as? ScreenState.Content)?.data?.activeSort ?: ExpenseSort.DATE
 
+    private fun ScreenState<ExpenseListData>.activeCategories(): Set<ExpenseCategory> = (this as? ScreenState.Content)?.data?.selectedCategories ?: emptySet()
+
     private fun refresh(
         filter: ExpenseFilter,
         sort: ExpenseSort,
+        categories: Set<ExpenseCategory>,
     ) {
-        val filtered =
+        val byStatus =
             when (filter) {
                 ExpenseFilter.ALL -> repository.getAll()
                 ExpenseFilter.DRAFTS -> repository.filterByStatus(ExpenseStatus.DRAFT)
                 ExpenseFilter.PENDING -> repository.filterByStatus(ExpenseStatus.PENDING)
                 ExpenseFilter.SETTLED -> repository.filterByStatus(ExpenseStatus.APPROVED)
             }
+        val filtered = if (categories.isEmpty()) byStatus else byStatus.filter { it.category in categories }
         val records =
             when (sort) {
                 ExpenseSort.DATE -> filtered.sortedByDescending { it.dateMs }
                 ExpenseSort.AMOUNT -> filtered.sortedByDescending { it.amountRupees }
                 ExpenseSort.MERCHANT -> filtered.sortedBy { it.merchantName.lowercase() }
             }
-        setState { copy(listState = ScreenState.Content(ExpenseListData(records, filter, sort))) }
+        setState { copy(listState = ScreenState.Content(ExpenseListData(records, filter, sort, categories))) }
     }
 
     private fun submitExpense() {
