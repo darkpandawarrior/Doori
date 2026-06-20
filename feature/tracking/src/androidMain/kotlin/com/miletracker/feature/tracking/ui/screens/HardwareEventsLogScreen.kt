@@ -29,7 +29,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PowerOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,13 +38,13 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -64,6 +64,7 @@ import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.util.DateUtils
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.feature.tracking.export.HardwareEventExporter
@@ -96,25 +97,34 @@ fun HardwareEventsLogScreen(
     val stats = ui.eventStats
 
     if (showExportDialog) {
-        AlertDialog(
-            onDismissRequest = { showExportDialog = false },
-            title = { Text("Export events") },
-            text = { Text("Choose a format for the ${events.size} visible events:") },
-            confirmButton = {
-                TextButton(onClick = {
+        AppActionSheet(
+            onDismiss = { showExportDialog = false },
+            title = "Export events",
+        ) {
+            Text(
+                "Choose a format for the ${events.size} visible events:",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Button(
+                onClick = {
                     showExportDialog = false
                     val intent = HardwareEventExporter.shareEvents(context, routeId, events, useCsv = true)
                     context.startActivity(intent)
-                }) { Text("CSV") }
-            },
-            dismissButton = {
-                TextButton(onClick = {
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(8.dp),
+            ) { Text("CSV") }
+            OutlinedButton(
+                onClick = {
                     showExportDialog = false
                     val intent = HardwareEventExporter.shareEvents(context, routeId, events, useCsv = false)
                     context.startActivity(intent)
-                }) { Text("JSON") }
-            },
-        )
+                },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(8.dp),
+            ) { Text("JSON") }
+        }
     }
 
     Scaffold(
