@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudOff
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -48,7 +50,11 @@ fun <T> ScreenStateContent(
             is ScreenState.Loading -> loading()
             is ScreenState.Empty -> empty()
             is ScreenState.NoNetwork ->
-                DefaultErrorState(UiText.Static("You're offline. Check your connection."), onRetry)
+                DefaultErrorState(
+                    UiText.Static("You're offline. Check your connection and try again."),
+                    onRetry,
+                    icon = Icons.Outlined.CloudOff,
+                )
             is ScreenState.Error -> error(state.message)
             is ScreenState.Content -> content(state.data)
         }
@@ -142,7 +148,7 @@ fun DefaultErrorState(
     message: UiText,
     onRetry: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    icon: ImageVector = Icons.Outlined.Inbox,
+    icon: ImageVector = Icons.Outlined.ErrorOutline,
 ) {
     Column(
         modifier =
