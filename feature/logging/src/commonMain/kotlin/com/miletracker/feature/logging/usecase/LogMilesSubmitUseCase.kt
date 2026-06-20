@@ -11,7 +11,5 @@ import com.miletracker.core.network.api.MileTrackerNetworkApi
 class LogMilesSubmitUseCase(
     private val api: MileTrackerNetworkApi,
 ) {
-    suspend operator fun invoke(
-        request: LogMilesSubmitRequestV2,
-    ): Result<ExpenseSubmissionResponse> = runCatching { api.logMiles(request) }
+    suspend operator fun invoke(request: LogMilesSubmitRequestV2): Result<ExpenseSubmissionResponse> = runCatching { api.logMiles(request) }
 }
