@@ -146,7 +146,19 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
         appScope.launch {
             get<DatabaseSeeder>().seedIfEmpty()
             scheduleWeeklyMaintenance()
+            seedAppShortcuts()
         }
+    }
+
+    /** SH.3: publish home-screen quick actions that deep-link into the main flows. */
+    private fun seedAppShortcuts() {
+        get<com.miletracker.core.platform.AppShortcuts>().setDynamicShortcuts(
+            listOf(
+                com.miletracker.core.platform.AppShortcut("track", "Track", "Track a trip", "miletracker://track"),
+                com.miletracker.core.platform.AppShortcut("log", "Log miles", "Log miles & expenses", "miletracker://log"),
+                com.miletracker.core.platform.AppShortcut("profile", "Profile", "Open your profile", "miletracker://profile"),
+            ),
+        )
     }
 
     private fun scheduleWeeklyMaintenance() {

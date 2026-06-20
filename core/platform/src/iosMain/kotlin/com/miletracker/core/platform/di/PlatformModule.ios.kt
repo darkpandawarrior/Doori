@@ -28,4 +28,6 @@ actual fun platformModule(): Module =
         single<com.miletracker.core.platform.AppReviewManager> { IosAppReviewManager() }
         // SH.1: iOS share via UIActivityViewController (LocalManagerProvider resolves it via Koin).
         single<com.miletracker.core.platform.ShareSheet> { com.miletracker.core.platform.IosShareSheet() }
+        // SH.3: app shortcuts contract (iOS impl is a documented no-op — see IosAppShortcuts).
+        single<com.miletracker.core.platform.AppShortcuts> { com.miletracker.core.platform.IosAppShortcuts() }
     }
