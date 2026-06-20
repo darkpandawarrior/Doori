@@ -30,4 +30,6 @@ actual fun platformModule(): Module =
         single<com.miletracker.core.platform.ShareSheet> { com.miletracker.core.platform.IosShareSheet() }
         // SH.3: app shortcuts contract (iOS impl is a documented no-op — see IosAppShortcuts).
         single<com.miletracker.core.platform.AppShortcuts> { com.miletracker.core.platform.IosAppShortcuts() }
+        // UX.2: haptic feedback via UIFeedbackGenerator.
+        single<com.miletracker.core.platform.Haptics> { com.miletracker.core.platform.IosHaptics() }
     }

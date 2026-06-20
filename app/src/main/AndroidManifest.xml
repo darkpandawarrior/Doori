@@ -24,6 +24,9 @@
     <!-- Wake lock for GPS tracking -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- Haptic feedback (UX.2) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
     <!-- Camera for document scan / odometer capture -->
     <uses-permission android:name="android.permission.CAMERA" />
 
