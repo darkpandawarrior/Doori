@@ -41,8 +41,8 @@ import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.ThumbDown
 import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Badge
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,7 +59,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -81,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.feature.agent.model.AgentMessage
 import com.miletracker.feature.agent.model.PopularQuestion
 import com.miletracker.feature.agent.model.UnansweredQuestion
@@ -225,26 +225,34 @@ fun AgentChatScreen(
     }
 
     if (showQuestionDialog) {
-        AlertDialog(
-            onDismissRequest = { showQuestionDialog = false },
-            title = { Text("Submit a question") },
-            text = {
-                OutlinedTextField(
-                    value = dialogText,
-                    onValueChange = { dialogText = it },
-                    placeholder = { Text("Type your question…") },
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    showQuestionDialog = false
-                    dialogText = ""
-                    scope.launch { snackbarState.showSnackbar("Question submitted.") }
-                }) { Text("Submit") }
-            },
-            dismissButton = { TextButton(onClick = { showQuestionDialog = false }) { Text("Cancel") } },
-        )
+        AppActionSheet(
+            onDismiss = { showQuestionDialog = false },
+            title = "Submit a question",
+        ) {
+            OutlinedTextField(
+                value = dialogText,
+                onValueChange = { dialogText = it },
+                placeholder = { Text("Type your question…") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlinedButton(
+                    onClick = { showQuestionDialog = false },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Cancel") }
+                Button(
+                    onClick = {
+                        showQuestionDialog = false
+                        dialogText = ""
+                        scope.launch { snackbarState.showSnackbar("Question submitted.") }
+                    },
+                    modifier = Modifier.weight(1f),
+                ) { Text("Submit") }
+            }
+        }
     }
 }
 
