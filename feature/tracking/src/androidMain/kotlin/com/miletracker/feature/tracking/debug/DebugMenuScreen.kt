@@ -35,13 +35,12 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.NetworkCheck
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Widgets
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -80,6 +79,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miletracker.core.network.config.ConfigProvider
+import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -269,55 +270,38 @@ fun DebugMenuScreen(
         }
     }
 
-    // Restart dialog
+    // Restart confirmation
     if (showRestartDialog) {
-        AlertDialog(
-            onDismissRequest = { showRestartDialog = false },
-            title = { Text("Restart app?", fontWeight = FontWeight.Bold) },
-            text = {
-                Column {
-                    restartResult?.let {
-                        Text("${it.changeCount} debug option(s) toggled in-memory.")
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                    Text("The app will close and relaunch. Any unsaved work may be lost.")
-                }
+        val changeNote = restartResult?.let { "${it.changeCount} debug option(s) toggled in-memory. " }.orEmpty()
+        ActionConfirmationBottomSheet(
+            title = "Restart app?",
+            description = "${changeNote}The app will close and relaunch. Any unsaved work may be lost.",
+            confirmLabel = "Restart",
+            dismissLabel = "Not now",
+            icon = Icons.Default.RestartAlt,
+            tone = ActionConfirmationToneType.Warning,
+            onConfirm = {
+                showRestartDialog = false
+                viewModel.performAppRestart(context)
             },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showRestartDialog = false
-                        viewModel.performAppRestart(context)
-                    },
-                ) { Text("Restart") }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = { showRestartDialog = false }) { Text("Not now") }
-            },
+            onDismiss = { showRestartDialog = false },
         )
     }
 
-    // Clear-all dialog
+    // Reset-to-defaults confirmation
     if (showClearAllDialog) {
-        AlertDialog(
-            onDismissRequest = { showClearAllDialog = false },
-            title = { Text("Reset to defaults?") },
-            text = { Text("All debug toggles will be reset to their default state.") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.onAction(DebugMenuComposeAction.ClearAllDebugSettings)
-                        showClearAllDialog = false
-                    },
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) { Text("Reset") }
+        ActionConfirmationBottomSheet(
+            title = "Reset to defaults?",
+            description = "All debug toggles will be reset to their default state.",
+            confirmLabel = "Reset",
+            dismissLabel = "Cancel",
+            icon = Icons.Default.RestartAlt,
+            tone = ActionConfirmationToneType.Danger,
+            onConfirm = {
+                viewModel.onAction(DebugMenuComposeAction.ClearAllDebugSettings)
+                showClearAllDialog = false
             },
-            dismissButton = {
-                OutlinedButton(onClick = { showClearAllDialog = false }) { Text("Cancel") }
-            },
+            onDismiss = { showClearAllDialog = false },
         )
     }
 }
