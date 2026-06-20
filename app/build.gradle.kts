@@ -193,8 +193,12 @@ if (project.findProperty("enableComposeMetrics") == "true") {
 
 // Kover — line-coverage floor enforced by koverVerifyNoGmsDebugCoverage. Coverage is
 // measured on the noGms (JVM-safe) variant; the gms flavor's Play Services maps crash
-// the Robolectric fork. Floor is a regression guard kept below the current ~38% line
-// coverage; ratchet up as the suite grows (PLAN B.3a / H.6).
+// the Robolectric fork. Scope is :app's own classes; the remaining uncovered surface is
+// almost all Compose UI (Login/Splash/Showcase/AppRoot screens) that needs instrumented
+// tests (deferred — PLAN B.4c), so ~38% is the practical JVM ceiling. Floor ratcheted
+// 30 → 35 (H): a tighter regression guard with ~3pt headroom below the current 38.4%.
+// Per-feature ViewModel tests live in app/src/test but exercise feature-module classes,
+// which Kover does not aggregate here — see PLAN H for the feature-coverage follow-up.
 kover {
     currentProject {
         createVariant("noGmsDebugCoverage") {
@@ -210,7 +214,7 @@ kover {
             }
             verify {
                 rule {
-                    minBound(30)
+                    minBound(35)
                 }
             }
         }
