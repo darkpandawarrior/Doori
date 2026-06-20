@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.Tune
@@ -110,6 +111,7 @@ fun ProfileScreen(
     onOpenInsights: () -> Unit = {},
     onOpenDelegation: () -> Unit = {},
     onOpenDemoSettings: () -> Unit = {},
+    onOpenQr: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -162,6 +164,7 @@ fun ProfileScreen(
                 onOpenCards = onOpenCards,
                 onOpenDelegation = onOpenDelegation,
                 onOpenDemoSettings = onOpenDemoSettings,
+                onOpenQr = onOpenQr,
                 modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
             )
         }
@@ -368,6 +371,7 @@ private fun AccountTileGrid(
     onOpenCards: () -> Unit,
     onOpenDelegation: () -> Unit,
     onOpenDemoSettings: () -> Unit,
+    onOpenQr: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val blue = Color(0xFF2563EB)
@@ -416,7 +420,7 @@ private fun AccountTileGrid(
         )
         TileRow(
             left = accountTile("acc_demo", "Demo Settings", "Feature toggles", Icons.Default.BugReport, darkTeal, onOpenDemoSettings),
-            right = accountTile("acc_placeholder", "", "", Icons.Default.Settings, Color.Transparent, action = {}),
+            right = accountTile("acc_qr", "My QR Code", "Scan to share", Icons.Default.QrCode2, Color(0xFF0F4C81), onOpenQr),
         )
     }
 }
