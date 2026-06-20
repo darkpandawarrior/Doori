@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SystemUpdate
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.platform.UpdateAvailability
 import com.miletracker.core.platform.UpdateConfig
 import com.miletracker.core.platform.UpdateMode
+import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 
 /**
  * UP.4 — shared in-app update gate (commonMain, used by both platforms).
@@ -61,8 +61,14 @@ fun UpdateGate(
     content()
 
     if (available != null && available.mode == UpdateMode.FLEXIBLE) {
-        FlexibleUpdateDialog(
-            onUpdate = {
+        ActionConfirmationBottomSheet(
+            title = "Update available",
+            description = "A new version of MileTracker is available with the latest improvements.",
+            confirmLabel = "Update",
+            dismissLabel = "Later",
+            icon = Icons.Rounded.SystemUpdate,
+            tone = ActionConfirmationToneType.Info,
+            onConfirm = {
                 updateManager.startUpdate(UpdateMode.FLEXIBLE)
                 availability = UpdateAvailability.NotAvailable
             },
@@ -101,19 +107,4 @@ private fun ForcedUpdateWall(onUpdate: () -> Unit) {
             }
         }
     }
-}
-
-@Composable
-private fun FlexibleUpdateDialog(
-    onUpdate: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { Icon(Icons.Rounded.SystemUpdate, contentDescription = null) },
-        title = { Text("Update available") },
-        text = { Text("A new version of MileTracker is available with the latest improvements.") },
-        confirmButton = { TextButton(onClick = onUpdate) { Text("Update") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Later") } },
-    )
 }
