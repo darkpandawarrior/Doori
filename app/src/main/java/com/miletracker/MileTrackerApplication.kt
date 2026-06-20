@@ -30,6 +30,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.miletracker.feature.tracking.service.MileageMaintenanceWorker
+import com.miletracker.work.DirectBootSafeWork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -165,10 +166,13 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
         val request = PeriodicWorkRequestBuilder<MileageMaintenanceWorker>(7, TimeUnit.DAYS)
             .addTag(MileageMaintenanceWorker.TAG)
             .build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            MileageMaintenanceWorker.TAG,
-            ExistingPeriodicWorkPolicy.KEEP,
-            request
+        // UX.4: skip the enqueue if we're still in the direct-boot window (WorkManager's DB is in
+        // credential-encrypted storage and unsafe to touch before the user unlocks).
+        DirectBootSafeWork.enqueueUniquePeriodicWhenUnlocked(
+            context = this,
+            uniqueName = MileageMaintenanceWorker.TAG,
+            policy = ExistingPeriodicWorkPolicy.KEEP,
+            request = request,
         )
     }
 }
