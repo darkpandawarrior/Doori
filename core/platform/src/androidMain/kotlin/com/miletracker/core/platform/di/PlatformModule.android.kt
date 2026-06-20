@@ -2,12 +2,14 @@ package com.miletracker.core.platform.di
 
 import com.miletracker.core.platform.AndroidAppShortcuts
 import com.miletracker.core.platform.AndroidBackgroundScheduler
+import com.miletracker.core.platform.AndroidHaptics
 import com.miletracker.core.platform.AndroidLocationTracker
 import com.miletracker.core.platform.AndroidNotificationScheduler
 import com.miletracker.core.platform.AndroidShareSheet
 import com.miletracker.core.platform.AndroidTextRecognizer
 import com.miletracker.core.platform.AppShortcuts
 import com.miletracker.core.platform.BackgroundScheduler
+import com.miletracker.core.platform.Haptics
 import com.miletracker.core.platform.LocationTracker
 import com.miletracker.core.platform.NotificationScheduler
 import com.miletracker.core.platform.ShareSheet
@@ -31,4 +33,6 @@ actual fun platformModule(): Module =
         single<ShareSheet> { AndroidShareSheet(androidContext()) }
         // SH.3: home-screen quick actions → deep links.
         single<AppShortcuts> { AndroidAppShortcuts(androidContext()) }
+        // UX.2: haptic feedback.
+        single<Haptics> { AndroidHaptics(androidContext()) }
     }
