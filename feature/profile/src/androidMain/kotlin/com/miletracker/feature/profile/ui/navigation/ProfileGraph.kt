@@ -67,6 +67,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenInsights = { navController.navigate(ProfileRoutes.ANALYTICS_HOME) },
             onOpenDelegation = { navController.navigate(ProfileRoutes.DELEGATION) },
             onOpenDemoSettings = { navController.navigate(ProfileRoutes.DEMO_SETTINGS) },
+            onOpenQr = { navController.navigate(ProfileRoutes.QR_HOME) },
         )
     }
     composable(ProfileRoutes.DETAILS) {
