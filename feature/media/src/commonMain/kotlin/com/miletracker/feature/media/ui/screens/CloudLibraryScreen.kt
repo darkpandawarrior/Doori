@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,7 +29,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +44,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.miletracker.core.data.library.MediaLibraryEntry
+import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.media.viewmodel.CloudLibraryAction
@@ -158,22 +158,19 @@ fun CloudLibraryScreen(
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete ${selectedIds.size} item(s)?") },
-            text = { Text("This removes them from the library only — the original file is unchanged.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    val toDelete = entries.filter { it.id in selectedIds }
-                    toDelete.forEach { viewModel.onAction(CloudLibraryAction.Delete(it)) }
-                    selectedIds.clear()
-                    selectionMode = false
-                    showDeleteDialog = false
-                }) { Text("Delete") }
+        ActionConfirmationBottomSheet(
+            title = "Delete ${selectedIds.size} item(s)?",
+            description = "This removes them from the library only — the original file is unchanged.",
+            confirmLabel = "Delete",
+            tone = ActionConfirmationToneType.Danger,
+            onConfirm = {
+                val toDelete = entries.filter { it.id in selectedIds }
+                toDelete.forEach { viewModel.onAction(CloudLibraryAction.Delete(it)) }
+                selectedIds.clear()
+                selectionMode = false
+                showDeleteDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
-            },
+            onDismiss = { showDeleteDialog = false },
         )
     }
 }
