@@ -10,6 +10,7 @@ import com.miletracker.feature.tracking.repository.CurrentTrackRepository
 import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.repository.VehiclePricingRepository
+import com.miletracker.feature.tracking.service.TrackingStatePublisher
 import com.miletracker.feature.tracking.viewmodel.TrackMilesPhase
 import com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel
 import com.miletracker.stub.DemoConfigManager
@@ -55,6 +56,8 @@ class TrackMilesViewModelTest {
     private val dao = FakeSavedTrackDao()
     private val trackingController = mockk<LocationTrackingController>(relaxUnitFun = true)
 
+    private val trackingPublisher = TrackingStatePublisher()
+
     private fun viewModel(api: MileTrackerNetworkApi = FakeTrackingNetworkApi()) =
         TrackMilesViewModel(
             configManager = TrackingConfigManager(DemoConfigManager()),
@@ -63,7 +66,24 @@ class TrackMilesViewModelTest {
             trackingController = trackingController,
             currentTrackRepo = CurrentTrackRepository(mockk(relaxed = true)),
             locationRepo = LocationRepository(mockk(relaxed = true)),
+            trackingServiceApi = trackingPublisher,
         )
+
+    // ── C.3: live service telemetry feed ─────────────────────────────────────
+
+    @Test
+    fun `surfaces adaptive GPS cadence and battery from the tracking service feed`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(0L, vm.uiState.value.gpsIntervalMs)
+
+        trackingPublisher.update { it.copy(currentIntervalMs = 8_000L, batteryPct = 42, isCharging = true) }
+        advanceUntilIdle()
+
+        assertEquals(8_000L, vm.uiState.value.gpsIntervalMs)
+        assertEquals(42, vm.uiState.value.batteryPct)
+        assertTrue(vm.uiState.value.isCharging)
+    }
 
     // ── Initialisation ───────────────────────────────────────────────────────
 

@@ -14,6 +14,8 @@ import com.miletracker.feature.tracking.repository.CurrentTrackRepository
 import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.repository.VehiclePricingRepository
+import com.miletracker.feature.tracking.service.TrackingServiceApi
+import com.miletracker.feature.tracking.service.TrackingStatePublisher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -53,6 +55,13 @@ data class TrackMilesUiState(
     val unsyncedPoints: Long = 0L,
     val trackingActivity: String = "Stationary",
     val signal: TrackSignal = TrackSignal.GOOD,
+    /**
+     * Adaptive-engine telemetry (C.3) — only the foreground service publishes these via TrackingServiceApi.
+     * [gpsIntervalMs] is the current adaptive GPS request cadence (from the DynamicIntervalCalculator).
+     */
+    val gpsIntervalMs: Long = 0L,
+    val batteryPct: Int = -1,
+    val isCharging: Boolean = false,
     /** Human-readable current position (last fix coordinates; the demo has no geocoder). */
     val currentLocationLabel: String = "Waiting for location…",
     val gaugeMode: HeroGaugeMode = HeroGaugeMode.COMPASS,
@@ -84,6 +93,9 @@ class TrackMilesViewModel(
     private val currentTrackRepo: CurrentTrackRepository,
     private val locationRepo: LocationRepository,
     private val geoCheckInLocations: List<CheckInLocation> = emptyList(),
+    // C.3: live feed from the foreground service. Defaulted so JVM tests can omit it; Koin injects the
+    // singleton TrackingStatePublisher in production (it ignores the default).
+    private val trackingServiceApi: TrackingServiceApi = TrackingStatePublisher(),
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -91,11 +103,13 @@ class TrackMilesViewModel(
     private var liveObserveJob: Job? = null
     private var sessionObserveJob: Job? = null
     private var bearingObserveJob: Job? = null
+    private var trackingStateObserveJob: Job? = null
 
     init {
         loadConfig()
         loadVehicles()
         observeSession()
+        observeTrackingState()
         restoreActiveTrack()
         loadWeekSummary()
     }
@@ -155,6 +169,29 @@ class TrackMilesViewModel(
                             trackingActivity = s.trackingActivity.ifBlank { "Stationary" },
                             pauseReason = s.pauseReason,
                             signal = signal,
+                        )
+                    }
+                }
+                .launchIn(viewModelScope)
+    }
+
+    /**
+     * Subscribe to the foreground service's live [TrackingServiceApi.trackingState] (C.3). This carries
+     * the transient adaptive-engine telemetry the persisted session does not — the dynamic GPS cadence
+     * and charging/battery state — which we surface for the diagnostics chips. The per-fix speed/points
+     * gauge stays on the [observeSession] DataStore feed (it also carries sensor-derived activity +
+     * unsynced counts), so the two channels are complementary rather than double-writing the same fields.
+     */
+    private fun observeTrackingState() {
+        trackingStateObserveJob?.cancel()
+        trackingStateObserveJob =
+            trackingServiceApi.trackingState
+                .onEach { snap ->
+                    setState {
+                        copy(
+                            gpsIntervalMs = snap.currentIntervalMs,
+                            batteryPct = snap.batteryPct,
+                            isCharging = snap.isCharging,
                         )
                     }
                 }
@@ -393,6 +430,7 @@ class TrackMilesViewModel(
         liveObserveJob?.cancel()
         sessionObserveJob?.cancel()
         bearingObserveJob?.cancel()
+        trackingStateObserveJob?.cancel()
         super.onCleared()
     }
 
