@@ -12,7 +12,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -26,7 +25,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,12 +33,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miletracker.core.security.BiometricGuard
 import com.miletracker.core.security.RootDetector
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.MileTrackerTheme
@@ -219,27 +217,20 @@ fun DemoSettingsScreen(
     }
 
     rootDialogResult?.let { result ->
-        AlertDialog(
-            onDismissRequest = { rootDialogResult = null },
-            title = {
-                Text(if (result.isRooted) "Root Signals Detected" else "Device Appears Clean")
-            },
-            text = {
-                Column {
-                    if (result.signals.isEmpty()) {
-                        Text("No root signals found. This device appears to be a standard environment.")
-                    } else {
-                        Text("Signals found:")
-                        result.signals.forEach { signal ->
-                            Text("• $signal", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
+        AppActionSheet(
+            onDismiss = { rootDialogResult = null },
+            title = if (result.isRooted) "Root Signals Detected" else "Device Appears Clean",
+        ) {
+            if (result.signals.isEmpty()) {
+                Text("No root signals found. This device appears to be a standard environment.")
+            } else {
+                Text("Signals found:")
+                result.signals.forEach { signal ->
+                    Text("• $signal", style = MaterialTheme.typography.bodySmall)
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = { rootDialogResult = null }) { Text("OK") }
-            },
-        )
+            }
+            Button(onClick = { rootDialogResult = null }, modifier = Modifier.fillMaxWidth()) { Text("OK") }
+        }
     }
 }
 
@@ -283,23 +274,14 @@ private fun DemoTogglePreview() {
     }
 }
 
-@Preview(name = "Root detection dialog", showBackground = true)
+@LightDarkPreview
 @Composable
-private fun RootDetectionDialogPreview() {
+private fun RootDetectionContentPreview() {
     MileTrackerTheme {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = {},
-            title = { Text("Root Signals Detected") },
-            text = {
-                androidx.compose.foundation.layout.Column {
-                    Text("Signals found:")
-                    Text("• su binary found at /system/xbin/su", style = MaterialTheme.typography.bodySmall)
-                    Text("• test-keys build", style = MaterialTheme.typography.bodySmall)
-                }
-            },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = {}) { Text("OK") }
-            },
-        )
+        androidx.compose.foundation.layout.Column {
+            Text("Signals found:")
+            Text("• su binary found at /system/xbin/su", style = MaterialTheme.typography.bodySmall)
+            Text("• test-keys build", style = MaterialTheme.typography.bodySmall)
+        }
     }
 }

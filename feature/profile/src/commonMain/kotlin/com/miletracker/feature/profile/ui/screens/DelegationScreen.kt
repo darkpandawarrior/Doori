@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PersonAddAlt
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,6 +61,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 import com.miletracker.core.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
 
@@ -265,25 +266,16 @@ fun DelegationScreen(
     }
 
     revokeTarget?.let { target ->
-        AlertDialog(
-            onDismissRequest = { revokeTarget = null },
-            title = { Text("Revoke Delegation") },
-            text = { Text("Remove ${target.name}'s access? This cannot be undone.") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        myDelegations.removeAll { it.id == target.id }
-                        revokeTarget = null
-                    },
-                    colors =
-                        androidx.compose.material3.ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) { Text("Revoke") }
+        ActionConfirmationBottomSheet(
+            title = "Revoke Delegation",
+            description = "Remove ${target.name}'s access? This cannot be undone.",
+            confirmLabel = "Revoke",
+            tone = ActionConfirmationToneType.Danger,
+            onConfirm = {
+                myDelegations.removeAll { it.id == target.id }
+                revokeTarget = null
             },
-            dismissButton = {
-                TextButton(onClick = { revokeTarget = null }) { Text("Cancel") }
-            },
+            onDismiss = { revokeTarget = null },
         )
     }
 }

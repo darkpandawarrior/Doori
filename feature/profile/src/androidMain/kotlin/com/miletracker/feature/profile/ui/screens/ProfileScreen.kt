@@ -38,7 +38,6 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -46,7 +45,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,6 +72,7 @@ import com.miletracker.core.ui.components.ProfileGridItem
 import com.miletracker.core.ui.components.ProfileItemStatus
 import com.miletracker.core.ui.components.ReferralCard
 import com.miletracker.core.ui.components.buildReferralInvite
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.platform.LocalShareSheet
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.profile.model.AccountAnalyticsSnapshot
@@ -618,65 +617,60 @@ private fun SessionsDialog(
     sessions: List<UserSession>,
     onDismiss: () -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Active Sessions") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                sessions.forEach { session ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+    AppActionSheet(
+        onDismiss = onDismiss,
+        title = "Active Sessions",
+    ) {
+        sessions.forEach { session ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Devices,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(DesignTokens.IconSize.navigation),
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = session.deviceName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text(
+                        text = session.platform,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                if (session.isCurrent) {
+                    Surface(
+                        shape = DesignTokens.Shape.chip,
+                        color = DesignTokens.StatusColors.success.copy(alpha = 0.15f),
                     ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Devices,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(DesignTokens.IconSize.navigation),
-                            )
-                        }
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = session.deviceName,
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Medium,
-                            )
-                            Text(
-                                text = session.platform,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        if (session.isCurrent) {
-                            Surface(
-                                shape = DesignTokens.Shape.chip,
-                                color = DesignTokens.StatusColors.success.copy(alpha = 0.15f),
-                            ) {
-                                Text(
-                                    text = "This device",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = DesignTokens.StatusColors.success,
-                                    modifier = Modifier.padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
-                                )
-                            }
-                        }
+                        Text(
+                            text = "This device",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = DesignTokens.StatusColors.success,
+                            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
+                        )
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Close") }
-        },
-    )
+        }
+        OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Close") }
+    }
 }
 
 /**

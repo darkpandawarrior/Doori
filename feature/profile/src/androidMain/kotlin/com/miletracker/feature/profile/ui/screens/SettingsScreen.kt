@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.PinDrop
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,6 +62,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miletracker.core.ui.components.dialog.ColorWheelDialog
+import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
+import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.AccentPalette
 import com.miletracker.core.ui.theme.AppLanguage
@@ -433,25 +435,20 @@ fun SettingsScreen(
     }
 
     if (showResetConfirm) {
-        AlertDialog(
-            onDismissRequest = { showResetConfirm = false },
-            title = { Text("Reset customization") },
-            text = { Text("Palette, language, and experimental flags will return to defaults.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    showResetConfirm = false
-                    viewModel.resetCustomization()
-                    // Also reset locale to English
-                    AppCompatDelegate.setApplicationLocales(
-                        LocaleListCompat.forLanguageTags(AppLanguage.ENGLISH.tag),
-                    )
-                }) {
-                    Text("Reset")
-                }
+        ActionConfirmationBottomSheet(
+            title = "Reset customization",
+            description = "Palette, language, and experimental flags will return to defaults.",
+            confirmLabel = "Reset",
+            tone = ActionConfirmationToneType.Warning,
+            onConfirm = {
+                showResetConfirm = false
+                viewModel.resetCustomization()
+                // Also reset locale to English
+                AppCompatDelegate.setApplicationLocales(
+                    LocaleListCompat.forLanguageTags(AppLanguage.ENGLISH.tag),
+                )
             },
-            dismissButton = {
-                TextButton(onClick = { showResetConfirm = false }) { Text("Cancel") }
-            },
+            onDismiss = { showResetConfirm = false },
         )
     }
 }
@@ -464,42 +461,36 @@ private fun SimpleSelectionDialog(
     onDismiss: () -> Unit,
     onSelect: (String) -> Unit,
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(title) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs)) {
-                options.forEach { option ->
-                    val isSelected = option == selected
-                    TextButton(
-                        onClick = { onSelect(option) },
-                        modifier = Modifier.padding(vertical = DesignTokens.Spacing.xs),
-                    ) {
-                        Text(
-                            text = option,
-                            color =
-                                if (isSelected) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
-                            style =
-                                if (isSelected) {
-                                    MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                    )
-                                } else {
-                                    MaterialTheme.typography.bodyMedium
-                                },
-                        )
-                    }
-                }
+    AppActionSheet(
+        onDismiss = onDismiss,
+        title = title,
+    ) {
+        options.forEach { option ->
+            val isSelected = option == selected
+            TextButton(
+                onClick = { onSelect(option) },
+                modifier = Modifier.padding(vertical = DesignTokens.Spacing.xs),
+            ) {
+                Text(
+                    text = option,
+                    color =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                    style =
+                        if (isSelected) {
+                            MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            )
+                        } else {
+                            MaterialTheme.typography.bodyMedium
+                        },
+                )
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Close") }
-        },
-    )
+        }
+    }
 }
 
 @Composable
