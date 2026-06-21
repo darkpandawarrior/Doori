@@ -97,7 +97,7 @@ private fun DemoHeader() {
                 tint = Color.White,
             )
             Text(
-                text = "MileTracker",
+                text = "Mileway",
                 style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
                 color = Color.White,
             )

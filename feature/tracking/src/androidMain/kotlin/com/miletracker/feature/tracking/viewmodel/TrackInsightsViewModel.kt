@@ -145,7 +145,7 @@ class TrackInsightsViewModel(
         val recs = mutableListOf<String>()
         if (mockCount > 0) recs += "Disable mock location apps for accurate distance tracking."
         if (abnormalCount > 5) recs += "Keep the device in an open area for better GPS signal."
-        if (track.wasBatteryOptimizationEnabled) recs += "Disable battery optimisation for MileTracker to avoid interruptions."
+        if (track.wasBatteryOptimizationEnabled) recs += "Disable battery optimisation for Mileway to avoid interruptions."
         if (track.wasPowerSaverEnabled) recs += "Turn off power saver mode while tracking for best accuracy."
         if (track.wasAppKilled) recs += "Avoid closing the app while tracking — use the pause button instead."
         if (recs.isEmpty()) recs += "Great tracking session! GPS accuracy was consistent throughout."

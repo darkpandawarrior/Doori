@@ -272,7 +272,7 @@ class DebugMenuComposeViewModel(
         )
 
     fun performApiHealthCheck() {
-        Log.d(TAG, "API health check requested (stub in MileTrackerDemo)")
+        Log.d(TAG, "API health check requested (stub in Mileway)")
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

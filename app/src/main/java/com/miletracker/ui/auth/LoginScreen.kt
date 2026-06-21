@@ -64,7 +64,7 @@ import kotlinx.coroutines.delay
 private const val DEMO_EMAIL = "demo@miletracker.app"
 
 /** App name shown beside the logo mark. */
-private const val APP_NAME = "MileTracker"
+private const val APP_NAME = "Mileway"
 
 /** How long each onboarding slide is shown before auto-advancing. */
 private const val ONBOARDING_AUTO_ADVANCE_MS = 2_600L
@@ -87,7 +87,7 @@ private val ONBOARDING_SLIDES = listOf(
     OnboardingSlide(
         icon = Icons.Filled.Explore,
         title = "Track every mile",
-        caption = "Start a trip and MileTracker records your route, distance, and duration automatically.",
+        caption = "Start a trip and Mileway records your route, distance, and duration automatically.",
     ),
     OnboardingSlide(
         icon = Icons.Filled.CloudOff,

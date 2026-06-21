@@ -461,7 +461,7 @@ class LocationTrackingService : Service() {
 
     private fun buildNotification(text: String): Notification =
         Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("MileTracker")
+            .setContentTitle("Mileway")
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setOngoing(true)

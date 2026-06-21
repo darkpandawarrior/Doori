@@ -3,7 +3,7 @@
 /**
  * MapScreen.kt
  *
- * Ultimate Enhanced Live Tracking Screen for MileTracker.
+ * Ultimate Enhanced Live Tracking Screen for Mileway.
  *
  * Feature Set:
  * - Fullscreen map with animated direction marker using bearing/gyroscope data

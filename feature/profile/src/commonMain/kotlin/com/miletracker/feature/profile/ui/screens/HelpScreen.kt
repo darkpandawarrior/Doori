@@ -53,7 +53,7 @@ private val ALL_FAQS =
     listOf(
         // Getting Started
         Faq(
-            "What permissions does MileTracker need?",
+            "What permissions does Mileway need?",
             "Location (Fine + Background) for continuous GPS tracking. Notification permission on Android 13+ for the tracking notification. Camera for odometer photo capture.",
             "Getting Started",
         ),

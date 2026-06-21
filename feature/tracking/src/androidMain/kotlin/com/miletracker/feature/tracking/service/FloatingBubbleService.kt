@@ -135,7 +135,7 @@ class FloatingBubbleService : Service() {
                 .apply { setShowBadge(false) },
         )
         return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("MileTracker")
+            .setContentTitle("Mileway")
             .setContentText("Live tracking bubble active")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .build()

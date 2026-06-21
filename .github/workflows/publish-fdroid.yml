@@ -44,7 +44,7 @@ jobs:
           set -euo pipefail
           BUILD_TOOLS="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
           UNSIGNED="$(find app/build/outputs/apk/noGms/release -name '*.apk' | head -1)"
-          OUT="MileTracker-${{ github.event.inputs.tag }}.apk"
+          OUT="Mileway-${{ github.event.inputs.tag }}.apk"
           "$BUILD_TOOLS/apksigner" sign \
             --ks "${RUNNER_TEMP}/release.keystore" \
             --ks-pass "pass:${KEYSTORE_PASSWORD}" \
@@ -63,7 +63,7 @@ jobs:
           TAG="${{ github.event.inputs.tag }}"
           gh release create "$TAG" --generate-notes || true
           gh release upload "$TAG" \
-            "MileTracker-$TAG.apk" \
-            "MileTracker-$TAG.apk.sha256" --clobber
+            "Mileway-$TAG.apk" \
+            "Mileway-$TAG.apk.sha256" --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
