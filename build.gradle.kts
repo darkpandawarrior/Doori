@@ -81,18 +81,18 @@ doctor {
 // Workflow task aliases, convenience entry points for the local dev loop
 // --------------------------------------------------------------------------
 tasks.register("devBuild") {
-    description = "Clean + debug APK + unit tests — full local dev loop."
+    description = "Clean + debug APK + unit tests: full local dev loop."
     // noGms is the JVM-safe unit-test variant (gms Play Services maps crash Robolectric).
     dependsOn(":app:clean", ":app:assembleGmsDebug", ":app:testNoGmsDebugUnitTest")
 }
 
 tasks.register("quickBuild") {
-    description = "Debug APK only (no tests) — fastest iteration cycle."
+    description = "Debug APK only (no tests): fastest iteration cycle."
     dependsOn(":app:assembleGmsDebug")
 }
 
 tasks.register("fullCheck") {
-    description = "ktlint + detekt + tests + kover coverage floor — all quality gates."
+    description = "ktlint + detekt + tests + kover coverage floor: all quality gates."
     // noGms is the JVM-safe unit-test variant; kover floor verified on the same variant.
     dependsOn(
         "ktlintCheck",

@@ -46,10 +46,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Code style — ktlint
+      - name: Code style (ktlint)
         run: ./gradlew ktlintCheck
 
-      - name: Static analysis — detekt
+      - name: Static analysis (detekt)
         run: ./gradlew detekt
 
       # noGms is the JVM unit-test target: the gms flavor pulls Google Play Services
