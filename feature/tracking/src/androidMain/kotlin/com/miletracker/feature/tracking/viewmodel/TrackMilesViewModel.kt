@@ -338,6 +338,9 @@ class TrackMilesViewModel(
                 )
             }
             observeLive(active.routeId)
+            // A.2: also resume the bearing/location-label feed so a restored session immediately
+            // shows live coordinates instead of staying stuck on "Waiting for location…".
+            observeBearing(active.routeId)
         }
     }
 

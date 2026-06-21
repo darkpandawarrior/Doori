@@ -154,6 +154,9 @@ fun TrackMilesScreen(
             ActivityResultContracts.RequestMultiplePermissions(),
         ) { viewModel.onAction(TrackMilesAction.RequestStartTracking) }
     val requestStartTracking = {
+        // A.3/A.4: collapse any open coach-mark (Journey Guide) BEFORE the permission prompt or
+        // consent sheet appears, so a modal never stacks over the start/consent flow.
+        viewModel.onAction(TrackMilesAction.DismissSheet)
         val granted =
             ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION,
@@ -279,7 +282,11 @@ fun TrackMilesScreen(
                     if (isActive) {
                         viewModel.onAction(TrackMilesAction.StopTracking)
                     } else {
-                        viewModel.onAction(TrackMilesAction.OpenJourneyGuide)
+                        // A.3: the hero FAB is the single primary action. Tapping START goes
+                        // straight to permission → (consent if configured) → tracking, with no
+                        // mandatory Journey Guide coach-mark in the way. Setup (vehicle / odometer)
+                        // stays available via the optional "Journey Guide →" link below.
+                        requestStartTracking()
                     }
                 },
                 onPauseResume = {
