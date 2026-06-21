@@ -65,6 +65,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.profile.model.CorporateCard
 import com.miletracker.feature.profile.viewmodel.AdvanceViewModel
 import kotlinx.coroutines.launch
@@ -314,7 +315,7 @@ private fun QrCardChip(card: CorporateCard) {
             Icon(Icons.Default.CreditCard, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
             Column {
-                Text("•••• ${card.lastFourDigits}", style = MaterialTheme.typography.bodySmall, color = Color.White, fontWeight = FontWeight.SemiBold)
+                Text("•••• ${card.lastFourDigits}", style = MaterialTheme.typography.bodySmall.dataStyle(), color = Color.White, fontWeight = FontWeight.SemiBold)
                 Text(card.cardType.name, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
             }
         }
@@ -351,7 +352,7 @@ private fun QrInfoTile(
             modifier = Modifier.padding(DesignTokens.Spacing.m),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
+            Text(value, style = MaterialTheme.typography.titleSmall.dataStyle(), fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(Modifier.height(2.dp))
             Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
         }

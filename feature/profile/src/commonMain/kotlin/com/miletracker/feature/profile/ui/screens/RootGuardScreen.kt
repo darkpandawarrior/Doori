@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.security.RootDetector
 import com.miletracker.core.ui.theme.MileTrackerTheme
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.profile.ui.previews.LightDarkPreview
 
 @Composable
@@ -36,7 +37,7 @@ fun RootGuardScreen(
     signals: List<String> = RootDetector.check().signals,
 ) {
     val isClean = signals.isEmpty()
-    val bgColor = if (isClean) Color(0xFF1B5E20) else Color(0xFFB71C1C)
+    val bgColor = if (isClean) MilewayColors.success else MilewayColors.danger
 
     Column(
         modifier =

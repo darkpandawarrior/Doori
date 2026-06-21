@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.core.common.asString
 import com.miletracker.core.ui.components.sheet.DetailInfoBottomSheet
 import com.miletracker.core.ui.components.sheet.DetailInfoCard
@@ -168,7 +169,7 @@ private fun BalanceHeader(card: CardModel) {
         }
         Column(horizontalAlignment = Alignment.End) {
             Text("Available Balance", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(formatMoney(card.balance, card.currency), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+            Text(formatMoney(card.balance, card.currency), style = MaterialTheme.typography.titleLarge.dataStyle(), fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -247,7 +248,7 @@ private fun TransactionRow(
             Text(txn.merchantName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             Text(txn.txnNumber, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text(formatMoney(txn.amount, txn.currency), style = MaterialTheme.typography.bodyMedium, color = CardAccent)
+        Text(formatMoney(txn.amount, txn.currency), style = MaterialTheme.typography.bodyMedium.dataStyle(), color = CardAccent)
     }
 }
 

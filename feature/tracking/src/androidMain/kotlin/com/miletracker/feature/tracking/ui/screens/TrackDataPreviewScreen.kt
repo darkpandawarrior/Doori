@@ -70,6 +70,7 @@ import com.miletracker.core.ui.components.SectionCard
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.tracking.repository.HardwareEventRepository
 import com.miletracker.feature.tracking.viewmodel.TrackDetailAction
 import com.miletracker.feature.tracking.viewmodel.TrackDetailViewModel
@@ -100,11 +101,11 @@ fun computeHealthLevel(track: SavedTrack): HealthLevel {
 
 private fun HealthLevel.color(): Color =
     when (this) {
-        HealthLevel.EXCELLENT -> Color(0xFF2E7D32)
-        HealthLevel.GOOD -> Color(0xFF558B2F)
-        HealthLevel.FAIR -> Color(0xFFF9A825)
-        HealthLevel.POOR -> Color(0xFFE65100)
-        HealthLevel.CRITICAL -> Color(0xFFC62828)
+        HealthLevel.EXCELLENT -> DesignTokens.StatusColors.success
+        HealthLevel.GOOD -> DesignTokens.StatusColors.success
+        HealthLevel.FAIR -> DesignTokens.StatusColors.warning
+        HealthLevel.POOR -> DesignTokens.StatusColors.warning
+        HealthLevel.CRITICAL -> DesignTokens.StatusColors.error
     }
 
 private fun HealthLevel.label(): String =
@@ -229,7 +230,7 @@ private fun OverviewTab(
                 LinearProgressIndicator(
                     progress = { completeness },
                     modifier = Modifier.fillMaxWidth(),
-                    color = if (completeness > 0.8f) Color(0xFF2E7D32) else MaterialTheme.colorScheme.error,
+                    color = if (completeness > 0.8f) MilewayColors.success else MaterialTheme.colorScheme.error,
                 )
                 Text(
                     "%.0f%% completeness".format(completeness * 100),
@@ -274,10 +275,10 @@ private enum class IssueSeverity { LOW, MEDIUM, HIGH, CRITICAL }
 
 private fun IssueSeverity.color(): Color =
     when (this) {
-        IssueSeverity.LOW -> Color(0xFFF9A825)
-        IssueSeverity.MEDIUM -> Color(0xFFE65100)
-        IssueSeverity.HIGH -> Color(0xFFC62828)
-        IssueSeverity.CRITICAL -> Color(0xFFB71C1C)
+        IssueSeverity.LOW -> DesignTokens.StatusColors.warning
+        IssueSeverity.MEDIUM -> DesignTokens.StatusColors.warning
+        IssueSeverity.HIGH -> DesignTokens.StatusColors.error
+        IssueSeverity.CRITICAL -> DesignTokens.StatusColors.error
     }
 
 @Composable

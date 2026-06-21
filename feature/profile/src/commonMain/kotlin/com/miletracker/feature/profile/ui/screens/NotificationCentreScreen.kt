@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.DesignTokens.StatusColors
 
 private val BASE_MS = 1_781_654_400_000L
 private val MIN_MS = 60_000L
@@ -90,7 +91,7 @@ private val NOTIFICATIONS =
             true,
             NotifCategory.ALL,
             Icons.Filled.Receipt,
-            Color(0xFF10B981),
+            StatusColors.success,
         ),
         NotifItem(
             "N003",
@@ -100,7 +101,7 @@ private val NOTIFICATIONS =
             true,
             NotifCategory.ALL,
             Icons.Filled.MoneyOff,
-            Color(0xFFEF4444),
+            StatusColors.error,
         ),
         NotifItem(
             "N004",
@@ -110,7 +111,7 @@ private val NOTIFICATIONS =
             true,
             NotifCategory.ALL,
             Icons.Filled.Policy,
-            Color(0xFFF59E0B),
+            StatusColors.warning,
         ),
         NotifItem(
             "N005",
@@ -120,7 +121,7 @@ private val NOTIFICATIONS =
             false,
             NotifCategory.ALL,
             Icons.Filled.CreditCard,
-            Color(0xFF6B7280),
+            StatusColors.neutral,
         ),
         NotifItem(
             "N006",
@@ -130,7 +131,7 @@ private val NOTIFICATIONS =
             false,
             NotifCategory.ALL,
             Icons.Filled.Receipt,
-            Color(0xFF3B82F6),
+            StatusColors.info,
         ),
         NotifItem(
             "N007",
@@ -150,7 +151,7 @@ private val NOTIFICATIONS =
             false,
             NotifCategory.SYSTEM,
             Icons.Filled.Info,
-            Color(0xFF6B7280),
+            StatusColors.neutral,
         ),
     )
 

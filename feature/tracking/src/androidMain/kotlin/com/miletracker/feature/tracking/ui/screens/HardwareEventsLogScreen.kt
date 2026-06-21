@@ -66,7 +66,9 @@ import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.util.DateUtils
 import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
+import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.tracking.export.HardwareEventExporter
 import com.miletracker.feature.tracking.viewmodel.HardwareEventsAction
 import com.miletracker.feature.tracking.viewmodel.HardwareEventsViewModel
@@ -265,11 +267,11 @@ private fun HardwareEventItem(event: HardwareEvent) {
 private fun AudienceBadge(audience: EventAudience) {
     val color =
         when (audience) {
-            EventAudience.USER -> Color(0xFF2196F3)
-            EventAudience.SUPPORT -> Color(0xFFFF5722)
-            EventAudience.DEBUG -> Color(0xFF9C27B0)
-            EventAudience.SUMMARY -> Color(0xFF4CAF50)
-            else -> Color(0xFF9E9E9E)
+            EventAudience.USER -> MilewayColors.info
+            EventAudience.SUPPORT -> MilewayColors.danger
+            EventAudience.DEBUG -> MilewayColors.premium
+            EventAudience.SUMMARY -> MilewayColors.success
+            else -> MilewayColors.neutral
         }
     Surface(shape = RoundedCornerShape(4.dp), color = color.copy(alpha = 0.12f)) {
         Text(
@@ -284,14 +286,15 @@ private fun AudienceBadge(audience: EventAudience) {
 
 private fun eventIconAndColor(type: EventType): Pair<ImageVector, Color> =
     when (type) {
-        EventType.TRACKING_STARTED -> Icons.Default.PlayArrow to Color(0xFF4CAF50)
-        EventType.TRACKING_STOPPED -> Icons.Default.Stop to Color(0xFFF44336)
-        EventType.TRACKING_PAUSED -> Icons.Default.PowerOff to Color(0xFFFF9800)
-        EventType.TRACKING_RESUMED -> Icons.Default.PlayArrow to Color(0xFF8BC34A)
-        EventType.GPS_LOST -> Icons.Default.GpsOff to Color(0xFFF44336)
-        EventType.GPS_REGAINED -> Icons.Default.GpsFixed to Color(0xFF4CAF50)
-        EventType.BATTERY_OPTIMIZATION_ON, EventType.BATTERY_OPTIMIZATION_OFF -> Icons.Default.BatteryAlert to Color(0xFFFF9800)
-        EventType.APP_KILLED -> Icons.Default.PhoneAndroid to Color(0xFFF44336)
+        EventType.TRACKING_STARTED -> Icons.Default.PlayArrow to DesignTokens.StatusColors.success
+        EventType.TRACKING_STOPPED -> Icons.Default.Stop to DesignTokens.StatusColors.error
+        EventType.TRACKING_PAUSED -> Icons.Default.PowerOff to DesignTokens.StatusColors.warning
+        EventType.TRACKING_RESUMED -> Icons.Default.PlayArrow to DesignTokens.StatusColors.success
+        EventType.GPS_LOST -> Icons.Default.GpsOff to DesignTokens.StatusColors.error
+        EventType.GPS_REGAINED -> Icons.Default.GpsFixed to DesignTokens.StatusColors.success
+        EventType.BATTERY_OPTIMIZATION_ON, EventType.BATTERY_OPTIMIZATION_OFF -> Icons.Default.BatteryAlert to DesignTokens.StatusColors.warning
+        EventType.APP_KILLED -> Icons.Default.PhoneAndroid to DesignTokens.StatusColors.error
+        // No static "premium" token in DesignTokens.StatusColors; purple kept for the restart accent.
         EventType.PHONE_RESTART -> Icons.Default.PhoneAndroid to Color(0xFF9C27B0)
-        else -> Icons.Default.Info to Color(0xFF9E9E9E)
+        else -> Icons.Default.Info to DesignTokens.StatusColors.neutral
     }
