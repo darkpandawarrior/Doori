@@ -9,6 +9,11 @@ import com.miletracker.core.ui.previews.PreviewThemePickerAmoled
 import com.miletracker.core.ui.previews.PreviewThemePickerDaybreak
 import com.miletracker.core.ui.previews.PreviewThemePickerIon
 import com.miletracker.core.ui.previews.PreviewThemePickerMatrix
+import com.miletracker.core.ui.previews.PreviewTrackingStatusPills
+import com.miletracker.core.ui.previews.PreviewTrackingTopBarActive
+import com.miletracker.core.ui.previews.PreviewTrackingTopBarActiveDaybreak
+import com.miletracker.core.ui.previews.PreviewTrackingTopBarIdle
+import com.miletracker.core.ui.previews.PreviewTrackingTopBarPaused
 import com.miletracker.feature.approvals.ui.previews.PreviewApprovalItemApproved
 import com.miletracker.feature.approvals.ui.previews.PreviewApprovalItemPending
 import com.miletracker.feature.approvals.ui.previews.PreviewApprovalItemRejected
@@ -224,6 +229,38 @@ class ScreenshotCatalogTest {
     fun theme_picker_daybreak() {
         composeRule.setContent { PreviewThemePickerDaybreak() }
         capture("theme_picker_daybreak")
+    }
+
+    // ── core:ui — minimal matrix tracking top bar (Task 1) ────────────────────
+
+    @Test
+    fun tracking_topBar_active() {
+        composeRule.setContent { PreviewTrackingTopBarActive() }
+        capture("tracking_topBar_active")
+    }
+
+    @Test
+    fun tracking_topBar_paused() {
+        composeRule.setContent { PreviewTrackingTopBarPaused() }
+        capture("tracking_topBar_paused")
+    }
+
+    @Test
+    fun tracking_topBar_idle() {
+        composeRule.setContent { PreviewTrackingTopBarIdle() }
+        capture("tracking_topBar_idle")
+    }
+
+    @Test
+    fun tracking_topBar_active_daybreak() {
+        composeRule.setContent { PreviewTrackingTopBarActiveDaybreak() }
+        capture("tracking_topBar_active_daybreak")
+    }
+
+    @Test
+    fun tracking_statusPills() {
+        composeRule.setContent { PreviewTrackingStatusPills() }
+        capture("tracking_statusPills")
     }
 
     companion object {

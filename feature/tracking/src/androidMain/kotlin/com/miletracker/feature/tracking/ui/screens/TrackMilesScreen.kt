@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CloudDone
+import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.DataObject
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.DirectionsCar
@@ -45,10 +47,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
+import com.miletracker.core.ui.components.topbar.TrackingStatus
+import com.miletracker.core.ui.components.topbar.TrackingTopBar
 import com.miletracker.core.ui.components.tracking.ActivitySegment
 import com.miletracker.core.ui.components.tracking.ActivityType
 import com.miletracker.core.ui.components.tracking.CompactSystemStatusIndicator
@@ -66,7 +70,6 @@ import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.core.ui.toast.Toasts
-import com.miletracker.feature.tracking.ui.components.StatusBadge
 import com.miletracker.feature.tracking.ui.sheets.CenterOption
 import com.miletracker.feature.tracking.ui.sheets.JourneyConsentSheet
 import com.miletracker.feature.tracking.ui.sheets.JourneyGuideSheet
@@ -171,27 +174,23 @@ fun TrackMilesScreen(
         }
     }
 
+    val trackingStatus =
+        when {
+            isPaused -> TrackingStatus.PAUSED
+            isActive -> TrackingStatus.TRACKING
+            else -> TrackingStatus.IDLE
+        }
     Scaffold(
         topBar = {
-            DepthAwareTopBar(
+            TrackingTopBar(
                 title = "Track Miles",
-                depth = DesignTokens.NavigationDepth.ROOT,
+                status = trackingStatus,
                 actions = {
-                    val idleColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    StatusBadge(
-                        text =
-                            when {
-                                isPaused -> "⏸ PAUSED"
-                                isActive -> "● ACTIVE"
-                                else -> "● Not Tracking"
-                            },
-                        color =
-                            when {
-                                isPaused -> MilewayColors.warning
-                                isActive -> MilewayColors.success
-                                else -> idleColor
-                            },
-                    )
+                    // Right-side sync / network-status indicator, only meaningful while a journey
+                    // is live; communicates queued vs synced points without a coloured chrome band.
+                    if (isActive) {
+                        SyncStatusAction(unsyncedPoints = uiState.unsyncedPoints)
+                    }
                 },
             )
         },
@@ -544,6 +543,39 @@ private fun WeeklySummaryPill(text: String) {
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
         }
+    }
+}
+
+/**
+ * Right-side top-bar action: a compact sync / network indicator for the live session. Shows the
+ * queued-point count in [MilewayColors.warning] when points are waiting to sync, or a calm "Synced"
+ * state otherwise. Communicates pipeline health on the right of the bar (no coloured chrome band).
+ */
+@Composable
+private fun SyncStatusAction(unsyncedPoints: Long) {
+    val pending = unsyncedPoints > 0
+    val tint = if (pending) MilewayColors.warning else MilewayColors.success
+    androidx.compose.foundation.layout.Row(
+        modifier =
+            Modifier
+                .padding(end = DesignTokens.Spacing.xs)
+                .clip(DesignTokens.Shape.chip)
+                .padding(horizontal = DesignTokens.Spacing.s, vertical = DesignTokens.Spacing.xs),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
+    ) {
+        Icon(
+            imageVector = if (pending) Icons.Filled.CloudQueue else Icons.Filled.CloudDone,
+            contentDescription = if (pending) "$unsyncedPoints points queued to sync" else "All points synced",
+            tint = tint,
+            modifier = Modifier.size(DesignTokens.IconSize.navigation),
+        )
+        Text(
+            text = if (pending) "$unsyncedPoints" else "Synced",
+            style = MaterialTheme.typography.labelSmall.dataStyle(),
+            color = tint,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+        )
     }
 }
 
