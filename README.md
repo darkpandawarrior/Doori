@@ -178,7 +178,7 @@ graph TD
 - **Koin DI** — one module per feature; the `InitKoin()` bootstrap is re-entrancy-safe for both the
   Android `Application` and the iOS entry point.
 - **SearchProvider registry** — each feature binds a `SearchProvider` into Koin; the master-search
-  module calls `getAll<SearchProvider>()` and fans out — zero coupling between search and features.
+  aggregator resolves `getAll<SearchProvider>()` and fans out — zero coupling between search and features.
 - **Shared scaffolds** — `FormSubmissionScaffold` and `HistoryListScaffold` standardise the create
   and history flows reused across travel / payables / payments / events.
 - **Navigation** — type-safe JetBrains Compose Navigation with per-feature graphs assembled at `:app`.
@@ -312,7 +312,7 @@ roadmap reflects direction rather than commitments.
 - [x] `gms` / `noGms` flavor split + FOSS dependency-prefix guard
 - [x] Room (KMP) + DataStore persistence
 - [x] Location engine (jitter / spike / four-bucket / IMU fusion) with a simulated drive source
-- [x] Master-search registry across feature modules
+- [x] Master search — registry across feature modules + aggregator, results screen and navigation
 - [x] Roborazzi screenshot suite, detekt / ktlint / Kover, CI + release workflows
 - [x] Wear OS companion tile
 
@@ -321,7 +321,6 @@ roadmap reflects direction rather than commitments.
 - [ ] iOS **UI** parity — core modules compile to a framework today; feature screens are moving
       from `androidMain` into `commonMain`
 - [ ] Expand the screenshot catalog to cover every screen (payments / events / history added)
-- [ ] Master-search results UI polish
 
 **Exploring**
 
