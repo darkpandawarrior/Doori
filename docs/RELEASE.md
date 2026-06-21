@@ -1,7 +1,7 @@
 # Release guide
 
 How to ship Mileway to Play (gms), the App Store / TestFlight (iOS), and F-Droid (noGms). Every
-credential below is an **env-activated placeholder** — the build degrades to no-op when a key is absent, so
+credential below is an **env-activated placeholder**. The build degrades to a no-op when a key is absent, so
 nothing here is required to build or run the demo.
 
 ## 1. Versioning (single source)
@@ -13,7 +13,7 @@ nothing here is required to build or run the demo.
 scripts/bump_version.sh --patch   # or --minor / --major   → bumps VERSION + BUILD_NUMBER
 ```
 
-## 2. Android — Play Store (fastlane, gms flavor)
+## 2. Android: Play Store (fastlane, gms flavor)
 
 | Lane | What it does |
 |------|--------------|
@@ -26,7 +26,7 @@ scripts/bump_version.sh --patch   # or --minor / --major   → bumps VERSION + B
 Each `deploy_*` regenerates `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` from git commits
 (bullet-aware, truncated to Play's 500-char limit).
 
-## 3. iOS — TestFlight / App Store (fastlane)
+## 3. iOS: TestFlight / App Store (fastlane)
 
 | Lane | What it does |
 |------|--------------|
@@ -34,7 +34,7 @@ Each `deploy_*` regenerates `fastlane/metadata/android/en-US/changelogs/<version
 | `fastlane ios release`     | → App Store `deliver` (submit + automatic + phased release) |
 | `fastlane ios renew_certs` | regenerate signing certs/profiles via `match` |
 
-iOS push needs the Firebase SPM package added once — see [docs/ios-push-setup.md](ios-push-setup.md).
+iOS push needs the Firebase SPM package added once. See [docs/ios-push-setup.md](ios-push-setup.md).
 
 ## 4. F-Droid (noGms / FOSS)
 
@@ -42,7 +42,7 @@ The `noGms` flavor is the FOSS build: MapLibre maps, **no** Google/Firebase runt
 `verifyNoGmsDependencyPrefixes` Gradle task (fails `check` if a proprietary dep leaks in).
 
 1. Tag the release `v<VERSION>-fdroid`.
-2. Run the **Publish F-Droid APK** workflow (`.github/workflows/publish-fdroid.yml`) with that tag — it builds
+2. Run the **Publish F-Droid APK** workflow (`.github/workflows/publish-fdroid.yml`) with that tag, and it builds
    `assembleNoGmsRelease -Pfdroid` (reproducible, no R8), signs with the pinned `apksigner`, and attaches
    `Mileway-<tag>.apk` + `.sha256` to a GitHub Release.
 3. Submit `metadata/com.miletracker.fdroid.yml` to `fdroiddata` (Binaries approach; the prebuild strips the
@@ -50,7 +50,7 @@ The `noGms` flavor is the FOSS build: MapLibre maps, **no** Google/Firebase runt
 
 ## 5. Orchestrated release (`.github/workflows/release.yml`)
 
-`workflow_dispatch` with rung inputs — lower rungs are protected by GitHub **Environments** (required reviewers):
+`workflow_dispatch` with rung inputs. Lower rungs are protected by GitHub **Environments** (required reviewers):
 
 - `android_rung`: `skip | firebase | internal | beta | production`  (env: `play-internal` / `play-beta` / `play-production`)
 - `ios_rung`: `skip | testflight | appstore`  (env: `testflight` / `app-store`)

@@ -1,6 +1,6 @@
 Mileway is an offline-first mileage and expense tracker.
 
-- Track trips with GPS — works fully offline, no account required.
+- Track trips with GPS. It works fully offline, with no account required.
 - Log mileage and expenses; everything is stored locally on your device.
 - Review saved trips, export your data, and manage reimbursement vouchers.
 
