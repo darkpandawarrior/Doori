@@ -3,6 +3,7 @@ package com.miletracker.feature.travel.ui.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.miletracker.feature.travel.ui.screens.CreateFlightScreen
 import com.miletracker.feature.travel.ui.screens.CreateTripScreen
 import com.miletracker.feature.travel.ui.screens.TravelHomeScreen
 
@@ -15,6 +16,7 @@ import com.miletracker.feature.travel.ui.screens.TravelHomeScreen
 object TravelRoutes {
     const val HOME = "travel_home"
     const val CREATE_TRIP = "travel/create_trip"
+    const val CREATE_FLIGHT = "travel/create_flight"
 }
 
 fun NavGraphBuilder.travelGraph(navController: NavHostController) {
@@ -23,6 +25,12 @@ fun NavGraphBuilder.travelGraph(navController: NavHostController) {
     }
     composable(TravelRoutes.CREATE_TRIP) {
         CreateTripScreen(
+            onBack = { navController.popBackStack() },
+            onSubmitted = { navController.popBackStack() },
+        )
+    }
+    composable(TravelRoutes.CREATE_FLIGHT) {
+        CreateFlightScreen(
             onBack = { navController.popBackStack() },
             onSubmitted = { navController.popBackStack() },
         )

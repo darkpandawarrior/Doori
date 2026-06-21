@@ -23,6 +23,15 @@ data class TripDraft(
     val advanceRequired: Boolean,
 )
 
+/** TR.3 — an add-flight booking-request form payload. */
+data class FlightDraft(
+    val fromCity: String,
+    val toCity: String,
+    val travelDate: String,
+    val preferredAirline: String,
+    val cabinClass: String,
+)
+
 /**
  * Offline fake travel-create store (TR.2+) — persists submitted drafts in-memory and returns a **rotating**
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
@@ -54,5 +63,12 @@ class TravelCreateRepository {
             "TRP",
             4400,
             listOf("Trip dates overlap an existing request", "Destination requires travel-desk approval"),
+        )
+
+    fun submitFlight(draft: FlightDraft): TravelSubmissionResult =
+        rotate(
+            "FLT",
+            5100,
+            listOf("Fare exceeds the cabin-class cap", "Business class needs grade-L4+ approval"),
         )
 }

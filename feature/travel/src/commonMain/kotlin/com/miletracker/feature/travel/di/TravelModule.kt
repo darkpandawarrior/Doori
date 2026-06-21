@@ -2,6 +2,7 @@ package com.miletracker.feature.travel.di
 
 import com.miletracker.feature.travel.repository.TravelCreateRepository
 import com.miletracker.feature.travel.repository.TravelRepository
+import com.miletracker.feature.travel.viewmodel.CreateFlightViewModel
 import com.miletracker.feature.travel.viewmodel.CreateTripViewModel
 import com.miletracker.feature.travel.viewmodel.TravelViewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -14,4 +15,5 @@ val travelModule =
         single { TravelCreateRepository() }
         viewModelOf(::TravelViewModel)
         viewModelOf(::CreateTripViewModel)
+        viewModelOf(::CreateFlightViewModel)
     }
