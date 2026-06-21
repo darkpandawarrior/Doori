@@ -47,8 +47,13 @@ import com.miletracker.core.ui.theme.DesignTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrackCustomizationScreen(onBack: () -> Unit) {
-    var kalmanEnabled by remember { mutableStateOf(true) }
+fun TrackCustomizationScreen(
+    onBack: () -> Unit,
+    // G6: the Kalman toggle is now persisted — its state is hoisted and bound to DemoSettings at
+    // the nav site. Defaults keep previews/screenshot callers and tests source-compatible.
+    kalmanEnabled: Boolean = false,
+    onKalmanChange: (Boolean) -> Unit = {},
+) {
     var gapDetectionEnabled by remember { mutableStateOf(true) }
     var motionStabilityEnabled by remember { mutableStateOf(false) }
     var deadReckoningEnabled by remember { mutableStateOf(false) }
@@ -90,7 +95,7 @@ fun TrackCustomizationScreen(onBack: () -> Unit) {
                         subtitle = "Reduces GPS noise by predicting position trajectory",
                         infoChip = "Reduces GPS noise",
                         checked = kalmanEnabled,
-                        onCheckedChange = { kalmanEnabled = it },
+                        onCheckedChange = onKalmanChange,
                     )
                     CustomizationToggleRow(
                         icon = Icons.Filled.BugReport,

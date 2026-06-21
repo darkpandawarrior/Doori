@@ -18,6 +18,7 @@ import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.model.display.TrackingState
 import com.miletracker.core.data.session.CurrentTrackDataStore
+import com.miletracker.core.data.settings.DemoSettingsRepository
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
 import com.miletracker.feature.tracking.service.location.GpsFix
@@ -54,6 +55,13 @@ class LocationTrackingService : Service() {
     private val savedTrackDao: SavedTrackDao by inject()
     private val hardwareEventDao: HardwareEventDao by inject()
     private val sessionStore: CurrentTrackDataStore by inject()
+    private val demoSettings: DemoSettingsRepository by inject()
+
+    // G6: persisted opt-in for the live Kalman smoother. Collected continuously so the
+    // customization toggle takes effect from the next trip start (the smoother is fixed for the
+    // lifetime of a running trip; we don't swap algorithms mid-journey).
+    @Volatile
+    private var enableKalman: Boolean = false
 
     // C.2b: live telemetry the ViewModel observes via TrackingServiceApi.
     private val statePublisher: TrackingStatePublisher by inject()
@@ -104,6 +112,8 @@ class LocationTrackingService : Service() {
         super.onCreate()
         sensorMonitor = TrackingSensorMonitor(this)
         createNotificationChannel()
+        // G6: keep the Kalman opt-in mirrored from persisted settings.
+        scope.launch { demoSettings.settings.collect { enableKalman = it.enableKalman } }
     }
 
     override fun onStartCommand(
@@ -190,6 +200,8 @@ class LocationTrackingService : Service() {
                 deviceModel = Build.MODEL ?: "",
                 appVersionName = appVersionName(),
                 initialStats = resumeFrom?.let { seedStats(it) },
+                // G6: route live fixes through the Kalman smoother when the user has opted in.
+                enableKalman = enableKalman,
             )
 
         acquireWakeLock()
