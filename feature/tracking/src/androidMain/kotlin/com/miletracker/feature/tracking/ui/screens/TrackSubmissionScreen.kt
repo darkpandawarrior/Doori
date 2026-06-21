@@ -264,7 +264,7 @@ fun TrackSubmissionScreen(
                 item {
                     AttachmentsSection(
                         attachments = ui.pendingReceipts,
-                        onAdd = { /* navigate to attachment picker — wired at nav level */ },
+                        onAdd = { /* navigate to attachment picker: wired at nav level */ },
                         onRemove = { viewModel.onAction(MileageSubmissionAction.RemoveReceipt(it)) },
                     )
                 }

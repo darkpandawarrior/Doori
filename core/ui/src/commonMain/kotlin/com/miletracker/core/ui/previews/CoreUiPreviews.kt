@@ -154,7 +154,7 @@ private fun SystemStatusRowPreview() {
             )
             SystemStatusBanner(
                 allOk = true,
-                message = "All systems nominal — ready to track.",
+                message = "All systems nominal: ready to track.",
             )
         }
     }

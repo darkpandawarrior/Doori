@@ -43,7 +43,7 @@ class FloatingBubbleManager(private val context: Context) {
         onTap: () -> Unit,
     ) {
         if (isAdded) {
-            Log.w(TAG, "Bubble already shown — skipping")
+            Log.w(TAG, "Bubble already shown: skipping")
             return
         }
 

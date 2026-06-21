@@ -97,7 +97,7 @@ private val ONBOARDING_SLIDES = listOf(
     OnboardingSlide(
         icon = Icons.Filled.LocationOn,
         title = "Your data stays put",
-        caption = "Everything lives locally on your phone — capture mileage anywhere, sync nothing.",
+        caption = "Everything lives locally on your phone: capture mileage anywhere, sync nothing.",
     ),
 )
 

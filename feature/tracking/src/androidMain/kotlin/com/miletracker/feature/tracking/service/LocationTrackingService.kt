@@ -146,7 +146,7 @@ class LocationTrackingService : Service() {
      * The DataStore read suspends, which is safe here because we are already foreground.
      */
     private fun restoreSession(intentToken: String?) {
-        if (activeToken != null) return // already tracking — duplicate restore, ignore
+        if (activeToken != null) return // already tracking: duplicate restore, ignore
         scope.launch {
             val session = sessionStore.currentTrackFlow.first()
             val token = intentToken?.takeIf { it.isNotEmpty() } ?: session.token

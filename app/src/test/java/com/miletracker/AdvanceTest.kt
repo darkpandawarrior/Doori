@@ -32,7 +32,7 @@ class AdvanceTest {
     }
 
     @Test
-    fun `all statuses are distinct — tests cover multiple states`() {
+    fun `all statuses are distinct, tests cover multiple states`() {
         val statuses = repo.advanceRecords.map { it.status }.toSet()
         assertTrue(statuses.size >= 3, "Expected at least 3 distinct statuses")
     }

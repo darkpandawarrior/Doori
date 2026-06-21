@@ -90,7 +90,7 @@ private fun StepHeaderCardPreview() {
         Column(modifier = Modifier.padding(16.dp)) {
             StepHeaderCard(
                 title = "Step 1 of 2",
-                subtitle = "Enter your journey details — start location, stops, and vehicle type.",
+                subtitle = "Enter your journey details: start location, stops, and vehicle type.",
             )
         }
     }

@@ -255,7 +255,7 @@ fun SettingsScreen(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ListItem(
                     headlineContent = { Text("Use system colors") },
-                    supportingContent = { Text("Material You — colors from your wallpaper") },
+                    supportingContent = { Text("Material You: colors from your wallpaper") },
                     trailingContent = {
                         Switch(
                             checked = useSystemColors,
@@ -282,7 +282,7 @@ fun SettingsScreen(
             // Map provider (OSM only, multi-provider toggle not meaningful)
             ListItem(
                 headlineContent = { Text("Map provider") },
-                supportingContent = { Text("OpenStreetMap (fixed — single provider build)") },
+                supportingContent = { Text("OpenStreetMap (fixed: single provider build)") },
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
@@ -312,7 +312,7 @@ fun SettingsScreen(
             )
             ListItem(
                 headlineContent = { Text("Aggressive GPS filter") },
-                supportingContent = { Text("Tighter spike rejection radius — 40 m vs 80 m (real effect)") },
+                supportingContent = { Text("Tighter spike rejection radius: 40 m vs 80 m (real effect)") },
                 trailingContent = {
                     Switch(
                         checked = experimentalFlags.aggressiveGpsFilter,
@@ -336,7 +336,7 @@ fun SettingsScreen(
                 supportingContent = { Text(about.appVersion) },
             )
             Text(
-                text = "Demo build — mock data only, no network calls.",
+                text = "Demo build: mock data only, no network calls.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
@@ -581,7 +581,7 @@ private fun PermissionHealthSection(onPermissionToggle: () -> Unit) {
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "90% — All required permissions granted",
+                    "90%: All required permissions granted",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )

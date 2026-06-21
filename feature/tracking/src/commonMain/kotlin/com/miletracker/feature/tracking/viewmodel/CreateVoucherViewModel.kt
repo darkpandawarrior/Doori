@@ -91,7 +91,7 @@ class CreateVoucherViewModel(
                 run {
                     val ldt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                     val monthName = ldt.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
-                    "Voucher — $monthName ${ldt.year}"
+                    "Voucher: $monthName ${ldt.year}"
                 }
             setState { copy(expenses = tracks, title = defaultTitle, isLoading = false) }
         }
