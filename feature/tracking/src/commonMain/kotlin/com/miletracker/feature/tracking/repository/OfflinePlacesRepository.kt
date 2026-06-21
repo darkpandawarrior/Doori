@@ -2,7 +2,7 @@ package com.miletracker.feature.tracking.repository
 
 /**
  * Returns human-readable demo address strings keyed deterministically on lat/lng.
- * No network calls, all strings are baked in so the demo works fully offline.
+ * No network calls — all strings are baked in so the demo works fully offline.
  */
 object OfflinePlacesRepository {
     private val PUNE_ADDRESSES =

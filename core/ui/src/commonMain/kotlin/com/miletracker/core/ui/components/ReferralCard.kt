@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 /**
- * RF.4: "refer a friend" section: shows the user's own code, a Share button (routed to the platform
+ * RF.4 — "refer a friend" section: shows the user's own code, a Share button (routed to the platform
  * [com.miletracker.core.platform.ShareSheet]), and a field to redeem someone else's code (local mock).
  * Pure/stateless so the hosting screen owns the manager + share wiring.
  */

@@ -37,7 +37,7 @@ sealed interface CreateTripAction {
 }
 
 /**
- * TR.2: Create-Trip reducer. Drives the shared `FormSubmissionScaffold`: field setters,
+ * TR.2 — Create-Trip reducer. Drives the shared `FormSubmissionScaffold`: field setters,
  * [CreateTripUiState.canSubmit] gating, and a submit that runs the rotating-status fake and emits the shared
  * [TravelCreateEffect].
  */

@@ -10,7 +10,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-/** Q.3: card request multi-step reducers. */
+/** Q.3 — card request multi-step reducers. */
 class CardRequestViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()

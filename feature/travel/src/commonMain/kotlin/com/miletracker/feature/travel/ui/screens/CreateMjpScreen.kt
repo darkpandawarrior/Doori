@@ -22,7 +22,7 @@ import com.miletracker.feature.travel.viewmodel.CreateMjpAction
 import com.miletracker.feature.travel.viewmodel.CreateMjpViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** TR.6: Multi-city Journey Plan (MJP) create flow with add/remove legs, on the shared FormSubmissionScaffold. */
+/** TR.6 — Multi-city Journey Plan (MJP) create flow with add/remove legs, on the shared FormSubmissionScaffold. */
 @Composable
 fun CreateMjpScreen(
     onBack: () -> Unit,

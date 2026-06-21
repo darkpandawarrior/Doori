@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * Generic modal surface. Prefer this (or [ActionConfirmationBottomSheet] for confirmations) over
- * `AlertDialog` for every modal, project convention is bottom sheets over dialogs. Wraps
+ * `AlertDialog` for every modal — project convention is bottom sheets over dialogs. Wraps
  * [ModalBottomSheet] with the standard insets + an optional title; the caller fills [content] (lists,
  * pickers, forms, detail views, …).
  */

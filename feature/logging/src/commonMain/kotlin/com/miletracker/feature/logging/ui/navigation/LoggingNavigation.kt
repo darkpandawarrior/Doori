@@ -21,18 +21,18 @@ import org.koin.compose.viewmodel.koinViewModel
 /**
  * Route constants for the Spends tab (Log Miles + Expense flows).
  *
- * [HOME] is the Spends hub landing, renders two primary-action cards.
+ * [HOME] is the Spends hub landing — renders two primary-action cards.
  * [LOG_MILES] is the Log Miles Step 1 entry; deeper log-miles routes share
  * its ViewModel via [rememberLogMilesEntry].
  */
 object LoggingRoutes {
-    /** Spends hub, two-card home (top-level tab destination). */
+    /** Spends hub — two-card home (top-level tab destination). */
     const val HOME = "spends_home"
 
-    /** Log Miles Step 1, journey basics + travelled locations. */
+    /** Log Miles Step 1 — journey basics + travelled locations. */
     const val LOG_MILES = "log_miles"
 
-    /** Log Miles Step 2, expense details + submission. */
+    /** Log Miles Step 2 — expense details + submission. */
     const val STEP2 = "log_miles/step2"
 
     /** Log Miles post-submission success route. */
@@ -41,10 +41,10 @@ object LoggingRoutes {
     /** Log Miles drafts + submitted history. */
     const val HISTORY = "log_miles/history"
 
-    /** Add Expense Step 1, category picker. */
+    /** Add Expense Step 1 — category picker. */
     const val EXPENSE_ENTRY = "expense/entry"
 
-    /** Add Expense Step 2, amount, merchant, notes + submit. */
+    /** Add Expense Step 2 — amount, merchant, notes + submit. */
     const val EXPENSE_DETAILS = "expense/details"
 
     /** Add Expense success screen. */

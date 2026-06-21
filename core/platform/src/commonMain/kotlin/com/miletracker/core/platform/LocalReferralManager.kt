@@ -46,7 +46,7 @@ class InMemoryReferralStore : ReferralStore {
 }
 
 /**
- * RF.1: commonMain [ReferralManager]: generates a stable per-install code, exposes the pending captured
+ * RF.1 — commonMain [ReferralManager]: generates a stable per-install code, exposes the pending captured
  * referral, and redeems codes against a local mock (no backend). The platform impls (RF.2 Android
  * InstallReferrer, RF.3 iOS deferred link) call [capture] to push an attribution into the shared store.
  */

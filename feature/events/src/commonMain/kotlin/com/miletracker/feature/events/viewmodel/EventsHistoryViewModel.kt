@@ -6,7 +6,7 @@ import com.miletracker.feature.events.model.EventRecord
 import com.miletracker.feature.events.model.EventStatus
 import com.miletracker.feature.events.repository.EventsRepository
 
-/** EV: events-history status tabs (the first tab is "All"). */
+/** EV — events-history status tabs (the first tab is "All"). */
 val EVENTS_HISTORY_TABS: List<EventStatus?> = listOf(null) + EventStatus.entries
 
 data class EventsHistoryUiState(
@@ -25,7 +25,7 @@ sealed interface EventsHistoryAction {
 
 sealed interface EventsHistoryEffect
 
-/** EV: reducer for the events-history surface, on the shared `HistoryListScaffold`. */
+/** EV — reducer for the events-history surface, on the shared `HistoryListScaffold`. */
 class EventsHistoryViewModel(
     private val repository: EventsRepository,
 ) : BaseViewModel<EventsHistoryUiState, EventsHistoryEffect, EventsHistoryAction>(EventsHistoryUiState()) {

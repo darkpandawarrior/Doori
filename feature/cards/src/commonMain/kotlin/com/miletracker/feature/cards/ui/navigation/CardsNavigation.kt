@@ -10,7 +10,7 @@ import com.miletracker.feature.cards.ui.CardDetailScreen
 import com.miletracker.feature.cards.ui.CardRequestScreen
 import com.miletracker.feature.cards.ui.CardsHomeScreen
 
-/** Q.6: cards feature routes + nav graph (the home is the nested graph's start destination). */
+/** Q.6 — cards feature routes + nav graph (the home is the nested graph's start destination). */
 object CardRoutes {
     const val HOME = "cards_home"
     const val REQUEST = "cards_request"

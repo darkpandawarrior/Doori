@@ -24,7 +24,7 @@ import com.miletracker.feature.logging.viewmodel.CardsTxnHistoryAction
 import com.miletracker.feature.logging.viewmodel.CardsTxnHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** SP.3: cards-expense-txn history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
+/** SP.3 — cards-expense-txn history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
 @Composable
 fun CardsTxnHistoryScreen(
     onBack: () -> Unit,

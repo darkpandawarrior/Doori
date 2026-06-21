@@ -9,7 +9,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** FCM.1: push token store + local messaging. */
+/** FCM.1 — push token store + local messaging. */
 class PushMessagingTest {
     @Test
     fun `token defaults to null and updates`() =

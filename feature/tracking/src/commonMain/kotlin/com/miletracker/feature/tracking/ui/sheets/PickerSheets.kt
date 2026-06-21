@@ -52,7 +52,7 @@ data class VehicleOption(
 )
 
 /**
- * "Choose Vehicle Type", a search field over a 2-column grid of vehicle cards
+ * "Choose Vehicle Type" — a search field over a 2-column grid of vehicle cards
  * (icon, name, "₹X.X/km"). Stateless: query + selection are hoisted.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -151,7 +151,7 @@ data class CenterOption(
 )
 
 /**
- * "List of Centers", a search field over a list of vendor rows (name, address or
+ * "List of Centers" — a search field over a list of vendor rows (name, address or
  * "Not Defined", open-in-maps trailing action). Stateless: query + selection are hoisted.
  */
 @OptIn(ExperimentalMaterial3Api::class)

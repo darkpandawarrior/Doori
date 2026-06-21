@@ -160,7 +160,7 @@ fun CloudLibraryScreen(
     if (showDeleteDialog) {
         ActionConfirmationBottomSheet(
             title = "Delete ${selectedIds.size} item(s)?",
-            description = "This removes them from the library only: the original file is unchanged.",
+            description = "This removes them from the library only — the original file is unchanged.",
             confirmLabel = "Delete",
             tone = ActionConfirmationToneType.Danger,
             onConfirm = {

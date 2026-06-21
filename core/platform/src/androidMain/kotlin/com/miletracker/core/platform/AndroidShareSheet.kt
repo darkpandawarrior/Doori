@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 
 /**
- * Android share via the system chooser (SH.1), `ACTION_SEND` with optional subject and a `content://`
+ * Android share via the system chooser (SH.1) — `ACTION_SEND` with optional subject and a `content://`
  * stream. Launched from the application context, so the chooser carries `FLAG_ACTIVITY_NEW_TASK`; a file
  * stream also grants read permission to the receiving app.
  */

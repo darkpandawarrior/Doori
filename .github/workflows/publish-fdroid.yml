@@ -1,6 +1,6 @@
 name: Publish F-Droid APK
 
-# FLFD.5: builds the reproducible noGms (FOSS) release, signs it out-of-band with a pinned apksigner,
+# FLFD.5 — builds the reproducible noGms (FOSS) release, signs it out-of-band with a pinned apksigner,
 # and publishes the APK + .sha256 to a GitHub Release (the binary host referenced by the fdroiddata yml).
 # All secrets are env-activated placeholders; the job is a no-op until they are configured.
 on:

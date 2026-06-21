@@ -141,7 +141,7 @@ fun TrackLoadingScreen(
 
 /**
  * A Compose-drawn paper-plane that bobs up and down on a slow infinite loop, with
- * a small grey cloud just ahead of it. Pure drawing, no resources required.
+ * a small grey cloud just ahead of it. Pure drawing — no resources required.
  */
 @Composable
 private fun FloatingPaperPlane(

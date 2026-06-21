@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 /**
- * Android motion sensors (O) via SensorManager, accelerometer + gyroscope merged into one [MotionReading]
+ * Android motion sensors (O) via SensorManager — accelerometer + gyroscope merged into one [MotionReading]
  * stream. Each fresh accelerometer sample emits a reading carrying the last-seen gyro axes (and vice-versa),
  * so downstream [MotionFusion] always has both. Degrades to no emissions on devices without the sensors.
  */

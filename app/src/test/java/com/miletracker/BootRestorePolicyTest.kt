@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 
 /**
  * Decision matrix for resuming an interrupted tracking session after reboot/app update.
- * Pure Kotlin, no device needed.
+ * Pure Kotlin — no device needed.
  */
 class BootRestorePolicyTest {
 

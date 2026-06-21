@@ -22,7 +22,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** A.0e: tests for the hardened MVI base (BaseViewModel) and ScreenState extensions. */
+/** A.0e — tests for the hardened MVI base (BaseViewModel) and ScreenState extensions. */
 class MviInfraTest {
     // --- ScreenState extensions (pure) ---
 

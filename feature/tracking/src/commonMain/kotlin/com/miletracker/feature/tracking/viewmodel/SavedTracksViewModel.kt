@@ -19,7 +19,7 @@ enum class SavedTracksTab { JOURNEYS, SUBMISSIONS }
 
 /**
  * Quick chip filters for the Journeys tab. They mirror the production "This Week / Kept / All"
- * affordance: see screenshot 16_saved_tracks.
+ * affordance — see screenshot 16_saved_tracks.
  */
 enum class JourneyFilter { THIS_WEEK, KEPT, ALL }
 
@@ -42,7 +42,7 @@ enum class SubmissionSource { ALL, NEW_TRACKER, OTHER }
  * pre-computed here so the composable stays stateless and stable. Derived purely from a
  * submitted [TrackDisplayData]; there is no separate persistence layer in this demo.
  *
- * @property id Stable identity for selection, the underlying track token.
+ * @property id Stable identity for selection — the underlying track token.
  * @property transId Human-readable expense reference shown as "#<transId>".
  * @property amount Reimbursable amount in the local currency (rendered as "₹<amount>").
  * @property expenseDateMillis Epoch millis the expense is dated to (drives the date grouping).
@@ -73,7 +73,7 @@ data class SubmissionItem(
  * Single immutable UI state for the Saved Tracks screen (MVI / UDF).
  *
  * The [tracks] list is the source of truth streamed from the repository. Every other list the
- * UI renders, filtered journeys, submissions, selection, is derived from it plus the active
+ * UI renders — filtered journeys, submissions, selection — is derived from it plus the active
  * filter/search/selection fields, so the screen never holds duplicate mutable state.
  */
 @Stable
@@ -128,7 +128,7 @@ data class SavedTracksUiState(
     val unclaimedCount: Int get() = allSubmissions.count { it.isUnclaimed }
     val filedCount: Int get() = allSubmissions.count { it.voucherCreated }
 
-    /** Number of journeys that would show under each chip, used for the chip count labels. */
+    /** Number of journeys that would show under each chip — used for the chip count labels. */
     val journeyCount: Int get() = tracks.size
 
     /** Currently selected, still-unclaimed submission ids (the ones a voucher can be raised for). */

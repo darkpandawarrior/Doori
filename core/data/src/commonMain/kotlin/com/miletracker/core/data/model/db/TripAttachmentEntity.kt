@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
  * One row per photo. Receipts can have many rows; odometer start/end are identified by
  * [type] == [AttachmentType.ODOMETER_START] / [AttachmentType.ODOMETER_END] respectively.
  *
- * Stored locally only, no upload or backend URL.
+ * Stored locally only — no upload or backend URL.
  */
 @Entity(
     tableName = "trip_attachments",
@@ -23,7 +23,7 @@ import androidx.room.PrimaryKey
 data class TripAttachmentEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    /** Matches [SavedTrack.routeId], the logical foreign key. */
+    /** Matches [SavedTrack.routeId] — the logical foreign key. */
     @ColumnInfo(name = "track_token")
     val trackToken: String,
     /** Classification of this attachment within the trip. */

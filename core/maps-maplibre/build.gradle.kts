@@ -13,7 +13,7 @@ kotlin {
         commonMain.dependencies {
             api(project(":core:maps"))
 
-            // MapLibre Compose, open-source KMP map (Android + iOS).
+            // MapLibre Compose — open-source KMP map (Android + iOS).
             // No API key required; uses configurable tile server (default: OpenFreeMap).
             implementation(libs.maplibre.compose)
 

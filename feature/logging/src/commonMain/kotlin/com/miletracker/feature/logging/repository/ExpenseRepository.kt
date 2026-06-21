@@ -13,7 +13,7 @@ class ExpenseRepository {
             ExpenseRecord(
                 id = "EXP-001",
                 category = ExpenseCategory.FOOD,
-                merchantName = "Swiggy: Team Lunch",
+                merchantName = "Swiggy — Team Lunch",
                 amountRupees = 1850.0,
                 status = ExpenseStatus.APPROVED,
                 dateMs = baseMs - 1 * dayMs,
@@ -22,16 +22,16 @@ class ExpenseRepository {
             ExpenseRecord(
                 id = "EXP-002",
                 category = ExpenseCategory.TRAVEL,
-                merchantName = "Ola Cabs: Airport",
+                merchantName = "Ola Cabs — Airport",
                 amountRupees = 6200.0,
                 status = ExpenseStatus.PENDING,
                 dateMs = baseMs - 2 * dayMs,
-                note = "Client visit: Bengaluru",
+                note = "Client visit — Bengaluru",
             ),
             ExpenseRecord(
                 id = "EXP-003",
                 category = ExpenseCategory.ACCOMMODATION,
-                merchantName = "Taj Hotel: 1 Night",
+                merchantName = "Taj Hotel — 1 Night",
                 amountRupees = 8900.0,
                 status = ExpenseStatus.APPROVED,
                 dateMs = baseMs - 4 * dayMs,
@@ -40,7 +40,7 @@ class ExpenseRepository {
             ExpenseRecord(
                 id = "EXP-004",
                 category = ExpenseCategory.OFFICE_SUPPLIES,
-                merchantName = "Staples: Stationery",
+                merchantName = "Staples — Stationery",
                 amountRupees = 340.0,
                 status = ExpenseStatus.DRAFT,
                 dateMs = baseMs - 5 * dayMs,
@@ -66,7 +66,7 @@ class ExpenseRepository {
             ExpenseRecord(
                 id = "EXP-007",
                 category = ExpenseCategory.FOOD,
-                merchantName = "The Bombay Canteen: Client Dinner",
+                merchantName = "The Bombay Canteen — Client Dinner",
                 amountRupees = 4750.0,
                 status = ExpenseStatus.REJECTED,
                 dateMs = baseMs - 14 * dayMs,

@@ -8,7 +8,7 @@ import platform.LocalAuthentication.LAPolicyDeviceOwnerAuthenticationWithBiometr
 import kotlin.coroutines.resume
 
 /**
- * iOS biometric auth via LocalAuthentication, the Face/Touch ID counterpart to Android's BiometricPrompt
+ * iOS biometric auth via LocalAuthentication — the Face/Touch ID counterpart to Android's BiometricPrompt
  * (F). Checks policy availability, then bridges LAContext.evaluatePolicy's completion handler into a
  * cancellable suspend call. Compiles + links against the simulator framework; runtime needs a real device.
  */

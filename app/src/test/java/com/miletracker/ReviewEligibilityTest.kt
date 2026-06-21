@@ -7,7 +7,7 @@ import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** RV.1: engagement-gating rules for the in-app review prompt. */
+/** RV.1 — engagement-gating rules for the in-app review prompt. */
 class ReviewEligibilityTest {
     private val day = 24L * 60L * 60L * 1000L
     private val now = 100L * day

@@ -17,8 +17,8 @@ import org.koin.dsl.module
  * Immutable state for the Home tab.
  *
  * Everything the screen renders is assembled once, up front, from the deterministic
- * offline mock providers ([HomeMockData], [ProfileMockData]). There is no async load,
- * the home dashboard is fully local, so the screen never needs a loading or error state.
+ * offline mock providers ([HomeMockData], [ProfileMockData]). There is no async load —
+ * the home dashboard is fully local — so the screen never needs a loading or error state.
  *
  * @property greetingName first name extracted from the signed-in profile, used by the
  *   amber "Hello, <name>" greeting in the header.

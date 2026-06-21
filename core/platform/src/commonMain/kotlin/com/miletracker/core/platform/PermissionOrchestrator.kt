@@ -24,8 +24,8 @@ data class PermissionFlowState(
 /**
  * Sequential permission-request state machine (UX.3) over a [PermissionsProvider]. Walks a fixed [sequence]
  * one permission at a time: each step is skipped if already granted, otherwise [requestCurrent] asks for it,
- * records the [PermissionResult], and advances. Pure orchestration over the platform provider, no Android /
- * iOS types, so it is fully covered by JVM unit tests with a fake provider. The UI observes [state] and
+ * records the [PermissionResult], and advances. Pure orchestration over the platform provider — no Android /
+ * iOS types — so it is fully covered by JVM unit tests with a fake provider. The UI observes [state] and
  * calls [requestCurrent] from a button; [runAll] auto-walks the whole sequence.
  */
 class PermissionOrchestrator(

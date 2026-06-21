@@ -13,7 +13,7 @@ enum class PaymentStatus(val label: String) {
     FAILED("Failed"),
 }
 
-/** One row in the payments history (PM), a mocked UPI/QR pay or request. */
+/** One row in the payments history (PM) — a mocked UPI/QR pay or request. */
 data class PaymentRecord(
     val id: String,
     val direction: PaymentDirection,

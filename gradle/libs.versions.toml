@@ -54,7 +54,7 @@ jbNavigationCompose = "2.9.2"
 navigation3 = "1.1.2"
 storytale = "0.0.5-alpha01+dev24"
 navgraph = "0.1.2"
-# Phase 12, Code quality
+# Phase 12 — Code quality
 detekt = "1.23.8"
 kover = "0.9.8"
 ktlint-plugin = "12.2.0"
@@ -62,10 +62,10 @@ ktlint-plugin = "12.2.0"
 dependency-guard = "0.5.0"
 gradle-doctor = "0.12.0"
 profileinstaller = "1.4.1"
-# V15: platform services (gms-only): in-app update + in-app review
+# V15 — platform services (gms-only): in-app update + in-app review
 play-app-update = "2.1.0"
 play-review = "2.0.2"
-# V15: Firebase (gms-only): FCM, Analytics, Crashlytics
+# V15 — Firebase (gms-only): FCM, Analytics, Crashlytics
 google-services = "4.4.2"
 firebase-bom = "34.4.0"
 firebase-crashlytics-plugin = "3.0.3"
@@ -129,7 +129,7 @@ krossmap = { module = "io.github.farimarwat:krossmap", version.ref = "krossmap" 
 # Location
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 
-# V15 platform services (gms flavor only, proprietary; never referenced from noGms/commonMain)
+# V15 platform services (gms flavor only — proprietary; never referenced from noGms/commonMain)
 play-app-update = { module = "com.google.android.play:app-update", version.ref = "play-app-update" }
 play-app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "play-app-update" }
 play-review = { module = "com.google.android.play:review", version.ref = "play-review" }
@@ -180,11 +180,11 @@ roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose"
 roborazzi-preview-scanner = { module = "io.github.takahirom.roborazzi:roborazzi-compose-preview-scanner-support", version.ref = "roborazzi" }
 compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
-# Baseline profiles, install compiled Dex profiles at APK install time for cold-start wins
+# Baseline profiles — install compiled Dex profiles at APK install time for cold-start wins
 profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
 
 # --- V12 KMP storage + security ---
-# multiplatform-settings (russhwolf), KMP key-value store: NSUserDefaults/SharedPreferences plain,
+# multiplatform-settings (russhwolf) — KMP key-value store: NSUserDefaults/SharedPreferences plain,
 # KeychainSettings (iOS) / EncryptedSharedPreferences (Android) for the secure tier
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatform-settings" }
@@ -192,7 +192,7 @@ multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-s
 multiplatform-settings-test = { module = "com.russhwolf:multiplatform-settings-test", version.ref = "multiplatform-settings" }
 # Android backing for the secure tier: EncryptedSharedPreferences (Android-only, androidMain)
 security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
-# Napier: KMP logging; replaces android.util.Log which cannot go in commonMain
+# Napier — KMP logging; replaces android.util.Log which cannot go in commonMain
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 
 # --- V11 KMP/CMP multiplatform replacements (see .ralph/kmp-migration-map.md) ---
@@ -229,7 +229,7 @@ jb-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation
 # compose-nav-graph (visualization spike; rides navigation3 NavKey)
 navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3" }
 compose-nav-graph-annotations = { module = "com.github.skydoves:compose-nav-graph-annotations", version.ref = "navgraph" }
-# Multiplatform WHEEL date/time picker (replaces Android-only PickTime; preserves the wheel UX), Phase 2.4b
+# Multiplatform WHEEL date/time picker (replaces Android-only PickTime; preserves the wheel UX) — Phase 2.4b
 datetime-wheel-picker = { module = "io.github.darkokoa:datetime-wheel-picker", version.ref = "datetimeWheelPicker" }
 
 # Gradle-plugin artifacts for build-logic convention plugins (Phase 11)
@@ -260,6 +260,6 @@ ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }
 # Build health
 dependency-guard = { id = "com.dropbox.dependency-guard", version.ref = "dependency-guard" }
 gradle-doctor = { id = "com.osacky.doctor", version.ref = "gradle-doctor" }
-# V15: Firebase Gradle plugins (gms flavor only; F-Droid strips these, FLFD)
+# V15: Firebase Gradle plugins (gms flavor only; F-Droid strips these — FLFD)
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-plugin" }

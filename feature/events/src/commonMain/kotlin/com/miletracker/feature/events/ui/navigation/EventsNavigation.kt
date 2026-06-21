@@ -7,7 +7,7 @@ import com.miletracker.feature.events.ui.screens.CreateEventScreen
 import com.miletracker.feature.events.ui.screens.EventsHistoryScreen
 
 /**
- * EV: the shared, commonMain events navigation graph (mirrors `payablesGraph`): an events history hub plus the
+ * EV — the shared, commonMain events navigation graph (mirrors `payablesGraph`): an events history hub plus the
  * create-event flow. Reachable from the Home quick-action grid + master search (wired in the EN phase).
  */
 object EventsRoutes {

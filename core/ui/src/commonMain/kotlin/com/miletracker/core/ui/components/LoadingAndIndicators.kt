@@ -644,8 +644,8 @@ fun CountBadge(
 // =============================================================================
 
 /**
- * Text that shrinks its font size (down to [minFontSize]) so important strings, names,
- * greetings, titles, are never ellipsised. Width estimation uses a 0.65 character-width
+ * Text that shrinks its font size (down to [minFontSize]) so important strings — names,
+ * greetings, titles — are never ellipsised. Width estimation uses a 0.65 character-width
  * factor, which is safe for wide glyphs.
  */
 @Composable

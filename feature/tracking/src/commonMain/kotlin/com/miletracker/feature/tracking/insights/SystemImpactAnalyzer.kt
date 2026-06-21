@@ -18,7 +18,7 @@ import kotlin.math.min
  *   - No-network points        → half of offline%, capped at 15 %; surfaced when >5 %
  *
  * HardwareEvents are used purely to detect app-kill / restart events not captured on
- * the track row itself (defensive augmentation, track row flags take precedence).
+ * the track row itself (defensive augmentation — track row flags take precedence).
  */
 class SystemImpactAnalyzer {
     fun analyze(

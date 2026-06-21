@@ -8,7 +8,7 @@ import com.miletracker.feature.cards.data.CardsMockDataProviderFactory
 import com.miletracker.feature.cards.model.CardModel
 import com.miletracker.feature.cards.model.CardRequestModel
 
-/** Q.3: Cards home (tabs: cards / requests). */
+/** Q.3 — Cards home (tabs: cards / requests). */
 data class CardsHomeUiState(
     val virtualCards: ScreenState<List<CardModel>> = ScreenState.Loading,
     val physicalCards: ScreenState<List<CardModel>> = ScreenState.Loading,

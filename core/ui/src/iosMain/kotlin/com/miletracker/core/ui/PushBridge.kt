@@ -6,7 +6,7 @@ import com.miletracker.core.platform.PushMessaging
 import com.miletracker.core.platform.PushTokenStore
 
 /**
- * FCM.4: Swift → KMP push bridge, exported in the Mileway framework.
+ * FCM.4 — Swift → KMP push bridge, exported in the Mileway framework.
  *
  * `AppDelegate.swift` forwards the APNs/FCM token (from `didRegisterForRemoteNotificationsWithDeviceToken`,
  * or `Messaging.messaging().fcmToken` once the Firebase SPM package is added) to [setToken]; shared code

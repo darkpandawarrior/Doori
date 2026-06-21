@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Selectable seed-colour presets. The whole Material colour scheme is generated from the
- * chosen seed (see [MileTrackerTheme]); these are just convenient starting points, a fully
+ * chosen seed (see [MileTrackerTheme]); these are just convenient starting points — a fully
  * custom seed can be picked with the colour wheel and is stored in [ThemeController.customSeedHex].
  */
 enum class AccentPalette(val label: String, val seedHex: String) {
@@ -42,7 +42,7 @@ enum class AppLanguage(val tag: String, val displayName: String) {
  * - [batteryAwareTracking]: defers location polling when battery < 15% (real runtime
  *   effect wired in tracking service; no-op when battery is healthy).
  * - [lowEndDeviceTuning]: reduces recomposition frequency and drops some UI animations
- *   (cosmetic in demo, real tuning would require Baseline Profile gating).
+ *   (cosmetic in demo — real tuning would require Baseline Profile gating).
  * - [aggressiveGpsFilter]: tightens the spike-rejection radius from 80 m to 40 m
  *   (real effect on the LocationProcessor filter; marked for demo because actual
  *   field impact requires extended trips to observe).
@@ -61,6 +61,7 @@ object ThemePreferenceKeys {
     val USE_SYSTEM_COLORS = booleanPreferencesKey("use_system_colors")
     val PALETTE_STYLE = stringPreferencesKey("palette_style")
     val THEME_VARIANT = stringPreferencesKey("theme_variant")
+    val MILEWAY_THEME = stringPreferencesKey("mileway_theme")
     val MAP_PROVIDER = stringPreferencesKey("map_provider")
     val LANGUAGE = stringPreferencesKey("language")
 }
@@ -87,6 +88,7 @@ class ThemeController(
     private val _useSystemColors = MutableStateFlow(ThemeDefaults.USE_SYSTEM_COLORS)
     private val _paletteStyle = MutableStateFlow(ThemeDefaults.PALETTE_STYLE)
     private val _themeVariant = MutableStateFlow(ThemeDefaults.THEME_VARIANT)
+    private val _milewayTheme = MutableStateFlow(MilewayTheme.DEFAULT)
     private val _mapProvider = MutableStateFlow(ThemeDefaults.MAP_PROVIDER)
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)
     private val _experimentalFlags = MutableStateFlow(ExperimentalFlags())
@@ -109,7 +111,14 @@ class ThemeController(
     /** Theme variant tag ("DEFAULT"; reserved for special variants like debug skins). */
     val themeVariant: StateFlow<String> = _themeVariant.asStateFlow()
 
-    /** Map tile provider name ("OSM", the demo's single provider). */
+    /**
+     * Currently selected curated theme (Design Language v2). Defaults to [MilewayTheme.MATRIX]
+     * and drives the hand-tuned scheme + semantic colours in `MileTrackerTheme`. Persisted under
+     * [ThemePreferenceKeys.MILEWAY_THEME] and restored across process death.
+     */
+    val milewayTheme: StateFlow<MilewayTheme> = _milewayTheme.asStateFlow()
+
+    /** Map tile provider name ("OSM" — the demo's single provider). */
     val mapProvider: StateFlow<String> = _mapProvider.asStateFlow()
 
     /** Currently selected app language. */
@@ -121,7 +130,7 @@ class ThemeController(
     init {
         prefs?.let { store ->
             scope.launch {
-                // A corrupt or unavailable store must never crash the app, fall back to defaults.
+                // A corrupt or unavailable store must never crash the app — fall back to defaults.
                 val snap =
                     try {
                         store.data.first()
@@ -137,6 +146,9 @@ class ThemeController(
                 snap[ThemePreferenceKeys.USE_SYSTEM_COLORS]?.let { _useSystemColors.value = it }
                 snap[ThemePreferenceKeys.PALETTE_STYLE]?.let { _paletteStyle.value = it }
                 snap[ThemePreferenceKeys.THEME_VARIANT]?.let { _themeVariant.value = it }
+                snap[ThemePreferenceKeys.MILEWAY_THEME]?.let { id ->
+                    _milewayTheme.value = MilewayTheme.fromId(id)
+                }
                 snap[ThemePreferenceKeys.MAP_PROVIDER]?.let { _mapProvider.value = it }
                 snap[ThemePreferenceKeys.LANGUAGE]?.let { tag ->
                     AppLanguage.entries.firstOrNull { it.tag == tag }
@@ -208,6 +220,19 @@ class ThemeController(
         persist { p -> p[ThemePreferenceKeys.THEME_VARIANT] = variant }
     }
 
+    /**
+     * Select a curated theme (Design Language v2). Picking one also clears any custom seed so the
+     * hand-tuned scheme visibly takes effect (a custom seed otherwise wins in `MileTrackerTheme`).
+     */
+    fun setMilewayTheme(theme: MilewayTheme) {
+        _milewayTheme.value = theme
+        _customSeedHex.value = ThemeDefaults.CUSTOM_THEME
+        persist { p ->
+            p[ThemePreferenceKeys.MILEWAY_THEME] = theme.id
+            p[ThemePreferenceKeys.CUSTOM_THEME] = ThemeDefaults.CUSTOM_THEME
+        }
+    }
+
     fun setMapProvider(provider: String) {
         _mapProvider.value = provider
         persist { p -> p[ThemePreferenceKeys.MAP_PROVIDER] = provider }
@@ -228,6 +253,7 @@ class ThemeController(
         _useSystemColors.value = ThemeDefaults.USE_SYSTEM_COLORS
         _paletteStyle.value = ThemeDefaults.PALETTE_STYLE
         _themeVariant.value = ThemeDefaults.THEME_VARIANT
+        _milewayTheme.value = MilewayTheme.DEFAULT
         _mapProvider.value = ThemeDefaults.MAP_PROVIDER
         _language.value = AppLanguage.ENGLISH
         _experimentalFlags.value = ExperimentalFlags()
@@ -237,6 +263,7 @@ class ThemeController(
             p[ThemePreferenceKeys.USE_SYSTEM_COLORS] = ThemeDefaults.USE_SYSTEM_COLORS
             p[ThemePreferenceKeys.PALETTE_STYLE] = ThemeDefaults.PALETTE_STYLE
             p[ThemePreferenceKeys.THEME_VARIANT] = ThemeDefaults.THEME_VARIANT
+            p[ThemePreferenceKeys.MILEWAY_THEME] = MilewayTheme.DEFAULT.id
             p[ThemePreferenceKeys.MAP_PROVIDER] = ThemeDefaults.MAP_PROVIDER
             p[ThemePreferenceKeys.LANGUAGE] = AppLanguage.ENGLISH.tag
         }

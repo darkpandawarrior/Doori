@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/** Q.2: cards mock data layer (EN/AR/HI). */
+/** Q.2 — cards mock data layer (EN/AR/HI). */
 class CardsMockDataTest {
     private val en = CardsMockDataProviderFactory.provider("en")
 

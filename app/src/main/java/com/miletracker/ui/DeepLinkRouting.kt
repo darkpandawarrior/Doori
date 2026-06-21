@@ -6,8 +6,8 @@ import com.miletracker.feature.profile.ui.navigation.ProfileRoutes
 import com.miletracker.feature.tracking.ui.navigation.TrackingRoutes
 
 /**
- * DL.4: maps a resolved [DeepLinkTarget] to a concrete nav route. Section targets go to their graph
- * route; sub-targets (checkin / expense / settings) go to the specific nested destination, the JetBrains
+ * DL.4 — maps a resolved [DeepLinkTarget] to a concrete nav route. Section targets go to their graph
+ * route; sub-targets (checkin / expense / settings) go to the specific nested destination — the JetBrains
  * NavController rebuilds the parent-graph back stack to a nested node, so the bottom-bar hierarchy check
  * still resolves the right tab. [DeepLinkTarget.Unknown] → null (ignored).
  *

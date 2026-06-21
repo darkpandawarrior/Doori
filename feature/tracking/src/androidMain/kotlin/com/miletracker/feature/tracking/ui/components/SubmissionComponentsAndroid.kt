@@ -93,7 +93,7 @@ enum class FormFieldType {
  *
  * @param id Stable identifier used to route value changes back to the caller.
  * @param label Human-readable label shown above the control.
- * @param type Which input control to render, see [FormFieldType].
+ * @param type Which input control to render — see [FormFieldType].
  * @param value Current value (the source of truth lives in the caller).
  * @param required When true, a red asterisk is appended to the label.
  * @param options Choices for [FormFieldType.DROPDOWN]; ignored for text fields.
@@ -110,7 +110,7 @@ data class FormField(
 )
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. Checklist header, "Review and submit journey"
+// 1. Checklist header — "Review and submit journey"
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**

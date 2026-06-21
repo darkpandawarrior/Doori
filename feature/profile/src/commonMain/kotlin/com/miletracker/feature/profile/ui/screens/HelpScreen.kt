@@ -69,7 +69,7 @@ private val ALL_FAQS =
         ),
         Faq(
             "Can I switch between accounts?",
-            "Yes: go to Profile and tap your name to switch between saved demo accounts. Each account maintains its own journey history.",
+            "Yes — go to Profile and tap your name to switch between saved demo accounts. Each account maintains its own journey history.",
             "Getting Started",
         ),
         // Track Miles
@@ -265,7 +265,7 @@ fun HelpScreen(onBack: () -> Unit) {
                         Text("Contact Support")
                     }
                     Button(
-                        onClick = { scope.launch { snackbarHostState.showSnackbar("Bug report submitted: thank you!") } },
+                        onClick = { scope.launch { snackbarHostState.showSnackbar("Bug report submitted — thank you!") } },
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                     ) {

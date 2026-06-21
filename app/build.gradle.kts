@@ -17,7 +17,7 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
-// Release signing, reads from keystore.properties (gitignored) or env vars (CI).
+// Release signing — reads from keystore.properties (gitignored) or env vars (CI).
 // Falls back to debug signing if neither is present, so `assembleGmsRelease` still
 // succeeds locally and in CI without secrets configured.
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -68,7 +68,7 @@ android {
         buildConfig = true
     }
 
-    // FLFD.1: reproducible FOSS (F-Droid) builds, omit the dependency-metadata block from the APK/AAB
+    // FLFD.1: reproducible FOSS (F-Droid) builds — omit the dependency-metadata block from the APK/AAB
     // (it embeds a signed, non-reproducible blob). Applies to all variants; harmless for the Play build.
     dependenciesInfo {
         includeInApk = false
@@ -76,7 +76,7 @@ android {
     }
 
     // Maps flavor dimension:
-    //   gms   → KrossMap (Google Maps on Android, MapKit on iOS), requires API key
+    //   gms   → KrossMap (Google Maps on Android, MapKit on iOS) — requires API key
     //   noGms → MapLibre (open-source tiles, no API key, offline MBTiles capable)
     flavorDimensions += "maps"
     productFlavors {
@@ -118,7 +118,7 @@ android {
             isShrinkResources = !fdroidBuild
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // CF.4: Crashlytics mapping upload is OFF by default (placeholder Firebase config), enabled in CI
-            // only when CRASHLYTICS_UPLOAD=true with a real google-services.json, "guarded by key".
+            // only when CRASHLYTICS_UPLOAD=true with a real google-services.json — "guarded by key".
             configure<com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension> {
                 mappingFileUploadEnabled = System.getenv("CRASHLYTICS_UPLOAD") == "true"
             }
@@ -167,18 +167,18 @@ android {
 }
 
 navgraph {
-    // Flavored app, pin to the gms debug variant so KSP picks the right classpath.
+    // Flavored app — pin to the gms debug variant so KSP picks the right classpath.
     variant.set("gmsDebug")
 }
 
 ksp {
     arg("navgraph.annotatedOnly", "true")
-    // Room: faster incremental processing; only reprocesses changed DAOs.
+    // Room — faster incremental processing; only reprocesses changed DAOs.
     arg("room.incremental", "true")
     arg("room.expandProjection", "true")
 }
 
-// Compose compiler stability/recomposition reports, written to build/compose_metrics/.
+// Compose compiler stability/recomposition reports — written to build/compose_metrics/.
 // Trigger via: ./gradlew assembleGmsRelease -PenableComposeMetrics=true
 // (debug builds add Live Literals noise; always run on release variant)
 if (project.findProperty("enableComposeMetrics") == "true") {
@@ -191,14 +191,14 @@ if (project.findProperty("enableComposeMetrics") == "true") {
     }
 }
 
-// Kover: line-coverage floor enforced by koverVerifyNoGmsDebugCoverage. Coverage is
+// Kover — line-coverage floor enforced by koverVerifyNoGmsDebugCoverage. Coverage is
 // measured on the noGms (JVM-safe) variant; the gms flavor's Play Services maps crash
 // the Robolectric fork. Scope is :app's own classes; the remaining uncovered surface is
 // almost all Compose UI (Login/Splash/Showcase/AppRoot screens) that needs instrumented
-// tests (deferred, PLAN B.4c), so ~38% is the practical JVM ceiling. Floor ratcheted
+// tests (deferred — PLAN B.4c), so ~38% is the practical JVM ceiling. Floor ratcheted
 // 30 → 35 (H): a tighter regression guard with ~3pt headroom below the current 38.4%.
 // Per-feature ViewModel tests live in app/src/test but exercise feature-module classes,
-// which Kover does not aggregate here, see PLAN H for the feature-coverage follow-up.
+// which Kover does not aggregate here — see PLAN H for the feature-coverage follow-up.
 kover {
     currentProject {
         createVariant("noGmsDebugCoverage") {
@@ -221,7 +221,7 @@ kover {
     }
 }
 
-// Dependency Guard, baseline snapshot of releaseRuntimeClasspath to catch
+// Dependency Guard — baseline snapshot of releaseRuntimeClasspath to catch
 // silent transitive version bumps in CI. Run `./gradlew dependencyGuardBaseline`
 // after any intentional dep change, then commit the updated baseline file.
 dependencyGuard {
@@ -274,41 +274,41 @@ dependencies {
     // WorkManager
     implementation(libs.workmanager.runtime)
 
-    // Map implementations, selected by flavor
+    // Map implementations — selected by flavor
     "gmsImplementation"(project(":core:maps-krossmap"))
     "noGmsImplementation"(project(":core:maps-maplibre"))
 
-    // V15 platform services, Play-Core update + review, gms flavor ONLY (proprietary).
+    // V15 platform services — Play-Core update + review, gms flavor ONLY (proprietary).
     // noGms gets no-op impls; the VerifyDependencyPrefixes guard (FLFD.2) keeps these out of FOSS.
     "gmsImplementation"(libs.play.app.update)
     "gmsImplementation"(libs.play.app.update.ktx)
     "gmsImplementation"(libs.play.review)
     "gmsImplementation"(libs.play.review.ktx)
 
-    // V15 FCM.2/CF.3: Firebase, gms flavor ONLY (proprietary). noGms gets no firebase runtime;
+    // V15 FCM.2/CF.3: Firebase — gms flavor ONLY (proprietary). noGms gets no firebase runtime;
     // VerifyDependencyPrefixes (FLFD.2) enforces that on noGmsReleaseRuntimeClasspath.
     "gmsImplementation"(platform(libs.firebase.bom))
     "gmsImplementation"(libs.firebase.messaging)
     "gmsImplementation"(libs.firebase.analytics)
     "gmsImplementation"(libs.firebase.crashlytics)
 
-    // V15 RF.2: Install Referrer, Play-Store-only attribution, gms flavor ONLY (noGms/F-Droid has none).
+    // V15 RF.2: Install Referrer — Play-Store-only attribution, gms flavor ONLY (noGms/F-Droid has none).
     "gmsImplementation"(libs.install.referrer)
 
-    // Konnection: KMP network connectivity monitor (init in Application)
+    // Konnection — KMP network connectivity monitor (init in Application)
     implementation(libs.konnection)
 
-    // Coil: image loading (world map header background, profile avatars)
+    // Coil — image loading (world map header background, profile avatars)
     implementation(libs.coil3.compose)
-    // Coil 3 decoders, GIF animations and SVG assets
+    // Coil 3 decoders — GIF animations and SVG assets
     implementation(libs.coil3.gif)
     implementation(libs.coil3.svg)
 
-    // WormaCeptor: HTTP traffic inspector, DEBUG builds only (never in release; Android-only).
+    // WormaCeptor — HTTP traffic inspector, DEBUG builds only (never in release; Android-only).
     debugImplementation(libs.wormaceptor.api)
     debugImplementation(libs.wormaceptor.impl)
 
-    // Baseline profiles, installs AOT-compiled Dex profile at install time for cold-start wins.
+    // Baseline profiles — installs AOT-compiled Dex profile at install time for cold-start wins.
     // The actual profile lives in :baselineprofile module (add when ready to generate).
     implementation(libs.profileinstaller)
 
@@ -327,12 +327,12 @@ dependencies {
     testImplementation(project(":core:platform"))
     testImplementation(libs.room.testing)
 
-    // compose-nav-graph: navigation graph visualization (Phase 8)
+    // compose-nav-graph — navigation graph visualization (Phase 8)
     implementation(libs.navigation3.runtime)
     implementation(libs.compose.nav.graph.annotations)
     ksp(libs.compose.nav.graph.annotations)
 
-    // Roborazzi: JVM screenshot tests (no device needed)
+    // Roborazzi — JVM screenshot tests (no device needed)
     // preview-scanner auto-discovers all @Preview functions across all feature modules
     testImplementation(libs.roborazzi.core)
     testImplementation(libs.roborazzi.compose)
@@ -342,9 +342,9 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
 }
 
-// ─── FLFD.2, Proprietary-dependency guard for the noGms (F-Droid) release ───────────────────────────
+// ─── FLFD.2 — Proprietary-dependency guard for the noGms (F-Droid) release ───────────────────────────
 // Fails if a proprietary dep matching a forbidden prefix leaks into noGmsReleaseRuntimeClasspath, EXCEPT
-// the allowlisted pre-existing prime-feature deps (FusedLocation + ML Kit OCR, used by BOTH flavors,
+// the allowlisted pre-existing prime-feature deps (FusedLocation + ML Kit OCR, used by BOTH flavors —
 // making those FOSS is out of V15 scope; guardrail: don't touch the prime feature). The guard's purpose is
 // to keep V15's NEW proprietary additions (Firebase messaging/analytics/crashlytics, Play app-update,
 // Play review, Install Referrer) out of the FOSS build.

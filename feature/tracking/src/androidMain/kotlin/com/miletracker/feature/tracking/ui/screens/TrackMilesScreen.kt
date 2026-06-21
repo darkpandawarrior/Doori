@@ -154,6 +154,9 @@ fun TrackMilesScreen(
             ActivityResultContracts.RequestMultiplePermissions(),
         ) { viewModel.onAction(TrackMilesAction.RequestStartTracking) }
     val requestStartTracking = {
+        // A.3/A.4: collapse any open coach-mark (Journey Guide) BEFORE the permission prompt or
+        // consent sheet appears, so a modal never stacks over the start/consent flow.
+        viewModel.onAction(TrackMilesAction.DismissSheet)
         val granted =
             ContextCompat.checkSelfPermission(
                 context, Manifest.permission.ACCESS_FINE_LOCATION,
@@ -236,7 +239,7 @@ fun TrackMilesScreen(
                     pauseReason = uiState.pauseReason,
                 )
 
-                // Weekly summary pill, shown only when idle, below the hero card.
+                // Weekly summary pill — shown only when idle, below the hero card.
                 if (!isActive && uiState.weekSummaryText.isNotEmpty()) {
                     WeeklySummaryPill(text = uiState.weekSummaryText)
                 }
@@ -255,7 +258,7 @@ fun TrackMilesScreen(
                     )
                 }
 
-                // Journey Guide text link, tappable hint shown when idle.
+                // Journey Guide text link — tappable hint shown when idle.
                 if (!isActive) {
                     androidx.compose.material3.TextButton(
                         onClick = { viewModel.onAction(TrackMilesAction.OpenJourneyGuide) },
@@ -270,7 +273,7 @@ fun TrackMilesScreen(
                 }
             }
 
-            // Pinned control cluster, always reachable, never scrolls away.
+            // Pinned control cluster — always reachable, never scrolls away.
             ThreeButtonFabSystem(
                 isActive = isActive,
                 isPaused = isPaused,
@@ -279,7 +282,11 @@ fun TrackMilesScreen(
                     if (isActive) {
                         viewModel.onAction(TrackMilesAction.StopTracking)
                     } else {
-                        viewModel.onAction(TrackMilesAction.OpenJourneyGuide)
+                        // A.3: the hero FAB is the single primary action. Tapping START goes
+                        // straight to permission → (consent if configured) → tracking, with no
+                        // mandatory Journey Guide coach-mark in the way. Setup (vehicle / odometer)
+                        // stays available via the optional "Journey Guide →" link below.
+                        requestStartTracking()
                     }
                 },
                 onPauseResume = {

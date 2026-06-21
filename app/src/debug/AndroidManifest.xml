@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
-        <!-- Component browser: debug builds only, not included in release APK -->
+        <!-- Component browser — debug builds only, not included in release APK -->
         <activity
             android:name=".showcase.ComponentShowcaseActivity"
             android:exported="true"

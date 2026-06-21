@@ -10,7 +10,7 @@ fun NavController.navigateSafely(
     try {
         navigate(route, builder)
     } catch (_: IllegalArgumentException) {
-        // destination not in the current graph, ignore silently (avoids crashes from duplicate taps)
+        // destination not in the current graph — ignore silently (avoids crashes from duplicate taps)
     }
 }
 

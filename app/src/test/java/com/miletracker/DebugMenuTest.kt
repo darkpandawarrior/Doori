@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
  * - Config snapshot key-value mapping
  * - Search-filter helper
  *
- * No Android framework or Koin required, all JVM-only.
+ * No Android framework or Koin required — all JVM-only.
  */
 class DebugMenuTest {
 

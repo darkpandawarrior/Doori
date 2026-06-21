@@ -217,7 +217,7 @@ fun SmartDistanceSheet(
                     ) {
                         Icon(Icons.Filled.Warning, contentDescription = null, tint = errorColor, modifier = Modifier.size(DesignTokens.IconSize.badge))
                         Text(
-                            text = "Large Discrepancy Detected: values differ by $percentLabel",
+                            text = "Large Discrepancy Detected — values differ by $percentLabel",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold,
                             color = errorColor,
@@ -353,7 +353,7 @@ private fun CompareRow(
 
 /**
  * "Submit Track Miles" confirmation sheet: a centred info icon, heading, prompt, an
- * info note and Submit/Cancel actions. Stateless, all three outcomes are callbacks.
+ * info note and Submit/Cancel actions. Stateless — all three outcomes are callbacks.
  *
  * @param onConfirm Emitted when the user confirms submission.
  * @param onCancel Emitted when the user cancels.
@@ -1028,11 +1028,11 @@ private fun entitySubtitle(entity: BusinessEntity): String {
  * OCR processing delay, then presents the detected reading for confirmation.
  *
  * @param capturedUri   Local file URI of the captured odometer photo.
- * @param purpose       START or END, drives the sheet title.
+ * @param purpose       START or END — drives the sheet title.
  * @param baseReading   Start odometer reading (used to derive the END reading).
  * @param sessionDistanceKm Tracked GPS distance (used to estimate END reading delta).
  * @param onUseReading  Invoked with the confirmed reading when the user taps "Use This Reading".
- * @param onRetake      Invoked when the user taps "Retake", caller re-opens the camera.
+ * @param onRetake      Invoked when the user taps "Retake" — caller re-opens the camera.
  * @param onDismiss     Invoked when the sheet is dismissed without a result.
  */
 @OptIn(ExperimentalMaterial3Api::class)

@@ -6,7 +6,7 @@ import com.miletracker.feature.payables.model.PayablesDocType
 import kotlin.time.Clock
 
 /**
- * Offline fake payables-history store (PB.4), a deterministic spread of [PayablesDoc]s across all five
+ * Offline fake payables-history store (PB.4) — a deterministic spread of [PayablesDoc]s across all five
  * [PayablesDocType] families and all [PayablesDocStatus]es so the type-tabbed history + status filter chips
  * exercise every segment. Built relative to a [Clock]-supplied `now` (no `Math.random`), in the SP.1/SP.2
  * `VoucherHistoryRepository` style. Also the single source the PB.5 `PayablesSearchProvider` searches over.

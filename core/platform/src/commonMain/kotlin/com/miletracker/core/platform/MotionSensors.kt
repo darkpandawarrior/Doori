@@ -24,7 +24,7 @@ data class Vector3(
 }
 
 /**
- * Pure cross-platform sensor fusion (O), no Android / iOS types, so it's fully JVM-unit-testable. A
+ * Pure cross-platform sensor fusion (O) — no Android / iOS types, so it's fully JVM-unit-testable. A
  * single-pole low-pass filter isolates the slow-moving gravity vector from the accelerometer; subtracting it
  * yields the device's linear acceleration (the part the user actually caused). [isMoving] thresholds the
  * linear-acceleration magnitude for a cheap stationary-vs-moving signal the tracking engine can use.

@@ -62,7 +62,7 @@ data class TravelledLocationsActions(
  *
  * Reorder uses up/down arrow buttons (a pragmatic stand-in for real drag) so the
  * card stays usable without a drag framework. When [compact] the distance hero
- * and pricing read smaller, used on the Step 2 recap.
+ * and pricing read smaller — used on the Step 2 recap.
  *
  * @param stops          ordered itinerary stops
  * @param totalDistanceKm distance currently applied (calculated or overridden)

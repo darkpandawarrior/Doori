@@ -136,7 +136,7 @@ fun HomeProfileHeader(
             .fillMaxWidth()
             .background(DesignTokens.topBarGradientBrush()),
     ) {
-        // World map background, loaded via Coil to safely downsample the 4312×2128 PNG.
+        // World map background — loaded via Coil to safely downsample the 4312×2128 PNG.
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.home_world_map)
@@ -776,7 +776,7 @@ fun HomeSectionHeader(
 }
 
 // =============================================================================
-// Phase O, Animated Banner Strip
+// Phase O — Animated Banner Strip
 // =============================================================================
 
 private data class BannerSpec(
@@ -851,7 +851,7 @@ fun AnimatedBannerStrip(
 }
 
 // =============================================================================
-// Phase O, At A Glance 2×2 grid
+// Phase O — At A Glance 2×2 grid
 // =============================================================================
 
 private data class GlanceCell(val count: Int, val label: String, val color: Color)
@@ -906,7 +906,7 @@ private fun GlanceCell(cell: GlanceCell, onClick: () -> Unit, modifier: Modifier
 }
 
 // =============================================================================
-// Phase O, My Cards carousel
+// Phase O — My Cards carousel
 // =============================================================================
 
 private data class MockCard(val label: String, val balance: String, val last4: String, val gradient: Brush)
@@ -978,7 +978,7 @@ private fun MockCardView(card: MockCard, onAction: () -> Unit) {
 }
 
 // =============================================================================
-// Phase O, Recent Activity feed
+// Phase O — Recent Activity feed
 // =============================================================================
 
 private enum class ActivityStatus { APPROVED, PENDING, SUBMITTED, REJECTED }
@@ -1060,7 +1060,7 @@ private fun TextButton(onClick: () -> Unit, content: @Composable () -> Unit) {
 }
 
 // =============================================================================
-// Phase VII, HomeMileageCard (ref 12)
+// Phase VII — HomeMileageCard (ref 12)
 // =============================================================================
 
 private const val WEEK_KM_GOAL = 300.0
@@ -1217,7 +1217,7 @@ private fun MileageStat(label: String, value: String, modifier: Modifier = Modif
 }
 
 // =============================================================================
-// Phase VII, HomeCheckInCard (ref 11)
+// Phase VII — HomeCheckInCard (ref 11)
 // =============================================================================
 
 private data class DemoCheckIn(val location: String, val time: String, val isIn: Boolean)

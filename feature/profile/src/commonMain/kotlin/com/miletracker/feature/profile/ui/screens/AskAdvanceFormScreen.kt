@@ -300,9 +300,9 @@ private fun AdvanceSuccessContent(
         Text(
             text =
                 if (autoApproved) {
-                    "Amount < ₹10,000: auto-approved. Disbursement within 24 hours."
+                    "Amount < ₹10,000 — auto-approved. Disbursement within 24 hours."
                 } else {
-                    "Amount ≥ ₹10,000: under manager review. Expected decision in 1–2 business days."
+                    "Amount ≥ ₹10,000 — under manager review. Expected decision in 1–2 business days."
                 },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

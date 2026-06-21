@@ -24,7 +24,7 @@ import com.miletracker.feature.logging.viewmodel.SettlementHistoryAction
 import com.miletracker.feature.logging.viewmodel.SettlementHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** SP.2: settlement history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
+/** SP.2 — settlement history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
 @Composable
 fun SettlementHistoryScreen(
     onBack: () -> Unit,

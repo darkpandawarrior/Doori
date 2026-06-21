@@ -17,7 +17,7 @@ import java.io.File
 object TrackExportManager {
     /**
      * Build the export content string for the given format.
-     * Pure function, safe to call from a background coroutine.
+     * Pure function — safe to call from a background coroutine.
      */
     fun buildContent(
         format: ExportFormat,

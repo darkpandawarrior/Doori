@@ -11,7 +11,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** EV (V17): the events-history reducer, All loads everything, a status tab narrows, and the query filters. */
+/** EV (V17): the events-history reducer — All loads everything, a status tab narrows, and the query filters. */
 class EventsHistoryViewModelTest {
 
     @get:Rule

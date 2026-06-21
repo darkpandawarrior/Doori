@@ -2,7 +2,7 @@ package com.miletracker.feature.tracking.insights
 
 // ---------------------------------------------------------------------------
 // Result data classes returned by the pure-Kotlin analyzers.
-// No Android imports, safe for JVM unit tests.
+// No Android imports — safe for JVM unit tests.
 // ---------------------------------------------------------------------------
 
 /**
@@ -23,7 +23,7 @@ data class ScoreFactor(val label: String, val deduction: Int)
 
 // ---------------------------------------------------------------------------
 
-/** Activity classification type, speed-based thresholds. */
+/** Activity classification type — speed-based thresholds. */
 enum class ActivityType {
     STATIONARY,
     WALKING,
@@ -134,7 +134,7 @@ data class DistanceQualityResult(
 // ---------------------------------------------------------------------------
 
 /**
- * Aggregate output from [RouteAnalyzer], the full set of insights for one track.
+ * Aggregate output from [RouteAnalyzer] — the full set of insights for one track.
  */
 data class RouteAnalysisResult(
     val quality: QualityResult,

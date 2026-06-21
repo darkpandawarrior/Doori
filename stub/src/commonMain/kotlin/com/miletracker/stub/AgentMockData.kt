@@ -37,7 +37,7 @@ object AgentMockData {
             ),
             AgentConversationStub(
                 id = "CONV-002",
-                title = "Expense rejection: EXP-003",
+                title = "Expense rejection — EXP-003",
                 lastMessageMs = AGENT_BASE_MS - 2 * AGENT_DAY_MS,
                 messages =
                     listOf(
@@ -47,7 +47,7 @@ object AgentMockData {
                             timestampMs = AGENT_BASE_MS - 2 * AGENT_DAY_MS - AGENT_HR_MS,
                         ),
                         AgentMessageStub(
-                            "EXP-003 was rejected because the uploaded receipt was unclear: the amount and merchant name could not be verified. Please re-upload a legible image.",
+                            "EXP-003 was rejected because the uploaded receipt was unclear — the amount and merchant name could not be verified. Please re-upload a legible image.",
                             isUser = false,
                             timestampMs = AGENT_BASE_MS - 2 * AGENT_DAY_MS - AGENT_HR_MS + 4000L,
                         ),

@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * H: behavioural coverage for [AgentViewModel], the assistant chat reducer with a simulated streaming
+ * H: behavioural coverage for [AgentViewModel] — the assistant chat reducer with a simulated streaming
  * reply. The repository is a concrete in-memory mock (no deps).
  */
 class AgentViewModelTest {

@@ -51,7 +51,7 @@ data class ChatMessage(val text: String, val isUser: Boolean)
 
 private val INITIAL_MESSAGES = listOf(
     ChatMessage("How much have I spent on travel?", isUser = true),
-    ChatMessage("You've spent ₹12,300 on Travel this month: flights, hotels, and local transit combined. Want a full breakdown?", isUser = false)
+    ChatMessage("You've spent ₹12,300 on Travel this month — flights, hotels, and local transit combined. Want a full breakdown?", isUser = false)
 )
 
 private val QUICK_ACTIONS = listOf(

@@ -1,7 +1,7 @@
 package com.miletracker.core.data.search
 
 /**
- * A launchable create-flow / service entry (F0.7), surfaced by both the Home quick-actions grid and the
+ * A launchable create-flow / service entry (F0.7) — surfaced by both the Home quick-actions grid and the
  * master-search "Actions" mode. [deeplink] routes into the flow; [iconKey] is a stable string the UI maps to
  * an ImageVector (keeps this model icon-library-free for commonMain purity).
  */

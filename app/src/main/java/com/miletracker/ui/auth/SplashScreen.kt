@@ -68,7 +68,7 @@ private const val STAGE_DURATION_MS = 700L
  *
  * The screen owns its own insets via [Surface] (full-bleed background) and the content is
  * laid out with [fillMaxSize]; there are no pinned edge elements that need explicit inset
- * padding. The only state is the current animation stage, no ViewModel is required.
+ * padding. The only state is the current animation stage — no ViewModel is required.
  *
  * @param onFinished invoked exactly once after the final stage has been displayed. The latest
  *   lambda is captured via [rememberUpdatedState] so a recomposition with a new callback does
@@ -97,7 +97,7 @@ fun SplashScreen(
         color = MaterialTheme.colorScheme.background,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // Centred logo mark, the visual anchor of the launch screen.
+            // Centred logo mark — the visual anchor of the launch screen.
             CompassMark(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -141,8 +141,8 @@ fun SplashScreen(
 }
 
 /**
- * The shared app mark: a compass navigation needle drawn with two triangular halves, a solid
- * "north" pointer in [MaterialTheme.colorScheme.primary] and a faded "south" tail, mirroring
+ * The shared app mark: a compass navigation needle drawn with two triangular halves — a solid
+ * "north" pointer in [MaterialTheme.colorScheme.primary] and a faded "south" tail — mirroring
  * the neutral logo mark used in the bottom-bar FAB. Rendered entirely on [Canvas] so no drawable
  * resources are required.
  *

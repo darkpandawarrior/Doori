@@ -19,7 +19,7 @@ import com.miletracker.feature.travel.viewmodel.CreateTripAction
 import com.miletracker.feature.travel.viewmodel.CreateTripViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** TR.2: Create Trip request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** TR.2 — Create Trip request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateTripScreen(
     onBack: () -> Unit,

@@ -6,7 +6,7 @@ import com.azikar24.wormaceptor.api.Feature
 import com.azikar24.wormaceptor.api.WormaCeptorApi
 
 /**
- * Debug implementation, provides live HTTP inspection via WormaCeptor.
+ * Debug implementation — provides live HTTP inspection via WormaCeptor.
  *
  * Initialise once from Application.onCreate().
  *

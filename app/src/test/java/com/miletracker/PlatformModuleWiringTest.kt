@@ -18,11 +18,11 @@ import kotlin.test.assertNotNull
  * KOIN.1: `platformModule()` is now wired into the production graph (`initKoin()` prepends it to
  * `MileTrackerApplication`'s module list, and the iOS `MainViewController` does the same on iOS). This test
  * loads the Android `actual fun platformModule()` into a Koin graph and resolves a binding that flows
- * `androidContext()` through, proving the module is registered and wired.
+ * `androidContext()` through — proving the module is registered and wired.
  *
  * Only [BackgroundScheduler] is instantiated here: it stores the context and defers all work to WorkManager.
  * The other bindings ([com.miletracker.core.platform.LocationTracker] / TextRecognizer) construct gms /
- * ML-Kit clients eagerly, which need a real `MlKitContext` / Play-services init, so per this project's
+ * ML-Kit clients eagerly, which need a real `MlKitContext` / Play-services init — so per this project's
  * "no gms in JVM tests" rule they're exercised by both-flavor `assemble` + the iOS framework link, not here.
  */
 class PlatformModuleWiringTest : KoinTest {

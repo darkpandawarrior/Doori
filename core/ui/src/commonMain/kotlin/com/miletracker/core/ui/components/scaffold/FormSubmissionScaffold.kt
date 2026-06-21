@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
  * Shared chrome for every V17 create / submission flow (F0.1): a top bar, a scrollable sectioned body slot,
  * a sticky bottom action bar (optional **Save draft** + a primary **Submit** gated by [canSubmit]), and a
  * blocking **submitting** overlay. Each flow supplies only its form sections via [content] and its
- * submit/draft lambdas, no per-flow chrome rework. Toasts are rendered app-wide by `AppToastHost`, so flows
+ * submit/draft lambdas — no per-flow chrome rework. Toasts are rendered app-wide by `AppToastHost`, so flows
  * just call `Toasts.show(...)`.
  */
 @OptIn(ExperimentalMaterial3Api::class)

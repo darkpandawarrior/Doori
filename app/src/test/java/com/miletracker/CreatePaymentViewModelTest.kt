@@ -14,7 +14,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * PM (V17): the Create-Payment reducer, direction toggle, canSubmit gating (counterparty + positive amount) +
+ * PM (V17): the Create-Payment reducer — direction toggle, canSubmit gating (counterparty + positive amount) +
  * the rotating completed / pending / failed result paths through the FormSubmissionScaffold contract.
  */
 class CreatePaymentViewModelTest {

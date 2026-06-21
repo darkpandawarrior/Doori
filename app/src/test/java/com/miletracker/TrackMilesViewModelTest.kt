@@ -35,12 +35,12 @@ import kotlin.test.assertTrue
  * Behavioural tests for [TrackMilesViewModel], the reducer behind the live-tracking screen.
  *
  * Test-double strategy (fakes at the boundary, mocks only for side effects):
- *  - [FakeSavedTrackDao], a real in-memory implementation of the Room DAO slice the
+ *  - [FakeSavedTrackDao] — a real in-memory implementation of the Room DAO slice the
  *    ViewModel exercises, so the genuine [SavedTrackRepository] runs unmodified and
  *    Flow emissions behave exactly like Room's invalidation tracker (state-backed).
- *  - [FakeTrackingNetworkApi] / [DemoConfigManager], the same stub network layer the
+ *  - [FakeTrackingNetworkApi] / [DemoConfigManager] — the same stub network layer the
  *    app ships with for offline-first dev; tests and the running app share one fake.
- *  - [LocationTrackingController], the only mock. It is a fire-and-forget façade over
+ *  - [LocationTrackingController] — the only mock. It is a fire-and-forget façade over
  *    `startForegroundService`, so the contract IS the interaction: verify, don't fake.
  *
  * The foreground service is not run here; [FakeSavedTrackDao.serviceWrites] simulates the
@@ -111,7 +111,7 @@ class TrackMilesViewModelTest {
         val state = vm.uiState.value
         assertTrue(state.vehicles.isEmpty())
         assertNull(state.selectedVehicle)
-        // Config still loads, the screen renders, it just can't start a paid journey.
+        // Config still loads — the screen renders, it just can't start a paid journey.
         assertTrue(state.config.isTrackMilesEnabled)
     }
 
@@ -255,7 +255,7 @@ class TrackMilesViewModelTest {
 
 /**
  * In-memory [SavedTrackDao] backed by a [MutableStateFlow], so `observeTrackById`
- * re-emits on every write, the same observable behaviour Room's invalidation
+ * re-emits on every write — the same observable behaviour Room's invalidation
  * tracker provides over the real database.
  *
  * The DAO interface is wide; only the slice [SavedTrackRepository] touches is
@@ -272,7 +272,7 @@ class FakeSavedTrackDao(
         tracks.update { it + (track.routeId to track) }
     }
 
-    /** Removes a track so observers see the updated list, useful for selection-pruning tests. */
+    /** Removes a track so observers see the updated list — useful for selection-pruning tests. */
     fun removeTrack(routeId: String) {
         tracks.update { it - routeId }
     }

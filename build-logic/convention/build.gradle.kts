@@ -5,13 +5,13 @@ plugins {
 group = "com.miletracker.buildlogic"
 
 java {
-    // Convention plugin code itself targets Java 17, not the Android modules it configures.
+    // Convention plugin code itself targets Java 17 — not the Android modules it configures.
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
 
 dependencies {
-    // Must be compileOnly, using implementation causes ClassCastException when the
+    // Must be compileOnly — using implementation causes ClassCastException when the
     // same plugin class is loaded by two different classloaders at different versions.
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)

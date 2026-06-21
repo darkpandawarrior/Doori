@@ -144,7 +144,7 @@ fun ColorWheelDialog(
                     }
                     Button(
                         onClick = {
-                            // hexCode arrives as AARRGGBB, normalise to #RRGGBB
+                            // hexCode arrives as AARRGGBB — normalise to #RRGGBB
                             val hex =
                                 if (currentHexCode.length >= 8) {
                                     "#${currentHexCode.takeLast(6)}"

@@ -54,7 +54,7 @@ fun IosDemoApp() {
         item { DemoHeader() }
         item {
             SectionCard(
-                title = "Compass: Skia Canvas",
+                title = "Compass — Skia Canvas",
                 leadingIcon = Icons.Default.Explore,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
@@ -160,7 +160,7 @@ private fun TechStackCard() {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf(
                 "Kotlin Multiplatform" to "Shared business logic: Android + iOS",
-                "Compose Multiplatform" to "Declarative UI: one codebase",
+                "Compose Multiplatform" to "Declarative UI — one codebase",
                 "Skia" to "High-performance Canvas rendering on iOS",
                 "Room KMP" to "SQLite via SQLiteConnection API",
                 "DataStore KMP" to "Preferences via NSTemporaryDirectory",

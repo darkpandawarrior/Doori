@@ -34,7 +34,7 @@ import org.robolectric.annotation.GraphicsMode
 import java.io.File
 
 // ---------------------------------------------------------------------------
-// Roborazzi component catalog, Storytale replacement.
+// Roborazzi component catalog — Storytale replacement.
 //
 // Renders public @Preview composables from all feature modules as PNGs.
 //

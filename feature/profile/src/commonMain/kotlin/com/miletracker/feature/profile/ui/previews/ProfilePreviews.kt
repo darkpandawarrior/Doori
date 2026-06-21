@@ -26,7 +26,7 @@ import com.miletracker.feature.profile.ui.screens.NotificationCentreScreen
 import com.miletracker.feature.profile.ui.screens.RootGuardScreen
 
 // ---------------------------------------------------------------------------
-// ProfilePreviews.kt: Phase 9.1 preview functions for feature:profile
+// ProfilePreviews.kt — Phase 9.1 preview functions for feature:profile
 //
 // Rules:
 // - No DI, no ViewModel, no Koin
@@ -39,7 +39,7 @@ import com.miletracker.feature.profile.ui.screens.RootGuardScreen
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// 1. RootGuardScreen, rooted / compromised device variant
+// 1. RootGuardScreen — rooted / compromised device variant
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -59,7 +59,7 @@ private fun RootGuardRootedPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 2. RootGuardScreen, clean (secure) device variant
+// 2. RootGuardScreen — clean (secure) device variant
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -74,7 +74,7 @@ private fun RootGuardCleanPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 3. NotificationCentreScreen, takes only a lambda, previews directly
+// 3. NotificationCentreScreen — takes only a lambda, previews directly
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -86,7 +86,7 @@ private fun NotificationCentrePreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 4. ProfileCompletionBanner, in-progress state (mirrors what's shown at the
+// 4. ProfileCompletionBanner — in-progress state (mirrors what's shown at the
 //    top of the profile hub; screen is ViewModel-backed)
 // ---------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ private fun ProfileCompletionBannerInProgressPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 5. GridProfileTile, used inside the profile hub grid
+// 5. GridProfileTile — used inside the profile hub grid
 // ---------------------------------------------------------------------------
 
 @PreviewMatrix
