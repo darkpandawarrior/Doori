@@ -32,6 +32,16 @@ class OfflineLocationNameResolver(
     override suspend fun resolve(
         latitude: Double,
         longitude: Double,
+    ): PlaceName = resolveSync(latitude, longitude)
+
+    /**
+     * The pure, non-suspending lookup behind [resolve]. Exposed for UI that renders many static
+     * coordinates (e.g. saved-journey from→to labels) where suspending per row is needless — the
+     * gazetteer lookup is a cheap in-memory nearest-neighbour scan with no I/O.
+     */
+    fun resolveSync(
+        latitude: Double,
+        longitude: Double,
     ): PlaceName {
         val nearest =
             waypoints.minByOrNull { wp ->
@@ -45,6 +55,12 @@ class OfflineLocationNameResolver(
             PlaceName.coordinatesOnly(latitude, longitude)
         }
     }
+
+    /** Short place name for [latitude]/[longitude], or `null` when no gazetteer entry is close. */
+    fun nameFor(
+        latitude: Double,
+        longitude: Double,
+    ): String? = resolveSync(latitude, longitude).name
 
     private fun squaredDistance(
         lat1: Double,

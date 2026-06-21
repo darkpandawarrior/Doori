@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -61,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.model.display.TrackDisplayData
 import com.miletracker.core.data.util.DateUtils
+import com.miletracker.core.platform.OfflineLocationNameResolver
 import com.miletracker.core.ui.components.ConfettiBurst
 import com.miletracker.core.ui.components.EmptyState
 import com.miletracker.core.ui.components.LoadingScreen
@@ -430,6 +432,15 @@ private fun JourneyCard(
                     StatusChip(isSubmitted = track.isSubmitted)
                 }
 
+                // Muted from → to place names (offline-resolved), the journey-card anatomy from the
+                // reference. Shown only when at least one endpoint resolves to a named waypoint.
+                JourneyRouteLine(
+                    fromLat = track.startLatitude,
+                    fromLng = track.startLongitude,
+                    toLat = track.endLatitude,
+                    toLng = track.endLongitude,
+                )
+
                 Spacer(Modifier.height(DesignTokens.Spacing.m))
 
                 Row(
@@ -469,6 +480,46 @@ private fun JourneyCard(
         }
     }
 }
+
+/**
+ * A muted "From → To" line resolving each saved-journey endpoint to an offline place name. Falls
+ * back gracefully: if neither endpoint resolves to a named waypoint, the row is omitted entirely.
+ */
+@Composable
+private fun JourneyRouteLine(
+    fromLat: Double,
+    fromLng: Double,
+    toLat: Double,
+    toLng: Double,
+) {
+    val resolver = remember { OfflineLocationNameResolver() }
+    val from = remember(fromLat, fromLng) { resolver.nameFor(fromLat, fromLng) }
+    val to = remember(toLat, toLng) { resolver.nameFor(toLat, toLng) }
+    if (from == null && to == null) return
+
+    Spacer(Modifier.height(DesignTokens.Spacing.xs))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
+    ) {
+        Icon(
+            imageVector = Icons.Default.Place,
+            contentDescription = null,
+            tint = MilewayColors.neutral,
+            modifier = Modifier.size(DesignTokens.IconSize.inline),
+        )
+        Text(
+            text = "${shortPlace(from)} → ${shortPlace(to)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MilewayColors.neutral,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Trim a resolved "<locality>, Pune" label to just the locality for the compact route line. */
+private fun shortPlace(name: String?): String = name?.substringBefore(",")?.trim() ?: "Unknown"
 
 @Composable
 private fun Metric(
