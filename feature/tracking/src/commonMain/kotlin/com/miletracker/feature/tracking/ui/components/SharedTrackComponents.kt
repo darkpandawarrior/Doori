@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.theme.MilewayColors
 
 enum class TrendDirection { UP, DOWN, STABLE }
 
@@ -76,9 +77,9 @@ fun TrendIndicator(
 ) {
     val (icon, color) =
         when (trend) {
-            TrendDirection.UP -> Icons.Default.ArrowUpward to Color(0xFF4CAF50)
-            TrendDirection.DOWN -> Icons.Default.ArrowDownward to Color(0xFFF44336)
-            TrendDirection.STABLE -> Icons.Default.Remove to Color(0xFF9E9E9E)
+            TrendDirection.UP -> Icons.Default.ArrowUpward to MilewayColors.success
+            TrendDirection.DOWN -> Icons.Default.ArrowDownward to MilewayColors.danger
+            TrendDirection.STABLE -> Icons.Default.Remove to MilewayColors.neutral
         }
     Icon(icon, contentDescription = trend.name, tint = color, modifier = modifier.size(12.dp))
 }
@@ -150,11 +151,9 @@ fun QualityDot(
 ) {
     val color =
         when {
-            score >= 90 -> Color(0xFF4CAF50)
-            score >= 75 -> Color(0xFF8BC34A)
-            score >= 55 -> Color(0xFFFFC107)
-            score >= 35 -> Color(0xFFFF9800)
-            else -> Color(0xFFF44336)
+            score >= 75 -> MilewayColors.success
+            score >= 35 -> MilewayColors.warning
+            else -> MilewayColors.danger
         }
     Box(
         modifier =
@@ -164,11 +163,14 @@ fun QualityDot(
     )
 }
 
+/**
+ * Non-composable quality→colour map for text tints in score cards. Uses the static v2
+ * fallbacks (kept in lock-step with [MilewayColors]); the composable [QualityDot] mirrors
+ * the same three-tier success/warning/danger split.
+ */
 fun qualityColor(score: Int): Color =
     when {
-        score >= 90 -> Color(0xFF4CAF50)
-        score >= 75 -> Color(0xFF8BC34A)
-        score >= 55 -> Color(0xFFFFC107)
-        score >= 35 -> Color(0xFFFF9800)
-        else -> Color(0xFFF44336)
+        score >= 75 -> com.miletracker.core.ui.theme.DesignTokens.StatusColors.success
+        score >= 35 -> com.miletracker.core.ui.theme.DesignTokens.StatusColors.warning
+        else -> com.miletracker.core.ui.theme.DesignTokens.StatusColors.error
     }
