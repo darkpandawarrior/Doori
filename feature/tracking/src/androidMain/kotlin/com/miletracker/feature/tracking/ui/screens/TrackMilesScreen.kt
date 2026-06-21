@@ -74,7 +74,6 @@ import com.miletracker.feature.tracking.ui.sheets.CenterOption
 import com.miletracker.feature.tracking.ui.sheets.JourneyConsentSheet
 import com.miletracker.feature.tracking.ui.sheets.JourneyGuideSheet
 import com.miletracker.feature.tracking.ui.sheets.JourneyGuideState
-import com.miletracker.feature.tracking.ui.sheets.JourneyGuideStep
 import com.miletracker.feature.tracking.ui.sheets.PauseReasonSheet
 import com.miletracker.feature.tracking.ui.sheets.ResumeTrackingSheet
 import com.miletracker.feature.tracking.ui.sheets.VehicleOption
@@ -325,11 +324,7 @@ fun TrackMilesScreen(
             JourneyGuideSheet(
                 state =
                     JourneyGuideState(
-                        step =
-                            when {
-                                uiState.selectedVehicle == null -> JourneyGuideStep.VEHICLE
-                                else -> JourneyGuideStep.TRACKING
-                            },
+                        step = uiState.journeyStep,
                         vehicleName = uiState.selectedVehicle?.vehicleName,
                         vehicleRatePerKm = uiState.selectedVehicle?.vehiclePricing,
                         startOdometer = uiState.startOdometer,

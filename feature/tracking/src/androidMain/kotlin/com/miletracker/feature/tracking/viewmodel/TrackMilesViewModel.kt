@@ -19,6 +19,7 @@ import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.repository.VehiclePricingRepository
 import com.miletracker.feature.tracking.service.TrackingServiceApi
 import com.miletracker.feature.tracking.service.TrackingStatePublisher
+import com.miletracker.feature.tracking.ui.sheets.JourneyGuideStep
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
@@ -91,6 +92,15 @@ data class TrackMilesUiState(
 ) {
     /** History count surfaced as the small chip on the hero card. */
     val pointsLabel: Int get() = totalPoints.toInt()
+
+    /**
+     * G4: VM-owned start-flow step for the [JourneyGuideSheet] stepper — the single source of truth.
+     * The screen no longer derives this inline. Runtime permissions are gated *before* the guide sheet
+     * opens (see `requestStartTracking`), so the in-sheet stepper starts at [JourneyGuideStep.VEHICLE]
+     * and advances to [JourneyGuideStep.TRACKING] once a vehicle is selected.
+     */
+    val journeyStep: JourneyGuideStep
+        get() = if (selectedVehicle == null) JourneyGuideStep.VEHICLE else JourneyGuideStep.TRACKING
 }
 
 class TrackMilesViewModel(

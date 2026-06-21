@@ -7,7 +7,6 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -484,7 +484,12 @@ private fun DetailsTab(
                 CopyableRow("End reading", track.odometerEndReading.ifBlank { "—" }, onCopy, showStatus = true)
                 CopyableRow("Start OCR", track.odometerStartOcr.ifBlank { "—" }, onCopy, showStatus = true)
                 CopyableRow("End OCR", track.odometerEndOcr.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("Odometer distance", if (track.odometerDistance > 0) "%.3f km".format(track.odometerDistance / 1000) else "—", onCopy, showStatus = true)
+                CopyableRow(
+                    "Odometer distance",
+                    if (track.odometerDistance > 0) "%.3f km".format(track.odometerDistance / 1000) else "—",
+                    onCopy,
+                    showStatus = true,
+                )
             }
         }
 
@@ -542,8 +547,7 @@ private fun FieldStatus.color(): Color =
     }
 
 /** Derives [FieldStatus] from a display string using the screen's "—" missing-value convention. */
-private fun fieldStatusOf(value: String): FieldStatus =
-    if (value.isBlank() || value == "—") FieldStatus.MISSING else FieldStatus.SET
+private fun fieldStatusOf(value: String): FieldStatus = if (value.isBlank() || value == "—") FieldStatus.MISSING else FieldStatus.SET
 
 @Composable
 private fun CopyableRow(

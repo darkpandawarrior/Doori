@@ -43,6 +43,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MileTracker">
 
+        <!-- G2: lets the macrobenchmark shell profile the app for baseline-profile generation.
+             Harmless in normal use; the platform also auto-adds this for debuggable builds. -->
+        <profileable android:shell="true" />
+
         <activity
             android:name=".LauncherActivity"
             android:exported="true"
