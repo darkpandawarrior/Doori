@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<!-- FCM.4 PLACEHOLDER — not a real Firebase config. The real file is materialized from
+<!-- FCM.4 PLACEHOLDER: not a real Firebase config. The real file is materialized from
      GOOGLE_SERVICES_IOS_B64 in CI (see docs/RELEASE.md). The app degrades to no-op without it. -->
 <dict>
 	<key>API_KEY</key>

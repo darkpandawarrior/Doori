@@ -1,7 +1,7 @@
 import SwiftUI
 import MileTracker
 
-/// Root view — embeds the Compose Multiplatform UI rendered via Skia.
+/// Root view: embeds the Compose Multiplatform UI rendered via Skia.
 struct ContentView: View {
     var body: some View {
         ComposeViewControllerRepresentable()
