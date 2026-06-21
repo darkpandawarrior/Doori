@@ -75,7 +75,7 @@ fun DetailInfoCard(
 }
 
 /**
- * Reusable detail/info sheet (migrated Dice archetype): a coloured gradient header (optional circular icon +
+ * Reusable detail/info sheet: a coloured gradient header (optional circular icon +
  * title + subtitle) over a scrollable body of [DetailInfoCard]s the caller supplies via [content]. Used for
  * "view details" surfaces across the app (a card, a saved track, a transaction). Pair with [DetailInfoCard] /
  * [DetailInfoRow] for the standard look, or put anything in the body.

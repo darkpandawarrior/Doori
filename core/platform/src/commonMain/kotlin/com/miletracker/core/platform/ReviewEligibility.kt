@@ -1,7 +1,7 @@
 package com.miletracker.core.platform
 
 /**
- * RV.1 — pure engagement-gating logic for the in-app review prompt (ported from Dice ReviewPrompter).
+ * RV.1 — pure engagement-gating logic for the in-app review prompt.
  *
  * A prompt is eligible only when ALL hold:
  * - the account is at least [ReviewGateConfig.minAccountAgeDays] old (since first open),

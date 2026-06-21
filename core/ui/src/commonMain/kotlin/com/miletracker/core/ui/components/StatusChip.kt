@@ -17,8 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * The six the reference app status tones (F0.3) — a generalisation of cards' `CardStatusBadge`, reused by every V17
- * status chip / history list. Hex values match the the reference app design system.
+ * The six status tones — a generalisation of cards' `CardStatusBadge`, reused by every
+ * status chip / history list across the app.
  */
 enum class StatusTone(val color: Color) {
     Success(Color(0xFF22C55E)),

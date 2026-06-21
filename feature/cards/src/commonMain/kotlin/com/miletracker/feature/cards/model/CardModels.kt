@@ -1,8 +1,7 @@
 package com.miletracker.feature.cards.model
 
 /*
- * Q.2 — corporate-cards data layer (commonMain, pure Kotlin; ported from the Dice cards/data source,
- * enriched with web fields). No android.* / java.* imports.
+ * Q.2 — corporate-cards data layer (commonMain, pure Kotlin). No android.* / java.* imports.
  */
 
 enum class CardStatus { ACTIVE, BLOCKED, FROZEN, KYC_PENDING, PHYSICAL_ISSUED, EXPIRED, PENDING }

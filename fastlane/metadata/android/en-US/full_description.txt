@@ -1,4 +1,4 @@
-MileTracker is an offline-first mileage and expense tracker.
+Mileway is an offline-first mileage and expense tracker.
 
 - Track trips with GPS — works fully offline, no account required.
 - Log mileage and expenses; everything is stored locally on your device.

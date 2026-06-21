@@ -57,7 +57,7 @@ platform :android do
       merge_commit_filtering: "exclude_merges",
       commits_count: 30
     ) || ""
-    # Dice-style bullet-aware truncation to Play's 500-char limit (don't cut mid-bullet).
+    # Bullet-aware truncation to Play's 500-char limit (don't cut mid-bullet).
     truncated = log
     if truncated.length > 500
       truncated = truncated[0, 500]

@@ -4,9 +4,8 @@ import kotlin.time.Clock
 
 /**
  * Q.5 — gates sensitive card actions (reveal full PAN, controls) behind a PIN, with a verification window
- * so the user isn't re-prompted within [windowMillis] (ported from Dice CardSecurityManager; the source's
- * UserSessionDataStore PIN is replaced with an injectable demo PIN + an in-memory timestamp — swap a
- * DataStore-backed store for production persistence).
+ * so the user isn't re-prompted within [windowMillis]. The PIN is an injectable demo PIN backed by an
+ * in-memory timestamp — swap a DataStore-backed store for production persistence.
  */
 class CardSecurityManager(
     private val demoPin: String = "1234",
