@@ -1,8 +1,10 @@
 package com.miletracker.feature.travel.di
 
+import com.miletracker.core.data.search.SearchProvider
 import com.miletracker.feature.travel.repository.TravelCreateRepository
 import com.miletracker.feature.travel.repository.TravelHistoryRepository
 import com.miletracker.feature.travel.repository.TravelRepository
+import com.miletracker.feature.travel.search.TravelSearchProvider
 import com.miletracker.feature.travel.viewmodel.BookingHistoryViewModel
 import com.miletracker.feature.travel.viewmodel.CreateBusViewModel
 import com.miletracker.feature.travel.viewmodel.CreateFlightViewModel
@@ -31,4 +33,6 @@ val travelModule =
         viewModelOf(::CreateVisaViewModel)
         viewModelOf(::TripHistoryViewModel)
         viewModelOf(::BookingHistoryViewModel)
+        // TR.9: travel contribution to master search (getAll<SearchProvider>() picks it up).
+        single<SearchProvider> { TravelSearchProvider(get()) }
     }
