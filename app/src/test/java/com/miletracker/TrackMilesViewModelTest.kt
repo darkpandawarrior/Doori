@@ -11,7 +11,9 @@ import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.repository.VehiclePricingRepository
 import com.miletracker.feature.tracking.service.TrackingStatePublisher
+import com.miletracker.feature.tracking.ui.sheets.JourneyGuideStep
 import com.miletracker.feature.tracking.viewmodel.TrackMilesPhase
+import com.miletracker.feature.tracking.viewmodel.TrackMilesUiState
 import com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel
 import com.miletracker.stub.DemoConfigManager
 import com.miletracker.stub.FakeTrackingNetworkApi
@@ -96,6 +98,22 @@ class TrackMilesViewModelTest {
         assertTrue(state.vehicles.isNotEmpty())
         assertEquals("fourWheelerPetrol", state.selectedVehicle?.vehicleKey)
         assertTrue(state.config.isTrackMilesEnabled)
+    }
+
+    // ── G4: consolidated, VM-owned start-flow step ───────────────────────────
+
+    @Test
+    fun `journeyStep is VM-owned and derives from vehicle selection`() = runTest {
+        // No vehicle yet → the stepper sits on the VEHICLE step.
+        assertEquals(JourneyGuideStep.VEHICLE, TrackMilesUiState().journeyStep)
+
+        // After init auto-selects a vehicle, the VM-owned step advances to TRACKING
+        // (the screen no longer derives this inline — G4 consolidation).
+        val vm = viewModel()
+        advanceUntilIdle()
+        val state = vm.uiState.value
+        assertNotNull(state.selectedVehicle)
+        assertEquals(JourneyGuideStep.TRACKING, state.journeyStep)
     }
 
     @Test

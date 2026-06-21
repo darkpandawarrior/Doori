@@ -41,10 +41,10 @@ enum class PermissionType {
  */
 @Stable
 class TrackMilesScreenState {
-    // Sheet states
-    var showActionsSheet by mutableStateOf(false)
-    var showVehicleSheet by mutableStateOf(false)
-    var showCenterPickerSheet by mutableStateOf(false)
+    // NOTE: the start-flow sheet routing lives in the ViewModel as `TrackMilesUiState.activeSheet`
+    // (TrackSheet) — the single source of truth. The old showActionsSheet/showVehicleSheet/
+    // showCenterPickerSheet/showCurrentLocationSheet booleans were residual (written, never read) and
+    // were removed in G4; this holder now only carries genuinely-local dialog/viewer transient flags.
 
     // Dialog states
     var showPermissionDialog by mutableStateOf(false)
@@ -61,11 +61,6 @@ class TrackMilesScreenState {
     var showViewer by mutableStateOf(false)
     var viewerUrl by mutableStateOf("")
 
-    // Current location chip
-
-    /** Controls whether the "open in maps" bottom sheet for the current location is visible. */
-    var showCurrentLocationSheet by mutableStateOf(false)
-
     // Form states
     var pauseReasonText by mutableStateOf("")
 
@@ -80,9 +75,6 @@ class TrackMilesScreenState {
      * Close all sheets and dialogs
      */
     fun closeAllSheets() {
-        showActionsSheet = false
-        showVehicleSheet = false
-        showCenterPickerSheet = false
         showPermissionDialog = false
         showDiscardConfirmation = false
         showVendorOptionsDialog = false
@@ -92,7 +84,6 @@ class TrackMilesScreenState {
         showNetworkDetailDialog = false
         showViewer = false
         showActivityDetail = false
-        showCurrentLocationSheet = false
     }
 
     /**
