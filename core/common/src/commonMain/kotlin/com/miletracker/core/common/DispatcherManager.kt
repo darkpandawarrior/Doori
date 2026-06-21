@@ -3,7 +3,7 @@ package com.miletracker.core.common
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
-// Injectable dispatchers for testability — swap with TestDispatchers in unit tests.
+// Injectable dispatchers for testability, swap with TestDispatchers in unit tests.
 // io uses Dispatchers.Default on platforms without a dedicated IO thread pool.
 interface DispatcherManager {
     val main: CoroutineDispatcher

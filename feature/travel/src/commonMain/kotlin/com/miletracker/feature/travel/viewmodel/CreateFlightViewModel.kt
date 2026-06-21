@@ -33,7 +33,7 @@ sealed interface CreateFlightAction {
     data object Submit : CreateFlightAction
 }
 
-/** TR.3 — Add-Flight reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
+/** TR.3: Add-Flight reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
 class CreateFlightViewModel(
     private val repository: TravelCreateRepository,
 ) : BaseViewModel<CreateFlightUiState, TravelCreateEffect, CreateFlightAction>(CreateFlightUiState()) {

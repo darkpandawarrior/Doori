@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * TR.5 (V17): the Add-Hotel reducer — canSubmit gating (city + both stay dates + guests) + the rotating
+ * TR.5 (V17): the Add-Hotel reducer, canSubmit gating (city + both stay dates + guests) + the rotating
  * success / approval / violation result paths through the shared FormSubmissionScaffold contract.
  */
 class CreateHotelViewModelTest {

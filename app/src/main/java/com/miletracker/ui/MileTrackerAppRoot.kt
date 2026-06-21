@@ -180,7 +180,7 @@ fun MileTrackerAppRoot(
         var isBottomBarCollapsed by rememberSaveable { mutableStateOf(false) }
 
         // The floating bubble bar shows only on top-level tab destinations; detail and
-        // flow screens (tracking, submission, settings, …) own the full screen — matching
+        // flow screens (tracking, submission, settings, …) own the full screen, matching
         // the source app, where those flows render without the bottom nav.
         val topLevelRoutes = remember {
             setOf(
@@ -298,7 +298,7 @@ fun MileTrackerAppRoot(
                     navigation(startDestination = ApprovalsRoutes.HOME, route = AppGraph.APPROVALS) {
                         approvalsGraph(navController)
                     }
-                    // Global debug destination — outside bottom-nav graphs so it renders
+                    // Global debug destination, outside bottom-nav graphs so it renders
                     // full-screen without the bottom bar.
                     composable(AppRoutes.DEBUG_MENU) {
                         val ctx = androidx.compose.ui.platform.LocalContext.current
@@ -310,7 +310,7 @@ fun MileTrackerAppRoot(
                                 ?.let { intent -> { ctx.startActivity(intent) } },
                         )
                     }
-                    // Global master-search destination — full-screen, outside bottom-nav graphs. A tapped
+                    // Global master-search destination, full-screen, outside bottom-nav graphs. A tapped
                     // result routes to the section graph that owns the entity (best-effort; some types have
                     // no destination yet and are ignored).
                     composable(AppRoutes.SEARCH) {
@@ -329,7 +329,7 @@ fun MileTrackerAppRoot(
                         )
                     }
 
-                    // Full-screen AI Agent — entered via FAB throw-up gesture.
+                    // Full-screen AI Agent, entered via FAB throw-up gesture.
                     agentGraph(navController)
                 }
 

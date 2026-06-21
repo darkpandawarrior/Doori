@@ -21,7 +21,7 @@ enum class SettlementStatus(val label: String) {
 }
 
 /**
- * Offline fake settlement store (SP.2) — a deterministic spread across [SettlementStatus]es, Clock-injected.
+ * Offline fake settlement store (SP.2), a deterministic spread across [SettlementStatus]es, Clock-injected.
  */
 class SettlementHistoryRepository(private val clock: Clock = Clock.System) {
     private val dayMs = 86_400_000L

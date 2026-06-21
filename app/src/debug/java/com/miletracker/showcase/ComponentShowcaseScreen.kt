@@ -88,7 +88,7 @@ import com.miletracker.feature.travel.ui.previews.PreviewBookingCardUpcomingTrai
 import com.miletracker.feature.travel.ui.previews.PreviewBookingListMatrix
 
 // ---------------------------------------------------------------------------
-// Component metadata — each entry describes one showcaseable composable
+// Component metadata, each entry describes one showcaseable composable
 // ---------------------------------------------------------------------------
 
 data class ShowcaseEntry(

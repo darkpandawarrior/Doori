@@ -26,7 +26,7 @@ import com.miletracker.feature.approvals.model.ApprovalStatus
 import com.miletracker.feature.approvals.model.ApprovalType
 
 // ---------------------------------------------------------------------------
-// Phase 9.1 — Approvals feature preview matrix.
+// Phase 9.1, Approvals feature preview matrix.
 //
 // ApprovalsScreen and ApprovalDetailsScreen both require koinViewModel() at
 // runtime. The standalone data-driven previews below use only model types and
@@ -124,7 +124,7 @@ fun PreviewApprovalItemWithViolation() {
     }
 }
 
-// ── Full matrix — approved expense ───────────────────────────────────────────
+// ── Full matrix, approved expense ───────────────────────────────────────────
 
 @PreviewMatrix
 @Composable
@@ -147,7 +147,7 @@ fun PreviewApprovalItemApproved() {
     }
 }
 
-// ── Full matrix — rejected advance ──────────────────────────────────────────
+// ── Full matrix, rejected advance ──────────────────────────────────────────
 
 @PreviewMatrix
 @Composable

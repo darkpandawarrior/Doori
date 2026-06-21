@@ -28,7 +28,7 @@ class CreateVoucherViewModelTest {
 
     /**
      * Creates a completed + server-uploaded [SavedTrack] whose display data will have
-     * [isSubmitted = true] and [reimbursableAmount = amount] — the two filters
+     * [isSubmitted = true] and [reimbursableAmount = amount], the two filters
      * [CreateVoucherViewModel.loadExpenses] applies.
      */
     private fun makeSubmittedTrack(routeId: String, amount: Double = 50.0) = SavedTrack(

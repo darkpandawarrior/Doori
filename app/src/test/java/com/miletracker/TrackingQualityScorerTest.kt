@@ -6,7 +6,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 /**
- * Unit tests for [TrackingQualityScorer]. Pure Kotlin — no device needed.
+ * Unit tests for [TrackingQualityScorer]. Pure Kotlin, no device needed.
  */
 class TrackingQualityScorerTest {
 

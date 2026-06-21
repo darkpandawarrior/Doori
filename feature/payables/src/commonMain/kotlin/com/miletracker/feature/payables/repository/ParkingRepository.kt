@@ -17,7 +17,7 @@ data class ParkingDraft(
 )
 
 /**
- * Offline fake gate-parking store (PB.3) — persists submitted Park In / Park Out events in-memory and returns
+ * Offline fake gate-parking store (PB.3), persists submitted Park In / Park Out events in-memory and returns
  * a **rotating** [PayablesSubmissionResult] so the logged / approval / security-hold paths are all exercised
  * across repeated submits. No backend; mirrors the PB.1 [InvoiceRepository] / PB.2 [GinRepository] pattern.
  */

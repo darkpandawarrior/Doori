@@ -11,7 +11,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Unit tests for the advanced location-tracking pipeline. Pure Kotlin — no device needed.
+ * Unit tests for the advanced location-tracking pipeline. Pure Kotlin, no device needed.
  */
 class LocationProcessorTest {
 
@@ -41,7 +41,7 @@ class LocationProcessorTest {
         val proc = LocationProcessor()
         // Parked: speed 0 so there is no movement-history bypass (C.1c).
         proc.process(fix(18.5000, 73.8, 0, speed = 0f), isPaused = false)
-        // ~0.9m wander — below the stationary jitter gate.
+        // ~0.9m wander, below the stationary jitter gate.
         val jitter = proc.process(fix(18.500008, 73.8, 10_000, speed = 0f), isPaused = false)
         assertNull(jitter)
         assertEquals(0.0, proc.cleanedDistanceM, 0.001)
@@ -128,7 +128,7 @@ class LocationProcessorTest {
         assertTrue(proc.originalDistanceM > 100.0) // still counted in the raw figure
     }
 
-    // ── C.1a — speed-adaptive jitter gate ────────────────────────────────────────
+    // ── C.1a, speed-adaptive jitter gate ────────────────────────────────────────
 
     @Test
     fun `walking-speed step above the small gate counts`() {
@@ -148,7 +148,7 @@ class LocationProcessorTest {
         assertNull(r)
     }
 
-    // ── C.1c — movement-history bypass ───────────────────────────────────────────
+    // ── C.1c, movement-history bypass ───────────────────────────────────────────
 
     @Test
     fun `small step is kept through when recent history shows movement`() {
@@ -160,7 +160,7 @@ class LocationProcessorTest {
         assertTrue(r != null && r.countedTowardDistance, "momentum should bypass the jitter gate")
     }
 
-    // ── C.1b — 5 km hard teleport gate + consecutive-normal counter ───────────────
+    // ── C.1b, 5 km hard teleport gate + consecutive-normal counter ───────────────
 
     @Test
     fun `five km teleport is abnormal even below the speed cap`() {
@@ -188,7 +188,7 @@ class LocationProcessorTest {
         assertEquals(3, proc.consecutiveNormalCount)
     }
 
-    // ── C.1d — gap-recovery tiers ────────────────────────────────────────────────
+    // ── C.1d, gap-recovery tiers ────────────────────────────────────────────────
 
     @Test
     fun `plausible jump after a 10 minute gap is counted`() {
@@ -209,7 +209,7 @@ class LocationProcessorTest {
         assertTrue(r != null && r.isAbnormal, "667 m/s over a 1min gap should be abnormal")
     }
 
-    // ── C.1g — optional Kalman smoothing ─────────────────────────────────────────
+    // ── C.1g, optional Kalman smoothing ─────────────────────────────────────────
 
     @Test
     fun `kalman disabled persists raw coordinates`() {

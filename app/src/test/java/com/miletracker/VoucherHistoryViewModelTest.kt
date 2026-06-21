@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * SP.1 (V17): the voucher-history reducer over the offline fake — All loads everything, a status tab narrows
+ * SP.1 (V17): the voucher-history reducer over the offline fake, All loads everything, a status tab narrows
  * to that status, and the query filters. Proves the F0 HistoryListScaffold MVI contract end-to-end.
  */
 class VoucherHistoryViewModelTest {

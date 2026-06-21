@@ -52,7 +52,7 @@ data class LogMilesUiState(
     val isRoundTrip: Boolean = false,
     /** Great-circle distance computed from the current stops. */
     val calculatedDistanceKm: Double = 0.0,
-    /** Distance actually used for pricing — equal to calculated unless overridden. */
+    /** Distance actually used for pricing, equal to calculated unless overridden. */
     val distanceKm: Double = 0.0,
     val isDistanceOverridden: Boolean = false,
     val reimbursableAmount: Double = 0.0,

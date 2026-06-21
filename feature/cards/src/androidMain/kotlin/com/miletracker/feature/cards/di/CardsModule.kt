@@ -10,7 +10,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-/** Cards feature DI — locale-aware mock provider + the three MVI ViewModels. */
+/** Cards feature DI, locale-aware mock provider + the three MVI ViewModels. */
 val cardsModule: Module =
     module {
         single<CardsMockDataProvider> { CardsMockDataProviderFactory.provider() }

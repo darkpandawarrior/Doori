@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-/** A labelled value row for a [DetailInfoBottomSheet] card (e.g. "Merchant — Cafe Coffee Day"). */
+/** A labelled value row for a [DetailInfoBottomSheet] card (e.g. "Merchant, Cafe Coffee Day"). */
 @Composable
 fun DetailInfoRow(
     label: String,

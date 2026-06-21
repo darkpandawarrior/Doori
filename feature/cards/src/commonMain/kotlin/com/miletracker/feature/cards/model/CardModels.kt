@@ -1,14 +1,14 @@
 package com.miletracker.feature.cards.model
 
 /*
- * Q.2 — corporate-cards data layer (commonMain, pure Kotlin). No android.* / java.* imports.
+ * Q.2: corporate-cards data layer (commonMain, pure Kotlin). No android.* / java.* imports.
  */
 
 enum class CardStatus { ACTIVE, BLOCKED, FROZEN, KYC_PENDING, PHYSICAL_ISSUED, EXPIRED, PENDING }
 
 enum class CardFormat { VIRTUAL, PHYSICAL }
 
-/** Q+.1 — claim lifecycle (the web's transaction tabs). */
+/** Q+.1: claim lifecycle (the web's transaction tabs). */
 enum class CardTxnClaimStatus { UNCLAIMED, PERSONAL, CLAIMED, RECOVERED, REJECTED }
 
 enum class CardRequestStatus { IN_PROGRESS, APPROVED, REJECTED }
@@ -73,9 +73,9 @@ data class CardModel(
     val isKycPending: Boolean = false,
     val cardFormat: CardFormat = CardFormat.VIRTUAL,
     val currency: String = "AED",
-    // Q+.2 — balance header (web shows holder name + email + Available Balance).
+    // Q+.2: balance header (web shows holder name + email + Available Balance).
     val employeeEmail: String? = null,
-    // Q+.3 — card controls.
+    // Q+.3: card controls.
     val monthlyLimit: Double? = null,
     val singleTransactionLimit: Double? = null,
     val dailyTransactionLimit: Double? = null,
@@ -123,7 +123,7 @@ data class CardRequestModel(
     val approvalSteps: List<ApprovalStepModel> = emptyList(),
 )
 
-/** Q+.3 — physical-card shipping address (web "Issue Physical Card" form). */
+/** Q+.3: physical-card shipping address (web "Issue Physical Card" form). */
 data class CardShippingAddress(
     val addressLine1: String,
     val addressLine2: String,

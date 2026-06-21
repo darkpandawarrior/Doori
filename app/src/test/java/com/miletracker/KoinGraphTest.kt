@@ -66,11 +66,11 @@ import kotlin.test.assertNotNull
  *
  * `viewModelOf(::SomeViewModel)` resolves each constructor parameter through Koin and
  * ignores Kotlin default arguments, so a parameter that "has a default" still needs a
- * Koin definition — a mistake the compiler cannot catch and a screen-open crash in
+ * Koin definition, a mistake the compiler cannot catch and a screen-open crash in
  * production (NoDefinitionFoundException). This test turns that runtime crash into a
  * unit-test failure.
  *
- * Only the Room layer is replaced (mocked DAOs — building the real database needs a
+ * Only the Room layer is replaced (mocked DAOs, building the real database needs a
  * device); everything else is the exact wiring the app ships with.
  */
 class KoinGraphTest : KoinTest {
@@ -122,7 +122,7 @@ class KoinGraphTest : KoinTest {
 
     @Test
     fun `every ViewModel in the app graph is constructible`() {
-        // One line per registered ViewModel — a new viewModelOf() without a matching
+        // One line per registered ViewModel, a new viewModelOf() without a matching
         // entry here should be added when the screen is added.
         assertNotNull(get<SavedTracksViewModel>())
         assertNotNull(get<TrackMilesViewModel>())

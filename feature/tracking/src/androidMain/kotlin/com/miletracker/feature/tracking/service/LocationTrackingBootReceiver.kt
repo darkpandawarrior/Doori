@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
  *
  * FGS-from-boot rules (verified against Android 16 / API 36): the `location` type is NOT in
  * the list of types banned from BOOT_COMPLETED receivers (that list: dataSync, camera,
- * mediaPlayback, phoneCall, mediaProjection, microphone), so auto-restore is allowed — but
+ * mediaPlayback, phoneCall, mediaProjection, microphone), so auto-restore is allowed, but
  * only useful when ACCESS_BACKGROUND_LOCATION is granted, because a location FGS started
  * from the background falls under while-in-use restrictions. [BootRestorePolicy] gates on
  * that. If a future Android release does ban location FGS from boot, the

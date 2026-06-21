@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 /**
- * The six status tones — a generalisation of cards' `CardStatusBadge`, reused by every
+ * The six status tones, a generalisation of cards' `CardStatusBadge`, reused by every
  * status chip / history list across the app.
  */
 enum class StatusTone(val color: Color) {
@@ -52,7 +52,7 @@ fun StatusChip(
 }
 
 /**
- * Stepper progress bar for multi-step create wizards (F0.3) — a generalisation of `CardRequestScreen`'s
+ * Stepper progress bar for multi-step create wizards (F0.3), a generalisation of `CardRequestScreen`'s
  * stepper. Renders [total] segments with the first [step] (1-based) filled in the primary colour.
  */
 @Composable

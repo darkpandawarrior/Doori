@@ -1,14 +1,14 @@
 package com.miletracker.core.platform
 
 /**
- * RV.1 — pure engagement-gating logic for the in-app review prompt.
+ * RV.1: pure engagement-gating logic for the in-app review prompt.
  *
  * A prompt is eligible only when ALL hold:
  * - the account is at least [ReviewGateConfig.minAccountAgeDays] old (since first open),
  * - the user has performed at least [ReviewGateConfig.minInteractions] meaningful interactions,
  * - and at least [ReviewGateConfig.cooldownDays] have passed since the last prompt (if ever shown).
  *
- * No platform deps — the counters live in a [ReviewState] supplied by the caller (DataStore-backed in
+ * No platform deps, the counters live in a [ReviewState] supplied by the caller (DataStore-backed in
  * production), so this is trivially unit-testable.
  */
 object ReviewEligibility {

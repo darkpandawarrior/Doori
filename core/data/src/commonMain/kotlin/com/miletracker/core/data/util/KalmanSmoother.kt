@@ -5,7 +5,7 @@ import kotlin.math.cos
 import kotlin.math.max
 
 /**
- * Lightweight Kalman-like GPS smoother — operates on lat/lng separately, uses time delta
+ * Lightweight Kalman-like GPS smoother, operates on lat/lng separately, uses time delta
  * to increase process uncertainty.  Pure Kotlin, no Android dependencies.
  */
 class KalmanSmoother(private var processNoiseMetersPerSec: Double = 1.0) {

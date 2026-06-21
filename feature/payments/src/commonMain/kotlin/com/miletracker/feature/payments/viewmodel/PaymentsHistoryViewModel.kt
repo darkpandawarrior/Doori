@@ -6,7 +6,7 @@ import com.miletracker.feature.payments.model.PaymentRecord
 import com.miletracker.feature.payments.model.PaymentStatus
 import com.miletracker.feature.payments.repository.PaymentsRepository
 
-/** PM — payments-history status tabs (the first tab is "All"). */
+/** PM: payments-history status tabs (the first tab is "All"). */
 val PAYMENTS_HISTORY_TABS: List<PaymentStatus?> = listOf(null) + PaymentStatus.entries
 
 data class PaymentsHistoryUiState(
@@ -25,7 +25,7 @@ sealed interface PaymentsHistoryAction {
 
 sealed interface PaymentsHistoryEffect
 
-/** PM — reducer for the payments-history surface, on the shared `HistoryListScaffold`. */
+/** PM: reducer for the payments-history surface, on the shared `HistoryListScaffold`. */
 class PaymentsHistoryViewModel(
     private val repository: PaymentsRepository,
 ) : BaseViewModel<PaymentsHistoryUiState, PaymentsHistoryEffect, PaymentsHistoryAction>(PaymentsHistoryUiState()) {

@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 
 /**
  * Unit tests for the pure-Kotlin trip-insights analyzers.
- * No Android device needed — plain JVM.
+ * No Android device needed, plain JVM.
  */
 class InsightsAnalyzerTest {
 
@@ -468,7 +468,7 @@ class InsightsAnalyzerTest {
         val mondayMorning = 1_704_700_800_000L  // 2024-01-08 08:00 UTC
         val track = makeTrack().copy(startTime = mondayMorning, endTime = mondayMorning + 600_000L)
         val result = RouteAnalyzer().analyze(track, cleanDrivingPoints())
-        // Accept both "Commute" and "General Journey" — time zone differences are acceptable
+        // Accept both "Commute" and "General Journey", time zone differences are acceptable
         assertTrue(result.category.isNotEmpty())
     }
 

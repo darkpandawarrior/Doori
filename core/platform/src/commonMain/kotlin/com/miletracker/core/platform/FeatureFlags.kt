@@ -1,7 +1,7 @@
 package com.miletracker.core.platform
 
 /**
- * CF.1 — typed reader over the raw feature-flag map (from `ConfigProvider.getFeatureFlags()`, which is
+ * CF.1: typed reader over the raw feature-flag map (from `ConfigProvider.getFeatureFlags()`, which is
  * env/BuildConfig-overridable). Injected via Koin so UI can gate optional surfaces without touching the
  * config layer directly.
  */

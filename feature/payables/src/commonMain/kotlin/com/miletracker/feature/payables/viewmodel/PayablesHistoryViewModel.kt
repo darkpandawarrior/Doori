@@ -7,7 +7,7 @@ import com.miletracker.feature.payables.model.PayablesDocStatus
 import com.miletracker.feature.payables.model.PayablesDocType
 import com.miletracker.feature.payables.repository.PayablesHistoryRepository
 
-/** PB.4 — payables-history type tabs (the first tab is "All"). */
+/** PB.4: payables-history type tabs (the first tab is "All"). */
 val PAYABLES_HISTORY_TABS: List<PayablesDocType?> = listOf(null) + PayablesDocType.entries
 
 data class PayablesHistoryUiState(
@@ -30,7 +30,7 @@ sealed interface PayablesHistoryAction {
 sealed interface PayablesHistoryEffect
 
 /**
- * PB.4 — reducer for the unified payables history. Loads from the offline [PayablesHistoryRepository], narrows
+ * PB.4: reducer for the unified payables history. Loads from the offline [PayablesHistoryRepository], narrows
  * by the selected document-type tab, an optional status filter chip, and a free-text query, and exposes a
  * [ScreenState] the shared `HistoryListScaffold` renders. Covers the Invoice / PR / GIN / Park In-Out / ASN
  * families in one surface.

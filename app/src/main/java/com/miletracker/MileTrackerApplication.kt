@@ -117,13 +117,13 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
         super.onCreate()
-        // KMP logging (Napier) — only base an antilog on debuggable builds; release stays silent.
+        // KMP logging (Napier), only base an antilog on debuggable builds; release stays silent.
         if (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) AppLog.init()
         // Initialize WormaCeptor for HTTP inspection in debug builds (no-op in release).
         WormaCeptorHelper.init(this)
         // Initialize konnection for KMP network connectivity monitoring.
         Konnection.createInstance(this)
-        // KOIN.1: shared bootstrap. initKoin() prepends platformModule() (the per-platform service graph —
+        // KOIN.1: shared bootstrap. initKoin() prepends platformModule() (the per-platform service graph,
         // LocationTracker/NotificationScheduler/TextRecognizer/BackgroundScheduler on Android) to the list,
         // wiring it into the Android graph for the first time. The NotificationScheduler it adds duplicates
         // trackingModule's binding; Koin override keeps the last one (same AndroidNotificationScheduler impl).

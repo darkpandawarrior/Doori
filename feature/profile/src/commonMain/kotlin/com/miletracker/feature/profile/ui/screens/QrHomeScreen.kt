@@ -110,7 +110,7 @@ private fun isDataModule(
     col: Int,
 ): Boolean {
     if (isFinderRegion(row, col)) return finderBitAt(row, col)
-    // Deterministic data pattern — no Random()
+    // Deterministic data pattern, no Random()
     return ((row * 3 + col * 5) % 7 < 3) || ((row xor col) % 5 == 0)
 }
 

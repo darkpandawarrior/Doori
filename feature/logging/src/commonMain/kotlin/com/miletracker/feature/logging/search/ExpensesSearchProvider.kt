@@ -13,7 +13,7 @@ import com.miletracker.feature.logging.repository.VoucherHistoryRepository
 private const val DAY_MS = 86_400_000L
 
 /**
- * SP.4 — the logging/Spends module's contribution to master search (F0.5 registry). Searches expenses,
+ * SP.4: the logging/Spends module's contribution to master search (F0.5 registry). Searches expenses,
  * vouchers, settlements, and card-expense transactions; returns flat [SearchResult]s with deep links.
  * `feature:search` resolves this via `getAll<SearchProvider>()` with zero coupling back to this module.
  */

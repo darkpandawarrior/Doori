@@ -5,7 +5,7 @@ import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** CF.5 — kill-switch / min-version maintenance predicate. */
+/** CF.5: kill-switch / min-version maintenance predicate. */
 class MaintenanceGateTest {
     @Test
     fun `kill switch forces maintenance`() {

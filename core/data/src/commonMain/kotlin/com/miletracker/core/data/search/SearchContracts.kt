@@ -49,7 +49,7 @@ val SearchEntityType.displayLabel: String
             SearchEntityType.APPROVAL -> "Approvals"
         }
 
-/** Master-search scope tab — gates which entity types / quick actions are shown. */
+/** Master-search scope tab, gates which entity types / quick actions are shown. */
 enum class SearchScope { EXPENSES, PAYABLES, TRAVEL, VIEW_ALL }
 
 /** Human-readable label for a [SearchScope] tab. */
@@ -62,7 +62,7 @@ val SearchScope.displayLabel: String
             SearchScope.TRAVEL -> "Travel"
         }
 
-/** One master-search hit (F0.5) — flat + platform-neutral so any provider can emit it. */
+/** One master-search hit (F0.5), flat + platform-neutral so any provider can emit it. */
 data class SearchResult(
     val type: SearchEntityType,
     val id: String,
@@ -84,7 +84,7 @@ data class SearchFilters(
 
 /**
  * A feature module's contribution to master search (F0.5). Each feature binds its own `SearchProvider` into
- * Koin; `feature:search`'s repository resolves `getAll<SearchProvider>()` and fans out — so features never
+ * Koin; `feature:search`'s repository resolves `getAll<SearchProvider>()` and fans out, so features never
  * depend on `feature:search` and new features light up in search for free.
  */
 interface SearchProvider {

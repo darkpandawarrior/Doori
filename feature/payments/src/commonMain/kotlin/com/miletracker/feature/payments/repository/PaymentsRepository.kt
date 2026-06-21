@@ -23,7 +23,7 @@ sealed interface PaymentResult {
 }
 
 /**
- * Offline fake UPI/QR payments store (PM) — seeds a deterministic history (Clock-injected, no `Math.random`)
+ * Offline fake UPI/QR payments store (PM), seeds a deterministic history (Clock-injected, no `Math.random`)
  * and returns a **rotating** [PaymentResult] (completed / pending / failed) across repeated submits. Every UPI
  * call is mocked theater; no real PSP. Mirrors the PB/TR fake-repo pattern.
  */

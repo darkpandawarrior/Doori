@@ -7,7 +7,7 @@ import com.miletracker.feature.travel.model.BookingType
 import com.miletracker.feature.travel.model.TravelReqStatus
 import com.miletracker.feature.travel.repository.TravelHistoryRepository
 
-/** TR.8 — booking-history type tabs (the first tab is "All"). */
+/** TR.8: booking-history type tabs (the first tab is "All"). */
 val BOOKING_HISTORY_TABS: List<BookingType?> = listOf(null) + BookingType.entries
 
 data class BookingHistoryUiState(
@@ -30,7 +30,7 @@ sealed interface BookingHistoryAction {
 sealed interface BookingHistoryEffect
 
 /**
- * TR.8 — reducer for the unified booking-request history (Flight / Bus / Hotel / MJP / Visa). Type tab + status
+ * TR.8: reducer for the unified booking-request history (Flight / Bus / Hotel / MJP / Visa). Type tab + status
  * filter chip + query → [ScreenState], on the shared `HistoryListScaffold`.
  */
 class BookingHistoryViewModel(

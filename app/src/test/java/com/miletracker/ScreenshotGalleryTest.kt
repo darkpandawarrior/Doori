@@ -143,7 +143,7 @@ import java.io.File
 // / home + appModule) plus a `fakeRoomLayer` that supplies the DAOs, the concrete
 // data-layer singletons (CurrentTrackDataStore, DemoSettingsRepository) and the
 // MapSurface those modules need. coreDataModule, mapsKoinModule() and
-// platformServicesKoinModule() are intentionally NOT included — they would build
+// platformServicesKoinModule() are intentionally NOT included, they would build
 // Room / GMS / MapLibre against a mock Context and crash on the JVM. The fakes
 // stand in for exactly the boundary they own.
 //
@@ -262,7 +262,7 @@ class ScreenshotGalleryTest {
         @BeforeClass @JvmStatic
         fun setup() {
             // These are record-only documentation screenshots written to a custom docs/
-            // path (the README gallery), not Roborazzi's tracked output dir — so force
+            // path (the README gallery), not Roborazzi's tracked output dir, so force
             // record here, matching the project convention. The strict verifyRoborazzi
             // gate covers the deterministic component previews in ScreenshotCatalogTest.
             System.setProperty("roborazzi.test.record", "true")
