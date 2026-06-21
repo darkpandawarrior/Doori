@@ -50,6 +50,19 @@ data class HotelDraft(
     val roomPreference: String,
 )
 
+/** TR.6 — one leg of a multi-city journey plan. */
+data class MjpLeg(
+    val fromCity: String,
+    val toCity: String,
+    val travelDate: String,
+)
+
+/** TR.6 — a multi-city journey-plan (MJP) form payload. */
+data class MjpDraft(
+    val purpose: String,
+    val legs: List<MjpLeg>,
+)
+
 /**
  * Offline fake travel-create store (TR.2+) — persists submitted drafts in-memory and returns a **rotating**
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
@@ -102,5 +115,12 @@ class TravelCreateRepository {
             "HTL",
             7300,
             listOf("Nightly rate exceeds the city tariff cap", "Stay over 3 nights needs manager approval"),
+        )
+
+    fun submitMjp(draft: MjpDraft): TravelSubmissionResult =
+        rotate(
+            "MJP",
+            8400,
+            listOf("A leg has overlapping dates", "Multi-city plans over 4 legs need travel-desk approval"),
         )
 }

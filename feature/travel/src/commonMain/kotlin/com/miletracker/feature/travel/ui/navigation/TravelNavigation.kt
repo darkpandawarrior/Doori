@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import com.miletracker.feature.travel.ui.screens.CreateBusScreen
 import com.miletracker.feature.travel.ui.screens.CreateFlightScreen
 import com.miletracker.feature.travel.ui.screens.CreateHotelScreen
+import com.miletracker.feature.travel.ui.screens.CreateMjpScreen
 import com.miletracker.feature.travel.ui.screens.CreateTripScreen
 import com.miletracker.feature.travel.ui.screens.TravelHomeScreen
 
@@ -21,6 +22,7 @@ object TravelRoutes {
     const val CREATE_FLIGHT = "travel/create_flight"
     const val CREATE_BUS = "travel/create_bus"
     const val CREATE_HOTEL = "travel/create_hotel"
+    const val CREATE_MJP = "travel/create_mjp"
 }
 
 fun NavGraphBuilder.travelGraph(navController: NavHostController) {
@@ -47,6 +49,12 @@ fun NavGraphBuilder.travelGraph(navController: NavHostController) {
     }
     composable(TravelRoutes.CREATE_HOTEL) {
         CreateHotelScreen(
+            onBack = { navController.popBackStack() },
+            onSubmitted = { navController.popBackStack() },
+        )
+    }
+    composable(TravelRoutes.CREATE_MJP) {
+        CreateMjpScreen(
             onBack = { navController.popBackStack() },
             onSubmitted = { navController.popBackStack() },
         )
