@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertTrue
 
-/** EV (V17): the events SearchProvider, VIEW_ALL gating, min-length, title hits, type filter. */
+/** EV (V17): the events SearchProvider — VIEW_ALL gating, min-length, title hits, type filter. */
 class EventsSearchProviderTest {
 
     private fun provider() = EventsSearchProvider(EventsRepository())

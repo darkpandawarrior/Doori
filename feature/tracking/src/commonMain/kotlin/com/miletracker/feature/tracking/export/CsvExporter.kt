@@ -10,7 +10,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 /**
- * Pure-Kotlin CSV exporter. No Android deps, fully unit-testable on the JVM.
+ * Pure-Kotlin CSV exporter. No Android deps — fully unit-testable on the JVM.
  * Returns a String that the caller writes to a file.
  */
 object CsvExporter {

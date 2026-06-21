@@ -110,7 +110,7 @@ private fun isDataModule(
     col: Int,
 ): Boolean {
     if (isFinderRegion(row, col)) return finderBitAt(row, col)
-    // Deterministic data pattern, no Random()
+    // Deterministic data pattern — no Random()
     return ((row * 3 + col * 5) % 7 < 3) || ((row xor col) % 5 == 0)
 }
 
@@ -173,7 +173,7 @@ fun QrHomeScreen(
                         Text("QR Pay", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
                         Text("Scan to receive payments", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
                     }
-                    IconButton(onClick = { /* share: illustrative */ }) {
+                    IconButton(onClick = { /* share — illustrative */ }) {
                         Icon(Icons.Default.Share, contentDescription = "Share QR", tint = Color.White)
                     }
                 }

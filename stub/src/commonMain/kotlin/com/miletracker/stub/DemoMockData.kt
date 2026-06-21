@@ -40,7 +40,7 @@ object DemoMockData {
                 UserProfile(
                     code = "EMP001",
                     name = "Demo User",
-                    email = "demo@mileway.app",
+                    email = "demo@miletracker.app",
                     tenant = "DEMO",
                     currency = "INR",
                 ),

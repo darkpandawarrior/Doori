@@ -61,7 +61,7 @@ import com.miletracker.feature.profile.viewmodel.ProfileViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Profile Details, a full-detail editor surface pushed from the Account hub.
+ * Profile Details — a full-detail editor surface pushed from the Account hub.
  *
  * Layout (top to bottom):
  *  - LEVEL_2 [com.miletracker.core.ui.components.topbar.DepthAwareTopBar] with back

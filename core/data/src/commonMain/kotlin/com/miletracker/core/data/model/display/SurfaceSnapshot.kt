@@ -7,7 +7,7 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
 
 /**
- * A small, serializable summary of tracking activity for off-screen *surfaces* (L/N), an Android Glance
+ * A small, serializable summary of tracking activity for off-screen *surfaces* (L/N) — an Android Glance
  * home-screen widget and (later) an iOS WidgetKit timeline. Deliberately platform-neutral and tiny so it can
  * be written to a shared store (DataStore / App Group) and re-rendered cheaply by either widget host.
  */
@@ -21,7 +21,7 @@ data class SurfaceSnapshot(
 )
 
 /**
- * Pure producer for a [SurfaceSnapshot] (L), folds the completed-track list into today's and this-week's
+ * Pure producer for a [SurfaceSnapshot] (L) — folds the completed-track list into today's and this-week's
  * distance + trip counts relative to a caller-supplied `nowEpochMs` (no `Clock.System` read, so it is fully
  * deterministic and JVM-unit-testable). Shared by every widget host: the platform renderers (Glance /
  * WidgetKit) just lay out the result.

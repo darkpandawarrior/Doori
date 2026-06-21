@@ -94,7 +94,7 @@ fun SetupGuideScreen(
                     .padding(DesignTokens.Spacing.l),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
         ) {
-            // Completion banner, only visible when all steps done.
+            // Completion banner — only visible when all steps done.
             if (allDone) {
                 Row(
                     modifier =

@@ -5,7 +5,7 @@ import kotlin.math.abs
 /** Key-value fields a receipt OCR pass would extract from an uploaded image. */
 data class ReceiptExtraction(
     val amount: Double,
-    /** ISO-8601 date (yyyy-MM-dd), derived from the seed, never from the clock. */
+    /** ISO-8601 date (yyyy-MM-dd), derived from the seed — never from the clock. */
     val date: String,
     val merchant: String,
 )

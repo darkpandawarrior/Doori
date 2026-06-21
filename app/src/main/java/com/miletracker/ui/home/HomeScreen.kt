@@ -49,7 +49,7 @@ private val BottomBarClearance = 140.dp
  * The Home tab.
  *
  * A top-level destination: it owns its top inset through [HomeProfileHeader]'s gradient
- * (which applies `statusBarsPadding` internally) and has NO [androidx.compose.material3.TopAppBar],
+ * (which applies `statusBarsPadding` internally) and has NO [androidx.compose.material3.TopAppBar] —
  * the gradient header *is* the top of the screen. All content scrolls in a single column and
  * floats above the bubble bottom bar via [BottomBarClearance].
  *
@@ -72,7 +72,7 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // V15 RV.4/CF.1: Home is a meaningful engagement signal, record it and prompt for review if eligible
+    // V15 RV.4/CF.1: Home is a meaningful engagement signal — record it and prompt for review if eligible
     // and the in-app-review flag is on.
     val reviewManager = LocalAppReviewManager.current
     LaunchedEffect(Unit) {
@@ -151,13 +151,13 @@ internal fun HomeScreenContent(
                     AtAGlanceGrid(counts = state.atAGlance, onClick = onOpenAccount)
                 }
 
-                // VII.1: HomeMileageCard, progress ring + stats + quick actions.
+                // VII.1: HomeMileageCard — progress ring + stats + quick actions.
                 HomeMileageCard(
                     onTrackJourney = onStartTracking,
                     onLogMiles = onAddExpense,
                 )
 
-                // VII.2: HomeCheckInCard, check-in button + recent list.
+                // VII.2: HomeCheckInCard — check-in button + recent list.
                 HomeCheckInCard(onCheckIn = onOpenAccount)
             }
 

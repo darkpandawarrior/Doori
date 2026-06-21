@@ -168,7 +168,7 @@ private fun ActivityType.label(): String =
     }
 
 // ---------------------------------------------------------------------------
-// 1. CompassGauge, circular bearing gauge with center speed readout
+// 1. CompassGauge — circular bearing gauge with center speed readout
 // ---------------------------------------------------------------------------
 
 /**
@@ -334,7 +334,7 @@ private fun DrawScope.drawCardinalLabel(
 private fun Float.toRadians(): Float = (this * PI / 180.0).toFloat()
 
 // ---------------------------------------------------------------------------
-// 2. ActivityTimeline, segmented horizontal activity breakdown
+// 2. ActivityTimeline — segmented horizontal activity breakdown
 // ---------------------------------------------------------------------------
 
 /**
@@ -460,7 +460,7 @@ fun ActivityTimeline(
 }
 
 // ---------------------------------------------------------------------------
-// 3. HeroTrackingCard, the gradient card hosting the gauge
+// 3. HeroTrackingCard — the gradient card hosting the gauge
 // ---------------------------------------------------------------------------
 
 /**
@@ -468,7 +468,7 @@ fun ActivityTimeline(
  *
  * A gradient/surface card (using [DesignTokens.topBarGradientBrush] like the rest of the
  * demo hero surfaces) containing:
- * - the gauge, [CompassGauge] or [ActivityTimeline] depending on [gaugeMode]; tapping the
+ * - the gauge — [CompassGauge] or [ActivityTimeline] depending on [gaugeMode]; tapping the
  *   gauge area toggles between them via [onToggleMode],
  * - an optional vehicle glyph slot ([vehicleIcon]),
  * - a Distance / Duration / Vehicle metric row, and
@@ -477,7 +477,7 @@ fun ActivityTimeline(
  * Faithfully ports the source hero layout (gauge + speed on the left, vehicle glyph on the
  * right, a divider, then a metrics row) but kept fully stateless: every value arrives via a
  * parameter and every interaction leaves via a callback. There is no ViewModel, navigation,
- * or platform dependency inside this file, the integrator wires those.
+ * or platform dependency inside this file — the integrator wires those.
  *
  * Matches the two reference states:
  * - idle: compass, `-- km/h`, `-- min` duration, `--` vehicle;
@@ -549,7 +549,7 @@ fun HeroTrackingCard(
             1f
         }
 
-    // Flat card, no elevation shadow, gradient provides all the depth.
+    // Flat card — no elevation shadow, gradient provides all the depth.
     Card(
         modifier =
             modifier.clip(shape).graphicsLayer {

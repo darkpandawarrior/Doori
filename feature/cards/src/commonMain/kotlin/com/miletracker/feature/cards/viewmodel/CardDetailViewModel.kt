@@ -12,7 +12,7 @@ import com.miletracker.feature.cards.model.CardStatus
 import com.miletracker.feature.cards.model.CardTransactionModel
 import com.miletracker.feature.cards.model.CardTxnClaimStatus
 
-/** Q.3 / Q+.1 / Q+.3, card detail: claim-status transaction tabs + card controls. */
+/** Q.3 / Q+.1 / Q+.3 — card detail: claim-status transaction tabs + card controls. */
 data class CardDetailUiState(
     val card: ScreenState<CardModel> = ScreenState.Loading,
     val transactions: ScreenState<List<CardTransactionModel>> = ScreenState.Loading,

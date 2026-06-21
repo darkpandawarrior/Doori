@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** Q.3 / Q+.1 / Q+.3, card detail reducers (claim tabs + controls). */
+/** Q.3 / Q+.1 / Q+.3 — card detail reducers (claim tabs + controls). */
 class CardDetailViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()

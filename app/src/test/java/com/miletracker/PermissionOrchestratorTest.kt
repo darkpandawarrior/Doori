@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 
 /**
  * UX.3: the permission orchestrator is pure logic over a [PermissionsProvider], so a fake provider drives it
- * end to end, already-granted skipping, sequential requesting, and the terminal allGranted / denied summary.
+ * end to end — already-granted skipping, sequential requesting, and the terminal allGranted / denied summary.
  */
 class PermissionOrchestratorTest {
 

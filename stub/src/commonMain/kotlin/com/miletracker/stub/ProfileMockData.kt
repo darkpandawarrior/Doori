@@ -18,7 +18,7 @@ object ProfileMockData {
     fun primaryProfile(): EmployeeProfile =
         EmployeeProfile(
             name = "Demo User",
-            email = "demo@mileway.app",
+            email = "demo@miletracker.app",
             employeeCode = "EMP001",
             phone = "+91 98765 43210",
             gender = "Male",

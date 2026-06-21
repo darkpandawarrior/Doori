@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# FLA.1: single-source version bump (biciradar-style).
+# FLA.1 — single-source version bump (biciradar-style).
 #
 # VERSION holds the semantic versionName; BUILD_NUMBER is a monotonically increasing counter.
 # The Gradle versionCode is computed as VERSION_CODE_BASE + BUILD_NUMBER (see app/build.gradle.kts),

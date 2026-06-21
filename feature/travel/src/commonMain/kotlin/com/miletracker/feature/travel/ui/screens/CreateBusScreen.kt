@@ -19,7 +19,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val SEAT_PREFERENCES = listOf("Seater", "Sleeper", "Semi-sleeper")
 
-/** TR.4: Add Bus booking request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** TR.4 — Add Bus booking request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateBusScreen(
     onBack: () -> Unit,

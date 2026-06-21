@@ -26,7 +26,7 @@ import com.miletracker.feature.payables.viewmodel.PayablesHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PB.4: unified payables history (Invoice / PR / GIN / Park In-Out / ASN). Doc-type tabs + a status filter
+ * PB.4 — unified payables history (Invoice / PR / GIN / Park In-Out / ASN). Doc-type tabs + a status filter
  * chip row + search, all on the shared F0.4 [HistoryListScaffold] with F0.3 [StatusChip] tones.
  */
 @Composable

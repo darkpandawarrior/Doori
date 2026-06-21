@@ -24,7 +24,7 @@ import com.miletracker.feature.events.viewmodel.EventsHistoryAction
 import com.miletracker.feature.events.viewmodel.EventsHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** EV: events history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
+/** EV — events history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
 @Composable
 fun EventsHistoryScreen(
     onBack: () -> Unit,

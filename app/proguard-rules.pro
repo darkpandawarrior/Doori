@@ -20,7 +20,7 @@
 -keep interface io.ktor.** { *; }
 
 # ── Napier logging ────────────────────────────────────────────────────────────
-# Strip Napier in release, log calls are dead code after minification with this keep.
+# Strip Napier in release — log calls are dead code after minification with this keep.
 -assumenosideeffects class io.github.aakira.napier.Napier {
     public static *** d(...);
     public static *** v(...);

@@ -15,7 +15,7 @@ import org.junit.runner.Description
  * ViewModels launch into `viewModelScope`, which is hard-wired to `Dispatchers.Main.immediate`;
  * without this rule any ViewModel test would throw on the first `launch`.
  *
- * Defaults to [StandardTestDispatcher] so coroutines do NOT run eagerly, each test must
+ * Defaults to [StandardTestDispatcher] so coroutines do NOT run eagerly — each test must
  * advance the scheduler (e.g. `advanceUntilIdle()`), which makes asynchrony explicit and
  * lets tests assert on intermediate states (loading, pre-restore) deterministically.
  * `runTest` detects the main dispatcher's scheduler automatically, so test bodies and

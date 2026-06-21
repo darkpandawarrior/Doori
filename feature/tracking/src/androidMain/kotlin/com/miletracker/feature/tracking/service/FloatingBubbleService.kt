@@ -22,7 +22,7 @@ class FloatingBubbleService : Service() {
 
         fun start(context: Context) {
             if (!Settings.canDrawOverlays(context)) {
-                Log.w(TAG, "SYSTEM_ALERT_WINDOW permission not granted: skipping bubble")
+                Log.w(TAG, "SYSTEM_ALERT_WINDOW permission not granted — skipping bubble")
                 return
             }
             context.startForegroundService(Intent(context, FloatingBubbleService::class.java))
@@ -43,7 +43,7 @@ class FloatingBubbleService : Service() {
             ) {
                 when (intent.action) {
                     LocationTrackingConstants.ACTION_TRACKING_STOPPED -> {
-                        Log.d(TAG, "Tracking stopped: dismissing bubble")
+                        Log.d(TAG, "Tracking stopped — dismissing bubble")
                         bubbleManager.dismiss { stopSelf() }
                     }
                     LocationTrackingConstants.ACTION_TRACKING_PAUSED ->
@@ -68,7 +68,7 @@ class FloatingBubbleService : Service() {
         if (!enterForeground()) return START_NOT_STICKY
 
         if (!Settings.canDrawOverlays(this)) {
-            Log.w(TAG, "Overlay permission missing: stopping bubble service")
+            Log.w(TAG, "Overlay permission missing — stopping bubble service")
             stopSelf()
             return START_NOT_STICKY
         }

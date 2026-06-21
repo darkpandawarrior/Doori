@@ -56,7 +56,7 @@ data class TrackMilesUiState(
     val trackingActivity: String = "Stationary",
     val signal: TrackSignal = TrackSignal.GOOD,
     /**
-     * Adaptive-engine telemetry (C.3), only the foreground service publishes these via TrackingServiceApi.
+     * Adaptive-engine telemetry (C.3) — only the foreground service publishes these via TrackingServiceApi.
      * [gpsIntervalMs] is the current adaptive GPS request cadence (from the DynamicIntervalCalculator).
      */
     val gpsIntervalMs: Long = 0L,
@@ -78,7 +78,7 @@ data class TrackMilesUiState(
     val centers: List<CheckInLocation> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
-    /** "This Week: N trips • X.X km", loaded once on init and updated as tracks complete. */
+    /** "This Week: N trips • X.X km" — loaded once on init and updated as tracks complete. */
     val weekSummaryText: String = "",
 ) {
     /** History count surfaced as the small chip on the hero card. */
@@ -177,8 +177,8 @@ class TrackMilesViewModel(
 
     /**
      * Subscribe to the foreground service's live [TrackingServiceApi.trackingState] (C.3). This carries
-     * the transient adaptive-engine telemetry the persisted session does not, the dynamic GPS cadence
-     * and charging/battery state, which we surface for the diagnostics chips. The per-fix speed/points
+     * the transient adaptive-engine telemetry the persisted session does not — the dynamic GPS cadence
+     * and charging/battery state — which we surface for the diagnostics chips. The per-fix speed/points
      * gauge stays on the [observeSession] DataStore feed (it also carries sensor-derived activity +
      * unsynced counts), so the two channels are complementary rather than double-writing the same fields.
      */
@@ -338,9 +338,6 @@ class TrackMilesViewModel(
                 )
             }
             observeLive(active.routeId)
-            // A.2: also resume the bearing/location-label feed so a restored session immediately
-            // shows live coordinates instead of staying stuck on "Waiting for location…".
-            observeBearing(active.routeId)
         }
     }
 

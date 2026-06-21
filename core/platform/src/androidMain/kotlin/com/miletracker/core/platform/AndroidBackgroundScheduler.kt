@@ -47,7 +47,7 @@ class AndroidBackgroundScheduler(private val context: Context) : BackgroundSched
 /**
  * Generic worker instantiated by WorkManager's default factory (it has the canonical
  * `(Context, WorkerParameters)` constructor). It resolves the scheduled [BackgroundTask] from the
- * global Koin context by name, mirroring the existing `MileageMaintenanceWorker` KoinComponent pattern.
+ * global Koin context by name — mirroring the existing `MileageMaintenanceWorker` KoinComponent pattern.
  */
 class PlatformBackgroundWorker(
     appContext: Context,

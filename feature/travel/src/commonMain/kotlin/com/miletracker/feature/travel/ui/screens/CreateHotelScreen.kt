@@ -22,7 +22,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val ROOM_PREFERENCES = listOf("Standard", "Deluxe", "Suite")
 
-/** TR.5: Add Hotel booking request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** TR.5 — Add Hotel booking request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateHotelScreen(
     onBack: () -> Unit,

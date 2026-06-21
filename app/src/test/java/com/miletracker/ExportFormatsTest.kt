@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
 
 /**
  * Unit tests for the 5 text-based export formats (CSV, GPX, KML, GeoJSON, JSON).
- * Pure JVM, no Android framework needed.
+ * Pure JVM — no Android framework needed.
  */
 class ExportFormatsTest {
 
@@ -278,7 +278,7 @@ class ExportFormatsTest {
     fun `json points array contains all location entries`() {
         val locations = makeLocations(6)
         val json = JsonExporter.export(makeTrack(), locations, makeEvents())
-        // Each entry starts with "id":, count them in points section
+        // Each entry starts with "id": — count them in points section
         val pointsSection = json.substringAfter("\"points\": [").substringBefore("\"events\":")
         val idCount = pointsSection.split("\"id\":").size - 1
         assertEquals(6, idCount, "Expected 6 'id' entries in points, found $idCount")

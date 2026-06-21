@@ -1,7 +1,7 @@
 package com.miletracker.core.common.deeplink
 
 /**
- * DL.1: typed deep-link destinations. Covers the existing `home|track|log|profile` plus the new
+ * DL.1 — typed deep-link destinations. Covers the existing `home|track|log|profile` plus the new
  * `track/checkin`, `log/expense`, `profile/settings`, and `referral?code=…` targets.
  */
 sealed interface DeepLinkTarget {
@@ -25,7 +25,7 @@ sealed interface DeepLinkTarget {
     data class Unknown(val raw: String) : DeepLinkTarget
 }
 
-/** A minimally-parsed URI (commonMain-pure, no java.net.URI / NSURL). */
+/** A minimally-parsed URI (commonMain-pure — no java.net.URI / NSURL). */
 internal data class ParsedUri(
     val scheme: String,
     val host: String,

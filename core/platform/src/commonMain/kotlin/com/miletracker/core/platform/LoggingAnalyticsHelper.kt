@@ -3,7 +3,7 @@ package com.miletracker.core.platform
 import io.github.aakira.napier.Napier
 
 /**
- * CF.2: analytics sink that logs (self-clamped) events via Napier. This is the noGms + iOS analytics impl
+ * CF.2 — analytics sink that logs (self-clamped) events via Napier. This is the noGms + iOS analytics impl
  * (no real backend); the gms flavor binds a Firebase-backed helper (CF.3).
  */
 class LoggingAnalyticsHelper : AnalyticsHelper {

@@ -1,4 +1,4 @@
-// WatchGraph: single composition root for the watchOS target.
+// WatchGraph — single composition root for the watchOS target.
 // Builds the dependency graph once (actor-isolated) and exposes SurfaceSnapshots
 // to the SwiftUI layer so views stay pure value types.
 // TODO ios: replace DemoSnapshot with real data from the KMP shared framework.

@@ -1,7 +1,7 @@
 json_key_file(ENV["PLAY_STORE_KEY_FILE_PATH"] || "") # Play API key JSON (materialized from PLAYSTORE_CREDS_B64 in CI)
 package_name("com.miletracker")
 
-# FLI: iOS identifiers (env placeholders; never committed).
+# FLI — iOS identifiers (env placeholders; never committed).
 for_platform :ios do
   app_identifier(ENV["IOS_APP_IDENTIFIER"] || "com.miletracker.ios")
   apple_id(ENV["IOS_APPLE_ID"] || "")

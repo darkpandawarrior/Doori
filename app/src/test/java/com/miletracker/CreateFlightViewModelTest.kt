@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * TR.3 (V17): the Add-Flight reducer, canSubmit gating (both cities + travel date) + the rotating success /
+ * TR.3 (V17): the Add-Flight reducer — canSubmit gating (both cities + travel date) + the rotating success /
  * approval / violation result paths through the shared FormSubmissionScaffold contract.
  */
 class CreateFlightViewModelTest {

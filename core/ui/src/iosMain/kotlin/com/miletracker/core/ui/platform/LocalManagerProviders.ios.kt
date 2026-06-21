@@ -15,8 +15,8 @@ import org.koin.mp.KoinPlatform
  *
  * iOS managers don't need a UIViewController for construction (the App-Store update check uses the bundle;
  * review uses SKStoreReviewController's window scene), so they're resolved directly from Koin as plain
- * singletons. Everything degrades to the shared [PlatformBindings] no-op when the binding, or Koin
- * itself: is absent, so it never crashes (iOS may host Compose before Koin is started).
+ * singletons. Everything degrades to the shared [PlatformBindings] no-op when the binding — or Koin
+ * itself — is absent, so it never crashes (iOS may host Compose before Koin is started).
  */
 @Composable
 actual fun LocalManagerProvider(content: @Composable () -> Unit) {

@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 // Platform-neutral abstractions for device capabilities that have no single multiplatform library.
 // Each interface is implemented per platform and bound through Koin (platformModule()).
-// Camera capture and maps are NOT modelled here, they are Compose UI components (peekaboo/MapLibre)
+// Camera capture and maps are NOT modelled here — they are Compose UI components (peekaboo/MapLibre)
 // and live in the UI layer, not as background services.
 
 /** A platform-neutral geographic sample. */

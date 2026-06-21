@@ -2,7 +2,7 @@ import UIKit
 import UserNotifications
 import MileTracker
 
-/// FCM.4: APNs registration + token/tap forwarding into the KMP shared layer.
+/// FCM.4 — APNs registration + token/tap forwarding into the KMP shared layer.
 ///
 /// Firebase is added via SPM (see docs/RELEASE.md "iOS push setup"). Once `FirebaseMessaging` is linked,
 /// swap the raw APNs token below for `Messaging.messaging().fcmToken` and set the APNs token on Messaging.

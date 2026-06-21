@@ -115,7 +115,7 @@ class KrossMapSurface : MapSurface {
             }
         }
 
-        // Route polyline, remove previous, add updated
+        // Route polyline — remove previous, add updated
         var prevRoute by remember { mutableStateOf<KrossPolyLine?>(null) }
         LaunchedEffect(routeCoords) {
             prevRoute?.let { mapState.removePolyLine(it) }

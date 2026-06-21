@@ -4,7 +4,7 @@ import com.miletracker.core.ui.components.buildReferralInvite
 import org.junit.Test
 import kotlin.test.assertTrue
 
-/** RF.4: invite message embeds the code + App-Links URL. */
+/** RF.4 — invite message embeds the code + App-Links URL. */
 class ReferralInviteTest {
     @Test
     fun `invite embeds code and app-link url`() {

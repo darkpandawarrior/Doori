@@ -9,7 +9,7 @@ import kotlin.test.assertNull
 /**
  * Unit tests for [OdometerOcrParser].
  *
- * All tests run on the plain JVM, no Android device or Robolectric needed because
+ * All tests run on the plain JVM — no Android device or Robolectric needed because
  * [OdometerOcrParser] contains no Android imports.
  */
 class OdometerOcrParseTest {
@@ -177,7 +177,7 @@ class OdometerOcrParseTest {
             "Odometer: 045678 km",
             "Trip B 0456"
         )
-        // "Odometer" is a labelled keyword line, this should win over Trip readings.
+        // "Odometer" is a labelled keyword line — this should win over Trip readings.
         assertEquals("045678", OdometerOcrParser.parse(lines))
     }
 

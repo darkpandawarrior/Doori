@@ -17,7 +17,7 @@ import platform.UserNotifications.UNUserNotificationCenter
 import kotlin.coroutines.resume
 
 /**
- * iOS runtime permissions (F), queries/requests the per-capability authorization APIs (camera =
+ * iOS runtime permissions (F) — queries/requests the per-capability authorization APIs (camera =
  * AVCaptureDevice, location = CLLocationManager, notifications = UNUserNotificationCenter). Storage has no
  * broad user-facing prompt on iOS, so it is always granted. Location grants surface asynchronously through
  * the CLLocationManager delegate, so [request] for it is fire-and-forget and the result is read back later

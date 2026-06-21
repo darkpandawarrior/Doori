@@ -6,7 +6,7 @@ import kotlin.math.sqrt
 
 /**
  * Douglas-Peucker path simplification for UI rendering only.
- * NEVER use for distance calculations, loses 5–25% accuracy.
+ * NEVER use for distance calculations — loses 5–25% accuracy.
  */
 object PathSimplifier {
     object Epsilon {

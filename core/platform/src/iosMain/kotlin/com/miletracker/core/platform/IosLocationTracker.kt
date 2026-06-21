@@ -13,7 +13,7 @@ import platform.Foundation.timeIntervalSince1970
 import platform.darwin.NSObject
 
 /**
- * iOS location via CoreLocation (F), the CLLocationManager counterpart to Android's FusedLocation.
+ * iOS location via CoreLocation (F) — the CLLocationManager counterpart to Android's FusedLocation.
  * Fixes arrive through a CLLocationManagerDelegate; each is mapped to a platform-neutral [GeoPoint] and
  * pushed onto the hot [updates] flow. Compiles + links against the simulator framework; live fixes need a
  * device with location permission (and the NSLocationWhenInUseUsageDescription Info.plist key).

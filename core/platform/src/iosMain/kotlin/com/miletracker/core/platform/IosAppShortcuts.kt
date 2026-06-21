@@ -4,7 +4,7 @@ package com.miletracker.core.platform
  * iOS home-screen quick actions (SH.3).
  *
  * Left as a documented no-op: unlike the Android side (ShortcutManagerCompat, fully implemented), the iOS
- * path needs two things this Kotlin-only framework can't own, (1) `UIApplication.shortcutItems` is not
+ * path needs two things this Kotlin-only framework can't own — (1) `UIApplication.shortcutItems` is not
  * cleanly exposed in the Kotlin/Native iOS SDK binding used here, and (2) handling a tapped shortcut requires
  * AppDelegate Swift glue (`application(_:performActionFor:completionHandler:)`) that routes the item's deep
  * link, which lives in the iOS host app, not in shared code. Declaring the shortcuts in the iOS app's

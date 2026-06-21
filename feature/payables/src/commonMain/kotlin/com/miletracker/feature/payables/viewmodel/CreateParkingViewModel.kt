@@ -46,7 +46,7 @@ sealed interface CreateParkingEffect {
 }
 
 /**
- * PB.3: Create Park In / Park Out reducer. A single create flow with a [ParkMode] segment, driving the shared
+ * PB.3 — Create Park In / Park Out reducer. A single create flow with a [ParkMode] segment, driving the shared
  * [com.miletracker.core.ui.components.scaffold.FormSubmissionScaffold]: field setters,
  * [CreateParkingUiState.canSubmit] gating, and a submit that runs the rotating-status fake and emits a one-shot
  * effect (logged / approval / security hold) for the screen to route or toast.

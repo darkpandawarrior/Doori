@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
  * JVM-pure unit tests for the [TripAttachmentEntity] model and attachment grouping / mapping
  * logic that mirrors what the ViewModel and detail screen consume.
  *
- * No Room, no Android, no Robolectric, all tests run on the plain JVM.
+ * No Room, no Android, no Robolectric — all tests run on the plain JVM.
  */
 class TripAttachmentTest {
 
@@ -146,7 +146,7 @@ class TripAttachmentTest {
     }
 
     // -----------------------------------------------------------------------
-    // AttachmentType enum, completeness guard
+    // AttachmentType enum — completeness guard
     // -----------------------------------------------------------------------
 
     @Test

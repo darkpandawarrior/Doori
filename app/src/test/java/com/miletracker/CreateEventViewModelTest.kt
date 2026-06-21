@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * EV (V17): the Create-Event reducer, canSubmit gating (title + venue + positive capacity) + the rotating
+ * EV (V17): the Create-Event reducer — canSubmit gating (title + venue + positive capacity) + the rotating
  * success / approval / violation result paths through the FormSubmissionScaffold contract.
  */
 class CreateEventViewModelTest {

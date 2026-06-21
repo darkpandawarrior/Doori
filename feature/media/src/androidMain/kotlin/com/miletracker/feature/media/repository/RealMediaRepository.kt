@@ -13,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 
 /**
  * Production [MediaRepository] that runs on-device ML Kit text recognition
- * (bundled Latin model, no network required, no Play Store download).
+ * (bundled Latin model — no network required, no Play Store download).
  *
  * OCR path:
  *  1. Decode the image URI into an [InputImage] via [InputImage.fromFilePath].
@@ -24,7 +24,7 @@ import kotlinx.coroutines.tasks.await
  *
  * Graceful fallback: any exception from ML Kit (bad URI, decode failure, etc.) is caught
  * and surfaced as a "no reading detected" [OcrResult] so the user can enter the value
- * manually: the app never crashes.
+ * manually — the app never crashes.
  *
  * The [applyWatermark] and [upload] methods retain the same offline-stub behaviour as
  * [FakeMediaRepository] because those features are out of scope for this task.

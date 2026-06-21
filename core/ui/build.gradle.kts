@@ -24,7 +24,7 @@ kotlin {
             implementation(libs.material3)
             implementation(libs.ui)
             implementation(libs.material.icons.extended)
-            // Unified @Preview in commonMain (CMP 1.11.1), enables platform-agnostic previews (Phase 9)
+            // Unified @Preview in commonMain (CMP 1.11.1) — enables platform-agnostic previews (Phase 9)
             implementation(libs.ui.tooling.preview.mp)
 
             implementation(libs.koin.core)
@@ -32,7 +32,7 @@ kotlin {
             implementation(libs.datastore.preferences.core)
             implementation(libs.materialkolor)
             implementation(libs.colorpicker.compose)
-            // Multiplatform wheel date/time picker (Phase 2.4b, replaces Android-only PickTime)
+            // Multiplatform wheel date/time picker (Phase 2.4b — replaces Android-only PickTime)
             implementation(libs.datetime.wheel.picker)
             implementation(libs.kotlinx.datetime)
             implementation(libs.webview.multiplatform)

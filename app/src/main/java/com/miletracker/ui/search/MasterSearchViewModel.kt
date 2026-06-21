@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-/** F0.5: the scope tabs the master-search bar exposes (the first one is unconstrained). */
+/** F0.5 — the scope tabs the master-search bar exposes (the first one is unconstrained). */
 val SEARCH_SCOPE_TABS: List<SearchScope> =
     listOf(SearchScope.VIEW_ALL, SearchScope.EXPENSES, SearchScope.PAYABLES, SearchScope.TRAVEL)
 
@@ -54,7 +54,7 @@ sealed interface MasterSearchEffect {
 }
 
 /**
- * F0.5: reducer for the cross-feature master-search surface. Debounces the query, fans it out through
+ * F0.5 — reducer for the cross-feature master-search surface. Debounces the query, fans it out through
  * [MasterSearchRepository] (which fans out to every feature's `SearchProvider`), and groups the merged hits
  * by entity type for display. Filters and scope re-trigger the search immediately; typing is debounced.
  */
@@ -63,7 +63,7 @@ class MasterSearchViewModel(
     private val repository: MasterSearchRepository,
 ) : BaseViewModel<MasterSearchUiState, MasterSearchEffect, MasterSearchAction>(MasterSearchUiState()) {
 
-    /** The full set of types any provider can serve, drives the filter chips. */
+    /** The full set of types any provider can serve — drives the filter chips. */
     val availableTypes: List<SearchEntityType> = repository.availableTypes.toList()
 
     private val queryFlow = MutableStateFlow("")

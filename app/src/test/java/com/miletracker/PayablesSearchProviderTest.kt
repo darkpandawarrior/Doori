@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertTrue
 
-/** PB.5 (V17): the payables SearchProvider, scope gating, min-length, multi-family hits, type filter. */
+/** PB.5 (V17): the payables SearchProvider — scope gating, min-length, multi-family hits, type filter. */
 class PayablesSearchProviderTest {
 
     private fun provider() = PayablesSearchProvider(PayablesHistoryRepository())

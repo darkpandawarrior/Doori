@@ -65,15 +65,15 @@ data class TrackStats(
  * speed). Distance is split into original / cleaned / abnormal / mock buckets so the UI can
  * present a trustworthy "cleaned" distance while retaining the raw figure.
  *
- * Pure Kotlin, no Android dependency, so it is fully covered by JVM unit tests.
+ * Pure Kotlin — no Android dependency — so it is fully covered by JVM unit tests.
  */
 class LocationProcessor(
-    // ~252 km/h, anything faster (for normal sampling) is a GPS spike
+    // ~252 km/h — anything faster (for normal sampling) is a GPS spike
     private val maxPlausibleSpeedMps: Double = 70.0,
     private val deviceModel: String = "",
     private val appVersionName: String = "",
     // C.1g: when true, each fix's lat/lng is run through the shared KalmanSmoother before
-    // distance/classification. Off by default, no change to the existing pipeline behaviour.
+    // distance/classification. Off by default — no change to the existing pipeline behaviour.
     private val enableKalman: Boolean = false,
     initialStats: TrackStats? = null,
 ) {
@@ -107,7 +107,7 @@ class LocationProcessor(
     private var speedSum = 0.0
     private var speedCount = 0
 
-    /** Rolling window of the last [SPEED_HISTORY_SIZE] processed-fix speeds (m/s), C.1c. */
+    /** Rolling window of the last [SPEED_HISTORY_SIZE] processed-fix speeds (m/s) — C.1c. */
     private val recentSpeedHistory = ArrayDeque<Double>()
 
     init {
@@ -182,7 +182,7 @@ class LocationProcessor(
             }
         }
 
-        // C.1b/C.1d: abnormal classification, 5 km hard teleport gate for normal sampling, plus
+        // C.1b/C.1d: abnormal classification — 5 km hard teleport gate for normal sampling, plus
         // gap-recovery speed tiers that relax the cap as the time gap grows (and a 10 km distance
         // gate beyond 6 h). Gap fixes that pass the tier are counted toward distance, not flagged.
         val abnormal = prev != null && isAbnormal(displacement, impliedSpeed, dtSec)
@@ -260,7 +260,7 @@ class LocationProcessor(
     }
 
     /**
-     * C.1a: minimum displacement (m) a fix must cover to escape jitter suppression, tuned to the
+     * C.1a — minimum displacement (m) a fix must cover to escape jitter suppression, tuned to the
      * current speed band. Faster travel expects (and tolerates) larger steps between fixes.
      */
     private fun minDisplacementForSpeed(speedMps: Double): Double =
@@ -270,11 +270,11 @@ class LocationProcessor(
             else -> DRIVING_JITTER_M
         }
 
-    /** C.1c: true when the recent window shows sustained movement, so a small step isn't jitter. */
+    /** C.1c — true when the recent window shows sustained movement, so a small step isn't jitter. */
     private fun hasMovementHistory(): Boolean = recentSpeedHistory.isNotEmpty() && recentSpeedHistory.average() >= MOVEMENT_HISTORY_MPS
 
     /**
-     * C.1b/C.1d: classify a step as abnormal. For normal sampling (<30 s) a 5 km jump is an instant
+     * C.1b/C.1d — classify a step as abnormal. For normal sampling (<30 s) a 5 km jump is an instant
      * teleport and any implied speed above the plausible cap is a spike. For recognised gaps the cap
      * is relaxed by tier (the longer the gap, the larger a plausible jump), and beyond 6 h a flat
      * 10 km distance gate replaces the speed test.
@@ -294,7 +294,7 @@ class LocationProcessor(
         }
 
     companion object {
-        // C.1a: speed-band jitter gates.
+        // C.1a — speed-band jitter gates.
         private const val WALKING_MAX_MPS = 2.5 // < ~9 km/h
         private const val CYCLING_MAX_MPS = 7.0 // < ~25 km/h
         private const val WALKING_JITTER_M = 2.0
@@ -303,14 +303,14 @@ class LocationProcessor(
         private const val STATIONARY_SPEED_MPS = 1.2
         private const val STATIONARY_JITTER_M = 1.2
 
-        // C.1c: movement-history window.
+        // C.1c — movement-history window.
         private const val SPEED_HISTORY_SIZE = 5
         private const val MOVEMENT_HISTORY_MPS = 1.5
 
-        // C.1b: instant-teleport hard gate.
+        // C.1b — instant-teleport hard gate.
         private const val SPIKE_HARD_GATE_M = 5_000.0
 
-        // C.1d: gap-recovery tiers (seconds + relaxed speed caps, m/s).
+        // C.1d — gap-recovery tiers (seconds + relaxed speed caps, m/s).
         private const val GAP_MIN_SEC = 30L
         private const val GAP_5M_SEC = 300L
         private const val GAP_1H_SEC = 3_600L

@@ -1,9 +1,6 @@
 package com.miletracker.core.ui.theme
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -26,49 +23,28 @@ val MileTrackerTypography =
     )
 
 /**
- * Design Language v2: the monospace family used for **all numeric / data readouts** —
- * distance, speed, duration, amounts, codes. [FontFamily.Monospace] resolves to the platform
- * mono face (no bundled font asset / dependency) and gives the tabular, "matrix" data feel:
- * fixed-width glyphs so digits don't jitter as values tick during live tracking.
+ * Design Language v2 — "mono for data".
  *
- * Use [MilewayType.dataLarge] / [dataMedium] / [dataSmall] for hero counters and inline stats,
- * or [MilewayType.mono] to monospace any existing [TextStyle] (e.g. a Material role) in place.
+ * Numeric readouts (distance, speed, duration, amounts, codes/IDs) use a monospaced family so
+ * digits are tabular: figures share a fixed advance width, columns line up and a live-updating
+ * value (an odometer, a timer) doesn't jitter as digits change. Apply [MilewayMono] as a base
+ * and `.dataStyle(...)` to derive a sized variant from any Material style.
+ *
+ * JetBrains Mono is not bundled as a font resource in this offline demo, so we lean on the
+ * platform monospace family (the same choice the colour-wheel hex field already makes) — it is
+ * multiplatform-safe and gives the tabular alignment the design language asks for.
  */
-object MilewayType {
-    val MonoFamily: FontFamily = FontFamily.Monospace
+val MilewayMono: TextStyle =
+    TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.sp,
+    )
 
-    /** Hero counters (live distance / big amounts). Tight tracking, heavy weight. */
-    val dataLarge =
-        TextStyle(
-            fontFamily = MonoFamily,
-            fontWeight = FontWeight.Bold,
-            fontSize = 40.sp,
-            letterSpacing = (-0.5).sp,
-        )
-
-    /** Section stats (speed, duration, secondary amounts). */
-    val dataMedium =
-        TextStyle(
-            fontFamily = MonoFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 22.sp,
-            letterSpacing = 0.sp,
-        )
-
-    /** Inline data chips, codes, coordinates. */
-    val dataSmall =
-        TextStyle(
-            fontFamily = MonoFamily,
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            letterSpacing = 0.4.sp,
-        )
-
-    /** Re-cast an arbitrary [TextStyle] (e.g. a Material role) into the data-mono family. */
-    fun mono(style: TextStyle): TextStyle = style.copy(fontFamily = MonoFamily)
-
-    /** Convenience: the current theme's `headlineMedium` recast as mono, for one-off counters. */
-    val heroMono: TextStyle
-        @Composable @ReadOnlyComposable
-        get() = mono(MaterialTheme.typography.headlineMedium)
-}
+/**
+ * Returns [base] re-cast in the monospaced "data" family while keeping its size, line height
+ * and weight. Use for any numeric value the user reads as data:
+ * `Text(value, style = MaterialTheme.typography.titleMedium.dataStyle())`.
+ */
+fun TextStyle.dataStyle(): TextStyle =
+    copy(fontFamily = FontFamily.Monospace, letterSpacing = 0.sp)

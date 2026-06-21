@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 
 /**
- * FCM.1: local persistence for the push token + subscribed topics. The real platform impls (FCM.2 Android,
+ * FCM.1 — local persistence for the push token + subscribed topics. The real platform impls (FCM.2 Android,
  * FCM.4 iOS) push tokens here; everything else (subscription/redemption to a backend) is a local mock since
  * this demo has no server.
  */
@@ -49,7 +49,7 @@ class InMemoryPushTokenStore : PushTokenStore {
 }
 
 /**
- * Offline [PushMessaging] backed by a [PushTokenStore], the commonMain default (and the noGms/iOS-without-key
+ * Offline [PushMessaging] backed by a [PushTokenStore] — the commonMain default (and the noGms/iOS-without-key
  * fallback). Topic subscription is local-only; there is no backend to register against.
  */
 class LocalPushMessaging(

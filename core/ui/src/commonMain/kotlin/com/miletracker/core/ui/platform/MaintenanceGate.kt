@@ -18,7 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
- * CF.5: blocking maintenance / kill-switch wall, a sibling of the FORCED [UpdateGate] wall. When the
+ * CF.5 — blocking maintenance / kill-switch wall, a sibling of the FORCED [UpdateGate] wall. When the
  * remote config kill-switch is on (or the running build is below the minimum supported version), it
  * replaces all app content with an "under maintenance / please update" screen.
  */

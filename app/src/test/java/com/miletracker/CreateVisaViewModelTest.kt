@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * TR.7 (V17): the Visa-request reducer, canSubmit gating (country + passport + travel date) + the rotating
+ * TR.7 (V17): the Visa-request reducer — canSubmit gating (country + passport + travel date) + the rotating
  * success / approval / violation result paths through the shared FormSubmissionScaffold contract.
  */
 class CreateVisaViewModelTest {

@@ -21,7 +21,7 @@ class InMemoryReviewStateStore(initial: ReviewState = ReviewState()) : ReviewSta
 }
 
 /**
- * RV.4: drives the in-app review prompt from engagement signals. Records first-open + interaction counts,
+ * RV.4 — drives the in-app review prompt from engagement signals. Records first-open + interaction counts,
  * and prompts (via the platform [AppReviewManager]) only when [ReviewEligibility] is satisfied, then stamps
  * the prompt time to enforce the cooldown.
  */

@@ -18,7 +18,7 @@ platform :android do
     build
   end
 
-  desc "Capture Roborazzi baseline screenshots (JVM, no device needed)"
+  desc "Capture Roborazzi baseline screenshots (JVM — no device needed)"
   lane :screenshots do
     # Roborazzi captures images as a side effect of the test run.
     # Output path is configured in roborazzi.properties.
@@ -44,7 +44,7 @@ platform :android do
     )
   end
 
-  # ── FLA.2, changelog from git commits ──────────────────────────────────────
+  # ── FLA.2 — changelog from git commits ──────────────────────────────────────
   # versionCode = VERSION_CODE_BASE(1) + BUILD_NUMBER (mirrors app/build.gradle.kts FLA.1).
   def current_version_code
     1 + File.read("../BUILD_NUMBER").strip.to_i
@@ -73,7 +73,7 @@ platform :android do
     truncated
   end
 
-  # ── FLA.3, Play Store deploy lanes (internal / beta / production) ───────────
+  # ── FLA.3 — Play Store deploy lanes (internal / beta / production) ───────────
   # The service-account json is materialized from PLAYSTORE_CREDS_B64 in CI (CIO.2); all keys are env
   # placeholders that never land in the repo.
   def play_json_key
@@ -141,7 +141,7 @@ platform :android do
     push_git_tags
   end
 
-  # ── FLA.4, Firebase App Distribution ───────────────────────────────────────
+  # ── FLA.4 — Firebase App Distribution ───────────────────────────────────────
   desc "Distribute a gms staging APK to Firebase App Distribution testers"
   lane :deploy_firebase do
     gradle(task: "assemble", flavor: "Gms", build_type: "Staging")
@@ -155,7 +155,7 @@ platform :android do
 
 end
 
-# ── FLI, iOS lanes (TestFlight + App Store) ──────────────────────────────────
+# ── FLI — iOS lanes (TestFlight + App Store) ──────────────────────────────────
 platform :ios do
   # ASC API key from a base64 .p8 (APPSTORE_AUTH_KEY_B64). Shared by both lanes.
   def asc_api_key
@@ -177,7 +177,7 @@ platform :ios do
     )
   end
 
-  desc "FLI.1: build + upload to TestFlight (external testers, beta review)"
+  desc "FLI.1 — build + upload to TestFlight (external testers, beta review)"
   lane :beta do
     asc_api_key
     build_ios_app
@@ -187,7 +187,7 @@ platform :ios do
     )
   end
 
-  desc "FLI.1: build + submit to the App Store (phased release)"
+  desc "FLI.1 — build + submit to the App Store (phased release)"
   lane :release do
     asc_api_key
     build_ios_app
@@ -199,7 +199,7 @@ platform :ios do
     )
   end
 
-  desc "FLI.2: renew signing certs/profiles via match"
+  desc "FLI.2 — renew signing certs/profiles via match"
   lane :renew_certs do
     match(type: "appstore", readonly: false)
   end

@@ -10,7 +10,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-/** DL.4: resolved DeepLinkTarget → concrete nav route. */
+/** DL.4 — resolved DeepLinkTarget → concrete nav route. */
 class DeepLinkRoutingTest {
     private fun route(uri: String) = DeepLinkRouter.resolve(uri).toAppRoute()
 

@@ -83,7 +83,7 @@ import kotlin.math.round
  *
  * This is a fully **stateless** composable: every value it renders arrives via
  * parameters and every user intent leaves via a callback (unidirectional data
- * flow). It owns no [androidx.lifecycle.ViewModel], navigation, or DI wiring,
+ * flow). It owns no [androidx.lifecycle.ViewModel], navigation, or DI wiring —
  * the integrator supplies the data and handles the events. As a result the
  * screen is trivially previewable and testable in isolation.
  *
@@ -143,7 +143,7 @@ fun TrackingSuccessScreen(
     val hasViolations = violationCount > 0
     val hasTransaction = !transactionId.isNullOrBlank()
     val hasVoucher = voucherNumber != null
-    // A hard stop is the only non-celebratory outcome, every other status earns confetti.
+    // A hard stop is the only non-celebratory outcome — every other status earns confetti.
     val isHardStop = submissionStatus.equals("HARD_STOP", ignoreCase = true)
 
     // Date line: prefer the journey window when both ends are present, else fall back
@@ -390,7 +390,7 @@ fun TrackingSuccessScreen(
             }
         }
 
-        // Confetti overlay, fires once on first composition for any non-hard-stop
+        // Confetti overlay — fires once on first composition for any non-hard-stop
         // outcome. It draws above the Scaffold so particles fall across the whole
         // screen, and removes itself after the burst.
         if (!isHardStop) {

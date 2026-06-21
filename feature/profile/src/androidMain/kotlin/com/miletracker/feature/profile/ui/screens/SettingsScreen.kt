@@ -65,7 +65,6 @@ import com.miletracker.core.ui.components.dialog.ColorWheelDialog
 import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 import com.miletracker.core.ui.components.sheet.AppActionSheet
-import com.miletracker.core.ui.components.theme.MilewayThemePicker
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.AccentPalette
 import com.miletracker.core.ui.theme.AppLanguage
@@ -92,7 +91,6 @@ fun SettingsScreen(
     val useMiles by viewModel.useMiles.collectAsStateWithLifecycle()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsStateWithLifecycle()
     val profile by viewModel.uiState.collectAsStateWithLifecycle()
-    val milewayTheme by viewModel.milewayTheme.collectAsStateWithLifecycle()
     val accentPalette by viewModel.accentPalette.collectAsStateWithLifecycle()
     val customSeedHex by viewModel.customSeedHex.collectAsStateWithLifecycle()
     val useSystemColors by viewModel.useSystemColors.collectAsStateWithLifecycle()
@@ -165,18 +163,13 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
             SettingsSectionLabel("Preferences")
-            // The curated theme dictates light/dark (e.g. Daybreak is light, Matrix is dark), so the
-            // manual override is superseded while one is active — surface that instead of a no-op switch.
             ListItem(
                 headlineContent = { Text("Dark theme") },
-                supportingContent = {
-                    Text("Set by the “${milewayTheme.label}” theme — change it above")
-                },
+                supportingContent = { Text("Override the system theme") },
                 trailingContent = {
                     Switch(
-                        checked = !milewayTheme.isLight,
-                        enabled = false,
-                        onCheckedChange = {},
+                        checked = darkOverride ?: systemDark,
+                        onCheckedChange = { viewModel.setDarkTheme(it) },
                     )
                 },
             )
@@ -207,30 +200,6 @@ fun SettingsScreen(
             // Customization section
             // ----------------------------------------------------------------
             SettingsSectionLabel("Customization")
-
-            // Design Language v2 — curated theme gallery (Matrix / Amoled / Ion / Daybreak).
-            // Self-previewing swatches; picking one applies the hand-tuned, AA-verified scheme.
-            Text(
-                text = "Theme",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.padding(
-                        start = DesignTokens.Spacing.l,
-                        end = DesignTokens.Spacing.l,
-                        top = DesignTokens.Spacing.s,
-                        bottom = DesignTokens.Spacing.xs,
-                    ),
-            )
-            MilewayThemePicker(
-                selected = milewayTheme,
-                onSelect = { viewModel.setMilewayTheme(it) },
-                modifier =
-                    Modifier.padding(
-                        horizontal = DesignTokens.Spacing.l,
-                        vertical = DesignTokens.Spacing.xs,
-                    ),
-            )
 
             // Theme colour — preset seed the whole scheme is generated from
             ListItem(
@@ -286,7 +255,7 @@ fun SettingsScreen(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ListItem(
                     headlineContent = { Text("Use system colors") },
-                    supportingContent = { Text("Material You: colors from your wallpaper") },
+                    supportingContent = { Text("Material You — colors from your wallpaper") },
                     trailingContent = {
                         Switch(
                             checked = useSystemColors,
@@ -310,10 +279,10 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { showLanguagePicker = true },
             )
 
-            // Map provider (OSM only, multi-provider toggle not meaningful)
+            // Map provider (OSM only — multi-provider toggle not meaningful)
             ListItem(
                 headlineContent = { Text("Map provider") },
-                supportingContent = { Text("OpenStreetMap (fixed: single provider build)") },
+                supportingContent = { Text("OpenStreetMap (fixed — single provider build)") },
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
@@ -343,7 +312,7 @@ fun SettingsScreen(
             )
             ListItem(
                 headlineContent = { Text("Aggressive GPS filter") },
-                supportingContent = { Text("Tighter spike rejection radius: 40 m vs 80 m (real effect)") },
+                supportingContent = { Text("Tighter spike rejection radius — 40 m vs 80 m (real effect)") },
                 trailingContent = {
                     Switch(
                         checked = experimentalFlags.aggressiveGpsFilter,
@@ -367,7 +336,7 @@ fun SettingsScreen(
                 supportingContent = { Text(about.appVersion) },
             )
             Text(
-                text = "Demo build: mock data only, no network calls.",
+                text = "Demo build — mock data only, no network calls.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
@@ -461,7 +430,7 @@ fun SettingsScreen(
                     viewModel.setLanguage(picked)
                     // UX.6: update the shared app-wide locale state (features observe LocaleController.currentTag).
                     localeController.setLanguage(picked)
-                    // Wire per-app locale via AppCompatDelegate, persisted by the platform.
+                    // Wire per-app locale via AppCompatDelegate — persisted by the platform.
                     AppCompatDelegate.setApplicationLocales(
                         LocaleListCompat.forLanguageTags(picked.tag),
                     )
@@ -612,7 +581,7 @@ private fun PermissionHealthSection(onPermissionToggle: () -> Unit) {
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "90%: All required permissions granted",
+                    "90% — All required permissions granted",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )

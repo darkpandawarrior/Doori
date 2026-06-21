@@ -8,7 +8,7 @@ import com.miletracker.core.platform.ReferralData
 import com.miletracker.core.platform.ReferralManager
 
 /**
- * RF.2: Android Install Referrer (gms flavor only). Decorates the shared [LocalReferralManager] (code
+ * RF.2 — Android Install Referrer (gms flavor only). Decorates the shared [LocalReferralManager] (code
  * generation + redemption are unchanged) and, once, reads the Play Install Referrer URL, parses
  * `client_code` / `utm_source` / `utm_campaign`, and pushes the attribution into the shared store.
  *

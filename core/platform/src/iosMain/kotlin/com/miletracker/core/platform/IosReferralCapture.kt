@@ -3,7 +3,7 @@ package com.miletracker.core.platform
 import platform.UIKit.UIPasteboard
 
 /**
- * RF.3: iOS deferred-referral capture (no third-party SDK). Reads a referral token left on the general
+ * RF.3 — iOS deferred-referral capture (no third-party SDK). Reads a referral token left on the general
  * pasteboard by a "share" link (format `miletracker-ref:<CODE>`), the offline-friendly iOS equivalent of
  * the Android Install Referrer. The Universal-Link `?code=` path is handled by the DeepLinkRouter (DL.3).
  */

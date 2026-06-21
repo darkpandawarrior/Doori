@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * PB.1 (V17): the Create-Invoice reducer, canSubmit gating + the rotating success / approval / violation
+ * PB.1 (V17): the Create-Invoice reducer — canSubmit gating + the rotating success / approval / violation
  * result paths through the FormSubmissionScaffold contract.
  */
 class CreateInvoiceViewModelTest {

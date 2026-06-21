@@ -11,7 +11,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** RF.1: local referral manager. */
+/** RF.1 — local referral manager. */
 class ReferralManagerTest {
     @Test
     fun `my referral code is stable across calls`() =

@@ -3,9 +3,9 @@ package com.miletracker.feature.cards.security
 import kotlin.time.Clock
 
 /**
- * Q.5: gates sensitive card actions (reveal full PAN, controls) behind a PIN, with a verification window
+ * Q.5 — gates sensitive card actions (reveal full PAN, controls) behind a PIN, with a verification window
  * so the user isn't re-prompted within [windowMillis]. The PIN is an injectable demo PIN backed by an
- * in-memory timestamp, swap a DataStore-backed store for production persistence.
+ * in-memory timestamp — swap a DataStore-backed store for production persistence.
  */
 class CardSecurityManager(
     private val demoPin: String = "1234",

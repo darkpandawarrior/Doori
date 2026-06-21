@@ -10,7 +10,7 @@ import com.miletracker.feature.events.repository.EventsRepository
 private const val DAY_MS = 86_400_000L
 
 /**
- * EV: the events module's contribution to master search (F0.5 registry). Searches the events history and
+ * EV — the events module's contribution to master search (F0.5 registry). Searches the events history and
  * returns flat [SearchResult]s (typed `EVENT`) with deep links. Visible under VIEW_ALL (events has no dedicated
  * scope tab). `feature:search` resolves this via `getAll<SearchProvider>()` with zero coupling back here.
  */

@@ -24,7 +24,7 @@ import com.miletracker.feature.travel.viewmodel.BookingHistoryAction
 import com.miletracker.feature.travel.viewmodel.BookingHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** TR.8: unified booking-request history (Flight / Bus / Hotel / MJP / Visa) on the shared HistoryListScaffold. */
+/** TR.8 — unified booking-request history (Flight / Bus / Hotel / MJP / Visa) on the shared HistoryListScaffold. */
 @Composable
 fun BookingHistoryScreen(
     onBack: () -> Unit,

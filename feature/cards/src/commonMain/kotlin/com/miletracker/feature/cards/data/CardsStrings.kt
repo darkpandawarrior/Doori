@@ -28,7 +28,7 @@ internal data class CardsStrings(
 internal val EnglishCardsStrings =
     CardsStrings(
         holderName = "Demo User",
-        email = "demo@mileway.app",
+        email = "demo@miletracker.app",
         issuer = "Mileway Bank",
         typeTravel = "Travel",
         typeTravelDesc = "For flights, hotels and ground travel.",
@@ -53,7 +53,7 @@ internal val EnglishCardsStrings =
 internal val ArabicCardsStrings =
     CardsStrings(
         holderName = "مستخدم تجريبي",
-        email = "demo@mileway.app",
+        email = "demo@miletracker.app",
         issuer = "بنك مايل تراكر",
         typeTravel = "السفر",
         typeTravelDesc = "للرحلات الجوية والفنادق والتنقل.",
@@ -78,7 +78,7 @@ internal val ArabicCardsStrings =
 internal val HindiCardsStrings =
     CardsStrings(
         holderName = "डेमो उपयोगकर्ता",
-        email = "demo@mileway.app",
+        email = "demo@miletracker.app",
         issuer = "माइलट्रैकर बैंक",
         typeTravel = "यात्रा",
         typeTravelDesc = "उड़ानों, होटलों और परिवहन के लिए।",

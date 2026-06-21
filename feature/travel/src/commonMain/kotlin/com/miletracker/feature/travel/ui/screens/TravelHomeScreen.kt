@@ -90,7 +90,7 @@ private data class ItineraryDay(val label: String, val items: List<ItineraryItem
 private val ITINERARY =
     listOf(
         ItineraryDay(
-            label = "Day 1: Pune (22 Nov)",
+            label = "Day 1 — Pune (22 Nov)",
             items =
                 listOf(
                     ItineraryItem(Icons.Filled.AirplanemodeActive, "Depart PNQ 14:30", "IndiGo 6E-401 · Arrive BOM 15:45", ItineraryType.FLIGHT),
@@ -99,7 +99,7 @@ private val ITINERARY =
                 ),
         ),
         ItineraryDay(
-            label = "Day 2: Mumbai (23 Nov)",
+            label = "Day 2 — Mumbai (23 Nov)",
             items =
                 listOf(
                     ItineraryItem(Icons.Filled.MeetingRoom, "Conference Day 1", "BKC Convention Centre · 09:00–18:00", ItineraryType.MEETING),
@@ -107,10 +107,10 @@ private val ITINERARY =
                 ),
         ),
         ItineraryDay(
-            label = "Day 3: Mumbai (24 Nov)",
+            label = "Day 3 — Mumbai (24 Nov)",
             items =
                 listOf(
-                    ItineraryItem(Icons.Filled.MeetingRoom, "Conference Day 2: wrap up", "09:00–14:00", ItineraryType.MEETING),
+                    ItineraryItem(Icons.Filled.MeetingRoom, "Conference Day 2 — wrap up", "09:00–14:00", ItineraryType.MEETING),
                     ItineraryItem(Icons.Filled.AirplanemodeActive, "Return: BOM 17:30", "IndiGo 6E-208 · Arrive PNQ 18:45", ItineraryType.FLIGHT),
                 ),
         ),

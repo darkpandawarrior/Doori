@@ -13,7 +13,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * TR.6 (V17): the multi-city Journey-Plan reducer, add/remove legs, canSubmit gating (purpose + every leg
+ * TR.6 (V17): the multi-city Journey-Plan reducer — add/remove legs, canSubmit gating (purpose + every leg
  * complete) + the rotating result paths through the shared FormSubmissionScaffold contract.
  */
 class CreateMjpViewModelTest {

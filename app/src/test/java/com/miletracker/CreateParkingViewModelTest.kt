@@ -14,7 +14,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * PB.3 (V17): the Create Park In/Out reducer, mode toggle, canSubmit gating (vehicle + gate), and the rotating
+ * PB.3 (V17): the Create Park In/Out reducer — mode toggle, canSubmit gating (vehicle + gate), and the rotating
  * success / approval / violation result paths through the FormSubmissionScaffold contract.
  */
 class CreateParkingViewModelTest {

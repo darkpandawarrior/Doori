@@ -1,4 +1,4 @@
-# iOS push (APNs + Firebase) setup (FCM.4)
+# iOS push (APNs + Firebase) setup — FCM.4
 
 The Swift + KMP wiring is in place; the only manual step is adding the Firebase SPM package to the Xcode
 project (cannot be scripted safely from the repo).

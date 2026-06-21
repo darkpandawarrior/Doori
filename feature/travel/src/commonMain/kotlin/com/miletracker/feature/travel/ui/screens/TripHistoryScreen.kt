@@ -22,7 +22,7 @@ import com.miletracker.feature.travel.viewmodel.TripHistoryAction
 import com.miletracker.feature.travel.viewmodel.TripHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** TR.8: trip-request history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
+/** TR.8 — trip-request history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
 @Composable
 fun TripHistoryScreen(
     onBack: () -> Unit,

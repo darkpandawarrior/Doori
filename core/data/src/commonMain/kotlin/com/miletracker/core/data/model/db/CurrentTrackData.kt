@@ -37,7 +37,7 @@ data class CurrentTrackData(
     val lastHardwareEventText: String = "",
     val lastHardwareEventTime: Long = -1L,
     val startedByEmployeeCode: String = "",
-    val startedByAccountEmail: String = "demo@mileway.app",
+    val startedByAccountEmail: String = "demo@miletracker.app",
     val startedByTenant: String = "DEMO",
     val startedAtTimestamp: Long = 0L,
 ) {

@@ -7,10 +7,10 @@ import platform.Foundation.NSDate
 import platform.Foundation.dateWithTimeIntervalSinceNow
 
 /**
- * iOS periodic background work via BGTaskScheduler (F), the counterpart to Android's WorkManager.
+ * iOS periodic background work via BGTaskScheduler (F) — the counterpart to Android's WorkManager.
  * Submits a BGAppRefreshTaskRequest whose [uniqueName] must also be declared in Info.plist
  * (BGTaskSchedulerPermittedIdentifiers) and registered at launch; submission is otherwise a no-op the
- * OS rejects. iOS treats the interval as a *minimum*, the system decides actual run time.
+ * OS rejects. iOS treats the interval as a *minimum* — the system decides actual run time.
  */
 class IosBackgroundScheduler : BackgroundScheduler {
     @OptIn(ExperimentalForeignApi::class)

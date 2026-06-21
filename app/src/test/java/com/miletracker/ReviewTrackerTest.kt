@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** RV.4: engagement-driven review tracker. */
+/** RV.4 — engagement-driven review tracker. */
 class ReviewTrackerTest {
     private val day = 24L * 60L * 60L * 1000L
     private val config = ReviewGateConfig(minAccountAgeDays = 3, minInteractions = 2, cooldownDays = 30)

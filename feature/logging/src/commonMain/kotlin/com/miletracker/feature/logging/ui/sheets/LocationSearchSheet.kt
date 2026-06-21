@@ -119,7 +119,7 @@ fun LocationSearchSheet(
 
             Spacer(Modifier.size(DesignTokens.Spacing.m))
 
-            // "Use Current Location" row, picks a deterministic demo coordinate.
+            // "Use Current Location" row — picks a deterministic demo coordinate.
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedLg,

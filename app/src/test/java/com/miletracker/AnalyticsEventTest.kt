@@ -5,7 +5,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** CF.2: AnalyticsEvent self-clamping (openMF pattern: ≤40-char name/key, ≤100-char value, ≤25 params). */
+/** CF.2 — AnalyticsEvent self-clamping (openMF pattern: ≤40-char name/key, ≤100-char value, ≤25 params). */
 class AnalyticsEventTest {
     @Test
     fun `safeType clamps the event name to 40 chars`() {

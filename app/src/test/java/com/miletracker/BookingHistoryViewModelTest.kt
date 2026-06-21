@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * TR.8 (V17): the booking-history reducer over the offline fake, All loads every booking family, a type tab
+ * TR.8 (V17): the booking-history reducer over the offline fake — All loads every booking family, a type tab
  * narrows, a status filter chip narrows further, and the query filters.
  */
 class BookingHistoryViewModelTest {

@@ -10,7 +10,7 @@ import com.miletracker.feature.approvals.ui.navigation.approvalsGraph
 import com.miletracker.feature.logging.ui.navigation.loggingGraph
 import com.miletracker.feature.tracking.ui.navigation.trackingGraph
 
-// Cross-feature wiring lives HERE only, features never import each other.
+// Cross-feature wiring lives HERE only — features never import each other.
 // Each feature exposes NavGraphBuilder.xGraph(nav, callbacks) and this file
 // hands them lambdas that reference AppKey destinations.
 

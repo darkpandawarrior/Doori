@@ -12,7 +12,7 @@ import com.miletracker.core.platform.PushTokenStore
 import org.koin.mp.KoinPlatform
 
 /**
- * FCM.2: Android Firebase messaging service (gms flavor only).
+ * FCM.2 — Android Firebase messaging service (gms flavor only).
  *
  * - [onNewToken] → the shared [PushTokenStore] (the app + future backend read it from there).
  * - [onMessageReceived] handles both `notification` and data-only payloads, builds a notification, and maps

@@ -7,7 +7,7 @@ import com.miletracker.feature.payments.ui.screens.CreatePaymentScreen
 import com.miletracker.feature.payments.ui.screens.PaymentsHistoryScreen
 
 /**
- * PM: the shared, commonMain payments navigation graph (mirrors `payablesGraph`/`travelGraph`): a payments
+ * PM — the shared, commonMain payments navigation graph (mirrors `payablesGraph`/`travelGraph`): a payments
  * history hub plus the QR/UPI pay-or-request create flow. Reachable from the Home quick-action grid + master
  * search (wired in the EN phase).
  */

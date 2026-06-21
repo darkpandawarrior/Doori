@@ -35,7 +35,7 @@ sealed interface CreateHotelAction {
     data object Submit : CreateHotelAction
 }
 
-/** TR.5: Add-Hotel reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
+/** TR.5 — Add-Hotel reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
 class CreateHotelViewModel(
     private val repository: TravelCreateRepository,
 ) : BaseViewModel<CreateHotelUiState, TravelCreateEffect, CreateHotelAction>(CreateHotelUiState()) {

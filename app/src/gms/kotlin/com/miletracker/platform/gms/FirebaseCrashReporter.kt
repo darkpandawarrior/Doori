@@ -4,9 +4,9 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.miletracker.core.platform.CrashReporter
 
 /**
- * CF.4: gms crash reporter backed by Firebase Crashlytics. Collection is disabled in the manifest by
+ * CF.4 — gms crash reporter backed by Firebase Crashlytics. Collection is disabled in the manifest by
  * default (privacy); [setEnabled] flips it at runtime once the user consents. Without a real Firebase
- * config the SDK simply queues nothing, never crashes.
+ * config the SDK simply queues nothing — never crashes.
  */
 class FirebaseCrashReporter : CrashReporter {
     private val crashlytics = FirebaseCrashlytics.getInstance()

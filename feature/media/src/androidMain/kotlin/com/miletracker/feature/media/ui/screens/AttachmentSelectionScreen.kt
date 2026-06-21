@@ -147,7 +147,7 @@ fun AttachmentSelectionScreen(
                 },
                 actions = {
                     // Trailing config icons (reference parity: theme, biometric, scan).
-                    // Not interactive in this demo, rendered disabled per M3 pattern.
+                    // Not interactive in this demo — rendered disabled per M3 pattern.
                     IconButton(enabled = false, onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.WaterDrop,

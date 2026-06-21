@@ -10,7 +10,7 @@ import com.miletracker.feature.travel.repository.TravelHistoryRepository
 private const val DAY_MS = 86_400_000L
 
 /**
- * TR.9: the travel module's contribution to master search (F0.5 registry). Searches submitted trip requests
+ * TR.9 — the travel module's contribution to master search (F0.5 registry). Searches submitted trip requests
  * and booking requests; returns flat [SearchResult]s with deep links. `feature:search` resolves this via
  * `getAll<SearchProvider>()` with zero coupling back to this module.
  */

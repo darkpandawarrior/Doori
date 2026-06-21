@@ -19,7 +19,7 @@ import org.koin.mp.KoinPlatform
  *
  * Activity-scoped managers (update/review) are built from the host Activity via their Koin-bound factory;
  * app-scoped managers (share/analytics/referral) are resolved directly. Everything degrades to the shared
- * [PlatformBindings] no-op when the binding (or Koin itself) is absent, so it never crashes, including
+ * [PlatformBindings] no-op when the binding (or Koin itself) is absent, so it never crashes — including
  * previews/tests where Koin may not be started.
  */
 @Composable

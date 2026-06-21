@@ -24,7 +24,7 @@ import com.miletracker.feature.payables.viewmodel.CreateParkingEffect
 import com.miletracker.feature.payables.viewmodel.CreateParkingViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** PB.3: Create Park In / Park Out gate event, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** PB.3 — Create Park In / Park Out gate event, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateParkingScreen(
     onBack: () -> Unit,

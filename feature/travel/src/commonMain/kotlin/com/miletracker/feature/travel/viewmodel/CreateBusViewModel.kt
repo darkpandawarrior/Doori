@@ -33,7 +33,7 @@ sealed interface CreateBusAction {
     data object Submit : CreateBusAction
 }
 
-/** TR.4: Add-Bus reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
+/** TR.4 — Add-Bus reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
 class CreateBusViewModel(
     private val repository: TravelCreateRepository,
 ) : BaseViewModel<CreateBusUiState, TravelCreateEffect, CreateBusAction>(CreateBusUiState()) {

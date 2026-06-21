@@ -5,7 +5,7 @@ import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** CF.1: typed feature-flag reader. */
+/** CF.1 — typed feature-flag reader. */
 class FeatureFlagsTest {
     @Test
     fun `typed accessors read the map`() {

@@ -6,7 +6,7 @@ import com.miletracker.feature.cards.data.CardsMockDataProvider
 import com.miletracker.feature.cards.data.CardsMockDataProviderFactory
 import com.miletracker.feature.cards.model.CardTypeModel
 
-/** Q.3: multi-step "request a card" flow (select type → reason → confirm → success). */
+/** Q.3 — multi-step "request a card" flow (select type → reason → confirm → success). */
 data class CardRequestUiState(
     val step: Int = 0,
     val cardTypes: List<CardTypeModel> = emptyList(),

@@ -6,7 +6,6 @@ import com.miletracker.core.data.outbox.RoomSubmitOutbox
 import com.miletracker.core.data.outbox.SubmitOutbox
 import com.miletracker.core.data.outbox.TripDraft
 import com.miletracker.core.data.session.CurrentTrackDataStore
-import com.miletracker.core.data.session.SessionRepository
 import com.miletracker.core.data.settings.DemoSettingsRepository
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
@@ -23,7 +22,6 @@ val coreDataModule =
         single { get<MileTrackerDatabase>().mediaLibraryDao() }
         single { get<MileTrackerDatabase>().submitDraftDao() }
         single { CurrentTrackDataStore() }
-        single { SessionRepository() }
         single { DemoSettingsRepository() }
         single { Json { ignoreUnknownKeys = true } }
         single<SubmitOutbox<TripDraft>> { RoomSubmitOutbox(get(), get()) }

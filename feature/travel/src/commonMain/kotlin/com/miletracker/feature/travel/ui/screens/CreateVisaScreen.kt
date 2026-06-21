@@ -19,7 +19,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val VISA_TYPES = listOf("Business", "Tourist", "Transit")
 
-/** TR.7: Visa request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** TR.7 — Visa request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateVisaScreen(
     onBack: () -> Unit,
