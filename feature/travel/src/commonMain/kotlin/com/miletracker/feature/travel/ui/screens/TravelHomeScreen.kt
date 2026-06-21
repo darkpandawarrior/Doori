@@ -1,7 +1,6 @@
 package com.miletracker.feature.travel.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,6 +56,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miletracker.core.common.asString
+import com.miletracker.core.data.util.DateUtils
 import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.travel.model.BookingRecord
@@ -66,9 +66,6 @@ import com.miletracker.feature.travel.viewmodel.TravelEffect
 import com.miletracker.feature.travel.viewmodel.TravelViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 private val TealGradient =
     Brush.horizontalGradient(
@@ -380,7 +377,7 @@ private fun SummaryStrip(
             VerticalDivider()
             MetricItem(label = "Upcoming", value = upcomingCount.toString())
             VerticalDivider()
-            MetricItem(label = "Total Spend", value = "₹${"%,.0f".format(totalSpend)}")
+            MetricItem(label = "Total Spend", value = "₹${totalSpend.toLong()}")
         }
     }
 }
@@ -493,7 +490,6 @@ private fun UpcomingBookingCard(
     booking: BookingRecord,
     modifier: Modifier = Modifier,
 ) {
-    val dateFormatter = remember { SimpleDateFormat("d MMM", Locale.getDefault()) }
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = DesignTokens.Shape.roundedMd,
@@ -530,7 +526,7 @@ private fun UpcomingBookingCard(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "${booking.carrier} · ${dateFormatter.format(Date(booking.departureMs))}",
+                    text = "${booking.carrier} · ${DateUtils.epochToDisplayDate(booking.departureMs)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -540,7 +536,7 @@ private fun UpcomingBookingCard(
                 shape = RoundedCornerShape(6.dp),
             ) {
                 Text(
-                    text = "₹${"%.0f".format(booking.amountRupees)}",
+                    text = "₹${booking.amountRupees.toLong()}",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
