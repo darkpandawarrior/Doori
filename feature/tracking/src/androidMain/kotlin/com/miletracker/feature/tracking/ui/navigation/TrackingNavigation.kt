@@ -25,6 +25,7 @@ import com.miletracker.feature.tracking.ui.screens.HardwareEventsLogScreen
 import com.miletracker.feature.tracking.ui.screens.LocationMapScreen
 import com.miletracker.feature.tracking.ui.screens.ManualCheckInScreen
 import com.miletracker.feature.tracking.ui.screens.OdometerCameraScreen
+import com.miletracker.feature.tracking.ui.screens.RoutePointsScreen
 import com.miletracker.feature.tracking.ui.screens.SavedTracksScreen
 import com.miletracker.feature.tracking.ui.screens.SetupGuideScreen
 import com.miletracker.feature.tracking.ui.screens.TrackCustomizationScreen
@@ -48,6 +49,7 @@ object TrackingRoutes {
     const val DETAIL = "detail/{routeId}"
     const val INSIGHTS = "insights/{routeId}"
     const val HW_EVENTS = "hw_events/{routeId}"
+    const val ROUTE_POINTS = "route_points/{routeId}"
     const val CHECK_IN_HISTORY = "check_in_history"
     const val ROUTE_MAP = "route_map/{routeId}"
     const val SUBMIT = "submit/{routeId}?distanceKm={distanceKm}&vehicleKey={vehicleKey}&startTime={startTime}&endTime={endTime}"
@@ -77,6 +79,8 @@ object TrackingRoutes {
     fun insights(routeId: String) = "insights/$routeId"
 
     fun hwEvents(routeId: String) = "hw_events/$routeId"
+
+    fun routePoints(routeId: String) = "route_points/$routeId"
 
     fun routeMap(routeId: String) = "route_map/$routeId"
 
@@ -189,6 +193,7 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
             onOpenInsights = { navController.navigate(TrackingRoutes.insights(routeId)) },
             onOpenMap = { navController.navigate(TrackingRoutes.routeMap(routeId)) },
             onOpenHwEvents = { navController.navigate(TrackingRoutes.hwEvents(routeId)) },
+            onOpenRoutePoints = { navController.navigate(TrackingRoutes.routePoints(routeId)) },
             onOpenDataPreview = { navController.navigate(TrackingRoutes.trackDataPreview(routeId)) },
         )
     }
@@ -207,6 +212,14 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
     ) { backStack ->
         val routeId = backStack.arguments?.getString("routeId") ?: return@composable
         HardwareEventsLogScreen(routeId = routeId, onBack = { navController.popBackStack() })
+    }
+
+    composable(
+        route = TrackingRoutes.ROUTE_POINTS,
+        arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
+    ) { backStack ->
+        val routeId = backStack.arguments?.getString("routeId") ?: return@composable
+        RoutePointsScreen(routeId = routeId, onBack = { navController.popBackStack() })
     }
 
     composable(TrackingRoutes.CHECK_IN_HISTORY) {

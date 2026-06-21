@@ -34,6 +34,7 @@ core-ktx = "1.19.0"
 camerax = "1.6.1"
 wormaceptor = "2.2.1"
 leakcanary = "2.14"
+paging = "3.4.0"
 konnection = "1.4.5"
 biometric = "1.1.0"
 roborazzi = "1.64.0"
@@ -161,6 +162,10 @@ wormaceptor-impl = { module = "com.github.azikar24.WormaCeptor:api-impl-persiste
 # G15: leak detection, debugImplementation + Android-only ONLY (same rule as WormaCeptor —
 # never release, never commonMain). Foreground-service + tracking app is leak-prone.
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
+# G1: Paging 3 (KMP). paging-common (PagingSource/Pager/cachedIn) is multiplatform → commonMain;
+# paging-compose (collectAsLazyPagingItems) is androidMain. Backs the Room-fed GPS route-points log.
+paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
+paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
 
 # Testing
 junit = { module = "junit:junit", version = "4.13.2" }

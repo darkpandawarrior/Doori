@@ -20,6 +20,7 @@ import com.miletracker.feature.tracking.viewmodel.ExportViewModel
 import com.miletracker.feature.tracking.viewmodel.HardwareEventsViewModel
 import com.miletracker.feature.tracking.viewmodel.LiveTrackViewModel
 import com.miletracker.feature.tracking.viewmodel.MileageSubmissionViewModel
+import com.miletracker.feature.tracking.viewmodel.RoutePointsViewModel
 import com.miletracker.feature.tracking.viewmodel.SavedTracksViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackDetailViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackInsightsViewModel
@@ -72,6 +73,7 @@ val trackingModule =
         }
         viewModelOf(::MileageSubmissionViewModel)
         viewModelOf(::TrackDetailViewModel)
+        viewModelOf(::RoutePointsViewModel)
         viewModelOf(::LiveTrackViewModel)
         viewModelOf(::HardwareEventsViewModel)
         viewModelOf(::TrackInsightsViewModel)

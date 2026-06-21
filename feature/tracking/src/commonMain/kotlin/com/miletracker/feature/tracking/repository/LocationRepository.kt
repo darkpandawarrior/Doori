@@ -17,5 +17,12 @@ class LocationRepository(private val dao: LocationDao) {
 
     suspend fun getForToken(token: String): List<LocationData> = dao.getLocationsByTokenPaged(token, limit = Int.MAX_VALUE, offset = 0)
 
+    /** G1: one page of a track's GPS trail (chronological), for [LocationPagingSource]. */
+    suspend fun pageForToken(
+        token: String,
+        limit: Int,
+        offset: Int,
+    ): List<LocationData> = dao.getLocationsByTokenPaged(token, limit = limit, offset = offset)
+
     suspend fun deleteForToken(token: String) = dao.deleteLocationsByToken(token)
 }
