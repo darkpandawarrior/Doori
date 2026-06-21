@@ -205,12 +205,12 @@ class ScreenshotGalleryTest {
         private val mediaLibraryDao = mockk<MediaLibraryDao>(relaxed = true).also { dao ->
             val baseMs = 1_700_000_000_000L
             val entries = listOf(
-                MediaLibraryEntry("m1", "file:///demo/odometer.jpg", "image/jpeg", "Odometer — Pune", "CAMERA", baseMs - 3_600_000L),
-                MediaLibraryEntry("m2", "file:///demo/fuel.jpg", "image/jpeg", "Fuel receipt — Hinjewadi", "GALLERY", baseMs - 7_200_000L),
-                MediaLibraryEntry("m3", "file:///demo/toll.jpg", "image/jpeg", "Toll receipt — Mumbai Expressway", "CAMERA", baseMs - 10_800_000L),
-                MediaLibraryEntry("m4", "file:///demo/parking.jpg", "image/jpeg", "Parking — Magarpatta", "GALLERY", baseMs - 14_400_000L),
-                MediaLibraryEntry("m5", "file:///demo/invoice.jpg", "image/jpeg", "Cab invoice — Koregaon Park", "CAMERA", baseMs - 18_000_000L),
-                MediaLibraryEntry("m6", "file:///demo/meal.jpg", "image/jpeg", "Meal receipt — FC Road", "GALLERY", baseMs - 21_600_000L),
+                MediaLibraryEntry("m1", "file:///demo/odometer.jpg", "image/jpeg", "Odometer: Pune", "CAMERA", baseMs - 3_600_000L),
+                MediaLibraryEntry("m2", "file:///demo/fuel.jpg", "image/jpeg", "Fuel receipt: Hinjewadi", "GALLERY", baseMs - 7_200_000L),
+                MediaLibraryEntry("m3", "file:///demo/toll.jpg", "image/jpeg", "Toll receipt: Mumbai Expressway", "CAMERA", baseMs - 10_800_000L),
+                MediaLibraryEntry("m4", "file:///demo/parking.jpg", "image/jpeg", "Parking: Magarpatta", "GALLERY", baseMs - 14_400_000L),
+                MediaLibraryEntry("m5", "file:///demo/invoice.jpg", "image/jpeg", "Cab invoice: Koregaon Park", "CAMERA", baseMs - 18_000_000L),
+                MediaLibraryEntry("m6", "file:///demo/meal.jpg", "image/jpeg", "Meal receipt: FC Road", "GALLERY", baseMs - 21_600_000L),
             )
             every { dao.observeAll() } returns MutableStateFlow(entries)
         }

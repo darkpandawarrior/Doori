@@ -45,12 +45,12 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
             Intent.ACTION_LOCKED_BOOT_COMPLETED -> {
                 // Credential-protected storage (our DataStore) is unavailable before first
                 // unlock; BOOT_COMPLETED arrives after unlock and handles the restore.
-                Log.d(TAG, "Locked boot — deferring session check to BOOT_COMPLETED")
+                Log.d(TAG, "Locked boot: deferring session check to BOOT_COMPLETED")
             }
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
             -> {
-                Log.i(TAG, "Boot/update received — checking for active session")
+                Log.i(TAG, "Boot/update received: checking for active session")
                 val pending = goAsync()
                 CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
                     try {
@@ -76,7 +76,7 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
             )
         when (action) {
             BootRestoreAction.RESUME_SERVICE -> {
-                Log.i(TAG, "Active session found (${session.token.take(8)}…) — restarting service")
+                Log.i(TAG, "Active session found (${session.token.take(8)}…): restarting service")
                 val serviceIntent =
                     Intent(context, LocationTrackingService::class.java).apply {
                         this.action = LocationTrackingService.ACTION_RESTORE
@@ -87,12 +87,12 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
                 } catch (e: Exception) {
                     // ForegroundServiceStartNotAllowedException (or similar): the OS refused
                     // the background FGS start. Let the user resume from a notification.
-                    Log.w(TAG, "FGS start from boot disallowed — offering manual resume", e)
+                    Log.w(TAG, "FGS start from boot disallowed: offering manual resume", e)
                     postManualResumeNotification(context)
                 }
             }
             BootRestoreAction.CLEAR_STALE_SESSION -> {
-                Log.i(TAG, "Session not resumable — marking it stopped")
+                Log.i(TAG, "Session not resumable: marking it stopped")
                 dataStore.saveSession(
                     session.copy(
                         isTracking = false,
@@ -101,7 +101,7 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
                     ),
                 )
             }
-            BootRestoreAction.NONE -> Log.d(TAG, "No active session — nothing to restore")
+            BootRestoreAction.NONE -> Log.d(TAG, "No active session: nothing to restore")
         }
     }
 

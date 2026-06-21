@@ -47,7 +47,7 @@ class TrackingNotificationManager(private val context: Context) {
             title = if (isPaused) "Tracking Paused" else "Tracking Active",
             text =
                 if (isPaused) {
-                    "%.2f km recorded — tap to resume".format(distanceKm)
+                    "%.2f km recorded: tap to resume".format(distanceKm)
                 } else {
                     "%.2f km  ·  %.1f km/h".format(distanceKm, speedKmh)
                 },
@@ -59,7 +59,7 @@ class TrackingNotificationManager(private val context: Context) {
     fun buildPausedNotification(distanceKm: Double): Notification =
         buildNotification(
             title = "Tracking Paused",
-            text = "%.2f km recorded — tap to resume".format(distanceKm),
+            text = "%.2f km recorded: tap to resume".format(distanceKm),
             distanceKm = distanceKm,
             speedKmh = 0.0,
             isPaused = true,

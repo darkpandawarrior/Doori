@@ -214,7 +214,7 @@ class MapRouteBuilderTest {
     fun `bounds include abnormal and filtered points`() {
         val points = listOf(
             loc(10.0, 20.0),
-            loc(50.0, 80.0, isAbnormal = true),   // extreme outlier — still included in bounds
+            loc(50.0, 80.0, isAbnormal = true),   // extreme outlier: still included in bounds
             loc(5.0,  15.0, isMock = true)
         )
         val result = MapRouteBuilder.build(points)

@@ -29,10 +29,10 @@ object DynamicIntervalCalculator {
     const val MAX_INTERVAL_MS = 60_000L
 
     // Speed-band upper bounds (m/s).
-    private const val IDLE_MAX_MPS = 0.5 // < ~1.8 km/h — stationary
-    private const val WALK_MAX_MPS = 4.0 // < ~14 km/h — walking / jogging
-    private const val CITY_MAX_MPS = 11.0 // < ~40 km/h — city driving
-    private const val HIGHWAY_MAX_MPS = 25.0 // < ~90 km/h — fast road
+    private const val IDLE_MAX_MPS = 0.5 // < ~1.8 km/h: stationary
+    private const val WALK_MAX_MPS = 4.0 // < ~14 km/h: walking / jogging
+    private const val CITY_MAX_MPS = 11.0 // < ~40 km/h: city driving
+    private const val HIGHWAY_MAX_MPS = 25.0 // < ~90 km/h: fast road
 
     // Per-band base intervals (ms): idle 20s → highway 5s.
     private const val BASE_IDLE_MS = 20_000L

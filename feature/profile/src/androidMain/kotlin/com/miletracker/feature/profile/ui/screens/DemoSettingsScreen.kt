@@ -115,7 +115,7 @@ fun DemoSettingsScreen(
 
             DemoToggle(
                 title = "Simulate Root Detection",
-                subtitle = "App treats this device as rooted — shows RootGuardScreen on restart",
+                subtitle = "App treats this device as rooted: shows RootGuardScreen on restart",
                 checked = settings.simulateRoot,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleSimulateRoot) },
             )
@@ -143,7 +143,7 @@ fun DemoSettingsScreen(
 
             DemoToggle(
                 title = "Auto-Discard at End of Day",
-                subtitle = "WorkManager discards any active journey at 22:00 — demo of AutoDiscardWorker",
+                subtitle = "WorkManager discards any active journey at 22:00: demo of AutoDiscardWorker",
                 checked = settings.autoDiscardEnabled,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleAutoDiscard) },
                 warningColor = Color(0xFFFF8F00),
@@ -167,7 +167,7 @@ fun DemoSettingsScreen(
                 onClick = onOpenRootGuard,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("View Root Guard — Clean Device")
+                Text("View Root Guard: Clean Device")
             }
 
             Spacer(Modifier.height(8.dp))
@@ -176,7 +176,7 @@ fun DemoSettingsScreen(
                 onClick = onOpenRootGuardDetected,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("View Root Guard — Detected (Demo)")
+                Text("View Root Guard: Detected (Demo)")
             }
 
             Spacer(Modifier.height(8.dp))
@@ -266,7 +266,7 @@ private fun DemoTogglePreview() {
             )
             DemoToggle(
                 title = "Simulate Root Detection",
-                subtitle = "App treats this device as rooted — shows RootGuardScreen on restart",
+                subtitle = "App treats this device as rooted: shows RootGuardScreen on restart",
                 checked = false,
                 onToggle = {},
             )

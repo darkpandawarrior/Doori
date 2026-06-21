@@ -217,7 +217,7 @@ fun SmartDistanceSheet(
                     ) {
                         Icon(Icons.Filled.Warning, contentDescription = null, tint = errorColor, modifier = Modifier.size(DesignTokens.IconSize.badge))
                         Text(
-                            text = "Large Discrepancy Detected — values differ by $percentLabel",
+                            text = "Large Discrepancy Detected: values differ by $percentLabel",
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold,
                             color = errorColor,
