@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.util.DateUtils
+import com.miletracker.core.ui.components.EmptyState
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.logging.ui.model.SubmittedVoucher
 import com.miletracker.feature.logging.viewmodel.LogMilesAction
@@ -226,7 +227,7 @@ private fun DraftsTab(
     if (drafts.isEmpty()) {
         EmptyState(
             title = "No drafts yet",
-            body = "Start a new log miles journey to save a draft",
+            subtitle = "Start a new log miles journey to save a draft",
         )
         return
     }
@@ -306,7 +307,7 @@ private fun DraftCard(
 @Composable
 private fun SubmittedTab(vouchers: List<SubmittedVoucher>) {
     if (vouchers.isEmpty()) {
-        EmptyState(title = "No submissions yet", body = "Submitted log miles will appear here")
+        EmptyState(title = "No submissions yet", subtitle = "Submitted log miles will appear here")
         return
     }
     // Group by expense day, newest first, with a date header per group.
@@ -493,34 +494,6 @@ private fun LabelValue(
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-private fun EmptyState(
-    title: String,
-    body: String,
-) {
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(DesignTokens.Spacing.xxl),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.size(DesignTokens.Spacing.s))
-        Text(
-            body,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
