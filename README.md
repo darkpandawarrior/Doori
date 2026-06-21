@@ -75,44 +75,142 @@ flavor split so the same app ships to both the Play Store and F-Droid.
 > [Roborazzi](https://github.com/takahirom/roborazzi) on the JVM — **no emulator required**
 > (`./gradlew recordRoborazziNoGmsDebug`).
 
-|  Live GPS Tracking  |  Tracking Success  |  Odometer OCR  |
+| Live GPS Tracking | Route Map | Odometer OCR |
 |:---:|:---:|:---:|
-| ![Live tracking with gradient card, distance counter and action buttons](docs/screenshots/live_tracking.png) | ![Tracking success screen with journey summary and reimbursement amount](docs/screenshots/tracking_success.png) | ![Odometer confirm sheet with on-device OCR reading](docs/screenshots/ocr.png) |
+| ![Live tracking with compass speedometer, distance/duration and Pause/Stop controls](docs/screenshots/live_tracking.png) | ![Route map with the GPS path overlaid on real map tiles](docs/screenshots/route_map.png) | ![Odometer capture sheet reading 45,000 km via on-device OCR](docs/screenshots/ocr.png) |
 
 <details>
-<summary><b>More screenshots</b> — tracking, logging, approvals, payments, events, travel &amp; security (50 total)</summary>
+<summary><b>Full screen gallery</b> — every screen across all 12 feature modules, grouped by area (96 images)</summary>
 
 <br/>
 
-**Tracking**
+#### Tracking
 
-| Saved Trips | Track Insights | Geo Check-In | Route Map |
-|---|---|---|---|
-| ![Saved tracks journeys tab with date-grouped trip cards](docs/screenshots/saved_tracks_journeys_tab.png) | ![Track insights with quality-score ring, speed and activity breakdown](docs/screenshots/track_insights.png) | ![Geo check-in with map overlay and radius indicator](docs/screenshots/geo_check_in.png) | ![Route map with GPS path overlay and tile layer](docs/screenshots/route_map.png) |
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Track Miles ready-to-start screen with vehicle selector](docs/screenshots/track_miles_idle_screen.png) | ![Tracking success summary with distance, reimbursement and voucher](docs/screenshots/tracking_success_screen.png) | ![Saved tracks journeys tab with date-grouped trip cards](docs/screenshots/saved_tracks_journeys_tab.png) |
 
-**Logging &amp; Approvals**
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Track detail with route stats, speed and GPS-point breakdown](docs/screenshots/track_detail_screen.png) | ![Track insights with quality-score ring and activity breakdown](docs/screenshots/track_insights_screen.png) | ![Geo check-in with map overlay and radius indicator](docs/screenshots/geo_check_in_screen.png) |
 
-| Log Miles | Approvals Queue | Hardware Events |
-|---|---|---|
-| ![Manual log-miles step 1 with location search and route preview](docs/screenshots/log_miles_step1.png) | ![Approvals pending tab with policy-violation badges](docs/screenshots/approvals_pending.png) | ![Hardware events log with tracking lifecycle events and filter chips](docs/screenshots/hardware_events.png) |
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Location map surface with current-position marker](docs/screenshots/location_map_screen.png) | ![Manual check-in with location, notes, type and time](docs/screenshots/manual_check_in_screen.png) | ![Check-in history list with geo and manual entries](docs/screenshots/check_in_history_screen.png) |
 
-**Payments, Events &amp; Travel**
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Hardware-events log with tracking lifecycle entries and filter chips](docs/screenshots/hardware_events_log_screen.png) | ![Track data preview overview tab with completeness metrics](docs/screenshots/track_data_preview_overview_tab.png) | ![Tracking settings with accuracy, interval and battery options](docs/screenshots/track_settings_screen.png) |
 
-| Create Payment | Payments History | Create Event |
-|---|---|---|
-| ![Pay or Request form with UPI payee, amount and mode toggle](docs/screenshots/create_payment_screen.png) | ![Payments history with status tabs and UPI pay/request cards](docs/screenshots/payments_history_screen.png) | ![Create event form with title, venue, category and capacity fields](docs/screenshots/create_event_screen.png) |
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Track customization with map style and overlay toggles](docs/screenshots/track_customization_screen.png) | ![Tracking setup guide walking through permissions](docs/screenshots/tracking_setup_guide_screen.png) | ![Tracking loading screen with progress sub-statuses](docs/screenshots/tracking_loading_screen.png) |
 
-| Events History | Booking History | Trip History |
-|---|---|---|
-| ![Events history with status tabs and venue/attendee cards](docs/screenshots/events_history_screen.png) | ![Booking history with type tabs, status filter chips and fare cards](docs/screenshots/booking_history_screen.png) | ![Trip-request history with status tabs and route cards](docs/screenshots/trip_history_screen.png) |
+| &nbsp; | &nbsp; |
+|:---:|:---:|
+| ![Create voucher screen selecting reimbursable expenses](docs/screenshots/create_voucher_select_expenses.png) | ![Developer debug menu for tracking internals](docs/screenshots/debug_menu_screen.png) |
 
-**Security &amp; Diagnostics**
+#### Logging & Expenses
 
-| Root Guard — signals detected | Root Guard — clean device |
-|---|---|
-| ![Root guard showing detected root signals in red](docs/screenshots/root_guard_detected.png) | ![Root guard confirming a clean, secure device](docs/screenshots/root_guard_clean.png) |
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Spends home with totals and recent activity](docs/screenshots/spends_home_screen.png) | ![Manual log-miles step 1 with location search and route preview](docs/screenshots/log_miles_step1_screen.png) | ![Manual log-miles step 2 with travelled locations and amount](docs/screenshots/log_miles_step2_screen.png) |
 
-<sub>Full set in <a href="docs/screenshots"><code>docs/screenshots/</code></a> (50 images, including payables, cards, analytics and component matrices).</sub>
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Log-miles history with date-grouped mileage entries](docs/screenshots/log_miles_history_screen.png) | ![Expense entry with category, amount and attachment](docs/screenshots/expense_entry_screen.png) | ![Expense details input with policy fields](docs/screenshots/expense_details_input_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Expense detail view with status and receipt](docs/screenshots/expense_detail_screen.png) | ![Expense history with status filter chips and itemised cards](docs/screenshots/expense_history_screen.png) | ![Voucher history with settlement status](docs/screenshots/voucher_history_screen.png) |
+
+#### Travel
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Travel hub with active trip and upcoming bookings](docs/screenshots/travel_home_screen.png) | ![Create trip request form with purpose and itinerary](docs/screenshots/create_trip_screen.png) | ![Create multi-journey plan with route legs](docs/screenshots/create_mjp_screen.png) |
+
+| &nbsp; | &nbsp; |
+|:---:|:---:|
+| ![Trip-request history with status tabs and route cards](docs/screenshots/trip_history_screen.png) | ![Booking history with type tabs, status filter chips and fare cards](docs/screenshots/booking_history_screen.png) |
+
+#### Approvals & Payables
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Approvals pending tab with policy-violation badges](docs/screenshots/approvals_screen_pending_tab.png) | ![Approval detail with a flagged policy violation](docs/screenshots/approval_details_screen_violation.png) | ![Payables hub with invoices, PRs and GINs](docs/screenshots/payables_home_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Create purchase-request form with line items](docs/screenshots/create_purchase_request_screen.png) | ![Purchase-request detail with approval trail](docs/screenshots/purchase_request_details_screen.png) | ![Create invoice form with vendor and amount](docs/screenshots/create_invoice_screen.png) |
+
+| &nbsp; |
+|:---:|
+| ![Unified payables history across document types](docs/screenshots/payables_history_screen.png) |
+
+#### Payments, Events & Cards
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Pay or Request form with UPI payee, amount and mode toggle](docs/screenshots/create_payment_screen.png) | ![Payments history with status tabs and UPI pay/request cards](docs/screenshots/payments_history_screen.png) | ![Create event form with title, venue, category and capacity](docs/screenshots/create_event_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Events history with status tabs and venue/attendee cards](docs/screenshots/events_history_screen.png) | ![Cards home with virtual card faces and balances](docs/screenshots/cards_home_screen.png) | ![Card detail with transactions and controls](docs/screenshots/card_detail_screen.png) |
+
+| &nbsp; |
+|:---:|
+| ![Card request form with KYC-lite fields](docs/screenshots/card_request_screen.png) |
+
+#### Profile & Account
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Account hub with persona switcher, deep-link demo and referral card](docs/screenshots/profile_account_hub.png) | ![Profile details with employee information](docs/screenshots/profile_details_screen.png) | ![Settings with sections for app, privacy and account](docs/screenshots/settings_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Preferences with units, theme and notification toggles](docs/screenshots/preferences_screen.png) | ![Demo settings to seed and reset mock data](docs/screenshots/demo_settings_screen.png) | ![Analytics dashboard with Canvas-rendered charts](docs/screenshots/analytics_home_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Mileage analytics detail with trend chart](docs/screenshots/analytics_detail_mileage_screen.png) | ![Advance-request history with status](docs/screenshots/advance_history_screen.png) | ![Ask-advance form step 1 with amount and reason](docs/screenshots/ask_advance_form_step1_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Delegation screen assigning approver authority](docs/screenshots/delegation_screen.png) | ![Notification centre with grouped alerts](docs/screenshots/notification_centre_screen.png) | ![QR home for scan-to-pay and identity](docs/screenshots/qr_home_screen.png) |
+
+| &nbsp; |
+|:---:|
+| ![Help and support with FAQs and contact](docs/screenshots/help_support_screen.png) |
+
+#### Media & Assistant
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Attachment selection with camera and gallery sources](docs/screenshots/media_attachment_selection_screen.png) | ![Attachment preview before attaching](docs/screenshots/media_attachment_preview_screen.png) | ![Media library grid of saved attachments](docs/screenshots/media_cloud_library_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Camera capture screen with permission prompt](docs/screenshots/media_camera_permission_required.png) | ![AI assistant chat answering an expense query](docs/screenshots/agent_chat_screen.png) | ![Assistant conversation history](docs/screenshots/agent_history_screen.png) |
+
+| &nbsp; |
+|:---:|
+| ![Assistant home bottom sheet with suggested actions](docs/screenshots/assistant_home_sheet.png) |
+
+#### App shell & Security
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Home dashboard with greeting and quick actions](docs/screenshots/home_screen_loaded.png) | ![Login screen with demo credentials](docs/screenshots/login_screen.png) | ![Branded splash screen](docs/screenshots/splash_screen.png) |
+
+| &nbsp; | &nbsp; | &nbsp; |
+|:---:|:---:|:---:|
+| ![Shell placeholder for an in-progress destination](docs/screenshots/shell_placeholder_screen.png) | ![Root guard showing detected root signals in red](docs/screenshots/root_guard_screen.png) | ![Root guard confirming a clean, secure device](docs/screenshots/root_guard_screen_clean.png) |
+
+<sub>Plus component matrices (status cards, booking cards, PO cards, success-state variants) in
+<a href="docs/screenshots"><code>docs/screenshots/</code></a>, rendered from <code>@Preview</code> composables by
+<code>ScreenshotCatalogTest</code>. Every full screen above is recorded by <code>ScreenshotGalleryTest</code>.</sub>
 
 </details>
 
@@ -293,8 +391,9 @@ A dependency-prefix guard fails the build if proprietary libraries leak into the
 
 - **JVM unit tests** — 88 test classes (ViewModels, repositories, feature logic) with MockK + Turbine,
   run on the `noGms` flavor (no emulator).
-- **Screenshot tests** — Roborazzi renders 50 screens/components on the JVM and writes them to
-  `docs/screenshots/`; deterministic and diffable in PRs.
+- **Screenshot tests** — Roborazzi renders every screen across all feature modules plus the
+  component-preview matrices on the JVM (`ScreenshotGalleryTest` + `ScreenshotCatalogTest`, 90+ PNGs
+  in `docs/screenshots/`); deterministic and diffable in PRs.
 - **Static analysis** — detekt + ktlint across every module; Kover for coverage.
 - **CI** — `.github/workflows/ci.yml` runs `assembleGmsDebug` + `testNoGmsDebugUnitTest` on every push
   and PR; separate `quality`, `release` and `publish-fdroid` workflows handle gates and distribution.
