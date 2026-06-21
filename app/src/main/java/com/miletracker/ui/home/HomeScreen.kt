@@ -1,5 +1,6 @@
 package com.miletracker.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Insights
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -108,7 +110,15 @@ internal fun HomeScreenContent(
     val illustrativeSnackbar: suspend () -> Unit = { snackbarState.showSnackbar("Detail view available in full version.") }
     val paymentsSnackbar: suspend () -> Unit = { snackbarState.showSnackbar("Payments require network in production.") }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            // Top-level tab: own the background so the body renders on the theme surface
+            // (deep-dark under the Matrix default) instead of inheriting whatever the host
+            // happens to paint. Without this the scrollable body is transparent and falls
+            // through to the window/canvas colour.
+            .background(MaterialTheme.colorScheme.background),
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
