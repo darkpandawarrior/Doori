@@ -107,6 +107,9 @@ class ProfileViewModel(
 
     fun setDarkTheme(dark: Boolean?) = themeController.set(dark)
 
+    /** Select a curated Design Language v2 theme (Matrix / Amoled / Ion / Daybreak). */
+    fun setMilewayTheme(theme: MilewayTheme) = themeController.setMilewayTheme(theme)
+
     fun setPalette(palette: AccentPalette) = themeController.setPalette(palette)
 
     fun setCustomSeed(hex: String) = themeController.setCustomSeed(hex)

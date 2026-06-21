@@ -61,7 +61,7 @@ import com.miletracker.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 
 /** Prefilled demo identity so the fake login works without typing anything. */
-private const val DEMO_EMAIL = "demo@miletracker.app"
+private const val DEMO_EMAIL = "demo@mileway.app"
 
 /** App name shown beside the logo mark. */
 private const val APP_NAME = "Mileway"
