@@ -3,6 +3,7 @@ package com.miletracker.feature.tracking.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -12,6 +13,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.miletracker.core.data.model.display.OdometerCaptureResult
 import com.miletracker.core.data.model.display.OdometerPurpose
+import com.miletracker.core.data.settings.DemoSettings
+import com.miletracker.core.data.settings.DemoSettingsRepository
+import com.miletracker.core.data.settings.LAST_ODOMETER_NONE
 import com.miletracker.core.ui.AppHost
 import com.miletracker.feature.tracking.ui.screens.CheckInHistoryItem
 import com.miletracker.feature.tracking.ui.screens.CheckInHistoryScreen
@@ -33,6 +37,8 @@ import com.miletracker.feature.tracking.ui.screens.TrackSubmissionScreen
 import com.miletracker.feature.tracking.ui.screens.TrackingSuccessScreen
 import com.miletracker.feature.tracking.viewmodel.MileageSubmissionAction
 import com.miletracker.feature.tracking.viewmodel.MileageSubmissionViewModel
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 object TrackingRoutes {
@@ -253,6 +259,12 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
         val odoStartReading by sh.getStateFlow("odo_start_reading", -1).collectAsState()
         val odoEndReading by sh.getStateFlow("odo_end_reading", -1).collectAsState()
 
+        // G7: persisted last-trip end-odometer reading; seeds the next trip's start capture so the
+        // reading rolls over (the physical odometer keeps its value) instead of resetting to 45_000.
+        val demoSettings = koinInject<DemoSettingsRepository>()
+        val demoSettingsState by demoSettings.settings.collectAsState(initial = DemoSettings())
+        val lastOdometerEnd = demoSettingsState.lastOdometerEndReading
+
         androidx.compose.runtime.LaunchedEffect(odoStartReading) {
             if (odoStartReading != -1) {
                 viewModel.onAction(
@@ -283,6 +295,8 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
                     ),
                 )
                 sh.remove<Int>("odo_end_reading")
+                // G7: the confirmed end reading becomes the next trip's start baseline (rollover).
+                demoSettings.setLastOdometerEndReading(odoEndReading)
             }
         }
 
@@ -299,13 +313,21 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
             },
             onBack = { navController.popBackStack() },
             onNavigateToOdometerStart = {
-                val startReading = viewModel.state.value.form.simulatedStartOdo ?: 45_000
+                // G7: prefer an explicit per-trip override, else roll over from the last trip's
+                // end reading, else the cold-start default.
+                val startReading =
+                    viewModel.state.value.form.simulatedStartOdo
+                        ?: lastOdometerEnd.takeIf { it != LAST_ODOMETER_NONE }
+                        ?: 45_000
                 navController.navigate(
                     TrackingRoutes.odometerCamera("START", distKm, startReading),
                 )
             },
             onNavigateToOdometerEnd = {
-                val startReading = viewModel.state.value.form.simulatedStartOdo ?: 45_000
+                val startReading =
+                    viewModel.state.value.form.simulatedStartOdo
+                        ?: lastOdometerEnd.takeIf { it != LAST_ODOMETER_NONE }
+                        ?: 45_000
                 navController.navigate(
                     TrackingRoutes.odometerCamera("END", distKm, startReading),
                 )
@@ -439,7 +461,16 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
     }
 
     composable(TrackingRoutes.TRACK_CUSTOMIZATION) {
-        TrackCustomizationScreen(onBack = { navController.popBackStack() })
+        // G6: bind the Kalman toggle to persisted DemoSettings so it actually drives the live
+        // tracking pipeline (LocationTrackingService reads enableKalman at the next trip start).
+        val demoSettings = koinInject<DemoSettingsRepository>()
+        val settings by demoSettings.settings.collectAsState(initial = DemoSettings())
+        val scope = rememberCoroutineScope()
+        TrackCustomizationScreen(
+            onBack = { navController.popBackStack() },
+            kalmanEnabled = settings.enableKalman,
+            onKalmanChange = { enabled -> scope.launch { demoSettings.setEnableKalman(enabled) } },
+        )
     }
 
     composable(TrackingRoutes.SETUP_GUIDE) {
