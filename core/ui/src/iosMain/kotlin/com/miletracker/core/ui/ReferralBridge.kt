@@ -6,7 +6,7 @@ import com.miletracker.core.platform.ReferralData
 import com.miletracker.core.platform.ReferralManager
 
 /**
- * RF.3 — Swift → KMP referral bridge, exported in the MileTracker framework.
+ * RF.3 — Swift → KMP referral bridge, exported in the Mileway framework.
  *
  * `iOSApp.swift` calls [captureDeferred] once at first launch (reads the pasteboard token), and
  * [captureCode] when a Universal-Link `?code=` arrives. Shared screens read [manager] for the user's own

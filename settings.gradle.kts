@@ -26,7 +26,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MileTrackerDemo"
+rootProject.name = "Mileway"
 
 include(":app")
 include(":core:ui")

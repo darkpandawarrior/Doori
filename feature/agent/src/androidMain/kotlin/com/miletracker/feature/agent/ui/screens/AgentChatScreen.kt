@@ -298,7 +298,7 @@ private fun AgentHeader(
                 }
                 Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
                     Text("AI Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Powered by MileTracker AI", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
+                    Text("Powered by Mileway AI", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
                 }
                 IconButton(onClick = onHistory) {
                     Icon(Icons.Filled.Schedule, contentDescription = "History", tint = Color.White)

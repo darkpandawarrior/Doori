@@ -1,6 +1,6 @@
 # Release guide
 
-How to ship MileTracker to Play (gms), the App Store / TestFlight (iOS), and F-Droid (noGms). Every
+How to ship Mileway to Play (gms), the App Store / TestFlight (iOS), and F-Droid (noGms). Every
 credential below is an **env-activated placeholder** — the build degrades to no-op when a key is absent, so
 nothing here is required to build or run the demo.
 
@@ -44,7 +44,7 @@ The `noGms` flavor is the FOSS build: MapLibre maps, **no** Google/Firebase runt
 1. Tag the release `v<VERSION>-fdroid`.
 2. Run the **Publish F-Droid APK** workflow (`.github/workflows/publish-fdroid.yml`) with that tag — it builds
    `assembleNoGmsRelease -Pfdroid` (reproducible, no R8), signs with the pinned `apksigner`, and attaches
-   `MileTracker-<tag>.apk` + `.sha256` to a GitHub Release.
+   `Mileway-<tag>.apk` + `.sha256` to a GitHub Release.
 3. Submit `metadata/com.miletracker.fdroid.yml` to `fdroiddata` (Binaries approach; the prebuild strips the
    Firebase Gradle plugins and removes `google-services.json`).
 

@@ -58,7 +58,7 @@ private fun MaintenanceWall() {
             )
             Text(
                 text =
-                    "MileTracker is briefly unavailable or this version is no longer supported. " +
+                    "Mileway is briefly unavailable or this version is no longer supported. " +
                         "Please update or check back soon.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,

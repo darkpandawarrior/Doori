@@ -63,7 +63,7 @@ fun UpdateGate(
     if (available != null && available.mode == UpdateMode.FLEXIBLE) {
         ActionConfirmationBottomSheet(
             title = "Update available",
-            description = "A new version of MileTracker is available with the latest improvements.",
+            description = "A new version of Mileway is available with the latest improvements.",
             confirmLabel = "Update",
             dismissLabel = "Later",
             icon = Icons.Rounded.SystemUpdate,
@@ -97,7 +97,7 @@ private fun ForcedUpdateWall(onUpdate: () -> Unit) {
                 modifier = Modifier.padding(top = 24.dp),
             )
             Text(
-                text = "A newer version of MileTracker is required to continue. Please update to keep tracking.",
+                text = "A newer version of Mileway is required to continue. Please update to keep tracking.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 12.dp),

@@ -881,7 +881,7 @@ private fun ReferralCardHost(modifier: Modifier = Modifier) {
             if (myCode.isNotEmpty()) {
                 shareSheet.share(
                     text = buildReferralInvite(myCode),
-                    subject = "Join me on MileTracker",
+                    subject = "Join me on Mileway",
                 )
             }
         },

@@ -127,7 +127,7 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
         val notification =
             Notification.Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Trip tracking was interrupted")
-                .setContentText("Tap to reopen MileTracker and resume your trip")
+                .setContentText("Tap to reopen Mileway and resume your trip")
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)
                 .setContentIntent(openIntent)
                 .setAutoCancel(true)
