@@ -308,6 +308,10 @@ dependencies {
     debugImplementation(libs.wormaceptor.api)
     debugImplementation(libs.wormaceptor.impl)
 
+    // G15: LeakCanary, DEBUG builds only (never release, never commonMain — same rule as
+    // WormaCeptor). Auto-installs on debug; watches Activities/Fragments/ViewModels for leaks.
+    debugImplementation(libs.leakcanary.android)
+
     // Baseline profiles, installs AOT-compiled Dex profile at install time for cold-start wins.
     // The actual profile lives in :baselineprofile module (add when ready to generate).
     implementation(libs.profileinstaller)

@@ -33,6 +33,7 @@ coil = "2.7.0"
 core-ktx = "1.19.0"
 camerax = "1.6.1"
 wormaceptor = "2.2.1"
+leakcanary = "2.14"
 konnection = "1.4.5"
 biometric = "1.1.0"
 roborazzi = "1.64.0"
@@ -157,6 +158,9 @@ coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil" }
 konnection = { group = "dev.tmapps", name = "konnection", version.ref = "konnection" }
 wormaceptor-api = { module = "com.github.azikar24.WormaCeptor:api-client", version.ref = "wormaceptor" }
 wormaceptor-impl = { module = "com.github.azikar24.WormaCeptor:api-impl-persistence", version.ref = "wormaceptor" }
+# G15: leak detection, debugImplementation + Android-only ONLY (same rule as WormaCeptor —
+# never release, never commonMain). Foreground-service + tracking app is leak-prone.
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 
 # Testing
 junit = { module = "junit:junit", version = "4.13.2" }
