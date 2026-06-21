@@ -1166,9 +1166,16 @@ fun HomeMileageCard(
                 modifier = Modifier.padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
-                // Canvas progress ring (120dp) + centre text
+                // Canvas progress ring (120dp) + centre text. Merge into one TalkBack node so the
+                // ring is announced as a single "X of Y km" progress reading, not loose digits.
                 Box(
-                    modifier = Modifier.size(120.dp).align(Alignment.CenterHorizontally),
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription =
+                                "Mileage progress: ${WEEK_KM_DEMO.toInt()} of ${WEEK_KM_GOAL.toInt()} kilometres this week"
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     Canvas(modifier = Modifier.matchParentSize()) {
