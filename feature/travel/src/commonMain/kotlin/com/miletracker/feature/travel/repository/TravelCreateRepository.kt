@@ -32,6 +32,15 @@ data class FlightDraft(
     val cabinClass: String,
 )
 
+/** TR.4 — an add-bus booking-request form payload. */
+data class BusDraft(
+    val fromCity: String,
+    val toCity: String,
+    val travelDate: String,
+    val operator: String,
+    val seatPreference: String,
+)
+
 /**
  * Offline fake travel-create store (TR.2+) — persists submitted drafts in-memory and returns a **rotating**
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
@@ -70,5 +79,12 @@ class TravelCreateRepository {
             "FLT",
             5100,
             listOf("Fare exceeds the cabin-class cap", "Business class needs grade-L4+ approval"),
+        )
+
+    fun submitBus(draft: BusDraft): TravelSubmissionResult =
+        rotate(
+            "BUS",
+            6200,
+            listOf("Operator not on the approved panel", "Sleeper class needs overnight-travel approval"),
         )
 }

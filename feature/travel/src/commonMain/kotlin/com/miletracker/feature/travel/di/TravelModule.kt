@@ -2,6 +2,7 @@ package com.miletracker.feature.travel.di
 
 import com.miletracker.feature.travel.repository.TravelCreateRepository
 import com.miletracker.feature.travel.repository.TravelRepository
+import com.miletracker.feature.travel.viewmodel.CreateBusViewModel
 import com.miletracker.feature.travel.viewmodel.CreateFlightViewModel
 import com.miletracker.feature.travel.viewmodel.CreateTripViewModel
 import com.miletracker.feature.travel.viewmodel.TravelViewModel
@@ -16,4 +17,5 @@ val travelModule =
         viewModelOf(::TravelViewModel)
         viewModelOf(::CreateTripViewModel)
         viewModelOf(::CreateFlightViewModel)
+        viewModelOf(::CreateBusViewModel)
     }
