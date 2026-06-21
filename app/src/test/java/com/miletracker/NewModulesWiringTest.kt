@@ -5,6 +5,8 @@ import com.miletracker.core.ui.di.coreUiModule
 import com.miletracker.core.ui.theme.ThemeController
 import com.miletracker.feature.media.di.mediaModule
 import com.miletracker.feature.media.repository.MediaRepository
+import com.miletracker.feature.payments.di.paymentsModule
+import com.miletracker.feature.payments.repository.PaymentsRepository
 import com.miletracker.feature.profile.di.profileModule
 import com.miletracker.feature.profile.repository.ProfileRepository
 import io.mockk.mockk
@@ -30,7 +32,7 @@ class NewModulesWiringTest : KoinTest {
         try { stopKoin() } catch (_: Exception) {}
         startKoin {
             androidContext(mockk<Context>(relaxed = true))
-            modules(coreUiModule, mediaModule, profileModule)
+            modules(coreUiModule, mediaModule, profileModule, paymentsModule)
         }
     }
 
@@ -56,6 +58,12 @@ class NewModulesWiringTest : KoinTest {
     @Test
     fun `profileModule provides ProfileRepository`() {
         val repo by inject<ProfileRepository>()
+        assertNotNull(repo)
+    }
+
+    @Test
+    fun `paymentsModule provides PaymentsRepository`() {
+        val repo by inject<PaymentsRepository>()
         assertNotNull(repo)
     }
 }

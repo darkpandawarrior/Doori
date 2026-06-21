@@ -245,6 +245,7 @@ dependencies {
     implementation(project(":feature:travel"))
     implementation(project(":feature:agent"))
     implementation(project(":feature:cards"))
+    implementation(project(":feature:payments"))
     implementation(project(":stub"))
 
     implementation(libs.core.ktx)

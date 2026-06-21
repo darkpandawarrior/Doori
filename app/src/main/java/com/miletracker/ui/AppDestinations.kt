@@ -29,6 +29,9 @@ object AppGraph {
 
     /** Corporate cards feature graph (reached from the Account hub's Cards tile). */
     const val CARDS = "cards_graph"
+
+    /** Payments (QR/UPI pay-request-history) graph — reached from Home quick actions / master search. */
+    const val PAYMENTS = "payments_graph"
 }
 
 /**

@@ -17,6 +17,7 @@ import com.miletracker.feature.cards.di.cardsModule
 import com.miletracker.feature.travel.di.travelModule
 import com.miletracker.feature.logging.di.loggingModule
 import com.miletracker.feature.media.di.mediaModule
+import com.miletracker.feature.payments.di.paymentsModule
 import com.miletracker.feature.profile.di.profileModule
 import com.miletracker.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.miletracker.feature.tracking.di.trackingModule
@@ -136,6 +137,7 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
                 travelModule,
                 cardsModule,
                 agentModule,
+                paymentsModule,
                 homeModule,
                 appModule
             ),
