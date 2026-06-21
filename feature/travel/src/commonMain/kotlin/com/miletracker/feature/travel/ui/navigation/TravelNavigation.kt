@@ -8,6 +8,7 @@ import com.miletracker.feature.travel.ui.screens.CreateFlightScreen
 import com.miletracker.feature.travel.ui.screens.CreateHotelScreen
 import com.miletracker.feature.travel.ui.screens.CreateMjpScreen
 import com.miletracker.feature.travel.ui.screens.CreateTripScreen
+import com.miletracker.feature.travel.ui.screens.CreateVisaScreen
 import com.miletracker.feature.travel.ui.screens.TravelHomeScreen
 
 /**
@@ -23,6 +24,7 @@ object TravelRoutes {
     const val CREATE_BUS = "travel/create_bus"
     const val CREATE_HOTEL = "travel/create_hotel"
     const val CREATE_MJP = "travel/create_mjp"
+    const val CREATE_VISA = "travel/create_visa"
 }
 
 fun NavGraphBuilder.travelGraph(navController: NavHostController) {
@@ -55,6 +57,12 @@ fun NavGraphBuilder.travelGraph(navController: NavHostController) {
     }
     composable(TravelRoutes.CREATE_MJP) {
         CreateMjpScreen(
+            onBack = { navController.popBackStack() },
+            onSubmitted = { navController.popBackStack() },
+        )
+    }
+    composable(TravelRoutes.CREATE_VISA) {
+        CreateVisaScreen(
             onBack = { navController.popBackStack() },
             onSubmitted = { navController.popBackStack() },
         )

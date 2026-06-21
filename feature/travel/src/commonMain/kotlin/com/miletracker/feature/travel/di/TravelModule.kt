@@ -7,6 +7,7 @@ import com.miletracker.feature.travel.viewmodel.CreateFlightViewModel
 import com.miletracker.feature.travel.viewmodel.CreateHotelViewModel
 import com.miletracker.feature.travel.viewmodel.CreateMjpViewModel
 import com.miletracker.feature.travel.viewmodel.CreateTripViewModel
+import com.miletracker.feature.travel.viewmodel.CreateVisaViewModel
 import com.miletracker.feature.travel.viewmodel.TravelViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -22,4 +23,5 @@ val travelModule =
         viewModelOf(::CreateBusViewModel)
         viewModelOf(::CreateHotelViewModel)
         viewModelOf(::CreateMjpViewModel)
+        viewModelOf(::CreateVisaViewModel)
     }

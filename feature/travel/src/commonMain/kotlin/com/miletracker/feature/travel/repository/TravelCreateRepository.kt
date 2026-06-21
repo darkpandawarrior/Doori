@@ -63,6 +63,14 @@ data class MjpDraft(
     val legs: List<MjpLeg>,
 )
 
+/** TR.7 — a visa-request form payload. */
+data class VisaDraft(
+    val country: String,
+    val travelDate: String,
+    val passportNumber: String,
+    val visaType: String,
+)
+
 /**
  * Offline fake travel-create store (TR.2+) — persists submitted drafts in-memory and returns a **rotating**
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
@@ -122,5 +130,12 @@ class TravelCreateRepository {
             "MJP",
             8400,
             listOf("A leg has overlapping dates", "Multi-city plans over 4 legs need travel-desk approval"),
+        )
+
+    fun submitVisa(draft: VisaDraft): TravelSubmissionResult =
+        rotate(
+            "VSA",
+            9500,
+            listOf("Passport expires within 6 months", "Visa request needs HR and travel-desk sign-off"),
         )
 }
