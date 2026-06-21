@@ -7,6 +7,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -468,29 +469,31 @@ private fun DetailsTab(
 
         CollapsibleSectionCard(title = "Account Binding") {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Employee code", track.startedByEmployeeCode.ifBlank { "—" }, onCopy)
-                CopyableRow("Tenant", track.startedByTenant.ifBlank { "—" }, onCopy)
-                CopyableRow("Email", track.startedByAccountEmail.ifBlank { "—" }, onCopy)
-                CopyableRow("Route ID", track.routeId, onCopy)
+                CopyableRow("Employee code", track.startedByEmployeeCode.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("Tenant", track.startedByTenant.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("Email", track.startedByAccountEmail.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("Route ID", track.routeId, onCopy, showStatus = true)
             }
         }
 
+        // G8: the odometer section is the reviewer's canonical tri-state example — each reading is
+        // green when captured, red when missing, on this completed-journey preview.
         CollapsibleSectionCard(title = "Odometer") {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Start reading", track.odometerStartReading.ifBlank { "—" }, onCopy)
-                CopyableRow("End reading", track.odometerEndReading.ifBlank { "—" }, onCopy)
-                CopyableRow("Start OCR", track.odometerStartOcr.ifBlank { "—" }, onCopy)
-                CopyableRow("End OCR", track.odometerEndOcr.ifBlank { "—" }, onCopy)
-                CopyableRow("Odometer distance", if (track.odometerDistance > 0) "%.3f km".format(track.odometerDistance / 1000) else "—", onCopy)
+                CopyableRow("Start reading", track.odometerStartReading.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("End reading", track.odometerEndReading.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("Start OCR", track.odometerStartOcr.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("End OCR", track.odometerEndOcr.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow("Odometer distance", if (track.odometerDistance > 0) "%.3f km".format(track.odometerDistance / 1000) else "—", onCopy, showStatus = true)
             }
         }
 
         CollapsibleSectionCard(title = "Context") {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Trip ID", track.tripId ?: "—", onCopy)
-                CopyableRow("Petty cash ID", if (track.pettyId >= 0) track.pettyId.toString() else "—", onCopy)
-                CopyableRow("Itinerary ID", track.itineraryId ?: "—", onCopy)
-                CopyableRow("Transaction ID", track.transId ?: "—", onCopy)
+                CopyableRow("Trip ID", track.tripId ?: "—", onCopy, showStatus = true)
+                CopyableRow("Petty cash ID", if (track.pettyId >= 0) track.pettyId.toString() else "—", onCopy, showStatus = true)
+                CopyableRow("Itinerary ID", track.itineraryId ?: "—", onCopy, showStatus = true)
+                CopyableRow("Transaction ID", track.transId ?: "—", onCopy, showStatus = true)
             }
         }
 
@@ -522,11 +525,32 @@ private fun PreviewRow(
     }
 }
 
+/**
+ * G8: per-field value status, distinct from the [HealthLevel] / [IssueSeverity] severity model.
+ * A field is [SET] (captured) or [MISSING] (expected but absent) on this completed-journey preview;
+ * [PENDING] (gray) is reserved for the in-progress capture flow where a field is not yet applicable,
+ * so this finished screen only ever shows green/red — per the reviewer's field-clarity rule.
+ */
+private enum class FieldStatus { SET, MISSING, PENDING }
+
+@Composable
+private fun FieldStatus.color(): Color =
+    when (this) {
+        FieldStatus.SET -> DesignTokens.StatusColors.success
+        FieldStatus.MISSING -> DesignTokens.StatusColors.error
+        FieldStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+/** Derives [FieldStatus] from a display string using the screen's "—" missing-value convention. */
+private fun fieldStatusOf(value: String): FieldStatus =
+    if (value.isBlank() || value == "—") FieldStatus.MISSING else FieldStatus.SET
+
 @Composable
 private fun CopyableRow(
     label: String,
     value: String,
     onCopy: (String) -> Unit,
+    showStatus: Boolean = false,
 ) {
     Row(
         modifier =
@@ -536,6 +560,16 @@ private fun CopyableRow(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top,
     ) {
+        if (showStatus) {
+            // G8: leading tri-state dot — green = captured, red = missing.
+            Box(
+                modifier =
+                    Modifier
+                        .padding(top = 3.dp, end = DesignTokens.Spacing.s)
+                        .size(8.dp)
+                        .background(fieldStatusOf(value).color(), CircleShape),
+            )
+        }
         Text(
             label,
             style = MaterialTheme.typography.bodySmall,
