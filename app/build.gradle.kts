@@ -319,6 +319,9 @@ dependencies {
     // Tests
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
+    // G1: PagingSource load-boundary test needs androidx.paging types (feature:tracking exposes
+    // LocationPagingSource but keeps paging-common as implementation, so add it to the test classpath).
+    testImplementation(libs.paging.common)
     testImplementation(libs.kotlinx.datetime)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)

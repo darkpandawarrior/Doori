@@ -85,6 +85,7 @@ fun TrackDetailScreen(
     onOpenInsights: () -> Unit,
     onOpenMap: () -> Unit,
     onOpenHwEvents: () -> Unit,
+    onOpenRoutePoints: () -> Unit = {},
     onOpenDataPreview: () -> Unit = {},
     viewModel: TrackDetailViewModel = koinViewModel(),
     exportViewModel: ExportViewModel = koinViewModel(),
@@ -224,6 +225,11 @@ fun TrackDetailScreen(
                 Icon(Icons.Default.History, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text("Hardware events")
+            }
+            FilledTonalButton(onClick = onOpenRoutePoints, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.Place, null, Modifier.size(18.dp))
+                Spacer(Modifier.size(DesignTokens.Spacing.s))
+                Text("Route points")
             }
             FilledTonalButton(onClick = onOpenDataPreview, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Analytics, null, Modifier.size(18.dp))
