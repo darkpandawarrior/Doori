@@ -52,13 +52,23 @@ app ships to both the Play Store and F-Droid.
 |---|---|---|
 | ![Manual log-miles step 1 with location search and route preview](docs/screenshots/log_miles_step1.png) | ![Approvals pending tab with policy-violation badges](docs/screenshots/approvals_pending.png) | ![Odometer confirm sheet with on-device OCR reading](docs/screenshots/ocr.png) |
 
+### Payments, Events & Travel
+
+| Create Payment | Payments History | Create Event |
+|---|---|---|
+| ![Pay or Request form with UPI payee, amount and mode toggle](docs/screenshots/create_payment_screen.png) | ![Payments history with status tabs and UPI pay/request cards](docs/screenshots/payments_history_screen.png) | ![Create event form with title, venue, category and capacity fields](docs/screenshots/create_event_screen.png) |
+
+| Events History | Booking History | Trip History |
+|---|---|---|
+| ![Events history with status tabs and venue/attendee cards](docs/screenshots/events_history_screen.png) | ![Booking history with type tabs, status filter chips and fare cards](docs/screenshots/booking_history_screen.png) | ![Trip-request history with status tabs and route cards](docs/screenshots/trip_history_screen.png) |
+
 ### Security & Diagnostics
 
 | Root Guard — signals detected | Root Guard — clean device | Hardware Events |
 |---|---|---|
 | ![Root guard showing detected root signals in red](docs/screenshots/root_guard_detected.png) | ![Root guard confirming a clean, secure device](docs/screenshots/root_guard_clean.png) | ![Hardware events log with tracking lifecycle events and filter chips](docs/screenshots/hardware_events.png) |
 
-<sub>More captures in [`docs/screenshots/`](docs/screenshots) (44 total, covering travel bookings, payables, cards, analytics and component matrices).</sub>
+<sub>More captures in [`docs/screenshots/`](docs/screenshots) (50 total, covering travel bookings, payables, payments, events, cards, analytics and component matrices).</sub>
 
 ## Features
 
