@@ -82,8 +82,7 @@ enum class MilewayTheme(
         val DEFAULT = MATRIX
 
         /** Tolerant lookup by persisted id; falls back to [DEFAULT] for unknown / legacy values. */
-        fun fromId(id: String?): MilewayTheme =
-            entries.firstOrNull { it.id == id } ?: DEFAULT
+        fun fromId(id: String?): MilewayTheme = entries.firstOrNull { it.id == id } ?: DEFAULT
     }
 }
 

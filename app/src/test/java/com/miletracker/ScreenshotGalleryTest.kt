@@ -1096,7 +1096,7 @@ class ScreenshotGalleryTest {
     fun debugMenuScreen() {
         composeRule.setContent {
             MileTrackerTheme {
-                DebugMenuScreen(onBack = {})
+                DebugMenuScreen(onBack = {}, heapUsedMb = 128L, heapTotalMb = 512L)
             }
         }
         capture("debug_menu_screen")
@@ -1133,7 +1133,7 @@ class ScreenshotGalleryTest {
     fun loginScreen() {
         composeRule.setContent {
             MileTrackerTheme {
-                LoginScreen(onSignedIn = {})
+                LoginScreen(onSignInWithCredentials = {}, onContinueAsGuest = {})
             }
         }
         capture("login_screen")

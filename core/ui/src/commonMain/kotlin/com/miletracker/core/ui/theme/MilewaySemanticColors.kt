@@ -44,27 +44,38 @@ val LocalMilewaySemanticColors: ProvidableCompositionLocal<MilewaySemanticColors
  */
 object MilewayColors {
     val warning: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.warning
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.warning
     val danger: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.danger
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.danger
     val info: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.info
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.info
     val success: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.success
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.success
     val accentGlow: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.accentGlow
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.accentGlow
     val accentDim: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.accentDim
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.accentDim
     val border: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.border
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.border
     val surfaceRaised: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.surfaceRaised
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.surfaceRaised
     val surfaceHighest: Color
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.surfaceHighest
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.surfaceHighest
     val useGlow: Boolean
-        @Composable @ReadOnlyComposable get() = LocalMilewaySemanticColors.current.useGlow
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.useGlow
 
     /** The primary accent — convenience mirror of `MaterialTheme.colorScheme.primary`. */
     val accent: Color
-        @Composable @ReadOnlyComposable get() = MaterialTheme.colorScheme.primary
+        @Composable @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.primary
 }

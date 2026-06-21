@@ -102,7 +102,7 @@ private fun ThemeSwatchCard(
                     this.selected = isSelected
                     contentDescription =
                         "${theme.label} theme. ${theme.description}" +
-                            if (isSelected) " Selected." else ""
+                        if (isSelected) " Selected." else ""
                 }
                 .padding(DesignTokens.Spacing.m),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
