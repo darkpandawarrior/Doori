@@ -10,18 +10,6 @@ import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 import platform.Foundation.NSTemporaryDirectory
 
-/** How the current session was established. */
-enum class SessionKind { NONE, CREDENTIALS, GUEST }
-
-/** Persisted sign-in state. [isSignedIn] is true once the user has signed in (any kind). */
-data class SessionState(
-    val kind: SessionKind = SessionKind.NONE,
-    val email: String? = null,
-) {
-    val isSignedIn: Boolean get() = kind != SessionKind.NONE
-    val isGuest: Boolean get() = kind == SessionKind.GUEST
-}
-
 /** iOS mirror of the app-wide sign-in session (see the androidMain doc). */
 class SessionRepository {
     private val kindKey = stringPreferencesKey("session_kind")
