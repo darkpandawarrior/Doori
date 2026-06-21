@@ -45,7 +45,7 @@ data class LogMilesPluginConfig(
 data class ProfileConfig(
     val code: String = "EMP001",
     val name: String = "Demo User",
-    val email: String = "demo@miletracker.app",
+    val email: String = "demo@mileway.app",
     val tenant: String = "DEMO",
     val currency: String = "INR",
 )

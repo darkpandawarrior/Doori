@@ -19,7 +19,7 @@ class DemoMockDataTest {
         assertTrue(config.trackMilesV2, "trackMilesV2 should be enabled")
         assertEquals("INR", config.currency)
         assertNotNull(config.profile)
-        assertEquals("demo@miletracker.app", config.profile?.email)
+        assertEquals("demo@mileway.app", config.profile?.email)
     }
 
     @Test
