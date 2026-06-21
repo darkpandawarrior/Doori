@@ -4,10 +4,20 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Route trail leading up to the pin (the "way") -->
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M54,69 C49,78 44,80 38,81"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="7"
+        android:strokeLineCap="round" />
+    <!-- Journey start marker -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,20 L54,88 M20,54 L88,54"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="8"
-        android:strokeLineCap="round" />
+        android:pathData="M37,81 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 z" />
+    <!-- Map pin (milestone), hole punched via evenOdd -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M54,24 C63.94,24 72,32.06 72,42 C72,53 64,61 54,72 C44,61 36,53 36,42 C36,32.06 44.06,24 54,24 Z M47.5,40 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0 z" />
 </vector>
