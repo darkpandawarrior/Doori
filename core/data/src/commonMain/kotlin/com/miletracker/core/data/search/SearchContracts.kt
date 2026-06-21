@@ -16,6 +16,7 @@ enum class SearchEntityType {
     PURCHASE_REQUEST,
     ASN,
     GIN,
+    PARKING,
     CARD_TXN,
     QR,
     CLARIFICATION,

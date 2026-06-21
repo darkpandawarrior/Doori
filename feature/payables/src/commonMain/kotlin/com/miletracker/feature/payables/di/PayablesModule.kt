@@ -1,10 +1,12 @@
 package com.miletracker.feature.payables.di
 
+import com.miletracker.core.data.search.SearchProvider
 import com.miletracker.feature.payables.repository.GinRepository
 import com.miletracker.feature.payables.repository.InvoiceRepository
 import com.miletracker.feature.payables.repository.ParkingRepository
 import com.miletracker.feature.payables.repository.PayablesHistoryRepository
 import com.miletracker.feature.payables.repository.PayablesRepository
+import com.miletracker.feature.payables.search.PayablesSearchProvider
 import com.miletracker.feature.payables.viewmodel.CreateGinViewModel
 import com.miletracker.feature.payables.viewmodel.CreateInvoiceViewModel
 import com.miletracker.feature.payables.viewmodel.CreateParkingViewModel
@@ -24,6 +26,8 @@ val payablesModule =
         single { ParkingRepository() }
         // PB.4: unified payables history (Invoice/PR/GIN/ParkInOut/ASN) — also the PB.5 search source.
         single { PayablesHistoryRepository() }
+        // PB.5: payables contribution to master search (getAll<SearchProvider>() picks it up).
+        single<SearchProvider> { PayablesSearchProvider(get()) }
         viewModel { PayablesViewModel(get()) }
         viewModel { CreateInvoiceViewModel(get()) }
         viewModel { CreateGinViewModel(get()) }
