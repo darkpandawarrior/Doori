@@ -15,6 +15,11 @@ import org.koin.dsl.module
 actual fun platformModule(): Module =
     module {
         single<com.miletracker.core.platform.LocationTracker> { IosLocationTracker() }
+        // Reverse geocoding → place names. Offline-first demo binds the deterministic offline
+        // resolver (no network); IosLocationNameResolver(CLGeocoder) is the device-backed path.
+        single<com.miletracker.core.platform.LocationNameResolver> {
+            com.miletracker.core.platform.OfflineLocationNameResolver()
+        }
         single<com.miletracker.core.platform.TextRecognizer> { IosTextRecognizer() }
         single<com.miletracker.core.platform.DocumentScanner> { IosDocumentScanner() }
         single<com.miletracker.core.platform.NotificationScheduler> { IosNotificationScheduler() }

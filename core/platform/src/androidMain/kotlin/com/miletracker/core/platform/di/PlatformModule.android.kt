@@ -11,9 +11,11 @@ import com.miletracker.core.platform.AndroidTextRecognizer
 import com.miletracker.core.platform.AppShortcuts
 import com.miletracker.core.platform.BackgroundScheduler
 import com.miletracker.core.platform.Haptics
+import com.miletracker.core.platform.LocationNameResolver
 import com.miletracker.core.platform.LocationTracker
 import com.miletracker.core.platform.MotionSensorProvider
 import com.miletracker.core.platform.NotificationScheduler
+import com.miletracker.core.platform.OfflineLocationNameResolver
 import com.miletracker.core.platform.ShareSheet
 import com.miletracker.core.platform.TextRecognizer
 import org.koin.android.ext.koin.androidContext
@@ -28,6 +30,10 @@ import org.koin.dsl.module
 actual fun platformModule(): Module =
     module {
         single<LocationTracker> { AndroidLocationTracker(androidContext()) }
+        // Reverse geocoding → place names. The offline-first demo binds the deterministic offline
+        // resolver (no network) so live tracking shows real-looking Pune waypoint names; the
+        // device-backed AndroidLocationNameResolver(Geocoder) remains the production path.
+        single<LocationNameResolver> { OfflineLocationNameResolver() }
         single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
         single<TextRecognizer> { AndroidTextRecognizer() }
         single<BackgroundScheduler> { AndroidBackgroundScheduler(androidContext()) }

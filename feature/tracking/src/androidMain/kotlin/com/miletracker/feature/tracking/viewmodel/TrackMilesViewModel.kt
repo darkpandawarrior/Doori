@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.SavedTrack
 import com.miletracker.core.data.model.network.ApprovedVehicle
 import com.miletracker.core.data.model.state.TrackMilesPluginConfig
+import com.miletracker.core.platform.LocationNameResolver
+import com.miletracker.core.platform.OfflineLocationNameResolver
+import com.miletracker.core.platform.PlaceName
 import com.miletracker.core.ui.mvi.BaseViewModel
 import com.miletracker.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.miletracker.feature.tracking.manager.LocationTrackingController
@@ -62,8 +65,13 @@ data class TrackMilesUiState(
     val gpsIntervalMs: Long = 0L,
     val batteryPct: Int = -1,
     val isCharging: Boolean = false,
-    /** Human-readable current position (last fix coordinates; the demo has no geocoder). */
+    /**
+     * Human-readable current position. Resolved to a place name (e.g. "Koregaon Park, Pune") by the
+     * [LocationNameResolver] when available, falling back to formatted coordinates.
+     */
     val currentLocationLabel: String = "Waiting for location…",
+    /** Raw formatted coordinates of the last fix, shown as the muted secondary line under the name. */
+    val currentLocationCoordinates: String = "",
     val gaugeMode: HeroGaugeMode = HeroGaugeMode.COMPASS,
     val pauseReason: String? = null,
     // ── Start-flow / sheet orchestration (single-source-of-truth in the VM) ──────
@@ -96,6 +104,10 @@ class TrackMilesViewModel(
     // C.3: live feed from the foreground service. Defaulted so JVM tests can omit it; Koin injects the
     // singleton TrackingStatePublisher in production (it ignores the default).
     private val trackingServiceApi: TrackingServiceApi = TrackingStatePublisher(),
+    // Reverse geocoding → place names for the live location label. Defaulted to the offline resolver
+    // so JVM tests (and any graph that omits platformModule) still resolve real-looking names without
+    // a network; Koin injects the bound LocationNameResolver in production.
+    private val locationNameResolver: LocationNameResolver = OfflineLocationNameResolver(),
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -104,6 +116,9 @@ class TrackMilesViewModel(
     private var sessionObserveJob: Job? = null
     private var bearingObserveJob: Job? = null
     private var trackingStateObserveJob: Job? = null
+
+    /** Last reverse-geocode result, keyed by ~11 m coordinate cell, to avoid redundant lookups. */
+    private var lastResolvedCell: Pair<String, PlaceName>? = null
 
     init {
         loadConfig()
@@ -216,10 +231,34 @@ class TrackMilesViewModel(
                             points.size >= 2 -> headingBetween(points[points.size - 2], last)
                             else -> 0f
                         }
-                    val locationLabel = "%.4f, %.4f".format(last.lat, last.lng)
-                    setState { copy(bearingDegrees = bearing, currentLocationLabel = locationLabel) }
+                    // Reverse-geocode the fix to a human-readable place name (offline-safe; never
+                    // throws). Keep the formatted coordinates as the muted secondary line.
+                    val place = resolvePlaceName(last.lat, last.lng)
+                    setState {
+                        copy(
+                            bearingDegrees = bearing,
+                            currentLocationLabel = place.displayLabel,
+                            currentLocationCoordinates = place.coordinates,
+                        )
+                    }
                 }
                 .launchIn(viewModelScope)
+    }
+
+    /**
+     * Resolve a fix to a [PlaceName], suppressing repeat lookups for coordinates that round to the
+     * same ~11 m cell so a dense GPS feed doesn't re-geocode every fix. Falls back to coordinates on
+     * any failure (the resolver itself never throws).
+     */
+    private suspend fun resolvePlaceName(
+        lat: Double,
+        lng: Double,
+    ): PlaceName {
+        val cellKey = "${(lat * 10_000).toLong()}:${(lng * 10_000).toLong()}"
+        lastResolvedCell?.let { (key, cached) -> if (key == cellKey) return cached }
+        val resolved = locationNameResolver.resolve(lat, lng)
+        lastResolvedCell = cellKey to resolved
+        return resolved
     }
 
     private fun loadConfig() {

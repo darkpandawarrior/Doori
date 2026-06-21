@@ -28,6 +28,62 @@ interface LocationTracker {
     fun stop()
 }
 
+/**
+ * Resolves a coordinate to a short, human-readable place name (reverse geocoding).
+ *
+ * Implementations run off the main thread and must **never** throw: an unresolved coordinate
+ * (no geocoder, no network, no match, or an error) resolves to a [PlaceName] whose [PlaceName.name]
+ * is `null`, so callers always have the formatted [PlaceName.coordinates] fallback to fall back on.
+ *
+ * - Android: `Geocoder` (async `GeocodeListener` on API 33+, blocking on `Dispatchers.IO` below).
+ * - iOS: `CLGeocoder` (or a coords-only stub where reverse geocoding is unavailable).
+ * - Offline demo: a deterministic resolver maps the simulated route's coordinates to plausible
+ *   named waypoints so live tracking shows real-looking names with no network.
+ */
+interface LocationNameResolver {
+    /** Resolve [latitude]/[longitude] to a [PlaceName]; suspends, never throws. */
+    suspend fun resolve(
+        latitude: Double,
+        longitude: Double,
+    ): PlaceName
+}
+
+/**
+ * The outcome of a reverse-geocode lookup.
+ *
+ * @param name a short place label (e.g. "Koregaon Park, Pune"), or `null` when unresolved.
+ * @param coordinates the formatted `lat, lng` fallback line, always present.
+ */
+data class PlaceName(
+    val name: String?,
+    val coordinates: String,
+) {
+    /** The best single line to show: the resolved [name] when available, else the [coordinates]. */
+    val displayLabel: String get() = name ?: coordinates
+
+    companion object {
+        /** Format a coordinate pair to the canonical `18.5207, 73.8570` fallback string. */
+        fun formatCoordinates(
+            latitude: Double,
+            longitude: Double,
+        ): String {
+            fun fmt(v: Double): String {
+                val scaled = kotlin.math.round(v * 10_000.0) / 10_000.0
+                val whole = scaled.toLong()
+                val frac = kotlin.math.abs(kotlin.math.round((scaled - whole) * 10_000.0).toLong())
+                return "$whole.${frac.toString().padStart(4, '0')}"
+            }
+            return "${fmt(latitude)}, ${fmt(longitude)}"
+        }
+
+        /** Convenience for an unresolved lookup: name `null`, coordinates formatted. */
+        fun coordinatesOnly(
+            latitude: Double,
+            longitude: Double,
+        ): PlaceName = PlaceName(name = null, coordinates = formatCoordinates(latitude, longitude))
+    }
+}
+
 /** OCR text recognition from raw image bytes. Android: ML Kit; iOS: Vision (VNRecognizeTextRequest). */
 interface TextRecognizer {
     suspend fun recognize(imageBytes: ByteArray): String
