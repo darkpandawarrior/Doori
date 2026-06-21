@@ -69,7 +69,7 @@ data class FilterSection(
 )
 
 /**
- * Reusable drill-down filter sheet (migrated Dice archetype). The Main screen lists each [FilterSection]
+ * Reusable drill-down filter sheet. The Main screen lists each [FilterSection]
  * with its current selection count; tapping one slides ([AnimatedContent]) into that section's option list
  * (single = radio, multi = checkbox). Selections are *staged* locally and only handed to [onApply] when the
  * user presses Apply (apply-on-confirm), so dismissing discards. Generic over string keys, so any screen can

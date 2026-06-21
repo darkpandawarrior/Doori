@@ -27,7 +27,7 @@ data class SortOption<T>(
 )
 
 /**
- * Single-select sort sheet (migrated Dice archetype). A leading icon + label per option with a trailing
+ * Single-select sort sheet. A leading icon + label per option with a trailing
  * check on the active one; tapping a row selects it and dismisses. Generic over the caller's sort key [T],
  * so any list screen can drive its own sort enum through it. Built on [AppActionSheet] for the shared
  * modal chrome.

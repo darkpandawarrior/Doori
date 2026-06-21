@@ -43,12 +43,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
 /**
- * Tone for [ActionConfirmationBottomSheet] (migrated from Dice's ActionConfirmationToneType). Drives the
+ * Tone for [ActionConfirmationBottomSheet]. Drives the
  * header icon + the confirm-button colour so confirmations read consistently across the app.
  */
 enum class ActionConfirmationToneType { Success, Danger, Warning, Info }
 
-/** Resolved colours + icon for a [ActionConfirmationToneType] (Dice's rememberTonePalette). */
+/** Resolved colours + icon for a [ActionConfirmationToneType]. */
 data class ActionConfirmationTonePalette(
     val icon: ImageVector,
     val primaryColor: Color,
@@ -72,7 +72,7 @@ fun rememberTonePalette(tone: ActionConfirmationToneType): ActionConfirmationTon
 }
 
 /**
- * Canonical confirmation bottom sheet (migrated from Dice). Tone-aware icon header, centered title +
+ * Canonical confirmation bottom sheet. Tone-aware icon header, centered title +
  * description, an optional (mandatory-capable) remarks field, an optional extra [content] slot, and a
  * primary/secondary button pair. Replaces confirmation `AlertDialog`s app-wide.
  *
@@ -203,7 +203,7 @@ fun ActionConfirmationBottomSheet(
 /** Bulk action verbs for [BulkActionConfirmationBottomSheet] / [BulkActionProgressBottomSheet]. */
 enum class BulkActionType { Approve, Decline, Hold, Unhold }
 
-/** Confirmation for a multi-select bulk operation (migrated from Dice). */
+/** Confirmation for a multi-select bulk operation. */
 @Composable
 fun BulkActionConfirmationBottomSheet(
     actionType: BulkActionType,
@@ -239,7 +239,7 @@ fun BulkActionConfirmationBottomSheet(
     )
 }
 
-/** Live progress for a running bulk operation (migrated from Dice). */
+/** Live progress for a running bulk operation. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BulkActionProgressBottomSheet(

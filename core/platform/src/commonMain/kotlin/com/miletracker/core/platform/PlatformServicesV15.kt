@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.Flow
 /** How an available update should be applied. */
 enum class UpdateMode { FORCED, FLEXIBLE }
 
-/** Demo-overridable gate config for the in-app update flow (mirrors Dice Splash-API fields). */
+/** Demo-overridable gate config for the in-app update flow (mirrors a remote splash/config API). */
 data class UpdateConfig(
     val enabled: Boolean = false,
     val mode: UpdateMode = UpdateMode.FLEXIBLE,

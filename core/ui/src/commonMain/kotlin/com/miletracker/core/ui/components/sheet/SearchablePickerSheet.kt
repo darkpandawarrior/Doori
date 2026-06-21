@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 /**
- * Reusable searchable-picker scaffold (migrated Dice picker/selector archetype): a modal sheet with a title
+ * Reusable searchable-picker scaffold: a modal sheet with a title
  * and a search field, that hands the caller the live [query] and the synchronously-[filter]ed items to lay
  * out however it likes (a list, a grid, sections, …) via [results]. Replaces the bespoke modal+search+filter
  * boilerplate every picker re-implemented (e.g. VehiclePickerSheet). Generic over the item type [T].

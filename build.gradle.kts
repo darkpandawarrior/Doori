@@ -78,7 +78,7 @@ doctor {
 }
 
 // --------------------------------------------------------------------------
-// Workflow task aliases — mirrors the production Dice app conventions
+// Workflow task aliases — convenience entry points for the local dev loop
 // --------------------------------------------------------------------------
 tasks.register("devBuild") {
     description = "Clean + debug APK + unit tests — full local dev loop."

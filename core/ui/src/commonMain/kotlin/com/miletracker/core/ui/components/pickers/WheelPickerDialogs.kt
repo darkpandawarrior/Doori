@@ -36,7 +36,7 @@ private fun LocalDate.toEpochMillis(): Long = atStartOfDayIn(systemTz).toEpochMi
  * A spinning-WHEEL date picker in a modal bottom sheet (multiplatform — Android + iOS), backed by
  * darkokoa/datetime-wheel-picker. Drop-in replacement for the Material3 dial/calendar date dialog;
  * the public signature is unchanged so existing call sites keep working (project convention is bottom
- * sheets over dialogs — matches Dice's WheelDatePickerBottomSheet).
+ * sheets over dialogs).
  */
 @Composable
 fun WheelDatePickerDialog(

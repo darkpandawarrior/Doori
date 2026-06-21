@@ -12,8 +12,8 @@ import com.miletracker.feature.cards.model.CardTypeModel
 import kotlin.time.Clock
 
 /**
- * Q.2 — offline mock data for the cards feature (no network; ported from the Dice CardsMockDataProvider
- * family). One [CardsMockData] builder is parameterized by a localized [CardsStrings] bundle, so EN/AR/HI
+ * Q.2 — offline mock data for the cards feature (no network).
+ * One [CardsMockData] builder is parameterized by a localized [CardsStrings] bundle, so EN/AR/HI
  * share the same deterministic structure. The [CardsMockDataProviderFactory] picks the bundle by locale.
  */
 interface CardsMockDataProvider {
@@ -179,7 +179,7 @@ internal class CardsMockData(private val s: CardsStrings) : CardsMockDataProvide
         )
 }
 
-/** EN / AR / HI mock provider selector (replaces the Dice CardsMockDataProviderFactory). */
+/** EN / AR / HI mock provider selector. */
 object CardsMockDataProviderFactory {
     fun provider(localeTag: String = currentLocaleTag()): CardsMockDataProvider =
         when (localeTag.lowercase().take(2)) {

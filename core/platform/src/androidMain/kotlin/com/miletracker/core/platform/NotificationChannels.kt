@@ -6,7 +6,7 @@ import android.content.Context
 import android.os.Build
 
 /**
- * FCM.3 — centralized notification channels (ported from Dice's multi-channel model). Created once and
+ * FCM.3 — centralized notification channels (multi-channel model). Created once and
  * referenced by [AndroidNotificationScheduler] and the FCM service so every notification lands on a
  * consistent, user-controllable channel.
  */

@@ -6,8 +6,8 @@
 
 ### Offline-first mileage, travel &amp; expense tracking — in Kotlin &amp; Compose Multiplatform.
 
-A standalone, **fully-offline** demo that distils the location-engineering, offline-first, and
-multi-module architecture patterns behind a production app serving **50k+ MAU**.
+A standalone, **fully-offline** app showcasing location-engineering, offline-first, and
+multi-module architecture patterns in Kotlin / Compose Multiplatform.
 Every screen runs on deterministic mock data, with **zero backend calls**.
 
 [![CI](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml)
@@ -45,20 +45,19 @@ Every screen runs on deterministic mock data, with **zero backend calls**.
 
 ## Why Mileway
 
-Mileway extracts a real, entangled mileage-tracking feature out of a large production codebase and
-stands it up as a clean, **self-contained, offline-first** app. It works end-to-end in airplane
-mode — trips are tracked, expenses logged, approvals routed — and data survives a restart, all
-without a single network dependency in tracked code.
+Mileway is a clean, **self-contained, offline-first** mileage tracker. It works end-to-end in
+airplane mode — trips are tracked, expenses logged, approvals routed — and data survives a restart,
+all without a single network dependency in tracked code.
 
-It doubles as a working reference for the patterns I use at scale: **Kotlin / Compose
+It doubles as a working reference for modern Android / KMP patterns: **Kotlin / Compose
 Multiplatform**, a **multi-module clean architecture** (23 Gradle modules), **MVI-style
 unidirectional state**, **Koin** DI, **Room (KMP)** + **DataStore**, and a dual **`gms` / `noGms`**
 flavor split so the same app ships to both the Play Store and F-Droid.
 
 ## Highlights
 
-- 🛰️ **Real location engineering** — a tracking pipeline that lifted GPS accuracy ~50% → ~95% in
-  production: jitter suppression, spike detection, four-bucket distance accounting, and IMU fusion.
+- 🛰️ **Real location engineering** — a tracking pipeline engineered to suppress GPS jitter and
+  recover from spikes: spike detection, four-bucket distance accounting, and IMU fusion.
 - 📴 **Genuinely offline** — no backend URLs, no API keys, no network calls in tracked code. Runs in
   airplane mode; state persists via Room + DataStore.
 - 🧩 **23-module clean architecture** — feature modules never touch each other; they meet only at the
@@ -319,7 +318,7 @@ roadmap reflects direction rather than commitments.
 
 **In progress**
 
-- [ ] iOS **UI** parity — core modules compile to a framework today; feature screens are migrating
+- [ ] iOS **UI** parity — core modules compile to a framework today; feature screens are moving
       from `androidMain` into `commonMain`
 - [ ] Expand the screenshot catalog to cover every screen (payments / events / history added)
 - [ ] Master-search results UI polish
@@ -342,7 +341,7 @@ roadmap reflects direction rather than commitments.
 
 ## The location engine
 
-The tracking pipeline (GPS accuracy improved from ~50% → ~95% in production):
+The tracking pipeline is engineered to suppress jitter and recover from GPS spikes:
 
 - **Jitter suppression** — stationary drift is filtered while the anchor point is preserved.
 - **Spike detection** — an implied-speed check flags teleporting fixes without discarding them.
