@@ -3,6 +3,7 @@ package com.miletracker
 import com.miletracker.core.ui.theme.AccentPalette
 import com.miletracker.core.ui.theme.AppLanguage
 import com.miletracker.core.ui.theme.ExperimentalFlags
+import com.miletracker.core.ui.theme.MilewayTheme
 import com.miletracker.core.ui.theme.ThemeController
 import com.miletracker.core.ui.theme.ThemeDefaults
 import com.miletracker.core.ui.theme.parseHexColor
@@ -334,5 +335,109 @@ class CustomizationSettingsTest {
         tc.resetCustomization()
         assertEquals(true, tc.darkThemeOverride.value,
             "Dark theme override is separate from customization reset")
+    }
+
+    // =========================================================================
+    // 5. Design Language v2 — curated MilewayTheme picker
+    // =========================================================================
+
+    @Test
+    fun `default curated theme is Matrix`() {
+        val tc = controller()
+        assertEquals(MilewayTheme.MATRIX, tc.milewayTheme.value)
+        assertEquals(MilewayTheme.MATRIX, MilewayTheme.DEFAULT)
+    }
+
+    @Test
+    fun `setMilewayTheme round-trips through the controller`() {
+        val tc = controller()
+        tc.setMilewayTheme(MilewayTheme.ION)
+        assertEquals(MilewayTheme.ION, tc.milewayTheme.value)
+    }
+
+    @Test
+    fun `selecting a curated theme clears any custom seed so it applies`() {
+        val tc = controller()
+        tc.setCustomSeed("#A1B2C3")
+        assertEquals("#A1B2C3", tc.customSeedHex.value)
+        tc.setMilewayTheme(MilewayTheme.AMOLED)
+        // A custom seed otherwise wins in MileTrackerTheme; picking a theme must clear it.
+        assertEquals(ThemeDefaults.CUSTOM_THEME, tc.customSeedHex.value)
+    }
+
+    @Test
+    fun `ViewModel setMilewayTheme delegates to ThemeController`() {
+        val tc = controller()
+        val vm = viewModel(tc)
+        vm.setMilewayTheme(MilewayTheme.DAYBREAK)
+        assertEquals(MilewayTheme.DAYBREAK, tc.milewayTheme.value)
+        assertEquals(MilewayTheme.DAYBREAK, vm.milewayTheme.value)
+    }
+
+    @Test
+    fun `fromId tolerates unknown and null ids by falling back to Matrix`() {
+        assertEquals(MilewayTheme.MATRIX, MilewayTheme.fromId(null))
+        assertEquals(MilewayTheme.MATRIX, MilewayTheme.fromId("LEGACY_UNKNOWN"))
+        assertEquals(MilewayTheme.ION, MilewayTheme.fromId("ION"))
+    }
+
+    @Test
+    fun `resetCustomization restores the curated theme to Matrix`() {
+        val tc = controller()
+        tc.setMilewayTheme(MilewayTheme.DAYBREAK)
+        tc.resetCustomization()
+        assertEquals(MilewayTheme.MATRIX, tc.milewayTheme.value)
+    }
+
+    @Test
+    fun `every curated theme has a stable id, non-blank label and description`() {
+        MilewayTheme.entries.forEach { theme ->
+            assertTrue(theme.id.isNotBlank(), "${theme.name}: id must be non-blank")
+            assertTrue(theme.label.isNotBlank(), "${theme.name}: label must be non-blank")
+            assertTrue(theme.description.isNotBlank(), "${theme.name}: description must be non-blank")
+            assertEquals(theme, MilewayTheme.fromId(theme.id),
+                "${theme.name}: id must round-trip through fromId")
+        }
+    }
+
+    @Test
+    fun `curated theme ids are unique`() {
+        val ids = MilewayTheme.entries.map { it.id }
+        assertEquals(ids.size, ids.toSet().size, "Each MilewayTheme must have a unique id")
+    }
+
+    @Test
+    fun `only Daybreak is the light scheme`() {
+        assertTrue(MilewayTheme.DAYBREAK.isLight)
+        assertFalse(MilewayTheme.MATRIX.isLight)
+        assertFalse(MilewayTheme.AMOLED.isLight)
+        assertFalse(MilewayTheme.ION.isLight)
+    }
+
+    @Test
+    fun `dark schemes use glow and the light scheme does not`() {
+        assertTrue(MilewayTheme.MATRIX.spec.useGlow)
+        assertTrue(MilewayTheme.AMOLED.spec.useGlow)
+        assertTrue(MilewayTheme.ION.spec.useGlow)
+        assertFalse(MilewayTheme.DAYBREAK.spec.useGlow,
+            "Light scheme is shadow-free / elevation-by-tint, so no glow")
+    }
+
+    @Test
+    fun `every curated theme builds a Material ColorScheme with its accent as primary`() {
+        MilewayTheme.entries.forEach { theme ->
+            val scheme = theme.colorScheme()
+            assertEquals(theme.spec.accent, scheme.primary,
+                "${theme.name}: primary must be the hand-tuned accent")
+            assertEquals(theme.spec.canvas, scheme.background,
+                "${theme.name}: background must be the canvas token")
+        }
+    }
+
+    @Test
+    fun `Amoled canvas is true black and Daybreak canvas is light`() {
+        // True-black OLED canvas; the light scheme's canvas is near-white.
+        assertEquals(androidx.compose.ui.graphics.Color(0xFF000000), MilewayTheme.AMOLED.spec.canvas)
+        assertEquals(androidx.compose.ui.graphics.Color(0xFFF4F7F4), MilewayTheme.DAYBREAK.spec.canvas)
     }
 }

@@ -30,7 +30,9 @@ import com.miletracker.feature.tracking.service.location.TrackingSensorMonitor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -71,6 +73,12 @@ class LocationTrackingService : Service() {
     private var isPaused: Boolean = false
     private var startCoordsWritten = false
 
+    // A.2: watchdog that falls back to the simulated drive source if the real GPS provider never
+    // delivers a fix (no hardware fix / permission edge / indoors), so the UI never stalls on
+    // "Waiting for location…". Cancelled the moment the first real fix lands.
+    private var firstFixSeen = false
+    private var fixWatchdogJob: Job? = null
+
     companion object {
         const val EXTRA_TOKEN = "token"
         const val ACTION_START = "action_start"
@@ -83,6 +91,13 @@ class LocationTrackingService : Service() {
 
         /** Demo flag: drive the pipeline from a simulated route (no GPS hardware required). */
         const val SIMULATE_LOCATION = true
+
+        /**
+         * A.2: if the real GPS provider hasn't produced a single fix within this window, fall back
+         * to the deterministic simulated drive so distance/duration/speed advance regardless of
+         * hardware. Inert when [SIMULATE_LOCATION] is on (already simulated from the start).
+         */
+        const val FIRST_FIX_TIMEOUT_MS = 6_000L
     }
 
     override fun onCreate() {
@@ -193,8 +208,32 @@ class LocationTrackingService : Service() {
             )
         }
 
+        firstFixSeen = false
         source = if (SIMULATE_LOCATION) SimulatedLocationSource() else FusedLocationSource(this)
         source?.start { fix -> onFix(token, fix) }
+        // A.2: arm the no-fix watchdog for the real-GPS path only.
+        if (!SIMULATE_LOCATION) armFirstFixWatchdog(token)
+    }
+
+    /**
+     * If no real fix lands within [FIRST_FIX_TIMEOUT_MS], swap the live source for a
+     * [SimulatedLocationSource] so the tracking UI advances instead of stalling on
+     * "Waiting for location…". Self-cancels as soon as the first real fix arrives.
+     */
+    private fun armFirstFixWatchdog(token: String) {
+        fixWatchdogJob?.cancel()
+        fixWatchdogJob =
+            scope.launch {
+                delay(FIRST_FIX_TIMEOUT_MS)
+                if (firstFixSeen || activeToken != token) return@launch
+                withContext(Dispatchers.Main) {
+                    if (firstFixSeen || activeToken != token) return@withContext
+                    source?.stop()
+                    source = SimulatedLocationSource()
+                    source?.start { fix -> onFix(token, fix) }
+                    logEvent(token, EventType.TRACKING_STARTED, "No GPS fix — using simulated drive")
+                }
+            }
     }
 
     /**
@@ -217,6 +256,11 @@ class LocationTrackingService : Service() {
         token: String,
         fix: GpsFix,
     ) {
+        // A.2: the first fix (real or simulated) disarms the no-fix watchdog.
+        if (!firstFixSeen) {
+            firstFixSeen = true
+            fixWatchdogJob?.cancel()
+        }
         val proc = processor ?: return
         val result = proc.process(fix, isPaused, sensorMonitor.snapshot) ?: return // jitter-suppressed
         val battery = batteryPercent()
@@ -305,6 +349,7 @@ class LocationTrackingService : Service() {
     private fun stopAndFinalize() {
         val token = activeToken
         val proc = processor
+        fixWatchdogJob?.cancel()
         source?.stop()
         sensorMonitor.stop()
         statePublisher.update { it.copy(state = TrackingState.COMPLETED, lastEvent = EventType.TRACKING_STOPPED) }

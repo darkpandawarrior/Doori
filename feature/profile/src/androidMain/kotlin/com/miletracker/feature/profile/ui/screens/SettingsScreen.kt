@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.miletracker.core.ui.components.dialog.ColorWheelDialog
+import com.miletracker.core.ui.components.theme.MilewayThemePicker
 import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 import com.miletracker.core.ui.components.sheet.AppActionSheet
@@ -91,6 +92,7 @@ fun SettingsScreen(
     val useMiles by viewModel.useMiles.collectAsStateWithLifecycle()
     val notificationsEnabled by viewModel.notificationsEnabled.collectAsStateWithLifecycle()
     val profile by viewModel.uiState.collectAsStateWithLifecycle()
+    val milewayTheme by viewModel.milewayTheme.collectAsStateWithLifecycle()
     val accentPalette by viewModel.accentPalette.collectAsStateWithLifecycle()
     val customSeedHex by viewModel.customSeedHex.collectAsStateWithLifecycle()
     val useSystemColors by viewModel.useSystemColors.collectAsStateWithLifecycle()
@@ -163,13 +165,18 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
             SettingsSectionLabel("Preferences")
+            // The curated theme dictates light/dark (e.g. Daybreak is light, Matrix is dark), so the
+            // manual override is superseded while one is active — surface that instead of a no-op switch.
             ListItem(
                 headlineContent = { Text("Dark theme") },
-                supportingContent = { Text("Override the system theme") },
+                supportingContent = {
+                    Text("Set by the “${milewayTheme.label}” theme — change it above")
+                },
                 trailingContent = {
                     Switch(
-                        checked = darkOverride ?: systemDark,
-                        onCheckedChange = { viewModel.setDarkTheme(it) },
+                        checked = !milewayTheme.isLight,
+                        enabled = false,
+                        onCheckedChange = {},
                     )
                 },
             )
@@ -201,7 +208,31 @@ fun SettingsScreen(
             // ----------------------------------------------------------------
             SettingsSectionLabel("Customization")
 
-            // Theme colour, preset seed the whole scheme is generated from
+            // Design Language v2 — curated theme gallery (Matrix / Amoled / Ion / Daybreak).
+            // Self-previewing swatches; picking one applies the hand-tuned, AA-verified scheme.
+            Text(
+                text = "Theme",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier =
+                    Modifier.padding(
+                        start = DesignTokens.Spacing.l,
+                        end = DesignTokens.Spacing.l,
+                        top = DesignTokens.Spacing.s,
+                        bottom = DesignTokens.Spacing.xs,
+                    ),
+            )
+            MilewayThemePicker(
+                selected = milewayTheme,
+                onSelect = { viewModel.setMilewayTheme(it) },
+                modifier =
+                    Modifier.padding(
+                        horizontal = DesignTokens.Spacing.l,
+                        vertical = DesignTokens.Spacing.xs,
+                    ),
+            )
+
+            // Theme colour — preset seed the whole scheme is generated from
             ListItem(
                 headlineContent = { Text("Theme color") },
                 supportingContent = {

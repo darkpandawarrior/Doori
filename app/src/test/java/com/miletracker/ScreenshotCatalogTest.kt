@@ -5,6 +5,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.miletracker.core.ui.previews.PreviewThemePickerAmoled
+import com.miletracker.core.ui.previews.PreviewThemePickerDaybreak
+import com.miletracker.core.ui.previews.PreviewThemePickerIon
+import com.miletracker.core.ui.previews.PreviewThemePickerMatrix
 import com.miletracker.feature.approvals.ui.previews.PreviewApprovalItemApproved
 import com.miletracker.feature.approvals.ui.previews.PreviewApprovalItemPending
 import com.miletracker.feature.approvals.ui.previews.PreviewApprovalItemRejected
@@ -194,6 +198,32 @@ class ScreenshotCatalogTest {
     fun search_masterSearch_empty() {
         composeRule.setContent { PreviewMasterSearchEmpty() }
         capture("search_masterSearch_empty")
+    }
+
+    // ── core:ui — Design Language v2 theme picker (one per curated scheme) ─────
+
+    @Test
+    fun theme_picker_matrix() {
+        composeRule.setContent { PreviewThemePickerMatrix() }
+        capture("theme_picker_matrix")
+    }
+
+    @Test
+    fun theme_picker_amoled() {
+        composeRule.setContent { PreviewThemePickerAmoled() }
+        capture("theme_picker_amoled")
+    }
+
+    @Test
+    fun theme_picker_ion() {
+        composeRule.setContent { PreviewThemePickerIon() }
+        capture("theme_picker_ion")
+    }
+
+    @Test
+    fun theme_picker_daybreak() {
+        composeRule.setContent { PreviewThemePickerDaybreak() }
+        capture("theme_picker_daybreak")
     }
 
     companion object {

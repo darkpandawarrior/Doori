@@ -257,7 +257,7 @@ fun HelpScreen(onBack: () -> Unit) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Button(
-                        onClick = { scope.launch { snackbarHostState.showSnackbar("Email sent to support@miletracker.app") } },
+                        onClick = { scope.launch { snackbarHostState.showSnackbar("Email sent to support@mileway.app") } },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(18.dp))
