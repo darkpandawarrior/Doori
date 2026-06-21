@@ -81,6 +81,7 @@ import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import com.miletracker.core.ui.components.sheet.AppActionSheet
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.agent.model.AgentMessage
 import com.miletracker.feature.agent.model.PopularQuestion
 import com.miletracker.feature.agent.model.UnansweredQuestion
@@ -596,7 +597,7 @@ private fun PopularTab(
                         trailingContent = {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 if (question.isTrending) {
-                                    Badge(containerColor = Color(0xFFFFA000)) {
+                                    Badge(containerColor = MilewayColors.warning) {
                                         Text("Trending", style = MaterialTheme.typography.labelSmall, color = Color.White)
                                     }
                                 }
@@ -631,7 +632,7 @@ private fun UnansweredTab(
                 trailingContent = {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         if (question.askCount > 3) {
-                            Box(modifier = Modifier.size(8.dp).background(Color(0xFFEF5350), CircleShape))
+                            Box(modifier = Modifier.size(8.dp).background(MilewayColors.danger, CircleShape))
                         }
                         Text("${question.askCount} asked", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
                     }

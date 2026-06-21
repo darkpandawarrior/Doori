@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.cards.model.CardModel
 
 /**
@@ -63,7 +64,7 @@ fun CardFace(
             color = Color.White,
             fontWeight = FontWeight.Medium,
             letterSpacing = 2.sp,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.dataStyle(),
         )
 
         Row(
@@ -72,7 +73,7 @@ fun CardFace(
             verticalAlignment = Alignment.Bottom,
         ) {
             LabelledValue("CARD HOLDER", card.cardHolderName)
-            LabelledValue("VALID THRU", card.validThru)
+            LabelledValue("VALID THRU", card.validThru, isData = true)
             Text(
                 text = card.scheme,
                 color = Color.White,
@@ -87,6 +88,7 @@ fun CardFace(
 private fun LabelledValue(
     label: String,
     value: String,
+    isData: Boolean = false,
 ) {
     Column {
         Text(
@@ -97,7 +99,7 @@ private fun LabelledValue(
         Text(
             text = value,
             color = Color.White,
-            style = MaterialTheme.typography.bodyMedium,
+            style = if (isData) MaterialTheme.typography.bodyMedium.dataStyle() else MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
         )
     }

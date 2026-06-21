@@ -26,13 +26,38 @@ val MileTrackerTypography =
     )
 
 /**
- * Design Language v2: the monospace family used for **all numeric / data readouts** —
- * distance, speed, duration, amounts, codes. [FontFamily.Monospace] resolves to the platform
- * mono face (no bundled font asset / dependency) and gives the tabular, "matrix" data feel:
- * fixed-width glyphs so digits don't jitter as values tick during live tracking.
+ * Design Language v2 — "mono for data".
  *
- * Use [MilewayType.dataLarge] / [dataMedium] / [dataSmall] for hero counters and inline stats,
- * or [MilewayType.mono] to monospace any existing [TextStyle] (e.g. a Material role) in place.
+ * Numeric readouts (distance, speed, duration, amounts, codes/IDs) use a monospaced family so
+ * digits are tabular: figures share a fixed advance width, columns line up and a live-updating
+ * value (an odometer, a timer) doesn't jitter as digits change.
+ *
+ * Two ergonomics are offered, both backed by [FontFamily.Monospace] (no bundled font asset /
+ * dependency — multiplatform-safe, same choice the colour-wheel hex field makes):
+ *  - [MilewayMono] + [TextStyle.dataStyle] — the lightweight "derive a mono variant from any
+ *    Material role" path used across the per-screen sweep:
+ *    `Text(value, style = MaterialTheme.typography.titleMedium.dataStyle())`.
+ *  - [MilewayType] — fixed-size presets ([dataLarge] / [dataMedium] / [dataSmall]) plus [mono]
+ *    for hero counters and inline stats that want an explicit size rather than a Material role.
+ */
+val MilewayMono: TextStyle =
+    TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.sp,
+    )
+
+/**
+ * Returns this style re-cast in the monospaced "data" family while keeping its size, line height
+ * and weight. Use for any numeric value the user reads as data:
+ * `Text(value, style = MaterialTheme.typography.titleMedium.dataStyle())`.
+ */
+fun TextStyle.dataStyle(): TextStyle =
+    copy(fontFamily = FontFamily.Monospace, letterSpacing = 0.sp)
+
+/**
+ * Fixed-size mono presets for hero counters and inline stats that want an explicit size rather
+ * than deriving from a Material role via [dataStyle]. Same monospace family as [MilewayMono].
  */
 object MilewayType {
     val MonoFamily: FontFamily = FontFamily.Monospace

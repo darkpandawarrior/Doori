@@ -22,17 +22,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.theme.MilewayColors
 
-/** Icon + accent colour for each [ToastType]. */
-private fun ToastType.iconAndTint(): Pair<ImageVector, Color> =
+/** Icon for each [ToastType]. */
+private fun ToastType.icon(): ImageVector =
     when (this) {
-        ToastType.Success -> Icons.Filled.CheckCircle to Color(0xFF2E7D32)
-        ToastType.Error -> Icons.Filled.Error to Color(0xFFC62828)
-        ToastType.Info -> Icons.Filled.Info to Color(0xFF1565C0)
-        ToastType.Warning -> Icons.Filled.Warning to Color(0xFFEF6C00)
+        ToastType.Success -> Icons.Filled.CheckCircle
+        ToastType.Error -> Icons.Filled.Error
+        ToastType.Info -> Icons.Filled.Info
+        ToastType.Warning -> Icons.Filled.Warning
+    }
+
+/** Theme-aware accent tint for each [ToastType]. */
+@Composable
+@ReadOnlyComposable
+private fun ToastType.tint(): Color =
+    when (this) {
+        ToastType.Success -> MilewayColors.success
+        ToastType.Error -> MilewayColors.danger
+        ToastType.Info -> MilewayColors.info
+        ToastType.Warning -> MilewayColors.warning
     }
 
 /**
@@ -47,7 +60,8 @@ fun AppToast(
     onSecondary: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val (icon, tint) = data.type.iconAndTint()
+    val icon = data.type.icon()
+    val tint = data.type.tint()
     Card(
         modifier = modifier.fillMaxWidth().padding(16.dp),
         shape = MaterialTheme.shapes.large,

@@ -68,6 +68,8 @@ import com.miletracker.core.ui.components.LoadingScreen
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.ui.components.ExportOptionsDialog
 import com.miletracker.feature.tracking.viewmodel.ExportAction
 import com.miletracker.feature.tracking.viewmodel.ExportViewModel
@@ -258,11 +260,11 @@ private fun DetailSummaryCard(
                 if (health != null) {
                     val healthColor =
                         when (health) {
-                            HealthLevel.EXCELLENT -> Color(0xFF2E7D32)
-                            HealthLevel.GOOD -> Color(0xFF558B2F)
-                            HealthLevel.FAIR -> Color(0xFFF9A825)
-                            HealthLevel.POOR -> Color(0xFFE65100)
-                            HealthLevel.CRITICAL -> Color(0xFFC62828)
+                            HealthLevel.EXCELLENT -> MilewayColors.success
+                            HealthLevel.GOOD -> MilewayColors.success
+                            HealthLevel.FAIR -> MilewayColors.warning
+                            HealthLevel.POOR -> MilewayColors.warning
+                            HealthLevel.CRITICAL -> MilewayColors.danger
                         }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -286,7 +288,7 @@ private fun DetailSummaryCard(
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = track.getFormattedDistance(),
-                    style = MaterialTheme.typography.displaySmall,
+                    style = MaterialTheme.typography.displaySmall.dataStyle(),
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                 )

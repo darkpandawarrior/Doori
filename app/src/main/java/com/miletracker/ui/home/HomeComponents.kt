@@ -43,6 +43,8 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.FactCheck
+import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Notifications
@@ -59,6 +61,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -86,6 +89,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -93,6 +98,8 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.components.AutoSizeGreeting
 import com.miletracker.core.ui.components.CountBadge
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.stub.ActionRequiredBanner
 import com.miletracker.stub.AtAGlanceCounts
 import com.miletracker.stub.MarketingCarouselItem
@@ -661,7 +668,7 @@ fun AtAGlanceRowView(
     ) {
         Text(
             text = row.count.toString(),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineSmall.dataStyle(),
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.width(56.dp),
@@ -791,11 +798,14 @@ fun AnimatedBannerStrip(
     isTrackingActive: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
-    val banners = remember(isTrackingActive) {
+    val successTone = MilewayColors.success
+    val warningTone = MilewayColors.warning
+    val infoTone = MilewayColors.info
+    val banners = remember(isTrackingActive, successTone, warningTone, infoTone) {
         buildList {
-            if (isTrackingActive) add(BannerSpec(Icons.Filled.RadioButtonChecked, "Tracking active · 4.2 km · 00:18:32", Color(0xFF00695C)))
-            add(BannerSpec(Icons.Filled.NotificationImportant, "3 items need your attention", Color(0xFFF57C00)))
-            add(BannerSpec(Icons.Filled.Info, "Submit your Oct expenses before 31st Nov.", Color(0xFF1565C0), dismissible = true))
+            if (isTrackingActive) add(BannerSpec(Icons.Filled.RadioButtonChecked, "Tracking active · 4.2 km · 00:18:32", successTone))
+            add(BannerSpec(Icons.Filled.NotificationImportant, "3 items need your attention", warningTone))
+            add(BannerSpec(Icons.Filled.Info, "Submit your Oct expenses before 31st Nov.", infoTone, dismissible = true))
         }
     }
     var currentIndex by remember { mutableIntStateOf(0) }
@@ -854,37 +864,66 @@ fun AnimatedBannerStrip(
 // Phase O, At A Glance 2×2 grid
 // =============================================================================
 
-private data class GlanceCell(val count: Int, val label: String, val color: Color)
+/**
+ * One "At A Glance" cell. [destinationLabel] names where a tap goes (surfaced in the cell and
+ * the content description) so the affordance is explicit; [onClick] is the per-cell destination.
+ */
+private data class GlanceCell(
+    val count: Int,
+    val label: String,
+    val color: Color,
+    val icon: ImageVector,
+    val destinationLabel: String,
+    val onClick: () -> Unit,
+)
 
+/**
+ * "At A Glance" 2×2 grid (Bug 5).
+ *
+ * Each cell now maps to one consistent mock count *and* a distinct destination with a clear
+ * tap affordance (icon header + trailing chevron + "View …" hint), instead of every cell
+ * routing through a single generic callback. Cell colours come from the semantic tokens so
+ * they read as status, not decoration.
+ *
+ * @param onPendingExpenses opens the expenses/spends surface.
+ * @param onUpcomingTrips opens the travel surface.
+ * @param onPendingApprovals opens the approvals surface.
+ * @param onNotifications opens the notification centre.
+ */
 @Composable
 fun AtAGlanceGrid(
     counts: AtAGlanceCounts,
-    onClick: () -> Unit,
+    onPendingExpenses: () -> Unit,
+    onUpcomingTrips: () -> Unit,
+    onPendingApprovals: () -> Unit,
+    onNotifications: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val cells = listOf(
-        GlanceCell(counts.pendingExpenses, "Pending Expenses", Color(0xFFF57C00)),
-        GlanceCell(counts.upcomingTrips, "Upcoming Trips", Color(0xFF1976D2)),
-        GlanceCell(counts.pendingApprovals, "Pending Approvals", Color(0xFFE53935)),
-        GlanceCell(counts.unreadNotifications, "Unread Notifications", Color(0xFF7B1FA2)),
+        GlanceCell(counts.pendingExpenses, "Pending Expenses", MilewayColors.warning, Icons.Filled.ReceiptLong, "expenses", onPendingExpenses),
+        GlanceCell(counts.upcomingTrips, "Upcoming Trips", MilewayColors.info, Icons.Filled.Flight, "trips", onUpcomingTrips),
+        GlanceCell(counts.pendingApprovals, "Pending Approvals", MilewayColors.danger, Icons.Filled.FactCheck, "approvals", onPendingApprovals),
+        GlanceCell(counts.unreadNotifications, "Unread Notifications", MilewayColors.premium, Icons.Filled.Notifications, "notifications", onNotifications),
     )
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
         Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s), modifier = Modifier.fillMaxWidth()) {
-            GlanceCell(cells[0], onClick, Modifier.weight(1f))
-            GlanceCell(cells[1], onClick, Modifier.weight(1f))
+            GlanceCell(cells[0], Modifier.weight(1f))
+            GlanceCell(cells[1], Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s), modifier = Modifier.fillMaxWidth()) {
-            GlanceCell(cells[2], onClick, Modifier.weight(1f))
-            GlanceCell(cells[3], onClick, Modifier.weight(1f))
+            GlanceCell(cells[2], Modifier.weight(1f))
+            GlanceCell(cells[3], Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun GlanceCell(cell: GlanceCell, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun GlanceCell(cell: GlanceCell, modifier: Modifier = Modifier) {
     Surface(
-        onClick = onClick,
-        modifier = modifier,
+        onClick = cell.onClick,
+        modifier = modifier.semantics {
+            contentDescription = "${cell.count} ${cell.label}. Tap to view ${cell.destinationLabel}."
+        },
         shape = DesignTokens.Shape.roundedMd,
         color = cell.color.copy(alpha = 0.08f),
         border = BorderStroke(1.dp, cell.color.copy(alpha = 0.2f)),
@@ -893,13 +932,22 @@ private fun GlanceCell(cell: GlanceCell, onClick: () -> Unit, modifier: Modifier
             modifier = Modifier.padding(DesignTokens.Spacing.m),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            // VII.3: Animate count from 0 → final value on first composition
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Icon(cell.icon, contentDescription = null, tint = cell.color, modifier = Modifier.size(DesignTokens.IconSize.badge))
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(DesignTokens.IconSize.inline),
+                )
+            }
+            // VII.3: Animate count from 0 → final value on first composition. Mono for tabular digits.
             val animatedCount by animateIntAsState(
                 targetValue = cell.count,
                 animationSpec = tween(durationMillis = 900),
                 label = "glanceCount"
             )
-            Text(animatedCount.toString(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = cell.color)
+            Text(animatedCount.toString(), style = MaterialTheme.typography.headlineSmall.dataStyle(), fontWeight = FontWeight.Bold, color = cell.color)
             Text(cell.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
         }
     }
@@ -957,12 +1005,12 @@ private fun MockCardView(card: MockCard, onAction: () -> Unit) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
             Column {
                 Text(card.label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = Color.White)
-                Text("**** ${card.last4}", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
+                Text("**** ${card.last4}", style = MaterialTheme.typography.bodySmall.dataStyle(), color = Color.White.copy(alpha = 0.8f))
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Column {
                     Text("Balance", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
-                    Text(card.balance, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(card.balance, style = MaterialTheme.typography.titleMedium.dataStyle(), fontWeight = FontWeight.Bold, color = Color.White)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(onClick = onAction, shape = RoundedCornerShape(20.dp), color = Color.White.copy(alpha = 0.2f)) {
@@ -1021,10 +1069,10 @@ fun RecentActivitySection(
 @Composable
 private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
     val statusColor = when (item.status) {
-        ActivityStatus.APPROVED -> Color(0xFF2E7D32)
-        ActivityStatus.PENDING -> Color(0xFFF57C00)
-        ActivityStatus.SUBMITTED -> Color(0xFF1565C0)
-        ActivityStatus.REJECTED -> Color(0xFFC62828)
+        ActivityStatus.APPROVED -> MilewayColors.success
+        ActivityStatus.PENDING -> MilewayColors.warning
+        ActivityStatus.SUBMITTED -> MilewayColors.info
+        ActivityStatus.REJECTED -> MilewayColors.danger
     }
     val statusLabel = when (item.status) {
         ActivityStatus.APPROVED -> "Approved"
@@ -1046,7 +1094,7 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
             Text("${item.id} · ${item.date}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text(item.amount, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(item.amount, style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
             Surface(shape = DesignTokens.Shape.chip, color = statusColor.copy(alpha = 0.12f)) {
                 Text(statusLabel, style = MaterialTheme.typography.labelSmall, color = statusColor, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
             }
@@ -1107,7 +1155,7 @@ fun HomeMileageCard(
                     )
                     Text(
                         text = "%.0f km total".format(WEEK_KM_DEMO),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyLarge.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.9f),
                     )
@@ -1118,9 +1166,16 @@ fun HomeMileageCard(
                 modifier = Modifier.padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
-                // Canvas progress ring (120dp) + centre text
+                // Canvas progress ring (120dp) + centre text. Merge into one TalkBack node so the
+                // ring is announced as a single "X of Y km" progress reading, not loose digits.
                 Box(
-                    modifier = Modifier.size(120.dp).align(Alignment.CenterHorizontally),
+                    modifier = Modifier
+                        .size(120.dp)
+                        .align(Alignment.CenterHorizontally)
+                        .semantics(mergeDescendants = true) {
+                            contentDescription =
+                                "Mileage progress: ${WEEK_KM_DEMO.toInt()} of ${WEEK_KM_GOAL.toInt()} kilometres this week"
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     Canvas(modifier = Modifier.matchParentSize()) {
@@ -1150,13 +1205,13 @@ fun HomeMileageCard(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = "%.0f".format(WEEK_KM_DEMO),
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.typography.titleLarge.dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
                             text = "/ %.0f km".format(WEEK_KM_GOAL),
-                            style = MaterialTheme.typography.labelSmall,
+                            style = MaterialTheme.typography.labelSmall.dataStyle(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -1204,7 +1259,7 @@ private fun MileageStat(label: String, value: String, modifier: Modifier = Modif
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleSmall.dataStyle(),
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -1313,7 +1368,7 @@ fun HomeCheckInCard(
                         modifier = Modifier
                             .size(8.dp)
                             .clip(CircleShape)
-                            .background(if (entry.isIn) Color(0xFF2E7D32) else Color(0xFFF57C00)),
+                            .background(if (entry.isIn) MilewayColors.success else MilewayColors.warning),
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(entry.location, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
@@ -1323,7 +1378,7 @@ fun HomeCheckInCard(
                         if (entry.isIn) "IN" else "OUT",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         fontWeight = FontWeight.Bold,
-                        color = if (entry.isIn) Color(0xFF2E7D32) else Color(0xFFF57C00),
+                        color = if (entry.isIn) MilewayColors.success else MilewayColors.warning,
                     )
                 }
             }

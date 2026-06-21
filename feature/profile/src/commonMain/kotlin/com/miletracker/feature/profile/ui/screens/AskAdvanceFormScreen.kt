@@ -37,7 +37,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,6 +46,8 @@ import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.profile.viewmodel.AdvanceAction
 import com.miletracker.feature.profile.viewmodel.AdvanceViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -272,7 +273,7 @@ private fun AdvanceSuccessContent(
         Icon(
             imageVector = if (autoApproved) Icons.Filled.CheckCircle else Icons.Filled.HourglassBottom,
             contentDescription = null,
-            tint = if (autoApproved) Color(0xFF4CAF50) else Color(0xFFF59E0B),
+            tint = if (autoApproved) MilewayColors.success else MilewayColors.warning,
             modifier = Modifier.size(80.dp),
         )
         Spacer(Modifier.height(24.dp))
@@ -285,7 +286,7 @@ private fun AdvanceSuccessContent(
         Spacer(Modifier.height(8.dp))
         Text(
             text = "₹${amount.formatDecimal(2)}",
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.displaySmall.dataStyle(),
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,

@@ -21,12 +21,13 @@ import androidx.compose.ui.unit.dp
  * status chip / history list across the app.
  */
 enum class StatusTone(val color: Color) {
-    Success(Color(0xFF22C55E)),
-    Warning(Color(0xFFF59E0B)),
-    Error(Color(0xFFEF4444)),
-    Info(Color(0xFF3B82F6)),
-    Neutral(Color(0xFF6B7280)),
-    Danger(Color(0xFFDC2626)),
+    // Aligned with Design Language v2 semantic tokens (MilewayColors dark-surface values).
+    Success(Color(0xFF3DDC84)),
+    Warning(Color(0xFFF2C14E)),
+    Error(Color(0xFFF2545B)),
+    Info(Color(0xFF5BA8F5)),
+    Neutral(Color(0xFF9AA5A0)),
+    Danger(Color(0xFFF2545B)),
 }
 
 /** A small tinted status pill: [tone]-coloured label on a 15%-alpha fill. */

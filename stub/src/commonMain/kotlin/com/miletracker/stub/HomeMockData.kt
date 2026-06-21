@@ -11,7 +11,7 @@ data class AtAGlanceCounts(
     val pendingExpenses: Int,
     val vouchersToFile: Int,
     val pendingApprovals: Int = 3,
-    val unreadNotifications: Int = 174,
+    val unreadNotifications: Int = 4,
 )
 
 /** Banner shown at the top of the home screen when items need user action. */
@@ -42,13 +42,19 @@ data class DemoAuthTokens(
  * constant: no time, no randomness, so UI snapshots and unit tests stay stable.
  */
 object HomeMockData {
+    // Counts are kept internally consistent with the other home signals: pendingExpenses
+    // matches the "9 expenses awaiting" action banner, and unreadNotifications matches the
+    // header bell's notificationCount() (4). Bug 5 — the At A Glance tile reads as one
+    // coherent snapshot rather than four unrelated figures.
     fun atAGlance(): AtAGlanceCounts =
         AtAGlanceCounts(
-            unreportedTransactions = 835,
-            upcomingTrips = 12,
-            pendingInvoices = 47,
-            pendingExpenses = 23,
+            unreportedTransactions = 18,
+            upcomingTrips = 5,
+            pendingInvoices = 7,
+            pendingExpenses = 9,
             vouchersToFile = 6,
+            pendingApprovals = 3,
+            unreadNotifications = 4,
         )
 
     fun actionRequiredBanner(): ActionRequiredBanner =

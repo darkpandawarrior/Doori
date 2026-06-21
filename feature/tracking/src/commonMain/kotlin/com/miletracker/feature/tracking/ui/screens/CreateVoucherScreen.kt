@@ -48,7 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -56,6 +55,8 @@ import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.model.display.TrackDisplayData
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.viewmodel.CreateVoucherAction
 import com.miletracker.feature.tracking.viewmodel.CreateVoucherUiState
 import com.miletracker.feature.tracking.viewmodel.CreateVoucherViewModel
@@ -197,7 +198,7 @@ private fun StepSelectExpenses(
                 if (uiState.selectedTokens.isNotEmpty()) {
                     Text(
                         "Total: ₹${viewModel.totalAmount.formatDecimal(2)}",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
                     )
@@ -243,7 +244,12 @@ private fun ExpenseRow(
         trailingContent = {
             SuggestionChip(
                 onClick = {},
-                label = { Text("₹${expense.reimbursableAmount.formatDecimal(0)}") },
+                label = {
+                    Text(
+                        "₹${expense.reimbursableAmount.formatDecimal(0)}",
+                        style = MaterialTheme.typography.labelLarge.dataStyle(),
+                    )
+                },
             )
         },
     )
@@ -313,7 +319,7 @@ private fun StepVoucherDetails(
                     Text("Total Amount", style = MaterialTheme.typography.labelMedium)
                     Text(
                         "₹${viewModel.totalAmount.formatDecimal(2)}",
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = MaterialTheme.typography.headlineMedium.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -412,7 +418,7 @@ private fun StepSuccess(
             Icons.Default.CheckCircle,
             contentDescription = null,
             modifier = Modifier.size(72.dp),
-            tint = Color(0xFF4CAF50),
+            tint = MilewayColors.success,
         )
         Spacer(Modifier.height(16.dp))
         Text("Voucher Created!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)

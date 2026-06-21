@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.common.asString
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.ui.mvi.dataOrNull
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.approvals.model.ApprovalStatus
 import com.miletracker.feature.approvals.model.ApprovalType
 import com.miletracker.feature.approvals.ui.sheets.SeekClarificationSheet
@@ -151,7 +152,7 @@ fun ApprovalDetailsScreen(
                                 )
                             }
                             if (item.policyViolation) {
-                                Icon(Icons.Default.Warning, contentDescription = "Policy violation", tint = Color(0xFFFF6B35), modifier = Modifier.size(20.dp))
+                                Icon(Icons.Default.Warning, contentDescription = "Policy violation", tint = MilewayColors.warning, modifier = Modifier.size(20.dp))
                             }
                         }
                     }
@@ -173,14 +174,14 @@ fun ApprovalDetailsScreen(
                 if (item.policyViolation) {
                     Card(
                         shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFFF6B35).copy(alpha = 0.1f)),
+                        colors = CardDefaults.cardColors(containerColor = MilewayColors.warning.copy(alpha = 0.1f)),
                     ) {
                         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFFF6B35), modifier = Modifier.size(20.dp))
+                            Icon(Icons.Default.Warning, contentDescription = null, tint = MilewayColors.warning, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
                             Column {
-                                Text("Policy Violation", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Color(0xFFFF6B35))
-                                Text("This request exceeds policy limits", style = MaterialTheme.typography.bodySmall, color = Color(0xFFFF6B35))
+                                Text("Policy Violation", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MilewayColors.warning)
+                                Text("This request exceeds policy limits", style = MaterialTheme.typography.bodySmall, color = MilewayColors.warning)
                             }
                         }
                     }
@@ -190,8 +191,8 @@ fun ApprovalDetailsScreen(
                 AnimatedVisibility(visible = isResolved, enter = fadeIn()) {
                     val (icon, color, label) =
                         when (effectiveStatus) {
-                            ApprovalStatus.APPROVED -> Triple(Icons.Default.CheckCircle, Color(0xFF4CAF50), "You approved this request")
-                            ApprovalStatus.REJECTED -> Triple(Icons.Default.Cancel, Color(0xFFF44336), "You rejected this request")
+                            ApprovalStatus.APPROVED -> Triple(Icons.Default.CheckCircle, MilewayColors.success, "You approved this request")
+                            ApprovalStatus.REJECTED -> Triple(Icons.Default.Cancel, MilewayColors.danger, "You rejected this request")
                             else -> Triple(Icons.Default.CheckCircle, Color.Gray, "Resolved")
                         }
                     Card(
@@ -233,14 +234,14 @@ fun ApprovalDetailsScreen(
                         Button(
                             onClick = { viewModel.onAction(ApprovalsAction.Reject) },
                             modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF44336)),
+                            colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.danger),
                         ) {
                             Text("Reject")
                         }
                         Button(
                             onClick = { viewModel.onAction(ApprovalsAction.Approve) },
                             modifier = Modifier.weight(1f),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                            colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.success),
                         ) {
                             Text("Approve")
                         }

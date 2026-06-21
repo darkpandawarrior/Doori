@@ -42,6 +42,7 @@ import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.MileTrackerTheme
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.profile.ui.previews.LightDarkPreview
 import com.miletracker.feature.profile.viewmodel.DemoSettingsAction
 import com.miletracker.feature.profile.viewmodel.DemoSettingsViewModel
@@ -93,7 +94,7 @@ fun DemoSettingsScreen(
                         Text(
                             "Demo Mode Only",
                             style = MaterialTheme.typography.titleSmall,
-                            color = Color(0xFFE65100),
+                            color = MilewayColors.warning,
                         )
                     },
                     supportingContent = {
@@ -103,7 +104,7 @@ fun DemoSettingsScreen(
                         )
                     },
                     leadingContent = {
-                        Icon(Icons.Default.BugReport, contentDescription = null, tint = Color(0xFFE65100))
+                        Icon(Icons.Default.BugReport, contentDescription = null, tint = MilewayColors.warning)
                     },
                 )
             }
@@ -146,7 +147,7 @@ fun DemoSettingsScreen(
                 subtitle = "WorkManager discards any active journey at 22:00: demo of AutoDiscardWorker",
                 checked = settings.autoDiscardEnabled,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleAutoDiscard) },
-                warningColor = Color(0xFFFF8F00),
+                warningColor = MilewayColors.warning,
             )
 
             Spacer(Modifier.height(24.dp))

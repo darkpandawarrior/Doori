@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.theme.MilewayColors
 
 /**
  * Enhanced metric card with trend indicators and status colors
@@ -119,9 +120,9 @@ fun TrendIndicator(
 ) {
     val (icon, color) =
         when (trend) {
-            MetricTrend.Good -> Icons.Default.CheckCircle to Color(0xFF4CAF50)
-            MetricTrend.Warning -> Icons.Default.Warning to Color(0xFFFF9800)
-            MetricTrend.Poor -> Icons.Default.Warning to Color(0xFFE91E63)
+            MetricTrend.Good -> Icons.Default.CheckCircle to MilewayColors.success
+            MetricTrend.Warning -> Icons.Default.Warning to MilewayColors.warning
+            MetricTrend.Poor -> Icons.Default.Warning to MilewayColors.danger
         }
 
     Icon(

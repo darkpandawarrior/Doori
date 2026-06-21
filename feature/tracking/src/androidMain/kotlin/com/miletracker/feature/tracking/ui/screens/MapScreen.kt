@@ -138,6 +138,9 @@ import com.miletracker.core.data.model.db.LocationData
 import com.miletracker.core.data.state.UiState
 import com.miletracker.core.maps.MapCoordinate
 import com.miletracker.core.maps.MapSurface
+import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.map.MapRouteBuilder
 import com.miletracker.feature.tracking.viewmodel.LiveTrackAction
 import com.miletracker.feature.tracking.viewmodel.LiveTrackViewModel
@@ -175,10 +178,10 @@ data class MarkerFilters(
 // ---------------------------------------------------------------------------
 
 enum class GPSQuality(val label: String, val color: Color) {
-    EXCELLENT("Excellent", Color(0xFF4CAF50)),
-    GOOD("Good", Color(0xFF8BC34A)),
-    FAIR("Fair", Color(0xFFFF9800)),
-    POOR("Poor", Color(0xFFFF5722)),
+    EXCELLENT("Excellent", DesignTokens.StatusColors.success),
+    GOOD("Good", DesignTokens.StatusColors.success),
+    FAIR("Fair", DesignTokens.StatusColors.warning),
+    POOR("Poor", DesignTokens.StatusColors.error),
 }
 
 // ---------------------------------------------------------------------------
@@ -888,7 +891,7 @@ fun EnhancedLiveIndicatorBadge(
 
             Text(
                 text = formatLiveDuration(duration),
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.labelLarge.dataStyle(),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 maxLines = 1,
@@ -937,9 +940,9 @@ fun BearingConfidenceIndicator(
 
     val color =
         when {
-            accuracy <= 15 -> Color(0xFF4CAF50)
-            accuracy <= 45 -> Color(0xFFFF9800)
-            else -> Color(0xFFFF5722)
+            accuracy <= 15 -> MilewayColors.success
+            accuracy <= 45 -> MilewayColors.warning
+            else -> MilewayColors.danger
         }
 
     Row(
@@ -956,7 +959,7 @@ fun BearingConfidenceIndicator(
         )
         Text(
             text = "$confidence (${accuracy.toInt()}°)",
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.dataStyle(),
             color = MaterialTheme.colorScheme.onErrorContainer,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -1114,7 +1117,7 @@ fun PlaybackIndicator(
                 )
                 Text(
                     text = "${currentIndex + 1} / $totalPoints",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.dataStyle(),
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
             }
@@ -1145,7 +1148,7 @@ fun PlaybackIndicator(
                         )
                         Text(
                             text = kotlin.math.round(currentLocation.speed * 3.6f).toInt().toString(),
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge.dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                         )
@@ -1165,15 +1168,15 @@ fun PlaybackIndicator(
                             contentDescription = null,
                             tint =
                                 when {
-                                    currentLocation.accuracy <= 10f -> Color(0xFF4CAF50)
-                                    currentLocation.accuracy <= 20f -> Color(0xFFFF9800)
-                                    else -> Color(0xFFFF5722)
+                                    currentLocation.accuracy <= 10f -> MilewayColors.success
+                                    currentLocation.accuracy <= 20f -> MilewayColors.warning
+                                    else -> MilewayColors.danger
                                 },
                             modifier = Modifier.size(16.dp),
                         )
                         Text(
                             text = "${currentLocation.accuracy.toInt()}m",
-                            style = MaterialTheme.typography.labelLarge,
+                            style = MaterialTheme.typography.labelLarge.dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                         )
@@ -1241,7 +1244,7 @@ fun EnhancedCompactLiveStatsCard(
                     ) {
                         Text(
                             text = kotlin.math.round(currentSpeed).toInt().toString(),
-                            style = if (isSmallScreen) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall,
+                            style = (if (isSmallScreen) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall).dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1,
@@ -1272,7 +1275,7 @@ fun EnhancedCompactLiveStatsCard(
                         )
                         Text(
                             text = "${kotlin.math.round((totalDistance / 1000.0) * 100).toLong() / 100.0} km",
-                            style = if (isSmallScreen) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+                            style = (if (isSmallScreen) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium).dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
@@ -1307,7 +1310,7 @@ fun EnhancedCompactLiveStatsCard(
                         )
                         Text(
                             text = "${locationPoints.size} pts",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.dataStyle(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                         )
@@ -1334,9 +1337,9 @@ fun DataQualityIndicator(
 ) {
     val color =
         when {
-            score >= 80 -> Color(0xFF4CAF50)
-            score >= 60 -> Color(0xFFFF9800)
-            else -> Color(0xFFFF5722)
+            score >= 80 -> MilewayColors.success
+            score >= 60 -> MilewayColors.warning
+            else -> MilewayColors.danger
         }
 
     Row(
@@ -1366,7 +1369,7 @@ fun DataQualityIndicator(
             )
             Text(
                 text = "$score%",
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelSmall.dataStyle(),
                 fontWeight = FontWeight.Bold,
                 color = color,
             )
@@ -1765,7 +1768,7 @@ fun LiveJourneyTab(
                     .height(56.dp),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = if (isTracking) Color(0xFFFF9800) else Color(0xFF4CAF50),
+                    containerColor = if (isTracking) MilewayColors.warning else MilewayColors.success,
                 ),
         ) {
             Icon(
@@ -2289,7 +2292,7 @@ fun LivePlaybackTab(
                                 .height(56.dp),
                         colors =
                             ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFFF9800),
+                                containerColor = MilewayColors.warning,
                             ),
                     ) {
                         Icon(
@@ -2328,7 +2331,7 @@ fun LivePlaybackTab(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = "Position: ${currentIndex + 1} / ${locationPoints.size}",
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.dataStyle(),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 

@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.model.display.TrackDisplayData
 import com.miletracker.core.data.util.DateUtils
+import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.insights.ActivityResult
 import com.miletracker.feature.tracking.insights.DistanceQualityResult
 import com.miletracker.feature.tracking.insights.QualityResult
@@ -63,7 +66,7 @@ fun SavedTrackOverviewCard(
                 }
                 StatusBadge(
                     text = if (track.isSubmitted) "Submitted" else "Draft",
-                    color = if (track.isSubmitted) Color(0xFF4CAF50) else Color(0xFFFF9800),
+                    color = if (track.isSubmitted) MilewayColors.success else MilewayColors.warning,
                 )
             }
 
@@ -108,16 +111,16 @@ fun SavedTrackOverviewCard(
                         androidx.compose.material3.Icon(
                             Icons.Default.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF4CAF50),
+                            tint = MilewayColors.success,
                             modifier = Modifier.padding(end = 4.dp),
                         )
                         Text("Reimbursable", style = MaterialTheme.typography.bodyMedium)
                     }
                     Text(
                         "₹${track.reimbursableAmount.formatDecimal(2)}",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleMedium.dataStyle(),
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50),
+                        color = MilewayColors.success,
                     )
                 }
             }
@@ -252,9 +255,9 @@ fun QualityDetailCard(
                         )
                         Text(
                             "−${factor.deduction}",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall.dataStyle(),
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFFF44336),
+                            color = MilewayColors.danger,
                         )
                     }
                 }
@@ -382,7 +385,7 @@ fun SystemImpactCard(
                 Text(
                     "No system issues detected",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF4CAF50),
+                    color = MilewayColors.success,
                 )
             } else {
                 systemImpactResult.impacts.forEach { impact ->
@@ -488,7 +491,7 @@ fun DistanceQualityCard(
                 Text(
                     "Reliable for business/tax reporting",
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color(0xFF4CAF50),
+                    color = MilewayColors.success,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -509,7 +512,7 @@ private fun SystemImpactType.displayName(): String =
 
 private fun impactColor(pct: Double): Color =
     when {
-        pct >= 30.0 -> Color(0xFFF44336)
-        pct >= 15.0 -> Color(0xFFFF9800)
-        else -> Color(0xFFFFC107)
+        pct >= 30.0 -> DesignTokens.StatusColors.error
+        pct >= 15.0 -> DesignTokens.StatusColors.warning
+        else -> DesignTokens.StatusColors.warning
     }

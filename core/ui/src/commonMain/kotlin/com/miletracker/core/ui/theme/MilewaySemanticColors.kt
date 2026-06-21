@@ -6,6 +6,7 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import kotlin.math.pow
 
 /**
  * Design Language v2 colours that don't fit Material's role slots — the accent glow ramp, the
@@ -41,6 +42,16 @@ val LocalMilewaySemanticColors: ProvidableCompositionLocal<MilewaySemanticColors
  * Text(color = MilewayColors.warning)
  * Surface(color = MilewayColors.surfaceRaised) { … }
  * ```
+ *
+ * Two groups of tokens live here:
+ *  - **Provided** by the active curated theme (Matrix / Amoled / Ion / Daybreak) through
+ *    [LocalMilewaySemanticColors]: the status states, the accent glow ramp and the surface /
+ *    border tokens. Each curated spec hand-tunes these so they stay coherent per theme.
+ *  - **Derived** from the live Material scheme — [neutral], [premium], [glow]. These were added
+ *    by the per-screen sweep; rather than enumerate them in every theme spec, they resolve to a
+ *    lightness-appropriate value off the current scheme so they stay WCAG-AA on both the deep-dark
+ *    defaults and the light Daybreak surface. Always reach for colours via this accessor inside a
+ *    composable — never hard-code a hex value in a screen.
  */
 object MilewayColors {
     val warning: Color
@@ -78,4 +89,41 @@ object MilewayColors {
     val accent: Color
         @Composable @ReadOnlyComposable
         get() = MaterialTheme.colorScheme.primary
+
+    /**
+     * True when the active scheme paints onto a light surface (Daybreak). Derived from relative
+     * luminance so the muted / highlight tokens below pick an AA-correct lightness without each
+     * curated theme having to carry them explicitly.
+     */
+    private val isLightSurface: Boolean
+        @Composable @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.surface.relativeLuminance() >
+            MaterialTheme.colorScheme.onSurface.relativeLuminance()
+
+    /** Draft / inactive / muted metadata. Tuned for both deep-dark and Daybreak surfaces. */
+    val neutral: Color
+        @Composable @ReadOnlyComposable
+        get() = if (isLightSurface) Color(0xFF5F6B66) else Color(0xFF9AA5A0)
+
+    /** Premium / highlight (e.g. corporate cards, badges). AA on both default and light surfaces. */
+    val premium: Color
+        @Composable @ReadOnlyComposable
+        get() = if (isLightSurface) Color(0xFF7B3FB0) else Color(0xFFC08AF2)
+
+    /**
+     * Subtle accent halo for the *currently active* primary affordance (recording, selected CTA) —
+     * never decorative chrome. Returns the theme accent at a low alpha so callers can drop it
+     * straight into a shadow / border / glow. Tracks the active theme's primary, so it follows the
+     * curated scheme (Matrix green, Ion blue, etc.) rather than a fixed hardcoded green.
+     */
+    val glow: Color
+        @Composable @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.primary.copy(alpha = if (isLightSurface) 0.20f else 0.32f)
+}
+
+/** WCAG relative luminance (sRGB), multiplatform-safe (no android.graphics). */
+private fun Color.relativeLuminance(): Float {
+    fun lin(c: Float): Float =
+        if (c <= 0.03928f) c / 12.92f else ((c + 0.055f) / 1.055f).toDouble().pow(2.4).toFloat()
+    return 0.2126f * lin(red) + 0.7152f * lin(green) + 0.0722f * lin(blue)
 }

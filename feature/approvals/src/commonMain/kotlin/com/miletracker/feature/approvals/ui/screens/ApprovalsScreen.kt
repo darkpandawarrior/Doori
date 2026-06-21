@@ -74,6 +74,7 @@ import com.miletracker.core.common.asString
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.mvi.dataOrNull
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.approvals.model.ApprovalItem
 import com.miletracker.feature.approvals.model.ApprovalStatus
 import com.miletracker.feature.approvals.model.ApprovalType
@@ -321,7 +322,7 @@ private fun ApprovalsGradientHeader(
                         if (pendingCount > 0) {
                             Surface(
                                 shape = CircleShape,
-                                color = Color(0xFFFF6B6B),
+                                color = MilewayColors.danger,
                             ) {
                                 Text(
                                     text = "$pendingCount",
@@ -421,14 +422,14 @@ private fun ApprovalCard(
                         Icon(
                             Icons.Default.Warning,
                             contentDescription = null,
-                            tint = Color(0xFFFF6B35),
+                            tint = MilewayColors.warning,
                             modifier = Modifier.size(12.dp),
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
                             "Policy violation",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFFFF6B35),
+                            color = MilewayColors.warning,
                         )
                     }
                 }
@@ -441,10 +442,10 @@ private fun ApprovalCard(
 private fun TypeIconContainer(type: ApprovalType) {
     val (icon, color) =
         when (type) {
-            ApprovalType.MILEAGE -> Icons.Default.DirectionsCar to Color(0xFF4CAF50)
-            ApprovalType.EXPENSE -> Icons.Default.Receipt to Color(0xFF2196F3)
-            ApprovalType.TRAVEL -> Icons.Default.AirplanemodeActive to Color(0xFF9C27B0)
-            ApprovalType.ADVANCE -> Icons.Default.MoneyOff to Color(0xFFFF9800)
+            ApprovalType.MILEAGE -> Icons.Default.DirectionsCar to MilewayColors.success
+            ApprovalType.EXPENSE -> Icons.Default.Receipt to MilewayColors.info
+            ApprovalType.TRAVEL -> Icons.Default.AirplanemodeActive to MilewayColors.premium
+            ApprovalType.ADVANCE -> Icons.Default.MoneyOff to MilewayColors.warning
         }
     Box(
         modifier =
@@ -462,9 +463,9 @@ private fun TypeIconContainer(type: ApprovalType) {
 private fun StatusChip(status: ApprovalStatus) {
     val (label, color) =
         when (status) {
-            ApprovalStatus.PENDING -> "Pending" to Color(0xFFFF9800)
-            ApprovalStatus.APPROVED -> "Approved" to Color(0xFF4CAF50)
-            ApprovalStatus.REJECTED -> "Rejected" to Color(0xFFF44336)
+            ApprovalStatus.PENDING -> "Pending" to MilewayColors.warning
+            ApprovalStatus.APPROVED -> "Approved" to MilewayColors.success
+            ApprovalStatus.REJECTED -> "Rejected" to MilewayColors.danger
         }
     Surface(
         shape = RoundedCornerShape(50),

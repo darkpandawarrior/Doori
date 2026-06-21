@@ -59,6 +59,7 @@ import com.miletracker.core.common.asString
 import com.miletracker.core.data.util.DateUtils
 import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.travel.model.BookingRecord
 import com.miletracker.feature.travel.model.TransportMode
 import com.miletracker.feature.travel.viewmodel.TravelAction
@@ -443,7 +444,7 @@ private fun ActiveTripCard(
                     },
                     colors =
                         SuggestionChipDefaults.suggestionChipColors(
-                            containerColor = Color(0xFF4CAF50),
+                            containerColor = MilewayColors.success,
                             labelColor = Color.White,
                         ),
                     border = null,

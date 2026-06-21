@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
 import kotlinx.coroutines.launch
 
 private val DELEGATION_TYPES = listOf("View Only", "Approve", "Full Access")
@@ -469,13 +470,13 @@ private fun DelegatedByRow(entry: DelegatedByEntry) {
         }
         Surface(
             shape = RoundedCornerShape(50),
-            color = Color(0xFF4CAF50).copy(alpha = 0.15f),
+            color = MilewayColors.success.copy(alpha = 0.15f),
         ) {
             Text(
                 "Active",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF4CAF50),
+                color = MilewayColors.success,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
             )
         }

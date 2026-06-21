@@ -34,11 +34,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.ui.components.ActivityBreakdownCard
 import com.miletracker.feature.tracking.ui.components.DataQualityReportCard
 import com.miletracker.feature.tracking.ui.components.DistanceQualityCard
@@ -115,7 +116,7 @@ fun TrackInsightsScreen(
                                 ) {
                                     Text(
                                         "${data.qualityScore}",
-                                        style = MaterialTheme.typography.displayMedium,
+                                        style = MaterialTheme.typography.displayMedium.dataStyle(),
                                         fontWeight = FontWeight.Bold,
                                         color = qualityColor(data.qualityScore),
                                     )
@@ -225,7 +226,7 @@ fun TrackInsightsScreen(
                                                     Icons.Default.LightMode,
                                                     contentDescription = null,
                                                     modifier = Modifier.size(16.dp).padding(top = 2.dp),
-                                                    tint = Color(0xFFFFC107),
+                                                    tint = MilewayColors.warning,
                                                 )
                                                 Text(
                                                     " $rec",
