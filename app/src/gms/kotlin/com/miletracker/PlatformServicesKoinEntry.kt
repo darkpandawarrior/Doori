@@ -17,7 +17,7 @@ import org.koin.dsl.module
 /**
  * gms flavor: real Play-Core / Firebase platform services.
  *
- * Mirrors [mapsKoinModule] — one per-flavor entry point. Review / FCM / analytics / crash factories are
+ * Mirrors [mapsKoinModule], one per-flavor entry point. Review / FCM / analytics / crash factories are
  * bound here as their phases land (RV.2 / FCM.2 / CF.3 / CF.4).
  */
 fun platformServicesKoinModule(): Module =

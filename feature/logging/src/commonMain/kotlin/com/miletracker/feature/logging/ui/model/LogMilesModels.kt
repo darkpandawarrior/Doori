@@ -6,7 +6,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-/** Category for a POI — drives the icon shown in the search result row. */
+/** Category for a POI, drives the icon shown in the search result row. */
 enum class PoiCategory { OFFICE, CLIENT, RESTAURANT, HOME, TRANSIT, LANDMARK, OTHER }
 
 /**
@@ -77,7 +77,7 @@ object CityCatalog {
             LocationEntry("New Delhi", "Delhi, India", 28.6139, 77.2090, PoiCategory.OTHER),
         )
 
-    /** Current-location placeholder — the "Your Location" shortcut in the sheet. */
+    /** Current-location placeholder, the "Your Location" shortcut in the sheet. */
     val currentLocation =
         LocationEntry(
             name = "Your current location",

@@ -61,7 +61,7 @@ import com.miletracker.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 
 /** Prefilled demo identity so the fake login works without typing anything. */
-private const val DEMO_EMAIL = "demo@miletracker.app"
+private const val DEMO_EMAIL = "demo@mileway.app"
 
 /** App name shown beside the logo mark. */
 private const val APP_NAME = "Mileway"
@@ -97,7 +97,7 @@ private val ONBOARDING_SLIDES = listOf(
     OnboardingSlide(
         icon = Icons.Filled.LocationOn,
         title = "Your data stays put",
-        caption = "Everything lives locally on your phone — capture mileage anywhere, sync nothing.",
+        caption = "Everything lives locally on your phone: capture mileage anywhere, sync nothing.",
     ),
 )
 
@@ -117,34 +117,40 @@ private val ONBOARDING_SLIDES = listOf(
  * The screen owns its insets directly: the scrolling [Column] applies [statusBarsPadding] and
  * [imePadding] so fields lift above the keyboard, and the pinned bottom actions add
  * [navigationBarsPadding]. It is hosted full-screen by the integrator (no bottom bar), so it is
- * stateless apart from internal field/loading/animation state — no ViewModel is required.
+ * stateless apart from internal field/loading/animation state, no ViewModel is required.
  *
- * @param onSignedIn invoked once the user signs in (with either credentials or as a guest).
- *   Captured via [rememberUpdatedState] so the fake-loading coroutine always calls the latest
- *   lambda.
+ * @param onSignInWithCredentials invoked with the entered email once a credentials sign-in
+ *   completes. Captured via [rememberUpdatedState] so the fake-loading coroutine always calls the
+ *   latest lambda.
+ * @param onContinueAsGuest invoked when the user chooses the guest path. The integrator persists
+ *   the session so it survives navigation, deep links and process recreation.
  */
 @Composable
 fun LoginScreen(
-    onSignedIn: () -> Unit,
+    onSignInWithCredentials: (email: String) -> Unit,
+    onContinueAsGuest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val currentOnSignedIn by rememberUpdatedState(onSignedIn)
+    val currentOnCredentials by rememberUpdatedState(onSignInWithCredentials)
+    val currentOnGuest by rememberUpdatedState(onContinueAsGuest)
 
     var email by remember { mutableStateOf(DEMO_EMAIL) }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var isSigningIn by remember { mutableStateOf(false) }
+    var isGuestPath by remember { mutableStateOf(false) }
     var attemptedSubmit by remember { mutableStateOf(false) }
 
     val emailValid = email.isNotBlank()
     val passwordValid = password.isNotBlank()
     val canSubmit = emailValid && passwordValid && !isSigningIn
 
-    // Fake sign-in: show the loading affordance briefly, then report completion.
+    // Fake sign-in: show the loading affordance briefly, then report completion down the path the
+    // user actually took (guest vs credentials) so the session is persisted with the right kind.
     LaunchedEffect(isSigningIn) {
         if (isSigningIn) {
             delay(FAKE_SIGN_IN_DELAY_MS)
-            currentOnSignedIn()
+            if (isGuestPath) currentOnGuest() else currentOnCredentials(email)
         }
     }
 
@@ -218,7 +224,12 @@ fun LoginScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.s))
 
             TextButton(
-                onClick = { if (!isSigningIn) isSigningIn = true },
+                onClick = {
+                    if (!isSigningIn) {
+                        isGuestPath = true
+                        isSigningIn = true
+                    }
+                },
                 enabled = !isSigningIn,
                 modifier = Modifier.fillMaxWidth(),
             ) {

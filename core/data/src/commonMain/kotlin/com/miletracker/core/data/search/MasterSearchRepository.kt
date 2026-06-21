@@ -5,7 +5,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 /**
- * F0.5 — the master-search aggregator. Holds every feature's [SearchProvider] (resolved by the app graph via
+ * F0.5: the master-search aggregator. Holds every feature's [SearchProvider] (resolved by the app graph via
  * Koin's `getAll<SearchProvider>()`, so features never depend on this class) and fans a single query out to
  * all of them concurrently, then merges, de-duplicates and orders the combined result set.
  *
@@ -19,7 +19,7 @@ import kotlinx.coroutines.coroutineScope
 class MasterSearchRepository(
     private val providers: List<SearchProvider>,
 ) {
-    /** The entity types any registered provider can return — used by the UI to build its filter set. */
+    /** The entity types any registered provider can return, used by the UI to build its filter set. */
     val availableTypes: Set<SearchEntityType>
         get() = providers.flatMapTo(linkedSetOf()) { it.types }
 

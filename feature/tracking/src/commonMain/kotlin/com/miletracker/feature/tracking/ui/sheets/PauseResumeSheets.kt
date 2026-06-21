@@ -65,7 +65,7 @@ import androidx.compose.ui.unit.dp
 //
 // These are pure, hoisted bottom-sheet *bodies*: data comes in via params and
 // every interaction is surfaced through a callback. They deliberately do NOT
-// host a ModalBottomSheet, manage selection state, or talk to a ViewModel — the
+// host a ModalBottomSheet, manage selection state, or talk to a ViewModel, the
 // integrator wraps each in its own ModalBottomSheet and owns the state. That
 // keeps them trivially previewable and reusable.
 //
@@ -102,7 +102,7 @@ private fun pauseReasonIcon(reason: String): ImageVector =
  * Shows a title with a "Pausing at …" timestamp, a short rationale line, a wrap
  * grid of quick-reason [FilterChip]s, an "Add custom reason" affordance that
  * reveals a free-text field, and a Cancel / Pause Tracking action row. The
- * confirm button stays disabled until a reason (quick or custom) is provided —
+ * confirm button stays disabled until a reason (quick or custom) is provided,
  * matching the greyed-out state in the reference.
  *
  * Selection state is fully hoisted: pass [selectedReason] and [customReason] in,
@@ -259,7 +259,7 @@ fun PauseReasonSheet(
 
         Spacer(Modifier.height(16.dp))
 
-        // "Add custom reason" CTA — hidden once the custom field is showing.
+        // "Add custom reason" CTA, hidden once the custom field is showing.
         if (!showCustomInput) {
             OutlinedButton(
                 onClick = {

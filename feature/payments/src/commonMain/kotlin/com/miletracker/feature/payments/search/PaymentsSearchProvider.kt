@@ -10,7 +10,7 @@ import com.miletracker.feature.payments.repository.PaymentsRepository
 private const val DAY_MS = 86_400_000L
 
 /**
- * PM — the payments module's contribution to master search (F0.5 registry). Searches the payments history and
+ * PM: the payments module's contribution to master search (F0.5 registry). Searches the payments history and
  * returns flat [SearchResult]s (typed `QR`) with deep links. Visible under VIEW_ALL (payments has no dedicated
  * scope tab). `feature:search` resolves this via `getAll<SearchProvider>()` with zero coupling back here.
  */

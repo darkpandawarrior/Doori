@@ -21,7 +21,7 @@ enum class CardTxnStatus(val label: String) {
 }
 
 /**
- * Offline fake of corporate-card expense transactions (SP.3) — distinct from the corporate-card detail txns
+ * Offline fake of corporate-card expense transactions (SP.3), distinct from the corporate-card detail txns
  * in `feature:cards`; these are the spend records that flow into expense reconciliation. Clock-injected.
  */
 class CardsTxnHistoryRepository(private val clock: Clock = Clock.System) {

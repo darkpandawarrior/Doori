@@ -6,7 +6,7 @@ package com.miletracker.feature.media.ocr
  * Accepts a list of raw text lines produced by any OCR engine and returns the most
  * plausible odometer reading, or null when no credible number is found.
  *
- * Design contract: NO Android or ML Kit imports — this object is runnable on the
+ * Design contract: NO Android or ML Kit imports, this object is runnable on the
  * plain JVM and is therefore directly unit-testable without Robolectric.
  *
  * Extraction strategy (in priority order):
@@ -39,7 +39,7 @@ object OdometerOcrParser {
 
     // Regex: a sequence of 4 to 7 consecutive digits, optionally with comma/period as
     //        thousands separators (e.g. "12,345" or "12.345").
-    //        Space is NOT treated as a separator here — "1 23 456" would not match as one group.
+    //        Space is NOT treated as a separator here, "1 23 456" would not match as one group.
     //        Group 1 captures the raw token; the caller strips separators.
     private val DIGIT_GROUP = Regex("""(?<!\d)([\d,._]{4,10})(?!\d)""")
 

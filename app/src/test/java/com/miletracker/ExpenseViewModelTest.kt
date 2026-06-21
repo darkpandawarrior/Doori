@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * H: behavioural coverage for [ExpenseViewModel] — the expense list + multi-step submission reducer.
+ * H: behavioural coverage for [ExpenseViewModel], the expense list + multi-step submission reducer.
  * The repository is a concrete in-memory mock (no deps).
  */
 class ExpenseViewModelTest {

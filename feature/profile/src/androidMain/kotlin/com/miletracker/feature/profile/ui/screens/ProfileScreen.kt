@@ -860,7 +860,7 @@ private fun PersonaSwitcherRow(
 }
 
 /**
- * RF.4 — hosts the [ReferralCard], wiring the Koin [ReferralManager] (own code + redeem) to the platform
+ * RF.4: hosts the [ReferralCard], wiring the Koin [ReferralManager] (own code + redeem) to the platform
  * [LocalShareSheet] (no-op until SH.1 binds the real share sheet).
  */
 @Composable

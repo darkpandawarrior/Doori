@@ -6,7 +6,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 /**
- * UX.6: the shared locale state is a plain holder, verified directly — default, tag/language setters, and the
+ * UX.6: the shared locale state is a plain holder, verified directly, default, tag/language setters, and the
  * unknown-tag fallback to English.
  */
 class LocaleControllerTest {

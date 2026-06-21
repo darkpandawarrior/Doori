@@ -7,8 +7,8 @@ import androidx.compose.ui.Modifier
  * Platform-agnostic map rendering contract.
  *
  * Two surfaces are defined:
- *  - [LocationPinMap]  — static map with a single location pin (geo check-in, address preview)
- *  - [LiveTrackMap]    — full live-tracking map with route polylines, issue markers, and camera follow
+ *  - [LocationPinMap] , static map with a single location pin (geo check-in, address preview)
+ *  - [LiveTrackMap]   , full live-tracking map with route polylines, issue markers, and camera follow
  *
  * Implementations are selected at startup via the `maps` product flavor:
  *  - `gms`   → KrossMapSurface   (Google Maps on Android, MapKit on iOS)
@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 interface MapSurface {
     /**
      * Renders a static map centred on [latitude]/[longitude] with a single pin.
-     * Gestures (pan, zoom) are intentionally disabled — this is a preview, not an interactive map.
+     * Gestures (pan, zoom) are intentionally disabled, this is a preview, not an interactive map.
      */
     @Composable
     fun LocationPinMap(
@@ -31,8 +31,8 @@ interface MapSurface {
      * Renders a live-tracking map that reacts to location and route changes.
      *
      * @param routeCoords      Clean route points to draw as the main (blue) polyline.
-     * @param filteredCoords   Mock / paused points — drawn orange when [showIssueMarkers] is true.
-     * @param abnormalCoords   GPS-spike points — drawn red when [showIssueMarkers] is true.
+     * @param filteredCoords   Mock / paused points, drawn orange when [showIssueMarkers] is true.
+     * @param abnormalCoords   GPS-spike points, drawn red when [showIssueMarkers] is true.
      * @param startCoord       First clean route point; rendered as a start pin.
      * @param endCoord         Last clean route point; rendered as an end pin.
      * @param currentLat       Live device latitude (moves the bearing arrow marker).

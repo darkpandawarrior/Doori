@@ -22,7 +22,7 @@ import com.miletracker.feature.events.viewmodel.CreateEventEffect
 import com.miletracker.feature.events.viewmodel.CreateEventViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** EV — Create Event, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** EV: Create Event, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateEventScreen(
     onBack: () -> Unit,

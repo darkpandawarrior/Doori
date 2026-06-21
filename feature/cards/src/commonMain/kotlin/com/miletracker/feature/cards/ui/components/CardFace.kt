@@ -24,7 +24,7 @@ import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.cards.model.CardModel
 
 /**
- * Q+.2 — the corporate card face. Mirrors the web styling: a 13dp-radius card with the `#6367FA`
+ * Q+.2: the corporate card face. Mirrors the web styling: a 13dp-radius card with the `#6367FA`
  * (3.2dp) accent border, a gradient fill, masked PAN, holder, validity, brand, and a status badge.
  */
 @Composable

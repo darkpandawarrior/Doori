@@ -60,17 +60,17 @@ object ApprovalsRepository {
 
     val teamItems: List<ApprovalItem> =
         listOf(
-            ApprovalItem("T001", ApprovalType.EXPENSE, "Priya Sharma", "Expense ₹3,200 — Business dinner", 3200.0, ApprovalStatus.PENDING, BASE_MS - H),
-            ApprovalItem("T002", ApprovalType.MILEAGE, "Rahul Mehra", "Mileage 120 km — Weekly route", 1440.0, ApprovalStatus.PENDING, BASE_MS - 3 * H),
-            ApprovalItem("T003", ApprovalType.TRAVEL, "Aisha Khan", "Travel ₹8,400 — PNQ→BLR flight", 8400.0, ApprovalStatus.PENDING, BASE_MS - DAY),
+            ApprovalItem("T001", ApprovalType.EXPENSE, "Priya Sharma", "Expense ₹3,200: Business dinner", 3200.0, ApprovalStatus.PENDING, BASE_MS - H),
+            ApprovalItem("T002", ApprovalType.MILEAGE, "Rahul Mehra", "Mileage 120 km: Weekly route", 1440.0, ApprovalStatus.PENDING, BASE_MS - 3 * H),
+            ApprovalItem("T003", ApprovalType.TRAVEL, "Aisha Khan", "Travel ₹8,400: PNQ→BLR flight", 8400.0, ApprovalStatus.PENDING, BASE_MS - DAY),
         )
 
     val myRequests: List<ApprovalItem> =
         listOf(
-            ApprovalItem("R001", ApprovalType.ADVANCE, "Me", "Advance ₹5,000 — Field visit", 5000.0, ApprovalStatus.APPROVED, BASE_MS - 2 * DAY),
-            ApprovalItem("R002", ApprovalType.EXPENSE, "Me", "Expense ₹1,200 — Office stationery", 1200.0, ApprovalStatus.PENDING, BASE_MS - DAY),
-            ApprovalItem("R003", ApprovalType.TRAVEL, "Me", "Travel — PNQ→BOM flight", 3600.0, ApprovalStatus.APPROVED, BASE_MS - 3 * DAY),
-            ApprovalItem("R004", ApprovalType.ADVANCE, "Me", "Advance ₹12,000 — Conference", 12000.0, ApprovalStatus.REJECTED, BASE_MS - 5 * DAY),
+            ApprovalItem("R001", ApprovalType.ADVANCE, "Me", "Advance ₹5,000: Field visit", 5000.0, ApprovalStatus.APPROVED, BASE_MS - 2 * DAY),
+            ApprovalItem("R002", ApprovalType.EXPENSE, "Me", "Expense ₹1,200: Office stationery", 1200.0, ApprovalStatus.PENDING, BASE_MS - DAY),
+            ApprovalItem("R003", ApprovalType.TRAVEL, "Me", "Travel: PNQ→BOM flight", 3600.0, ApprovalStatus.APPROVED, BASE_MS - 3 * DAY),
+            ApprovalItem("R004", ApprovalType.ADVANCE, "Me", "Advance ₹12,000: Conference", 12000.0, ApprovalStatus.REJECTED, BASE_MS - 5 * DAY),
         )
 
     fun approve(id: String): List<ApprovalItem> =

@@ -13,7 +13,7 @@ import androidx.work.WorkManager
  * WorkManager's database lives in *credential-encrypted* storage, so `WorkManager.getInstance()` is unsafe
  * before the user has unlocked the device after a reboot (direct-boot window). Touching it then throws /
  * corrupts state. This helper guards every enqueue on [isUserUnlocked]; when the device is still locked it
- * returns `false` so the caller defers — the canonical pattern is a manifest receiver listening for
+ * returns `false` so the caller defers, the canonical pattern is a manifest receiver listening for
  * `ACTION_LOCKED_BOOT_COMPLETED` that does nothing but register for `ACTION_USER_UNLOCKED`, then re-runs the
  * enqueue once the credential storage is available.
  */

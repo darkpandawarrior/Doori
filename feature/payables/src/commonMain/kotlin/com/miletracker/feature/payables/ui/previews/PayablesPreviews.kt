@@ -34,7 +34,7 @@ import com.miletracker.feature.payables.model.PoStatus
 import com.miletracker.feature.payables.model.PurchaseOrder
 
 // ---------------------------------------------------------------------------
-// Phase 9.1 — Payables feature preview matrix.
+// Phase 9.1, Payables feature preview matrix.
 //
 // PayablesHomeScreen / PurchaseRequestDetailsScreen both default to koinViewModel().
 // These previews use model types directly to render representative UI without DI.
@@ -163,7 +163,7 @@ fun PreviewPoCardPendingApproval() {
     }
 }
 
-// ── Full matrix — PO list ────────────────────────────────────────────────────
+// ── Full matrix, PO list ────────────────────────────────────────────────────
 
 @PreviewMatrix
 @Composable

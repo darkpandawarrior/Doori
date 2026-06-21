@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.theme.DesignTokens
 
 /**
- * A lightweight decorative "map preview" rendered entirely with Canvas — a tinted
+ * A lightweight decorative "map preview" rendered entirely with Canvas, a tinted
  * grid plus a hinted route polyline and two endpoint markers. There is no real map
  * provider (osmdroid is intentionally optional in this offline demo), so this card
  * stands in for the map shown at the top of Step 1 in the reference.

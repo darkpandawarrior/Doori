@@ -92,6 +92,8 @@ fun DebugMenuScreen(
     onOpenShowcase: (() -> Unit)? = null,
     viewModel: DebugMenuComposeViewModel = koinViewModel(),
     configProvider: ConfigProvider = koinInject(),
+    heapUsedMb: Long = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024),
+    heapTotalMb: Long = Runtime.getRuntime().totalMemory() / (1024 * 1024),
 ) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
     val uiState = ui.debugMenuUiState
@@ -170,7 +172,7 @@ fun DebugMenuScreen(
                 )
             }
 
-            // Config snapshot — always shown when not searching
+            // Config snapshot, always shown when not searching
             if (searchQuery.isEmpty()) {
                 item {
                     ConfigSnapshotCard(
@@ -183,7 +185,11 @@ fun DebugMenuScreen(
             // Performance / memory
             if (searchQuery.isEmpty()) {
                 item {
-                    PerformanceCard(onRunGc = { viewModel.onAction(DebugMenuComposeAction.RunGarbageCollection) })
+                    PerformanceCard(
+                        onRunGc = { viewModel.onAction(DebugMenuComposeAction.RunGarbageCollection) },
+                        usedMb = heapUsedMb,
+                        totalMb = heapTotalMb,
+                    )
                 }
             }
 
@@ -238,14 +244,14 @@ fun DebugMenuScreen(
                 }
             }
 
-            // Network inspector (WormaCeptor) — only shown when host app wires the intent
+            // Network inspector (WormaCeptor), only shown when host app wires the intent
             if (searchQuery.isEmpty() && onOpenHttpInspector != null) {
                 item {
                     NetworkInspectorCard(onOpen = onOpenHttpInspector)
                 }
             }
 
-            // Component showcase browser — only shown when host app wires the launcher
+            // Component showcase browser, only shown when host app wires the launcher
             if (searchQuery.isEmpty() && onOpenShowcase != null) {
                 item {
                     ShowcaseBrowserCard(onOpen = onOpenShowcase)
@@ -307,7 +313,7 @@ fun DebugMenuScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Config snapshot card — shows offline-relevant flags from ConfigProvider
+// Config snapshot card, shows offline-relevant flags from ConfigProvider
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -423,15 +429,15 @@ fun buildConfigSnapshot(
     }
 
 // ---------------------------------------------------------------------------
-// Performance card — GC trigger + memory readout
+// Performance card, GC trigger + memory readout
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun PerformanceCard(onRunGc: () -> Unit) {
-    val runtime = Runtime.getRuntime()
-    val usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
-    val totalMb = runtime.totalMemory() / (1024 * 1024)
-
+internal fun PerformanceCard(
+    onRunGc: () -> Unit,
+    usedMb: Long = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024),
+    totalMb: Long = Runtime.getRuntime().totalMemory() / (1024 * 1024),
+) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -603,7 +609,7 @@ private fun ProfilePresetsCard(
 }
 
 // ---------------------------------------------------------------------------
-// Network inspector card (WormaCeptor) — only shown when callback is wired
+// Network inspector card (WormaCeptor), only shown when callback is wired
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -650,7 +656,7 @@ private fun NetworkInspectorCard(onOpen: () -> Unit) {
 }
 
 // ---------------------------------------------------------------------------
-// Component showcase card — launch the debug component browser
+// Component showcase card, launch the debug component browser
 // ---------------------------------------------------------------------------
 
 @Composable

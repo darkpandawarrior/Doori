@@ -30,7 +30,7 @@ sealed interface CreateVisaAction {
     data object Submit : CreateVisaAction
 }
 
-/** TR.7 — Visa-request reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
+/** TR.7: Visa-request reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
 class CreateVisaViewModel(
     private val repository: TravelCreateRepository,
 ) : BaseViewModel<CreateVisaUiState, TravelCreateEffect, CreateVisaAction>(CreateVisaUiState()) {

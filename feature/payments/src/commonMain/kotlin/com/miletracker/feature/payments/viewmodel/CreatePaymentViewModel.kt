@@ -41,7 +41,7 @@ sealed interface CreatePaymentEffect {
     data class Failed(val reason: String) : CreatePaymentEffect
 }
 
-/** PM — QR/UPI pay-or-request reducer on the shared `FormSubmissionScaffold`. */
+/** PM: QR/UPI pay-or-request reducer on the shared `FormSubmissionScaffold`. */
 class CreatePaymentViewModel(
     private val repository: PaymentsRepository,
 ) : BaseViewModel<CreatePaymentUiState, CreatePaymentEffect, CreatePaymentAction>(CreatePaymentUiState()) {

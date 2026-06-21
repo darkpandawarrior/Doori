@@ -117,7 +117,7 @@ class CheckInValidatorTest {
 
     @Test
     fun `nearest location is selected from multiple candidates`() {
-        // Stand exactly at warehouse coordinates — that should be nearest
+        // Stand exactly at warehouse coordinates, that should be nearest
         val result = CheckInValidator.validate(
             userLat = warehouse.lat,
             userLng = warehouse.lng,

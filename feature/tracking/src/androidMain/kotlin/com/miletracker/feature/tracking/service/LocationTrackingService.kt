@@ -30,8 +30,10 @@ import com.miletracker.feature.tracking.service.location.TrackingSensorMonitor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,6 +73,12 @@ class LocationTrackingService : Service() {
     private var isPaused: Boolean = false
     private var startCoordsWritten = false
 
+    // A.2: watchdog that falls back to the simulated drive source if the real GPS provider never
+    // delivers a fix (no hardware fix / permission edge / indoors), so the UI never stalls on
+    // "Waiting for location…". Cancelled the moment the first real fix lands.
+    private var firstFixSeen = false
+    private var fixWatchdogJob: Job? = null
+
     companion object {
         const val EXTRA_TOKEN = "token"
         const val ACTION_START = "action_start"
@@ -83,6 +91,13 @@ class LocationTrackingService : Service() {
 
         /** Demo flag: drive the pipeline from a simulated route (no GPS hardware required). */
         const val SIMULATE_LOCATION = true
+
+        /**
+         * A.2: if the real GPS provider hasn't produced a single fix within this window, fall back
+         * to the deterministic simulated drive so distance/duration/speed advance regardless of
+         * hardware. Inert when [SIMULATE_LOCATION] is on (already simulated from the start).
+         */
+        const val FIRST_FIX_TIMEOUT_MS = 6_000L
     }
 
     override fun onCreate() {
@@ -98,7 +113,7 @@ class LocationTrackingService : Service() {
     ): Int {
         // A startForegroundService() launch that doesn't reach startForeground() within the
         // ANR window kills the whole process (ForegroundServiceDidNotStartInTimeException),
-        // so promote to foreground before ANY other work — especially before the suspendable
+        // so promote to foreground before ANY other work, especially before the suspendable
         // session-restore read below.
         if (!enterForeground()) return START_NOT_STICKY
 
@@ -146,7 +161,7 @@ class LocationTrackingService : Service() {
      * The DataStore read suspends, which is safe here because we are already foreground.
      */
     private fun restoreSession(intentToken: String?) {
-        if (activeToken != null) return // already tracking — duplicate restore, ignore
+        if (activeToken != null) return // already tracking: duplicate restore, ignore
         scope.launch {
             val session = sessionStore.currentTrackFlow.first()
             val token = intentToken?.takeIf { it.isNotEmpty() } ?: session.token
@@ -193,8 +208,32 @@ class LocationTrackingService : Service() {
             )
         }
 
+        firstFixSeen = false
         source = if (SIMULATE_LOCATION) SimulatedLocationSource() else FusedLocationSource(this)
         source?.start { fix -> onFix(token, fix) }
+        // A.2: arm the no-fix watchdog for the real-GPS path only.
+        if (!SIMULATE_LOCATION) armFirstFixWatchdog(token)
+    }
+
+    /**
+     * If no real fix lands within [FIRST_FIX_TIMEOUT_MS], swap the live source for a
+     * [SimulatedLocationSource] so the tracking UI advances instead of stalling on
+     * "Waiting for location…". Self-cancels as soon as the first real fix arrives.
+     */
+    private fun armFirstFixWatchdog(token: String) {
+        fixWatchdogJob?.cancel()
+        fixWatchdogJob =
+            scope.launch {
+                delay(FIRST_FIX_TIMEOUT_MS)
+                if (firstFixSeen || activeToken != token) return@launch
+                withContext(Dispatchers.Main) {
+                    if (firstFixSeen || activeToken != token) return@withContext
+                    source?.stop()
+                    source = SimulatedLocationSource()
+                    source?.start { fix -> onFix(token, fix) }
+                    logEvent(token, EventType.TRACKING_STARTED, "No GPS fix — using simulated drive")
+                }
+            }
     }
 
     /**
@@ -217,6 +256,11 @@ class LocationTrackingService : Service() {
         token: String,
         fix: GpsFix,
     ) {
+        // A.2: the first fix (real or simulated) disarms the no-fix watchdog.
+        if (!firstFixSeen) {
+            firstFixSeen = true
+            fixWatchdogJob?.cancel()
+        }
         val proc = processor ?: return
         val result = proc.process(fix, isPaused, sensorMonitor.snapshot) ?: return // jitter-suppressed
         val battery = batteryPercent()
@@ -281,7 +325,7 @@ class LocationTrackingService : Service() {
     }
 
     private fun setPaused(paused: Boolean) {
-        // Pause/resume with no live session (service started cold) — don't linger foreground.
+        // Pause/resume with no live session (service started cold), don't linger foreground.
         val token =
             activeToken ?: run {
                 leaveForegroundAndStop()
@@ -305,6 +349,7 @@ class LocationTrackingService : Service() {
     private fun stopAndFinalize() {
         val token = activeToken
         val proc = processor
+        fixWatchdogJob?.cancel()
         source?.stop()
         sensorMonitor.stop()
         statePublisher.update { it.copy(state = TrackingState.COMPLETED, lastEvent = EventType.TRACKING_STOPPED) }
@@ -424,10 +469,10 @@ class LocationTrackingService : Service() {
         return pct.toDouble()
     }
 
-    /** Whether the device is currently charging — feeds [DynamicIntervalCalculator] (no battery penalty). */
+    /** Whether the device is currently charging, feeds [DynamicIntervalCalculator] (no battery penalty). */
     private fun isCharging(): Boolean = (getSystemService(BATTERY_SERVICE) as? BatteryManager)?.isCharging ?: false
 
-    /** Whether OS power-saver (battery-saver) mode is on — stretches the GPS cadence. */
+    /** Whether OS power-saver (battery-saver) mode is on, stretches the GPS cadence. */
     private fun isPowerSaver(): Boolean = (getSystemService(POWER_SERVICE) as? PowerManager)?.isPowerSaveMode ?: false
 
     private fun appVersionName(): String =
@@ -472,7 +517,7 @@ class LocationTrackingService : Service() {
     }
 
     /**
-     * Phase-aware foreground notification copy (C.2b) — one of seven messages derived from the published
+     * Phase-aware foreground notification copy (C.2b), one of seven messages derived from the published
      * [TrackingSnapshot]: acquiring, live, paused, resumed, mock-detected, abnormal-filtered, completed.
      */
     private fun notificationText(s: TrackingSnapshot): String {

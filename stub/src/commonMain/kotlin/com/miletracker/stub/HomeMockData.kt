@@ -1,7 +1,7 @@
 package com.miletracker.stub
 
 /**
- * Home-screen "At a Glance" counters. Shell-only model — these counts feed the
+ * Home-screen "At a Glance" counters. Shell-only model, these counts feed the
  * dashboard summary cards and never round-trip through the network layer.
  */
 data class AtAGlanceCounts(
@@ -39,7 +39,7 @@ data class DemoAuthTokens(
 
 /**
  * Fixed, deterministic mock data for the home/shell screens. Every value here is a
- * constant — no time, no randomness — so UI snapshots and unit tests stay stable.
+ * constant: no time, no randomness, so UI snapshots and unit tests stay stable.
  */
 object HomeMockData {
     // Counts are kept internally consistent with the other home signals: pendingExpenses

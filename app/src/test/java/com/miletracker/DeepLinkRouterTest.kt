@@ -8,7 +8,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** DL.1 — deep-link router + validator. */
+/** DL.1: deep-link router + validator. */
 class DeepLinkRouterTest {
     @Test
     fun `custom scheme sections resolve`() {

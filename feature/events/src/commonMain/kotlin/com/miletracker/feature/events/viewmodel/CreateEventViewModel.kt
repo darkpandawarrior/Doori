@@ -43,7 +43,7 @@ sealed interface CreateEventEffect {
     data class Violation(val messages: List<String>) : CreateEventEffect
 }
 
-/** EV — create-event reducer on the shared `FormSubmissionScaffold`. */
+/** EV: create-event reducer on the shared `FormSubmissionScaffold`. */
 class CreateEventViewModel(
     private val repository: EventsRepository,
 ) : BaseViewModel<CreateEventUiState, CreateEventEffect, CreateEventAction>(CreateEventUiState()) {

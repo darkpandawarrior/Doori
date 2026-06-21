@@ -17,7 +17,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 /**
- * iOS app-level bindings (KOIN.2) — the shared, mock/offline app services the Android `appModule` provides,
+ * iOS app-level bindings (KOIN.2), the shared, mock/offline app services the Android `appModule` provides,
  * minus the Android-only pieces (DemoConfigManager, geofence list, WorkManager). Combined with
  * [com.miletracker.core.platform.di.platformModule] (which supplies the iOS `AppUpdateManager`/`AppReviewManager`),
  * this lets `LocalManagerProvider` resolve real iOS managers instead of falling back to the `PlatformBindings`

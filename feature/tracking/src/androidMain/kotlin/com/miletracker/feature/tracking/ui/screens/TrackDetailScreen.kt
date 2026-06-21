@@ -199,7 +199,7 @@ fun TrackDetailScreen(
                 }
             }
 
-            // Attachments section — shown only when there are persisted photos
+            // Attachments section, shown only when there are persisted photos
             if (uiState.attachments.isNotEmpty()) {
                 AttachmentsCard(attachments = uiState.attachments)
             }

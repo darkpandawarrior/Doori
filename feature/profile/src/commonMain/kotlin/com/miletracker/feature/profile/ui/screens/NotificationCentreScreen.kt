@@ -96,7 +96,7 @@ private val NOTIFICATIONS =
         NotifItem(
             "N003",
             "Expense Rejected",
-            "EXP-003 rejected — receipt unclear",
+            "EXP-003 rejected: receipt unclear",
             "3 hrs ago",
             true,
             NotifCategory.ALL,
@@ -136,7 +136,7 @@ private val NOTIFICATIONS =
         NotifItem(
             "N007",
             "App Update",
-            "Version 2.4.1 available — improved GPS accuracy",
+            "Version 2.4.1 available: improved GPS accuracy",
             "3 days ago",
             false,
             NotifCategory.SYSTEM,

@@ -19,7 +19,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val CABIN_CLASSES = listOf("Economy", "Premium", "Business")
 
-/** TR.3 — Add Flight booking request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** TR.3: Add Flight booking request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreateFlightScreen(
     onBack: () -> Unit,

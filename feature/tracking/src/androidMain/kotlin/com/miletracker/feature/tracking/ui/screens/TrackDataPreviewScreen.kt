@@ -176,7 +176,7 @@ fun TrackDataPreviewScreen(
                         EventsTab(
                             events = events,
                             onExport = {
-                                scope.launch { snackbarHostState.showSnackbar("Export — use share button on Hardware Events Log") }
+                                scope.launch { snackbarHostState.showSnackbar("Export: use share button on Hardware Events Log") }
                             },
                         )
                     3 ->
@@ -295,7 +295,7 @@ private fun QualityTab(track: SavedTrack) {
             if (track.wasPermissionsViolated) add(IssueRow(Icons.Default.Block, "Permissions Were Violated", "GPS data may be missing", IssueSeverity.HIGH))
             if (track.wasPhoneShutDown) {
                 add(
-                    IssueRow(Icons.Default.PowerOff, "Phone Was Shut Down", "Tracking gap — distance may be under-reported", IssueSeverity.HIGH),
+                    IssueRow(Icons.Default.PowerOff, "Phone Was Shut Down", "Tracking gap: distance may be under-reported", IssueSeverity.HIGH),
                 )
             }
             if (track.wasAppKilled) {
@@ -315,7 +315,7 @@ private fun QualityTab(track: SavedTrack) {
             }
             if (track.wasPowerSaverEnabled) {
                 add(
-                    IssueRow(Icons.Default.PhoneLocked, "Power Saver Was ON", "GPS sampling reduced — distance affected", IssueSeverity.LOW),
+                    IssueRow(Icons.Default.PhoneLocked, "Power Saver Was ON", "GPS sampling reduced: distance affected", IssueSeverity.LOW),
                 )
             }
         }
@@ -344,10 +344,10 @@ private fun QualityTab(track: SavedTrack) {
                     Text(
                         when (health) {
                             HealthLevel.EXCELLENT -> "No issues detected"
-                            HealthLevel.GOOD -> "Minor issues — data reliable"
-                            HealthLevel.FAIR -> "Some issues — review recommended"
-                            HealthLevel.POOR -> "Significant issues — distance may vary"
-                            HealthLevel.CRITICAL -> "Critical issues — data unreliable"
+                            HealthLevel.GOOD -> "Minor issues: data reliable"
+                            HealthLevel.FAIR -> "Some issues: review recommended"
+                            HealthLevel.POOR -> "Significant issues: distance may vary"
+                            HealthLevel.CRITICAL -> "Critical issues: data unreliable"
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,

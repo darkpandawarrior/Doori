@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-/** One page of an [OnboardingCarousel] — a hero icon, title and supporting copy. */
+/** One page of an [OnboardingCarousel], a hero icon, title and supporting copy. */
 data class OnboardingPage(
     val icon: ImageVector,
     val title: String,
@@ -43,7 +43,7 @@ data class OnboardingPage(
 /**
  * Reusable onboarding / what's-new carousel (UX.5): a [HorizontalPager] of [OnboardingPage]s with an
  * animated dot indicator, a Skip shortcut, a Next button that advances, and a Get-started button on the last
- * page. Stateless about persistence — the caller decides when to show it (first launch / post-update) and
+ * page. Stateless about persistence, the caller decides when to show it (first launch / post-update) and
  * what [onFinish] does (set a "seen" flag, navigate on).
  */
 @Composable

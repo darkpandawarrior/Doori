@@ -10,7 +10,7 @@ import com.miletracker.feature.tracking.ui.screens.TrackSettingsScreen
 import com.miletracker.feature.tracking.ui.screens.TrackingSuccessScreen
 
 // ---------------------------------------------------------------------------
-// Phase 9.1 — Tracking feature preview matrix.
+// Phase 9.1, Tracking feature preview matrix.
 //
 // All previews are DI-free: screens that accept state accept it via params;
 // screens that own internal state (TrackSettingsScreen, SetupGuideScreen)

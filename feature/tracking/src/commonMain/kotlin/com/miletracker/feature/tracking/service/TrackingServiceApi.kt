@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.update
 
 /**
  * Live, in-memory telemetry the foreground tracking service publishes for the UI (C.2b). Unlike the
- * persisted `CurrentTrackData` session, this carries transient signals the DB doesn't keep — the
- * adaptive GPS interval, charging state, and the latest diagnostic [lastEvent] — so the gauge can react
+ * persisted `CurrentTrackData` session, this carries transient signals the DB doesn't keep, the
+ * adaptive GPS interval, charging state, and the latest diagnostic [lastEvent], so the gauge can react
  * to them in real time without a Room round-trip.
  */
 data class TrackingSnapshot(
@@ -41,7 +41,7 @@ interface TrackingServiceApi {
  * and the ViewModel reads the same flow.
  *
  * Chosen over a bound-service `Binder`: the consumer ([com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel])
- * lives in the same process, so a shared [StateFlow] is the lifecycle-safe, idiomatic channel — no
+ * lives in the same process, so a shared [StateFlow] is the lifecycle-safe, idiomatic channel, no
  * `ServiceConnection` to leak across config changes, and it is unit-testable as a pure flow. (A Binder
  * only earns its keep for cross-process IPC, which this offline demo never does.)
  */

@@ -8,7 +8,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-/** F0.5 — search-result → section-graph mapping used when a result row is tapped. */
+/** F0.5: search-result → section-graph mapping used when a result row is tapped. */
 class SearchResultRoutingTest {
 
     private fun resultOf(type: SearchEntityType) =

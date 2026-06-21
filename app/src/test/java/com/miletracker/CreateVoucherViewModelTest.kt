@@ -28,7 +28,7 @@ class CreateVoucherViewModelTest {
 
     /**
      * Creates a completed + server-uploaded [SavedTrack] whose display data will have
-     * [isSubmitted = true] and [reimbursableAmount = amount] — the two filters
+     * [isSubmitted = true] and [reimbursableAmount = amount], the two filters
      * [CreateVoucherViewModel.loadExpenses] applies.
      */
     private fun makeSubmittedTrack(routeId: String, amount: Double = 50.0) = SavedTrack(
@@ -48,7 +48,7 @@ class CreateVoucherViewModelTest {
     @Test
     fun `init loads submitted expenses with non-zero amount`() = runTest {
         dao.preload(makeSubmittedTrack("T1", 100.0))
-        dao.preload(makeSubmittedTrack("T2", 0.0))   // zero amount — excluded
+        dao.preload(makeSubmittedTrack("T2", 0.0))   // zero amount: excluded
         dao.preload(makeSubmittedTrack("T3", 200.0))
         val vm = viewModel()
         advanceUntilIdle()
@@ -61,7 +61,7 @@ class CreateVoucherViewModelTest {
     fun `init generates a default title`() = runTest {
         val vm = viewModel()
         advanceUntilIdle()
-        assertTrue(vm.state.value.title.startsWith("Voucher —"))
+        assertTrue(vm.state.value.title.startsWith("Voucher:"))
     }
 
     @Test

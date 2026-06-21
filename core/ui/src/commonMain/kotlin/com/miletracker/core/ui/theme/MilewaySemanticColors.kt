@@ -2,82 +2,123 @@ package com.miletracker.core.ui.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import kotlin.math.pow
 
 /**
- * Design Language v2 — semantic colour tokens.
+ * Design Language v2 colours that don't fit Material's role slots — the accent glow ramp, the
+ * tuned-for-dark semantic states, and the raised-surface / border tokens that drive
+ * elevation-by-lightness. Provided once by [MileTrackerTheme] and read 2 levels deep via
+ * [MilewayColors], so screens never hard-code hexes and every curated theme stays coherent.
  *
- * One source of truth for every "what does this colour *mean*" decision across the app:
- * status states (success / warning / danger / info), the neutral/premium accents, and the
- * subtle green *glow* reserved for active/primary affordances.
+ * Architecture: this is the seam future under-themes hook into. A driving-mode or per-feature
+ * accent tint can override just these tokens via a nested provider with no change to call sites.
+ */
+data class MilewaySemanticColors(
+    val warning: Color,
+    val danger: Color,
+    val info: Color,
+    val success: Color,
+    val accentGlow: Color,
+    val accentDim: Color,
+    val border: Color,
+    val surfaceRaised: Color,
+    val surfaceHighest: Color,
+    /** Dark schemes paint a subtle glow + top-edge highlight on raised surfaces; light schemes don't. */
+    val useGlow: Boolean,
+)
+
+/** Fallback mirrors the Matrix scheme so previews that forget to wrap still look on-brand. */
+val LocalMilewaySemanticColors: ProvidableCompositionLocal<MilewaySemanticColors> =
+    staticCompositionLocalOf { MatrixSpec.semanticColors() }
+
+/**
+ * Accessor for [MilewaySemanticColors]. Mirrors the `MaterialTheme.colorScheme` ergonomics:
  *
- * These replace the scattered `Color(0xFF…)` literals, [DesignTokens.StatusColors] and the
- * per-feature `TrackingTheme` palette. They are **theme-aware**: each token resolves to a
- * lightness-appropriate value for the current Material scheme so it stays WCAG-AA on both the
- * deep-dark default surfaces and the light Daybreak surface. Always reach for these via the
- * [MilewayColors] accessor inside a composable — never hard-code a hex value in a screen again.
+ * ```
+ * Text(color = MilewayColors.warning)
+ * Surface(color = MilewayColors.surfaceRaised) { … }
+ * ```
  *
- * Geometry, type and edge-to-edge behaviour are theme-independent and live elsewhere
- * (DesignTokens / Type).
+ * Two groups of tokens live here:
+ *  - **Provided** by the active curated theme (Matrix / Amoled / Ion / Daybreak) through
+ *    [LocalMilewaySemanticColors]: the status states, the accent glow ramp and the surface /
+ *    border tokens. Each curated spec hand-tunes these so they stay coherent per theme.
+ *  - **Derived** from the live Material scheme — [neutral], [premium], [glow]. These were added
+ *    by the per-screen sweep; rather than enumerate them in every theme spec, they resolve to a
+ *    lightness-appropriate value off the current scheme so they stay WCAG-AA on both the deep-dark
+ *    defaults and the light Daybreak surface. Always reach for colours via this accessor inside a
+ *    composable — never hard-code a hex value in a screen.
  */
 object MilewayColors {
-    // ── Dark-surface tuned tokens (deep-dark default — AA on #0B0F0D) ───────────────
-    private val DarkSuccess = Color(0xFF3DDC84) // accent green, doubles as "success"
-    private val DarkWarning = Color(0xFFF2C14E)
-    private val DarkDanger = Color(0xFFF2545B)
-    private val DarkInfo = Color(0xFF5BA8F5)
-    private val DarkNeutral = Color(0xFF9AA5A0)
-    private val DarkPremium = Color(0xFFC08AF2)
+    val warning: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.warning
+    val danger: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.danger
+    val info: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.info
+    val success: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.success
+    val accentGlow: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.accentGlow
+    val accentDim: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.accentDim
+    val border: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.border
+    val surfaceRaised: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.surfaceRaised
+    val surfaceHighest: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.surfaceHighest
+    val useGlow: Boolean
+        @Composable @ReadOnlyComposable
+        get() = LocalMilewaySemanticColors.current.useGlow
 
-    // ── Light-surface tuned tokens (Daybreak — AA on a near-white surface) ──────────
-    private val LightSuccess = Color(0xFF1C8F52)
-    private val LightWarning = Color(0xFFB8860B)
-    private val LightDanger = Color(0xFFD32F2F)
-    private val LightInfo = Color(0xFF1C6FD6)
-    private val LightNeutral = Color(0xFF5F6B66)
-    private val LightPremium = Color(0xFF7B3FB0)
+    /** The primary accent — convenience mirror of `MaterialTheme.colorScheme.primary`. */
+    val accent: Color
+        @Composable @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.primary
 
-    /** Brand accent — the single green the app leans on for primary affordances. */
-    val accent: Color = Color(0xFF3DDC84)
-
-    private val isLight: Boolean
+    /**
+     * True when the active scheme paints onto a light surface (Daybreak). Derived from relative
+     * luminance so the muted / highlight tokens below pick an AA-correct lightness without each
+     * curated theme having to carry them explicitly.
+     */
+    private val isLightSurface: Boolean
         @Composable @ReadOnlyComposable
         get() = MaterialTheme.colorScheme.surface.relativeLuminance() >
             MaterialTheme.colorScheme.onSurface.relativeLuminance()
 
-    /** Positive / approved / completed / reimbursable. */
-    val success: Color
-        @Composable @ReadOnlyComposable get() = if (isLight) LightSuccess else DarkSuccess
-
-    /** Pending / low-balance / caution. */
-    val warning: Color
-        @Composable @ReadOnlyComposable get() = if (isLight) LightWarning else DarkWarning
-
-    /** Rejected / critical / overdue / destructive. */
-    val danger: Color
-        @Composable @ReadOnlyComposable get() = if (isLight) LightDanger else DarkDanger
-
-    /** Informational / processing / submitted. */
-    val info: Color
-        @Composable @ReadOnlyComposable get() = if (isLight) LightInfo else DarkInfo
-
-    /** Draft / inactive / muted metadata. */
+    /** Draft / inactive / muted metadata. Tuned for both deep-dark and Daybreak surfaces. */
     val neutral: Color
-        @Composable @ReadOnlyComposable get() = if (isLight) LightNeutral else DarkNeutral
+        @Composable @ReadOnlyComposable
+        get() = if (isLightSurface) Color(0xFF5F6B66) else Color(0xFF9AA5A0)
 
-    /** Premium / highlight (e.g. corporate cards, badges). */
+    /** Premium / highlight (e.g. corporate cards, badges). AA on both default and light surfaces. */
     val premium: Color
-        @Composable @ReadOnlyComposable get() = if (isLight) LightPremium else DarkPremium
+        @Composable @ReadOnlyComposable
+        get() = if (isLightSurface) Color(0xFF7B3FB0) else Color(0xFFC08AF2)
 
     /**
-     * Subtle green halo for active/primary surfaces. Reserved — only the *currently active*
-     * control (recording, selected primary CTA) should glow, never decorative chrome.
-     * Returns the accent at a low alpha so callers can drop it straight into a shadow/border.
+     * Subtle accent halo for the *currently active* primary affordance (recording, selected CTA) —
+     * never decorative chrome. Returns the theme accent at a low alpha so callers can drop it
+     * straight into a shadow / border / glow. Tracks the active theme's primary, so it follows the
+     * curated scheme (Matrix green, Ion blue, etc.) rather than a fixed hardcoded green.
      */
     val glow: Color
-        @Composable @ReadOnlyComposable get() = accent.copy(alpha = if (isLight) 0.20f else 0.32f)
+        @Composable @ReadOnlyComposable
+        get() = MaterialTheme.colorScheme.primary.copy(alpha = if (isLightSurface) 0.20f else 0.32f)
 }
 
 /** WCAG relative luminance (sRGB), multiplatform-safe (no android.graphics). */

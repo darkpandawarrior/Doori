@@ -237,7 +237,7 @@ fun LocationMapScreen(
             )
         }
 
-    // Marker state — no-op stubs for demo
+    // Marker state, no-op stubs for demo
     val markers: List<MapMarkerData> = emptyList()
     var markerFilters by remember { mutableStateOf(MarkerFilters()) }
     var selectedMarker by remember { mutableStateOf<MapMarkerData?>(null) }
@@ -541,7 +541,7 @@ fun EnhancedLiveTrackingUI(
         }
     }
 
-    // Playback animation — advance playback index on each tick.
+    // Playback animation, advance playback index on each tick.
     LaunchedEffect(isPlayingBack, playbackSpeed, playbackIndex) {
         if (isPlayingBack && locationPoints.isNotEmpty() && playbackIndex < locationPoints.size) {
             delay((500 / playbackSpeed).toLong())
@@ -564,7 +564,7 @@ fun EnhancedLiveTrackingUI(
         }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Map — rendered by the active flavor's MapSurface implementation
+        // Map: rendered by the active flavor's MapSurface implementation
         mapSurface.LiveTrackMap(
             routeCoords = routeData.routeCoords.map { MapCoordinate(it.lat, it.lng) },
             filteredCoords = routeData.filteredCoords.map { MapCoordinate(it.lat, it.lng) },
@@ -758,7 +758,7 @@ fun EnhancedLiveTrackingUI(
             )
         }
 
-        // Marker info dialog (stub — no-op in demo)
+        // Marker info dialog (stub, no-op in demo)
         if (selectedMarker != null) {
             MarkerInfoDialog(
                 marker = selectedMarker,

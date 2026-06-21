@@ -437,7 +437,7 @@ fun CheckInRadiusWarningSheet(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                // Override — record the check-in anyway (with type GEO_OVERRIDE)
+                // Override: record the check-in anyway (with type GEO_OVERRIDE)
                 Button(
                     onClick = { viewModel.onAction(CheckInAction.ForceGeoCheckInDespiteRadius) },
                     modifier = Modifier.fillMaxWidth(),

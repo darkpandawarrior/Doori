@@ -35,7 +35,7 @@ import kotlin.test.assertTrue
  * Uses the same fake-at-boundary strategy as [TrackMilesViewModelTest]:
  * - [FakeTrackingNetworkApi] and [DemoConfigManager] are the real offline stubs the app ships.
  * - [SavedTrackRepository] is backed by a fresh [FakeSavedTrackDao] (from TrackMilesViewModelTest).
- * - [TripAttachmentRepository] is a mockk(relaxed) — persisting attachments is fire-and-forget.
+ * - [TripAttachmentRepository] is a mockk(relaxed), persisting attachments is fire-and-forget.
  */
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class MileageSubmissionViewModelTest {

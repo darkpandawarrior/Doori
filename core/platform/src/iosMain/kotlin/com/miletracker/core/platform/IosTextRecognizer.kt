@@ -13,7 +13,7 @@ import platform.Vision.VNRecognizedTextObservation
 import platform.Vision.VNRequestTextRecognitionLevelAccurate
 
 /**
- * iOS OCR via the Vision framework (F) — the VNRecognizeTextRequest counterpart to Android's ML Kit
+ * iOS OCR via the Vision framework (F), the VNRecognizeTextRequest counterpart to Android's ML Kit
  * TextRecognizer. Wraps the image bytes in an NSData → UIImage → CGImage, runs an accurate-level text
  * request synchronously through a VNImageRequestHandler, and joins the top candidate of each observation.
  */

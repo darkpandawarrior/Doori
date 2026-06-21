@@ -59,7 +59,7 @@ data class FilterOption(
     val label: String,
 )
 
-/** A drill-down group in a [FilterBottomSheet] — e.g. "Status", "Category". */
+/** A drill-down group in a [FilterBottomSheet], e.g. "Status", "Category". */
 data class FilterSection(
     val key: String,
     val title: String,

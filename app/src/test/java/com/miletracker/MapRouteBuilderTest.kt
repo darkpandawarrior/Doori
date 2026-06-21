@@ -10,7 +10,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Unit tests for [MapRouteBuilder].  Pure JVM — no Android device needed.
+ * Unit tests for [MapRouteBuilder].  Pure JVM, no Android device needed.
  *
  * Covers:
  * - Empty input
@@ -80,7 +80,7 @@ class MapRouteBuilderTest {
     }
 
     // -----------------------------------------------------------------------
-    // Start / end selection — normal route
+    // Start / end selection, normal route
     // -----------------------------------------------------------------------
 
     @Test
@@ -136,7 +136,7 @@ class MapRouteBuilderTest {
     }
 
     // -----------------------------------------------------------------------
-    // Partitioning — abnormal points
+    // Partitioning: abnormal points
     // -----------------------------------------------------------------------
 
     @Test
@@ -158,7 +158,7 @@ class MapRouteBuilderTest {
     }
 
     // -----------------------------------------------------------------------
-    // Partitioning — mock (filtered) points
+    // Partitioning: mock (filtered) points
     // -----------------------------------------------------------------------
 
     @Test
@@ -214,7 +214,7 @@ class MapRouteBuilderTest {
     fun `bounds include abnormal and filtered points`() {
         val points = listOf(
             loc(10.0, 20.0),
-            loc(50.0, 80.0, isAbnormal = true),   // extreme outlier — still included in bounds
+            loc(50.0, 80.0, isAbnormal = true),   // extreme outlier: still included in bounds
             loc(5.0,  15.0, isMock = true)
         )
         val result = MapRouteBuilder.build(points)

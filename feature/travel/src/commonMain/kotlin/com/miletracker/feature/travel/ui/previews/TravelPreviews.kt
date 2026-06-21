@@ -42,11 +42,11 @@ private fun Double.fmt2(): String {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 9.1 — Travel feature preview matrix.
+// Phase 9.1, Travel feature preview matrix.
 //
 // The travel feature has no screen composables yet; these previews establish
 // the design baseline for the upcoming BookingRecord list and detail screens.
-// All data is hardcoded — no DI or ViewModel required.
+// All data is hardcoded, no DI or ViewModel required.
 // ---------------------------------------------------------------------------
 
 // ── Sample data ──────────────────────────────────────────────────────────────
@@ -197,7 +197,7 @@ fun PreviewBookingCardUpcomingTrain() {
     }
 }
 
-// ── Full matrix — completed flight ───────────────────────────────────────────
+// ── Full matrix, completed flight ───────────────────────────────────────────
 
 @PreviewMatrix
 @Composable
@@ -209,7 +209,7 @@ fun PreviewBookingCardCompletedFlight() {
     }
 }
 
-// ── Full matrix — booking list ────────────────────────────────────────────────
+// ── Full matrix, booking list ────────────────────────────────────────────────
 
 @PreviewMatrix
 @Composable

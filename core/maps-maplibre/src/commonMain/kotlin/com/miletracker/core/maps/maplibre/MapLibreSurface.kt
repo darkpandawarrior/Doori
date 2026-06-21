@@ -100,7 +100,7 @@ class MapLibreSurface : MapSurface {
             }
         }
 
-        // showTraffic has no equivalent in open-tile MapLibre — silently ignored.
+        // showTraffic has no equivalent in open-tile MapLibre, silently ignored.
         val ornaments = if (showCompass) OrnamentOptions.AllEnabled else OrnamentOptions.OnlyLogo
         MaplibreMap(
             modifier = modifier,
@@ -126,7 +126,7 @@ class MapLibreSurface : MapSurface {
                 )
             }
 
-            // Filtered points (orange) — mock / paused
+            // Filtered points (orange), mock / paused
             if (showIssueMarkers && filteredCoords.isNotEmpty()) {
                 val filteredJson = remember(filteredCoords.size) { filteredCoords.toMultiPointJson() }
                 val filteredSource = rememberGeoJsonSource(GeoJsonData.JsonString(filteredJson))
@@ -140,7 +140,7 @@ class MapLibreSurface : MapSurface {
                 )
             }
 
-            // Abnormal points (red) — GPS spikes
+            // Abnormal points (red), GPS spikes
             if (showIssueMarkers && abnormalCoords.isNotEmpty()) {
                 val abnormalJson = remember(abnormalCoords.size) { abnormalCoords.toMultiPointJson() }
                 val abnormalSource = rememberGeoJsonSource(GeoJsonData.JsonString(abnormalJson))
@@ -182,7 +182,7 @@ class MapLibreSurface : MapSurface {
                 )
             }
 
-            // Current position — pulsing ring outer
+            // Current position, pulsing ring outer
             val currentJson =
                 remember(currentLat, currentLng) {
                     MapCoordinate(currentLat, currentLng).toPointJson()

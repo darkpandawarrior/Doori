@@ -12,7 +12,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertTrue
 
-/** SP.4 (V17): the Spends SearchProvider — scope gating, min-length, multi-entity hits, type filter. */
+/** SP.4 (V17): the Spends SearchProvider, scope gating, min-length, multi-entity hits, type filter. */
 class ExpensesSearchProviderTest {
 
     private fun provider() =

@@ -6,7 +6,7 @@ import androidx.compose.ui.tooling.preview.Preview
 // Platform-neutral multipreview annotations for KMP commonMain.
 //
 // Rules:
-// - Do NOT use the `device` parameter — it's Android-only. Use widthDp/heightDp.
+// - Do NOT use the `device` parameter, it's Android-only. Use widthDp/heightDp.
 // - Dark mode uses uiMode = 0x20 (Configuration.UI_MODE_NIGHT_YES literal).
 // - fontScale uses @Preview's built-in fontScale parameter.
 // ---------------------------------------------------------------------------
@@ -38,7 +38,7 @@ annotation class PreviewDevices
 @Preview(name = "Ph Dark 1.3", showBackground = true, widthDp = 360, heightDp = 800, uiMode = 0x20, fontScale = 1.3f)
 annotation class PreviewMatrix
 
-/** State-labelled previews — callers provide the right data per annotation. */
+/** State-labelled previews, callers provide the right data per annotation. */
 @Preview(name = "Empty", showBackground = true, widthDp = 360, heightDp = 800)
 @Preview(name = "Loading", showBackground = true, widthDp = 360, heightDp = 800)
 @Preview(name = "Error", showBackground = true, widthDp = 360, heightDp = 800)

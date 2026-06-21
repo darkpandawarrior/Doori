@@ -10,7 +10,7 @@ import platform.UserNotifications.UNUserNotificationCenter
 import kotlin.coroutines.resume
 
 /**
- * iOS local notifications via UNUserNotificationCenter (F) — the counterpart to Android's
+ * iOS local notifications via UNUserNotificationCenter (F), the counterpart to Android's
  * NotificationManager + channels. [ensurePermission] bridges requestAuthorization's completion handler
  * into a suspend call; [notify] posts an immediate ([trigger]=null) request keyed by the int id.
  */

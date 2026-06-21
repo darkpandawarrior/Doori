@@ -15,7 +15,7 @@ import com.github.skydoves.navgraph.annotations.NavEdge
 import com.github.skydoves.navgraph.annotations.NavPreview
 
 // ---------------------------------------------------------------------------
-// Representative stand-ins — DI-free, hardcoded data.
+// Representative stand-ins, DI-free, hardcoded data.
 // @NavDestination links each composable to its AppKey destination.
 // @NavEdge declares which destinations are reachable from this screen.
 // @NavPreview ties a @Preview to a destination for thumbnail rendering.
@@ -97,7 +97,7 @@ fun DebugMenuNavScreen() {
 }
 
 // ---------------------------------------------------------------------------
-// Previews (@NavPreview + @Preview) — one per destination.
+// Previews (@NavPreview + @Preview), one per destination.
 // ---------------------------------------------------------------------------
 
 @NavPreview(route = Home::class, primary = true)

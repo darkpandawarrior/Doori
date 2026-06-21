@@ -6,7 +6,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 /**
- * Platform-provided definitions for core UI infrastructure — currently the
+ * Platform-provided definitions for core UI infrastructure, currently the
  * `DataStore<Preferences>` that backs theme persistence.
  */
 expect val coreUiPlatformModule: Module

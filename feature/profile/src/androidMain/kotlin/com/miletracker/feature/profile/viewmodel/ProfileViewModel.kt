@@ -4,6 +4,7 @@ import com.miletracker.core.ui.mvi.BaseViewModel
 import com.miletracker.core.ui.theme.AccentPalette
 import com.miletracker.core.ui.theme.AppLanguage
 import com.miletracker.core.ui.theme.ExperimentalFlags
+import com.miletracker.core.ui.theme.MilewayTheme
 import com.miletracker.core.ui.theme.ThemeController
 import com.miletracker.feature.profile.model.AccountAnalyticsSnapshot
 import com.miletracker.feature.profile.model.ProfileUiState
@@ -75,6 +76,9 @@ class ProfileViewModel(
     /** `null` = follow system, `true` = force dark, `false` = force light. */
     val darkThemeOverride: StateFlow<Boolean?> = themeController.darkThemeOverride
 
+    /** Currently selected curated theme (Design Language v2; default Matrix). */
+    val milewayTheme: StateFlow<MilewayTheme> = themeController.milewayTheme
+
     val accentPalette: StateFlow<AccentPalette> = themeController.accentPalette
 
     val customSeedHex: StateFlow<String> = themeController.customSeedHex
@@ -102,6 +106,9 @@ class ProfileViewModel(
     }
 
     fun setDarkTheme(dark: Boolean?) = themeController.set(dark)
+
+    /** Select a curated Design Language v2 theme (Matrix / Amoled / Ion / Daybreak). */
+    fun setMilewayTheme(theme: MilewayTheme) = themeController.setMilewayTheme(theme)
 
     fun setPalette(palette: AccentPalette) = themeController.setPalette(palette)
 

@@ -92,7 +92,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
 /**
- * Top-level "Saved Tracks" tab — a Journeys/Submissions surface sitting above the bubble bottom bar.
+ * Top-level "Saved Tracks" tab, a Journeys/Submissions surface sitting above the bubble bottom bar.
  *
  * The public signature is intentionally stable: the integrator still passes [onTrackClick] and
  * [onStartNew], and the screen still owns its own [SavedTracksViewModel] via Koin.
@@ -157,7 +157,7 @@ fun SavedTracksScreen(
     }
 }
 
-/** Gradient ROOT header with title + summary stats — the screen's anchor ("deeper = calmer"). */
+/** Gradient ROOT header with title + summary stats, the screen's anchor ("deeper = calmer"). */
 @Composable
 private fun TrackMilesHeader(
     tracks: List<TrackDisplayData>,

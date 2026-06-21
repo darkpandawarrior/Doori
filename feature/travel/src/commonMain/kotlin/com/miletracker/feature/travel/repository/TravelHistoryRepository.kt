@@ -7,7 +7,7 @@ import com.miletracker.feature.travel.model.TripRecord
 import kotlin.time.Clock
 
 /**
- * Offline fake travel-history store (TR.8) — a deterministic spread of submitted trip requests and booking
+ * Offline fake travel-history store (TR.8), a deterministic spread of submitted trip requests and booking
  * requests across all [TravelReqStatus]es / [BookingType]s, relative to a [Clock]-supplied `now` (no
  * `Math.random`). Backs the trip-history and booking-history surfaces; also the TR.9 `TravelSearchProvider`
  * source.
