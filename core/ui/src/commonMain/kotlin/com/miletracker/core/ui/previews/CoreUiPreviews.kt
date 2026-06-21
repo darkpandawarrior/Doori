@@ -28,10 +28,10 @@ import com.miletracker.core.ui.components.tracking.StatusLevel
 import com.miletracker.core.ui.components.tracking.SystemStatusBanner
 
 // ---------------------------------------------------------------------------
-// CoreUiPreviews.kt — Phase 9.1 preview functions for :core:ui
+// CoreUiPreviews.kt: Phase 9.1 preview functions for :core:ui
 //
 // Rules:
-// - SampleData is in this same package — no cross-module import needed.
+// - SampleData is in this same package, no cross-module import needed.
 // - @PreviewLightDark / @PreviewMatrix / PreviewSurface are all in this package.
 // - No DI, no ViewModel, no Koin.
 // ---------------------------------------------------------------------------
@@ -71,7 +71,7 @@ private fun EmptyStatePreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 2. SectionCard — the core reusable labelled surface used throughout the app
+// 2. SectionCard, the core reusable labelled surface used throughout the app
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -109,7 +109,7 @@ private fun SectionCardPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 3. ExpandableStatsCard — tracking live-journey stats panel (collapsed state)
+// 3. ExpandableStatsCard, tracking live-journey stats panel (collapsed state)
 // ---------------------------------------------------------------------------
 
 @PreviewMatrix
@@ -133,7 +133,7 @@ private fun ExpandableStatsCardCollapsedPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 4. CompactSystemStatusIndicator + SystemStatusBanner — tracking status row
+// 4. CompactSystemStatusIndicator + SystemStatusBanner, tracking status row
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -154,14 +154,14 @@ private fun SystemStatusRowPreview() {
             )
             SystemStatusBanner(
                 allOk = true,
-                message = "All systems nominal — ready to track.",
+                message = "All systems nominal: ready to track.",
             )
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// 5. TwoButtonRow — the paired primary/secondary action bar used on many screens
+// 5. TwoButtonRow, the paired primary/secondary action bar used on many screens
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark

@@ -9,7 +9,7 @@ data class InvoiceDraft(
     val glCode: String,
 )
 
-/** Rotating submission outcome — exercises the success / approval / violation result paths (PB.1). */
+/** Rotating submission outcome, exercises the success / approval / violation result paths (PB.1). */
 sealed interface InvoiceSubmissionResult {
     data class Submitted(val id: String) : InvoiceSubmissionResult
 
@@ -19,7 +19,7 @@ sealed interface InvoiceSubmissionResult {
 }
 
 /**
- * Offline fake invoice store (PB.1) — persists submitted drafts in-memory (survives navigation) and returns
+ * Offline fake invoice store (PB.1), persists submitted drafts in-memory (survives navigation) and returns
  * a **rotating** [InvoiceSubmissionResult] so the success screen, the approval result, and the policy-
  * violation sheet are all exercised across repeated submits. No backend; mirrors the LogMilesSubmit pattern.
  */

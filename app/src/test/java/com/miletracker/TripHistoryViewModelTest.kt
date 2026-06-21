@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * TR.8 (V17): the trip-history reducer over the offline fake — All loads every trip, a status tab narrows, and
+ * TR.8 (V17): the trip-history reducer over the offline fake, All loads every trip, a status tab narrows, and
  * the query filters. Proves the F0 HistoryListScaffold MVI contract for trip requests.
  */
 class TripHistoryViewModelTest {

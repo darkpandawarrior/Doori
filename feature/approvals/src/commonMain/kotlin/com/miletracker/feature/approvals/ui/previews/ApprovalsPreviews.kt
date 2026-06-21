@@ -26,7 +26,7 @@ import com.miletracker.feature.approvals.model.ApprovalStatus
 import com.miletracker.feature.approvals.model.ApprovalType
 
 // ---------------------------------------------------------------------------
-// Phase 9.1 — Approvals feature preview matrix.
+// Phase 9.1, Approvals feature preview matrix.
 //
 // ApprovalsScreen and ApprovalDetailsScreen both require koinViewModel() at
 // runtime. The standalone data-driven previews below use only model types and
@@ -89,7 +89,7 @@ fun PreviewApprovalItemPending() {
                         id = "A001",
                         type = ApprovalType.MILEAGE,
                         requesterName = SampleData.Approval.approverName,
-                        summary = "Client visit — Hinjewadi · 48 km",
+                        summary = "Client visit: Hinjewadi · 48 km",
                         amountRupees = 576.0,
                         status = ApprovalStatus.PENDING,
                         timestampMs = SampleData.Trip.startTimeMs,
@@ -124,7 +124,7 @@ fun PreviewApprovalItemWithViolation() {
     }
 }
 
-// ── Full matrix — approved expense ───────────────────────────────────────────
+// ── Full matrix, approved expense ───────────────────────────────────────────
 
 @PreviewMatrix
 @Composable
@@ -137,7 +137,7 @@ fun PreviewApprovalItemApproved() {
                         id = "A003",
                         type = ApprovalType.EXPENSE,
                         requesterName = "Neha Patel",
-                        summary = "Office supplies — monthly restock",
+                        summary = "Office supplies: monthly restock",
                         amountRupees = SampleData.Approval.amount,
                         status = ApprovalStatus.APPROVED,
                         timestampMs = SampleData.Trip.startTimeMs,
@@ -147,7 +147,7 @@ fun PreviewApprovalItemApproved() {
     }
 }
 
-// ── Full matrix — rejected advance ──────────────────────────────────────────
+// ── Full matrix, rejected advance ──────────────────────────────────────────
 
 @PreviewMatrix
 @Composable
@@ -160,7 +160,7 @@ fun PreviewApprovalItemRejected() {
                         id = "A004",
                         type = ApprovalType.ADVANCE,
                         requesterName = "Rohan Verma",
-                        summary = "Travel advance — Q3 road show",
+                        summary = "Travel advance: Q3 road show",
                         amountRupees = 12000.0,
                         status = ApprovalStatus.REJECTED,
                         timestampMs = SampleData.Trip.startTimeMs,

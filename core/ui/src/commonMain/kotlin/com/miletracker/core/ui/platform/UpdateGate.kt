@@ -29,7 +29,7 @@ import com.miletracker.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
 
 /**
- * UP.4 — shared in-app update gate (commonMain, used by both platforms).
+ * UP.4: shared in-app update gate (commonMain, used by both platforms).
  *
  * On first composition it asks [com.miletracker.core.platform.AppUpdateManager] (from
  * [LocalAppUpdateManager]) whether an update is available, then:
@@ -37,7 +37,7 @@ import com.miletracker.core.ui.components.sheet.ActionConfirmationToneType
  * - FLEXIBLE → shows [content] with a dismissible dialog over it.
  * - none / disabled → just renders [content].
  *
- * The check degrades to no-op (renders content) when there is no store connection — the manager returns
+ * The check degrades to no-op (renders content) when there is no store connection, the manager returns
  * [UpdateAvailability.NotAvailable].
  */
 @Composable

@@ -16,15 +16,15 @@ plugins {
     alias(libs.plugins.ktlint)
     alias(libs.plugins.storytale) apply false
     alias(libs.plugins.roborazzi) apply false
-    // V15: Firebase plugins — applied in :app (gms path); F-Droid strips them in the build prebuild (FLFD).
+    // V15: Firebase plugins, applied in :app (gms path); F-Droid strips them in the build prebuild (FLFD).
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
-    // Build health — applied to root only
+    // Build health, applied to root only
     alias(libs.plugins.gradle.doctor)
 }
 
 // --------------------------------------------------------------------------
-// Detekt — static analysis; maxIssues=0 enforced in config/detekt/detekt.yml
+// Detekt: static analysis; maxIssues=0 enforced in config/detekt/detekt.yml
 // --------------------------------------------------------------------------
 detekt {
     config.setFrom(files("config/detekt/detekt.yml"))
@@ -33,7 +33,7 @@ detekt {
 }
 
 // --------------------------------------------------------------------------
-// Kover — test coverage aggregation from every subproject
+// Kover: test coverage aggregation from every subproject
 // --------------------------------------------------------------------------
 dependencies {
     // Aggregate coverage from :app which has the unit tests + kover applied
@@ -51,7 +51,7 @@ kover {
 }
 
 // --------------------------------------------------------------------------
-// ktlint — code style; applied to all subprojects
+// ktlint: code style; applied to all subprojects
 // --------------------------------------------------------------------------
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
@@ -64,7 +64,7 @@ subprojects {
 }
 
 // --------------------------------------------------------------------------
-// Gradle Doctor — catches common build health issues (Rosetta, JDK mismatch,
+// Gradle Doctor, catches common build health issues (Rosetta, JDK mismatch,
 // Kotlin daemon fallback, Jetifier still on, etc.)
 // --------------------------------------------------------------------------
 doctor {
@@ -78,21 +78,21 @@ doctor {
 }
 
 // --------------------------------------------------------------------------
-// Workflow task aliases — convenience entry points for the local dev loop
+// Workflow task aliases, convenience entry points for the local dev loop
 // --------------------------------------------------------------------------
 tasks.register("devBuild") {
-    description = "Clean + debug APK + unit tests — full local dev loop."
+    description = "Clean + debug APK + unit tests: full local dev loop."
     // noGms is the JVM-safe unit-test variant (gms Play Services maps crash Robolectric).
     dependsOn(":app:clean", ":app:assembleGmsDebug", ":app:testNoGmsDebugUnitTest")
 }
 
 tasks.register("quickBuild") {
-    description = "Debug APK only (no tests) — fastest iteration cycle."
+    description = "Debug APK only (no tests): fastest iteration cycle."
     dependsOn(":app:assembleGmsDebug")
 }
 
 tasks.register("fullCheck") {
-    description = "ktlint + detekt + tests + kover coverage floor — all quality gates."
+    description = "ktlint + detekt + tests + kover coverage floor: all quality gates."
     // noGms is the JVM-safe unit-test variant; kover floor verified on the same variant.
     dependsOn(
         "ktlintCheck",

@@ -13,7 +13,7 @@ enum class VoucherStatus(val label: String) {
 }
 
 /**
- * Offline fake voucher store (SP.1) — a deterministic spread of [SubmittedVoucher]s across all five
+ * Offline fake voucher store (SP.1), a deterministic spread of [SubmittedVoucher]s across all five
  * [VoucherStatus]es so the tabbed history exercises every segment. Built relative to a [Clock]-supplied
  * `now` (no `Math.random`), in the `CardsMockData` style.
  */

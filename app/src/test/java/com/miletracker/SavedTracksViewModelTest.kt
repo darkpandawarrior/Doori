@@ -171,7 +171,7 @@ class SavedTracksViewModelTest {
         vm.onAction(SavedTracksAction.SubmissionSelectionToggled("T2"))
         assertEquals(setOf("T1", "T2"), vm.state.value.selectedSubmissionIds)
 
-        // Remove T1 from the repository — allTracksFlow re-emits, selection is pruned
+        // Remove T1 from the repository, allTracksFlow re-emits, selection is pruned
         dao.removeTrack("T1")
         advanceUntilIdle()
         assertFalse("T1" in vm.state.value.selectedSubmissionIds)

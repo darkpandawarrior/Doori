@@ -6,7 +6,7 @@ import com.miletracker.feature.logging.repository.CardExpenseTxn
 import com.miletracker.feature.logging.repository.CardTxnStatus
 import com.miletracker.feature.logging.repository.CardsTxnHistoryRepository
 
-/** SP.3 — cards-txn-history tabs (first tab is "All"). */
+/** SP.3: cards-txn-history tabs (first tab is "All"). */
 val CARDS_TXN_HISTORY_TABS: List<CardTxnStatus?> = listOf(null) + CardTxnStatus.entries
 
 data class CardsTxnHistoryUiState(
@@ -22,7 +22,7 @@ sealed interface CardsTxnHistoryAction {
 
 sealed interface CardsTxnHistoryEffect
 
-/** SP.3 — reducer for the cards-expense-transaction history surface. */
+/** SP.3: reducer for the cards-expense-transaction history surface. */
 class CardsTxnHistoryViewModel(
     private val repository: CardsTxnHistoryRepository,
 ) : BaseViewModel<CardsTxnHistoryUiState, CardsTxnHistoryEffect, CardsTxnHistoryAction>(CardsTxnHistoryUiState()) {

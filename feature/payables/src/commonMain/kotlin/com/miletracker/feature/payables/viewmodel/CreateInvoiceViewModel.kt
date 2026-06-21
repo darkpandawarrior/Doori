@@ -44,7 +44,7 @@ sealed interface CreateInvoiceEffect {
 }
 
 /**
- * PB.1 — Create-Invoice reducer. Drives the [com.miletracker.core.ui.components.scaffold.FormSubmissionScaffold]:
+ * PB.1: Create-Invoice reducer. Drives the [com.miletracker.core.ui.components.scaffold.FormSubmissionScaffold]:
  * field setters, [CreateInvoiceUiState.canSubmit] gating, and a submit that runs the rotating-status fake and
  * emits a one-shot effect (success / approval / violation) for the screen to route or toast.
  */

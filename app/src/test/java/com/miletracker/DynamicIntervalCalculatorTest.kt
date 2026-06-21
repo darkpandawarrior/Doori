@@ -7,7 +7,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Unit tests for [DynamicIntervalCalculator]. Pure Kotlin — no device needed.
+ * Unit tests for [DynamicIntervalCalculator]. Pure Kotlin, no device needed.
  */
 class DynamicIntervalCalculatorTest {
 

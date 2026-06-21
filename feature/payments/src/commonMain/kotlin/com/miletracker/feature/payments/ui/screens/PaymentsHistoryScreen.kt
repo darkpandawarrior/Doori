@@ -24,7 +24,7 @@ import com.miletracker.feature.payments.viewmodel.PaymentsHistoryAction
 import com.miletracker.feature.payments.viewmodel.PaymentsHistoryViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** PM — payments history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
+/** PM: payments history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
 @Composable
 fun PaymentsHistoryScreen(
     onBack: () -> Unit,

@@ -11,9 +11,9 @@ import org.koin.mp.KoinPlatform
 /**
  * Shared Koin bootstrap for both platforms (KOIN.1).
  *
- * Always wires the per-platform service graph ([platformModule]) — the `expect`/`actual` module that binds
+ * Always wires the per-platform service graph ([platformModule]), the `expect`/`actual` module that binds
  * `LocationTracker` / `NotificationScheduler` / `TextRecognizer` / `BackgroundScheduler` on Android and the
- * full 9-service + `AppUpdateManager`/`AppReviewManager` set on iOS — then appends the caller's [modules].
+ * full 9-service + `AppUpdateManager`/`AppReviewManager` set on iOS, then appends the caller's [modules].
  *
  * - Android: [com.miletracker.MileTrackerApplication] passes the full feature/app/flavor list plus the
  *   `androidContext()` / `androidLogger()` setup via [appDeclaration].

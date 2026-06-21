@@ -5,7 +5,7 @@ import com.miletracker.core.data.search.SearchResult
 import com.miletracker.ui.AppGraph
 
 /**
- * F0.5 — maps a tapped [SearchResult] to the nav graph that owns its entity. Per-entity detail screens don't
+ * F0.5: maps a tapped [SearchResult] to the nav graph that owns its entity. Per-entity detail screens don't
  * all exist as standalone destinations yet, so a result opens its section's home graph (where the user lands
  * on the relevant history surface). Returns `null` for types with no destination wired (the tap is ignored).
  */

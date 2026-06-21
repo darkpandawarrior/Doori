@@ -64,7 +64,7 @@ fun SectionCard(
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(contentPadding)) {
-            // Header row — omitted when no title, subtitle, icon, or trailing action
+            // Header row, omitted when no title, subtitle, icon, or trailing action
             if (title.isNotEmpty() || subtitle != null || leadingIcon != null || trailingAction != null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(bottom = DesignTokens.Spacing.m),

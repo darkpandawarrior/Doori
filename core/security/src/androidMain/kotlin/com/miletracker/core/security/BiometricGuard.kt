@@ -49,7 +49,7 @@ object BiometricGuard {
                     }
 
                     override fun onAuthenticationFailed() {
-                        onFailure("Authentication failed — try again.")
+                        onFailure("Authentication failed: try again.")
                     }
                 },
             )

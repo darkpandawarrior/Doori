@@ -30,7 +30,7 @@ import com.miletracker.feature.tracking.ui.sheets.OdometerReadingConfirmSheet
  *
  * @param purpose       Whether capturing the start or end odometer reading.
  * @param existingReading Pre-fill base reading for the confirm sheet (START baseline).
- * @param sessionDistanceKm GPS distance — used to estimate the END reading.
+ * @param sessionDistanceKm GPS distance, used to estimate the END reading.
  * @param onResult      Called with the confirmed capture result.
  * @param onBack        Called when the user taps the back arrow without confirming.
  */
@@ -58,7 +58,7 @@ fun OdometerCameraScreen(
                     },
                 )
             } else {
-                // Photo captured — leave camera view in place; confirm sheet renders above.
+                // Photo captured, leave camera view in place; confirm sheet renders above.
                 CameraCaptureScreen(
                     isOdometerMode = true,
                     onCaptured = {},

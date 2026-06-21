@@ -170,7 +170,7 @@ fun DebugMenuScreen(
                 )
             }
 
-            // Config snapshot — always shown when not searching
+            // Config snapshot, always shown when not searching
             if (searchQuery.isEmpty()) {
                 item {
                     ConfigSnapshotCard(
@@ -238,14 +238,14 @@ fun DebugMenuScreen(
                 }
             }
 
-            // Network inspector (WormaCeptor) — only shown when host app wires the intent
+            // Network inspector (WormaCeptor), only shown when host app wires the intent
             if (searchQuery.isEmpty() && onOpenHttpInspector != null) {
                 item {
                     NetworkInspectorCard(onOpen = onOpenHttpInspector)
                 }
             }
 
-            // Component showcase browser — only shown when host app wires the launcher
+            // Component showcase browser, only shown when host app wires the launcher
             if (searchQuery.isEmpty() && onOpenShowcase != null) {
                 item {
                     ShowcaseBrowserCard(onOpen = onOpenShowcase)
@@ -307,7 +307,7 @@ fun DebugMenuScreen(
 }
 
 // ---------------------------------------------------------------------------
-// Config snapshot card — shows offline-relevant flags from ConfigProvider
+// Config snapshot card, shows offline-relevant flags from ConfigProvider
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -423,7 +423,7 @@ fun buildConfigSnapshot(
     }
 
 // ---------------------------------------------------------------------------
-// Performance card — GC trigger + memory readout
+// Performance card, GC trigger + memory readout
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -603,7 +603,7 @@ private fun ProfilePresetsCard(
 }
 
 // ---------------------------------------------------------------------------
-// Network inspector card (WormaCeptor) — only shown when callback is wired
+// Network inspector card (WormaCeptor), only shown when callback is wired
 // ---------------------------------------------------------------------------
 
 @Composable
@@ -650,7 +650,7 @@ private fun NetworkInspectorCard(onOpen: () -> Unit) {
 }
 
 // ---------------------------------------------------------------------------
-// Component showcase card — launch the debug component browser
+// Component showcase card, launch the debug component browser
 // ---------------------------------------------------------------------------
 
 @Composable

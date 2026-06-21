@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertTrue
 
-/** PM (V17): the payments SearchProvider — VIEW_ALL gating, min-length, counterparty hits, type filter. */
+/** PM (V17): the payments SearchProvider, VIEW_ALL gating, min-length, counterparty hits, type filter. */
 class PaymentsSearchProviderTest {
 
     private fun provider() = PaymentsSearchProvider(PaymentsRepository())

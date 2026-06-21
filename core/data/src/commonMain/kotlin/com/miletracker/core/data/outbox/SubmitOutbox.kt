@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 // Durable outbox for trip drafts that survive process death.
 // On submit, enqueue a PENDING draft; the BackgroundScheduler drives retries.
-// Idempotent by (formKey, uniqueKey) — re-enqueueing the same key updates status.
+// Idempotent by (formKey, uniqueKey), re-enqueueing the same key updates status.
 interface SubmitOutbox<T : Any> {
     /** All drafts for [formKey], ordered newest-first. */
     fun drafts(formKey: String): Flow<List<DraftEntry<T>>>

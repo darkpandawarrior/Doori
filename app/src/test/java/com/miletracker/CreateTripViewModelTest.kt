@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * TR.2 (V17): the Create-Trip reducer — canSubmit gating (purpose + both cities) + the rotating success /
+ * TR.2 (V17): the Create-Trip reducer, canSubmit gating (purpose + both cities) + the rotating success /
  * approval / violation result paths through the shared FormSubmissionScaffold contract.
  */
 class CreateTripViewModelTest {

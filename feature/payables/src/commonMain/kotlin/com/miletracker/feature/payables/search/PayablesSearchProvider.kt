@@ -12,7 +12,7 @@ import com.miletracker.feature.payables.repository.PayablesHistoryRepository
 private const val DAY_MS = 86_400_000L
 
 /**
- * PB.5 — the payables module's contribution to master search (F0.5 registry). Searches the unified payables
+ * PB.5: the payables module's contribution to master search (F0.5 registry). Searches the unified payables
  * history (Invoice / PR / GIN / Park In-Out / ASN); returns flat [SearchResult]s with deep links.
  * `feature:search` resolves this via `getAll<SearchProvider>()` with zero coupling back to this module.
  */

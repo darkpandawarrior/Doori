@@ -17,7 +17,7 @@ import com.miletracker.feature.travel.viewmodel.TravelCreateEffect
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Shared effect collection for every TR create screen — routes the rotating success / approval / violation
+ * Shared effect collection for every TR create screen, routes the rotating success / approval / violation
  * outcomes to the app-wide [Toasts] and forwards a submitted id to [onSubmitted]. The [noun] phrases the toast
  * per flow ("Trip request", "Flight booking", …).
  */

@@ -19,7 +19,7 @@ enum class PayablesDocStatus(val label: String) {
 }
 
 /**
- * One row in the unified payables history (PB.4) — flat enough to render every document family on the same
+ * One row in the unified payables history (PB.4), flat enough to render every document family on the same
  * [com.miletracker.core.ui.components.scaffold.HistoryListScaffold] card and to feed the PB.5
  * `PayablesSearchProvider`.
  */

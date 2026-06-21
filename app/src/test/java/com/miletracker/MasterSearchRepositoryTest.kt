@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * F0.5 — the master-search aggregator: fan-out, de-duplication by (type,id), ordering (exact > recency >
+ * F0.5: the master-search aggregator: fan-out, de-duplication by (type,id), ordering (exact > recency >
  * title), min-length gating, type-filtered provider skipping, and per-provider failure isolation.
  */
 class MasterSearchRepositoryTest {

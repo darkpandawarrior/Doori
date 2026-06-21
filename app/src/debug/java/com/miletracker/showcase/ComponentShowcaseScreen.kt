@@ -88,7 +88,7 @@ import com.miletracker.feature.travel.ui.previews.PreviewBookingCardUpcomingTrai
 import com.miletracker.feature.travel.ui.previews.PreviewBookingListMatrix
 
 // ---------------------------------------------------------------------------
-// Component metadata — each entry describes one showcaseable composable
+// Component metadata, each entry describes one showcaseable composable
 // ---------------------------------------------------------------------------
 
 data class ShowcaseEntry(
@@ -245,19 +245,19 @@ val ALL_SHOWCASES: List<ShowcaseEntry> = listOf(
     ),
 
     // ── Tracking ─────────────────────────────────────────────────────────────
-    ShowcaseEntry("Track Loading — default", "Tracking", "Loading screen with a single status message.") {
+    ShowcaseEntry("Track Loading: default", "Tracking", "Loading screen with a single status message.") {
         PreviewTrackLoadingDefault()
     },
-    ShowcaseEntry("Track Loading — sub-statuses", "Tracking", "Loading screen with an animated list of sub-statuses.") {
+    ShowcaseEntry("Track Loading: sub-statuses", "Tracking", "Loading screen with an animated list of sub-statuses.") {
         PreviewTrackLoadingCustomMessage()
     },
-    ShowcaseEntry("Success — clean", "Tracking", "Trip submitted without any violations or voucher.") {
+    ShowcaseEntry("Success: clean", "Tracking", "Trip submitted without any violations or voucher.") {
         PreviewTrackingSuccessClean()
     },
-    ShowcaseEntry("Success — violation", "Tracking", "Trip submitted with a policy violation banner.") {
+    ShowcaseEntry("Success: violation", "Tracking", "Trip submitted with a policy violation banner.") {
         PreviewTrackingSuccessWithViolation()
     },
-    ShowcaseEntry("Success — voucher", "Tracking", "Trip submitted with a voucher number and amount.") {
+    ShowcaseEntry("Success: voucher", "Tracking", "Trip submitted with a voucher number and amount.") {
         PreviewTrackingSuccessWithVoucher()
     },
     ShowcaseEntry("Track Settings", "Tracking", "GPS accuracy and sensor settings screen.") {
@@ -268,10 +268,10 @@ val ALL_SHOWCASES: List<ShowcaseEntry> = listOf(
     },
 
     // ── Payables ─────────────────────────────────────────────────────────────
-    ShowcaseEntry("PO Card — approved", "Payables", "Purchase order card in the Approved state.") {
+    ShowcaseEntry("PO Card: approved", "Payables", "Purchase order card in the Approved state.") {
         PreviewPoCardApproved()
     },
-    ShowcaseEntry("PO Card — pending", "Payables", "Purchase order card awaiting approval.") {
+    ShowcaseEntry("PO Card: pending", "Payables", "Purchase order card awaiting approval.") {
         PreviewPoCardPendingApproval()
     },
     ShowcaseEntry("PO List matrix", "Payables", "Two PO cards rendered side by side.") {
@@ -282,13 +282,13 @@ val ALL_SHOWCASES: List<ShowcaseEntry> = listOf(
     },
 
     // ── Travel ───────────────────────────────────────────────────────────────
-    ShowcaseEntry("Flight — active", "Travel", "Active flight booking card with gate and boarding info.") {
+    ShowcaseEntry("Flight: active", "Travel", "Active flight booking card with gate and boarding info.") {
         PreviewBookingCardActiveFlight()
     },
-    ShowcaseEntry("Train — upcoming", "Travel", "Upcoming train booking card.") {
+    ShowcaseEntry("Train: upcoming", "Travel", "Upcoming train booking card.") {
         PreviewBookingCardUpcomingTrain()
     },
-    ShowcaseEntry("Flight — completed", "Travel", "Completed flight booking card.") {
+    ShowcaseEntry("Flight: completed", "Travel", "Completed flight booking card.") {
         PreviewBookingCardCompletedFlight()
     },
     ShowcaseEntry("Booking list", "Travel", "Full list of mixed bookings (flight, train).") {

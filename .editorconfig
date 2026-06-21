@@ -1,6 +1,6 @@
 root = true
 
-# Generated code from KSP/Room/KotlinPoet — never lint
+# Generated code from KSP/Room/KotlinPoet, never lint
 [**/build/**/*.kt]
 ktlint = disabled
 
@@ -14,7 +14,7 @@ trim_trailing_whitespace = true
 
 [*.kt]
 max_line_length = 160
-# Composable functions use PascalCase by convention — disable the naming rule globally.
+# Composable functions use PascalCase by convention, disable the naming rule globally.
 ktlint_standard_function-naming = disabled
 
 [*.kts]

@@ -7,19 +7,19 @@ package com.miletracker.ui
  * illustrative placeholders until Phase 6 builds them out (see [MileTrackerAppRoot]).
  */
 object AppGraph {
-    /** Centre logo tab — the Home screen (greeting, action-required, mileage carousel, …). */
+    /** Centre logo tab, the Home screen (greeting, action-required, mileage carousel, …). */
     const val HOME = "home_graph"
 
-    /** Mileage tracking flow — reached from Home's mileage card (not a top-level tab). */
+    /** Mileage tracking flow, reached from Home's mileage card (not a top-level tab). */
     const val TRACK = "track_graph"
 
-    /** Spends tab — manual mileage logging / expenses. */
+    /** Spends tab, manual mileage logging / expenses. */
     const val LOG = "log_graph"
 
     /** Media capture graph. No longer a top-level tab; entered from logging/submission flows. */
     const val MEDIA = "media_graph"
 
-    /** Account tab — profile feature. */
+    /** Account tab, profile feature. */
     const val PROFILE = "profile_graph"
 
     /** Illustrative shell tabs (placeholder destinations). */
@@ -30,10 +30,10 @@ object AppGraph {
     /** Corporate cards feature graph (reached from the Account hub's Cards tile). */
     const val CARDS = "cards_graph"
 
-    /** Payments (QR/UPI pay-request-history) graph — reached from Home quick actions / master search. */
+    /** Payments (QR/UPI pay-request-history) graph, reached from Home quick actions / master search. */
     const val PAYMENTS = "payments_graph"
 
-    /** Events (create + history) graph — reached from Home quick actions / master search. */
+    /** Events (create + history) graph, reached from Home quick actions / master search. */
     const val EVENTS = "events_graph"
 }
 
@@ -45,6 +45,6 @@ object AppRoutes {
     const val AGENT_CHAT = "agent/chat"
     const val AGENT_HISTORY = "agent/history"
 
-    /** Cross-feature master search — entered from the Home top bar; renders full-screen (no bottom bar). */
+    /** Cross-feature master search, entered from the Home top bar; renders full-screen (no bottom bar). */
     const val SEARCH = "search"
 }

@@ -48,8 +48,8 @@ val trackingModule =
             get<com.miletracker.feature.tracking.service.TrackingStatePublisher>()
         }
 
-        // viewModelOf resolves every constructor parameter through Koin — Kotlin default
-        // arguments are NOT applied — so the analyzer needs an explicit definition.
+        // viewModelOf resolves every constructor parameter through Koin, Kotlin default
+        // arguments are NOT applied, so the analyzer needs an explicit definition.
         single { RouteAnalyzer() }
 
         viewModelOf(::SavedTracksViewModel)
@@ -63,7 +63,7 @@ val trackingModule =
         viewModelOf(::DebugMenuComposeViewModel)
         viewModelOf(::CreateVoucherViewModel)
 
-        // Per-trip scope — open on trip-start, close on trip-end.
+        // Per-trip scope, open on trip-start, close on trip-end.
         // Anything declared here is released when the scope closes.
         scope<TrackingScope> {
             scoped { get<com.miletracker.core.data.session.CurrentTrackDataStore>() }

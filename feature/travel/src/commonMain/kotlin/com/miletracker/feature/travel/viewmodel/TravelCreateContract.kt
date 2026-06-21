@@ -3,7 +3,7 @@ package com.miletracker.feature.travel.viewmodel
 import com.miletracker.feature.travel.repository.TravelSubmissionResult
 
 /**
- * One-shot effect shared by every TR create flow (Trip / Flight / Bus / Hotel / MJP / Visa) — the screen routes
+ * One-shot effect shared by every TR create flow (Trip / Flight / Bus / Hotel / MJP / Visa), the screen routes
  * or toasts on it. Shared because the three rotating outcomes are identical across the travel create suite.
  */
 sealed interface TravelCreateEffect {

@@ -306,7 +306,7 @@ private enum class InsightType { ANOMALY, BREACH_RISK, PATTERN, SAVINGS }
 private val AI_INSIGHTS =
     listOf(
         InsightCard("I001", "Unusual Travel Spend", "Aisha Khan's travel spend is 2.3× above the team average this month.", InsightType.ANOMALY),
-        InsightCard("I002", "SLA Breach Risk", "3 claims have been pending approval for over 5 days — expected SLA breach by Friday.", InsightType.BREACH_RISK),
+        InsightCard("I002", "SLA Breach Risk", "3 claims have been pending approval for over 5 days: expected SLA breach by Friday.", InsightType.BREACH_RISK),
         InsightCard("I003", "Submission Pattern", "Mileage submissions spike every Monday. Consider scheduling batch review reminders.", InsightType.PATTERN),
         InsightCard(
             "I004",

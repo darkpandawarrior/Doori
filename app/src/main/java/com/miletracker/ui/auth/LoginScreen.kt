@@ -97,7 +97,7 @@ private val ONBOARDING_SLIDES = listOf(
     OnboardingSlide(
         icon = Icons.Filled.LocationOn,
         title = "Your data stays put",
-        caption = "Everything lives locally on your phone — capture mileage anywhere, sync nothing.",
+        caption = "Everything lives locally on your phone: capture mileage anywhere, sync nothing.",
     ),
 )
 
@@ -117,7 +117,7 @@ private val ONBOARDING_SLIDES = listOf(
  * The screen owns its insets directly: the scrolling [Column] applies [statusBarsPadding] and
  * [imePadding] so fields lift above the keyboard, and the pinned bottom actions add
  * [navigationBarsPadding]. It is hosted full-screen by the integrator (no bottom bar), so it is
- * stateless apart from internal field/loading/animation state — no ViewModel is required.
+ * stateless apart from internal field/loading/animation state, no ViewModel is required.
  *
  * @param onSignInWithCredentials invoked with the entered email once a credentials sign-in
  *   completes. Captured via [rememberUpdatedState] so the fake-loading coroutine always calls the

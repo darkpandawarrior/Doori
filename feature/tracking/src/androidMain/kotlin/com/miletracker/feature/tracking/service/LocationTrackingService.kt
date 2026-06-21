@@ -113,7 +113,7 @@ class LocationTrackingService : Service() {
     ): Int {
         // A startForegroundService() launch that doesn't reach startForeground() within the
         // ANR window kills the whole process (ForegroundServiceDidNotStartInTimeException),
-        // so promote to foreground before ANY other work — especially before the suspendable
+        // so promote to foreground before ANY other work, especially before the suspendable
         // session-restore read below.
         if (!enterForeground()) return START_NOT_STICKY
 
@@ -161,7 +161,7 @@ class LocationTrackingService : Service() {
      * The DataStore read suspends, which is safe here because we are already foreground.
      */
     private fun restoreSession(intentToken: String?) {
-        if (activeToken != null) return // already tracking — duplicate restore, ignore
+        if (activeToken != null) return // already tracking: duplicate restore, ignore
         scope.launch {
             val session = sessionStore.currentTrackFlow.first()
             val token = intentToken?.takeIf { it.isNotEmpty() } ?: session.token
@@ -325,7 +325,7 @@ class LocationTrackingService : Service() {
     }
 
     private fun setPaused(paused: Boolean) {
-        // Pause/resume with no live session (service started cold) — don't linger foreground.
+        // Pause/resume with no live session (service started cold), don't linger foreground.
         val token =
             activeToken ?: run {
                 leaveForegroundAndStop()
@@ -469,10 +469,10 @@ class LocationTrackingService : Service() {
         return pct.toDouble()
     }
 
-    /** Whether the device is currently charging — feeds [DynamicIntervalCalculator] (no battery penalty). */
+    /** Whether the device is currently charging, feeds [DynamicIntervalCalculator] (no battery penalty). */
     private fun isCharging(): Boolean = (getSystemService(BATTERY_SERVICE) as? BatteryManager)?.isCharging ?: false
 
-    /** Whether OS power-saver (battery-saver) mode is on — stretches the GPS cadence. */
+    /** Whether OS power-saver (battery-saver) mode is on, stretches the GPS cadence. */
     private fun isPowerSaver(): Boolean = (getSystemService(POWER_SERVICE) as? PowerManager)?.isPowerSaveMode ?: false
 
     private fun appVersionName(): String =
@@ -517,7 +517,7 @@ class LocationTrackingService : Service() {
     }
 
     /**
-     * Phase-aware foreground notification copy (C.2b) — one of seven messages derived from the published
+     * Phase-aware foreground notification copy (C.2b), one of seven messages derived from the published
      * [TrackingSnapshot]: acquiring, live, paused, resumed, mock-detected, abnormal-filtered, completed.
      */
     private fun notificationText(s: TrackingSnapshot): String {

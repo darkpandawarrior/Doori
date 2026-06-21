@@ -29,7 +29,7 @@ interface LocationSource {
 
     /**
      * Request a new location-update cadence (C.2a). The service recomputes this per fix via
-     * [DynamicIntervalCalculator] — faster movement shortens it, low battery / power-saver / long
+     * [DynamicIntervalCalculator]: faster movement shortens it, low battery / power-saver / long
      * sessions stretch it. Default no-op for sources with a fixed cadence (e.g. the simulator).
      */
     fun updateInterval(intervalMs: Long) = Unit
@@ -51,7 +51,7 @@ class FusedLocationSource(
     }
 
     /**
-     * Re-register the fused request only when the cadence actually moves (≥1s) — re-registering on
+     * Re-register the fused request only when the cadence actually moves (≥1s), re-registering on
      * every fix would churn the provider for no benefit. Removes the old callback first so a single
      * callback is ever active.
      */

@@ -26,7 +26,7 @@ import com.miletracker.feature.payments.viewmodel.CreatePaymentEffect
 import com.miletracker.feature.payments.viewmodel.CreatePaymentViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** PM — QR/UPI Pay or Request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
+/** PM: QR/UPI Pay or Request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
 @Composable
 fun CreatePaymentScreen(
     onBack: () -> Unit,

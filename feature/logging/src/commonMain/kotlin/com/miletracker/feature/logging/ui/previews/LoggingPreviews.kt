@@ -30,7 +30,7 @@ import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.logging.ui.components.StepHeaderCard
 import com.miletracker.feature.logging.ui.components.TapFieldRow
 // ---------------------------------------------------------------------------
-// LoggingPreviews.kt — Phase 9.1 preview functions for feature:logging
+// LoggingPreviews.kt: Phase 9.1 preview functions for feature:logging
 //
 // Rules:
 // - No DI, no ViewModel, no Koin
@@ -39,7 +39,7 @@ import com.miletracker.feature.logging.ui.components.TapFieldRow
 // ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// 1. TapFieldRow — the labelled "tap to open" field used on Log Miles Step 1
+// 1. TapFieldRow, the labelled "tap to open" field used on Log Miles Step 1
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -80,7 +80,7 @@ private fun TapFieldRowFilledPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 2. StepHeaderCard — "Step 1 of 2" progress card used at top of LogMilesScreen
+// 2. StepHeaderCard, "Step 1 of 2" progress card used at top of LogMilesScreen
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark
@@ -90,7 +90,7 @@ private fun StepHeaderCardPreview() {
         Column(modifier = Modifier.padding(16.dp)) {
             StepHeaderCard(
                 title = "Step 1 of 2",
-                subtitle = "Enter your journey details — start location, stops, and vehicle type.",
+                subtitle = "Enter your journey details: start location, stops, and vehicle type.",
             )
         }
     }
@@ -110,7 +110,7 @@ private fun StepHeaderCardMatrixPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 3. Log Miles success content — inline (screen takes ViewModel, so we mirror
+// 3. Log Miles success content, inline (screen takes ViewModel, so we mirror
 //    its content layout with hardcoded sample values)
 // ---------------------------------------------------------------------------
 
@@ -200,7 +200,7 @@ private fun LogMilesSuccessContentPreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 4. Expense history — empty-state variant (screen takes ViewModel; preview
+// 4. Expense history, empty-state variant (screen takes ViewModel; preview
 //    the shared EmptyState from :core:ui instead)
 // ---------------------------------------------------------------------------
 
@@ -216,7 +216,7 @@ private fun ExpenseHistoryEmptyStatePreview() {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Stat summary strip — reusable StatCard components shown in history headers
+// 5. Stat summary strip, reusable StatCard components shown in history headers
 // ---------------------------------------------------------------------------
 
 @PreviewLightDark

@@ -13,7 +13,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * PB.4 (V17): the unified payables-history reducer over the offline fake — All loads every document family, a
+ * PB.4 (V17): the unified payables-history reducer over the offline fake, All loads every document family, a
  * type tab narrows to that family, a status filter chip narrows further, and the query filters. Proves the F0
  * HistoryListScaffold MVI contract for the Invoice/PR/GIN/Park/ASN surface.
  */

@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  *
  * Two effect channels with distinct delivery contracts:
  * - [emitEffect] → a buffered [Channel] consumed **exactly once** by the screen's `LaunchedEffect`.
- *   Use for navigation, toasts, one-shot dialogs — things that must fire once and never replay.
+ *   Use for navigation, toasts, one-shot dialogs, things that must fire once and never replay.
  * - [emitBroadcast] → a [SharedFlow] (no replay, drops oldest on overflow) that **survives config
  *   change** and is delivered to whatever collector is active. Use for fire-and-forget signals where
  *   a missed emission is acceptable but new collectors should still receive subsequent ones.

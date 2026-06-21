@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * H: behavioural coverage for [TravelViewModel] — the booking-hub reducer. The repository is a concrete
+ * H: behavioural coverage for [TravelViewModel], the booking-hub reducer. The repository is a concrete
  * in-memory mock (no deps), so we drive the real one.
  */
 class TravelViewModelTest {

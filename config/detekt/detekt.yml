@@ -6,7 +6,7 @@ config:
   warningsAsErrors: false
 
 # --------------------------------------------------------------------------
-# Suppressions — rules that conflict with the project's coding conventions
+# Suppressions: rules that conflict with the project's coding conventions
 # or that produce too much noise on auto-generated/preview code.
 # --------------------------------------------------------------------------
 

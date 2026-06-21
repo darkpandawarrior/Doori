@@ -6,7 +6,7 @@ import com.miletracker.feature.logging.repository.VoucherHistoryRepository
 import com.miletracker.feature.logging.repository.VoucherStatus
 import com.miletracker.feature.logging.ui.model.SubmittedVoucher
 
-/** SP.1 — voucher-history tabs (the first tab is "All"). */
+/** SP.1: voucher-history tabs (the first tab is "All"). */
 val VOUCHER_HISTORY_TABS: List<VoucherStatus?> = listOf(null) + VoucherStatus.entries
 
 data class VoucherHistoryUiState(
@@ -26,7 +26,7 @@ sealed interface VoucherHistoryAction {
 sealed interface VoucherHistoryEffect
 
 /**
- * SP.1 — reducer for the voucher history surface. Loads from the offline [VoucherHistoryRepository], filters
+ * SP.1: reducer for the voucher history surface. Loads from the offline [VoucherHistoryRepository], filters
  * by the selected status tab + free-text query, and exposes a [ScreenState] the shared `HistoryListScaffold`
  * renders.
  */

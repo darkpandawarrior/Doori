@@ -19,7 +19,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-/** One choice in a [SortBottomSheet] — a value plus its leading icon and label. */
+/** One choice in a [SortBottomSheet], a value plus its leading icon and label. */
 data class SortOption<T>(
     val value: T,
     val label: String,

@@ -14,7 +14,7 @@ import com.miletracker.core.platform.ShareSheet
  * Compose access layer for the V15 platform managers (PF.3, mirrors openMF LocalManagerProviders).
  *
  * Activity / UIViewController-scoped managers (in-app update, review, share) can't be plain Koin
- * singletons — they need the host Activity (Android) or root UIViewController (iOS). They are seeded
+ * singletons: they need the host Activity (Android) or root UIViewController (iOS). They are seeded
  * once at each app root via [LocalManagerProvider] (PF.4) and read at the call site via `LocalX.current`,
  * so shared screens need NO expect/actual at all.
  *

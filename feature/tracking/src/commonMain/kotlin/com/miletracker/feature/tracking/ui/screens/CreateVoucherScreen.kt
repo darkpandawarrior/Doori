@@ -207,7 +207,7 @@ private fun StepSelectExpenses(
                     enabled = uiState.selectedTokens.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Next — Voucher Details")
+                    Text("Next: Voucher Details")
                 }
             }
         }
@@ -341,7 +341,7 @@ private fun StepVoucherDetails(
             enabled = uiState.title.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Next — Review")
+            Text("Next: Review")
         }
     }
 }

@@ -24,7 +24,7 @@ data class GinDraft(
 )
 
 /**
- * Offline fake GIN store (PB.2) — persists submitted drafts in-memory and returns a **rotating**
+ * Offline fake GIN store (PB.2), persists submitted drafts in-memory and returns a **rotating**
  * [PayablesSubmissionResult] so the receipt-acknowledged, approval, and QC-hold paths are all exercised across
  * repeated submits. No backend; mirrors the PB.1 [InvoiceRepository] pattern.
  */

@@ -6,7 +6,7 @@ import com.miletracker.feature.travel.model.TravelReqStatus
 import com.miletracker.feature.travel.model.TripRecord
 import com.miletracker.feature.travel.repository.TravelHistoryRepository
 
-/** TR.8 — trip-history status tabs (the first tab is "All"). */
+/** TR.8: trip-history status tabs (the first tab is "All"). */
 val TRIP_HISTORY_TABS: List<TravelReqStatus?> = listOf(null) + TravelReqStatus.entries
 
 data class TripHistoryUiState(
@@ -25,7 +25,7 @@ sealed interface TripHistoryAction {
 
 sealed interface TripHistoryEffect
 
-/** TR.8 — reducer for the trip-request history surface, on the shared `HistoryListScaffold`. */
+/** TR.8: reducer for the trip-request history surface, on the shared `HistoryListScaffold`. */
 class TripHistoryViewModel(
     private val repository: TravelHistoryRepository,
 ) : BaseViewModel<TripHistoryUiState, TripHistoryEffect, TripHistoryAction>(TripHistoryUiState()) {

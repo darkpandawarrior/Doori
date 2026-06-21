@@ -29,7 +29,7 @@ object SampleData {
         const val approverName = "Priya Sharma"
         const val amount = 650.0
         const val status = "Pending"
-        const val reason = "Client visit — Hinjewadi"
+        const val reason = "Client visit: Hinjewadi"
     }
 
     object CheckIn {

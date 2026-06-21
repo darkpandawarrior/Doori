@@ -55,13 +55,13 @@ import com.miletracker.core.ui.components.SectionCard
  * onto these three for the visual indicator.
  */
 enum class JourneyGuideStep {
-    /** Step 1 — runtime location/notification permissions are granted. */
+    /** Step 1, runtime location/notification permissions are granted. */
     PERMISSIONS,
 
-    /** Step 2 — a vehicle is picked and (if required) the start odometer captured. */
+    /** Step 2, a vehicle is picked and (if required) the start odometer captured. */
     VEHICLE,
 
-    /** Step 3 — tracking is live. */
+    /** Step 3, tracking is live. */
     TRACKING,
 }
 

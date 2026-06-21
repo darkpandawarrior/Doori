@@ -26,7 +26,7 @@ enum class TrackingContextType {
 }
 
 /**
- * A selectable context indicator shown while tracking — e.g. the active trip,
+ * A selectable context indicator shown while tracking, e.g. the active trip,
  * an itinerary leg, a petty-cash wallet, or a company event the journey belongs to.
  */
 @Serializable

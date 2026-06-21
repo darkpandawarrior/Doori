@@ -43,7 +43,7 @@ class AgentRepository {
 
     private val quickReplies: Map<String, String> =
         mapOf(
-            "travel spend" to "You've spent ₹12,300 on Travel this month — flights ₹7,800, hotels ₹3,200, local transit ₹1,300.",
+            "travel spend" to "You've spent ₹12,300 on Travel this month: flights ₹7,800, hotels ₹3,200, local transit ₹1,300.",
             "expense rejection" to "EXP-003 was rejected because the uploaded receipt was unclear. Please re-upload a legible image and resubmit.",
             "mileage this week" to "You've tracked 142 km this week across 6 trips. Estimated reimbursement: ₹1,420.",
             "policy cap" to "The daily mileage cap is ₹10/km. Your 3 flagged claims this week exceed this. Your manager can approve the overage.",

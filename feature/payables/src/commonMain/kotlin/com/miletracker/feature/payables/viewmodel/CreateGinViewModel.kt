@@ -47,7 +47,7 @@ sealed interface CreateGinEffect {
 }
 
 /**
- * PB.2 — Create-GIN (Goods Inward Note) reducer. Drives the shared
+ * PB.2: Create-GIN (Goods Inward Note) reducer. Drives the shared
  * [com.miletracker.core.ui.components.scaffold.FormSubmissionScaffold]: field setters,
  * [CreateGinUiState.canSubmit] gating, and a submit that runs the rotating-status fake and emits a one-shot
  * effect (receipt acknowledged / approval / QC hold) for the screen to route or toast.
