@@ -123,17 +123,22 @@ object DesignTokens {
 
     /**
      * Status colors for badges, indicators, and alerts.
-     * Prefer these over the loose top-level constants in Color.kt.
+     *
+     * These are the *static* (non-composable) fallbacks, kept in lock-step with the
+     * Design Language v2 dark-surface tokens in [com.miletracker.core.ui.theme.MilewayColors].
+     * Inside a composable, prefer `MilewayColors.success/warning/danger/info/neutral` — those
+     * are theme-aware and stay AA on the light Daybreak surface too. Reach here only from
+     * non-composable code (data classes, previews) that genuinely can't read the theme.
      */
     object StatusColors {
-        val success = Color(0xFF22C55E) // Green - approved, active, completed
-        val warning = Color(0xFFF59E0B) // Amber - pending, low balance
-        val error = Color(0xFFEF4444) // Red - rejected, critical, overdue
-        val info = Color(0xFF3B82F6) // Blue - informational, processing
-        val neutral = Color(0xFF6B7280) // Gray - draft, inactive
+        val success = Color(0xFF3DDC84) // Green - approved, active, completed
+        val warning = Color(0xFFF2C14E) // Amber - pending, low balance
+        val error = Color(0xFFF2545B) // Red - rejected, critical, overdue
+        val info = Color(0xFF5BA8F5) // Blue - informational, processing
+        val neutral = Color(0xFF9AA5A0) // Gray - draft, inactive
 
         /** Badge background color for counts */
-        val badgeRed = Color(0xFFDC2626)
+        val badgeRed = Color(0xFFF2545B)
     }
 
     /**

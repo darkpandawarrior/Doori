@@ -21,3 +21,30 @@ val MileTrackerTypography =
         labelMedium = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 12.sp, letterSpacing = 0.5.sp),
         labelSmall = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 11.sp, letterSpacing = 0.5.sp),
     )
+
+/**
+ * Design Language v2 — "mono for data".
+ *
+ * Numeric readouts (distance, speed, duration, amounts, codes/IDs) use a monospaced family so
+ * digits are tabular: figures share a fixed advance width, columns line up and a live-updating
+ * value (an odometer, a timer) doesn't jitter as digits change. Apply [MilewayMono] as a base
+ * and `.dataStyle(...)` to derive a sized variant from any Material style.
+ *
+ * JetBrains Mono is not bundled as a font resource in this offline demo, so we lean on the
+ * platform monospace family (the same choice the colour-wheel hex field already makes) — it is
+ * multiplatform-safe and gives the tabular alignment the design language asks for.
+ */
+val MilewayMono: TextStyle =
+    TextStyle(
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.sp,
+    )
+
+/**
+ * Returns [base] re-cast in the monospaced "data" family while keeping its size, line height
+ * and weight. Use for any numeric value the user reads as data:
+ * `Text(value, style = MaterialTheme.typography.titleMedium.dataStyle())`.
+ */
+fun TextStyle.dataStyle(): TextStyle =
+    copy(fontFamily = FontFamily.Monospace, letterSpacing = 0.sp)
