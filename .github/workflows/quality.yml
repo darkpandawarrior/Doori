@@ -33,7 +33,7 @@ jobs:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           cache-cleanup: on-success
 
-      # Kotlin/Native toolchain — needed for KMP iOS compilation during quality checks.
+      # Kotlin/Native toolchain, needed for KMP iOS compilation during quality checks.
       - name: Cache Kotlin/Native toolchain
         uses: actions/cache@v4
         with:
@@ -59,7 +59,7 @@ jobs:
         run: ./gradlew testNoGmsDebugUnitTest
 
       # Coverage measured + verified on the noGms variant (JVM-safe). The floor
-      # (minBound 30% line) fails the build on regression — see app/build.gradle.kts.
+      # (minBound 30% line) fails the build on regression, see app/build.gradle.kts.
       - name: Coverage report + floor
         run: ./gradlew :app:koverXmlReportNoGmsDebugCoverage :app:koverVerifyNoGmsDebugCoverage
 

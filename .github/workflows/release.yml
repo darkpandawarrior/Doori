@@ -1,6 +1,6 @@
 name: Release
 
-# CIO.1 — manual release orchestration. Per-platform "rung" inputs pick how far to ship; each protected
+# CIO.1: manual release orchestration. Per-platform "rung" inputs pick how far to ship; each protected
 # rung runs in a GitHub Environment with required reviewers (configure in repo Settings → Environments).
 # All credentials are env-activated placeholders (CIO.2); the workflow is inert until they are set.
 on:
@@ -49,7 +49,7 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler-cache: true
-      # CIO.2 — materialize Android secrets from base64 env (all placeholders; documented in docs/RELEASE.md).
+      # CIO.2: materialize Android secrets from base64 env (all placeholders; documented in docs/RELEASE.md).
       - name: Materialize Android secrets
         run: |
           set -euo pipefail
@@ -98,7 +98,7 @@ jobs:
         with:
           ruby-version: '3.3'
           bundler-cache: true
-      # CIO.2 — materialize iOS secrets from base64 env (all placeholders; documented in docs/RELEASE.md).
+      # CIO.2: materialize iOS secrets from base64 env (all placeholders; documented in docs/RELEASE.md).
       - name: Materialize iOS secrets
         run: |
           set -euo pipefail
@@ -137,10 +137,10 @@ jobs:
       - name: Build reproducible FOSS release (noGms)
         run: ./gradlew assembleNoGmsRelease -Pfdroid --no-build-cache
 
-  # CIO.3 — Wear track. NOTE: :wear is currently a com.android.library, so there is no standalone Wear AAB
+  # CIO.3: Wear track. NOTE: :wear is currently a com.android.library, so there is no standalone Wear AAB
   # to upload yet. This job builds the module; when :wear becomes a standalone Wear *application* module,
   # switch to `:wear:bundleRelease` and upload the AAB to Play `wear:alpha` with
-  # versionCode = phone versionCode + 1 (avoids collision with the phone track — biciradar pattern).
+  # versionCode = phone versionCode + 1 (avoids collision with the phone track, biciradar pattern).
   wear:
     if: ${{ inputs.android_rung == 'beta' || inputs.android_rung == 'production' }}
     needs: android
