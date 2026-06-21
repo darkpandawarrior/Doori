@@ -184,6 +184,12 @@ flavor split so the same app ships to both the Play Store and F-Droid.
 |:---:|
 | ![Help and support with FAQs and contact](docs/screenshots/help_support_screen.png) |
 
+#### Search
+
+| &nbsp; | &nbsp; |
+|:---:|:---:|
+| ![Master search with query, category tabs and grouped results across trips, payments and events](docs/screenshots/search_masterSearch_results.png) | ![Master search empty state prompting across all record types](docs/screenshots/search_masterSearch_empty.png) |
+
 #### Media & Assistant
 
 | &nbsp; | &nbsp; | &nbsp; |
