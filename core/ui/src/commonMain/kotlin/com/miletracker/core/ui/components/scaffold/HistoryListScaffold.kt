@@ -2,9 +2,10 @@ package com.miletracker.core.ui.components.scaffold
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,7 +44,7 @@ import com.miletracker.core.ui.mvi.ScreenStateContent
  * loading / error / offline visuals. Each history screen supplies only its tabs, its row [itemContent], and
  * its filter chips.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun <T> HistoryListScaffold(
     title: String,
@@ -60,7 +61,7 @@ fun <T> HistoryListScaffold(
     searchPlaceholder: String = "Search…",
     emptyTitle: String = "Nothing here yet",
     emptySubtitle: String? = null,
-    filterChips: (@Composable RowScope.() -> Unit)? = null,
+    filterChips: (@Composable FlowRowScope.() -> Unit)? = null,
     itemKey: ((T) -> Any)? = null,
     itemContent: @Composable (T) -> Unit,
 ) {
@@ -121,9 +122,10 @@ fun <T> HistoryListScaffold(
             }
 
             if (filterChips != null) {
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                     content = filterChips,
                 )
             }
