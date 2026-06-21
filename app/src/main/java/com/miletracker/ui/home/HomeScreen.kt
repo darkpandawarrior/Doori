@@ -142,22 +142,29 @@ internal fun HomeScreenContent(
                     )
                 }
 
-                // 4. My Cards carousel (Phase O).
-                MyCardsSection(onSnackbar = paymentsSnackbar)
-
-                // 5. At A Glance 2×2 grid (Phase O).
-                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                    HomeSectionHeader(title = "At A Glance", leadingIcon = Icons.Filled.Insights)
-                    AtAGlanceGrid(counts = state.atAGlance, onClick = onOpenAccount)
-                }
-
-                // VII.1: HomeMileageCard — progress ring + stats + quick actions.
+                // 4. Mileage card — promoted directly under Quick Actions so the primary
+                //    "Track Journey" / "Log Miles" affordances are above the fold (Bug 5).
                 HomeMileageCard(
                     onTrackJourney = onStartTracking,
                     onLogMiles = onAddExpense,
                 )
 
-                // VII.2: HomeCheckInCard — check-in button + recent list.
+                // 5. My Cards carousel (Phase O).
+                MyCardsSection(onSnackbar = paymentsSnackbar)
+
+                // 6. At A Glance 2×2 grid — each cell now routes to a distinct destination (Bug 5).
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                    HomeSectionHeader(title = "At A Glance", leadingIcon = Icons.Filled.Insights)
+                    AtAGlanceGrid(
+                        counts = state.atAGlance,
+                        onPendingExpenses = onAddExpense,
+                        onUpcomingTrips = onOpenAccount,
+                        onPendingApprovals = onOpenAccount,
+                        onNotifications = onOpenAccount,
+                    )
+                }
+
+                // 7. HomeCheckInCard — check-in button + recent list.
                 HomeCheckInCard(onCheckIn = onOpenAccount)
             }
 
