@@ -165,13 +165,18 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
             SettingsSectionLabel("Preferences")
+            // The curated theme dictates light/dark (e.g. Daybreak is light, Matrix is dark), so the
+            // manual override is superseded while one is active — surface that instead of a no-op switch.
             ListItem(
                 headlineContent = { Text("Dark theme") },
-                supportingContent = { Text("Override the system theme") },
+                supportingContent = {
+                    Text("Set by the “${milewayTheme.label}” theme — change it above")
+                },
                 trailingContent = {
                     Switch(
-                        checked = darkOverride ?: systemDark,
-                        onCheckedChange = { viewModel.setDarkTheme(it) },
+                        checked = !milewayTheme.isLight,
+                        enabled = false,
+                        onCheckedChange = {},
                     )
                 },
             )
