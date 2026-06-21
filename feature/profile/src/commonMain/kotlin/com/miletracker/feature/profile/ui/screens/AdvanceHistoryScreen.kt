@@ -49,6 +49,7 @@ import com.miletracker.core.ui.mvi.ScreenStateContent
 import com.miletracker.core.ui.mvi.dataOrNull
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.StatusColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.profile.model.AdvanceRecord
 import com.miletracker.feature.profile.model.AdvanceStatus
 import com.miletracker.feature.profile.viewmodel.AdvanceAction
@@ -172,7 +173,7 @@ private fun AdvanceCard(record: AdvanceRecord) {
             AdvanceStatus.PENDING -> "Pending" to StatusColors.warning
             AdvanceStatus.UNDER_REVIEW -> "Under Review" to StatusColors.info
             AdvanceStatus.APPROVED -> "Approved" to StatusColors.success
-            AdvanceStatus.DISBURSED -> "Disbursed" to Color(0xFF2196F3)
+            AdvanceStatus.DISBURSED -> "Disbursed" to StatusColors.info
             AdvanceStatus.REJECTED -> "Rejected" to StatusColors.error
         }
     val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -209,7 +210,7 @@ private fun AdvanceCard(record: AdvanceRecord) {
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                Text("₹${record.amountRupees.toLong()}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text("₹${record.amountRupees.toLong()}", style = MaterialTheme.typography.titleSmall.dataStyle(), fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(4.dp))
                 Surface(color = statusColor.copy(alpha = 0.15f), shape = RoundedCornerShape(6.dp)) {
                     Text(

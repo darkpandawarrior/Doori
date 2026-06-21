@@ -61,6 +61,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.stub.AnalyticsMockData
 import com.miletracker.stub.RecentActivityItem
 import kotlinx.datetime.Instant
@@ -107,7 +109,7 @@ fun AnalyticsHomeScreen(
                         Text("Last 30 days · all categories", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.85f))
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("₹${data.totalSpend.toLong()}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text("₹${data.totalSpend.toLong()}", style = MaterialTheme.typography.titleMedium.dataStyle(), fontWeight = FontWeight.Bold, color = Color.White)
                         Text("total spend", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
                     }
                 }
@@ -217,7 +219,7 @@ private fun TeamTab() {
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
                                 "₹${TEAM_TOTAL.toLong()}",
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleMedium.dataStyle(),
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -259,10 +261,10 @@ private fun TeamMemberRow(
     val fraction = (member.amountRupees / teamTotal).toFloat()
     val categoryColor =
         when (member.topCategory) {
-            "Travel" -> Color(0xFF9C27B0)
-            "Expense" -> Color(0xFF2196F3)
-            "Mileage" -> Color(0xFF4CAF50)
-            else -> Color(0xFFFF9800)
+            "Travel" -> MilewayColors.premium
+            "Expense" -> MilewayColors.info
+            "Mileage" -> MilewayColors.success
+            else -> MilewayColors.warning
         }
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
@@ -278,7 +280,7 @@ private fun TeamMemberRow(
         Column(modifier = Modifier.weight(1f)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(member.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                Text("₹${member.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                Text("₹${member.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(4.dp))
             Box(modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
@@ -344,10 +346,10 @@ private fun InsightsTab() {
 private fun AiInsightCard(insight: InsightCard) {
     val (icon, accentColor) =
         when (insight.type) {
-            InsightType.ANOMALY -> Icons.AutoMirrored.Filled.TrendingUp to Color(0xFFE65100)
-            InsightType.BREACH_RISK -> Icons.Default.Warning to Color(0xFFC62828)
-            InsightType.PATTERN -> Icons.Default.Lightbulb to Color(0xFF1565C0)
-            InsightType.SAVINGS -> Icons.Default.AutoAwesome to Color(0xFF2E7D32)
+            InsightType.ANOMALY -> Icons.AutoMirrored.Filled.TrendingUp to MilewayColors.warning
+            InsightType.BREACH_RISK -> Icons.Default.Warning to MilewayColors.danger
+            InsightType.PATTERN -> Icons.Default.Lightbulb to MilewayColors.info
+            InsightType.SAVINGS -> Icons.Default.AutoAwesome to MilewayColors.success
         }
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -479,7 +481,7 @@ private fun CategoryBreakdownCard(
                 ) {
                     Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(color))
                     Text(category, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-                    Text("₹${amount.toLong()}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
+                    Text("₹${amount.toLong()}", style = MaterialTheme.typography.bodySmall.dataStyle(), fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -522,7 +524,7 @@ private fun PolicyHealthCard(data: AnalyticsMockData) {
                 }
                 Text(
                     "${data.compliancePercent}%",
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelLarge.dataStyle(),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -547,7 +549,7 @@ private fun PolicyStat(
     color: Color,
 ) {
     Column {
-        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = color)
+        Text(value, style = MaterialTheme.typography.titleMedium.dataStyle(), fontWeight = FontWeight.Bold, color = color)
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -582,6 +584,6 @@ private fun RecentActivityRow(item: RecentActivityItem) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Text("₹${item.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+        Text("₹${item.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold)
     }
 }

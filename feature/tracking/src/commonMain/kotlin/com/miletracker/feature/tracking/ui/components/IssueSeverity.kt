@@ -1,12 +1,15 @@
 package com.miletracker.feature.tracking.ui.components
 
 import androidx.compose.ui.graphics.Color
+import com.miletracker.core.ui.theme.DesignTokens
 
+// Severity tints come from the static v2 fallbacks (kept in lock-step with MilewayColors);
+// this is an enum constructor, so it can't read the composable theme accessor.
 enum class IssueSeverity(val displayName: String, val color: Color) {
-    Low("Low", Color(0xFF4CAF50)),
-    Warning("Warning", Color(0xFFFF9800)),
-    High("High", Color(0xFFFF5722)),
-    Critical("Critical", Color(0xFFE91E63)),
+    Low("Low", DesignTokens.StatusColors.success),
+    Warning("Warning", DesignTokens.StatusColors.warning),
+    High("High", DesignTokens.StatusColors.error),
+    Critical("Critical", DesignTokens.StatusColors.error),
 }
 
 data class SystemIssue(

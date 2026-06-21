@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.util.DateUtils
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.dataStyle
 
 // Stateless building blocks for the revamped Saved Tracks screen.
 // UDF: data arrives through parameters, interactions surface through callbacks.
@@ -343,8 +344,8 @@ fun SubmissionCard(
         when (data.approvalStatus) {
             "Approved" -> DesignTokens.StatusColors.success
             "Rejected" -> DesignTokens.StatusColors.error
-            "Reimbursed" -> Color(0xFF00897B)
-            else -> Color(0xFFFF9800)
+            "Reimbursed" -> DesignTokens.StatusColors.success
+            else -> DesignTokens.StatusColors.warning
         }
 
     Surface(
@@ -425,7 +426,7 @@ fun SubmissionCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "₹${data.amount.formatDecimal(2)}",
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp),
+                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp).dataStyle(),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                 )

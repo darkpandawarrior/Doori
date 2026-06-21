@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.data.model.db.EventType
+import com.miletracker.core.ui.theme.DesignTokens
 
 // ---------------------------------------------------------------------------
 // Map-marker domain types for the Compose marker UI. These model marker
@@ -30,10 +31,10 @@ data class MapPosition(val latitude: Double, val longitude: Double)
  * Severity levels for visual prioritization and filtering.
  */
 enum class MarkerSeverity(val label: String, val color: Color) {
-    INFO("Info", Color(0xFF2196F3)),
-    WARNING("Warning", Color(0xFFFF9800)),
-    ERROR("Error", Color(0xFFFF5722)),
-    CRITICAL("Critical", Color(0xFFD32F2F)),
+    INFO("Info", DesignTokens.StatusColors.info),
+    WARNING("Warning", DesignTokens.StatusColors.warning),
+    ERROR("Error", DesignTokens.StatusColors.error),
+    CRITICAL("Critical", DesignTokens.StatusColors.error),
 }
 
 /**

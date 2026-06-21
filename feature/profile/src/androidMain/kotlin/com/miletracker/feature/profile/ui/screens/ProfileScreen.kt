@@ -76,6 +76,7 @@ import com.miletracker.core.ui.components.buildReferralInvite
 import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.platform.LocalShareSheet
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.profile.model.AccountAnalyticsSnapshot
 import com.miletracker.feature.profile.model.ProfileHeader
 import com.miletracker.feature.profile.viewmodel.ProfileAction
@@ -540,7 +541,7 @@ private fun AnalyticsCard(
                     )
                     Text(
                         text = analytics.totalSpend,
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineSmall.dataStyle(),
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -563,7 +564,7 @@ private fun AnalyticsCard(
                     )
                     Text(
                         text = analytics.transactions.toString(),
-                        style = MaterialTheme.typography.headlineSmall,
+                        style = MaterialTheme.typography.headlineSmall.dataStyle(),
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )

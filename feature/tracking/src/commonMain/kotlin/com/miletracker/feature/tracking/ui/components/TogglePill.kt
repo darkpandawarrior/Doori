@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.theme.MilewayColors
 
 @Composable
 fun TogglePill(
@@ -34,7 +35,7 @@ fun TogglePill(
             modifier = Modifier.height(36.dp),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = if (selected) Color(0xFF2196F3) else Color(0xFFE0E0E0),
+                    containerColor = if (selected) MilewayColors.info else Color(0xFFE0E0E0),
                     contentColor = if (selected) Color.White else Color(0xFF212121),
                 ),
         ) { Text(label, style = MaterialTheme.typography.bodySmall) }

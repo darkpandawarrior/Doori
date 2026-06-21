@@ -42,6 +42,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.common.formatDecimal
 import com.miletracker.core.data.model.db.CurrentTrackData
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import kotlin.time.Clock
 
 @Composable
@@ -122,9 +124,9 @@ fun LiveHealthMonitorCard(
             Text("System Health", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-                HealthIndicator(label = "GPS", value = "Active", color = Color(0xFF4CAF50), icon = Icons.Default.GpsFixed)
+                HealthIndicator(label = "GPS", value = "Active", color = MilewayColors.success, icon = Icons.Default.GpsFixed)
                 HealthIndicator(label = "Points", value = "$locationCount", color = MaterialTheme.colorScheme.primary, icon = Icons.Default.NetworkCheck)
-                HealthIndicator(label = "Battery", value = "OK", color = Color(0xFF8BC34A), icon = Icons.Default.Battery5Bar)
+                HealthIndicator(label = "Battery", value = "OK", color = MilewayColors.success, icon = Icons.Default.Battery5Bar)
             }
         }
     }
@@ -146,14 +148,14 @@ fun LiveSyncStatusCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Text("Sync Status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Text("$synced/$total", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("$synced/$total", style = MaterialTheme.typography.bodySmall.dataStyle(), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { progress },
                 modifier = Modifier.fillMaxWidth().height(6.dp),
                 strokeCap = StrokeCap.Round,
-                color = if (unsynced == 0L) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
+                color = if (unsynced == 0L) MilewayColors.success else MaterialTheme.colorScheme.primary,
             )
             Spacer(Modifier.height(4.dp))
             Text(
@@ -197,7 +199,7 @@ private fun LiveMetric(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(icon, contentDescription = label, tint = color, modifier = Modifier.size(20.dp))
         Spacer(Modifier.height(4.dp))
-        Text(value, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+        Text(value, style = MaterialTheme.typography.titleSmall.dataStyle(), fontWeight = FontWeight.Bold)
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -240,7 +242,7 @@ fun LiveIndicatorBadge(isPaused: Boolean) {
     )
     StatusBadge(
         text = if (isPaused) "PAUSED" else "ACTIVE",
-        color = if (isPaused) Color(0xFFFF9800) else Color(0xFF4CAF50),
+        color = if (isPaused) MilewayColors.warning else MilewayColors.success,
         modifier = if (isPaused) Modifier else Modifier.alpha(alpha),
     )
 }

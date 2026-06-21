@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.theme.MilewayColors
 
 @Composable
 fun HeatmapLegend() {
@@ -89,11 +90,11 @@ private fun LegendHeatmapRow() {
 @Composable
 private fun LegendStatusColumn(lineItem: @Composable (color: Color, label: String, dashed: Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        lineItem(Color(0xFF1976D2), "Normal", false)
-        lineItem(Color(0xFF9E9E9E), "Paused", true)
-        lineItem(Color(0xFFFFC107), "Inactivity", true)
-        lineItem(Color(0xFFFF9800), "Abnormal", false)
-        lineItem(Color(0xFFF44336), "Mock", false)
+        lineItem(MilewayColors.info, "Normal", false)
+        lineItem(MilewayColors.neutral, "Paused", true)
+        lineItem(MilewayColors.warning, "Inactivity", true)
+        lineItem(MilewayColors.warning, "Abnormal", false)
+        lineItem(MilewayColors.danger, "Mock", false)
     }
 }
 

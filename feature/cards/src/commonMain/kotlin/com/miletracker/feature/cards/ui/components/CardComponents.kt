@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.cards.model.CardStatus
 
 /** Web's primary indigo accent (`#6367FA`) reused across the cards UI. */
@@ -35,10 +36,10 @@ internal fun maskedNumber(last4: String): String = "•••• •••• �
 
 private fun statusColor(status: CardStatus): Color =
     when (status) {
-        CardStatus.ACTIVE, CardStatus.PHYSICAL_ISSUED -> Color(0xFF12B76A)
-        CardStatus.BLOCKED, CardStatus.EXPIRED -> Color(0xFFF04438)
-        CardStatus.FROZEN -> Color(0xFF2E90FA)
-        CardStatus.KYC_PENDING, CardStatus.PENDING -> Color(0xFFF79009)
+        CardStatus.ACTIVE, CardStatus.PHYSICAL_ISSUED -> DesignTokens.StatusColors.success
+        CardStatus.BLOCKED, CardStatus.EXPIRED -> DesignTokens.StatusColors.error
+        CardStatus.FROZEN -> DesignTokens.StatusColors.info
+        CardStatus.KYC_PENDING, CardStatus.PENDING -> DesignTokens.StatusColors.warning
     }
 
 private fun statusLabel(status: CardStatus): String =
