@@ -7,6 +7,9 @@ kotlin {
         namespace = "com.miletracker.core.platform"
         compileSdk = 37
         minSdk = 30
+        // Run commonTest on the JVM host so the LocationNameResolver tests count toward the
+        // ./gradlew test gate (the AGP KMP library plugin disables host tests by default).
+        withHostTest {}
     }
 
     sourceSets {
@@ -33,6 +36,10 @@ kotlin {
             // V15 UP.3: IosAppUpdateManager queries the public iTunes Lookup API (no backend).
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.darwin)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

@@ -64,6 +64,7 @@ import com.miletracker.core.ui.components.tracking.SystemStatusBanner
 import com.miletracker.core.ui.components.tracking.ThreeButtonFabSystem
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.core.ui.toast.Toasts
 import com.miletracker.feature.tracking.ui.components.StatusBadge
 import com.miletracker.feature.tracking.ui.sheets.CenterOption
@@ -206,7 +207,10 @@ fun TrackMilesScreen(
                         .padding(bottom = 220.dp),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
-                CurrentLocationPill(label = uiState.currentLocationLabel)
+                CurrentLocationPill(
+                    label = uiState.currentLocationLabel,
+                    coordinates = uiState.currentLocationCoordinates,
+                )
 
                 HeroTrackingCard(
                     distanceText = "%.2f".format(uiState.distanceKm),
@@ -543,9 +547,18 @@ private fun WeeklySummaryPill(text: String) {
     }
 }
 
-/** The current-location pill shown above the hero card (mirrors the reference layout). */
+/**
+ * The current-location pill shown above the hero card. Shows the geocoded place name as the
+ * primary line, with the raw coordinates as a muted secondary line. When no name is resolved
+ * (offline coords-only fallback), the secondary line is suppressed if it would duplicate the label.
+ */
 @Composable
-private fun CurrentLocationPill(label: String) {
+private fun CurrentLocationPill(
+    label: String,
+    coordinates: String,
+) {
+    // Show coords as the muted second line only when they add information beyond the label.
+    val showCoords = coordinates.isNotBlank() && coordinates != label
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = DesignTokens.Shape.chip,
@@ -566,11 +579,21 @@ private fun CurrentLocationPill(label: String) {
                 modifier = Modifier.size(20.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
+            Column {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                )
+                if (showCoords) {
+                    Text(
+                        text = coordinates,
+                        style = MaterialTheme.typography.labelSmall.dataStyle(),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }
