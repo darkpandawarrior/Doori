@@ -1,2 +1,2 @@
-# FLA.4 — Firebase App Distribution plugin for the deploy_firebase lane.
+# FLA.4: Firebase App Distribution plugin for the deploy_firebase lane.
 gem "fastlane-plugin-firebase_app_distribution"

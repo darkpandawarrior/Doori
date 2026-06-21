@@ -13,7 +13,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
-            // Napier — KMP logging usable from commonMain (android.util.Log cannot go here).
+            // Napier: KMP logging usable from commonMain (android.util.Log cannot go here).
             api(libs.napier)
         }
         commonTest.dependencies {

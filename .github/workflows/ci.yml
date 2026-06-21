@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Disable the daemon in CI — each run gets a fresh environment; daemon lifecycle
+      # Disable the daemon in CI, each run gets a fresh environment; daemon lifecycle
       # savings don't apply and it adds overhead from orphaned daemon processes.
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
