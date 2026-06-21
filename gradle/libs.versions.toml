@@ -64,6 +64,10 @@ ktlint-plugin = "12.2.0"
 dependency-guard = "0.5.0"
 gradle-doctor = "0.12.0"
 profileinstaller = "1.4.1"
+# G2: macrobenchmark + baseline-profile generator. Alpha is required for AGP 9.2 compatibility
+# (stable 1.4.1 predates AGP 9), consistent with this repo's bleeding-edge toolchain.
+benchmark = "1.5.0-alpha06"
+uiautomator = "2.4.0-rc01"
 # V15: platform services (gms-only): in-app update + in-app review
 play-app-update = "2.1.0"
 play-review = "2.0.2"
@@ -191,6 +195,9 @@ compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 # Baseline profiles, install compiled Dex profiles at APK install time for cold-start wins
 profileinstaller = { module = "androidx.profileinstaller:profileinstaller", version.ref = "profileinstaller" }
+# G2: baseline-profile generator (macrobenchmark) deps — used only by the :baselineprofile test module.
+benchmark-macro-junit4 = { module = "androidx.benchmark:benchmark-macro-junit4", version.ref = "benchmark" }
+uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "uiautomator" }
 
 # --- V12 KMP storage + security ---
 # multiplatform-settings (russhwolf), KMP key-value store: NSUserDefaults/SharedPreferences plain,
@@ -251,6 +258,9 @@ composeCompiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 androidKmpLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+# G2: baseline-profile generator plugin. (com.android.test + kotlin.android are applied versionless via
+# id() in :baselineprofile since they're already on the classpath, so they need no catalog entries.)
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "benchmark" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
