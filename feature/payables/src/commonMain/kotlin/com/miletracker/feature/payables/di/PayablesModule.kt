@@ -3,10 +3,12 @@ package com.miletracker.feature.payables.di
 import com.miletracker.feature.payables.repository.GinRepository
 import com.miletracker.feature.payables.repository.InvoiceRepository
 import com.miletracker.feature.payables.repository.ParkingRepository
+import com.miletracker.feature.payables.repository.PayablesHistoryRepository
 import com.miletracker.feature.payables.repository.PayablesRepository
 import com.miletracker.feature.payables.viewmodel.CreateGinViewModel
 import com.miletracker.feature.payables.viewmodel.CreateInvoiceViewModel
 import com.miletracker.feature.payables.viewmodel.CreateParkingViewModel
+import com.miletracker.feature.payables.viewmodel.PayablesHistoryViewModel
 import com.miletracker.feature.payables.viewmodel.PayablesViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -20,8 +22,11 @@ val payablesModule =
         single { GinRepository() }
         // PB.3: create Park In/Out gate-event flow (offline rotating-status submit).
         single { ParkingRepository() }
+        // PB.4: unified payables history (Invoice/PR/GIN/ParkInOut/ASN) — also the PB.5 search source.
+        single { PayablesHistoryRepository() }
         viewModel { PayablesViewModel(get()) }
         viewModel { CreateInvoiceViewModel(get()) }
         viewModel { CreateGinViewModel(get()) }
         viewModel { CreateParkingViewModel(get()) }
+        viewModel { PayablesHistoryViewModel(get()) }
     }
