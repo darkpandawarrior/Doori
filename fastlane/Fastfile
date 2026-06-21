@@ -18,7 +18,7 @@ platform :android do
     build
   end
 
-  desc "Capture Roborazzi baseline screenshots (JVM — no device needed)"
+  desc "Capture Roborazzi baseline screenshots (JVM, no device needed)"
   lane :screenshots do
     # Roborazzi captures images as a side effect of the test run.
     # Output path is configured in roborazzi.properties.
@@ -177,7 +177,7 @@ platform :ios do
     )
   end
 
-  desc "FLI.1 — build + upload to TestFlight (external testers, beta review)"
+  desc "FLI.1: build + upload to TestFlight (external testers, beta review)"
   lane :beta do
     asc_api_key
     build_ios_app
@@ -187,7 +187,7 @@ platform :ios do
     )
   end
 
-  desc "FLI.1 — build + submit to the App Store (phased release)"
+  desc "FLI.1: build + submit to the App Store (phased release)"
   lane :release do
     asc_api_key
     build_ios_app
@@ -199,7 +199,7 @@ platform :ios do
     )
   end
 
-  desc "FLI.2 — renew signing certs/profiles via match"
+  desc "FLI.2: renew signing certs/profiles via match"
   lane :renew_certs do
     match(type: "appstore", readonly: false)
   end
