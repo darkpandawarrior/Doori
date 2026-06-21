@@ -16,6 +16,7 @@ import com.miletracker.feature.payables.di.payablesModule
 import com.miletracker.feature.cards.di.cardsModule
 import com.miletracker.feature.travel.di.travelModule
 import com.miletracker.feature.logging.di.loggingModule
+import com.miletracker.feature.events.di.eventsModule
 import com.miletracker.feature.media.di.mediaModule
 import com.miletracker.feature.payments.di.paymentsModule
 import com.miletracker.feature.profile.di.profileModule
@@ -138,6 +139,7 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
                 cardsModule,
                 agentModule,
                 paymentsModule,
+                eventsModule,
                 homeModule,
                 appModule
             ),

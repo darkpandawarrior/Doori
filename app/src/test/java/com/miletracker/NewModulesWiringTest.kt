@@ -3,6 +3,8 @@ package com.miletracker
 import android.content.Context
 import com.miletracker.core.ui.di.coreUiModule
 import com.miletracker.core.ui.theme.ThemeController
+import com.miletracker.feature.events.di.eventsModule
+import com.miletracker.feature.events.repository.EventsRepository
 import com.miletracker.feature.media.di.mediaModule
 import com.miletracker.feature.media.repository.MediaRepository
 import com.miletracker.feature.payments.di.paymentsModule
@@ -32,7 +34,7 @@ class NewModulesWiringTest : KoinTest {
         try { stopKoin() } catch (_: Exception) {}
         startKoin {
             androidContext(mockk<Context>(relaxed = true))
-            modules(coreUiModule, mediaModule, profileModule, paymentsModule)
+            modules(coreUiModule, mediaModule, profileModule, paymentsModule, eventsModule)
         }
     }
 
@@ -64,6 +66,12 @@ class NewModulesWiringTest : KoinTest {
     @Test
     fun `paymentsModule provides PaymentsRepository`() {
         val repo by inject<PaymentsRepository>()
+        assertNotNull(repo)
+    }
+
+    @Test
+    fun `eventsModule provides EventsRepository`() {
+        val repo by inject<EventsRepository>()
         assertNotNull(repo)
     }
 }

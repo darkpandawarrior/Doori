@@ -32,6 +32,9 @@ object AppGraph {
 
     /** Payments (QR/UPI pay-request-history) graph — reached from Home quick actions / master search. */
     const val PAYMENTS = "payments_graph"
+
+    /** Events (create + history) graph — reached from Home quick actions / master search. */
+    const val EVENTS = "events_graph"
 }
 
 /**

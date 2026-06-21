@@ -69,6 +69,8 @@ import com.miletracker.feature.cards.ui.navigation.CardRoutes
 import com.miletracker.feature.cards.ui.navigation.cardsGraph
 import com.miletracker.feature.payables.ui.navigation.PayablesRoutes
 import com.miletracker.feature.payables.ui.navigation.payablesGraph
+import com.miletracker.feature.events.ui.navigation.EventsRoutes
+import com.miletracker.feature.events.ui.navigation.eventsGraph
 import com.miletracker.feature.payments.ui.navigation.PaymentsRoutes
 import com.miletracker.feature.payments.ui.navigation.paymentsGraph
 import com.miletracker.feature.agent.ui.navigation.agentGraph
@@ -286,6 +288,9 @@ fun MileTrackerAppRoot(
                     }
                     navigation(startDestination = PaymentsRoutes.HOME, route = AppGraph.PAYMENTS) {
                         paymentsGraph(navController)
+                    }
+                    navigation(startDestination = EventsRoutes.HOME, route = AppGraph.EVENTS) {
+                        eventsGraph(navController)
                     }
                     navigation(startDestination = ApprovalsRoutes.HOME, route = AppGraph.APPROVALS) {
                         approvalsGraph(navController)
