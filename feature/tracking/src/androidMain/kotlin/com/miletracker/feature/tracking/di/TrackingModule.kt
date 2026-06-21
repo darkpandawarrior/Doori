@@ -25,6 +25,7 @@ import com.miletracker.feature.tracking.viewmodel.TrackDetailViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackInsightsViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -53,7 +54,22 @@ val trackingModule =
         single { RouteAnalyzer() }
 
         viewModelOf(::SavedTracksViewModel)
-        viewModelOf(::TrackMilesViewModel)
+        // Explicit definition (not viewModelOf): LocationNameResolver is bound in platformModule,
+        // which some graphs (e.g. the screenshot harness) omit. getOrNull() lets the VM fall back to
+        // its own OfflineLocationNameResolver default instead of failing instance creation.
+        viewModel {
+            TrackMilesViewModel(
+                configManager = get(),
+                vehicleRepo = get(),
+                trackRepo = get(),
+                trackingController = get(),
+                currentTrackRepo = get(),
+                locationRepo = get(),
+                geoCheckInLocations = getOrNull() ?: emptyList(),
+                trackingServiceApi = get(),
+                locationNameResolver = getOrNull() ?: com.miletracker.core.platform.OfflineLocationNameResolver(),
+            )
+        }
         viewModelOf(::MileageSubmissionViewModel)
         viewModelOf(::TrackDetailViewModel)
         viewModelOf(::LiveTrackViewModel)
