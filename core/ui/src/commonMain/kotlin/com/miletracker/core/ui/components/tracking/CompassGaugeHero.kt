@@ -1,6 +1,7 @@
 package com.miletracker.core.ui.components.tracking
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -56,6 +57,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -71,6 +73,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -526,12 +529,32 @@ fun HeroTrackingCard(
 ) {
     val shape = RoundedCornerShape(shapeRadius)
     val onSurface = MaterialTheme.colorScheme.onSurface
-    val heroTopColor = if (isActive) Color(0xFFA9DCAE) else Color(0xFFD3EAD6)
+
+    // Matrix-tokened hero gradient: a raised surface warmed by the active theme accent (Matrix green /
+    // Ion blue / …) when live, calmer when idle. No hard-coded hexes, so every curated theme stays
+    // coherent. `animateColorAsState` cross-fades the top tint as tracking starts / stops.
+    val accent = MaterialTheme.colorScheme.primary
+    val surfaceRaised = MilewayColors.surfaceRaised
+    val targetTop =
+        if (isActive) {
+            lerp(surfaceRaised, accent, 0.22f)
+        } else {
+            lerp(surfaceRaised, accent, 0.06f)
+        }
+    val heroTopColor by animateColorAsState(targetTop, tween(600), label = "heroTopColor")
     val gradient =
         Brush.verticalGradient(
-            colors = listOf(heroTopColor, heroTopColor.copy(alpha = 0.45f), MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
+            colors =
+                listOf(
+                    heroTopColor,
+                    heroTopColor.copy(alpha = 0.55f),
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                ),
         )
 
+    // Glow on active/primary only: a soft accent border ring that breathes while tracking; idle and
+    // paused cards carry a calm outline instead.
+    val useGlow = MilewayColors.useGlow
     val breath =
         if (isActive) {
             val infinite = rememberInfiniteTransition(label = "heroBreath")
@@ -549,6 +572,15 @@ fun HeroTrackingCard(
             1f
         }
 
+    // Glow-on-active only: while tracking, a soft accent border ring whose alpha tracks the breath
+    // so the live card subtly pulses; idle/paused cards carry a calm one-pixel outline.
+    val borderColor =
+        when {
+            isActive && useGlow -> accent.copy(alpha = 0.30f + (breath - 0.99f) * 8f)
+            isActive -> accent.copy(alpha = 0.35f)
+            else -> MaterialTheme.colorScheme.outline.copy(alpha = 0.18f)
+        }
+
     // Flat card, no elevation shadow, gradient provides all the depth.
     Card(
         modifier =
@@ -559,6 +591,7 @@ fun HeroTrackingCard(
         shape = shape,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(if (isActive) 1.5.dp else 1.dp, borderColor),
     ) {
         Box(modifier = Modifier.fillMaxWidth().clip(shape).background(gradient)) {
             Column(

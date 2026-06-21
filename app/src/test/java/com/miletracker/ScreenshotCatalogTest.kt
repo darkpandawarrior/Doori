@@ -5,6 +5,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.miletracker.core.ui.previews.PreviewHeroTrackingCardActive
+import com.miletracker.core.ui.previews.PreviewHeroTrackingCardActiveIon
+import com.miletracker.core.ui.previews.PreviewHeroTrackingCardIdle
 import com.miletracker.core.ui.previews.PreviewThemePickerAmoled
 import com.miletracker.core.ui.previews.PreviewThemePickerDaybreak
 import com.miletracker.core.ui.previews.PreviewThemePickerIon
@@ -261,6 +264,26 @@ class ScreenshotCatalogTest {
     fun tracking_statusPills() {
         composeRule.setContent { PreviewTrackingStatusPills() }
         capture("tracking_statusPills")
+    }
+
+    // ── core:ui — matrix-re-tokened hero tracking card (Task 3) ───────────────
+
+    @Test
+    fun tracking_heroCard_active() {
+        composeRule.setContent { PreviewHeroTrackingCardActive() }
+        capture("tracking_heroCard_active")
+    }
+
+    @Test
+    fun tracking_heroCard_idle() {
+        composeRule.setContent { PreviewHeroTrackingCardIdle() }
+        capture("tracking_heroCard_idle")
+    }
+
+    @Test
+    fun tracking_heroCard_active_ion() {
+        composeRule.setContent { PreviewHeroTrackingCardActiveIon() }
+        capture("tracking_heroCard_active_ion")
     }
 
     companion object {
