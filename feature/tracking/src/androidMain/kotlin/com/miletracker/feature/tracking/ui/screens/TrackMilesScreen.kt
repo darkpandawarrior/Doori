@@ -45,7 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -64,6 +63,7 @@ import com.miletracker.core.ui.components.tracking.StatusLevel
 import com.miletracker.core.ui.components.tracking.SystemStatusBanner
 import com.miletracker.core.ui.components.tracking.ThreeButtonFabSystem
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.core.ui.toast.Toasts
 import com.miletracker.feature.tracking.ui.components.StatusBadge
 import com.miletracker.feature.tracking.ui.sheets.CenterOption
@@ -183,8 +183,8 @@ fun TrackMilesScreen(
                             },
                         color =
                             when {
-                                isPaused -> Color(0xFFFF9800)
-                                isActive -> Color(0xFF4CAF50)
+                                isPaused -> MilewayColors.warning
+                                isActive -> MilewayColors.success
                                 else -> idleColor
                             },
                     )

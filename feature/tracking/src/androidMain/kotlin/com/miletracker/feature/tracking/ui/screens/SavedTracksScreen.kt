@@ -65,6 +65,8 @@ import com.miletracker.core.ui.components.ConfettiBurst
 import com.miletracker.core.ui.components.EmptyState
 import com.miletracker.core.ui.components.LoadingScreen
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.ui.components.CreateVoucherButton
 import com.miletracker.feature.tracking.ui.components.NoJourneysThisWeekState
 import com.miletracker.feature.tracking.ui.components.NoSubmissionsState
@@ -223,7 +225,7 @@ private fun HeaderStat(
                 .background(Color.White.copy(alpha = 0.15f))
                 .padding(vertical = DesignTokens.Spacing.m, horizontal = DesignTokens.Spacing.s),
     ) {
-        Text(value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+        Text(value, style = MaterialTheme.typography.titleMedium.dataStyle(), fontWeight = FontWeight.Bold, color = Color.White)
         Text(label, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.85f))
     }
 }
@@ -367,9 +369,9 @@ private fun JourneyCard(
     val score = track.healthScore()
     val scoreColor =
         when {
-            score >= 80 -> Color(0xFF4CAF50)
-            score >= 60 -> Color(0xFFFF9800)
-            else -> Color(0xFFF44336)
+            score >= 80 -> MilewayColors.success
+            score >= 60 -> MilewayColors.warning
+            else -> MilewayColors.danger
         }
     val routePoints =
         listOf(
@@ -477,7 +479,7 @@ private fun Metric(
 ) {
     Column(modifier = modifier) {
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, color = valueColor)
+        Text(value, style = MaterialTheme.typography.bodyLarge.dataStyle(), fontWeight = FontWeight.SemiBold, color = valueColor)
     }
 }
 
@@ -728,7 +730,7 @@ private fun InsightMetric(
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             value,
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleSmall.dataStyle(),
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
         )
