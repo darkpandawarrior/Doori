@@ -65,6 +65,7 @@ fun HomeScreen(
     onStartTracking: () -> Unit,
     onAddExpense: () -> Unit,
     onOpenAccount: () -> Unit,
+    onOpenSearch: () -> Unit = onOpenAccount,
     viewModel: HomeViewModel = koinViewModel(),
     reviewTracker: ReviewTracker = koinInject(),
     featureFlags: FeatureFlags = koinInject(),
@@ -85,6 +86,7 @@ fun HomeScreen(
         onStartTracking = { viewModel.onStartTracking(onStartTracking) },
         onAddExpense = { viewModel.onAddExpense(onAddExpense) },
         onOpenAccount = { viewModel.onOpenAccount(onOpenAccount) },
+        onOpenSearch = onOpenSearch,
     )
 }
 
@@ -98,6 +100,7 @@ internal fun HomeScreenContent(
     onStartTracking: () -> Unit,
     onAddExpense: () -> Unit,
     onOpenAccount: () -> Unit,
+    onOpenSearch: () -> Unit = onOpenAccount,
 ) {
     val scrollState = rememberScrollState()
     val snackbarState = remember { SnackbarHostState() }
@@ -115,7 +118,7 @@ internal fun HomeScreenContent(
             HomeProfileHeader(
                 name = state.greetingName,
                 notificationCount = state.notificationCount,
-                onSearch = onOpenAccount,
+                onSearch = onOpenSearch,
                 onNotifications = onOpenAccount,
             )
 

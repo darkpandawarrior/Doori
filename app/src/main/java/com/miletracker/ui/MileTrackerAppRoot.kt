@@ -86,6 +86,8 @@ import com.miletracker.feature.tracking.debug.DebugMenuScreen
 import com.miletracker.feature.tracking.ui.navigation.TrackingRoutes
 import com.miletracker.feature.tracking.ui.navigation.trackingGraph
 import com.miletracker.ui.home.HomeScreen
+import com.miletracker.ui.search.MasterSearchRoute
+import com.miletracker.ui.search.toSectionRoute
 import org.koin.compose.koinInject
 
 private data class TabSpec(
@@ -257,6 +259,7 @@ fun MileTrackerAppRoot(
                                 onStartTracking = { navController.navigate(AppGraph.TRACK) },
                                 onAddExpense = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
                                 onOpenAccount = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.PROFILE }) },
+                                onOpenSearch = { navController.navigate(AppRoutes.SEARCH) },
                             )
                         }
                     }
@@ -307,6 +310,25 @@ fun MileTrackerAppRoot(
                                 ?.let { intent -> { ctx.startActivity(intent) } },
                         )
                     }
+                    // Global master-search destination — full-screen, outside bottom-nav graphs. A tapped
+                    // result routes to the section graph that owns the entity (best-effort; some types have
+                    // no destination yet and are ignored).
+                    composable(AppRoutes.SEARCH) {
+                        MasterSearchRoute(
+                            onBack = { navController.popBackStack() },
+                            onOpenResult = { result ->
+                                val route = result.toSectionRoute()
+                                if (route != null) {
+                                    navController.navigate(route) {
+                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            },
+                        )
+                    }
+
                     // Full-screen AI Agent — entered via FAB throw-up gesture.
                     agentGraph(navController)
                 }
