@@ -3,6 +3,7 @@ package com.miletracker.feature.travel.ui.navigation
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import com.miletracker.feature.travel.ui.screens.BookingHistoryScreen
 import com.miletracker.feature.travel.ui.screens.CreateBusScreen
 import com.miletracker.feature.travel.ui.screens.CreateFlightScreen
 import com.miletracker.feature.travel.ui.screens.CreateHotelScreen
@@ -10,6 +11,7 @@ import com.miletracker.feature.travel.ui.screens.CreateMjpScreen
 import com.miletracker.feature.travel.ui.screens.CreateTripScreen
 import com.miletracker.feature.travel.ui.screens.CreateVisaScreen
 import com.miletracker.feature.travel.ui.screens.TravelHomeScreen
+import com.miletracker.feature.travel.ui.screens.TripHistoryScreen
 
 /**
  * TR.1 — the shared, commonMain travel navigation graph. Promotes `feature:travel` off the app-only direct
@@ -25,6 +27,8 @@ object TravelRoutes {
     const val CREATE_HOTEL = "travel/create_hotel"
     const val CREATE_MJP = "travel/create_mjp"
     const val CREATE_VISA = "travel/create_visa"
+    const val TRIP_HISTORY = "travel/trip_history"
+    const val BOOKING_HISTORY = "travel/booking_history"
 }
 
 fun NavGraphBuilder.travelGraph(navController: NavHostController) {
@@ -66,5 +70,11 @@ fun NavGraphBuilder.travelGraph(navController: NavHostController) {
             onBack = { navController.popBackStack() },
             onSubmitted = { navController.popBackStack() },
         )
+    }
+    composable(TravelRoutes.TRIP_HISTORY) {
+        TripHistoryScreen(onBack = { navController.popBackStack() })
+    }
+    composable(TravelRoutes.BOOKING_HISTORY) {
+        BookingHistoryScreen(onBack = { navController.popBackStack() })
     }
 }

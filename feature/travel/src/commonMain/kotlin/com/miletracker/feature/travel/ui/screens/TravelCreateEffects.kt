@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.components.StatusTone
 import com.miletracker.core.ui.toast.ToastType
 import com.miletracker.core.ui.toast.Toasts
+import com.miletracker.feature.travel.model.TravelReqStatus
 import com.miletracker.feature.travel.viewmodel.TravelCreateEffect
 import kotlinx.coroutines.flow.Flow
 
@@ -69,3 +71,12 @@ internal fun TravelFormBody(
         content()
     }
 }
+
+/** Shared StatusChip tone mapping for the TR history surfaces (TR.8). */
+internal fun travelStatusTone(status: TravelReqStatus): StatusTone =
+    when (status) {
+        TravelReqStatus.PENDING -> StatusTone.Warning
+        TravelReqStatus.APPROVED -> StatusTone.Success
+        TravelReqStatus.REJECTED -> StatusTone.Error
+        TravelReqStatus.COMPLETED -> StatusTone.Info
+    }
