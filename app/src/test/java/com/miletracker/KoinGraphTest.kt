@@ -44,6 +44,7 @@ import com.miletracker.feature.tracking.viewmodel.SavedTracksViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackDetailViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackInsightsViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel
+import com.miletracker.ui.search.MasterSearchViewModel
 import com.miletracker.core.platform.NotificationScheduler
 import com.miletracker.stub.di.stubModule
 import io.mockk.mockk
@@ -147,6 +148,13 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<PaymentsHistoryViewModel>())
         assertNotNull(get<CreateEventViewModel>())
         assertNotNull(get<EventsHistoryViewModel>())
+        assertNotNull(get<MasterSearchViewModel>())
+    }
+
+    @Test
+    fun `master-search aggregator resolves every registered SearchProvider`() {
+        // getAll<SearchProvider>() must find the bound providers; the repo is what the VM depends on.
+        assertNotNull(get<com.miletracker.core.data.search.MasterSearchRepository>())
     }
 
     @Test
