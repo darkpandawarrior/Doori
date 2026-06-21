@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * Same contract as the original PlatformServices.kt: every interface is platform-neutral, implemented
  * per platform, and surfaced through Koin / the LocalManagerProvider Compose layer (PF.3). Each impl
- * MUST degrade to a no-op when its backing key/service is absent — never crash (KEY DECISION #4).
+ * MUST degrade to a no-op when its backing key/service is absent, never crash (KEY DECISION #4).
  */
 
 // ─────────────────────────── In-app update ───────────────────────────
@@ -132,7 +132,7 @@ interface AppShortcuts {
 
 /**
  * A single analytics event. Param keys/values self-clamp to Firebase limits (≤ 40-char name/key,
- * ≤ 100-char value, ≤ 25 params) so impls never reject an event — openMF AnalyticsEvent pattern.
+ * ≤ 100-char value, ≤ 25 params) so impls never reject an event, openMF AnalyticsEvent pattern.
  */
 data class AnalyticsEvent(
     val type: String,

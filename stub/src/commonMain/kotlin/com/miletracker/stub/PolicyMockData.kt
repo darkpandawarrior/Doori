@@ -31,7 +31,7 @@ import kotlin.math.roundToLong
  * by the policy engine, so no voucher or transaction is created for them.
  */
 object PolicyMockData {
-    /** Reimbursement rate per km — matches [DemoMockData.submissionResponse]. */
+    /** Reimbursement rate per km, matches [DemoMockData.submissionResponse]. */
     const val RATE_PER_KM = 10.0
 
     /** Daily reimbursable distance ceiling enforced by the demo policy. */

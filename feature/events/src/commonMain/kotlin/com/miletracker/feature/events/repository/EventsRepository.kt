@@ -23,7 +23,7 @@ sealed interface EventResult {
 }
 
 /**
- * Offline fake events store (EV) — seeds a deterministic history (Clock-injected, no `Math.random`) and returns
+ * Offline fake events store (EV), seeds a deterministic history (Clock-injected, no `Math.random`) and returns
  * a **rotating** [EventResult] (published / approval / policy-violation) across repeated submits. Mirrors the
  * PB/TR/PM fake-repo pattern.
  */

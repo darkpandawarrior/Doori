@@ -13,7 +13,7 @@ sealed interface TravelSubmissionResult {
     data class PolicyViolation(val messages: List<String>) : TravelSubmissionResult
 }
 
-/** TR.2 — a create trip-request form payload. */
+/** TR.2: a create trip-request form payload. */
 data class TripDraft(
     val purpose: String,
     val fromCity: String,
@@ -23,7 +23,7 @@ data class TripDraft(
     val advanceRequired: Boolean,
 )
 
-/** TR.3 — an add-flight booking-request form payload. */
+/** TR.3: an add-flight booking-request form payload. */
 data class FlightDraft(
     val fromCity: String,
     val toCity: String,
@@ -32,7 +32,7 @@ data class FlightDraft(
     val cabinClass: String,
 )
 
-/** TR.4 — an add-bus booking-request form payload. */
+/** TR.4: an add-bus booking-request form payload. */
 data class BusDraft(
     val fromCity: String,
     val toCity: String,
@@ -41,7 +41,7 @@ data class BusDraft(
     val seatPreference: String,
 )
 
-/** TR.5 — an add-hotel booking-request form payload. */
+/** TR.5: an add-hotel booking-request form payload. */
 data class HotelDraft(
     val city: String,
     val checkInDate: String,
@@ -50,20 +50,20 @@ data class HotelDraft(
     val roomPreference: String,
 )
 
-/** TR.6 — one leg of a multi-city journey plan. */
+/** TR.6: one leg of a multi-city journey plan. */
 data class MjpLeg(
     val fromCity: String,
     val toCity: String,
     val travelDate: String,
 )
 
-/** TR.6 — a multi-city journey-plan (MJP) form payload. */
+/** TR.6: a multi-city journey-plan (MJP) form payload. */
 data class MjpDraft(
     val purpose: String,
     val legs: List<MjpLeg>,
 )
 
-/** TR.7 — a visa-request form payload. */
+/** TR.7: a visa-request form payload. */
 data class VisaDraft(
     val country: String,
     val travelDate: String,
@@ -72,7 +72,7 @@ data class VisaDraft(
 )
 
 /**
- * Offline fake travel-create store (TR.2+) — persists submitted drafts in-memory and returns a **rotating**
+ * Offline fake travel-create store (TR.2+), persists submitted drafts in-memory and returns a **rotating**
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
  * repeated submits, for every TR create flow. No backend; one shared rotating counter (demo theater). Mirrors
  * the PB `InvoiceRepository` / `GinRepository` pattern, consolidated to one repo for the six travel flows.

@@ -433,7 +433,7 @@ fun BubbleBottomBar(
                         },
                         onDragEnd = { thrownUp, collapsedDown ->
                             if (thrownUp && onFabThrowUp != null) {
-                                // Upward throw gesture — launch the global action
+                                // Upward throw gesture, launch the global action
                                 haptics.performHapticFeedback(HapticFeedbackType.LongPress)
                                 onFabThrowUp()
                             } else if (collapsedDown && onCollapseRequested != null) {
@@ -500,7 +500,7 @@ fun DraggableFloatingFab(
     val interactionSource = remember { MutableInteractionSource() }
     val primaryColor = MaterialTheme.colorScheme.primary
 
-    // Track drag offsets — X for tab selection, Y for throw-up gesture
+    // Track drag offsets, X for tab selection, Y for throw-up gesture
     var currentDragOffset by remember { mutableFloatStateOf(0f) }
     var cumulativeDragY by remember { mutableFloatStateOf(0f) }
 

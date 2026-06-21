@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Selectable seed-colour presets. The whole Material colour scheme is generated from the
- * chosen seed (see [MileTrackerTheme]); these are just convenient starting points — a fully
+ * chosen seed (see [MileTrackerTheme]); these are just convenient starting points, a fully
  * custom seed can be picked with the colour wheel and is stored in [ThemeController.customSeedHex].
  */
 enum class AccentPalette(val label: String, val seedHex: String) {
@@ -42,7 +42,7 @@ enum class AppLanguage(val tag: String, val displayName: String) {
  * - [batteryAwareTracking]: defers location polling when battery < 15% (real runtime
  *   effect wired in tracking service; no-op when battery is healthy).
  * - [lowEndDeviceTuning]: reduces recomposition frequency and drops some UI animations
- *   (cosmetic in demo — real tuning would require Baseline Profile gating).
+ *   (cosmetic in demo, real tuning would require Baseline Profile gating).
  * - [aggressiveGpsFilter]: tightens the spike-rejection radius from 80 m to 40 m
  *   (real effect on the LocationProcessor filter; marked for demo because actual
  *   field impact requires extended trips to observe).
@@ -109,7 +109,7 @@ class ThemeController(
     /** Theme variant tag ("DEFAULT"; reserved for special variants like debug skins). */
     val themeVariant: StateFlow<String> = _themeVariant.asStateFlow()
 
-    /** Map tile provider name ("OSM" — the demo's single provider). */
+    /** Map tile provider name ("OSM", the demo's single provider). */
     val mapProvider: StateFlow<String> = _mapProvider.asStateFlow()
 
     /** Currently selected app language. */
@@ -121,7 +121,7 @@ class ThemeController(
     init {
         prefs?.let { store ->
             scope.launch {
-                // A corrupt or unavailable store must never crash the app — fall back to defaults.
+                // A corrupt or unavailable store must never crash the app, fall back to defaults.
                 val snap =
                     try {
                         store.data.first()

@@ -117,7 +117,7 @@ private val ONBOARDING_SLIDES = listOf(
  * The screen owns its insets directly: the scrolling [Column] applies [statusBarsPadding] and
  * [imePadding] so fields lift above the keyboard, and the pinned bottom actions add
  * [navigationBarsPadding]. It is hosted full-screen by the integrator (no bottom bar), so it is
- * stateless apart from internal field/loading/animation state — no ViewModel is required.
+ * stateless apart from internal field/loading/animation state, no ViewModel is required.
  *
  * @param onSignedIn invoked once the user signs in (with either credentials or as a guest).
  *   Captured via [rememberUpdatedState] so the fake-loading coroutine always calls the latest

@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 /**
  * Unit tests for the theme/locale customization and settings logic.
  *
- * All tests are pure JVM — no Android framework, no Koin, no Compose.
+ * All tests are pure JVM, no Android framework, no Koin, no Compose.
  * Each test is isolated via a fresh [ThemeController] + [ProfileViewModel] pair.
  */
 class CustomizationSettingsTest {
@@ -26,7 +26,7 @@ class CustomizationSettingsTest {
         ProfileViewModel(FakeProfileRepository(), tc)
 
     // =========================================================================
-    // 1. Palette selection — mapping to expected color set
+    // 1. Palette selection, mapping to expected color set
     // =========================================================================
 
     @Test
@@ -163,7 +163,7 @@ class CustomizationSettingsTest {
     }
 
     // =========================================================================
-    // 2. Settings state reducer — experimental flag toggles
+    // 2. Settings state reducer, experimental flag toggles
     // =========================================================================
 
     @Test

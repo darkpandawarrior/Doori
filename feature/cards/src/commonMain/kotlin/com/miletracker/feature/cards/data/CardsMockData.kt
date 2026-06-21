@@ -12,7 +12,7 @@ import com.miletracker.feature.cards.model.CardTypeModel
 import kotlin.time.Clock
 
 /**
- * Q.2 — offline mock data for the cards feature (no network).
+ * Q.2: offline mock data for the cards feature (no network).
  * One [CardsMockData] builder is parameterized by a localized [CardsStrings] bundle, so EN/AR/HI
  * share the same deterministic structure. The [CardsMockDataProviderFactory] picks the bundle by locale.
  */

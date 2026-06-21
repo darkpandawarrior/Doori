@@ -245,7 +245,7 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
         val routeId = args.getString("routeId")!!
         val distKm = args.getFloat("distanceKm").toDouble()
 
-        // Shared ViewModel — same instance as TrackSubmissionScreen's koinViewModel()
+        // Shared ViewModel, same instance as TrackSubmissionScreen's koinViewModel()
         val viewModel: MileageSubmissionViewModel = koinViewModel()
 
         // Observe backstack results from OdometerCameraScreen

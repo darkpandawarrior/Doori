@@ -1,6 +1,6 @@
 package com.miletracker.core.data.result
 
-// Typed result for any async operation — avoids raw try/catch propagating to UI.
+// Typed result for any async operation, avoids raw try/catch propagating to UI.
 // D = data type, E = domain error type (default NetworkError for network ops).
 sealed class NetworkResult<out D, out E> {
     data class Success<D>(val data: D) : NetworkResult<D, Nothing>()

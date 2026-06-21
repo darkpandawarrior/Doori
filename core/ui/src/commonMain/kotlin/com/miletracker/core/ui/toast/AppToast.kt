@@ -36,7 +36,7 @@ private fun ToastType.iconAndTint(): Pair<ImageVector, Color> =
     }
 
 /**
- * Rich toast card — icon + title + description + optional actions. Multiplatform (Android + iOS),
+ * Rich toast card, icon + title + description + optional actions. Multiplatform (Android + iOS),
  * replaces the former koffee `AppToast`. Rendered by [AppToastHost].
  */
 @Composable

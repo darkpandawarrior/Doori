@@ -593,7 +593,7 @@ private fun ExpandedDetails(
 
 /**
  * Lightweight map stand-in drawn with [Canvas]: a faint dot grid suggesting a map surface
- * with a single drop-pin marker at the centre. Purely decorative — no real map dependency.
+ * with a single drop-pin marker at the centre. Purely decorative, no real map dependency.
  */
 @Composable
 private fun MapPlaceholder(

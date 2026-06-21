@@ -12,7 +12,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
- * PB.2 (V17): the Create-GIN reducer — canSubmit gating (GIN number + PO reference + positive received qty) +
+ * PB.2 (V17): the Create-GIN reducer, canSubmit gating (GIN number + PO reference + positive received qty) +
  * the rotating success / approval / violation result paths through the FormSubmissionScaffold contract.
  */
 class CreateGinViewModelTest {

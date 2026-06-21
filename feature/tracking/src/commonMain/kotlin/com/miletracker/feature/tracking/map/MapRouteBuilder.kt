@@ -4,7 +4,7 @@ import com.miletracker.core.data.model.db.LocationData
 
 /**
  * Pure-Kotlin helper that derives everything the map needs from a raw
- * [List<LocationData>].  No Android or osmdroid imports — fully unit-testable
+ * [List<LocationData>].  No Android or osmdroid imports, fully unit-testable
  * on the JVM.
  */
 object MapRouteBuilder {
@@ -61,9 +61,9 @@ object MapRouteBuilder {
      * Build [RouteMapData] from a raw [List<LocationData>].
      *
      * Classification rules:
-     * - **abnormal** — [LocationData.isAbnormal] is true → drawn in red
-     * - **filtered** — [LocationData.isMock] or [LocationData.isPaused] → drawn in orange
-     * - **normal** — everything else → drawn on the main blue polyline
+     * - **abnormal**, [LocationData.isAbnormal] is true → drawn in red
+     * - **filtered**, [LocationData.isMock] or [LocationData.isPaused] → drawn in orange
+     * - **normal**, everything else → drawn on the main blue polyline
      *
      * Ordering: points are used in list order (which is insertion/timestamp order
      * from the repository). Start = first normal point; end = last normal point.

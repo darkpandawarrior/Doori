@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertTrue
 
-/** TR.9 (V17): the travel SearchProvider — scope gating, min-length, trip + booking hits, type filter. */
+/** TR.9 (V17): the travel SearchProvider, scope gating, min-length, trip + booking hits, type filter. */
 class TravelSearchProviderTest {
 
     private fun provider() = TravelSearchProvider(TravelHistoryRepository())

@@ -11,7 +11,7 @@ import kotlin.math.sqrt
  * Pure-Kotlin (no Android imports) Haversine-based check-in validator.
  *
  * Given a user's current coordinates and a target check-in location with a configured
- * radius, computes whether the user is within range and — if not — how far outside they are.
+ * radius, computes whether the user is within range and, if not, how far outside they are.
  *
  * All validation is done locally; no network calls are made.
  */
@@ -101,7 +101,7 @@ object CheckInValidator {
     }
 
     /**
-     * Haversine formula — returns the great-circle distance in metres between two
+     * Haversine formula, returns the great-circle distance in metres between two
      * geographic coordinates.
      */
     fun haversineMeters(

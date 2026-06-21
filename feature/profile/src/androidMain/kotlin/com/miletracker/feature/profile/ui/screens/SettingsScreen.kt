@@ -201,7 +201,7 @@ fun SettingsScreen(
             // ----------------------------------------------------------------
             SettingsSectionLabel("Customization")
 
-            // Theme colour — preset seed the whole scheme is generated from
+            // Theme colour, preset seed the whole scheme is generated from
             ListItem(
                 headlineContent = { Text("Theme color") },
                 supportingContent = {
@@ -279,7 +279,7 @@ fun SettingsScreen(
                 modifier = Modifier.clickable { showLanguagePicker = true },
             )
 
-            // Map provider (OSM only — multi-provider toggle not meaningful)
+            // Map provider (OSM only, multi-provider toggle not meaningful)
             ListItem(
                 headlineContent = { Text("Map provider") },
                 supportingContent = { Text("OpenStreetMap (fixed — single provider build)") },
@@ -430,7 +430,7 @@ fun SettingsScreen(
                     viewModel.setLanguage(picked)
                     // UX.6: update the shared app-wide locale state (features observe LocaleController.currentTag).
                     localeController.setLanguage(picked)
-                    // Wire per-app locale via AppCompatDelegate — persisted by the platform.
+                    // Wire per-app locale via AppCompatDelegate, persisted by the platform.
                     AppCompatDelegate.setApplicationLocales(
                         LocaleListCompat.forLanguageTags(picked.tag),
                     )

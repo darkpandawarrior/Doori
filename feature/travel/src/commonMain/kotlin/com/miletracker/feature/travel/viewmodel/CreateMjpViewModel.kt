@@ -42,7 +42,7 @@ sealed interface CreateMjpAction {
     data object Submit : CreateMjpAction
 }
 
-/** TR.6 — multi-city Journey-Plan reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
+/** TR.6: multi-city Journey-Plan reducer on the shared `FormSubmissionScaffold` + [TravelCreateEffect]. */
 class CreateMjpViewModel(
     private val repository: TravelCreateRepository,
 ) : BaseViewModel<CreateMjpUiState, TravelCreateEffect, CreateMjpAction>(CreateMjpUiState()) {

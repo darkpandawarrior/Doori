@@ -47,7 +47,7 @@ import com.miletracker.core.ui.mvi.ScreenStateContent
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * F0.5 — master-search Root. Owns the [MasterSearchViewModel], collects state + one-shot effects, and hands
+ * F0.5: master-search Root. Owns the [MasterSearchViewModel], collects state + one-shot effects, and hands
  * the stateless [MasterSearchContent] everything it needs. A tapped result emits [MasterSearchEffect.OpenResult],
  * which the host maps to a section route via [onOpenResult].
  */

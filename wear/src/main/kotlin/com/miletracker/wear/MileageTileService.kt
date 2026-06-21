@@ -10,7 +10,7 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Wear OS Tile service — companion tile for Mileway.
+ * Wear OS Tile service, companion tile for Mileway.
  *
  * Displays today's tracked distance and the app label on the watch face.
  * Production implementation would read from a shared DataStore via Wearable DataLayer API.

@@ -25,7 +25,7 @@ object ThemeDefaults {
 }
 
 /**
- * Palette-style names selectable in Settings. Mirrors `com.materialkolor.PaletteStyle` —
+ * Palette-style names selectable in Settings. Mirrors `com.materialkolor.PaletteStyle`,
  * kept as strings so feature modules don't need the generator library on their classpath.
  */
 val PaletteStyleNames: List<String> =

@@ -236,7 +236,7 @@ fun TrackMilesScreen(
                     pauseReason = uiState.pauseReason,
                 )
 
-                // Weekly summary pill — shown only when idle, below the hero card.
+                // Weekly summary pill, shown only when idle, below the hero card.
                 if (!isActive && uiState.weekSummaryText.isNotEmpty()) {
                     WeeklySummaryPill(text = uiState.weekSummaryText)
                 }
@@ -255,7 +255,7 @@ fun TrackMilesScreen(
                     )
                 }
 
-                // Journey Guide text link — tappable hint shown when idle.
+                // Journey Guide text link, tappable hint shown when idle.
                 if (!isActive) {
                     androidx.compose.material3.TextButton(
                         onClick = { viewModel.onAction(TrackMilesAction.OpenJourneyGuide) },
@@ -270,7 +270,7 @@ fun TrackMilesScreen(
                 }
             }
 
-            // Pinned control cluster — always reachable, never scrolls away.
+            // Pinned control cluster, always reachable, never scrolls away.
             ThreeButtonFabSystem(
                 isActive = isActive,
                 isPaused = isPaused,

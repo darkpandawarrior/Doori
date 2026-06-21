@@ -5,7 +5,7 @@ import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/** Q.5 — card PIN gate + verification window. */
+/** Q.5: card PIN gate + verification window. */
 class CardSecurityManagerTest {
     @Test
     fun `not verified initially`() {

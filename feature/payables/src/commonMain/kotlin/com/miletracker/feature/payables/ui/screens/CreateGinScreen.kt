@@ -22,7 +22,7 @@ import com.miletracker.feature.payables.viewmodel.CreateGinEffect
 import com.miletracker.feature.payables.viewmodel.CreateGinViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** PB.2 — Create GIN (Goods Inward Note), built on the shared F0.1 FormSubmissionScaffold + F0.2 SectionCards. */
+/** PB.2: Create GIN (Goods Inward Note), built on the shared F0.1 FormSubmissionScaffold + F0.2 SectionCards. */
 @Composable
 fun CreateGinScreen(
     onBack: () -> Unit,

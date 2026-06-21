@@ -22,7 +22,7 @@ private const val TOAST_DURATION_MS = 4_000L
 /**
  * Hosts app-wide toasts. Collects [ToastController] events and renders the rich [AppToast] card with a
  * slide+fade animation, auto-dismissing after [TOAST_DURATION_MS]. Wrap the app content in this once at
- * the root. Fully multiplatform (Android + iOS) — no koffee, no platform host coordination.
+ * the root. Fully multiplatform (Android + iOS), no koffee, no platform host coordination.
  */
 @Composable
 fun AppToastHost(content: @Composable () -> Unit) {

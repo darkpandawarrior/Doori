@@ -17,7 +17,7 @@ data class ExpenseListData(
     val records: List<ExpenseRecord> = emptyList(),
     val activeFilter: ExpenseFilter = ExpenseFilter.ALL,
     val activeSort: ExpenseSort = ExpenseSort.DATE,
-    /** Category drill-down filter (SHEETS.A) — empty means no category constraint. */
+    /** Category drill-down filter (SHEETS.A), empty means no category constraint. */
     val selectedCategories: Set<ExpenseCategory> = emptySet(),
 )
 

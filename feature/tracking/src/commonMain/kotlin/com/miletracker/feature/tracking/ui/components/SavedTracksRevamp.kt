@@ -169,7 +169,7 @@ private fun SegmentPill(
  * Pill-shaped, always-visible search field with a leading magnifier and a trailing filter glyph.
  *
  * @param query Current text (source of truth lives in the caller / ViewModel).
- * @param placeholder Hint text — e.g. "Search journeys…" or "Search submissions…".
+ * @param placeholder Hint text, e.g. "Search journeys…" or "Search submissions…".
  * @param onQueryChange Reports every keystroke.
  * @param onFilterClick Optional tap target on the trailing filter glyph; hidden when null.
  */
@@ -218,7 +218,7 @@ fun SavedTracksSearchField(
 // 3. Filter chip rows
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** A labelled, optionally-counted filter chip — the unit of every chip row below. */
+/** A labelled, optionally-counted filter chip, the unit of every chip row below. */
 @Composable
 fun SavedTracksFilterChip(
     label: String,
@@ -315,8 +315,8 @@ data class SubmissionCardData(
  *
  * @param isSelected Whether this card is currently selected.
  * @param selectionMode When true the whole list is in selection mode (drives checkbox visibility).
- * @param onClick Tap — toggles selection in selection mode, otherwise opens (caller decides).
- * @param onLongClick Long-press — used to enter selection mode for unclaimed cards.
+ * @param onClick Tap, toggles selection in selection mode, otherwise opens (caller decides).
+ * @param onLongClick Long-press, used to enter selection mode for unclaimed cards.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

@@ -23,7 +23,7 @@ import com.miletracker.feature.payables.viewmodel.CreateInvoiceEffect
 import com.miletracker.feature.payables.viewmodel.CreateInvoiceViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-/** PB.1 — Create Invoice, built on the shared F0.1 FormSubmissionScaffold + F0.2 SectionCards. */
+/** PB.1: Create Invoice, built on the shared F0.1 FormSubmissionScaffold + F0.2 SectionCards. */
 @Composable
 fun CreateInvoiceScreen(
     onBack: () -> Unit,

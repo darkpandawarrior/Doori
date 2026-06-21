@@ -41,7 +41,7 @@ import com.miletracker.feature.profile.viewmodel.ProfileViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * Preferences — a focused service/system preferences screen pushed from the Account hub.
+ * Preferences: a focused service/system preferences screen pushed from the Account hub.
  *
  * A 2-column grid of large tonal tiles under a single "Settings" section header. The two
  * stateful tiles (Push Notifications, Usage Analytics) flip a ViewModel-held toggle and update

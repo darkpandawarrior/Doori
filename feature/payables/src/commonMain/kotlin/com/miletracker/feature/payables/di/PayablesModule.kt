@@ -24,7 +24,7 @@ val payablesModule =
         single { GinRepository() }
         // PB.3: create Park In/Out gate-event flow (offline rotating-status submit).
         single { ParkingRepository() }
-        // PB.4: unified payables history (Invoice/PR/GIN/ParkInOut/ASN) — also the PB.5 search source.
+        // PB.4: unified payables history (Invoice/PR/GIN/ParkInOut/ASN), also the PB.5 search source.
         single { PayablesHistoryRepository() }
         // PB.5: payables contribution to master search (getAll<SearchProvider>() picks it up).
         single<SearchProvider> { PayablesSearchProvider(get()) }
