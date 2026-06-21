@@ -96,6 +96,11 @@ val appModule = module {
             defaultRadiusMeters = get<DemoConfigManager>().getDefaultGeoCheckInRadiusMeters()
         )
     }
+
+    // F0.5: master-search aggregator. getAll<SearchProvider>() collects every feature's contribution
+    // (each binds its own provider in its module), so this fans out with zero coupling to feature modules.
+    single { com.miletracker.core.data.search.MasterSearchRepository(getAll<com.miletracker.core.data.search.SearchProvider>()) }
+    viewModel { com.miletracker.ui.search.MasterSearchViewModel(get()) }
 }
 
 class MileTrackerApplication : Application(), SingletonImageLoader.Factory {

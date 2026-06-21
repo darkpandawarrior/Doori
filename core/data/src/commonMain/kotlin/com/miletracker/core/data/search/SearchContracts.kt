@@ -25,8 +25,42 @@ enum class SearchEntityType {
     APPROVAL,
 }
 
+/** Human-readable group label for a [SearchEntityType] (used as the master-search section header). */
+val SearchEntityType.displayLabel: String
+    get() =
+        when (this) {
+            SearchEntityType.TRANSACTION -> "Transactions"
+            SearchEntityType.VOUCHER -> "Vouchers"
+            SearchEntityType.SETTLEMENT -> "Settlements"
+            SearchEntityType.ADVANCE -> "Advances"
+            SearchEntityType.EVENT -> "Events"
+            SearchEntityType.TRIP -> "Trips"
+            SearchEntityType.BOOKING -> "Bookings"
+            SearchEntityType.INVOICE -> "Invoices"
+            SearchEntityType.PURCHASE_REQUEST -> "Purchase requests"
+            SearchEntityType.ASN -> "Shipments"
+            SearchEntityType.GIN -> "Goods receipts"
+            SearchEntityType.PARKING -> "Parking"
+            SearchEntityType.CARD_TXN -> "Card transactions"
+            SearchEntityType.QR -> "Payments"
+            SearchEntityType.CLARIFICATION -> "Clarifications"
+            SearchEntityType.MILEAGE -> "Mileage"
+            SearchEntityType.CHECKIN -> "Check-ins"
+            SearchEntityType.APPROVAL -> "Approvals"
+        }
+
 /** Master-search scope tab — gates which entity types / quick actions are shown. */
 enum class SearchScope { EXPENSES, PAYABLES, TRAVEL, VIEW_ALL }
+
+/** Human-readable label for a [SearchScope] tab. */
+val SearchScope.displayLabel: String
+    get() =
+        when (this) {
+            SearchScope.VIEW_ALL -> "All"
+            SearchScope.EXPENSES -> "Expenses"
+            SearchScope.PAYABLES -> "Payables"
+            SearchScope.TRAVEL -> "Travel"
+        }
 
 /** One master-search hit (F0.5) — flat + platform-neutral so any provider can emit it. */
 data class SearchResult(

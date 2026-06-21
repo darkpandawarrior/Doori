@@ -44,4 +44,7 @@ object AppRoutes {
     const val DEBUG_MENU = "debug_menu"
     const val AGENT_CHAT = "agent/chat"
     const val AGENT_HISTORY = "agent/history"
+
+    /** Cross-feature master search — entered from the Home top bar; renders full-screen (no bottom bar). */
+    const val SEARCH = "search"
 }

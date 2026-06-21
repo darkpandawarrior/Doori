@@ -24,6 +24,8 @@ import com.miletracker.feature.travel.ui.previews.PreviewBookingCardActiveFlight
 import com.miletracker.feature.travel.ui.previews.PreviewBookingCardCompletedFlight
 import com.miletracker.feature.travel.ui.previews.PreviewBookingCardUpcomingTrain
 import com.miletracker.feature.travel.ui.previews.PreviewBookingListMatrix
+import com.miletracker.ui.search.PreviewMasterSearchEmpty
+import com.miletracker.ui.search.PreviewMasterSearchResults
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -178,6 +180,20 @@ class ScreenshotCatalogTest {
     fun travel_bookingList_matrix() {
         composeRule.setContent { PreviewBookingListMatrix() }
         capture("travel_bookingList_matrix")
+    }
+
+    // ── app:master-search ────────────────────────────────────────────────────
+
+    @Test
+    fun search_masterSearch_results() {
+        composeRule.setContent { PreviewMasterSearchResults() }
+        capture("search_masterSearch_results")
+    }
+
+    @Test
+    fun search_masterSearch_empty() {
+        composeRule.setContent { PreviewMasterSearchEmpty() }
+        capture("search_masterSearch_empty")
     }
 
     companion object {
