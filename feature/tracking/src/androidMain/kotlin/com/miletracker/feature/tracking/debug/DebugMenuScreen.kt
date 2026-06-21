@@ -92,6 +92,8 @@ fun DebugMenuScreen(
     onOpenShowcase: (() -> Unit)? = null,
     viewModel: DebugMenuComposeViewModel = koinViewModel(),
     configProvider: ConfigProvider = koinInject(),
+    heapUsedMb: Long = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024),
+    heapTotalMb: Long = Runtime.getRuntime().totalMemory() / (1024 * 1024),
 ) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
     val uiState = ui.debugMenuUiState
@@ -183,7 +185,11 @@ fun DebugMenuScreen(
             // Performance / memory
             if (searchQuery.isEmpty()) {
                 item {
-                    PerformanceCard(onRunGc = { viewModel.onAction(DebugMenuComposeAction.RunGarbageCollection) })
+                    PerformanceCard(
+                        onRunGc = { viewModel.onAction(DebugMenuComposeAction.RunGarbageCollection) },
+                        usedMb = heapUsedMb,
+                        totalMb = heapTotalMb,
+                    )
                 }
             }
 
@@ -427,11 +433,11 @@ fun buildConfigSnapshot(
 // ---------------------------------------------------------------------------
 
 @Composable
-private fun PerformanceCard(onRunGc: () -> Unit) {
-    val runtime = Runtime.getRuntime()
-    val usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
-    val totalMb = runtime.totalMemory() / (1024 * 1024)
-
+internal fun PerformanceCard(
+    onRunGc: () -> Unit,
+    usedMb: Long = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024),
+    totalMb: Long = Runtime.getRuntime().totalMemory() / (1024 * 1024),
+) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
