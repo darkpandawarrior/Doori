@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,6 +64,7 @@ import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.feature.media.model.AttachmentItem
 import com.miletracker.feature.media.model.AttachmentSource
+import com.miletracker.feature.media.ui.scanner.rememberDocumentScanLauncher
 import com.miletracker.feature.media.viewmodel.MediaAction
 import com.miletracker.feature.media.viewmodel.MediaViewModel
 import kotlinx.coroutines.launch
@@ -105,6 +108,13 @@ fun AttachmentSelectionScreen(
                 viewModel.onAction(MediaAction.PickedFromGallery(uri.toString()))
                 onNavigateToPreview()
             }
+        }
+
+    // D.4: ML Kit document scanner — each scanned page enters the batch like a picked image.
+    val launchDocumentScan =
+        rememberDocumentScanLauncher { pages ->
+            pages.forEach { viewModel.onAction(MediaAction.PickedFromGallery(it)) }
+            if (pages.isNotEmpty()) onNavigateToPreview()
         }
 
     fun showIllustrative(label: String) {
@@ -222,6 +232,10 @@ fun AttachmentSelectionScreen(
                                 viewModel.onAction(MediaAction.SelectSource(AttachmentSource.FILES))
                                 galleryLauncher.launch("*/*")
                             }
+                            SourceKey.DOC_SCANNER -> {
+                                viewModel.onAction(MediaAction.SelectSource(AttachmentSource.FILES))
+                                launchDocumentScan()
+                            }
                             SourceKey.CLOUD -> onNavigateToLibrary()
                             else -> showIllustrative(spec.label)
                         }
@@ -332,13 +346,51 @@ private fun AttachmentThumbnail(item: AttachmentItem) {
         tonalElevation = DesignTokens.Elevation.card,
         modifier = Modifier.aspectRatio(1f),
     ) {
-        AsyncImage(
-            model = item.uri,
-            contentDescription = "Attachment ${item.id}",
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .clip(DesignTokens.Shape.roundedMd),
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = item.uri,
+                contentDescription = "Attachment ${item.id}",
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .clip(DesignTokens.Shape.roundedMd),
+            )
+
+            // D.5: OCR badge — a verified tick when >=2 passes agreed, else a neutral "OCR" chip
+            // whenever a reading was detected. Driven by the multi-pass OcrResult (D.2).
+            val ocr = item.ocr
+            if (ocr?.detectedOdometer != null) {
+                val verified = ocr.isVerified
+                Row(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(DesignTokens.Spacing.xs)
+                            .clip(CircleShape)
+                            .background(
+                                if (verified) {
+                                    DesignTokens.StatusColors.success.copy(alpha = 0.9f)
+                                } else {
+                                    Color.Black.copy(alpha = 0.55f)
+                                },
+                            )
+                            .padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = if (verified) Icons.Default.Verified else Icons.Default.DocumentScanner,
+                        contentDescription = if (verified) "OCR verified" else "OCR reading",
+                        tint = Color.White,
+                        modifier = Modifier.size(12.dp),
+                    )
+                    Spacer(Modifier.size(2.dp))
+                    Text(
+                        text = if (verified) "Verified" else "OCR",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                    )
+                }
+            }
+        }
     }
 }

@@ -32,7 +32,7 @@ import com.miletracker.core.data.model.db.TripAttachmentEntity
         MediaLibraryEntry::class,
         SubmitDraftEntity::class,
     ],
-    version = 4,
+    version = 5,
     exportSchema = false,
 )
 @ConstructedBy(MileTrackerDatabaseConstructor::class)

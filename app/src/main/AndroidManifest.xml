@@ -24,6 +24,9 @@
     <!-- Wake lock for GPS tracking -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <!-- O.2: Play Services activity recognition (fused into stillness detection) -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
     <!-- Haptic feedback (UX.2) -->
     <uses-permission android:name="android.permission.VIBRATE" />
 

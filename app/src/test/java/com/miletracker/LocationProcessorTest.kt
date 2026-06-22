@@ -62,6 +62,41 @@ class LocationProcessorTest {
     }
 
     @Test
+    fun `O3 - IMU stillness suppresses sub-gate jitter even with recent movement history`() {
+        fun seeded(): LocationProcessor {
+            val p = LocationProcessor()
+            // Sustained movement (speed 2 m/s, ~111 m steps) → hasMovementHistory() is true.
+            p.process(fix(18.5000, 73.8, 0, speed = 2f), isPaused = false)
+            p.process(fix(18.5010, 73.8, 10_000, speed = 2f), isPaused = false)
+            p.process(fix(18.5020, 73.8, 20_000, speed = 2f), isPaused = false)
+            p.process(fix(18.5030, 73.8, 30_000, speed = 2f), isPaused = false)
+            p.process(fix(18.5040, 73.8, 40_000, speed = 2f), isPaused = false)
+            return p
+        }
+        // A tiny low-speed wander ~0.55 m, 1 s later (stationary micro-jitter).
+        val wanderLat = 18.5040 + 0.000005
+        // Without IMU stillness, the movement history keeps the fix.
+        assertTrue(seeded().process(fix(wanderLat, 73.8, 41_000, speed = 0.5f), isPaused = false) != null)
+        // With IMU stillness, the same wander is dropped as jitter.
+        assertTrue(
+            seeded().process(fix(wanderLat, 73.8, 41_000, speed = 0.5f), isPaused = false, motionStill = true) == null,
+        )
+    }
+
+    @Test
+    fun `C2g - resume grace accepts the post-resume jump instead of flagging it a spike`() {
+        val proc = LocationProcessor()
+        proc.process(fix(18.5000, 73.8, 0), isPaused = false)
+        proc.process(fix(18.5010, 73.8, 10_000), isPaused = false) // ~111m, counted
+        val cleanedBefore = proc.cleanedDistanceM
+        // The same ~11km teleport, but within the post-resume grace window (user moved while paused):
+        // suppressSpike accepts it and counts it toward cleaned distance rather than rejecting it.
+        val jump = proc.process(fix(18.6000, 73.8, 11_000), isPaused = false, suppressSpike = true)
+        assertTrue(jump != null && !jump.isAbnormal)
+        assertTrue(proc.cleanedDistanceM > cleanedBefore)
+    }
+
+    @Test
     fun `mock location is tracked separately from cleaned distance`() {
         val proc = LocationProcessor()
         proc.process(fix(18.5000, 73.8, 0), isPaused = false)

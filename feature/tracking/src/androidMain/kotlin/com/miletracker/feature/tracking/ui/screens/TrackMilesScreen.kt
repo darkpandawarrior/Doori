@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.NetworkCell
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.ui.components.topbar.TrackingStatus
 import com.miletracker.core.ui.components.topbar.TrackingTopBar
 import com.miletracker.core.ui.components.tracking.ActivitySegment
@@ -460,21 +463,48 @@ private fun TrackMilesUiState.activitySegments(): List<ActivitySegment> {
 }
 
 private fun TrackMilesUiState.statusChips(): List<StatusChip> =
-    listOf(
-        StatusChip(Icons.Filled.GpsFixed, "GPS", signal.toLevel()),
-        StatusChip(
-            Icons.Filled.NetworkCell,
-            if (unsyncedPoints > 0) "$unsyncedPoints queued" else "Synced",
-            if (unsyncedPoints > 0) StatusLevel.WARN else StatusLevel.OK,
-        ),
-        StatusChip(Icons.Filled.Speed, "%.0f km/h".format(speedKmh), StatusLevel.OK),
-    )
+    buildList {
+        add(StatusChip(Icons.Filled.GpsFixed, "GPS", signal.toLevel()))
+        add(
+            StatusChip(
+                Icons.Filled.NetworkCell,
+                if (unsyncedPoints > 0) "$unsyncedPoints queued" else "Synced",
+                if (unsyncedPoints > 0) StatusLevel.WARN else StatusLevel.OK,
+            ),
+        )
+        add(StatusChip(Icons.Filled.Speed, "%.0f km/h".format(speedKmh), StatusLevel.OK))
+        // C.3: live tracking-quality score, spike filtering, and any active system-health issue.
+        add(StatusChip(Icons.Filled.Insights, "Quality $qualityScore%", qualityScore.toQualityLevel()))
+        if (spikeDistanceM >= 1.0) {
+            add(StatusChip(Icons.Filled.Warning, "Spikes %.0f m".format(spikeDistanceM), StatusLevel.WARN))
+        }
+        systemFlags.firstIssueLabel()?.let { add(StatusChip(Icons.Filled.Warning, it, StatusLevel.BAD)) }
+    }
 
 private fun TrackSignal.toLevel(): StatusLevel =
     when (this) {
         TrackSignal.GOOD -> StatusLevel.OK
         TrackSignal.FAIR -> StatusLevel.WARN
         TrackSignal.POOR -> StatusLevel.BAD
+    }
+
+/** C.3: bucket the 0..100 quality score into the chip severity levels. */
+private fun Int.toQualityLevel(): StatusLevel =
+    when {
+        this >= 80 -> StatusLevel.OK
+        this >= 50 -> StatusLevel.WARN
+        else -> StatusLevel.BAD
+    }
+
+/** C.3: the most-severe active system-health issue, as a short chip label (null when healthy). */
+private fun TrackingSystemFlags.firstIssueLabel(): String? =
+    when {
+        gpsDisabled -> "GPS off"
+        permissionMissing -> "Permission"
+        mockLocationDetected -> "Mock GPS"
+        powerSaverOn -> "Power saver"
+        batteryOptimized -> "Battery opt"
+        else -> null
     }
 
 private fun TrackMilesUiState.statItems(): List<StatItem> =

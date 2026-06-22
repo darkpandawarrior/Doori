@@ -3,6 +3,7 @@ package com.miletracker
 import app.cash.turbine.test
 import com.miletracker.core.data.dao.SavedTrackDao
 import com.miletracker.core.data.model.db.SavedTrack
+import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.network.api.MileTrackerNetworkApi
 import com.miletracker.feature.tracking.manager.LocationTrackingController
 import com.miletracker.feature.tracking.manager.TrackingConfigManager
@@ -85,6 +86,26 @@ class TrackMilesViewModelTest {
         assertEquals(8_000L, vm.uiState.value.gpsIntervalMs)
         assertEquals(42, vm.uiState.value.batteryPct)
         assertTrue(vm.uiState.value.isCharging)
+    }
+
+    @Test
+    fun `C3 - surfaces quality score, spike distance and system flags from the service feed`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+        assertEquals(100, vm.uiState.value.qualityScore) // ideal default
+
+        trackingPublisher.update {
+            it.copy(
+                qualityScore = 60,
+                spikeDistanceM = 30.0,
+                systemFlags = TrackingSystemFlags(powerSaverOn = true, mockLocationDetected = true),
+            )
+        }
+        advanceUntilIdle()
+
+        assertEquals(60, vm.uiState.value.qualityScore)
+        assertEquals(30.0, vm.uiState.value.spikeDistanceM, 0.0)
+        assertTrue(vm.uiState.value.systemFlags.hasIssue)
     }
 
     // ── Initialisation ───────────────────────────────────────────────────────

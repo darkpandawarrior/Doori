@@ -377,6 +377,8 @@ dependencies {
     // Room base types (RoomDatabase/close) — core:data keeps Room as implementation, so the test
     // classpath needs it directly to use the real MileTrackerDatabase.
     androidTestImplementation(libs.room.runtime)
+    // Bundled SQLite driver for the direct MIGRATION_4_5 test (D.5).
+    androidTestImplementation(libs.sqlite.bundled)
     // FusedLocation test double (setMockMode / setMockLocation) for the tracking-lifecycle test.
     androidTestImplementation(libs.play.services.location)
 }
