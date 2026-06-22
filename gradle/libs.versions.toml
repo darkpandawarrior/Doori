@@ -35,6 +35,7 @@ camerax = "1.6.1"
 wormaceptor = "2.2.1"
 leakcanary = "2.14"
 paging = "3.4.0"
+glance = "1.1.1"
 konnection = "1.4.5"
 biometric = "1.1.0"
 roborazzi = "1.64.0"
@@ -170,6 +171,10 @@ leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", ve
 # paging-compose (collectAsLazyPagingItems) is androidMain. Backs the Room-fed GPS route-points log.
 paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
 paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+# G11: Android Glance home-screen widget (Android-only, :widget module). glance-appwidget is the widget
+# host + composables; appwidget-testing backs the JVM render test. (Plain Glance colors, no material3.)
+glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glance" }
+glance-appwidget-testing = { module = "androidx.glance:glance-appwidget-testing", version.ref = "glance" }
 
 # Testing
 junit = { module = "junit:junit", version = "4.13.2" }

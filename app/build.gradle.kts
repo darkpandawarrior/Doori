@@ -264,6 +264,8 @@ dependencies {
     implementation(project(":feature:payments"))
     implementation(project(":feature:events"))
     implementation(project(":stub"))
+    // G11: include the Glance widget so its receiver merges into the app (the widget is offered on the home screen).
+    implementation(project(":widget"))
 
     implementation(libs.core.ktx)
     implementation(libs.activity.compose)
@@ -350,6 +352,8 @@ dependencies {
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(project(":core:platform"))
     testImplementation(libs.room.testing)
+    // G11: Glance render test (host-side, runs in the JVM gate via Robolectric).
+    testImplementation(libs.glance.appwidget.testing)
 
     // compose-nav-graph: navigation graph visualization (Phase 8)
     implementation(libs.navigation3.runtime)
