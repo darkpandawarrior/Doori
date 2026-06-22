@@ -15,10 +15,18 @@ enum class TrackingNotificationType {
     TRIP_COMPLETE,
 }
 
+/** P-D.1: interactive notification action buttons available on each notification type. */
+enum class TrackingNotificationAction {
+    PAUSE,
+    RESUME,
+    STOP,
+    FIX_GPS,
+}
+
 /**
  * Platform-neutral notification copy + behaviour. [ongoing] = a sticky foreground notice (live states);
  * terminal ones (TRIP_COMPLETE, AUTO_DISCARD) are dismissible. [deepLink] is set for taps that should
- * route somewhere specific.
+ * route somewhere specific. [actions] lists the action buttons shown on the notification.
  */
 data class TrackingNotificationContent(
     val type: TrackingNotificationType,
@@ -26,6 +34,7 @@ data class TrackingNotificationContent(
     val text: String,
     val ongoing: Boolean,
     val deepLink: String? = null,
+    val actions: List<TrackingNotificationAction> = emptyList(),
 )
 
 /**
@@ -56,6 +65,7 @@ object TrackingNotificationMapper {
                     "Location permission needed",
                     "Tracking can't continue without location access",
                     ongoing = true,
+                    actions = listOf(TrackingNotificationAction.STOP),
                 )
             snapshot.lastEvent == EventType.PERMISSION_VIOLATED ->
                 content(
@@ -63,6 +73,7 @@ object TrackingNotificationMapper {
                     "Tracking policy violation",
                     "A required permission was revoked mid-trip",
                     ongoing = true,
+                    actions = listOf(TrackingNotificationAction.STOP),
                 )
             flags.gpsDisabled || !snapshot.isGpsAvailable || snapshot.lastEvent == EventType.GPS_LOST ->
                 content(
@@ -70,6 +81,7 @@ object TrackingNotificationMapper {
                     "GPS unavailable",
                     "Waiting for a GPS signal · ${km.fmt2()} km",
                     ongoing = true,
+                    actions = listOf(TrackingNotificationAction.FIX_GPS, TrackingNotificationAction.STOP),
                 )
             snapshot.state == TrackingState.PAUSED ->
                 content(
@@ -77,6 +89,7 @@ object TrackingNotificationMapper {
                     "Tracking paused",
                     "${km.fmt2()} km recorded · tap to resume",
                     ongoing = true,
+                    actions = listOf(TrackingNotificationAction.RESUME, TrackingNotificationAction.STOP),
                 )
             else ->
                 content(
@@ -84,6 +97,7 @@ object TrackingNotificationMapper {
                     "Tracking active",
                     "${km.fmt2()} km · ${kmh.roundToLong()} km/h",
                     ongoing = true,
+                    actions = listOf(TrackingNotificationAction.PAUSE, TrackingNotificationAction.STOP),
                 )
         }
     }
@@ -112,5 +126,6 @@ object TrackingNotificationMapper {
         text: String,
         ongoing: Boolean,
         deepLink: String? = null,
-    ) = TrackingNotificationContent(type, title, text, ongoing, deepLink)
+        actions: List<TrackingNotificationAction> = emptyList(),
+    ) = TrackingNotificationContent(type, title, text, ongoing, deepLink, actions)
 }

@@ -110,6 +110,8 @@ data class TrackMilesUiState(
     val error: String? = null,
     /** "This Week: N trips • X.X km", loaded once on init and updated as tracks complete. */
     val weekSummaryText: String = "",
+    /** P-D.3: formatted countdown string shown in the hero-card chip while auto-discard is pending. */
+    val autoDiscardCountdown: String? = null,
 ) {
     /** History count surfaced as the small chip on the hero card. */
     val pointsLabel: Int get() = totalPoints.toInt()

@@ -52,6 +52,7 @@ object LocationTrackingConstants {
     const val ACTION_PAUSE = "com.miletracker.ACTION_PAUSE"
     const val ACTION_RESUME = "com.miletracker.ACTION_RESUME"
     const val ACTION_STOP = "com.miletracker.ACTION_STOP"
+    const val ACTION_FIX_GPS = "com.miletracker.ACTION_FIX_GPS"
     const val ACTION_TRACKING_STARTED = "com.miletracker.TRACKING_STARTED"
     const val ACTION_TRACKING_STOPPED = "com.miletracker.TRACKING_STOPPED"
     const val ACTION_TRACKING_PAUSED = "com.miletracker.TRACKING_PAUSED"

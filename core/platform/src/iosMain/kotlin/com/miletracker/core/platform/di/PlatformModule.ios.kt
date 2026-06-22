@@ -9,6 +9,7 @@ import com.miletracker.core.platform.IosLocationTracker
 import com.miletracker.core.platform.IosNotificationScheduler
 import com.miletracker.core.platform.IosPermissionsProvider
 import com.miletracker.core.platform.IosTextRecognizer
+import com.miletracker.core.platform.IosTrackingPresenceController
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -39,4 +40,6 @@ actual fun platformModule(): Module =
         single<com.miletracker.core.platform.Haptics> { com.miletracker.core.platform.IosHaptics() }
         // O: cross-platform motion sensors via CoreMotion.
         single<com.miletracker.core.platform.MotionSensorProvider> { com.miletracker.core.platform.IosMotionSensorProvider() }
+        // P-D.2: live presence surface (drives ActivityKit Live Activity + Dynamic Island).
+        single<com.miletracker.core.platform.TrackingPresenceController> { IosTrackingPresenceController() }
     }

@@ -137,6 +137,9 @@ class LocationTrackingService : Service() {
         const val ACTION_PAUSE = "action_pause"
         const val ACTION_RESUME = "action_resume"
         const val ACTION_RESTORE = "action_restore"
+
+        // P-D.1: opens device location settings from the GPS-disabled notification action.
+        const val ACTION_FIX_GPS = "action_fix_gps"
         const val CHANNEL_ID = "tracking_channel"
         const val NOTIFICATION_ID = 1001
 
@@ -190,6 +193,12 @@ class LocationTrackingService : Service() {
             ACTION_PAUSE -> setPaused(true)
             ACTION_RESUME -> setPaused(false)
             ACTION_STOP -> stopAndFinalize()
+            // P-D.1: GPS-disabled notification action — open device location settings.
+            ACTION_FIX_GPS ->
+                startActivity(
+                    Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+                )
             // Boot/update restore, and the system redelivering a null intent when it
             // restarts a killed sticky service: both re-derive state from the persisted
             // session rather than trusting the intent.
@@ -682,9 +691,9 @@ class LocationTrackingService : Service() {
     }
 
     /**
-     * C.2d: build the foreground notification from mapped [TrackingNotificationContent] — title/text per
-     * type, dismissible vs ongoing per [TrackingNotificationContent.ongoing], and a deep-link tap target
-     * (TRIP_COMPLETE → the tracking section) when set, else opening the live tracking screen.
+     * C.2d/P-D.1: build the foreground notification from mapped [TrackingNotificationContent] — title/text
+     * per type, dismissible vs ongoing per [TrackingNotificationContent.ongoing], a deep-link tap target
+     * (TRIP_COMPLETE → the tracking section) when set, and action buttons from [TrackingNotificationContent.actions].
      */
     private fun buildNotification(content: TrackingNotificationContent): Notification {
         val tapIntent =
@@ -700,13 +709,41 @@ class LocationTrackingService : Service() {
                 tapIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
-        return Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle(content.title)
-            .setContentText(content.text)
-            .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setOngoing(content.ongoing)
-            .setContentIntent(contentIntent)
-            .build()
+        val builder =
+            Notification.Builder(this, CHANNEL_ID)
+                .setContentTitle(content.title)
+                .setContentText(content.text)
+                .setSmallIcon(android.R.drawable.ic_menu_mylocation)
+                .setOngoing(content.ongoing)
+                .setContentIntent(contentIntent)
+        content.actions.forEachIndexed { i, action ->
+            val (label, icon, intentAction) =
+                when (action) {
+                    TrackingNotificationAction.PAUSE ->
+                        Triple("Pause", android.R.drawable.ic_media_pause, ACTION_PAUSE)
+                    TrackingNotificationAction.RESUME ->
+                        Triple("Resume", android.R.drawable.ic_media_play, ACTION_RESUME)
+                    TrackingNotificationAction.STOP ->
+                        Triple("Stop", android.R.drawable.ic_delete, ACTION_STOP)
+                    TrackingNotificationAction.FIX_GPS ->
+                        Triple("Fix GPS", android.R.drawable.ic_menu_mylocation, ACTION_FIX_GPS)
+                }
+            val pi =
+                PendingIntent.getBroadcast(
+                    this,
+                    100 + i,
+                    Intent(intentAction).setPackage(packageName),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            builder.addAction(
+                Notification.Action.Builder(
+                    android.graphics.drawable.Icon.createWithResource(this, icon),
+                    label,
+                    pi,
+                ).build(),
+            )
+        }
+        return builder.build()
     }
 
     /**

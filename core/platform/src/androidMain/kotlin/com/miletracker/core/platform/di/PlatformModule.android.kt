@@ -8,6 +8,7 @@ import com.miletracker.core.platform.AndroidMotionSensorProvider
 import com.miletracker.core.platform.AndroidNotificationScheduler
 import com.miletracker.core.platform.AndroidShareSheet
 import com.miletracker.core.platform.AndroidTextRecognizer
+import com.miletracker.core.platform.AndroidTrackingPresenceController
 import com.miletracker.core.platform.AppShortcuts
 import com.miletracker.core.platform.BackgroundScheduler
 import com.miletracker.core.platform.Haptics
@@ -18,6 +19,7 @@ import com.miletracker.core.platform.NotificationScheduler
 import com.miletracker.core.platform.OfflineLocationNameResolver
 import com.miletracker.core.platform.ShareSheet
 import com.miletracker.core.platform.TextRecognizer
+import com.miletracker.core.platform.TrackingPresenceController
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -45,4 +47,6 @@ actual fun platformModule(): Module =
         single<Haptics> { AndroidHaptics(androidContext()) }
         // O: cross-platform motion sensors (accelerometer + gyroscope).
         single<MotionSensorProvider> { AndroidMotionSensorProvider(androidContext()) }
+        // P-D.2: live presence surface (updates ongoing notification from each snapshot).
+        single<TrackingPresenceController> { AndroidTrackingPresenceController(androidContext()) }
     }
