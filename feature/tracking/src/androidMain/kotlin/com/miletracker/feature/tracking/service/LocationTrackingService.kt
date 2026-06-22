@@ -26,13 +26,16 @@ import com.miletracker.core.platform.MotionFusion
 import com.miletracker.core.platform.MotionReading
 import com.miletracker.core.platform.Vector3
 import com.miletracker.feature.tracking.TrackMilesActivity
+import com.miletracker.feature.tracking.service.location.ActivityRecognizer
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
+import com.miletracker.feature.tracking.service.location.GmsActivityRecognizer
 import com.miletracker.feature.tracking.service.location.GpsFix
 import com.miletracker.feature.tracking.service.location.IntervalInputs
 import com.miletracker.feature.tracking.service.location.LocationProcessor
 import com.miletracker.feature.tracking.service.location.LocationSource
 import com.miletracker.feature.tracking.service.location.QualityInputs
+import com.miletracker.feature.tracking.service.location.RecognizedActivity
 import com.miletracker.feature.tracking.service.location.SimulatedLocationSource
 import com.miletracker.feature.tracking.service.location.TrackStats
 import com.miletracker.feature.tracking.service.location.TrackingQualityScorer
@@ -84,6 +87,13 @@ class LocationTrackingService : Service() {
 
     // O.3: running gravity estimate for the per-fix IMU stillness check (sensor fusion).
     private var motionGravity = Vector3(0f, 0f, 0f)
+
+    // O.2: Play Services activity recognition, fused into stillness alongside the IMU. Latest value cached
+    // so the per-fix path reads it cheaply; the stream stops when [scope] is cancelled in onDestroy.
+    private val activityRecognizer: ActivityRecognizer by lazy { GmsActivityRecognizer(this) }
+
+    @Volatile
+    private var recognizedActivity: RecognizedActivity = RecognizedActivity.UNKNOWN
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -139,6 +149,8 @@ class LocationTrackingService : Service() {
         createNotificationChannel()
         // G6: keep the Kalman opt-in mirrored from persisted settings.
         scope.launch { demoSettings.settings.collect { enableKalman = it.enableKalman } }
+        // O.2: mirror the recognized activity (no-op without Play Services / permission).
+        scope.launch { activityRecognizer.activity.collect { recognizedActivity = it } }
     }
 
     override fun onStartCommand(
@@ -320,7 +332,7 @@ class LocationTrackingService : Service() {
                 !MotionFusion.isMoving(reading, motionGravity)
             } else {
                 false
-            }
+            } || recognizedActivity == RecognizedActivity.STILL // O.2: activity recognition also signals stillness
         val result =
             proc.process(fix, isPaused, sensors, suppressSpike = inResumeGrace, motionStill = motionStill)
                 ?: return // jitter-suppressed
