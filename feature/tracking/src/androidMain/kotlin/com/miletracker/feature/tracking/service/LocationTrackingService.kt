@@ -3,8 +3,10 @@ package com.miletracker.feature.tracking.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
@@ -20,6 +22,7 @@ import com.miletracker.core.data.model.display.TrackingState
 import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.data.settings.DemoSettingsRepository
+import com.miletracker.feature.tracking.TrackMilesActivity
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
 import com.miletracker.feature.tracking.service.location.GpsFix
@@ -69,6 +72,10 @@ class LocationTrackingService : Service() {
     // C.2b: live telemetry the ViewModel observes via TrackingServiceApi.
     private val statePublisher: TrackingStatePublisher by inject()
 
+    // C.2d: notification throttle — last type/time published, to drop sub-throttle same-type updates.
+    private var lastNotificationType: TrackingNotificationType? = null
+    private var lastNotificationAtMs: Long = 0L
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // Serialize DB writes so live-stat updates apply in order.
@@ -99,6 +106,9 @@ class LocationTrackingService : Service() {
         const val ACTION_RESTORE = "action_restore"
         const val CHANNEL_ID = "tracking_channel"
         const val NOTIFICATION_ID = 1001
+
+        // C.2d: minimum gap between same-type notification updates (live ACTIVE fires per fix).
+        const val NOTIFICATION_THROTTLE_MS = 2_000L
 
         /** Demo flag: drive the pipeline from a simulated route (no GPS hardware required). */
         const val SIMULATE_LOCATION = true
@@ -154,7 +164,7 @@ class LocationTrackingService : Service() {
     /** Calls startForeground defensively. Returns false (and stops self) on failure. */
     private fun enterForeground(): Boolean =
         try {
-            startForeground(NOTIFICATION_ID, buildNotification("Tracking…"))
+            startForeground(NOTIFICATION_ID, buildNotification(TrackingNotificationMapper.fromSnapshot(TrackingSnapshot())))
             true
         } catch (e: Exception) {
             // e.g. missing FGS location permission on Android 14+, or a background start the
@@ -359,7 +369,7 @@ class LocationTrackingService : Service() {
                     },
             )
         }
-        updateNotification(notificationText(statePublisher.trackingState.value))
+        updateNotification(statePublisher.trackingState.value)
     }
 
     private fun setPaused(paused: Boolean) {
@@ -381,7 +391,7 @@ class LocationTrackingService : Service() {
                 lastEvent = if (paused) EventType.TRACKING_PAUSED else EventType.TRACKING_RESUMED,
             )
         }
-        updateNotification(notificationText(statePublisher.trackingState.value))
+        updateNotification(statePublisher.trackingState.value)
     }
 
     private fun stopAndFinalize() {
@@ -542,34 +552,46 @@ class LocationTrackingService : Service() {
         getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(text: String): Notification =
-        Notification.Builder(this, CHANNEL_ID)
-            .setContentTitle("Mileway")
-            .setContentText(text)
+    /**
+     * C.2d: build the foreground notification from mapped [TrackingNotificationContent] — title/text per
+     * type, dismissible vs ongoing per [TrackingNotificationContent.ongoing], and a deep-link tap target
+     * (TRIP_COMPLETE → the tracking section) when set, else opening the live tracking screen.
+     */
+    private fun buildNotification(content: TrackingNotificationContent): Notification {
+        val tapIntent =
+            if (content.deepLink != null) {
+                Intent(Intent.ACTION_VIEW, Uri.parse(content.deepLink)).setPackage(packageName)
+            } else {
+                Intent(this, TrackMilesActivity::class.java)
+            }
+        val contentIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                tapIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+        return Notification.Builder(this, CHANNEL_ID)
+            .setContentTitle(content.title)
+            .setContentText(content.text)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
-            .setOngoing(true)
+            .setOngoing(content.ongoing)
+            .setContentIntent(contentIntent)
             .build()
-
-    private fun updateNotification(text: String) {
-        getSystemService(NotificationManager::class.java)?.notify(NOTIFICATION_ID, buildNotification(text))
     }
 
     /**
-     * Phase-aware foreground notification copy (C.2b), one of seven messages derived from the published
-     * [TrackingSnapshot]: acquiring, live, paused, resumed, mock-detected, abnormal-filtered, completed.
+     * C.2d: publish the phase-aware notification, throttled. Same-type updates within
+     * [NOTIFICATION_THROTTLE_MS] are dropped (the live ACTIVE message fires per fix); a type *change*
+     * (e.g. ACTIVE → GPS_DISABLED, or → TRIP_COMPLETE) always fires immediately.
      */
-    private fun notificationText(s: TrackingSnapshot): String {
-        val km = s.distanceMeters / 1000.0
-        val kmh = s.speedMps * 3.6
-        return when {
-            s.state == TrackingState.COMPLETED -> "Journey complete · %.2f km".format(km)
-            s.state == TrackingState.PAUSED -> "Paused · %.2f km".format(km)
-            s.lastEvent == EventType.MOCK_LOCATION -> "⚠ Mock location detected · %.2f km".format(km)
-            s.lastEvent == EventType.ABNORMAL_LOCATION -> "Filtering abnormal GPS · %.2f km".format(km)
-            s.lastEvent == EventType.TRACKING_RESUMED -> "Resumed · %.2f km · %.0f km/h".format(km, kmh)
-            s.totalPoints == 0 -> "Acquiring GPS…"
-            else -> "%.2f km · %.0f km/h".format(km, kmh)
-        }
+    private fun updateNotification(snapshot: TrackingSnapshot) {
+        val content = TrackingNotificationMapper.fromSnapshot(snapshot)
+        val now = System.currentTimeMillis()
+        if (content.type == lastNotificationType && now - lastNotificationAtMs < NOTIFICATION_THROTTLE_MS) return
+        lastNotificationType = content.type
+        lastNotificationAtMs = now
+        getSystemService(NotificationManager::class.java)?.notify(NOTIFICATION_ID, buildNotification(content))
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
