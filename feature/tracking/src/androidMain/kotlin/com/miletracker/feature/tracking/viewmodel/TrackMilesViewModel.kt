@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.SavedTrack
+import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.data.model.network.ApprovedVehicle
 import com.miletracker.core.data.model.state.TrackMilesPluginConfig
 import com.miletracker.core.platform.LocationNameResolver
@@ -66,6 +67,10 @@ data class TrackMilesUiState(
     val gpsIntervalMs: Long = 0L,
     val batteryPct: Int = -1,
     val isCharging: Boolean = false,
+    // C.3: live quality + health from the snapshot, surfaced as diagnostics chips on the track screen.
+    val qualityScore: Int = 100,
+    val spikeDistanceM: Double = 0.0,
+    val systemFlags: TrackingSystemFlags = TrackingSystemFlags(),
     /**
      * Human-readable current position. Resolved to a place name (e.g. "Koregaon Park, Pune") by the
      * [LocationNameResolver] when available, falling back to formatted coordinates.
@@ -217,6 +222,9 @@ class TrackMilesViewModel(
                             gpsIntervalMs = snap.currentIntervalMs,
                             batteryPct = snap.batteryPct,
                             isCharging = snap.isCharging,
+                            qualityScore = snap.qualityScore,
+                            spikeDistanceM = snap.spikeDistanceM,
+                            systemFlags = snap.systemFlags,
                         )
                     }
                 }
