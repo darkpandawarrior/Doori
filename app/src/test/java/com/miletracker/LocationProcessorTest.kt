@@ -62,6 +62,19 @@ class LocationProcessorTest {
     }
 
     @Test
+    fun `C2g - resume grace accepts the post-resume jump instead of flagging it a spike`() {
+        val proc = LocationProcessor()
+        proc.process(fix(18.5000, 73.8, 0), isPaused = false)
+        proc.process(fix(18.5010, 73.8, 10_000), isPaused = false) // ~111m, counted
+        val cleanedBefore = proc.cleanedDistanceM
+        // The same ~11km teleport, but within the post-resume grace window (user moved while paused):
+        // suppressSpike accepts it and counts it toward cleaned distance rather than rejecting it.
+        val jump = proc.process(fix(18.6000, 73.8, 11_000), isPaused = false, suppressSpike = true)
+        assertTrue(jump != null && !jump.isAbnormal)
+        assertTrue(proc.cleanedDistanceM > cleanedBefore)
+    }
+
+    @Test
     fun `mock location is tracked separately from cleaned distance`() {
         val proc = LocationProcessor()
         proc.process(fix(18.5000, 73.8, 0), isPaused = false)

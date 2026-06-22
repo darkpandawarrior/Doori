@@ -76,6 +76,9 @@ class LocationTrackingService : Service() {
     private var lastNotificationType: TrackingNotificationType? = null
     private var lastNotificationAtMs: Long = 0L
 
+    // C.2g: timestamp of the last resume; the grace window runs for RESUME_GRACE_MS after it (0 = closed).
+    private var resumeAtMs: Long = 0L
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     // Serialize DB writes so live-stat updates apply in order.
@@ -109,6 +112,9 @@ class LocationTrackingService : Service() {
 
         // C.2d: minimum gap between same-type notification updates (live ACTIVE fires per fix).
         const val NOTIFICATION_THROTTLE_MS = 2_000L
+
+        // C.2g: how long after a resume to suppress spike rejection / auto-discard.
+        const val RESUME_GRACE_MS = 5_000L
 
         /** Demo flag: drive the pipeline from a simulated route (no GPS hardware required). */
         const val SIMULATE_LOCATION = true
@@ -287,7 +293,10 @@ class LocationTrackingService : Service() {
             fixWatchdogJob?.cancel()
         }
         val proc = processor ?: return
-        val result = proc.process(fix, isPaused, sensorMonitor.snapshot) ?: return // jitter-suppressed
+        // C.2g: within the post-resume grace window, accept a large jump (the user moved while paused)
+        // instead of rejecting it as a teleport spike.
+        val inResumeGrace = resumeAtMs > 0L && System.currentTimeMillis() - resumeAtMs < RESUME_GRACE_MS
+        val result = proc.process(fix, isPaused, sensorMonitor.snapshot, suppressSpike = inResumeGrace) ?: return // jitter-suppressed
         val battery = batteryPercent()
         val row = result.location.copy(token = token, batteryPercentage = battery)
         val stats = proc.stats()
@@ -360,6 +369,7 @@ class LocationTrackingService : Service() {
                 qualityScore = qualityScore,
                 spikeDistanceM = stats.abnormalDistanceM,
                 isGpsAvailable = true,
+                inResumeGrace = inResumeGrace,
                 systemFlags = systemFlags,
                 lastEvent =
                     when {
@@ -380,6 +390,8 @@ class LocationTrackingService : Service() {
                 return
             }
         isPaused = paused
+        // C.2g: open the resume grace window on resume, close it on pause.
+        resumeAtMs = if (paused) 0L else System.currentTimeMillis()
         logEvent(
             token,
             if (paused) EventType.TRACKING_PAUSED else EventType.TRACKING_RESUMED,
