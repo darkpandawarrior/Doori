@@ -116,6 +116,7 @@ fun MileTrackerAppRoot(
     val customSeedHex by themeController.customSeedHex.collectAsStateWithLifecycle()
     val useSystemColors by themeController.useSystemColors.collectAsStateWithLifecycle()
     val paletteStyle by themeController.paletteStyle.collectAsStateWithLifecycle()
+    val mapProvider by themeController.mapProvider.collectAsStateWithLifecycle()
 
     MileTrackerTheme(
         darkTheme = override ?: systemDark,
@@ -124,6 +125,7 @@ fun MileTrackerAppRoot(
         customSeedHex = customSeedHex,
         useSystemColors = useSystemColors,
         paletteStyle = paletteStyle,
+        mapProvider = mapProvider,
     ) {
         AppToastHost {
         val navController = rememberNavController()

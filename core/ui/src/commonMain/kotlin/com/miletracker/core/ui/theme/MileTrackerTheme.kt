@@ -43,6 +43,7 @@ fun MileTrackerTheme(
     customSeedHex: String = ThemeDefaults.CUSTOM_THEME,
     useSystemColors: Boolean = ThemeDefaults.USE_SYSTEM_COLORS,
     paletteStyle: String = ThemeDefaults.PALETTE_STYLE,
+    mapProvider: MapProvider = ThemeDefaults.MAP_PROVIDER,
     content: @Composable () -> Unit,
 ) {
     val isDark = milewayTheme?.isLight?.not() ?: darkTheme
@@ -85,7 +86,11 @@ fun MileTrackerTheme(
             }
         }
 
-    CompositionLocalProvider(LocalMilewaySemanticColors provides semanticColors) {
+    CompositionLocalProvider(
+        LocalMilewaySemanticColors provides semanticColors,
+        // E.2: app-wide map provider, available to any map host via LocalMapProvider.current.
+        LocalMapProvider provides mapProvider,
+    ) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = MileTrackerTypography,
