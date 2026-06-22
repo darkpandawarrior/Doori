@@ -23,6 +23,7 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 trackToken = trackToken,
                 type = AttachmentType.RECEIPT,
                 uri = uri,
+                fileName = fileNameFromUri(uri),
                 createdAt = Clock.System.now().toEpochMilliseconds(),
             ),
         )
@@ -32,6 +33,8 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
         trackToken: String,
         uri: String,
         ocrText: String?,
+        ocrConfidence: Float = 0f,
+        ocrVerified: Boolean = false,
     ): Long =
         dao.insert(
             TripAttachmentEntity(
@@ -39,6 +42,9 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 type = AttachmentType.ODOMETER_START,
                 uri = uri,
                 ocrText = ocrText,
+                fileName = fileNameFromUri(uri),
+                ocrConfidence = ocrConfidence,
+                ocrVerified = ocrVerified,
                 createdAt = Clock.System.now().toEpochMilliseconds(),
             ),
         )
@@ -48,6 +54,8 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
         trackToken: String,
         uri: String,
         ocrText: String?,
+        ocrConfidence: Float = 0f,
+        ocrVerified: Boolean = false,
     ): Long =
         dao.insert(
             TripAttachmentEntity(
@@ -55,6 +63,9 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 type = AttachmentType.ODOMETER_END,
                 uri = uri,
                 ocrText = ocrText,
+                fileName = fileNameFromUri(uri),
+                ocrConfidence = ocrConfidence,
+                ocrVerified = ocrVerified,
                 createdAt = Clock.System.now().toEpochMilliseconds(),
             ),
         )
@@ -73,4 +84,7 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
 
     /** Remove all attachments for a trip (e.g. on discard). */
     suspend fun removeAll(trackToken: String) = dao.deleteForTrack(trackToken)
+
+    /** D.5: last path segment of the URI as a display file name (null when the URI has none). */
+    private fun fileNameFromUri(uri: String): String? = uri.substringAfterLast('/').takeIf { it.isNotBlank() }
 }

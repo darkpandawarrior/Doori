@@ -5,6 +5,20 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 4 → 5 (D.5): enrich trip_attachments with a file name + multi-pass OCR provenance
+ * (confidence + verified flag from [com.miletracker.feature.media.ocr.OdometerOcrAggregator]).
+ * Plain additive ALTERs; existing rows keep the column defaults.
+ */
+val MIGRATION_4_5 =
+    object : Migration(4, 5) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `trip_attachments` ADD COLUMN `file_name` TEXT")
+            connection.execSQL("ALTER TABLE `trip_attachments` ADD COLUMN `ocr_confidence` REAL NOT NULL DEFAULT 0")
+            connection.execSQL("ALTER TABLE `trip_attachments` ADD COLUMN `ocr_verified` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+/**
  * Migration 1 → 2: introduce the trip_attachments table.
  *
  * Each row stores one photo attachment (receipt or odometer proof) keyed by the
