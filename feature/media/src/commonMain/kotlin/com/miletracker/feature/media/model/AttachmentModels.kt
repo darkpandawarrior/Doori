@@ -24,6 +24,10 @@ data class OcrResult(
     val detectedOdometer: String?,
     val confidence: Float,
     val watermarkApplied: Boolean,
+    /** D.2: how many enhancement passes ran (1 = legacy single-pass). */
+    val passCount: Int = 1,
+    /** D.2: true when >=2 multi-pass enhancement variants agreed on [detectedOdometer]. */
+    val isVerified: Boolean = false,
 )
 
 /** Lifecycle of a (mocked) upload for a single attachment. */
