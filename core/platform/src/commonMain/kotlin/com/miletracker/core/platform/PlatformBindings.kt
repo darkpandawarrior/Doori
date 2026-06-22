@@ -12,7 +12,6 @@ data class PlatformBindings(
     val textRecognizer: TextRecognizer = NoOpTextRecognizer,
     val documentScanner: DocumentScanner = NoOpDocumentScanner,
     val notificationScheduler: NotificationScheduler = NoOpNotificationScheduler,
-    val backgroundScheduler: BackgroundScheduler = NoOpBackgroundScheduler,
     val biometricAuthenticator: BiometricAuthenticator = NoOpBiometricAuthenticator,
     val permissionsProvider: PermissionsProvider = NoOpPermissionsProvider,
     // V15 cross-cutting services. Default no-op = what noGms / iOS-without-key / tests get for free.
@@ -56,15 +55,6 @@ private object NoOpNotificationScheduler : NotificationScheduler {
     ) = Unit
 
     override fun cancel(id: Int) = Unit
-}
-
-private object NoOpBackgroundScheduler : BackgroundScheduler {
-    override fun schedulePeriodic(
-        uniqueName: String,
-        intervalMinutes: Long,
-    ) = Unit
-
-    override fun cancel(uniqueName: String) = Unit
 }
 
 private object NoOpBiometricAuthenticator : BiometricAuthenticator {

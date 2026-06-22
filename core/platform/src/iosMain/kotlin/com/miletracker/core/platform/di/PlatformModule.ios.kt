@@ -2,7 +2,6 @@ package com.miletracker.core.platform.di
 
 import com.miletracker.core.platform.IosAppReviewManager
 import com.miletracker.core.platform.IosAppUpdateManager
-import com.miletracker.core.platform.IosBackgroundScheduler
 import com.miletracker.core.platform.IosBiometricAuthenticator
 import com.miletracker.core.platform.IosDocumentScanner
 import com.miletracker.core.platform.IosLocationTracker
@@ -25,7 +24,6 @@ actual fun platformModule(): Module =
         single<com.miletracker.core.platform.DocumentScanner> { IosDocumentScanner() }
         single<com.miletracker.core.platform.NotificationScheduler> { IosNotificationScheduler() }
         single<com.miletracker.core.platform.BiometricAuthenticator> { IosBiometricAuthenticator() }
-        single<com.miletracker.core.platform.BackgroundScheduler> { IosBackgroundScheduler() }
         single<com.miletracker.core.platform.PermissionsProvider> { IosPermissionsProvider() }
         // V15 UP.3: iOS in-app update (iTunes Lookup API). Picked up by LocalManagerProvider when iOS
         // Koin is started; falls back to no-op until then.

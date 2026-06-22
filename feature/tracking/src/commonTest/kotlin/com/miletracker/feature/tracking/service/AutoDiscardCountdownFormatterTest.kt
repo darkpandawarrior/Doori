@@ -46,7 +46,7 @@ class AutoDiscardCountdownFormatterTest {
     }
 
     @Test
-    fun `sub-second remainder is truncated (floor division)`() {
+    fun `sub-second remainder is truncated by floor division`() {
         // 61_500ms = 61s → 1m 1s (the 500ms sub-second is truncated, not rounded)
         assertEquals("1m 1s", AutoDiscardCountdownFormatter.format(61_500L))
     }

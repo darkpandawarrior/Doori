@@ -157,7 +157,7 @@ class TrackingPipelineAccuracyTest {
     // ── P-C.6: resume-grace accuracy gate ────────────────────────────────────
 
     @Test
-    fun `grace window: fix with accuracy above 50m is persisted but not counted`() {
+    fun `grace window - fix with accuracy above 50m is persisted but not counted`() {
         val proc = LocationProcessor(enableKalman = false)
         // Anchor.
         proc.process(fix(lat = 18.5000, t = 0L, accuracy = 10f), isPaused = false)
@@ -175,7 +175,7 @@ class TrackingPipelineAccuracyTest {
     }
 
     @Test
-    fun `grace window: fix with accuracy at or below 50m counts normally`() {
+    fun `grace window - fix with accuracy at or below 50m counts normally`() {
         val proc = LocationProcessor(enableKalman = false)
         proc.process(fix(lat = 18.5000, t = 0L, accuracy = 10f), isPaused = false)
         // Move 200 m north during grace; accuracy = 45 m ≤ 50 m gate → should count.
@@ -191,7 +191,7 @@ class TrackingPipelineAccuracyTest {
     }
 
     @Test
-    fun `outside grace window: accuracy-51m fix is gated by the normal accuracy gate`() {
+    fun `outside grace window - accuracy-51m fix is gated by the normal accuracy gate`() {
         val proc = LocationProcessor(enableKalman = false)
         proc.process(fix(lat = 18.5000, t = 0L, accuracy = 10f), isPaused = false)
         // Same 51 m accuracy, but suppressSpike=false (not in grace) — already tested above,

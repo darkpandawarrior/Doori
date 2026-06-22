@@ -279,6 +279,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.androidx.workmanager)
+    implementation(libs.kmpworkmanager)
 
     // Material (needed for Theme.Material3.DayNight.NoActionBar in themes.xml)
     implementation(libs.material)

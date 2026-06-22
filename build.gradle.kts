@@ -98,6 +98,10 @@ tasks.register("fullCheck") {
         "ktlintCheck",
         "detekt",
         ":app:testNoGmsDebugUnitTest",
+        // KMP modules name their JVM unit-test task `testAndroidHostTest`, not the variant-specific
+        // `testNoGmsDebugUnitTest`, so the :app aggregate above never ran them. This runs the
+        // commonTest engine/policy/mapper suites (feature:tracking, core:platform, core:security).
+        "testAndroidHostTest",
         ":app:koverXmlReportNoGmsDebugCoverage",
         ":app:koverVerifyNoGmsDebugCoverage",
     )

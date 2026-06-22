@@ -63,6 +63,11 @@ jobs:
       - name: Run unit tests
         run: ./gradlew testNoGmsDebugUnitTest
 
+      # KMP modules name their JVM unit-test task `testAndroidHostTest` (not the variant-specific
+      # name above), so run the commonMain engine/policy/mapper suites explicitly.
+      - name: Run KMP commonTest (host)
+        run: ./gradlew testAndroidHostTest
+
       - name: Dependency guard check
         run: ./gradlew dependencyGuard
 

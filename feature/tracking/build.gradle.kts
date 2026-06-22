@@ -16,6 +16,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kmpworkmanager)
             // G1: Paging 3 — paging-common + paging-compose are KMP since 3.3.0+.
             implementation(libs.paging.common)
             implementation(libs.paging.compose)

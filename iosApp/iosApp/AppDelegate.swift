@@ -1,5 +1,6 @@
 import UIKit
 import UserNotifications
+import BackgroundTasks
 import MileTracker
 
 /// FCM.4: APNs registration + token/tap forwarding into the KMP shared layer.
@@ -17,7 +18,43 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         }
         // RF.3: capture a deferred referral left on the pasteboard at first launch.
         ReferralBridge.shared.captureDeferred()
+        // Register BGTaskScheduler handlers (P-F.1/P-F.3).
+        // The identifier strings must match BGTaskSchedulerPermittedIdentifiers in Info.plist.
+        // IosBgTaskDispatcher (feature:tracking/iosMain) maps the identifier to the matching
+        // kmpworkmanager Worker (maintenance purge / auto-discard) via MilewayWorkerFactory and runs it.
+        registerBgTasks()
         return true
+    }
+
+    private func registerBgTasks() {
+        // 90-day stale-row purge — runs as a BGProcessingTask (longer runtime, no network required).
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.miletracker.maintenance",
+            using: nil
+        ) { task in
+            IosBgTaskDispatcher.shared.runTask(taskId: task.identifier) { success in
+                task.setTaskCompleted(success: success)
+            }
+            // Reschedule next weekly run.
+            let req = BGProcessingTaskRequest(identifier: "com.miletracker.maintenance")
+            req.earliestBeginDate = Date(timeIntervalSinceNow: 7 * 24 * 60 * 60)
+            req.requiresNetworkConnectivity = false
+            try? BGTaskScheduler.shared.submit(req)
+        }
+
+        // Auto-discard check — runs as a BGAppRefreshTask (daily cutoff policy check).
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.miletracker.autodiscard",
+            using: nil
+        ) { task in
+            IosBgTaskDispatcher.shared.runTask(taskId: task.identifier) { success in
+                task.setTaskCompleted(success: success)
+            }
+            // Reschedule next daily check.
+            let req = BGAppRefreshTaskRequest(identifier: "com.miletracker.autodiscard")
+            req.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+            try? BGTaskScheduler.shared.submit(req)
+        }
     }
 
     func application(

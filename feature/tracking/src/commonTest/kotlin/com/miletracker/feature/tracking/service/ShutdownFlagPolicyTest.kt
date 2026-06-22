@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
  */
 class ShutdownFlagPolicyTest {
     @Test
-    fun `consume-once: flag consumed and markPhoneShutDown called when flag is set`() =
+    fun `consume-once - flag consumed and markPhoneShutDown called when flag is set`() =
         runTest {
             val store = FakeShutdownFlagStore(isPending = true)
             val dao = FakeShutdownDao()
@@ -32,7 +32,7 @@ class ShutdownFlagPolicyTest {
         }
 
     @Test
-    fun `flag not set: returns false and does not write to db`() =
+    fun `flag not set returns false and does not write to db`() =
         runTest {
             val store = FakeShutdownFlagStore(isPending = false)
             val dao = FakeShutdownDao()
@@ -45,7 +45,7 @@ class ShutdownFlagPolicyTest {
         }
 
     @Test
-    fun `empty token: no-op even when flag is set`() =
+    fun `empty token is a no-op even when flag is set`() =
         runTest {
             val store = FakeShutdownFlagStore(isPending = true)
             val dao = FakeShutdownDao()
@@ -59,7 +59,7 @@ class ShutdownFlagPolicyTest {
         }
 
     @Test
-    fun `second call after consume returns false (flag cleared)`() =
+    fun `second call after consume returns false when flag cleared`() =
         runTest {
             val store = FakeShutdownFlagStore(isPending = true)
             val dao = FakeShutdownDao()

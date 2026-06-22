@@ -28,13 +28,15 @@ import com.miletracker.ui.home.homeModule
 import com.miletracker.debug.WormaCeptorHelper
 import com.miletracker.stub.DemoConfigManager
 import com.miletracker.stub.di.stubModule
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.miletracker.feature.tracking.service.MileageMaintenanceWorker
 import com.miletracker.feature.tracking.service.ReconciliationResultHolder
 import com.miletracker.feature.tracking.service.SessionReconciliationPolicy
-import com.miletracker.work.DirectBootSafeWork
+import com.miletracker.feature.tracking.worker.AutoDiscardTask
+import com.miletracker.feature.tracking.worker.MileageMaintenanceTask
+import com.miletracker.feature.tracking.worker.MilewayWorkerFactory
+import dev.brewkits.kmpworkmanager.background.domain.BackgroundTaskScheduler
+import dev.brewkits.kmpworkmanager.background.domain.enqueuePeriodic
+import dev.brewkits.kmpworkmanager.kmpWorkerModule
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -47,7 +49,6 @@ import org.koin.core.logger.Level
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 import dev.tmapps.konnection.Konnection
-import java.util.concurrent.TimeUnit
 
 val appModule = module {
     single { DatabaseSeeder(get(), get()) }
@@ -137,6 +138,7 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
                 coreUiModule,
                 stubModule,
                 trackingModule,
+                kmpWorkerModule(workerFactory = MilewayWorkerFactory()),
                 loggingModule,
                 mediaModule,
                 profileModule,
@@ -180,17 +182,17 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
         )
     }
 
-    private fun scheduleWeeklyMaintenance() {
-        val request = PeriodicWorkRequestBuilder<MileageMaintenanceWorker>(7, TimeUnit.DAYS)
-            .addTag(MileageMaintenanceWorker.TAG)
-            .build()
-        // UX.4: skip the enqueue if we're still in the direct-boot window (WorkManager's DB is in
-        // credential-encrypted storage and unsafe to touch before the user unlocks).
-        DirectBootSafeWork.enqueueUniquePeriodicWhenUnlocked(
-            context = this,
-            uniqueName = MileageMaintenanceWorker.TAG,
-            policy = ExistingPeriodicWorkPolicy.KEEP,
-            request = request,
+    private suspend fun scheduleWeeklyMaintenance() {
+        val scheduler = get<BackgroundTaskScheduler>()
+        scheduler.enqueuePeriodic(
+            MileageMaintenanceTask.TASK_ID,
+            MileageMaintenanceTask.WORKER_CLASS,
+            MileageMaintenanceTask.INTERVAL_MINUTES.minutes.inWholeMilliseconds,
+        )
+        scheduler.enqueuePeriodic(
+            AutoDiscardTask.TASK_ID,
+            AutoDiscardTask.WORKER_CLASS,
+            AutoDiscardTask.INTERVAL_MINUTES.minutes.inWholeMilliseconds,
         )
     }
 }

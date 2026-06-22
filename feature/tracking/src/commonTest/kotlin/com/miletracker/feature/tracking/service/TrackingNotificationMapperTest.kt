@@ -114,7 +114,7 @@ class TrackingNotificationMapperTest {
     fun `ACTIVE branch for a normal tracking snapshot`() {
         val content =
             TrackingNotificationMapper.fromSnapshot(
-                snapshot(state = TrackingState.TRACKING, distanceMeters = 1234.0, speedMps = 8.3),
+                snapshot(state = TrackingState.LIVE_TRACKING, distanceMeters = 1234.0, speedMps = 8.3),
             )
         assertEquals(TrackingNotificationType.ACTIVE, content.type)
         assertTrue(content.ongoing)
@@ -160,7 +160,7 @@ class TrackingNotificationMapperTest {
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private fun snapshot(
-        state: TrackingState = TrackingState.TRACKING,
+        state: TrackingState = TrackingState.LIVE_TRACKING,
         distanceMeters: Double = 0.0,
         speedMps: Double = 0.0,
         lastEvent: EventType? = null,

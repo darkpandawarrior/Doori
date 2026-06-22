@@ -7,9 +7,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
 import com.miletracker.core.data.database.buildMileTrackerDatabase
+import com.miletracker.core.data.model.db.CurrentTrackData
 import com.miletracker.core.data.model.db.LocationData
 import com.miletracker.core.data.model.db.SavedTrack
+import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.feature.tracking.repository.LocationRepository
+import com.miletracker.feature.tracking.repository.SavedTrackRepository
+import com.miletracker.feature.tracking.service.SessionReconciliationPolicy
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -122,6 +126,102 @@ class TrackingLifecycleTest {
             val trail = LocationRepository(db.locationDao()).getForToken(token)
             assertEquals("Every GPS fix should persist", POINT_COUNT, trail.size)
             assertEquals("Trail should be chronological", fixes.first().time, trail.first().date)
+        }
+        db.close()
+    }
+
+    /**
+     * P-G.1 / L1: `onTaskRemoved` (app swiped from recents) writes the `wasAppKilled` flag to the
+     * active Room row. The flag must survive process death so app-launch reconciliation can detect the
+     * interruption. Exercises the real DAO write-path (`markAppKilled`) against the on-disk DB.
+     */
+    @Test
+    fun onTaskRemoved_setsAppKilledFlag_persistsAcrossRelaunch() {
+        var db = buildMileTrackerDatabase(context)
+        runBlocking {
+            db.savedTrackDao().insertSavedTrack(
+                SavedTrack(
+                    routeId = token,
+                    name = "Interrupted trip",
+                    startLatitude = 18.5204,
+                    startLongitude = 73.8567,
+                    endLatitude = 0.0,
+                    endLongitude = 0.0,
+                    pausedLatitude = 0.0,
+                    pausedLongitude = 0.0,
+                    startTime = 1_700_000_000_000L,
+                    endTime = 0L,
+                    distance = 0.0,
+                    duration = 0L,
+                    isCompleted = false,
+                ),
+            )
+            // As LocationTrackingService.onTaskRemoved does for the active token.
+            assertEquals("markAppKilled should update exactly the active row", 1, db.savedTrackDao().markAppKilled(token))
+        }
+
+        // Simulate process death + relaunch.
+        db.close()
+        db = buildMileTrackerDatabase(context)
+
+        runBlocking {
+            val track = db.savedTrackDao().getSavedTrackById(token)
+            assertNotNull("Interrupted trip should persist across a DB reopen", track)
+            assertTrue("wasAppKilled flag must survive the relaunch", track!!.wasAppKilled)
+            assertTrue("Trip should still be ongoing (not completed)", !track.isCompleted)
+        }
+        db.close()
+    }
+
+    /**
+     * P-G.1 / L5: ghost-relaunch. After an app-kill, the DataStore still claims `isTracking`, but the
+     * Room row carries the interruption flag. [SessionReconciliationPolicy] (the shared launch hook for
+     * both platforms) must classify this as `NeedsDecision` so the user gets the session-restore sheet —
+     * not a silent resume, and not a silent discard.
+     */
+    @Test
+    fun ghostSession_afterAppKill_reconcilesToNeedsDecision() {
+        val store = CurrentTrackDataStore(context)
+        val db = buildMileTrackerDatabase(context)
+        runBlocking {
+            store.clearSession()
+            store.saveSession(
+                CurrentTrackData(
+                    token = token,
+                    startTime = 1_700_000_000_000L,
+                    isTracking = true,
+                ),
+            )
+            db.savedTrackDao().insertSavedTrack(
+                SavedTrack(
+                    routeId = token,
+                    name = "Ghost trip",
+                    startLatitude = 18.5204,
+                    startLongitude = 73.8567,
+                    endLatitude = 0.0,
+                    endLongitude = 0.0,
+                    pausedLatitude = 0.0,
+                    pausedLongitude = 0.0,
+                    startTime = 1_700_000_000_000L,
+                    endTime = 0L,
+                    distance = 0.0,
+                    duration = 0L,
+                    isCompleted = false,
+                ),
+            )
+            db.savedTrackDao().markAppKilled(token)
+
+            val policy = SessionReconciliationPolicy(store, SavedTrackRepository(db.savedTrackDao()))
+            val outcome = policy.reconcile()
+
+            assertTrue(
+                "An app-killed ghost session must require a user decision, got $outcome",
+                outcome is SessionReconciliationPolicy.Outcome.NeedsDecision,
+            )
+            assertEquals(token, (outcome as SessionReconciliationPolicy.Outcome.NeedsDecision).token)
+            assertTrue("Reason should name the app-kill", outcome.reason.contains("app-kill"))
+
+            store.clearSession()
         }
         db.close()
     }

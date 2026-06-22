@@ -58,6 +58,13 @@ jobs:
       - name: Unit tests
         run: ./gradlew testNoGmsDebugUnitTest
 
+      # KMP modules (feature:tracking, core:platform, core:security) name their JVM unit-test
+      # task `testAndroidHostTest`, which the variant-specific aggregate above does not match.
+      # This runs the commonMain engine/policy/mapper suites once on the host (both platforms
+      # share the same code; iOS runs the same suite via iosSimulatorArm64Test).
+      - name: KMP commonTest (host)
+        run: ./gradlew testAndroidHostTest
+
       # Coverage measured + verified on the noGms variant (JVM-safe). The floor
       # (minBound 30% line) fails the build on regression, see app/build.gradle.kts.
       - name: Coverage report + floor

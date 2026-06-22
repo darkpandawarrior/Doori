@@ -44,6 +44,10 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.miletracker.sync</string>
+		<!-- P-F.2: 90-day purge of stale location rows (BGProcessingTask, weekly) -->
+		<string>com.miletracker.maintenance</string>
+		<!-- P-F.2: auto-discard check when a journey runs past the daily cutoff (BGAppRefreshTask) -->
+		<string>com.miletracker.autodiscard</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

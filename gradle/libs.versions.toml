@@ -77,6 +77,7 @@ google-services = "4.4.2"
 firebase-bom = "34.4.0"
 firebase-crashlytics-plugin = "3.0.3"
 install-referrer = "2.2"
+kmpworkmanager = "3.0.1"
 
 [libraries]
 # Kotlin
@@ -162,6 +163,7 @@ coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coil" }
 konnection = { group = "dev.tmapps", name = "konnection", version.ref = "konnection" }
+kmpworkmanager = { module = "dev.brewkits:kmpworkmanager", version.ref = "kmpworkmanager" }
 wormaceptor-api = { module = "com.github.azikar24.WormaCeptor:api-client", version.ref = "wormaceptor" }
 wormaceptor-impl = { module = "com.github.azikar24.WormaCeptor:api-impl-persistence", version.ref = "wormaceptor" }
 # G15: leak detection, debugImplementation + Android-only ONLY (same rule as WormaCeptor —

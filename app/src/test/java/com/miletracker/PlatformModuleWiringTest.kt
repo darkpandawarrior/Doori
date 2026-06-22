@@ -1,7 +1,7 @@
 package com.miletracker
 
 import android.content.Context
-import com.miletracker.core.platform.BackgroundScheduler
+import com.miletracker.core.platform.NotificationScheduler
 import com.miletracker.core.platform.di.platformModule
 import io.mockk.mockk
 import org.junit.After
@@ -15,15 +15,14 @@ import org.koin.test.inject
 import kotlin.test.assertNotNull
 
 /**
- * KOIN.1: `platformModule()` is now wired into the production graph (`initKoin()` prepends it to
- * `MileTrackerApplication`'s module list, and the iOS `MainViewController` does the same on iOS). This test
- * loads the Android `actual fun platformModule()` into a Koin graph and resolves a binding that flows
- * `androidContext()` through, proving the module is registered and wired.
+ * KOIN.1: `platformModule()` is wired into the production graph via `initKoin()`.
+ * This test loads the Android `actual fun platformModule()` into a Koin graph and resolves
+ * a binding that flows `androidContext()` through, proving the module is registered and wired.
  *
- * Only [BackgroundScheduler] is instantiated here: it stores the context and defers all work to WorkManager.
- * The other bindings ([com.miletracker.core.platform.LocationTracker] / TextRecognizer) construct gms /
- * ML-Kit clients eagerly, which need a real `MlKitContext` / Play-services init, so per this project's
- * "no gms in JVM tests" rule they're exercised by both-flavor `assemble` + the iOS framework link, not here.
+ * [NotificationScheduler] is used here — it stores the context and creates channels lazily,
+ * so it is safe to instantiate with a mock context. Location/TextRecognizer construct gms/ML-Kit
+ * clients eagerly (need real Play-services init), so they are exercised by `assemble` + the iOS
+ * framework link instead.
  */
 class PlatformModuleWiringTest : KoinTest {
 
@@ -43,7 +42,7 @@ class PlatformModuleWiringTest : KoinTest {
 
     @Test
     fun `platformModule loads and resolves a context-backed service`() {
-        val background by inject<BackgroundScheduler>()
-        assertNotNull(background)
+        val notificationScheduler by inject<NotificationScheduler>()
+        assertNotNull(notificationScheduler)
     }
 }

@@ -1,7 +1,6 @@
 package com.miletracker.core.platform.di
 
 import com.miletracker.core.platform.AndroidAppShortcuts
-import com.miletracker.core.platform.AndroidBackgroundScheduler
 import com.miletracker.core.platform.AndroidHaptics
 import com.miletracker.core.platform.AndroidLocationTracker
 import com.miletracker.core.platform.AndroidMotionSensorProvider
@@ -11,7 +10,6 @@ import com.miletracker.core.platform.AndroidTextRecognizer
 import com.miletracker.core.platform.AndroidTrackingPresenceController
 import com.miletracker.core.platform.AndroidUrlOpener
 import com.miletracker.core.platform.AppShortcuts
-import com.miletracker.core.platform.BackgroundScheduler
 import com.miletracker.core.platform.Haptics
 import com.miletracker.core.platform.LocationNameResolver
 import com.miletracker.core.platform.LocationTracker
@@ -40,7 +38,6 @@ actual fun platformModule(): Module =
         single<LocationNameResolver> { OfflineLocationNameResolver() }
         single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
         single<TextRecognizer> { AndroidTextRecognizer() }
-        single<BackgroundScheduler> { AndroidBackgroundScheduler(androidContext()) }
         // SH.1: real system-chooser share sheet (LocalManagerProvider resolves it via Koin).
         single<ShareSheet> { AndroidShareSheet(androidContext()) }
         single<UrlOpener> { AndroidUrlOpener(androidContext()) }

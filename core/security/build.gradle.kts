@@ -7,6 +7,8 @@ kotlin {
         namespace = "com.miletracker.core.security"
         compileSdk = 37
         minSdk = 30
+        // Enable JVM host execution of commonTest so RootDetectorTest runs in the gradle gate.
+        withHostTest {}
     }
 
     sourceSets {
