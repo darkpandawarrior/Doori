@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.FlashAuto
 import androidx.compose.material.icons.filled.FlashOff
@@ -38,6 +39,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,8 +66,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.feature.media.model.FlashMode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.roundToInt
 
 /** Side of the square focus ring drawn at the tap point. */
 private val FocusRingSize = 72.dp
@@ -161,6 +165,25 @@ fun CameraCaptureScreen(
     // Running pinch zoom ratio, clamped to the camera's reported range.
     var zoomRatio by remember { mutableStateOf(1f) }
 
+    // D.1: exposure compensation. cameraInfo isn't observable, so poll briefly until the camera binds
+    // and reports its EV capabilities, then drive the slider.
+    var exposureIndex by remember { mutableStateOf(0) }
+    var exposureRange by remember { mutableStateOf<IntRange?>(null) }
+    LaunchedEffect(controller) {
+        repeat(20) {
+            val state = controller.cameraInfo?.exposureState
+            if (state != null && state.isExposureCompensationSupported) {
+                val range = state.exposureCompensationRange
+                if (range.lower < range.upper) {
+                    exposureRange = range.lower..range.upper
+                    exposureIndex = state.exposureCompensationIndex
+                    return@LaunchedEffect
+                }
+            }
+            delay(150)
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         AndroidView(
             modifier =
@@ -239,6 +262,41 @@ fun CameraCaptureScreen(
                 alpha = focusAlpha.value,
                 modifier = Modifier.fillMaxSize(),
             )
+        }
+
+        // D.1: exposure-compensation slider, shown once the camera reports a usable EV range.
+        exposureRange?.let { range ->
+            Row(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 112.dp, start = DesignTokens.Spacing.xl, end = DesignTokens.Spacing.xl)
+                        .fillMaxWidth()
+                        .clip(CircleShape)
+                        .background(Color.Black.copy(alpha = 0.45f))
+                        .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.xs),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.BrightnessMedium,
+                    contentDescription = "Exposure",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(Modifier.size(DesignTokens.Spacing.s))
+                Slider(
+                    value = exposureIndex.toFloat(),
+                    onValueChange = { value ->
+                        val idx = value.roundToInt().coerceIn(range.first, range.last)
+                        exposureIndex = idx
+                        runCatching { controller.cameraControl?.setExposureCompensationIndex(idx) }
+                    },
+                    valueRange = range.first.toFloat()..range.last.toFloat(),
+                    steps = (range.last - range.first - 1).coerceAtLeast(0),
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
 
         FloatingActionButton(
