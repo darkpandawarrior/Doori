@@ -57,25 +57,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.util.DateUtils
+import com.miletracker.core.platform.ShareSheet
 import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.core.ui.theme.MilewayColors
-import com.miletracker.feature.tracking.export.HardwareEventExporter
 import com.miletracker.feature.tracking.viewmodel.HardwareEventsAction
 import com.miletracker.feature.tracking.viewmodel.HardwareEventsViewModel
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +81,7 @@ fun HardwareEventsLogScreen(
     onBack: () -> Unit,
     viewModel: HardwareEventsViewModel = koinViewModel(),
 ) {
-    val context = LocalContext.current
+    val shareSheet = koinInject<ShareSheet>()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var showExportDialog by remember { mutableStateOf(false) }
@@ -111,8 +108,16 @@ fun HardwareEventsLogScreen(
             Button(
                 onClick = {
                     showExportDialog = false
-                    val intent = HardwareEventExporter.shareEvents(context, routeId, events, useCsv = true)
-                    context.startActivity(intent)
+                    val header = "token,eventType,audience,time,lat,lng,event\n"
+                    val rows =
+                        events.joinToString("\n") { e ->
+                            val time = DateUtils.epochToDisplayDate(e.time)
+                            val lat = (((e.lat ?: 0.0) * 1_000_000).toLong() / 1_000_000.0).toString()
+                            val lng = (((e.lng ?: 0.0) * 1_000_000).toLong() / 1_000_000.0).toString()
+                            val note = e.event.replace("\"", "\"\"")
+                            "\"${e.token}\",${e.eventType},${e.audience},\"$time\",$lat,$lng,\"$note\""
+                        }
+                    shareSheet.share(text = header + rows, subject = "Hardware events: $routeId")
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -120,8 +125,15 @@ fun HardwareEventsLogScreen(
             OutlinedButton(
                 onClick = {
                     showExportDialog = false
-                    val intent = HardwareEventExporter.shareEvents(context, routeId, events, useCsv = false)
-                    context.startActivity(intent)
+                    val items =
+                        events.joinToString(",\n  ") { e ->
+                            val time = DateUtils.epochToDisplayDate(e.time)
+                            val note = e.event.replace("\\", "\\\\").replace("\"", "\\\"")
+                            "{\"token\":\"${e.token}\",\"eventType\":\"${e.eventType}\"," +
+                                "\"audience\":\"${e.audience}\",\"time\":\"$time\"," +
+                                "\"lat\":${e.lat},\"lng\":${e.lng},\"event\":\"$note\"}"
+                        }
+                    shareSheet.share(text = "[\n  $items\n]", subject = "Hardware events: $routeId")
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(8.dp),
@@ -200,7 +212,7 @@ fun HardwareEventsLogScreen(
                 // Group by date
                 val grouped =
                     events.groupBy { event ->
-                        SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(event.time))
+                        DateUtils.epochToDisplayDate(event.time)
                     }
 
                 LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
@@ -214,7 +226,7 @@ fun HardwareEventsLogScreen(
                                 modifier = Modifier.padding(vertical = 8.dp),
                             )
                         }
-                        items(dayEvents, key = { it.id }) { event ->
+                        items(dayEvents) { event ->
                             HardwareEventItem(event)
                             Spacer(Modifier.height(6.dp))
                         }

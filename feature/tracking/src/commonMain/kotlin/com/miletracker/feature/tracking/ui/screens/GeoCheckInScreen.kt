@@ -2,11 +2,6 @@
 
 package com.miletracker.feature.tracking.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -58,12 +53,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.maps.MapSurface
+import com.miletracker.core.platform.UrlOpener
 import com.miletracker.core.ui.components.SectionCard
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
@@ -73,6 +70,7 @@ import com.miletracker.feature.tracking.repository.HardwareEventRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -90,7 +88,8 @@ fun GeoCheckInScreen(
     hardwareEventRepository: HardwareEventRepository = koinInject(),
     mapSurface: MapSurface = koinInject(),
 ) {
-    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+    val urlOpener = koinInject<UrlOpener>()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -121,14 +120,12 @@ fun GeoCheckInScreen(
     val canCheckIn = selectedType != null && formValid
 
     fun copyCoords() {
-        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        cm.setPrimaryClip(ClipData.newPlainText("coordinates", "$demoLat, $demoLng"))
+        clipboardManager.setText(AnnotatedString("$demoLat, $demoLng"))
         scope.launch { snackbarHostState.showSnackbar("Coordinates copied") }
     }
 
     fun openInMaps() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:$demoLat,$demoLng?q=$demoLat,$demoLng"))
-        if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
+        urlOpener.open("geo:$demoLat,$demoLng?q=$demoLat,$demoLng")
     }
 
     fun doCheckIn() {
@@ -139,9 +136,9 @@ fun GeoCheckInScreen(
             val locationLabel = selectedVendor?.name ?: "Current Location"
             hardwareEventRepository.insert(
                 HardwareEvent(
-                    token = "checkin_${System.currentTimeMillis()}",
+                    token = "checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
                     eventType = EventType.CHECK_IN,
-                    time = System.currentTimeMillis(),
+                    time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
                     lat = demoLat,
                     lng = demoLng,
                     event = "Geo check-in at $locationLabel ($selectedType)",
@@ -269,7 +266,7 @@ fun GeoCheckInScreen(
                     )
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     Text(
-                        text = "%.6f, %.6f".format(demoLat, demoLng),
+                        text = "${((demoLat * 1_000_000).toLong() / 1_000_000.0)}, ${((demoLng * 1_000_000).toLong() / 1_000_000.0)}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                     )
@@ -364,7 +361,7 @@ fun GeoCheckInScreen(
                                     Column {
                                         Text(vendor.name, style = MaterialTheme.typography.labelSmall)
                                         Text(
-                                            "%.0f m".format(distM),
+                                            "${distM.toLong()} m",
                                             style = MaterialTheme.typography.labelSmall,
                                             color =
                                                 if (isSelected) {
@@ -434,10 +431,10 @@ private fun haversineMeters(
     lon2: Double,
 ): Double {
     val R = 6_371_000.0
-    val dLat = Math.toRadians(lat2 - lat1)
-    val dLon = Math.toRadians(lon2 - lon1)
+    val dLat = (lat2 - lat1) * PI / 180
+    val dLon = (lon2 - lon1) * PI / 180
     val a =
         sin(dLat / 2).let { it * it } +
-            cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(dLon / 2).let { it * it }
+            cos(lat1 * PI / 180) * cos(lat2 * PI / 180) * sin(dLon / 2).let { it * it }
     return R * 2 * atan2(sqrt(a), sqrt(1 - a))
 }

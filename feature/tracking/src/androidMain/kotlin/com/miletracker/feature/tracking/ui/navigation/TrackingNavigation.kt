@@ -109,21 +109,6 @@ object TrackingRoutes {
     }
 }
 
-/** Everything the success screen needs, produced by the submission screen on submit. */
-data class SubmissionResult(
-    val distanceKm: Double,
-    val reimbursableAmount: Double,
-    val vehicleName: String,
-    val startTime: Long,
-    val endTime: Long,
-    val transactionId: String?,
-    val submissionStatus: String,
-    val violationCount: Int,
-    val violationMessage: String?,
-    val voucherNumber: String?,
-    val voucherAmount: Double,
-)
-
 /**
  * Standalone host used by [com.miletracker.feature.tracking.TrackMilesActivity].
  * Applies the theme itself. When hosted inside the app shell, use [trackingGraph]

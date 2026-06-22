@@ -1,6 +1,5 @@
 package com.miletracker.feature.tracking.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.LocationData
 import com.miletracker.core.data.model.db.SavedTrack
@@ -14,6 +13,7 @@ import com.miletracker.feature.tracking.insights.SystemImpactResult
 import com.miletracker.feature.tracking.repository.HardwareEventRepository
 import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
@@ -66,10 +66,6 @@ class TrackInsightsViewModel(
     private val hardwareEventRepository: HardwareEventRepository,
     private val routeAnalyzer: RouteAnalyzer = RouteAnalyzer(),
 ) : BaseViewModel<TrackInsightsUiState, TrackInsightsEffect, TrackInsightsAction>(TrackInsightsUiState()) {
-    companion object {
-        private const val TAG = "TrackInsightsVM"
-    }
-
     override fun onAction(action: TrackInsightsAction) {
         when (action) {
             is TrackInsightsAction.Load -> loadInsights(action.routeId)
@@ -93,7 +89,7 @@ class TrackInsightsViewModel(
                 val analysis = routeAnalyzer.analyze(track, locations, events)
                 setState { copy(insights = buildInsightData(track, locations, analysis), isLoading = false) }
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading insights", e)
+                Napier.e(tag = "TrackInsightsVM", message = "Error loading insights: ${e.message}")
                 setState { copy(error = e.message ?: "Unknown error", isLoading = false) }
             }
         }

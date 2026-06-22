@@ -1,8 +1,8 @@
 package com.miletracker.feature.tracking.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.EventAudience
+import io.github.aakira.napier.Napier
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.model.db.LocationData
@@ -121,7 +121,7 @@ class CheckInViewModel(
                         null
                     }
 
-                val now = System.currentTimeMillis()
+                val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
                 val checkInRecord =
                     if (lastLocation != null) {
                         lastLocation.copy(
@@ -162,7 +162,7 @@ class CheckInViewModel(
                     )
                 hardwareEventRepo.insert(hwEvent)
 
-                Log.i(TAG, "Manual check-in saved for token=${token.take(8)}…")
+                Napier.i("Manual check-in saved for token=${token.take(8)}…", tag = "CheckInViewModel")
                 setState {
                     copy(
                         isSubmitting = false,
@@ -173,7 +173,7 @@ class CheckInViewModel(
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Manual check-in failed", e)
+                Napier.e("Manual check-in failed: ${e.message}", e, tag = "CheckInViewModel")
                 setState { copy(isSubmitting = false, error = e.message ?: "Check-in failed.") }
             }
         }
@@ -200,7 +200,7 @@ class CheckInViewModel(
             persistGeoCheckIn(result)
         } else {
             val message = CheckInValidator.buildOutsideRadiusMessage(result)
-            Log.d(TAG, "Geo check-in outside radius: ${result.distanceOutside.toInt()} m outside")
+            Napier.d("Geo check-in outside radius: ${result.distanceOutside.toInt()} m outside", tag = "CheckInViewModel")
             setState {
                 copy(
                     showGeoCheckInSheet = false,
@@ -237,7 +237,7 @@ class CheckInViewModel(
                     return@launch
                 }
 
-                val now = System.currentTimeMillis()
+                val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
                 val checkInType = if (isOverride) "GEO_OVERRIDE" else "GEO"
                 val checkInRecord =
                     LocationData(
@@ -276,7 +276,7 @@ class CheckInViewModel(
                     )
                 hardwareEventRepo.insert(hwEvent)
 
-                Log.i(TAG, "Geo check-in ($checkInType) saved for token=${token.take(8)}… at ${result.nearestLocation.name}")
+                Napier.i("Geo check-in ($checkInType) saved for token=${token.take(8)}… at ${result.nearestLocation.name}", tag = "CheckInViewModel")
                 setState {
                     copy(
                         isSubmitting = false,
@@ -286,7 +286,7 @@ class CheckInViewModel(
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Geo check-in failed", e)
+                Napier.e("Geo check-in failed: ${e.message}", e, tag = "CheckInViewModel")
                 setState { copy(isSubmitting = false, error = e.message ?: "Check-in failed.") }
             }
         }

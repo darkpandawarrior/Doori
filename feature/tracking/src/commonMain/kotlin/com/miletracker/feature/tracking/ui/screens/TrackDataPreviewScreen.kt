@@ -2,9 +2,6 @@
 
 package com.miletracker.feature.tracking.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -56,7 +53,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -73,32 +71,13 @@ import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.tracking.repository.HardwareEventRepository
+import com.miletracker.feature.tracking.ui.util.HealthLevel
+import com.miletracker.feature.tracking.ui.util.computeHealthLevel
 import com.miletracker.feature.tracking.viewmodel.TrackDetailAction
 import com.miletracker.feature.tracking.viewmodel.TrackDetailViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-
-// ── Health-level domain ──────────────────────────────────────────────────────
-
-enum class HealthLevel { EXCELLENT, GOOD, FAIR, POOR, CRITICAL }
-
-fun computeHealthLevel(track: SavedTrack): HealthLevel {
-    var score = 100
-    if (track.wasMockLocationUsed) score -= 40
-    if (track.wasBatteryOptimizationEnabled) score -= 10
-    if (track.wasPowerSaverEnabled) score -= 10
-    if (track.wasAppKilled) score -= 15
-    if (track.wasPhoneShutDown) score -= 20
-    if (track.wasPermissionsViolated) score -= 30
-    return when {
-        score >= 90 -> HealthLevel.EXCELLENT
-        score >= 70 -> HealthLevel.GOOD
-        score >= 50 -> HealthLevel.FAIR
-        score >= 30 -> HealthLevel.POOR
-        else -> HealthLevel.CRITICAL
-    }
-}
 
 private fun HealthLevel.color(): Color =
     when (this) {
@@ -124,7 +103,7 @@ fun TrackDataPreviewScreen(
     hardwareEventRepository: HardwareEventRepository = koinInject(),
 ) {
     val uiState by viewModel.state.collectAsState()
-    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -184,8 +163,7 @@ fun TrackDataPreviewScreen(
                         DetailsTab(
                             track = track,
                             onCopy = { value ->
-                                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                cm.setPrimaryClip(ClipData.newPlainText("field", value))
+                                clipboardManager.setText(AnnotatedString(value))
                                 scope.launch { snackbarHostState.showSnackbar("Copied: $value") }
                             },
                         )
@@ -216,8 +194,8 @@ private fun OverviewTab(
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
                 PreviewRow("Distance", displayTrack.getFormattedDistance())
                 PreviewRow("Duration", displayTrack.getFormattedDuration())
-                PreviewRow("Avg speed", "%.1f km/h".format(track.avgSpeed.coerceAtLeast(0.0)))
-                PreviewRow("Max speed", "%.1f km/h".format(track.maxSpeed.coerceAtLeast(0.0)))
+                PreviewRow("Avg speed", "${(track.avgSpeed.coerceAtLeast(0.0) * 10).toLong() / 10.0} km/h")
+                PreviewRow("Max speed", "${(track.maxSpeed.coerceAtLeast(0.0) * 10).toLong() / 10.0} km/h")
                 PreviewRow("Vehicle", track.selectedVehicleType.ifBlank { "—" })
             }
         }
@@ -234,7 +212,7 @@ private fun OverviewTab(
                     color = if (completeness > 0.8f) MilewayColors.success else MaterialTheme.colorScheme.error,
                 )
                 Text(
-                    "%.0f%% completeness".format(completeness * 100),
+                    "${(completeness * 100).toLong()}% completeness",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -244,21 +222,25 @@ private fun OverviewTab(
         // Distance breakdown
         SectionCard(title = "Distance Breakdown") {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                PreviewRow("Original distance", "%.3f km".format(track.originalDistance / 1000))
+                PreviewRow("Original distance", "${(track.originalDistance / 1000 * 1000).toLong() / 1000.0} km")
                 if (track.mockDistance > 0) {
-                    PreviewRow("Mock removed", "-%.3f km".format(track.mockDistance / 1000), valueColor = MaterialTheme.colorScheme.error)
+                    PreviewRow("Mock removed", "-${(track.mockDistance / 1000 * 1000).toLong() / 1000.0} km", valueColor = MaterialTheme.colorScheme.error)
                 }
                 if (track.abnormalDistance > 0) {
-                    PreviewRow("Abnormal removed", "-%.3f km".format(track.abnormalDistance / 1000), valueColor = MaterialTheme.colorScheme.error)
+                    PreviewRow(
+                        "Abnormal removed",
+                        "-${(track.abnormalDistance / 1000 * 1000).toLong() / 1000.0} km",
+                        valueColor = MaterialTheme.colorScheme.error,
+                    )
                 }
                 if (track.spikeDistance > 0) {
-                    PreviewRow("Spike removed", "-%.3f km".format(track.spikeDistance / 1000), valueColor = MaterialTheme.colorScheme.error)
+                    PreviewRow("Spike removed", "-${(track.spikeDistance / 1000 * 1000).toLong() / 1000.0} km", valueColor = MaterialTheme.colorScheme.error)
                 }
                 Spacer(Modifier.height(4.dp))
                 Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
                 PreviewRow(
                     "Clean distance",
-                    "%.3f km".format(track.cleanedDistance.let { if (it > 0) it / 1000.0 else track.distance / 1000.0 }),
+                    "${(track.cleanedDistance.let { if (it > 0) it / 1000.0 else track.distance / 1000.0 } * 1000).toLong() / 1000.0} km",
                     labelStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                 )
             }
@@ -486,7 +468,7 @@ private fun DetailsTab(
                 CopyableRow("End OCR", track.odometerEndOcr.ifBlank { "—" }, onCopy, showStatus = true)
                 CopyableRow(
                     "Odometer distance",
-                    if (track.odometerDistance > 0) "%.3f km".format(track.odometerDistance / 1000) else "—",
+                    if (track.odometerDistance > 0) "${(track.odometerDistance / 1000 * 1000).toLong() / 1000.0} km" else "—",
                     onCopy,
                     showStatus = true,
                 )

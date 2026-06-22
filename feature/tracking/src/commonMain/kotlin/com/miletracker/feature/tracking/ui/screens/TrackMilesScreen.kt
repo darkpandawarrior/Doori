@@ -1,9 +1,5 @@
 package com.miletracker.feature.tracking.ui.screens
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,14 +42,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import com.miletracker.core.data.model.display.TrackingSystemFlags
+import com.miletracker.core.platform.AppPermission
+import com.miletracker.core.platform.PermissionsProvider
 import com.miletracker.core.ui.components.topbar.TrackingStatus
 import com.miletracker.core.ui.components.topbar.TrackingTopBar
 import com.miletracker.core.ui.components.tracking.ActivitySegment
@@ -91,6 +88,8 @@ import com.miletracker.feature.tracking.viewmodel.TrackMilesUiState
 import com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackSheet
 import com.miletracker.feature.tracking.viewmodel.TrackSignal
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Quick-action ids dispatched from the FAB grid. */
@@ -121,7 +120,8 @@ fun TrackMilesScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val checkInUiState by checkInViewModel.state.collectAsState()
-    val context = LocalContext.current
+    val permissionsProvider = koinInject<PermissionsProvider>()
+    val scope = rememberCoroutineScope()
     val isActive = uiState.phase == TrackMilesPhase.TRACKING || uiState.phase == TrackMilesPhase.PAUSED
     val isPaused = uiState.phase == TrackMilesPhase.PAUSED
     var statsExpanded by remember { mutableStateOf(true) }
@@ -153,27 +153,16 @@ fun TrackMilesScreen(
         }
     }
 
-    // Location permission is requested before the foreground service starts; we proceed
-    // through the guide regardless of the result (the demo simulates GPS).
-    val permissionLauncher =
-        rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions(),
-        ) { viewModel.onAction(TrackMilesAction.RequestStartTracking) }
-    val requestStartTracking = {
+    val requestStartTracking: () -> Unit = {
         // A.3/A.4: collapse any open coach-mark (Journey Guide) BEFORE the permission prompt or
         // consent sheet appears, so a modal never stacks over the start/consent flow.
         viewModel.onAction(TrackMilesAction.DismissSheet)
-        val granted =
-            ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION,
-            ) == PackageManager.PERMISSION_GRANTED
-        if (granted) {
+        scope.launch {
+            val granted = permissionsProvider.isGranted(AppPermission.LOCATION)
+            if (!granted) permissionsProvider.request(AppPermission.LOCATION)
             viewModel.onAction(TrackMilesAction.RequestStartTracking)
-        } else {
-            permissionLauncher.launch(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
-            )
         }
+        Unit
     }
 
     val trackingStatus =
@@ -214,7 +203,7 @@ fun TrackMilesScreen(
                 )
 
                 HeroTrackingCard(
-                    distanceText = "%.2f".format(uiState.distanceKm),
+                    distanceText = "${(uiState.distanceKm * 100).toLong() / 100.0}",
                     durationText = formatElapsed(liveElapsedMs(uiState)),
                     vehicleName = uiState.selectedVehicle?.vehicleName,
                     bearingDegrees = uiState.bearingDegrees,
@@ -421,6 +410,8 @@ fun TrackMilesScreen(
         GeoCheckInSheet(
             viewModel = checkInViewModel,
             uiState = checkInUiState,
+            currentLat = uiState.currentLat,
+            currentLng = uiState.currentLng,
             onDismiss = { checkInViewModel.onAction(CheckInAction.DismissGeoCheckIn) },
         )
     }
@@ -483,11 +474,11 @@ private fun TrackMilesUiState.statusChips(): List<StatusChip> =
                 if (unsyncedPoints > 0) StatusLevel.WARN else StatusLevel.OK,
             ),
         )
-        add(StatusChip(Icons.Filled.Speed, "%.0f km/h".format(speedKmh), StatusLevel.OK))
+        add(StatusChip(Icons.Filled.Speed, "${speedKmh.toLong()} km/h", StatusLevel.OK))
         // C.3: live tracking-quality score, spike filtering, and any active system-health issue.
         add(StatusChip(Icons.Filled.Insights, "Quality $qualityScore%", qualityScore.toQualityLevel()))
         if (spikeDistanceM >= 1.0) {
-            add(StatusChip(Icons.Filled.Warning, "Spikes %.0f m".format(spikeDistanceM), StatusLevel.WARN))
+            add(StatusChip(Icons.Filled.Warning, "Spikes ${spikeDistanceM.toLong()} m", StatusLevel.WARN))
         }
         systemFlags.firstIssueLabel()?.let { add(StatusChip(Icons.Filled.Warning, it, StatusLevel.BAD)) }
     }
@@ -520,11 +511,11 @@ private fun TrackingSystemFlags.firstIssueLabel(): String? =
 
 private fun TrackMilesUiState.statItems(): List<StatItem> =
     buildList {
-        add(StatItem("Distance", "%.2f km".format(distanceKm), Icons.Filled.Map))
+        add(StatItem("Distance", "${(distanceKm * 100).toLong() / 100.0} km", Icons.Filled.Map))
         add(StatItem("Duration", formatElapsed(liveElapsedMs(this@statItems)), Icons.Filled.Timer))
-        add(StatItem("Avg Speed", "%.1f km/h".format(avgSpeedKmh), Icons.Filled.Speed))
+        add(StatItem("Avg Speed", "${(avgSpeedKmh * 10).toLong() / 10.0} km/h", Icons.Filled.Speed))
         add(StatItem("Points", pointsLabel.toString(), Icons.Filled.GpsFixed))
-        add(StatItem("Max Speed", "%.1f km/h".format(maxSpeedKmh), Icons.Filled.Bolt))
+        add(StatItem("Max Speed", "${(maxSpeedKmh * 10).toLong() / 10.0} km/h", Icons.Filled.Bolt))
         add(StatItem("Activity", trackingActivity, Icons.Filled.DirectionsCar))
         if (pauseReason != null) {
             add(StatItem("Pause Reason", pauseReason, Icons.Filled.Timer))
@@ -538,7 +529,7 @@ private fun TrackMilesUiState.journeyDisclaimerOrDefault(): String =
 private fun liveElapsedMs(uiState: TrackMilesUiState): Long =
     when {
         uiState.startTime > 0 && uiState.phase == TrackMilesPhase.TRACKING ->
-            (System.currentTimeMillis() - uiState.startTime).coerceAtLeast(uiState.durationMs)
+            (kotlin.time.Clock.System.now().toEpochMilliseconds() - uiState.startTime).coerceAtLeast(uiState.durationMs)
         else -> uiState.durationMs
     }.coerceAtLeast(0L)
 
@@ -547,7 +538,9 @@ private fun formatElapsed(ms: Long): String {
     val h = totalSec / 3600
     val m = (totalSec % 3600) / 60
     val s = totalSec % 60
-    return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%02d:%02d".format(m, s)
+    val mm = m.toString().padStart(2, '0')
+    val ss = s.toString().padStart(2, '0')
+    return if (h > 0) "$h:$mm:$ss" else "$mm:$ss"
 }
 
 /** Weekly summary pill shown below the hero card when idle. */

@@ -22,6 +22,7 @@ data class PlatformBindings(
     val pushMessaging: PushMessaging = NoOpPushMessaging,
     val referralManager: ReferralManager = NoOpReferralManager,
     val shareSheet: ShareSheet = NoOpShareSheet,
+    val urlOpener: UrlOpener = NoOpUrlOpener,
     val appShortcuts: AppShortcuts = NoOpAppShortcuts,
     val analyticsHelper: AnalyticsHelper = NoOpAnalyticsHelper,
     val crashReporter: CrashReporter = NoOpCrashReporter,
@@ -122,6 +123,10 @@ private object NoOpShareSheet : ShareSheet {
         subject: String?,
         fileUri: String?,
     ) = Unit
+}
+
+private object NoOpUrlOpener : UrlOpener {
+    override fun open(url: String) = Unit
 }
 
 private object NoOpAppShortcuts : AppShortcuts {

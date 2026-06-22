@@ -7,7 +7,7 @@ import android.location.LocationManager
 import android.net.ConnectivityManager
 import android.os.BatteryManager
 import android.os.PowerManager
-import android.util.Log
+import io.github.aakira.napier.Napier
 
 class TrackingContextReceiver : BroadcastReceiver() {
     companion object {
@@ -23,24 +23,24 @@ class TrackingContextReceiver : BroadcastReceiver() {
             PowerManager.ACTION_POWER_SAVE_MODE_CHANGED -> {
                 val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
                 val enabled = pm.isPowerSaveMode
-                Log.i(TAG, "Power saver: $enabled")
+                Napier.i("Power saver: $enabled", tag = TAG)
                 broadcastHardwareEvent(context, if (enabled) "Power Saver Mode Enabled" else "Power Saver Mode Disabled")
             }
 
             ConnectivityManager.CONNECTIVITY_ACTION -> {
-                Log.d(TAG, "Network connectivity changed")
+                Napier.d("Network connectivity changed", tag = TAG)
             }
 
             LocationManager.PROVIDERS_CHANGED_ACTION -> {
                 val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                 val gpsEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
                 val event = if (gpsEnabled) "GPS Available" else "GPS Lost"
-                Log.i(TAG, event)
+                Napier.i(event, tag = TAG)
                 broadcastHardwareEvent(context, event)
             }
 
             Intent.ACTION_BATTERY_LOW -> {
-                Log.w(TAG, "Battery low")
+                Napier.w("Battery low", tag = TAG)
                 broadcastHardwareEvent(context, "Battery Low")
             }
 
@@ -49,13 +49,13 @@ class TrackingContextReceiver : BroadcastReceiver() {
                 val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
                 if (level >= 0) {
                     val pct = (level * 100f / scale).toInt()
-                    if (pct % 10 == 0) Log.d(TAG, "Battery: $pct%")
+                    if (pct % 10 == 0) Napier.d("Battery: $pct%", tag = TAG)
                 }
             }
 
             Intent.ACTION_AIRPLANE_MODE_CHANGED -> {
                 val enabled = intent.getBooleanExtra("state", false)
-                Log.i(TAG, "Airplane mode: $enabled")
+                Napier.i("Airplane mode: $enabled", tag = TAG)
                 if (enabled) broadcastHardwareEvent(context, "Airplane Mode Enabled")
             }
 
@@ -63,7 +63,7 @@ class TrackingContextReceiver : BroadcastReceiver() {
             // a durable SharedPreferences flag instead of broadcasting to it. The service
             // consumes and clears this flag once in restoreSession() after the next boot.
             Intent.ACTION_SHUTDOWN -> {
-                Log.w(TAG, "Device shutdown — setting shutdown flag")
+                Napier.w("Device shutdown — setting shutdown flag", tag = TAG)
                 val prefs =
                     context.getSharedPreferences(
                         AndroidShutdownFlagStore.PREFS_NAME,

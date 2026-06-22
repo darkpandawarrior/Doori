@@ -26,6 +26,9 @@ import com.miletracker.core.platform.AppReviewManagerFactory
 import com.miletracker.core.platform.AppUpdateManagerFactory
 import com.miletracker.core.platform.CrashReporter
 import com.miletracker.core.platform.LoggingAnalyticsHelper
+import com.miletracker.core.platform.PermissionsProvider
+import com.miletracker.core.platform.ShareSheet
+import com.miletracker.core.platform.UrlOpener
 import com.miletracker.core.platform.NotificationScheduler
 import com.miletracker.core.platform.ReferralData
 import com.miletracker.core.platform.ReferralManager
@@ -259,6 +262,9 @@ class ScreenshotGalleryTest {
             single<CrashReporter> { mockk(relaxed = true) }
             single<AppUpdateManagerFactory> { mockk(relaxed = true) }
             single<AppReviewManagerFactory> { mockk(relaxed = true) }
+            single<ShareSheet> { mockk(relaxed = true) }
+            single<PermissionsProvider> { mockk(relaxed = true) }
+            single<UrlOpener> { mockk(relaxed = true) }
         }
 
         @BeforeClass @JvmStatic

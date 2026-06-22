@@ -93,6 +93,8 @@ data class TrackMilesUiState(
     val currentLocationLabel: String = "Waiting for location…",
     /** Raw formatted coordinates of the last fix, shown as the muted secondary line under the name. */
     val currentLocationCoordinates: String = "",
+    val currentLat: Double = 0.0,
+    val currentLng: Double = 0.0,
     val gaugeMode: HeroGaugeMode = HeroGaugeMode.COMPASS,
     val pauseReason: String? = null,
     // ── Start-flow / sheet orchestration (single-source-of-truth in the VM) ──────
@@ -282,6 +284,8 @@ class TrackMilesViewModel(
                             bearingDegrees = bearing,
                             currentLocationLabel = place.displayLabel,
                             currentLocationCoordinates = place.coordinates,
+                            currentLat = last.lat,
+                            currentLng = last.lng,
                         )
                     }
                 }

@@ -1,13 +1,13 @@
 package com.miletracker.feature.tracking.debug
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.ui.mvi.BaseViewModel
 import com.miletracker.feature.tracking.export.TrackExportManager
 import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.ui.components.ExportFormat
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -153,9 +153,9 @@ class DebugMenuComposeViewModel(
                         System.gc()
                         delay(100)
                         val after = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024)
-                        Log.d(TAG, "GC completed: freed ${before - after}MB, current: ${after}MB")
+                        Napier.d("GC completed: freed ${before - after}MB, current: ${after}MB", tag = TAG)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error running GC: ${e.message}", e)
+                        Napier.e("Error running GC: ${e.message}", e, tag = TAG)
                     }
                 }
             DebugMenuComposeAction.SaveDebugConfiguration ->
@@ -216,9 +216,9 @@ class DebugMenuComposeViewModel(
             try {
                 context.cacheDir.deleteRecursively()
                 context.cacheDir.mkdirs()
-                Log.d(TAG, "App cache cleared")
+                Napier.d("App cache cleared", tag = TAG)
             } catch (e: Exception) {
-                Log.e(TAG, "Error clearing cache: ${e.message}", e)
+                Napier.e("Error clearing cache: ${e.message}", e, tag = TAG)
             }
         }
     }
@@ -227,12 +227,12 @@ class DebugMenuComposeViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 if (savedTrackRepository.count() == 0L) {
-                    Log.w(TAG, "No saved tracks to export")
+                    Napier.w("No saved tracks to export", tag = TAG)
                     return@launch
                 }
                 val track =
                     savedTrackRepository.getActiveTrack()
-                        ?: return@launch Unit.also { Log.w(TAG, "No active track found") }
+                        ?: return@launch Unit.also { Napier.w("No active track found", tag = TAG) }
                 val locations = locationRepository.getForToken(track.routeId)
                 val content =
                     TrackExportManager.buildContent(
@@ -251,7 +251,7 @@ class DebugMenuComposeViewModel(
                 intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
                 withContext(Dispatchers.Main) { context.startActivity(intent) }
             } catch (e: Exception) {
-                Log.e(TAG, "Error exporting track: ${e.message}", e)
+                Napier.e("Error exporting track: ${e.message}", e, tag = TAG)
             }
         }
     }
@@ -272,7 +272,7 @@ class DebugMenuComposeViewModel(
         )
 
     fun performApiHealthCheck() {
-        Log.d(TAG, "API health check requested (stub in Mileway)")
+        Napier.d("API health check requested (stub in Mileway)", tag = TAG)
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -309,7 +309,7 @@ class DebugMenuComposeViewModel(
                     )
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading debug options: ${e.message}", e)
+                Napier.e("Error loading debug options: ${e.message}", e, tag = TAG)
             }
         }
     }

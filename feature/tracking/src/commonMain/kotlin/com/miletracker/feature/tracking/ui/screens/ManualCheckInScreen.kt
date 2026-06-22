@@ -1,10 +1,5 @@
 package com.miletracker.feature.tracking.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,11 +42,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
+import com.miletracker.core.platform.UrlOpener
 import com.miletracker.core.ui.components.SectionCard
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
@@ -73,7 +70,8 @@ fun ManualCheckInScreen(
     configManager: TrackingConfigManager = koinInject(),
     hardwareEventRepository: HardwareEventRepository = koinInject(),
 ) {
-    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
+    val urlOpener = koinInject<UrlOpener>()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -90,14 +88,12 @@ fun ManualCheckInScreen(
     val canSubmit = reason.isNotBlank() && !isSubmitting
 
     fun copyCoords() {
-        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        cm.setPrimaryClip(ClipData.newPlainText("coordinates", "$demoLat, $demoLng"))
+        clipboardManager.setText(AnnotatedString("$demoLat, $demoLng"))
         scope.launch { snackbarHostState.showSnackbar("Coordinates copied") }
     }
 
     fun openInMaps() {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("geo:$demoLat,$demoLng?q=$demoLat,$demoLng"))
-        if (intent.resolveActivity(context.packageManager) != null) context.startActivity(intent)
+        urlOpener.open("geo:$demoLat,$demoLng?q=$demoLat,$demoLng")
     }
 
     fun refreshLocation() {
@@ -115,9 +111,9 @@ fun ManualCheckInScreen(
             delay(800)
             hardwareEventRepository.insert(
                 HardwareEvent(
-                    token = "manual_checkin_${System.currentTimeMillis()}",
+                    token = "manual_checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
                     eventType = EventType.CHECK_IN,
-                    time = System.currentTimeMillis(),
+                    time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
                     lat = demoLat,
                     lng = demoLng,
                     event = "Manual check-in${if (selectedType != null) " ($selectedType)" else ""}: $reason",
@@ -204,7 +200,7 @@ fun ManualCheckInScreen(
                     }
                     Spacer(Modifier.height(DesignTokens.Spacing.xs))
                     Text(
-                        text = "%.6f, %.6f".format(demoLat, demoLng),
+                        text = "${((demoLat * 1_000_000).toLong() / 1_000_000.0)}, ${((demoLng * 1_000_000).toLong() / 1_000_000.0)}",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                     )

@@ -44,6 +44,7 @@ import com.miletracker.feature.tracking.service.location.SimulatedLocationSource
 import com.miletracker.feature.tracking.service.location.TrackStats
 import com.miletracker.feature.tracking.service.location.TrackingQualityScorer
 import com.miletracker.feature.tracking.service.location.TrackingSensorMonitor
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -216,7 +217,7 @@ class LocationTrackingService : Service() {
         } catch (e: Exception) {
             // e.g. missing FGS location permission on Android 14+, or a background start the
             // OS disallows (ForegroundServiceStartNotAllowedException). Don't crash the app.
-            android.util.Log.w("LocationTrackingService", "startForeground failed", e)
+            Napier.w("startForeground failed", e, tag = "LocationTrackingService")
             stopSelf()
             false
         }

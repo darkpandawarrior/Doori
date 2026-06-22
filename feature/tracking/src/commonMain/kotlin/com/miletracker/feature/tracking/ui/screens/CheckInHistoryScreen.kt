@@ -1,8 +1,5 @@
 package com.miletracker.feature.tracking.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -59,7 +56,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,11 +65,11 @@ import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
 import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 /**
  * One row in the check-in history timeline.
@@ -558,7 +556,7 @@ private fun ExpandedDetails(
     accent: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val coordinates = formatCoordinates(item.lat, item.lng)
 
     Column(modifier = modifier.padding(top = DesignTokens.Spacing.m)) {
@@ -575,8 +573,7 @@ private fun ExpandedDetails(
 
         FilledTonalButton(
             onClick = {
-                val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                cm.setPrimaryClip(ClipData.newPlainText("coordinates", coordinates))
+                clipboardManager.setText(AnnotatedString(coordinates))
             },
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -705,19 +702,18 @@ private fun matchesTimeFilter(
     if (filter == TimeFilter.All) return true
     if (timestampMillis <= 0L) return false
 
-    val date =
-        Instant.ofEpochMilli(timestampMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-    val today = LocalDate.now()
+    val tz = TimeZone.currentSystemDefault()
+    val date = Instant.fromEpochMilliseconds(timestampMillis).toLocalDateTime(tz).date
+    val today = kotlin.time.Clock.System.now().toLocalDateTime(tz).date
 
     return when (filter) {
         TimeFilter.All -> true
         TimeFilter.Today -> date == today
         TimeFilter.ThisWeek -> {
-            // Calendar week starting Monday; include days from the week start through today.
-            val weekStart = today.minusDays(((today.dayOfWeek.value + 6) % 7).toLong())
-            !date.isBefore(weekStart) && !date.isAfter(today)
+            // Calendar week starting Monday
+            val daysFromMonday = today.dayOfWeek.ordinal.toLong()
+            val weekStart = today.minus(daysFromMonday, DateTimeUnit.DAY)
+            date >= weekStart && date <= today
         }
         TimeFilter.ThisMonth ->
             date.year == today.year && date.month == today.month
@@ -731,24 +727,26 @@ private fun matchesQuery(
 ): Boolean {
     val trimmed = query.trim()
     if (trimmed.isEmpty()) return true
-    val needle = trimmed.lowercase(Locale.getDefault())
-    return item.title.lowercase(Locale.getDefault()).contains(needle) ||
-        item.type.lowercase(Locale.getDefault()).contains(needle) ||
-        (item.subtitle?.lowercase(Locale.getDefault())?.contains(needle) == true)
+    val needle = trimmed.lowercase()
+    return item.title.lowercase().contains(needle) ||
+        item.type.lowercase().contains(needle) ||
+        (item.subtitle?.lowercase()?.contains(needle) == true)
 }
 
 /** Date group header: "Today", "Yesterday", otherwise "Mon, Jun 9". */
 private fun friendlyDateHeader(timestampMillis: Long): String {
     if (timestampMillis <= 0L) return "Unknown"
-    val date =
-        Instant.ofEpochMilli(timestampMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-    val today = LocalDate.now()
+    val tz = TimeZone.currentSystemDefault()
+    val date = Instant.fromEpochMilliseconds(timestampMillis).toLocalDateTime(tz).date
+    val today = kotlin.time.Clock.System.now().toLocalDateTime(tz).date
     return when (date) {
         today -> "Today"
-        today.minusDays(1) -> "Yesterday"
-        else -> HeaderDateFormatter.format(date)
+        today.minus(1, DateTimeUnit.DAY) -> "Yesterday"
+        else -> {
+            val dow = date.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+            val mon = date.month.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+            "$dow, $mon ${date.dayOfMonth}"
+        }
     }
 }
 
@@ -756,20 +754,21 @@ private fun friendlyDateHeader(timestampMillis: Long): String {
 private fun formatCoordinates(
     lat: Double,
     lng: Double,
-): String = String.format(Locale.getDefault(), "%.4f, %.4f", lat, lng)
+): String {
+    val latStr = ((lat * 10_000).toLong() / 10_000.0).toString()
+    val lngStr = ((lng * 10_000).toLong() / 10_000.0).toString()
+    return "$latStr, $lngStr"
+}
 
 /** Event time formatted as "Jun 9, 4:30 PM". */
 private fun formatTime(timestampMillis: Long): String {
     if (timestampMillis <= 0L) return ""
-    return TimeFormatter.format(
-        Instant.ofEpochMilli(timestampMillis)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDateTime(),
-    )
+    val tz = TimeZone.currentSystemDefault()
+    val ldt = Instant.fromEpochMilliseconds(timestampMillis).toLocalDateTime(tz)
+    val mon = ldt.month.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+    val h24 = ldt.hour
+    val h12 = if (h24 % 12 == 0) 12 else h24 % 12
+    val ampm = if (h24 < 12) "AM" else "PM"
+    val mm = ldt.minute.toString().padStart(2, '0')
+    return "$mon ${ldt.dayOfMonth}, $h12:$mm $ampm"
 }
-
-private val HeaderDateFormatter: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("EEE, MMM d", Locale.getDefault())
-
-private val TimeFormatter: DateTimeFormatter =
-    DateTimeFormatter.ofPattern("MMM d, h:mm a", Locale.getDefault())

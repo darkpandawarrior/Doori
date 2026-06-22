@@ -56,7 +56,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -71,6 +70,8 @@ import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.ui.components.ExportOptionsDialog
+import com.miletracker.feature.tracking.ui.util.HealthLevel
+import com.miletracker.feature.tracking.ui.util.computeHealthLevel
 import com.miletracker.feature.tracking.viewmodel.ExportAction
 import com.miletracker.feature.tracking.viewmodel.ExportViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackDetailAction
@@ -92,20 +93,11 @@ fun TrackDetailScreen(
 ) {
     val uiState by viewModel.state.collectAsState()
     val exportState by exportViewModel.state.collectAsState()
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
     var showExportDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(routeId) { viewModel.onAction(TrackDetailAction.Load(routeId)) }
-
-    // Fire share intent once ready
-    LaunchedEffect(exportState.shareIntent) {
-        exportState.shareIntent?.let { intent ->
-            context.startActivity(intent)
-            exportViewModel.onAction(ExportAction.ClearShareIntent)
-        }
-    }
 
     // Show error in snackbar
     LaunchedEffect(exportState.error) {
@@ -120,7 +112,7 @@ fun TrackDetailScreen(
             onDismiss = { showExportDialog = false },
             onExport = { format, filter ->
                 showExportDialog = false
-                exportViewModel.export(context, routeId, format, filter)
+                exportViewModel.export(routeId, format, filter)
             },
             trackName = uiState.track?.name,
         )
@@ -180,7 +172,7 @@ fun TrackDetailScreen(
                 MetricTile(Icons.Default.Timer, "Duration", track.getFormattedDuration(), Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                MetricTile(Icons.Default.Speed, "Avg speed", "%.0f km/h".format(track.avgSpeedKmh), Modifier.weight(1f))
+                MetricTile(Icons.Default.Speed, "Avg speed", "${track.avgSpeedKmh.toLong()} km/h", Modifier.weight(1f))
                 MetricTile(Icons.Default.Place, "GPS points", gpsPoints.toString(), Modifier.weight(1f))
             }
             if (track.reimbursableAmount > 0 || track.selectedVehicleType.isNotBlank()) {
@@ -188,7 +180,7 @@ fun TrackDetailScreen(
                     MetricTile(
                         Icons.Default.CheckCircle,
                         "Amount",
-                        if (track.reimbursableAmount > 0) "₹%.0f".format(track.reimbursableAmount) else "—",
+                        if (track.reimbursableAmount > 0) "₹${track.reimbursableAmount.toLong()}" else "—",
                         Modifier.weight(1f),
                     )
                     MetricTile(

@@ -1,9 +1,5 @@
 package com.miletracker.feature.tracking.ui.screens
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,24 +32,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import com.google.android.gms.location.LocationServices
 import com.miletracker.feature.tracking.viewmodel.CheckInAction
 import com.miletracker.feature.tracking.viewmodel.CheckInUiState
 import com.miletracker.feature.tracking.viewmodel.CheckInViewModel
-import kotlinx.coroutines.tasks.await
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Manual Check-In Sheet
@@ -177,49 +164,21 @@ fun ManualCheckInSheet(
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Bottom sheet for GEO check-in. Resolves the device's current GPS coordinates (via
- * FusedLocationProvider), then delegates to [CheckInViewModel.validateAndGeoCheckIn].
+ * Bottom sheet for GEO check-in. Uses the last GPS fix from the tracking ViewModel
+ * ([currentLat]/[currentLng] from [TrackMilesUiState]) to validate the check-in position.
+ * No FusedLocationProvider needed — the tracking service already holds the latest fix.
  */
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("MissingPermission")
 @Composable
 fun GeoCheckInSheet(
     viewModel: CheckInViewModel,
     uiState: CheckInUiState,
+    currentLat: Double,
+    currentLng: Double,
     onDismiss: () -> Unit,
 ) {
-    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    var isFetchingLocation by remember { mutableStateOf(false) }
-    var fetchedLocation by remember { mutableStateOf<Location?>(null) }
-    var locationError by remember { mutableStateOf<String?>(null) }
-
-    // Fetch device location when the sheet opens
-    LaunchedEffect(Unit) {
-        val hasPermission =
-            ContextCompat.checkSelfPermission(
-                context, Manifest.permission.ACCESS_FINE_LOCATION,
-            ) == PackageManager.PERMISSION_GRANTED
-
-        if (!hasPermission) {
-            locationError = "Location permission not granted. Please enable it in system settings."
-            return@LaunchedEffect
-        }
-
-        isFetchingLocation = true
-        try {
-            val client = LocationServices.getFusedLocationProviderClient(context)
-            fetchedLocation = client.lastLocation.await()
-            if (fetchedLocation == null) {
-                locationError = "Could not obtain current location. Ensure GPS is enabled."
-            }
-        } catch (e: Exception) {
-            locationError = "Location error: ${e.message}"
-        } finally {
-            isFetchingLocation = false
-        }
-    }
+    val hasLocation = currentLat != 0.0 || currentLng != 0.0
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -268,44 +227,29 @@ fun GeoCheckInSheet(
             HorizontalDivider()
 
             // Location status
-            when {
-                isFetchingLocation -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                        Text("Fetching location…", style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-
-                locationError != null -> {
+            if (hasLocation) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MyLocation,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
                     Text(
-                        text = locationError ?: "",
+                        text = "${(currentLat * 100_000).toLong() / 100_000.0}, ${(currentLng * 100_000).toLong() / 100_000.0}",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-
-                fetchedLocation != null -> {
-                    val loc = fetchedLocation!!
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MyLocation,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            text = "%.5f, %.5f  (±%.0f m)".format(loc.latitude, loc.longitude, loc.accuracy),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+            } else {
+                Text(
+                    text = "No GPS fix yet. Start tracking to get a location.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
             }
 
             if (uiState.error != null) {
@@ -328,12 +272,9 @@ fun GeoCheckInSheet(
                 ) { Text("Cancel") }
 
                 Button(
-                    onClick = {
-                        val loc = fetchedLocation ?: return@Button
-                        viewModel.onAction(CheckInAction.ValidateAndGeoCheckIn(loc.latitude, loc.longitude))
-                    },
+                    onClick = { viewModel.onAction(CheckInAction.ValidateAndGeoCheckIn(currentLat, currentLng)) },
                     modifier = Modifier.weight(1f),
-                    enabled = fetchedLocation != null && !isFetchingLocation && !uiState.isSubmitting,
+                    enabled = hasLocation && !uiState.isSubmitting,
                 ) {
                     if (uiState.isSubmitting) {
                         CircularProgressIndicator(

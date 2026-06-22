@@ -53,10 +53,10 @@ import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.feature.tracking.viewmodel.RoutePointUi
 import com.miletracker.feature.tracking.viewmodel.RoutePointsAction
 import com.miletracker.feature.tracking.viewmodel.RoutePointsViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 /**
  * G1 (Paging 3): the raw GPS route-points log for one journey, paged out of Room via
@@ -162,7 +162,10 @@ fun RoutePointsScreen(
     }
 }
 
-private val pointTimeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+private fun formatPointTime(millis: Long): String {
+    val dt = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.currentSystemDefault())
+    return "${dt.hour.toString().padStart(2, '0')}:${dt.minute.toString().padStart(2, '0')}:${dt.second.toString().padStart(2, '0')}"
+}
 
 @Composable
 private fun RoutePointRow(
@@ -198,7 +201,7 @@ private fun RoutePointRow(
                 Text(
                     text =
                         buildString {
-                            append(pointTimeFormat.format(Date(point.timeMillis)))
+                            append(formatPointTime(point.timeMillis))
                             append("  ·  ")
                             append("${point.speedKmh.format1()} km/h")
                             append("  ·  ±${point.accuracyM.toInt()}m")

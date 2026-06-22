@@ -16,27 +16,27 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
-            // G1: Paging 3 — PagingSource/Pager/cachedIn live in commonMain (multiplatform).
+            // G1: Paging 3 — paging-common + paging-compose are KMP since 3.3.0+.
             implementation(libs.paging.common)
+            implementation(libs.paging.compose)
             implementation(project(":core:common"))
             implementation(project(":core:data"))
             implementation(project(":core:network"))
             implementation(project(":core:ui"))
             implementation(project(":core:platform"))
             implementation(project(":core:maps"))
+            // P-E.1: Coil3 is multiplatform; moved from androidMain so submission components can live in commonMain.
+            implementation(libs.coil3.compose)
         }
         androidMain.dependencies {
             // api() so dependents (feature:logging, :app) can resolve Material theme parent
             api(libs.material)
-            // G1: collectAsLazyPagingItems() — Compose paging glue, Android only.
-            implementation(libs.paging.compose)
             implementation(libs.koin.androidx.workmanager)
             implementation(libs.kotlinx.coroutines.play.services)
             implementation(libs.play.services.location)
             implementation(libs.workmanager.runtime)
             implementation(libs.mlkit.document.scanner)
             implementation(libs.mlkit.text.recognition)
-            implementation(libs.coil3.compose)
             implementation(project(":feature:media"))
         }
         commonTest.dependencies {

@@ -9,10 +9,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.feature.tracking.TrackMilesActivity
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -45,18 +45,18 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
             Intent.ACTION_LOCKED_BOOT_COMPLETED -> {
                 // Credential-protected storage (our DataStore) is unavailable before first
                 // unlock; BOOT_COMPLETED arrives after unlock and handles the restore.
-                Log.d(TAG, "Locked boot: deferring session check to BOOT_COMPLETED")
+                Napier.d("Locked boot: deferring session check to BOOT_COMPLETED", tag = TAG)
             }
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED,
             -> {
-                Log.i(TAG, "Boot/update received: checking for active session")
+                Napier.i("Boot/update received: checking for active session", tag = TAG)
                 val pending = goAsync()
                 CoroutineScope(Dispatchers.IO + SupervisorJob()).launch {
                     try {
                         checkAndRestore(context)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Error checking session on boot", e)
+                        Napier.e("Error checking session on boot", e, tag = TAG)
                     } finally {
                         pending.finish()
                     }
@@ -76,7 +76,7 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
             )
         when (action) {
             BootRestoreAction.RESUME_SERVICE -> {
-                Log.i(TAG, "Active session found (${session.token.take(8)}…): restarting service")
+                Napier.i("Active session found (${session.token.take(8)}…): restarting service", tag = TAG)
                 val serviceIntent =
                     Intent(context, LocationTrackingService::class.java).apply {
                         this.action = LocationTrackingService.ACTION_RESTORE
@@ -87,12 +87,12 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
                 } catch (e: Exception) {
                     // ForegroundServiceStartNotAllowedException (or similar): the OS refused
                     // the background FGS start. Let the user resume from a notification.
-                    Log.w(TAG, "FGS start from boot disallowed: offering manual resume", e)
+                    Napier.w("FGS start from boot disallowed: offering manual resume", e, tag = TAG)
                     postManualResumeNotification(context)
                 }
             }
             BootRestoreAction.CLEAR_STALE_SESSION -> {
-                Log.i(TAG, "Session not resumable: marking it stopped")
+                Napier.i("Session not resumable: marking it stopped", tag = TAG)
                 dataStore.saveSession(
                     session.copy(
                         isTracking = false,
@@ -101,7 +101,7 @@ class LocationTrackingBootReceiver : BroadcastReceiver() {
                     ),
                 )
             }
-            BootRestoreAction.NONE -> Log.d(TAG, "No active session: nothing to restore")
+            BootRestoreAction.NONE -> Napier.d("No active session: nothing to restore", tag = TAG)
         }
     }
 

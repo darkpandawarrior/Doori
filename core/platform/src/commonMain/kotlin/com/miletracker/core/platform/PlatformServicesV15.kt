@@ -113,6 +113,13 @@ interface ShareSheet {
     )
 }
 
+// ─────────────────────────── URL opener ───────────────────────────
+
+/** Open a URL in the native browser or registered handler. Android: ACTION_VIEW; iOS: UIApplication.open. */
+interface UrlOpener {
+    fun open(url: String)
+}
+
 // ─────────────────────────── App shortcuts ───────────────────────────
 
 /** A home-screen quick action mapped to a deep link. */

@@ -47,6 +47,9 @@ import com.miletracker.feature.tracking.viewmodel.TrackInsightsViewModel
 import com.miletracker.feature.tracking.viewmodel.TrackMilesViewModel
 import com.miletracker.ui.search.MasterSearchViewModel
 import com.miletracker.core.platform.NotificationScheduler
+import com.miletracker.core.platform.PermissionsProvider
+import com.miletracker.core.platform.ShareSheet
+import com.miletracker.core.platform.UrlOpener
 import com.miletracker.stub.di.stubModule
 import io.mockk.mockk
 import org.junit.After
@@ -91,6 +94,9 @@ class KoinGraphTest : KoinTest {
         single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
         single<DemoSettingsRepository> { mockk(relaxed = true) }
         single<NotificationScheduler> { mockk(relaxed = true) }
+        single<ShareSheet> { mockk(relaxed = true) }
+        single<PermissionsProvider> { mockk(relaxed = true) }
+        single<UrlOpener> { mockk(relaxed = true) }
     }
 
     @Before

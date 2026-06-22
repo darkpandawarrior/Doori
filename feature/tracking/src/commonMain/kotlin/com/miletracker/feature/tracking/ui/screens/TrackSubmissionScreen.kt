@@ -184,7 +184,7 @@ fun TrackSubmissionScreen(
 
                 item {
                     JourneySummaryCard(
-                        distanceText = "%.2f km".format(distanceKm),
+                        distanceText = "${(distanceKm * 100).toLong() / 100.0} km",
                         durationText = formatDuration(durationMs),
                         maxSpeedText = "—",
                         avgSpeedText = "—",
@@ -346,7 +346,7 @@ private fun buildDemoRoutePoints(distanceKm: Double): List<Pair<Double, Double>>
         val t = i.toDouble() / steps
         Pair(
             baseLat + t * latDelta,
-            baseLng + t * latDelta * 0.7 + kotlin.math.sin(t * Math.PI) * 0.01,
+            baseLng + t * latDelta * 0.7 + kotlin.math.sin(t * kotlin.math.PI) * 0.01,
         )
     }
 }

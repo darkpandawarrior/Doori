@@ -140,7 +140,7 @@ fun TrackInsightsScreen(
                                 StatItem(
                                     icon = Icons.AutoMirrored.Filled.TrendingUp,
                                     label = "Distance",
-                                    value = "%.2f km".format(data.distanceKm),
+                                    value = "${(data.distanceKm * 100).toLong() / 100.0} km",
                                     modifier = Modifier.weight(1f),
                                 )
                                 StatItem(
@@ -152,7 +152,7 @@ fun TrackInsightsScreen(
                                 StatItem(
                                     icon = Icons.Default.Speed,
                                     label = "Avg Speed",
-                                    value = "%.1f km/h".format(data.avgSpeedKmh),
+                                    value = "${(data.avgSpeedKmh * 10).toLong() / 10.0} km/h",
                                     modifier = Modifier.weight(1f),
                                 )
                             }

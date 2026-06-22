@@ -2,7 +2,9 @@ package com.miletracker.feature.tracking.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -21,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,9 +33,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.theme.MilewayColors
 
@@ -174,3 +183,87 @@ fun qualityColor(score: Int): Color =
         score >= 35 -> com.miletracker.core.ui.theme.DesignTokens.StatusColors.warning
         else -> com.miletracker.core.ui.theme.DesignTokens.StatusColors.error
     }
+
+/**
+ * P-E.1: Canvas-based static route thumbnail — renders GPS polyline without a live map SDK.
+ * Normalises the lat/lng bounding box to the canvas area and draws the route as a stroked path.
+ */
+@Composable
+fun StaticPolylineThumbnail(
+    latLngs: List<Pair<Double, Double>>,
+    modifier: Modifier = Modifier,
+    thumbHeight: Dp = 80.dp,
+    lineColor: Color = Color.Unspecified,
+) {
+    val lineColorResolved = if (lineColor == Color.Unspecified) MaterialTheme.colorScheme.primary else lineColor
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(thumbHeight)
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (latLngs.size >= 2) {
+            Canvas(modifier = Modifier.matchParentSize().padding(8.dp)) {
+                val minLat = latLngs.minOf { it.first }
+                val maxLat = latLngs.maxOf { it.first }
+                val minLng = latLngs.minOf { it.second }
+                val maxLng = latLngs.maxOf { it.second }
+                val latRange = (maxLat - minLat).takeIf { it > 0.0 } ?: 0.001
+                val lngRange = (maxLng - minLng).takeIf { it > 0.0 } ?: 0.001
+                val points =
+                    latLngs.map { (lat, lng) ->
+                        Offset(
+                            x = ((lng - minLng) / lngRange * size.width).toFloat(),
+                            y = ((1.0 - (lat - minLat) / latRange) * size.height).toFloat(),
+                        )
+                    }
+                val path =
+                    androidx.compose.ui.graphics.Path().apply {
+                        moveTo(points.first().x, points.first().y)
+                        points.drop(1).forEach { lineTo(it.x, it.y) }
+                    }
+                drawPath(
+                    path = path,
+                    color = lineColorResolved,
+                    style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+                )
+                drawCircle(lineColorResolved, radius = 5.dp.toPx(), center = points.first())
+                drawCircle(lineColorResolved, radius = 5.dp.toPx(), center = points.last())
+            }
+        } else {
+            Text(
+                text = "No route",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+/** P-E.1: Horizontally-scrollable chip row for sectioned submission forms. */
+@Composable
+fun SubmissionTabChips(
+    tabs: List<String>,
+    selected: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        tabs.forEach { tab ->
+            FilterChip(
+                selected = tab == selected,
+                onClick = { onSelect(tab) },
+                label = { Text(tab, style = MaterialTheme.typography.labelMedium) },
+            )
+        }
+    }
+}

@@ -207,7 +207,9 @@ interface SavedTrackDao {
     suspend fun markAppKilled(routeId: String): Int
 
     // P-C.2: L2 flag — set when the OS terminates the FGS and relaunches it (sticky restart / bg relaunch).
-    @Query("UPDATE saved_tracks SET foregroundServiceTerminated = 1, foregroundServiceTerminatedCount = foregroundServiceTerminatedCount + 1 WHERE routeId = :routeId")
+    @Query(
+        "UPDATE saved_tracks SET foregroundServiceTerminated = 1, foregroundServiceTerminatedCount = foregroundServiceTerminatedCount + 1 WHERE routeId = :routeId",
+    )
     suspend fun markFgTerminated(routeId: String): Int
 
     // P-C.3: L4 flag — set when the device shuts down while the session is active.

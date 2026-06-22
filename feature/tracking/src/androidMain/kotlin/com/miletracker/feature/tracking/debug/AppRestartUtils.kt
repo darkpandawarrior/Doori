@@ -3,7 +3,7 @@ package com.miletracker.feature.tracking.debug
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
+import io.github.aakira.napier.Napier
 import kotlin.system.exitProcess
 
 /**
@@ -17,7 +17,7 @@ object AppRestartUtils {
      */
     fun performAppRestart(context: Context) {
         try {
-            Log.i(TAG, "App restart requested")
+            Napier.i("App restart requested", tag = TAG)
 
             val packageManager = context.packageManager
             val intent = packageManager.getLaunchIntentForPackage(context.packageName)
@@ -33,7 +33,7 @@ object AppRestartUtils {
                 performFallbackRestart(context)
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error in performAppRestart: ${e.message}", e)
+            Napier.e("Error in performAppRestart: ${e.message}", e, tag = TAG)
             performFallbackRestart(context)
         }
     }

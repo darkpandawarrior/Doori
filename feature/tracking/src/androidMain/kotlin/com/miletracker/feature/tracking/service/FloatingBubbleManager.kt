@@ -9,13 +9,13 @@ import android.graphics.PixelFormat
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
+import io.github.aakira.napier.Napier
 
 class FloatingBubbleManager(private val context: Context) {
     companion object {
@@ -43,7 +43,7 @@ class FloatingBubbleManager(private val context: Context) {
         onTap: () -> Unit,
     ) {
         if (isAdded) {
-            Log.w(TAG, "Bubble already shown: skipping")
+            Napier.w("Bubble already shown: skipping", tag = TAG)
             return
         }
 
@@ -101,7 +101,7 @@ class FloatingBubbleManager(private val context: Context) {
 
             if (isTracking) startPulse(view)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to add bubble view", e)
+            Napier.e("Failed to add bubble view", e, tag = TAG)
             isAdded = false
         }
     }
@@ -155,7 +155,7 @@ class FloatingBubbleManager(private val context: Context) {
         try {
             bubbleView?.let { if (isAdded) windowManager.removeView(it) }
         } catch (e: Exception) {
-            Log.w(TAG, "Error removing bubble view", e)
+            Napier.w("Error removing bubble view", e, tag = TAG)
         } finally {
             bubbleView = null
             bubbleParams = null
@@ -221,7 +221,7 @@ class FloatingBubbleManager(private val context: Context) {
         try {
             if (isAdded) windowManager.updateViewLayout(view, params)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to update bubble position", e)
+            Napier.w("Failed to update bubble position", e, tag = TAG)
         }
     }
 }

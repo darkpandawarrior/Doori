@@ -1,10 +1,9 @@
 package com.miletracker.feature.tracking.viewmodel
 
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.viewModelScope
+import com.miletracker.core.platform.ShareSheet
 import com.miletracker.core.ui.mvi.BaseViewModel
-import com.miletracker.feature.tracking.export.TrackExportManager
+import com.miletracker.feature.tracking.export.TrackExportContent
 import com.miletracker.feature.tracking.repository.HardwareEventRepository
 import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
@@ -14,13 +13,10 @@ import kotlinx.coroutines.launch
 
 data class ExportUiState(
     val isExporting: Boolean = false,
-    val shareIntent: Intent? = null,
     val error: String? = null,
 )
 
 sealed interface ExportAction {
-    data object ClearShareIntent : ExportAction
-
     data object ClearError : ExportAction
 }
 
@@ -30,21 +26,20 @@ class ExportViewModel(
     private val trackRepository: SavedTrackRepository,
     private val locationRepository: LocationRepository,
     private val hardwareEventRepository: HardwareEventRepository,
+    private val shareSheet: ShareSheet,
 ) : BaseViewModel<ExportUiState, ExportEffect, ExportAction>(ExportUiState()) {
     override fun onAction(action: ExportAction) {
         when (action) {
-            ExportAction.ClearShareIntent -> setState { copy(shareIntent = null) }
             ExportAction.ClearError -> setState { copy(error = null) }
         }
     }
 
     fun export(
-        context: Context,
         routeId: String,
         format: ExportFormat,
         filter: LocationDataFilter,
     ) {
-        setState { copy(isExporting = true, error = null, shareIntent = null) }
+        setState { copy(isExporting = true, error = null) }
 
         viewModelScope.launch {
             try {
@@ -66,10 +61,11 @@ class ExportViewModel(
 
                 val events = hardwareEventRepository.getEventsForRoute(routeId).getOrElse { emptyList() }
 
-                val content = TrackExportManager.buildContent(format, track, locations, events)
-                val intent = TrackExportManager.buildShareIntent(context, format, track.name, content)
+                val content = TrackExportContent.build(format, track, locations, events)
+                val subject = "Track export: ${track.name}"
 
-                setState { copy(isExporting = false, shareIntent = intent) }
+                shareSheet.share(text = content, subject = subject)
+                setState { copy(isExporting = false) }
             } catch (e: Exception) {
                 setState { copy(isExporting = false, error = e.message ?: "Export failed") }
             }

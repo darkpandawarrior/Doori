@@ -2,19 +2,14 @@
 
 package com.miletracker.feature.tracking.viewmodel
 
-import android.content.Context
-import android.net.Uri
-import android.util.Log
-import androidx.core.content.FileProvider
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.ui.mvi.BaseViewModel
 import com.miletracker.feature.tracking.repository.HardwareEventRepository
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileWriter
 
 enum class ExportFormat { CSV, JSON }
 
@@ -191,31 +186,14 @@ class HardwareEventsViewModel(
                     }
                 },
                 onFailure = {
-                    Log.e(TAG, "Error loading events: ${it.message}")
+                    Napier.e(tag = TAG, message = "Error loading events: ${it.message}")
                     setState { copy(allEvents = demoEvents(token), isLoading = false).withRecomputed() }
                 },
             )
         }
     }
 
-    fun exportEvents(
-        context: Context,
-        format: ExportFormat,
-    ): Uri? {
-        val list = currentState.filteredEvents
-        if (list.isEmpty()) return null
-        return try {
-            val (data, filename) = buildPayload(list, format)
-            val file = File(context.cacheDir, filename)
-            FileWriter(file).use { it.write(String(data, Charsets.UTF_8)) }
-            FileProvider.getUriForFile(context, context.packageName, file)
-        } catch (e: Exception) {
-            Log.e(TAG, "Export failed", e)
-            null
-        }
-    }
-
-    fun prepareExportPayload(format: ExportFormat): Triple<ByteArray, String, String>? {
+    fun prepareExportPayload(format: ExportFormat): Triple<String, String, String>? {
         val list = currentState.filteredEvents
         if (list.isEmpty()) return null
         val (data, filename) = buildPayload(list, format)
@@ -226,28 +204,26 @@ class HardwareEventsViewModel(
     private fun buildPayload(
         events: List<HardwareEvent>,
         format: ExportFormat,
-    ): Pair<ByteArray, String> {
+    ): Pair<String, String> {
         return when (format) {
             ExportFormat.CSV -> {
                 val sb = StringBuilder("id,token,eventType,event,time,audience,battery,activity\n")
                 events.forEach { e ->
                     sb.append("${e.id},${e.token},${e.eventType},\"${e.event}\",${e.time},${e.audience},${e.battery ?: ""},${e.activity ?: ""}\n")
                 }
-                Pair(sb.toString().toByteArray(), "hardware_events.csv")
+                Pair(sb.toString(), "hardware_events.csv")
             }
             ExportFormat.JSON -> {
                 val sb = StringBuilder("[")
                 events.forEachIndexed { i, e ->
                     if (i > 0) sb.append(",")
+                    val escaped = e.event.replace("\"", "\\\"")
                     sb.append(
-                        """{"id":${e.id},"token":"${e.token}","eventType":"${e.eventType}","event":"${e.event.replace(
-                            "\"",
-                            "\\\"",
-                        )}","time":${e.time},"audience":"${e.audience}"}""",
+                        "{\"id\":${e.id},\"token\":\"${e.token}\",\"eventType\":\"${e.eventType}\",\"event\":\"$escaped\",\"time\":${e.time},\"audience\":\"${e.audience}\"}",
                     )
                 }
                 sb.append("]")
-                Pair(sb.toString().toByteArray(), "hardware_events.json")
+                Pair(sb.toString(), "hardware_events.json")
             }
         }
     }

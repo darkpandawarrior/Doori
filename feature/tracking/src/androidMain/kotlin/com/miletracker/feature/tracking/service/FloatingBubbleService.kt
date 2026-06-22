@@ -11,8 +11,8 @@ import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.provider.Settings
-import android.util.Log
 import com.miletracker.feature.tracking.TrackMilesActivity
+import io.github.aakira.napier.Napier
 
 class FloatingBubbleService : Service() {
     companion object {
@@ -22,7 +22,7 @@ class FloatingBubbleService : Service() {
 
         fun start(context: Context) {
             if (!Settings.canDrawOverlays(context)) {
-                Log.w(TAG, "SYSTEM_ALERT_WINDOW permission not granted: skipping bubble")
+                Napier.w("SYSTEM_ALERT_WINDOW permission not granted: skipping bubble", tag = TAG)
                 return
             }
             context.startForegroundService(Intent(context, FloatingBubbleService::class.java))
@@ -43,7 +43,7 @@ class FloatingBubbleService : Service() {
             ) {
                 when (intent.action) {
                     LocationTrackingConstants.ACTION_TRACKING_STOPPED -> {
-                        Log.d(TAG, "Tracking stopped: dismissing bubble")
+                        Napier.d("Tracking stopped: dismissing bubble", tag = TAG)
                         bubbleManager.dismiss { stopSelf() }
                     }
                     LocationTrackingConstants.ACTION_TRACKING_PAUSED ->
@@ -68,7 +68,7 @@ class FloatingBubbleService : Service() {
         if (!enterForeground()) return START_NOT_STICKY
 
         if (!Settings.canDrawOverlays(this)) {
-            Log.w(TAG, "Overlay permission missing: stopping bubble service")
+            Napier.w("Overlay permission missing: stopping bubble service", tag = TAG)
             stopSelf()
             return START_NOT_STICKY
         }
@@ -93,7 +93,7 @@ class FloatingBubbleService : Service() {
             )
             true
         } catch (e: Exception) {
-            Log.w(TAG, "startForeground failed", e)
+            Napier.w("startForeground failed", e, tag = TAG)
             stopSelf()
             false
         }
