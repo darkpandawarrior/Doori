@@ -2,10 +2,12 @@ package com.miletracker
 
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.display.TrackingState
+import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.feature.tracking.service.TrackingStatePublisher
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
  * C.2b: the in-process publisher is the channel between the foreground service (writer) and the
@@ -59,5 +61,33 @@ class TrackingStatePublisherTest {
         publisher.reset()
         assertEquals(TrackingState.READY, publisher.trackingState.value.state)
         assertEquals(0.0, publisher.trackingState.value.distanceMeters)
+    }
+
+    @Test
+    fun `C2b - snapshot carries quality score and system-health flags`() {
+        val publisher = TrackingStatePublisher()
+
+        // Defaults: ideal conditions, no issues.
+        val defaults = publisher.trackingState.value
+        assertEquals(100, defaults.qualityScore)
+        assertEquals(0.0, defaults.spikeDistanceM)
+        assertEquals(true, defaults.isGpsAvailable)
+        assertEquals(false, defaults.inResumeGrace)
+        assertEquals(false, defaults.systemFlags.hasIssue)
+
+        // Populated by the service: degraded conditions surface live.
+        publisher.update {
+            it.copy(
+                qualityScore = 55,
+                spikeDistanceM = 12.5,
+                isGpsAvailable = false,
+                systemFlags = TrackingSystemFlags(powerSaverOn = true, mockLocationDetected = true),
+            )
+        }
+        val s = publisher.trackingState.value
+        assertEquals(55, s.qualityScore)
+        assertEquals(12.5, s.spikeDistanceM)
+        assertEquals(false, s.isGpsAvailable)
+        assertTrue(s.systemFlags.hasIssue)
     }
 }

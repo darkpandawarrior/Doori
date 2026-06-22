@@ -2,6 +2,7 @@ package com.miletracker.feature.tracking.service
 
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.display.TrackingState
+import com.miletracker.core.data.model.display.TrackingSystemFlags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,16 @@ data class TrackingSnapshot(
     val isCharging: Boolean = false,
     val currentIntervalMs: Long = 0L,
     val lastEvent: EventType? = null,
+    /** C.2b: 0..100 live fix-quality score (scored per fix by TrackingQualityScorer); 100 = ideal. */
+    val qualityScore: Int = 100,
+    /** Cumulative distance (m) rejected as GPS spikes this session. */
+    val spikeDistanceM: Double = 0.0,
+    /** False once GPS is disabled / no fixes are arriving. */
+    val isGpsAvailable: Boolean = true,
+    /** C.2g: true during the brief grace window after a resume (spike/auto-discard suppressed). */
+    val inResumeGrace: Boolean = false,
+    /** Active system-health issues (power-saver, mock, etc.). */
+    val systemFlags: TrackingSystemFlags = TrackingSystemFlags(),
 )
 
 /**

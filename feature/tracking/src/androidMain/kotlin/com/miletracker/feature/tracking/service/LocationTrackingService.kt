@@ -17,6 +17,7 @@ import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.model.display.TrackingState
+import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.data.settings.DemoSettingsRepository
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
@@ -25,8 +26,10 @@ import com.miletracker.feature.tracking.service.location.GpsFix
 import com.miletracker.feature.tracking.service.location.IntervalInputs
 import com.miletracker.feature.tracking.service.location.LocationProcessor
 import com.miletracker.feature.tracking.service.location.LocationSource
+import com.miletracker.feature.tracking.service.location.QualityInputs
 import com.miletracker.feature.tracking.service.location.SimulatedLocationSource
 import com.miletracker.feature.tracking.service.location.TrackStats
+import com.miletracker.feature.tracking.service.location.TrackingQualityScorer
 import com.miletracker.feature.tracking.service.location.TrackingSensorMonitor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -311,6 +314,25 @@ class LocationTrackingService : Service() {
             )
         source?.updateInterval(interval)
 
+        // C.2b: score live fix quality + collect system-health flags from the signals this fix carries.
+        val powerSaver = isPowerSaver()
+        val systemFlags =
+            // gpsDisabled stays false here: a fix just arrived, so GPS is available.
+            TrackingSystemFlags(
+                gpsDisabled = false,
+                powerSaverOn = powerSaver,
+                mockLocationDetected = result.isMock,
+            )
+        val qualityScore =
+            TrackingQualityScorer.score(
+                QualityInputs(
+                    isMock = result.isMock,
+                    isPowerSaver = powerSaver,
+                    accuracyM = result.location.accuracy,
+                    isStable = !result.isAbnormal,
+                ),
+            )
+
         // C.2b: publish live telemetry for the gauge + drive the phase-aware notification from it.
         statePublisher.update {
             it.copy(
@@ -325,6 +347,10 @@ class LocationTrackingService : Service() {
                 batteryPct = battery.toInt(),
                 isCharging = isCharging(),
                 currentIntervalMs = interval,
+                qualityScore = qualityScore,
+                spikeDistanceM = stats.abnormalDistanceM,
+                isGpsAvailable = true,
+                systemFlags = systemFlags,
                 lastEvent =
                     when {
                         result.isMock -> EventType.MOCK_LOCATION
