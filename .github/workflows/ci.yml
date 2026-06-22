@@ -150,6 +150,52 @@ jobs:
           name: roborazzi-diffs
           path: '**/build/outputs/roborazzi/'
 
+  instrumented-tests:
+    name: Instrumented Tests (GMD)
+    runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Gradle Managed Devices boot an emulator, which needs hardware acceleration (KVM).
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          cache-cleanup: on-success
+
+      - name: Accept Android SDK licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # GMD provisions an AOSP ATD (headless, no Google APIs → the noGms variant), runs the
+      # tracking-lifecycle integration test (TrackingLifecycleTest), and tears the device down.
+      - name: Run instrumented tests on Gradle Managed Device
+        run: ./gradlew pixel6Api34noGmsDebugAndroidTest
+
+      - name: Upload instrumented test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrumented-test-results
+          path: '**/build/reports/androidTests/'
+
   ios-build:
     name: iOS Framework Build
     runs-on: macos-latest

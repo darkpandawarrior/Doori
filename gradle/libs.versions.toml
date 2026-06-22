@@ -187,6 +187,8 @@ wear-ongoing = { module = "androidx.wear:wear-ongoing", version.ref = "wear-ongo
 room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 androidx-test-core = { module = "androidx.test:core-ktx", version = "1.7.0" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version = "1.2.1" }
+# G9: instrumented-test runner (AndroidJUnitRunner) for the androidTest source set / GMD.
+androidx-test-runner = { module = "androidx.test:runner", version = "1.7.0" }
 robolectric = { module = "org.robolectric:robolectric", version = "4.16.1" }
 roborazzi-core = { module = "io.github.takahirom.roborazzi:roborazzi", version.ref = "roborazzi" }
 roborazzi-compose = { module = "io.github.takahirom.roborazzi:roborazzi-compose", version.ref = "roborazzi" }

@@ -61,6 +61,8 @@ android {
         // ONE place versions change (via scripts/bump_version.sh). versionCode = VERSION_CODE_BASE + BUILD_NUMBER.
         versionCode = versionCodeBase + readBuildNumber()
         versionName = readVersionName()
+        // G9: instrumented tests (androidTest / Gradle Managed Devices).
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Default placeholder; override in gms flavor with your real key or via local.properties.
         manifestPlaceholders["MAPS_API_KEY"] = ""
     }
@@ -163,6 +165,18 @@ android {
                     "--add-opens=java.base/java.util=ALL-UNNAMED",
                     "--add-opens=java.base/java.io=ALL-UNNAMED",
                 )
+            }
+        }
+
+        // G9: Gradle Managed Device for instrumented tests in CI — an AOSP ATD (lightweight, headless,
+        // no Google APIs) so it runs on the noGms variant. Task: `pixel6Api34noGmsDebugAndroidTest`.
+        managedDevices {
+            localDevices {
+                create("pixel6Api34") {
+                    device = "Pixel 6"
+                    apiLevel = 34
+                    systemImageSource = "aosp-atd"
+                }
             }
         }
     }
@@ -350,6 +364,17 @@ dependencies {
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
+
+    // G9: instrumented tests (androidTest) — run on a device/GMD, not the JVM unit-test gate.
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.kotlinx.coroutines.test)
+    // Room base types (RoomDatabase/close) — core:data keeps Room as implementation, so the test
+    // classpath needs it directly to use the real MileTrackerDatabase.
+    androidTestImplementation(libs.room.runtime)
+    // FusedLocation test double (setMockMode / setMockLocation) for the tracking-lifecycle test.
+    androidTestImplementation(libs.play.services.location)
 }
 
 // ─── FLFD.2, Proprietary-dependency guard for the noGms (F-Droid) release ───────────────────────────
