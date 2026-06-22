@@ -1,6 +1,26 @@
 package com.miletracker.feature.tracking.service
 
 object LocationTrackingConstants {
+    // P-A.1: hard coordinate bounds — any reading outside these is a sensor error.
+    const val COORD_LAT_MIN = -90.0
+    const val COORD_LAT_MAX = 90.0
+    const val COORD_LNG_MIN = -180.0
+    const val COORD_LNG_MAX = 180.0
+
+    // P-A.1: accuracy hard gates — impossibly precise (<= 0.1 m) or hopelessly noisy (> 250 m).
+    const val ACCURACY_MIN_M = 0.1f
+    const val ACCURACY_MAX_M = 250f
+
+    // P-A.1: soft accuracy contribution gate (default 50 m); tunable via TrackingConfigManager.
+    // Fixes above this threshold are persisted but excluded from cleanedDistance.
+    const val MAX_ACCURACY_THRESHOLD_M = 50.0
+
+    // P-A.1: exceptional-stationary allowance thresholds.
+    // When speed ≤ this AND accuracy < EXCEPTIONAL_STATIONARY_ACCURACY_M AND there is recent movement,
+    // the fix is allowed to contribute even if accuracy > MAX_ACCURACY_THRESHOLD_M.
+    const val EXCEPTIONAL_STATIONARY_SPEED_MPS = 0.1f
+    const val EXCEPTIONAL_STATIONARY_ACCURACY_M = 20f
+
     const val NOTIF_UPDATE_MIN_INTERVAL_MS = 5_000L
     const val MIN_DISTANCE_DELTA_FOR_UPDATE_M = 10.0
     const val MIN_SPEED_DELTA_FOR_UPDATE_MPS = 0.5f

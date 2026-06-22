@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 
 private val Context.currentTrackDataStore by preferencesDataStore(name = "current_track_session")
 
-class CurrentTrackDataStore(private val context: Context) {
+class CurrentTrackDataStore(private val context: Context) : CurrentTrackDataSource {
     companion object {
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_IS_TRACKING = booleanPreferencesKey("is_tracking")
@@ -39,7 +39,7 @@ class CurrentTrackDataStore(private val context: Context) {
         val KEY_STARTED_AT = longPreferencesKey("started_at")
     }
 
-    val currentTrackFlow: Flow<CurrentTrackData> =
+    override val currentTrackFlow: Flow<CurrentTrackData> =
         context.currentTrackDataStore.data.map { prefs ->
             CurrentTrackData(
                 token = prefs[KEY_TOKEN] ?: "",
@@ -67,7 +67,7 @@ class CurrentTrackDataStore(private val context: Context) {
             )
         }
 
-    suspend fun saveSession(data: CurrentTrackData) {
+    override suspend fun saveSession(data: CurrentTrackData) {
         context.currentTrackDataStore.edit { prefs ->
             prefs[KEY_TOKEN] = data.token
             prefs[KEY_IS_TRACKING] = data.isTracking
@@ -94,7 +94,7 @@ class CurrentTrackDataStore(private val context: Context) {
         }
     }
 
-    suspend fun updateDistance(
+    override suspend fun updateDistance(
         token: String,
         distanceMeters: Double,
         speed: Double,
@@ -110,7 +110,7 @@ class CurrentTrackDataStore(private val context: Context) {
         }
     }
 
-    suspend fun updateLocationCount(
+    override suspend fun updateLocationCount(
         token: String,
         total: Long,
         unsynced: Long,
@@ -123,7 +123,7 @@ class CurrentTrackDataStore(private val context: Context) {
         }
     }
 
-    suspend fun markPaused(
+    override suspend fun markPaused(
         token: String,
         lat: Double,
         lng: Double,
@@ -136,13 +136,13 @@ class CurrentTrackDataStore(private val context: Context) {
         }
     }
 
-    suspend fun markResumed(token: String) {
+    override suspend fun markResumed(token: String) {
         context.currentTrackDataStore.edit { prefs ->
             if (prefs[KEY_TOKEN] == token) prefs[KEY_IS_PAUSED] = false
         }
     }
 
-    suspend fun markStopped(
+    override suspend fun markStopped(
         token: String,
         endLat: Double,
         endLng: Double,
@@ -158,11 +158,11 @@ class CurrentTrackDataStore(private val context: Context) {
         }
     }
 
-    suspend fun clearSession() {
+    override suspend fun clearSession() {
         context.currentTrackDataStore.edit { it.clear() }
     }
 
-    suspend fun updateLastHardwareEvent(
+    override suspend fun updateLastHardwareEvent(
         token: String,
         eventText: String,
     ) {

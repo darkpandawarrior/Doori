@@ -1,12 +1,12 @@
 package com.miletracker.feature.tracking.repository
 
 import com.miletracker.core.data.model.db.CurrentTrackData
-import com.miletracker.core.data.session.CurrentTrackDataStore
+import com.miletracker.core.data.session.CurrentTrackDataSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
 class CurrentTrackRepository(
-    private val dataStore: CurrentTrackDataStore,
+    private val dataStore: CurrentTrackDataSource,
 ) {
     val currentTrackFlow: Flow<CurrentTrackData> = dataStore.currentTrackFlow
 

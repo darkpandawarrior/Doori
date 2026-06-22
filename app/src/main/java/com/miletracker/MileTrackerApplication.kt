@@ -32,6 +32,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.miletracker.feature.tracking.service.MileageMaintenanceWorker
+import com.miletracker.feature.tracking.service.ReconciliationResultHolder
+import com.miletracker.feature.tracking.service.SessionReconciliationPolicy
 import com.miletracker.work.DirectBootSafeWork
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -157,6 +159,13 @@ class MileTrackerApplication : Application(), SingletonImageLoader.Factory {
             get<DatabaseSeeder>().seedIfEmpty()
             scheduleWeeklyMaintenance()
             seedAppShortcuts()
+        }
+        // P-C.4: run ghost-session reconciliation off the main thread immediately after Koin is up.
+        appScope.launch {
+            val outcome = get<SessionReconciliationPolicy>().reconcile()
+            val source = get<com.miletracker.core.data.session.CurrentTrackDataSource>()
+            if (outcome is SessionReconciliationPolicy.Outcome.DiscardStale) source.clearSession()
+            get<ReconciliationResultHolder>().post(outcome)
         }
     }
 

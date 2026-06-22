@@ -4,6 +4,7 @@ package com.miletracker.feature.tracking.service.location
 
 import com.miletracker.core.data.model.db.LocationData
 import com.miletracker.core.data.util.KalmanSmoother
+import com.miletracker.feature.tracking.service.LocationTrackingConstants
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -72,9 +73,11 @@ class LocationProcessor(
     private val maxPlausibleSpeedMps: Double = 70.0,
     private val deviceModel: String = "",
     private val appVersionName: String = "",
-    // C.1g: when true, each fix's lat/lng is run through the shared KalmanSmoother before
-    // distance/classification. Off by default, no change to the existing pipeline behaviour.
-    private val enableKalman: Boolean = false,
+    // C.1g / P-A.3: each fix's lat/lng is run through the shared KalmanSmoother before
+    // distance/classification. Opt out with enableKalman=false if raw coordinates are needed.
+    private val enableKalman: Boolean = true,
+    // P-A.1: fixes with accuracy > this threshold are persisted but excluded from cleanedDistance.
+    private val maxAccuracyThreshold: Double = LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M,
     initialStats: TrackStats? = null,
 ) {
     private var last: GpsFix? = null
@@ -143,6 +146,11 @@ class LocationProcessor(
             maxSpeedMps = maxSpeedMps,
         )
 
+    /** P-A.3: reset the Kalman filter on pause→resume so stale state doesn't bleed into the resumed segment. */
+    fun resetKalman() {
+        if (enableKalman) kalman.reset()
+    }
+
     /**
      * Feed a fix. Returns the row to persist, or null when the fix is suppressed as jitter.
      * @param isPaused when true the point is recorded but does not add to the cleaned distance.
@@ -158,6 +166,30 @@ class LocationProcessor(
         // GPS-speed "movement momentum" heuristic, since accelerometer stillness is authoritative).
         motionStill: Boolean = false,
     ): ProcessResult? {
+        // P-A.1: hard coordinate gate — impossible values cannot be real GPS readings.
+        if (fix.lat !in LocationTrackingConstants.COORD_LAT_MIN..LocationTrackingConstants.COORD_LAT_MAX ||
+            fix.lng !in LocationTrackingConstants.COORD_LNG_MIN..LocationTrackingConstants.COORD_LNG_MAX
+        ) {
+            return null
+        }
+        // P-A.1: hard accuracy gate — impossibly precise or hopelessly noisy.
+        if (fix.accuracyM <= LocationTrackingConstants.ACCURACY_MIN_M ||
+            fix.accuracyM >= LocationTrackingConstants.ACCURACY_MAX_M
+        ) {
+            return null
+        }
+        // P-A.1: soft accuracy gate — poor-accuracy fixes are persisted but not counted toward
+        // cleanedDistance, unless the exceptional-stationary allowance applies (stationary after
+        // recent movement with still-reasonable accuracy: the device is reliably placed, not drifting).
+        val exceptionalStationary =
+            fix.speedMps <= LocationTrackingConstants.EXCEPTIONAL_STATIONARY_SPEED_MPS &&
+                fix.accuracyM < LocationTrackingConstants.EXCEPTIONAL_STATIONARY_ACCURACY_M &&
+                hasMovementHistory()
+        val accuracyGated = fix.accuracyM > maxAccuracyThreshold && !exceptionalStationary
+        // P-C.6: during the post-resume grace window the soft accuracy gate is always enforced
+        // (accuracy > 50 m drops contribution even though suppressSpike=true lets the displacement past).
+        val graceAccuracyGated = suppressSpike && fix.accuracyM > LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M
+
         val prev = last
         // C.1g: smooth lat/lng up front so distance + classification use the filtered position.
         // With Kalman off, effFix === fix and the pipeline is byte-for-byte unchanged.
@@ -204,7 +236,7 @@ class LocationProcessor(
                     abnormalDistanceM += displacement
                     if (isHardSpike) spikeDistanceM += displacement
                 }
-                isPaused -> { /* recorded but excluded from cleaned distance */ }
+                isPaused || accuracyGated || graceAccuracyGated -> { /* recorded but excluded from cleaned distance */ }
                 else -> {
                     cleanedDistanceM += displacement
                     counted = true

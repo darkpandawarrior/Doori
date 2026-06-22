@@ -8,11 +8,14 @@ kotlin {
         namespace = "com.miletracker.feature.tracking"
         compileSdk = 37
         minSdk = 30
+        // Enable JVM host execution of commonTest so pipeline/policy tests run in the gradle gate.
+        withHostTest {}
     }
 
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.datetime)
             // G1: Paging 3 — PagingSource/Pager/cachedIn live in commonMain (multiplatform).
             implementation(libs.paging.common)
             implementation(project(":core:common"))
@@ -35,6 +38,10 @@ kotlin {
             implementation(libs.mlkit.text.recognition)
             implementation(libs.coil3.compose)
             implementation(project(":feature:media"))
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

@@ -57,6 +57,13 @@ sealed interface TrackMilesAction {
 
     // Gauge
     data object ToggleGaugeMode : TrackMilesAction
+
+    // P-C.5: session-restore sheet outcomes.
+    data object RecoveryResume : TrackMilesAction
+
+    data object RecoverySaveFinish : TrackMilesAction
+
+    data object RecoveryDiscard : TrackMilesAction
 }
 
 sealed interface TrackMilesEffect {

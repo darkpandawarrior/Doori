@@ -58,6 +58,19 @@ class TrackingContextReceiver : BroadcastReceiver() {
                 Log.i(TAG, "Airplane mode: $enabled")
                 if (enabled) broadcastHardwareEvent(context, "Airplane Mode Enabled")
             }
+
+            // P-C.3: L4 — device is shutting down. The service may already be dead so we write
+            // a durable SharedPreferences flag instead of broadcasting to it. The service
+            // consumes and clears this flag once in restoreSession() after the next boot.
+            Intent.ACTION_SHUTDOWN -> {
+                Log.w(TAG, "Device shutdown — setting shutdown flag")
+                val prefs =
+                    context.getSharedPreferences(
+                        AndroidShutdownFlagStore.PREFS_NAME,
+                        Context.MODE_PRIVATE,
+                    )
+                AndroidShutdownFlagStore(prefs).set()
+            }
         }
     }
 

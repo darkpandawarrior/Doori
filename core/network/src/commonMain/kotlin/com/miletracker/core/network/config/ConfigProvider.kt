@@ -57,6 +57,9 @@ interface ConfigProvider {
     /** Default geofence radius in metres for geo check-in validation. */
     fun getGeoCheckInRadiusMeters(): Double = 100.0
 
+    /** Accuracy threshold (m) above which a GPS fix is persisted but not counted toward distance. */
+    fun getMaxAccuracyThresholdM(): Double = 50.0
+
     // ─── V15 gating surface (mirrors a remote splash/config API; env/BuildConfig-overridable) ───
 
     /** In-app update gate config. Default = disabled (force/flexible toggle lives in [UpdateConfig.mode]). */

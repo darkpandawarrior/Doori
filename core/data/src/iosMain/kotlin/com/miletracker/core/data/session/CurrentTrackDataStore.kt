@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 import platform.Foundation.NSTemporaryDirectory
 
-class CurrentTrackDataStore {
+class CurrentTrackDataStore : CurrentTrackDataSource {
     companion object {
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_IS_TRACKING = booleanPreferencesKey("is_tracking")
@@ -45,7 +45,7 @@ class CurrentTrackDataStore {
             produceFile = { (NSTemporaryDirectory() + "current_track_session.preferences_pb").toPath() },
         )
 
-    val currentTrackFlow: Flow<CurrentTrackData> =
+    override val currentTrackFlow: Flow<CurrentTrackData> =
         store.data.map { prefs ->
             CurrentTrackData(
                 token = prefs[KEY_TOKEN] ?: "",
@@ -73,7 +73,7 @@ class CurrentTrackDataStore {
             )
         }
 
-    suspend fun saveSession(data: CurrentTrackData) {
+    override suspend fun saveSession(data: CurrentTrackData) {
         store.edit { prefs ->
             prefs[KEY_TOKEN] = data.token
             prefs[KEY_IS_TRACKING] = data.isTracking
@@ -100,7 +100,7 @@ class CurrentTrackDataStore {
         }
     }
 
-    suspend fun updateDistance(
+    override suspend fun updateDistance(
         token: String,
         distanceMeters: Double,
         speed: Double,
@@ -116,7 +116,7 @@ class CurrentTrackDataStore {
         }
     }
 
-    suspend fun updateLocationCount(
+    override suspend fun updateLocationCount(
         token: String,
         total: Long,
         unsynced: Long,
@@ -129,7 +129,7 @@ class CurrentTrackDataStore {
         }
     }
 
-    suspend fun markPaused(
+    override suspend fun markPaused(
         token: String,
         lat: Double,
         lng: Double,
@@ -142,13 +142,13 @@ class CurrentTrackDataStore {
         }
     }
 
-    suspend fun markResumed(token: String) {
+    override suspend fun markResumed(token: String) {
         store.edit { prefs ->
             if (prefs[KEY_TOKEN] == token) prefs[KEY_IS_PAUSED] = false
         }
     }
 
-    suspend fun markStopped(
+    override suspend fun markStopped(
         token: String,
         endLat: Double,
         endLng: Double,
@@ -164,11 +164,11 @@ class CurrentTrackDataStore {
         }
     }
 
-    suspend fun clearSession() {
+    override suspend fun clearSession() {
         store.edit { it.clear() }
     }
 
-    suspend fun updateLastHardwareEvent(
+    override suspend fun updateLastHardwareEvent(
         token: String,
         eventText: String,
     ) {

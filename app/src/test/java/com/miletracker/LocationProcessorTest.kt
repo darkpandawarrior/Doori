@@ -15,8 +15,8 @@ import kotlin.test.assertTrue
  */
 class LocationProcessorTest {
 
-    private fun fix(lat: Double, lng: Double, t: Long, speed: Float = 11f, mock: Boolean = false) =
-        GpsFix(lat = lat, lng = lng, timeMs = t, speedMps = speed, isMock = mock)
+    private fun fix(lat: Double, lng: Double, t: Long, speed: Float = 11f, mock: Boolean = false, accuracy: Float = 10f) =
+        GpsFix(lat = lat, lng = lng, timeMs = t, speedMps = speed, isMock = mock, accuracyM = accuracy)
 
     @Test
     fun `haversine matches known distance`() {
@@ -27,7 +27,7 @@ class LocationProcessorTest {
 
     @Test
     fun `normal movement accumulates cleaned distance`() {
-        val proc = LocationProcessor()
+        val proc = LocationProcessor(enableKalman = false)
         val r0 = proc.process(fix(18.5000, 73.8, 0), isPaused = false)
         assertTrue(r0 != null) // first fix is the anchor and is still persisted
         val r1 = proc.process(fix(18.5010, 73.8, 10_000), isPaused = false)
@@ -64,7 +64,7 @@ class LocationProcessorTest {
     @Test
     fun `O3 - IMU stillness suppresses sub-gate jitter even with recent movement history`() {
         fun seeded(): LocationProcessor {
-            val p = LocationProcessor()
+            val p = LocationProcessor(enableKalman = false)
             // Sustained movement (speed 2 m/s, ~111 m steps) → hasMovementHistory() is true.
             p.process(fix(18.5000, 73.8, 0, speed = 2f), isPaused = false)
             p.process(fix(18.5010, 73.8, 10_000, speed = 2f), isPaused = false)
@@ -98,7 +98,7 @@ class LocationProcessorTest {
 
     @Test
     fun `mock location is tracked separately from cleaned distance`() {
-        val proc = LocationProcessor()
+        val proc = LocationProcessor(enableKalman = false)
         proc.process(fix(18.5000, 73.8, 0), isPaused = false)
         proc.process(fix(18.5010, 73.8, 10_000), isPaused = false)
         val cleanedBefore = proc.cleanedDistanceM
@@ -130,6 +130,7 @@ class LocationProcessorTest {
     @Test
     fun `seeded processor accumulates new movement on top of persisted distance`() {
         val proc = LocationProcessor(
+            enableKalman = false,
             initialStats = TrackStats(
                 totalPoints = 40,
                 originalDistanceM = 5_000.0,
@@ -154,7 +155,7 @@ class LocationProcessorTest {
 
     @Test
     fun `paused points do not add to cleaned distance`() {
-        val proc = LocationProcessor()
+        val proc = LocationProcessor(enableKalman = false)
         proc.process(fix(18.5000, 73.8, 0), isPaused = false)
         val paused = proc.process(fix(18.5010, 73.8, 10_000), isPaused = true)
         assertTrue(paused != null)
@@ -210,7 +211,7 @@ class LocationProcessorTest {
 
     @Test
     fun `consecutive-normal count resets on a spike and recovers`() {
-        val proc = LocationProcessor()
+        val proc = LocationProcessor(enableKalman = false)
         proc.process(fix(18.5000, 73.8, 0), isPaused = false)
         proc.process(fix(18.5010, 73.8, 10_000), isPaused = false) // normal
         proc.process(fix(18.5020, 73.8, 20_000), isPaused = false) // normal → count 2
@@ -248,7 +249,7 @@ class LocationProcessorTest {
 
     @Test
     fun `kalman disabled persists raw coordinates`() {
-        val proc = LocationProcessor() // enableKalman defaults to false
+        val proc = LocationProcessor(enableKalman = false)
         val r = proc.process(fix(18.5000, 73.8, 0), isPaused = false)
         assertEquals(18.5000, r!!.location.lat, 1e-9)
         assertEquals(73.8, r.location.lng, 1e-9)

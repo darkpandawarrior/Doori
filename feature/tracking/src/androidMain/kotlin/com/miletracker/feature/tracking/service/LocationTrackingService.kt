@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.BatteryManager
@@ -28,6 +29,7 @@ import com.miletracker.core.platform.MotionFusion
 import com.miletracker.core.platform.MotionReading
 import com.miletracker.core.platform.Vector3
 import com.miletracker.feature.tracking.TrackMilesActivity
+import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.service.location.ActivityRecognizer
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
@@ -70,6 +72,13 @@ class LocationTrackingService : Service() {
     private val hardwareEventDao: HardwareEventDao by inject()
     private val sessionStore: CurrentTrackDataStore by inject()
     private val demoSettings: DemoSettingsRepository by inject()
+    private val configManager: com.miletracker.feature.tracking.manager.TrackingConfigManager by inject()
+
+    // P-C.3: consume the shutdown flag once per boot.
+    private val shutdownFlagPolicy: ShutdownFlagPolicy by lazy {
+        val prefs = getSharedPreferences(AndroidShutdownFlagStore.PREFS_NAME, Context.MODE_PRIVATE)
+        ShutdownFlagPolicy(AndroidShutdownFlagStore(prefs), SavedTrackRepository(savedTrackDao))
+    }
 
     // G6: persisted opt-in for the live Kalman smoother. Collected continuously so the
     // customization toggle takes effect from the next trip start (the smoother is fixed for the
@@ -214,13 +223,42 @@ class LocationTrackingService : Service() {
      */
     private fun restoreSession(intentToken: String?) {
         if (activeToken != null) return // already tracking: duplicate restore, ignore
+        val isSystemRelaunch = intentToken == null // null intent = OS-killed sticky restart (L2)
         scope.launch {
             val session = sessionStore.currentTrackFlow.first()
             val token = intentToken?.takeIf { it.isNotEmpty() } ?: session.token
             val resumable = session.isTracking && token.isNotEmpty() && token == session.token
+            // P-A.4: reconcile DataStore point-counter against DB before seeding the processor
+            // so resume-from-kill sessions start with accurate totalPoints.
+            val reconciledSession =
+                if (resumable) {
+                    val dbCount = locationDao.countLocationsByToken(token).toLong()
+                    val result = CounterReconcilePolicy.reconcile(session.totalLocationPoints, dbCount)
+                    if (result.isDiverged) {
+                        sessionStore.updateLocationCount(token, result.dbCount, result.dbCount)
+                        session.copy(totalLocationPoints = result.dbCount)
+                    } else {
+                        session
+                    }
+                } else {
+                    session
+                }
+            if (resumable && isSystemRelaunch) {
+                // P-C.2: OS redelivered a null intent → FGS was terminated. Write the flag and
+                // log the event so the quality scorer and UI know about the gap.
+                savedTrackDao.markFgTerminated(token)
+                logEventSuspend(token, EventType.SYSTEM_RECOVERY, "FGS terminated + relaunched by OS")
+            }
+            if (resumable) {
+                // P-C.3: consume the shutdown flag if a previous boot wrote it.
+                val wasShutDown = shutdownFlagPolicy.consumeAndMark(token)
+                if (wasShutDown) {
+                    logEventSuspend(token, EventType.PHONE_RESTART, "Phone restarted after shutdown")
+                }
+            }
             withContext(Dispatchers.Main) {
                 if (resumable) {
-                    startTracking(token, resumeFrom = session)
+                    startTracking(token, resumeFrom = reconciledSession)
                 } else {
                     leaveForegroundAndStop()
                 }
@@ -244,6 +282,8 @@ class LocationTrackingService : Service() {
                 initialStats = resumeFrom?.let { seedStats(it) },
                 // G6: route live fixes through the Kalman smoother when the user has opted in.
                 enableKalman = enableKalman,
+                // P-A.1: per-deployment accuracy gate; default 50 m from ConfigProvider.
+                maxAccuracyThreshold = configManager.getMaxAccuracyThresholdM(),
             )
 
         acquireWakeLock()
@@ -436,6 +476,20 @@ class LocationTrackingService : Service() {
         isPaused = paused
         // C.2g: open the resume grace window on resume, close it on pause.
         resumeAtMs = if (paused) 0L else System.currentTimeMillis()
+        // P-A.3: reset Kalman on resume so stale pre-pause filter state doesn't distort the new segment.
+        if (!paused) processor?.resetKalman()
+        // P-A.4: background counter reconciliation on resume — corrects any drift while paused.
+        if (!paused) {
+            val resumeToken = token
+            scope.launch(dbDispatcher) {
+                val dbCount = locationDao.countLocationsByToken(resumeToken).toLong()
+                val current = sessionStore.currentTrackFlow.first()
+                val result = CounterReconcilePolicy.reconcile(current.totalLocationPoints, dbCount)
+                if (result.isDiverged) {
+                    sessionStore.updateLocationCount(resumeToken, result.dbCount, result.dbCount)
+                }
+            }
+        }
         logEvent(
             token,
             if (paused) EventType.TRACKING_PAUSED else EventType.TRACKING_RESUMED,
@@ -461,10 +515,24 @@ class LocationTrackingService : Service() {
             val stats = proc.stats()
             val endTime = System.currentTimeMillis()
             scope.launch(dbDispatcher) {
+                // P-A.2: recompute authoritative cleanedDistance from persisted DB points
+                // (consecutive-Haversine excluding isAbnormal/isMock/isPaused). Fall back to
+                // in-memory stats when no points are in the DB yet (extremely short trip or error).
+                val dbPoints = locationDao.getLocationsByTokenOnce(token)
+                val finalCleanedDistanceM =
+                    if (dbPoints.isNotEmpty()) {
+                        com.miletracker.feature.tracking.service.location.DistanceCalculator
+                            .computeCleanedDistance(dbPoints)
+                    } else {
+                        stats.cleanedDistanceM
+                    }
+                // P-A.4: DB row count is the authoritative finalizer for totalLocationPoints.
+                val finalTotalPoints =
+                    if (dbPoints.isNotEmpty()) dbPoints.size.toLong() else stats.totalPoints.toLong()
                 savedTrackDao.finalizeTrack(
                     routeId = token,
                     endTime = endTime,
-                    finalDistance = stats.cleanedDistanceM,
+                    finalDistance = finalCleanedDistanceM,
                     avgSpeed = stats.avgSpeedMps,
                     maxSpeed = stats.maxSpeedMps,
                 )
@@ -474,11 +542,11 @@ class LocationTrackingService : Service() {
                         t.copy(
                             duration = endTime - startTime,
                             originalDistance = stats.originalDistanceM,
-                            cleanedDistance = stats.cleanedDistanceM,
+                            cleanedDistance = finalCleanedDistanceM,
                             abnormalDistance = stats.abnormalDistanceM,
                             mockDistance = stats.mockDistanceM,
-                            smartDistanceFinal = stats.cleanedDistanceM,
-                            totalLocationPoints = stats.totalPoints.toLong(),
+                            smartDistanceFinal = finalCleanedDistanceM,
+                            totalLocationPoints = finalTotalPoints,
                             avgSpeed = stats.avgSpeedMps,
                             maxSpeed = stats.maxSpeedMps,
                             wasMockLocationUsed = stats.mockDistanceM > 0.0,
@@ -656,6 +724,21 @@ class LocationTrackingService : Service() {
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    // P-C.1: L1 — user swiped the app from recents while the FGS was running. The service is NOT
+    // destroyed immediately on Android 8+; it gets another onStartCommand (START_STICKY) first.
+    // We mark the trip record NOW so any subsequent reconciliation knows the session was killed,
+    // rather than stopping cleanly, and can deduct the quality score accordingly.
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        val token = activeToken
+        if (token != null) {
+            scope.launch(dbDispatcher) {
+                savedTrackDao.markAppKilled(token)
+                logEventSuspend(token, EventType.APP_KILLED, "App Killed — task removed by user")
+            }
+        }
+        super.onTaskRemoved(rootIntent)
+    }
 
     override fun onDestroy() {
         source?.stop()

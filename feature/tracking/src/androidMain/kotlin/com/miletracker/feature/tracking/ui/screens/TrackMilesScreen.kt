@@ -395,6 +395,17 @@ fun TrackMilesScreen(
                 onDismiss = { viewModel.onAction(TrackMilesAction.DismissSheet) },
             )
 
+        // P-C.5: session-restore sheet — shown when a prior session was interrupted.
+        TrackSheet.SESSION_RESTORE ->
+            uiState.activeRecovery?.let { recovery ->
+                com.miletracker.feature.tracking.ui.sheets.SessionRestoreBottomSheet(
+                    config = recovery,
+                    onResume = { viewModel.onAction(TrackMilesAction.RecoveryResume) },
+                    onSaveFinish = { viewModel.onAction(TrackMilesAction.RecoverySaveFinish) },
+                    onDiscard = { viewModel.onAction(TrackMilesAction.RecoveryDiscard) },
+                )
+            }
+
         TrackSheet.NONE -> Unit
     }
 

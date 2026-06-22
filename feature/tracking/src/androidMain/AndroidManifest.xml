@@ -43,6 +43,8 @@
                 <action android:name="android.location.PROVIDERS_CHANGED" />
                 <action android:name="android.intent.action.BATTERY_LOW" />
                 <action android:name="android.intent.action.AIRPLANE_MODE" />
+                <!-- P-C.3: L4 — device shutdown while tracking active. -->
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
             </intent-filter>
         </receiver>
     </application>

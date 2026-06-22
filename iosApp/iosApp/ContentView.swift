@@ -12,7 +12,7 @@ struct ContentView: View {
 /// Bridges Compose Multiplatform's UIViewController into SwiftUI.
 private struct ComposeViewControllerRepresentable: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.MainViewController()
+        IosTrackingEntryKt.MilwayViewController()
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}

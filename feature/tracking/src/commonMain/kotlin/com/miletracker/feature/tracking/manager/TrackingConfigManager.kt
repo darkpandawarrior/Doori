@@ -41,4 +41,6 @@ class TrackingConfigManager(private val configProvider: ConfigProvider) {
     fun getVendorCenters(): List<VendorCenter> = configProvider.getVendorCenters()
 
     fun getGeoCheckInRadiusMeters(): Double = configProvider.getGeoCheckInRadiusMeters()
+
+    fun getMaxAccuracyThresholdM(): Double = configProvider.getMaxAccuracyThresholdM()
 }

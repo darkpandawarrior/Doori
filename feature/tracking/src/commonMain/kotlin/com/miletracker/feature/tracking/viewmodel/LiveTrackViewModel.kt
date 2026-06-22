@@ -1,6 +1,5 @@
 package com.miletracker.feature.tracking.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.CurrentTrackData
 import com.miletracker.core.data.model.db.LocationData
@@ -8,6 +7,7 @@ import com.miletracker.core.data.state.UiState
 import com.miletracker.core.ui.mvi.BaseViewModel
 import com.miletracker.feature.tracking.repository.CurrentTrackRepository
 import com.miletracker.feature.tracking.repository.LocationRepository
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,7 +64,7 @@ class LiveTrackViewModel(
             try {
                 loadCurrentTrackData()
             } catch (e: Exception) {
-                Log.e(TAG, "Error initializing tracking data", e)
+                Napier.e("Error initializing tracking data", e, tag = TAG)
                 mutableTrackState.value = UiState.Error("Failed to initialize: ${e.message}")
             }
         }
@@ -117,7 +117,7 @@ class LiveTrackViewModel(
                 }
             },
             onFailure = { e ->
-                Log.e(TAG, "Failed to load track data", e)
+                Napier.e("Failed to load track data", e, tag = TAG)
                 mutableTrackState.value = UiState.Error("Failed to load: ${e.message}")
             },
         )
@@ -181,7 +181,7 @@ class LiveTrackViewModel(
                 currentTrackRepository.getHardwareEventQueueSnapshot()
                     .onSuccess { setState { copy(hardwareEventsState = it) } }
             },
-            onFailure = { Log.w(TAG, "Refresh failed") },
+            onFailure = { Napier.w("Refresh failed", tag = TAG) },
         )
     }
 

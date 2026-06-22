@@ -8,6 +8,7 @@ import com.miletracker.core.data.dao.LogMilesFrequentRouteDao
 import com.miletracker.core.data.dao.SavedTrackDao
 import com.miletracker.core.data.dao.TripAttachmentDao
 import com.miletracker.core.data.library.MediaLibraryDao
+import com.miletracker.core.data.session.CurrentTrackDataSource
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.ui.di.coreUiModule
 import com.miletracker.feature.agent.di.agentModule
@@ -87,6 +88,7 @@ class KoinGraphTest : KoinTest {
         single<TripAttachmentDao> { mockk(relaxed = true) }
         single<MediaLibraryDao> { mockk(relaxed = true) }
         single<CurrentTrackDataStore> { mockk(relaxed = true) }
+        single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
         single<DemoSettingsRepository> { mockk(relaxed = true) }
         single<NotificationScheduler> { mockk(relaxed = true) }
     }

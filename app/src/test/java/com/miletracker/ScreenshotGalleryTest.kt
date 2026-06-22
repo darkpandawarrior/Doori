@@ -17,6 +17,7 @@ import com.miletracker.core.data.dao.TripAttachmentDao
 import com.miletracker.core.data.library.MediaLibraryDao
 import com.miletracker.core.data.library.MediaLibraryEntry
 import com.miletracker.core.data.model.db.SavedTrack
+import com.miletracker.core.data.session.CurrentTrackDataSource
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.data.settings.DemoSettingsRepository
 import com.miletracker.core.maps.MapSurface
@@ -224,6 +225,7 @@ class ScreenshotGalleryTest {
             single<TripAttachmentDao> { mockk(relaxed = true) }
             single<MediaLibraryDao> { mediaLibraryDao }
             single<CurrentTrackDataStore> { mockk(relaxed = true) }
+            single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
             single<DemoSettingsRepository> { mockk(relaxed = true) }
             // Map screens (GeoCheckIn, LocationMap, LiveTrack, LogMiles thumbnail) inject
             // MapSurface; the real flavor surfaces need GMS / MapLibre native, so use a

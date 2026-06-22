@@ -38,4 +38,13 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
     suspend fun count(): Long = dao.count()
 
     suspend fun getActiveTrack(): SavedTrack? = dao.getActiveTrack()
+
+    // P-C.1: write wasAppKilled=true + increment appKilledCount; returns rows updated (0 if track not found).
+    suspend fun markAppKilled(routeId: String): Int = dao.markAppKilled(routeId)
+
+    // P-C.2: write foregroundServiceTerminated=true + increment count; returns rows updated.
+    suspend fun markFgTerminated(routeId: String): Int = dao.markFgTerminated(routeId)
+
+    // P-C.3: write wasPhoneShutDown=true; returns rows updated.
+    suspend fun markPhoneShutDown(routeId: String): Int = dao.markPhoneShutDown(routeId)
 }

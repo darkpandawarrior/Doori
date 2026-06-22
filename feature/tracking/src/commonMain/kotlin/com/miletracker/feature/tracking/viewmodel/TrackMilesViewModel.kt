@@ -1,6 +1,5 @@
 package com.miletracker.feature.tracking.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.miletracker.core.data.model.db.SavedTrack
@@ -12,21 +11,29 @@ import com.miletracker.core.platform.OfflineLocationNameResolver
 import com.miletracker.core.platform.PlaceName
 import com.miletracker.core.ui.mvi.BaseViewModel
 import com.miletracker.feature.tracking.checkin.CheckInValidator.CheckInLocation
-import com.miletracker.feature.tracking.manager.LocationTrackingController
 import com.miletracker.feature.tracking.manager.TrackingConfigManager
+import com.miletracker.feature.tracking.manager.TrackingController
 import com.miletracker.feature.tracking.repository.CurrentTrackRepository
 import com.miletracker.feature.tracking.repository.LocationRepository
 import com.miletracker.feature.tracking.repository.SavedTrackRepository
 import com.miletracker.feature.tracking.repository.VehiclePricingRepository
+import com.miletracker.feature.tracking.service.ReconciliationResultHolder
+import com.miletracker.feature.tracking.service.SessionReconciliationPolicy
 import com.miletracker.feature.tracking.service.TrackingServiceApi
 import com.miletracker.feature.tracking.service.TrackingStatePublisher
 import com.miletracker.feature.tracking.ui.sheets.JourneyGuideStep
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.util.UUID
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.math.roundToLong
+import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 enum class TrackMilesPhase { IDLE, TRACKING, PAUSED, STOPPED, SUBMITTED }
 
@@ -37,7 +44,15 @@ enum class TrackSignal { GOOD, FAIR, POOR }
 enum class HeroGaugeMode { COMPASS, ACTIVITY }
 
 /** Which bottom sheet (if any) the tracking screen is currently presenting. */
-enum class TrackSheet { NONE, JOURNEY_GUIDE, VEHICLE_PICKER, VENDOR_PICKER, PAUSE, RESUME, CONSENT }
+enum class TrackSheet { NONE, JOURNEY_GUIDE, VEHICLE_PICKER, VENDOR_PICKER, PAUSE, RESUME, CONSENT, SESSION_RESTORE }
+
+/** P-C.5: data surfaced in the session-restore bottom sheet. */
+data class RecoverySheetConfig(
+    val token: String,
+    val distanceKm: Double,
+    val durationMs: Long,
+    val interruptReason: String,
+)
 
 @Stable
 data class TrackMilesUiState(
@@ -82,6 +97,7 @@ data class TrackMilesUiState(
     val pauseReason: String? = null,
     // ── Start-flow / sheet orchestration (single-source-of-truth in the VM) ──────
     val activeSheet: TrackSheet = TrackSheet.NONE,
+    val activeRecovery: RecoverySheetConfig? = null,
     val vehicleQuery: String = "",
     val vendorQuery: String = "",
     val startOdometer: Int? = null,
@@ -112,7 +128,7 @@ class TrackMilesViewModel(
     private val configManager: TrackingConfigManager,
     private val vehicleRepo: VehiclePricingRepository,
     private val trackRepo: SavedTrackRepository,
-    private val trackingController: LocationTrackingController,
+    private val trackingController: TrackingController,
     private val currentTrackRepo: CurrentTrackRepository,
     private val locationRepo: LocationRepository,
     private val geoCheckInLocations: List<CheckInLocation> = emptyList(),
@@ -123,6 +139,8 @@ class TrackMilesViewModel(
     // so JVM tests (and any graph that omits platformModule) still resolve real-looking names without
     // a network; Koin injects the bound LocationNameResolver in production.
     private val locationNameResolver: LocationNameResolver = OfflineLocationNameResolver(),
+    // P-C.5: bridge from app-startup reconciliation to this ViewModel. Null in JVM tests.
+    private val reconciliationHolder: ReconciliationResultHolder? = null,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -142,6 +160,7 @@ class TrackMilesViewModel(
         observeTrackingState()
         restoreActiveTrack()
         loadWeekSummary()
+        observeReconciliationResult()
     }
 
     /** Routes screen intents to the handlers below (handlers stay public for unit tests). */
@@ -170,6 +189,10 @@ class TrackMilesViewModel(
             TrackMilesAction.StopTracking -> stopTracking()
             TrackMilesAction.DiscardTracking -> discardTracking()
             TrackMilesAction.ToggleGaugeMode -> toggleGaugeMode()
+            // P-C.5: restore-sheet outcomes.
+            TrackMilesAction.RecoveryResume -> handleRecoveryResume()
+            TrackMilesAction.RecoverySaveFinish -> handleRecoverySaveFinish()
+            TrackMilesAction.RecoveryDiscard -> handleRecoveryDiscard()
         }
     }
 
@@ -359,14 +382,14 @@ class TrackMilesViewModel(
     private fun loadWeekSummary() {
         trackRepo.completedTracksFlow()
             .onEach { tracks ->
-                val weekStartMs = System.currentTimeMillis() - 7L * 24 * 3_600_000
+                val weekStartMs = Clock.System.now().toEpochMilliseconds() - 7L * 24 * 3_600_000
                 val thisWeek = tracks.filter { it.endTime >= weekStartMs }
                 val totalKm = thisWeek.sumOf { it.distanceKm }
                 val text =
                     if (thisWeek.isEmpty()) {
                         "No journeys this week"
                     } else {
-                        "This Week: ${thisWeek.size} trip${if (thisWeek.size != 1) "s" else ""} • ${"%.1f".format(totalKm)} km"
+                        "This Week: ${thisWeek.size} trip${if (thisWeek.size != 1) "s" else ""} • ${totalKm.fmt1()} km"
                     }
                 setState { copy(weekSummaryText = text) }
             }
@@ -379,7 +402,7 @@ class TrackMilesViewModel(
                 .onSuccess { vehicles ->
                     setState { copy(vehicles = vehicles, selectedVehicle = vehicles.firstOrNull()) }
                 }
-                .onFailure { Log.w("TrackMilesVM", "Failed to load vehicles", it) }
+                .onFailure { Napier.w("Failed to load vehicles", it, tag = "TrackMilesVM") }
         }
     }
 
@@ -405,15 +428,21 @@ class TrackMilesViewModel(
         setState { copy(selectedVehicle = vehicle) }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     fun startTracking() {
         val vehicle = currentState.selectedVehicle ?: return
-        val routeId = UUID.randomUUID().toString()
-        val now = System.currentTimeMillis()
+        val routeId = Uuid.random().toString()
+        val now = Clock.System.now().toEpochMilliseconds()
+        val dt =
+            kotlin.time.Instant.fromEpochMilliseconds(now)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+        val mon = dt.month.name.take(3).let { it[0].uppercase() + it.substring(1).lowercase() }
+        val hhmm = "${dt.hour.toString().padStart(2, '0')}:${dt.minute.toString().padStart(2, '0')}"
         viewModelScope.launch {
             val track =
                 SavedTrack(
                     routeId = routeId,
-                    name = "Journey ${java.text.SimpleDateFormat("dd MMM HH:mm", java.util.Locale.getDefault()).format(java.util.Date(now))}",
+                    name = "Journey ${dt.dayOfMonth} $mon $hhmm",
                     startLatitude = 0.0, startLongitude = 0.0,
                     endLatitude = 0.0, endLongitude = 0.0,
                     pausedLatitude = 0.0, pausedLongitude = 0.0,
@@ -471,7 +500,7 @@ class TrackMilesViewModel(
     fun stopTracking() {
         currentState.currentRouteId?.let { trackingController.stop(it) }
         liveObserveJob?.cancel()
-        setState { copy(phase = TrackMilesPhase.STOPPED, endTime = System.currentTimeMillis()) }
+        setState { copy(phase = TrackMilesPhase.STOPPED, endTime = Clock.System.now().toEpochMilliseconds()) }
     }
 
     fun updateDistance(km: Double) {
@@ -486,6 +515,50 @@ class TrackMilesViewModel(
         setState { TrackMilesUiState(config = config, vehicles = vehicles, selectedVehicle = selectedVehicle) }
     }
 
+    // ── P-C.5: session-restore sheet ─────────────────────────────────────────
+
+    private fun observeReconciliationResult() {
+        reconciliationHolder?.outcome
+            ?.onEach { outcome ->
+                if (outcome is SessionReconciliationPolicy.Outcome.NeedsDecision) {
+                    val config =
+                        RecoverySheetConfig(
+                            token = outcome.token,
+                            distanceKm = outcome.session.distance / 1_000.0,
+                            durationMs = Clock.System.now().toEpochMilliseconds() - outcome.session.startTime,
+                            interruptReason = outcome.reason,
+                        )
+                    setState { copy(activeSheet = TrackSheet.SESSION_RESTORE, activeRecovery = config) }
+                    reconciliationHolder.consume()
+                }
+            }
+            ?.launchIn(viewModelScope)
+    }
+
+    fun handleRecoveryResume() {
+        val config = currentState.activeRecovery ?: return
+        trackingController.start(config.token)
+        setState { copy(activeSheet = TrackSheet.NONE, activeRecovery = null, phase = TrackMilesPhase.TRACKING, currentRouteId = config.token) }
+    }
+
+    fun handleRecoverySaveFinish() {
+        val config = currentState.activeRecovery ?: return
+        viewModelScope.launch {
+            trackRepo.getByRouteId(config.token)?.let { track ->
+                trackRepo.update(track.copy(isCompleted = true, endTime = Clock.System.now().toEpochMilliseconds()))
+            }
+        }
+        setState { copy(activeSheet = TrackSheet.NONE, activeRecovery = null) }
+    }
+
+    fun handleRecoveryDiscard() {
+        val config = currentState.activeRecovery ?: return
+        viewModelScope.launch {
+            trackingController.stop(config.token)
+        }
+        setState { copy(activeSheet = TrackSheet.NONE, activeRecovery = null) }
+    }
+
     override fun onCleared() {
         liveObserveJob?.cancel()
         sessionObserveJob?.cancel()
@@ -495,6 +568,14 @@ class TrackMilesViewModel(
     }
 
     private companion object {
+        /** KMP-safe 1-decimal-place double formatter (no String.format, works on all targets). */
+        fun Double.fmt1(): String {
+            val scaled = (this * 10).roundToLong()
+            val intPart = scaled / 10
+            val fracPart = (scaled % 10).let { if (it < 0) -it else it }
+            return "$intPart.$fracPart"
+        }
+
         /** Great-circle initial bearing (degrees, 0–360) between two fixes. */
         fun headingBetween(
             a: com.miletracker.core.data.model.db.LocationData,

@@ -6,17 +6,17 @@ import androidx.core.content.ContextCompat
 import com.miletracker.feature.tracking.service.LocationTrackingService
 
 /**
- * Thin façade the ViewModel uses to drive [LocationTrackingService] without touching Android
- * Intent/Context plumbing directly. Held as a Koin singleton with the application context.
+ * Android implementation of [TrackingController]: drives [LocationTrackingService] via Intent
+ * dispatch without exposing Context to the ViewModel. Held as a Koin singleton.
  */
-class LocationTrackingController(private val context: Context) {
-    fun start(token: String) = send(LocationTrackingService.ACTION_START, token, foreground = true)
+class LocationTrackingController(private val context: Context) : TrackingController {
+    override fun start(token: String) = send(LocationTrackingService.ACTION_START, token, foreground = true)
 
-    fun pause(token: String) = send(LocationTrackingService.ACTION_PAUSE, token)
+    override fun pause(token: String) = send(LocationTrackingService.ACTION_PAUSE, token)
 
-    fun resume(token: String) = send(LocationTrackingService.ACTION_RESUME, token)
+    override fun resume(token: String) = send(LocationTrackingService.ACTION_RESUME, token)
 
-    fun stop(token: String) = send(LocationTrackingService.ACTION_STOP, token)
+    override fun stop(token: String) = send(LocationTrackingService.ACTION_STOP, token)
 
     private fun send(
         action: String,

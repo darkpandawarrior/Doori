@@ -7,6 +7,7 @@ import com.miletracker.core.data.model.display.SnapshotPublisher
 import com.miletracker.core.data.outbox.RoomSubmitOutbox
 import com.miletracker.core.data.outbox.SubmitOutbox
 import com.miletracker.core.data.outbox.TripDraft
+import com.miletracker.core.data.session.CurrentTrackDataSource
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.data.session.SessionRepository
 import com.miletracker.core.data.settings.DemoSettingsRepository
@@ -25,6 +26,7 @@ val coreDataModule =
         single { get<MileTrackerDatabase>().mediaLibraryDao() }
         single { get<MileTrackerDatabase>().submitDraftDao() }
         single { CurrentTrackDataStore() }
+        single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
         single { SessionRepository() }
         single { DemoSettingsRepository() }
         single { Json { ignoreUnknownKeys = true } }

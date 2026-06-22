@@ -2,6 +2,7 @@ package com.miletracker.feature.tracking.service
 
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.display.TrackingState
+import kotlin.math.roundToLong
 
 /** C.2d: the seven foreground-notification kinds the tracking session can surface. */
 enum class TrackingNotificationType {
@@ -45,7 +46,7 @@ object TrackingNotificationMapper {
                 content(
                     TrackingNotificationType.TRIP_COMPLETE,
                     "Journey complete",
-                    "%.2f km recorded · tap to review".format(km),
+                    "${km.fmt2()} km recorded · tap to review",
                     ongoing = false,
                     deepLink = TRACK_DEEP_LINK,
                 )
@@ -67,24 +68,32 @@ object TrackingNotificationMapper {
                 content(
                     TrackingNotificationType.GPS_DISABLED,
                     "GPS unavailable",
-                    "Waiting for a GPS signal · %.2f km".format(km),
+                    "Waiting for a GPS signal · ${km.fmt2()} km",
                     ongoing = true,
                 )
             snapshot.state == TrackingState.PAUSED ->
                 content(
                     TrackingNotificationType.PAUSED,
                     "Tracking paused",
-                    "%.2f km recorded · tap to resume".format(km),
+                    "${km.fmt2()} km recorded · tap to resume",
                     ongoing = true,
                 )
             else ->
                 content(
                     TrackingNotificationType.ACTIVE,
                     "Tracking active",
-                    "%.2f km · %.0f km/h".format(km, kmh),
+                    "${km.fmt2()} km · ${kmh.roundToLong()} km/h",
                     ongoing = true,
                 )
         }
+    }
+
+    /** Two-decimal string for a Double — KMP-safe, avoids JVM-only String.format. */
+    private fun Double.fmt2(): String {
+        val scaled = (this * 100).roundToLong()
+        val intPart = scaled / 100
+        val fracPart = (scaled % 100).let { if (it < 0) -it else it }
+        return "$intPart.${fracPart.toString().padStart(2, '0')}"
     }
 
     /** Standalone copy for the worker-driven auto-discard notice (not derivable from a live snapshot). */

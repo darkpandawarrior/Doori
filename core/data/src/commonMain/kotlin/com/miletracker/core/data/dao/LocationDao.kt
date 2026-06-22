@@ -13,6 +13,9 @@ interface LocationDao {
     @Query("SELECT * FROM locations WHERE token = :token ORDER BY date ASC")
     fun getLocationsByToken(token: String): Flow<List<LocationData>>
 
+    @Query("SELECT * FROM locations WHERE token = :token ORDER BY date ASC")
+    suspend fun getLocationsByTokenOnce(token: String): List<LocationData>
+
     @Query("SELECT * FROM locations WHERE token = :token ORDER BY date ASC LIMIT :limit OFFSET :offset")
     suspend fun getLocationsByTokenPaged(
         token: String,

@@ -201,4 +201,16 @@ interface SavedTrackDao {
 
     @Query("UPDATE saved_tracks SET has_local_data = 0 WHERE routeId = :routeId")
     suspend fun markLocalDataPurged(routeId: String)
+
+    // P-C.1: L1 flag — set when the user swipes the app from recents while tracking.
+    @Query("UPDATE saved_tracks SET wasAppKilled = 1, appKilledCount = appKilledCount + 1 WHERE routeId = :routeId")
+    suspend fun markAppKilled(routeId: String): Int
+
+    // P-C.2: L2 flag — set when the OS terminates the FGS and relaunches it (sticky restart / bg relaunch).
+    @Query("UPDATE saved_tracks SET foregroundServiceTerminated = 1, foregroundServiceTerminatedCount = foregroundServiceTerminatedCount + 1 WHERE routeId = :routeId")
+    suspend fun markFgTerminated(routeId: String): Int
+
+    // P-C.3: L4 flag — set when the device shuts down while the session is active.
+    @Query("UPDATE saved_tracks SET wasPhoneShutDown = 1 WHERE routeId = :routeId")
+    suspend fun markPhoneShutDown(routeId: String): Int
 }
