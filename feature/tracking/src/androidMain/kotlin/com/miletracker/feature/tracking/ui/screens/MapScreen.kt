@@ -586,6 +586,7 @@ fun EnhancedLiveTrackingUI(
             showIssueMarkers = showIssues,
             showCompass = showCompass,
             showTraffic = showTraffic,
+            offlineTiles = showOfflineTiles,
             modifier = Modifier.fillMaxSize(),
         )
 

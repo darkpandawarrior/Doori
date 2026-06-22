@@ -43,6 +43,7 @@ class FakeMapSurface : MapSurface {
         showIssueMarkers: Boolean,
         showCompass: Boolean,
         showTraffic: Boolean,
+        offlineTiles: Boolean,
         modifier: Modifier,
     ) {
         Box(modifier)

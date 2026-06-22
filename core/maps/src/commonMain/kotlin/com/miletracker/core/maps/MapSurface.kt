@@ -41,6 +41,8 @@ interface MapSurface {
      * @param autoCenterEnabled When true the camera tracks [currentLat]/[currentLng].
      * @param playbackCoord    Current playback cursor position, or null when not in playback mode.
      * @param showIssueMarkers When true [filteredCoords] and [abnormalCoords] are rendered.
+     * @param offlineTiles     When true, render from the bundled offline MBTiles pack instead of network
+     *                         tiles (honoured by the MapLibre surface; ignored by provider-tiled surfaces).
      */
     @Composable
     fun LiveTrackMap(
@@ -57,6 +59,7 @@ interface MapSurface {
         showIssueMarkers: Boolean,
         showCompass: Boolean = true,
         showTraffic: Boolean = false,
+        offlineTiles: Boolean = false,
         modifier: Modifier = Modifier,
     )
 }
