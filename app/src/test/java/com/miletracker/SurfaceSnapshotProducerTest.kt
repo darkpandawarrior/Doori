@@ -59,4 +59,30 @@ class SurfaceSnapshotProducerTest {
         assertEquals(0, snap.todayTrips)
         assertEquals(0.0, snap.todayDistanceKm, 0.001)
     }
+
+    @Test
+    fun `L1 - enriches with action-required count, last-trip label, and goal progress`() {
+        val tracks =
+            listOf(
+                track("Morning commute", nowMs - 3_600_000, 5_000.0).copy(serverUploaded = false), // needs action
+                track("Site visit", nowMs - 2 * dayMs, 45_000.0).copy(serverUploaded = true), // submitted
+            )
+        val snap =
+            SurfaceSnapshotProducer.produce(
+                completedTracks = tracks,
+                isTracking = true,
+                nowEpochMs = nowMs,
+                timeZone = TimeZone.UTC,
+                isPaused = true,
+                qualityScore = 72,
+                weekGoalKm = 100.0,
+            )
+
+        assertEquals(1, snap.actionRequiredCount) // only the not-uploaded one
+        assertEquals("Morning commute", snap.lastTripLabel) // most recent by endTime
+        assertEquals(true, snap.isPaused)
+        assertEquals(72, snap.qualityScore)
+        // 50 km this week / 100 km goal = 0.5
+        assertEquals(0.5, snap.weekGoalProgress.toDouble(), 0.001)
+    }
 }

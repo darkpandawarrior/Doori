@@ -95,10 +95,23 @@ fun MileageSummaryContent(snapshot: SurfaceSnapshot) {
             text = "Week    ${format1(snapshot.weekDistanceKm)} km · ${snapshot.weekTrips} trips",
             style = TextStyle(color = ColorProvider(OnSurfaceColor), fontSize = 14.sp),
         )
+        Spacer(GlanceModifier.height(4.dp))
+        // L.1: weekly-goal progress from the enriched snapshot.
+        Text(
+            text = "Goal    ${(snapshot.weekGoalProgress * 100).toInt()}% of ${format1(snapshot.weekGoalKm)} km",
+            style = TextStyle(color = ColorProvider(OnSurfaceColor), fontSize = 13.sp),
+        )
+        if (snapshot.actionRequiredCount > 0) {
+            Spacer(GlanceModifier.height(4.dp))
+            Text(
+                text = "⚑ ${snapshot.actionRequiredCount} to submit",
+                style = TextStyle(color = ColorProvider(AccentColor), fontWeight = FontWeight.Medium, fontSize = 13.sp),
+            )
+        }
         if (snapshot.isTracking) {
             Spacer(GlanceModifier.height(6.dp))
             Text(
-                text = "● Tracking now",
+                text = if (snapshot.isPaused) "‖ Paused" else "● Tracking now",
                 style = TextStyle(color = ColorProvider(AccentColor), fontWeight = FontWeight.Medium, fontSize = 13.sp),
             )
         }

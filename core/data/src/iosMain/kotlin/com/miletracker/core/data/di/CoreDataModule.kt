@@ -2,6 +2,8 @@ package com.miletracker.core.data.di
 
 import com.miletracker.core.data.database.MileTrackerDatabase
 import com.miletracker.core.data.database.buildMileTrackerDatabase
+import com.miletracker.core.data.model.display.InMemorySnapshotPublisher
+import com.miletracker.core.data.model.display.SnapshotPublisher
 import com.miletracker.core.data.outbox.RoomSubmitOutbox
 import com.miletracker.core.data.outbox.SubmitOutbox
 import com.miletracker.core.data.outbox.TripDraft
@@ -27,4 +29,7 @@ val coreDataModule =
         single { DemoSettingsRepository() }
         single { Json { ignoreUnknownKeys = true } }
         single<SubmitOutbox<TripDraft>> { RoomSubmitOutbox(get(), get()) }
+        // L.1: in-process snapshot channel for glanceable surfaces (publish + observe).
+        single { InMemorySnapshotPublisher() }
+        single<SnapshotPublisher> { get<InMemorySnapshotPublisher>() }
     }
