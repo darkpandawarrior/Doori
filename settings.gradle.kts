@@ -29,6 +29,7 @@ dependencyResolutionManagement {
 rootProject.name = "Mileway"
 
 include(":app")
+include(":shared")
 include(":core:ui")
 include(":core:maps")
 include(":core:maps-krossmap")

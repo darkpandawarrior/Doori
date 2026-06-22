@@ -9,13 +9,9 @@ kotlin {
         minSdk = 30
     }
 
-    listOf(iosArm64(), iosSimulatorArm64()).forEach {
-        it.binaries {
-            framework {
-                baseName = "MileTracker"
-            }
-        }
-    }
+    // The `MileTracker` iOS framework is produced by the `:shared` umbrella module (which exports both
+    // core:ui and feature:tracking). core:ui keeps its iOS targets (declared by the convention plugin)
+    // so its iosMain — MainViewController + the Referral/Push/DeepLink bridges — compiles and is exportable.
 
     sourceSets {
         commonMain.dependencies {

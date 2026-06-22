@@ -30,7 +30,7 @@
 /* Begin PBXFileReference section */
 		AABF0010 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		AABF0011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		AABF0012 /* MileTracker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MileTracker.framework; path = "../core/ui/build/bin/iosSimulatorArm64/debugFramework/MileTracker.framework"; sourceTree = SOURCE_ROOT; };
+		AABF0012 /* MileTracker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MileTracker.framework; path = "../shared/build/bin/iosSimulatorArm64/debugFramework/MileTracker.framework"; sourceTree = SOURCE_ROOT; };
 		AABF0013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AABF0014 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -165,7 +165,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "set -e\ncd \"${SRCROOT}/..\"\nif [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  ./gradlew :core:ui:linkReleaseFrameworkIosSimulatorArm64\nelse\n  ./gradlew :core:ui:linkDebugFrameworkIosSimulatorArm64\nfi\n";
+			shellScript = "set -e\ncd \"${SRCROOT}/..\"\nif [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  ./gradlew :shared:linkReleaseFrameworkIosSimulatorArm64\nelse\n  ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -241,7 +241,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../core/ui/build/bin/iosSimulatorArm64/debugFramework",
+					"$(SRCROOT)/../shared/build/bin/iosSimulatorArm64/debugFramework",
 				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = iosApp/Info.plist;
@@ -265,7 +265,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../core/ui/build/bin/iosSimulatorArm64/releaseFramework",
+					"$(SRCROOT)/../shared/build/bin/iosSimulatorArm64/releaseFramework",
 				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = iosApp/Info.plist;

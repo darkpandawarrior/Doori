@@ -290,9 +290,70 @@ Verification gate per task: `assembleNoGmsDebug && testNoGmsDebugUnitTest && ktl
   SessionReconciliationPolicy). Fixed a pre-existing detekt MagicNumber (`60_000L`) in
   MileTrackerApplication via `kotlin.time` `.minutes.inWholeMilliseconds`. Kover floor stays 35% (~38.4%).
   Gate: testAndroidHostTest ✅ · :app:testNoGmsDebugUnitTest ✅ · ktlint ✅ · detekt ✅ · iOS test compile ✅.
-- [ ] P-G.2 — Placeholder audit
-- [ ] P-G.3 — Dead-code removal + baselines
-- [ ] P-G.4 — Final gate + DONE
+- [x] **P-G.2 — Placeholder audit** ✅. New `PlaceholderStateAuditTest` (app/src/test, Roborazzi +
+  Compose semantics) renders every data-driven tracking surface in its NO-DATA / loading state on an
+  EMPTY Room layer and asserts the placeholder copy is actually displayed (`assertIsDisplayed`), proving
+  none render a blank container:
+    • `SavedTracksScreen` (empty DB) → "No journeys this week" empty state + View All + Start Journey FAB.
+    • `CreateVoucherScreen` (no submitted expenses) → "No submitted expenses found".
+    • `CheckInHistoryScreen(emptyList())` → "No check-in history yet".
+    • `TrackLoadingScreen` → animated paper-plane + status message (loading placeholder).
+  Baselines committed to `docs/screenshots/placeholders/`. Audit checklist (verified empty-state copy per
+  screen): SavedTracks journeys/submissions ("No journeys this week" / "No submissions yet"),
+  HardwareEventsLog ("No events found"), CheckInHistory ("No check-in history yet" / "No matching
+  check-ins"), CreateVoucher ("No submitted expenses found"), GeoCheckIn ("No GPS fix yet…"),
+  TrackSubmission ("Loading address…"), TrackLoading (status message). Gate green.
+- [x] **P-G.3 — Dead-code removal + baselines** ✅. Removed dead files: `TrackingNotificationManager.kt`
+  (orphaned post P-D), `MileageMaintenanceWorker.kt` + `AutoDiscardWorker.kt` (WorkManager workers
+  superseded by P-F.2 commonMain Tasks; MilewayWorkerFactory dispatches the new Task class names),
+  `DirectBootSafeWork.kt` (0 refs; kmpworkmanager owns boot rescheduling now), and the duplicate
+  `app/src/test/.../BootRestorePolicyTest.kt` (the policy is commonMain → its test now lives cross-platform
+  in feature:tracking/commonTest per P-G.1). Removed dead `koin-androidx-workmanager` dep (zero
+  `workManagerFactory`/`@KoinWorker` usage) from :app + :feature:tracking + the version catalog; kept
+  direct `workmanager.runtime` (catalog 2.11.2 pins newer than kmpworkmanager's transitive 2.9.1).
+  Updated the DemoSettings subtitle copy that named the deleted `AutoDiscardWorker`. Regenerated the
+  dependency-guard baseline (now honestly lists kmpworkmanager; the prior baseline was stale). Recorded
+  Roborazzi placeholder baselines. Gate: assembleNoGmsDebug + assembleGmsDebug + dependencyGuard +
+  ktlint + detekt green.
+- [x] **P-G.4 — Final gate + DONE** ✅. Found + fixed a P-F.3 fallout the headless gate missed:
+  AppDelegate.swift still called the `IosBgTaskDispatcher` that commit 6b9f641 deleted (Swift isn't
+  Kotlin-gated). Restored `IosBgTaskDispatcher` (feature:tracking/iosMain) against the new kmpworkmanager
+  `Worker` model (maps BGTask id → Worker via MilewayWorkerFactory, runs `doWork`, completes for Swift's
+  `setTaskCompleted`); iOS genuinely needs this because the library auto-runs Workers only on Android.
+  **Full gate — all green:**
+    • `assembleNoGmsDebug` ✅ · `assembleGmsDebug` ✅ (both flavors)
+    • `testNoGmsDebugUnitTest` ✅ · `testAndroidHostTest` (feature:tracking 108 + core:platform +
+      core:security) ✅
+    • `ktlintCheck` ✅ · `detekt` ✅ · `detektMetadataIosMain` ✅
+    • `dependencyGuard` ✅ (baseline regenerated) · `koverVerifyNoGmsDebugCoverage` ✅ (57.7% line ≫ 35% floor)
+    • all 4 iOS modules `compileKotlinIosSimulatorArm64` (feature:tracking, core:data, core:platform,
+      core:ui) ✅ · `:feature:tracking:compileTestKotlinIosSimulatorArm64` ✅
+  **iOS Swift/Xcode artifacts (authored + documented; require Mac+Xcode to build — not Kotlin-gated):**
+    • AppDelegate.swift — BGTaskScheduler.register for `com.miletracker.maintenance` (BGProcessingTask,
+      weekly) + `com.miletracker.autodiscard` (BGAppRefreshTask, daily), both → IosBgTaskDispatcher.
+    • Info.plist — BGTaskSchedulerPermittedIdentifiers (sync/maintenance/autodiscard), UIBackgroundModes
+      (fetch/processing/location), NSLocationAlways…UsageDescription.
+    • Live Activity / Dynamic Island steps documented under P-D.2 above (widget extension + ActivityAttributes).
+    • ContentView.swift → IosTrackingEntryKt.MilwayViewController() (full KMP entry).
+    • iOS framework wiring (RESOLVED post-V19): the `MileTracker` framework was built by core:ui, which
+      cannot depend on feature:tracking (layer direction → cycle), so the Swift app's
+      `IosTrackingEntryKt.MilwayViewController()` + `IosBgTaskDispatcher` calls had no symbols. Fixed with a
+      dedicated **`:shared` iOS umbrella module** that `export()`s both core:ui and feature:tracking and
+      produces `MileTracker.framework`. Moved the `framework{}` declaration out of core:ui (it keeps its iOS
+      targets so its iosMain compiles + is exportable); repointed the Xcode project (file ref + build-phase
+      `:shared:link…` task + both FRAMEWORK_SEARCH_PATHS) and the CI iOS-compile step to `:shared`. Verified:
+      `:shared:linkDebugFrameworkIosSimulatorArm64` links locally and the framework header exposes all 7
+      Swift entrypoints (MilwayViewController, IosBgTaskDispatcher, MainViewController, Referral/Push/DeepLink
+      bridges, MileTrackerFramework marker). CI still compile-only for iOS (runner Xcode 16.4 simulator SDK
+      drops Apple's private _LocationEssentials → `ld` fails; needs Mac + Xcode ≤ 16.2 to link).
+
+---
+
+## ✅ PLAN_V19 COMPLETE (2026-06-23)
+P-A ✅ · P-B ✅ · P-C ✅ · P-D ✅ · P-E ✅ · P-F ✅ · P-G ✅. Both flavors build, all JVM + KMP host tests
+pass, all 4 iOS modules + the iOS test target compile, dependency-guard + Kover floor + ktlint + detekt
+green. Lifecycle matrix L1–L8 covered + tested; placeholders audited on every tracking surface; dead code
+removed. `<promise>DONE</promise>`
 
 ---
 

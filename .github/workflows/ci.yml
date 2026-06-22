@@ -224,11 +224,12 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      # Compile the shared graph for both iOS targets — this is the meaningful "KMP code is iOS-compatible"
-      # check. We deliberately do NOT link the debug framework: linking pulls Apple's private
-      # _LocationEssentials framework (a CoreLocation dependency in the Kotlin/Native platform bindings) that
-      # the runner's Xcode 16.4 *simulator* SDK no longer ships, so `ld` fails for reasons unrelated to our
-      # code. Compiling validates every iosMain source; the framework binary isn't consumed by any in-repo
-      # iOS app. (To restore framework linking, pin the runner to Xcode <= 16.2 via setup-xcode.)
+      # Compile the :shared iOS umbrella for both targets — this transitively compiles core:ui +
+      # feature:tracking + every iosMain source the framework re-exports, so it's the meaningful "KMP code
+      # is iOS-compatible" check. We deliberately do NOT link the debug framework: linking pulls Apple's
+      # private _LocationEssentials framework (a CoreLocation dependency in the Kotlin/Native platform
+      # bindings) that the runner's Xcode 16.4 *simulator* SDK no longer ships, so `ld` fails for reasons
+      # unrelated to our code. Compiling validates every iosMain source; the framework binary is produced
+      # by the Xcode build (:shared:linkDebugFrameworkIosSimulatorArm64), which needs a Mac + Xcode <= 16.2.
       - name: Compile shared Kotlin for iOS (device + simulator)
-        run: ./gradlew :core:ui:compileKotlinIosArm64 :core:ui:compileKotlinIosSimulatorArm64
+        run: ./gradlew :shared:compileKotlinIosArm64 :shared:compileKotlinIosSimulatorArm64
