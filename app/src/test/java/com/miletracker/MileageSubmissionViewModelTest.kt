@@ -1,6 +1,7 @@
 package com.miletracker
 
 import com.miletracker.core.data.model.display.OdometerCaptureResult
+import com.miletracker.core.data.model.display.OdometerReadingSource
 import com.miletracker.core.data.model.display.OdometerPurpose
 import com.miletracker.core.data.model.network.ExpenseSubmissionResponse
 import com.miletracker.core.data.model.network.PolicyViolation
@@ -159,7 +160,7 @@ class MileageSubmissionViewModelTest {
                 purpose = OdometerPurpose.START,
                 imageUri = "content://start.jpg",
                 reading = 45_000,
-                isManual = false,
+                source = OdometerReadingSource.DEVICE_OCR,
                 captureTimeMs = 1_000L,
             )
         ))
@@ -172,13 +173,30 @@ class MileageSubmissionViewModelTest {
     }
 
     @Test
+    fun `D3 - a MANUAL-source capture flags the reading as manual`() = runTest {
+        val vm = viewModel()
+        vm.onAction(
+            MileageSubmissionAction.CaptureOdometerStart(
+                OdometerCaptureResult(
+                    purpose = OdometerPurpose.START,
+                    imageUri = "",
+                    reading = 45_000,
+                    source = OdometerReadingSource.MANUAL,
+                    captureTimeMs = 0L,
+                ),
+            ),
+        )
+        assertTrue(vm.state.value.form.isManualStartOdo)
+    }
+
+    @Test
     fun `CaptureOdometerEnd computes odometerKm from start reading`() = runTest {
         val vm = viewModel()
         vm.onAction(MileageSubmissionAction.CaptureOdometerStart(
-            OdometerCaptureResult(OdometerPurpose.START, "uri://start", reading = 50_000, isManual = false, captureTimeMs = 0L)
+            OdometerCaptureResult(OdometerPurpose.START, "uri://start", reading = 50_000, source = OdometerReadingSource.DEVICE_OCR, captureTimeMs = 0L)
         ))
         vm.onAction(MileageSubmissionAction.CaptureOdometerEnd(
-            OdometerCaptureResult(OdometerPurpose.END, "uri://end", reading = 50_020, isManual = false, captureTimeMs = 1_000L)
+            OdometerCaptureResult(OdometerPurpose.END, "uri://end", reading = 50_020, source = OdometerReadingSource.DEVICE_OCR, captureTimeMs = 1_000L)
         ))
 
         val form = vm.state.value.form

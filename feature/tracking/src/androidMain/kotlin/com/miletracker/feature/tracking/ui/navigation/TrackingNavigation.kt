@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.miletracker.core.data.model.display.OdometerCaptureResult
 import com.miletracker.core.data.model.display.OdometerPurpose
+import com.miletracker.core.data.model.display.OdometerReadingSource
 import com.miletracker.core.data.settings.DemoSettings
 import com.miletracker.core.data.settings.DemoSettingsRepository
 import com.miletracker.core.data.settings.LAST_ODOMETER_NONE
@@ -286,7 +287,7 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
                             purpose = OdometerPurpose.START,
                             imageUri = sh.get<String>("odo_start_uri") ?: "",
                             reading = odoStartReading,
-                            isManual = sh.get<Boolean>("odo_start_manual") ?: false,
+                            source = if (sh.get<Boolean>("odo_start_manual") == true) OdometerReadingSource.MANUAL else OdometerReadingSource.DEVICE_OCR,
                             captureTimeMs = sh.get<Long>("odo_start_time") ?: 0L,
                         ),
                     ),
@@ -302,7 +303,7 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
                             purpose = OdometerPurpose.END,
                             imageUri = sh.get<String>("odo_end_uri") ?: "",
                             reading = odoEndReading,
-                            isManual = sh.get<Boolean>("odo_end_manual") ?: false,
+                            source = if (sh.get<Boolean>("odo_end_manual") == true) OdometerReadingSource.MANUAL else OdometerReadingSource.DEVICE_OCR,
                             captureTimeMs = sh.get<Long>("odo_end_time") ?: 0L,
                         ),
                     ),

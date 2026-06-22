@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.data.model.display.OdometerCaptureResult
 import com.miletracker.core.data.model.display.OdometerPurpose
+import com.miletracker.core.data.model.display.OdometerReadingSource
 import com.miletracker.feature.media.ui.camera.CameraCaptureScreen
 import com.miletracker.feature.tracking.ui.sheets.OdometerReadingConfirmSheet
 
@@ -96,7 +97,7 @@ fun OdometerCameraScreen(
                         purpose = purpose,
                         imageUri = uri,
                         reading = reading,
-                        isManual = isManual,
+                        source = if (isManual) OdometerReadingSource.MANUAL else OdometerReadingSource.DEVICE_OCR,
                         captureTimeMs = captureTimeMs,
                     ),
                 )
