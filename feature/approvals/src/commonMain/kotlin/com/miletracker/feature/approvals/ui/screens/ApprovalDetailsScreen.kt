@@ -152,7 +152,12 @@ fun ApprovalDetailsScreen(
                                 )
                             }
                             if (item.policyViolation) {
-                                Icon(Icons.Default.Warning, contentDescription = "Policy violation", tint = MilewayColors.warning, modifier = Modifier.size(20.dp))
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = "Policy violation",
+                                    tint = MilewayColors.warning,
+                                    modifier = Modifier.size(20.dp),
+                                )
                             }
                         }
                     }
@@ -180,7 +185,12 @@ fun ApprovalDetailsScreen(
                             Icon(Icons.Default.Warning, contentDescription = null, tint = MilewayColors.warning, modifier = Modifier.size(20.dp))
                             Spacer(Modifier.width(8.dp))
                             Column {
-                                Text("Policy Violation", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = MilewayColors.warning)
+                                Text(
+                                    "Policy Violation",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MilewayColors.warning,
+                                )
                                 Text("This request exceeds policy limits", style = MaterialTheme.typography.bodySmall, color = MilewayColors.warning)
                             }
                         }

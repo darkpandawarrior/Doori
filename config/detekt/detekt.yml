@@ -13,6 +13,7 @@ config:
 style:
   MagicNumber:
     active: true
+    ignorePropertyDeclaration: true   # named color/size constants (val Foo = Color(0x..)/16.dp) are self-documenting
     ignoreNumbers:
       - '-1'
       - '0'
@@ -29,13 +30,15 @@ style:
       - 'com.miletracker.core.ui.previews.PreviewDevices'
       - 'com.miletracker.core.ui.previews.PreviewStates'
   MaxLineLength:
-    maxLineLength: 120
+    active: false   # ktlint (standard:max-line-length) is the single source of truth for line length
   WildcardImport:
     active: false   # Compose generates many wildcard imports via IDE; suppress project-wide
 
 complexity:
   LongMethod:
     threshold: 60   # Compose screens tend to be long but readable
+    ignoreAnnotated:
+      - 'androidx.compose.runtime.Composable'   # declarative @Composable trees are long by design
   LongParameterList:
     functionThreshold: 8   # Composables accept many parameters by design
   CyclomaticComplexMethod:

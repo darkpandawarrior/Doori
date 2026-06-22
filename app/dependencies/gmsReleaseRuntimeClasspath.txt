@@ -68,6 +68,7 @@ androidx.constraintlayout:constraintlayout:2.2.1
 androidx.coordinatorlayout:coordinatorlayout:1.1.0
 androidx.core:core-backported-fixes:1.0.0
 androidx.core:core-ktx:1.19.0
+androidx.core:core-remoteviews:1.1.0
 androidx.core:core-viewtree:1.0.0
 androidx.core:core:1.19.0
 androidx.cursoradapter:cursoradapter:1.0.0
@@ -94,6 +95,10 @@ androidx.emoji2:emoji2:1.4.0
 androidx.exifinterface:exifinterface:1.4.2
 androidx.fragment:fragment-ktx:1.8.9
 androidx.fragment:fragment:1.8.9
+androidx.glance:glance-appwidget-external-protobuf:1.1.1
+androidx.glance:glance-appwidget-proto:1.1.1
+androidx.glance:glance-appwidget:1.1.1
+androidx.glance:glance:1.1.1
 androidx.graphics:graphics-path:1.0.1
 androidx.graphics:graphics-shapes-android:1.1.0
 androidx.graphics:graphics-shapes:1.1.0
@@ -137,6 +142,10 @@ androidx.navigationevent:navigationevent-android:1.0.2
 androidx.navigationevent:navigationevent-compose-android:1.0.2
 androidx.navigationevent:navigationevent-compose:1.0.2
 androidx.navigationevent:navigationevent:1.0.2
+androidx.paging:paging-common-android:3.4.0
+androidx.paging:paging-common:3.4.0
+androidx.paging:paging-compose-android:3.4.0
+androidx.paging:paging-compose:3.4.0
 androidx.print:print:1.0.0
 androidx.privacysandbox.ads:ads-adservices-java:1.1.0-beta11
 androidx.privacysandbox.ads:ads-adservices:1.1.0-beta11

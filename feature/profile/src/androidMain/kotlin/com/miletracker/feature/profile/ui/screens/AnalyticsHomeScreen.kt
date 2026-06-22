@@ -109,7 +109,12 @@ fun AnalyticsHomeScreen(
                         Text("Last 30 days · all categories", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.85f))
                     }
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("₹${data.totalSpend.toLong()}", style = MaterialTheme.typography.titleMedium.dataStyle(), fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(
+                            "₹${data.totalSpend.toLong()}",
+                            style = MaterialTheme.typography.titleMedium.dataStyle(),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
                         Text("total spend", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
                     }
                 }

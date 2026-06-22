@@ -121,9 +121,10 @@ fun ProfileScreen(
         // Top-level tab: own the background so the body renders on the theme surface
         // (deep-dark under the Matrix default) rather than falling through to the
         // window/canvas colour when no host Scaffold paints behind it.
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
         // Clearance for the floating bubble bar (content draws behind it).
         contentPadding = PaddingValues(bottom = 140.dp),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),

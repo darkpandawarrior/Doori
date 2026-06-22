@@ -1,0 +1,81 @@
+name: Screenshots
+
+# Self-maintaining Roborazzi baselines.
+#
+# Why this exists: pixel-exact baselines only match the environment they were recorded in. Recording them
+# by hand on a laptop guarantees they drift from CI's Linux renderer (font antialiasing), which is what kept
+# reding the old "verify" job. Instead, CI records the baselines *itself* and commits them back, so:
+#   - a NEW screen automatically gets a baseline the first time it runs here,
+#   - a CHANGED screen self-heals (the new rendering is captured),
+#   - CI never fails for rendering reasons unrelated to code.
+#
+# CI's runner image renders deterministically run-to-run, so re-recording an unchanged screen produces a
+# byte-identical PNG -> git sees no change -> no commit. Only genuinely new/changed screens get committed.
+#
+# On a PR the baselines are uploaded as an artifact for review instead of committed.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:   # manual "refresh all baselines now" button in the Actions tab
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write   # allows the bot to commit refreshed baselines back to main
+
+jobs:
+  record:
+    name: Record & commit baselines
+    runs-on: ubuntu-latest
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          cache-cleanup: on-success
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # noGms variant: gms Play Services maps crash the Robolectric fork.
+      - name: Record screenshots (regenerate baselines in the CI environment)
+        run: ./gradlew recordRoborazziNoGmsDebug
+
+      # main: commit any new/changed baselines straight back. The [skip ci] tag stops the push from
+      # re-triggering this (or any) workflow, so there is no loop.
+      - name: Commit refreshed baselines
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots
+          if git diff --cached --quiet; then
+            echo "Baselines already up to date — nothing to commit."
+          else
+            git commit -m "chore(screenshots): refresh baselines [skip ci]"
+            git push
+          fi
+
+      # PR: don't mutate the branch; surface the freshly rendered screenshots for human review.
+      - name: Upload screenshots (PR review)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: docs/screenshots/

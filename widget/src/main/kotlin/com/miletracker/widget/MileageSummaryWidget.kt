@@ -118,8 +118,10 @@ fun MileageSummaryContent(snapshot: SurfaceSnapshot) {
     }
 }
 
+private const val ONE_DECIMAL_SCALE = 10.0
+
 private fun format1(value: Double): String {
-    val scaled = round(value * 10.0) / 10.0
+    val scaled = round(value * ONE_DECIMAL_SCALE) / ONE_DECIMAL_SCALE
     return scaled.toString()
 }
 

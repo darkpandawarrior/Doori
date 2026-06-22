@@ -315,7 +315,12 @@ private fun QrCardChip(card: CorporateCard) {
             Icon(Icons.Default.CreditCard, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(8.dp))
             Column {
-                Text("•••• ${card.lastFourDigits}", style = MaterialTheme.typography.bodySmall.dataStyle(), color = Color.White, fontWeight = FontWeight.SemiBold)
+                Text(
+                    "•••• ${card.lastFourDigits}",
+                    style = MaterialTheme.typography.bodySmall.dataStyle(),
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold,
+                )
                 Text(card.cardType.name, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
             }
         }

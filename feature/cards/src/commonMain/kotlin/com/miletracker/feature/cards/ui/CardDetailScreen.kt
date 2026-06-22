@@ -47,12 +47,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.core.common.asString
 import com.miletracker.core.ui.components.sheet.DetailInfoBottomSheet
 import com.miletracker.core.ui.components.sheet.DetailInfoCard
 import com.miletracker.core.ui.components.sheet.DetailInfoRow
 import com.miletracker.core.ui.mvi.ScreenStateContent
+import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.core.ui.toast.ToastType
 import com.miletracker.core.ui.toast.Toasts
 import com.miletracker.feature.cards.model.CardModel
