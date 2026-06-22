@@ -62,6 +62,7 @@ import com.miletracker.core.ui.theme.DesignTokens
 import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import com.miletracker.feature.media.model.AttachmentItem
 import com.miletracker.feature.media.model.AttachmentSource
+import com.miletracker.feature.media.ui.scanner.rememberDocumentScanLauncher
 import com.miletracker.feature.media.viewmodel.MediaAction
 import com.miletracker.feature.media.viewmodel.MediaViewModel
 import kotlinx.coroutines.launch
@@ -105,6 +106,13 @@ fun AttachmentSelectionScreen(
                 viewModel.onAction(MediaAction.PickedFromGallery(uri.toString()))
                 onNavigateToPreview()
             }
+        }
+
+    // D.4: ML Kit document scanner — each scanned page enters the batch like a picked image.
+    val launchDocumentScan =
+        rememberDocumentScanLauncher { pages ->
+            pages.forEach { viewModel.onAction(MediaAction.PickedFromGallery(it)) }
+            if (pages.isNotEmpty()) onNavigateToPreview()
         }
 
     fun showIllustrative(label: String) {
@@ -221,6 +229,10 @@ fun AttachmentSelectionScreen(
                             SourceKey.FILES -> {
                                 viewModel.onAction(MediaAction.SelectSource(AttachmentSource.FILES))
                                 galleryLauncher.launch("*/*")
+                            }
+                            SourceKey.DOC_SCANNER -> {
+                                viewModel.onAction(MediaAction.SelectSource(AttachmentSource.FILES))
+                                launchDocumentScan()
                             }
                             SourceKey.CLOUD -> onNavigateToLibrary()
                             else -> showIllustrative(spec.label)
