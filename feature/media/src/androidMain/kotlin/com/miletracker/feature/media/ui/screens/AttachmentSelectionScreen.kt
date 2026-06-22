@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.WaterDrop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -344,13 +346,51 @@ private fun AttachmentThumbnail(item: AttachmentItem) {
         tonalElevation = DesignTokens.Elevation.card,
         modifier = Modifier.aspectRatio(1f),
     ) {
-        AsyncImage(
-            model = item.uri,
-            contentDescription = "Attachment ${item.id}",
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .clip(DesignTokens.Shape.roundedMd),
-        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            AsyncImage(
+                model = item.uri,
+                contentDescription = "Attachment ${item.id}",
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .clip(DesignTokens.Shape.roundedMd),
+            )
+
+            // D.5: OCR badge — a verified tick when >=2 passes agreed, else a neutral "OCR" chip
+            // whenever a reading was detected. Driven by the multi-pass OcrResult (D.2).
+            val ocr = item.ocr
+            if (ocr?.detectedOdometer != null) {
+                val verified = ocr.isVerified
+                Row(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(DesignTokens.Spacing.xs)
+                            .clip(CircleShape)
+                            .background(
+                                if (verified) {
+                                    DesignTokens.StatusColors.success.copy(alpha = 0.9f)
+                                } else {
+                                    Color.Black.copy(alpha = 0.55f)
+                                },
+                            )
+                            .padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = if (verified) Icons.Default.Verified else Icons.Default.DocumentScanner,
+                        contentDescription = if (verified) "OCR verified" else "OCR reading",
+                        tint = Color.White,
+                        modifier = Modifier.size(12.dp),
+                    )
+                    Spacer(Modifier.size(2.dp))
+                    Text(
+                        text = if (verified) "Verified" else "OCR",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.White,
+                    )
+                }
+            }
+        }
     }
 }
