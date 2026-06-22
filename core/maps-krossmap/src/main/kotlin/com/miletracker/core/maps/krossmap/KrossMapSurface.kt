@@ -74,6 +74,8 @@ class KrossMapSurface : MapSurface {
         showIssueMarkers: Boolean,
         showCompass: Boolean,
         showTraffic: Boolean,
+        // Google Maps serves its own tiles; the bundled offline MBTiles pack only applies to MapLibre.
+        @Suppress("UNUSED_PARAMETER") offlineTiles: Boolean,
         modifier: Modifier,
     ) {
         val scope = rememberCoroutineScope()

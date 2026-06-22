@@ -17,6 +17,8 @@ class MileTrackerAndroidLibraryConventionPlugin : Plugin<Project> {
             apply("com.android.library")
             apply("org.jetbrains.kotlin.plugin.compose")
         }
+        // B.2a: opt-in Compose compiler metrics/reports (-Pcompose.metrics).
+        configureComposeCompilerMetrics()
         extensions.configure<LibraryExtension> {
             compileSdk = 37
             defaultConfig { minSdk = 30 }

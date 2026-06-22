@@ -33,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -88,7 +89,14 @@ fun RoutePointsScreen(
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        // A.9: pull-to-refresh re-queries the page from Room via the PagingSource. Only show the pull
+        // spinner when refreshing an already-loaded list; the initial load uses the centered spinner below.
+        val isRefreshing = points.loadState.refresh is LoadState.Loading && points.itemCount > 0
+        PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = { points.refresh() },
+            modifier = Modifier.fillMaxSize().padding(padding),
+        ) {
             val refresh = points.loadState.refresh
             when {
                 refresh is LoadState.Loading && points.itemCount == 0 -> {

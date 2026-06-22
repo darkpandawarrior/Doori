@@ -17,6 +17,8 @@ class MileTrackerAndroidApplicationConventionPlugin : Plugin<Project> {
             apply("com.android.application")
             apply("org.jetbrains.kotlin.plugin.compose")
         }
+        // B.2a: opt-in Compose compiler metrics/reports (-Pcompose.metrics).
+        configureComposeCompilerMetrics()
         extensions.configure<ApplicationExtension> {
             compileSdk = 37
             compileOptions {

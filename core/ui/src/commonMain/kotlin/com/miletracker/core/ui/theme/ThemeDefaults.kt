@@ -21,7 +21,8 @@ object ThemeDefaults {
     /** Android 12+ wallpaper-derived dynamic colours. */
     const val USE_SYSTEM_COLORS = false
 
-    const val MAP_PROVIDER = "OSM"
+    // E.2: typed default map provider (was the String "OSM").
+    val MAP_PROVIDER = MapProvider.OSM
 }
 
 /**

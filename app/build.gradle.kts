@@ -4,6 +4,8 @@ import java.util.Properties
 
 plugins {
     id("miletracker.android.application")
+    // H.8: bundles the generic JVM unit-test stack (JUnit, MockK, coroutines-test, Turbine, Koin-test).
+    id("miletracker.test")
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.navgraph)
@@ -336,16 +338,11 @@ dependencies {
     baselineProfile(project(":baselineprofile"))
 
     // Tests
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
+    // JUnit, MockK, coroutines-test, Turbine, Koin-test come from the miletracker.test convention plugin (H.8).
     // G1: PagingSource load-boundary test needs androidx.paging types (feature:tracking exposes
     // LocationPagingSource but keeps paging-common as implementation, so add it to the test classpath).
     testImplementation(libs.paging.common)
     testImplementation(libs.kotlinx.datetime)
-    testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.turbine)
-    testImplementation(libs.koin.test)
-    testImplementation(libs.koin.test.junit4)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
     testImplementation(libs.androidx.test.ext.junit)

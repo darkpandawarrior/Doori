@@ -15,5 +15,7 @@ class MileTrackerKmpComposeConventionPlugin : Plugin<Project> {
             apply("org.jetbrains.compose")
             apply("org.jetbrains.kotlin.plugin.compose")
         }
+        // B.2a: opt-in Compose compiler metrics/reports (-Pcompose.metrics).
+        configureComposeCompilerMetrics()
     }
 }

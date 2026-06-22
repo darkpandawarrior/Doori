@@ -78,6 +78,7 @@ class MapLibreSurface : MapSurface {
         showIssueMarkers: Boolean,
         showCompass: Boolean,
         showTraffic: Boolean,
+        offlineTiles: Boolean,
         modifier: Modifier,
     ) {
         val cameraState =
@@ -100,11 +101,22 @@ class MapLibreSurface : MapSurface {
             }
         }
 
+        // E.3: render from the bundled offline MBTiles when requested and available; else the network style.
+        val offlinePath = if (offlineTiles) rememberOfflineMbtilesPath() else null
+        val baseStyle =
+            remember(offlinePath) {
+                if (offlinePath != null) {
+                    BaseStyle.Json(OfflineTileProvider.offlineStyleJson(offlinePath))
+                } else {
+                    BaseStyle.Uri(STYLE_URL)
+                }
+            }
+
         // showTraffic has no equivalent in open-tile MapLibre, silently ignored.
         val ornaments = if (showCompass) OrnamentOptions.AllEnabled else OrnamentOptions.OnlyLogo
         MaplibreMap(
             modifier = modifier,
-            baseStyle = BaseStyle.Uri(STYLE_URL),
+            baseStyle = baseStyle,
             cameraState = cameraState,
             options = MapOptions(ornamentOptions = ornaments),
         ) {

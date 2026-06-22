@@ -139,6 +139,8 @@ import com.miletracker.core.data.state.UiState
 import com.miletracker.core.maps.MapCoordinate
 import com.miletracker.core.maps.MapSurface
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.LocalMapProvider
+import com.miletracker.core.ui.theme.MapProvider
 import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.feature.tracking.map.MapRouteBuilder
@@ -510,6 +512,9 @@ fun EnhancedLiveTrackingUI(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
+    // E.2: the app-wide selected map provider; a satellite basemap defaults the traffic overlay on.
+    val mapProvider = LocalMapProvider.current
+
     // Layer toggles
     var speedHeatmap by remember { mutableStateOf(false) }
     var showAccuracy by remember { mutableStateOf(false) }
@@ -517,7 +522,7 @@ fun EnhancedLiveTrackingUI(
     var showIssues by remember { mutableStateOf(false) }
     var showOfflineTiles by remember { mutableStateOf(false) }
     var showCompass by remember { mutableStateOf(true) }
-    var showTraffic by remember { mutableStateOf(false) }
+    var showTraffic by remember { mutableStateOf(mapProvider == MapProvider.SATELLITE) }
 
     // Playback state
     var isPlayingBack by remember { mutableStateOf(false) }
@@ -581,6 +586,7 @@ fun EnhancedLiveTrackingUI(
             showIssueMarkers = showIssues,
             showCompass = showCompass,
             showTraffic = showTraffic,
+            offlineTiles = showOfflineTiles,
             modifier = Modifier.fillMaxSize(),
         )
 

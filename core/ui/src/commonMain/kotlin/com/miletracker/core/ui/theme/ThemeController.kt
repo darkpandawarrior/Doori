@@ -118,8 +118,8 @@ class ThemeController(
      */
     val milewayTheme: StateFlow<MilewayTheme> = _milewayTheme.asStateFlow()
 
-    /** Map tile provider name ("OSM" — the demo's single provider). */
-    val mapProvider: StateFlow<String> = _mapProvider.asStateFlow()
+    /** E.2: selected map tile provider (typed; seeded into LocalMapProvider at the theme root). */
+    val mapProvider: StateFlow<MapProvider> = _mapProvider.asStateFlow()
 
     /** Currently selected app language. */
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
@@ -149,7 +149,7 @@ class ThemeController(
                 snap[ThemePreferenceKeys.MILEWAY_THEME]?.let { id ->
                     _milewayTheme.value = MilewayTheme.fromId(id)
                 }
-                snap[ThemePreferenceKeys.MAP_PROVIDER]?.let { _mapProvider.value = it }
+                snap[ThemePreferenceKeys.MAP_PROVIDER]?.let { _mapProvider.value = MapProvider.fromName(it) }
                 snap[ThemePreferenceKeys.LANGUAGE]?.let { tag ->
                     AppLanguage.entries.firstOrNull { it.tag == tag }
                         ?.let { _language.value = it }
@@ -233,9 +233,9 @@ class ThemeController(
         }
     }
 
-    fun setMapProvider(provider: String) {
+    fun setMapProvider(provider: MapProvider) {
         _mapProvider.value = provider
-        persist { p -> p[ThemePreferenceKeys.MAP_PROVIDER] = provider }
+        persist { p -> p[ThemePreferenceKeys.MAP_PROVIDER] = provider.name }
     }
 
     fun setLanguage(language: AppLanguage) {
@@ -264,7 +264,7 @@ class ThemeController(
             p[ThemePreferenceKeys.PALETTE_STYLE] = ThemeDefaults.PALETTE_STYLE
             p[ThemePreferenceKeys.THEME_VARIANT] = ThemeDefaults.THEME_VARIANT
             p[ThemePreferenceKeys.MILEWAY_THEME] = MilewayTheme.DEFAULT.id
-            p[ThemePreferenceKeys.MAP_PROVIDER] = ThemeDefaults.MAP_PROVIDER
+            p[ThemePreferenceKeys.MAP_PROVIDER] = ThemeDefaults.MAP_PROVIDER.name
             p[ThemePreferenceKeys.LANGUAGE] = AppLanguage.ENGLISH.tag
         }
     }

@@ -48,5 +48,9 @@ gradlePlugin {
             id = "miletracker.cmp.feature"
             implementationClass = "MileTrackerCmpFeatureConventionPlugin"
         }
+        register("test") {
+            id = "miletracker.test"
+            implementationClass = "MileTrackerTestConventionPlugin"
+        }
     }
 }

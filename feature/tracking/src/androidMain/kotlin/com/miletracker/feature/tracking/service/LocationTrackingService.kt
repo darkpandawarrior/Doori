@@ -18,6 +18,8 @@ import com.miletracker.core.data.model.db.CurrentTrackData
 import com.miletracker.core.data.model.db.EventAudience
 import com.miletracker.core.data.model.db.EventType
 import com.miletracker.core.data.model.db.HardwareEvent
+import com.miletracker.core.data.model.display.InMemorySnapshotPublisher
+import com.miletracker.core.data.model.display.SurfaceSnapshotProducer
 import com.miletracker.core.data.model.display.TrackingState
 import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.data.session.CurrentTrackDataStore
@@ -77,6 +79,9 @@ class LocationTrackingService : Service() {
 
     // C.2b: live telemetry the ViewModel observes via TrackingServiceApi.
     private val statePublisher: TrackingStatePublisher by inject()
+
+    // L.1: glanceable-surface snapshot channel; refreshed when a trip completes.
+    private val snapshotPublisher: InMemorySnapshotPublisher by inject()
 
     // C.2d: notification throttle — last type/time published, to drop sub-throttle same-type updates.
     private var lastNotificationType: TrackingNotificationType? = null
@@ -483,6 +488,11 @@ class LocationTrackingService : Service() {
                 }
                 logEventSuspend(token, EventType.TRACKING_STOPPED, "Tracking Stopped")
                 clearSessionTracking()
+                // L.1: refresh the glanceable-surface snapshot now that a trip completed.
+                val completed = savedTrackDao.getCompletedTracks().first()
+                snapshotPublisher.publish(
+                    SurfaceSnapshotProducer.produce(completedTracks = completed, isTracking = false, nowEpochMs = endTime),
+                )
             }
         }
         releaseWakeLock()
