@@ -154,6 +154,9 @@ class LocationProcessor(
         // C.2g: during the post-resume grace window, accept a large jump (the user moved while paused)
         // instead of rejecting it as a teleport spike.
         suppressSpike: Boolean = false,
+        // O.3: IMU says the device is physically still — strengthen jitter suppression (override the
+        // GPS-speed "movement momentum" heuristic, since accelerometer stillness is authoritative).
+        motionStill: Boolean = false,
     ): ProcessResult? {
         val prev = last
         // C.1g: smooth lat/lng up front so distance + classification use the filtered position.
@@ -180,7 +183,8 @@ class LocationProcessor(
             val gate = minDisplacementForSpeed(fix.speedMps.toDouble())
             val stationaryMicroJitter =
                 fix.speedMps < STATIONARY_SPEED_MPS && displacement < STATIONARY_JITTER_M
-            if ((displacement < gate || stationaryMicroJitter) && !hasMovementHistory()) {
+            // O.3: drop the sub-gate wander when either GPS history shows no movement OR the IMU says still.
+            if ((displacement < gate || stationaryMicroJitter) && (!hasMovementHistory() || motionStill)) {
                 return null
             }
         }

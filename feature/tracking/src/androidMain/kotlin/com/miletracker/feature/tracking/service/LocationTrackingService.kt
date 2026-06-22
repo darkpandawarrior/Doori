@@ -22,6 +22,9 @@ import com.miletracker.core.data.model.display.TrackingState
 import com.miletracker.core.data.model.display.TrackingSystemFlags
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.data.settings.DemoSettingsRepository
+import com.miletracker.core.platform.MotionFusion
+import com.miletracker.core.platform.MotionReading
+import com.miletracker.core.platform.Vector3
 import com.miletracker.feature.tracking.TrackMilesActivity
 import com.miletracker.feature.tracking.service.location.DynamicIntervalCalculator
 import com.miletracker.feature.tracking.service.location.FusedLocationSource
@@ -78,6 +81,9 @@ class LocationTrackingService : Service() {
 
     // C.2g: timestamp of the last resume; the grace window runs for RESUME_GRACE_MS after it (0 = closed).
     private var resumeAtMs: Long = 0L
+
+    // O.3: running gravity estimate for the per-fix IMU stillness check (sensor fusion).
+    private var motionGravity = Vector3(0f, 0f, 0f)
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -296,7 +302,28 @@ class LocationTrackingService : Service() {
         // C.2g: within the post-resume grace window, accept a large jump (the user moved while paused)
         // instead of rejecting it as a teleport spike.
         val inResumeGrace = resumeAtMs > 0L && System.currentTimeMillis() - resumeAtMs < RESUME_GRACE_MS
-        val result = proc.process(fix, isPaused, sensorMonitor.snapshot, suppressSpike = inResumeGrace) ?: return // jitter-suppressed
+        val sensors = sensorMonitor.snapshot
+        // O.3: fuse the IMU — when the accelerometer says the device is physically still, strengthen GPS
+        // jitter suppression. Only when real sensor data is present (zeros in the simulated/no-sensor path
+        // leave it off, so the pipeline behaves exactly as before).
+        val hasImu = sensors.accelX != 0f || sensors.accelY != 0f || sensors.accelZ != 0f
+        val motionStill =
+            if (hasImu) {
+                val reading =
+                    MotionReading(
+                        accelX = sensors.accelX,
+                        accelY = sensors.accelY,
+                        accelZ = sensors.accelZ,
+                        timestampMillis = fix.timeMs,
+                    )
+                motionGravity = MotionFusion.updateGravity(motionGravity, reading)
+                !MotionFusion.isMoving(reading, motionGravity)
+            } else {
+                false
+            }
+        val result =
+            proc.process(fix, isPaused, sensors, suppressSpike = inResumeGrace, motionStill = motionStill)
+                ?: return // jitter-suppressed
         val battery = batteryPercent()
         val row = result.location.copy(token = token, batteryPercentage = battery)
         val stats = proc.stats()

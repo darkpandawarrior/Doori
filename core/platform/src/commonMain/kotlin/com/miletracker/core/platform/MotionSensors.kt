@@ -1,7 +1,11 @@
 package com.miletracker.core.platform
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlin.math.sqrt
+
+/** O.1: coarse motion classification derived from the IMU stream, fused into the tracking pipeline. */
+enum class MotionState { UNKNOWN, STILL, MOVING }
 
 /** One fused IMU sample (O): raw accelerometer + gyroscope axes plus a capture timestamp. */
 data class MotionReading(
@@ -68,12 +72,39 @@ object MotionFusion {
 }
 
 /**
+ * O.1: fold an IMU [MotionReading] stream into a debounced [MotionState] (STILL/MOVING) using
+ * [MotionFusion]'s gravity-isolated linear acceleration. Pure (no platform types), with fresh gravity state
+ * per collection, and only emits on change — so a provider gets [MotionSensorProvider.motionState] for free
+ * from its [MotionSensorProvider.readings].
+ */
+fun Flow<MotionReading>.toMotionState(threshold: Float = MotionFusion.MOVEMENT_THRESHOLD): Flow<MotionState> {
+    val upstream = this
+    return flow {
+        var gravity = Vector3(0f, 0f, 0f)
+        var last: MotionState? = null
+        upstream.collect { reading ->
+            gravity = MotionFusion.updateGravity(gravity, reading)
+            val state =
+                if (MotionFusion.isMoving(reading, gravity, threshold)) MotionState.MOVING else MotionState.STILL
+            if (state != last) {
+                last = state
+                emit(state)
+            }
+        }
+    }
+}
+
+/**
  * Cross-platform motion sensor stream (O). Android: SensorManager (accelerometer + gyroscope); iOS:
  * CoreMotion (CMMotionManager). Bound per platform through `platformModule()`.
  */
 interface MotionSensorProvider {
     /** Hot stream of fused IMU readings while [start]ed. */
     val readings: Flow<MotionReading>
+
+    /** O.1: debounced STILL/MOVING classification, derived from [readings]. */
+    val motionState: Flow<MotionState>
+        get() = readings.toMotionState()
 
     fun start()
 
