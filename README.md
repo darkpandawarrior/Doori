@@ -62,12 +62,13 @@ Play Store and F-Droid.
   airplane mode and keeps its state in Room and DataStore.
 - 🧩 **23-module clean architecture.** Feature modules never touch each other. They meet only at the
   `:app` composition root, wired through Koin.
-- 🌍 **Kotlin Multiplatform.** The shared `commonMain` core compiles for Android and iOS; platform
-  services sit behind `expect`/`actual`.
+- 🌍 **Kotlin Multiplatform — iOS live (V19).** All feature screens run on Android *and* iOS from
+  `commonMain`. Background scheduling uses [kmpworkmanager](https://github.com/brewkits/kmpworkmanager)
+  (BGTask dispatcher + AppDelegate); platform services sit behind `expect`/`actual`.
 - 🔀 **One codebase, two distributions.** A `gms` Play build and a FOSS `noGms` / F-Droid build, with
   a dependency-prefix guard that fails the build the moment a proprietary library leaks into FOSS.
-- 🧪 **Quality gates in CI.** JVM unit tests, Roborazzi screenshot tests (no emulator), detekt, ktlint
-  and Kover, plus reproducible F-Droid release workflows.
+- 🧪 **Quality gates in CI.** 96 Roborazzi screenshot tests on the JVM (no emulator, no network),
+  Napier structured logging, detekt, ktlint and Kover, plus reproducible F-Droid release workflows.
 
 ## Screenshots
 
@@ -418,14 +419,13 @@ roadmap reflects direction rather than commitments.
 - [x] Room (KMP) + DataStore persistence
 - [x] Location engine (jitter / spike / four-bucket / IMU fusion) with a simulated drive source
 - [x] Master search: a registry across feature modules with an aggregator, results screen and navigation
-- [x] Roborazzi screenshot suite, detekt / ktlint / Kover, CI + release workflows
+- [x] Roborazzi screenshot suite (96 screens, JVM-only), detekt / ktlint / Kover, CI + release workflows
 - [x] Wear OS companion tile
+- [x] **iOS UI parity (V19).** All feature screens in `commonMain`; background scheduling via
+      kmpworkmanager; AppDelegate + BGTask dispatcher; iOS builds and passes all CI gates.
+- [x] Napier structured logging across all modules
 
-**In progress**
-
-- [ ] iOS **UI** parity. Core modules compile to a framework today; the feature screens are moving
-      from `androidMain` into `commonMain`
-- [ ] Expand the screenshot catalog to cover every screen (payments / events / history added)
+**Exploring**
 
 **Exploring**
 
@@ -434,6 +434,7 @@ roadmap reflects direction rather than commitments.
 - [ ] Instrumented (on-device) UI test tier alongside the JVM suite
 - [ ] Accessibility pass (TalkBack, semantics, large-font / RTL)
 - [ ] Larger bundled offline map packs
+- [ ] Expand Roborazzi catalog to remaining edge-case states
 
 ## iOS and Wear OS
 
