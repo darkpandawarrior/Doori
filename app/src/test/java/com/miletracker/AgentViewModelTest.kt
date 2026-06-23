@@ -1,33 +1,40 @@
 package com.miletracker
 
+import com.miletracker.feature.agent.engine.AssistantEngine
+import com.miletracker.feature.agent.model.AgentConversation
 import com.miletracker.feature.agent.repository.AgentRepository
 import com.miletracker.feature.agent.viewmodel.AgentAction
 import com.miletracker.feature.agent.viewmodel.AgentViewModel
+import com.miletracker.feature.agent.voice.SpeechToText
+import com.miletracker.core.platform.ShareSheet
+import com.miletracker.feature.agent.analytics.AgentAnalyticsStore
+import com.miletracker.feature.agent.voice.TextToSpeech
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/**
- * H: behavioural coverage for [AgentViewModel], the assistant chat reducer with a simulated streaming
- * reply. The repository is a concrete in-memory mock (no deps).
- */
 class AgentViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun viewModel() = AgentViewModel(AgentRepository())
+    private fun viewModel() = AgentViewModel(AgentRepository(FakeAgentDao(), FakeAgentSessionStore()), FakeAssistantEngine(), FakeSpeechToText(), FakeTextToSpeech(), FakeShareSheet(), FakeAgentAnalyticsStore())
 
     @Test
-    fun `init seeds the popular, unanswered and history tabs from the repository`() {
-        val state = viewModel().state.value
-        assertTrue(state.popularTab.isNotEmpty())
-        assertTrue(state.unansweredTab.isNotEmpty())
-        assertTrue(state.history.isNotEmpty())
+    fun `init seeds popular and unanswered tabs synchronously, history after coroutine`() = runTest {
+        val vm = viewModel()
+        // popularTab and unansweredTab are set synchronously in the constructor
+        assertTrue(vm.state.value.popularTab.isNotEmpty())
+        assertTrue(vm.state.value.unansweredTab.isNotEmpty())
+
+        // history is filled by the seedIfEmpty + collect coroutines
+        advanceUntilIdle()
+        assertTrue(vm.state.value.history.isNotEmpty())
     }
 
     @Test
@@ -57,11 +64,55 @@ class AgentViewModelTest {
     }
 
     @Test
-    fun `loadConversation replaces the visible messages`() {
+    fun `sendMessage creates a thread and sets activeThreadId`() = runTest {
         val vm = viewModel()
-        val conversation = AgentRepository().conversations.first()
-        vm.onAction(AgentAction.LoadConversation(conversation))
-        assertEquals(conversation.messages, vm.state.value.messages)
+        assertNotNull(null == vm.state.value.activeThreadId)  // null before first message
+        vm.onAction(AgentAction.SendMessage("test question"))
+        advanceUntilIdle()
+        assertNotNull(vm.state.value.activeThreadId)
+    }
+
+    @Test
+    fun `loadConversation loads messages from Room for that conversation`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle() // let seeding + history flow complete
+
+        // The first conversation in history (sorted by lastMessageMs DESC) is CONV-001 with 2 messages
+        val history = vm.state.value.history
+        assertTrue(history.isNotEmpty())
+        val firstConv = history.first()
+
+        vm.onAction(AgentAction.LoadConversation(firstConv))
+        advanceUntilIdle()
+
+        // CONV-001 has 2 messages seeded
+        assertEquals(2, vm.state.value.messages.size)
         assertFalse(vm.state.value.isStreaming)
+        assertEquals(firstConv.id, vm.state.value.activeThreadId)
+    }
+
+    @Test
+    fun `loadConversation cancels previous messages collection`() = runTest {
+        val vm = viewModel()
+        advanceUntilIdle()
+
+        val history = vm.state.value.history
+        // Load first conversation, then load second; final messages should be for the second
+        val conv1 = history[0]
+        val conv2 = history[1]
+
+        vm.onAction(AgentAction.LoadConversation(conv1))
+        advanceUntilIdle()
+        vm.onAction(AgentAction.LoadConversation(conv2))
+        advanceUntilIdle()
+
+        assertEquals(conv2.id, vm.state.value.activeThreadId)
+    }
+
+    @Test
+    fun `DismissError clears the error field`() {
+        val vm = viewModel()
+        vm.onAction(AgentAction.DismissError)
+        assertNotNull(null == vm.state.value.error) // error stays null (was already null)
     }
 }

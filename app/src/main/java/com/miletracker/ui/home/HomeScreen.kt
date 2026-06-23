@@ -68,6 +68,7 @@ fun HomeScreen(
     onAddExpense: () -> Unit,
     onOpenAccount: () -> Unit,
     onOpenSearch: () -> Unit = onOpenAccount,
+    onOpenAgent: (() -> Unit)? = null,
     viewModel: HomeViewModel = koinViewModel(),
     reviewTracker: ReviewTracker = koinInject(),
     featureFlags: FeatureFlags = koinInject(),
@@ -89,6 +90,7 @@ fun HomeScreen(
         onAddExpense = { viewModel.onAddExpense(onAddExpense) },
         onOpenAccount = { viewModel.onOpenAccount(onOpenAccount) },
         onOpenSearch = onOpenSearch,
+        onOpenAgent = onOpenAgent,
     )
 }
 
@@ -103,6 +105,7 @@ internal fun HomeScreenContent(
     onAddExpense: () -> Unit,
     onOpenAccount: () -> Unit,
     onOpenSearch: () -> Unit = onOpenAccount,
+    onOpenAgent: (() -> Unit)? = null,
 ) {
     val scrollState = rememberScrollState()
     val snackbarState = remember { SnackbarHostState() }
@@ -130,6 +133,7 @@ internal fun HomeScreenContent(
                 notificationCount = state.notificationCount,
                 onSearch = onOpenSearch,
                 onNotifications = onOpenAccount,
+                onOpenAgent = onOpenAgent,
             )
 
             // 2. Animated banner strip (rotating 4000ms; replaces static ActionRequired card).

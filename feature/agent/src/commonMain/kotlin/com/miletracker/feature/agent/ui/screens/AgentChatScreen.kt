@@ -2,6 +2,11 @@
 
 package com.miletracker.feature.agent.ui.screens
 
+import com.miletracker.feature.agent.ui.components.VoiceWaveformOverlay
+import com.miletracker.feature.agent.ui.components.WaveformState
+import androidx.compose.material.icons.automirrored.filled.VolumeOff
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -26,7 +31,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -39,8 +43,6 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.ThumbDown
-import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,17 +76,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mikepenz.markdown.m3.Markdown
-import com.mikepenz.markdown.m3.markdownColor
-import com.mikepenz.markdown.m3.markdownTypography
 import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.feature.agent.model.AgentMessage
 import com.miletracker.feature.agent.model.PopularQuestion
 import com.miletracker.feature.agent.model.UnansweredQuestion
+import com.miletracker.feature.agent.ui.components.AgentMessageBubble
+import com.miletracker.feature.agent.ui.components.AgentStreamingBubble
+import com.miletracker.feature.agent.ui.components.AgentThinkingIndicator
 import com.miletracker.feature.agent.viewmodel.AgentAction
 import com.miletracker.feature.agent.viewmodel.AgentEffect
 import com.miletracker.feature.agent.viewmodel.AgentViewModel
@@ -92,7 +93,6 @@ import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 private val AI_GRADIENT = Brush.verticalGradient(listOf(Color(0xFF0D1B2A), Color(0xFF1A237E)))
-private val USER_BUBBLE_GRADIENT = Brush.horizontalGradient(listOf(Color(0xFF5C6BC0), Color(0xFF7E57C2)))
 private val CHIP_BG = Color(0x22FFFFFF)
 private val QUICK_PROMPTS =
     listOf(
@@ -134,6 +134,9 @@ fun AgentChatScreen(
                     val count = s.messages.size + if (s.isStreaming) 1 else 0
                     if (count > 0) listState.animateScrollToItem(count - 1)
                 }
+                is AgentEffect.ShareTranscript -> Unit // handled in P4.2
+                is AgentEffect.ShowSnackbar -> scope.launch { snackbarState.showSnackbar(effect.text) }
+                is AgentEffect.FillInput -> inputText = effect.text
             }
         }
     }
@@ -200,12 +203,26 @@ fun AgentChatScreen(
                             onSend = { sendText(inputText) },
                             onChipClicked = { sendText(it) },
                             onMic = {
-                                micPulsing = true
-                                scope.launch { snackbarState.showSnackbar("Voice input available in full version") }
+                                if (uiState.isListening) {
+                                    viewModel.onAction(AgentAction.StopVoice)
+                                } else {
+                                    micPulsing = true
+                                    viewModel.onAction(AgentAction.StartVoice)
+                                }
                             },
-                            onFeedback = { scope.launch { snackbarState.showSnackbar("Feedback recorded. Thanks!") } },
+                            onToggleVoiceConversation = { viewModel.onAction(AgentAction.ToggleVoiceConversation) },
+                            onFeedback = { msgId, rating ->
+                                viewModel.onAction(AgentAction.SubmitFeedback(msgId, rating))
+                            },
+                            feedbackMap = uiState.feedback,
                             micPulsing = micPulsing,
                             micScale = micScale,
+                            isListening = uiState.isListening,
+                            isSpeaking = uiState.isSpeaking,
+                            isVoiceConversationMode = uiState.isVoiceConversationMode,
+                            popularPrompts = uiState.popularTab.map { it.question },
+                            voiceRms = uiState.voiceRms,
+                            voiceTranscript = uiState.voiceTranscript,
                         )
                     1 ->
                         PopularTab(
@@ -284,7 +301,6 @@ private fun AgentHeader(
                 IconButton(onClick = onBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
                 }
-                // Glassmorphic orb with gradient ring
                 Box(
                     modifier =
                         Modifier
@@ -308,7 +324,6 @@ private fun AgentHeader(
                     Icon(Icons.Filled.Download, contentDescription = "Export", tint = Color.White)
                 }
             }
-            // Hairline separator simulating glass edge
             Spacer(
                 modifier =
                     Modifier
@@ -333,11 +348,25 @@ private fun ChatTab(
     onInputChange: (String) -> Unit,
     onSend: () -> Unit,
     onChipClicked: (String) -> Unit,
-    onFeedback: () -> Unit,
+    onFeedback: (messageId: String, rating: Int) -> Unit,
+    feedbackMap: Map<String, Int>,
     onMic: () -> Unit,
+    onToggleVoiceConversation: () -> Unit,
     micPulsing: Boolean,
     micScale: Float,
+    isListening: Boolean,
+    isSpeaking: Boolean,
+    isVoiceConversationMode: Boolean,
+    voiceRms: Float,
+    voiceTranscript: String,
+    popularPrompts: List<String> = QUICK_PROMPTS,
 ) {
+    val waveformState = when {
+        isListening -> WaveformState.Listening
+        isSpeaking -> WaveformState.Speaking
+        isStreaming -> WaveformState.Processing
+        else -> WaveformState.Idle
+    }
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
@@ -345,14 +374,13 @@ private fun ChatTab(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         ) {
-            // Quick prompts shown before any conversation starts
             if (messages.isEmpty() && !isStreaming) {
                 item {
                     FlowRow(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        QUICK_PROMPTS.forEach { prompt ->
+                        popularPrompts.forEach { prompt ->
                             Surface(
                                 onClick = { onChipClicked(prompt) },
                                 color = CHIP_BG,
@@ -372,21 +400,23 @@ private fun ChatTab(
             }
 
             items(messages) { message ->
-                MessageBubble(message = message, onFeedback = onFeedback)
+                AgentMessageBubble(
+                    message = message,
+                    onFeedback = { rating -> onFeedback(message.id, rating) },
+                    feedbackRating = feedbackMap[message.id],
+                )
             }
 
-            // Streaming / thinking indicator
             if (isStreaming) {
                 item {
                     if (streamedText.isEmpty()) {
-                        ThinkingIndicator(phrase = thinkingPhrase)
+                        AgentThinkingIndicator(phrase = thinkingPhrase)
                     } else {
-                        StreamingBubble(text = streamedText, cursorAlpha = cursorAlpha, onFeedback = onFeedback)
+                        AgentStreamingBubble(text = streamedText, cursorAlpha = cursorAlpha)
                     }
                 }
             }
 
-            // Quick prompts after conversation too
             if (messages.isNotEmpty() && !isStreaming) {
                 item {
                     FlowRow(
@@ -394,7 +424,7 @@ private fun ChatTab(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        QUICK_PROMPTS.take(3).forEach { prompt ->
+                        popularPrompts.take(3).forEach { prompt ->
                             Surface(
                                 onClick = { onChipClicked(prompt) },
                                 color = CHIP_BG,
@@ -414,7 +444,14 @@ private fun ChatTab(
             }
         }
 
-        // Input row
+        AnimatedVisibility(visible = isListening || isSpeaking) {
+            VoiceWaveformOverlay(
+                state = waveformState,
+                rms = voiceRms,
+                transcript = voiceTranscript,
+            )
+        }
+
         Row(
             modifier =
                 Modifier
@@ -445,7 +482,18 @@ private fun ChatTab(
                 onClick = onMic,
                 modifier = if (micPulsing) Modifier.scale(micScale) else Modifier,
             ) {
-                Icon(Icons.Filled.Mic, contentDescription = "Voice", tint = Color.White.copy(alpha = 0.8f))
+                Icon(
+                    Icons.Filled.Mic,
+                    contentDescription = if (isListening) "Stop voice" else "Start voice",
+                    tint = if (isListening) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
+                )
+            }
+            IconButton(onClick = onToggleVoiceConversation) {
+                Icon(
+                    if (isVoiceConversationMode) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
+                    contentDescription = "Toggle hands-free mode",
+                    tint = if (isVoiceConversationMode) MaterialTheme.colorScheme.secondary else Color.White.copy(alpha = 0.5f),
+                )
             }
             IconButton(
                 onClick = onSend,
@@ -461,108 +509,6 @@ private fun ChatTab(
     }
 }
 
-@Composable
-private fun MessageBubble(
-    message: AgentMessage,
-    onFeedback: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = if (message.isUser) Alignment.End else Alignment.Start,
-    ) {
-        if (message.isUser) {
-            Box(
-                modifier =
-                    Modifier
-                        .widthIn(max = 280.dp)
-                        .background(USER_BUBBLE_GRADIENT, RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-            ) {
-                Text(message.text, style = MaterialTheme.typography.bodyMedium, color = Color.White)
-            }
-        } else {
-            Box(
-                modifier =
-                    Modifier
-                        .widthIn(max = 280.dp)
-                        .background(
-                            Color.White.copy(alpha = 0.12f),
-                            RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp),
-                        )
-                        .border(
-                            1.dp,
-                            Color.White.copy(alpha = 0.2f),
-                            RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp),
-                        )
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
-            ) {
-                Markdown(
-                    content = message.text,
-                    colors = markdownColor(text = Color.White),
-                    typography =
-                        markdownTypography(
-                            text = MaterialTheme.typography.bodyMedium,
-                            paragraph = MaterialTheme.typography.bodyMedium,
-                        ),
-                )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                IconButton(onClick = onFeedback, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.ThumbUp, contentDescription = "Helpful", tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
-                }
-                IconButton(onClick = onFeedback, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.ThumbDown, contentDescription = "Not helpful", tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun StreamingBubble(
-    text: String,
-    cursorAlpha: Float,
-    onFeedback: () -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-        Box(
-            modifier =
-                Modifier
-                    .widthIn(max = 280.dp)
-                    .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-        ) {
-            Text(
-                text = "$text${if (cursorAlpha > 0.5f) "|" else ""}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
-            )
-        }
-    }
-}
-
-@Composable
-private fun ThinkingIndicator(phrase: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.padding(vertical = 4.dp),
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
-        ) {
-            Text(
-                text = "$phrase ···",
-                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                color = Color.White.copy(alpha = 0.7f),
-            )
-        }
-    }
-}
 
 @Composable
 private fun PopularTab(
@@ -650,33 +596,5 @@ private fun UnansweredTab(
                 }
             }
         }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Previews
-// ---------------------------------------------------------------------------
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Agent Header – glassmorphic")
-@Composable
-private fun PreviewAgentHeader() {
-    com.miletracker.core.ui.theme.MileTrackerTheme {
-        AgentHeader(onBack = {}, onHistory = {}, onDownload = {})
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = false, name = "Popular Tab")
-@Composable
-private fun PreviewPopularTab() {
-    com.miletracker.core.ui.theme.MileTrackerTheme {
-        PopularTab(
-            questions =
-                listOf(
-                    PopularQuestion("PQ-001", "What is the mileage reimbursement rate?", "Mileage", 248, true),
-                    PopularQuestion("PQ-002", "How do I submit a GPS-tracked trip?", "Mileage", 187, true),
-                    PopularQuestion("PQ-003", "What receipts are required for expenses?", "Expense", 215, false),
-                ),
-            onQuestion = {},
-        )
     }
 }

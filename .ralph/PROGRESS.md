@@ -670,3 +670,61 @@ _(append one entry per iteration: task id, what changed, gate result)_
        (once the @_cdecl bridge function is authored in IosTrackingPresenceController.kt).
     5. Add "Supports Live Activities" = YES to MilewayApp Info.plist.
     6. Enable "Push Notifications" + "Background Modes" (Remote notifications) capabilities.
+
+## PLAN_V20 iterations
+
+- 2026-06-24 — V20 iter 1 — **P0.1: Hoist agent VM/repo/UI/DI to commonMain** (pending commit).
+  - Moved AgentViewModel, AgentRepository, AgentChatScreen, AgentHistoryScreen, AgentGraph, AgentModule
+    from androidMain → commonMain.
+  - Removed Android-only @Preview annotations from AgentChatScreen (used @androidx.compose.ui.tooling.preview.Preview, not CMP).
+  - Moved :stub dep from androidMain → commonMain in feature/agent/build.gradle.kts.
+  - All nav imports (NavController/NavGraphBuilder/composable) work in commonMain via JB multiplatform nav.
+  - Gate: assembleNoGmsDebug ✅ testNoGmsDebugUnitTest ✅
+  - NEXT: P0.2 — unify AssistantHomeSheet onto shared AgentViewModel + AgentChatScreen content.
+
+- 2026-06-24 — V20 iter 2 — **P1.1 + P1.2: Room schema migration + Repository backed by Room**
+  P1.1: DB v5→v6, AgentConversationEntity + AgentMessageEntity added to core:data; AgentDao with
+  observeConversations, observeMessages, insertConversation, insertMessage, updateConversationMeta,
+  updateFeedback, updateLastMessageTime (added in P1.2 to support appendMessage). MIGRATION_5_6 CREATE
+  TABLE scripts added; both android/ios DB builders wire it. CoreDataModule registers agentDao().
+  P1.2: AgentRepository rewritten to take AgentDao — exposes conversationsFlow (Flow<List<AgentConversation>>),
+  messagesFor(conversationId), createThread, appendMessage (inserts + updates lastMessageMs), updateTitle,
+  seedIfEmpty (seeds AgentMockData on first run if countConversations == 0). AgentViewModel: init block
+  seeds + collects conversationsFlow, sendMessage now creates thread + persists user/assistant messages,
+  loadConversation uses messagesFor() + cancels prior Job. quickReplies moved from repo → VM.
+  AgentModule injects AgentDao via get(). FakeAgentDao added for tests (LinkedHashMap-backed, flush() pattern).
+  AgentRepositoryTest rewritten (Turbine, runTest, tests seeding/persistence/conversationsFlow).
+  AgentViewModelTest rewritten (FakeAgentDao, async loadConversation, history populated after advanceUntilIdle).
+  KoinGraphTest + ScreenshotGalleryTest fakeRoomLayer patched with single<AgentDao> { FakeAgentDao() }.
+  Gate: assembleNoGmsDebug ✅ testNoGmsDebugUnitTest (792 tests, 0 failures) ✅
+  NEXT: P1.3 — session resume via DataStore (5-minute window).
+
+- 2026-06-24 — PLAN_V20 (continuation from prior session) — **P5.2: Topbar chat indicator**
+  HomeScreen/HomeScreenContent: +onOpenAgent param (nullable). HomeProfileHeader reads
+  AssistantFabSessionState.mode; renders ChatAgentIndicator(FULL) when mode==TOPBAR.
+  ChatAgentIndicator: new animated sparkle pill (FULL/COMPACT). MileTrackerAppRoot passes
+  onOpenAgent to HomeScreen. Gate: assembleNoGmsDebug ✅ testNoGmsDebugUnitTest ✅
+
+- 2026-06-24 — **P5.3: Empty-state popular-questions carousel from real data**
+  ChatTab: +popularPrompts param (default=QUICK_PROMPTS fallback). AgentChatScreen threads
+  uiState.popularTab.map{it.question} → ChatTab. Gate: assembleNoGmsDebug ✅ tests ✅
+
+- 2026-06-24 — **P6.1: iOS parity for assistant (actuals + Koin bootstrap)**
+  IosAgentEntry.kt: exposes iosAgentModule. shared/build.gradle.kts: exports feature:agent.
+  SharedViewController.kt: new MilwayAppViewController() in :shared/iosMain includes all
+  modules. iOS compile gate: :shared:compileKotlinIosSimulatorArm64 ✅
+
+- 2026-06-24 — **P7.1: Unit tests — engine, persistence, streaming, resume coverage**
+  feature:agent: withHostTest enabled, commonTest sourceSet added.
+  OfflineAssistantEngineTest (8 tests): chunk ordering, grounded km count, zero-trip,
+  old-track exclusion, title suggestions. AgentRepositoryTest (8 tests): CRUD, isolation,
+  resumable thread window, persistFeedback. Gate: testAndroidHostTest ✅ testNoGmsDebugUnitTest ✅
+
+- 2026-06-24 — **P7.2: Roborazzi baselines for all assistant screens** (+8 screenshots)
+  agent_chat_analytics_popular, agent_chat_analytics_unanswered (tab-click screenshots),
+  voice_waveform_idle/listening/speaking, chat_agent_indicator_full/compact, assistant_fab.
+  Gate: testNoGmsDebugUnitTest ✅
+
+- 2026-06-24 — **P7.3: Final gate — both flavors build, tests green** ✅
+  assembleGmsDebug ✅ assembleNoGmsDebug ✅ testNoGmsDebugUnitTest ✅
+  PLAN_V20 COMPLETE.

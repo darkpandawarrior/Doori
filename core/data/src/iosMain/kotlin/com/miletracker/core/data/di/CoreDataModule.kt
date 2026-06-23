@@ -10,6 +10,8 @@ import com.miletracker.core.data.outbox.TripDraft
 import com.miletracker.core.data.session.CurrentTrackDataSource
 import com.miletracker.core.data.session.CurrentTrackDataStore
 import com.miletracker.core.data.session.SessionRepository
+import com.miletracker.core.data.settings.AgentSessionStore
+import com.miletracker.core.data.settings.AgentSessionStoreImpl
 import com.miletracker.core.data.settings.DemoSettingsRepository
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
@@ -25,10 +27,12 @@ val coreDataModule =
         single { get<MileTrackerDatabase>().tripAttachmentDao() }
         single { get<MileTrackerDatabase>().mediaLibraryDao() }
         single { get<MileTrackerDatabase>().submitDraftDao() }
+        single { get<MileTrackerDatabase>().agentDao() }
         single { CurrentTrackDataStore() }
         single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
         single { SessionRepository() }
         single { DemoSettingsRepository() }
+        single<AgentSessionStore> { AgentSessionStoreImpl() }
         single { Json { ignoreUnknownKeys = true } }
         single<SubmitOutbox<TripDraft>> { RoomSubmitOutbox(get(), get()) }
         // L.1: in-process snapshot channel for glanceable surfaces (publish + observe).

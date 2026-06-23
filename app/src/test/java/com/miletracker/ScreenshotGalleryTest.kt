@@ -5,10 +5,18 @@ import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.miletracker.core.data.dao.AgentDao
 import com.miletracker.core.data.dao.HardwareEventDao
+import com.miletracker.core.data.settings.AgentSessionStore
+import com.miletracker.feature.agent.analytics.AgentAnalyticsStore
+import com.miletracker.feature.agent.engine.AssistantEngine
+import com.miletracker.feature.agent.voice.SpeechToText
+import com.miletracker.feature.agent.voice.TextToSpeech
 import com.miletracker.core.data.dao.LocationDao
 import com.miletracker.core.data.dao.LogMilesDraftDao
 import com.miletracker.core.data.dao.LogMilesFrequentRouteDao
@@ -35,6 +43,11 @@ import com.miletracker.core.platform.ReferralManager
 import com.miletracker.core.ui.di.coreUiModule
 import com.miletracker.core.ui.theme.MileTrackerTheme
 import com.miletracker.feature.agent.di.agentModule
+import com.miletracker.feature.agent.ui.components.AssistantFab
+import com.miletracker.feature.agent.ui.components.ChatAgentIndicator
+import com.miletracker.feature.agent.ui.components.ChatIndicatorMode
+import com.miletracker.feature.agent.ui.components.VoiceWaveformOverlay
+import com.miletracker.feature.agent.ui.components.WaveformState
 import com.miletracker.feature.agent.ui.screens.AgentChatScreen
 import com.miletracker.feature.agent.ui.screens.AgentHistoryScreen
 import com.miletracker.feature.approvals.di.approvalsModule
@@ -227,6 +240,11 @@ class ScreenshotGalleryTest {
             single<LogMilesFrequentRouteDao> { mockk(relaxed = true) }
             single<TripAttachmentDao> { mockk(relaxed = true) }
             single<MediaLibraryDao> { mediaLibraryDao }
+            single<AgentDao> { FakeAgentDao() }
+            single<AgentSessionStore> { FakeAgentSessionStore() }
+            single<AssistantEngine> { FakeAssistantEngine() }
+            single<SpeechToText> { FakeSpeechToText() }
+            single<TextToSpeech> { FakeTextToSpeech() }
             single<CurrentTrackDataStore> { mockk(relaxed = true) }
             single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
             single<DemoSettingsRepository> { mockk(relaxed = true) }
@@ -265,6 +283,7 @@ class ScreenshotGalleryTest {
             single<ShareSheet> { mockk(relaxed = true) }
             single<PermissionsProvider> { mockk(relaxed = true) }
             single<UrlOpener> { mockk(relaxed = true) }
+            single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() }
         }
 
         @BeforeClass @JvmStatic
@@ -1096,6 +1115,112 @@ class ScreenshotGalleryTest {
             }
         }
         capture("assistant_home_sheet")
+    }
+
+    @Test
+    fun agentChatScreenAnalyticsTab() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                AgentChatScreen(
+                    onBack = {},
+                    onOpenHistory = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("POPULAR").performClick()
+        capture("agent_chat_analytics_popular")
+    }
+
+    @Test
+    fun agentChatScreenUnansweredTab() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                AgentChatScreen(
+                    onBack = {},
+                    onOpenHistory = {},
+                )
+            }
+        }
+        composeRule.onNodeWithText("UNANSWERED").performClick()
+        capture("agent_chat_analytics_unanswered")
+    }
+
+    @Test
+    fun voiceWaveformIdle() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                VoiceWaveformOverlay(
+                    state = WaveformState.Idle,
+                    rms = 0f,
+                    transcript = "",
+                )
+            }
+        }
+        capture("voice_waveform_idle")
+    }
+
+    @Test
+    fun voiceWaveformListening() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                VoiceWaveformOverlay(
+                    state = WaveformState.Listening,
+                    rms = 0.6f,
+                    transcript = "how much did I travel this week",
+                )
+            }
+        }
+        capture("voice_waveform_listening")
+    }
+
+    @Test
+    fun voiceWaveformSpeaking() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                VoiceWaveformOverlay(
+                    state = WaveformState.Speaking,
+                    rms = 0.4f,
+                    transcript = "",
+                )
+            }
+        }
+        capture("voice_waveform_speaking")
+    }
+
+    @Test
+    fun chatAgentIndicatorFull() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                ChatAgentIndicator(
+                    mode = ChatIndicatorMode.FULL,
+                    onClick = {},
+                )
+            }
+        }
+        capture("chat_agent_indicator_full")
+    }
+
+    @Test
+    fun chatAgentIndicatorCompact() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                ChatAgentIndicator(
+                    mode = ChatIndicatorMode.COMPACT,
+                    onClick = {},
+                )
+            }
+        }
+        capture("chat_agent_indicator_compact")
+    }
+
+    @Test
+    fun assistantFab() {
+        composeRule.setContent {
+            MileTrackerTheme {
+                AssistantFab(onOpen = {}, onDismissToTopbar = {})
+            }
+        }
+        capture("assistant_fab")
     }
 
     // ── Security ───────────────────────────────────────────────────────────────────

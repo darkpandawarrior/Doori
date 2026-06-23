@@ -1,5 +1,10 @@
 package com.miletracker.ui.home
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.miletracker.feature.agent.ui.AssistantEntryMode
+import com.miletracker.feature.agent.ui.AssistantFabSessionState
+import com.miletracker.feature.agent.ui.components.ChatAgentIndicator
+import com.miletracker.feature.agent.ui.components.ChatIndicatorMode
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
@@ -136,6 +141,7 @@ fun HomeProfileHeader(
     notificationCount: Int,
     onSearch: () -> Unit,
     onNotifications: () -> Unit,
+    onOpenAgent: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -208,6 +214,14 @@ fun HomeProfileHeader(
                     color = Color.White.copy(alpha = 0.85f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                )
+            }
+
+            val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()
+            if (fabMode == AssistantEntryMode.TOPBAR && onOpenAgent != null) {
+                ChatAgentIndicator(
+                    mode = ChatIndicatorMode.FULL,
+                    onClick = onOpenAgent,
                 )
             }
 

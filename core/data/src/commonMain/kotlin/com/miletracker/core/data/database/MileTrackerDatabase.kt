@@ -4,6 +4,7 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import com.miletracker.core.data.dao.AgentDao
 import com.miletracker.core.data.dao.HardwareEventDao
 import com.miletracker.core.data.dao.LocationDao
 import com.miletracker.core.data.dao.LogMilesDraftDao
@@ -13,6 +14,8 @@ import com.miletracker.core.data.dao.SubmitDraftDao
 import com.miletracker.core.data.dao.TripAttachmentDao
 import com.miletracker.core.data.library.MediaLibraryDao
 import com.miletracker.core.data.library.MediaLibraryEntry
+import com.miletracker.core.data.model.db.AgentConversationEntity
+import com.miletracker.core.data.model.db.AgentMessageEntity
 import com.miletracker.core.data.model.db.HardwareEvent
 import com.miletracker.core.data.model.db.LocationData
 import com.miletracker.core.data.model.db.LogMilesDraftEntity
@@ -31,8 +34,10 @@ import com.miletracker.core.data.model.db.TripAttachmentEntity
         TripAttachmentEntity::class,
         MediaLibraryEntry::class,
         SubmitDraftEntity::class,
+        AgentConversationEntity::class,
+        AgentMessageEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 @ConstructedBy(MileTrackerDatabaseConstructor::class)
@@ -52,6 +57,8 @@ abstract class MileTrackerDatabase : RoomDatabase() {
     abstract fun mediaLibraryDao(): MediaLibraryDao
 
     abstract fun submitDraftDao(): SubmitDraftDao
+
+    abstract fun agentDao(): AgentDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

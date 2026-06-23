@@ -4,6 +4,7 @@ data class AgentMessage(
     val text: String,
     val isUser: Boolean,
     val timestampMs: Long,
+    val id: String = "${if (isUser) "u" else "a"}_$timestampMs",
 )
 
 data class AgentConversation(

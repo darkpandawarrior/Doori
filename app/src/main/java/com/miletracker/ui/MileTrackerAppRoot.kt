@@ -73,6 +73,9 @@ import com.miletracker.feature.events.ui.navigation.EventsRoutes
 import com.miletracker.feature.events.ui.navigation.eventsGraph
 import com.miletracker.feature.payments.ui.navigation.PaymentsRoutes
 import com.miletracker.feature.payments.ui.navigation.paymentsGraph
+import com.miletracker.feature.agent.ui.AssistantEntryMode
+import com.miletracker.feature.agent.ui.AssistantFabSessionState
+import com.miletracker.feature.agent.ui.components.AssistantFab
 import com.miletracker.feature.agent.ui.navigation.agentGraph
 import com.miletracker.feature.travel.ui.navigation.TravelRoutes
 import com.miletracker.feature.travel.ui.navigation.travelGraph
@@ -264,6 +267,10 @@ fun MileTrackerAppRoot(
                                 onAddExpense = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
                                 onOpenAccount = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.PROFILE }) },
                                 onOpenSearch = { navController.navigate(AppRoutes.SEARCH) },
+                                onOpenAgent = {
+                                    AssistantFabSessionState.onChatOpen()
+                                    navController.navigate(AppRoutes.AGENT_CHAT)
+                                },
                             )
                         }
                     }
@@ -335,6 +342,26 @@ fun MileTrackerAppRoot(
 
                     // Full-screen AI Agent, entered via FAB throw-up gesture.
                     agentGraph(navController)
+                }
+
+                // Global AI assistant FAB — hidden while agent chat is open.
+                val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()
+                val isChatOpen by AssistantFabSessionState.isChatOpen.collectAsStateWithLifecycle()
+                val currentRoute = backStackEntry?.destination?.route
+                val onAgentScreen = currentRoute?.startsWith("agent/") == true
+                AnimatedVisibility(
+                    visible = fabMode == AssistantEntryMode.FAB && !isChatOpen && !onAgentScreen,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 88.dp),
+                ) {
+                    AssistantFab(
+                        onOpen = {
+                            AssistantFabSessionState.onChatOpen()
+                            navController.navigate(AppRoutes.AGENT_CHAT)
+                        },
+                        onDismissToTopbar = { AssistantFabSessionState.switchToTopbar() },
+                    )
                 }
 
                 // Collapsed-state puck: bottom-end overlay with long-press wheel selector.

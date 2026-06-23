@@ -1,7 +1,13 @@
 package com.miletracker
 
 import android.content.Context
+import com.miletracker.core.data.dao.AgentDao
 import com.miletracker.core.data.dao.HardwareEventDao
+import com.miletracker.core.data.settings.AgentSessionStore
+import com.miletracker.feature.agent.engine.AssistantEngine
+import com.miletracker.feature.agent.voice.SpeechToText
+import com.miletracker.feature.agent.analytics.AgentAnalyticsStore
+import com.miletracker.feature.agent.voice.TextToSpeech
 import com.miletracker.core.data.dao.LocationDao
 import com.miletracker.core.data.dao.LogMilesDraftDao
 import com.miletracker.core.data.dao.LogMilesFrequentRouteDao
@@ -90,6 +96,11 @@ class KoinGraphTest : KoinTest {
         single<LogMilesFrequentRouteDao> { mockk(relaxed = true) }
         single<TripAttachmentDao> { mockk(relaxed = true) }
         single<MediaLibraryDao> { mockk(relaxed = true) }
+        single<AgentDao> { FakeAgentDao() }
+        single<AgentSessionStore> { FakeAgentSessionStore() }
+        single<AssistantEngine> { FakeAssistantEngine() }
+        single<SpeechToText> { FakeSpeechToText() }
+        single<TextToSpeech> { FakeTextToSpeech() }
         single<CurrentTrackDataStore> { mockk(relaxed = true) }
         single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
         single<DemoSettingsRepository> { mockk(relaxed = true) }
@@ -118,7 +129,9 @@ class KoinGraphTest : KoinTest {
                 com.miletracker.feature.cards.di.cardsModule,
                 paymentsModule,
                 eventsModule,
-                appModule
+                appModule,
+                // Override platform-backed agent services last so fakes win over agentPlatformModule
+                module { single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() } },
             )
         }
     }

@@ -14,6 +14,7 @@ plugins {
  * Exported API surfaced to Swift:
  *  - core:ui          → MainViewController, ReferralBridge, PushBridge, DeepLinkBridge
  *  - feature:tracking → MilwayViewController (IosTrackingEntry), IosBgTaskDispatcher
+ *  - feature:agent    → iosAgentModule (IosAgentEntry)
  */
 kotlin {
     listOf(
@@ -24,6 +25,7 @@ kotlin {
             baseName = "MileTracker"
             export(project(":core:ui"))
             export(project(":feature:tracking"))
+            export(project(":feature:agent"))
         }
     }
 
@@ -32,6 +34,10 @@ kotlin {
             // api(...) is required for export(...) above to surface these modules' public API in the framework.
             api(project(":core:ui"))
             api(project(":feature:tracking"))
+            api(project(":feature:agent"))
+        }
+        iosMain.dependencies {
+            // No extra deps — MilwayAppViewController() uses api deps already imported above.
         }
     }
 }

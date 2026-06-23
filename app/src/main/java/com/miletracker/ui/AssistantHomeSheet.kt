@@ -1,5 +1,11 @@
 package com.miletracker.ui
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +21,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,92 +39,110 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
+import com.miletracker.feature.agent.ui.components.AgentMessageBubble
+import com.miletracker.feature.agent.ui.components.AgentStreamingBubble
+import com.miletracker.feature.agent.ui.components.AgentThinkingIndicator
+import com.miletracker.feature.agent.viewmodel.AgentAction
+import com.miletracker.feature.agent.viewmodel.AgentEffect
+import com.miletracker.feature.agent.viewmodel.AgentViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
-data class ChatMessage(val text: String, val isUser: Boolean)
-
-private val INITIAL_MESSAGES = listOf(
-    ChatMessage("How much have I spent on travel?", isUser = true),
-    ChatMessage("You've spent ₹12,300 on Travel this month: flights, hotels, and local transit combined. Want a full breakdown?", isUser = false)
-)
-
-private val QUICK_ACTIONS = listOf(
-    "Summarise my week",
-    "Why was my expense rejected?",
-    "Plan a trip"
-)
+private val SHEET_BG = Brush.verticalGradient(listOf(Color(0xFF0D1B2A), Color(0xFF1A237E)))
+private val QUICK_ACTIONS = listOf("Summarise my week", "Why was my expense rejected?", "Plan a trip")
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun AssistantHomeSheet(onDismiss: () -> Unit) {
-    val messages = remember { mutableStateListOf<ChatMessage>().also { it.addAll(INITIAL_MESSAGES) } }
+fun AssistantHomeSheet(
+    onDismiss: () -> Unit,
+    viewModel: AgentViewModel = koinViewModel(),
+) {
+    val uiState by viewModel.uiState.collectAsState()
     var inputText by remember { mutableStateOf("") }
-    var pendingReply by remember { mutableStateOf(false) }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) listState.animateScrollToItem(messages.size - 1)
+    val infiniteTransition = rememberInfiniteTransition(label = "cursor")
+    val cursorAlpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(tween(500, easing = LinearEasing), RepeatMode.Reverse),
+        label = "cursorAlpha",
+    )
+
+    LaunchedEffect(uiState.messages.size, uiState.streamedText) {
+        val count = uiState.messages.size + if (uiState.isStreaming) 1 else 0
+        if (count > 0) listState.animateScrollToItem(count - 1)
     }
 
-    LaunchedEffect(pendingReply) {
-        if (pendingReply) {
-            delay(1500L)
-            messages.add(ChatMessage("I'll check that for you and get back shortly!", isUser = false))
-            pendingReply = false
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                AgentEffect.ScrollToBottom -> {
+                    val s = viewModel.uiState.value
+                    val count = s.messages.size + if (s.isStreaming) 1 else 0
+                    if (count > 0) listState.animateScrollToItem(count - 1)
+                }
+                is AgentEffect.ShareTranscript -> Unit
+                is AgentEffect.ShowSnackbar -> Unit
+                is AgentEffect.FillInput -> Unit
+            }
         }
     }
 
     fun sendMessage() {
         val text = inputText.trim()
         if (text.isBlank()) return
-        messages.add(ChatMessage(text, isUser = true))
         inputText = ""
-        pendingReply = true
+        viewModel.onAction(AgentAction.SendMessage(text))
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .imePadding()
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .background(SHEET_BG)
+                    .navigationBarsPadding()
+                    .imePadding(),
         ) {
             // Header
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Filled.AutoAwesome,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
                     )
                 }
                 Column {
-                    Text("AI Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("Powered by language models", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("AI Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text("Powered by Mileway AI", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.7f))
                 }
             }
 
@@ -127,22 +150,22 @@ fun AssistantHomeSheet(onDismiss: () -> Unit) {
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 QUICK_ACTIONS.forEach { action ->
                     Surface(
                         onClick = {
-                            messages.add(ChatMessage(action, isUser = true))
-                            pendingReply = true
+                            inputText = ""
+                            viewModel.onAction(AgentAction.SendMessage(action))
                         },
-                        color = MaterialTheme.colorScheme.secondaryContainer,
-                        shape = RoundedCornerShape(20.dp)
+                        color = Color.White.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(20.dp),
                     ) {
                         Text(
                             action,
                             style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                         )
                     }
                 }
@@ -150,32 +173,25 @@ fun AssistantHomeSheet(onDismiss: () -> Unit) {
 
             Spacer(Modifier.height(12.dp))
 
-            // Conversation
+            // Conversation — backed by real AgentViewModel
             LazyColumn(
                 state = listState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(240.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(240.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(messages) { message ->
-                    MessageBubble(message)
+                items(uiState.messages) { message ->
+                    AgentMessageBubble(message = message, onFeedback = {})
                 }
-                if (pendingReply) {
+                if (uiState.isStreaming) {
                     item {
-                        Row(modifier = Modifier.fillMaxWidth()) {
-                            Surface(
-                                color = MaterialTheme.colorScheme.surfaceVariant,
-                                shape = RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
-                            ) {
-                                Text(
-                                    "···",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                        if (uiState.streamedText.isEmpty()) {
+                            AgentThinkingIndicator(phrase = uiState.thinkingPhrase)
+                        } else {
+                            AgentStreamingBubble(text = uiState.streamedText, cursorAlpha = cursorAlpha)
                         }
                     }
                 }
@@ -185,53 +201,30 @@ fun AssistantHomeSheet(onDismiss: () -> Unit) {
 
             // Input row
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = { inputText = it },
-                    placeholder = { Text("Ask me anything…") },
+                    placeholder = { Text("Ask me anything…", color = Color.White.copy(alpha = 0.5f)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(24.dp)
+                    shape = RoundedCornerShape(24.dp),
                 )
                 IconButton(
                     onClick = ::sendMessage,
-                    enabled = inputText.isNotBlank() && !pendingReply
+                    enabled = inputText.isNotBlank() && !uiState.isStreaming,
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = if (inputText.isNotBlank()) Color.White else Color.White.copy(alpha = 0.4f))
                 }
             }
 
             Spacer(Modifier.height(8.dp))
-        }
-    }
-}
-
-@Composable
-private fun MessageBubble(message: ChatMessage) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (message.isUser) Arrangement.End else Arrangement.Start
-    ) {
-        Surface(
-            color = if (message.isUser) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-            shape = if (message.isUser)
-                RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp)
-            else
-                RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp),
-            modifier = Modifier.widthIn(max = 280.dp)
-        ) {
-            Text(
-                text = message.text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (message.isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
-            )
         }
     }
 }
