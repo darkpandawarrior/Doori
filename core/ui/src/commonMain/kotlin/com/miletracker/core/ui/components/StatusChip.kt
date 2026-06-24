@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
  */
 enum class StatusTone(val color: Color) {
     // Aligned with Design Language v2 semantic tokens (MilewayColors dark-surface values).
-    Success(Color(0xFF3DDC84)),
+    Success(Color(0xFF00FF41)),
     Warning(Color(0xFFF2C14E)),
     Error(Color(0xFFF2545B)),
     Info(Color(0xFF5BA8F5)),

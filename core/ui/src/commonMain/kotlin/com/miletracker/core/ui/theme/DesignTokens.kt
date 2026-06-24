@@ -131,7 +131,7 @@ object DesignTokens {
      * non-composable code (data classes, previews) that genuinely can't read the theme.
      */
     object StatusColors {
-        val success = Color(0xFF3DDC84) // Green - approved, active, completed
+        val success = Color(0xFF00FF41) // Phosphor green - approved, active, completed
         val warning = Color(0xFFF2C14E) // Amber - pending, low balance
         val error = Color(0xFFF2545B) // Red - rejected, critical, overdue
         val info = Color(0xFF5BA8F5) // Blue - informational, processing

@@ -34,23 +34,23 @@ enum class MilewayTheme(
     val seedHex: String,
     val spec: MilewaySchemeSpec,
 ) {
-    /** Default. Deep-dark "matrix" green-on-near-black. */
+    /** Default. Deep-dark phosphor-green terminal. */
     MATRIX(
         id = "MATRIX",
         label = "Matrix",
-        description = "Deep-dark, matrix green. The Mileway signature.",
+        description = "Deep-dark, phosphor green. The Mileway signature.",
         isLight = false,
-        seedHex = "#3DDC84",
+        seedHex = "#00FF41",
         spec = MatrixSpec,
     ),
 
-    /** True-black OLED variant — same green accent, maximum contrast, battery-friendly. */
+    /** True-black OLED variant — same phosphor accent, maximum contrast, battery-friendly. */
     AMOLED(
         id = "AMOLED",
         label = "Amoled",
         description = "True-black OLED. Maximum contrast, battery-friendly.",
         isLight = false,
-        seedHex = "#3DDC84",
+        seedHex = "#00FF41",
         spec = AmoledSpec,
     ),
 

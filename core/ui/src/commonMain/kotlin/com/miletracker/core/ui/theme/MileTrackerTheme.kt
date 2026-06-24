@@ -51,7 +51,7 @@ fun MileTrackerTheme(
     val seedColor =
         parseHexColor(customSeedHex)
             ?: parseHexColor(milewayTheme?.seedHex ?: palette.seedHex)
-            ?: Color(0xFF3DDC84)
+            ?: Color(0xFF00FF41)
 
     val style =
         remember(paletteStyle) {
@@ -108,7 +108,7 @@ private fun derivedSemanticColors(
         warning = if (isDark) Color(0xFFF2C14E) else Color(0xFFB8860B),
         danger = scheme.error,
         info = if (isDark) Color(0xFF5BA8F5) else Color(0xFF1C6FD6),
-        success = if (isDark) Color(0xFF3DDC84) else Color(0xFF1C8F52),
+        success = if (isDark) Color(0xFF00FF41) else Color(0xFF1C8F52),
         accentGlow = scheme.primary,
         accentDim = scheme.inversePrimary,
         border = scheme.outline,

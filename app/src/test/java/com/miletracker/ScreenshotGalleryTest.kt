@@ -1127,7 +1127,7 @@ class ScreenshotGalleryTest {
                 )
             }
         }
-        composeRule.onNodeWithText("POPULAR").performClick()
+        composeRule.onNodeWithText("[ POPULAR ]").performClick()
         capture("agent_chat_analytics_popular")
     }
 
@@ -1141,7 +1141,7 @@ class ScreenshotGalleryTest {
                 )
             }
         }
-        composeRule.onNodeWithText("UNANSWERED").performClick()
+        composeRule.onNodeWithText("[ UNANSWERED ]").performClick()
         capture("agent_chat_analytics_unanswered")
     }
 
