@@ -76,9 +76,9 @@ Play Store and F-Droid.
 > [Roborazzi](https://github.com/takahirom/roborazzi) on the JVM, so **no emulator is required**
 > (`./gradlew recordRoborazziNoGmsDebug`).
 
-| Live GPS Tracking | Route Map | Odometer OCR |
+| Track Miles | Journey Detail | Trip Success |
 |:---:|:---:|:---:|
-| ![Live tracking with compass speedometer, distance/duration and Pause/Stop controls](docs/screenshots/live_tracking.png) | ![Route map with the GPS path overlaid on real map tiles](docs/screenshots/route_map.png) | ![Odometer capture sheet reading 45,000 km via on-device OCR](docs/screenshots/ocr.png) |
+| ![Track Miles ready-to-start screen with vehicle selector and distance card](docs/screenshots/track_miles_idle_screen.png) | ![Track detail with route stats, journey overview and GPS-point breakdown](docs/screenshots/track_detail_screen.png) | ![Tracking success summary with distance, reimbursement amount and voucher](docs/screenshots/tracking_success_screen.png) |
 
 <details>
 <summary><b>Full screen gallery</b>: every screen across the feature modules, grouped by area (96 images)</summary>

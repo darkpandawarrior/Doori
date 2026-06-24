@@ -119,6 +119,7 @@ fun TrackDataPreviewScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Data Preview",
+                subtitle = "Raw trip data before submission",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

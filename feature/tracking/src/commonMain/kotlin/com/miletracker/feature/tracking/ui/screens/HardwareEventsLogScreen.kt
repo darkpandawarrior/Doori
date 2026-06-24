@@ -146,6 +146,7 @@ fun HardwareEventsLogScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Hardware Events (${stats.totalCount})",
+                subtitle = "Sensor & motion event log",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

@@ -26,6 +26,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
+import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -69,8 +71,10 @@ internal fun CardRequestContent(
 ) {
     Scaffold(
         topBar = {
-            androidx.compose.material3.TopAppBar(
-                title = { Text("Request a card") },
+            DepthAwareTopBar(
+                title = "Request a card",
+                subtitle = "KYC-lite application form",
+                depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onDone) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")

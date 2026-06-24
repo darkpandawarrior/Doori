@@ -116,6 +116,7 @@ fun SettingsScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Settings",
+                subtitle = "App, privacy & account",
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

@@ -20,7 +20,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.miletracker.core.ui.components.topbar.DepthAwareTopBar
+import com.miletracker.core.ui.theme.DesignTokens.NavigationDepth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -60,7 +61,13 @@ internal fun CardsHomeContent(
     onRequestCard: () -> Unit,
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Cards") }) },
+        topBar = {
+            DepthAwareTopBar(
+                title = "Cards",
+                subtitle = "Virtual cards & requests",
+                depth = NavigationDepth.LEVEL_1,
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = onRequestCard) {
                 Icon(Icons.Filled.Add, contentDescription = "Request a card")

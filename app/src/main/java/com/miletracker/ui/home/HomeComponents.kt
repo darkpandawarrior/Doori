@@ -160,8 +160,8 @@ fun HomeProfileHeader(
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
-            alpha = 0.35f,
-            colorFilter = ColorFilter.tint(Color.White),
+            alpha = 0.18f,
+            colorFilter = null,
         )
         // Terminal scanline overlay
         ScanlineOverlay(lineAlpha = 0.04f)

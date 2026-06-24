@@ -131,6 +131,7 @@ fun ManualCheckInScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Manual Check-In",
+                subtitle = "Enter your location manually",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

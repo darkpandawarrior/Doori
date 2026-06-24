@@ -156,6 +156,7 @@ fun GeoCheckInScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Check In",
+                subtitle = "Select a nearby location to record",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

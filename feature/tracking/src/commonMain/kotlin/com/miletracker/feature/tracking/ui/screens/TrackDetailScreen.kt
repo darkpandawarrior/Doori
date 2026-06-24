@@ -123,6 +123,7 @@ fun TrackDetailScreen(
         topBar = {
             DepthAwareTopBar(
                 title = uiState.track?.name ?: "Journey Details",
+                subtitle = "Journey overview & actions",
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

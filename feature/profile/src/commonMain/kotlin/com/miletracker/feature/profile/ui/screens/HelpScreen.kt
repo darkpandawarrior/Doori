@@ -167,6 +167,7 @@ fun HelpScreen(onBack: () -> Unit) {
         topBar = {
             DepthAwareTopBar(
                 title = "Help & Support",
+                subtitle = "Browse FAQs & contact support",
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

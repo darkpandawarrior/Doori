@@ -80,6 +80,7 @@ fun RoutePointsScreen(
         topBar = {
             DepthAwareTopBar(
                 title = ui.totalPoints?.let { "Route Points ($it)" } ?: "Route Points",
+                subtitle = "Raw GPS coordinates for this trip",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

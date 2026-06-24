@@ -87,6 +87,13 @@ fun CreateVoucherScreen(
                         2 -> "Confirmation"
                         else -> "Voucher Created"
                     },
+                subtitle =
+                    when (uiState.step) {
+                        0 -> "Select trips to reimburse"
+                        1 -> "Add claim details"
+                        2 -> "Review and submit"
+                        else -> "Claim submitted"
+                    },
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = {

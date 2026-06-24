@@ -71,6 +71,7 @@ fun TrackInsightsScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Track Insights",
+                subtitle = "Quality score & activity breakdown",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

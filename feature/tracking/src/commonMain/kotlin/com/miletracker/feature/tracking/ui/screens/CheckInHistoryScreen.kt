@@ -153,6 +153,7 @@ fun CheckInHistoryScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Check-In History",
+                subtitle = "All office & client visits",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
