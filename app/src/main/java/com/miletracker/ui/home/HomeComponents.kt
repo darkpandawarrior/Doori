@@ -102,7 +102,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.miletracker.core.ui.components.AutoSizeGreeting
 import com.miletracker.core.ui.components.CountBadge
+import com.miletracker.core.ui.components.ScanlineOverlay
 import com.miletracker.core.ui.theme.DesignTokens
+import com.miletracker.core.ui.theme.TerminalType
 import com.miletracker.core.ui.theme.MilewayColors
 import com.miletracker.core.ui.theme.dataStyle
 import com.miletracker.stub.ActionRequiredBanner
@@ -161,10 +163,12 @@ fun HomeProfileHeader(
             alpha = 0.35f,
             colorFilter = ColorFilter.tint(Color.White),
         )
-        // Diagonal gloss sheen over the map.
+        // Terminal scanline overlay
+        ScanlineOverlay(lineAlpha = 0.04f)
+        // Subtle diagonal sheen
         Canvas(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
             val sheenBrush = Brush.linearGradient(
-                colors = listOf(Color.White.copy(alpha = 0.08f), Color.Transparent),
+                colors = listOf(Color.White.copy(alpha = 0.04f), Color.Transparent),
                 start = Offset(0f, 0f),
                 end = Offset(size.width * 0.55f, size.height),
             )
@@ -180,25 +184,26 @@ fun HomeProfileHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            // Avatar circle with gradient ring for extra polish.
+            // Terminal avatar — thin phosphor border, `>_` label inside
             Box(
                 modifier = Modifier
                     .size(AvatarSize)
                     .border(
-                        width = 2.dp,
-                        brush = Brush.linearGradient(listOf(Color.White.copy(alpha = 0.7f), Color.White.copy(alpha = 0.2f))),
-                        shape = CircleShape,
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(6.dp),
                     )
-                    .padding(2.dp)
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.22f)),
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        RoundedCornerShape(6.dp),
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = name.take(1).uppercase(),
-                    style = MaterialTheme.typography.titleMedium,
+                    text = ">_",
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
 
@@ -206,12 +211,12 @@ fun HomeProfileHeader(
                 AutoSizeGreeting(
                     greeting = "Hello,",
                     name = name,
-                    color = DesignTokens.StatusColors.warning,
+                    color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
                     text = "Let's manage your spends!",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.85f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -420,7 +425,8 @@ private fun QuickActionTile(
         Surface(
             onClick = action.onClick,
             shape = DesignTokens.Shape.actionTile,
-            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)),
             modifier = Modifier.size(DesignTokens.ActionTileSize.defaultContainer),
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -769,7 +775,7 @@ fun MarketingCardView(
     }
 }
 
-/** Shared section heading used between the home sections. */
+/** Shared section heading used between the home sections. Terminal `//` prefix style. */
 @Composable
 fun HomeSectionHeader(
     title: String,
@@ -781,16 +787,14 @@ fun HomeSectionHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
     ) {
-        Icon(
-            imageVector = leadingIcon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(DesignTokens.IconSize.header),
+        Text(
+            text = "//",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
         )
         Text(
-            text = title,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
+            text = title.uppercase(),
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
     }

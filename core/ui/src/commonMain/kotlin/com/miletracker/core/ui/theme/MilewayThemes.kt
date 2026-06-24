@@ -179,42 +179,42 @@ data class MilewaySchemeSpec(
 // Curated specs — hand-tuned, AA-verified. Move off purple/indigo entirely.
 // =============================================================================
 
-/** Matrix (default): canvas #0B0F0D, accent #3DDC84. */
+/** Matrix (default): deep phosphor-green terminal. canvas #010701, accent #00FF41. */
 internal val MatrixSpec =
     MilewaySchemeSpec(
-        canvas = Color(0xFF0B0F0D),
-        surface = Color(0xFF111613),
-        surfaceCard = Color(0xFF171E1A),
-        surfaceRaised = Color(0xFF1E2722),
-        surfaceHighest = Color(0xFF26312B),
-        border = Color(0xFF243029),
-        text = Color(0xFFE8EFE9),
-        textMuted = Color(0xFF9AA8A0),
-        accent = Color(0xFF3DDC84),
-        accentDim = Color(0xFF2BB86C),
-        accentGlow = Color(0xFF5BF5A0),
-        onAccent = Color(0xFF062012),
-        accentContainer = Color(0xFF123524),
-        onAccentContainer = Color(0xFF8FF6BE),
-        warning = Color(0xFFF2C14E),
-        danger = Color(0xFFF2545B),
-        info = Color(0xFF5BA8F5),
-        success = Color(0xFF3DDC84),
+        canvas = Color(0xFF010701),
+        surface = Color(0xFF040C06),
+        surfaceCard = Color(0xFF080F0A),
+        surfaceRaised = Color(0xFF0C1510),
+        surfaceHighest = Color(0xFF111C14),
+        border = Color(0xFF1C3522),
+        text = Color(0xFFB8FFCC),
+        textMuted = Color(0xFF3A6645),
+        accent = Color(0xFF00FF41),
+        accentDim = Color(0xFF00CC34),
+        accentGlow = Color(0xFF39FF14),
+        onAccent = Color(0xFF000000),
+        accentContainer = Color(0xFF00280E),
+        onAccentContainer = Color(0xFF7FFFAA),
+        warning = Color(0xFFFFCC00),
+        danger = Color(0xFFFF4455),
+        info = Color(0xFF33AAFF),
+        success = Color(0xFF00FF41),
         useGlow = true,
     )
 
-/** Amoled: true-black canvas, near-black surfaces, same green accent. */
+/** Amoled: absolute-black canvas, same phosphor accent as Matrix. */
 internal val AmoledSpec =
     MatrixSpec.copy(
         canvas = Color(0xFF000000),
-        surface = Color(0xFF0A0A0A),
-        surfaceCard = Color(0xFF101010),
-        surfaceRaised = Color(0xFF161616),
-        surfaceHighest = Color(0xFF1E1E1E),
-        border = Color(0xFF262626),
-        text = Color(0xFFEDEDED),
-        textMuted = Color(0xFF9A9A9A),
-        accentContainer = Color(0xFF0E2A1B),
+        surface = Color(0xFF050505),
+        surfaceCard = Color(0xFF0A0A0A),
+        surfaceRaised = Color(0xFF0E0E0E),
+        surfaceHighest = Color(0xFF141414),
+        border = Color(0xFF1A2E1D),
+        text = Color(0xFFCCFFDD),
+        textMuted = Color(0xFF3A5A42),
+        accentContainer = Color(0xFF001C08),
     )
 
 /** Ion: cyan-on-dark. canvas #06100F, accent #42E8E0. */

@@ -78,8 +78,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.miletracker.core.ui.components.CrtVignette
+import com.miletracker.core.ui.components.PhosphorDotGrid
+import com.miletracker.core.ui.components.ScanlineOverlay
+import com.miletracker.core.ui.components.TerminalCursor
 import com.miletracker.core.ui.components.sheet.AppActionSheet
 import com.miletracker.core.ui.theme.MilewayColors
+import com.miletracker.core.ui.theme.TerminalType
 import com.miletracker.feature.agent.model.AgentMessage
 import com.miletracker.feature.agent.model.PopularQuestion
 import com.miletracker.feature.agent.model.UnansweredQuestion
@@ -92,8 +97,11 @@ import com.miletracker.feature.agent.viewmodel.AgentViewModel
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
-private val AI_GRADIENT = Brush.verticalGradient(listOf(Color(0xFF0D1B2A), Color(0xFF1A237E)))
-private val CHIP_BG = Color(0x22FFFFFF)
+private val AI_GRADIENT = Brush.verticalGradient(listOf(Color(0xFF010701), Color(0xFF030D05)))
+private val CHIP_BG = Color(0x1400FF41)
+private val PHOSPHOR_GREEN = Color(0xFF00FF41)
+private val PHOSPHOR_DIM = Color(0xFF3A6645)
+private val TERMINAL_BORDER = Color(0xFF1C3522)
 private val QUICK_PROMPTS =
     listOf(
         "Summarise my week",
@@ -166,6 +174,7 @@ fun AgentChatScreen(
         snackbarHost = { SnackbarHost(snackbarState) },
     ) { _ ->
         Box(modifier = Modifier.fillMaxSize().background(AI_GRADIENT)) {
+            PhosphorDotGrid(dotAlpha = 0.055f)
             Column(modifier = Modifier.fillMaxSize()) {
                 // Custom header
                 AgentHeader(
@@ -174,17 +183,30 @@ fun AgentChatScreen(
                     onDownload = { scope.launch { snackbarState.showSnackbar("Export available in full version") } },
                 )
 
-                // Tab row
+                // Tab row — terminal bracket style
                 PrimaryTabRow(
                     selectedTabIndex = selectedTab,
-                    containerColor = Color.Transparent,
-                    contentColor = Color.White,
+                    containerColor = Color(0xFF040C06),
+                    contentColor = PHOSPHOR_GREEN,
+                    divider = {
+                        androidx.compose.foundation.layout.Spacer(
+                            Modifier.height(1.dp).fillMaxWidth().background(TERMINAL_BORDER),
+                        )
+                    },
                 ) {
-                    listOf("CHAT", "POPULAR", "UNANSWERED").forEachIndexed { index, title ->
+                    listOf("[ CHAT ]", "[ POPULAR ]", "[ UNANSWERED ]").forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
-                            text = { Text(title, style = MaterialTheme.typography.labelMedium) },
+                            text = {
+                                Text(
+                                    title,
+                                    style = TerminalType.sectionLabel,
+                                    color = if (selectedTab == index) PHOSPHOR_GREEN else PHOSPHOR_DIM,
+                                )
+                            },
+                            selectedContentColor = PHOSPHOR_GREEN,
+                            unselectedContentColor = PHOSPHOR_DIM,
                         )
                     }
                 }
@@ -239,6 +261,9 @@ fun AgentChatScreen(
                         )
                 }
             }
+            // Terminal post-processing layers
+            ScanlineOverlay()
+            CrtVignette()
         }
     }
 
@@ -280,56 +305,65 @@ private fun AgentHeader(
     onHistory: () -> Unit,
     onDownload: () -> Unit,
 ) {
-    val orbGradient = Brush.linearGradient(listOf(Color(0xFF3949AB), Color(0xFF6A1B9A)))
-    val ringGradient = Brush.linearGradient(listOf(Color(0xFF80DEEA), Color(0xFFB39DDB)))
-
     Box(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(Color.White.copy(alpha = 0.07f)),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF010701)),
     ) {
         Column {
             Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(horizontal = 4.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 4.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = PHOSPHOR_DIM)
                 }
+                // Terminal avatar: thin phosphor-green border ring, monogram inside
                 Box(
-                    modifier =
-                        Modifier
-                            .size(40.dp)
-                            .border(width = 1.5.dp, brush = ringGradient, shape = CircleShape)
-                            .padding(2.dp)
-                            .clip(CircleShape)
-                            .background(orbGradient),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .border(width = 1.dp, color = PHOSPHOR_GREEN, shape = RoundedCornerShape(4.dp))
+                        .background(Color(0xFF00280E), RoundedCornerShape(4.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Filled.AutoAwesome, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    Text(
+                        ">_",
+                        style = TerminalType.prompt,
+                        color = PHOSPHOR_GREEN,
+                    )
                 }
                 Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
-                    Text("AI Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Powered by Mileway AI", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
+                    Text(
+                        "MILEWAY_AI",
+                        style = TerminalType.display,
+                        color = PHOSPHOR_GREEN,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            "●",
+                            style = TerminalType.statusLine,
+                            color = PHOSPHOR_GREEN,
+                        )
+                        Text(
+                            "SYSTEM ONLINE",
+                            style = TerminalType.statusLine,
+                            color = PHOSPHOR_DIM,
+                        )
+                    }
                 }
                 IconButton(onClick = onHistory) {
-                    Icon(Icons.Filled.Schedule, contentDescription = "History", tint = Color.White)
+                    Icon(Icons.Filled.Schedule, contentDescription = "History", tint = PHOSPHOR_DIM)
                 }
                 IconButton(onClick = onDownload) {
-                    Icon(Icons.Filled.Download, contentDescription = "Export", tint = Color.White)
+                    Icon(Icons.Filled.Download, contentDescription = "Export", tint = PHOSPHOR_DIM)
                 }
             }
-            Spacer(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(0.5.dp)
-                        .background(Color.White.copy(alpha = 0.18f)),
+            // Phosphor separator line
+            androidx.compose.foundation.layout.Spacer(
+                modifier = Modifier.fillMaxWidth().height(1.dp).background(TERMINAL_BORDER),
             )
         }
     }
@@ -376,23 +410,30 @@ private fun ChatTab(
         ) {
             if (messages.isEmpty() && !isStreaming) {
                 item {
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        popularPrompts.forEach { prompt ->
-                            Surface(
-                                onClick = { onChipClicked(prompt) },
-                                color = CHIP_BG,
-                                shape = RoundedCornerShape(20.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f)),
-                            ) {
-                                Text(
-                                    prompt,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                                )
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            "SYSTEM READY. ASK ANYTHING.",
+                            style = TerminalType.sectionLabel,
+                            color = PHOSPHOR_DIM,
+                        )
+                        FlowRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            popularPrompts.forEach { prompt ->
+                                Surface(
+                                    onClick = { onChipClicked(prompt) },
+                                    color = CHIP_BG,
+                                    shape = RoundedCornerShape(4.dp),
+                                    border = androidx.compose.foundation.BorderStroke(1.dp, TERMINAL_BORDER),
+                                ) {
+                                    Text(
+                                        "> $prompt",
+                                        style = TerminalType.prompt,
+                                        color = PHOSPHOR_GREEN,
+                                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                    )
+                                }
                             }
                         }
                     }
@@ -428,14 +469,14 @@ private fun ChatTab(
                             Surface(
                                 onClick = { onChipClicked(prompt) },
                                 color = CHIP_BG,
-                                shape = RoundedCornerShape(20.dp),
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.3f)),
+                                shape = RoundedCornerShape(4.dp),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, TERMINAL_BORDER),
                             ) {
                                 Text(
-                                    prompt,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                    "> $prompt",
+                                    style = TerminalType.statusLine,
+                                    color = PHOSPHOR_DIM,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                                 )
                             }
                         }
@@ -465,18 +506,34 @@ private fun ChatTab(
             OutlinedTextField(
                 value = inputText,
                 onValueChange = onInputChange,
-                placeholder = { Text("Ask me anything…", color = Color.White.copy(alpha = 0.5f)) },
+                leadingIcon = {
+                    Text(
+                        ">",
+                        style = TerminalType.prompt,
+                        color = PHOSPHOR_GREEN,
+                        modifier = Modifier.padding(start = 4.dp),
+                    )
+                },
+                placeholder = {
+                    Text(
+                        "type query_",
+                        style = TerminalType.prompt,
+                        color = PHOSPHOR_DIM,
+                    )
+                },
+                textStyle = TerminalType.prompt.copy(color = PHOSPHOR_GREEN),
                 singleLine = true,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(24.dp),
-                colors =
-                    OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.White.copy(alpha = 0.6f),
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.3f),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White,
-                    ),
+                shape = RoundedCornerShape(4.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = PHOSPHOR_GREEN,
+                    unfocusedBorderColor = TERMINAL_BORDER,
+                    focusedTextColor = PHOSPHOR_GREEN,
+                    unfocusedTextColor = PHOSPHOR_GREEN,
+                    cursorColor = PHOSPHOR_GREEN,
+                    focusedContainerColor = Color(0xFF040C06),
+                    unfocusedContainerColor = Color(0xFF010701),
+                ),
             )
             IconButton(
                 onClick = onMic,
@@ -485,14 +542,14 @@ private fun ChatTab(
                 Icon(
                     Icons.Filled.Mic,
                     contentDescription = if (isListening) "Stop voice" else "Start voice",
-                    tint = if (isListening) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.8f),
+                    tint = if (isListening) PHOSPHOR_GREEN else PHOSPHOR_DIM,
                 )
             }
             IconButton(onClick = onToggleVoiceConversation) {
                 Icon(
                     if (isVoiceConversationMode) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
                     contentDescription = "Toggle hands-free mode",
-                    tint = if (isVoiceConversationMode) MaterialTheme.colorScheme.secondary else Color.White.copy(alpha = 0.5f),
+                    tint = if (isVoiceConversationMode) PHOSPHOR_GREEN else PHOSPHOR_DIM,
                 )
             }
             IconButton(
@@ -502,7 +559,7 @@ private fun ChatTab(
                 Icon(
                     Icons.AutoMirrored.Filled.Send,
                     contentDescription = "Send",
-                    tint = if (inputText.isNotBlank()) Color.White else Color.White.copy(alpha = 0.4f),
+                    tint = if (inputText.isNotBlank()) PHOSPHOR_GREEN else PHOSPHOR_DIM,
                 )
             }
         }

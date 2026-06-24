@@ -19,19 +19,22 @@ import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
+import com.miletracker.core.ui.theme.TerminalType
 import com.miletracker.feature.agent.model.AgentMessage
 
-private val USER_BUBBLE_GRADIENT = Brush.horizontalGradient(listOf(Color(0xFF5C6BC0), Color(0xFF7E57C2)))
+private val PHOSPHOR_GREEN = Color(0xFF00FF41)
+private val PHOSPHOR_DIM = Color(0xFF3A6645)
+private val TERMINAL_BORDER = Color(0xFF1C3522)
+private val TERMINAL_SURFACE = Color(0xFF040C06)
 
 @Composable
 fun AgentMessageBubble(
@@ -44,47 +47,83 @@ fun AgentMessageBubble(
         horizontalAlignment = if (message.isUser) Alignment.End else Alignment.Start,
     ) {
         if (message.isUser) {
+            // User: right-aligned with `>` terminal prompt prefix, dark bg, green text
             Box(
-                modifier =
-                    Modifier
-                        .widthIn(max = 280.dp)
-                        .background(USER_BUBBLE_GRADIENT, RoundedCornerShape(topStart = 16.dp, topEnd = 4.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                modifier = Modifier
+                    .widthIn(max = 300.dp)
+                    .background(
+                        Color(0xFF00280E),
+                        RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 8.dp, bottomEnd = 2.dp),
+                    )
+                    .border(
+                        1.dp,
+                        TERMINAL_BORDER,
+                        RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 8.dp, bottomEnd = 2.dp),
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
-                androidx.compose.material3.Text(message.text, style = MaterialTheme.typography.bodyMedium, color = Color.White)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        ">",
+                        style = TerminalType.prompt,
+                        color = PHOSPHOR_GREEN,
+                    )
+                    Text(
+                        message.text,
+                        style = TerminalType.prompt,
+                        color = PHOSPHOR_GREEN,
+                    )
+                }
             }
         } else {
-            Box(
-                modifier =
-                    Modifier
-                        .widthIn(max = 280.dp)
-                        .background(
-                            Color.White.copy(alpha = 0.12f),
-                            RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp),
-                        )
-                        .border(
-                            1.dp,
-                            Color.White.copy(alpha = 0.2f),
-                            RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp),
-                        )
-                        .padding(horizontal = 14.dp, vertical = 10.dp),
+            // AI: left-aligned, no bubble — terminal output style with `$` prefix
+            Column(
+                modifier = Modifier
+                    .widthIn(max = 340.dp)
+                    .background(
+                        Color(0xFF010701),
+                        RoundedCornerShape(2.dp),
+                    )
+                    .border(
+                        1.dp,
+                        TERMINAL_BORDER,
+                        RoundedCornerShape(2.dp),
+                    )
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
+                // System prompt line
+                Text(
+                    "$ mileway_ai",
+                    style = TerminalType.statusLine,
+                    color = PHOSPHOR_DIM,
+                    modifier = Modifier.padding(bottom = 4.dp),
+                )
                 Markdown(
                     content = message.text,
-                    colors = markdownColor(text = Color.White),
-                    typography =
-                        markdownTypography(
-                            text = MaterialTheme.typography.bodyMedium,
-                            paragraph = MaterialTheme.typography.bodyMedium,
-                        ),
+                    colors = markdownColor(text = PHOSPHOR_GREEN),
+                    typography = markdownTypography(
+                        text = TerminalType.output,
+                        paragraph = TerminalType.output,
+                        code = TerminalType.output.copy(color = PHOSPHOR_GREEN),
+                    ),
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 IconButton(onClick = { onFeedback(1) }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.ThumbUp, contentDescription = "Helpful", tint = if (feedbackRating == 1) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+                    Icon(
+                        Icons.Filled.ThumbUp,
+                        contentDescription = "Helpful",
+                        tint = if (feedbackRating == 1) PHOSPHOR_GREEN else PHOSPHOR_DIM,
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
                 IconButton(onClick = { onFeedback(-1) }, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Filled.ThumbDown, contentDescription = "Not helpful", tint = if (feedbackRating == -1) MaterialTheme.colorScheme.error else Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+                    Icon(
+                        Icons.Filled.ThumbDown,
+                        contentDescription = "Not helpful",
+                        tint = if (feedbackRating == -1) MaterialTheme.colorScheme.error else PHOSPHOR_DIM,
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
         }
@@ -97,18 +136,24 @@ fun AgentStreamingBubble(
     cursorAlpha: Float,
 ) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
-        Box(
-            modifier =
-                Modifier
-                    .widthIn(max = 280.dp)
-                    .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+        Column(
+            modifier = Modifier
+                .widthIn(max = 340.dp)
+                .background(Color(0xFF010701), RoundedCornerShape(2.dp))
+                .border(1.dp, TERMINAL_BORDER, RoundedCornerShape(2.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
-            androidx.compose.material3.Text(
-                text = "$text${if (cursorAlpha > 0.5f) "|" else ""}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.White,
+            Text(
+                "$ mileway_ai",
+                style = TerminalType.statusLine,
+                color = PHOSPHOR_DIM,
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+            // Block cursor `█` instead of pipe — classic terminal feel
+            Text(
+                text = "$text${if (cursorAlpha > 0.5f) "█" else ""}",
+                style = TerminalType.output,
+                color = PHOSPHOR_GREEN,
             )
         }
     }
@@ -121,16 +166,22 @@ fun AgentThinkingIndicator(phrase: String) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(vertical = 4.dp),
     ) {
-        Box(
-            modifier =
-                Modifier
-                    .background(Color.White.copy(alpha = 0.12f), RoundedCornerShape(topStart = 4.dp, topEnd = 16.dp, bottomStart = 16.dp, bottomEnd = 16.dp))
-                    .padding(horizontal = 14.dp, vertical = 10.dp),
+        Column(
+            modifier = Modifier
+                .background(Color(0xFF010701), RoundedCornerShape(2.dp))
+                .border(1.dp, TERMINAL_BORDER, RoundedCornerShape(2.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
-            androidx.compose.material3.Text(
-                text = "$phrase ···",
-                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
-                color = Color.White.copy(alpha = 0.7f),
+            Text(
+                "$ mileway_ai",
+                style = TerminalType.statusLine,
+                color = PHOSPHOR_DIM,
+                modifier = Modifier.padding(bottom = 4.dp),
+            )
+            Text(
+                text = "$phrase...",
+                style = TerminalType.output,
+                color = PHOSPHOR_DIM,
             )
         }
     }
