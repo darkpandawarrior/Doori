@@ -278,6 +278,8 @@ com.mikepenz:multiplatform-markdown-renderer-m3:0.41.0
 com.mikepenz:multiplatform-markdown-renderer:0.41.0
 com.squareup.okio:okio-jvm:3.17.0
 com.squareup.okio:okio:3.17.0
+dev.brewkits:kmpworkmanager-android:3.0.1
+dev.brewkits:kmpworkmanager:3.0.1
 dev.drewhamilton.poko:poko-annotations-jvm:0.21.1
 dev.drewhamilton.poko:poko-annotations:0.21.1
 dev.tmapps:konnection-android:1.4.5
@@ -363,6 +365,7 @@ org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0
 org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.11.0
 org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0
 org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0
+org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.11.0
 org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.11.0
 org.jetbrains.kotlinx:kotlinx-datetime-jvm:0.8.0
 org.jetbrains.kotlinx:kotlinx-datetime:0.8.0

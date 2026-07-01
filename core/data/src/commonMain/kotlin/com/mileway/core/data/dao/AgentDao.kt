@@ -20,7 +20,11 @@ interface AgentDao {
     fun observeConversations(): Flow<List<AgentConversationEntity>>
 
     @Query("UPDATE agent_conversations SET title = :title, lastMessageMs = :lastMessageMs WHERE id = :id")
-    suspend fun updateConversationMeta(id: String, title: String, lastMessageMs: Long)
+    suspend fun updateConversationMeta(
+        id: String,
+        title: String,
+        lastMessageMs: Long,
+    )
 
     @Query("DELETE FROM agent_conversations WHERE id = :id")
     suspend fun deleteConversation(id: String)
@@ -40,8 +44,15 @@ interface AgentDao {
     suspend fun updateMessage(message: AgentMessageEntity)
 
     @Query("UPDATE agent_messages SET feedbackRating = :rating, feedbackComment = :comment WHERE messageId = :messageId")
-    suspend fun updateFeedback(messageId: String, rating: Int, comment: String?)
+    suspend fun updateFeedback(
+        messageId: String,
+        rating: Int,
+        comment: String?,
+    )
 
     @Query("UPDATE agent_conversations SET lastMessageMs = :lastMessageMs WHERE id = :id")
-    suspend fun updateLastMessageTime(id: String, lastMessageMs: Long)
+    suspend fun updateLastMessageTime(
+        id: String,
+        lastMessageMs: Long,
+    )
 }
