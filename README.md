@@ -450,8 +450,11 @@ roadmap reflects direction rather than commitments.
 - [x] **iOS UI parity (V19).** All feature screens in `commonMain`; background scheduling via
       kmpworkmanager; AppDelegate + BGTask dispatcher; iOS builds and passes all CI gates.
 - [x] Napier structured logging across all modules
-
-**Exploring**
+- [x] **AI assistant / "agent" feature (V20).** Offline, retrieval-grounded chat over real local
+      trip/expense/card data; Room-backed persistent history + 5-minute session resume; on-device
+      voice I/O (STT/TTS); feedback, export and local usage analytics; full `commonMain` + iOS parity.
+- [x] Matrix / terminal design-language pass across the whole UI (theme tokens, topbar, screenshots)
+- [x] Renamed the project and package from MileTracker(Demo) to Mileway end-to-end
 
 **Exploring**
 
