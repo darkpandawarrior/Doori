@@ -1,7 +1,7 @@
 import UIKit
 import UserNotifications
 import BackgroundTasks
-import MileTracker
+import Mileway
 
 /// FCM.4: APNs registration + token/tap forwarding into the KMP shared layer.
 ///
@@ -29,14 +29,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     private func registerBgTasks() {
         // 90-day stale-row purge — runs as a BGProcessingTask (longer runtime, no network required).
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "com.miletracker.maintenance",
+            forTaskWithIdentifier: "com.mileway.maintenance",
             using: nil
         ) { task in
             IosBgTaskDispatcher.shared.runTask(taskId: task.identifier) { success in
                 task.setTaskCompleted(success: success)
             }
             // Reschedule next weekly run.
-            let req = BGProcessingTaskRequest(identifier: "com.miletracker.maintenance")
+            let req = BGProcessingTaskRequest(identifier: "com.mileway.maintenance")
             req.earliestBeginDate = Date(timeIntervalSinceNow: 7 * 24 * 60 * 60)
             req.requiresNetworkConnectivity = false
             try? BGTaskScheduler.shared.submit(req)
@@ -44,14 +44,14 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
 
         // Auto-discard check — runs as a BGAppRefreshTask (daily cutoff policy check).
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "com.miletracker.autodiscard",
+            forTaskWithIdentifier: "com.mileway.autodiscard",
             using: nil
         ) { task in
             IosBgTaskDispatcher.shared.runTask(taskId: task.identifier) { success in
                 task.setTaskCompleted(success: success)
             }
             // Reschedule next daily check.
-            let req = BGAppRefreshTaskRequest(identifier: "com.miletracker.autodiscard")
+            let req = BGAppRefreshTaskRequest(identifier: "com.mileway.autodiscard")
             req.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
             try? BGTaskScheduler.shared.submit(req)
         }
@@ -88,7 +88,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         if let path = response.notification.request.content.userInfo["path"] as? String {
-            let url = path.contains("://") ? path : "miletracker://\(path)"
+            let url = path.contains("://") ? path : "mileway://\(path)"
             DeepLinkBridge.shared.handle(url: url)
         }
         completionHandler()

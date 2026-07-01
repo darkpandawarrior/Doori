@@ -23,4 +23,4 @@ In `AppDelegate.swift`:
   notification taps (`userInfo["path"]`) through `DeepLinkBridge` → shared `DeepLinkRouter`.
 - `iosApp.entitlements`: `aps-environment` (set `production` for App Store).
 - `Info.plist`: `remote-notification` background mode.
-- KMP: `PushBridge` (exported in the MileTracker framework) backs `PushTokenStore` / `PushMessaging`.
+- KMP: `PushBridge` (exported in the Mileway framework) backs `PushTokenStore` / `PushMessaging`.

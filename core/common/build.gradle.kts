@@ -1,10 +1,10 @@
 plugins {
-    id("miletracker.kmp.library")
+    id("mileway.kmp.library")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.core.common"
+        namespace = "com.mileway.core.common"
         compileSdk = 37
         minSdk = 30
     }

@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.miletracker.baselineprofile"
+    namespace = "com.mileway.baselineprofile"
     compileSdk = 37
 
     compileOptions {

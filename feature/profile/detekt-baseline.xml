@@ -242,13 +242,13 @@
     <ID>MaxLineLength:HelpScreen.kt$Faq("What happens to draft journeys?", "Drafts appear in Saved Tracks with a Draft badge. You can submit or discard them. The Auto-Discard toggle in Demo Settings discards active journeys at 22:00.", "Track Miles")</ID>
     <ID>MaxLineLength:HelpScreen.kt$Faq("What is multi-account mode?", "Demo Settings → Account Switcher lets you switch between demo personas with different journey histories, policies, and approval chains.", "Account &amp; Settings")</ID>
     <ID>MaxLineLength:HelpScreen.kt$Faq("What is the Odometer feature?", "On the Submission screen, tap the camera button to photograph your vehicle's odometer. OCR reads the value and calculates distance as a cross-check.", "Track Miles")</ID>
-    <ID>MaxLineLength:HelpScreen.kt$Faq("What permissions does MileTracker need?", "Location (Fine + Background) for continuous GPS tracking. Notification permission on Android 13+ for the tracking notification. Camera for odometer photo capture.", "Getting Started")</ID>
+    <ID>MaxLineLength:HelpScreen.kt$Faq("What permissions does Mileway need?", "Location (Fine + Background) for continuous GPS tracking. Notification permission on Android 13+ for the tracking notification. Camera for odometer photo capture.", "Getting Started")</ID>
     <ID>MaxLineLength:HelpScreen.kt$Faq("Where can I find the setup guide?", "Tap 'Setup Guide' in the Quick Links section at the bottom of this screen or visit Settings → Demo Settings for interactive feature flags.", "Getting Started")</ID>
     <ID>MaxLineLength:HelpScreen.kt$Faq("Why is GPS accuracy low?", "Ensure Location is set to Fine (not Coarse), background access is allowed, and Battery Optimisation is off for this app. The GPS Drift Simulation toggle in Demo Settings adds artificial noise.", "Track Miles")</ID>
     <ID>MaxLineLength:HelpScreen.kt$Faq("Why is my distance rejected?", "Policy limits check the entered distance against the straight-line distance between locations. Large deviations flag a policy violation.", "Log Miles")</ID>
     <ID>MaxLineLength:HelpScreen.kt$Text("Need more help?", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)</ID>
     <ID>MaxLineLength:HelpScreen.kt$onClick = { scope.launch { snackbarHostState.showSnackbar("Bug report submitted — thank you!") } }</ID>
-    <ID>MaxLineLength:HelpScreen.kt$onClick = { scope.launch { snackbarHostState.showSnackbar("Email sent to support@miletracker.app") } }</ID>
+    <ID>MaxLineLength:HelpScreen.kt$onClick = { scope.launch { snackbarHostState.showSnackbar("Email sent to support@mileway.app") } }</ID>
     <ID>MaxLineLength:HelpScreen.kt$private val CATEGORIES = listOf("Getting Started", "Track Miles", "Log Miles", "Expenses &amp; Approvals", "Account &amp; Settings")</ID>
     <ID>MaxLineLength:NotificationCentreScreen.kt$NotifItem("N001", "Approval Required", "Priya Sharma's mileage claim needs your review", "2 min ago", true, NotifCategory.APPROVALS, Icons.Filled.Approval, Color(0xFF6366F1))</ID>
     <ID>MaxLineLength:NotificationCentreScreen.kt$NotifItem("N002", "Advance Approved", "Your advance ADV-001 of ₹8,000 was approved", "1 hr ago", true, NotifCategory.ALL, Icons.Filled.Receipt, Color(0xFF10B981))</ID>
@@ -300,10 +300,10 @@
     <ID>MayBeConst:NotificationCentreScreen.kt$private val MIN_MS = 60_000L</ID>
     <ID>SpreadOperator:DelegationScreen.kt$(*INITIAL_DELEGATIONS.toTypedArray())</ID>
     <ID>TooManyFunctions:AdvanceViewModel.kt$AdvanceViewModel : ViewModel</ID>
-    <ID>TooManyFunctions:AnalyticsHomeScreen.kt$com.miletracker.feature.profile.ui.screens.AnalyticsHomeScreen.kt</ID>
-    <ID>TooManyFunctions:ProfileScreen.kt$com.miletracker.feature.profile.ui.screens.ProfileScreen.kt</ID>
+    <ID>TooManyFunctions:AnalyticsHomeScreen.kt$com.mileway.feature.profile.ui.screens.AnalyticsHomeScreen.kt</ID>
+    <ID>TooManyFunctions:ProfileScreen.kt$com.mileway.feature.profile.ui.screens.ProfileScreen.kt</ID>
     <ID>TooManyFunctions:ProfileViewModel.kt$ProfileViewModel : ViewModel</ID>
-    <ID>TooManyFunctions:QrHomeScreen.kt$com.miletracker.feature.profile.ui.screens.QrHomeScreen.kt</ID>
+    <ID>TooManyFunctions:QrHomeScreen.kt$com.mileway.feature.profile.ui.screens.QrHomeScreen.kt</ID>
     <ID>UnusedParameter:AskAdvanceFormScreen.kt$onSubmitted: () -&gt; Unit</ID>
     <ID>UnusedPrivateMember:DemoSettingsScreen.kt$@LightDarkPreview @Composable private fun DemoTogglePreview()</ID>
     <ID>UnusedPrivateMember:DemoSettingsScreen.kt$@Preview(name = "Root detection dialog", showBackground = true) @Composable private fun RootDetectionDialogPreview()</ID>

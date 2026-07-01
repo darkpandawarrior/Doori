@@ -9,7 +9,7 @@
 
         <!-- V15 FCM.2: Firebase Cloud Messaging service (gms flavor only). -->
         <service
-            android:name="com.miletracker.platform.gms.MileTrackerFirebaseMessagingService"
+            android:name="com.mileway.platform.gms.MilewayFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -17,7 +17,7 @@
         </service>
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="miletracker_general" />
+            android:value="mileway_general" />
 
         <!-- V15 CF.4: Crashlytics collection OFF by default (privacy); CrashReporter.setEnabled flips it. -->
         <meta-data

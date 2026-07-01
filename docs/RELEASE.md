@@ -45,7 +45,7 @@ The `noGms` flavor is the FOSS build: MapLibre maps, **no** Google/Firebase runt
 2. Run the **Publish F-Droid APK** workflow (`.github/workflows/publish-fdroid.yml`) with that tag, and it builds
    `assembleNoGmsRelease -Pfdroid` (reproducible, no R8), signs with the pinned `apksigner`, and attaches
    `Mileway-<tag>.apk` + `.sha256` to a GitHub Release.
-3. Submit `metadata/com.miletracker.fdroid.yml` to `fdroiddata` (Binaries approach; the prebuild strips the
+3. Submit `metadata/com.mileway.fdroid.yml` to `fdroiddata` (Binaries approach; the prebuild strips the
    Firebase Gradle plugins and removes `google-services.json`).
 
 ## 5. Orchestrated release (`.github/workflows/release.yml`)

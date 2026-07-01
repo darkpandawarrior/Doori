@@ -2,7 +2,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "com.miletracker.buildlogic"
+group = "com.mileway.buildlogic"
 
 java {
     // Convention plugin code itself targets Java 17, not the Android modules it configures.
@@ -29,28 +29,28 @@ tasks.validatePlugins {
 gradlePlugin {
     plugins {
         register("kmpLibrary") {
-            id = "miletracker.kmp.library"
-            implementationClass = "MileTrackerKmpLibraryConventionPlugin"
+            id = "mileway.kmp.library"
+            implementationClass = "MilewayKmpLibraryConventionPlugin"
         }
         register("kmpCompose") {
-            id = "miletracker.kmp.compose"
-            implementationClass = "MileTrackerKmpComposeConventionPlugin"
+            id = "mileway.kmp.compose"
+            implementationClass = "MilewayKmpComposeConventionPlugin"
         }
         register("androidLibrary") {
-            id = "miletracker.android.library"
-            implementationClass = "MileTrackerAndroidLibraryConventionPlugin"
+            id = "mileway.android.library"
+            implementationClass = "MilewayAndroidLibraryConventionPlugin"
         }
         register("androidApplication") {
-            id = "miletracker.android.application"
-            implementationClass = "MileTrackerAndroidApplicationConventionPlugin"
+            id = "mileway.android.application"
+            implementationClass = "MilewayAndroidApplicationConventionPlugin"
         }
         register("cmpFeature") {
-            id = "miletracker.cmp.feature"
-            implementationClass = "MileTrackerCmpFeatureConventionPlugin"
+            id = "mileway.cmp.feature"
+            implementationClass = "MilewayCmpFeatureConventionPlugin"
         }
         register("test") {
-            id = "miletracker.test"
-            implementationClass = "MileTrackerTestConventionPlugin"
+            id = "mileway.test"
+            implementationClass = "MilewayTestConventionPlugin"
         }
     }
 }

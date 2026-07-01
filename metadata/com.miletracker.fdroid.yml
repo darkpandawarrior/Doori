@@ -4,16 +4,16 @@ Categories:
   - Money
   - Navigation
 License: MIT
-AuthorName: MileTracker
-SourceCode: https://github.com/REPLACE_OWNER/MileTrackerDemo
-IssueTracker: https://github.com/REPLACE_OWNER/MileTrackerDemo/issues
+AuthorName: Mileway
+SourceCode: https://github.com/REPLACE_OWNER/MilewayDemo
+IssueTracker: https://github.com/REPLACE_OWNER/MilewayDemo/issues
 RepoType: git
-Repo: https://github.com/REPLACE_OWNER/MileTrackerDemo.git
+Repo: https://github.com/REPLACE_OWNER/MilewayDemo.git
 
-AutoName: MileTracker
+AutoName: Mileway
 
 # GitHub Release hosts the prebuilt FOSS APK (built + signed by publish-fdroid.yml, FLFD.5).
-Binaries: https://github.com/REPLACE_OWNER/MileTrackerDemo/releases/download/%v/MileTracker-%v.apk
+Binaries: https://github.com/REPLACE_OWNER/MilewayDemo/releases/download/%v/Mileway-%v.apk
 
 AllowedAPKSigningKeys:
   - "0000000000000000000000000000000000000000000000000000000000000000"

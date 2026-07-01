@@ -9,11 +9,11 @@
 	<key>GCM_SENDER_ID</key>
 	<string>000000000000</string>
 	<key>BUNDLE_ID</key>
-	<string>com.miletracker.ios</string>
+	<string>com.mileway.ios</string>
 	<key>PROJECT_ID</key>
-	<string>miletracker-demo</string>
+	<string>mileway-demo</string>
 	<key>STORAGE_BUCKET</key>
-	<string>miletracker-demo.appspot.com</string>
+	<string>mileway-demo.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>

@@ -304,7 +304,7 @@ graph TD
 | `:feature:*` | tracking · logging · media · profile · approvals · payables · travel · agent · cards · payments · events |
 | `:stub` | Deterministic mock data for every repository (no backend) |
 | `:wear` | Wear OS companion tile |
-| `:shared` | iOS umbrella framework — re-exports `core:ui`, `feature:tracking` and `feature:agent` as the single `MileTracker.framework` Xcode links against |
+| `:shared` | iOS umbrella framework — re-exports `core:ui`, `feature:tracking` and `feature:agent` as the single `Mileway.framework` Xcode links against |
 | `:widget` | Glance home-screen widget (mileage summary) |
 | `:baselineprofile` | Macrobenchmark module generating the Baseline Profile via `:app:generateNoGmsReleaseBaselineProfile` |
 | `build-logic` | Gradle convention plugins (centralised AGP / Kotlin / Compose config) |

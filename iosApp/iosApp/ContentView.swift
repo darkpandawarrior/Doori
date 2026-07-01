@@ -1,5 +1,5 @@
 import SwiftUI
-import MileTracker
+import Mileway
 
 /// Root view: embeds the Compose Multiplatform UI rendered via Skia.
 struct ContentView: View {

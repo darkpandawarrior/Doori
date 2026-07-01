@@ -1,11 +1,11 @@
 # FLI.2: match (code-signing) config. The certificates repo + key are env placeholders; nothing real is
 # committed. CI provides MATCH_GIT_PRIVATE_KEY (SSH) and MATCH_PASSWORD.
-git_url(ENV["MATCH_GIT_URL"] || "https://github.com/REPLACE_OWNER/miletracker-certificates.git")
+git_url(ENV["MATCH_GIT_URL"] || "https://github.com/REPLACE_OWNER/mileway-certificates.git")
 storage_mode("git")
 
 type("appstore")
 
-app_identifier([ENV["IOS_APP_IDENTIFIER"] || "com.miletracker.ios"])
+app_identifier([ENV["IOS_APP_IDENTIFIER"] || "com.mileway.ios"])
 username(ENV["IOS_APPLE_ID"] || "")
 team_id(ENV["IOS_TEAM_ID"] || "")
 

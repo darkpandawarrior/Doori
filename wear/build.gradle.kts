@@ -3,7 +3,7 @@ plugins {
 }
 
 android {
-    namespace = "com.miletracker.wear"
+    namespace = "com.mileway.wear"
     compileSdk = 37
     defaultConfig {
         minSdk = 30

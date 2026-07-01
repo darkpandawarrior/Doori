@@ -1,5 +1,5 @@
 plugins {
-    id("miletracker.kmp.library")
+    id("mileway.kmp.library")
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
     alias(libs.plugins.kotlinSerialization)
@@ -11,7 +11,7 @@ room {
 
 kotlin {
     android {
-        namespace = "com.miletracker.core.data"
+        namespace = "com.mileway.core.data"
         compileSdk = 37
         minSdk = 30
     }

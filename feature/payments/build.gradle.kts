@@ -1,10 +1,10 @@
 plugins {
-    id("miletracker.cmp.feature")
+    id("mileway.cmp.feature")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.feature.payments"
+        namespace = "com.mileway.feature.payments"
         compileSdk = 37
         minSdk = 30
     }

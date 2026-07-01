@@ -1,15 +1,15 @@
 plugins {
-    id("miletracker.kmp.compose")
+    id("mileway.kmp.compose")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.core.ui"
+        namespace = "com.mileway.core.ui"
         compileSdk = 37
         minSdk = 30
     }
 
-    // The `MileTracker` iOS framework is produced by the `:shared` umbrella module (which exports both
+    // The `Mileway` iOS framework is produced by the `:shared` umbrella module (which exports both
     // core:ui and feature:tracking). core:ui keeps its iOS targets (declared by the convention plugin)
     // so its iosMain — MainViewController + the Referral/Push/DeepLink bridges — compiles and is exportable.
 

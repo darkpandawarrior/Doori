@@ -7,7 +7,7 @@
             android:name=".showcase.ComponentShowcaseActivity"
             android:exported="true"
             android:label="Component Showcase"
-            android:theme="@style/Theme.MileTracker">
+            android:theme="@style/Theme.Mileway">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

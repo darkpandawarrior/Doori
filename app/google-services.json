@@ -1,15 +1,15 @@
 {
   "project_info": {
     "project_number": "000000000000",
-    "project_id": "miletracker-demo",
-    "storage_bucket": "miletracker-demo.appspot.com"
+    "project_id": "mileway-demo",
+    "storage_bucket": "mileway-demo.appspot.com"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
         "android_client_info": {
-          "package_name": "com.miletracker"
+          "package_name": "com.mileway"
         }
       },
       "oauth_client": [],
@@ -28,7 +28,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:000000000000:android:0000000000000000000001",
         "android_client_info": {
-          "package_name": "com.miletracker.staging"
+          "package_name": "com.mileway.staging"
         }
       },
       "oauth_client": [],

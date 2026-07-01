@@ -19,6 +19,6 @@
     <ID>MaxLineLength:TravelHomeScreen.kt$modifier = Modifier.padding(top = DesignTokens.Spacing.s, bottom = DesignTokens.Spacing.s, start = 36.dp)</ID>
     <ID>MayBeConst:TravelRepository.kt$private val BASE_MS = 1_781_654_400_000L</ID>
     <ID>MayBeConst:TravelRepository.kt$private val DAY_MS = 86_400_000L</ID>
-    <ID>TooManyFunctions:TravelHomeScreen.kt$com.miletracker.feature.travel.ui.screens.TravelHomeScreen.kt</ID>
+    <ID>TooManyFunctions:TravelHomeScreen.kt$com.mileway.feature.travel.ui.screens.TravelHomeScreen.kt</ID>
   </CurrentIssues>
 </SmellBaseline>

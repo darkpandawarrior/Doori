@@ -4,10 +4,10 @@
 <dict>
 	<!-- DL.3: Universal Links for the placeholder domain. Add this .entitlements to the target's
 	     CODE_SIGN_ENTITLEMENTS build setting, and host apple-app-site-association at
-	     https://miletracker.example.com/.well-known/apple-app-site-association -->
+	     https://mileway.example.com/.well-known/apple-app-site-association -->
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:miletracker.example.com</string>
+		<string>applinks:mileway.example.com</string>
 	</array>
 	<!-- FCM.4: APNs environment (placeholder; set to "production" for App Store builds). -->
 	<key>aps-environment</key>

@@ -15,7 +15,7 @@
     <ID>LongMethod:LoginScreen.kt$@Composable fun LoginScreen( onSignInWithCredentials: (email: String) -&gt; Unit, onContinueAsGuest: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
     <ID>LongMethod:LoginScreen.kt$@Composable private fun CredentialFields( email: String, onEmailChange: (String) -&gt; Unit, password: String, onPasswordChange: (String) -&gt; Unit, passwordVisible: Boolean, onTogglePasswordVisible: () -&gt; Unit, emailError: Boolean, passwordError: Boolean, enabled: Boolean, onImeDone: () -&gt; Unit, )</ID>
     <ID>LongMethod:MasterSearchScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MasterSearchContent( state: MasterSearchUiState, availableTypes: List&lt;SearchEntityType&gt;, onBack: () -&gt; Unit, onQueryChange: (String) -&gt; Unit, onSelectScope: (Int) -&gt; Unit, onToggleType: (SearchEntityType) -&gt; Unit, onClearFilters: () -&gt; Unit, onResultClick: (SearchResult) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
-    <ID>LongMethod:MileTrackerAppRoot.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MileTrackerAppRoot( deepLinkRoute: String? = null, themeController: ThemeController = koinInject(), )</ID>
+    <ID>LongMethod:MilewayAppRoot.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun MilewayAppRoot( deepLinkRoute: String? = null, themeController: ThemeController = koinInject(), )</ID>
     <ID>LongParameterList:InsightsAnalyzerTest.kt$InsightsAnalyzerTest$( distance: Double = 10_000.0, duration: Long = 600_000L, // 10 min totalPoints: Long = 120L, cleanedDistance: Double = 9_500.0, originalDistance: Double = 10_000.0, mockDistance: Double = 0.0, abnormalDistance: Double = 0.0, avgSpeed: Double = 16.67, // ~60 km/h wasMockLocationUsed: Boolean = false, wasBatteryOptimizationEnabled: Boolean = false, wasPowerSaverEnabled: Boolean = false, wasAppKilled: Boolean = false, wasPermissionsViolated: Boolean = false, wasPhoneShutDown: Boolean = false, totalBatteryOptimizationOnTime: Long = 0L, totalPowerSaverOnTime: Long = 0L )</ID>
     <ID>LongParameterList:InsightsAnalyzerTest.kt$InsightsAnalyzerTest$( lat: Double, lng: Double, timeMs: Long, speed: Float = 16.67f, // ~60 km/h → DRIVING isMock: Boolean = false, isAbnormal: Boolean = false, accuracy: Float = 10f, batteryPct: Double = 80.0, wasCapturedWhenNoNetwork: Boolean = false, isPaused: Boolean = false )</ID>
     <ID>LongParameterList:LoginScreen.kt$( email: String, onEmailChange: (String) -&gt; Unit, password: String, onPasswordChange: (String) -&gt; Unit, passwordVisible: Boolean, onTogglePasswordVisible: () -&gt; Unit, emailError: Boolean, passwordError: Boolean, enabled: Boolean, onImeDone: () -&gt; Unit, )</ID>
@@ -41,7 +41,7 @@
     <ID>MagicNumber:HomeComponents.kt$4000L</ID>
     <ID>MagicNumber:HomeComponents.kt$50</ID>
     <ID>MagicNumber:LoginScreen.kt$0.9f</ID>
-    <ID>MagicNumber:MileTrackerApplication.kt$MileTrackerApplication$7</ID>
+    <ID>MagicNumber:MilewayApplication.kt$MilewayApplication$7</ID>
     <ID>MagicNumber:SplashScreen.kt$0.06f</ID>
     <ID>MagicNumber:SplashScreen.kt$0.07f</ID>
     <ID>MagicNumber:SplashScreen.kt$0.12f</ID>
@@ -84,18 +84,18 @@
     <ID>MaxLineLength:HomeScreen.kt$val illustrativeSnackbar: suspend () -&gt; Unit = { snackbarState.showSnackbar("Detail view available in full version.") }</ID>
     <ID>MaxLineLength:InsightsAnalyzerTest.kt$InsightsAnalyzerTest$assertTrue(result.quality.qualityScore &lt;= 80, "Expected reduced quality with mock+kill: ${result.quality.qualityScore}")</ID>
     <ID>MaxLineLength:InsightsAnalyzerTest.kt$InsightsAnalyzerTest$val factor = result.scoreFactors.firstOrNull { "shutdown" in it.label.lowercase() || "shut" in it.label.lowercase() }</ID>
-    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.EVENT, "e1", "Quarterly summit", "Bengaluru · 3 days", status = "Upcoming", dateEpochDay = 20_170, deeplink = "miletracker://events/e1")</ID>
-    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.QR, "p1", "Paid · Chai Point", "UPI · Reimbursable", status = "Completed", amount = 240.0, dateEpochDay = 20_158, deeplink = "miletracker://payments/p1")</ID>
-    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.TRIP, "t1", "Goa offsite", "Mar 12 · 248 km", status = "Submitted", dateEpochDay = 20_160, deeplink = "miletracker://travel/t1")</ID>
-    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.TRIP, "t2", "Client visit · Pune", "Mar 09 · 41 km", status = "Approved", dateEpochDay = 20_157, deeplink = "miletracker://travel/t2")</ID>
+    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.EVENT, "e1", "Quarterly summit", "Bengaluru · 3 days", status = "Upcoming", dateEpochDay = 20_170, deeplink = "mileway://events/e1")</ID>
+    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.QR, "p1", "Paid · Chai Point", "UPI · Reimbursable", status = "Completed", amount = 240.0, dateEpochDay = 20_158, deeplink = "mileway://payments/p1")</ID>
+    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.TRIP, "t1", "Goa offsite", "Mar 12 · 248 km", status = "Submitted", dateEpochDay = 20_160, deeplink = "mileway://travel/t1")</ID>
+    <ID>MaxLineLength:MasterSearchPreviews.kt$SearchResult(SearchEntityType.TRIP, "t2", "Client visit · Pune", "Mar 09 · 41 km", status = "Approved", dateEpochDay = 20_157, deeplink = "mileway://travel/t2")</ID>
     <ID>MaxLineLength:MasterSearchPreviews.kt$listOf(SearchEntityType.TRIP, SearchEntityType.QR, SearchEntityType.EVENT, SearchEntityType.BOOKING, SearchEntityType.VOUCHER)</ID>
     <ID>MaxLineLength:MasterSearchRepositoryTest.kt$MasterSearchRepositoryTest$val repo = MasterSearchRepository(listOf(FakeProvider(setOf(SearchEntityType.TRIP), listOf(result(SearchEntityType.TRIP, "1", "Goa trip")))))</ID>
     <ID>MaxLineLength:MasterSearchRepositoryTest.kt$MasterSearchRepositoryTest$val tripProvider = FakeProvider(setOf(SearchEntityType.TRIP), listOf(result(SearchEntityType.TRIP, "t1", "Goa trip")))</ID>
-    <ID>MaxLineLength:MileTrackerAppRoot.kt$BubbleNavItem("Spends", Icons.AutoMirrored.Filled.ReceiptLong, Icons.AutoMirrored.Outlined.ReceiptLong)</ID>
-    <ID>MaxLineLength:MileTrackerAppRoot.kt$onOpenAccount = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.PROFILE }) }</ID>
-    <ID>MaxLineLength:MileTrackerApplication.kt$MileTrackerApplication$com.miletracker.core.platform.AppShortcut("log", "Log miles", "Log miles &amp; expenses", "miletracker://log")</ID>
-    <ID>MaxLineLength:MileTrackerApplication.kt$MileTrackerApplication$com.miletracker.core.platform.AppShortcut("profile", "Profile", "Open your profile", "miletracker://profile")</ID>
-    <ID>MaxLineLength:MileTrackerApplication.kt$single { com.miletracker.core.data.search.MasterSearchRepository(getAll&lt;com.miletracker.core.data.search.SearchProvider&gt;()) }</ID>
+    <ID>MaxLineLength:MilewayAppRoot.kt$BubbleNavItem("Spends", Icons.AutoMirrored.Filled.ReceiptLong, Icons.AutoMirrored.Outlined.ReceiptLong)</ID>
+    <ID>MaxLineLength:MilewayAppRoot.kt$onOpenAccount = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.PROFILE }) }</ID>
+    <ID>MaxLineLength:MilewayApplication.kt$MilewayApplication$com.mileway.core.platform.AppShortcut("log", "Log miles", "Log miles &amp; expenses", "mileway://log")</ID>
+    <ID>MaxLineLength:MilewayApplication.kt$MilewayApplication$com.mileway.core.platform.AppShortcut("profile", "Profile", "Open your profile", "mileway://profile")</ID>
+    <ID>MaxLineLength:MilewayApplication.kt$single { com.mileway.core.data.search.MasterSearchRepository(getAll&lt;com.mileway.core.data.search.SearchProvider&gt;()) }</ID>
     <ID>MaxLineLength:MileageSubmissionViewModelTest.kt$MileageSubmissionViewModelTest$OdometerCaptureResult(OdometerPurpose.END, "uri://end", reading = 50_020, isManual = false, captureTimeMs = 1_000L)</ID>
     <ID>MaxLineLength:MileageSubmissionViewModelTest.kt$MileageSubmissionViewModelTest$OdometerCaptureResult(OdometerPurpose.START, "uri://start", reading = 50_000, isManual = false, captureTimeMs = 0L)</ID>
     <ID>MaxLineLength:MileageSubmissionViewModelTest.kt$MileageSubmissionViewModelTest$vm.onAction(MileageSubmissionAction.Submit("route-001", distanceKm = 3.0, vehicleKey = "fourWheelerPetrol", startTime = 0L, endTime = 1L))</ID>
@@ -120,8 +120,8 @@
     <ID>MaxLineLength:TripAttachmentTest.kt$TripAttachmentTest$TripAttachmentEntity(id = 3, trackToken = "t1", type = AttachmentType.ODOMETER_START, uri = "uri-os", ocrText = "48213", createdAt = 50L)</ID>
     <ID>MaxLineLength:TripAttachmentTest.kt$TripAttachmentTest$TripAttachmentEntity(id = 4, trackToken = "t1", type = AttachmentType.ODOMETER_END, uri = "uri-oe", ocrText = "48221", createdAt = 300L)</ID>
     <ID>ReturnCount:LauncherActivity.kt$private fun Intent.deepLinkRoute(): String?</ID>
-    <ID>TooManyFunctions:HomeComponents.kt$com.miletracker.ui.home.HomeComponents.kt</ID>
-    <ID>TooManyFunctions:NavGraphScreens.kt$com.miletracker.navgraph.NavGraphScreens.kt</ID>
+    <ID>TooManyFunctions:HomeComponents.kt$com.mileway.ui.home.HomeComponents.kt</ID>
+    <ID>TooManyFunctions:NavGraphScreens.kt$com.mileway.navgraph.NavGraphScreens.kt</ID>
     <ID>UnusedParameter:MasterSearchScreen.kt$onClearFilters: () -&gt; Unit</ID>
     <ID>UnusedPrivateMember:HomeComponents.kt$@Composable private fun WorldMapDotGrid( modifier: Modifier = Modifier, dotColor: Color = Color.White.copy(alpha = 0.1f), )</ID>
     <ID>UnusedPrivateMember:HomeComponents.kt$@androidx.compose.ui.tooling.preview.Preview( showBackground = true, uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES, name = "Home Header – dark", ) @Composable private fun PreviewHomeProfileHeaderDark()</ID>

@@ -3,7 +3,7 @@
     <uses-feature android:name="android.hardware.type.watch" />
     <application>
         <service
-            android:name="com.miletracker.wear.MileageTileService"
+            android:name="com.mileway.wear.MileageTileService"
             android:exported="true"
             android:label="Mileage"
             android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
@@ -16,7 +16,7 @@
         </service>
 
         <service
-            android:name="com.miletracker.wear.MileageComplicationService"
+            android:name="com.mileway.wear.MileageComplicationService"
             android:exported="true"
             android:label="Mileage"
             android:permission="com.google.android.wearable.permission.BIND_COMPLICATION_PROVIDER">

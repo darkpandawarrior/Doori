@@ -1,0 +1,441 @@
+@file:Suppress("ktlint:standard:max-line-length", "ktlint:standard:property-naming")
+
+package com.mileway.feature.tracking.ui.screens
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.mileway.core.data.model.db.EventType
+import com.mileway.core.data.model.db.HardwareEvent
+import com.mileway.core.maps.MapSurface
+import com.mileway.core.platform.UrlOpener
+import com.mileway.core.ui.components.SectionCard
+import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
+import com.mileway.feature.tracking.manager.TrackingConfigManager
+import com.mileway.feature.tracking.repository.HardwareEventRepository
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
+
+/**
+ * Full-screen geo check-in flow. Shows demo location, a type picker, nearby vendor chips,
+ * a dynamic form, and an optional radius warning when outside the geofence.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GeoCheckInScreen(
+    onBack: () -> Unit,
+    configManager: TrackingConfigManager = koinInject(),
+    hardwareEventRepository: HardwareEventRepository = koinInject(),
+    mapSurface: MapSurface = koinInject(),
+) {
+    val clipboardManager = LocalClipboardManager.current
+    val urlOpener = koinInject<UrlOpener>()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val checkInTypes = remember { configManager.getCheckInTypes() }
+    val vendors = remember { configManager.getVendorCenters() }
+    val demoLat = configManager.getDemoLat()
+    val demoLng = configManager.getDemoLng()
+    val checkInRadius = configManager.getGeoCheckInRadiusMeters()
+
+    var selectedType by remember { mutableStateOf<String?>(null) }
+    var typeExpanded by remember { mutableStateOf(false) }
+    var selectedVendorId by remember { mutableStateOf<String?>(null) }
+    var formValues by remember { mutableStateOf(mapOf<String, String>()) }
+    var isSubmitting by remember { mutableStateOf(false) }
+
+    // Sort vendors by Haversine distance from demo location
+    val sortedVendors =
+        remember(demoLat, demoLng) {
+            vendors.sortedBy { haversineMeters(demoLat, demoLng, it.lat, it.lng) }
+        }
+    val selectedVendor = sortedVendors.firstOrNull { it.id == selectedVendorId }
+    val vendorDistanceM = selectedVendor?.let { haversineMeters(demoLat, demoLng, it.lat, it.lng) }
+    val formSchema =
+        remember(selectedType) {
+            selectedType?.let { configManager.getCheckInFormSchema(it) } ?: emptyList()
+        }
+    val formValid = formSchema.isEmpty() || formSchema.all { (key, _) -> !formValues[key].isNullOrBlank() }
+    val canCheckIn = selectedType != null && formValid
+
+    fun copyCoords() {
+        clipboardManager.setText(AnnotatedString("$demoLat, $demoLng"))
+        scope.launch { snackbarHostState.showSnackbar("Coordinates copied") }
+    }
+
+    fun openInMaps() {
+        urlOpener.open("geo:$demoLat,$demoLng?q=$demoLat,$demoLng")
+    }
+
+    fun doCheckIn() {
+        if (!canCheckIn) return
+        scope.launch {
+            isSubmitting = true
+            delay(1_200)
+            val locationLabel = selectedVendor?.name ?: "Current Location"
+            hardwareEventRepository.insert(
+                HardwareEvent(
+                    token = "checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
+                    eventType = EventType.CHECK_IN,
+                    time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                    lat = demoLat,
+                    lng = demoLng,
+                    event = "Geo check-in at $locationLabel ($selectedType)",
+                ),
+            )
+            isSubmitting = false
+            snackbarHostState.showSnackbar("Checked in at $locationLabel ✓")
+            delay(600)
+            onBack()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        topBar = {
+            DepthAwareTopBar(
+                title = "Check In",
+                subtitle = "Select a nearby location to record",
+                depth = NavigationDepth.LEVEL_2,
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                    }
+                },
+            )
+        },
+        bottomBar = {
+            Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
+                if (vendorDistanceM != null && vendorDistanceM > checkInRadius) {
+                    SectionCard(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.padding(DesignTokens.Spacing.m),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                Icons.Default.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(20.dp),
+                            )
+                            Spacer(Modifier.width(DesignTokens.Spacing.s))
+                            Text(
+                                text =
+                                    "You are ${vendorDistanceM.toInt()} m away from ${selectedVendor.name}. " +
+                                        "Check-in radius is ${checkInRadius.toInt()} m.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(DesignTokens.Spacing.s))
+                    Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                        OutlinedButton(
+                            onClick = { doCheckIn() },
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        ) { Text("Override & Check In") }
+                        Button(
+                            onClick = { doCheckIn() },
+                            modifier = Modifier.weight(1f),
+                            enabled = canCheckIn && !isSubmitting,
+                        ) {
+                            if (isSubmitting) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                            } else {
+                                Text("Check In")
+                            }
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = { doCheckIn() },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = canCheckIn && !isSubmitting,
+                    ) {
+                        if (isSubmitting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                            )
+                        } else {
+                            Text("Check In")
+                        }
+                    }
+                }
+            }
+        },
+    ) { innerPadding ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(DesignTokens.Spacing.l),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+        ) {
+            // ── Location Card ───────────────────────────────────────────────
+            SectionCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                        Spacer(Modifier.width(DesignTokens.Spacing.s))
+                        Text(
+                            "Current Location",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    Spacer(Modifier.height(DesignTokens.Spacing.s))
+                    // Map preview centred on the demo check-in location (provider = active flavor)
+                    mapSurface.LocationPinMap(
+                        latitude = demoLat,
+                        longitude = demoLng,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(180.dp)
+                                .clip(RoundedCornerShape(8.dp)),
+                    )
+                    Spacer(Modifier.height(DesignTokens.Spacing.s))
+                    Text(
+                        text = "${((demoLat * 1_000_000).toLong() / 1_000_000.0)}, ${((demoLng * 1_000_000).toLong() / 1_000_000.0)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text(
+                        text = configManager.getDemoAccuracyLabel(),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(DesignTokens.Spacing.s))
+                    Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+                        OutlinedButton(onClick = { openInMaps() }) {
+                            Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Open in Maps")
+                        }
+                        OutlinedButton(onClick = { copyCoords() }) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(4.dp))
+                            Text("Copy")
+                        }
+                    }
+                }
+            }
+
+            // ── Check-In Type Picker ────────────────────────────────────────
+            SectionCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
+                    Text(
+                        "Check-In Type",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(Modifier.height(DesignTokens.Spacing.s))
+                    ExposedDropdownMenuBox(
+                        expanded = typeExpanded,
+                        onExpandedChange = { typeExpanded = it },
+                    ) {
+                        OutlinedTextField(
+                            value = selectedType ?: "Select type",
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                        )
+                        ExposedDropdownMenu(
+                            expanded = typeExpanded,
+                            onDismissRequest = { typeExpanded = false },
+                        ) {
+                            checkInTypes.forEach { type ->
+                                DropdownMenuItem(
+                                    text = { Text(type) },
+                                    onClick = {
+                                        selectedType = type
+                                        typeExpanded = false
+                                        formValues = emptyMap()
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── Nearby Locations ────────────────────────────────────────────
+            SectionCard(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
+                    Text(
+                        "Nearby Locations",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Spacer(Modifier.height(DesignTokens.Spacing.s))
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                    ) {
+                        sortedVendors.take(7).forEach { vendor ->
+                            val distM = haversineMeters(demoLat, demoLng, vendor.lat, vendor.lng)
+                            val isSelected = vendor.id == selectedVendorId
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = {
+                                    selectedVendorId = if (isSelected) null else vendor.id
+                                },
+                                label = {
+                                    Column {
+                                        Text(vendor.name, style = MaterialTheme.typography.labelSmall)
+                                        Text(
+                                            "${distM.toLong()} m",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color =
+                                                if (isSelected) {
+                                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                                } else {
+                                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                                },
+                                        )
+                                    }
+                                },
+                                colors =
+                                    FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    ),
+                            )
+                        }
+                    }
+                }
+            }
+
+            // ── Custom Form ─────────────────────────────────────────────────
+            AnimatedVisibility(
+                visible = selectedType != null && formSchema.isNotEmpty(),
+                enter = fadeIn() + expandVertically(),
+            ) {
+                SectionCard(modifier = Modifier.fillMaxWidth()) {
+                    Column(
+                        modifier = Modifier.padding(DesignTokens.Spacing.m),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+                    ) {
+                        Text(
+                            "Additional Details",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        formSchema.forEach { (label, hint) ->
+                            val value = formValues[label] ?: ""
+                            OutlinedTextField(
+                                value = value,
+                                onValueChange = { formValues = formValues + (label to it) },
+                                label = { Text(label) },
+                                placeholder = { Text(hint) },
+                                modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
+                                supportingText = {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End,
+                                    ) { Text("${value.length}/100") }
+                                },
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(DesignTokens.Spacing.xl))
+        }
+    }
+}
+
+private fun haversineMeters(
+    lat1: Double,
+    lon1: Double,
+    lat2: Double,
+    lon2: Double,
+): Double {
+    val R = 6_371_000.0
+    val dLat = (lat2 - lat1) * PI / 180
+    val dLon = (lon2 - lon1) * PI / 180
+    val a =
+        sin(dLat / 2).let { it * it } +
+            cos(lat1 * PI / 180) * cos(lat2 * PI / 180) * sin(dLon / 2).let { it * it }
+    return R * 2 * atan2(sqrt(a), sqrt(1 - a))
+}

@@ -24,7 +24,7 @@ platform :android do
     # Output path is configured in roborazzi.properties.
     gradle(
       task: "testDebugUnitTest",
-      flags: "--tests com.miletracker.ScreenshotTests --rerun-tasks"
+      flags: "--tests com.mileway.ScreenshotTests --rerun-tasks"
     )
   end
 
@@ -32,7 +32,7 @@ platform :android do
   lane :verify_screenshots do
     gradle(
       task: "testDebugUnitTest",
-      flags: "--tests com.miletracker.ScreenshotTests"
+      flags: "--tests com.mileway.ScreenshotTests"
     )
   end
 

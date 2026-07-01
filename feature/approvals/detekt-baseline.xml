@@ -86,7 +86,7 @@
     <ID>MayBeConst:ApprovalsRepository.kt$private val BASE_MS = 1_781_654_400_000L</ID>
     <ID>MayBeConst:ApprovalsRepository.kt$private val DAY = 86_400_000L</ID>
     <ID>MayBeConst:ApprovalsRepository.kt$private val H = 3_600_000L</ID>
-    <ID>TooManyFunctions:ApprovalsScreen.kt$com.miletracker.feature.approvals.ui.screens.ApprovalsScreen.kt</ID>
+    <ID>TooManyFunctions:ApprovalsScreen.kt$com.mileway.feature.approvals.ui.screens.ApprovalsScreen.kt</ID>
     <ID>UnusedParameter:ApprovalsRepository.kt$ApprovalsRepository$id: String</ID>
     <ID>UnusedPrivateMember:ApprovalsScreen.kt$@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Approval Card – approved") @Composable private fun PreviewApprovalCardApproved()</ID>
     <ID>UnusedPrivateMember:ApprovalsScreen.kt$@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Approval Card – pending") @Composable private fun PreviewApprovalCardPending()</ID>

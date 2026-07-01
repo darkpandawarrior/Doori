@@ -3,9 +3,9 @@ import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
-    id("miletracker.android.application")
+    id("mileway.android.application")
     // H.8: bundles the generic JVM unit-test stack (JUnit, MockK, coroutines-test, Turbine, Koin-test).
-    id("miletracker.test")
+    id("mileway.test")
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.navgraph)
@@ -53,10 +53,10 @@ fun readBuildNumber(): Int {
 val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 
 android {
-    namespace = "com.miletracker"
+    namespace = "com.mileway"
 
     defaultConfig {
-        applicationId = "com.miletracker"
+        applicationId = "com.mileway"
         minSdk = 30
         targetSdk = 36
         // FLA.1: single-source versioning. VERSION (semver) + BUILD_NUMBER files at the repo root are the
@@ -339,7 +339,7 @@ dependencies {
     baselineProfile(project(":baselineprofile"))
 
     // Tests
-    // JUnit, MockK, coroutines-test, Turbine, Koin-test come from the miletracker.test convention plugin (H.8).
+    // JUnit, MockK, coroutines-test, Turbine, Koin-test come from the mileway.test convention plugin (H.8).
     // G1: PagingSource load-boundary test needs androidx.paging types (feature:tracking exposes
     // LocationPagingSource but keeps paging-common as implementation, so add it to the test classpath).
     testImplementation(libs.paging.common)
@@ -373,7 +373,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.kotlinx.coroutines.test)
     // Room base types (RoomDatabase/close) — core:data keeps Room as implementation, so the test
-    // classpath needs it directly to use the real MileTrackerDatabase.
+    // classpath needs it directly to use the real MilewayDatabase.
     androidTestImplementation(libs.room.runtime)
     // Bundled SQLite driver for the direct MIGRATION_4_5 test (D.5).
     androidTestImplementation(libs.sqlite.bundled)

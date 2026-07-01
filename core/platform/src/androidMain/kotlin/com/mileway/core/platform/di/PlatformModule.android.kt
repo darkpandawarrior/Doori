@@ -1,0 +1,52 @@
+package com.mileway.core.platform.di
+
+import com.mileway.core.platform.AndroidAppShortcuts
+import com.mileway.core.platform.AndroidHaptics
+import com.mileway.core.platform.AndroidLocationTracker
+import com.mileway.core.platform.AndroidMotionSensorProvider
+import com.mileway.core.platform.AndroidNotificationScheduler
+import com.mileway.core.platform.AndroidShareSheet
+import com.mileway.core.platform.AndroidTextRecognizer
+import com.mileway.core.platform.AndroidTrackingPresenceController
+import com.mileway.core.platform.AndroidUrlOpener
+import com.mileway.core.platform.AppShortcuts
+import com.mileway.core.platform.Haptics
+import com.mileway.core.platform.LocationNameResolver
+import com.mileway.core.platform.LocationTracker
+import com.mileway.core.platform.MotionSensorProvider
+import com.mileway.core.platform.NotificationScheduler
+import com.mileway.core.platform.OfflineLocationNameResolver
+import com.mileway.core.platform.ShareSheet
+import com.mileway.core.platform.TextRecognizer
+import com.mileway.core.platform.TrackingPresenceController
+import com.mileway.core.platform.UrlOpener
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.Module
+import org.koin.dsl.module
+
+/**
+ * Android bindings for the platform services.
+ * 2.2a: Location, Notification. 2.2b: TextRecognizer. 2.2c: BackgroundScheduler.
+ * (Biometric/DocScan/Permissions → 2.2d.)
+ */
+actual fun platformModule(): Module =
+    module {
+        single<LocationTracker> { AndroidLocationTracker(androidContext()) }
+        // Reverse geocoding → place names. The offline-first demo binds the deterministic offline
+        // resolver (no network) so live tracking shows real-looking Pune waypoint names; the
+        // device-backed AndroidLocationNameResolver(Geocoder) remains the production path.
+        single<LocationNameResolver> { OfflineLocationNameResolver() }
+        single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
+        single<TextRecognizer> { AndroidTextRecognizer() }
+        // SH.1: real system-chooser share sheet (LocalManagerProvider resolves it via Koin).
+        single<ShareSheet> { AndroidShareSheet(androidContext()) }
+        single<UrlOpener> { AndroidUrlOpener(androidContext()) }
+        // SH.3: home-screen quick actions → deep links.
+        single<AppShortcuts> { AndroidAppShortcuts(androidContext()) }
+        // UX.2: haptic feedback.
+        single<Haptics> { AndroidHaptics(androidContext()) }
+        // O: cross-platform motion sensors (accelerometer + gyroscope).
+        single<MotionSensorProvider> { AndroidMotionSensorProvider(androidContext()) }
+        // P-D.2: live presence surface (updates ongoing notification from each snapshot).
+        single<TrackingPresenceController> { AndroidTrackingPresenceController(androidContext()) }
+    }

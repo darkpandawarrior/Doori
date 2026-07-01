@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   Tile gallery preview for MileageTileService (androidx.wear.tiles.PREVIEW meta-data).
-  Static rendering of the round Wear tile: brand-blue face, the MileTracker compass
-  mark, and a readout bar standing in for the "0.0 km" / "MileTracker" text the live
+  Static rendering of the round Wear tile: brand-blue face, the Mileway compass
+  mark, and a readout bar standing in for the "0.0 km" / "Mileway" text the live
   tile draws. Mirrors the app brand colour #1976D2 and ic_logo_mark.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -45,7 +45,7 @@
         android:fillAlpha="0.92"
         android:pathData="M132,278 h136 a12,12 0 0 1 12,12 v0 a12,12 0 0 1 -12,12 h-136 a12,12 0 0 1 -12,-12 v0 a12,12 0 0 1 12,-12 Z" />
 
-    <!-- App label bar (stands in for "MileTracker") -->
+    <!-- App label bar (stands in for "Mileway") -->
     <path
         android:fillColor="#FFFFFF"
         android:fillAlpha="0.45"

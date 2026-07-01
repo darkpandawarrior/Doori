@@ -1,10 +1,10 @@
 plugins {
-    id("miletracker.kmp.library")
+    id("mileway.kmp.library")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.core.platform"
+        namespace = "com.mileway.core.platform"
         compileSdk = 37
         minSdk = 30
         // Run commonTest on the JVM host so the LocationNameResolver tests count toward the

@@ -30,7 +30,7 @@
     <ID>MaxLineLength:AgentChatScreen.kt$Text("${question.askCount} asked", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))</ID>
     <ID>MaxLineLength:AgentChatScreen.kt$Text("${question.askCount}", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))</ID>
     <ID>MaxLineLength:AgentChatScreen.kt$Text("AI Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)</ID>
-    <ID>MaxLineLength:AgentChatScreen.kt$Text("Powered by MileTracker AI", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))</ID>
+    <ID>MaxLineLength:AgentChatScreen.kt$Text("Powered by Mileway AI", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))</ID>
     <ID>MaxLineLength:AgentChatScreen.kt$Text("Trending", style = MaterialTheme.typography.labelSmall, color = Color.White)</ID>
     <ID>MaxLineLength:AgentChatScreen.kt$Text(question.module, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.6f))</ID>
     <ID>MaxLineLength:AgentGraph.kt$onConversationSelected = { navController.navigate(AgentRoutes.CHAT) { popUpTo(AgentRoutes.CHAT) { inclusive = true } } }</ID>

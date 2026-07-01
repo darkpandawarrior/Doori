@@ -1,10 +1,10 @@
 plugins {
-    id("miletracker.kmp.compose")
+    id("mileway.kmp.compose")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.core.maps.maplibre"
+        namespace = "com.mileway.core.maps.maplibre"
         compileSdk = 37
         minSdk = 30
     }

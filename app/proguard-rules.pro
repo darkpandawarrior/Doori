@@ -44,7 +44,7 @@
 
 # ── Koin ──────────────────────────────────────────────────────────────────────
 -keepnames class * extends org.koin.core.module.Module
--keep class com.miletracker.** {
+-keep class com.mileway.** {
     @org.koin.core.annotation.* <fields>;
 }
 
@@ -84,7 +84,7 @@
 -keep class net.sqlcipher.database.** { *; }
 
 # ── Application classes ───────────────────────────────────────────────────────
--keep class com.miletracker.** extends android.app.Application
--keep class com.miletracker.**.dao.** { *; }
--keep class com.miletracker.**.model.** { *; }
--keep class com.miletracker.**.di.** { *; }
+-keep class com.mileway.** extends android.app.Application
+-keep class com.mileway.**.dao.** { *; }
+-keep class com.mileway.**.model.** { *; }
+-keep class com.mileway.**.di.** { *; }

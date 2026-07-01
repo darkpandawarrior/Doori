@@ -2,11 +2,11 @@
 // + Compose compiler + compose=true) so the Glance @Composable content compiles. Consumes the platform-neutral
 // SurfaceSnapshot model/producer from :core:data (the producer already exists; this is the missing consumer).
 plugins {
-    id("miletracker.android.library")
+    id("mileway.android.library")
 }
 
 android {
-    namespace = "com.miletracker.widget"
+    namespace = "com.mileway.widget"
 }
 
 dependencies {

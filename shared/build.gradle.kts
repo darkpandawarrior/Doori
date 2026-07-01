@@ -3,7 +3,7 @@ plugins {
 }
 
 /**
- * iOS umbrella module: produces the single `MileTracker.framework` the Xcode app links against.
+ * iOS umbrella module: produces the single `Mileway.framework` the Xcode app links against.
  *
  * The framework can't live in `core:ui`, because the Swift app also calls into `feature:tracking`
  * (`IosTrackingEntryKt.MilwayViewController`, `IosBgTaskDispatcher`), and a core module must not depend
@@ -22,7 +22,7 @@ kotlin {
         iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "MileTracker"
+            baseName = "Mileway"
             export(project(":core:ui"))
             export(project(":feature:tracking"))
             export(project(":feature:agent"))

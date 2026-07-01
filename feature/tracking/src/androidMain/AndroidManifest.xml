@@ -5,18 +5,18 @@
             android:name="com.google.mlkit.vision.DEPENDENCIES"
             android:value="ocr" />
         <activity
-            android:name="com.miletracker.feature.tracking.TrackMilesActivity"
+            android:name="com.mileway.feature.tracking.TrackMilesActivity"
             android:exported="false"
-            android:theme="@style/Theme.MileTracker" />
+            android:theme="@style/Theme.Mileway" />
 
         <service
-            android:name="com.miletracker.feature.tracking.service.LocationTrackingService"
+            android:name="com.mileway.feature.tracking.service.LocationTrackingService"
             android:foregroundServiceType="location"
             android:exported="false"
             android:stopWithTask="false" />
 
         <service
-            android:name="com.miletracker.feature.tracking.service.FloatingBubbleService"
+            android:name="com.mileway.feature.tracking.service.FloatingBubbleService"
             android:foregroundServiceType="specialUse"
             android:exported="false">
             <property
@@ -25,7 +25,7 @@
         </service>
 
         <receiver
-            android:name="com.miletracker.feature.tracking.service.LocationTrackingBootReceiver"
+            android:name="com.mileway.feature.tracking.service.LocationTrackingBootReceiver"
             android:directBootAware="true"
             android:exported="true">
             <intent-filter>
@@ -36,7 +36,7 @@
         </receiver>
 
         <receiver
-            android:name="com.miletracker.feature.tracking.service.TrackingContextReceiver"
+            android:name="com.mileway.feature.tracking.service.TrackingContextReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.os.action.POWER_SAVE_MODE_CHANGED" />

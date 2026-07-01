@@ -5,9 +5,9 @@
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.miletracker.ios</string>
+	<string>com.mileway.ios</string>
 	<key>CFBundleName</key>
-	<string>MileTracker</string>
+	<string>Mileway</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -16,38 +16,38 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
-	<!-- DL.3: custom URL scheme (miletracker://). Universal Links use the Associated Domains entitlement. -->
+	<!-- DL.3: custom URL scheme (mileway://). Universal Links use the Associated Domains entitlement. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.miletracker.ios</string>
+			<string>com.mileway.ios</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>miletracker</string>
+				<string>mileway</string>
 			</array>
 		</dict>
 	</array>
 	<!-- Usage strings required by platform features used in this app -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>MileTracker uses your location to track mileage during trips.</string>
+	<string>Mileway uses your location to track mileage during trips.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>MileTracker uses background location to auto-start trip tracking.</string>
+	<string>Mileway uses background location to auto-start trip tracking.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>MileTracker uses the camera to capture odometer readings.</string>
+	<string>Mileway uses the camera to capture odometer readings.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>MileTracker reads photos to attach receipts to expense entries.</string>
+	<string>Mileway reads photos to attach receipts to expense entries.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>MileTracker uses Face ID to protect sensitive account data.</string>
+	<string>Mileway uses Face ID to protect sensitive account data.</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.miletracker.sync</string>
+		<string>com.mileway.sync</string>
 		<!-- P-F.2: 90-day purge of stale location rows (BGProcessingTask, weekly) -->
-		<string>com.miletracker.maintenance</string>
+		<string>com.mileway.maintenance</string>
 		<!-- P-F.2: auto-discard check when a journey runs past the daily cutoff (BGAppRefreshTask) -->
-		<string>com.miletracker.autodiscard</string>
+		<string>com.mileway.autodiscard</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

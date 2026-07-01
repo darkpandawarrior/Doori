@@ -1,9 +1,9 @@
 plugins {
-    id("miletracker.android.library")
+    id("mileway.android.library")
 }
 
 android {
-    namespace = "com.miletracker.core.maps.krossmap"
+    namespace = "com.mileway.core.maps.krossmap"
 }
 
 dependencies {

@@ -9,8 +9,8 @@
 /* Begin PBXBuildFile section */
 		AABF0001 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABF0010 /* iOSApp.swift */; };
 		AABF0002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABF0011 /* ContentView.swift */; };
-		AABF0003 /* MileTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AABF0012 /* MileTracker.framework */; };
-		AABF0004 /* MileTracker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AABF0012 /* MileTracker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AABF0003 /* Mileway.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AABF0012 /* Mileway.framework */; };
+		AABF0004 /* Mileway.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = AABF0012 /* Mileway.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,7 +20,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				AABF0004 /* MileTracker.framework in Embed Frameworks */,
+				AABF0004 /* Mileway.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -30,7 +30,7 @@
 /* Begin PBXFileReference section */
 		AABF0010 /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		AABF0011 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		AABF0012 /* MileTracker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MileTracker.framework; path = "../shared/build/bin/iosSimulatorArm64/debugFramework/MileTracker.framework"; sourceTree = SOURCE_ROOT; };
+		AABF0012 /* Mileway.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Mileway.framework; path = "../shared/build/bin/iosSimulatorArm64/debugFramework/Mileway.framework"; sourceTree = SOURCE_ROOT; };
 		AABF0013 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AABF0014 /* iosApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iosApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -40,7 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AABF0003 /* MileTracker.framework in Frameworks */,
+				AABF0003 /* Mileway.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,7 +60,7 @@
 		AABF0041 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				AABF0012 /* MileTracker.framework */,
+				AABF0012 /* Mileway.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -250,7 +250,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.miletracker.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mileway.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -274,7 +274,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.miletracker.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mileway.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

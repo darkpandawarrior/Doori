@@ -24,11 +24,11 @@ style:
       - '800'
     ignoreAnnotated:
       - 'androidx.compose.ui.tooling.preview.Preview'
-      - 'com.miletracker.core.ui.previews.PreviewLightDark'
-      - 'com.miletracker.core.ui.previews.PreviewMatrix'
-      - 'com.miletracker.core.ui.previews.PreviewFontScales'
-      - 'com.miletracker.core.ui.previews.PreviewDevices'
-      - 'com.miletracker.core.ui.previews.PreviewStates'
+      - 'com.mileway.core.ui.previews.PreviewLightDark'
+      - 'com.mileway.core.ui.previews.PreviewMatrix'
+      - 'com.mileway.core.ui.previews.PreviewFontScales'
+      - 'com.mileway.core.ui.previews.PreviewDevices'
+      - 'com.mileway.core.ui.previews.PreviewStates'
   MaxLineLength:
     active: false   # ktlint (standard:max-line-length) is the single source of truth for line length
   WildcardImport:

@@ -1,10 +1,10 @@
 plugins {
-    id("miletracker.cmp.feature")
+    id("mileway.cmp.feature")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.feature.agent"
+        namespace = "com.mileway.feature.agent"
         compileSdk = 37
         minSdk = 30
         withHostTest {}

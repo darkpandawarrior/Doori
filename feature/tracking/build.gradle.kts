@@ -1,11 +1,11 @@
 plugins {
-    id("miletracker.cmp.feature")
+    id("mileway.cmp.feature")
     alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.feature.tracking"
+        namespace = "com.mileway.feature.tracking"
         compileSdk = 37
         minSdk = 30
         // Enable JVM host execution of commonTest so pipeline/policy tests run in the gradle gate.

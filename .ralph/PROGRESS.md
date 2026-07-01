@@ -54,7 +54,7 @@ Backlog audit (`ralph-backlog-audit` workflow) verified every prior plan against
       play-services-location) + GMD `pixel6Api34` on AOSP ATD (headless→noGms). CI: instrumented-tests job
       (KVM + licenses) runs `pixel6Api34noGmsDebugAndroidTest`. Device-gated: verified via
       `assembleNoGmsDebugAndroidTest` (compiles) + managed-device config configures clean; unit gate green.
-- [x] P1.6 — G11 ✅ DONE (iter 6, commit bca4c26). New Android-only `:widget` module (miletracker.android.library
+- [x] P1.6 — G11 ✅ DONE (iter 6, commit bca4c26). New Android-only `:widget` module (mileway.android.library
       convention) — `MileageSummaryWidget : GlanceAppWidget` folds completed tracks through SurfaceSnapshotProducer
       and renders today/week distance+trips + live "Tracking now"; receiver + AppWidgetProviderInfo + manifest;
       `:app` depends on `:widget` so the receiver merges in (USED). Catalog: glance-appwidget + appwidget-testing
@@ -97,7 +97,7 @@ Backlog audit (`ralph-backlog-audit` workflow) verified every prior plan against
       health chip via CompactSystemStatusIndicator; VM test proves the mapping. Both flavors build.
       · **C.2d ✅ DONE** (iter 15, commit a3af0cd): TrackingNotificationMapper (pure, 7 types: ACTIVE/PAUSED/
       GPS_DISABLED/PERMISSION_MISSING/POLICY_VIOLATION/TRIP_COMPLETE + worker AUTO_DISCARD) wired into the service's
-      (used) notification path + 2s same-type throttle + TRIP_COMPLETE deep link (miletracker://track; routeId
+      (used) notification path + 2s same-type throttle + TRIP_COMPLETE deep link (mileway://track; routeId
       detail deferred — needs router+nested-nav). JVM mapper test. Both flavors build.
       · Remaining: **C.2g** resume grace (wire inResumeGrace in pipeline/service: suppress spike/auto-discard
       briefly after a resume).
@@ -116,7 +116,7 @@ Backlog audit (`ralph-backlog-audit` workflow) verified every prior plan against
       action-count + last-trip; SnapshotPublisher + InMemorySnapshotPublisher bound in both CoreDataModules; service
       publishes on trip completion; widget renders the enriched fields; producer + publisher JVM tests. Both flavors build.
       · **E.2 ✅ DONE** (iter 20, commit 9b3bdc7): MapProvider enum + LocalMapProvider CompositionLocal (core:ui);
-      ThemeController.mapProvider typed (String→MapProvider); MileTrackerTheme seeds it from a param; AppRoot passes
+      ThemeController.mapProvider typed (String→MapProvider); MilewayTheme seeds it from a param; AppRoot passes
       themeController.mapProvider; MapScreen reads LocalMapProvider.current (satellite→traffic overlay default). Both flavors build.
       · **E.3 ✅ DONE** (iter 21, commit 57c16a5): OfflineTileProvider (pure spec-v8 style builder, JVM-tested) +
       rememberOfflineMbtilesPath expect/actual (Android extracts the bundled mbtiles asset→filesDir; iOS null);
@@ -129,7 +129,7 @@ Backlog audit (`ralph-backlog-audit` workflow) verified every prior plan against
       · **B.2a ✅ DONE** (iter 23, commit 9d852c0): configureComposeCompilerMetrics() wires metricsDestination/
       reportsDestination behind -Pcompose.metrics in all 3 Compose convention plugins; off by default. Verified the flag
       emits real per-module composables/classes reports (:core:ui). Both flavors build; tests green.
-      · **H.8 ✅ DONE** (iter 24, commit 3f4559e): miletracker.test convention plugin bundles the generic JVM unit-test
+      · **H.8 ✅ DONE** (iter 24, commit 3f4559e): mileway.test convention plugin bundles the generic JVM unit-test
       stack (JUnit/MockK/coroutines-test/Turbine/Koin-test) via a version-catalog lookup; :app applies it + drops those
       6 lines (app-specific extras stay local). Verified: both flavors build; testNoGmsDebugUnitTest re-ran clean (98
       classes, 0 failures). **P3.5 COMPLETE.**
@@ -252,16 +252,16 @@ Verification gate per task: `assembleNoGmsDebug && testNoGmsDebugUnitTest && ktl
   from P-B. P-F.1 delivery: (1) `IosBgTaskDispatcher` (iosMain, `KoinPlatform.getKoin()` bridge) —
   resolves named `BackgroundTask` from Koin and calls `onComplete(success)` from a coroutine so Swift
   can call `bgTask.setTaskCompleted(success:)`; (2) `AppDelegate.swift` registers BGTask handlers for
-  `com.miletracker.maintenance` (BGProcessingTask, weekly reschedule) and `com.miletracker.autodiscard`
+  `com.mileway.maintenance` (BGProcessingTask, weekly reschedule) and `com.mileway.autodiscard`
   (BGAppRefreshTask, daily reschedule), each delegating to `IosBgTaskDispatcher.shared.runTask(...)`
   which no-ops gracefully until P-F.2 binds real tasks; (3) Info.plist gains both IDs in
   `BGTaskSchedulerPermittedIdentifiers`.
   iOS Xcode note (manual-verify): BGProcessingTask needs the `processing` bg mode (already in plist).
   To test registration at runtime: launch with attached debugger, call
-  `e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.miletracker.maintenance"]`
+  `e -l objc -- (void)[[BGTaskScheduler sharedScheduler] _simulateLaunchForTaskWithIdentifier:@"com.mileway.maintenance"]`
   in LLDB; confirm no submit errors in console. Requires Mac + Xcode — not gradle-gated.
   Gate: assembleNoGmsDebug ✅ · testNoGmsDebugUnitTest ✅ · ktlintCheck ✅ · detekt ✅ · all 4 iOS ✅.
-- [x] **P-F.2 — Migrate maintenance + auto-discard Workers** ✅. `MileageMaintenanceTask` + `AutoDiscardTask` in commonMain (`feature/tracking/worker/`); both implement `BackgroundTask`; named Koin bindings (`com.miletracker.maintenance`, `com.miletracker.autodiscard`) in Android + iOS `trackingModule`; `MileTrackerApplication.scheduleWeeklyMaintenance()` replaced with `BackgroundScheduler.schedulePeriodic()`; `dev.brewkits:kmpworkmanager:3.0.1` added to catalog + feature:tracking commonMain; `MileageMaintenanceWorker`/`AutoDiscardWorker` superseded (left in androidMain for reference); commonTest: `MaintenancePurgeTest` + `AutoDiscardPolicyTest` (5 tests pass). iOS compile green + all gates pass.
+- [x] **P-F.2 — Migrate maintenance + auto-discard Workers** ✅. `MileageMaintenanceTask` + `AutoDiscardTask` in commonMain (`feature/tracking/worker/`); both implement `BackgroundTask`; named Koin bindings (`com.mileway.maintenance`, `com.mileway.autodiscard`) in Android + iOS `trackingModule`; `MilewayApplication.scheduleWeeklyMaintenance()` replaced with `BackgroundScheduler.schedulePeriodic()`; `dev.brewkits:kmpworkmanager:3.0.1` added to catalog + feature:tracking commonMain; `MileageMaintenanceWorker`/`AutoDiscardWorker` superseded (left in androidMain for reference); commonTest: `MaintenancePurgeTest` + `AutoDiscardPolicyTest` (5 tests pass). iOS compile green + all gates pass.
 - [x] **P-F.3 — Boot/reconciliation rescheduling** ✅ (code in commit 6b9f641; seam test added in P-G.1).
   Two-front coverage: (1) the app's own `LocationTrackingBootReceiver` (androidMain) handles
   BOOT_COMPLETED / LOCKED_BOOT_COMPLETED / MY_PACKAGE_REPLACED → restores the FGS via the pure
@@ -288,7 +288,7 @@ Verification gate per task: `assembleNoGmsDebug && testNoGmsDebugUnitTest && ktl
   `onTaskRemoved_setsAppKilledFlag_persistsAcrossRelaunch` (L1) +
   `ghostSession_afterAppKill_reconcilesToNeedsDecision` (L5, real Room + DataStore +
   SessionReconciliationPolicy). Fixed a pre-existing detekt MagicNumber (`60_000L`) in
-  MileTrackerApplication via `kotlin.time` `.minutes.inWholeMilliseconds`. Kover floor stays 35% (~38.4%).
+  MilewayApplication via `kotlin.time` `.minutes.inWholeMilliseconds`. Kover floor stays 35% (~38.4%).
   Gate: testAndroidHostTest ✅ · :app:testNoGmsDebugUnitTest ✅ · ktlint ✅ · detekt ✅ · iOS test compile ✅.
 - [x] **P-G.2 — Placeholder audit** ✅. New `PlaceholderStateAuditTest` (app/src/test, Roborazzi +
   Compose semantics) renders every data-driven tracking surface in its NO-DATA / loading state on an
@@ -329,22 +329,22 @@ Verification gate per task: `assembleNoGmsDebug && testNoGmsDebugUnitTest && ktl
     • all 4 iOS modules `compileKotlinIosSimulatorArm64` (feature:tracking, core:data, core:platform,
       core:ui) ✅ · `:feature:tracking:compileTestKotlinIosSimulatorArm64` ✅
   **iOS Swift/Xcode artifacts (authored + documented; require Mac+Xcode to build — not Kotlin-gated):**
-    • AppDelegate.swift — BGTaskScheduler.register for `com.miletracker.maintenance` (BGProcessingTask,
-      weekly) + `com.miletracker.autodiscard` (BGAppRefreshTask, daily), both → IosBgTaskDispatcher.
+    • AppDelegate.swift — BGTaskScheduler.register for `com.mileway.maintenance` (BGProcessingTask,
+      weekly) + `com.mileway.autodiscard` (BGAppRefreshTask, daily), both → IosBgTaskDispatcher.
     • Info.plist — BGTaskSchedulerPermittedIdentifiers (sync/maintenance/autodiscard), UIBackgroundModes
       (fetch/processing/location), NSLocationAlways…UsageDescription.
     • Live Activity / Dynamic Island steps documented under P-D.2 above (widget extension + ActivityAttributes).
     • ContentView.swift → IosTrackingEntryKt.MilwayViewController() (full KMP entry).
-    • iOS framework wiring (RESOLVED post-V19): the `MileTracker` framework was built by core:ui, which
+    • iOS framework wiring (RESOLVED post-V19): the `Mileway` framework was built by core:ui, which
       cannot depend on feature:tracking (layer direction → cycle), so the Swift app's
       `IosTrackingEntryKt.MilwayViewController()` + `IosBgTaskDispatcher` calls had no symbols. Fixed with a
       dedicated **`:shared` iOS umbrella module** that `export()`s both core:ui and feature:tracking and
-      produces `MileTracker.framework`. Moved the `framework{}` declaration out of core:ui (it keeps its iOS
+      produces `Mileway.framework`. Moved the `framework{}` declaration out of core:ui (it keeps its iOS
       targets so its iosMain compiles + is exportable); repointed the Xcode project (file ref + build-phase
       `:shared:link…` task + both FRAMEWORK_SEARCH_PATHS) and the CI iOS-compile step to `:shared`. Verified:
       `:shared:linkDebugFrameworkIosSimulatorArm64` links locally and the framework header exposes all 7
       Swift entrypoints (MilwayViewController, IosBgTaskDispatcher, MainViewController, Referral/Push/DeepLink
-      bridges, MileTrackerFramework marker). CI still compile-only for iOS (runner Xcode 16.4 simulator SDK
+      bridges, MilewayFramework marker). CI still compile-only for iOS (runner Xcode 16.4 simulator SDK
       drops Apple's private _LocationEssentials → `ld` fails; needs Mac + Xcode ≤ 16.2 to link).
 
 ---
@@ -438,7 +438,7 @@ _(append one entry per iteration: task id, what changed, gate result)_
   - NEXT: **P1.6** (G11 Glance home-screen widget — new Android-only :widget module consuming SurfaceSnapshot;
     pairs with P3.4 L.1 SurfaceSnapshot enrichment + SnapshotPublisher). Glance render test + catalog deps.
 - 2026-06-22 — iter 6 — implemented **P1.6 (G11) Glance widget** (commit bca4c26). **P0 + P1 COMPLETE.**
-  - Used the `miletracker.android.library` convention (com.android.library + Compose) for the Android-only
+  - Used the `mileway.android.library` convention (com.android.library + Compose) for the Android-only
     :widget module — Glance needs res/xml so it can't be a KMP module. Dropped glance-material3 (GlanceTheme
     unresolved on 1.1.1) for plain Glance colors. Render test via host-side runGlanceAppWidgetUnitTest;
     `hasText` has no `substring` param on 1.1.1 → matched full strings.
@@ -498,11 +498,11 @@ _(append one entry per iteration: task id, what changed, gate result)_
   - Gate: ktlintFormat ✅ · assembleNoGmsDebug ✅ · assembleGmsDebug ✅ · testNoGmsDebugUnitTest ✅ (+ new mapping test).
   - NEXT (continue P3.2): **C.2d** TrackingNotificationManager — expand from active/paused to the 7-type system
     (GPS_DISABLED/PERMISSION_MISSING/AUTO_DISCARD/POLICY_VIOLATION/TRIP_COMPLETE) + throttle + a TRIP_COMPLETE
-    deep link (miletracker://track/{routeId}; DeepLinkRouter from V15 DL.1 exists). Then **C.2g** resume grace
+    deep link (mileway://track/{routeId}; DeepLinkRouter from V15 DL.1 exists). Then **C.2g** resume grace
     (inResumeGrace window in pipeline/service: suppress spike/auto-discard right after a resume).
 - 2026-06-22 — iter 15 — implemented **P3.2 C.2d 7-type notifications + throttle + deep link** (commit a3af0cd).
     Found TrackingNotificationManager is dead (0 usages); enhanced the service's actual notification path instead.
-    Deep link uses miletracker://track (router has no track/{routeId}; routeId detail = router+nav refactor, deferred).
+    Deep link uses mileway://track (router has no track/{routeId}; routeId detail = router+nav refactor, deferred).
   - Gate: ktlintFormat ✅ · assembleNoGmsDebug ✅ · assembleGmsDebug ✅ · testNoGmsDebugUnitTest ✅.
   - NEXT (finish P3.2): **C.2g** resume grace — add an inResumeGrace window (e.g. ~5s after TRACKING_RESUMED) in the
     service/pipeline that suppresses spike rejection / auto-discard, and publish inResumeGrace=true on the snapshot
@@ -535,7 +535,7 @@ _(append one entry per iteration: task id, what changed, gate result)_
   - NEXT (continue P3.4): **E.2** LocalMapProvider — a MapProvider enum + LocalMapProvider CompositionLocal in
     core:ui, consolidating the current provider-String in ThemeController; map surfaces read the CompositionLocal.
     Then **E.3** OfflineTileProvider wiring (MapLibre noGms ↔ bundled app/src/main/assets/demo_region.mbtiles).
-    Then **P3.5** build/test infra (B.2a Compose metrics, H.8 miletracker.test convention plugin, A.9 PullToRefresh) — LAST.
+    Then **P3.5** build/test infra (B.2a Compose metrics, H.8 mileway.test convention plugin, A.9 PullToRefresh) — LAST.
 - 2026-06-22 — iter 20 — implemented **P3.4 E.2 LocalMapProvider + MapProvider enum** (9b3bdc7).
   - Gate: ktlintFormat ✅ · assembleNoGmsDebug ✅ · assembleGmsDebug ✅ · testNoGmsDebugUnitTest ✅.
   - NEXT (finish P3.4): **E.3** OfflineTileProvider — wire MapLibre (noGms maps-maplibre module) to the bundled
@@ -549,7 +549,7 @@ _(append one entry per iteration: task id, what changed, gate result)_
     through MapSurface/KrossMapSurface/FakeMapSurface; MapScreen showOfflineTiles toggle now drives the surface.
   - NEXT: **P3.5** (the LAST P3 section) — slice it: (a) **A.9 PullToRefresh** on a real list screen (lowest-risk,
     do first), (b) **B.2a Compose compiler metrics** (gradle config to emit compose metrics/reports), (c) **H.8
-    miletracker.test convention plugin** (extract the repeated test deps into build-logic). After all three: re-verify
+    mileway.test convention plugin** (extract the repeated test deps into build-logic). After all three: re-verify
     BOTH flavors + JVM tests, confirm P0+P1+P3 all checked, THEN emit <promise>DONE</promise>.
 - 2026-06-22 — iter 22 — implemented **P3.5 A.9 PullToRefresh** (eaddb7f).
   - Gate: ktlintFormat ✅ · assembleNoGmsDebug ✅ · assembleGmsDebug ✅ · testNoGmsDebugUnitTest ✅.
@@ -558,14 +558,14 @@ _(append one entry per iteration: task id, what changed, gate result)_
     repo refresh would WIPE them — paging refresh has no such risk.
   - NEXT (continue P3.5): **B.2a** Compose compiler metrics — add the Gradle config (compose compiler
     metricsDestination/reportsDestination, gated behind a property) so `-Pcompose.metrics` emits per-module composable
-    stability reports. Then **H.8** miletracker.test convention plugin (build-logic) to dedupe test deps. After H.8:
+    stability reports. Then **H.8** mileway.test convention plugin (build-logic) to dedupe test deps. After H.8:
     final BOTH-flavor + JVM-test verify, confirm P0+P1+P3 checked, THEN <promise>DONE</promise>.
 - 2026-06-22 — iter 23 — implemented **P3.5 B.2a Compose compiler metrics** (9d852c0).
   - Gate: assembleNoGmsDebug ✅ · assembleGmsDebug ✅ · testNoGmsDebugUnitTest ✅. USE proof: -Pcompose.metrics emitted
     core/ui/build/compose-reports/*-composables.txt + compose-metrics/*-module.json.
   - Gotcha hit: KDoc containing `*/` (a find glob) closed the comment early → build-logic syntax error; reworded the KDoc.
-  - NEXT (LAST P3 task): **H.8** miletracker.test convention plugin — create a build-logic convention plugin (e.g.
-    `miletracker.test`) that bundles the repeated unit-test deps (junit, kotlin-test, coroutines-test, robolectric/compose
+  - NEXT (LAST P3 task): **H.8** mileway.test convention plugin — create a build-logic convention plugin (e.g.
+    `mileway.test`) that bundles the repeated unit-test deps (junit, kotlin-test, coroutines-test, robolectric/compose
     test, koin-test as used) and apply it to modules that currently hand-roll those test deps (start with :app, then a
     feature module). USED = a real module's build.gradle.kts switches to the plugin + its tests still pass. After H.8:
     run BOTH flavors + testNoGmsDebugUnitTest, confirm P0+P1+P3 all [x], THEN emit <promise>DONE</promise>.
@@ -702,7 +702,7 @@ _(append one entry per iteration: task id, what changed, gate result)_
 - 2026-06-24 — PLAN_V20 (continuation from prior session) — **P5.2: Topbar chat indicator**
   HomeScreen/HomeScreenContent: +onOpenAgent param (nullable). HomeProfileHeader reads
   AssistantFabSessionState.mode; renders ChatAgentIndicator(FULL) when mode==TOPBAR.
-  ChatAgentIndicator: new animated sparkle pill (FULL/COMPACT). MileTrackerAppRoot passes
+  ChatAgentIndicator: new animated sparkle pill (FULL/COMPACT). MilewayAppRoot passes
   onOpenAgent to HomeScreen. Gate: assembleNoGmsDebug ✅ testNoGmsDebugUnitTest ✅
 
 - 2026-06-24 — **P5.3: Empty-state popular-questions carousel from real data**

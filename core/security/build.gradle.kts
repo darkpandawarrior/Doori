@@ -1,10 +1,10 @@
 plugins {
-    id("miletracker.kmp.library")
+    id("mileway.kmp.library")
 }
 
 kotlin {
     android {
-        namespace = "com.miletracker.core.security"
+        namespace = "com.mileway.core.security"
         compileSdk = 37
         minSdk = 30
         // Enable JVM host execution of commonTest so RootDetectorTest runs in the gradle gate.
