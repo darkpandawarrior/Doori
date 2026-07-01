@@ -36,6 +36,7 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
 - [Build flavors](#build-flavors)
+- [Ralph-loop development](#ralph-loop-development)
 - [Testing and quality](#testing-and-quality)
 - [Roadmap](#roadmap)
 - [iOS and Wear OS](#ios-and-wear-os)
@@ -303,6 +304,9 @@ graph TD
 | `:feature:*` | tracking · logging · media · profile · approvals · payables · travel · agent · cards · payments · events |
 | `:stub` | Deterministic mock data for every repository (no backend) |
 | `:wear` | Wear OS companion tile |
+| `:shared` | iOS umbrella framework — re-exports `core:ui`, `feature:tracking` and `feature:agent` as the single `MileTracker.framework` Xcode links against |
+| `:widget` | Glance home-screen widget (mileage summary) |
+| `:baselineprofile` | Macrobenchmark module generating the Baseline Profile via `:app:generateNoGmsReleaseBaselineProfile` |
 | `build-logic` | Gradle convention plugins (centralised AGP / Kotlin / Compose config) |
 
 ### Project structure
@@ -322,6 +326,9 @@ Mileway/
 │                             # payables · travel · agent · cards · payments · events
 ├── stub/                     # deterministic mock data for every repository
 ├── wear/                     # Wear OS companion tile
+├── shared/                   # iOS umbrella framework (re-exports core:ui, feature:tracking, feature:agent)
+├── widget/                   # Glance home-screen widget
+├── baselineprofile/          # macrobenchmark module for Baseline Profile generation
 ├── build-logic/              # Gradle convention plugins
 ├── docs/                     # README assets, screenshots, release & brand docs
 └── fastlane/                 # store metadata + screenshots
@@ -393,6 +400,25 @@ A `maps` flavor dimension splits the app into a proprietary and a FOSS build:
 | `noGms` | MapLibre + offline MBTiles (no API key) | none (FOSS-clean) | F-Droid / fully offline |
 
 A dependency-prefix guard fails the build if proprietary libraries leak into the `noGms` classpath.
+
+## Ralph-loop development
+
+This repo is built and evolved almost entirely through autonomous Ralph-loop iteration
+(`.ralph/PLAN.md` plus versioned plans `PLAN_V3` … `PLAN_V20`, each one migration phase — KMP
+hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per iteration in
+`.ralph/PROGRESS.md`.
+
+- **Verification gate (current, flavored build):**
+  ```bash
+  ./gradlew assembleNoGmsDebug && ./gradlew testNoGmsDebugUnitTest
+  ```
+  (the `gms` flavor crashes Robolectric, so unit tests only run on `noGms`.)
+- **Guardrail:** the Ralph Stop hook reverts uncommitted *tracked* edits between turns — each
+  iteration must edit, build/test, and commit within the same turn, or the change is lost.
+- Historical note: earlier plan revisions (and `CLAUDE.md`/`AGENTS.md`) reference the original,
+  pre-flavor bootstrap commands `assembleDebug` / `testDebugUnitTest` from when this repo was a
+  bare single-variant extraction of the mileage feature; those tasks are long complete and the
+  flavored commands above are what CI and current Ralph runs actually use.
 
 ## Testing and quality
 
