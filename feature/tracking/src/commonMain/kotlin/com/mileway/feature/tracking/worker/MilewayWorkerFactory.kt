@@ -21,7 +21,7 @@ class MilewayWorkerFactory : WorkerFactory, KoinComponent {
     override fun createWorker(workerClassName: String): Worker? =
         when (workerClassName) {
             MileageMaintenanceTask.WORKER_CLASS ->
-                MileageMaintenanceTask(locationDao = get())
+                MileageMaintenanceTask(locationDao = get(), savedTrackDao = get())
 
             AutoDiscardTask.WORKER_CLASS ->
                 AutoDiscardTask(

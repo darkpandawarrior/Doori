@@ -5,6 +5,8 @@ import com.mileway.core.data.database.buildMilewayDatabase
 import com.mileway.core.data.model.display.InMemorySnapshotPublisher
 import com.mileway.core.data.model.display.SnapshotPublisher
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
+import com.mileway.core.data.outbox.LocationBatch
+import com.mileway.core.data.outbox.LocationBatchOutbox
 import com.mileway.core.data.outbox.RoomSubmitOutbox
 import com.mileway.core.data.outbox.SubmitOutbox
 import com.mileway.core.data.outbox.TripDraft
@@ -70,6 +72,8 @@ val coreDataModule =
         single<SubmitOutbox<TripDraft>> { RoomSubmitOutbox(get(), get(), TripDraft.serializer()) }
         // Wave 3: Log Miles submit goes through the durable outbox too (LogMilesSubmitUseCase).
         single<SubmitOutbox<LogMilesSubmitRequestV2>> { RoomSubmitOutbox(get(), get(), LogMilesSubmitRequestV2.serializer()) }
+        // Wave 4 §2.3: location batches drained by LocationDataSyncer go through the same outbox.
+        single<LocationBatchOutbox> { RoomSubmitOutbox(get(), get(), LocationBatch.serializer()) }
         // L.1: in-process snapshot channel for glanceable surfaces (publish + observe).
         single { InMemorySnapshotPublisher() }
         single<SnapshotPublisher> { get<InMemorySnapshotPublisher>() }

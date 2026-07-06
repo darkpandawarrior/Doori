@@ -18,6 +18,7 @@ import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
+import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
@@ -27,8 +28,10 @@ import com.mileway.feature.tracking.viewmodel.ExportViewModel
 import com.mileway.feature.tracking.viewmodel.HardwareEventsViewModel
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
+import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.RoutePointsViewModel
 import com.mileway.feature.tracking.viewmodel.SavedTracksViewModel
+import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import com.mileway.feature.tracking.viewmodel.TrackInsightsViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
@@ -60,6 +63,14 @@ val trackingModule =
         single { TripAttachmentRepository(get()) }
         single { VoucherRepository(get()) }
         single { SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }) }
+        // Wave 4 §2.3: local-only sync-status engine over the location outbox — see class doc.
+        single {
+            LocationDataSyncer(
+                locationDao = get(),
+                outbox = get(),
+                now = { Clock.System.now().toEpochMilliseconds() },
+            )
+        }
         single { LocationTrackingController(androidContext()) }
         single<TrackingController> { get<LocationTrackingController>() }
         single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
@@ -89,6 +100,8 @@ val trackingModule =
         single { WatchFacade(snapshotPublisher = get(), trackRepository = get(), trackingController = get()) }
 
         viewModelOf(::SavedTracksViewModel)
+        viewModelOf(::SyncStatusViewModel)
+        viewModelOf(::MultiSessionRestoreViewModel)
         // Explicit definition (not viewModelOf): LocationNameResolver is bound in platformModule,
         // which some graphs (e.g. the screenshot harness) omit. getOrNull() lets the VM fall back to
         // its own OfflineLocationNameResolver default instead of failing instance creation.

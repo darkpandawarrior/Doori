@@ -80,6 +80,7 @@ import com.mileway.feature.tracking.ui.components.SavedTracksSearchField
 import com.mileway.feature.tracking.ui.components.SavedTracksSegment
 import com.mileway.feature.tracking.ui.components.SavedTracksSegmentedToggle
 import com.mileway.feature.tracking.ui.components.StaticPolylineThumbnail
+import com.mileway.feature.tracking.ui.components.StatusBadge
 import com.mileway.feature.tracking.ui.components.SubmissionCard
 import com.mileway.feature.tracking.ui.components.SubmissionCardData
 import com.mileway.feature.tracking.ui.components.SubmissionDateHeader
@@ -92,6 +93,7 @@ import com.mileway.feature.tracking.viewmodel.SavedTracksViewModel
 import com.mileway.feature.tracking.viewmodel.SubmissionFilter
 import com.mileway.feature.tracking.viewmodel.SubmissionItem
 import com.mileway.feature.tracking.viewmodel.SubmissionSource
+import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
@@ -114,8 +116,10 @@ fun SavedTracksScreen(
     onTrackClick: (String) -> Unit,
     onStartNew: () -> Unit,
     viewModel: SavedTracksViewModel = koinViewModel(),
+    syncStatusViewModel: SyncStatusViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.state.collectAsState()
+    val syncChipText by syncStatusViewModel.chipText.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Pure-demo voucher acknowledgement: snackbar + confetti, then consume the one-shot flag.
@@ -145,6 +149,17 @@ fun SavedTracksScreen(
                     selectionMode = uiState.selectionMode,
                     onClearSelection = { viewModel.onAction(SavedTracksAction.ClearSelection) },
                 )
+                // Wave-4 §2.3: sync-status chip — null while idle (no session has ever synced).
+                syncChipText?.let { text ->
+                    Row(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.s),
+                    ) {
+                        StatusBadge(text = text, color = MilewayColors.neutral)
+                    }
+                }
                 SavedTracksBody(
                     uiState = uiState,
                     bottomPadding = padding.calculateBottomPadding(),

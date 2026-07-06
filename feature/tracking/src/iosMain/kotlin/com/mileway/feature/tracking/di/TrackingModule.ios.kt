@@ -15,6 +15,7 @@ import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
+import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
@@ -24,8 +25,10 @@ import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
+import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.RoutePointsViewModel
 import com.mileway.feature.tracking.viewmodel.SavedTracksViewModel
+import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackingSuccessViewModel
@@ -68,6 +71,14 @@ val trackingModule =
         single { TripAttachmentRepository(get()) }
         single { VoucherRepository(get()) }
         single { SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }) }
+        // Wave 4 §2.3: local-only sync-status engine over the location outbox — see class doc.
+        single {
+            LocationDataSyncer(
+                locationDao = get(),
+                outbox = get(),
+                now = { Clock.System.now().toEpochMilliseconds() },
+            )
+        }
 
         // ── Shared utilities ──────────────────────────────────────────────────
         single { RouteAnalyzer() }
@@ -82,6 +93,8 @@ val trackingModule =
 
         // ── ViewModels (commonMain only; androidMain-exclusive VMs omitted) ───
         viewModelOf(::SavedTracksViewModel)
+        viewModelOf(::SyncStatusViewModel)
+        viewModelOf(::MultiSessionRestoreViewModel)
         viewModel {
             TrackMilesViewModel(
                 configManager = get(),

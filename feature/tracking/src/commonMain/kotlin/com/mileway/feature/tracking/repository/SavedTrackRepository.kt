@@ -21,6 +21,12 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
 
     fun completedTracksFlow(): Flow<List<TrackDisplayData>> = dao.getCompletedTracks().map { list -> list.map { it.toDisplayData() } }
 
+    /**
+     * Every raw [SavedTrack] row, unmapped — for local logic that needs more than
+     * [TrackDisplayData] can give it (e.g. the multi-session restore gatherer).
+     */
+    fun rawTracksFlow(): Flow<List<SavedTrack>> = dao.getAllSavedTracks()
+
     suspend fun getByRouteId(routeId: String): SavedTrack? = dao.getSavedTrackById(routeId)
 
     fun observeByRouteId(routeId: String): Flow<SavedTrack?> = dao.observeTrackById(routeId)
@@ -74,4 +80,35 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
         routeId: String,
         value: Double,
     ) = dao.updateSmartDistanceFinal(routeId, value)
+
+    /**
+     * Wave-4 §2.3: local-data resolution for a journey's GPS trail. [MileageMaintenanceTask]
+     * purges the `locations` rows for old, already-uploaded trips and flips `has_local_data` off
+     * (see its doc comment); this is the read-side counterpart that call sites (e.g. the route
+     * detail screen) use instead of reaching into the DAO directly.
+     *
+     * Local points are the only data source today — there is no real backend yet (see the
+     * project's "backend deferred" policy) — so a purged route resolves to
+     * [LocalDataResolution.WouldFetchFromServer] as an honest, explicit stub rather than silently
+     * returning an empty list.
+     */
+    suspend fun resolveLocalData(routeId: String): LocalDataResolution {
+        val track = dao.getSavedTrackById(routeId) ?: return LocalDataResolution.NotFound
+        return if (track.hasLocalData) {
+            LocalDataResolution.Local(routeId)
+        } else {
+            LocalDataResolution.WouldFetchFromServer(routeId)
+        }
+    }
+}
+
+/** Result of [SavedTrackRepository.resolveLocalData]. */
+sealed interface LocalDataResolution {
+    data class Local(val routeId: String) : LocalDataResolution
+
+    // ponytail: no real backend yet — this is the honest stub the "has_local_data" flag exists to
+    // enable; the future server-fetch call slots in here without touching any caller.
+    data class WouldFetchFromServer(val routeId: String) : LocalDataResolution
+
+    data object NotFound : LocalDataResolution
 }
