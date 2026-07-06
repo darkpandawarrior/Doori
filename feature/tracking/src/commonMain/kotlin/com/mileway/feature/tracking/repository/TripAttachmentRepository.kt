@@ -1,8 +1,10 @@
 package com.mileway.feature.tracking.repository
 
 import com.mileway.core.data.dao.TripAttachmentDao
+import com.mileway.core.data.model.OdometerAnalysisSnapshot
 import com.mileway.core.data.model.db.AttachmentType
 import com.mileway.core.data.model.db.TripAttachmentEntity
+import com.mileway.core.data.model.display.OdometerReadingSource
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 
@@ -35,8 +37,9 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
         ocrText: String?,
         ocrConfidence: Float = 0f,
         ocrVerified: Boolean = false,
-    ): Long =
-        dao.insert(
+    ): Long {
+        val now = Clock.System.now().toEpochMilliseconds()
+        return dao.insert(
             TripAttachmentEntity(
                 trackToken = trackToken,
                 type = AttachmentType.ODOMETER_START,
@@ -45,9 +48,11 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 fileName = fileNameFromUri(uri),
                 ocrConfidence = ocrConfidence,
                 ocrVerified = ocrVerified,
-                createdAt = Clock.System.now().toEpochMilliseconds(),
+                createdAt = now,
+                odometerAnalysisJson = analysisJsonFor(ocrText, now),
             ),
         )
+    }
 
     /** Save (or overwrite) an odometer end proof. Returns the new row id. */
     suspend fun setOdometerEnd(
@@ -56,8 +61,9 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
         ocrText: String?,
         ocrConfidence: Float = 0f,
         ocrVerified: Boolean = false,
-    ): Long =
-        dao.insert(
+    ): Long {
+        val now = Clock.System.now().toEpochMilliseconds()
+        return dao.insert(
             TripAttachmentEntity(
                 trackToken = trackToken,
                 type = AttachmentType.ODOMETER_END,
@@ -66,9 +72,28 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 fileName = fileNameFromUri(uri),
                 ocrConfidence = ocrConfidence,
                 ocrVerified = ocrVerified,
-                createdAt = Clock.System.now().toEpochMilliseconds(),
+                createdAt = now,
+                odometerAnalysisJson = analysisJsonFor(ocrText, now),
             ),
         )
+    }
+
+    /**
+     * §2.4: builds the typed [OdometerAnalysisSnapshot] JSON for an odometer capture from what
+     * this single-reading insert has available — [ocrText] parsed to an [Int] reading, source is
+     * always [OdometerReadingSource.DEVICE_OCR] since a parseable [ocrText] means OCR produced it.
+     * Null when there's no parseable reading (nothing to analyze).
+     * ponytail: this is a per-attachment snapshot, not the paired start→end trip validation — that
+     * still happens where both readings are compared (LogMilesUiState.odometerValidationError).
+     */
+    private fun analysisJsonFor(
+        ocrText: String?,
+        analyzedAtMs: Long,
+    ): String? {
+        val reading = ocrText?.toIntOrNull() ?: return null
+        val snapshot = OdometerAnalysisSnapshot.fromReading(reading, OdometerReadingSource.DEVICE_OCR, analyzedAtMs)
+        return OdometerAnalysisSnapshot.encode(snapshot)
+    }
 
     /** Latest odometer-start attachment, or null if none captured. */
     suspend fun getOdometerStart(trackToken: String): TripAttachmentEntity? = dao.getLatestOfType(trackToken, AttachmentType.ODOMETER_START)

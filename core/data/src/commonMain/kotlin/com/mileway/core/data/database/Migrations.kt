@@ -5,6 +5,20 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 17 → 18 (§2.4): additive `odometerAnalysisJson` column on `trip_attachments` — a
+ * typed, structured snapshot of the odometer-reading validation (see
+ * [com.mileway.core.data.model.OdometerAnalysisSnapshot]) alongside the existing raw
+ * [com.mileway.core.data.model.db.TripAttachmentEntity.ocrText]. Nullable, so this is a plain
+ * additive ALTER with no backfill for existing rows.
+ */
+val MIGRATION_17_18 =
+    object : Migration(17, 18) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `trip_attachments` ADD COLUMN `odometerAnalysisJson` TEXT")
+        }
+    }
+
+/**
  * Migration 16 → 17 (PLAN_V22 P6.8): additive `support_tickets` table — a real, persisted "My
  * Tickets" store backing `HelpScreen`'s "Contact Support" form, replacing its previous
  * fire-and-forget `snackbarHostState.showSnackbar(...)`-only tap with nothing inspectable
