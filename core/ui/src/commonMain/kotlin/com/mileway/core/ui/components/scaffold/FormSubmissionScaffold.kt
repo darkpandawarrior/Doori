@@ -5,14 +5,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,6 +23,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -30,12 +33,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_action_save_draft
 import com.mileway.core.ui.resources.core_action_submit
 import com.mileway.core.ui.resources.core_cd_back
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -52,9 +57,12 @@ fun FormSubmissionScaffold(
     onBack: () -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    titleIcon: ImageVector? = null,
     canSubmit: Boolean = true,
     isSubmitting: Boolean = false,
     submitLabel: String = stringResource(Res.string.core_action_submit),
+    submitIcon: ImageVector? = null,
     onSaveDraft: (() -> Unit)? = null,
     saveDraftLabel: String = stringResource(Res.string.core_action_save_draft),
     content: @Composable (contentPadding: PaddingValues) -> Unit,
@@ -63,7 +71,28 @@ fun FormSubmissionScaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(title, fontWeight = FontWeight.SemiBold) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        titleIcon?.let { icon ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(DesignTokens.IconSize.actionTile),
+                            )
+                            Spacer(Modifier.width(DesignTokens.Spacing.s))
+                        }
+                        Column {
+                            Text(title, fontWeight = FontWeight.SemiBold)
+                            if (subtitle != null) {
+                                Text(
+                                    subtitle,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
@@ -87,15 +116,25 @@ fun FormSubmissionScaffold(
                             onClick = onSaveDraft,
                             enabled = !isSubmitting,
                             modifier = Modifier.weight(1f).height(52.dp),
-                            shape = RoundedCornerShape(8.dp),
+                            shape = DesignTokens.Shape.button,
                         ) { Text(saveDraftLabel) }
                     }
                     Button(
                         onClick = onSubmit,
                         enabled = canSubmit && !isSubmitting,
                         modifier = Modifier.weight(1f).height(52.dp),
-                        shape = RoundedCornerShape(8.dp),
-                    ) { Text(submitLabel, fontWeight = FontWeight.Bold) }
+                        shape = DesignTokens.Shape.button,
+                    ) {
+                        submitIcon?.let { icon ->
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = null,
+                                modifier = Modifier.size(DesignTokens.IconSize.actionTile),
+                            )
+                            Spacer(Modifier.width(DesignTokens.Spacing.s))
+                        }
+                        Text(submitLabel, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         },

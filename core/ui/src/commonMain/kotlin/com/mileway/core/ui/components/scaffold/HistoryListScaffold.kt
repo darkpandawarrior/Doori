@@ -6,9 +6,13 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -30,7 +34,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.mvi.DefaultEmptyState
@@ -42,6 +48,7 @@ import com.mileway.core.ui.resources.core_cd_refresh
 import com.mileway.core.ui.resources.core_cd_search
 import com.mileway.core.ui.resources.core_empty_default
 import com.mileway.core.ui.resources.core_search_placeholder
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -60,6 +67,7 @@ fun <T> HistoryListScaffold(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    titleIcon: ImageVector? = null,
     tabs: List<String> = emptyList(),
     selectedTab: Int = 0,
     onSelectTab: (Int) -> Unit = {},
@@ -79,10 +87,16 @@ fun <T> HistoryListScaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Column {
-                        Text(title, fontWeight = FontWeight.SemiBold)
-                        if (subtitle != null) {
-                            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        titleIcon?.let { icon ->
+                            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.actionTile))
+                            Spacer(Modifier.width(DesignTokens.Spacing.s))
+                        }
+                        Column {
+                            Text(title, fontWeight = FontWeight.SemiBold)
+                            if (subtitle != null) {
+                                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
                         }
                     }
                 },

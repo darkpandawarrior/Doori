@@ -68,6 +68,8 @@
     <string name="travel_active_trips">Active Trips</string>
     <string name="travel_upcoming">Upcoming</string>
     <string name="travel_total_spend">Total Spend</string>
+    <string name="travel_booking_history_subtitle">Flights, hotels, buses and more</string>
+    <string name="travel_trip_history_subtitle">Every trip request and its status</string>
 
     <!-- Auth -->
     <string name="auth_sign_in">Sign In</string>
@@ -126,6 +128,8 @@
     <string name="approvals_empty_no_items">No items</string>
     <string name="approvals_title">Approvals</string>
     <string name="approvals_title_select_items">Select Items</string>
+    <string name="approvals_subtitle">Review pending requests</string>
+    <string name="approvals_subtitle_selecting">Tap items to select</string>
     <string name="approvals_action_cancel">Cancel</string>
     <string name="approvals_cd_filter">Filter</string>
     <string name="approvals_policy_violation">Policy violation</string>
@@ -229,6 +233,7 @@
     <string name="payables_invoice_status_matched">Matched</string>
     <string name="payables_invoice_status_paid">Paid</string>
     <string name="payables_history_title">Payables History</string>
+    <string name="payables_history_subtitle">Invoices, PRs, GINs, parking &amp; ASNs</string>
     <string name="payables_history_search_placeholder">Search payables…</string>
     <string name="payables_history_empty_title">No documents here</string>
     <string name="payables_history_empty_subtitle">Created payables documents appear under their type and status.</string>
@@ -244,6 +249,7 @@
     <string name="payables_doc_status_rejected">Rejected</string>
     <string name="payables_doc_status_completed">Completed</string>
     <string name="payables_gin_title">Create GIN</string>
+    <string name="payables_gin_subtitle">Record goods received against a PO</string>
     <string name="payables_gin_submit">Log goods receipt</string>
     <string name="payables_gin_section_receipt">Receipt</string>
     <string name="payables_gin_section_goods">Goods</string>
@@ -254,6 +260,7 @@
     <string name="payables_gin_field_received_qty">Received quantity *</string>
     <string name="payables_field_remarks">Remarks</string>
     <string name="payables_invoice_title">Create Invoice</string>
+    <string name="payables_invoice_subtitle">Enter a vendor invoice for matching</string>
     <string name="payables_invoice_submit">Submit invoice</string>
     <string name="payables_invoice_section_invoice">Invoice</string>
     <string name="payables_invoice_section_amount">Amount &amp; coding</string>
@@ -263,6 +270,7 @@
     <string name="payables_invoice_field_tax">Tax %</string>
     <string name="payables_invoice_field_gl_code">GL code</string>
     <string name="payables_parking_submit">Log %1$s</string>
+    <string name="payables_parking_subtitle">Log a gate entry or exit event</string>
     <string name="payables_parking_section_direction">Direction</string>
     <string name="payables_park_mode_in">Park In</string>
     <string name="payables_park_mode_out">Park Out</string>
@@ -764,6 +772,7 @@
     <string name="logging_ready_to_submit">Ready to submit</string>
     <string name="logging_complete_required_fields">Complete required fields</string>
     <string name="logging_expense_details_header">Expense Details</string>
+    <string name="logging_expense_details_subtitle">Receipt, line items &amp; approval status</string>
     <string name="logging_service_type">Service Type</string>
     <string name="logging_select_a_service">Select a service</string>
     <string name="logging_purpose_of_travel">Purpose of travel</string>
@@ -1745,6 +1754,51 @@
     <!-- Media library -->
     <string name="media_delete_confirm">Delete</string>
     <string name="media_delete_description">This removes them from the library only: the original file is unchanged.</string>
+    <string name="media_library_title">Media Library</string>
+    <string name="media_library_subtitle">Your saved attachments</string>
+    <string name="media_add_attachment_title">Add Attachment</string>
+    <string name="media_add_attachment_subtitle">Choose a source to attach</string>
+    <string name="media_cd_theme_color">Theme color</string>
+    <string name="media_cd_biometric_lock">Biometric lock</string>
+    <string name="media_cd_scan">Scan</string>
+    <string name="media_cd_flash_auto">Flash: auto</string>
+    <string name="media_cd_flash_on">Flash: on</string>
+    <string name="media_cd_flash_off">Flash: off</string>
+    <string name="media_cd_exposure">Exposure</string>
+    <string name="media_cd_capture_photo">Capture photo</string>
+    <string name="media_cd_remove_capture">Remove capture</string>
+
+    <!-- ===== L10n sweep: agent ===== -->
+    <string name="agent_history_subtitle">Previous AI conversations</string>
+    <string name="agent_cd_helpful">Helpful</string>
+    <string name="agent_cd_not_helpful">Not helpful</string>
+    <string name="agent_cd_open_assistant">Open AI assistant</string>
+    <string name="agent_ask_mileway">Ask Mileway</string>
+    <string name="agent_cd_history">History</string>
+    <string name="agent_cd_export">Export</string>
+    <string name="agent_cd_start_voice">Start voice</string>
+    <string name="agent_cd_stop_voice">Stop voice</string>
+    <string name="agent_cd_toggle_voice_mode">Toggle hands-free mode</string>
+    <string name="agent_cd_send">Send</string>
+    <string name="agent_status_online">System online</string>
+    <string name="agent_tab_chat">Chat</string>
+    <string name="agent_tab_popular">Popular</string>
+    <string name="agent_tab_unanswered">Unanswered</string>
+    <string name="agent_system_ready">System ready. Ask anything.</string>
+    <string name="agent_input_placeholder">Type query…</string>
+    <string name="agent_prompt_summarise_week">Summarise my week</string>
+    <string name="agent_prompt_why_rejected">Why was EXP-003 rejected?</string>
+    <string name="agent_prompt_travel_spend">How much have I spent on travel?</string>
+    <string name="agent_prompt_mileage_policy">Check mileage policy</string>
+    <string name="agent_prompt_plan_trip">Plan a trip to Delhi</string>
+    <string name="agent_prompt_pending_approvals">Pending approvals count</string>
+    <string name="agent_export_unavailable">Export available in full version</string>
+    <string name="agent_submit_question_title">Submit a question</string>
+    <string name="agent_submit_question_placeholder">Type your question…</string>
+    <string name="agent_action_submit">Submit</string>
+    <string name="agent_question_submitted">Question submitted.</string>
+    <string name="agent_trending_badge">Trending</string>
+    <string name="agent_asked_count">%1$d asked</string>
 
     <!-- Pluralized counts (pluralStringResource) -->
     <plurals name="profile_plural_tickets_submitted">
@@ -1778,5 +1832,9 @@
     <plurals name="core_plural_action_items">
         <item quantity="one">%1$s %2$d item</item>
         <item quantity="other">%1$s %2$d items</item>
+    </plurals>
+    <plurals name="agent_plural_messages">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
     </plurals>
 </resources>
