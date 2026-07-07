@@ -21,14 +21,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.DocumentScanner
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.QrCode
@@ -36,6 +37,8 @@ import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Verified
 import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,8 +49,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -60,6 +65,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_back
+import com.mileway.core.ui.resources.core_cd_more_options
+import com.mileway.core.ui.resources.media_add_attachment_subtitle
+import com.mileway.core.ui.resources.media_add_attachment_title
+import com.mileway.core.ui.resources.media_cd_biometric_lock
+import com.mileway.core.ui.resources.media_cd_scan
+import com.mileway.core.ui.resources.media_cd_theme_color
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.media.model.AttachmentItem
@@ -68,6 +81,7 @@ import com.mileway.feature.media.ui.scanner.rememberDocumentScanLauncher
 import com.mileway.feature.media.viewmodel.MediaAction
 import com.mileway.feature.media.viewmodel.MediaViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 /** Bottom padding so scrolling content clears the floating bubble bottom bar. */
 private val BottomBarClearance = 140.dp
@@ -143,40 +157,50 @@ fun AttachmentSelectionScreen(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
+            var showOverflowMenu by remember { mutableStateOf(false) }
             DepthAwareTopBar(
-                title = "Add Attachment",
-                subtitle = "Upload Attachments",
+                title = stringResource(Res.string.media_add_attachment_title),
+                subtitle = stringResource(Res.string.media_add_attachment_subtitle),
+                titleIcon = Icons.Default.AttachFile,
                 depth = NavigationDepth.ROOT,
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(Res.string.core_cd_back),
                         )
                     }
                 },
                 actions = {
                     // Trailing config icons (reference parity: theme, biometric, scan).
                     // Not interactive in this demo, rendered disabled per M3 pattern.
-                    IconButton(enabled = false, onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Default.WaterDrop,
-                            contentDescription = "Theme color",
-                            modifier = Modifier.alpha(0.38f),
-                        )
-                    }
+                    // Only 2 shown inline; the rest overflow into the menu (R2: max 2 trailing actions).
                     IconButton(enabled = false, onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.Fingerprint,
-                            contentDescription = "Biometric lock",
+                            contentDescription = stringResource(Res.string.media_cd_biometric_lock),
                             modifier = Modifier.alpha(0.38f),
                         )
                     }
                     IconButton(enabled = false, onClick = {}) {
                         Icon(
                             imageVector = Icons.Default.QrCodeScanner,
-                            contentDescription = "Scan",
+                            contentDescription = stringResource(Res.string.media_cd_scan),
                             modifier = Modifier.alpha(0.38f),
+                        )
+                    }
+                    IconButton(onClick = { showOverflowMenu = true }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(Res.string.core_cd_more_options),
+                        )
+                    }
+                    DropdownMenu(expanded = showOverflowMenu, onDismissRequest = { showOverflowMenu = false }) {
+                        DropdownMenuItem(
+                            enabled = false,
+                            text = { Text(stringResource(Res.string.media_cd_theme_color)) },
+                            leadingIcon = { Icon(Icons.Default.WaterDrop, contentDescription = null) },
+                            onClick = { showOverflowMenu = false },
                         )
                     }
                 },
@@ -316,7 +340,7 @@ private fun SourceTile(
                 modifier =
                     Modifier
                         .size(DesignTokens.ActionTileSize.circularContainer)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(containerColor),
                 contentAlignment = Alignment.Center,
             ) {
@@ -366,7 +390,7 @@ private fun AttachmentThumbnail(item: AttachmentItem) {
                         Modifier
                             .align(Alignment.TopEnd)
                             .padding(DesignTokens.Spacing.xs)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(
                                 if (verified) {
                                     DesignTokens.StatusColors.success.copy(alpha = 0.9f)

@@ -17,11 +17,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -48,8 +48,11 @@ import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.resources.media_delete_confirm
 import com.mileway.core.ui.resources.media_delete_description
+import com.mileway.core.ui.resources.media_library_subtitle
+import com.mileway.core.ui.resources.media_library_title
 import com.mileway.core.ui.resources.media_plural_delete_items
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.viewmodel.CloudLibraryAction
@@ -73,12 +76,13 @@ fun CloudLibraryScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Media Library",
-                subtitle = "Your saved attachments",
+                title = stringResource(Res.string.media_library_title),
+                subtitle = stringResource(Res.string.media_library_subtitle),
+                titleIcon = Icons.Default.PhotoLibrary,
                 depth = DesignTokens.NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
                     }
                 },
             )
@@ -89,6 +93,7 @@ fun CloudLibraryScreen(
                     onClick = { showDeleteDialog = true },
                     icon = { Icon(Icons.Default.Delete, contentDescription = null) },
                     text = { Text("Delete (${selectedIds.size})") },
+                    shape = DesignTokens.Shape.button,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
                 )
@@ -188,7 +193,7 @@ private fun LibraryThumbnail(
     onTap: () -> Unit,
     onLongPress: () -> Unit,
 ) {
-    val shape = RoundedCornerShape(4.dp)
+    val shape = DesignTokens.Shape.button
     Box(
         modifier =
             Modifier

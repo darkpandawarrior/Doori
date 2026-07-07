@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrightnessMedium
 import androidx.compose.material.icons.filled.CameraAlt
@@ -36,6 +34,7 @@ import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -64,10 +63,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.media_cd_capture_photo
+import com.mileway.core.ui.resources.media_cd_exposure
+import com.mileway.core.ui.resources.media_cd_flash_auto
+import com.mileway.core.ui.resources.media_cd_flash_off
+import com.mileway.core.ui.resources.media_cd_flash_on
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.model.FlashMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -134,7 +140,9 @@ fun CameraCaptureScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = DesignTokens.Spacing.l),
             )
-            Button(onClick = permission.request) {
+            Button(onClick = permission.request, shape = DesignTokens.Shape.button) {
+                Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text("Grant permission")
             }
         }
@@ -273,14 +281,14 @@ fun CameraCaptureScreen(
                         .navigationBarsPadding()
                         .padding(bottom = 112.dp, start = DesignTokens.Spacing.xl, end = DesignTokens.Spacing.xl)
                         .fillMaxWidth()
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(Color.Black.copy(alpha = 0.45f))
                         .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.xs),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     imageVector = Icons.Default.BrightnessMedium,
-                    contentDescription = "Exposure",
+                    contentDescription = stringResource(Res.string.media_cd_exposure),
                     tint = Color.White,
                     modifier = Modifier.size(20.dp),
                 )
@@ -300,6 +308,7 @@ fun CameraCaptureScreen(
         }
 
         FloatingActionButton(
+            shape = DesignTokens.Shape.button,
             onClick = {
                 val file = File(context.cacheDir, "capture_${System.currentTimeMillis()}.jpg")
                 val output = ImageCapture.OutputFileOptions.Builder(file).build()
@@ -326,7 +335,7 @@ fun CameraCaptureScreen(
         ) {
             Icon(
                 imageVector = Icons.Default.PhotoCamera,
-                contentDescription = "Capture photo",
+                contentDescription = stringResource(Res.string.media_cd_capture_photo),
             )
         }
     }
@@ -339,15 +348,16 @@ private fun FlashToggleButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val (icon: ImageVector, label) =
+    val (icon: ImageVector, labelRes) =
         when (flashMode) {
-            FlashMode.AUTO -> Icons.Default.FlashAuto to "Flash: auto"
-            FlashMode.ON -> Icons.Default.FlashOn to "Flash: on"
-            FlashMode.OFF -> Icons.Default.FlashOff to "Flash: off"
+            FlashMode.AUTO -> Icons.Default.FlashAuto to Res.string.media_cd_flash_auto
+            FlashMode.ON -> Icons.Default.FlashOn to Res.string.media_cd_flash_on
+            FlashMode.OFF -> Icons.Default.FlashOff to Res.string.media_cd_flash_off
         }
+    val label = stringResource(labelRes)
     Surface(
         modifier = modifier.size(44.dp),
-        shape = CircleShape,
+        shape = DesignTokens.Shape.button,
         color = Color.Black.copy(alpha = 0.45f),
         onClick = onClick,
     ) {
@@ -367,7 +377,7 @@ private fun FlashToggleButton(
 private fun AutoCapturePill(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(50),
+        shape = DesignTokens.Shape.button,
         color = Color.Black.copy(alpha = 0.45f),
     ) {
         Text(
@@ -418,7 +428,7 @@ private fun OdometerAlignmentOverlay(modifier: Modifier = Modifier) {
                     textAlign = TextAlign.Center,
                     modifier =
                         Modifier
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(DesignTokens.Shape.button)
                             .background(Color.Black.copy(alpha = 0.35f))
                             .padding(
                                 horizontal = DesignTokens.Spacing.m,

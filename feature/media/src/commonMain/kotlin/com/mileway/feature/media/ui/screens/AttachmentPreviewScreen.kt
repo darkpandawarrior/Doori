@@ -18,14 +18,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteSweep
+import androidx.compose.material.icons.filled.DocumentScanner
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,11 +55,14 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import com.mileway.core.ui.components.ZoomImageViewer
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.media_cd_remove_capture
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.model.AttachmentItem
 import com.mileway.feature.media.ui.sheets.OcrResultBottomSheet
 import com.mileway.feature.media.viewmodel.MediaAction
 import com.mileway.feature.media.viewmodel.MediaViewModel
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Preview of the pending capture(s) before they are committed.
@@ -204,22 +212,31 @@ private fun SingleCaptureContent(
             OutlinedButton(
                 onClick = onRetake,
                 enabled = !isProcessing,
+                shape = DesignTokens.Shape.button,
                 modifier = Modifier.weight(1f),
             ) {
+                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(DesignTokens.Spacing.s))
                 Text("Retake")
             }
             TextButton(
                 onClick = onRunOcr,
                 enabled = pending != null && !isProcessing,
+                shape = DesignTokens.Shape.button,
                 modifier = Modifier.weight(1f),
             ) {
+                Icon(Icons.Default.DocumentScanner, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(DesignTokens.Spacing.s))
                 Text("Run OCR")
             }
             Button(
                 onClick = onUsePhoto,
                 enabled = pending != null && !isProcessing,
+                shape = DesignTokens.Shape.button,
                 modifier = Modifier.weight(1f),
             ) {
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(DesignTokens.Spacing.s))
                 Text("Use photo")
             }
         }
@@ -286,6 +303,7 @@ private fun MultiCaptureContent(
             Button(
                 onClick = onConfirm,
                 enabled = items.isNotEmpty() && !isProcessing,
+                shape = DesignTokens.Shape.button,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 if (isProcessing) {
@@ -295,6 +313,8 @@ private fun MultiCaptureContent(
                         strokeWidth = 2.dp,
                     )
                 } else {
+                    Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.width(DesignTokens.Spacing.s))
                     Text("Use ${items.size} photos")
                 }
             }
@@ -302,8 +322,11 @@ private fun MultiCaptureContent(
             OutlinedButton(
                 onClick = onRetake,
                 enabled = !isProcessing,
+                shape = DesignTokens.Shape.button,
                 modifier = Modifier.fillMaxWidth(),
             ) {
+                Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(DesignTokens.Spacing.s))
                 Text("Discard all")
             }
         }
@@ -336,20 +359,20 @@ private fun CaptureThumbnail(
         }
 
         Surface(
-            shape = CircleShape,
+            shape = DesignTokens.Shape.button,
             color = Color.Black.copy(alpha = 0.55f),
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
                     .padding(DesignTokens.Spacing.xs)
                     .size(24.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .clickable(onClick = onDelete),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Remove capture",
+                    contentDescription = stringResource(Res.string.media_cd_remove_capture),
                     tint = Color.White,
                     modifier = Modifier.size(DesignTokens.IconSize.inline),
                 )
