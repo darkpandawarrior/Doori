@@ -30,5 +30,6 @@ fun buildMilewayDatabase(context: Context): MilewayDatabase =
             MIGRATION_15_16,
             MIGRATION_16_17,
             MIGRATION_17_18,
+            MIGRATION_18_19,
         )
         .build()

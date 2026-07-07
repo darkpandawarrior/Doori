@@ -5,6 +5,33 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 18 → 19 (PLAN_V24 P0.1): additive `plugin_overrides` table — the per-account USER
+ * layer of the Plugin Registry (the single feature-composition mechanism). Composite key
+ * `(accountId, pluginId)` isolates each persona's overrides (respects V23 multi-profile
+ * isolation); `value` is a raw string interpreted per plugin descriptor. Empty on first run —
+ * no seed, since "no user overrides" is the correct initial state (PRESET/DEFAULT resolve
+ * everything). See [com.mileway.core.data.model.db.PluginOverrideEntity].
+ *
+ * ponytail: later V24 phases add their own additive migrations (20, 21, …) as each lands, rather
+ * than the one mega-batch PLAN_V24 P0.6 sketched — keeps one-task-one-commit rollback clean.
+ */
+val MIGRATION_18_19 =
+    object : Migration(18, 19) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `plugin_overrides` (
+                    `accountId` TEXT NOT NULL,
+                    `pluginId`  TEXT NOT NULL,
+                    `value`     TEXT NOT NULL,
+                    PRIMARY KEY(`accountId`, `pluginId`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 17 → 18 (§2.4): additive `odometerAnalysisJson` column on `trip_attachments` — a
  * typed, structured snapshot of the odometer-reading validation (see
  * [com.mileway.core.data.model.OdometerAnalysisSnapshot]) alongside the existing raw

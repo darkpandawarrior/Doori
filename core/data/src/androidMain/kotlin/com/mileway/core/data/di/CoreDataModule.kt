@@ -12,6 +12,11 @@ import com.mileway.core.data.outbox.LocationBatchOutbox
 import com.mileway.core.data.outbox.RoomSubmitOutbox
 import com.mileway.core.data.outbox.SubmitOutbox
 import com.mileway.core.data.outbox.TripDraft
+import com.mileway.core.data.plugin.EmptyPersonaPresetProvider
+import com.mileway.core.data.plugin.PersonaPresetProvider
+import com.mileway.core.data.plugin.PluginDebugForceSource
+import com.mileway.core.data.plugin.PluginDebugForceStore
+import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.ActiveAccountStore
 import com.mileway.core.data.session.CurrentTrackDataSource
@@ -56,6 +61,20 @@ val coreDataModule =
         single { get<MilewayDatabase>().sessionDao() }
         single { get<MilewayDatabase>().notificationDao() }
         single { get<MilewayDatabase>().connectedAccountDao() }
+        single { get<MilewayDatabase>().pluginOverrideDao() }
+        // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
+        // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
+        single { PluginDebugForceStore(androidContext()) }
+        single<PluginDebugForceSource> { get<PluginDebugForceStore>() }
+        single<PersonaPresetProvider> { EmptyPersonaPresetProvider }
+        single {
+            PluginRegistry(
+                overrideDao = get(),
+                activeAccount = get(),
+                presets = get(),
+                debugForce = get(),
+            )
+        }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(androidContext(), get()) }

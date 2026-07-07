@@ -134,6 +134,11 @@ private class FakeSavedTrackDao : SavedTrackDao {
         tracks[routeId]?.let { tracks[routeId] = it.copy(name = name) }
     }
 
+    override suspend fun updateSmartDistanceFinal(
+        routeId: String,
+        value: Double,
+    ) = Unit
+
     override suspend fun updateTrackLiveData(
         routeId: String,
         distance: Double,
