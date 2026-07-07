@@ -8,6 +8,7 @@ kotlin {
         namespace = "com.mileway.stub"
         compileSdk = 37
         minSdk = 30
+        withHostTest {}
     }
 
     sourceSets {
@@ -25,6 +26,10 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.datastore.preferences)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
