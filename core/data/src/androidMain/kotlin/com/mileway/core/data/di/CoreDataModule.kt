@@ -2,6 +2,8 @@ package com.mileway.core.data.di
 
 import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.database.buildMilewayDatabase
+import com.mileway.core.data.location.SavedLocationsSource
+import com.mileway.core.data.location.SavedLocationsStore
 import com.mileway.core.data.model.display.InMemorySnapshotPublisher
 import com.mileway.core.data.model.display.SnapshotPublisher
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
@@ -65,6 +67,8 @@ val coreDataModule =
         single { PinHashStore(androidContext()) }
         single<PinHashSource> { get<PinHashStore>() }
         single { DemoSettingsRepository(androidContext()) }
+        // Location switching: recents/favorites/saved places (offline, DataStore-backed).
+        single<SavedLocationsSource> { SavedLocationsStore(androidContext()) }
         single { AbnormalDetectionSettingsDataStore(androidContext()) }
         single<AbnormalDetectionSettingsSource> { get<AbnormalDetectionSettingsDataStore>() }
         // P6.6: Preferences' Storage tile — real on-device cache-size readout + clear-cache action.

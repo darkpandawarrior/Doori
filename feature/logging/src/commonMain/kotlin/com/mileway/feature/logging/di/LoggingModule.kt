@@ -1,6 +1,7 @@
 package com.mileway.feature.logging.di
 
 import com.mileway.core.data.search.SearchProvider
+import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.feature.logging.repository.CardsTxnHistoryRepository
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.repository.LogMilesDraftRepository
@@ -12,6 +13,7 @@ import com.mileway.feature.logging.usecase.LogMilesSubmitUseCase
 import com.mileway.feature.logging.viewmodel.CardsTxnHistoryViewModel
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import com.mileway.feature.logging.viewmodel.SearchLocationViewModel
 import com.mileway.feature.logging.viewmodel.SettlementHistoryViewModel
 import com.mileway.feature.logging.viewmodel.VoucherHistoryViewModel
 import org.koin.core.module.dsl.viewModel
@@ -33,6 +35,14 @@ val loggingModule =
         viewModel { VoucherHistoryViewModel(get(), get()) }
         viewModel { SettlementHistoryViewModel(get()) }
         viewModel { CardsTxnHistoryViewModel(get()) }
+        // Location switching sheet: SavedLocationsSource (core:data) + optional platform tracker.
+        viewModel {
+            SearchLocationViewModel(
+                savedLocations = get(),
+                locationTracker = getOrNull(),
+                locationNameResolver = getOrNull() ?: OfflineLocationNameResolver(),
+            )
+        }
         // SP.4: Spends contribution to master search (F0.5 registry).
         single<SearchProvider> {
             com.mileway.feature.logging.search.ExpensesSearchProvider(get(), get(), get(), get())

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -19,10 +20,19 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material.icons.filled.Train
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,35 +58,49 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.ui.model.CityCatalog
 import com.mileway.feature.logging.ui.model.LocationEntry
 import com.mileway.feature.logging.ui.model.PoiCategory
+import com.mileway.feature.logging.ui.model.SavedPlaceUi
 import com.mileway.feature.logging.ui.model.haversineKm
 
+/** Callbacks the [LocationSearchSheet] routes to the ViewModel — grouped to keep the arg list flat. */
+data class LocationSearchActions(
+    val onQueryChange: (String) -> Unit,
+    val onPick: (LocationEntry) -> Unit,
+    val onToggleFavorite: (LocationEntry) -> Unit,
+    val onSaveAs: (LocationEntry, String) -> Unit,
+    val onRemoveRecent: (LocationEntry) -> Unit,
+    val onRemoveSaved: (String) -> Unit,
+    val onUseCurrent: () -> Unit,
+    val onClearRecent: () -> Unit,
+)
+
 /**
- * Modal location-search sheet backed by the offline [CityCatalog].
+ * Modal location-search + switching sheet, backed entirely by offline data.
  *
- * Mirrors the reference "Search Location" sheet: a search field, a "Current"
- * shortcut, a Recent section (with clear-all and per-item remove), and a result
- * list once the query is at least two characters. Selecting any entry confirms
- * it back to the caller via [onPick] and dismisses the sheet.
+ * When the query is blank it surfaces the switching shortcuts — a resolved "current location" row,
+ * Home/Work/custom saved-place chips, a favorites section, and recents — and once the user types it
+ * shows debounced [CityCatalog] results. Every row can be starred (favorite), saved as a named place,
+ * or (for recents) removed, via a star toggle plus an overflow menu. Selecting any entry confirms it
+ * through [LocationSearchActions.onPick] and dismisses the sheet.
  *
- * @param recent           recent picks surfaced when the query is empty
- * @param onPick           called with the chosen place
- * @param onUseCurrent     called when the user taps the "Current" shortcut
- * @param onClearRecent    called when the user clears the recent list
- * @param onDismiss        called when the sheet is dismissed without a pick
+ * State is hoisted: the host `SearchLocationViewModel` owns [query]/[results]/[recent]/[favorites]/
+ * [saved]/[currentLocation]; this composable is otherwise stateless.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationSearchSheet(
+    query: String,
+    results: List<LocationEntry>,
     recent: List<LocationEntry>,
-    onPick: (LocationEntry) -> Unit,
-    onUseCurrent: () -> Unit,
-    onClearRecent: () -> Unit,
+    favorites: List<LocationEntry>,
+    saved: List<SavedPlaceUi>,
+    favoriteNames: Set<String>,
+    currentLocation: LocationEntry?,
+    isLoadingCurrent: Boolean,
+    actions: LocationSearchActions,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var query by remember { mutableStateOf("") }
-    val results = remember(query) { CityCatalog.search(query) }
-    val showRecent = query.isBlank() && recent.isNotEmpty()
+    val showBrowse = query.isBlank()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -102,7 +126,7 @@ fun LocationSearchSheet(
 
             OutlinedTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = actions.onQueryChange,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Search for a location") },
                 singleLine = true,
@@ -110,7 +134,7 @@ fun LocationSearchSheet(
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
-                        IconButton(onClick = { query = "" }) {
+                        IconButton(onClick = { actions.onQueryChange("") }) {
                             Icon(Icons.Filled.Clear, contentDescription = "Clear")
                         }
                     }
@@ -119,75 +143,72 @@ fun LocationSearchSheet(
 
             Spacer(Modifier.size(DesignTokens.Spacing.m))
 
-            // "Use Current Location" row, picks a deterministic demo coordinate.
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = DesignTokens.Shape.roundedLg,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                onClick = {
-                    onPick(CityCatalog.currentLocation)
-                    onUseCurrent()
-                },
-            ) {
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
-                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        Icons.Filled.MyLocation,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp),
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "Your current location",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
-                        Text(
-                            CityCatalog.currentLocation.subtitle,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+            CurrentLocationRow(
+                currentLocation = currentLocation,
+                isLoading = isLoadingCurrent,
+                onUseCurrent = actions.onUseCurrent,
+            )
+
+            if (showBrowse && saved.isNotEmpty()) {
+                Spacer(Modifier.size(DesignTokens.Spacing.m))
+                SavedChipsRow(saved = saved, actions = actions)
             }
 
             Spacer(Modifier.size(DesignTokens.Spacing.m))
 
             when {
-                showRecent ->
-                    RecentSection(
-                        recent = recent,
-                        onPick = onPick,
-                        onClearAll = onClearRecent,
+                !showBrowse && results.isEmpty() ->
+                    EmptyHint(
+                        title = "No matches",
+                        body = "Try a different place, area or category",
                     )
 
-                query.isNotBlank() && results.isEmpty() ->
-                    EmptyHint(
-                        title = "Search for locations",
-                        body = "Type at least 2 characters to find places near you",
+                !showBrowse ->
+                    LocationList(
+                        entries = results,
+                        favoriteNames = favoriteNames,
+                        actions = actions,
+                        maxHeight = 360.dp,
                     )
 
-                query.isBlank() ->
+                favorites.isEmpty() && recent.isEmpty() ->
                     EmptyHint(
                         title = "Search for locations",
-                        body = "Type at least 2 characters to find places near you",
+                        body = "Type at least 2 characters, or pick a saved place above",
                     )
 
                 else ->
                     LazyColumn(
-                        modifier = Modifier.heightIn(max = 360.dp),
+                        modifier = Modifier.heightIn(max = 420.dp),
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
                     ) {
-                        items(results, key = { it.name }) { entry ->
-                            LocationRow(entry = entry, onClick = { onPick(entry) })
+                        if (favorites.isNotEmpty()) {
+                            item { SectionHeader(icon = Icons.Filled.Star, title = "Favorites") }
+                            items(favorites, key = { "fav-${it.name}" }) { entry ->
+                                LocationRow(
+                                    entry = entry,
+                                    isFavorite = true,
+                                    actions = actions,
+                                    onRemove = null,
+                                )
+                            }
+                        }
+                        if (recent.isNotEmpty()) {
+                            item {
+                                SectionHeader(
+                                    icon = Icons.Filled.History,
+                                    title = "Recent",
+                                    trailing = { TextButton(onClick = actions.onClearRecent) { Text("Clear all") } },
+                                )
+                            }
+                            items(recent, key = { "recent-${it.name}" }) { entry ->
+                                LocationRow(
+                                    entry = entry,
+                                    isFavorite = entry.name in favoriteNames,
+                                    actions = actions,
+                                    onRemove = { actions.onRemoveRecent(entry) },
+                                )
+                            }
                         }
                     }
             }
@@ -196,49 +217,150 @@ fun LocationSearchSheet(
 }
 
 @Composable
-private fun RecentSection(
-    recent: List<LocationEntry>,
-    onPick: (LocationEntry) -> Unit,
-    onClearAll: () -> Unit,
+private fun CurrentLocationRow(
+    currentLocation: LocationEntry?,
+    isLoading: Boolean,
+    onUseCurrent: () -> Unit,
 ) {
-    Column {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = DesignTokens.Shape.roundedLg,
+        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+        onClick = onUseCurrent,
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp),
+                )
+            } else {
                 Icon(
-                    Icons.Filled.History,
+                    Icons.Filled.MyLocation,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(DesignTokens.IconSize.inline),
-                )
-                Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text(
-                    "Recent",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp),
                 )
             }
-            TextButton(onClick = onClearAll) { Text("Clear all") }
-        }
-        LazyColumn(
-            modifier = Modifier.heightIn(max = 320.dp),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
-        ) {
-            items(recent, key = { it.name }) { entry ->
-                LocationRow(entry = entry, onClick = { onPick(entry) })
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Use current location",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    currentLocation?.subtitle ?: "Locating…",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }
 }
 
 @Composable
+private fun SavedChipsRow(
+    saved: List<SavedPlaceUi>,
+    actions: LocationSearchActions,
+) {
+    Column {
+        SectionHeader(icon = Icons.Filled.Home, title = "Saved places")
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+            items(saved, key = { it.label }) { item ->
+                AssistChip(
+                    onClick = { actions.onPick(item.entry) },
+                    label = { Text(item.label) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = savedLabelIcon(item.label),
+                            contentDescription = null,
+                            modifier = Modifier.size(AssistChipDefaults.IconSize),
+                        )
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { actions.onRemoveSaved(item.label) }) {
+                            Icon(
+                                Icons.Filled.Clear,
+                                contentDescription = "Remove ${item.label}",
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LocationList(
+    entries: List<LocationEntry>,
+    favoriteNames: Set<String>,
+    actions: LocationSearchActions,
+    maxHeight: androidx.compose.ui.unit.Dp,
+) {
+    LazyColumn(
+        modifier = Modifier.heightIn(max = maxHeight),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
+    ) {
+        items(entries, key = { it.name }) { entry ->
+            LocationRow(
+                entry = entry,
+                isFavorite = entry.name in favoriteNames,
+                actions = actions,
+                onRemove = null,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    trailing: @Composable (() -> Unit)? = null,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(DesignTokens.IconSize.inline),
+            )
+            Spacer(Modifier.size(DesignTokens.Spacing.s))
+            Text(
+                title,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+            )
+        }
+        trailing?.invoke()
+    }
+}
+
+@Composable
 private fun LocationRow(
     entry: LocationEntry,
-    onClick: () -> Unit,
+    isFavorite: Boolean,
+    actions: LocationSearchActions,
+    onRemove: (() -> Unit)?,
 ) {
     val distKm =
         haversineKm(
@@ -256,7 +378,7 @@ private fun LocationRow(
         modifier = Modifier.fillMaxWidth(),
         shape = DesignTokens.Shape.roundedMd,
         color = MaterialTheme.colorScheme.surface,
-        onClick = onClick,
+        onClick = { actions.onPick(entry) },
     ) {
         Row(
             modifier =
@@ -264,7 +386,7 @@ private fun LocationRow(
                     .fillMaxWidth()
                     .padding(DesignTokens.Spacing.m),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) {
                 Icon(
@@ -296,9 +418,75 @@ private fun LocationRow(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            IconButton(onClick = { actions.onToggleFavorite(entry) }) {
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
+                    tint =
+                        if (isFavorite) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+            RowOverflowMenu(entry = entry, actions = actions, onRemove = onRemove)
         }
     }
 }
+
+@Composable
+private fun RowOverflowMenu(
+    entry: LocationEntry,
+    actions: LocationSearchActions,
+    onRemove: (() -> Unit)?,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    IconButton(onClick = { expanded = true }) {
+        Icon(
+            Icons.Filled.MoreVert,
+            contentDescription = "More actions",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp),
+        )
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(
+            text = { Text("Save as Home") },
+            leadingIcon = { Icon(Icons.Filled.Home, contentDescription = null) },
+            onClick = {
+                actions.onSaveAs(entry, "Home")
+                expanded = false
+            },
+        )
+        DropdownMenuItem(
+            text = { Text("Save as Work") },
+            leadingIcon = { Icon(Icons.Filled.Work, contentDescription = null) },
+            onClick = {
+                actions.onSaveAs(entry, "Work")
+                expanded = false
+            },
+        )
+        if (onRemove != null) {
+            DropdownMenuItem(
+                text = { Text("Remove from recent") },
+                leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
+                onClick = {
+                    onRemove()
+                    expanded = false
+                },
+            )
+        }
+    }
+}
+
+private fun savedLabelIcon(label: String) =
+    when (label.lowercase()) {
+        "home" -> Icons.Filled.Home
+        "work", "office" -> Icons.Filled.Work
+        else -> Icons.Filled.LocationOn
+    }
 
 private fun PoiCategory.icon() =
     when (this) {

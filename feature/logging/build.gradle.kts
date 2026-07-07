@@ -19,6 +19,8 @@ kotlin {
             implementation(project(":core:common"))
             implementation(project(":core:data"))
             implementation(project(":core:network"))
+            // Location switching: LocationTracker / LocationNameResolver for "use current location".
+            implementation(project(":core:platform"))
             implementation(project(":core:ui"))
             implementation(project(":feature:tracking"))
             // P1.6: reuses PolicyMockData's tiered policy engine for expense-amount validation.

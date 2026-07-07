@@ -64,11 +64,15 @@ import com.mileway.feature.logging.ui.components.TravelledLocationsActions
 import com.mileway.feature.logging.ui.components.TravelledLocationsCard
 import com.mileway.feature.logging.ui.dialog.VerifyDistanceDialog
 import com.mileway.feature.logging.ui.model.LocationEntry
+import com.mileway.feature.logging.ui.sheets.LocationSearchActions
 import com.mileway.feature.logging.ui.sheets.LocationSearchSheet
 import com.mileway.feature.logging.ui.sheets.OdometerCaptureSheet
 import com.mileway.feature.logging.ui.sheets.VehiclePickerSheet
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import com.mileway.feature.logging.viewmodel.SearchLocationAction
+import com.mileway.feature.logging.viewmodel.SearchLocationEffect
+import com.mileway.feature.logging.viewmodel.SearchLocationViewModel
 import com.mileway.feature.tracking.ui.components.StaticPolylineThumbnail
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -143,6 +147,17 @@ fun LogMilesScreen(
             null -> Unit
         }
         locationTarget = null
+    }
+
+    // Location switching sheet: its own MVI ViewModel (recents/favorites/saved + current location).
+    val searchViewModel: SearchLocationViewModel = koinViewModel()
+    val searchState by searchViewModel.state.collectAsState()
+    LaunchedEffect(Unit) {
+        searchViewModel.effect.collect { effect ->
+            when (effect) {
+                is SearchLocationEffect.Picked -> handlePick(effect.entry)
+            }
+        }
     }
 
     Scaffold(
@@ -346,13 +361,25 @@ fun LogMilesScreen(
 
     if (locationTarget != null) {
         LocationSearchSheet(
-            recent = uiState.recentLocations,
-            onPick = ::handlePick,
-            onUseCurrent = {
-                // The demo treats "Current" as the catalogue's first entry.
-                com.mileway.feature.logging.ui.model.CityCatalog.all.firstOrNull()?.let(::handlePick)
-            },
-            onClearRecent = { viewModel.onAction(LogMilesAction.ClearRecentLocations) },
+            query = searchState.query,
+            results = searchState.results,
+            recent = searchState.recent,
+            favorites = searchState.favorites,
+            saved = searchState.saved,
+            favoriteNames = searchState.favoriteNames,
+            currentLocation = searchState.currentLocation,
+            isLoadingCurrent = searchState.isLoadingCurrent,
+            actions =
+                LocationSearchActions(
+                    onQueryChange = { searchViewModel.onAction(SearchLocationAction.QueryChanged(it)) },
+                    onPick = { searchViewModel.onAction(SearchLocationAction.Select(it)) },
+                    onToggleFavorite = { searchViewModel.onAction(SearchLocationAction.ToggleFavorite(it)) },
+                    onSaveAs = { entry, label -> searchViewModel.onAction(SearchLocationAction.SaveAs(entry, label)) },
+                    onRemoveRecent = { searchViewModel.onAction(SearchLocationAction.RemoveRecent(it)) },
+                    onRemoveSaved = { searchViewModel.onAction(SearchLocationAction.RemoveSaved(it)) },
+                    onUseCurrent = { searchViewModel.onAction(SearchLocationAction.UseCurrentLocation) },
+                    onClearRecent = { searchViewModel.onAction(SearchLocationAction.ClearRecent) },
+                ),
             onDismiss = { locationTarget = null },
         )
     }

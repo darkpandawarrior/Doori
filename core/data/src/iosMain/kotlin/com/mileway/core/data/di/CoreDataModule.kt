@@ -2,6 +2,8 @@ package com.mileway.core.data.di
 
 import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.database.buildMilewayDatabase
+import com.mileway.core.data.location.SavedLocationsSource
+import com.mileway.core.data.location.SavedLocationsStore
 import com.mileway.core.data.model.display.InMemorySnapshotPublisher
 import com.mileway.core.data.model.display.SnapshotPublisher
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
@@ -62,6 +64,8 @@ val coreDataModule =
         single { PinHashStore() }
         single<PinHashSource> { get<PinHashStore>() }
         single { DemoSettingsRepository() }
+        // Location switching: recents/favorites/saved places (offline, DataStore-backed).
+        single<SavedLocationsSource> { SavedLocationsStore() }
         single { AbnormalDetectionSettingsDataStore() }
         single<AbnormalDetectionSettingsSource> { get<AbnormalDetectionSettingsDataStore>() }
         // P3.4: pause/restore hook run before ProfileViewModel.CommitAccountSwitch flips the
