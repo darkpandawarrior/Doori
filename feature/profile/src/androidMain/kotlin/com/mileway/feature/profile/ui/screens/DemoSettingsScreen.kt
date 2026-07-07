@@ -40,9 +40,9 @@ import com.mileway.core.security.BiometricGuard
 import com.mileway.core.security.RootDetector
 import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.previews.PreviewSurface
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
-import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
 import com.mileway.feature.profile.viewmodel.DemoSettingsAction
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
@@ -257,7 +257,7 @@ private fun DemoToggle(
 @LightDarkPreview
 @Composable
 private fun DemoTogglePreview() {
-    MilewayTheme {
+    PreviewSurface {
         androidx.compose.foundation.layout.Column {
             DemoToggle(
                 title = "Biometric Guard",
@@ -278,7 +278,7 @@ private fun DemoTogglePreview() {
 @LightDarkPreview
 @Composable
 private fun RootDetectionContentPreview() {
-    MilewayTheme {
+    PreviewSurface {
         androidx.compose.foundation.layout.Column {
             Text("Signals found:")
             Text("• su binary found at /system/xbin/su", style = MaterialTheme.typography.bodySmall)

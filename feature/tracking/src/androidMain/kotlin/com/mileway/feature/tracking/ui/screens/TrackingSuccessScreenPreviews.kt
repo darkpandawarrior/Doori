@@ -3,13 +3,13 @@ package com.mileway.feature.tracking.ui.screens
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.mileway.core.ui.theme.MilewayTheme
+import com.mileway.core.ui.previews.PreviewSurface
 
 @Preview(name = "Light", showBackground = true)
 @Preview(name = "Dark", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun TrackingSuccessScreenPreview() {
-    MilewayTheme {
+    PreviewSurface {
         TrackingSuccessScreen(
             distanceKm = 12.4,
             reimbursableAmount = 185.60,
@@ -32,7 +32,7 @@ private fun TrackingSuccessScreenPreview() {
 @Preview(name = "With violations", showBackground = true)
 @Composable
 private fun TrackingSuccessViolationsPreview() {
-    MilewayTheme {
+    PreviewSurface {
         TrackingSuccessScreen(
             distanceKm = 8.7,
             reimbursableAmount = 130.50,

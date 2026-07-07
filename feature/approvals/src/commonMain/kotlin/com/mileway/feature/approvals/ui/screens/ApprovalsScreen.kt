@@ -497,7 +497,7 @@ private fun dateBucket(ms: Long): String {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Approval Card – pending")
 @Composable
 private fun PreviewApprovalCardPending() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         ApprovalCard(
             item =
                 ApprovalItem(
@@ -520,7 +520,7 @@ private fun PreviewApprovalCardPending() {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Approval Card – selected")
 @Composable
 private fun PreviewApprovalCardSelected() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         ApprovalCard(
             item =
                 ApprovalItem(
@@ -544,7 +544,7 @@ private fun PreviewApprovalCardSelected() {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Approval Card – approved")
 @Composable
 private fun PreviewApprovalCardApproved() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         ApprovalCard(
             item =
                 ApprovalItem(

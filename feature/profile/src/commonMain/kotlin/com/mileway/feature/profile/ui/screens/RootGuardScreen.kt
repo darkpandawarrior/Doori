@@ -27,8 +27,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mileway.core.security.RootDetector
+import com.mileway.core.ui.previews.PreviewSurface
 import com.mileway.core.ui.theme.MilewayColors
-import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
 
 @Composable
@@ -121,7 +121,7 @@ fun RootGuardScreen(
 @LightDarkPreview
 @Composable
 private fun RootGuardScreenPreview() {
-    MilewayTheme {
+    PreviewSurface {
         RootGuardScreen(
             onContinue = {},
             signals = listOf("su binary found at /system/xbin/su", "test-keys build", "Magisk detected"),
@@ -132,7 +132,7 @@ private fun RootGuardScreenPreview() {
 @Preview(name = "Clean device", showBackground = true)
 @Composable
 private fun RootGuardScreenCleanPreview() {
-    MilewayTheme {
+    PreviewSurface {
         RootGuardScreen(
             onContinue = {},
             signals = emptyList(),

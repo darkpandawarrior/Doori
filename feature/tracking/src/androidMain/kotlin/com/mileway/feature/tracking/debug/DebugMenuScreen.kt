@@ -952,7 +952,7 @@ fun searchMatches(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Debug Section Card – collapsed")
 @Composable
 private fun PreviewDebugSectionCardCollapsed() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         DebugSectionCard(title = "Location & Tracking", icon = Icons.Default.LocationOn) {
             Text("Toggle content hidden until expanded")
         }
@@ -962,7 +962,7 @@ private fun PreviewDebugSectionCardCollapsed() {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Debug Toggle Row")
 @Composable
 private fun PreviewDebugToggleRow() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         DebugToggleRow(title = "Allow Mock Locations", checked = true, onCheckedChange = {})
     }
 }
@@ -970,7 +970,7 @@ private fun PreviewDebugToggleRow() {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Network Inspector Card")
 @Composable
 private fun PreviewNetworkInspectorCard() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         NetworkInspectorCard(onOpen = {})
     }
 }

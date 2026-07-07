@@ -442,7 +442,7 @@ private fun QrRequestSheet(
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "QR Info Tile")
 @Composable
 private fun PreviewQrInfoTile() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         QrInfoTile(label = "Daily Limit", value = "₹50,000")
     }
 }
@@ -450,7 +450,7 @@ private fun PreviewQrInfoTile() {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "QR Info Row")
 @Composable
 private fun PreviewQrInfoRow() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         QrInfoRow()
     }
 }
@@ -458,7 +458,7 @@ private fun PreviewQrInfoRow() {
 @androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "QR Card Chip")
 @Composable
 private fun PreviewQrCardChip() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    com.mileway.core.ui.previews.PreviewSurface {
         QrCardChip(
             card =
                 CorporateCard(
