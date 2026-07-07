@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -83,7 +83,7 @@ fun SwitchAccountPinSheet(
                 modifier =
                     Modifier
                         .size(64.dp)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), CircleShape),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), DesignTokens.Shape.button),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -138,13 +138,15 @@ fun SwitchAccountPinSheet(
                 onClick = onConfirm,
                 enabled = !state.isLockedOut && state.enteredDigits.length == SWITCH_ACCOUNT_PIN_LENGTH,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = DesignTokens.Shape.roundedSm,
+                shape = DesignTokens.Shape.button,
                 colors = ButtonDefaults.buttonColors(),
             ) {
+                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(stringResource(Res.string.profile_switch_confirm), fontWeight = FontWeight.Bold)
             }
 
-            TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                 Text(stringResource(Res.string.profile_switch_cancel))
             }
         }
@@ -169,7 +171,7 @@ private fun PinDots(
                 modifier =
                     Modifier
                         .size(14.dp)
-                        .background(color, CircleShape),
+                        .background(color, DesignTokens.Shape.button),
             )
         }
     }
@@ -212,7 +214,7 @@ private fun KeypadKey(
         modifier =
             Modifier
                 .size(56.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f), DesignTokens.Shape.button)
                 .let { base -> if (enabled) base.clickable(onClick = onClick) else base },
         contentAlignment = Alignment.Center,
     ) {

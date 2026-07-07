@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -44,6 +43,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
@@ -91,6 +91,7 @@ fun AdvanceHistoryScreen(
     Scaffold(
         floatingActionButton = {
             ExtendedFloatingActionButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onRequestAdvance,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text(stringResource(Res.string.profile_advance_request_advance)) },
@@ -236,7 +237,11 @@ private fun AdvanceCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(record.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(record.purpose, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 2)
+                ExpandableText(
+                    text = record.purpose,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    collapsedMaxLines = 2,
+                )
                 if (record.type != null) {
                     Text(
                         record.type.label(),
@@ -257,7 +262,7 @@ private fun AdvanceCard(
             Column(horizontalAlignment = Alignment.End) {
                 Text("₹${record.amountRupees.toLong()}", style = MaterialTheme.typography.titleSmall.dataStyle(), fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(4.dp))
-                Surface(color = statusColor.copy(alpha = 0.15f), shape = RoundedCornerShape(6.dp)) {
+                Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
                     Text(
                         statusLabel,
                         style = MaterialTheme.typography.labelSmall,

@@ -106,6 +106,7 @@ internal fun SyncDiagnosticsCardContent(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onForceSync,
                 enabled = !metrics.isSyncing,
                 modifier = Modifier.fillMaxWidth(),

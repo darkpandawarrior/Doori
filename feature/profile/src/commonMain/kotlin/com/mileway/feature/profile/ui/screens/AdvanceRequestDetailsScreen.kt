@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -116,6 +116,7 @@ fun AdvanceRequestDetailsScreen(
                 title = stringResource(Res.string.profile_advance_request_title),
                 subtitle = advanceId,
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.Payments,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_advance_back))
@@ -306,7 +307,7 @@ private fun ApproverStepRow(step: ApproverStep) {
             modifier =
                 Modifier
                     .size(8.dp)
-                    .background(color = statusColor, shape = CircleShape),
+                    .background(color = statusColor, shape = DesignTokens.Shape.button),
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(step.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)

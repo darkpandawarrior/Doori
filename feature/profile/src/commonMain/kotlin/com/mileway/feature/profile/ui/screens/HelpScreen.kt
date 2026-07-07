@@ -15,10 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Email
@@ -223,6 +223,7 @@ fun HelpScreen(
                 title = stringResource(Res.string.profile_help_title),
                 subtitle = stringResource(Res.string.profile_help_subtitle),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.AutoMirrored.Filled.HelpOutline,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_help_back))
@@ -254,7 +255,7 @@ fun HelpScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                shape = RoundedCornerShape(12.dp),
+                shape = DesignTokens.Shape.roundedSm,
             )
 
             val filtered =
@@ -342,6 +343,7 @@ fun HelpScreen(
                             modifier = Modifier.fillMaxWidth(),
                         )
                         Button(
+                            shape = DesignTokens.Shape.button,
                             onClick = {
                                 viewModel.submit(subject = subjectInput, body = bodyInput)
                                 if (subjectInput.isNotBlank() && bodyInput.isNotBlank()) {
@@ -355,14 +357,18 @@ fun HelpScreen(
                         ) {
                             Text(stringResource(Res.string.profile_help_submit_ticket))
                         }
-                        TextButton(onClick = {
-                            showContactForm = false
-                            viewModel.clearSubmitError()
-                        }) {
+                        TextButton(
+                            onClick = {
+                                showContactForm = false
+                                viewModel.clearSubmitError()
+                            },
+                            shape = DesignTokens.Shape.button,
+                        ) {
                             Text(stringResource(Res.string.profile_help_cancel))
                         }
                     } else {
                         Button(
+                            shape = DesignTokens.Shape.button,
                             onClick = { showContactForm = true },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
@@ -371,6 +377,7 @@ fun HelpScreen(
                             Text(stringResource(Res.string.profile_help_contact_support))
                         }
                         Button(
+                            shape = DesignTokens.Shape.button,
                             onClick = {
                                 viewModel.submit(
                                     subject = "Bug report",
@@ -383,7 +390,7 @@ fun HelpScreen(
                         ) {
                             Text(stringResource(Res.string.profile_help_report_bug))
                         }
-                        TextButton(onClick = onOpenMyTickets, modifier = Modifier.fillMaxWidth()) {
+                        TextButton(onClick = onOpenMyTickets, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                             Icon(Icons.Default.ConfirmationNumber, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.size(8.dp))
                             Text(stringResource(Res.string.profile_help_my_tickets_count, ticketState.tickets.size))
@@ -424,7 +431,7 @@ private fun VideoTutorialCard(tutorial: VideoTutorial) {
             if (isPlaying || progress > 0f) {
                 LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
             }
-            TextButton(onClick = toggle, modifier = Modifier.fillMaxWidth()) {
+            TextButton(onClick = toggle, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                 Icon(
                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
                     contentDescription = null,
@@ -498,7 +505,7 @@ private fun FaqItem(faq: Faq) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        TextButton(onClick = { expanded = !expanded }) {
+        TextButton(onClick = { expanded = !expanded }, shape = DesignTokens.Shape.button) {
             Text(
                 if (expanded) stringResource(Res.string.profile_help_show_less) else stringResource(Res.string.profile_help_show_answer),
                 style = MaterialTheme.typography.labelSmall,

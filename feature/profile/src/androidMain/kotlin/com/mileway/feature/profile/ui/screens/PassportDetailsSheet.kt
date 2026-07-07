@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -102,6 +105,7 @@ fun PassportDetailsSheet(
                 singleLine = true,
             )
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = { showDatePicker = true },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
             ) {
@@ -121,9 +125,11 @@ fun PassportDetailsSheet(
                     onDismiss()
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
                 colors = ButtonDefaults.buttonColors(),
             ) {
+                Icon(Icons.Filled.Save, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
                 Text(stringResource(Res.string.profile_vehicle_save), fontWeight = FontWeight.Bold)
             }
         }

@@ -39,6 +39,7 @@ import com.mileway.core.ui.resources.profile_root_secure_body
 import com.mileway.core.ui.resources.profile_root_secure_title
 import com.mileway.core.ui.resources.profile_root_signal_item
 import com.mileway.core.ui.resources.profile_root_signals_label
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
 import org.jetbrains.compose.resources.stringResource
@@ -114,6 +115,7 @@ fun RootGuardScreen(
         Spacer(Modifier.height(40.dp))
 
         Button(
+            shape = DesignTokens.Shape.button,
             onClick = onContinue,
             colors =
                 ButtonDefaults.buttonColors(

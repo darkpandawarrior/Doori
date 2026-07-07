@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Devices
@@ -96,6 +95,7 @@ fun ActiveSessionsScreen(
                 title = stringResource(Res.string.profile_sessions_title),
                 subtitle = pluralStringResource(Res.plurals.profile_plural_devices_signed_in, uiState.sessions.size, uiState.sessions.size),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.Filled.Devices,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_sessions_back))
@@ -103,7 +103,7 @@ fun ActiveSessionsScreen(
                 },
                 actions = {
                     if (hasOtherSessions) {
-                        TextButton(onClick = { confirmSignOutAll = true }) {
+                        TextButton(onClick = { confirmSignOutAll = true }, shape = DesignTokens.Shape.button) {
                             Text(stringResource(Res.string.profile_sessions_sign_out_all_others))
                         }
                     }
@@ -175,7 +175,7 @@ private fun SessionRow(
                 modifier =
                     Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -216,7 +216,7 @@ private fun SessionRow(
                 StatusBadge(status = status)
             }
             if (!session.isCurrent) {
-                TextButton(onClick = onRevoke) {
+                TextButton(onClick = onRevoke, shape = DesignTokens.Shape.button) {
                     Text(stringResource(Res.string.profile_sessions_revoke), color = MaterialTheme.colorScheme.error)
                 }
             }

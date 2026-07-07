@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -272,6 +270,7 @@ fun DelegationScreen(
 
                 item {
                     OutlinedButton(
+                        shape = DesignTokens.Shape.button,
                         onClick = { showAddSheet = true },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -394,8 +393,13 @@ private fun AddDelegationSheet(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.profile_delegation_cancel)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.profile_delegation_cancel)) }
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = { onSubmit(selectedMember, selectedType) },
                 modifier = Modifier.weight(1f),
             ) { Text(stringResource(Res.string.profile_delegation_submit)) }
@@ -417,7 +421,7 @@ private fun SectionHeader(
             modifier =
                 Modifier
                     .size(36.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center,
         ) {
@@ -448,7 +452,7 @@ private fun DelegationRow(
             modifier =
                 Modifier
                     .size(40.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center,
         ) {
@@ -475,7 +479,7 @@ private fun DelegationRow(
                 )
             }
             if (isActive) {
-                TextButton(onClick = onRevoke, modifier = Modifier.height(28.dp)) {
+                TextButton(onClick = onRevoke, modifier = Modifier.height(28.dp), shape = DesignTokens.Shape.button) {
                     Text(
                         stringResource(Res.string.profile_delegation_revoke),
                         style = MaterialTheme.typography.labelSmall,
@@ -501,7 +505,7 @@ private fun DelegatedByRow(entry: DelegatedByEntry) {
             modifier =
                 Modifier
                     .size(40.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(Color(0xFF6A1B9A).copy(alpha = 0.15f)),
             contentAlignment = Alignment.Center,
         ) {
@@ -525,7 +529,7 @@ private fun DelegatedByRow(entry: DelegatedByEntry) {
             }
         }
         Surface(
-            shape = RoundedCornerShape(50),
+            shape = DesignTokens.Shape.button,
             color = MilewayColors.success.copy(alpha = 0.15f),
         ) {
             Text(

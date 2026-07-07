@@ -125,6 +125,7 @@ fun AskAdvanceFormScreen(
                 title = stringResource(Res.string.profile_advance_request_advance),
                 subtitle = stringResource(Res.string.profile_advance_step_of_4, form.step + 1),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.Filled.Payments,
                 navigationIcon = {
                     IconButton(onClick = {
                         when (form.step) {
@@ -155,6 +156,7 @@ fun AskAdvanceFormScreen(
                             else -> false
                         }
                     Button(
+                        shape = DesignTokens.Shape.button,
                         onClick = {
                             if (form.step < 3) {
                                 viewModel.onAction(AdvanceAction.GoToStep(form.step + 1))
@@ -513,7 +515,7 @@ private fun AdvanceSuccessContent(
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(32.dp))
-        Button(onClick = onDone, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onDone, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
             Text(stringResource(Res.string.profile_advance_back_to_advances))
         }
     }

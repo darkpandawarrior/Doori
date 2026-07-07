@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.FileDownload
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -81,6 +82,7 @@ fun AnalyticsDetailScreen(
                 title = stringResource(Res.string.profile_analytics_detail_title, category),
                 subtitle = stringResource(Res.string.profile_analytics_detail_subtitle),
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.BarChart,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_analytics_back))

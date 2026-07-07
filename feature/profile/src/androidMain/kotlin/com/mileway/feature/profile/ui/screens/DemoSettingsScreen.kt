@@ -95,6 +95,7 @@ fun DemoSettingsScreen(
                 title = stringResource(Res.string.profile_demo_title),
                 subtitle = stringResource(Res.string.profile_demo_subtitle),
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.BugReport,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_demo_back))
@@ -185,6 +186,7 @@ fun DemoSettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = { rootDialogResult = RootDetector.check() },
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -194,6 +196,7 @@ fun DemoSettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onOpenRootGuard,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -203,6 +206,7 @@ fun DemoSettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onOpenRootGuardDetected,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -212,6 +216,7 @@ fun DemoSettingsScreen(
             Spacer(Modifier.height(8.dp))
 
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = {
                     val activity = context as? FragmentActivity
                     if (activity != null) {
@@ -266,7 +271,13 @@ fun DemoSettingsScreen(
                     Text(stringResource(Res.string.profile_demo_signal_item, signal), style = MaterialTheme.typography.bodySmall)
                 }
             }
-            Button(onClick = { rootDialogResult = null }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.profile_demo_ok)) }
+            Button(
+                onClick = { rootDialogResult = null },
+                modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
+            ) {
+                Text(stringResource(Res.string.profile_demo_ok))
+            }
         }
     }
 }

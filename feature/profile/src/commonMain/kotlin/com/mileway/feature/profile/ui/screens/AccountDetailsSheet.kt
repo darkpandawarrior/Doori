@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -85,7 +83,7 @@ fun AccountDetailsSheet(
                 modifier =
                     Modifier
                         .size(64.dp)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), CircleShape),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), DesignTokens.Shape.button),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
@@ -139,7 +137,7 @@ fun AccountDetailsSheet(
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
                 colors = ButtonDefaults.buttonColors(),
             ) {
                 Text(stringResource(Res.string.profile_accounts_close), fontWeight = FontWeight.Bold)

@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Apps
@@ -190,6 +189,7 @@ fun ProfileDetailsScreen(
                 title = stringResource(Res.string.profile_details_title),
                 subtitle = stringResource(Res.string.profile_details_subtitle),
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.Person,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_details_back))
@@ -322,7 +322,7 @@ private fun ProfileIdentityBlock(profile: EmployeeProfile) {
             modifier =
                 Modifier
                     .size(80.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center,
         ) {

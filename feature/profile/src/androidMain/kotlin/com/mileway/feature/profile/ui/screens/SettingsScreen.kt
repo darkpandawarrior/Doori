@@ -20,12 +20,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -169,6 +169,7 @@ fun SettingsScreen(
                 title = stringResource(Res.string.profile_settings_title),
                 subtitle = stringResource(Res.string.profile_settings_subtitle),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.Filled.Settings,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -341,7 +342,7 @@ fun SettingsScreen(
                         modifier =
                             Modifier
                                 .size(24.dp)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(
                                     parseHexColor(customSeedHex)
                                         ?: parseHexColor(accentPalette.seedHex)
@@ -602,6 +603,7 @@ private fun SimpleSelectionDialog(
         options.forEach { option ->
             val isSelected = option == selected
             TextButton(
+                shape = DesignTokens.Shape.button,
                 onClick = { onSelect(option) },
                 modifier = Modifier.padding(vertical = DesignTokens.Spacing.xs),
             ) {
@@ -773,7 +775,7 @@ private fun PermissionCard(
                 modifier =
                     Modifier
                         .size(36.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center,
             ) {

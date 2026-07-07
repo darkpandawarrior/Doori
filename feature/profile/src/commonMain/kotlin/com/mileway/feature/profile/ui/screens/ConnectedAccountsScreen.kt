@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Link
@@ -72,6 +71,7 @@ fun ConnectedAccountsScreen(
                 title = stringResource(Res.string.profile_accounts_title),
                 subtitle = stringResource(Res.string.profile_accounts_subtitle),
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.Link,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_sessions_back))
@@ -114,7 +114,7 @@ private fun ConnectedAccountRow(
                 modifier =
                     Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {

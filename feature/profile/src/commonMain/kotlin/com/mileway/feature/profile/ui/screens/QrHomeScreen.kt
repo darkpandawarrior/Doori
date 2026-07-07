@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -289,6 +287,7 @@ fun QrHomeScreen(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
                     Button(
+                        shape = DesignTokens.Shape.button,
                         onClick = {
                             scope.launch {
                                 sheetState.show()
@@ -335,9 +334,9 @@ private fun QrCardChip(card: CorporateCard) {
             Modifier
                 .width(140.dp)
                 .height(76.dp)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(DesignTokens.Shape.button)
                 .background(chipGradient)
-                .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp))
+                .border(1.dp, Color.White.copy(alpha = 0.2f), DesignTokens.Shape.button)
                 .padding(12.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
@@ -430,7 +429,7 @@ private fun QrRequestSheet(
                     )
                 }
                 Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF00796B).copy(alpha = 0.12f)),
+                    modifier = Modifier.size(40.dp).clip(DesignTokens.Shape.button).background(Color(0xFF00796B).copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.Default.QrCode, contentDescription = null, tint = Color(0xFF00796B), modifier = Modifier.size(22.dp))
@@ -459,8 +458,13 @@ private fun QrRequestSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.profile_qr_cancel)) }
+                TextButton(
+                    onClick = onDismiss,
+                    modifier = Modifier.weight(1f),
+                    shape = DesignTokens.Shape.button,
+                ) { Text(stringResource(Res.string.profile_qr_cancel)) }
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                 ) { Text(stringResource(Res.string.profile_qr_generate_qr)) }

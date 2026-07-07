@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -89,6 +90,7 @@ fun MyTicketsScreen(
                 title = stringResource(Res.string.profile_tickets_title),
                 subtitle = pluralStringResource(Res.plurals.profile_plural_tickets_submitted, uiState.tickets.size, uiState.tickets.size),
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.ConfirmationNumber,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_tickets_back))

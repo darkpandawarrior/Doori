@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
@@ -67,6 +66,7 @@ fun OrgChartScreen(
                 title = stringResource(Res.string.profile_org_title),
                 subtitle = stringResource(Res.string.profile_org_subtitle),
                 depth = NavigationDepth.LEVEL_3_PLUS,
+                titleIcon = Icons.Filled.Person,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_details_back))
@@ -120,7 +120,7 @@ private fun OrgChartRowContent(
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 Surface(
-                    shape = CircleShape,
+                    shape = DesignTokens.Shape.button,
                     color = MaterialTheme.colorScheme.primaryContainer,
                     modifier = Modifier.size(36.dp),
                 ) {

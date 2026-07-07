@@ -23,13 +23,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Lightbulb
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
@@ -161,10 +161,17 @@ fun AnalyticsHomeScreen(
                     stringResource(Res.string.profile_analytics_tab_team),
                     stringResource(Res.string.profile_analytics_tab_insights),
                 ).forEachIndexed { idx, title ->
+                    val icon =
+                        when (idx) {
+                            0 -> Icons.Filled.Person
+                            1 -> Icons.Filled.Group
+                            else -> Icons.Filled.Lightbulb
+                        }
                     Tab(
                         selected = selectedTab == idx,
                         onClick = { selectedTab = idx },
                         text = { Text(title, style = MaterialTheme.typography.labelMedium) },
+                        icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
                     )
                 }
             }
@@ -327,7 +334,7 @@ private fun TeamMemberRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            modifier = Modifier.size(40.dp).clip(CircleShape).background(categoryColor.copy(alpha = 0.15f)),
+            modifier = Modifier.size(40.dp).clip(DesignTokens.Shape.button).background(categoryColor.copy(alpha = 0.15f)),
             contentAlignment = Alignment.Center,
         ) {
             Text(member.name.first().toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = categoryColor)
@@ -339,8 +346,8 @@ private fun TeamMemberRow(
                 Text("₹${member.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(4.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                Box(modifier = Modifier.fillMaxWidth(fraction).height(4.dp).clip(RoundedCornerShape(2.dp)).background(categoryColor))
+            Box(modifier = Modifier.fillMaxWidth().height(4.dp).clip(DesignTokens.Shape.button).background(MaterialTheme.colorScheme.surfaceVariant)) {
+                Box(modifier = Modifier.fillMaxWidth(fraction).height(4.dp).clip(DesignTokens.Shape.button).background(categoryColor))
             }
             Spacer(Modifier.height(2.dp))
             Text(
@@ -421,7 +428,7 @@ private fun AiInsightCard(insight: InsightCard) {
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Box(
-                modifier = Modifier.size(40.dp).clip(CircleShape).background(accentColor.copy(alpha = 0.12f)),
+                modifier = Modifier.size(40.dp).clip(DesignTokens.Shape.button).background(accentColor.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(icon, contentDescription = null, tint = accentColor, modifier = Modifier.size(20.dp))
@@ -454,7 +461,7 @@ private fun SpendingOverviewCard(data: AnalyticsMockData) {
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Surface(color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), shape = RoundedCornerShape(6.dp)) {
+                Surface(color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), shape = DesignTokens.Shape.button) {
                     Text(
                         stringResource(Res.string.profile_analytics_vs_last_week),
                         style = MaterialTheme.typography.labelSmall,
@@ -526,7 +533,7 @@ private fun CategoryBreakdownCard(
             val total = data.categoryTotals.values.sum()
             // Horizontal stacked bar
             Row(
-                modifier = Modifier.fillMaxWidth().height(16.dp).clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier.fillMaxWidth().height(16.dp).clip(DesignTokens.Shape.button),
             ) {
                 data.categoryTotals.entries.forEach { (category, amount) ->
                     val fraction = (amount / total).toFloat()
@@ -543,7 +550,7 @@ private fun CategoryBreakdownCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
-                    Box(modifier = Modifier.size(10.dp).clip(CircleShape).background(color))
+                    Box(modifier = Modifier.size(10.dp).clip(DesignTokens.Shape.button).background(color))
                     Text(category, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
                     Text("₹${amount.toLong()}", style = MaterialTheme.typography.bodySmall.dataStyle(), fontWeight = FontWeight.SemiBold)
                 }
@@ -635,7 +642,7 @@ private fun RecentActivityRow(item: RecentActivityItem) {
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         Box(
-            modifier = Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer),
+            modifier = Modifier.size(36.dp).clip(DesignTokens.Shape.button).background(MaterialTheme.colorScheme.secondaryContainer),
             contentAlignment = Alignment.Center,
         ) {
             Text(

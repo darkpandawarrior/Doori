@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Add
@@ -75,6 +73,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -375,9 +374,9 @@ private fun ActiveAccountBadgeRow(activeAccount: DemoAccount?) {
             modifier =
                 Modifier
                     .size(24.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.primary)
-                    .border(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f), CircleShape),
+                    .border(1.dp, MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f), DesignTokens.Shape.button),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -433,12 +432,12 @@ private fun ProfileHeaderSection(
                         modifier =
                             Modifier
                                 .size(AvatarSize)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(MaterialTheme.colorScheme.primaryContainer)
                                 .border(
                                     width = 3.dp,
                                     color = MaterialTheme.colorScheme.surface,
-                                    shape = CircleShape,
+                                    shape = DesignTokens.Shape.button,
                                 ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -453,9 +452,9 @@ private fun ProfileHeaderSection(
                         modifier =
                             Modifier
                                 .size(30.dp)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(MaterialTheme.colorScheme.primary)
-                                .border(2.dp, MaterialTheme.colorScheme.surface, CircleShape),
+                                .border(2.dp, MaterialTheme.colorScheme.surface, DesignTokens.Shape.button),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -482,7 +481,7 @@ private fun ProfileHeaderSection(
                         modifier =
                             Modifier
                                 .size(28.dp)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -776,7 +775,7 @@ private fun AnalyticsCard(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
                     Surface(
-                        shape = RoundedCornerShape(10.dp),
+                        shape = DesignTokens.Shape.button,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                     ) {
                         Icon(
@@ -805,7 +804,7 @@ private fun AnalyticsCard(
                         modifier =
                             Modifier
                                 .size(8.dp)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(DesignTokens.StatusColors.success),
                     )
                     Spacer(Modifier.width(DesignTokens.Spacing.xs))
@@ -923,7 +922,7 @@ private fun DeepLinkDemoCard(modifier: Modifier = Modifier) {
         )
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Column(
@@ -947,6 +946,7 @@ private fun DeepLinkDemoCard(modifier: Modifier = Modifier) {
             ) {
                 links.forEach { (label, url) ->
                     OutlinedButton(
+                        shape = DesignTokens.Shape.button,
                         onClick = {
                             context.startActivity(
                                 Intent(Intent.ACTION_VIEW, Uri.parse(url))
@@ -1039,7 +1039,7 @@ private fun PersonaChip(
     var showMenu by remember { mutableStateOf(false) }
     Box {
         Card(
-            shape = RoundedCornerShape(12.dp),
+            shape = DesignTokens.Shape.button,
             colors =
                 CardDefaults.cardColors(
                     containerColor =
@@ -1066,7 +1066,7 @@ private fun PersonaChip(
                         modifier =
                             Modifier
                                 .size(32.dp)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(
                                     if (isSelected) {
                                         MaterialTheme.colorScheme.primary
@@ -1111,6 +1111,7 @@ private fun PersonaChip(
                             MaterialTheme.colorScheme.onSurfaceVariant
                         },
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = persona.organization.ifEmpty { persona.employeeCode },
@@ -1124,6 +1125,7 @@ private fun PersonaChip(
                             }
                         ).copy(alpha = 0.7f),
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
         }
@@ -1158,7 +1160,7 @@ private fun PersonaChip(
 @Composable
 private fun AddPersonaTile(onClick: () -> Unit) {
     Card(
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.button,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
         modifier =
             Modifier
@@ -1241,11 +1243,11 @@ private fun AddPersonaSheet(
                 onClick = { onAdd(displayName.trim(), employeeCode.trim(), organization.trim()) },
                 enabled = canAdd,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.profile_home_add), fontWeight = FontWeight.Bold)
             }
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(8.dp)) {
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp), shape = DesignTokens.Shape.button) {
                 Text(stringResource(Res.string.profile_home_cancel), fontWeight = FontWeight.Bold)
             }
         }

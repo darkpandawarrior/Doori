@@ -107,6 +107,7 @@ fun PreferencesScreen(
                 title = stringResource(Res.string.profile_settings_preferences),
                 subtitle = stringResource(Res.string.profile_settings_manage_subtitle),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.Filled.Settings,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(

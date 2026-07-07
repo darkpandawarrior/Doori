@@ -16,13 +16,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Approval
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoneyOff
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.SystemUpdate
@@ -48,8 +48,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_notifications_back
@@ -124,13 +124,14 @@ fun NotificationCentreScreen(
                 title = stringResource(Res.string.profile_notifications_title),
                 subtitle = stringResource(Res.string.profile_notifications_unread_count, state.unreadCount),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.Filled.Notifications,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_notifications_back))
                     }
                 },
                 actions = {
-                    TextButton(onClick = { viewModel.markAllRead() }) {
+                    TextButton(onClick = { viewModel.markAllRead() }, shape = DesignTokens.Shape.button) {
                         Text(stringResource(Res.string.profile_notifications_mark_all_read))
                     }
                 },
@@ -211,7 +212,7 @@ private fun NotificationCard(
                 modifier =
                     Modifier
                         .size(40.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(notif.type.iconColor().copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -229,12 +230,11 @@ private fun NotificationCard(
                     fontWeight = if (notif.isUnread) FontWeight.SemiBold else FontWeight.Normal,
                 )
                 Spacer(Modifier.height(2.dp))
-                Text(
+                ExpandableText(
                     text = notif.body,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    collapsedMaxLines = 2,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -249,7 +249,7 @@ private fun NotificationCard(
                     modifier =
                         Modifier
                             .size(8.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(MaterialTheme.colorScheme.primary)
                             .align(Alignment.CenterVertically),
                 )

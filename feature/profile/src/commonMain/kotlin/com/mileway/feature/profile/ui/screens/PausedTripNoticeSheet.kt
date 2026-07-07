@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material3.Button
@@ -59,7 +58,7 @@ fun PausedTripNoticeSheet(onDismiss: () -> Unit) {
                 modifier =
                     Modifier
                         .size(64.dp)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), CircleShape),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), DesignTokens.Shape.button),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
