@@ -41,6 +41,8 @@ data class SessionState(
     val isFirstLoginPending: Boolean = false,
     val hasPin: Boolean = false,
     val hasShownWelcomeDisclaimer: Boolean = false,
+    // PLAN_V24 P1.3: true once this session cleared the MFA step (per-login, reset on fresh sign-in).
+    val mfaDone: Boolean = false,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

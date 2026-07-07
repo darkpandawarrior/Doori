@@ -1934,4 +1934,8 @@
     <string name="shared_otp_error_wrong">Incorrect code, try again</string>
     <string name="shared_otp_error_expired">Code expired — resend a new one</string>
     <string name="shared_otp_error_locked">Too many attempts — resend a new code</string>
+
+    <!-- PLAN_V24 P1.3: MFA -->
+    <string name="plugin_auth_mfa_required_title">Two-factor authentication</string>
+    <string name="plugin_auth_mfa_required_desc">Require an OTP after sign-in, before the app opens</string>
 </resources>

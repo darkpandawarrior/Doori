@@ -1930,4 +1930,8 @@
     <string name="shared_otp_error_wrong">गलत कोड, फिर कोशिश करें</string>
     <string name="shared_otp_error_expired">कोड समाप्त — नया भेजें</string>
     <string name="shared_otp_error_locked">बहुत ज़्यादा कोशिशें — नया कोड भेजें</string>
+
+    <!-- PLAN_V24 P1.3: MFA -->
+    <string name="plugin_auth_mfa_required_title">दो-चरणीय प्रमाणीकरण</string>
+    <string name="plugin_auth_mfa_required_desc">साइन-इन के बाद, ऐप खुलने से पहले OTP आवश्यक करें</string>
 </resources>

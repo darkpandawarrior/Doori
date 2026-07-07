@@ -15,8 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,9 +40,12 @@ import com.mileway.core.ui.theme.AppLocaleEnvironment
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.ui.MilewayAppRoot
+import com.mileway.core.data.otp.LocalOtpEngine
+import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.ui.auth.rememberPermissionsController
 import com.mileway.ui.auth.CheckPinScreen
 import com.mileway.ui.auth.LoginScreen
+import com.mileway.ui.auth.OtpVerificationScreen
 import com.mileway.ui.auth.SetPinScreen
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.toAppRoute
@@ -52,7 +59,7 @@ import org.koin.compose.koinInject
  * `SetPinScreen` the first time (`SessionState.hasPin == false`) or `CheckPinScreen` on every
  * later launch until sign-out.
  */
-private enum class AppStage { SPLASH, LOGIN, PIN, APP }
+private enum class AppStage { SPLASH, LOGIN, MFA, PIN, APP }
 
 /**
  * Single entry point for the app. Plays the splash and fake-login theatre, then hosts the
@@ -108,16 +115,31 @@ private fun Intent.deepLinkRoute(): String? {
  *
  * @return the stage [AppEntry] should move to, or `null` if [currentStage] already reflects [session].
  */
+/**
+ * P1.3: true when a signed-in session still owes its MFA step (not yet done, and not already past
+ * it via a set PIN). Extracted so [nextStageForSession] stays under the complexity budget.
+ */
+private fun sessionOwesMfa(
+    session: SessionState,
+    mfaRequired: Boolean,
+): Boolean = session.isSignedIn && mfaRequired && !session.mfaDone && !session.hasPin
+
+/** A stage the app only reaches after login — used to bounce a signed-out session back to LOGIN. */
+private fun AppStage.isPastLogin(): Boolean = this == AppStage.PIN || this == AppStage.APP || this == AppStage.MFA
+
 private fun nextStageForSession(
     session: SessionState?,
     currentStage: AppStage,
+    mfaRequired: Boolean = false,
 ): AppStage? {
     if (session == null) return null
     return when {
+        sessionOwesMfa(session, mfaRequired) && currentStage != AppStage.MFA && currentStage != AppStage.APP ->
+            AppStage.MFA
         session.isSignedIn && session.hasPin && currentStage != AppStage.PIN && currentStage != AppStage.APP ->
             AppStage.APP
         session.isSignedIn && !session.hasPin && currentStage == AppStage.SPLASH -> AppStage.PIN
-        !session.isSignedIn && (currentStage == AppStage.PIN || currentStage == AppStage.APP) -> AppStage.LOGIN
+        !session.isSignedIn && currentStage.isPastLogin() -> AppStage.LOGIN
         else -> null
     }
 }
@@ -134,6 +156,8 @@ private fun AppEntry(
     // PLAN_V24 P1.1/P1.2: phone-OTP login + via-call fallback, each gated by its plugin.
     val phoneLoginEnabled by pluginRegistry.observe("phoneLoginEnabled").collectAsStateWithLifecycle(initialValue = false)
     val otpViaCallEnabled by pluginRegistry.observe("otpViaCallEnabled").collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P1.3: MFA step gated by the `mfaRequired` plugin (Corporate Commuter persona).
+    val mfaRequired by pluginRegistry.observe("mfaRequired").collectAsStateWithLifecycle(initialValue = false)
     // A.1: the persisted session is the source of truth for "did the user pass login, and how".
     // null = still loading; once known we can skip the splash/login theatre for a returning user
     // (guest or credentials), so navigation, deep links and process recreation never bounce them.
@@ -161,8 +185,8 @@ private fun AppEntry(
     // See nextStageForSession's doc for the full A.1/P7.4/P2.4 reconciliation rationale;
     // `MilewayAppRoot`'s `onSignedOut` below is the fast path for the live composition, this is
     // the durable, process-death-safe path.
-    LaunchedEffect(session) {
-        nextStageForSession(session, stage)?.let { stage = it }
+    LaunchedEffect(session, mfaRequired) {
+        nextStageForSession(session, stage, mfaRequired)?.let { stage = it }
     }
 
     // PF.4: seed the Activity-scoped platform managers (in-app update / review / share / …) so any
@@ -206,10 +230,12 @@ private fun AppEntry(
                                     // sign-in (fresh or guest) passes through SetPinScreen/CheckPinScreen.
                                     onSignInWithCredentials = { email ->
                                         sessionScope.launch { sessionRepository.signInWithCredentials(email) }
-                                        stage = AppStage.PIN
+                                        // P1.3: credentials sign-in may owe an MFA step before the PIN gate.
+                                        stage = if (mfaRequired) AppStage.MFA else AppStage.PIN
                                     },
                                     onContinueAsGuest = {
                                         sessionScope.launch { sessionRepository.continueAsGuest() }
+                                        // Guests never do MFA (continueAsGuest marks mfaDone).
                                         stage = AppStage.PIN
                                     },
                                     onRequestPermissions = { permissionsController.request() },
@@ -221,6 +247,15 @@ private fun AppEntry(
                                     },
                                     phoneLoginEnabled = phoneLoginEnabled,
                                     otpViaCallEnabled = otpViaCallEnabled,
+                                )
+                            AppStage.MFA ->
+                                MfaStage(
+                                    target = session?.email ?: DEMO_MFA_TARGET,
+                                    otpViaCallEnabled = otpViaCallEnabled,
+                                    onVerified = {
+                                        sessionScope.launch { sessionRepository.markMfaDone() }
+                                        stage = AppStage.PIN
+                                    },
                                 )
                             AppStage.PIN ->
                                 PinGateStage(hasPin = session?.hasPin == true, onPassed = { stage = AppStage.APP })
@@ -257,5 +292,34 @@ private fun PinGateStage(
         CheckPinScreen(onUnlocked = onPassed)
     } else {
         SetPinScreen(onCompleted = onPassed, onSkip = onPassed)
+    }
+}
+
+/** Fallback MFA target when a credentials session has no email (e.g. a demo persona). */
+private const val DEMO_MFA_TARGET = "demo@mileway.app"
+
+/**
+ * PLAN_V24 P1.3: the MFA stage between LOGIN and PIN. Dispatches an MFA OTP once on entry (there is
+ * no phone-entry step post-credential) and reuses the shared [OtpVerificationScreen] with
+ * `purpose = MFA`. No change-number link — MFA has no number to change.
+ */
+@Composable
+private fun MfaStage(
+    target: String,
+    otpViaCallEnabled: Boolean,
+    onVerified: () -> Unit,
+    otpEngine: LocalOtpEngine = koinInject(),
+) {
+    val delivery = remember(target) { otpEngine.send(OtpPurpose.MFA, target) }
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        OtpVerificationScreen(
+            purpose = OtpPurpose.MFA,
+            target = target,
+            delivery = delivery,
+            otpViaCallEnabled = otpViaCallEnabled,
+            showChangeNumber = false,
+            onVerified = onVerified,
+            onChangeNumber = {},
+        )
     }
 }

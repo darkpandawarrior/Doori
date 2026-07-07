@@ -66,6 +66,8 @@ fun OtpVerificationScreen(
     onChangeNumber: () -> Unit,
     modifier: Modifier = Modifier,
     otpViaCallEnabled: Boolean = false,
+    // P1.3: MFA has no number to change, so the host hides the link.
+    showChangeNumber: Boolean = true,
     viewModel: OtpVerificationViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -142,8 +144,10 @@ fun OtpVerificationScreen(
             }
         }
 
-        TextButton(onClick = onChangeNumber) {
-            Text(stringResource(Res.string.shared_otp_change_number))
+        if (showChangeNumber) {
+            TextButton(onClick = onChangeNumber) {
+                Text(stringResource(Res.string.shared_otp_change_number))
+            }
         }
 
         // Offline demo affordance: show + autofill the dispatched code.

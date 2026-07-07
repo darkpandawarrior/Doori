@@ -34,6 +34,7 @@ class SessionRepository(
     private val firstLoginPendingKey = booleanPreferencesKey("session_first_login_pending")
     private val hasPinKey = booleanPreferencesKey("session_has_pin")
     private val hasShownWelcomeDisclaimerKey = booleanPreferencesKey("session_has_shown_welcome_disclaimer")
+    private val mfaDoneKey = booleanPreferencesKey("session_mfa_done")
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
@@ -59,6 +60,7 @@ class SessionRepository(
                 isFirstLoginPending = prefs[firstLoginPendingKey] ?: false,
                 hasPin = prefs[hasPinKey] ?: false,
                 hasShownWelcomeDisclaimer = prefs[hasShownWelcomeDisclaimerKey] ?: false,
+                mfaDone = prefs[mfaDoneKey] ?: false,
             )
         }
 
@@ -75,6 +77,7 @@ class SessionRepository(
             prefs[themeColorHexKey] = profile.themeColorHex
             prefs[currencySymbolKey] = profile.currencySymbol
             prefs[firstLoginPendingKey] = true
+            prefs[mfaDoneKey] = false
         }
     }
 
@@ -90,6 +93,7 @@ class SessionRepository(
             prefs.remove(themeColorHexKey)
             prefs.remove(currencySymbolKey)
             prefs.remove(firstLoginPendingKey)
+            prefs[mfaDoneKey] = true
         }
     }
 
@@ -108,6 +112,11 @@ class SessionRepository(
     /** PLAN_V22 P7.5: marks `WelcomeDisclaimerSheet` as shown (see androidMain doc). */
     suspend fun markWelcomeDisclaimerShown() {
         store.edit { prefs -> prefs[hasShownWelcomeDisclaimerKey] = true }
+    }
+
+    /** PLAN_V24 P1.3: marks this login's MFA step complete (see androidMain doc). */
+    suspend fun markMfaDone() {
+        store.edit { prefs -> prefs[mfaDoneKey] = true }
     }
 
     suspend fun signOut() {

@@ -44,6 +44,7 @@ class SessionRepository(
     private val firstLoginPendingKey = booleanPreferencesKey("session_first_login_pending")
     private val hasPinKey = booleanPreferencesKey("session_has_pin")
     private val hasShownWelcomeDisclaimerKey = booleanPreferencesKey("session_has_shown_welcome_disclaimer")
+    private val mfaDoneKey = booleanPreferencesKey("session_mfa_done")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -64,6 +65,7 @@ class SessionRepository(
                 isFirstLoginPending = prefs[firstLoginPendingKey] ?: false,
                 hasPin = prefs[hasPinKey] ?: false,
                 hasShownWelcomeDisclaimer = prefs[hasShownWelcomeDisclaimerKey] ?: false,
+                mfaDone = prefs[mfaDoneKey] ?: false,
             )
         }
 
@@ -85,6 +87,8 @@ class SessionRepository(
             prefs[themeColorHexKey] = profile.themeColorHex
             prefs[currencySymbolKey] = profile.currencySymbol
             prefs[firstLoginPendingKey] = true
+            // P1.3: a fresh sign-in must re-clear MFA (challenge the new login again if required).
+            prefs[mfaDoneKey] = false
         }
     }
 
@@ -101,6 +105,8 @@ class SessionRepository(
             prefs.remove(themeColorHexKey)
             prefs.remove(currencySymbolKey)
             prefs.remove(firstLoginPendingKey)
+            // P1.3: guest sessions never do MFA.
+            prefs[mfaDoneKey] = true
         }
     }
 
@@ -130,6 +136,11 @@ class SessionRepository(
      */
     suspend fun markWelcomeDisclaimerShown() {
         context.sessionDataStore.edit { prefs -> prefs[hasShownWelcomeDisclaimerKey] = true }
+    }
+
+    /** PLAN_V24 P1.3: marks this login's MFA step complete, so the auth flow proceeds to the PIN gate. */
+    suspend fun markMfaDone() {
+        context.sessionDataStore.edit { prefs -> prefs[mfaDoneKey] = true }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */

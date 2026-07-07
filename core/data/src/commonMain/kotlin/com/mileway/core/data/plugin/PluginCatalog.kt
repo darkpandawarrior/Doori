@@ -55,6 +55,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_auth_otp_via_call_desc",
                 defaultOn = false,
             ),
+            PluginDescriptor(
+                id = "mfaRequired",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.AUTH,
+                titleKey = "plugin_auth_mfa_required_title",
+                descriptionKey = "plugin_auth_mfa_required_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Every registered descriptor across all categories. */
