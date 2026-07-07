@@ -3,6 +3,13 @@ plugins {
     id("mileway.kmp.desktop")
 }
 
+// Compose Multiplatform string resources — the shared, localizable string table for the whole app.
+// commonMain/composeResources/values/strings.xml → generated `Res` (public so every module uses it).
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "com.mileway.core.ui.resources"
+}
+
 kotlin {
     android {
         namespace = "com.mileway.core.ui"
@@ -18,6 +25,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.runtime)
             implementation(libs.foundation)
+            implementation(compose.components.resources)
             implementation(libs.material3)
             implementation(libs.ui)
             implementation(libs.material.icons.extended)

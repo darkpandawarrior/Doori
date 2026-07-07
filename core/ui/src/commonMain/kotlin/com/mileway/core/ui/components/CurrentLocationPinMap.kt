@@ -42,6 +42,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.location_you_are_here
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 /**
@@ -162,7 +165,7 @@ private fun LocationCallout(
             Box(Modifier.size(9.dp).clip(CircleShape).background(accent))
             Column {
                 Text(
-                    text = pin.label ?: "You're here",
+                    text = pin.label ?: stringResource(Res.string.location_you_are_here),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,

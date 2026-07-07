@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_tagline">अपने खर्चों को प्रबंधित करें!</string>
+
+    <string name="action_continue">जारी रखें</string>
+    <string name="action_cancel">रद्द करें</string>
+    <string name="action_not_now">अभी नहीं</string>
+
+    <string name="tab_home">होम</string>
+    <string name="tab_track">ट्रैक</string>
+    <string name="tab_spends">खर्च</string>
+    <string name="tab_travel">यात्रा</string>
+
+    <string name="home_greeting">नमस्ते, %1$s</string>
+    <string name="home_quick_actions">त्वरित क्रियाएँ</string>
+    <string name="home_track_journey">यात्रा ट्रैक करें</string>
+    <string name="home_log_miles">मील दर्ज करें</string>
+    <string name="home_recent_activity">हाल की गतिविधि</string>
+    <string name="home_my_cards">मेरे कार्ड</string>
+
+    <string name="location_you_are_here">आप यहाँ हैं</string>
+
+    <string name="auth_sign_in">साइन इन करें</string>
+    <string name="auth_continue_guest">अतिथि के रूप में जारी रखें</string>
+</resources>

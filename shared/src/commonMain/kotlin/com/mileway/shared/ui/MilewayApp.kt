@@ -20,19 +20,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tab_home
+import com.mileway.core.ui.resources.tab_spends
+import com.mileway.core.ui.resources.tab_track
+import com.mileway.core.ui.resources.tab_travel
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.travel.ui.screens.TravelHomeScreen
 import com.mileway.ui.home.HomeScreen
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
-private data class ShellTab(val label: String, val icon: ImageVector)
+private data class ShellTab(val label: StringResource, val icon: ImageVector)
 
 private val shellTabs =
     listOf(
-        ShellTab("Home", Icons.Filled.Home),
-        ShellTab("Track", Icons.Filled.DirectionsCar),
-        ShellTab("Spends", Icons.Filled.ReceiptLong),
-        ShellTab("Travel", Icons.Filled.Flight),
+        ShellTab(Res.string.tab_home, Icons.Filled.Home),
+        ShellTab(Res.string.tab_track, Icons.Filled.DirectionsCar),
+        ShellTab(Res.string.tab_spends, Icons.Filled.ReceiptLong),
+        ShellTab(Res.string.tab_travel, Icons.Filled.Flight),
     )
 
 /**
@@ -51,8 +58,8 @@ fun MilewayApp() {
                     NavigationBarItem(
                         selected = tab == i,
                         onClick = { tab = i },
-                        icon = { Icon(t.icon, contentDescription = t.label) },
-                        label = { Text(t.label) },
+                        icon = { Icon(t.icon, contentDescription = stringResource(t.label)) },
+                        label = { Text(stringResource(t.label)) },
                     )
                 }
             }
