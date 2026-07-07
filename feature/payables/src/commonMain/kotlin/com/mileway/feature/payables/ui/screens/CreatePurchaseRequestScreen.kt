@@ -20,10 +20,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -110,6 +114,7 @@ fun CreatePurchaseRequestScreen(
                 title = stringResource(Res.string.payables_pr_title),
                 subtitle = stringResource(Res.string.payables_pr_step, form.step),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.AutoMirrored.Filled.Assignment,
                 navigationIcon = {
                     IconButton(onClick = {
                         if (form.step == 1) onBack() else viewModel.onAction(PayablesAction.GoToStep1)
@@ -133,7 +138,12 @@ fun CreatePurchaseRequestScreen(
                             onClick = { viewModel.onAction(PayablesAction.GoToStep2) },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = form.vendorName.isNotBlank() && form.deliveryDate.isNotBlank(),
-                        ) { Text(stringResource(Res.string.payables_pr_continue)) }
+                            shape = DesignTokens.Shape.button,
+                        ) {
+                            Text(stringResource(Res.string.payables_pr_continue))
+                            Spacer(Modifier.size(DesignTokens.Spacing.s))
+                            Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                        }
                     } else {
                         Button(
                             onClick = { viewModel.onAction(PayablesAction.SubmitPo) },
@@ -143,7 +153,12 @@ fun CreatePurchaseRequestScreen(
                                     form.lineItems.all {
                                         it.description.isNotBlank() && it.unitPrice.isNotBlank()
                                     },
-                        ) { Text(stringResource(Res.string.payables_pr_submit)) }
+                            shape = DesignTokens.Shape.button,
+                        ) {
+                            Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.size(DesignTokens.Spacing.s))
+                            Text(stringResource(Res.string.payables_pr_submit))
+                        }
                     }
                 }
             }
@@ -275,6 +290,7 @@ private fun Step2LineItems(
     OutlinedButton(
         onClick = { viewModel.onAction(PayablesAction.AddLineItem) },
         modifier = Modifier.fillMaxWidth(),
+        shape = DesignTokens.Shape.button,
     ) {
         Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.size(DesignTokens.Spacing.s))

@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Assignment
@@ -45,7 +44,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
@@ -103,6 +101,7 @@ fun PayablesHomeScreen(
                 onClick = onNewRequest,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text(stringResource(Res.string.payables_new_request)) },
+                shape = DesignTokens.Shape.button,
             )
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -209,7 +208,7 @@ private fun SummaryMetric(
     Surface(
         modifier = modifier,
         color = Color.White.copy(alpha = 0.15f),
-        shape = RoundedCornerShape(10.dp),
+        shape = DesignTokens.Shape.button,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 10.dp),
@@ -273,8 +272,6 @@ private fun PoCard(
                     po.vendorName,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     "₹${po.totalAmount.toLong()} · ${po.lineItems.size} item${if (po.lineItems.size != 1) "s" else ""}",
@@ -282,7 +279,7 @@ private fun PoCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Surface(color = statusColor.copy(alpha = 0.15f), shape = RoundedCornerShape(6.dp)) {
+            Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
                 Text(
                     text = statusLabel,
                     style = MaterialTheme.typography.labelSmall,
@@ -325,8 +322,6 @@ private fun InvoiceCard(invoice: Invoice) {
                     invoice.vendorName,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     Instant.fromEpochMilliseconds(invoice.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
@@ -339,7 +334,7 @@ private fun InvoiceCard(invoice: Invoice) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text("₹${invoice.amountRupees.toLong()}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Surface(color = statusColor.copy(alpha = 0.15f), shape = RoundedCornerShape(6.dp)) {
+                Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
                     Text(
                         statusLabel,
                         style = MaterialTheme.typography.labelSmall,

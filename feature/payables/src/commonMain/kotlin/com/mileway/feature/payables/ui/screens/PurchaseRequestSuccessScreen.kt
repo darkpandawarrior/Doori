@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -94,14 +97,20 @@ fun PurchaseRequestSuccessScreen(
                     onCreateAnother()
                 },
                 modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
             ) {
+                Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.payables_success_create_another))
             }
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             OutlinedButton(
                 onClick = onBackToPayables,
                 modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
             ) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.payables_success_back))
             }
         }

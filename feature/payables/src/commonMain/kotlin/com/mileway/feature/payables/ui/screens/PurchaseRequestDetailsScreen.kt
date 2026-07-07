@@ -16,11 +16,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.HourglassBottom
@@ -120,6 +119,7 @@ fun PurchaseRequestDetailsScreen(
                 title = poId,
                 subtitle = po?.vendorName,
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.AutoMirrored.Filled.Assignment,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.payables_back))
@@ -162,6 +162,7 @@ fun PurchaseRequestDetailsScreen(
                 OutlinedButton(
                     onClick = { viewModel.onAction(PayablesAction.ShowMessage("Downloading ${po.id}.pdf…")) },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
@@ -207,7 +208,7 @@ private fun PoHeaderCard(po: PurchaseOrder) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                Surface(color = statusColor.copy(alpha = 0.15f), shape = RoundedCornerShape(6.dp)) {
+                Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
                     Text(
                         text = statusLabel,
                         style = MaterialTheme.typography.labelSmall,
@@ -381,7 +382,7 @@ private fun PoTimelineCard(status: PoStatus) {
                                     } else {
                                         MaterialTheme.colorScheme.surfaceVariant
                                     },
-                                    CircleShape,
+                                    DesignTokens.Shape.button,
                                 ),
                         contentAlignment = Alignment.Center,
                     ) {
