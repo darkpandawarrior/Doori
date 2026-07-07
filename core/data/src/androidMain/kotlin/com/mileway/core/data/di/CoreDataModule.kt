@@ -7,6 +7,7 @@ import com.mileway.core.data.location.SavedLocationsStore
 import com.mileway.core.data.model.display.InMemorySnapshotPublisher
 import com.mileway.core.data.model.display.SnapshotPublisher
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
+import com.mileway.core.data.otp.LocalOtpEngine
 import com.mileway.core.data.outbox.LocationBatch
 import com.mileway.core.data.outbox.LocationBatchOutbox
 import com.mileway.core.data.outbox.RoomSubmitOutbox
@@ -67,6 +68,8 @@ val coreDataModule =
         single { PluginDebugForceStore(androidContext()) }
         single<PluginDebugForceSource> { get<PluginDebugForceStore>() }
         single<PersonaPresetProvider> { EmptyPersonaPresetProvider }
+        // PLAN_V24 P0.4: the one OTP simulator, injected wherever a purpose needs a code.
+        single { LocalOtpEngine() }
         single {
             PluginRegistry(
                 overrideDao = get(),
