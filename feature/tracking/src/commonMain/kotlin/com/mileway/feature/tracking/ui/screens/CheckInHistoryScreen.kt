@@ -24,13 +24,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.EditLocationAlt
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.HistoryToggleOff
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Place
@@ -62,6 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
@@ -169,6 +170,7 @@ fun CheckInHistoryScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_history_title),
                 subtitle = stringResource(Res.string.tracking_history_subtitle),
+                titleIcon = Icons.Default.History,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -418,7 +420,7 @@ private fun TimelineRail(
             modifier =
                 Modifier
                     .size(18.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(dotColor.copy(alpha = 0.16f)),
             contentAlignment = Alignment.Center,
         ) {
@@ -426,7 +428,7 @@ private fun TimelineRail(
                 modifier =
                     Modifier
                         .size(8.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(dotColor),
             )
         }
@@ -485,12 +487,11 @@ private fun EventCard(
 
             if (!item.subtitle.isNullOrBlank()) {
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
-                Text(
+                ExpandableText(
                     text = item.subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    collapsedMaxLines = 2,
                 )
             }
 
@@ -595,6 +596,7 @@ private fun ExpandedDetails(
         Spacer(Modifier.height(DesignTokens.Spacing.m))
 
         FilledTonalButton(
+            shape = DesignTokens.Shape.button,
             onClick = {
                 clipboardManager.setText(AnnotatedString(coordinates))
             },

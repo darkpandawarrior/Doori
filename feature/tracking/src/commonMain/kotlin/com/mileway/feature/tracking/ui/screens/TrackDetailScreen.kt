@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,13 +25,17 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -66,6 +68,7 @@ import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.LoadingScreen
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_more_options
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_cd_data_preview
 import com.mileway.core.ui.resources.tracking_cd_export_track
@@ -156,6 +159,7 @@ fun TrackDetailScreen(
             DepthAwareTopBar(
                 title = uiState.track?.name ?: stringResource(Res.string.tracking_detail_title),
                 subtitle = stringResource(Res.string.tracking_detail_subtitle),
+                titleIcon = Icons.Default.Route,
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -169,14 +173,26 @@ fun TrackDetailScreen(
                     IconButton(onClick = onOpenMap) {
                         Icon(Icons.Default.Map, contentDescription = stringResource(Res.string.tracking_cd_view_map))
                     }
-                    IconButton(onClick = onOpenInsights) {
-                        Icon(Icons.Default.Insights, contentDescription = stringResource(Res.string.tracking_cd_view_insights))
+                    var showOverflowMenu by remember { mutableStateOf(false) }
+                    IconButton(onClick = { showOverflowMenu = true }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(Res.string.core_cd_more_options))
                     }
-                    IconButton(onClick = onOpenHwEvents) {
-                        Icon(Icons.Default.History, contentDescription = stringResource(Res.string.tracking_cd_hardware_events))
-                    }
-                    IconButton(onClick = onOpenDataPreview) {
-                        Icon(Icons.Default.Analytics, contentDescription = stringResource(Res.string.tracking_cd_data_preview))
+                    DropdownMenu(expanded = showOverflowMenu, onDismissRequest = { showOverflowMenu = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.tracking_cd_view_insights)) },
+                            leadingIcon = { Icon(Icons.Default.Insights, contentDescription = null) },
+                            onClick = { showOverflowMenu = false; onOpenInsights() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.tracking_cd_hardware_events)) },
+                            leadingIcon = { Icon(Icons.Default.History, contentDescription = null) },
+                            onClick = { showOverflowMenu = false; onOpenHwEvents() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(Res.string.tracking_cd_data_preview)) },
+                            leadingIcon = { Icon(Icons.Default.Analytics, contentDescription = null) },
+                            onClick = { showOverflowMenu = false; onOpenDataPreview() },
+                        )
                     }
                 },
             )
@@ -231,7 +247,9 @@ fun TrackDetailScreen(
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
-            FilledTonalButton(onClick = { showExportDialog = true }, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton(
+                shape = DesignTokens.Shape.button,
+                onClick = { showExportDialog = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Download, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(
@@ -242,27 +260,37 @@ fun TrackDetailScreen(
                     },
                 )
             }
-            FilledTonalButton(onClick = onOpenMap, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onOpenMap, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Map, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_view_route_map))
             }
-            FilledTonalButton(onClick = onOpenInsights, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onOpenInsights, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Insights, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_trip_insights))
             }
-            FilledTonalButton(onClick = onOpenHwEvents, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onOpenHwEvents, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.History, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_hardware_events_btn))
             }
-            FilledTonalButton(onClick = onOpenRoutePoints, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onOpenRoutePoints, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Place, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_route_points))
             }
-            FilledTonalButton(onClick = onOpenDataPreview, modifier = Modifier.fillMaxWidth()) {
+            FilledTonalButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onOpenDataPreview, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Analytics, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_data_preview))
@@ -308,7 +336,7 @@ private fun DetailSummaryCard(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         modifier =
                             Modifier
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(healthColor.copy(alpha = 0.85f))
                                 .padding(horizontal = DesignTokens.Spacing.m, vertical = 4.dp),
                     ) {
@@ -384,7 +412,7 @@ private fun DetailStatusChip(isSubmitted: Boolean) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         modifier =
             Modifier
-                .clip(CircleShape)
+                .clip(DesignTokens.Shape.button)
                 .background(Color.White.copy(alpha = 0.2f))
                 .padding(horizontal = DesignTokens.Spacing.m, vertical = 4.dp),
     ) {
@@ -466,7 +494,7 @@ private fun AttachmentsCard(attachments: List<TripAttachmentEntity>) {
                                 modifier =
                                     Modifier
                                         .fillMaxSize()
-                                        .clip(RoundedCornerShape(10.dp))
+                                        .clip(DesignTokens.Shape.button)
                                         .background(MaterialTheme.colorScheme.surfaceVariant),
                             )
                             Icon(
@@ -505,7 +533,7 @@ private fun OdometerProofTile(
             modifier =
                 Modifier
                     .size(80.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
         )
         if (!ocrText.isNullOrBlank()) {

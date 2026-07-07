@@ -21,8 +21,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Check
@@ -91,6 +89,7 @@ import com.mileway.core.ui.resources.tracking_resume_optional_notes
 import com.mileway.core.ui.resources.tracking_resume_ready_continue
 import com.mileway.core.ui.resources.tracking_resume_title
 import com.mileway.core.ui.resources.tracking_resume_you_paused_for
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -317,6 +316,7 @@ fun PauseReasonSheet(
         // "Add custom reason" CTA, hidden once the custom field is showing.
         if (!showCustomInput) {
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onToggleCustom(true)
@@ -378,10 +378,11 @@ fun PauseReasonSheet(
                     },
                     minLines = 2,
                     maxLines = 4,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = DesignTokens.Shape.roundedSm,
                 )
 
                 TextButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onToggleCustom(false)
@@ -414,6 +415,7 @@ fun PauseReasonSheet(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onCancel,
                 modifier = Modifier.weight(1f),
             ) {
@@ -421,6 +423,7 @@ fun PauseReasonSheet(
             }
 
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     if (isValid) onConfirm(finalReason)
@@ -560,6 +563,7 @@ fun ResumeTrackingSheet(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             TextButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onCancel,
                 modifier = Modifier.weight(1f),
             ) {
@@ -569,6 +573,7 @@ fun ResumeTrackingSheet(
             Spacer(modifier = Modifier.width(16.dp))
 
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = { onResume(resumeNotes.trim()) },
                 modifier = Modifier.weight(1f),
             ) {
@@ -640,7 +645,7 @@ fun SessionRestoreSheet(
                         .size(44.dp)
                         .background(
                             color = MaterialTheme.colorScheme.primaryContainer,
-                            shape = RoundedCornerShape(12.dp),
+                            shape = DesignTokens.Shape.roundedSm,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -669,6 +674,7 @@ fun SessionRestoreSheet(
         // "Check dismissed restore sessions" affordance (optional).
         if (onCheckDismissed != null) {
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onCheckDismissed,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -712,7 +718,7 @@ private fun RestorableSessionRow(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
     ) {
         Column(
@@ -733,7 +739,7 @@ private fun RestorableSessionRow(
                             .size(36.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.surface,
-                                shape = CircleShape,
+                                shape = DesignTokens.Shape.button,
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -771,6 +777,7 @@ private fun RestorableSessionRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = onRestore,
                     modifier = Modifier.weight(1f),
                     contentPadding =
@@ -782,6 +789,7 @@ private fun RestorableSessionRow(
                     Text(stringResource(Res.string.tracking_restore_action_restore), style = MaterialTheme.typography.labelLarge)
                 }
                 OutlinedButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onDiscard,
                     modifier = Modifier.weight(1f),
                     contentPadding =
@@ -793,6 +801,7 @@ private fun RestorableSessionRow(
                     Text(stringResource(Res.string.tracking_action_discard), style = MaterialTheme.typography.labelLarge)
                 }
                 TextButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onIgnore,
                     contentPadding =
                         androidx.compose.foundation.layout.PaddingValues(

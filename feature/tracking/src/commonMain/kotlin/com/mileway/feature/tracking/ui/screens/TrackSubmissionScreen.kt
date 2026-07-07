@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -142,6 +143,7 @@ fun TrackSubmissionScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_submission_title),
                 subtitle = stringResource(Res.string.tracking_submission_subtitle),
+                titleIcon = Icons.AutoMirrored.Filled.Send,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

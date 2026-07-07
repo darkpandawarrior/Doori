@@ -15,15 +15,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PinDrop
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -95,6 +96,7 @@ fun RoutePointsScreen(
                     ui.totalPoints?.let { stringResource(Res.string.tracking_route_points_count, it) }
                         ?: stringResource(Res.string.tracking_route_points_title),
                 subtitle = stringResource(Res.string.tracking_route_points_subtitle),
+                titleIcon = Icons.Default.Timeline,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -168,7 +170,15 @@ fun RoutePointsScreen(
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error,
                                         )
-                                        Button(onClick = { points.retry() }) {
+                                        Button(
+                                            shape = DesignTokens.Shape.button,
+                                            onClick = { points.retry() }) {
+                                            Icon(
+                                                Icons.Default.Refresh,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                                            )
+                                            Spacer(Modifier.width(8.dp))
                                             Text(stringResource(Res.string.tracking_action_retry))
                                         }
                                     }
@@ -194,7 +204,7 @@ private fun RoutePointRow(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(DesignTokens.Spacing.s),
+        shape = DesignTokens.Shape.button,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
     ) {
         Row(
@@ -248,7 +258,7 @@ private fun PointFlag(
 ) {
     Spacer(Modifier.width(DesignTokens.Spacing.xs))
     Box(
-        Modifier.size(28.dp).clip(CircleShape),
+        Modifier.size(28.dp).clip(DesignTokens.Shape.button),
         contentAlignment = Alignment.Center,
     ) {
         Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(16.dp))
@@ -279,7 +289,9 @@ private fun RoutePointsMessage(
         )
         if (actionLabel != null && onAction != null) {
             Spacer(Modifier.height(DesignTokens.Spacing.m))
-            Button(onClick = onAction) { Text(actionLabel) }
+            Button(
+                shape = DesignTokens.Shape.button,
+                onClick = onAction) { Text(actionLabel) }
         }
     }
 }

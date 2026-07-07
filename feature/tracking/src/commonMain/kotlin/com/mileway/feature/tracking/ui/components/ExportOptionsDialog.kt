@@ -72,6 +72,7 @@ import com.mileway.core.ui.resources.tracking_export_only_checkpoints
 import com.mileway.core.ui.resources.tracking_export_only_checkpoints_desc
 import com.mileway.core.ui.resources.tracking_export_quality_filters
 import com.mileway.core.ui.resources.tracking_export_title
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 // ---------------------------------------------------------------------------
@@ -389,12 +390,14 @@ fun ExportOptionsDialog(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onDismiss,
                 modifier = Modifier.weight(1f),
             ) {
                 Text(stringResource(Res.string.tracking_action_cancel))
             }
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = {
                     val filter =
                         LocationDataFilter(

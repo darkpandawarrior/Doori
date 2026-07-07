@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -402,7 +401,7 @@ fun SubmitConfirmSheet(
                     Modifier
                         .padding(top = DesignTokens.Spacing.s)
                         .size(64.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -549,7 +548,7 @@ fun PolicyViolationSheet(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .clip(androidx.compose.foundation.shape.CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(DesignTokens.StatusColors.warning.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -1005,7 +1004,7 @@ private fun EntityRow(
                 modifier =
                     Modifier
                         .size(44.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center,
             ) {

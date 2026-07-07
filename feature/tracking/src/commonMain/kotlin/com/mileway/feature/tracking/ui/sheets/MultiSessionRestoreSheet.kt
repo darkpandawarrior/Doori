@@ -82,7 +82,9 @@ fun MultiSessionRestoreSheet(
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                 }
             }
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+            OutlinedButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp)) {
                 Text(stringResource(Res.string.tracking_action_not_now), fontWeight = FontWeight.Bold)
             }
         }
@@ -128,6 +130,7 @@ private fun RestorableSessionRow(
                 StatusBadge(text = badgeText, color = badgeColor)
             }
             TextButton(
+                shape = DesignTokens.Shape.button,
                 onClick = { onResume(session.routeId) },
                 enabled = session.status != SessionValidationStatus.EMPTY,
             ) {

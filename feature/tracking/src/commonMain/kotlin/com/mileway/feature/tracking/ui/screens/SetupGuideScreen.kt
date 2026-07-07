@@ -13,13 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatteryFull
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.Wifi
@@ -84,6 +83,7 @@ fun SetupGuideScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_setup_title),
                 subtitle = stringResource(Res.string.tracking_setup_subtitle),
+                titleIcon = Icons.Default.Checklist,
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -113,7 +113,7 @@ fun SetupGuideScreen(
                             .fillMaxWidth()
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = RoundedCornerShape(12.dp),
+                                shape = DesignTokens.Shape.roundedSm,
                             )
                             .padding(DesignTokens.Spacing.m),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
@@ -178,7 +178,7 @@ private fun SetupStepRow(
                         .size(36.dp)
                         .background(
                             color = if (isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                            shape = CircleShape,
+                            shape = DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -238,6 +238,7 @@ private fun SetupStepRow(
             )
             if (isDone) {
                 OutlinedButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onAction,
                     colors =
                         ButtonDefaults.outlinedButtonColors(
@@ -249,7 +250,11 @@ private fun SetupStepRow(
                     Text(stringResource(Res.string.tracking_action_done))
                 }
             } else {
-                Button(onClick = onAction) {
+                Button(
+                    shape = DesignTokens.Shape.button,
+                    onClick = onAction) {
+                    Icon(Icons.Filled.GpsFixed, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.width(8.dp))
                     Text(stringResource(Res.string.tracking_action_configure))
                 }
             }

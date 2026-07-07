@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
@@ -111,7 +110,7 @@ fun PermissionOnboardingSheet(
             Button(
                 onClick = onGrant,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.tracking_perm_allow), fontWeight = FontWeight.Bold)
             }
@@ -120,7 +119,7 @@ fun PermissionOnboardingSheet(
                 OutlinedButton(
                     onClick = onSkip,
                     modifier = Modifier.fillMaxWidth().height(52.dp),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Text(stringResource(Res.string.tracking_perm_skip), fontWeight = FontWeight.Bold)
                 }

@@ -74,6 +74,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_settings_title),
                 subtitle = stringResource(Res.string.tracking_settings_subtitle),
+                titleIcon = Icons.Default.Settings,
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

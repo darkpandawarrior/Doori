@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountTree
@@ -81,6 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.theme.DesignTokens
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -164,7 +164,7 @@ fun DebugMenuScreen(
                         }
                     },
                     singleLine = true,
-                    shape = RoundedCornerShape(24.dp),
+                    shape = DesignTokens.Shape.roundedLg,
                     colors =
                         OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -347,7 +347,7 @@ private fun ConfigSnapshotCard(
 
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
         colors =
             CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -371,7 +371,7 @@ private fun ConfigSnapshotCard(
                 Spacer(modifier = Modifier.weight(1f))
                 if (uiState.enabledOptionsCount > 0) {
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = DesignTokens.Shape.roundedSm,
                         color = MaterialTheme.colorScheme.primary,
                     ) {
                         Text(
@@ -449,7 +449,7 @@ internal fun PerformanceCard(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -474,6 +474,7 @@ internal fun PerformanceCard(
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onRunGc,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -498,7 +499,7 @@ private fun ProfilePresetsCard(
 
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -592,7 +593,7 @@ private fun ProfilePresetsCard(
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(
@@ -625,7 +626,7 @@ private fun ProfilePresetsCard(
 private fun NetworkInspectorCard(onOpen: () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -649,6 +650,7 @@ private fun NetworkInspectorCard(onOpen: () -> Unit) {
                 modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
             )
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = onOpen,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -672,7 +674,7 @@ private fun NetworkInspectorCard(onOpen: () -> Unit) {
 private fun NetworkLogCard(onOpen: () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -696,6 +698,7 @@ private fun NetworkLogCard(onOpen: () -> Unit) {
                 modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
             )
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = onOpen,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -719,7 +722,7 @@ private fun NetworkLogCard(onOpen: () -> Unit) {
 private fun ShowcaseBrowserCard(onOpen: () -> Unit) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -743,6 +746,7 @@ private fun ShowcaseBrowserCard(onOpen: () -> Unit) {
                 modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
             )
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = onOpen,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -771,7 +775,7 @@ private fun OfflineActionsCard(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -839,7 +843,7 @@ fun DebugSectionCard(
 
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
         colors =
             CardDefaults.elevatedCardColors(
                 containerColor = MaterialTheme.colorScheme.surface,

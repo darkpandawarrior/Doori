@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -104,11 +103,15 @@ fun CameraCaptureSheet(
                         )
                         Spacer(Modifier.height(DesignTokens.Spacing.l))
                         Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                            OutlinedButton(onClick = {
+                            OutlinedButton(
+                                shape = DesignTokens.Shape.button,
+                                onClick = {
                                 capturedUri = null
                                 ocr = null
                             }) { Text("Retake") }
-                            Button(onClick = {
+                            Button(
+                                shape = DesignTokens.Shape.button,
+                                onClick = {
                                 onOdometerReading(result.detectedOdometer.orEmpty())
                                 onDismiss()
                             }) { Text("Use reading") }
@@ -147,7 +150,7 @@ private fun CapturedPreview(
                 Modifier
                     .fillMaxWidth()
                     .height(280.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(DesignTokens.Shape.roundedMd)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
         )
         Spacer(Modifier.height(DesignTokens.Spacing.xl))

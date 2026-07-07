@@ -20,17 +20,19 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.EventNote
 import androidx.compose.material.icons.filled.BatteryAlert
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.GpsOff
 import androidx.compose.material.icons.filled.PhoneLocked
 import androidx.compose.material.icons.filled.PowerOff
+import androidx.compose.material.icons.filled.Preview
 import androidx.compose.material.icons.filled.ScreenLockPortrait
+import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -204,6 +206,7 @@ fun TrackDataPreviewScreen(
             stringResource(Res.string.tracking_preview_tab_events),
             stringResource(Res.string.tracking_preview_tab_details),
         )
+    val tabIcons = listOf(Icons.Default.Preview, Icons.Default.VerifiedUser, Icons.AutoMirrored.Filled.EventNote, Icons.Default.TableChart)
     val pagerState = rememberPagerState { tabs.size }
 
     Scaffold(
@@ -212,6 +215,7 @@ fun TrackDataPreviewScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_cd_data_preview),
                 subtitle = stringResource(Res.string.tracking_preview_subtitle),
+                titleIcon = Icons.Default.TableChart,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -237,6 +241,7 @@ fun TrackDataPreviewScreen(
                         selected = pagerState.currentPage == index,
                         onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
                         text = { Text(title, style = MaterialTheme.typography.labelMedium) },
+                        icon = { Icon(tabIcons[index], contentDescription = null) },
                     )
                 }
             }
@@ -487,7 +492,7 @@ private fun QualityTab(track: SavedTrack) {
         SectionCard(title = stringResource(Res.string.tracking_preview_health_assessment)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.size(48.dp).background(health.color(), RoundedCornerShape(12.dp)),
+                    modifier = Modifier.size(48.dp).background(health.color(), DesignTokens.Shape.roundedSm),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -531,7 +536,7 @@ private fun QualityTab(track: SavedTrack) {
                                 modifier =
                                     Modifier
                                         .wrapContentWidth()
-                                        .background(issue.severity.color(), RoundedCornerShape(4.dp))
+                                        .background(issue.severity.color(), DesignTokens.Shape.button)
                                         .padding(horizontal = 6.dp, vertical = 2.dp),
                             ) {
                                 Text(issue.severity.name, style = MaterialTheme.typography.labelSmall, color = Color.White)
@@ -756,7 +761,7 @@ private fun CopyableRow(
                     Modifier
                         .padding(top = 3.dp, end = DesignTokens.Spacing.s)
                         .size(8.dp)
-                        .background(fieldStatusOf(value).color(), CircleShape),
+                        .background(fieldStatusOf(value).color(), DesignTokens.Shape.button),
             )
         }
         Text(

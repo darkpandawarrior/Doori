@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -31,6 +30,7 @@ import com.mileway.core.ui.resources.tracking_recovery_interrupted_by
 import com.mileway.core.ui.resources.tracking_recovery_resume_journey
 import com.mileway.core.ui.resources.tracking_recovery_save_finish
 import com.mileway.core.ui.resources.tracking_recovery_title
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.viewmodel.RecoverySheetConfig
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToLong
@@ -103,7 +103,7 @@ fun SessionRestoreBottomSheet(
             Button(
                 onClick = onResume,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.tracking_recovery_resume_journey), fontWeight = FontWeight.Bold)
             }
@@ -111,7 +111,7 @@ fun SessionRestoreBottomSheet(
             OutlinedButton(
                 onClick = onSaveFinish,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.tracking_recovery_save_finish), fontWeight = FontWeight.Bold)
             }
@@ -119,7 +119,7 @@ fun SessionRestoreBottomSheet(
             OutlinedButton(
                 onClick = onDiscard,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
                 colors =
                     ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,

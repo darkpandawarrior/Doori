@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -87,6 +86,7 @@ fun TrackCustomizationScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_custom_title),
                 subtitle = stringResource(Res.string.tracking_custom_subtitle),
+                titleIcon = Icons.Default.Tune,
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -179,7 +179,7 @@ fun TrackCustomizationScreen(
                         .fillMaxWidth()
                         .background(
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = DesignTokens.Shape.roundedSm,
                         )
                         .padding(DesignTokens.Spacing.m),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),

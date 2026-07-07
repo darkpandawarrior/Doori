@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -93,6 +95,7 @@ import com.mileway.core.ui.resources.tracking_voucher_total_amount_label
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.viewmodel.CreateVoucherAction
 import com.mileway.feature.tracking.viewmodel.CreateVoucherUiState
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
@@ -130,6 +133,7 @@ fun CreateVoucherScreen(
                         2 -> stringResource(Res.string.tracking_voucher_step_confirm_subtitle)
                         else -> stringResource(Res.string.tracking_voucher_step_success_subtitle)
                     },
+                titleIcon = Icons.Default.Receipt,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = {
@@ -147,7 +151,9 @@ fun CreateVoucherScreen(
                 },
                 actions = {
                     if (uiState.step == 0) {
-                        TextButton(onClick = {
+                        TextButton(
+                            shape = DesignTokens.Shape.button,
+                            onClick = {
                             if (uiState.selectedTokens.size == uiState.expenses.size) {
                                 viewModel.onAction(CreateVoucherAction.DeselectAll)
                             } else {
@@ -250,6 +256,7 @@ private fun StepSelectExpenses(
                     )
                 }
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = { viewModel.onAction(CreateVoucherAction.GoToStep(1)) },
                     enabled = uiState.selectedTokens.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
@@ -389,6 +396,7 @@ private fun StepVoucherDetails(
         Spacer(Modifier.height(8.dp))
 
         Button(
+            shape = DesignTokens.Shape.button,
             onClick = { viewModel.onAction(CreateVoucherAction.GoToStep(2)) },
             enabled = uiState.title.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
@@ -443,6 +451,7 @@ private fun StepConfirmation(
         Spacer(Modifier.weight(1f))
 
         Button(
+            shape = DesignTokens.Shape.button,
             onClick = { viewModel.onAction(CreateVoucherAction.Submit) },
             enabled = uiState.declarationAcknowledged && !uiState.isSubmitting,
             modifier = Modifier.fillMaxWidth(),
@@ -450,6 +459,8 @@ private fun StepConfirmation(
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
             } else {
+                Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(8.dp))
                 Text(stringResource(Res.string.tracking_voucher_create_button))
             }
         }
@@ -494,7 +505,9 @@ private fun StepSuccess(
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(32.dp))
-        Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            shape = DesignTokens.Shape.button,
+            onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(Res.string.tracking_voucher_back_to_detail))
         }
     }

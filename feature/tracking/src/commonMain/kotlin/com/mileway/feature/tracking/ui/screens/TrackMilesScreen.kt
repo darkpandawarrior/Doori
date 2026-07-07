@@ -286,6 +286,7 @@ fun TrackMilesScreen(
                 // Journey Guide text link, tappable hint shown when idle.
                 if (!isActive) {
                     androidx.compose.material3.TextButton(
+                        shape = DesignTokens.Shape.button,
                         onClick = { viewModel.onAction(TrackMilesAction.OpenJourneyGuide) },
                         modifier = Modifier.fillMaxWidth(),
                     ) {

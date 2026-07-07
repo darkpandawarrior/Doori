@@ -29,8 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
@@ -439,7 +437,7 @@ private fun SuccessBadge(
                                     Color.Transparent,
                                 ),
                         ),
-                        shape = CircleShape,
+                        shape = DesignTokens.Shape.button,
                     ),
         )
 
@@ -459,7 +457,7 @@ private fun SuccessBadge(
                                         MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                     ),
                             ),
-                        shape = CircleShape,
+                        shape = DesignTokens.Shape.button,
                     ),
         )
 
@@ -471,7 +469,7 @@ private fun SuccessBadge(
                     .scale(checkScale)
                     .shadow(
                         elevation = DesignTokens.Elevation.prominent,
-                        shape = CircleShape,
+                        shape = DesignTokens.Shape.button,
                         spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
                     )
                     .background(
@@ -483,7 +481,7 @@ private fun SuccessBadge(
                                         MaterialTheme.colorScheme.surface,
                                     ),
                             ),
-                        shape = CircleShape,
+                        shape = DesignTokens.Shape.button,
                     ),
             contentAlignment = Alignment.Center,
         ) {
@@ -506,7 +504,7 @@ private fun PolicyIssueChip(violationCount: Int) {
                 .padding(horizontal = DesignTokens.Spacing.l)
                 .background(
                     MaterialTheme.colorScheme.errorContainer,
-                    RoundedCornerShape(DesignTokens.Spacing.s),
+                    DesignTokens.Shape.button,
                 )
                 .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -776,7 +774,7 @@ private fun PolicyIssuesCard(
                             .size(28.dp)
                             .background(
                                 MaterialTheme.colorScheme.error.copy(alpha = 0.2f),
-                                CircleShape,
+                                DesignTokens.Shape.button,
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -810,7 +808,7 @@ private fun PolicyIssuesCard(
                         CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
                         ),
-                    shape = RoundedCornerShape(DesignTokens.Spacing.s),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -868,7 +866,7 @@ private fun VoucherCard(
                         .size(32.dp)
                         .background(
                             MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f),
-                            CircleShape,
+                            DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {

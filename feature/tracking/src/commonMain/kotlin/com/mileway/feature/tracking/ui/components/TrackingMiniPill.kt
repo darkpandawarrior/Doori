@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.platform.TrackingPresenceSnapshot
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_pill_paused
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToLong
 
@@ -48,7 +48,7 @@ fun TrackingMiniPill(
     Row(
         modifier =
             modifier
-                .background(color = bgColor, shape = RoundedCornerShape(24.dp))
+                .background(color = bgColor, shape = DesignTokens.Shape.roundedLg)
                 .padding(horizontal = 16.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,

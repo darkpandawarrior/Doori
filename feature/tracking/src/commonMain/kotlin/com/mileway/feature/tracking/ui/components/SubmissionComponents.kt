@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -237,7 +236,8 @@ private fun RemainingPill(remaining: Int) {
         }
     val content =
         if (allSet) DesignTokens.StatusColors.success else MaterialTheme.colorScheme.primary
-    Surface(shape = CircleShape, color = container) {
+    Surface(shape = DesignTokens.Shape.button,
+ color = container) {
         Text(
             text = if (allSet) stringResource(Res.string.tracking_submit_ready) else stringResource(Res.string.tracking_submit_remaining, remaining),
             style = MaterialTheme.typography.labelMedium,
@@ -970,7 +970,7 @@ private fun AttachmentThumbnail(
                     .align(Alignment.TopEnd)
                     .padding(2.dp)
                     .size(20.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.error)
                     .clickable(onClick = onRemove),
             contentAlignment = Alignment.Center,
@@ -1034,7 +1034,7 @@ fun MileageDraftBottomBar(
                 Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
-                            shape = CircleShape,
+                            shape = DesignTokens.Shape.button,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                         ) {
                             Icon(
@@ -1079,12 +1079,14 @@ fun MileageDraftBottomBar(
             // Action buttons.
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                 OutlinedButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onDiscard,
                     modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.tracking_discard_journey))
                 }
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = onSubmit,
                     enabled = submitEnabled,
                     colors = ButtonDefaults.buttonColors(),

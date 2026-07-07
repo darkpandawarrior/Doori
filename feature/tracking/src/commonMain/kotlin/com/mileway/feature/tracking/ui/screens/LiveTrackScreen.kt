@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -33,6 +34,7 @@ import com.mileway.core.ui.resources.tracking_cd_open_map
 import com.mileway.core.ui.resources.tracking_live_subtitle
 import com.mileway.core.ui.resources.tracking_live_title
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.ui.components.LiveHealthMonitorCard
 import com.mileway.feature.tracking.ui.components.LiveSyncStatusCard
 import com.mileway.feature.tracking.ui.components.LiveTrackingOverviewCard
@@ -62,6 +64,7 @@ fun LiveTrackScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_live_title),
                 subtitle = stringResource(Res.string.tracking_live_subtitle),
+                titleIcon = Icons.Default.MyLocation,
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -74,7 +77,9 @@ fun LiveTrackScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onOpenMap) {
+            FloatingActionButton(
+                shape = DesignTokens.Shape.button,
+                onClick = onOpenMap) {
                 Icon(Icons.Default.Map, contentDescription = stringResource(Res.string.tracking_cd_open_map))
             }
         },

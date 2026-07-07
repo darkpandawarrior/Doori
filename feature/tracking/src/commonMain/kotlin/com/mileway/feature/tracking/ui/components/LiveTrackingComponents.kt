@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Battery5Bar
 import androidx.compose.material.icons.filled.GpsFixed
@@ -61,6 +60,7 @@ import com.mileway.core.ui.resources.tracking_stat_duration
 import com.mileway.core.ui.resources.tracking_stat_speed
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
@@ -82,8 +82,8 @@ fun LiveTrackingOverviewCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .border(width = 1.dp, brush = glassBorder, shape = RoundedCornerShape(16.dp))
-                .background(glassGradient, RoundedCornerShape(16.dp)),
+                .border(width = 1.dp, brush = glassBorder, shape = DesignTokens.Shape.roundedMd)
+                .background(glassGradient, DesignTokens.Shape.roundedMd),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -135,7 +135,7 @@ fun LiveHealthMonitorCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -175,7 +175,7 @@ fun LiveSyncStatusCard(
     val progress = if (total > 0) synced.toFloat() / total else 1f
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -208,7 +208,7 @@ fun RecentEventsCard(
     if (events.isEmpty()) return
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

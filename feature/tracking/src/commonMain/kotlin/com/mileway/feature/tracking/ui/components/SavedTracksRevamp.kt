@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Add
@@ -225,7 +224,7 @@ fun SavedTracksSearchField(
                 }
             },
         singleLine = true,
-        shape = CircleShape,
+        shape = DesignTokens.Shape.button,
         colors =
             TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -647,7 +646,9 @@ fun SubmissionSelectionRow(
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        TextButton(onClick = onClearSelection) {
+        TextButton(
+            shape = DesignTokens.Shape.button,
+            onClick = onClearSelection) {
             Text(stringResource(Res.string.tracking_submission_clear_selection))
         }
     }
@@ -695,7 +696,9 @@ fun NoJourneysThisWeekState(
         subtitle = stringResource(Res.string.tracking_saved_no_journeys_week_hint),
         modifier = modifier,
     ) {
-        OutlinedButton(onClick = onViewAll) {
+        OutlinedButton(
+            shape = DesignTokens.Shape.button,
+            onClick = onViewAll) {
             Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.badge))
             Spacer(Modifier.width(DesignTokens.Spacing.s))
             Text(stringResource(Res.string.tracking_saved_view_all))

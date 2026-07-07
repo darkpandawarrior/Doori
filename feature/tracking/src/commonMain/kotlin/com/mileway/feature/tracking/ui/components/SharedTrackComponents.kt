@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
@@ -45,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_no_route
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 enum class TrendDirection { UP, DOWN, STABLE }
@@ -60,7 +59,7 @@ fun StatItem(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
@@ -105,7 +104,7 @@ fun StatusBadge(
     val animatedColor by animateColorAsState(color, animationSpec = spring(), label = "badge")
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(50),
+        shape = DesignTokens.Shape.button,
         color = animatedColor.copy(alpha = 0.15f),
     ) {
         Text(
@@ -171,7 +170,7 @@ fun QualityDot(
         modifier =
             modifier
                 .size(10.dp)
-                .background(color, CircleShape),
+                .background(color, DesignTokens.Shape.button),
     )
 }
 
@@ -204,7 +203,7 @@ fun StaticPolylineThumbnail(
             modifier
                 .fillMaxWidth()
                 .height(thumbHeight)
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp)),
+                .background(MaterialTheme.colorScheme.surfaceVariant, DesignTokens.Shape.button),
         contentAlignment = Alignment.Center,
     ) {
         if (latLngs.size >= 2) {

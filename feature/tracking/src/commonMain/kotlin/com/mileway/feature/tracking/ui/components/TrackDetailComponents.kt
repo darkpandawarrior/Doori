@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Warning
@@ -28,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.DesignTokens
 
 /**
  * Enhanced metric card with trend indicators and status colors
@@ -44,7 +44,7 @@ fun MetricCard(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         colors =
             CardDefaults.cardColors(
                 containerColor = color.copy(alpha = 0.1f),
@@ -65,7 +65,7 @@ fun MetricCard(
                     modifier =
                         Modifier
                             .size(48.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(DesignTokens.Shape.roundedSm)
                             .background(color.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -146,7 +146,7 @@ fun SystemStatusCard(
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
@@ -198,11 +198,11 @@ fun SystemIssueItem(
                 .border(
                     width = 1.dp,
                     color = issue.severity.color.copy(alpha = 0.3f),
-                    shape = RoundedCornerShape(8.dp),
+                    shape = DesignTokens.Shape.button,
                 )
                 .background(
                     issue.severity.color.copy(alpha = 0.1f),
-                    RoundedCornerShape(8.dp),
+                    DesignTokens.Shape.button,
                 )
                 .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -213,7 +213,7 @@ fun SystemIssueItem(
             modifier =
                 Modifier
                     .size(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
+                    .clip(DesignTokens.Shape.button)
                     .background(issue.severity.color),
         )
 
@@ -242,7 +242,7 @@ fun SystemIssueItem(
                 Modifier
                     .background(
                         issue.severity.color.copy(alpha = 0.2f),
-                        RoundedCornerShape(4.dp),
+                        DesignTokens.Shape.button,
                     )
                     .padding(horizontal = 6.dp, vertical = 2.dp),
         )

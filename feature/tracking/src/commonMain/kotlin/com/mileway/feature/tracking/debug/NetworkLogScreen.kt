@@ -185,6 +185,7 @@ private fun NetworkLogDetail(
         }
         item {
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = { clipboardManager.setText(AnnotatedString(entry.toCurl())) },
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -250,6 +251,7 @@ private fun ApiTesterCard(
                 modifier = Modifier.fillMaxWidth(),
             )
             Button(
+                shape = DesignTokens.Shape.button,
                 onClick = { onAction(NetworkLogAction.TesterSend) },
                 enabled = !uiState.testerRunning && uiState.testerUrl.isNotBlank(),
                 modifier = Modifier.fillMaxWidth(),

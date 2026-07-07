@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.DesignTokens
 
 @Composable
 fun TogglePill(
@@ -25,12 +26,14 @@ fun TogglePill(
         val containerColor = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f) else Color.Transparent
         val contentColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
         OutlinedButton(
+            shape = DesignTokens.Shape.button,
             onClick = onClick,
             colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor, containerColor = containerColor),
             border = BorderStroke(1.dp, borderColor),
         ) { Text(label) }
     } else {
         Button(
+            shape = DesignTokens.Shape.button,
             onClick = onClick,
             modifier = Modifier.height(36.dp),
             colors =

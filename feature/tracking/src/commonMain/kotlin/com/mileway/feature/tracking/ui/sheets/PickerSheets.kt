@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -240,7 +239,7 @@ private fun CenterRow(
                 modifier =
                     Modifier
                         .size(36.dp)
-                        .clip(CircleShape),
+                        .clip(DesignTokens.Shape.button),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

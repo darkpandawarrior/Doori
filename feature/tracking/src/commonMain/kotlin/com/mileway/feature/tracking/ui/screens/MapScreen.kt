@@ -50,8 +50,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -464,6 +462,7 @@ fun PermissionRequestScreen(
                 }
 
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = onRequestPermissions,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -837,7 +836,7 @@ fun MarkerInfoDialog(
     ) {
         Card(
             modifier = Modifier.padding(32.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = DesignTokens.Shape.roundedMd,
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
@@ -845,7 +844,9 @@ fun MarkerInfoDialog(
             ) {
                 Text(marker.title.ifEmpty { stringResource(Res.string.tracking_map_marker_default) }, style = MaterialTheme.typography.titleMedium)
                 Text(stringResource(Res.string.tracking_map_marker_type, marker.type), style = MaterialTheme.typography.bodySmall)
-                Button(onClick = onDismiss) { Text(stringResource(Res.string.tracking_action_close)) }
+                Button(
+                    shape = DesignTokens.Shape.button,
+                    onClick = onDismiss) { Text(stringResource(Res.string.tracking_action_close)) }
             }
         }
     }
@@ -926,7 +927,7 @@ fun EnhancedLiveIndicatorBadge(
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.95f),
             ),
-        shape = RoundedCornerShape(20.dp),
+        shape = DesignTokens.Shape.roundedLg,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -1005,7 +1006,7 @@ fun BearingConfidenceIndicator(
             modifier =
                 Modifier
                     .size(8.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(color),
         )
         Text(
@@ -1064,7 +1065,7 @@ fun GyroscopeVisualization(
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -1116,7 +1117,7 @@ fun GyroscopeAxis(
                 Modifier
                     .weight(1f)
                     .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp)),
+                    .clip(DesignTokens.Shape.button),
             color = color,
             trackColor = color.copy(alpha = 0.2f),
         )
@@ -1149,7 +1150,7 @@ fun PlaybackIndicator(
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.95f),
             ),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -1269,7 +1270,7 @@ fun EnhancedCompactLiveStatsCard(
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
             ),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
     ) {
         Column(
             modifier =
@@ -1415,7 +1416,7 @@ fun DataQualityIndicator(
                     Modifier
                         .width(60.dp)
                         .height(6.dp)
-                        .clip(RoundedCornerShape(3.dp)),
+                        .clip(DesignTokens.Shape.button),
                 color = color,
                 trackColor = color.copy(alpha = 0.2f),
             )
@@ -1777,6 +1778,7 @@ fun CompactLiveControlHeader(
 
         if (!isPlayingBack) {
             FloatingActionButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onPlayPause,
                 modifier = Modifier.size(if (isSmallScreen) 44.dp else 48.dp),
                 containerColor = if (isTracking) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
@@ -1814,6 +1816,7 @@ fun LiveJourneyTab(
         )
 
         Button(
+            shape = DesignTokens.Shape.button,
             onClick = if (isTracking) onPauseTracking else onStartTracking,
             modifier =
                 Modifier
@@ -2325,6 +2328,7 @@ fun LivePlaybackTab(
             ) {
                 if (!isPlaying) {
                     Button(
+                        shape = DesignTokens.Shape.button,
                         onClick = onStartPlayback,
                         modifier =
                             Modifier
@@ -2345,6 +2349,7 @@ fun LivePlaybackTab(
                     }
                 } else {
                     Button(
+                        shape = DesignTokens.Shape.button,
                         onClick = onPausePlayback,
                         modifier =
                             Modifier
@@ -2367,6 +2372,7 @@ fun LivePlaybackTab(
 
                 if (isPlaying || currentIndex > 0) {
                     OutlinedButton(
+                        shape = DesignTokens.Shape.button,
                         onClick = onStopPlayback,
                         modifier =
                             Modifier
@@ -2447,7 +2453,7 @@ fun LivePlaybackTab(
                                 } else {
                                     MaterialTheme.colorScheme.surfaceVariant
                                 },
-                            shape = RoundedCornerShape(16.dp),
+                            shape = DesignTokens.Shape.roundedMd,
                             modifier =
                                 Modifier
                                     .clickable { onChangeSpeed(speed) }
@@ -2571,7 +2577,7 @@ private fun LiveMapAddressChip(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)),
-        shape = RoundedCornerShape(20.dp),
+        shape = DesignTokens.Shape.roundedLg,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.EditLocation
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Refresh
@@ -149,6 +150,7 @@ fun ManualCheckInScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_manual_checkin_title),
                 subtitle = stringResource(Res.string.tracking_manual_checkin_subtitle),
+                titleIcon = Icons.Default.EditLocation,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -165,6 +167,7 @@ fun ManualCheckInScreen(
                         .padding(bottom = DesignTokens.Spacing.m),
             ) {
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = { submitCheckIn() },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = canSubmit,
@@ -232,12 +235,16 @@ fun ManualCheckInScreen(
                     )
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                        OutlinedButton(onClick = { openInMaps() }) {
+                        OutlinedButton(
+                            shape = DesignTokens.Shape.button,
+                            onClick = { openInMaps() }) {
                             Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.tracking_open_in_maps))
                         }
-                        OutlinedButton(onClick = { copyCoords() }) {
+                        OutlinedButton(
+                            shape = DesignTokens.Shape.button,
+                            onClick = { copyCoords() }) {
                             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.tracking_action_copy))

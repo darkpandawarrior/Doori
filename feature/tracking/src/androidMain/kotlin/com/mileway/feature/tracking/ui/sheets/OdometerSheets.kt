@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -116,7 +115,7 @@ fun OdometerReadingConfirmSheet(
                     Modifier
                         .fillMaxWidth()
                         .height(240.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(DesignTokens.Shape.roundedSm)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
             )
             Spacer(Modifier.height(DesignTokens.Spacing.l))
@@ -138,7 +137,9 @@ fun OdometerReadingConfirmSheet(
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                TextButton(onClick = { showManualDialog = true }) {
+                TextButton(
+                    shape = DesignTokens.Shape.button,
+                    onClick = { showManualDialog = true }) {
                     Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("Manual Entry")
@@ -152,8 +153,11 @@ fun OdometerReadingConfirmSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                OutlinedButton(onClick = onRetake, modifier = Modifier.weight(1f)) { Text("Retake") }
+                OutlinedButton(
+                    shape = DesignTokens.Shape.button,
+                    onClick = onRetake, modifier = Modifier.weight(1f)) { Text("Retake") }
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = { onUseReading(displayedReading, false) },
                     modifier = Modifier.weight(1f),
                     enabled = !isProcessing,
@@ -181,10 +185,12 @@ fun OdometerReadingConfirmSheet(
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 OutlinedButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = { showManualDialog = false },
                     modifier = Modifier.weight(1f),
                 ) { Text("Cancel") }
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = {
                         val parsed = manualInput.toIntOrNull() ?: displayedReading
                         displayedReading = parsed

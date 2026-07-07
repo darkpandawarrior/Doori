@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Timer
@@ -51,6 +51,7 @@ import com.mileway.core.ui.resources.tracking_insights_recommendations
 import com.mileway.core.ui.resources.tracking_insights_subtitle
 import com.mileway.core.ui.resources.tracking_insights_system_impact
 import com.mileway.core.ui.resources.tracking_insights_title
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -87,6 +88,7 @@ fun TrackInsightsScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_insights_title),
                 subtitle = stringResource(Res.string.tracking_insights_subtitle),
+                titleIcon = Icons.Default.Insights,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -126,7 +128,7 @@ fun TrackInsightsScreen(
                             // Quality score header
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
+                                shape = DesignTokens.Shape.roundedMd,
                                 colors =
                                     CardDefaults.cardColors(
                                         containerColor = qualityColor(data.qualityScore).copy(alpha = 0.1f),
@@ -239,7 +241,7 @@ fun TrackInsightsScreen(
                                 SectionHeader(stringResource(Res.string.tracking_insights_recommendations))
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
-                                    shape = RoundedCornerShape(16.dp),
+                                    shape = DesignTokens.Shape.roundedMd,
                                 ) {
                                     Column(
                                         modifier = Modifier.padding(16.dp),

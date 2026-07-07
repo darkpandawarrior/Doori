@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.feature.tracking.viewmodel.CheckInAction
 import com.mileway.feature.tracking.viewmodel.CheckInUiState
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
+import com.mileway.core.ui.theme.DesignTokens
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Manual Check-In Sheet
@@ -77,7 +77,7 @@ fun ManualCheckInSheet(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -130,12 +130,14 @@ fun ManualCheckInSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OutlinedButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isSubmitting,
                 ) { Text("Cancel") }
 
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = { viewModel.onAction(CheckInAction.SubmitManualCheckIn) },
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isSubmitting,
@@ -198,7 +200,7 @@ fun GeoCheckInSheet(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(MaterialTheme.colorScheme.secondaryContainer),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -266,12 +268,14 @@ fun GeoCheckInSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OutlinedButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isSubmitting,
                 ) { Text("Cancel") }
 
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = { viewModel.onAction(CheckInAction.ValidateAndGeoCheckIn(currentLat, currentLng)) },
                     modifier = Modifier.weight(1f),
                     enabled = hasLocation && !uiState.isSubmitting,
@@ -332,7 +336,7 @@ fun CheckInRadiusWarningSheet(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(MaterialTheme.colorScheme.errorContainer),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -380,6 +384,7 @@ fun CheckInRadiusWarningSheet(
             ) {
                 // Override: record the check-in anyway (with type GEO_OVERRIDE)
                 Button(
+                    shape = DesignTokens.Shape.button,
                     onClick = { viewModel.onAction(CheckInAction.ForceGeoCheckInDespiteRadius) },
                     modifier = Modifier.fillMaxWidth(),
                     colors =
@@ -400,6 +405,7 @@ fun CheckInRadiusWarningSheet(
                 }
 
                 TextButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
                 ) { Text("Cancel") }

@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
@@ -173,6 +171,7 @@ fun SavedTracksScreen(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             floatingActionButton = {
                 ExtendedFloatingActionButton(
+                    shape = DesignTokens.Shape.button,
                     onClick = onStartNew,
                     icon = { Icon(Icons.Default.PlayArrow, null) },
                     text = { Text(stringResource(Res.string.tracking_saved_start_journey)) },
@@ -483,7 +482,7 @@ private fun JourneyCard(
                             .align(Alignment.TopEnd)
                             .padding(DesignTokens.Spacing.s)
                             .size(32.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(scoreColor),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -554,7 +553,7 @@ private fun JourneyCard(
                         Modifier
                             .fillMaxWidth()
                             .height(4.dp)
-                            .clip(RoundedCornerShape(2.dp))
+                            .clip(DesignTokens.Shape.button)
                             .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     Box(
@@ -562,7 +561,7 @@ private fun JourneyCard(
                             Modifier
                                 .fillMaxWidth(score / 100f)
                                 .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp))
+                                .clip(DesignTokens.Shape.button)
                                 .background(scoreColor),
                     )
                 }

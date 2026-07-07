@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -170,6 +169,7 @@ fun GeoCheckInScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_geo_checkin_title),
                 subtitle = stringResource(Res.string.tracking_geo_checkin_subtitle),
+                titleIcon = Icons.Default.LocationOn,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -205,11 +205,13 @@ fun GeoCheckInScreen(
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                         OutlinedButton(
+                            shape = DesignTokens.Shape.button,
                             onClick = { doCheckIn() },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                         ) { Text(stringResource(Res.string.tracking_geo_override_checkin)) }
                         Button(
+                            shape = DesignTokens.Shape.button,
                             onClick = { doCheckIn() },
                             modifier = Modifier.weight(1f),
                             enabled = canCheckIn && !isSubmitting,
@@ -223,6 +225,7 @@ fun GeoCheckInScreen(
                     }
                 } else {
                     Button(
+                        shape = DesignTokens.Shape.button,
                         onClick = { doCheckIn() },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = canCheckIn && !isSubmitting,
@@ -276,7 +279,7 @@ fun GeoCheckInScreen(
                             Modifier
                                 .fillMaxWidth()
                                 .height(180.dp)
-                                .clip(RoundedCornerShape(8.dp)),
+                                .clip(DesignTokens.Shape.button),
                     )
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     Text(
@@ -291,12 +294,16 @@ fun GeoCheckInScreen(
                     )
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                        OutlinedButton(onClick = { openInMaps() }) {
+                        OutlinedButton(
+                            shape = DesignTokens.Shape.button,
+                            onClick = { openInMaps() }) {
                             Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.tracking_open_in_maps))
                         }
-                        OutlinedButton(onClick = { copyCoords() }) {
+                        OutlinedButton(
+                            shape = DesignTokens.Shape.button,
+                            onClick = { copyCoords() }) {
                             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.tracking_action_copy))

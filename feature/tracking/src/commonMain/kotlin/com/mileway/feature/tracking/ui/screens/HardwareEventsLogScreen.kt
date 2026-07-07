@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BatteryAlert
@@ -28,6 +26,7 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PowerOff
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -130,7 +129,7 @@ fun HardwareEventsLogScreen(
                     shareSheet.share(text = header + rows, subject = "Hardware events: $routeId")
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) { Text("CSV") }
             OutlinedButton(
                 onClick = {
@@ -146,7 +145,7 @@ fun HardwareEventsLogScreen(
                     shareSheet.share(text = "[\n  $items\n]", subject = "Hardware events: $routeId")
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) { Text("JSON") }
         }
     }
@@ -157,6 +156,7 @@ fun HardwareEventsLogScreen(
             DepthAwareTopBar(
                 title = stringResource(Res.string.tracking_hw_title_count, stats.totalCount),
                 subtitle = stringResource(Res.string.tracking_hw_subtitle),
+                titleIcon = Icons.Default.Sensors,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -190,7 +190,7 @@ fun HardwareEventsLogScreen(
                 },
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                 singleLine = true,
-                shape = RoundedCornerShape(12.dp),
+                shape = DesignTokens.Shape.roundedSm,
             )
 
             // Audience filter chips
@@ -257,11 +257,12 @@ private fun HardwareEventItem(event: HardwareEvent) {
     val (icon, color) = eventIconAndColor(event.eventType)
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp),
+        shape = DesignTokens.Shape.button,
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = CircleShape, color = color.copy(alpha = 0.15f), modifier = Modifier.size(36.dp)) {
+            Surface(shape = DesignTokens.Shape.button,
+ color = color.copy(alpha = 0.15f), modifier = Modifier.size(36.dp)) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
                 }
@@ -299,7 +300,8 @@ private fun AudienceBadge(audience: EventAudience) {
             EventAudience.SUMMARY -> MilewayColors.success
             else -> MilewayColors.neutral
         }
-    Surface(shape = RoundedCornerShape(4.dp), color = color.copy(alpha = 0.12f)) {
+    Surface(shape = DesignTokens.Shape.button,
+ color = color.copy(alpha = 0.12f)) {
         Text(
             audience.name.take(3),
             style = MaterialTheme.typography.labelSmall,

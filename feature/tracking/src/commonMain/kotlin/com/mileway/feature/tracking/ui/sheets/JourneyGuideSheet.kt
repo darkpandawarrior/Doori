@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -72,6 +70,7 @@ import com.mileway.core.ui.resources.tracking_guide_step_subtitle_vehicle
 import com.mileway.core.ui.resources.tracking_guide_title
 import com.mileway.core.ui.resources.tracking_guide_vehicle_selection
 import com.mileway.core.ui.resources.tracking_guide_vehicle_type
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -137,7 +136,7 @@ data class JourneyGuideState(
 }
 
 // ── Tunable visual constants (ported 1:1 from the source guide sheet) ────────────
-private val SheetCorner = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+private val SheetCorner = DesignTokens.Shape.sheetSquared
 private val DragHandleWidth = 44.dp
 private val DragHandleHeight = 5.dp
 private val StepCircleSize = 28.dp
@@ -240,7 +239,7 @@ fun JourneyGuideSheet(
 @Composable
 private fun JourneyGuideHeader(state: JourneyGuideState) {
     Surface(
-        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        shape = DesignTokens.Shape.sheetSquared,
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -293,7 +292,7 @@ private fun ChecklistRow(
     isComplete: Boolean,
 ) {
     Surface(
-        shape = RoundedCornerShape(10.dp),
+        shape = DesignTokens.Shape.button,
         color =
             if (isComplete) {
                 MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
@@ -308,7 +307,8 @@ private fun ChecklistRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (isComplete) {
-                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary) {
+                Surface(shape = DesignTokens.Shape.button,
+ color = MaterialTheme.colorScheme.primary) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
@@ -319,7 +319,7 @@ private fun ChecklistRow(
             } else {
                 // Empty (incomplete) state: an outlined circle.
                 Surface(
-                    shape = CircleShape,
+                    shape = DesignTokens.Shape.button,
                     color = Color.Transparent,
                     border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
                     modifier = Modifier.size(20.dp),
@@ -360,7 +360,7 @@ private fun JourneyStepper(step: JourneyGuideStep) {
             val isCompleted = index < currentIndex
 
             Surface(
-                shape = CircleShape,
+                shape = DesignTokens.Shape.button,
                 color =
                     when {
                         isCurrent -> MaterialTheme.colorScheme.primary
@@ -422,7 +422,7 @@ private fun VehicleSelectionCard(
 ) {
     SectionCard(title = stringResource(Res.string.tracking_guide_vehicle_selection)) {
         Surface(
-            shape = RoundedCornerShape(12.dp),
+            shape = DesignTokens.Shape.roundedSm,
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
             modifier =
                 Modifier
@@ -494,7 +494,7 @@ private fun StartOdometerRow(
         ) {
             // Thumbnail placeholder for the (future) captured photo.
             Surface(
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
                 modifier = Modifier.size(40.dp),
             ) {}
@@ -525,7 +525,7 @@ private fun StartOdometerRow(
             }
 
             Surface(
-                shape = CircleShape,
+                shape = DesignTokens.Shape.button,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                 modifier =
                     Modifier
@@ -611,7 +611,7 @@ private fun JourneyGuideBottomBar(
             ) {
                 // Step label chip.
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = DesignTokens.Shape.roundedMd,
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier =
                         Modifier.semantics {
@@ -628,7 +628,7 @@ private fun JourneyGuideBottomBar(
 
                 // Start Tracking CTA.
                 Surface(
-                    shape = RoundedCornerShape(14.dp),
+                    shape = DesignTokens.Shape.roundedMd,
                     color =
                         if (canStart) {
                             MaterialTheme.colorScheme.primary
@@ -675,6 +675,7 @@ private fun JourneyGuideBottomBar(
             Spacer(modifier = Modifier.height(8.dp))
 
             TextButton(
+                shape = DesignTokens.Shape.button,
                 onClick = onClose,
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             ) {
@@ -742,7 +743,7 @@ fun JourneyConsentSheet(
                             .size(56.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer,
-                                shape = RoundedCornerShape(14.dp),
+                                shape = DesignTokens.Shape.roundedMd,
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -778,7 +779,7 @@ fun JourneyConsentSheet(
             Spacer(modifier = Modifier.height(20.dp))
 
             Surface(
-                shape = RoundedCornerShape(14.dp),
+                shape = DesignTokens.Shape.roundedMd,
                 color = MaterialTheme.colorScheme.primary,
                 modifier =
                     Modifier
@@ -808,7 +809,7 @@ private fun ConsentPersonaChip(label: String) {
             Modifier
                 .background(
                     color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
-                    shape = CircleShape,
+                    shape = DesignTokens.Shape.button,
                 )
                 .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -818,7 +819,7 @@ private fun ConsentPersonaChip(label: String) {
             modifier =
                 Modifier
                     .size(6.dp)
-                    .background(MaterialTheme.colorScheme.primary, CircleShape),
+                    .background(MaterialTheme.colorScheme.primary, DesignTokens.Shape.button),
         )
         Text(
             text = label,
@@ -841,7 +842,7 @@ private fun JourneyDragHandle() {
                 .height(DragHandleHeight)
                 .background(
                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f),
-                    RoundedCornerShape(100),
+                    DesignTokens.Shape.button,
                 ),
     )
 }

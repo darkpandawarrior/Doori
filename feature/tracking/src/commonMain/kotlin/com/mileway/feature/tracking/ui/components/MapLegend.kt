@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +29,7 @@ import com.mileway.core.ui.resources.tracking_legend_normal
 import com.mileway.core.ui.resources.tracking_legend_paused
 import com.mileway.core.ui.resources.tracking_legend_slow
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -66,14 +66,14 @@ private fun LegendHeatmapRow() {
             Box(
                 Modifier
                     .size(14.dp)
-                    .background(Color(0xFF2196F3), CircleShape),
+                    .background(Color(0xFF2196F3), DesignTokens.Shape.button),
             )
             Text(stringResource(Res.string.tracking_legend_slow), style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.size(8.dp))
             Box(
                 Modifier
                     .size(14.dp)
-                    .background(Color(0xFF4CAF50), CircleShape),
+                    .background(Color(0xFF4CAF50), DesignTokens.Shape.button),
             )
             Text(stringResource(Res.string.tracking_legend_city), style = MaterialTheme.typography.bodySmall)
         }
@@ -84,14 +84,14 @@ private fun LegendHeatmapRow() {
             Box(
                 Modifier
                     .size(14.dp)
-                    .background(Color(0xFFFF9800), CircleShape),
+                    .background(Color(0xFFFF9800), DesignTokens.Shape.button),
             )
             Text(stringResource(Res.string.tracking_legend_fast), style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.size(8.dp))
             Box(
                 Modifier
                     .size(14.dp)
-                    .background(Color(0xFFF44336), CircleShape),
+                    .background(Color(0xFFF44336), DesignTokens.Shape.button),
             )
             Text(stringResource(Res.string.tracking_legend_highway), style = MaterialTheme.typography.bodySmall)
         }
