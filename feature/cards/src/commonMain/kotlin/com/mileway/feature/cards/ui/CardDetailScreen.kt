@@ -52,6 +52,38 @@ import com.mileway.core.ui.components.sheet.DetailInfoCard
 import com.mileway.core.ui.components.sheet.DetailInfoRow
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.ScreenStateContent
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.cards_add_address_details
+import com.mileway.core.ui.resources.cards_address
+import com.mileway.core.ui.resources.cards_address_details_message
+import com.mileway.core.ui.resources.cards_amount
+import com.mileway.core.ui.resources.cards_available_balance
+import com.mileway.core.ui.resources.cards_back
+import com.mileway.core.ui.resources.cards_block
+import com.mileway.core.ui.resources.cards_category
+import com.mileway.core.ui.resources.cards_city
+import com.mileway.core.ui.resources.cards_claim_expense
+import com.mileway.core.ui.resources.cards_detail_subtitle
+import com.mileway.core.ui.resources.cards_detail_title
+import com.mileway.core.ui.resources.cards_freeze
+import com.mileway.core.ui.resources.cards_issue_physical_card
+import com.mileway.core.ui.resources.cards_kyc_pending_message
+import com.mileway.core.ui.resources.cards_locality
+import com.mileway.core.ui.resources.cards_monthly_limit_label
+import com.mileway.core.ui.resources.cards_monthly_limit_message
+import com.mileway.core.ui.resources.cards_pincode
+import com.mileway.core.ui.resources.cards_send_kyc_link
+import com.mileway.core.ui.resources.cards_set_limit
+import com.mileway.core.ui.resources.cards_set_monthly_limit
+import com.mileway.core.ui.resources.cards_ship_card
+import com.mileway.core.ui.resources.cards_state
+import com.mileway.core.ui.resources.cards_status
+import com.mileway.core.ui.resources.cards_status_kyc_pending
+import com.mileway.core.ui.resources.cards_transaction
+import com.mileway.core.ui.resources.cards_transaction_no
+import com.mileway.core.ui.resources.cards_transactions
+import com.mileway.core.ui.resources.cards_unblock
+import com.mileway.core.ui.resources.cards_unfreeze
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.core.ui.toast.ToastType
@@ -68,6 +100,7 @@ import com.mileway.feature.cards.viewmodel.CardDetailAction
 import com.mileway.feature.cards.viewmodel.CardDetailEffect
 import com.mileway.feature.cards.viewmodel.CardDetailUiState
 import com.mileway.feature.cards.viewmodel.CardDetailViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -101,12 +134,12 @@ internal fun CardDetailContent(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Card details",
-                subtitle = "Transactions & controls",
+                title = stringResource(Res.string.cards_detail_title),
+                subtitle = stringResource(Res.string.cards_detail_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cards_back))
                     }
                 },
             )
@@ -125,7 +158,7 @@ internal fun CardDetailContent(
                 if (card.isKycPending) KycPendingBanner(onResend = { onAction(CardDetailAction.ResendKyc) })
                 CardControls(card, onAction)
                 HorizontalDivider()
-                Text("Transactions", style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.cards_transactions), style = MaterialTheme.typography.titleMedium)
                 ClaimTabs(state.claimTab, onSelect = { onAction(CardDetailAction.SelectClaimTab(it)) })
                 ScreenStateContent(state = state.transactions, modifier = Modifier.fillMaxWidth()) { txns ->
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -171,7 +204,11 @@ private fun BalanceHeader(card: CardModel) {
             card.employeeEmail?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text("Available Balance", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(Res.string.cards_available_balance),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Text(formatMoney(card.balance, card.currency), style = MaterialTheme.typography.titleLarge.dataStyle(), fontWeight = FontWeight.SemiBold)
         }
     }
@@ -185,12 +222,12 @@ private fun KycPendingBanner(onResend: () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("KYC Pending", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.cards_status_kyc_pending), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text(
-                "KYC is pending for your account. We've emailed you a KYC link; tap below to resend it.",
+                stringResource(Res.string.cards_kyc_pending_message),
                 style = MaterialTheme.typography.bodySmall,
             )
-            OutlinedButton(onClick = onResend) { Text("Send KYC Link") }
+            OutlinedButton(onClick = onResend) { Text(stringResource(Res.string.cards_send_kyc_link)) }
         }
     }
 }
@@ -202,19 +239,19 @@ private fun CardControls(
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(onClick = { onAction(CardDetailAction.ToggleBlock) }, modifier = Modifier.weight(1f)) {
-            Text(if (card.status == CardStatus.BLOCKED) "Unblock" else "Block")
+            Text(if (card.status == CardStatus.BLOCKED) stringResource(Res.string.cards_unblock) else stringResource(Res.string.cards_block))
         }
         OutlinedButton(onClick = { onAction(CardDetailAction.ToggleFreeze) }, modifier = Modifier.weight(1f)) {
-            Text(if (card.isFrozen) "Unfreeze" else "Freeze")
+            Text(if (card.isFrozen) stringResource(Res.string.cards_unfreeze) else stringResource(Res.string.cards_freeze))
         }
     }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         OutlinedButton(onClick = { onAction(CardDetailAction.OpenMonthlyLimit) }, modifier = Modifier.weight(1f)) {
-            Text("Set Monthly Limit")
+            Text(stringResource(Res.string.cards_set_monthly_limit))
         }
         if (card.status != CardStatus.PHYSICAL_ISSUED) {
             OutlinedButton(onClick = { onAction(CardDetailAction.OpenPhysicalCard) }, modifier = Modifier.weight(1f)) {
-                Text("Issue Physical Card")
+                Text(stringResource(Res.string.cards_issue_physical_card))
             }
         }
     }
@@ -270,12 +307,12 @@ private fun MonthlyLimitSheet(
             modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Set Monthly Limit", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("Enter the monthly limit for this card.", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.cards_set_monthly_limit), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.cards_monthly_limit_message), style = MaterialTheme.typography.bodySmall)
             OutlinedTextField(
                 value = value,
                 onValueChange = { value = it.filter { ch -> ch.isDigit() } },
-                label = { Text("Monthly Limit") },
+                label = { Text(stringResource(Res.string.cards_monthly_limit_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -284,7 +321,7 @@ private fun MonthlyLimitSheet(
                 onClick = { value.toDoubleOrNull()?.let(onConfirm) },
                 enabled = value.toDoubleOrNull() != null,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Set Limit") }
+            ) { Text(stringResource(Res.string.cards_set_limit)) }
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -310,18 +347,44 @@ private fun PhysicalCardSheet(
             modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text("Add Address Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Text("Enter address details to ship your physical card.", style = MaterialTheme.typography.bodySmall)
-            OutlinedTextField(address, { address = it }, label = { Text("Address") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(locality, { locality = it }, label = { Text("Locality") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(city, { city = it }, label = { Text("City") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(state, { state = it }, label = { Text("State") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(pincode, { pincode = it }, label = { Text("Pincode") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            Text(stringResource(Res.string.cards_add_address_details), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.cards_address_details_message), style = MaterialTheme.typography.bodySmall)
+            OutlinedTextField(
+                address,
+                { address = it },
+                label = { Text(stringResource(Res.string.cards_address)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(locality, {
+                locality = it
+            }, label = { Text(stringResource(Res.string.cards_locality)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                city,
+                { city = it },
+                label = { Text(stringResource(Res.string.cards_city)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                state,
+                { state = it },
+                label = { Text(stringResource(Res.string.cards_state)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            OutlinedTextField(
+                pincode,
+                { pincode = it },
+                label = { Text(stringResource(Res.string.cards_pincode)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
             Button(
                 onClick = { onConfirm(CardShippingAddress(address, locality, city, state, pincode)) },
                 enabled = valid,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Ship Card") }
+            ) { Text(stringResource(Res.string.cards_ship_card)) }
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -342,15 +405,15 @@ private fun TransactionDetailSheet(
         headerIcon = Icons.Filled.ReceiptLong,
         onDismiss = onDismiss,
     ) {
-        DetailInfoCard(title = "Transaction") {
-            DetailInfoRow("Transaction no.", txn.txnNumber)
-            DetailInfoRow("Category", txn.category)
-            DetailInfoRow("Amount", formatMoney(txn.amount, txn.currency))
-            DetailInfoRow("Status", txn.claimStatus.name.lowercase().replaceFirstChar { it.uppercase() })
+        DetailInfoCard(title = stringResource(Res.string.cards_transaction)) {
+            DetailInfoRow(stringResource(Res.string.cards_transaction_no), txn.txnNumber)
+            DetailInfoRow(stringResource(Res.string.cards_category), txn.category)
+            DetailInfoRow(stringResource(Res.string.cards_amount), formatMoney(txn.amount, txn.currency))
+            DetailInfoRow(stringResource(Res.string.cards_status), txn.claimStatus.name.lowercase().replaceFirstChar { it.uppercase() })
         }
         if (txn.claimStatus == CardTxnClaimStatus.UNCLAIMED) {
             Button(onClick = onClaim, modifier = Modifier.fillMaxWidth()) {
-                Text("Claim expense")
+                Text(stringResource(Res.string.cards_claim_expense))
             }
         }
     }

@@ -53,6 +53,31 @@ import com.mileway.core.common.asString
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payables_back
+import com.mileway.core.ui.resources.payables_col_description
+import com.mileway.core.ui.resources.payables_col_qty
+import com.mileway.core.ui.resources.payables_col_total
+import com.mileway.core.ui.resources.payables_detail_delivery_date
+import com.mileway.core.ui.resources.payables_detail_office_location
+import com.mileway.core.ui.resources.payables_detail_po_number
+import com.mileway.core.ui.resources.payables_detail_total_amount
+import com.mileway.core.ui.resources.payables_download_pdf
+import com.mileway.core.ui.resources.payables_line_items
+import com.mileway.core.ui.resources.payables_po_not_found
+import com.mileway.core.ui.resources.payables_po_status_approved
+import com.mileway.core.ui.resources.payables_po_status_draft
+import com.mileway.core.ui.resources.payables_po_status_pending_approval
+import com.mileway.core.ui.resources.payables_po_status_rejected
+import com.mileway.core.ui.resources.payables_timeline_approved_note
+import com.mileway.core.ui.resources.payables_timeline_pending
+import com.mileway.core.ui.resources.payables_timeline_rejected_note
+import com.mileway.core.ui.resources.payables_timeline_submitted
+import com.mileway.core.ui.resources.payables_timeline_submitted_note
+import com.mileway.core.ui.resources.payables_timeline_title
+import com.mileway.core.ui.resources.payables_timeline_under_review
+import com.mileway.core.ui.resources.payables_timeline_under_review_note
+import com.mileway.core.ui.resources.payables_total_incl_gst
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
@@ -62,6 +87,7 @@ import com.mileway.feature.payables.model.PurchaseOrder
 import com.mileway.feature.payables.viewmodel.PayablesAction
 import com.mileway.feature.payables.viewmodel.PayablesEffect
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,7 +122,7 @@ fun PurchaseRequestDetailsScreen(
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.payables_back))
                     }
                 },
             )
@@ -109,7 +135,7 @@ fun PurchaseRequestDetailsScreen(
                 modifier = Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Purchase order not found", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.payables_po_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             Column(
@@ -139,7 +165,7 @@ fun PurchaseRequestDetailsScreen(
                 ) {
                     Icon(Icons.Filled.Download, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
-                    Text("Download PDF")
+                    Text(stringResource(Res.string.payables_download_pdf))
                 }
 
                 Spacer(Modifier.height(DesignTokens.Spacing.l))
@@ -152,10 +178,10 @@ fun PurchaseRequestDetailsScreen(
 private fun PoHeaderCard(po: PurchaseOrder) {
     val (statusLabel, statusColor) =
         when (po.status) {
-            PoStatus.DRAFT -> "Draft" to StatusColors.neutral
-            PoStatus.PENDING_APPROVAL -> "Pending Approval" to StatusColors.warning
-            PoStatus.APPROVED -> "Approved" to StatusColors.success
-            PoStatus.REJECTED -> "Rejected" to StatusColors.error
+            PoStatus.DRAFT -> stringResource(Res.string.payables_po_status_draft) to StatusColors.neutral
+            PoStatus.PENDING_APPROVAL -> stringResource(Res.string.payables_po_status_pending_approval) to StatusColors.warning
+            PoStatus.APPROVED -> stringResource(Res.string.payables_po_status_approved) to StatusColors.success
+            PoStatus.REJECTED -> stringResource(Res.string.payables_po_status_rejected) to StatusColors.error
         }
 
     Card(
@@ -191,10 +217,10 @@ private fun PoHeaderCard(po: PurchaseOrder) {
                     )
                 }
             }
-            DetailRow("PO Number", po.id)
-            DetailRow("Delivery Date", po.deliveryDate)
-            DetailRow("Office Location", po.officeLocation)
-            DetailRow("Total Amount", "₹${po.totalAmount.formatDecimal(2)}")
+            DetailRow(stringResource(Res.string.payables_detail_po_number), po.id)
+            DetailRow(stringResource(Res.string.payables_detail_delivery_date), po.deliveryDate)
+            DetailRow(stringResource(Res.string.payables_detail_office_location), po.officeLocation)
+            DetailRow(stringResource(Res.string.payables_detail_total_amount), "₹${po.totalAmount.formatDecimal(2)}")
         }
     }
 }
@@ -231,7 +257,7 @@ private fun PoLineItemsCard(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Text(
-                "Line Items",
+                stringResource(Res.string.payables_line_items),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,
@@ -239,14 +265,22 @@ private fun PoLineItemsCard(
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(
-                    "Description",
+                    stringResource(Res.string.payables_col_description),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
                 )
-                Text("Qty", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(Res.string.payables_col_qty),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Spacer(Modifier.size(DesignTokens.Spacing.l))
-                Text("Total", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(Res.string.payables_col_total),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
             HorizontalDivider()
             lineItems.forEach { item ->
@@ -266,7 +300,7 @@ private fun PoLineItemsCard(
             }
             HorizontalDivider()
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Total (incl. GST)", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.payables_total_incl_gst), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 Text("₹${total.formatDecimal(2)}", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             }
         }
@@ -279,18 +313,38 @@ private fun PoTimelineCard(status: PoStatus) {
 
     val steps =
         listOf(
-            TStep("Submitted", Icons.Filled.Receipt, StatusColors.info, active = true, note = "Sent to procurement team"),
             TStep(
-                "Under Review",
+                stringResource(Res.string.payables_timeline_submitted),
+                Icons.Filled.Receipt,
+                StatusColors.info,
+                active = true,
+                note = stringResource(Res.string.payables_timeline_submitted_note),
+            ),
+            TStep(
+                stringResource(Res.string.payables_timeline_under_review),
                 Icons.Filled.HourglassBottom,
                 StatusColors.warning,
                 active = status != PoStatus.DRAFT,
-                note = if (status != PoStatus.DRAFT) "Awaiting approver sign-off" else "",
+                note = if (status != PoStatus.DRAFT) stringResource(Res.string.payables_timeline_under_review_note) else "",
             ),
             when (status) {
-                PoStatus.APPROVED -> TStep("Approved", Icons.Filled.CheckCircle, StatusColors.success, active = true, note = "PO raised with vendor")
-                PoStatus.REJECTED -> TStep("Rejected", Icons.Filled.CheckCircle, StatusColors.error, active = true, note = "Contact procurement")
-                else -> TStep("Pending Decision", Icons.Filled.HourglassBottom, StatusColors.neutral, active = false)
+                PoStatus.APPROVED ->
+                    TStep(
+                        stringResource(Res.string.payables_po_status_approved),
+                        Icons.Filled.CheckCircle,
+                        StatusColors.success,
+                        active = true,
+                        note = stringResource(Res.string.payables_timeline_approved_note),
+                    )
+                PoStatus.REJECTED ->
+                    TStep(
+                        stringResource(Res.string.payables_po_status_rejected),
+                        Icons.Filled.CheckCircle,
+                        StatusColors.error,
+                        active = true,
+                        note = stringResource(Res.string.payables_timeline_rejected_note),
+                    )
+                else -> TStep(stringResource(Res.string.payables_timeline_pending), Icons.Filled.HourglassBottom, StatusColors.neutral, active = false)
             },
         )
 
@@ -307,7 +361,7 @@ private fun PoTimelineCard(status: PoStatus) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Text(
-                "Approval Timeline",
+                stringResource(Res.string.payables_timeline_title),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,

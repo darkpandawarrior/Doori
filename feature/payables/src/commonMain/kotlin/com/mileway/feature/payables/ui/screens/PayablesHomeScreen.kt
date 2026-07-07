@@ -50,6 +50,24 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payables_empty_subtitle
+import com.mileway.core.ui.resources.payables_empty_title
+import com.mileway.core.ui.resources.payables_invoice_status_matched
+import com.mileway.core.ui.resources.payables_invoice_status_paid
+import com.mileway.core.ui.resources.payables_invoice_status_unmatched
+import com.mileway.core.ui.resources.payables_metric_open_pos
+import com.mileway.core.ui.resources.payables_metric_pending_invoices
+import com.mileway.core.ui.resources.payables_metric_unmatched_gins
+import com.mileway.core.ui.resources.payables_new_request
+import com.mileway.core.ui.resources.payables_po_status_approved
+import com.mileway.core.ui.resources.payables_po_status_draft
+import com.mileway.core.ui.resources.payables_po_status_pending_approval
+import com.mileway.core.ui.resources.payables_po_status_rejected
+import com.mileway.core.ui.resources.payables_section_purchase_requests
+import com.mileway.core.ui.resources.payables_section_recent_invoices
+import com.mileway.core.ui.resources.payables_subtitle
+import com.mileway.core.ui.resources.payables_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.feature.payables.model.Invoice
@@ -62,6 +80,7 @@ import com.mileway.feature.payables.viewmodel.PayablesViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -83,7 +102,7 @@ fun PayablesHomeScreen(
             ExtendedFloatingActionButton(
                 onClick = onNewRequest,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("New Request") },
+                text = { Text(stringResource(Res.string.payables_new_request)) },
             )
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -110,13 +129,13 @@ fun PayablesHomeScreen(
                             .padding(horizontal = 20.dp, vertical = 16.dp),
                 ) {
                     Text(
-                        text = "Payables",
+                        text = stringResource(Res.string.payables_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
                     Text(
-                        text = "Purchase Requests & Invoices",
+                        text = stringResource(Res.string.payables_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.85f),
                     )
@@ -126,9 +145,9 @@ fun PayablesHomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                     ) {
-                        SummaryMetric("Open POs", "$openPoCount", modifier = Modifier.weight(1f))
-                        SummaryMetric("Pending Invoices", "$pendingInvoiceCount", modifier = Modifier.weight(1f))
-                        SummaryMetric("Unmatched GINs", "$unmatchedCount", modifier = Modifier.weight(1f))
+                        SummaryMetric(stringResource(Res.string.payables_metric_open_pos), "$openPoCount", modifier = Modifier.weight(1f))
+                        SummaryMetric(stringResource(Res.string.payables_metric_pending_invoices), "$pendingInvoiceCount", modifier = Modifier.weight(1f))
+                        SummaryMetric(stringResource(Res.string.payables_metric_unmatched_gins), "$unmatchedCount", modifier = Modifier.weight(1f))
                     }
                 }
             }
@@ -139,9 +158,9 @@ fun PayablesHomeScreen(
                 onRetry = { viewModel.onAction(PayablesAction.Refresh) },
                 empty = {
                     DefaultEmptyState(
-                        title = "No payables yet",
-                        subtitle = "Purchase requests and invoices will appear here.",
-                        ctaLabel = "New Request",
+                        title = stringResource(Res.string.payables_empty_title),
+                        subtitle = stringResource(Res.string.payables_empty_subtitle),
+                        ctaLabel = stringResource(Res.string.payables_new_request),
                         onCta = onNewRequest,
                     )
                 },
@@ -156,7 +175,7 @@ fun PayablesHomeScreen(
                 ) {
                     Spacer(Modifier.height(DesignTokens.Spacing.l))
                     Text(
-                        text = "Purchase Requests",
+                        text = stringResource(Res.string.payables_section_purchase_requests),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -166,7 +185,7 @@ fun PayablesHomeScreen(
 
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     Text(
-                        text = "Recent Invoices",
+                        text = stringResource(Res.string.payables_section_recent_invoices),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -219,10 +238,10 @@ private fun PoCard(
 ) {
     val (statusLabel, statusColor) =
         when (po.status) {
-            PoStatus.DRAFT -> "Draft" to StatusColors.neutral
-            PoStatus.PENDING_APPROVAL -> "Pending Approval" to StatusColors.warning
-            PoStatus.APPROVED -> "Approved" to StatusColors.success
-            PoStatus.REJECTED -> "Rejected" to StatusColors.error
+            PoStatus.DRAFT -> stringResource(Res.string.payables_po_status_draft) to StatusColors.neutral
+            PoStatus.PENDING_APPROVAL -> stringResource(Res.string.payables_po_status_pending_approval) to StatusColors.warning
+            PoStatus.APPROVED -> stringResource(Res.string.payables_po_status_approved) to StatusColors.success
+            PoStatus.REJECTED -> stringResource(Res.string.payables_po_status_rejected) to StatusColors.error
         }
 
     Card(
@@ -280,9 +299,9 @@ private fun PoCard(
 private fun InvoiceCard(invoice: Invoice) {
     val (icon, statusLabel, statusColor) =
         when (invoice.status) {
-            InvoiceStatus.UNMATCHED -> Triple(Icons.Filled.Warning, "Unmatched", StatusColors.warning)
-            InvoiceStatus.MATCHED -> Triple(Icons.Filled.Receipt, "Matched", StatusColors.info)
-            InvoiceStatus.PAID -> Triple(Icons.Filled.CheckCircle, "Paid", StatusColors.success)
+            InvoiceStatus.UNMATCHED -> Triple(Icons.Filled.Warning, stringResource(Res.string.payables_invoice_status_unmatched), StatusColors.warning)
+            InvoiceStatus.MATCHED -> Triple(Icons.Filled.Receipt, stringResource(Res.string.payables_invoice_status_matched), StatusColors.info)
+            InvoiceStatus.PAID -> Triple(Icons.Filled.CheckCircle, stringResource(Res.string.payables_invoice_status_paid), StatusColors.success)
         }
     val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 

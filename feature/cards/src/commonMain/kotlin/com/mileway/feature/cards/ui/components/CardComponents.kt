@@ -10,8 +10,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.cards_status_active
+import com.mileway.core.ui.resources.cards_status_blocked
+import com.mileway.core.ui.resources.cards_status_expired
+import com.mileway.core.ui.resources.cards_status_frozen
+import com.mileway.core.ui.resources.cards_status_kyc_pending
+import com.mileway.core.ui.resources.cards_status_pending
+import com.mileway.core.ui.resources.cards_status_physical_issued
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.cards.model.CardStatus
+import org.jetbrains.compose.resources.stringResource
 
 /** Web's primary indigo accent (`#6367FA`) reused across the cards UI. */
 internal val CardAccent = Color(0xFF6367FA)
@@ -42,15 +51,16 @@ private fun statusColor(status: CardStatus): Color =
         CardStatus.KYC_PENDING, CardStatus.PENDING -> DesignTokens.StatusColors.warning
     }
 
+@Composable
 private fun statusLabel(status: CardStatus): String =
     when (status) {
-        CardStatus.ACTIVE -> "Active"
-        CardStatus.BLOCKED -> "Blocked"
-        CardStatus.FROZEN -> "Frozen"
-        CardStatus.KYC_PENDING -> "KYC Pending"
-        CardStatus.PHYSICAL_ISSUED -> "Physical Issued"
-        CardStatus.EXPIRED -> "Expired"
-        CardStatus.PENDING -> "Pending"
+        CardStatus.ACTIVE -> stringResource(Res.string.cards_status_active)
+        CardStatus.BLOCKED -> stringResource(Res.string.cards_status_blocked)
+        CardStatus.FROZEN -> stringResource(Res.string.cards_status_frozen)
+        CardStatus.KYC_PENDING -> stringResource(Res.string.cards_status_kyc_pending)
+        CardStatus.PHYSICAL_ISSUED -> stringResource(Res.string.cards_status_physical_issued)
+        CardStatus.EXPIRED -> stringResource(Res.string.cards_status_expired)
+        CardStatus.PENDING -> stringResource(Res.string.cards_status_pending)
     }
 
 @Composable

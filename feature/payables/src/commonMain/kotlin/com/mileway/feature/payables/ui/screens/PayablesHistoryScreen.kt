@@ -18,11 +18,18 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payables_filter_all
+import com.mileway.core.ui.resources.payables_history_empty_subtitle
+import com.mileway.core.ui.resources.payables_history_empty_title
+import com.mileway.core.ui.resources.payables_history_search_placeholder
+import com.mileway.core.ui.resources.payables_history_title
 import com.mileway.feature.payables.model.PayablesDoc
 import com.mileway.feature.payables.model.PayablesDocStatus
 import com.mileway.feature.payables.viewmodel.PAYABLES_HISTORY_TABS
 import com.mileway.feature.payables.viewmodel.PayablesHistoryAction
 import com.mileway.feature.payables.viewmodel.PayablesHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -38,7 +45,7 @@ fun PayablesHistoryScreen(
     val ui by viewModel.state.collectAsState()
 
     HistoryListScaffold(
-        title = "Payables History",
+        title = stringResource(Res.string.payables_history_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(PayablesHistoryAction.Refresh) },
@@ -48,11 +55,11 @@ fun PayablesHistoryScreen(
         onSelectTab = { viewModel.onAction(PayablesHistoryAction.SelectTab(it)) },
         query = ui.query,
         onQueryChange = { viewModel.onAction(PayablesHistoryAction.SetQuery(it)) },
-        searchPlaceholder = "Search payables…",
-        emptyTitle = "No documents here",
-        emptySubtitle = "Created payables documents appear under their type and status.",
+        searchPlaceholder = stringResource(Res.string.payables_history_search_placeholder),
+        emptyTitle = stringResource(Res.string.payables_history_empty_title),
+        emptySubtitle = stringResource(Res.string.payables_history_empty_subtitle),
         filterChips = {
-            StatusFilterChip("All", ui.statusFilter == null) {
+            StatusFilterChip(stringResource(Res.string.payables_filter_all), ui.statusFilter == null) {
                 viewModel.onAction(PayablesHistoryAction.SetStatusFilter(null))
             }
             PayablesDocStatus.entries.forEach { status ->

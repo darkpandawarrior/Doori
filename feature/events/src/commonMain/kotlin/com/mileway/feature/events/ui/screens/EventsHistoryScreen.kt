@@ -17,11 +17,19 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.events_attendees_count
+import com.mileway.core.ui.resources.events_empty_subtitle
+import com.mileway.core.ui.resources.events_empty_title
+import com.mileway.core.ui.resources.events_history_title
+import com.mileway.core.ui.resources.events_search_placeholder
+import com.mileway.core.ui.resources.events_tab_all
 import com.mileway.feature.events.model.EventRecord
 import com.mileway.feature.events.model.EventStatus
 import com.mileway.feature.events.viewmodel.EVENTS_HISTORY_TABS
 import com.mileway.feature.events.viewmodel.EventsHistoryAction
 import com.mileway.feature.events.viewmodel.EventsHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** EV: events history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
@@ -33,20 +41,21 @@ fun EventsHistoryScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
+    val allLabel = stringResource(Res.string.events_tab_all)
     HistoryListScaffold(
-        title = "Events",
+        title = stringResource(Res.string.events_history_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(EventsHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = EVENTS_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = EVENTS_HISTORY_TABS.map { it?.label ?: allLabel },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(EventsHistoryAction.SelectTab(it)) },
         query = ui.query,
         onQueryChange = { viewModel.onAction(EventsHistoryAction.SetQuery(it)) },
-        searchPlaceholder = "Search events…",
-        emptyTitle = "No events here",
-        emptySubtitle = "Created events appear under their status.",
+        searchPlaceholder = stringResource(Res.string.events_search_placeholder),
+        emptyTitle = stringResource(Res.string.events_empty_title),
+        emptySubtitle = stringResource(Res.string.events_empty_subtitle),
         itemKey = { it.id },
     ) { event ->
         EventCard(event)
@@ -71,7 +80,7 @@ private fun EventCard(event: EventRecord) {
                 modifier = Modifier.padding(top = 4.dp),
             )
             Text(
-                "${event.attendees} attendees",
+                stringResource(Res.string.events_attendees_count, event.attendees),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 2.dp),

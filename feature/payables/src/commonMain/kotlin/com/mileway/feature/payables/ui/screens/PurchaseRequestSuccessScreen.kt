@@ -27,9 +27,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payables_success_back
+import com.mileway.core.ui.resources.payables_success_create_another
+import com.mileway.core.ui.resources.payables_success_message
+import com.mileway.core.ui.resources.payables_success_po_number
+import com.mileway.core.ui.resources.payables_success_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.payables.viewmodel.PayablesAction
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -60,14 +67,14 @@ fun PurchaseRequestSuccessScreen(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xl))
             Text(
-                text = "Purchase Request Submitted!",
+                text = stringResource(Res.string.payables_success_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
-                text = "PO Number: ${ui.lastSubmittedId}",
+                text = stringResource(Res.string.payables_success_po_number, ui.lastSubmittedId),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold,
@@ -75,7 +82,7 @@ fun PurchaseRequestSuccessScreen(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
-                text = "Your request has been sent to the procurement team for review. You'll be notified once it's approved.",
+                text = stringResource(Res.string.payables_success_message),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -88,14 +95,14 @@ fun PurchaseRequestSuccessScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Create Another Request")
+                Text(stringResource(Res.string.payables_success_create_another))
             }
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             OutlinedButton(
                 onClick = onBackToPayables,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Back to Payables")
+                Text(stringResource(Res.string.payables_success_back))
             }
         }
     }

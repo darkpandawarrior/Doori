@@ -17,11 +17,18 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payments_empty_subtitle
+import com.mileway.core.ui.resources.payments_empty_title
+import com.mileway.core.ui.resources.payments_history_title
+import com.mileway.core.ui.resources.payments_search_placeholder
+import com.mileway.core.ui.resources.payments_tab_all
 import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
 import com.mileway.feature.payments.viewmodel.PAYMENTS_HISTORY_TABS
 import com.mileway.feature.payments.viewmodel.PaymentsHistoryAction
 import com.mileway.feature.payments.viewmodel.PaymentsHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** PM: payments history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
@@ -33,20 +40,21 @@ fun PaymentsHistoryScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
+    val allLabel = stringResource(Res.string.payments_tab_all)
     HistoryListScaffold(
-        title = "Payments",
+        title = stringResource(Res.string.payments_history_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(PaymentsHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = PAYMENTS_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = PAYMENTS_HISTORY_TABS.map { it?.label ?: allLabel },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(PaymentsHistoryAction.SelectTab(it)) },
         query = ui.query,
         onQueryChange = { viewModel.onAction(PaymentsHistoryAction.SetQuery(it)) },
-        searchPlaceholder = "Search payments…",
-        emptyTitle = "No payments here",
-        emptySubtitle = "Your UPI / QR pays and requests appear under their status.",
+        searchPlaceholder = stringResource(Res.string.payments_search_placeholder),
+        emptyTitle = stringResource(Res.string.payments_empty_title),
+        emptySubtitle = stringResource(Res.string.payments_empty_subtitle),
         itemKey = { it.id },
     ) { payment ->
         PaymentCard(payment)

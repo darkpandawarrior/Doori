@@ -27,15 +27,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.ScreenStateContent
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.cards_home_subtitle
+import com.mileway.core.ui.resources.cards_request_a_card
+import com.mileway.core.ui.resources.cards_tab_cards
+import com.mileway.core.ui.resources.cards_tab_requests
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.cards.model.CardRequestModel
 import com.mileway.feature.cards.ui.components.CardFace
 import com.mileway.feature.cards.viewmodel.CardsHomeAction
 import com.mileway.feature.cards.viewmodel.CardsHomeUiState
 import com.mileway.feature.cards.viewmodel.CardsHomeViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-private val tabs = listOf("Cards", "Requests")
 
 @Composable
 fun CardsHomeScreen(
@@ -60,17 +64,18 @@ internal fun CardsHomeContent(
     onOpenCard: (Long) -> Unit,
     onRequestCard: () -> Unit,
 ) {
+    val tabs = listOf(stringResource(Res.string.cards_tab_cards), stringResource(Res.string.cards_tab_requests))
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Cards",
-                subtitle = "Virtual cards & requests",
+                title = stringResource(Res.string.cards_tab_cards),
+                subtitle = stringResource(Res.string.cards_home_subtitle),
                 depth = NavigationDepth.LEVEL_1,
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onRequestCard) {
-                Icon(Icons.Filled.Add, contentDescription = "Request a card")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.cards_request_a_card))
             }
         },
     ) { padding ->

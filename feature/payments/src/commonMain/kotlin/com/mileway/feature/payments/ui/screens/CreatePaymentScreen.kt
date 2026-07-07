@@ -18,12 +18,23 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payments_create_title
+import com.mileway.core.ui.resources.payments_field_amount
+import com.mileway.core.ui.resources.payments_field_counterparty
+import com.mileway.core.ui.resources.payments_field_note
+import com.mileway.core.ui.resources.payments_section_details
+import com.mileway.core.ui.resources.payments_section_mode
+import com.mileway.core.ui.resources.payments_toast_collect_sent
+import com.mileway.core.ui.resources.payments_toast_failed
+import com.mileway.core.ui.resources.payments_toast_successful
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.payments.model.PaymentDirection
 import com.mileway.feature.payments.viewmodel.CreatePaymentAction
 import com.mileway.feature.payments.viewmodel.CreatePaymentEffect
 import com.mileway.feature.payments.viewmodel.CreatePaymentViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** PM: QR/UPI Pay or Request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
@@ -35,26 +46,29 @@ fun CreatePaymentScreen(
     viewModel: CreatePaymentViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    val toastSuccessful = stringResource(Res.string.payments_toast_successful)
+    val toastCollectSent = stringResource(Res.string.payments_toast_collect_sent)
+    val toastFailed = stringResource(Res.string.payments_toast_failed)
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is CreatePaymentEffect.Completed -> {
-                    Toasts.show("Payment successful", "Reference ${effect.id}", ToastType.Success)
+                    Toasts.show(toastSuccessful, "Reference ${effect.id}", ToastType.Success)
                     onSubmitted(effect.id)
                 }
                 is CreatePaymentEffect.Pending -> {
-                    Toasts.show("Collect request sent", "${effect.id} is awaiting the payer", ToastType.Info)
+                    Toasts.show(toastCollectSent, "${effect.id} is awaiting the payer", ToastType.Info)
                     onSubmitted(effect.id)
                 }
                 is CreatePaymentEffect.Failed ->
-                    Toasts.show("Payment failed", effect.reason, ToastType.Warning)
+                    Toasts.show(toastFailed, effect.reason, ToastType.Warning)
             }
         }
     }
 
     FormSubmissionScaffold(
-        title = "Pay / Request",
+        title = stringResource(Res.string.payments_create_title),
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreatePaymentAction.Submit) },
         modifier = modifier,
@@ -63,7 +77,7 @@ fun CreatePaymentScreen(
         submitLabel = ui.direction.label,
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
-            SectionCard(title = "Mode", leadingIcon = null) {
+            SectionCard(title = stringResource(Res.string.payments_section_mode), leadingIcon = null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -77,10 +91,14 @@ fun CreatePaymentScreen(
                     }
                 }
             }
-            SectionCard(title = "Details", leadingIcon = null) {
-                Field("UPI id / payee *", ui.counterparty) { viewModel.onAction(CreatePaymentAction.SetCounterparty(it)) }
-                Field("Amount (₹) *", ui.amountText, KeyboardType.Decimal) { viewModel.onAction(CreatePaymentAction.SetAmount(it)) }
-                Field("Note", ui.note) { viewModel.onAction(CreatePaymentAction.SetNote(it)) }
+            SectionCard(title = stringResource(Res.string.payments_section_details), leadingIcon = null) {
+                Field(stringResource(Res.string.payments_field_counterparty), ui.counterparty) { viewModel.onAction(CreatePaymentAction.SetCounterparty(it)) }
+                Field(
+                    stringResource(Res.string.payments_field_amount),
+                    ui.amountText,
+                    KeyboardType.Decimal,
+                ) { viewModel.onAction(CreatePaymentAction.SetAmount(it)) }
+                Field(stringResource(Res.string.payments_field_note), ui.note) { viewModel.onAction(CreatePaymentAction.SetNote(it)) }
             }
         }
     }

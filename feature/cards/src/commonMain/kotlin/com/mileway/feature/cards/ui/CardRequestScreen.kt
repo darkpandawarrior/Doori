@@ -36,6 +36,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.common.asString
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.cards_agree_policies
+import com.mileway.core.ui.resources.cards_ai_suggested
+import com.mileway.core.ui.resources.cards_back
+import com.mileway.core.ui.resources.cards_confirm_card_type
+import com.mileway.core.ui.resources.cards_confirm_reason
+import com.mileway.core.ui.resources.cards_confirm_scheme
+import com.mileway.core.ui.resources.cards_done
+import com.mileway.core.ui.resources.cards_next
+import com.mileway.core.ui.resources.cards_request_a_card
+import com.mileway.core.ui.resources.cards_request_in_workflow
+import com.mileway.core.ui.resources.cards_request_intro
+import com.mileway.core.ui.resources.cards_request_reason_label
+import com.mileway.core.ui.resources.cards_request_submitted
+import com.mileway.core.ui.resources.cards_request_subtitle
+import com.mileway.core.ui.resources.cards_submit
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
@@ -43,6 +59,7 @@ import com.mileway.feature.cards.viewmodel.CardRequestAction
 import com.mileway.feature.cards.viewmodel.CardRequestEffect
 import com.mileway.feature.cards.viewmodel.CardRequestUiState
 import com.mileway.feature.cards.viewmodel.CardRequestViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -72,12 +89,12 @@ internal fun CardRequestContent(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Request a card",
-                subtitle = "KYC-lite application form",
+                title = stringResource(Res.string.cards_request_a_card),
+                subtitle = stringResource(Res.string.cards_request_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onDone) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cards_back))
                     }
                 },
             )
@@ -102,8 +119,7 @@ internal fun CardRequestContent(
                 when (state.step) {
                     0 ->
                         Text(
-                            "Request a corporate card. You'll pick a card type, give a reason, and confirm. " +
-                                "Approvals route through your manager and finance.",
+                            stringResource(Res.string.cards_request_intro),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                     1 ->
@@ -121,7 +137,11 @@ internal fun CardRequestContent(
                                     Row {
                                         Text(type.name, fontWeight = FontWeight.Medium)
                                         if (type.isAiSuggested) {
-                                            Text("  • AI suggested", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                            Text(
+                                                "  • " + stringResource(Res.string.cards_ai_suggested),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.primary,
+                                            )
                                         }
                                     }
                                     Text(type.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -132,7 +152,7 @@ internal fun CardRequestContent(
                         OutlinedTextField(
                             value = state.reason,
                             onValueChange = { onAction(CardRequestAction.SetReason(it)) },
-                            label = { Text("Why do you need this card?") },
+                            label = { Text(stringResource(Res.string.cards_request_reason_label)) },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 3,
                         )
@@ -141,12 +161,19 @@ internal fun CardRequestContent(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 if (state.step > 0) {
-                    OutlinedButton(onClick = { onAction(CardRequestAction.Back) }, modifier = Modifier.weight(1f)) { Text("Back") }
+                    OutlinedButton(
+                        onClick = { onAction(CardRequestAction.Back) },
+                        modifier = Modifier.weight(1f),
+                    ) { Text(stringResource(Res.string.cards_back)) }
                 }
                 if (state.step < state.totalSteps - 1) {
-                    Button(onClick = { onAction(CardRequestAction.Next) }, enabled = state.canAdvance, modifier = Modifier.weight(1f)) { Text("Next") }
+                    Button(onClick = {
+                        onAction(CardRequestAction.Next)
+                    }, enabled = state.canAdvance, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.cards_next)) }
                 } else {
-                    Button(onClick = { onAction(CardRequestAction.Submit) }, enabled = state.agreeToPolicies, modifier = Modifier.weight(1f)) { Text("Submit") }
+                    Button(onClick = {
+                        onAction(CardRequestAction.Submit)
+                    }, enabled = state.agreeToPolicies, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.cards_submit)) }
                 }
             }
         }
@@ -165,14 +192,14 @@ private fun ConfirmStep(
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Card type: ${type?.name ?: "-"}", style = MaterialTheme.typography.bodyMedium)
-            Text("Scheme: ${type?.scheme ?: "-"}", style = MaterialTheme.typography.bodySmall)
-            Text("Reason: ${state.reason}", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.cards_confirm_card_type, type?.name ?: "-"), style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(Res.string.cards_confirm_scheme, type?.scheme ?: "-"), style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.cards_confirm_reason, state.reason), style = MaterialTheme.typography.bodySmall)
         }
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = state.agreeToPolicies, onCheckedChange = { onAction(CardRequestAction.SetAgree(it)) })
-        Text("I agree to the corporate card policies.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(Res.string.cards_agree_policies), style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -187,12 +214,12 @@ private fun SuccessContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text("Request submitted", style = MaterialTheme.typography.headlineSmall)
+        Text(stringResource(Res.string.cards_request_submitted), style = MaterialTheme.typography.headlineSmall)
         Text(
-            "Your request (#$requestId) is now in the approval workflow.",
+            stringResource(Res.string.cards_request_in_workflow, requestId),
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 8.dp),
         )
-        Button(onClick = onDone, modifier = Modifier.padding(top = 24.dp)) { Text("Done") }
+        Button(onClick = onDone, modifier = Modifier.padding(top = 24.dp)) { Text(stringResource(Res.string.cards_done)) }
     }
 }

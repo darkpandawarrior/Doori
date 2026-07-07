@@ -74,6 +74,22 @@ import com.mileway.core.common.asString
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_action_cancel
+import com.mileway.core.ui.resources.approvals_approve_all
+import com.mileway.core.ui.resources.approvals_bulk_action_illustrative
+import com.mileway.core.ui.resources.approvals_cd_filter
+import com.mileway.core.ui.resources.approvals_empty_no_items
+import com.mileway.core.ui.resources.approvals_policy_violation
+import com.mileway.core.ui.resources.approvals_reject_all
+import com.mileway.core.ui.resources.approvals_status_approved
+import com.mileway.core.ui.resources.approvals_status_pending
+import com.mileway.core.ui.resources.approvals_status_rejected
+import com.mileway.core.ui.resources.approvals_tab_my_requests
+import com.mileway.core.ui.resources.approvals_tab_team
+import com.mileway.core.ui.resources.approvals_tab_to_approve
+import com.mileway.core.ui.resources.approvals_title
+import com.mileway.core.ui.resources.approvals_title_select_items
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
@@ -86,6 +102,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -101,6 +118,7 @@ fun ApprovalsScreen(
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectionMode by rememberSaveable { mutableStateOf(false) }
     val selectedIds = remember { mutableStateOf(setOf<String>()) }
+    val bulkActionMessage = stringResource(Res.string.approvals_bulk_action_illustrative)
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -146,20 +164,20 @@ fun ApprovalsScreen(
                     ) {
                         OutlinedButton(
                             onClick = {
-                                scope.launch { snackbarHostState.showSnackbar("Bulk action is illustrative.") }
+                                scope.launch { snackbarHostState.showSnackbar(bulkActionMessage) }
                                 selectionMode = false
                                 selectedIds.value = emptySet()
                             },
                             modifier = Modifier.weight(1f),
-                        ) { Text("Reject All (${selectedIds.value.size})") }
+                        ) { Text(stringResource(Res.string.approvals_reject_all, selectedIds.value.size)) }
                         Button(
                             onClick = {
-                                scope.launch { snackbarHostState.showSnackbar("Bulk action is illustrative.") }
+                                scope.launch { snackbarHostState.showSnackbar(bulkActionMessage) }
                                 selectionMode = false
                                 selectedIds.value = emptySet()
                             },
                             modifier = Modifier.weight(1f),
-                        ) { Text("Approve All (${selectedIds.value.size})") }
+                        ) { Text(stringResource(Res.string.approvals_approve_all, selectedIds.value.size)) }
                     }
                 }
             }
@@ -167,7 +185,11 @@ fun ApprovalsScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             PrimaryTabRow(selectedTabIndex = selectedTab) {
-                listOf("TO APPROVE", "TEAM", "MY REQUESTS").forEachIndexed { idx, title ->
+                listOf(
+                    stringResource(Res.string.approvals_tab_to_approve),
+                    stringResource(Res.string.approvals_tab_team),
+                    stringResource(Res.string.approvals_tab_my_requests),
+                ).forEachIndexed { idx, title ->
                     Tab(
                         selected = selectedTab == idx,
                         onClick = {
@@ -233,7 +255,11 @@ private fun ApprovalListTab(
 ) {
     if (items.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No items", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(Res.string.approvals_empty_no_items),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
         return
     }
@@ -306,7 +332,7 @@ private fun ApprovalsGradientHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (selectionMode) "Select Items" else "Approvals",
+                    text = if (selectionMode) stringResource(Res.string.approvals_title_select_items) else stringResource(Res.string.approvals_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -314,9 +340,9 @@ private fun ApprovalsGradientHeader(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (selectionMode) {
                         TextButton(onClick = onCancelSelection) {
-                            Icon(Icons.Default.Close, contentDescription = "Cancel", tint = Color.White)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(Res.string.approvals_action_cancel), tint = Color.White)
                             Spacer(Modifier.width(4.dp))
-                            Text("Cancel", color = Color.White)
+                            Text(stringResource(Res.string.approvals_action_cancel), color = Color.White)
                         }
                     } else {
                         if (pendingCount > 0) {
@@ -335,7 +361,7 @@ private fun ApprovalsGradientHeader(
                             Spacer(Modifier.width(8.dp))
                         }
                         IconButton(onClick = {}) {
-                            Icon(Icons.Default.FilterList, contentDescription = "Filter", tint = Color.White)
+                            Icon(Icons.Default.FilterList, contentDescription = stringResource(Res.string.approvals_cd_filter), tint = Color.White)
                         }
                     }
                 }
@@ -427,7 +453,7 @@ private fun ApprovalCard(
                         )
                         Spacer(Modifier.width(4.dp))
                         Text(
-                            "Policy violation",
+                            stringResource(Res.string.approvals_policy_violation),
                             style = MaterialTheme.typography.labelSmall,
                             color = MilewayColors.warning,
                         )
@@ -463,9 +489,9 @@ private fun TypeIconContainer(type: ApprovalType) {
 private fun StatusChip(status: ApprovalStatus) {
     val (label, color) =
         when (status) {
-            ApprovalStatus.PENDING -> "Pending" to MilewayColors.warning
-            ApprovalStatus.APPROVED -> "Approved" to MilewayColors.success
-            ApprovalStatus.REJECTED -> "Rejected" to MilewayColors.danger
+            ApprovalStatus.PENDING -> stringResource(Res.string.approvals_status_pending) to MilewayColors.warning
+            ApprovalStatus.APPROVED -> stringResource(Res.string.approvals_status_approved) to MilewayColors.success
+            ApprovalStatus.REJECTED -> stringResource(Res.string.approvals_status_rejected) to MilewayColors.danger
         }
     Surface(
         shape = RoundedCornerShape(50),

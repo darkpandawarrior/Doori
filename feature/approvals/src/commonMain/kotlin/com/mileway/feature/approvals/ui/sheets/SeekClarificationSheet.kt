@@ -32,7 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_cd_send
+import com.mileway.core.ui.resources.approvals_message_placeholder
+import com.mileway.core.ui.resources.approvals_seek_clarification
 import com.mileway.feature.approvals.model.ClarificationMessage
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +63,7 @@ fun SeekClarificationSheet(
                     .padding(horizontal = 16.dp),
         ) {
             Text(
-                text = "Seek Clarification",
+                text = stringResource(Res.string.approvals_seek_clarification),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp),
@@ -91,7 +96,7 @@ fun SeekClarificationSheet(
                     value = draftMessage,
                     onValueChange = onDraftChange,
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text("Type a message…") },
+                    placeholder = { Text(stringResource(Res.string.approvals_message_placeholder)) },
                     singleLine = true,
                     shape = RoundedCornerShape(24.dp),
                 )
@@ -102,7 +107,7 @@ fun SeekClarificationSheet(
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send",
+                        contentDescription = stringResource(Res.string.approvals_cd_send),
                         tint =
                             if (draftMessage.isNotBlank()) {
                                 MaterialTheme.colorScheme.primary

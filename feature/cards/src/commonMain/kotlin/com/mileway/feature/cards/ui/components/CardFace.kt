@@ -20,8 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.cards_card_holder
+import com.mileway.core.ui.resources.cards_valid_thru
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.cards.model.CardModel
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Q+.2: the corporate card face. Mirrors the web styling: a 13dp-radius card with the `#6367FA`
@@ -72,8 +76,8 @@ fun CardFace(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom,
         ) {
-            LabelledValue("CARD HOLDER", card.cardHolderName)
-            LabelledValue("VALID THRU", card.validThru, isData = true)
+            LabelledValue(stringResource(Res.string.cards_card_holder), card.cardHolderName)
+            LabelledValue(stringResource(Res.string.cards_valid_thru), card.validThru, isData = true)
             Text(
                 text = card.scheme,
                 color = Color.White,

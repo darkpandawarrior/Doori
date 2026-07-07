@@ -53,12 +53,34 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payables_back
+import com.mileway.core.ui.resources.payables_decrease
+import com.mileway.core.ui.resources.payables_increase
+import com.mileway.core.ui.resources.payables_line_items
+import com.mileway.core.ui.resources.payables_pr_add_item
+import com.mileway.core.ui.resources.payables_pr_continue
+import com.mileway.core.ui.resources.payables_pr_field_delivery_date
+import com.mileway.core.ui.resources.payables_pr_field_delivery_date_hint
+import com.mileway.core.ui.resources.payables_pr_field_description
+import com.mileway.core.ui.resources.payables_pr_field_location
+import com.mileway.core.ui.resources.payables_pr_field_unit_price
+import com.mileway.core.ui.resources.payables_pr_field_vendor
+import com.mileway.core.ui.resources.payables_pr_field_vendor_hint
+import com.mileway.core.ui.resources.payables_pr_item_number
+import com.mileway.core.ui.resources.payables_pr_section_request_details
+import com.mileway.core.ui.resources.payables_pr_step
+import com.mileway.core.ui.resources.payables_pr_submit
+import com.mileway.core.ui.resources.payables_pr_title
+import com.mileway.core.ui.resources.payables_remove
+import com.mileway.core.ui.resources.payables_total_incl_gst
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.payables.model.NewLineItemDraft
 import com.mileway.feature.payables.viewmodel.PayablesAction
 import com.mileway.feature.payables.viewmodel.PayablesEffect
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,14 +107,14 @@ fun CreatePurchaseRequestScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "New Purchase Request",
-                subtitle = "Step ${form.step} of 2",
+                title = stringResource(Res.string.payables_pr_title),
+                subtitle = stringResource(Res.string.payables_pr_step, form.step),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = {
                         if (form.step == 1) onBack() else viewModel.onAction(PayablesAction.GoToStep1)
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.payables_back))
                     }
                 },
             )
@@ -111,7 +133,7 @@ fun CreatePurchaseRequestScreen(
                             onClick = { viewModel.onAction(PayablesAction.GoToStep2) },
                             modifier = Modifier.fillMaxWidth(),
                             enabled = form.vendorName.isNotBlank() && form.deliveryDate.isNotBlank(),
-                        ) { Text("Continue to Line Items") }
+                        ) { Text(stringResource(Res.string.payables_pr_continue)) }
                     } else {
                         Button(
                             onClick = { viewModel.onAction(PayablesAction.SubmitPo) },
@@ -121,7 +143,7 @@ fun CreatePurchaseRequestScreen(
                                     form.lineItems.all {
                                         it.description.isNotBlank() && it.unitPrice.isNotBlank()
                                     },
-                        ) { Text("Submit Purchase Request") }
+                        ) { Text(stringResource(Res.string.payables_pr_submit)) }
                     }
                 }
             }
@@ -158,7 +180,7 @@ private fun Step1Fields(
     viewModel: PayablesViewModel,
 ) {
     Text(
-        text = "Request Details",
+        text = stringResource(Res.string.payables_pr_section_request_details),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
     )
@@ -166,8 +188,8 @@ private fun Step1Fields(
     OutlinedTextField(
         value = form.vendorName,
         onValueChange = { viewModel.onAction(PayablesAction.SetVendorName(it)) },
-        label = { Text("Vendor / Supplier Name") },
-        placeholder = { Text("e.g. OfficeMax Supplies Ltd.") },
+        label = { Text(stringResource(Res.string.payables_pr_field_vendor)) },
+        placeholder = { Text(stringResource(Res.string.payables_pr_field_vendor_hint)) },
         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
@@ -176,8 +198,8 @@ private fun Step1Fields(
     OutlinedTextField(
         value = form.deliveryDate,
         onValueChange = { viewModel.onAction(PayablesAction.SetDeliveryDate(it)) },
-        label = { Text("Expected Delivery Date") },
-        placeholder = { Text("e.g. 2024-02-15") },
+        label = { Text(stringResource(Res.string.payables_pr_field_delivery_date)) },
+        placeholder = { Text(stringResource(Res.string.payables_pr_field_delivery_date_hint)) },
         singleLine = true,
         modifier = Modifier.fillMaxWidth(),
     )
@@ -205,7 +227,7 @@ private fun OfficeLocationDropdown(
             value = selected,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Delivery Location") },
+            label = { Text(stringResource(Res.string.payables_pr_field_location)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier =
                 Modifier
@@ -232,7 +254,7 @@ private fun Step2LineItems(
     viewModel: PayablesViewModel,
 ) {
     Text(
-        text = "Line Items",
+        text = stringResource(Res.string.payables_line_items),
         style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
     )
@@ -256,7 +278,7 @@ private fun Step2LineItems(
     ) {
         Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(Modifier.size(DesignTokens.Spacing.s))
-        Text("Add Item")
+        Text(stringResource(Res.string.payables_pr_add_item))
     }
 
     // Running total
@@ -277,7 +299,7 @@ private fun Step2LineItems(
                         .padding(DesignTokens.Spacing.l),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("Total (incl. GST)", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.payables_total_incl_gst), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text(
                     "₹${total.formatDecimal(2)}",
                     style = MaterialTheme.typography.titleSmall,
@@ -304,14 +326,19 @@ private fun LineItemEditor(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Text(
-                text = "Item ${index + 1}",
+                text = stringResource(Res.string.payables_pr_item_number, index + 1),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f),
             )
             if (canRemove) {
                 IconButton(onClick = onRemove) {
-                    Icon(Icons.Filled.DeleteOutline, contentDescription = "Remove", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Filled.DeleteOutline,
+                        contentDescription = stringResource(Res.string.payables_remove),
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
             }
         }
@@ -319,7 +346,7 @@ private fun LineItemEditor(
         OutlinedTextField(
             value = item.description,
             onValueChange = { onUpdate(item.copy(description = it)) },
-            label = { Text("Product / Description") },
+            label = { Text(stringResource(Res.string.payables_pr_field_description)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
             modifier = Modifier.fillMaxWidth(),
@@ -344,19 +371,19 @@ private fun LineItemEditor(
                     IconButton(
                         onClick = { if (item.qty > 1) onUpdate(item.copy(qty = item.qty - 1)) },
                         modifier = Modifier.size(32.dp),
-                    ) { Icon(Icons.Filled.Remove, contentDescription = "Decrease", modifier = Modifier.size(16.dp)) }
+                    ) { Icon(Icons.Filled.Remove, contentDescription = stringResource(Res.string.payables_decrease), modifier = Modifier.size(16.dp)) }
                     Text("${item.qty}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                     IconButton(
                         onClick = { onUpdate(item.copy(qty = item.qty + 1)) },
                         modifier = Modifier.size(32.dp),
-                    ) { Icon(Icons.Filled.Add, contentDescription = "Increase", modifier = Modifier.size(16.dp)) }
+                    ) { Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.payables_increase), modifier = Modifier.size(16.dp)) }
                 }
             }
 
             OutlinedTextField(
                 value = item.unitPrice,
                 onValueChange = { onUpdate(item.copy(unitPrice = it)) },
-                label = { Text("Unit Price") },
+                label = { Text(stringResource(Res.string.payables_pr_field_unit_price)) },
                 prefix = { Text("₹") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),

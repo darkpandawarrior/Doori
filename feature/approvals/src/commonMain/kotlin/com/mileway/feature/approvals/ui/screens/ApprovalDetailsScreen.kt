@@ -54,6 +54,24 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.common.asString
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_action_approve
+import com.mileway.core.ui.resources.approvals_action_clarify
+import com.mileway.core.ui.resources.approvals_action_reject
+import com.mileway.core.ui.resources.approvals_cd_back
+import com.mileway.core.ui.resources.approvals_field_amount
+import com.mileway.core.ui.resources.approvals_field_status
+import com.mileway.core.ui.resources.approvals_field_summary
+import com.mileway.core.ui.resources.approvals_field_type
+import com.mileway.core.ui.resources.approvals_policy_violation
+import com.mileway.core.ui.resources.approvals_policy_violation_message
+import com.mileway.core.ui.resources.approvals_policy_violation_title
+import com.mileway.core.ui.resources.approvals_request_details
+import com.mileway.core.ui.resources.approvals_resolved
+import com.mileway.core.ui.resources.approvals_submitted_request
+import com.mileway.core.ui.resources.approvals_subtitle_approval_request
+import com.mileway.core.ui.resources.approvals_you_approved
+import com.mileway.core.ui.resources.approvals_you_rejected
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
@@ -61,6 +79,7 @@ import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,12 +119,16 @@ fun ApprovalDetailsScreen(
                 title = {
                     Column {
                         Text(text = typeLabel(item.type), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                        Text(text = "Approval request", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = stringResource(Res.string.approvals_subtitle_approval_request),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.approvals_cd_back))
                     }
                 },
             )
@@ -146,7 +169,7 @@ fun ApprovalDetailsScreen(
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(item.requesterName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                                 Text(
-                                    "Submitted a ${typeLabel(item.type).lowercase()} request",
+                                    stringResource(Res.string.approvals_submitted_request, typeLabel(item.type).lowercase()),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -154,7 +177,7 @@ fun ApprovalDetailsScreen(
                             if (item.policyViolation) {
                                 Icon(
                                     Icons.Default.Warning,
-                                    contentDescription = "Policy violation",
+                                    contentDescription = stringResource(Res.string.approvals_policy_violation),
                                     tint = MilewayColors.warning,
                                     modifier = Modifier.size(20.dp),
                                 )
@@ -166,12 +189,16 @@ fun ApprovalDetailsScreen(
                 // Context card
                 Card(shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(2.dp)) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Request Details", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            stringResource(Res.string.approvals_request_details),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                         Spacer(Modifier.height(8.dp))
-                        DetailRow(label = "Type", value = typeLabel(item.type))
-                        DetailRow(label = "Summary", value = item.summary)
-                        DetailRow(label = "Amount", value = "₹${item.amountRupees.formatDecimal(2)}")
-                        DetailRow(label = "Status", value = effectiveStatus.name)
+                        DetailRow(label = stringResource(Res.string.approvals_field_type), value = typeLabel(item.type))
+                        DetailRow(label = stringResource(Res.string.approvals_field_summary), value = item.summary)
+                        DetailRow(label = stringResource(Res.string.approvals_field_amount), value = "₹${item.amountRupees.formatDecimal(2)}")
+                        DetailRow(label = stringResource(Res.string.approvals_field_status), value = effectiveStatus.name)
                     }
                 }
 
@@ -186,12 +213,16 @@ fun ApprovalDetailsScreen(
                             Spacer(Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    "Policy Violation",
+                                    stringResource(Res.string.approvals_policy_violation_title),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MilewayColors.warning,
                                 )
-                                Text("This request exceeds policy limits", style = MaterialTheme.typography.bodySmall, color = MilewayColors.warning)
+                                Text(
+                                    stringResource(Res.string.approvals_policy_violation_message),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MilewayColors.warning,
+                                )
                             }
                         }
                     }
@@ -201,9 +232,14 @@ fun ApprovalDetailsScreen(
                 AnimatedVisibility(visible = isResolved, enter = fadeIn()) {
                     val (icon, color, label) =
                         when (effectiveStatus) {
-                            ApprovalStatus.APPROVED -> Triple(Icons.Default.CheckCircle, MilewayColors.success, "You approved this request")
-                            ApprovalStatus.REJECTED -> Triple(Icons.Default.Cancel, MilewayColors.danger, "You rejected this request")
-                            else -> Triple(Icons.Default.CheckCircle, Color.Gray, "Resolved")
+                            ApprovalStatus.APPROVED ->
+                                Triple(
+                                    Icons.Default.CheckCircle,
+                                    MilewayColors.success,
+                                    stringResource(Res.string.approvals_you_approved),
+                                )
+                            ApprovalStatus.REJECTED -> Triple(Icons.Default.Cancel, MilewayColors.danger, stringResource(Res.string.approvals_you_rejected))
+                            else -> Triple(Icons.Default.CheckCircle, Color.Gray, stringResource(Res.string.approvals_resolved))
                         }
                     Card(
                         shape = RoundedCornerShape(12.dp),
@@ -239,21 +275,21 @@ fun ApprovalDetailsScreen(
                         ) {
                             Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Clarify")
+                            Text(stringResource(Res.string.approvals_action_clarify))
                         }
                         Button(
                             onClick = { viewModel.onAction(ApprovalsAction.Reject) },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.danger),
                         ) {
-                            Text("Reject")
+                            Text(stringResource(Res.string.approvals_action_reject))
                         }
                         Button(
                             onClick = { viewModel.onAction(ApprovalsAction.Approve) },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.success),
                         ) {
-                            Text("Approve")
+                            Text(stringResource(Res.string.approvals_action_approve))
                         }
                     }
                 }

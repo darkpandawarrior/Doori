@@ -16,11 +16,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payables_invoice_field_amount
+import com.mileway.core.ui.resources.payables_invoice_field_gl_code
+import com.mileway.core.ui.resources.payables_invoice_field_number
+import com.mileway.core.ui.resources.payables_invoice_field_tax
+import com.mileway.core.ui.resources.payables_invoice_field_vendor
+import com.mileway.core.ui.resources.payables_invoice_section_amount
+import com.mileway.core.ui.resources.payables_invoice_section_invoice
+import com.mileway.core.ui.resources.payables_invoice_submit
+import com.mileway.core.ui.resources.payables_invoice_title
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.payables.viewmodel.CreateInvoiceAction
 import com.mileway.feature.payables.viewmodel.CreateInvoiceEffect
 import com.mileway.feature.payables.viewmodel.CreateInvoiceViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** PB.1: Create Invoice, built on the shared F0.1 FormSubmissionScaffold + F0.2 SectionCards. */
@@ -51,24 +62,35 @@ fun CreateInvoiceScreen(
     }
 
     FormSubmissionScaffold(
-        title = "Create Invoice",
+        title = stringResource(Res.string.payables_invoice_title),
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateInvoiceAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = "Submit invoice",
+        submitLabel = stringResource(Res.string.payables_invoice_submit),
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
-            SectionCard(title = "Invoice", leadingIcon = null) {
-                Field("Invoice number *", ui.invoiceNumber) { viewModel.onAction(CreateInvoiceAction.SetInvoiceNumber(it)) }
-                Field("Vendor *", ui.vendor) { viewModel.onAction(CreateInvoiceAction.SetVendor(it)) }
+            SectionCard(title = stringResource(Res.string.payables_invoice_section_invoice), leadingIcon = null) {
+                Field(
+                    stringResource(Res.string.payables_invoice_field_number),
+                    ui.invoiceNumber,
+                ) { viewModel.onAction(CreateInvoiceAction.SetInvoiceNumber(it)) }
+                Field(stringResource(Res.string.payables_invoice_field_vendor), ui.vendor) { viewModel.onAction(CreateInvoiceAction.SetVendor(it)) }
             }
             Row(Modifier.fillMaxWidth().padding(top = 12.dp)) {}
-            SectionCard(title = "Amount & coding", leadingIcon = null) {
-                Field("Amount (₹) *", ui.amountText, KeyboardType.Decimal) { viewModel.onAction(CreateInvoiceAction.SetAmount(it)) }
-                Field("Tax %", ui.taxPercentText, KeyboardType.Decimal) { viewModel.onAction(CreateInvoiceAction.SetTax(it)) }
-                Field("GL code", ui.glCode) { viewModel.onAction(CreateInvoiceAction.SetGlCode(it)) }
+            SectionCard(title = stringResource(Res.string.payables_invoice_section_amount), leadingIcon = null) {
+                Field(
+                    stringResource(Res.string.payables_invoice_field_amount),
+                    ui.amountText,
+                    KeyboardType.Decimal,
+                ) { viewModel.onAction(CreateInvoiceAction.SetAmount(it)) }
+                Field(
+                    stringResource(Res.string.payables_invoice_field_tax),
+                    ui.taxPercentText,
+                    KeyboardType.Decimal,
+                ) { viewModel.onAction(CreateInvoiceAction.SetTax(it)) }
+                Field(stringResource(Res.string.payables_invoice_field_gl_code), ui.glCode) { viewModel.onAction(CreateInvoiceAction.SetGlCode(it)) }
             }
         }
     }
