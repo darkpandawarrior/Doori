@@ -19,6 +19,8 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 
 **[Highlights](#highlights)** · **[Screenshots](#screenshots)** · **[Features](#features)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
 
+**Portfolio:** [cv-siddharth.vercel.app](https://cv-siddharth.vercel.app/) &nbsp;·&nbsp; **Sibling project:** [PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab) &nbsp;·&nbsp; **Shared build logic:** [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)
+
 </div>
 
 ---
@@ -31,6 +33,7 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 - [Screenshots](#screenshots)
 - [Features](#features)
 - [Architecture](#architecture)
+  - [Engineering decisions](#engineering-decisions)
   - [Module map](#module-map)
   - [Project structure](#project-structure)
 - [Tech stack](#tech-stack)
@@ -44,6 +47,10 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 
 </details>
 
+<!-- AUTOGEN:stats -->
+> **At a glance** — **28-module** clean architecture (11 feature · 9 core), Room schema **v18**, **131** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+<!-- /AUTOGEN:stats -->
+
 ## Why Mileway
 
 Mileway is a self-contained, offline-first mileage tracker. The whole thing runs in airplane mode:
@@ -51,9 +58,16 @@ you track trips, log expenses, route approvals, and the data is still there afte
 tracked code reaches for the network.
 
 I also use it as a reference for how I build Android and KMP apps. That means Compose Multiplatform,
-a multi-module clean architecture across 27 Gradle modules, MVI-style unidirectional state, Koin for
+a multi-module clean architecture, MVI-style unidirectional state, Koin for
 DI, Room (KMP) with DataStore, and a `gms`/`noGms` flavor split so the same code ships to both the
 Play Store and F-Droid.
+
+Mileway doesn't stand alone. Its Gradle convention plugins live in a separate, reusable repo —
+[**kmp-build-logic**](https://github.com/darkpandawarrior/kmp-build-logic), pulled in as a Gradle
+`includeBuild` — so the AGP/Kotlin/Compose/test setup isn't copy-pasted per project but shared across
+my KMP work. Its sibling, [**PaymentsLab**](https://github.com/darkpandawarrior/PaymentsLab), goes
+deep on the payments/UPI slice the same way this repo goes deep on location and offline-first. Both
+sit under the same [portfolio](https://cv-siddharth.vercel.app/).
 
 ## Highlights
 
@@ -63,14 +77,14 @@ Play Store and F-Droid.
   from persisted points when the math changes.
 - 📴 **Genuinely offline.** No backend URLs, no API keys, no network calls in tracked code. It runs in
   airplane mode and keeps its state in Room and DataStore.
-- 🧩 **27-module clean architecture.** Feature modules never touch each other. They meet only at the
+- 🧩 **Multi-module clean architecture.** Feature modules never touch each other. They meet only at the
   `:app` composition root, wired through Koin.
 - 🌍 **Kotlin Multiplatform — iOS live (V19).** All feature screens run on Android *and* iOS from
   `commonMain`. Background scheduling uses [kmpworkmanager](https://github.com/brewkits/kmpworkmanager)
   (BGTask dispatcher + AppDelegate); platform services sit behind `expect`/`actual`.
 - 🔀 **One codebase, two distributions.** A `gms` Play build and a FOSS `noGms` / F-Droid build, with
   a dependency-prefix guard that fails the build the moment a proprietary library leaks into FOSS.
-- 🧪 **Quality gates in CI.** 131 Roborazzi/host-rendered screenshot tests on the JVM (no emulator,
+- 🧪 **Quality gates in CI.** A full Roborazzi/host-rendered screenshot suite on the JVM (no emulator,
   no network), Napier structured logging, detekt, ktlint and Kover, plus reproducible F-Droid
   release workflows.
 - 🔥 **Ember theme, four platforms from one KMP core.** A warm amber/red dark theme (replacing an
@@ -87,8 +101,14 @@ Play Store and F-Droid.
 |:---:|:---:|:---:|
 | ![Track Miles ready-to-start screen with vehicle selector and distance card](docs/screenshots/track_miles_idle_screen.png) | ![Track detail with route stats, journey overview and GPS-point breakdown](docs/screenshots/track_detail_screen.png) | ![Tracking success summary with distance, reimbursement amount and voucher](docs/screenshots/tracking_success_screen.png) |
 
+**Animated flows** (stitched from the deterministic host-rendered frames — no emulator needed):
+
+| Live tracking: idle → recording → success | One KMP core, five platforms |
+|:---:|:---:|
+| ![Tracking flow animation from ready-to-start through recording to the success summary](docs/demo/tracking_flow.gif) | ![The same shared core rendered on phone, Wear OS, an iOS widget, watchOS and Compose Desktop](docs/demo/multiplatform.gif) |
+
 <details>
-<summary><b>Full screen gallery</b>: every screen across the feature modules, grouped by area (131 images)</summary>
+<summary><b>Full screen gallery</b>: every screen across the feature modules, grouped by area</summary>
 
 <br/>
 
@@ -376,6 +396,22 @@ graph TD
   history flows that travel, payables, payments and events all reuse.
 - **Navigation.** Type-safe JetBrains Compose Navigation, with per-feature graphs assembled at `:app`.
 
+### Engineering decisions
+
+The interesting part of a portfolio project isn't the feature list — it's the trade-offs. A few
+choices here were deliberate, and each one closed off an easier alternative on purpose.
+
+| Decision | Why | What it cost / trade-off |
+|---|---|---|
+| **`commonMain`-first KMP, platform tech behind `expect`/`actual`** | Business logic, state and UI written once and *proven* to compile for Android, iOS, Wear, watchOS and Desktop — not "Android code we might port later." The `expect`/`actual` seam is the discipline that keeps `android.*`/`java.*` from leaking into shared code. | You write to the intersection of platforms. Anything platform-bound (FusedLocation, CameraX, ML Kit, BiometricPrompt, WorkManager, the foreground service) needs a declared interface + an actual per target, which is more ceremony than a plain Android call. |
+| **Offline-first on deterministic mock data, backend deferred** | Keeps the whole app runnable and reviewable with no keys, no network, no flaky fixtures — every screenshot and test is reproducible on the JVM. It's also honest: backend isn't a proven skill here *yet*, so it's sequenced, not faked. | No real sync conflicts, latency or auth to design against today. Mitigated by keeping every repository one implementation-swap away from a live data source (repositories already look network-shaped), so wiring a real API later isn't a rewrite. |
+| **Location engine: four-bucket accounting + deterministic recompute** | GPS is dirty. Rather than throw away suspect fixes, every point is kept and classified into `original` / `cleaned` / `abnormal` / `mock` buckets, all persisted. Distance can then be *recomputed from the stored points*, so a later math fix re-derives history instead of stranding already-tracked trips on old numbers. | More storage and a more complex write path than "sum the deltas as they arrive." The payoff is auditability and forward-fixable math — the thing that actually matters when a user disputes a distance. |
+| **MVI + single immutable state per screen** | One `StateFlow<State>` per screen, collected with `collectAsStateWithLifecycle`, wrapped in a shared `ScreenState` that models loading/empty/error/content uniformly. Renders are a pure function of state; there's no half-updated UI to reason about. | More boilerplate than mutable view state, and every field change means a fresh copy of the state object. Accepted because it makes recomposition predictable and screens trivial to screenshot-test. |
+| **`SearchProvider` registry instead of a central search index** | Each feature binds its own `SearchProvider` into Koin; the master-search aggregator resolves `getAll<SearchProvider>()` and fans out. Adding a searchable feature is a one-line Koin binding — no edit to a shared switch statement, no feature-to-feature dependency. | Search is only as good as each provider, and cross-feature ranking is naive (per-provider, then merged). Fine for the scale here; the decoupling is worth more than global relevance tuning. |
+| **One codebase, two distributions (`gms` / `noGms`) with a FOSS purity guard** | The same app ships to Play (Google Maps/Firebase via `gms`) and to F-Droid (MapLibre + offline MBTiles, zero proprietary deps via `noGms`). A dependency-prefix guard *fails the build* the instant a proprietary library reaches the `noGms` classpath — FOSS-clean is enforced, not hoped for. | Every platform integration needs a FOSS fallback (maps being the big one), and CI has to build/verify both flavors. The guard is what makes "it's really FOSS" a checkable claim rather than a README promise. |
+| **Shared Gradle logic in a separate `includeBuild` repo** | The convention plugins live in [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic), not inlined here, so AGP/Kotlin/Compose/test config is reused across projects (PaymentsLab too) instead of drifting per-repo. | One more repo to keep in sync, and a composite build to reason about. Worth it the moment a second KMP project exists. |
+| **Autonomous Ralph-loop development with a revert-on-uncommitted guard** | The app is built through versioned `.ralph/PLAN_Vxx.md` phases, each iteration editing → building → committing in one turn. A Stop hook reverts uncommitted tracked edits between turns, which *forces* small, self-contained, individually-revertable commits. | The workflow is unforgiving — a build that fails to commit in-turn is lost. That constraint is the point: it makes every change atomic and the history clean to bisect. |
+
 ### Module map
 
 | Module | Responsibility |
@@ -514,7 +550,7 @@ hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per i
 - **JVM unit tests.** 88 test classes covering ViewModels, repositories and feature logic with MockK
   and Turbine, run on the `noGms` flavor with no emulator.
 - **Screenshot tests.** Roborazzi renders every screen across all feature modules plus the
-  component-preview matrices on the JVM (`ScreenshotGalleryTest` and `ScreenshotCatalogTest`, 90+ PNGs
+  component-preview matrices on the JVM (`ScreenshotGalleryTest` and `ScreenshotCatalogTest`, all
   in `docs/screenshots/`). They're deterministic and diff cleanly in PRs.
 - **Static analysis.** detekt and ktlint across every module, with Kover for coverage.
 - **CI.** `.github/workflows/ci.yml` runs `assembleGmsDebug` and `testNoGmsDebugUnitTest` on every push
@@ -534,13 +570,13 @@ roadmap reflects direction rather than commitments.
 **Shipped**
 
 - [x] Offline-first app on deterministic mock data (zero backend calls)
-- [x] 27-module clean architecture with Koin DI
+- [x] Multi-module clean architecture with Koin DI
 - [x] Compose Multiplatform UI; `commonMain` core compiles for Android + iOS
 - [x] `gms` / `noGms` flavor split + FOSS dependency-prefix guard
 - [x] Room (KMP) + DataStore persistence
 - [x] Location engine (jitter / spike / four-bucket / IMU fusion) with a simulated drive source
 - [x] Master search: a registry across feature modules with an aggregator, results screen and navigation
-- [x] Roborazzi/host-rendered screenshot suite (131 images, JVM-only), detekt / ktlint / Kover, CI + release workflows
+- [x] Roborazzi/host-rendered screenshot suite (JVM-only, no emulator), detekt / ktlint / Kover, CI + release workflows
 - [x] Wear OS companion tile
 - [x] **iOS UI parity (V19).** All feature screens in `commonMain`; background scheduling via
       kmpworkmanager; AppDelegate + BGTask dispatcher; iOS builds and passes all CI gates.
@@ -645,5 +681,8 @@ same pipeline, so the whole tracking flow works on an emulator with no GPS hardw
 ---
 
 <div align="center">
+
+**[Portfolio](https://cv-siddharth.vercel.app/)** &nbsp;·&nbsp; **[PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab)** (sibling KMP project) &nbsp;·&nbsp; **[kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)** (shared convention plugins)
+
 <sub>Mileway is a portfolio / demo project. All companies, bookings, cards and amounts are fictional mock data.</sub>
 </div>

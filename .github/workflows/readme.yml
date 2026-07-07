@@ -1,0 +1,43 @@
+name: README auto-refresh
+
+# Regenerates the <!-- AUTOGEN:x --> fact spans in README.md from settings.gradle.kts,
+# the Room DB file, and docs/screenshots, then commits any drift. Auto-commit (not
+# fail-the-build) so a stale count never needs a human. [skip ci] keeps it loop-safe;
+# the committer is github-actions[bot], so the no-AI-attribution guard passes.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'settings.gradle.kts'
+      - 'docs/screenshots/**'
+      - 'core/data/**/MilewayDatabase.kt'
+      - 'scripts/gen-readme.sh'
+  workflow_dispatch:
+
+concurrency:
+  group: readme-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Regenerate README fact spans
+        run: |
+          chmod +x ./scripts/gen-readme.sh
+          ./scripts/gen-readme.sh
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if git diff --cached --quiet; then
+            echo "README already current."
+          else
+            git commit -m "chore(readme): auto-refresh fact spans [skip ci]"
+            git push
+          fi
