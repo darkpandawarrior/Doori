@@ -1,12 +1,15 @@
 package com.mileway.core.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
 
@@ -16,6 +19,22 @@ import com.materialkolor.rememberDynamicColorScheme
  */
 @Composable
 expect fun systemDynamicColorScheme(darkTheme: Boolean): ColorScheme?
+
+/**
+ * App-wide "square rounded" shape scheme. Every Material 3 component that reads
+ * [MaterialTheme.shapes] — Card (medium), Chip/menus/text fields (small/extraSmall),
+ * FAB (large), dialogs & sheets (extraLarge) — inherits squared corners from here, so the
+ * squared look lands without touching those call sites. Buttons use a fixed pill shape M3
+ * does not source from this scheme; they take `shape = DesignTokens.Shape.button` explicitly.
+ */
+private val MilewayShapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(8.dp),
+        small = RoundedCornerShape(10.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(16.dp),
+        extraLarge = RoundedCornerShape(16.dp),
+    )
 
 /**
  * App theme — Design Language v2.
@@ -94,6 +113,7 @@ fun MilewayTheme(
         MaterialTheme(
             colorScheme = colorScheme,
             typography = MilewayTypography,
+            shapes = MilewayShapes,
             content = content,
         )
     }

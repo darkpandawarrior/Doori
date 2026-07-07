@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -331,7 +330,7 @@ private fun AnimatedSearchAction(
                         .size(42.dp * breathingScale)
                         .background(
                             color = MaterialTheme.colorScheme.primary.copy(alpha = glowAlpha * 0.25f),
-                            shape = CircleShape,
+                            shape = DesignTokens.Shape.button,
                         )
                         .blur(12.dp),
             )
@@ -342,7 +341,7 @@ private fun AnimatedSearchAction(
             modifier =
                 Modifier
                     .size(40.dp)
-                    .background(color = containerColor, shape = CircleShape)
+                    .background(color = containerColor, shape = DesignTokens.Shape.button)
                     .clickable(
                         interactionSource = interactionSource,
                         indication = null,

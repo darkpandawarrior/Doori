@@ -1248,6 +1248,9 @@
     <string name="core_filter_title">फ़िल्टर</string>
     <string name="core_cd_back">वापस</string>
     <string name="core_cd_search">खोजें</string>
+    <string name="core_show_more">और</string>
+    <string name="core_show_less">कम</string>
+    <string name="core_cd_more_options">अधिक विकल्प</string>
     <string name="core_cd_clear">साफ़ करें</string>
     <string name="core_cd_close">बंद करें</string>
     <string name="core_cd_refresh">रिफ़्रेश करें</string>

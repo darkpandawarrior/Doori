@@ -42,6 +42,17 @@ object DesignTokens {
 
     /** Corner radius scale for cards, chips and sheets. */
     object Shape {
+        /**
+         * Canonical "square rounded" shape for every interactive component — buttons, chips,
+         * icon-button backgrounds, tiles, inputs. 12dp: clearly squared (never a pill/circle),
+         * still soft. This is the single source of truth; do NOT use CircleShape or
+         * RoundedCornerShape(50) for interactive surfaces.
+         */
+        val button = RoundedCornerShape(12.dp)
+
+        /** Alias of [button] for non-button squared surfaces (avatars, badges, dots). */
+        val squared = RoundedCornerShape(12.dp)
+
         val roundedSm = RoundedCornerShape(12.dp)
         val roundedMd = RoundedCornerShape(16.dp)
         val roundedLg = RoundedCornerShape(20.dp)
