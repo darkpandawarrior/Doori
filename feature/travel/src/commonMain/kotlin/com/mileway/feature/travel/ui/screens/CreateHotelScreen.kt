@@ -16,8 +16,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_guests_required
 import com.mileway.feature.travel.viewmodel.CreateHotelAction
 import com.mileway.feature.travel.viewmodel.CreateHotelViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val ROOM_PREFERENCES = listOf("Standard", "Deluxe", "Suite")
@@ -51,7 +54,7 @@ fun CreateHotelScreen(
                 OutlinedTextField(
                     value = ui.guestsText,
                     onValueChange = { viewModel.onAction(CreateHotelAction.SetGuests(it)) },
-                    label = { Text("Guests *") },
+                    label = { Text(stringResource(Res.string.travel_guests_required)) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),

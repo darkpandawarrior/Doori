@@ -38,6 +38,19 @@
     <!-- Location pin -->
     <string name="location_you_are_here">You\'re here</string>
 
+    <!-- Travel -->
+    <string name="travel_book_flight">Book Flight</string>
+    <string name="travel_book_train">Book Train</string>
+    <string name="travel_add_leg">Add another leg</string>
+    <string name="travel_view_boarding_pass">View Boarding Pass</string>
+    <string name="travel_request_advance">Request travel advance</string>
+    <string name="travel_guests_required">Guests *</string>
+    <string name="travel_route">Route</string>
+    <string name="travel_remove_leg">Remove leg</string>
+    <string name="travel_active_trips">Active Trips</string>
+    <string name="travel_upcoming">Upcoming</string>
+    <string name="travel_total_spend">Total Spend</string>
+
     <!-- Auth -->
     <string name="auth_sign_in">Sign In</string>
     <string name="auth_continue_guest">Continue as guest</string>

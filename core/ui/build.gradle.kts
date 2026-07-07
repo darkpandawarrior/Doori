@@ -25,7 +25,9 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.runtime)
             implementation(libs.foundation)
-            implementation(compose.components.resources)
+            // api (not implementation) so every module depending on core:ui can call
+            // stringResource(Res.string.…) against the shared string table without re-declaring this.
+            api(compose.components.resources)
             implementation(libs.material3)
             implementation(libs.ui)
             implementation(libs.material.icons.extended)

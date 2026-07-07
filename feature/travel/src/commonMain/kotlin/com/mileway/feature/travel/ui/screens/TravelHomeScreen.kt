@@ -58,6 +58,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.common.asString
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.mvi.ScreenStateContent
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_active_trips
+import com.mileway.core.ui.resources.travel_book_flight
+import com.mileway.core.ui.resources.travel_book_train
+import com.mileway.core.ui.resources.travel_total_spend
+import com.mileway.core.ui.resources.travel_upcoming
+import com.mileway.core.ui.resources.travel_view_boarding_pass
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.travel.model.BookingRecord
@@ -66,6 +73,7 @@ import com.mileway.feature.travel.viewmodel.TravelAction
 import com.mileway.feature.travel.viewmodel.TravelEffect
 import com.mileway.feature.travel.viewmodel.TravelViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val TealGradient =
@@ -374,11 +382,11 @@ private fun SummaryStrip(
                     .padding(vertical = DesignTokens.Spacing.m),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
-            MetricItem(label = "Active Trips", value = activeTripCount.toString())
+            MetricItem(label = stringResource(Res.string.travel_active_trips), value = activeTripCount.toString())
             VerticalDivider()
-            MetricItem(label = "Upcoming", value = upcomingCount.toString())
+            MetricItem(label = stringResource(Res.string.travel_upcoming), value = upcomingCount.toString())
             VerticalDivider()
-            MetricItem(label = "Total Spend", value = "₹${totalSpend.toLong()}")
+            MetricItem(label = stringResource(Res.string.travel_total_spend), value = "₹${totalSpend.toLong()}")
         }
     }
 }
@@ -480,7 +488,7 @@ private fun ActiveTripCard(
                 onClick = onViewBoardingPass,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("View Boarding Pass")
+                Text(stringResource(Res.string.travel_view_boarding_pass))
             }
         }
     }
@@ -561,12 +569,12 @@ private fun QuickActionsRow(
         OutlinedButton(onClick = onBookFlight, modifier = Modifier.weight(1f)) {
             Icon(Icons.Filled.AirplanemodeActive, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.size(6.dp))
-            Text("Book Flight")
+            Text(stringResource(Res.string.travel_book_flight))
         }
         OutlinedButton(onClick = onBookTrain, modifier = Modifier.weight(1f)) {
             Icon(Icons.Filled.DirectionsRailway, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.size(6.dp))
-            Text("Book Train")
+            Text(stringResource(Res.string.travel_book_train))
         }
     }
 }

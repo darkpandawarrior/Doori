@@ -21,6 +21,18 @@
 
     <string name="location_you_are_here">आप यहाँ हैं</string>
 
+    <string name="travel_book_flight">फ्लाइट बुक करें</string>
+    <string name="travel_book_train">ट्रेन बुक करें</string>
+    <string name="travel_add_leg">एक और चरण जोड़ें</string>
+    <string name="travel_view_boarding_pass">बोर्डिंग पास देखें</string>
+    <string name="travel_request_advance">यात्रा अग्रिम का अनुरोध करें</string>
+    <string name="travel_guests_required">मेहमान *</string>
+    <string name="travel_route">मार्ग</string>
+    <string name="travel_remove_leg">चरण हटाएँ</string>
+    <string name="travel_active_trips">सक्रिय यात्राएँ</string>
+    <string name="travel_upcoming">आगामी</string>
+    <string name="travel_total_spend">कुल खर्च</string>
+
     <string name="auth_sign_in">साइन इन करें</string>
     <string name="auth_continue_guest">अतिथि के रूप में जारी रखें</string>
 </resources>

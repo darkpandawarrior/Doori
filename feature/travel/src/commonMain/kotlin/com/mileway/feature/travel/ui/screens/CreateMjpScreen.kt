@@ -18,8 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_add_leg
+import com.mileway.core.ui.resources.travel_remove_leg
+import com.mileway.core.ui.resources.travel_route
 import com.mileway.feature.travel.viewmodel.CreateMjpAction
 import com.mileway.feature.travel.viewmodel.CreateMjpViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** TR.6: Multi-city Journey Plan (MJP) create flow with add/remove legs, on the shared FormSubmissionScaffold. */
@@ -53,10 +58,10 @@ fun CreateMjpScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("Route", modifier = Modifier.padding(top = 12.dp))
+                        Text(stringResource(Res.string.travel_route), modifier = Modifier.padding(top = 12.dp))
                         if (ui.legs.size > 1) {
                             IconButton(onClick = { viewModel.onAction(CreateMjpAction.RemoveLeg(index)) }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "Remove leg")
+                                Icon(Icons.Filled.Delete, contentDescription = stringResource(Res.string.travel_remove_leg))
                             }
                         }
                     }
@@ -70,7 +75,7 @@ fun CreateMjpScreen(
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.padding(end = 6.dp))
-                Text("Add another leg")
+                Text(stringResource(Res.string.travel_add_leg))
             }
         }
     }

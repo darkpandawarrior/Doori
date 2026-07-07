@@ -15,8 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_request_advance
 import com.mileway.feature.travel.viewmodel.CreateTripAction
 import com.mileway.feature.travel.viewmodel.CreateTripViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** TR.2: Create Trip request, built on the shared F0.1 FormSubmissionScaffold + SectionCards. */
@@ -56,7 +59,7 @@ fun CreateTripScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("Request travel advance", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(Res.string.travel_request_advance), style = MaterialTheme.typography.bodyMedium)
                     Switch(
                         checked = ui.advanceRequired,
                         onCheckedChange = { viewModel.onAction(CreateTripAction.SetAdvanceRequired(it)) },
