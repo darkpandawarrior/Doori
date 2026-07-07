@@ -1,23 +1,31 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
+    id("shared.kmp.compose")
 }
 
 /**
- * iOS umbrella module: produces the single `Mileway.framework` the Xcode app links against.
+ * Shared app-shell + iOS umbrella module.
  *
- * The framework can't live in `core:ui`, because the Swift app also calls into `feature:tracking`
- * (`IosTrackingEntryKt.MilwayViewController`, `IosBgTaskDispatcher`), and a core module must not depend
- * on a feature (that would be a dependency cycle: feature:tracking already depends on core:ui). This
- * module sits *above* both and re-exports their iOS entrypoints, so adding more iOS-facing features later
- * means depending on them here — never making a feature depend on its siblings.
+ * Dual-target (Android + iOS): it holds the app-shell UI (home dashboard, navigation, auth, search)
+ * in `commonMain` so **both** the Android `:app` and the iOS `MainViewController` render the same
+ * `MilewayApp()` — full KMP/CMP parity (see AgentHarness/plans/mileway/app-shell-ios-parity.md).
+ *
+ * It also produces the single `Mileway.framework` the Xcode app links against. The framework can't
+ * live in `core:ui`, because the shell calls into feature modules and a core module must not depend
+ * on a feature. This module sits *above* core + features and re-exports the iOS entrypoints.
  *
  * Exported API surfaced to Swift:
  *  - core:ui          → MainViewController, ReferralBridge, PushBridge, DeepLinkBridge
  *  - feature:tracking → MilwayViewController (IosTrackingEntry), IosBgTaskDispatcher
  *  - feature:agent    → iosAgentModule (IosAgentEntry)
- *  - feature:logging  → IosIntentEntry (P7.1: iOS App Intents start/stop/log-expense bridge)
+ *  - feature:logging  → IosIntentEntry (iOS App Intents start/stop/log-expense bridge)
  */
 kotlin {
+    android {
+        namespace = "com.mileway.shared"
+        compileSdk = 37
+        minSdk = 30
+    }
+
     listOf(
         iosArm64(),
         iosSimulatorArm64(),
@@ -33,14 +41,37 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // Compose runtime + UI libs — this module now hosts Compose shell UI (Compose compiler is
+            // applied via shared.kmp.compose), and core:ui exposes these as `implementation`, so they
+            // aren't transitive. Mirror core:ui's set.
+            implementation(libs.runtime)
+            implementation(libs.foundation)
+            implementation(libs.material3)
+            implementation(libs.ui)
+            implementation(libs.material.icons.extended)
+            implementation(libs.koin.core)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.lifecycle.viewmodel)
+
             // api(...) is required for export(...) above to surface these modules' public API in the framework.
             api(project(":core:ui"))
             api(project(":feature:tracking"))
             api(project(":feature:agent"))
             api(project(":feature:logging"))
+
+            // Remaining feature deps — the hoisted app-shell (home/nav/auth/search) composes every
+            // feature at the composition root, so this module depends on all of them (as :app did).
+            api(project(":feature:cards"))
+            api(project(":feature:events"))
+            api(project(":feature:payments"))
+            api(project(":feature:payables"))
+            api(project(":feature:travel"))
+            api(project(":feature:profile"))
+            api(project(":feature:approvals"))
+            api(project(":feature:media"))
         }
         iosMain.dependencies {
-            // No extra deps — MilwayAppViewController() uses api deps already imported above.
+            // No extra deps — MainViewController() uses api deps already imported above.
         }
     }
 }
