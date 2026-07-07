@@ -58,7 +58,9 @@ Play Store and F-Droid.
 ## Highlights
 
 - 🛰️ **Real location engineering.** The tracking pipeline fights GPS jitter and recovers from spikes,
-  with spike detection, four-bucket distance accounting and IMU fusion.
+  with spike detection, four-bucket distance accounting, IMU fusion, device-tier-adaptive sampling
+  and config-driven detection thresholds — and a deterministic recompute that re-derives history
+  from persisted points when the math changes.
 - 📴 **Genuinely offline.** No backend URLs, no API keys, no network calls in tracked code. It runs in
   airplane mode and keeps its state in Room and DataStore.
 - 🧩 **27-module clean architecture.** Feature modules never touch each other. They meet only at the
@@ -308,12 +310,13 @@ Every feature is fully interactive on mocked, offline data.
 
 | Area | What's inside |
 |---|---|
-| **Tracking** | Live GPS trip tracking on a foreground service (jitter suppression, spike detection, four-bucket accounting); geofenced check-in with manual fallback; saved tracks (journey/submission tabs); trip insights; hardware-events log; GPX / CSV / KML / GeoJSON export. |
-| **Logging &amp; Expenses** | Step-by-step manual trip logging; expense entry → detail → success chain. |
+| **Tracking** | Live GPS trip tracking on a foreground service (jitter suppression, spike detection, four-bucket accounting, device-tier-adaptive sampling, config-driven abnormal detection); geofenced check-in with manual fallback; saved tracks (journey/submission tabs); trip insights; hardware-events log; multi-frame odometer OCR with typed start/end snapshots; multi-session restore of interrupted trips; a success screen with a policy-driven reimbursement amount; GPX / CSV / KML / GeoJSON **import &amp; export** plus Excel export. |
+| **Logging &amp; Expenses** | Step-by-step manual trip logging backed by a durable Room submit-outbox (survives kill/relaunch); expense entry → detail → success chain; a shared policy rate engine for mileage reimbursement. |
 | **Travel** | Travel hub, active-trip card (flight / train), upcoming bookings, plus trip &amp; booking history surfaces. |
 | **Approvals &amp; Payables** | Approval queue with policy-violation badges and seek-clarification sheet; payables hub, multi-step create-PR / invoice flows and history surfaces. |
 | **Payments, Events &amp; Cards** | QR pay / request + history; event creation + history; card home / detail / request (KYC-lite). |
 | **Profile &amp; Account** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, and a MaterialKolor theme engine. |
+| **Local dev &amp; infra** | A local analytics sink with a kill switch, a Ktor network-log + API-tester debug console, and a server-driven tracking config loaded from local JSON — all offline, no backend. |
 | **Media** | CameraX capture (flash, pinch-zoom, tap-focus), on-device odometer OCR, attachment grid. |
 | **Master search** | A registry-based search that fans a query across every feature module. |
 
@@ -566,6 +569,13 @@ roadmap reflects direction rather than commitments.
       App Shortcuts + Quick Settings tile + AppFunctions; iOS WidgetKit widgets, Live Activity/Dynamic
       Island, and App Intents/Siri Shortcuts; an accessibility sweep across every new surface on both
       platforms.
+- [x] **Feature-parity &amp; tracking-engine depth wave.** A policy-driven reimbursement rate engine and
+      a tracking success screen; device-tier-adaptive sampling, config-driven abnormal detection,
+      multi-frame odometer OCR with typed snapshots (Room migration to v18) and deterministic distance
+      recompute; GPX/CSV/KML/GeoJSON import + Excel export; a durable Room submit-outbox for manual
+      logging; offline sync scaffolding (local-data flagging + multi-session restore); and local-only
+      dev infra — an analytics sink with kill switch, a Ktor network-log/API-tester console, and a
+      server-driven tracking config loaded from local JSON. All offline/mock, no backend.
 
 **Exploring**
 
@@ -622,6 +632,12 @@ The tracking pipeline is built to suppress jitter and recover from GPS spikes:
 - **Four-bucket accounting.** `original`, `cleaned`, `abnormal` and `mock` are each persisted per track.
 - **Mock-location flagging.** Spoofing is detectable, not just blocked.
 - **IMU fusion.** Accelerometer and gyroscope snapshots feed the post-hoc insight analyzers.
+- **Device-tier-adaptive sampling.** Location cadence and analysis depth scale to the device's tier,
+  so low-end hardware isn't overwhelmed while high-end devices get full fidelity.
+- **Config-driven abnormal detection.** Spike / teleport thresholds come from one tunable config
+  object (locally overridable), not magic numbers scattered through the pipeline.
+- **Deterministic DB-recompute.** Distance buckets can be recomputed from the persisted points, so a
+  math fix re-derives history instead of stranding already-tracked trips on the old numbers.
 
 Set `SIMULATE_LOCATION = true` and a simulated drive source feeds believable fixes through the exact
 same pipeline, so the whole tracking flow works on an emulator with no GPS hardware.
