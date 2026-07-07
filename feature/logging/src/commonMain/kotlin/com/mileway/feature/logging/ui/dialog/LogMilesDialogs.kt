@@ -38,7 +38,30 @@ import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.SubmissionStatus
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_accept_resubmit
+import com.mileway.core.ui.resources.logging_amount_adjusted_body
+import com.mileway.core.ui.resources.logging_amount_adjusted_title
+import com.mileway.core.ui.resources.logging_calculated
+import com.mileway.core.ui.resources.logging_cancel
+import com.mileway.core.ui.resources.logging_claimed
+import com.mileway.core.ui.resources.logging_close
+import com.mileway.core.ui.resources.logging_current
+import com.mileway.core.ui.resources.logging_done
+import com.mileway.core.ui.resources.logging_policy_violations_title
+import com.mileway.core.ui.resources.logging_reimbursable
+import com.mileway.core.ui.resources.logging_remarks_label
+import com.mileway.core.ui.resources.logging_resubmit_with_remarks
+import com.mileway.core.ui.resources.logging_save
+import com.mileway.core.ui.resources.logging_submission_blocked_body
+import com.mileway.core.ui.resources.logging_submission_blocked_title
+import com.mileway.core.ui.resources.logging_tag_employees_title
+import com.mileway.core.ui.resources.logging_update_distance_label
+import com.mileway.core.ui.resources.logging_verify_distance_body
+import com.mileway.core.ui.resources.logging_verify_distance_title
+import com.mileway.core.ui.resources.logging_violations_fallback
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * "Verify Distance" dialog. Shows the auto-calculated distance against the value
@@ -61,10 +84,10 @@ fun VerifyDistanceDialog(
 
     AppActionSheet(
         onDismiss = onDismiss,
-        title = "Verify Distance",
+        title = stringResource(Res.string.logging_verify_distance_title),
     ) {
         Text(
-            "We calculated your journey distance. You can keep it or adjust if needed.",
+            stringResource(Res.string.logging_verify_distance_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -80,14 +103,14 @@ fun VerifyDistanceDialog(
                         .padding(DesignTokens.Spacing.l),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                LabeledValue("Calculated", "${calculatedKm.formatDecimal(2)} km")
-                LabeledValue("Current", "${currentKm.formatDecimal(2)} km", alignEnd = true)
+                LabeledValue(stringResource(Res.string.logging_calculated), "${calculatedKm.formatDecimal(2)} km")
+                LabeledValue(stringResource(Res.string.logging_current), "${currentKm.formatDecimal(2)} km", alignEnd = true)
             }
         }
         OutlinedTextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Update distance (km)") },
+            label = { Text(stringResource(Res.string.logging_update_distance_label)) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             modifier = Modifier.fillMaxWidth(),
@@ -96,12 +119,12 @@ fun VerifyDistanceDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
             Button(
                 onClick = { parsed?.let(onSave) },
                 enabled = parsed != null && parsed >= 0.0,
                 modifier = Modifier.weight(1f),
-            ) { Text("Save") }
+            ) { Text(stringResource(Res.string.logging_save)) }
         }
     }
 }
@@ -141,7 +164,7 @@ fun TaggedEmployeesDialog(
 
     AppActionSheet(
         onDismiss = onDismiss,
-        title = "Tag Employees",
+        title = stringResource(Res.string.logging_tag_employees_title),
     ) {
         Column(
             modifier =
@@ -173,8 +196,8 @@ fun TaggedEmployeesDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
-            Button(onClick = { onConfirm(selected.toList()) }, modifier = Modifier.weight(1f)) { Text("Done") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
+            Button(onClick = { onConfirm(selected.toList()) }, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_done)) }
         }
     }
 }
@@ -204,11 +227,12 @@ fun ViolationDialog(
     onResubmit: (remarks: String) -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val violationsFallback = stringResource(Res.string.logging_violations_fallback)
     val messages: List<String> =
         buildList {
             response.violations.forEach { add(it.message.ifBlank { it.title }) }
             response.policyViolations.orEmpty().forEach { it.error?.let(::add) }
-        }.filter { it.isNotBlank() }.ifEmpty { listOf("This submission has policy violations.") }
+        }.filter { it.isNotBlank() }.ifEmpty { listOf(violationsFallback) }
 
     when (response.submissionStatus) {
         SubmissionStatus.REIMBURSABLE_ADJUSTED ->
@@ -233,7 +257,7 @@ private fun ReimbursableAdjustedContent(
 
     AppActionSheet(
         onDismiss = onDismiss,
-        title = "Amount Adjusted",
+        title = stringResource(Res.string.logging_amount_adjusted_title),
     ) {
         Icon(
             Icons.Filled.WarningAmber,
@@ -241,8 +265,7 @@ private fun ReimbursableAdjustedContent(
             tint = DesignTokens.StatusColors.warning,
         )
         Text(
-            "Your claimed distance exceeds the daily reimbursable limit. The amount below has " +
-                "been adjusted to what's payable under policy.",
+            stringResource(Res.string.logging_amount_adjusted_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -258,16 +281,16 @@ private fun ReimbursableAdjustedContent(
                         .padding(DesignTokens.Spacing.l),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                LabeledValue("Claimed", claimed.formatDecimal(2))
-                LabeledValue("Reimbursable", reimbursable.formatDecimal(2), alignEnd = true)
+                LabeledValue(stringResource(Res.string.logging_claimed), claimed.formatDecimal(2))
+                LabeledValue(stringResource(Res.string.logging_reimbursable), reimbursable.formatDecimal(2), alignEnd = true)
             }
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
-            Button(onClick = onAccept, modifier = Modifier.weight(1f)) { Text("Accept & Resubmit") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
+            Button(onClick = onAccept, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_accept_resubmit)) }
         }
     }
 }
@@ -283,7 +306,7 @@ private fun PolicyViolationContent(
 
     AppActionSheet(
         onDismiss = onDismiss,
-        title = "Policy Violations",
+        title = stringResource(Res.string.logging_policy_violations_title),
     ) {
         Icon(
             Icons.Filled.WarningAmber,
@@ -304,19 +327,19 @@ private fun PolicyViolationContent(
         OutlinedTextField(
             value = remarks,
             onValueChange = { remarks = it },
-            label = { Text("Remarks (required to resubmit)") },
+            label = { Text(stringResource(Res.string.logging_remarks_label)) },
             modifier = Modifier.fillMaxWidth(),
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
             Button(
                 onClick = { onResubmit(remarks) },
                 enabled = remarks.isNotBlank(),
                 modifier = Modifier.weight(1f),
-            ) { Text("Resubmit with Remarks") }
+            ) { Text(stringResource(Res.string.logging_resubmit_with_remarks)) }
         }
     }
 }
@@ -329,7 +352,7 @@ private fun HardStopContent(
 ) {
     AppActionSheet(
         onDismiss = onDismiss,
-        title = "Submission Blocked",
+        title = stringResource(Res.string.logging_submission_blocked_title),
     ) {
         Icon(
             Icons.Filled.Block,
@@ -337,7 +360,7 @@ private fun HardStopContent(
             tint = DesignTokens.StatusColors.error,
         )
         Text(
-            "This submission cannot proceed:",
+            stringResource(Res.string.logging_submission_blocked_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -347,6 +370,6 @@ private fun HardStopContent(
                 Text(msg, style = MaterialTheme.typography.bodyMedium)
             }
         }
-        Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text("Close") }
+        Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.logging_close)) }
     }
 }

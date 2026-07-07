@@ -42,11 +42,30 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.EmptyState
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_delete_draft_cd
+import com.mileway.core.ui.resources.logging_drafts_count
+import com.mileway.core.ui.resources.logging_expense_date
+import com.mileway.core.ui.resources.logging_expense_id
+import com.mileway.core.ui.resources.logging_history_subtitle
+import com.mileway.core.ui.resources.logging_history_title
+import com.mileway.core.ui.resources.logging_no_drafts_subtitle
+import com.mileway.core.ui.resources.logging_no_drafts_title
+import com.mileway.core.ui.resources.logging_no_submissions_subtitle
+import com.mileway.core.ui.resources.logging_no_submissions_title
+import com.mileway.core.ui.resources.logging_none
+import com.mileway.core.ui.resources.logging_office
+import com.mileway.core.ui.resources.logging_policy_violation
+import com.mileway.core.ui.resources.logging_submitted_count
+import com.mileway.core.ui.resources.logging_submitted_on
+import com.mileway.core.ui.resources.logging_updated
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesDraftUi
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** The two history tabs. */
@@ -123,7 +142,7 @@ private fun HistoryHeader(onBack: () -> Unit) {
             IconButton(onClick = onBack) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(Res.string.logging_back_cd),
                     tint = Color.White,
                 )
             }
@@ -136,13 +155,13 @@ private fun HistoryHeader(onBack: () -> Unit) {
             Spacer(Modifier.size(DesignTokens.Spacing.m))
             Column {
                 Text(
-                    "Log Miles History",
+                    stringResource(Res.string.logging_history_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = Color.White,
                 )
                 Text(
-                    "Drafts and submitted log miles",
+                    stringResource(Res.string.logging_history_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.85f),
                 )
@@ -171,14 +190,14 @@ private fun SegmentedControl(
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             SegmentButton(
-                label = "Drafts ($draftCount)",
+                label = stringResource(Res.string.logging_drafts_count, draftCount),
                 selected = selected == HistoryTab.DRAFTS,
                 showCheck = selected == HistoryTab.DRAFTS,
                 onClick = { onSelect(HistoryTab.DRAFTS) },
                 modifier = Modifier.weight(1f),
             )
             SegmentButton(
-                label = "Submitted ($submittedCount)",
+                label = stringResource(Res.string.logging_submitted_count, submittedCount),
                 selected = selected == HistoryTab.SUBMITTED,
                 showCheck = selected == HistoryTab.SUBMITTED,
                 onClick = { onSelect(HistoryTab.SUBMITTED) },
@@ -226,8 +245,8 @@ private fun DraftsTab(
 ) {
     if (drafts.isEmpty()) {
         EmptyState(
-            title = "No drafts yet",
-            subtitle = "Start a new log miles journey to save a draft",
+            title = stringResource(Res.string.logging_no_drafts_title),
+            subtitle = stringResource(Res.string.logging_no_drafts_subtitle),
         )
         return
     }
@@ -288,7 +307,7 @@ private fun DraftCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    "Updated ${DateUtils.epochToDisplayDate(draft.updatedAtMillis)}",
+                    stringResource(Res.string.logging_updated, DateUtils.epochToDisplayDate(draft.updatedAtMillis)),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -296,7 +315,7 @@ private fun DraftCard(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Filled.DeleteOutline,
-                    contentDescription = "Delete draft",
+                    contentDescription = stringResource(Res.string.logging_delete_draft_cd),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
@@ -307,7 +326,7 @@ private fun DraftCard(
 @Composable
 private fun SubmittedTab(vouchers: List<SubmittedVoucher>) {
     if (vouchers.isEmpty()) {
-        EmptyState(title = "No submissions yet", subtitle = "Submitted log miles will appear here")
+        EmptyState(title = stringResource(Res.string.logging_no_submissions_title), subtitle = stringResource(Res.string.logging_no_submissions_subtitle))
         return
     }
     // Group by expense day, newest first, with a date header per group.
@@ -401,7 +420,7 @@ private fun VoucherCard(voucher: SubmittedVoucher) {
                 }
             }
             Spacer(Modifier.size(DesignTokens.Spacing.xs))
-            Pill(text = "Office: ${voucher.office}")
+            Pill(text = stringResource(Res.string.logging_office, voucher.office))
 
             Spacer(Modifier.size(DesignTokens.Spacing.m))
 
@@ -428,12 +447,12 @@ private fun VoucherCard(voucher: SubmittedVoucher) {
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 LabelValue(
-                    label = "Expense date",
+                    label = stringResource(Res.string.logging_expense_date),
                     value = DateUtils.epochToDisplayDate(voucher.expenseDateMillis),
                     modifier = Modifier.weight(1f),
                 )
                 LabelValue(
-                    label = "Expense Id",
+                    label = stringResource(Res.string.logging_expense_id),
                     value = voucher.expenseId,
                     modifier = Modifier.weight(1f),
                 )
@@ -441,13 +460,13 @@ private fun VoucherCard(voucher: SubmittedVoucher) {
             Spacer(Modifier.size(DesignTokens.Spacing.s))
             Row(modifier = Modifier.fillMaxWidth()) {
                 LabelValue(
-                    label = "Submitted on",
+                    label = stringResource(Res.string.logging_submitted_on),
                     value = DateUtils.epochToDisplayDate(voucher.submittedOnMillis),
                     modifier = Modifier.weight(1f),
                 )
                 LabelValue(
-                    label = "Policy violation",
-                    value = if (voucher.violationCount > 0) "${voucher.violationCount}" else "None",
+                    label = stringResource(Res.string.logging_policy_violation),
+                    value = if (voucher.violationCount > 0) "${voucher.violationCount}" else stringResource(Res.string.logging_none),
                     modifier = Modifier.weight(1f),
                 )
             }

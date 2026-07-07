@@ -17,11 +17,16 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_no_settlements_subtitle
+import com.mileway.core.ui.resources.logging_no_settlements_title
+import com.mileway.core.ui.resources.logging_settlements_title
 import com.mileway.feature.logging.repository.SettlementRecord
 import com.mileway.feature.logging.repository.SettlementStatus
 import com.mileway.feature.logging.viewmodel.SETTLEMENT_HISTORY_TABS
 import com.mileway.feature.logging.viewmodel.SettlementHistoryAction
 import com.mileway.feature.logging.viewmodel.SettlementHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** SP.2: settlement history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
@@ -34,7 +39,7 @@ fun SettlementHistoryScreen(
     val ui by viewModel.state.collectAsState()
 
     HistoryListScaffold(
-        title = "Settlements",
+        title = stringResource(Res.string.logging_settlements_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(SettlementHistoryAction.Refresh) },
@@ -42,8 +47,8 @@ fun SettlementHistoryScreen(
         tabs = SETTLEMENT_HISTORY_TABS.map { it?.label ?: "All" },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(SettlementHistoryAction.SelectTab(it)) },
-        emptyTitle = "No settlements",
-        emptySubtitle = "Reimbursement batches will appear here.",
+        emptyTitle = stringResource(Res.string.logging_no_settlements_title),
+        emptySubtitle = stringResource(Res.string.logging_no_settlements_subtitle),
         itemKey = { it.id },
     ) { settlement ->
         SettlementCard(settlement)

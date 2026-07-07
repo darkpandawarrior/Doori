@@ -52,6 +52,41 @@ import com.mileway.core.data.model.network.LogMilesService
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_receipt
+import com.mileway.core.ui.resources.logging_additional_details_subtitle
+import com.mileway.core.ui.resources.logging_additional_details_title
+import com.mileway.core.ui.resources.logging_all_set
+import com.mileway.core.ui.resources.logging_attachments_added
+import com.mileway.core.ui.resources.logging_attachments_header
+import com.mileway.core.ui.resources.logging_attachments_hint
+import com.mileway.core.ui.resources.logging_back
+import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_collapse_cd
+import com.mileway.core.ui.resources.logging_complete_required_fields
+import com.mileway.core.ui.resources.logging_cost_center_optional
+import com.mileway.core.ui.resources.logging_expand_cd
+import com.mileway.core.ui.resources.logging_expense_details_header
+import com.mileway.core.ui.resources.logging_invoice_date
+import com.mileway.core.ui.resources.logging_invoice_date_picker_title
+import com.mileway.core.ui.resources.logging_invoice_date_required_error
+import com.mileway.core.ui.resources.logging_invoice_date_required_label
+import com.mileway.core.ui.resources.logging_log_miles_note_label
+import com.mileway.core.ui.resources.logging_log_miles_subtitle
+import com.mileway.core.ui.resources.logging_log_miles_title
+import com.mileway.core.ui.resources.logging_purpose_of_travel
+import com.mileway.core.ui.resources.logging_ready_to_submit
+import com.mileway.core.ui.resources.logging_remaining
+import com.mileway.core.ui.resources.logging_select_a_service
+import com.mileway.core.ui.resources.logging_service_type
+import com.mileway.core.ui.resources.logging_step2_title
+import com.mileway.core.ui.resources.logging_submit
+import com.mileway.core.ui.resources.logging_submit_review_hint
+import com.mileway.core.ui.resources.logging_tagged_count
+import com.mileway.core.ui.resources.logging_tagged_employees
+import com.mileway.core.ui.resources.logging_tagged_employees_subtitle
+import com.mileway.core.ui.resources.logging_tap_to_add_employees
+import com.mileway.core.ui.resources.logging_use_camera_or_gallery
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.ui.components.TravelledLocationsActions
@@ -62,6 +97,7 @@ import com.mileway.feature.logging.ui.model.SubmittedVoucherSamples
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.tracking.ui.components.SubmissionTabChips
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -110,12 +146,12 @@ fun LogMilesStep2Screen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Log Miles",
-                subtitle = "Fill out the details given below",
+                title = stringResource(Res.string.logging_log_miles_title),
+                subtitle = stringResource(Res.string.logging_log_miles_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd))
                     }
                 },
             )
@@ -152,13 +188,13 @@ fun LogMilesStep2Screen(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            "Step 2 of 2: Expense Details",
+                            stringResource(Res.string.logging_step2_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            if (remaining == 0) "All set" else "$remaining remaining",
+                            if (remaining == 0) stringResource(Res.string.logging_all_set) else stringResource(Res.string.logging_remaining, remaining),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -169,7 +205,13 @@ fun LogMilesStep2Screen(
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                     ) {
                         Text(
-                            if (remaining == 0) "Ready to submit" else "Complete required fields",
+                            if (remaining == 0) {
+                                stringResource(
+                                    Res.string.logging_ready_to_submit,
+                                )
+                            } else {
+                                stringResource(Res.string.logging_complete_required_fields)
+                            },
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier =
@@ -262,7 +304,7 @@ fun LogMilesStep2Screen(
     if (showInvoiceDatePicker) {
         WheelDatePickerDialog(
             initialDateMillis = uiState.invoiceDateMillis,
-            title = "Invoice Date",
+            title = stringResource(Res.string.logging_invoice_date_picker_title),
             onConfirm = {
                 viewModel.onAction(LogMilesAction.SetInvoiceDate(it))
                 showInvoiceDatePicker = false
@@ -321,7 +363,7 @@ private fun ExpenseDetailsSection(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Text(
-                "Expense Details",
+                stringResource(Res.string.logging_expense_details_header),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -344,12 +386,12 @@ private fun ExpenseDetailsSection(
                 ) {
                     Column {
                         Text(
-                            "Service Type",
+                            stringResource(Res.string.logging_service_type),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            selectedService?.getDisplayString() ?: "Select a service",
+                            selectedService?.getDisplayString() ?: stringResource(Res.string.logging_select_a_service),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                             color =
@@ -405,7 +447,7 @@ private fun ExpenseDetailsSection(
             OutlinedTextField(
                 value = purposeText,
                 onValueChange = onPurposeChange,
-                label = { Text("Purpose of travel") },
+                label = { Text(stringResource(Res.string.logging_purpose_of_travel)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
                 singleLine = true,
@@ -415,7 +457,7 @@ private fun ExpenseDetailsSection(
             OutlinedTextField(
                 value = costCenter,
                 onValueChange = onCostCenterChange,
-                label = { Text("Cost Center (optional)") },
+                label = { Text(stringResource(Res.string.logging_cost_center_optional)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
                 singleLine = true,
@@ -459,20 +501,23 @@ private fun AdditionalDetailsCard(
                     Spacer(Modifier.size(DesignTokens.Spacing.m))
                     Column {
                         Text(
-                            "Additional Details (2)",
+                            stringResource(Res.string.logging_additional_details_title),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            "Required expense fields before submission",
+                            stringResource(Res.string.logging_additional_details_subtitle),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
                 IconButton(onClick = onToggle) {
-                    Icon(Icons.Filled.KeyboardArrowDown, contentDescription = if (expanded) "Collapse" else "Expand")
+                    Icon(
+                        Icons.Filled.KeyboardArrowDown,
+                        contentDescription = if (expanded) stringResource(Res.string.logging_collapse_cd) else stringResource(Res.string.logging_expand_cd),
+                    )
                 }
             }
 
@@ -480,7 +525,7 @@ private fun AdditionalDetailsCard(
                 Spacer(Modifier.size(DesignTokens.Spacing.l))
 
                 Text(
-                    "Invoice date *",
+                    stringResource(Res.string.logging_invoice_date_required_label),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.error,
@@ -510,7 +555,7 @@ private fun AdditionalDetailsCard(
                             )
                             Spacer(Modifier.size(DesignTokens.Spacing.m))
                             Text(
-                                invoiceDateText ?: "Invoice date",
+                                invoiceDateText ?: stringResource(Res.string.logging_invoice_date),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color =
                                     if (invoiceDateText == null) {
@@ -530,7 +575,7 @@ private fun AdditionalDetailsCard(
                 if (invoiceDateText == null) {
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
                     Text(
-                        "Invoice date is required",
+                        stringResource(Res.string.logging_invoice_date_required_error),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.error,
                     )
@@ -539,7 +584,7 @@ private fun AdditionalDetailsCard(
                 Spacer(Modifier.size(DesignTokens.Spacing.l))
 
                 Text(
-                    "log miles",
+                    stringResource(Res.string.logging_log_miles_note_label),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -549,7 +594,7 @@ private fun AdditionalDetailsCard(
                     value = note,
                     onValueChange = onNoteChange,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("log miles") },
+                    placeholder = { Text(stringResource(Res.string.logging_log_miles_note_label)) },
                     minLines = 2,
                     shape = DesignTokens.Shape.roundedMd,
                 )
@@ -584,13 +629,13 @@ private fun TaggedEmployeesCard(
                 Spacer(Modifier.size(DesignTokens.Spacing.m))
                 Column {
                     Text(
-                        "Tagged Employees",
+                        stringResource(Res.string.logging_tagged_employees),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        "Add teammates linked to this journey",
+                        stringResource(Res.string.logging_tagged_employees_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -619,7 +664,13 @@ private fun TaggedEmployeesCard(
                     )
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
                     Text(
-                        if (taggedCount == 0) "Tap to add employees" else "$taggedCount tagged · tap to edit",
+                        if (taggedCount == 0) {
+                            stringResource(
+                                Res.string.logging_tap_to_add_employees,
+                            )
+                        } else {
+                            stringResource(Res.string.logging_tagged_count, taggedCount)
+                        },
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                     )
@@ -654,7 +705,7 @@ private fun AttachmentsCard(
                 }
                 Spacer(Modifier.size(DesignTokens.Spacing.m))
                 Text(
-                    "Attachments",
+                    stringResource(Res.string.logging_attachments_header),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -662,7 +713,7 @@ private fun AttachmentsCard(
             }
             Spacer(Modifier.size(DesignTokens.Spacing.s))
             Text(
-                "Add bills, invoices, docs…",
+                stringResource(Res.string.logging_attachments_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )
@@ -690,13 +741,19 @@ private fun AttachmentsCard(
                     )
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
                     Text(
-                        if (attachmentCount == 0) "Add Receipt" else "$attachmentCount added · Add more",
+                        if (attachmentCount == 0) {
+                            stringResource(
+                                Res.string.logging_add_receipt,
+                            )
+                        } else {
+                            stringResource(Res.string.logging_attachments_added, attachmentCount)
+                        },
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        "Use camera or gallery",
+                        stringResource(Res.string.logging_use_camera_or_gallery),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -731,7 +788,7 @@ private fun Step2Footer(
                         .fillMaxWidth()
                         .height(52.dp),
                 shape = DesignTokens.Shape.roundedMd,
-            ) { Text("Back") }
+            ) { Text(stringResource(Res.string.logging_back)) }
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -753,7 +810,7 @@ private fun Step2Footer(
                     )
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
                     Text(
-                        "Review the filled details before you submit this mileage expense.",
+                        stringResource(Res.string.logging_submit_review_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -778,7 +835,7 @@ private fun Step2Footer(
                         )
                     }
                 } else {
-                    Text("Submit")
+                    Text(stringResource(Res.string.logging_submit))
                 }
             }
         }

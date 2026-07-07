@@ -17,11 +17,16 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_card_transactions_title
+import com.mileway.core.ui.resources.logging_no_transactions_subtitle
+import com.mileway.core.ui.resources.logging_no_transactions_title
 import com.mileway.feature.logging.repository.CardExpenseTxn
 import com.mileway.feature.logging.repository.CardTxnStatus
 import com.mileway.feature.logging.viewmodel.CARDS_TXN_HISTORY_TABS
 import com.mileway.feature.logging.viewmodel.CardsTxnHistoryAction
 import com.mileway.feature.logging.viewmodel.CardsTxnHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** SP.3: cards-expense-txn history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
@@ -34,7 +39,7 @@ fun CardsTxnHistoryScreen(
     val ui by viewModel.state.collectAsState()
 
     HistoryListScaffold(
-        title = "Card Transactions",
+        title = stringResource(Res.string.logging_card_transactions_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(CardsTxnHistoryAction.Refresh) },
@@ -42,8 +47,8 @@ fun CardsTxnHistoryScreen(
         tabs = CARDS_TXN_HISTORY_TABS.map { it?.label ?: "All" },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(CardsTxnHistoryAction.SelectTab(it)) },
-        emptyTitle = "No transactions",
-        emptySubtitle = "Corporate-card spend awaiting reconciliation appears here.",
+        emptyTitle = stringResource(Res.string.logging_no_transactions_title),
+        emptySubtitle = stringResource(Res.string.logging_no_transactions_subtitle),
         itemKey = { it.id },
     ) { txn ->
         CardTxnCard(txn)

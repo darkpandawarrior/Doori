@@ -59,6 +59,22 @@ import com.mileway.core.ui.components.sheet.SortOption
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_category
+import com.mileway.core.ui.resources.logging_expense_history
+import com.mileway.core.ui.resources.logging_filter_cd
+import com.mileway.core.ui.resources.logging_no_expenses_subtitle
+import com.mileway.core.ui.resources.logging_no_expenses_title
+import com.mileway.core.ui.resources.logging_sort_cd
+import com.mileway.core.ui.resources.logging_sort_expenses
+import com.mileway.core.ui.resources.logging_sort_highest_amount
+import com.mileway.core.ui.resources.logging_sort_merchant
+import com.mileway.core.ui.resources.logging_sort_most_recent
+import com.mileway.core.ui.resources.logging_status_approved
+import com.mileway.core.ui.resources.logging_status_draft
+import com.mileway.core.ui.resources.logging_status_pending
+import com.mileway.core.ui.resources.logging_status_rejected
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.feature.logging.model.ExpenseCategory
@@ -72,6 +88,7 @@ import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -90,7 +107,7 @@ fun ExpenseHistoryScreen(
         val categorySection =
             FilterSection(
                 key = "category",
-                title = "Category",
+                title = stringResource(Res.string.logging_category),
                 icon = Icons.Filled.FilterList,
                 mode = FilterSelectionMode.MULTI,
                 options = ExpenseCategory.entries.map { FilterOption(it.name, it.label) },
@@ -109,12 +126,12 @@ fun ExpenseHistoryScreen(
 
     if (showSortSheet) {
         SortBottomSheet(
-            title = "Sort expenses",
+            title = stringResource(Res.string.logging_sort_expenses),
             options =
                 listOf(
-                    SortOption(ExpenseSort.DATE, "Most recent", Icons.Filled.CalendarMonth),
-                    SortOption(ExpenseSort.AMOUNT, "Highest amount", Icons.Filled.CurrencyRupee),
-                    SortOption(ExpenseSort.MERCHANT, "Merchant (A–Z)", Icons.Filled.SortByAlpha),
+                    SortOption(ExpenseSort.DATE, stringResource(Res.string.logging_sort_most_recent), Icons.Filled.CalendarMonth),
+                    SortOption(ExpenseSort.AMOUNT, stringResource(Res.string.logging_sort_highest_amount), Icons.Filled.CurrencyRupee),
+                    SortOption(ExpenseSort.MERCHANT, stringResource(Res.string.logging_sort_merchant), Icons.Filled.SortByAlpha),
                 ),
             selected = state.activeSort,
             onSelect = {
@@ -148,11 +165,11 @@ fun ExpenseHistoryScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd), tint = Color.White)
                     }
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Expense History",
+                            text = stringResource(Res.string.logging_expense_history),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -164,10 +181,10 @@ fun ExpenseHistoryScreen(
                         )
                     }
                     IconButton(onClick = { showFilterSheet = true }) {
-                        Icon(Icons.Filled.FilterList, contentDescription = "Filter", tint = Color.White)
+                        Icon(Icons.Filled.FilterList, contentDescription = stringResource(Res.string.logging_filter_cd), tint = Color.White)
                     }
                     IconButton(onClick = { showSortSheet = true }) {
-                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = "Sort", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.Sort, contentDescription = stringResource(Res.string.logging_sort_cd), tint = Color.White)
                     }
                 }
             }
@@ -201,8 +218,8 @@ fun ExpenseHistoryScreen(
             ) { data ->
                 if (data.records.isEmpty()) {
                     DefaultEmptyState(
-                        title = "No expenses logged",
-                        subtitle = "Your expense records will appear here.",
+                        title = stringResource(Res.string.logging_no_expenses_title),
+                        subtitle = stringResource(Res.string.logging_no_expenses_subtitle),
                     )
                 } else {
                     // Records arrive already sorted from the VM. Keep date-bucket headers only when sorting
@@ -314,10 +331,10 @@ private fun ExpenseCard(
 private fun ExpenseStatusChip(status: ExpenseStatus) {
     val (label, color) =
         when (status) {
-            ExpenseStatus.DRAFT -> "Draft" to StatusColors.neutral
-            ExpenseStatus.PENDING -> "Pending" to StatusColors.warning
-            ExpenseStatus.APPROVED -> "Approved" to StatusColors.success
-            ExpenseStatus.REJECTED -> "Rejected" to StatusColors.error
+            ExpenseStatus.DRAFT -> stringResource(Res.string.logging_status_draft) to StatusColors.neutral
+            ExpenseStatus.PENDING -> stringResource(Res.string.logging_status_pending) to StatusColors.warning
+            ExpenseStatus.APPROVED -> stringResource(Res.string.logging_status_approved) to StatusColors.success
+            ExpenseStatus.REJECTED -> stringResource(Res.string.logging_status_rejected) to StatusColors.error
         }
     Surface(
         color = color.copy(alpha = 0.15f),

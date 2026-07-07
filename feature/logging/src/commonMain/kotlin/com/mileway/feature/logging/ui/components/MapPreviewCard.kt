@@ -21,7 +21,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_route_preview
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A lightweight decorative "map preview" rendered entirely with Canvas, a tinted
@@ -108,7 +111,7 @@ fun MapPreviewCard(
                         modifier = Modifier.height(14.dp),
                     )
                     Text(
-                        "  Route preview",
+                        stringResource(Res.string.logging_route_preview),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurface,
                     )

@@ -36,8 +36,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_location
+import com.mileway.core.ui.resources.logging_add_stop_here
+import com.mileway.core.ui.resources.logging_amount
+import com.mileway.core.ui.resources.logging_current
+import com.mileway.core.ui.resources.logging_edit
+import com.mileway.core.ui.resources.logging_edit_locations_cd
+import com.mileway.core.ui.resources.logging_empty_itinerary
+import com.mileway.core.ui.resources.logging_move_down_cd
+import com.mileway.core.ui.resources.logging_move_up_cd
+import com.mileway.core.ui.resources.logging_pricing
+import com.mileway.core.ui.resources.logging_remove
+import com.mileway.core.ui.resources.logging_reorder_tip
+import com.mileway.core.ui.resources.logging_return_to_start
+import com.mileway.core.ui.resources.logging_round_trip
+import com.mileway.core.ui.resources.logging_to_cd
+import com.mileway.core.ui.resources.logging_total_distance
+import com.mileway.core.ui.resources.logging_travelled_locations
+import com.mileway.core.ui.resources.logging_travelled_locations_subtitle
+import com.mileway.core.ui.resources.logging_verify
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.ui.model.LocationStop
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Callbacks for editing the travelled-locations itinerary. Bundled so both the
@@ -97,20 +118,20 @@ fun TravelledLocationsCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Travelled locations",
+                        stringResource(Res.string.logging_travelled_locations),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        "Add locations as per your travelled journey.",
+                        stringResource(Res.string.logging_travelled_locations_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Icon(
                     Icons.Filled.Edit,
-                    contentDescription = "Edit locations",
+                    contentDescription = stringResource(Res.string.logging_edit_locations_cd),
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(DesignTokens.IconSize.navigation),
                 )
@@ -126,7 +147,7 @@ fun TravelledLocationsCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Total distance",
+                        stringResource(Res.string.logging_total_distance),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -144,7 +165,7 @@ fun TravelledLocationsCard(
                         )
                         if (stops.size >= 2) {
                             Spacer(Modifier.size(DesignTokens.Spacing.s))
-                            TextButton(onClick = actions.onVerifyDistance) { Text("Verify") }
+                            TextButton(onClick = actions.onVerifyDistance) { Text(stringResource(Res.string.logging_verify)) }
                         }
                     }
                 }
@@ -161,9 +182,9 @@ fun TravelledLocationsCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Column {
-                            Text("Round trip", style = MaterialTheme.typography.labelLarge)
+                            Text(stringResource(Res.string.logging_round_trip), style = MaterialTheme.typography.labelLarge)
                             Text(
-                                "Return to start",
+                                stringResource(Res.string.logging_return_to_start),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -180,7 +201,7 @@ fun TravelledLocationsCard(
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Pricing",
+                        stringResource(Res.string.logging_pricing),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -193,7 +214,7 @@ fun TravelledLocationsCard(
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "Amount",
+                        stringResource(Res.string.logging_amount),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -210,14 +231,14 @@ fun TravelledLocationsCard(
 
             if (stops.isEmpty()) {
                 Text(
-                    "Start adding locations to create your itinerary",
+                    stringResource(Res.string.logging_empty_itinerary),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(vertical = DesignTokens.Spacing.s),
                 )
             } else {
                 Text(
-                    "Tip: use the arrows to reorder stops",
+                    stringResource(Res.string.logging_reorder_tip),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -251,7 +272,7 @@ fun TravelledLocationsCard(
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
-                    Text("Add location")
+                    Text(stringResource(Res.string.logging_add_location))
                 }
                 OutlinedButton(
                     onClick = actions.onUseCurrent,
@@ -260,7 +281,7 @@ fun TravelledLocationsCard(
                 ) {
                     Icon(Icons.Filled.MyLocation, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
-                    Text("Current")
+                    Text(stringResource(Res.string.logging_current))
                 }
             }
         }
@@ -311,14 +332,14 @@ private fun StopRow(
             )
             Row {
                 EditableChip(
-                    label = "Edit",
+                    label = stringResource(Res.string.logging_edit),
                     icon = Icons.Filled.Edit,
                     tint = MaterialTheme.colorScheme.primary,
                     onClick = { actions.onEdit(stop.id) },
                 )
                 Spacer(Modifier.size(DesignTokens.Spacing.m))
                 EditableChip(
-                    label = "Remove",
+                    label = stringResource(Res.string.logging_remove),
                     icon = Icons.Filled.Delete,
                     tint = MaterialTheme.colorScheme.error,
                     onClick = { actions.onRemove(stop.id) },
@@ -335,7 +356,7 @@ private fun StopRow(
             ) {
                 Icon(
                     Icons.Filled.ArrowUpward,
-                    contentDescription = "Move up",
+                    contentDescription = stringResource(Res.string.logging_move_up_cd),
                     modifier = Modifier.size(DesignTokens.IconSize.inline),
                 )
             }
@@ -346,7 +367,7 @@ private fun StopRow(
             ) {
                 Icon(
                     Icons.Filled.ArrowDownward,
-                    contentDescription = "Move down",
+                    contentDescription = stringResource(Res.string.logging_move_down_cd),
                     modifier = Modifier.size(DesignTokens.IconSize.inline),
                 )
             }
@@ -389,7 +410,7 @@ private fun InsertAffordance(onClick: () -> Unit) {
         TextButton(onClick = onClick) {
             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(14.dp))
             Spacer(Modifier.size(DesignTokens.Spacing.xs))
-            Text("Add stop here", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(Res.string.logging_add_stop_here), style = MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -442,7 +463,7 @@ fun RouteSummaryRow(
         )
         Icon(
             Icons.AutoMirrored.Filled.ArrowForward,
-            contentDescription = "to",
+            contentDescription = stringResource(Res.string.logging_to_cd),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(DesignTokens.IconSize.inline),
         )

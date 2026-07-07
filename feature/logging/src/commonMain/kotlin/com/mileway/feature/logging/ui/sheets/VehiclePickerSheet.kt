@@ -31,7 +31,12 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.model.network.ApprovedVehicle
 import com.mileway.core.ui.components.sheet.SearchablePickerSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_choose_vehicle_type
+import com.mileway.core.ui.resources.logging_search_vehicles_placeholder
+import com.mileway.core.ui.resources.logging_vehicle_fallback
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /** Picks an icon for a vehicle from its display name (two-wheeler vs taxi vs car). */
 private fun vehicleIcon(name: String?): ImageVector {
@@ -61,10 +66,10 @@ fun VehiclePickerSheet(
     // SHEETS.C: the modal + title + search field + filtering come from the shared SearchablePickerSheet;
     // only the vehicle-specific 2-column tile grid is supplied via the results slot.
     SearchablePickerSheet(
-        title = "Choose Vehicle Type",
+        title = stringResource(Res.string.logging_choose_vehicle_type),
         items = vehicles,
         filter = { vehicle, query -> vehicle.vehicleName?.contains(query, ignoreCase = true) == true },
-        searchPlaceholder = "Search vehicles...",
+        searchPlaceholder = stringResource(Res.string.logging_search_vehicles_placeholder),
         onDismiss = onDismiss,
     ) { filtered, _ ->
         LazyVerticalGrid(
@@ -110,7 +115,7 @@ private fun VehicleTile(
             )
             Spacer(Modifier.size(DesignTokens.Spacing.s))
             Text(
-                text = vehicle.vehicleName ?: "Vehicle",
+                text = vehicle.vehicleName ?: stringResource(Res.string.logging_vehicle_fallback),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,

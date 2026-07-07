@@ -51,6 +51,21 @@ import coil3.compose.AsyncImage
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_amount
+import com.mileway.core.ui.resources.logging_approval_required
+import com.mileway.core.ui.resources.logging_approval_timeline
+import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
+import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_description
+import com.mileway.core.ui.resources.logging_edit_expense
+import com.mileway.core.ui.resources.logging_expense_details_header
+import com.mileway.core.ui.resources.logging_expense_not_found
+import com.mileway.core.ui.resources.logging_line_items
+import com.mileway.core.ui.resources.logging_note
+import com.mileway.core.ui.resources.logging_qty
+import com.mileway.core.ui.resources.logging_resubmit
+import com.mileway.core.ui.resources.logging_total
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
@@ -61,6 +76,7 @@ import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,11 +96,11 @@ fun ExpenseDetailScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Expense Details",
+                title = stringResource(Res.string.logging_expense_details_header),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd))
                     }
                 },
             )
@@ -99,7 +115,7 @@ fun ExpenseDetailScreen(
                         .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("Expense not found", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.logging_expense_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             Column(
@@ -132,7 +148,11 @@ fun ExpenseDetailScreen(
                                     .padding(DesignTokens.Spacing.l),
                             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
                         ) {
-                            Text("Note", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                stringResource(Res.string.logging_note),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                             Text(expense.note, style = MaterialTheme.typography.bodyMedium)
                         }
                     }
@@ -151,7 +171,15 @@ fun ExpenseDetailScreen(
                 ) {
                     Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
-                    Text(if (expense.status == ExpenseStatus.REJECTED) "Resubmit" else "Edit Expense")
+                    Text(
+                        if (expense.status == ExpenseStatus.REJECTED) {
+                            stringResource(
+                                Res.string.logging_resubmit,
+                            )
+                        } else {
+                            stringResource(Res.string.logging_edit_expense)
+                        },
+                    )
                 }
 
                 Spacer(Modifier.height(DesignTokens.Spacing.l))
@@ -184,7 +212,7 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                 // P1.4: a receipt photo was attached at submit time — render it instead of the icon placeholder.
                 AsyncImage(
                     model = receiptImagePath,
-                    contentDescription = "Attached receipt photo",
+                    contentDescription = stringResource(Res.string.logging_attached_receipt_photo_cd),
                     contentScale = ContentScale.Crop,
                     modifier =
                         Modifier
@@ -233,7 +261,7 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                     shape = RoundedCornerShape(6.dp),
                 ) {
                     Text(
-                        text = "Approval Required",
+                        text = stringResource(Res.string.logging_approval_required),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         fontWeight = FontWeight.SemiBold,
@@ -262,7 +290,7 @@ private fun LineItemsCard(expense: ExpenseRecord) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Text(
-                text = "Line Items",
+                text = stringResource(Res.string.logging_line_items),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,
@@ -274,14 +302,14 @@ private fun LineItemsCard(expense: ExpenseRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    "Description",
+                    stringResource(Res.string.logging_description),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
                 )
-                Text("Qty", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.logging_qty), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.size(DesignTokens.Spacing.l))
-                Text("Amount", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.logging_amount), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             HorizontalDivider()
 
@@ -303,7 +331,7 @@ private fun LineItemsCard(expense: ExpenseRecord) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("Total", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.logging_total), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 Text("₹${expense.amountRupees.formatDecimal(2)}", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
             }
         }
@@ -327,7 +355,7 @@ private fun ApprovalTimelineCard(expense: ExpenseRecord) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Text(
-                text = "Approval Timeline",
+                text = stringResource(Res.string.logging_approval_timeline),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold,

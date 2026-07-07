@@ -58,6 +58,23 @@ import com.mileway.core.common.asString
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_amount_requires_approval
+import com.mileway.core.ui.resources.logging_amount_rupees_label
+import com.mileway.core.ui.resources.logging_attach_receipt_optional
+import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
+import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_expense_details_header
+import com.mileway.core.ui.resources.logging_expense_input_subtitle
+import com.mileway.core.ui.resources.logging_merchant_vendor_label
+import com.mileway.core.ui.resources.logging_note_optional_label
+import com.mileway.core.ui.resources.logging_note_placeholder
+import com.mileway.core.ui.resources.logging_project_cost_center_label
+import com.mileway.core.ui.resources.logging_receipt_attached
+import com.mileway.core.ui.resources.logging_remove_receipt_cd
+import com.mileway.core.ui.resources.logging_save_draft
+import com.mileway.core.ui.resources.logging_select_office_placeholder
+import com.mileway.core.ui.resources.logging_submit_expense
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
@@ -67,6 +84,7 @@ import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseEffect
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.stub.PolicyMockData
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,12 +115,12 @@ fun ExpenseDetailsInputScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = form.category?.label ?: "Expense Details",
-                subtitle = "Fill in the expense details",
+                title = form.category?.label ?: stringResource(Res.string.logging_expense_details_header),
+                subtitle = stringResource(Res.string.logging_expense_input_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd))
                     }
                 },
             )
@@ -120,14 +138,14 @@ fun ExpenseDetailsInputScreen(
                         onClick = { viewModel.onAction(ExpenseAction.SubmitExpense) },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Submit Expense")
+                        Text(stringResource(Res.string.logging_submit_expense))
                     }
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                     OutlinedButton(
                         onClick = { viewModel.onAction(ExpenseAction.SaveDraft) },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Save Draft")
+                        Text(stringResource(Res.string.logging_save_draft))
                     }
                 }
             }
@@ -170,7 +188,7 @@ fun ExpenseDetailsInputScreen(
             OutlinedTextField(
                 value = form.amountText,
                 onValueChange = { viewModel.onAction(ExpenseAction.SetAmount(it)) },
-                label = { Text("Amount (₹)") },
+                label = { Text(stringResource(Res.string.logging_amount_rupees_label)) },
                 placeholder = { Text("0.00") },
                 prefix = { Text("₹") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -184,7 +202,7 @@ fun ExpenseDetailsInputScreen(
             OutlinedTextField(
                 value = form.merchantName,
                 onValueChange = { viewModel.onAction(ExpenseAction.SetMerchant(it)) },
-                label = { Text("Merchant / Vendor Name") },
+                label = { Text(stringResource(Res.string.logging_merchant_vendor_label)) },
                 placeholder = { Text("e.g. Swiggy, Ola Cabs") },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 singleLine = true,
@@ -209,8 +227,8 @@ fun ExpenseDetailsInputScreen(
             OutlinedTextField(
                 value = form.note,
                 onValueChange = { viewModel.onAction(ExpenseAction.SetNote(it)) },
-                label = { Text("Note (optional)") },
-                placeholder = { Text("Purpose of this expense…") },
+                label = { Text(stringResource(Res.string.logging_note_optional_label)) },
+                placeholder = { Text(stringResource(Res.string.logging_note_placeholder)) },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 minLines = 3,
                 maxLines = 5,
@@ -235,7 +253,7 @@ fun ExpenseDetailsInputScreen(
                     shape = DesignTokens.Shape.roundedSm,
                 ) {
                     Text(
-                        text = "⚠ " + (liveViolation?.message ?: "This amount requires manager approval before reimbursement."),
+                        text = "⚠ " + (liveViolation?.message ?: stringResource(Res.string.logging_amount_requires_approval)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         modifier = Modifier.padding(DesignTokens.Spacing.m),
@@ -273,8 +291,8 @@ private fun OfficePickerField(
             value = selectedOffice?.let { "${it.name} (${it.code})" } ?: "",
             onValueChange = {},
             readOnly = true,
-            label = { Text("Project / Cost Center") },
-            placeholder = { Text("Select an office") },
+            label = { Text(stringResource(Res.string.logging_project_cost_center_label)) },
+            placeholder = { Text(stringResource(Res.string.logging_select_office_placeholder)) },
             isError = isError,
             supportingText = supportingText?.let { { Text(it) } },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
@@ -326,7 +344,7 @@ private fun ReceiptAttachmentRow(
                     tint = MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    text = "Attach Receipt (optional)",
+                    text = stringResource(Res.string.logging_attach_receipt_optional),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -341,7 +359,7 @@ private fun ReceiptAttachmentRow(
             Box(modifier = Modifier.size(56.dp)) {
                 AsyncImage(
                     model = receiptImagePath,
-                    contentDescription = "Attached receipt photo",
+                    contentDescription = stringResource(Res.string.logging_attached_receipt_photo_cd),
                     contentScale = ContentScale.Crop,
                     modifier =
                         Modifier
@@ -357,12 +375,12 @@ private fun ReceiptAttachmentRow(
                 modifier = Modifier.size(18.dp),
             )
             Text(
-                text = "Receipt attached",
+                text = stringResource(Res.string.logging_receipt_attached),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f),
             )
             IconButton(onClick = onRemove) {
-                Icon(Icons.Filled.Close, contentDescription = "Remove attached receipt")
+                Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.logging_remove_receipt_cd))
             }
         }
     }

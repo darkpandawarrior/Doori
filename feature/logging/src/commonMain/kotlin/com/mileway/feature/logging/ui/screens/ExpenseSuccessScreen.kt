@@ -32,9 +32,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.network.model.SubmissionStatus
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_another_expense
+import com.mileway.core.ui.resources.logging_approval_required
+import com.mileway.core.ui.resources.logging_expense_id_value
+import com.mileway.core.ui.resources.logging_expense_requires_approval
+import com.mileway.core.ui.resources.logging_expense_submitted_title
+import com.mileway.core.ui.resources.logging_view_expense_history
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +84,7 @@ fun ExpenseSuccessScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.xl))
 
             Text(
-                text = "Expense Submitted!",
+                text = stringResource(Res.string.logging_expense_submitted_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -93,7 +101,7 @@ fun ExpenseSuccessScreen(
             )
 
             Text(
-                text = "Expense ID: ${ui.lastSubmittedId}",
+                text = stringResource(Res.string.logging_expense_id_value, ui.lastSubmittedId),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -116,7 +124,7 @@ fun ExpenseSuccessScreen(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                         )
                         Text(
-                            text = "Approval Required",
+                            text = stringResource(Res.string.logging_approval_required),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -124,7 +132,7 @@ fun ExpenseSuccessScreen(
                         Text(
                             text =
                                 ui.lastSubmissionViolations.firstOrNull()?.message
-                                    ?: "This expense requires manager approval before reimbursement.",
+                                    ?: stringResource(Res.string.logging_expense_requires_approval),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                             textAlign = TextAlign.Center,
@@ -142,7 +150,7 @@ fun ExpenseSuccessScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Add Another Expense")
+                Text(stringResource(Res.string.logging_add_another_expense))
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.s))
@@ -151,7 +159,7 @@ fun ExpenseSuccessScreen(
                 onClick = onViewHistory,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("View Expense History")
+                Text(stringResource(Res.string.logging_view_expense_history))
             }
         }
     }

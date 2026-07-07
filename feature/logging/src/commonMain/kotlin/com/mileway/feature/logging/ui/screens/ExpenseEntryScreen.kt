@@ -55,6 +55,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_expense_title
+import com.mileway.core.ui.resources.logging_add_row
+import com.mileway.core.ui.resources.logging_amount
+import com.mileway.core.ui.resources.logging_attach_receipt_cd
+import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_bulk_entry
+import com.mileway.core.ui.resources.logging_bulk_prompt
+import com.mileway.core.ui.resources.logging_category_prompt
+import com.mileway.core.ui.resources.logging_discard
+import com.mileway.core.ui.resources.logging_duplicate_row_cd
+import com.mileway.core.ui.resources.logging_import_csv
+import com.mileway.core.ui.resources.logging_merchant
+import com.mileway.core.ui.resources.logging_receipt_attached_cd
+import com.mileway.core.ui.resources.logging_remove_row_cd
+import com.mileway.core.ui.resources.logging_resume
+import com.mileway.core.ui.resources.logging_resume_draft_generic
+import com.mileway.core.ui.resources.logging_resume_draft_named
+import com.mileway.core.ui.resources.logging_resume_draft_title
+import com.mileway.core.ui.resources.logging_row_needs_attention
+import com.mileway.core.ui.resources.logging_select_a_category
+import com.mileway.core.ui.resources.logging_select_category
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
@@ -63,6 +85,7 @@ import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseDraftRow
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,12 +102,12 @@ fun ExpenseEntryScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Add Expense",
-                subtitle = if (bulkMode) "Bulk entry" else "Select a category",
+                title = stringResource(Res.string.logging_add_expense_title),
+                subtitle = if (bulkMode) stringResource(Res.string.logging_bulk_entry) else stringResource(Res.string.logging_select_a_category),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd))
                     }
                 },
             )
@@ -119,14 +142,14 @@ fun ExpenseEntryScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (bulkMode) "Add multiple expenses at once" else "What type of expense is this?",
+                    text = if (bulkMode) stringResource(Res.string.logging_bulk_prompt) else stringResource(Res.string.logging_category_prompt),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
                 FilterChip(
                     selected = bulkMode,
                     onClick = { bulkMode = !bulkMode },
-                    label = { Text("Bulk entry") },
+                    label = { Text(stringResource(Res.string.logging_bulk_entry)) },
                 )
             }
 
@@ -138,7 +161,7 @@ fun ExpenseEntryScreen(
                 val importCsv = rememberExpenseCsvImportLauncher { text -> viewModel.onAction(ExpenseAction.ImportCsv(text)) }
                 OutlinedButton(onClick = importCsv, modifier = Modifier.fillMaxWidth()) {
                     Icon(Icons.Filled.UploadFile, contentDescription = null)
-                    Text(" Import CSV")
+                    Text(stringResource(Res.string.logging_import_csv))
                 }
                 Spacer(Modifier.height(DesignTokens.Spacing.m))
 
@@ -220,7 +243,7 @@ private fun BulkDraftGrid(
         item {
             OutlinedButton(onClick = onAddRow, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Filled.Add, contentDescription = null)
-                Text(" Add row")
+                Text(stringResource(Res.string.logging_add_row))
             }
         }
     }
@@ -255,7 +278,7 @@ private fun DraftRowCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = row.category?.label ?: "Select category",
+                    text = row.category?.label ?: stringResource(Res.string.logging_select_category),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -263,7 +286,14 @@ private fun DraftRowCard(
                     IconButton(onClick = launchReceiptScan) {
                         Icon(
                             imageVector = if (row.receiptImagePath != null) Icons.Filled.Receipt else Icons.Filled.AddAPhoto,
-                            contentDescription = if (row.receiptImagePath != null) "Receipt attached" else "Attach receipt",
+                            contentDescription =
+                                if (row.receiptImagePath != null) {
+                                    stringResource(
+                                        Res.string.logging_receipt_attached_cd,
+                                    )
+                                } else {
+                                    stringResource(Res.string.logging_attach_receipt_cd)
+                                },
                             tint =
                                 if (row.receiptImagePath != null) {
                                     MaterialTheme.colorScheme.primary
@@ -273,11 +303,11 @@ private fun DraftRowCard(
                         )
                     }
                     IconButton(onClick = onDuplicate) {
-                        Icon(Icons.Filled.ContentCopy, contentDescription = "Duplicate row")
+                        Icon(Icons.Filled.ContentCopy, contentDescription = stringResource(Res.string.logging_duplicate_row_cd))
                     }
                     if (canRemove) {
                         IconButton(onClick = onRemove) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Remove row")
+                            Icon(Icons.Filled.Delete, contentDescription = stringResource(Res.string.logging_remove_row_cd))
                         }
                     }
                 }
@@ -306,7 +336,7 @@ private fun DraftRowCard(
             OutlinedTextField(
                 value = row.merchantName,
                 onValueChange = onMerchantChange,
-                label = { Text("Merchant") },
+                label = { Text(stringResource(Res.string.logging_merchant)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -316,7 +346,7 @@ private fun DraftRowCard(
             OutlinedTextField(
                 value = row.amountText,
                 onValueChange = onAmountChange,
-                label = { Text("Amount") },
+                label = { Text(stringResource(Res.string.logging_amount)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -324,7 +354,7 @@ private fun DraftRowCard(
             if (row.status == DraftStatus.ERROR) {
                 Spacer(Modifier.height(DesignTokens.Spacing.s))
                 Text(
-                    text = "This row needs attention before submitting",
+                    text = stringResource(Res.string.logging_row_needs_attention),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -352,20 +382,28 @@ private fun ResumeDraftCard(
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
             Text(
-                text = "Resume draft?",
+                text = stringResource(Res.string.logging_resume_draft_title),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
-                text = if (merchantName.isNotBlank()) "You have an unsaved expense for \"$merchantName\"" else "You have an unsaved expense in progress",
+                text =
+                    if (merchantName.isNotBlank()) {
+                        stringResource(
+                            Res.string.logging_resume_draft_named,
+                            merchantName,
+                        )
+                    } else {
+                        stringResource(Res.string.logging_resume_draft_generic)
+                    },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                OutlinedButton(onClick = onResume) { Text("Resume") }
-                TextButton(onClick = onDiscard) { Text("Discard") }
+                OutlinedButton(onClick = onResume) { Text(stringResource(Res.string.logging_resume)) }
+                TextButton(onClick = onDiscard) { Text(stringResource(Res.string.logging_discard)) }
             }
         }
     }

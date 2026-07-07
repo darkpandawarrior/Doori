@@ -27,9 +27,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_log_another
+import com.mileway.core.ui.resources.logging_miles_logged_body
+import com.mileway.core.ui.resources.logging_miles_logged_title
+import com.mileway.core.ui.resources.logging_reimbursable_amount
+import com.mileway.core.ui.resources.logging_transaction_id
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -73,7 +80,7 @@ fun LogMilesSuccessScreen(
                             .padding(DesignTokens.Spacing.l)
                             .height(56.dp),
                     shape = DesignTokens.Shape.roundedMd,
-                ) { Text("Log Another") }
+                ) { Text(stringResource(Res.string.logging_log_another)) }
             }
         },
     ) { padding ->
@@ -99,14 +106,14 @@ fun LogMilesSuccessScreen(
             }
             Spacer(Modifier.size(DesignTokens.Spacing.l))
             Text(
-                "Miles Logged!",
+                stringResource(Res.string.logging_miles_logged_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Spacer(Modifier.size(DesignTokens.Spacing.s))
             Text(
-                "Your mileage expense has been submitted successfully.",
+                stringResource(Res.string.logging_miles_logged_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -120,10 +127,10 @@ fun LogMilesSuccessScreen(
                 color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
             ) {
                 Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
-                    SummaryRow(label = "Reimbursable amount", value = "₹${amount.formatDecimal(2)}")
+                    SummaryRow(label = stringResource(Res.string.logging_reimbursable_amount), value = "₹${amount.formatDecimal(2)}")
                     if (!transactionId.isNullOrBlank()) {
                         Spacer(Modifier.size(DesignTokens.Spacing.m))
-                        SummaryRow(label = "Transaction id", value = transactionId)
+                        SummaryRow(label = stringResource(Res.string.logging_transaction_id), value = transactionId)
                     }
                 }
             }

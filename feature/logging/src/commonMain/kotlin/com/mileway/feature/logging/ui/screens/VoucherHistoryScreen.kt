@@ -31,10 +31,21 @@ import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_cancel
+import com.mileway.core.ui.resources.logging_no_vouchers_subtitle
+import com.mileway.core.ui.resources.logging_no_vouchers_title
+import com.mileway.core.ui.resources.logging_search_vouchers_placeholder
+import com.mileway.core.ui.resources.logging_voucher_actions_cd
+import com.mileway.core.ui.resources.logging_voucher_history_title
+import com.mileway.core.ui.resources.logging_withdraw
+import com.mileway.core.ui.resources.logging_withdraw_description
+import com.mileway.core.ui.resources.logging_withdraw_title
 import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.logging.viewmodel.VOUCHER_HISTORY_TABS
 import com.mileway.feature.logging.viewmodel.VoucherHistoryAction
 import com.mileway.feature.logging.viewmodel.VoucherHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** SP.1: voucher history, built entirely on the shared F0.4 [HistoryListScaffold] + F0.3 [StatusChip]. */
@@ -47,7 +58,7 @@ fun VoucherHistoryScreen(
     val ui by viewModel.state.collectAsState()
 
     HistoryListScaffold(
-        title = "Voucher History",
+        title = stringResource(Res.string.logging_voucher_history_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(VoucherHistoryAction.Refresh) },
@@ -57,9 +68,9 @@ fun VoucherHistoryScreen(
         onSelectTab = { viewModel.onAction(VoucherHistoryAction.SelectTab(it)) },
         query = ui.query,
         onQueryChange = { viewModel.onAction(VoucherHistoryAction.SetQuery(it)) },
-        searchPlaceholder = "Search vouchers…",
-        emptyTitle = "No vouchers here",
-        emptySubtitle = "Submitted vouchers will appear under their status.",
+        searchPlaceholder = stringResource(Res.string.logging_search_vouchers_placeholder),
+        emptyTitle = stringResource(Res.string.logging_no_vouchers_title),
+        emptySubtitle = stringResource(Res.string.logging_no_vouchers_subtitle),
         itemKey = { it.id },
     ) { voucher ->
         VoucherCard(
@@ -96,11 +107,11 @@ private fun VoucherCard(
                     if (canWithdraw) {
                         Box {
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "Voucher actions")
+                                Icon(Icons.Filled.MoreVert, contentDescription = stringResource(Res.string.logging_voucher_actions_cd))
                             }
                             DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                                 DropdownMenuItem(
-                                    text = { Text("Withdraw") },
+                                    text = { Text(stringResource(Res.string.logging_withdraw)) },
                                     onClick = {
                                         menuExpanded = false
                                         showWithdrawConfirmation = true
@@ -128,10 +139,10 @@ private fun VoucherCard(
 
     if (showWithdrawConfirmation) {
         ActionConfirmationBottomSheet(
-            title = "Withdraw Voucher?",
-            description = "This draft voucher (${voucher.id}) will be removed. This action cannot be undone.",
-            confirmLabel = "Withdraw",
-            dismissLabel = "Cancel",
+            title = stringResource(Res.string.logging_withdraw_title),
+            description = stringResource(Res.string.logging_withdraw_description, voucher.id),
+            confirmLabel = stringResource(Res.string.logging_withdraw),
+            dismissLabel = stringResource(Res.string.logging_cancel),
             icon = Icons.Filled.Delete,
             tone = ActionConfirmationToneType.Danger,
             onConfirm = {

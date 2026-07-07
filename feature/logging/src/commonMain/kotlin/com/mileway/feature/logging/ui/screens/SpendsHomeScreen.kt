@@ -40,7 +40,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_expense_subtitle
+import com.mileway.core.ui.resources.logging_add_expense_title
+import com.mileway.core.ui.resources.logging_expense_history
+import com.mileway.core.ui.resources.logging_expense_history_subtitle
+import com.mileway.core.ui.resources.logging_history_section
+import com.mileway.core.ui.resources.logging_mileage_history
+import com.mileway.core.ui.resources.logging_mileage_history_subtitle
+import com.mileway.core.ui.resources.logging_spends_prompt
+import com.mileway.core.ui.resources.logging_spends_subtitle
+import com.mileway.core.ui.resources.logging_spends_title
+import com.mileway.core.ui.resources.logging_track_mileage_subtitle
+import com.mileway.core.ui.resources.logging_track_mileage_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SpendsHomeScreen(
@@ -71,13 +85,13 @@ fun SpendsHomeScreen(
                             .padding(horizontal = 20.dp, vertical = 16.dp),
                 ) {
                     Text(
-                        text = "Spends",
+                        text = stringResource(Res.string.logging_spends_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
                     Text(
-                        text = "Track mileage & manage expenses",
+                        text = stringResource(Res.string.logging_spends_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.85f),
                     )
@@ -97,7 +111,7 @@ fun SpendsHomeScreen(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
         ) {
             Text(
-                text = "What would you like to do?",
+                text = stringResource(Res.string.logging_spends_prompt),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -108,16 +122,16 @@ fun SpendsHomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
                 PrimaryActionCard(
-                    title = "Track Mileage",
-                    subtitle = "Log distance\ntravelled by vehicle",
+                    title = stringResource(Res.string.logging_track_mileage_title),
+                    subtitle = stringResource(Res.string.logging_track_mileage_subtitle),
                     icon = Icons.Filled.DirectionsCar,
                     gradient = Brush.linearGradient(listOf(Color(0xFF1565C0), Color(0xFF42A5F5))),
                     onClick = onTrackMileage,
                     modifier = Modifier.weight(1f),
                 )
                 PrimaryActionCard(
-                    title = "Add Expense",
-                    subtitle = "Capture & submit\na business expense",
+                    title = stringResource(Res.string.logging_add_expense_title),
+                    subtitle = stringResource(Res.string.logging_add_expense_subtitle),
                     icon = Icons.Filled.Receipt,
                     gradient = Brush.linearGradient(listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC))),
                     onClick = onAddExpense,
@@ -128,7 +142,7 @@ fun SpendsHomeScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.s))
 
             Text(
-                text = "History",
+                text = stringResource(Res.string.logging_history_section),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -136,15 +150,15 @@ fun SpendsHomeScreen(
 
             HistoryLinkRow(
                 icon = Icons.Filled.DirectionsCar,
-                label = "Mileage History",
-                subtitle = "View submitted & draft log miles",
+                label = stringResource(Res.string.logging_mileage_history),
+                subtitle = stringResource(Res.string.logging_mileage_history_subtitle),
                 onClick = onMileageHistory,
             )
 
             HistoryLinkRow(
                 icon = Icons.AutoMirrored.Filled.ReceiptLong,
-                label = "Expense History",
-                subtitle = "View submitted expenses",
+                label = stringResource(Res.string.logging_expense_history),
+                subtitle = stringResource(Res.string.logging_expense_history_subtitle),
                 onClick = onExpenseHistory,
             )
         }

@@ -20,8 +20,18 @@ import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.display.OdometerReadingSource
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_attach_odometer_photo
+import com.mileway.core.ui.resources.logging_cancel
+import com.mileway.core.ui.resources.logging_confirm
+import com.mileway.core.ui.resources.logging_odometer_capture_body
+import com.mileway.core.ui.resources.logging_odometer_end
+import com.mileway.core.ui.resources.logging_odometer_photo_retake
+import com.mileway.core.ui.resources.logging_odometer_reading_label
+import com.mileway.core.ui.resources.logging_odometer_start
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.ui.screens.rememberReceiptAttachmentLauncher
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
 /**
@@ -49,33 +59,38 @@ fun OdometerCaptureSheet(
         rememberReceiptAttachmentLauncher(onPicked = { uri -> photoUri = uri })
 
     val parsed = reading.toIntOrNull()
-    val titleText = if (purpose == OdometerPurpose.START) "Start Odometer Reading" else "End Odometer Reading"
+    val titleText =
+        if (purpose == OdometerPurpose.START) {
+            stringResource(Res.string.logging_odometer_start)
+        } else {
+            stringResource(Res.string.logging_odometer_end)
+        }
 
     AppActionSheet(
         onDismiss = onDismiss,
         title = titleText,
     ) {
         Text(
-            "Enter the odometer reading (in km) and attach a photo of the odometer.",
+            stringResource(Res.string.logging_odometer_capture_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         OutlinedTextField(
             value = reading,
             onValueChange = { text -> if (text.length <= 7) reading = text.filter { it.isDigit() } },
-            label = { Text("Odometer reading (km)") },
+            label = { Text(stringResource(Res.string.logging_odometer_reading_label)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
         OutlinedButton(onClick = launchPicker, modifier = Modifier.fillMaxWidth()) {
-            Text(if (photoUri.isBlank()) "Attach Odometer Photo" else "Photo Attached — Retake")
+            Text(if (photoUri.isBlank()) stringResource(Res.string.logging_attach_odometer_photo) else stringResource(Res.string.logging_odometer_photo_retake))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
             Button(
                 onClick = {
                     val value = parsed ?: return@Button
@@ -91,7 +106,7 @@ fun OdometerCaptureSheet(
                 },
                 enabled = parsed != null && parsed >= 0,
                 modifier = Modifier.weight(1f),
-            ) { Text("Confirm") }
+            ) { Text(stringResource(Res.string.logging_confirm)) }
         }
     }
 }

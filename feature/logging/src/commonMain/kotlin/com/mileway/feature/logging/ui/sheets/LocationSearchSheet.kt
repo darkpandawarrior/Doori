@@ -54,12 +54,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_clear_all
+import com.mileway.core.ui.resources.logging_clear_cd
+import com.mileway.core.ui.resources.logging_favorite_cd
+import com.mileway.core.ui.resources.logging_favorites
+import com.mileway.core.ui.resources.logging_locating
+import com.mileway.core.ui.resources.logging_more_actions_cd
+import com.mileway.core.ui.resources.logging_no_matches_body
+import com.mileway.core.ui.resources.logging_no_matches_title
+import com.mileway.core.ui.resources.logging_recent
+import com.mileway.core.ui.resources.logging_remove_from_recent
+import com.mileway.core.ui.resources.logging_remove_named
+import com.mileway.core.ui.resources.logging_save_as_home
+import com.mileway.core.ui.resources.logging_save_as_work
+import com.mileway.core.ui.resources.logging_saved_places
+import com.mileway.core.ui.resources.logging_search_location_placeholder
+import com.mileway.core.ui.resources.logging_search_location_title
+import com.mileway.core.ui.resources.logging_search_locations_body
+import com.mileway.core.ui.resources.logging_search_locations_title
+import com.mileway.core.ui.resources.logging_unfavorite_cd
+import com.mileway.core.ui.resources.logging_use_current_location
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.ui.model.CityCatalog
 import com.mileway.feature.logging.ui.model.LocationEntry
 import com.mileway.feature.logging.ui.model.PoiCategory
 import com.mileway.feature.logging.ui.model.SavedPlaceUi
 import com.mileway.feature.logging.ui.model.haversineKm
+import org.jetbrains.compose.resources.stringResource
 
 /** Callbacks the [LocationSearchSheet] routes to the ViewModel — grouped to keep the arg list flat. */
 data class LocationSearchActions(
@@ -116,7 +138,7 @@ fun LocationSearchSheet(
                     .padding(bottom = DesignTokens.Spacing.l),
         ) {
             Text(
-                text = "Search Location",
+                text = stringResource(Res.string.logging_search_location_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -128,14 +150,14 @@ fun LocationSearchSheet(
                 value = query,
                 onValueChange = actions.onQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search for a location") },
+                placeholder = { Text(stringResource(Res.string.logging_search_location_placeholder)) },
                 singleLine = true,
                 shape = DesignTokens.Shape.roundedMd,
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
                         IconButton(onClick = { actions.onQueryChange("") }) {
-                            Icon(Icons.Filled.Clear, contentDescription = "Clear")
+                            Icon(Icons.Filled.Clear, contentDescription = stringResource(Res.string.logging_clear_cd))
                         }
                     }
                 },
@@ -159,8 +181,8 @@ fun LocationSearchSheet(
             when {
                 !showBrowse && results.isEmpty() ->
                     EmptyHint(
-                        title = "No matches",
-                        body = "Try a different place, area or category",
+                        title = stringResource(Res.string.logging_no_matches_title),
+                        body = stringResource(Res.string.logging_no_matches_body),
                     )
 
                 !showBrowse ->
@@ -173,8 +195,8 @@ fun LocationSearchSheet(
 
                 favorites.isEmpty() && recent.isEmpty() ->
                     EmptyHint(
-                        title = "Search for locations",
-                        body = "Type at least 2 characters, or pick a saved place above",
+                        title = stringResource(Res.string.logging_search_locations_title),
+                        body = stringResource(Res.string.logging_search_locations_body),
                     )
 
                 else ->
@@ -183,7 +205,7 @@ fun LocationSearchSheet(
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
                     ) {
                         if (favorites.isNotEmpty()) {
-                            item { SectionHeader(icon = Icons.Filled.Star, title = "Favorites") }
+                            item { SectionHeader(icon = Icons.Filled.Star, title = stringResource(Res.string.logging_favorites)) }
                             items(favorites, key = { "fav-${it.name}" }) { entry ->
                                 LocationRow(
                                     entry = entry,
@@ -197,8 +219,8 @@ fun LocationSearchSheet(
                             item {
                                 SectionHeader(
                                     icon = Icons.Filled.History,
-                                    title = "Recent",
-                                    trailing = { TextButton(onClick = actions.onClearRecent) { Text("Clear all") } },
+                                    title = stringResource(Res.string.logging_recent),
+                                    trailing = { TextButton(onClick = actions.onClearRecent) { Text(stringResource(Res.string.logging_clear_all)) } },
                                 )
                             }
                             items(recent, key = { "recent-${it.name}" }) { entry ->
@@ -252,13 +274,13 @@ private fun CurrentLocationRow(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Use current location",
+                    stringResource(Res.string.logging_use_current_location),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    currentLocation?.subtitle ?: "Locating…",
+                    currentLocation?.subtitle ?: stringResource(Res.string.logging_locating),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -275,7 +297,7 @@ private fun SavedChipsRow(
     actions: LocationSearchActions,
 ) {
     Column {
-        SectionHeader(icon = Icons.Filled.Home, title = "Saved places")
+        SectionHeader(icon = Icons.Filled.Home, title = stringResource(Res.string.logging_saved_places))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
             items(saved, key = { it.label }) { item ->
                 AssistChip(
@@ -292,7 +314,7 @@ private fun SavedChipsRow(
                         IconButton(onClick = { actions.onRemoveSaved(item.label) }) {
                             Icon(
                                 Icons.Filled.Clear,
-                                contentDescription = "Remove ${item.label}",
+                                contentDescription = stringResource(Res.string.logging_remove_named, item.label),
                                 modifier = Modifier.size(16.dp),
                             )
                         }
@@ -421,7 +443,7 @@ private fun LocationRow(
             IconButton(onClick = { actions.onToggleFavorite(entry) }) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                    contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
+                    contentDescription = if (isFavorite) stringResource(Res.string.logging_unfavorite_cd) else stringResource(Res.string.logging_favorite_cd),
                     tint =
                         if (isFavorite) {
                             MaterialTheme.colorScheme.primary
@@ -446,14 +468,14 @@ private fun RowOverflowMenu(
     IconButton(onClick = { expanded = true }) {
         Icon(
             Icons.Filled.MoreVert,
-            contentDescription = "More actions",
+            contentDescription = stringResource(Res.string.logging_more_actions_cd),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp),
         )
     }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
         DropdownMenuItem(
-            text = { Text("Save as Home") },
+            text = { Text(stringResource(Res.string.logging_save_as_home)) },
             leadingIcon = { Icon(Icons.Filled.Home, contentDescription = null) },
             onClick = {
                 actions.onSaveAs(entry, "Home")
@@ -461,7 +483,7 @@ private fun RowOverflowMenu(
             },
         )
         DropdownMenuItem(
-            text = { Text("Save as Work") },
+            text = { Text(stringResource(Res.string.logging_save_as_work)) },
             leadingIcon = { Icon(Icons.Filled.Work, contentDescription = null) },
             onClick = {
                 actions.onSaveAs(entry, "Work")
@@ -470,7 +492,7 @@ private fun RowOverflowMenu(
         )
         if (onRemove != null) {
             DropdownMenuItem(
-                text = { Text("Remove from recent") },
+                text = { Text(stringResource(Res.string.logging_remove_from_recent)) },
                 leadingIcon = { Icon(Icons.Filled.Clear, contentDescription = null) },
                 onClick = {
                     onRemove()

@@ -54,6 +54,28 @@ import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
 import com.mileway.core.ui.components.pickers.WheelTimePickerDialog
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_draft_hint_odometer_optional
+import com.mileway.core.ui.resources.logging_draft_hint_odometer_required
+import com.mileway.core.ui.resources.logging_frequent_routes
+import com.mileway.core.ui.resources.logging_journey_completion_time
+import com.mileway.core.ui.resources.logging_journey_date
+import com.mileway.core.ui.resources.logging_journey_date_placeholder
+import com.mileway.core.ui.resources.logging_journey_time_placeholder
+import com.mileway.core.ui.resources.logging_log_miles_history_cd
+import com.mileway.core.ui.resources.logging_log_miles_subtitle
+import com.mileway.core.ui.resources.logging_log_miles_title
+import com.mileway.core.ui.resources.logging_next
+import com.mileway.core.ui.resources.logging_odometer_end
+import com.mileway.core.ui.resources.logging_odometer_end_placeholder
+import com.mileway.core.ui.resources.logging_odometer_start
+import com.mileway.core.ui.resources.logging_odometer_start_placeholder
+import com.mileway.core.ui.resources.logging_save_as_draft
+import com.mileway.core.ui.resources.logging_save_as_draft_subtitle
+import com.mileway.core.ui.resources.logging_step1_subtitle
+import com.mileway.core.ui.resources.logging_step1_title
+import com.mileway.core.ui.resources.logging_vehicle_type
+import com.mileway.core.ui.resources.logging_vehicle_type_placeholder
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.repository.LogMilesFrequentRoute
@@ -74,6 +96,7 @@ import com.mileway.feature.logging.viewmodel.SearchLocationAction
 import com.mileway.feature.logging.viewmodel.SearchLocationEffect
 import com.mileway.feature.logging.viewmodel.SearchLocationViewModel
 import com.mileway.feature.tracking.ui.components.StaticPolylineThumbnail
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -163,13 +186,13 @@ fun LogMilesScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Log Miles",
-                subtitle = "Fill out the details given below",
+                title = stringResource(Res.string.logging_log_miles_title),
+                subtitle = stringResource(Res.string.logging_log_miles_subtitle),
                 depth = NavigationDepth.ROOT,
                 titleIcon = Icons.Filled.DirectionsCar,
                 actions = {
                     IconButton(onClick = onOpenHistory) {
-                        Icon(Icons.Filled.History, contentDescription = "Log Miles history")
+                        Icon(Icons.Filled.History, contentDescription = stringResource(Res.string.logging_log_miles_history_cd))
                     }
                 },
             )
@@ -193,8 +216,8 @@ fun LogMilesScreen(
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
                 StepHeaderCard(
-                    title = "Step 1 of 2",
-                    subtitle = "Add travelled locations and basics",
+                    title = stringResource(Res.string.logging_step1_title),
+                    subtitle = stringResource(Res.string.logging_step1_subtitle),
                 )
 
                 // Wave 3: one-tap retrace — pre-fill the itinerary from a cached frequent route
@@ -215,10 +238,10 @@ fun LogMilesScreen(
                 }
 
                 TapFieldRow(
-                    label = "Journey Date",
+                    label = stringResource(Res.string.logging_journey_date),
                     value =
                         uiState.journeyDateMillis?.let { DateUtils.epochToDisplayDate(it) }
-                            ?: "Select journey date",
+                            ?: stringResource(Res.string.logging_journey_date_placeholder),
                     isPlaceholder = uiState.journeyDateMillis == null,
                     leadingIcon = Icons.Filled.CalendarMonth,
                     trailingIcon = Icons.Filled.CalendarMonth,
@@ -226,8 +249,8 @@ fun LogMilesScreen(
                 )
 
                 TapFieldRow(
-                    label = "Journey Completion Time",
-                    value = uiState.journeyTimeMinutes?.let { formatMinutes(it) } ?: "Select time",
+                    label = stringResource(Res.string.logging_journey_completion_time),
+                    value = uiState.journeyTimeMinutes?.let { formatMinutes(it) } ?: stringResource(Res.string.logging_journey_time_placeholder),
                     isPlaceholder = uiState.journeyTimeMinutes == null,
                     leadingIcon = Icons.Filled.Schedule,
                     trailingIcon = Icons.Filled.Schedule,
@@ -235,8 +258,8 @@ fun LogMilesScreen(
                 )
 
                 TapFieldRow(
-                    label = "Vehicle Type",
-                    value = uiState.selectedVehicle?.vehicleName ?: "Select vehicle type",
+                    label = stringResource(Res.string.logging_vehicle_type),
+                    value = uiState.selectedVehicle?.vehicleName ?: stringResource(Res.string.logging_vehicle_type_placeholder),
                     isPlaceholder = uiState.selectedVehicle == null,
                     leadingIcon = Icons.Filled.DirectionsCar,
                     onClick = { showVehicleSheet = true },
@@ -245,15 +268,15 @@ fun LogMilesScreen(
                 // P5.3: odometer capture, gated behind the local per-tenant flag.
                 if (uiState.odometerCaptureEnabled) {
                     TapFieldRow(
-                        label = "Start Odometer Reading",
-                        value = uiState.odometerStart?.let { "${it.reading} km" } ?: "Capture start reading",
+                        label = stringResource(Res.string.logging_odometer_start),
+                        value = uiState.odometerStart?.let { "${it.reading} km" } ?: stringResource(Res.string.logging_odometer_start_placeholder),
                         isPlaceholder = uiState.odometerStart == null,
                         leadingIcon = Icons.Filled.Speed,
                         onClick = { odometerSheetPurpose = OdometerPurpose.START },
                     )
                     TapFieldRow(
-                        label = "End Odometer Reading",
-                        value = uiState.odometerEnd?.let { "${it.reading} km" } ?: "Capture end reading",
+                        label = stringResource(Res.string.logging_odometer_end),
+                        value = uiState.odometerEnd?.let { "${it.reading} km" } ?: stringResource(Res.string.logging_odometer_end_placeholder),
                         isPlaceholder = uiState.odometerEnd == null,
                         leadingIcon = Icons.Filled.Speed,
                         onClick = { odometerSheetPurpose = OdometerPurpose.END },
@@ -303,13 +326,13 @@ fun LogMilesScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "Save as draft",
+                                stringResource(Res.string.logging_save_as_draft),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
-                                "Store step 1 and finish later",
+                                stringResource(Res.string.logging_save_as_draft_subtitle),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -324,10 +347,9 @@ fun LogMilesScreen(
                 Text(
                     text =
                         if (uiState.odometerCaptureEnabled) {
-                            "You can save a draft after Step 1. Start and end odometer readings are required " +
-                                "before continuing to Step 2."
+                            stringResource(Res.string.logging_draft_hint_odometer_required)
                         } else {
-                            "You can save a draft after Step 1. Odometer details can be completed later."
+                            stringResource(Res.string.logging_draft_hint_odometer_optional)
                         },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -345,7 +367,7 @@ fun LogMilesScreen(
                             .height(56.dp),
                     shape = DesignTokens.Shape.roundedMd,
                 ) {
-                    Text("Next")
+                    Text(stringResource(Res.string.logging_next))
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowForward,
@@ -398,7 +420,7 @@ fun LogMilesScreen(
     if (showDatePicker) {
         WheelDatePickerDialog(
             initialDateMillis = uiState.journeyDateMillis,
-            title = "Journey Date",
+            title = stringResource(Res.string.logging_journey_date),
             onConfirm = {
                 viewModel.onAction(LogMilesAction.SetJourneyDate(it))
                 showDatePicker = false
@@ -410,7 +432,7 @@ fun LogMilesScreen(
     if (showTimePicker) {
         WheelTimePickerDialog(
             initialMinutes = uiState.journeyTimeMinutes ?: 9 * 60,
-            title = "Journey Completion Time",
+            title = stringResource(Res.string.logging_journey_completion_time),
             onConfirm = { hour, minute ->
                 viewModel.onAction(LogMilesAction.SetJourneyTime(hour, minute))
                 showTimePicker = false
@@ -456,7 +478,7 @@ private fun FrequentRoutesRow(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
         Text(
-            "Frequent routes",
+            stringResource(Res.string.logging_frequent_routes),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
