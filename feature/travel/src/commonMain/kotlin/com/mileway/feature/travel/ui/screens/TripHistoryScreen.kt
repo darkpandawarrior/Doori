@@ -16,10 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_filter_all
+import com.mileway.core.ui.resources.travel_trip_empty_subtitle
+import com.mileway.core.ui.resources.travel_trip_empty_title
+import com.mileway.core.ui.resources.travel_trip_history_title
+import com.mileway.core.ui.resources.travel_trip_search_placeholder
 import com.mileway.feature.travel.model.TripRecord
 import com.mileway.feature.travel.viewmodel.TRIP_HISTORY_TABS
 import com.mileway.feature.travel.viewmodel.TripHistoryAction
 import com.mileway.feature.travel.viewmodel.TripHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** TR.8: trip-request history on the shared F0.4 HistoryListScaffold + F0.3 StatusChip. */
@@ -31,20 +38,21 @@ fun TripHistoryScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
+    val allLabel = stringResource(Res.string.travel_filter_all)
     HistoryListScaffold(
-        title = "Trip History",
+        title = stringResource(Res.string.travel_trip_history_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(TripHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = TRIP_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = TRIP_HISTORY_TABS.map { it?.localizedLabel() ?: allLabel },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(TripHistoryAction.SelectTab(it)) },
         query = ui.query,
         onQueryChange = { viewModel.onAction(TripHistoryAction.SetQuery(it)) },
-        searchPlaceholder = "Search trips…",
-        emptyTitle = "No trips here",
-        emptySubtitle = "Submitted trip requests appear under their status.",
+        searchPlaceholder = stringResource(Res.string.travel_trip_search_placeholder),
+        emptyTitle = stringResource(Res.string.travel_trip_empty_title),
+        emptySubtitle = stringResource(Res.string.travel_trip_empty_subtitle),
         itemKey = { it.id },
     ) { trip ->
         TripCard(trip)
@@ -60,7 +68,7 @@ private fun TripCard(trip: TripRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(trip.id, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                StatusChip(label = trip.status.label, tone = travelStatusTone(trip.status))
+                StatusChip(label = trip.status.localizedLabel(), tone = travelStatusTone(trip.status))
             }
             Text(
                 trip.purpose,

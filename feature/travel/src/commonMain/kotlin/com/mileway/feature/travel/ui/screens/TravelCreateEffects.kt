@@ -10,11 +10,23 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusTone
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_booking_bus
+import com.mileway.core.ui.resources.travel_booking_flight
+import com.mileway.core.ui.resources.travel_booking_hotel
+import com.mileway.core.ui.resources.travel_booking_mjp
+import com.mileway.core.ui.resources.travel_booking_visa
+import com.mileway.core.ui.resources.travel_status_approved
+import com.mileway.core.ui.resources.travel_status_completed
+import com.mileway.core.ui.resources.travel_status_pending
+import com.mileway.core.ui.resources.travel_status_rejected
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
+import com.mileway.feature.travel.model.BookingType
 import com.mileway.feature.travel.model.TravelReqStatus
 import com.mileway.feature.travel.viewmodel.TravelCreateEffect
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Shared effect collection for every TR create screen, routes the rotating success / approval / violation
@@ -79,4 +91,25 @@ internal fun travelStatusTone(status: TravelReqStatus): StatusTone =
         TravelReqStatus.APPROVED -> StatusTone.Success
         TravelReqStatus.REJECTED -> StatusTone.Error
         TravelReqStatus.COMPLETED -> StatusTone.Info
+    }
+
+/** Localized display label for a travel-request status; the enum's `label` stays canonical for search. */
+@Composable
+internal fun TravelReqStatus.localizedLabel(): String =
+    when (this) {
+        TravelReqStatus.PENDING -> stringResource(Res.string.travel_status_pending)
+        TravelReqStatus.APPROVED -> stringResource(Res.string.travel_status_approved)
+        TravelReqStatus.REJECTED -> stringResource(Res.string.travel_status_rejected)
+        TravelReqStatus.COMPLETED -> stringResource(Res.string.travel_status_completed)
+    }
+
+/** Localized display label for a booking type; the enum's `label` stays canonical for search. */
+@Composable
+internal fun BookingType.localizedLabel(): String =
+    when (this) {
+        BookingType.FLIGHT -> stringResource(Res.string.travel_booking_flight)
+        BookingType.BUS -> stringResource(Res.string.travel_booking_bus)
+        BookingType.HOTEL -> stringResource(Res.string.travel_booking_hotel)
+        BookingType.MJP -> stringResource(Res.string.travel_booking_mjp)
+        BookingType.VISA -> stringResource(Res.string.travel_booking_visa)
     }

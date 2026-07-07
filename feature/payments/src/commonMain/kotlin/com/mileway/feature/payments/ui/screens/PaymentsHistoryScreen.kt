@@ -18,11 +18,17 @@ import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payments_direction_pay
+import com.mileway.core.ui.resources.payments_direction_request
 import com.mileway.core.ui.resources.payments_empty_subtitle
 import com.mileway.core.ui.resources.payments_empty_title
 import com.mileway.core.ui.resources.payments_history_title
 import com.mileway.core.ui.resources.payments_search_placeholder
+import com.mileway.core.ui.resources.payments_status_completed
+import com.mileway.core.ui.resources.payments_status_failed
+import com.mileway.core.ui.resources.payments_status_pending
 import com.mileway.core.ui.resources.payments_tab_all
+import com.mileway.feature.payments.model.PaymentDirection
 import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
 import com.mileway.feature.payments.viewmodel.PAYMENTS_HISTORY_TABS
@@ -47,7 +53,7 @@ fun PaymentsHistoryScreen(
         state = ui.list,
         onRetry = { viewModel.onAction(PaymentsHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = PAYMENTS_HISTORY_TABS.map { it?.label ?: allLabel },
+        tabs = PAYMENTS_HISTORY_TABS.map { it?.localizedLabel() ?: allLabel },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(PaymentsHistoryAction.SelectTab(it)) },
         query = ui.query,
@@ -69,8 +75,12 @@ private fun PaymentCard(payment: PaymentRecord) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("${payment.direction.label} · ${payment.counterparty}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                StatusChip(label = payment.status.label, tone = toneFor(payment.status))
+                Text(
+                    "${payment.direction.localizedLabel()} · ${payment.counterparty}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                StatusChip(label = payment.status.localizedLabel(), tone = toneFor(payment.status))
             }
             if (payment.note.isNotBlank()) {
                 Text(
@@ -95,4 +105,21 @@ private fun toneFor(status: PaymentStatus): StatusTone =
         PaymentStatus.PENDING -> StatusTone.Warning
         PaymentStatus.COMPLETED -> StatusTone.Success
         PaymentStatus.FAILED -> StatusTone.Error
+    }
+
+/** Localized display label for a payment status; the enum's `label` stays canonical for search. */
+@Composable
+internal fun PaymentStatus.localizedLabel(): String =
+    when (this) {
+        PaymentStatus.PENDING -> stringResource(Res.string.payments_status_pending)
+        PaymentStatus.COMPLETED -> stringResource(Res.string.payments_status_completed)
+        PaymentStatus.FAILED -> stringResource(Res.string.payments_status_failed)
+    }
+
+/** Localized display label for a payment direction; the enum's `label` stays canonical for search. */
+@Composable
+internal fun PaymentDirection.localizedLabel(): String =
+    when (this) {
+        PaymentDirection.PAY -> stringResource(Res.string.payments_direction_pay)
+        PaymentDirection.REQUEST -> stringResource(Res.string.payments_direction_request)
     }

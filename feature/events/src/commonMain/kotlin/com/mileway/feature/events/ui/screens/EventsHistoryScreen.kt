@@ -23,6 +23,10 @@ import com.mileway.core.ui.resources.events_empty_subtitle
 import com.mileway.core.ui.resources.events_empty_title
 import com.mileway.core.ui.resources.events_history_title
 import com.mileway.core.ui.resources.events_search_placeholder
+import com.mileway.core.ui.resources.events_status_cancelled
+import com.mileway.core.ui.resources.events_status_completed
+import com.mileway.core.ui.resources.events_status_draft
+import com.mileway.core.ui.resources.events_status_published
 import com.mileway.core.ui.resources.events_tab_all
 import com.mileway.feature.events.model.EventRecord
 import com.mileway.feature.events.model.EventStatus
@@ -48,7 +52,7 @@ fun EventsHistoryScreen(
         state = ui.list,
         onRetry = { viewModel.onAction(EventsHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = EVENTS_HISTORY_TABS.map { it?.label ?: allLabel },
+        tabs = EVENTS_HISTORY_TABS.map { it?.localizedLabel() ?: allLabel },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(EventsHistoryAction.SelectTab(it)) },
         query = ui.query,
@@ -71,7 +75,7 @@ private fun EventCard(event: EventRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(event.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                StatusChip(label = event.status.label, tone = toneFor(event.status))
+                StatusChip(label = event.status.localizedLabel(), tone = toneFor(event.status))
             }
             Text(
                 "${event.venue} · ${event.category}",
@@ -95,4 +99,14 @@ private fun toneFor(status: EventStatus): StatusTone =
         EventStatus.PUBLISHED -> StatusTone.Success
         EventStatus.CANCELLED -> StatusTone.Error
         EventStatus.COMPLETED -> StatusTone.Info
+    }
+
+/** Localized display label for an event status; the enum's `label` stays canonical for search. */
+@Composable
+private fun EventStatus.localizedLabel(): String =
+    when (this) {
+        EventStatus.DRAFT -> stringResource(Res.string.events_status_draft)
+        EventStatus.PUBLISHED -> stringResource(Res.string.events_status_published)
+        EventStatus.CANCELLED -> stringResource(Res.string.events_status_cancelled)
+        EventStatus.COMPLETED -> stringResource(Res.string.events_status_completed)
     }

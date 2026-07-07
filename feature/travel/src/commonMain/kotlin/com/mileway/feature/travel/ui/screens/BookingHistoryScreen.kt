@@ -17,11 +17,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_booking_empty_subtitle
+import com.mileway.core.ui.resources.travel_booking_empty_title
+import com.mileway.core.ui.resources.travel_booking_history_title
+import com.mileway.core.ui.resources.travel_booking_search_placeholder
+import com.mileway.core.ui.resources.travel_filter_all
 import com.mileway.feature.travel.model.BookingRequest
 import com.mileway.feature.travel.model.TravelReqStatus
 import com.mileway.feature.travel.viewmodel.BOOKING_HISTORY_TABS
 import com.mileway.feature.travel.viewmodel.BookingHistoryAction
 import com.mileway.feature.travel.viewmodel.BookingHistoryViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** TR.8: unified booking-request history (Flight / Bus / Hotel / MJP / Visa) on the shared HistoryListScaffold. */
@@ -33,26 +40,27 @@ fun BookingHistoryScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
+    val allLabel = stringResource(Res.string.travel_filter_all)
     HistoryListScaffold(
-        title = "Booking History",
+        title = stringResource(Res.string.travel_booking_history_title),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(BookingHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = BOOKING_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = BOOKING_HISTORY_TABS.map { it?.localizedLabel() ?: allLabel },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(BookingHistoryAction.SelectTab(it)) },
         query = ui.query,
         onQueryChange = { viewModel.onAction(BookingHistoryAction.SetQuery(it)) },
-        searchPlaceholder = "Search bookings…",
-        emptyTitle = "No bookings here",
-        emptySubtitle = "Submitted booking requests appear under their type and status.",
+        searchPlaceholder = stringResource(Res.string.travel_booking_search_placeholder),
+        emptyTitle = stringResource(Res.string.travel_booking_empty_title),
+        emptySubtitle = stringResource(Res.string.travel_booking_empty_subtitle),
         filterChips = {
-            StatusChipFilter("All", ui.statusFilter == null) {
+            StatusChipFilter(allLabel, ui.statusFilter == null) {
                 viewModel.onAction(BookingHistoryAction.SetStatusFilter(null))
             }
             TravelReqStatus.entries.forEach { status ->
-                StatusChipFilter(status.label, ui.statusFilter == status) {
+                StatusChipFilter(status.localizedLabel(), ui.statusFilter == status) {
                     viewModel.onAction(BookingHistoryAction.SetStatusFilter(status))
                 }
             }
@@ -80,8 +88,8 @@ private fun BookingCard(booking: BookingRequest) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("${booking.type.label} · ${booking.id}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                StatusChip(label = booking.status.label, tone = travelStatusTone(booking.status))
+                Text("${booking.type.localizedLabel()} · ${booking.id}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                StatusChip(label = booking.status.localizedLabel(), tone = travelStatusTone(booking.status))
             }
             Text(
                 booking.summary,

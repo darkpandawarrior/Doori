@@ -59,6 +59,10 @@ import com.mileway.core.ui.resources.profile_advance_status_disbursed
 import com.mileway.core.ui.resources.profile_advance_status_pending
 import com.mileway.core.ui.resources.profile_advance_status_rejected
 import com.mileway.core.ui.resources.profile_advance_status_under_review
+import com.mileway.core.ui.resources.profile_advance_type_client_onboarding
+import com.mileway.core.ui.resources.profile_advance_type_field_visit
+import com.mileway.core.ui.resources.profile_advance_type_training
+import com.mileway.core.ui.resources.profile_advance_type_travel
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.core.ui.theme.dataStyle
@@ -186,12 +190,13 @@ fun AdvanceHistoryScreen(
     }
 }
 
+@Composable
 internal fun AdvanceType.label(): String =
     when (this) {
-        AdvanceType.TRAVEL -> "Travel"
-        AdvanceType.FIELD_VISIT -> "Field Visit"
-        AdvanceType.TRAINING -> "Training"
-        AdvanceType.CLIENT_ONBOARDING -> "Client Onboarding"
+        AdvanceType.TRAVEL -> stringResource(Res.string.profile_advance_type_travel)
+        AdvanceType.FIELD_VISIT -> stringResource(Res.string.profile_advance_type_field_visit)
+        AdvanceType.TRAINING -> stringResource(Res.string.profile_advance_type_training)
+        AdvanceType.CLIENT_ONBOARDING -> stringResource(Res.string.profile_advance_type_client_onboarding)
     }
 
 @Composable

@@ -66,7 +66,23 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_details_back
 import com.mileway.core.ui.resources.profile_details_contact_info
 import com.mileway.core.ui.resources.profile_details_custom_fields
+import com.mileway.core.ui.resources.profile_details_field_code
+import com.mileway.core.ui.resources.profile_details_field_gender
+import com.mileway.core.ui.resources.profile_details_field_home
+import com.mileway.core.ui.resources.profile_details_field_manager
+import com.mileway.core.ui.resources.profile_details_field_name
+import com.mileway.core.ui.resources.profile_details_field_organization
+import com.mileway.core.ui.resources.profile_details_field_passport
+import com.mileway.core.ui.resources.profile_details_field_phone
+import com.mileway.core.ui.resources.profile_details_field_role
+import com.mileway.core.ui.resources.profile_details_field_vehicle
 import com.mileway.core.ui.resources.profile_details_not_set
+import com.mileway.core.ui.resources.profile_details_section_apps
+import com.mileway.core.ui.resources.profile_details_section_location
+import com.mileway.core.ui.resources.profile_details_section_organization
+import com.mileway.core.ui.resources.profile_details_section_personal
+import com.mileway.core.ui.resources.profile_details_section_policy
+import com.mileway.core.ui.resources.profile_details_section_travel
 import com.mileway.core.ui.resources.profile_details_subtitle
 import com.mileway.core.ui.resources.profile_details_title
 import com.mileway.core.ui.theme.DesignTokens
@@ -393,6 +409,7 @@ private data class DetailEntry(
  * [onOpenPassportSheet] override that default for the three tiles that now open a real
  * destination instead.
  */
+@Composable
 private fun buildDetailItems(
     profile: EmployeeProfile,
     vehicle: VehicleDetails?,
@@ -403,6 +420,8 @@ private fun buildDetailItems(
     onOpenVehicleSheet: () -> Unit,
     onOpenPassportSheet: () -> Unit,
 ): List<DetailEntry> {
+    val notSet = stringResource(Res.string.profile_details_not_set)
+
     fun entry(
         category: String,
         sectionIcon: ImageVector,
@@ -420,7 +439,7 @@ private fun buildDetailItems(
                 ProfileGridItem(
                     id = id,
                     title = title,
-                    subtitle = value.ifBlank { "Not set" },
+                    subtitle = value.ifBlank { notSet },
                     icon = tileIcon,
                     category = category,
                     status = if (isComplete) ProfileItemStatus.COMPLETE else ProfileItemStatus.INCOMPLETE,
@@ -428,38 +447,52 @@ private fun buildDetailItems(
                 ),
         )
 
+    val sectionPersonal = stringResource(Res.string.profile_details_section_personal)
+    val sectionLocation = stringResource(Res.string.profile_details_section_location)
+    val sectionOrganization = stringResource(Res.string.profile_details_section_organization)
+    val sectionPolicy = stringResource(Res.string.profile_details_section_policy)
+    val sectionTravel = stringResource(Res.string.profile_details_section_travel)
+    val sectionApps = stringResource(Res.string.profile_details_section_apps)
+
     return listOf(
-        entry("Personal Info", Icons.Default.Person, "d_name", "Full Name", profile.name, Icons.Default.Person),
-        entry("Personal Info", Icons.Default.Person, "d_gender", "Gender", profile.gender, Icons.Default.Badge),
-        entry("Location & Assets", Icons.Default.Home, "d_home", "Home Location", profile.homeLocation, Icons.Default.Home),
-        entry("Organization", Icons.Default.Business, "d_org", "Organization", profile.organization, Icons.Default.Business),
+        entry(sectionPersonal, Icons.Default.Person, "d_name", stringResource(Res.string.profile_details_field_name), profile.name, Icons.Default.Person),
+        entry(sectionPersonal, Icons.Default.Person, "d_gender", stringResource(Res.string.profile_details_field_gender), profile.gender, Icons.Default.Badge),
+        entry(sectionLocation, Icons.Default.Home, "d_home", stringResource(Res.string.profile_details_field_home), profile.homeLocation, Icons.Default.Home),
         entry(
-            category = "Organization",
+            sectionOrganization,
+            Icons.Default.Business,
+            "d_org",
+            stringResource(Res.string.profile_details_field_organization),
+            profile.organization,
+            Icons.Default.Business,
+        ),
+        entry(
+            category = sectionOrganization,
             sectionIcon = Icons.Default.Business,
             id = "d_manager",
-            title = "Reporting Manager",
+            title = stringResource(Res.string.profile_details_field_manager),
             value = profile.manager?.name.orEmpty(),
             tileIcon = Icons.Default.SupervisorAccount,
             action = onOpenOrgChart,
         ),
-        entry("Policy & Compliance", Icons.Default.Gavel, "d_role", "Role", profile.role, Icons.Default.Gavel),
-        entry("Travel", Icons.Default.CardTravel, "d_phone", "Phone", profile.phone, Icons.Default.Phone),
-        entry("Apps & Activity", Icons.Default.Apps, "d_code", "Employee Code", profile.employeeCode, Icons.Default.Apps),
+        entry(sectionPolicy, Icons.Default.Gavel, "d_role", stringResource(Res.string.profile_details_field_role), profile.role, Icons.Default.Gavel),
+        entry(sectionTravel, Icons.Default.CardTravel, "d_phone", stringResource(Res.string.profile_details_field_phone), profile.phone, Icons.Default.Phone),
+        entry(sectionApps, Icons.Default.Apps, "d_code", stringResource(Res.string.profile_details_field_code), profile.employeeCode, Icons.Default.Apps),
         entry(
-            category = "Location & Assets",
+            category = sectionLocation,
             sectionIcon = Icons.Default.Home,
             id = "d_vehicle",
-            title = "Vehicle",
+            title = stringResource(Res.string.profile_details_field_vehicle),
             value = if (vehicle?.isComplete == true) "${vehicle.make} ${vehicle.model}".trim() else "",
             tileIcon = Icons.Default.DirectionsCar,
             isComplete = vehicle?.isComplete == true,
             action = onOpenVehicleSheet,
         ),
         entry(
-            category = "Travel",
+            category = sectionTravel,
             sectionIcon = Icons.Default.CardTravel,
             id = "d_passport",
-            title = "Passport",
+            title = stringResource(Res.string.profile_details_field_passport),
             value = if (passport?.isComplete == true) passport.passportNumber else "",
             tileIcon = Icons.Default.Book,
             isComplete = passport?.isComplete == true,

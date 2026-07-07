@@ -18,6 +18,8 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.payables_field_remarks
+import com.mileway.core.ui.resources.payables_park_mode_in
+import com.mileway.core.ui.resources.payables_park_mode_out
 import com.mileway.core.ui.resources.payables_parking_field_driver_name
 import com.mileway.core.ui.resources.payables_parking_field_gate
 import com.mileway.core.ui.resources.payables_parking_field_po_reference
@@ -63,13 +65,13 @@ fun CreateParkingScreen(
     }
 
     FormSubmissionScaffold(
-        title = ui.mode.label,
+        title = ui.mode.localizedLabel(),
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateParkingAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = stringResource(Res.string.payables_parking_submit, ui.mode.label.lowercase()),
+        submitLabel = stringResource(Res.string.payables_parking_submit, ui.mode.localizedLabel().lowercase()),
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.payables_parking_section_direction), leadingIcon = null) {
@@ -81,7 +83,7 @@ fun CreateParkingScreen(
                         FilterChip(
                             selected = ui.mode == mode,
                             onClick = { viewModel.onAction(CreateParkingAction.SetMode(mode)) },
-                            label = { Text(mode.label) },
+                            label = { Text(mode.localizedLabel()) },
                         )
                     }
                 }
@@ -122,3 +124,11 @@ private fun Field(
         modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
     )
 }
+
+/** Localized display label for a park mode; the enum's `label` stays canonical. */
+@Composable
+private fun ParkMode.localizedLabel(): String =
+    when (this) {
+        ParkMode.IN -> stringResource(Res.string.payables_park_mode_in)
+        ParkMode.OUT -> stringResource(Res.string.payables_park_mode_out)
+    }

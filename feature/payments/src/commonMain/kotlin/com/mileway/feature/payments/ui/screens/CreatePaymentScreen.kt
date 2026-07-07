@@ -74,7 +74,7 @@ fun CreatePaymentScreen(
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = ui.direction.label,
+        submitLabel = ui.direction.localizedLabel(),
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.payments_section_mode), leadingIcon = null) {
@@ -86,7 +86,7 @@ fun CreatePaymentScreen(
                         FilterChip(
                             selected = ui.direction == dir,
                             onClick = { viewModel.onAction(CreatePaymentAction.SetDirection(dir)) },
-                            label = { Text(dir.label) },
+                            label = { Text(dir.localizedLabel()) },
                         )
                     }
                 }

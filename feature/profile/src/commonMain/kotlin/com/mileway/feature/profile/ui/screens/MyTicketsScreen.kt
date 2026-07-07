@@ -27,6 +27,9 @@ import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_ticket_status_in_progress
+import com.mileway.core.ui.resources.profile_ticket_status_open
+import com.mileway.core.ui.resources.profile_ticket_status_resolved
 import com.mileway.core.ui.resources.profile_tickets_back
 import com.mileway.core.ui.resources.profile_tickets_empty
 import com.mileway.core.ui.resources.profile_tickets_title
@@ -55,11 +58,12 @@ private fun SupportTicketStatus.tone(): StatusTone =
         SupportTicketStatus.RESOLVED -> StatusTone.Success
     }
 
+@Composable
 private fun SupportTicketStatus.label(): String =
     when (this) {
-        SupportTicketStatus.OPEN -> "Open"
-        SupportTicketStatus.IN_PROGRESS -> "In Progress"
-        SupportTicketStatus.RESOLVED -> "Resolved"
+        SupportTicketStatus.OPEN -> stringResource(Res.string.profile_ticket_status_open)
+        SupportTicketStatus.IN_PROGRESS -> stringResource(Res.string.profile_ticket_status_in_progress)
+        SupportTicketStatus.RESOLVED -> stringResource(Res.string.profile_ticket_status_resolved)
     }
 
 /**
