@@ -36,6 +36,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_cd_send
 import com.mileway.core.ui.resources.approvals_message_placeholder
 import com.mileway.core.ui.resources.approvals_seek_clarification
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.approvals.model.ClarificationMessage
 import org.jetbrains.compose.resources.stringResource
 
@@ -98,7 +99,7 @@ fun SeekClarificationSheet(
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(stringResource(Res.string.approvals_message_placeholder)) },
                     singleLine = true,
-                    shape = RoundedCornerShape(24.dp),
+                    shape = DesignTokens.Shape.button,
                 )
                 IconButton(
                     onClick = onSend,

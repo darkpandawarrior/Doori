@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -76,6 +74,7 @@ import com.mileway.core.ui.resources.approvals_type_mileage
 import com.mileway.core.ui.resources.approvals_type_travel
 import com.mileway.core.ui.resources.approvals_you_approved
 import com.mileway.core.ui.resources.approvals_you_rejected
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
@@ -151,14 +150,14 @@ fun ApprovalDetailsScreen(
             ) {
                 // Requester info card
                 Card(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = DesignTokens.Shape.button,
                     elevation = CardDefaults.cardElevation(2.dp),
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(
                                 modifier =
-                                    Modifier.size(40.dp).clip(CircleShape)
+                                    Modifier.size(40.dp).clip(DesignTokens.Shape.button)
                                         .background(MaterialTheme.colorScheme.primaryContainer),
                                 contentAlignment = Alignment.Center,
                             ) {
@@ -191,7 +190,7 @@ fun ApprovalDetailsScreen(
                 }
 
                 // Context card
-                Card(shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(2.dp)) {
+                Card(shape = DesignTokens.Shape.button, elevation = CardDefaults.cardElevation(2.dp)) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             stringResource(Res.string.approvals_request_details),
@@ -209,7 +208,7 @@ fun ApprovalDetailsScreen(
                 // Policy violation card
                 if (item.policyViolation) {
                     Card(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = DesignTokens.Shape.button,
                         colors = CardDefaults.cardColors(containerColor = MilewayColors.warning.copy(alpha = 0.1f)),
                     ) {
                         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -246,7 +245,7 @@ fun ApprovalDetailsScreen(
                             else -> Triple(Icons.Default.CheckCircle, Color.Gray, stringResource(Res.string.approvals_resolved))
                         }
                     Card(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = DesignTokens.Shape.button,
                         colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.1f)),
                     ) {
                         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -276,23 +275,30 @@ fun ApprovalDetailsScreen(
                         OutlinedButton(
                             onClick = { viewModel.onAction(ApprovalsAction.OpenClarificationSheet) },
                             modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
                         ) {
-                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(4.dp))
+                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
                             Text(stringResource(Res.string.approvals_action_clarify))
                         }
                         Button(
                             onClick = { viewModel.onAction(ApprovalsAction.Reject) },
                             modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
                             colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.danger),
                         ) {
+                            Icon(Icons.Default.Cancel, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
                             Text(stringResource(Res.string.approvals_action_reject))
                         }
                         Button(
                             onClick = { viewModel.onAction(ApprovalsAction.Approve) },
                             modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
                             colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.success),
                         ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
                             Text(stringResource(Res.string.approvals_action_approve))
                         }
                     }

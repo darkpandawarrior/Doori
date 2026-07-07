@@ -24,10 +24,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirplanemodeActive
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.FilterList
@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.MoneyOff
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -68,10 +69,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.asString
 import com.mileway.core.common.formatDecimal
+import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
@@ -85,11 +86,14 @@ import com.mileway.core.ui.resources.approvals_reject_all
 import com.mileway.core.ui.resources.approvals_status_approved
 import com.mileway.core.ui.resources.approvals_status_pending
 import com.mileway.core.ui.resources.approvals_status_rejected
+import com.mileway.core.ui.resources.approvals_subtitle
+import com.mileway.core.ui.resources.approvals_subtitle_selecting
 import com.mileway.core.ui.resources.approvals_tab_my_requests
 import com.mileway.core.ui.resources.approvals_tab_team
 import com.mileway.core.ui.resources.approvals_tab_to_approve
 import com.mileway.core.ui.resources.approvals_title
 import com.mileway.core.ui.resources.approvals_title_select_items
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
@@ -169,7 +173,12 @@ fun ApprovalsScreen(
                                 selectedIds.value = emptySet()
                             },
                             modifier = Modifier.weight(1f),
-                        ) { Text(stringResource(Res.string.approvals_reject_all, selectedIds.value.size)) }
+                            shape = DesignTokens.Shape.button,
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.approvals_reject_all, selectedIds.value.size))
+                        }
                         Button(
                             onClick = {
                                 scope.launch { snackbarHostState.showSnackbar(bulkActionMessage) }
@@ -177,7 +186,12 @@ fun ApprovalsScreen(
                                 selectedIds.value = emptySet()
                             },
                             modifier = Modifier.weight(1f),
-                        ) { Text(stringResource(Res.string.approvals_approve_all, selectedIds.value.size)) }
+                            shape = DesignTokens.Shape.button,
+                        ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.approvals_approve_all, selectedIds.value.size))
+                        }
                     }
                 }
             }
@@ -331,15 +345,36 @@ private fun ApprovalsGradientHeader(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = if (selectionMode) stringResource(Res.string.approvals_title_select_items) else stringResource(Res.string.approvals_title),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Checklist,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Column {
+                        Text(
+                            text = if (selectionMode) stringResource(Res.string.approvals_title_select_items) else stringResource(Res.string.approvals_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            text =
+                                if (selectionMode) {
+                                    stringResource(Res.string.approvals_subtitle_selecting)
+                                } else {
+                                    stringResource(Res.string.approvals_subtitle)
+                                },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.85f),
+                        )
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (selectionMode) {
-                        TextButton(onClick = onCancelSelection) {
+                        TextButton(onClick = onCancelSelection, shape = DesignTokens.Shape.button) {
                             Icon(Icons.Default.Close, contentDescription = stringResource(Res.string.approvals_action_cancel), tint = Color.White)
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.approvals_action_cancel), color = Color.White)
@@ -347,7 +382,7 @@ private fun ApprovalsGradientHeader(
                     } else {
                         if (pendingCount > 0) {
                             Surface(
-                                shape = CircleShape,
+                                shape = DesignTokens.Shape.button,
                                 color = MilewayColors.danger,
                             ) {
                                 Text(
@@ -384,7 +419,7 @@ private fun ApprovalCard(
             Modifier
                 .fillMaxWidth()
                 .combinedClickable(onClick = onClick, onLongClick = onLongClick),
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.button,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
@@ -412,18 +447,15 @@ private fun ApprovalCard(
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.weight(1f),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     StatusChip(status = item.status)
                 }
                 Spacer(Modifier.height(2.dp))
-                Text(
+                ExpandableText(
                     text = item.summary,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    collapsedMaxLines = 2,
                 )
                 Spacer(Modifier.height(4.dp))
                 Row(
@@ -477,11 +509,11 @@ private fun TypeIconContainer(type: ApprovalType) {
         modifier =
             Modifier
                 .size(44.dp)
-                .clip(CircleShape)
+                .clip(DesignTokens.Shape.button)
                 .background(color.copy(alpha = 0.15f)),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, contentDescription = type.name, tint = color, modifier = Modifier.size(22.dp))
+        Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
     }
 }
 
@@ -494,7 +526,7 @@ private fun StatusChip(status: ApprovalStatus) {
             ApprovalStatus.REJECTED -> stringResource(Res.string.approvals_status_rejected) to MilewayColors.danger
         }
     Surface(
-        shape = RoundedCornerShape(50),
+        shape = DesignTokens.Shape.button,
         color = color.copy(alpha = 0.15f),
     ) {
         Text(
