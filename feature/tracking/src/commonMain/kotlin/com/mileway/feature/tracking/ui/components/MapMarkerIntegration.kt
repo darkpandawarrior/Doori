@@ -16,7 +16,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.db.EventType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_marker_checkins
+import com.mileway.core.ui.resources.tracking_marker_data_issues
+import com.mileway.core.ui.resources.tracking_marker_hardware_events
+import com.mileway.core.ui.resources.tracking_marker_location_points
+import com.mileway.core.ui.resources.tracking_marker_pauses
+import com.mileway.core.ui.resources.tracking_marker_severity_filters
+import com.mileway.core.ui.resources.tracking_marker_system_events
+import com.mileway.core.ui.resources.tracking_marker_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 // ---------------------------------------------------------------------------
 // Map-marker domain types for the Compose marker UI. These model marker
@@ -107,7 +117,7 @@ fun MarkerFilterChips(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "Map Markers",
+            text = stringResource(Res.string.tracking_marker_title),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -121,7 +131,7 @@ fun MarkerFilterChips(
             FilterChip(
                 selected = filters.showCheckIns,
                 onClick = { onFiltersChanged(filters.copy(showCheckIns = !filters.showCheckIns)) },
-                label = { Text("Check-ins") },
+                label = { Text(stringResource(Res.string.tracking_marker_checkins)) },
                 colors =
                     FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -132,7 +142,7 @@ fun MarkerFilterChips(
             FilterChip(
                 selected = filters.showHardwareEvents,
                 onClick = { onFiltersChanged(filters.copy(showHardwareEvents = !filters.showHardwareEvents)) },
-                label = { Text("Hardware Events") },
+                label = { Text(stringResource(Res.string.tracking_marker_hardware_events)) },
                 colors =
                     FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -143,7 +153,7 @@ fun MarkerFilterChips(
             FilterChip(
                 selected = filters.showPauseEvents,
                 onClick = { onFiltersChanged(filters.copy(showPauseEvents = !filters.showPauseEvents)) },
-                label = { Text("Pauses") },
+                label = { Text(stringResource(Res.string.tracking_marker_pauses)) },
                 colors =
                     FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -154,7 +164,7 @@ fun MarkerFilterChips(
             FilterChip(
                 selected = filters.showDataQuality,
                 onClick = { onFiltersChanged(filters.copy(showDataQuality = !filters.showDataQuality)) },
-                label = { Text("Data Issues") },
+                label = { Text(stringResource(Res.string.tracking_marker_data_issues)) },
                 colors =
                     FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.errorContainer,
@@ -165,7 +175,7 @@ fun MarkerFilterChips(
             FilterChip(
                 selected = filters.showSystemState,
                 onClick = { onFiltersChanged(filters.copy(showSystemState = !filters.showSystemState)) },
-                label = { Text("System Events") },
+                label = { Text(stringResource(Res.string.tracking_marker_system_events)) },
                 colors =
                     FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -176,7 +186,7 @@ fun MarkerFilterChips(
             FilterChip(
                 selected = filters.showLocationPoints,
                 onClick = { onFiltersChanged(filters.copy(showLocationPoints = !filters.showLocationPoints)) },
-                label = { Text("Location Points") },
+                label = { Text(stringResource(Res.string.tracking_marker_location_points)) },
                 colors =
                     FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
@@ -187,7 +197,7 @@ fun MarkerFilterChips(
 
         // Severity filters
         Text(
-            text = "Severity Filters",
+            text = stringResource(Res.string.tracking_marker_severity_filters),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

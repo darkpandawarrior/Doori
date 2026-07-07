@@ -24,7 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_discard_journey
+import com.mileway.core.ui.resources.tracking_recovery_interrupted
+import com.mileway.core.ui.resources.tracking_recovery_interrupted_by
+import com.mileway.core.ui.resources.tracking_recovery_resume_journey
+import com.mileway.core.ui.resources.tracking_recovery_save_finish
+import com.mileway.core.ui.resources.tracking_recovery_title
 import com.mileway.feature.tracking.viewmodel.RecoverySheetConfig
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToLong
 
 /**
@@ -62,7 +70,7 @@ fun SessionRestoreBottomSheet(
                 modifier = Modifier.padding(bottom = 12.dp),
             )
             Text(
-                text = "Continue interrupted journey?",
+                text = stringResource(Res.string.tracking_recovery_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -72,7 +80,7 @@ fun SessionRestoreBottomSheet(
             val durationMin = config.durationMs / 60_000
             val summary =
                 if (distText == "0.0 km" && durationMin == 0L) {
-                    "Journey was interrupted"
+                    stringResource(Res.string.tracking_recovery_interrupted)
                 } else {
                     "Journey in progress: ~$distText · ~${durationMin}m recorded"
                 }
@@ -85,7 +93,7 @@ fun SessionRestoreBottomSheet(
             if (config.interruptReason.isNotEmpty()) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Interrupted by: ${config.interruptReason}",
+                    text = stringResource(Res.string.tracking_recovery_interrupted_by, config.interruptReason),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     textAlign = TextAlign.Center,
@@ -97,7 +105,7 @@ fun SessionRestoreBottomSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("Resume Journey", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_recovery_resume_journey), fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
@@ -105,7 +113,7 @@ fun SessionRestoreBottomSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("Save & Finish", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_recovery_save_finish), fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
@@ -117,7 +125,7 @@ fun SessionRestoreBottomSheet(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
             ) {
-                Text("Discard Journey", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_discard_journey), fontWeight = FontWeight.Bold)
             }
         }
     }

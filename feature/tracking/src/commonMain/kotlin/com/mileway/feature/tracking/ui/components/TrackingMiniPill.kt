@@ -14,6 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.platform.TrackingPresenceSnapshot
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_pill_paused
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToLong
 
 /**
@@ -83,7 +86,7 @@ fun TrackingMiniPill(
         } else {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Paused",
+                text = stringResource(Res.string.tracking_pill_paused),
                 style = MaterialTheme.typography.labelMedium,
                 color = textColor,
             )

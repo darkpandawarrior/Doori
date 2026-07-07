@@ -27,6 +27,34 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.util.DateUtils
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_activity_analysis
+import com.mileway.core.ui.resources.tracking_activity_driving_style
+import com.mileway.core.ui.resources.tracking_activity_harsh_events
+import com.mileway.core.ui.resources.tracking_activity_no_issues
+import com.mileway.core.ui.resources.tracking_activity_speed_consistency
+import com.mileway.core.ui.resources.tracking_activity_system_impact
+import com.mileway.core.ui.resources.tracking_activity_time_breakdown
+import com.mileway.core.ui.resources.tracking_dq_abnormal
+import com.mileway.core.ui.resources.tracking_dq_cleaned_ratio
+import com.mileway.core.ui.resources.tracking_dq_mock
+import com.mileway.core.ui.resources.tracking_dq_reliable
+import com.mileway.core.ui.resources.tracking_dq_title
+import com.mileway.core.ui.resources.tracking_quality_abnormal_points
+import com.mileway.core.ui.resources.tracking_quality_analysis
+import com.mileway.core.ui.resources.tracking_quality_data_completeness
+import com.mileway.core.ui.resources.tracking_quality_data_quality
+import com.mileway.core.ui.resources.tracking_quality_mock_locations
+import com.mileway.core.ui.resources.tracking_quality_reliability
+import com.mileway.core.ui.resources.tracking_quality_score_factors
+import com.mileway.core.ui.resources.tracking_quality_total_points
+import com.mileway.core.ui.resources.tracking_saved_reimbursable
+import com.mileway.core.ui.resources.tracking_stat_avg_speed
+import com.mileway.core.ui.resources.tracking_stat_distance
+import com.mileway.core.ui.resources.tracking_stat_duration
+import com.mileway.core.ui.resources.tracking_status_draft
+import com.mileway.core.ui.resources.tracking_status_submitted
+import com.mileway.core.ui.resources.tracking_track_miles_label
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -35,6 +63,7 @@ import com.mileway.feature.tracking.insights.DistanceQualityResult
 import com.mileway.feature.tracking.insights.QualityResult
 import com.mileway.feature.tracking.insights.SystemImpactResult
 import com.mileway.feature.tracking.insights.SystemImpactType
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SavedTrackOverviewCard(
@@ -54,7 +83,7 @@ fun SavedTrackOverviewCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        track.name ?: "Track Miles",
+                        track.name ?: stringResource(Res.string.tracking_track_miles_label),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
@@ -65,7 +94,7 @@ fun SavedTrackOverviewCard(
                     )
                 }
                 StatusBadge(
-                    text = if (track.isSubmitted) "Submitted" else "Draft",
+                    text = if (track.isSubmitted) stringResource(Res.string.tracking_status_submitted) else stringResource(Res.string.tracking_status_draft),
                     color = if (track.isSubmitted) MilewayColors.success else MilewayColors.warning,
                 )
             }
@@ -80,19 +109,19 @@ fun SavedTrackOverviewCard(
             ) {
                 StatItem(
                     icon = Icons.Default.Place,
-                    label = "Distance",
+                    label = stringResource(Res.string.tracking_stat_distance),
                     value = track.getFormattedDistance(),
                     modifier = Modifier.weight(1f).padding(end = 4.dp),
                 )
                 StatItem(
                     icon = Icons.Default.Schedule,
-                    label = "Duration",
+                    label = stringResource(Res.string.tracking_stat_duration),
                     value = track.getFormattedDuration(),
                     modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
                 )
                 StatItem(
                     icon = Icons.Default.Speed,
-                    label = "Avg Speed",
+                    label = stringResource(Res.string.tracking_stat_avg_speed),
                     value = "${track.avgSpeedKmh.formatDecimal(1)} km/h",
                     modifier = Modifier.weight(1f).padding(start = 4.dp),
                 )
@@ -114,7 +143,7 @@ fun SavedTrackOverviewCard(
                             tint = MilewayColors.success,
                             modifier = Modifier.padding(end = 4.dp),
                         )
-                        Text("Reimbursable", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(Res.string.tracking_saved_reimbursable), style = MaterialTheme.typography.bodyMedium)
                     }
                     Text(
                         "₹${track.reimbursableAmount.formatDecimal(2)}",
@@ -147,7 +176,7 @@ fun DataQualityReportCard(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Data Quality", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.tracking_quality_data_quality), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     QualityDot(qualityScore)
                     Text(
@@ -159,14 +188,14 @@ fun DataQualityReportCard(
                 }
             }
             Spacer(Modifier.height(8.dp))
-            DataQualityItem(label = "Total Points", value = "$locationCount")
+            DataQualityItem(label = stringResource(Res.string.tracking_quality_total_points), value = "$locationCount")
             DataQualityItem(
-                label = "Mock Locations",
+                label = stringResource(Res.string.tracking_quality_mock_locations),
                 value = "$mockCount",
                 trend = if (mockCount == 0) TrendDirection.STABLE else TrendDirection.DOWN,
             )
             DataQualityItem(
-                label = "Abnormal Points",
+                label = stringResource(Res.string.tracking_quality_abnormal_points),
                 value = "$abnormalCount",
                 trend = if (abnormalCount < 5) TrendDirection.STABLE else TrendDirection.DOWN,
             )
@@ -199,7 +228,7 @@ fun QualityDetailCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Quality Analysis",
+                    stringResource(Res.string.tracking_quality_analysis),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -215,7 +244,7 @@ fun QualityDetailCard(
             }
             Spacer(Modifier.height(8.dp))
             DataQualityItem(
-                label = "Data Completeness",
+                label = stringResource(Res.string.tracking_quality_data_completeness),
                 value = "${(qualityResult.dataCompleteness * 100).formatDecimal(0)}%",
                 trend =
                     when {
@@ -224,7 +253,7 @@ fun QualityDetailCard(
                     },
             )
             DataQualityItem(
-                label = "Reliability",
+                label = stringResource(Res.string.tracking_quality_reliability),
                 value = "${qualityResult.reliabilityScore}",
                 trend =
                     when {
@@ -237,7 +266,7 @@ fun QualityDetailCard(
                 HorizontalDivider()
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Score Factors",
+                    stringResource(Res.string.tracking_quality_score_factors),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -287,7 +316,7 @@ fun ActivityBreakdownCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Activity Analysis",
+                    stringResource(Res.string.tracking_activity_analysis),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -300,7 +329,7 @@ fun ActivityBreakdownCard(
             }
             Spacer(Modifier.height(8.dp))
             DataQualityItem(
-                label = "Speed Consistency",
+                label = stringResource(Res.string.tracking_activity_speed_consistency),
                 value = "${(activityResult.speedConsistency * 100).formatDecimal(0)}%",
                 trend =
                     when {
@@ -309,7 +338,7 @@ fun ActivityBreakdownCard(
                     },
             )
             DataQualityItem(
-                label = "Driving Style",
+                label = stringResource(Res.string.tracking_activity_driving_style),
                 value = activityResult.accelerationProfile.dominantLabel,
                 trend =
                     when (activityResult.accelerationProfile.dominantLabel) {
@@ -319,7 +348,7 @@ fun ActivityBreakdownCard(
                     },
             )
             DataQualityItem(
-                label = "Harsh Events",
+                label = stringResource(Res.string.tracking_activity_harsh_events),
                 value = "${activityResult.accelerationProfile.harshEvents.size}",
                 trend = if (activityResult.accelerationProfile.harshEvents.isEmpty()) TrendDirection.STABLE else TrendDirection.DOWN,
             )
@@ -328,7 +357,7 @@ fun ActivityBreakdownCard(
                 HorizontalDivider()
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Time Breakdown",
+                    stringResource(Res.string.tracking_activity_time_breakdown),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -376,14 +405,14 @@ fun SystemImpactCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "System Impact",
+                stringResource(Res.string.tracking_activity_system_impact),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(8.dp))
             if (systemImpactResult.impacts.isEmpty()) {
                 Text(
-                    "No system issues detected",
+                    stringResource(Res.string.tracking_activity_no_issues),
                     style = MaterialTheme.typography.bodySmall,
                     color = MilewayColors.success,
                 )
@@ -450,7 +479,7 @@ fun DistanceQualityCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "Distance Quality",
+                    stringResource(Res.string.tracking_dq_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -472,24 +501,24 @@ fun DistanceQualityCard(
             )
             Spacer(Modifier.height(8.dp))
             DataQualityItem(
-                label = "Cleaned Distance Ratio",
+                label = stringResource(Res.string.tracking_dq_cleaned_ratio),
                 value = "${(distanceQualityResult.cleanedDistanceRatio * 100).formatDecimal(0)}%",
                 trend = if (distanceQualityResult.cleanedDistanceRatio >= 0.8) TrendDirection.STABLE else TrendDirection.DOWN,
             )
             DataQualityItem(
-                label = "Mock Distance",
+                label = stringResource(Res.string.tracking_dq_mock),
                 value = "${distanceQualityResult.mockPct.formatDecimal(1)}%",
                 trend = if (distanceQualityResult.mockPct < 1.0) TrendDirection.STABLE else TrendDirection.DOWN,
             )
             DataQualityItem(
-                label = "Abnormal Distance",
+                label = stringResource(Res.string.tracking_dq_abnormal),
                 value = "${distanceQualityResult.abnormalPct.formatDecimal(1)}%",
                 trend = if (distanceQualityResult.abnormalPct < 5.0) TrendDirection.STABLE else TrendDirection.DOWN,
             )
             if (distanceQualityResult.isReliableForBusiness) {
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    "Reliable for business/tax reporting",
+                    stringResource(Res.string.tracking_dq_reliable),
                     style = MaterialTheme.typography.labelSmall,
                     color = MilewayColors.success,
                     fontWeight = FontWeight.SemiBold,

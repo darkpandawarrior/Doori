@@ -25,7 +25,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.platform.PermissionTier
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_perm_allow
+import com.mileway.core.ui.resources.tracking_perm_if_skipped
+import com.mileway.core.ui.resources.tracking_perm_optional
+import com.mileway.core.ui.resources.tracking_perm_required
+import com.mileway.core.ui.resources.tracking_perm_skip
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Wave-3 tiered permission-onboarding sheet: shows one [PermissionTier]'s rationale + skip-impact copy at a
@@ -64,7 +71,7 @@ fun PermissionOnboardingSheet(
                 modifier = Modifier.padding(bottom = DesignTokens.Spacing.m),
             )
             Text(
-                text = if (tier.required) "Permission required" else "Optional permission",
+                text = if (tier.required) stringResource(Res.string.tracking_perm_required) else stringResource(Res.string.tracking_perm_optional),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -78,7 +85,7 @@ fun PermissionOnboardingSheet(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
-                text = "If skipped: ${tier.skipImpact}",
+                text = stringResource(Res.string.tracking_perm_if_skipped, tier.skipImpact),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center,
@@ -106,7 +113,7 @@ fun PermissionOnboardingSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("Allow", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_perm_allow), fontWeight = FontWeight.Bold)
             }
             if (!tier.required) {
                 Spacer(Modifier.height(DesignTokens.Spacing.s))
@@ -115,7 +122,7 @@ fun PermissionOnboardingSheet(
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = RoundedCornerShape(8.dp),
                 ) {
-                    Text("Skip", fontWeight = FontWeight.Bold)
+                    Text(stringResource(Res.string.tracking_perm_skip), fontWeight = FontWeight.Bold)
                 }
             }
         }

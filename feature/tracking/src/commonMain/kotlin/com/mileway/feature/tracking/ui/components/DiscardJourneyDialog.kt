@@ -5,6 +5,14 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_action_discard
+import com.mileway.core.ui.resources.tracking_discard_body_setup
+import com.mileway.core.ui.resources.tracking_discard_body_tracking
+import com.mileway.core.ui.resources.tracking_discard_confirm_suffix
+import com.mileway.core.ui.resources.tracking_discard_journey_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Discard-journey confirmation. Migrated from an AlertDialog to the shared
@@ -18,15 +26,15 @@ fun DiscardJourneyDialog(
 ) {
     val body =
         if (isTracking) {
-            "Are you sure you want to discard this journey? All tracking data will be lost."
+            stringResource(Res.string.tracking_discard_body_tracking)
         } else {
-            "Are you sure you want to discard this journey setup? Your odometer readings will be removed."
+            stringResource(Res.string.tracking_discard_body_setup)
         }
     ActionConfirmationBottomSheet(
-        title = "Discard Journey?",
-        description = "$body This action cannot be undone.",
-        confirmLabel = "Discard",
-        dismissLabel = "Cancel",
+        title = stringResource(Res.string.tracking_discard_journey_title),
+        description = stringResource(Res.string.tracking_discard_confirm_suffix, body),
+        confirmLabel = stringResource(Res.string.tracking_action_discard),
+        dismissLabel = stringResource(Res.string.tracking_action_cancel),
         icon = Icons.Filled.Delete,
         tone = ActionConfirmationToneType.Danger,
         onConfirm = { onConfirm() },

@@ -39,6 +39,28 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_export_action
+import com.mileway.core.ui.resources.tracking_export_advanced_filters
+import com.mileway.core.ui.resources.tracking_export_battery_placeholder
+import com.mileway.core.ui.resources.tracking_export_exclude_abnormal
+import com.mileway.core.ui.resources.tracking_export_exclude_abnormal_desc
+import com.mileway.core.ui.resources.tracking_export_exclude_mock
+import com.mileway.core.ui.resources.tracking_export_exclude_mock_desc
+import com.mileway.core.ui.resources.tracking_export_exclude_paused
+import com.mileway.core.ui.resources.tracking_export_exclude_paused_desc
+import com.mileway.core.ui.resources.tracking_export_exporting
+import com.mileway.core.ui.resources.tracking_export_format
+import com.mileway.core.ui.resources.tracking_export_max_accuracy
+import com.mileway.core.ui.resources.tracking_export_min_accuracy
+import com.mileway.core.ui.resources.tracking_export_min_battery
+import com.mileway.core.ui.resources.tracking_export_multiple_title
+import com.mileway.core.ui.resources.tracking_export_only_checkpoints
+import com.mileway.core.ui.resources.tracking_export_only_checkpoints_desc
+import com.mileway.core.ui.resources.tracking_export_quality_filters
+import com.mileway.core.ui.resources.tracking_export_title
+import org.jetbrains.compose.resources.stringResource
 
 // ---------------------------------------------------------------------------
 // Domain types for the export options UI.
@@ -136,7 +158,7 @@ fun ExportOptionsDialog(
 
     AppActionSheet(
         onDismiss = onDismiss,
-        title = if (isMultipleTrackExport) "Export Multiple Tracks" else "Export Track Data",
+        title = if (isMultipleTrackExport) stringResource(Res.string.tracking_export_multiple_title) else stringResource(Res.string.tracking_export_title),
     ) {
         Column(
             modifier =
@@ -165,7 +187,7 @@ fun ExportOptionsDialog(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Exporting: $it",
+                            text = stringResource(Res.string.tracking_export_exporting, it),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
                         )
@@ -176,7 +198,7 @@ fun ExportOptionsDialog(
 
             // Format selection
             Text(
-                text = "Export Format",
+                text = stringResource(Res.string.tracking_export_format),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -223,7 +245,7 @@ fun ExportOptionsDialog(
 
             // Quality filters
             Text(
-                text = "Data Quality Filters",
+                text = stringResource(Res.string.tracking_export_quality_filters),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -233,29 +255,29 @@ fun ExportOptionsDialog(
             FilterCheckbox(
                 checked = excludeMock,
                 onCheckedChange = { excludeMock = it },
-                text = "Exclude Mock Locations",
-                description = "Filter out simulated/fake GPS points",
+                text = stringResource(Res.string.tracking_export_exclude_mock),
+                description = stringResource(Res.string.tracking_export_exclude_mock_desc),
             )
 
             FilterCheckbox(
                 checked = excludeAbnormal,
                 onCheckedChange = { excludeAbnormal = it },
-                text = "Exclude Abnormal Points",
-                description = "Remove points flagged as abnormal",
+                text = stringResource(Res.string.tracking_export_exclude_abnormal),
+                description = stringResource(Res.string.tracking_export_exclude_abnormal_desc),
             )
 
             FilterCheckbox(
                 checked = excludePaused,
                 onCheckedChange = { excludePaused = it },
-                text = "Exclude Paused Points",
-                description = "Remove points recorded when tracking was paused",
+                text = stringResource(Res.string.tracking_export_exclude_paused),
+                description = stringResource(Res.string.tracking_export_exclude_paused_desc),
             )
 
             FilterCheckbox(
                 checked = onlyCheckpoints,
                 onCheckedChange = { onlyCheckpoints = it },
-                text = "Only Checkpoints",
-                description = "Export only manually marked checkpoint locations",
+                text = stringResource(Res.string.tracking_export_only_checkpoints),
+                description = stringResource(Res.string.tracking_export_only_checkpoints_desc),
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -270,7 +292,7 @@ fun ExportOptionsDialog(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Advanced Filters",
+                    text = stringResource(Res.string.tracking_export_advanced_filters),
                     style = MaterialTheme.typography.titleSmall,
                 )
                 Switch(
@@ -292,7 +314,7 @@ fun ExportOptionsDialog(
                         onValueChange = { value ->
                             minAccuracy = value.toFloatOrNull() ?: 0f
                         },
-                        label = { Text("Min Accuracy (m)") },
+                        label = { Text(stringResource(Res.string.tracking_export_min_accuracy)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                     )
@@ -302,7 +324,7 @@ fun ExportOptionsDialog(
                         onValueChange = { value ->
                             maxAccuracy = value.toFloatOrNull() ?: 0f
                         },
-                        label = { Text("Max Accuracy (m)") },
+                        label = { Text(stringResource(Res.string.tracking_export_max_accuracy)) },
                         modifier = Modifier.weight(1f),
                         singleLine = true,
                     )
@@ -314,10 +336,10 @@ fun ExportOptionsDialog(
                 OutlinedTextField(
                     value = minBatteryText,
                     onValueChange = { minBatteryText = it },
-                    label = { Text("Min Battery Level (%)") },
+                    label = { Text(stringResource(Res.string.tracking_export_min_battery)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("e.g. 20") },
+                    placeholder = { Text(stringResource(Res.string.tracking_export_battery_placeholder)) },
                 )
             }
         }
@@ -329,7 +351,7 @@ fun ExportOptionsDialog(
                 onClick = onDismiss,
                 modifier = Modifier.weight(1f),
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.tracking_action_cancel))
             }
             Button(
                 onClick = {
@@ -353,7 +375,7 @@ fun ExportOptionsDialog(
                         contentDescription = null,
                         modifier = Modifier.padding(end = 4.dp),
                     )
-                    Text("Export")
+                    Text(stringResource(Res.string.tracking_export_action))
                 }
             }
         }

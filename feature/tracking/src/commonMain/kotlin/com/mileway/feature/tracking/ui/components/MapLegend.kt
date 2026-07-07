@@ -19,7 +19,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_legend_abnormal
+import com.mileway.core.ui.resources.tracking_legend_city
+import com.mileway.core.ui.resources.tracking_legend_fast
+import com.mileway.core.ui.resources.tracking_legend_highway
+import com.mileway.core.ui.resources.tracking_legend_inactivity
+import com.mileway.core.ui.resources.tracking_legend_mock
+import com.mileway.core.ui.resources.tracking_legend_normal
+import com.mileway.core.ui.resources.tracking_legend_paused
+import com.mileway.core.ui.resources.tracking_legend_slow
 import com.mileway.core.ui.theme.MilewayColors
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun HeatmapLegend() {
@@ -57,14 +68,14 @@ private fun LegendHeatmapRow() {
                     .size(14.dp)
                     .background(Color(0xFF2196F3), CircleShape),
             )
-            Text("Slow", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.tracking_legend_slow), style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.size(8.dp))
             Box(
                 Modifier
                     .size(14.dp)
                     .background(Color(0xFF4CAF50), CircleShape),
             )
-            Text("City", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.tracking_legend_city), style = MaterialTheme.typography.bodySmall)
         }
         Row(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -75,14 +86,14 @@ private fun LegendHeatmapRow() {
                     .size(14.dp)
                     .background(Color(0xFFFF9800), CircleShape),
             )
-            Text("Fast", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.tracking_legend_fast), style = MaterialTheme.typography.bodySmall)
             Spacer(Modifier.size(8.dp))
             Box(
                 Modifier
                     .size(14.dp)
                     .background(Color(0xFFF44336), CircleShape),
             )
-            Text("Highway", style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(Res.string.tracking_legend_highway), style = MaterialTheme.typography.bodySmall)
         }
     }
 }
@@ -90,11 +101,11 @@ private fun LegendHeatmapRow() {
 @Composable
 private fun LegendStatusColumn(lineItem: @Composable (color: Color, label: String, dashed: Boolean) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        lineItem(MilewayColors.info, "Normal", false)
-        lineItem(MilewayColors.neutral, "Paused", true)
-        lineItem(MilewayColors.warning, "Inactivity", true)
-        lineItem(MilewayColors.warning, "Abnormal", false)
-        lineItem(MilewayColors.danger, "Mock", false)
+        lineItem(MilewayColors.info, stringResource(Res.string.tracking_legend_normal), false)
+        lineItem(MilewayColors.neutral, stringResource(Res.string.tracking_legend_paused), true)
+        lineItem(MilewayColors.warning, stringResource(Res.string.tracking_legend_inactivity), true)
+        lineItem(MilewayColors.warning, stringResource(Res.string.tracking_legend_abnormal), false)
+        lineItem(MilewayColors.danger, stringResource(Res.string.tracking_legend_mock), false)
     }
 }
 

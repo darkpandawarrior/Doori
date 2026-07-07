@@ -64,8 +64,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.util.DateUtils
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_saved_cd_filters
+import com.mileway.core.ui.resources.tracking_saved_journeys_count
+import com.mileway.core.ui.resources.tracking_saved_no_journeys_week
+import com.mileway.core.ui.resources.tracking_saved_no_journeys_week_hint
+import com.mileway.core.ui.resources.tracking_saved_submissions_count
+import com.mileway.core.ui.resources.tracking_saved_view_all
+import com.mileway.core.ui.resources.tracking_submission_acknowledged
+import com.mileway.core.ui.resources.tracking_submission_attachments
+import com.mileway.core.ui.resources.tracking_submission_clear_selection
+import com.mileway.core.ui.resources.tracking_submission_create_voucher_count
+import com.mileway.core.ui.resources.tracking_submission_expense_date
+import com.mileway.core.ui.resources.tracking_submission_expense_id
+import com.mileway.core.ui.resources.tracking_submission_new_tracker
+import com.mileway.core.ui.resources.tracking_submission_other
+import com.mileway.core.ui.resources.tracking_submission_selected_count
+import com.mileway.core.ui.resources.tracking_submission_self_paid
+import com.mileway.core.ui.resources.tracking_submission_violations_count
+import com.mileway.core.ui.resources.tracking_submission_voucher_filed
+import com.mileway.core.ui.resources.tracking_submission_voucher_not_created
+import com.mileway.core.ui.resources.tracking_track_miles_label
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.dataStyle
+import org.jetbrains.compose.resources.stringResource
 
 // Stateless building blocks for the revamped Saved Tracks screen.
 // UDF: data arrives through parameters, interactions surface through callbacks.
@@ -96,14 +118,14 @@ fun SavedTracksSegmentedToggle(
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         SegmentPill(
-            label = "Journeys ($journeyCount)",
+            label = stringResource(Res.string.tracking_saved_journeys_count, journeyCount),
             icon = Icons.Default.Map,
             selected = selected == SavedTracksSegment.JOURNEYS,
             onClick = { onSelect(SavedTracksSegment.JOURNEYS) },
             modifier = Modifier.weight(1f),
         )
         SegmentPill(
-            label = "Submissions ($submissionCount)",
+            label = stringResource(Res.string.tracking_saved_submissions_count, submissionCount),
             icon = Icons.Default.Receipt,
             selected = selected == SavedTracksSegment.SUBMISSIONS,
             onClick = { onSelect(SavedTracksSegment.SUBMISSIONS) },
@@ -196,7 +218,7 @@ fun SavedTracksSearchField(
                     IconButton(onClick = onClick) {
                         Icon(
                             imageVector = Icons.Default.Tune,
-                            contentDescription = "Filters",
+                            contentDescription = stringResource(Res.string.tracking_saved_cd_filters),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
@@ -399,13 +421,20 @@ fun SubmissionCard(
                         maxLines = 1,
                     )
                     Text(
-                        text = if (data.voucherCreated) "Voucher Filed" else "Voucher Not Created",
+                        text =
+                            if (data.voucherCreated) {
+                                stringResource(
+                                    Res.string.tracking_submission_voucher_filed,
+                                )
+                            } else {
+                                stringResource(Res.string.tracking_submission_voucher_not_created)
+                            },
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Medium,
                         color = if (data.voucherCreated) DesignTokens.StatusColors.success else DesignTokens.StatusColors.error,
                     )
                     Text(
-                        text = "Self Paid",
+                        text = stringResource(Res.string.tracking_submission_self_paid),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -467,8 +496,12 @@ fun SubmissionCard(
 
             // Footer: expense date + id lines.
             Row(modifier = Modifier.fillMaxWidth()) {
-                FooterField(label = "Expense date", value = DateUtils.epochToDisplayDate(data.expenseDateMillis), modifier = Modifier.weight(1f))
-                FooterField(label = "Expense Id", value = data.transId, modifier = Modifier.weight(1f))
+                FooterField(
+                    label = stringResource(Res.string.tracking_submission_expense_date),
+                    value = DateUtils.epochToDisplayDate(data.expenseDateMillis),
+                    modifier = Modifier.weight(1f),
+                )
+                FooterField(label = stringResource(Res.string.tracking_submission_expense_id), value = data.transId, modifier = Modifier.weight(1f))
             }
         }
     }
@@ -506,27 +539,27 @@ private fun SubmissionChipRow(data: SubmissionCardData) {
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
     ) {
         StatusPill(
-            text = if (data.isNewTracker) "New Tracker" else "Other",
+            text = if (data.isNewTracker) stringResource(Res.string.tracking_submission_new_tracker) else stringResource(Res.string.tracking_submission_other),
             icon = Icons.Default.Map,
             color = MaterialTheme.colorScheme.primary,
         )
         if (data.attachmentCount > 0) {
             StatusPill(
-                text = "Attachments",
+                text = stringResource(Res.string.tracking_submission_attachments),
                 icon = Icons.Default.AttachFile,
                 color = MaterialTheme.colorScheme.secondary,
             )
         }
         if (data.violationCount > 0) {
             StatusPill(
-                text = "${data.violationCount} Violations",
+                text = stringResource(Res.string.tracking_submission_violations_count, data.violationCount),
                 icon = Icons.Default.Warning,
                 color = DesignTokens.StatusColors.error,
             )
         }
         if (data.acknowledged) {
             StatusPill(
-                text = "Acknowledged",
+                text = stringResource(Res.string.tracking_submission_acknowledged),
                 icon = Icons.Default.CheckCircle,
                 color = DesignTokens.StatusColors.success,
             )
@@ -572,7 +605,7 @@ private fun TrackMilesTag() {
             modifier = Modifier.size(DesignTokens.IconSize.inline),
         )
         Text(
-            text = "Track Miles",
+            text = stringResource(Res.string.tracking_track_miles_label),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Medium,
             color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -609,13 +642,13 @@ fun SubmissionSelectionRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "Selected $selectedCount",
+            text = stringResource(Res.string.tracking_submission_selected_count, selectedCount),
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
         )
         TextButton(onClick = onClearSelection) {
-            Text("Clear selection")
+            Text(stringResource(Res.string.tracking_submission_clear_selection))
         }
     }
 }
@@ -635,7 +668,11 @@ fun CreateVoucherButton(
     ) {
         Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.badge))
         Spacer(Modifier.width(DesignTokens.Spacing.s))
-        Text("Create Voucher ($count)", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+        Text(
+            stringResource(Res.string.tracking_submission_create_voucher_count, count),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
 
@@ -654,14 +691,14 @@ fun NoJourneysThisWeekState(
 ) {
     EmptyStateBlock(
         icon = Icons.Default.CalendarToday,
-        title = "No journeys this week",
-        subtitle = "Switch to All to see your history",
+        title = stringResource(Res.string.tracking_saved_no_journeys_week),
+        subtitle = stringResource(Res.string.tracking_saved_no_journeys_week_hint),
         modifier = modifier,
     ) {
         OutlinedButton(onClick = onViewAll) {
             Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.badge))
             Spacer(Modifier.width(DesignTokens.Spacing.s))
-            Text("View All")
+            Text(stringResource(Res.string.tracking_saved_view_all))
         }
     }
 }

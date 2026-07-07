@@ -72,7 +72,51 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.ui.components.CollapsibleSectionCard
 import com.mileway.core.ui.components.SectionCard
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_open_in_maps
+import com.mileway.core.ui.resources.tracking_discard_journey
+import com.mileway.core.ui.resources.tracking_stat_avg_speed
+import com.mileway.core.ui.resources.tracking_stat_distance
+import com.mileway.core.ui.resources.tracking_stat_duration
+import com.mileway.core.ui.resources.tracking_submit_add_attachments
+import com.mileway.core.ui.resources.tracking_submit_additional_details
+import com.mileway.core.ui.resources.tracking_submit_additional_details_subtitle
+import com.mileway.core.ui.resources.tracking_submit_all_set
+import com.mileway.core.ui.resources.tracking_submit_attachments
+import com.mileway.core.ui.resources.tracking_submit_attachments_subtitle
+import com.mileway.core.ui.resources.tracking_submit_cd_capture
+import com.mileway.core.ui.resources.tracking_submit_cd_edit
+import com.mileway.core.ui.resources.tracking_submit_cd_remove
+import com.mileway.core.ui.resources.tracking_submit_continue_ready
+import com.mileway.core.ui.resources.tracking_submit_field_select
+import com.mileway.core.ui.resources.tracking_submit_journey_summary
+import com.mileway.core.ui.resources.tracking_submit_location_details
+import com.mileway.core.ui.resources.tracking_submit_manual
+import com.mileway.core.ui.resources.tracking_submit_max_speed
+import com.mileway.core.ui.resources.tracking_submit_odo_calculated
+import com.mileway.core.ui.resources.tracking_submit_odo_end
+import com.mileway.core.ui.resources.tracking_submit_odo_end_label
+import com.mileway.core.ui.resources.tracking_submit_odo_not_captured
+import com.mileway.core.ui.resources.tracking_submit_odo_readings
+import com.mileway.core.ui.resources.tracking_submit_odo_start
+import com.mileway.core.ui.resources.tracking_submit_odo_start_label
+import com.mileway.core.ui.resources.tracking_submit_own_vehicle
+import com.mileway.core.ui.resources.tracking_submit_pending_sync_desc
+import com.mileway.core.ui.resources.tracking_submit_pending_sync_title
+import com.mileway.core.ui.resources.tracking_submit_photo
+import com.mileway.core.ui.resources.tracking_submit_ready
+import com.mileway.core.ui.resources.tracking_submit_remaining
+import com.mileway.core.ui.resources.tracking_submit_required_field
+import com.mileway.core.ui.resources.tracking_submit_required_for_submission
+import com.mileway.core.ui.resources.tracking_submit_review_title
+import com.mileway.core.ui.resources.tracking_submit_save_draft_btn
+import com.mileway.core.ui.resources.tracking_submit_save_draft_desc
+import com.mileway.core.ui.resources.tracking_submit_save_draft_toggle
+import com.mileway.core.ui.resources.tracking_submit_submit_miles
+import com.mileway.core.ui.resources.tracking_submit_use_camera_gallery
+import com.mileway.core.ui.resources.tracking_submit_vehicle
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 // Stateless building blocks for the mileage submission ("Review and submit journey") screen.
 // UDF: data arrives through parameters, interactions surface through callbacks.
@@ -143,7 +187,7 @@ fun SubmissionChecklistHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (allSet) "All set" else "Review and submit journey",
+                    text = if (allSet) stringResource(Res.string.tracking_submit_all_set) else stringResource(Res.string.tracking_submit_review_title),
                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f, fill = false),
@@ -164,7 +208,7 @@ fun SubmissionChecklistHeader(
                     )
                     Spacer(Modifier.width(DesignTokens.Spacing.s))
                     Text(
-                        text = "You can continue when ready.",
+                        text = stringResource(Res.string.tracking_submit_continue_ready),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -195,7 +239,7 @@ private fun RemainingPill(remaining: Int) {
         if (allSet) DesignTokens.StatusColors.success else MaterialTheme.colorScheme.primary
     Surface(shape = CircleShape, color = container) {
         Text(
-            text = if (allSet) "Ready" else "$remaining remaining",
+            text = if (allSet) stringResource(Res.string.tracking_submit_ready) else stringResource(Res.string.tracking_submit_remaining, remaining),
             style = MaterialTheme.typography.labelMedium,
             color = content,
             modifier = Modifier.padding(horizontal = DesignTokens.Spacing.m, vertical = DesignTokens.Spacing.xs),
@@ -236,7 +280,7 @@ fun PendingDataSyncCard(
     modifier: Modifier = Modifier,
 ) {
     SectionCard(
-        title = "Pending Data Sync",
+        title = stringResource(Res.string.tracking_submit_pending_sync_title),
         modifier = modifier,
         leadingIcon = Icons.Filled.Sync,
         titleColor = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -263,9 +307,7 @@ fun PendingDataSyncCard(
                 )
             }
             Text(
-                text =
-                    "Your tracking data will be automatically synced when you submit. " +
-                        "Ensure you have a stable internet connection.",
+                text = stringResource(Res.string.tracking_submit_pending_sync_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f),
             )
@@ -292,7 +334,7 @@ fun JourneySummaryCard(
     modifier: Modifier = Modifier,
 ) {
     SectionCard(
-        title = "Journey Summary",
+        title = stringResource(Res.string.tracking_submit_journey_summary),
         modifier = modifier,
         leadingIcon = Icons.Outlined.Route,
     ) {
@@ -300,13 +342,13 @@ fun JourneySummaryCard(
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l)) {
                 MetricCell(
                     icon = Icons.Outlined.Place,
-                    label = "Distance",
+                    label = stringResource(Res.string.tracking_stat_distance),
                     value = distanceText,
                     modifier = Modifier.weight(1f),
                 )
                 MetricCell(
                     icon = Icons.Outlined.Timer,
-                    label = "Duration",
+                    label = stringResource(Res.string.tracking_stat_duration),
                     value = durationText,
                     modifier = Modifier.weight(1f),
                 )
@@ -314,13 +356,13 @@ fun JourneySummaryCard(
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l)) {
                 MetricCell(
                     icon = Icons.Outlined.Speed,
-                    label = "Max Speed",
+                    label = stringResource(Res.string.tracking_submit_max_speed),
                     value = maxSpeedText,
                     modifier = Modifier.weight(1f),
                 )
                 MetricCell(
                     icon = Icons.Outlined.Speed,
-                    label = "Avg Speed",
+                    label = stringResource(Res.string.tracking_stat_avg_speed),
                     value = avgSpeedText,
                     modifier = Modifier.weight(1f),
                 )
@@ -381,22 +423,22 @@ fun LocationDetailsCard(
     onOpenInMaps: () -> Unit = {},
 ) {
     SectionCard(
-        title = "Location Details",
+        title = stringResource(Res.string.tracking_submit_location_details),
         modifier = modifier,
         leadingIcon = Icons.Outlined.Place,
         trailingAction = {
             IconButton(onClick = onOpenInMaps) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
-                    contentDescription = "Open in maps",
+                    contentDescription = stringResource(Res.string.tracking_cd_open_in_maps),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
         },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-            LocationLine(label = "Start", address = startAddress, time = startTime)
-            LocationLine(label = "End", address = endAddress, time = endTime)
+            LocationLine(label = stringResource(Res.string.tracking_submit_odo_start), address = startAddress, time = startTime)
+            LocationLine(label = stringResource(Res.string.tracking_submit_odo_end), address = endAddress, time = endTime)
         }
     }
 }
@@ -465,20 +507,20 @@ fun OdometerReadingsCard(
     modifier: Modifier = Modifier,
 ) {
     CollapsibleSectionCard(
-        title = "Odometer Readings",
+        title = stringResource(Res.string.tracking_submit_odo_readings),
         modifier = modifier,
         initiallyExpanded = true,
         leadingIcon = Icons.Outlined.Speed,
     ) {
         OdometerRow(
-            label = "Start Odometer",
+            label = stringResource(Res.string.tracking_submit_odo_start_label),
             reading = startReading,
             isManual = isManualStart,
             imageUri = startImageUri,
             onCapture = onCaptureStart,
         )
         OdometerRow(
-            label = "End Odometer",
+            label = stringResource(Res.string.tracking_submit_odo_end_label),
             reading = endReading,
             isManual = isManualEnd,
             imageUri = endImageUri,
@@ -486,7 +528,7 @@ fun OdometerReadingsCard(
         )
         if (odometerDistanceKm != null) {
             Text(
-                text = "Calculated Odometer Distance: ${formatKm(odometerDistanceKm)} kms",
+                text = stringResource(Res.string.tracking_submit_odo_calculated, formatKm(odometerDistanceKm)),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = DesignTokens.Spacing.xs),
@@ -520,7 +562,7 @@ private fun OdometerRow(
             if (imageUri != null) {
                 AsyncImage(
                     model = imageUri,
-                    contentDescription = "$label photo",
+                    contentDescription = stringResource(Res.string.tracking_submit_photo, label),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -550,7 +592,7 @@ private fun OdometerRow(
                 }
             }
             Text(
-                text = reading?.toString() ?: "Not captured",
+                text = reading?.toString() ?: stringResource(Res.string.tracking_submit_odo_not_captured),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color =
                     if (reading != null) {
@@ -564,7 +606,15 @@ private fun OdometerRow(
         IconButton(onClick = onCapture) {
             Icon(
                 imageVector = if (reading == null) Icons.Filled.CameraAlt else Icons.Filled.Edit,
-                contentDescription = if (reading == null) "Capture $label" else "Edit $label",
+                contentDescription =
+                    if (reading == null) {
+                        stringResource(
+                            Res.string.tracking_submit_cd_capture,
+                            label,
+                        )
+                    } else {
+                        stringResource(Res.string.tracking_submit_cd_edit, label)
+                    },
                 tint = MaterialTheme.colorScheme.primary,
             )
         }
@@ -579,7 +629,7 @@ private fun ManualChip() {
         color = MaterialTheme.colorScheme.surfaceVariant,
     ) {
         Text(
-            text = "Manual",
+            text = stringResource(Res.string.tracking_submit_manual),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
@@ -613,10 +663,10 @@ fun AdditionalDetailsForm(
     modifier: Modifier = Modifier,
 ) {
     CollapsibleSectionCard(
-        title = "Additional Details (${fields.size})",
+        title = stringResource(Res.string.tracking_submit_additional_details, fields.size),
         modifier = modifier,
         initiallyExpanded = true,
-        subtitle = "Required expense fields before submission",
+        subtitle = stringResource(Res.string.tracking_submit_additional_details_subtitle),
     ) {
         fields.forEach { field ->
             when (field.type) {
@@ -704,7 +754,7 @@ private fun FormDropdownField(
                 value = field.value,
                 onValueChange = {},
                 readOnly = true,
-                placeholder = { Text("Select ${field.label}") },
+                placeholder = { Text(stringResource(Res.string.tracking_submit_field_select, field.label)) },
                 isError = field.errorText != null,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
@@ -754,7 +804,7 @@ fun OfficeEntitySelectRow(
     SectionCard(
         title = label,
         modifier = modifier,
-        subtitle = "Required for submission",
+        subtitle = stringResource(Res.string.tracking_submit_required_for_submission),
         leadingIcon = Icons.Outlined.Apartment,
     ) {
         Column {
@@ -801,7 +851,7 @@ fun OfficeEntitySelectRow(
             }
             if (isMissing) {
                 Text(
-                    text = "Required field",
+                    text = stringResource(Res.string.tracking_submit_required_field),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(top = DesignTokens.Spacing.xs),
@@ -832,9 +882,9 @@ fun AttachmentsSection(
     modifier: Modifier = Modifier,
 ) {
     SectionCard(
-        title = "Attachments",
+        title = stringResource(Res.string.tracking_submit_attachments),
         modifier = modifier,
-        subtitle = "Add bills, invoices, docs…",
+        subtitle = stringResource(Res.string.tracking_submit_attachments_subtitle),
         leadingIcon = Icons.Filled.Add,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
@@ -861,13 +911,13 @@ fun AttachmentsSection(
                     )
                     Spacer(Modifier.height(DesignTokens.Spacing.xs))
                     Text(
-                        text = "Add Attachments",
+                        text = stringResource(Res.string.tracking_submit_add_attachments),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = "Use camera or gallery",
+                        text = stringResource(Res.string.tracking_submit_use_camera_gallery),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -927,7 +977,7 @@ private fun AttachmentThumbnail(
         ) {
             Icon(
                 imageVector = Icons.Filled.Close,
-                contentDescription = "Remove $label",
+                contentDescription = stringResource(Res.string.tracking_submit_cd_remove, label),
                 tint = MaterialTheme.colorScheme.onError,
                 modifier = Modifier.size(14.dp),
             )
@@ -1011,13 +1061,13 @@ fun MileageDraftBottomBar(
                         Spacer(Modifier.width(DesignTokens.Spacing.m))
                         Column {
                             Text(
-                                text = "Save as Draft",
+                                text = stringResource(Res.string.tracking_submit_save_draft_toggle),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
-                                text = "Store progress now and finish later.",
+                                text = stringResource(Res.string.tracking_submit_save_draft_desc),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -1032,7 +1082,7 @@ fun MileageDraftBottomBar(
                     onClick = onDiscard,
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text("Discard Journey")
+                    Text(stringResource(Res.string.tracking_discard_journey))
                 }
                 Button(
                     onClick = onSubmit,
@@ -1040,7 +1090,9 @@ fun MileageDraftBottomBar(
                     colors = ButtonDefaults.buttonColors(),
                     modifier = Modifier.weight(1f),
                 ) {
-                    Text(if (saveAsDraft) "Save Draft" else "Submit Miles")
+                    Text(
+                        if (saveAsDraft) stringResource(Res.string.tracking_submit_save_draft_btn) else stringResource(Res.string.tracking_submit_submit_miles),
+                    )
                 }
             }
         }
@@ -1081,7 +1133,7 @@ fun VehicleSummaryCard(
     modifier: Modifier = Modifier,
 ) {
     SectionCard(
-        title = "Vehicle",
+        title = stringResource(Res.string.tracking_submit_vehicle),
         modifier = modifier,
         leadingIcon = Icons.Filled.DirectionsCar,
     ) {
@@ -1107,7 +1159,7 @@ fun VehicleSummaryCard(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = vehicleName.ifBlank { "Own Vehicle" },
+                    text = vehicleName.ifBlank { stringResource(Res.string.tracking_submit_own_vehicle) },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,

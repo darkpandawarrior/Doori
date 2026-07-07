@@ -42,7 +42,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_no_route
 import com.mileway.core.ui.theme.MilewayColors
+import org.jetbrains.compose.resources.stringResource
 
 enum class TrendDirection { UP, DOWN, STABLE }
 
@@ -234,7 +237,7 @@ fun StaticPolylineThumbnail(
             }
         } else {
             Text(
-                text = "No route",
+                text = stringResource(Res.string.tracking_no_route),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

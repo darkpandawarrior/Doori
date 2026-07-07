@@ -41,7 +41,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_open_in_maps
+import com.mileway.core.ui.resources.tracking_vehicle_picker_title
+import com.mileway.core.ui.resources.tracking_vehicle_search_placeholder
+import com.mileway.core.ui.resources.tracking_vendor_not_defined
+import com.mileway.core.ui.resources.tracking_vendor_picker_title
+import com.mileway.core.ui.resources.tracking_vendor_search_placeholder
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /** A selectable vehicle with its per-km reimbursement rate. */
 data class VehicleOption(
@@ -76,7 +84,7 @@ fun VehiclePickerSheet(
                     .padding(bottom = DesignTokens.Spacing.xl),
         ) {
             Text(
-                text = "Choose Vehicle Type",
+                text = stringResource(Res.string.tracking_vehicle_picker_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = DesignTokens.Spacing.m),
@@ -85,7 +93,7 @@ fun VehiclePickerSheet(
                 value = query,
                 onValueChange = onQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search vehicles…") },
+                placeholder = { Text(stringResource(Res.string.tracking_vehicle_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
                 shape = DesignTokens.Shape.roundedSm,
@@ -180,7 +188,7 @@ fun VendorPickerSheet(
                     .padding(bottom = DesignTokens.Spacing.xl),
         ) {
             Text(
-                text = "List of Centers",
+                text = stringResource(Res.string.tracking_vendor_picker_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = DesignTokens.Spacing.m),
@@ -189,7 +197,7 @@ fun VendorPickerSheet(
                 value = query,
                 onValueChange = onQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search Centers") },
+                placeholder = { Text(stringResource(Res.string.tracking_vendor_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
                 shape = DesignTokens.Shape.roundedSm,
@@ -249,7 +257,7 @@ private fun CenterRow(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = center.address?.takeIf { it.isNotBlank() } ?: "Not Defined",
+                    text = center.address?.takeIf { it.isNotBlank() } ?: stringResource(Res.string.tracking_vendor_not_defined),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -257,7 +265,7 @@ private fun CenterRow(
             IconButton(onClick = onOpenMaps) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                    contentDescription = "Open in maps",
+                    contentDescription = stringResource(Res.string.tracking_cd_open_in_maps),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

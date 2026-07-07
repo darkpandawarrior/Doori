@@ -42,8 +42,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.model.db.CurrentTrackData
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_badge_active
+import com.mileway.core.ui.resources.tracking_badge_paused
+import com.mileway.core.ui.resources.tracking_live_active
+import com.mileway.core.ui.resources.tracking_live_all_synced
+import com.mileway.core.ui.resources.tracking_live_battery
+import com.mileway.core.ui.resources.tracking_live_gps
+import com.mileway.core.ui.resources.tracking_live_ok
+import com.mileway.core.ui.resources.tracking_live_overview_title
+import com.mileway.core.ui.resources.tracking_live_pending_sync
+import com.mileway.core.ui.resources.tracking_live_points
+import com.mileway.core.ui.resources.tracking_live_recent_events
+import com.mileway.core.ui.resources.tracking_live_sync_status
+import com.mileway.core.ui.resources.tracking_live_system_health
+import com.mileway.core.ui.resources.tracking_stat_distance
+import com.mileway.core.ui.resources.tracking_stat_duration
+import com.mileway.core.ui.resources.tracking_stat_speed
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
 @Composable
@@ -74,7 +92,7 @@ fun LiveTrackingOverviewCard(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    "Live Tracking",
+                    stringResource(Res.string.tracking_live_overview_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
@@ -87,19 +105,19 @@ fun LiveTrackingOverviewCard(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 LiveMetric(
-                    label = "Distance",
+                    label = stringResource(Res.string.tracking_stat_distance),
                     value = "${(trackData.distance / 1000.0).formatDecimal(2)} km",
                     icon = Icons.Default.GpsFixed,
                     color = Color(0xFF80DEEA),
                 )
                 LiveMetric(
-                    label = "Duration",
+                    label = stringResource(Res.string.tracking_stat_duration),
                     value = formatDuration(Clock.System.now().toEpochMilliseconds() - trackData.startTime),
                     icon = Icons.Default.Timer,
                     color = Color(0xFFB39DDB),
                 )
                 LiveMetric(
-                    label = "Speed",
+                    label = stringResource(Res.string.tracking_stat_speed),
                     value = "${(trackData.speed * 3.6).formatDecimal(1)} km/h",
                     icon = Icons.Default.Speed,
                     color = Color(0xFF69F0AE),
@@ -121,12 +139,27 @@ fun LiveHealthMonitorCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("System Health", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.tracking_live_system_health), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-                HealthIndicator(label = "GPS", value = "Active", color = MilewayColors.success, icon = Icons.Default.GpsFixed)
-                HealthIndicator(label = "Points", value = "$locationCount", color = MaterialTheme.colorScheme.primary, icon = Icons.Default.NetworkCheck)
-                HealthIndicator(label = "Battery", value = "OK", color = MilewayColors.success, icon = Icons.Default.Battery5Bar)
+                HealthIndicator(
+                    label = stringResource(Res.string.tracking_live_gps),
+                    value = stringResource(Res.string.tracking_live_active),
+                    color = MilewayColors.success,
+                    icon = Icons.Default.GpsFixed,
+                )
+                HealthIndicator(
+                    label = stringResource(Res.string.tracking_live_points),
+                    value = "$locationCount",
+                    color = MaterialTheme.colorScheme.primary,
+                    icon = Icons.Default.NetworkCheck,
+                )
+                HealthIndicator(
+                    label = stringResource(Res.string.tracking_live_battery),
+                    value = stringResource(Res.string.tracking_live_ok),
+                    color = MilewayColors.success,
+                    icon = Icons.Default.Battery5Bar,
+                )
             }
         }
     }
@@ -147,7 +180,7 @@ fun LiveSyncStatusCard(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text("Sync Status", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.tracking_live_sync_status), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Text("$synced/$total", style = MaterialTheme.typography.bodySmall.dataStyle(), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Spacer(Modifier.height(8.dp))
@@ -159,7 +192,7 @@ fun LiveSyncStatusCard(
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                if (unsynced == 0L) "All points synced" else "$unsynced points pending sync",
+                if (unsynced == 0L) stringResource(Res.string.tracking_live_all_synced) else stringResource(Res.string.tracking_live_pending_sync, unsynced),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -179,7 +212,7 @@ fun RecentEventsCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text("Recent Events", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.tracking_live_recent_events), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
             events.takeLast(3).reversed().forEach { (text, time) ->
                 RecentEventItem(text, time)
@@ -241,7 +274,7 @@ fun LiveIndicatorBadge(isPaused: Boolean) {
         label = "pulse_alpha",
     )
     StatusBadge(
-        text = if (isPaused) "PAUSED" else "ACTIVE",
+        text = if (isPaused) stringResource(Res.string.tracking_badge_paused) else stringResource(Res.string.tracking_badge_active),
         color = if (isPaused) MilewayColors.warning else MilewayColors.success,
         modifier = if (isPaused) Modifier else Modifier.alpha(alpha),
     )

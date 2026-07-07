@@ -45,6 +45,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mileway.core.ui.components.SectionCard
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_close
+import com.mileway.core.ui.resources.tracking_cd_completed
+import com.mileway.core.ui.resources.tracking_consent_accept
+import com.mileway.core.ui.resources.tracking_consent_title
+import com.mileway.core.ui.resources.tracking_guide_cd_capture_odometer
+import com.mileway.core.ui.resources.tracking_guide_cd_change_vehicle
+import com.mileway.core.ui.resources.tracking_guide_cd_current_step
+import com.mileway.core.ui.resources.tracking_guide_checklist
+import com.mileway.core.ui.resources.tracking_guide_draft_desc
+import com.mileway.core.ui.resources.tracking_guide_draft_mode
+import com.mileway.core.ui.resources.tracking_guide_draft_subtitle
+import com.mileway.core.ui.resources.tracking_guide_enable_draft
+import com.mileway.core.ui.resources.tracking_guide_odo_capture_hint
+import com.mileway.core.ui.resources.tracking_guide_odo_captured
+import com.mileway.core.ui.resources.tracking_guide_select_vehicle
+import com.mileway.core.ui.resources.tracking_guide_start_odometer
+import com.mileway.core.ui.resources.tracking_guide_start_tracking
+import com.mileway.core.ui.resources.tracking_guide_title
+import com.mileway.core.ui.resources.tracking_guide_vehicle_selection
+import com.mileway.core.ui.resources.tracking_guide_vehicle_type
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * The three high-level steps of the START flow surfaced by [JourneyGuideSheet].
@@ -221,7 +243,7 @@ private fun JourneyGuideHeader(state: JourneyGuideState) {
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         ) {
             Text(
-                text = "Journey Guide",
+                text = stringResource(Res.string.tracking_guide_title),
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             )
             Spacer(Modifier.height(4.dp))
@@ -242,7 +264,7 @@ private fun JourneyGuideHeader(state: JourneyGuideState) {
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "Quick Start Checklist",
+                            text = stringResource(Res.string.tracking_guide_checklist),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.fillMaxWidth(),
@@ -345,7 +367,7 @@ private fun JourneyStepper(step: JourneyGuideStep) {
                     if (isCompleted) {
                         Icon(
                             imageVector = Icons.Default.Check,
-                            contentDescription = "Completed",
+                            contentDescription = stringResource(Res.string.tracking_cd_completed),
                             modifier = Modifier.size(StepCheckSize),
                             tint = MaterialTheme.colorScheme.onPrimary,
                         )
@@ -392,7 +414,7 @@ private fun VehicleSelectionCard(
     ratePerKm: Double?,
     onClick: () -> Unit,
 ) {
-    SectionCard(title = "Vehicle Selection") {
+    SectionCard(title = stringResource(Res.string.tracking_guide_vehicle_selection)) {
         Surface(
             shape = RoundedCornerShape(12.dp),
             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -414,14 +436,14 @@ private fun VehicleSelectionCard(
                 Spacer(Modifier.width(16.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Vehicle Type",
+                        text = stringResource(Res.string.tracking_guide_vehicle_type),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = vehicleName ?: "Select a vehicle",
+                        text = vehicleName ?: stringResource(Res.string.tracking_guide_select_vehicle),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color =
@@ -442,7 +464,7 @@ private fun VehicleSelectionCard(
                 }
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "Change vehicle",
+                    contentDescription = stringResource(Res.string.tracking_guide_cd_change_vehicle),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -457,7 +479,8 @@ private fun StartOdometerRow(
     reading: Int?,
     onCapture: () -> Unit,
 ) {
-    SectionCard(title = "Start Odometer") {
+    val captureOdometerCd = stringResource(Res.string.tracking_guide_cd_capture_odometer)
+    SectionCard(title = stringResource(Res.string.tracking_guide_start_odometer)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -472,7 +495,7 @@ private fun StartOdometerRow(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Start Odometer",
+                    text = stringResource(Res.string.tracking_guide_start_odometer),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -486,9 +509,9 @@ private fun StartOdometerRow(
                 Text(
                     text =
                         if (reading != null) {
-                            "Captured · tap camera to retake"
+                            stringResource(Res.string.tracking_guide_odo_captured)
                         } else {
-                            "Tap camera icon to capture"
+                            stringResource(Res.string.tracking_guide_odo_capture_hint)
                         },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -502,7 +525,7 @@ private fun StartOdometerRow(
                     Modifier
                         .size(44.dp)
                         .clickable(onClick = onCapture)
-                        .semantics { contentDescription = "Capture start odometer" },
+                        .semantics { contentDescription = captureOdometerCd },
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
@@ -525,8 +548,8 @@ private fun DraftModeCard(
     onToggle: (Boolean) -> Unit,
 ) {
     SectionCard(
-        title = "Draft mode",
-        subtitle = "Enable this to save your journey when you stop.",
+        title = stringResource(Res.string.tracking_guide_draft_mode),
+        subtitle = stringResource(Res.string.tracking_guide_draft_subtitle),
     ) {
         Row(
             modifier =
@@ -538,13 +561,13 @@ private fun DraftModeCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Enable draft mode",
+                    text = stringResource(Res.string.tracking_guide_enable_draft),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "You can save this journey as a draft when you stop.",
+                    text = stringResource(Res.string.tracking_guide_draft_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -566,6 +589,7 @@ private fun JourneyGuideBottomBar(
     onStartTracking: () -> Unit,
     onClose: () -> Unit,
 ) {
+    val currentStepCd = stringResource(Res.string.tracking_guide_cd_current_step, stepChipLabel(step))
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier =
@@ -585,7 +609,7 @@ private fun JourneyGuideBottomBar(
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     modifier =
                         Modifier.semantics {
-                            contentDescription = "Current step: ${stepChipLabel(step)}"
+                            contentDescription = currentStepCd
                         },
                 ) {
                     Text(
@@ -628,7 +652,7 @@ private fun JourneyGuideBottomBar(
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            text = "Start Tracking",
+                            text = stringResource(Res.string.tracking_guide_start_tracking),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color =
@@ -649,7 +673,7 @@ private fun JourneyGuideBottomBar(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
             ) {
                 Text(
-                    text = "Close",
+                    text = stringResource(Res.string.tracking_action_close),
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
@@ -681,8 +705,8 @@ fun JourneyConsentSheet(
     disclaimer: String,
     onAccept: () -> Unit,
     onDismiss: () -> Unit,
-    title: String = "Journey consent",
-    confirmLabel: String = "I Accept & Start Journey",
+    title: String = stringResource(Res.string.tracking_consent_title),
+    confirmLabel: String = stringResource(Res.string.tracking_consent_accept),
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
 ) {
     ModalBottomSheet(
@@ -732,7 +756,7 @@ fun JourneyConsentSheet(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    ConsentPersonaChip(label = "Journey Guide")
+                    ConsentPersonaChip(label = stringResource(Res.string.tracking_guide_title))
                 }
             }
 

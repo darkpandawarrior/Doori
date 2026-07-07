@@ -57,7 +57,38 @@ import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.model.network.ViolationSeverity
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_entity_picker_title
+import com.mileway.core.ui.resources.tracking_entity_search_placeholder
+import com.mileway.core.ui.resources.tracking_office_gstin
+import com.mileway.core.ui.resources.tracking_office_picker_title
+import com.mileway.core.ui.resources.tracking_office_search_placeholder
+import com.mileway.core.ui.resources.tracking_office_suggested
+import com.mileway.core.ui.resources.tracking_policy_ask_authorities
+import com.mileway.core.ui.resources.tracking_policy_fix_resubmit
+import com.mileway.core.ui.resources.tracking_policy_fix_resubmit_desc
+import com.mileway.core.ui.resources.tracking_policy_issue_found
+import com.mileway.core.ui.resources.tracking_policy_note_placeholder
+import com.mileway.core.ui.resources.tracking_policy_submit
+import com.mileway.core.ui.resources.tracking_policy_submit_review
+import com.mileway.core.ui.resources.tracking_policy_submit_review_desc
+import com.mileway.core.ui.resources.tracking_policy_violations
+import com.mileway.core.ui.resources.tracking_smart_confirm_stop
+import com.mileway.core.ui.resources.tracking_smart_difference
+import com.mileway.core.ui.resources.tracking_smart_explain_placeholder
+import com.mileway.core.ui.resources.tracking_smart_gps_tracked
+import com.mileway.core.ui.resources.tracking_smart_large_discrepancy
+import com.mileway.core.ui.resources.tracking_smart_odometer
+import com.mileway.core.ui.resources.tracking_smart_subtitle
+import com.mileway.core.ui.resources.tracking_smart_verified
+import com.mileway.core.ui.resources.tracking_stop_tracking_title
+import com.mileway.core.ui.resources.tracking_submit_confirm_note
+import com.mileway.core.ui.resources.tracking_submit_confirm_prompt
+import com.mileway.core.ui.resources.tracking_submit_confirm_title
+import com.mileway.core.ui.resources.tracking_submit_submit_miles
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -141,13 +172,13 @@ fun SmartDistanceSheet(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Stop Tracking?",
+                        text = stringResource(Res.string.tracking_stop_tracking_title),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
-                        text = "Review odometer vs tracked distance",
+                        text = stringResource(Res.string.tracking_smart_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -172,13 +203,21 @@ fun SmartDistanceSheet(
                     modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    DistanceColumn(label = "GPS Tracked", value = "${(trackedKm * 100).toLong() / 100.0} km", valueColor = MaterialTheme.colorScheme.onSurface)
                     DistanceColumn(
-                        label = "Difference",
+                        label = stringResource(Res.string.tracking_smart_gps_tracked),
+                        value = "${(trackedKm * 100).toLong() / 100.0} km",
+                        valueColor = MaterialTheme.colorScheme.onSurface,
+                    )
+                    DistanceColumn(
+                        label = stringResource(Res.string.tracking_smart_difference),
                         value = "$percentLabel",
                         valueColor = if (discrepancyPercent > 15) errorColor else MaterialTheme.colorScheme.onSurface,
                     )
-                    DistanceColumn(label = "Odometer", value = "${(odometerKm * 100).toLong() / 100.0} km", valueColor = MaterialTheme.colorScheme.primary)
+                    DistanceColumn(
+                        label = stringResource(Res.string.tracking_smart_odometer),
+                        value = "${(odometerKm * 100).toLong() / 100.0} km",
+                        valueColor = MaterialTheme.colorScheme.primary,
+                    )
                 }
             }
 
@@ -197,7 +236,7 @@ fun SmartDistanceSheet(
                     ) {
                         Icon(Icons.Filled.Warning, contentDescription = null, tint = errorColor, modifier = Modifier.size(DesignTokens.IconSize.badge))
                         Text(
-                            text = "Large Discrepancy Detected: values differ by $percentLabel",
+                            text = stringResource(Res.string.tracking_smart_large_discrepancy, percentLabel),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.SemiBold,
                             color = errorColor,
@@ -224,7 +263,7 @@ fun SmartDistanceSheet(
                 ) {
                     Checkbox(checked = verified, onCheckedChange = onVerifiedChange)
                     Text(
-                        text = "I have verified the readings",
+                        text = stringResource(Res.string.tracking_smart_verified),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -238,7 +277,7 @@ fun SmartDistanceSheet(
                     value = explanation,
                     onValueChange = onExplanationChange,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Explain the discrepancy") },
+                    placeholder = { Text(stringResource(Res.string.tracking_smart_explain_placeholder)) },
                     shape = DesignTokens.Shape.roundedSm,
                     minLines = 2,
                 )
@@ -256,7 +295,7 @@ fun SmartDistanceSheet(
                     modifier = Modifier.weight(1f),
                     shape = DesignTokens.Shape.roundedSm,
                 ) {
-                    Text("Cancel")
+                    Text(stringResource(Res.string.tracking_action_cancel))
                 }
                 Button(
                     onClick = onStop,
@@ -264,7 +303,7 @@ fun SmartDistanceSheet(
                     modifier = Modifier.weight(1f),
                     shape = DesignTokens.Shape.roundedSm,
                 ) {
-                    Text("Confirm Stop", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.tracking_smart_confirm_stop), fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -378,7 +417,7 @@ fun SubmitConfirmSheet(
             Spacer(Modifier.size(DesignTokens.Spacing.l))
 
             Text(
-                text = "Submit Track Miles",
+                text = stringResource(Res.string.tracking_submit_confirm_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -386,7 +425,7 @@ fun SubmitConfirmSheet(
             )
             Spacer(Modifier.size(DesignTokens.Spacing.s))
             Text(
-                text = "Do you wish to submit your track miles journey for expense submission?",
+                text = stringResource(Res.string.tracking_submit_confirm_prompt),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -411,9 +450,7 @@ fun SubmitConfirmSheet(
                         modifier = Modifier.size(DesignTokens.IconSize.badge),
                     )
                     Text(
-                        text =
-                            "Once submitted, this journey will be processed for expense " +
-                                "reimbursement",
+                        text = stringResource(Res.string.tracking_submit_confirm_note),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -439,7 +476,7 @@ fun SubmitConfirmSheet(
                     modifier = Modifier.size(DesignTokens.IconSize.inline),
                 )
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Submit Miles", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.tracking_submit_submit_miles), fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(Modifier.size(DesignTokens.Spacing.s))
@@ -456,7 +493,7 @@ fun SubmitConfirmSheet(
                     modifier = Modifier.size(DesignTokens.IconSize.inline),
                 )
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Cancel")
+                Text(stringResource(Res.string.tracking_action_cancel))
             }
         }
     }
@@ -525,7 +562,7 @@ fun PolicyViolationSheet(
                 }
                 Column {
                     Text(
-                        text = "Policy Issue Found",
+                        text = stringResource(Res.string.tracking_policy_issue_found),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -553,7 +590,7 @@ fun PolicyViolationSheet(
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
                     Text(
-                        text = "Policy Violations",
+                        text = stringResource(Res.string.tracking_policy_violations),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = errorColor,
@@ -568,7 +605,7 @@ fun PolicyViolationSheet(
 
             // Resolution options header.
             Text(
-                text = "Ask Authorities",
+                text = stringResource(Res.string.tracking_policy_ask_authorities),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -599,8 +636,16 @@ fun PolicyViolationSheet(
                 ) {
                     RadioButton(selected = askAuthoritiesSelected, onClick = { if (!askAuthoritiesSelected) onToggleAskAuthorities() })
                     Column {
-                        Text("Submit for Review", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                        Text("Sent for authority approval", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(Res.string.tracking_policy_submit_review),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            stringResource(Res.string.tracking_policy_submit_review_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -631,9 +676,13 @@ fun PolicyViolationSheet(
                 ) {
                     RadioButton(selected = !askAuthoritiesSelected, onClick = { if (askAuthoritiesSelected) onToggleAskAuthorities() })
                     Column {
-                        Text("Fix and Resubmit", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                         Text(
-                            "Return to fix the violation first",
+                            stringResource(Res.string.tracking_policy_fix_resubmit),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            stringResource(Res.string.tracking_policy_fix_resubmit_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -648,7 +697,7 @@ fun PolicyViolationSheet(
                     value = note,
                     onValueChange = onNoteChange,
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Required: note for the reviewer") },
+                    placeholder = { Text(stringResource(Res.string.tracking_policy_note_placeholder)) },
                     shape = DesignTokens.Shape.roundedSm,
                     singleLine = true,
                 )
@@ -663,7 +712,7 @@ fun PolicyViolationSheet(
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedSm,
             ) {
-                Text("Submit", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.tracking_policy_submit), fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -747,7 +796,7 @@ fun OfficePickerSheet(
                     .padding(bottom = DesignTokens.Spacing.xl),
         ) {
             Text(
-                text = "Select Office (Required)",
+                text = stringResource(Res.string.tracking_office_picker_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(vertical = DesignTokens.Spacing.m),
@@ -756,7 +805,7 @@ fun OfficePickerSheet(
                 value = query,
                 onValueChange = onQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search by address, city…") },
+                placeholder = { Text(stringResource(Res.string.tracking_office_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
                 shape = DesignTokens.Shape.roundedSm,
@@ -772,7 +821,7 @@ fun OfficePickerSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Suggested Addresses",
+                    text = stringResource(Res.string.tracking_office_suggested),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -849,7 +898,7 @@ private fun OfficeRow(
                 }
                 if (office.gstin.isNotBlank()) {
                     Text(
-                        text = "GSTIN: ${office.gstin}",
+                        text = stringResource(Res.string.tracking_office_gstin, office.gstin),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(top = 4.dp),
@@ -897,7 +946,7 @@ fun EntityPickerSheet(
                     .padding(bottom = DesignTokens.Spacing.xl),
         ) {
             Text(
-                text = "Select Entity",
+                text = stringResource(Res.string.tracking_entity_picker_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = DesignTokens.Spacing.m),
@@ -912,7 +961,7 @@ fun EntityPickerSheet(
                 value = query,
                 onValueChange = onQueryChange,
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search entities…") },
+                placeholder = { Text(stringResource(Res.string.tracking_entity_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
                 shape = DesignTokens.Shape.roundedSm,

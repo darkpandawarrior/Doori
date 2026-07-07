@@ -7,6 +7,15 @@ import androidx.compose.runtime.Composable
 import com.mileway.core.common.deeplink.DeepLinkAction
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_action_discard
+import com.mileway.core.ui.resources.tracking_action_stop
+import com.mileway.core.ui.resources.tracking_deeplink_discard_desc
+import com.mileway.core.ui.resources.tracking_deeplink_stop_desc
+import com.mileway.core.ui.resources.tracking_discard_journey_title
+import com.mileway.core.ui.resources.tracking_stop_tracking_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * DL.5: confirmation gate for a destructive [DeepLinkAction] arriving from an external caller
@@ -27,10 +36,10 @@ fun DeepLinkConfirmationDialog(
     when (action) {
         DeepLinkAction.Stop ->
             ActionConfirmationBottomSheet(
-                title = "Stop Tracking?",
-                description = "This ends the active trip and finalizes the distance recorded so far.",
-                confirmLabel = "Stop",
-                dismissLabel = "Cancel",
+                title = stringResource(Res.string.tracking_stop_tracking_title),
+                description = stringResource(Res.string.tracking_deeplink_stop_desc),
+                confirmLabel = stringResource(Res.string.tracking_action_stop),
+                dismissLabel = stringResource(Res.string.tracking_action_cancel),
                 icon = Icons.Filled.Stop,
                 tone = ActionConfirmationToneType.Danger,
                 onConfirm = { onConfirm() },
@@ -38,10 +47,10 @@ fun DeepLinkConfirmationDialog(
             )
         DeepLinkAction.Discard ->
             ActionConfirmationBottomSheet(
-                title = "Discard Journey?",
-                description = "All tracking data for this journey will be lost. This action cannot be undone.",
-                confirmLabel = "Discard",
-                dismissLabel = "Cancel",
+                title = stringResource(Res.string.tracking_discard_journey_title),
+                description = stringResource(Res.string.tracking_deeplink_discard_desc),
+                confirmLabel = stringResource(Res.string.tracking_action_discard),
+                dismissLabel = stringResource(Res.string.tracking_action_cancel),
                 icon = Icons.Filled.Delete,
                 tone = ActionConfirmationToneType.Danger,
                 onConfirm = { onConfirm() },

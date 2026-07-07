@@ -59,6 +59,33 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_action_close
+import com.mileway.core.ui.resources.tracking_action_discard
+import com.mileway.core.ui.resources.tracking_action_resume
+import com.mileway.core.ui.resources.tracking_pause_add_custom
+import com.mileway.core.ui.resources.tracking_pause_at
+import com.mileway.core.ui.resources.tracking_pause_cd_selected
+import com.mileway.core.ui.resources.tracking_pause_char_count
+import com.mileway.core.ui.resources.tracking_pause_custom_placeholder
+import com.mileway.core.ui.resources.tracking_pause_quick_reasons
+import com.mileway.core.ui.resources.tracking_pause_title
+import com.mileway.core.ui.resources.tracking_pause_use_quick
+import com.mileway.core.ui.resources.tracking_pause_why
+import com.mileway.core.ui.resources.tracking_restore_action_ignore
+import com.mileway.core.ui.resources.tracking_restore_action_restore
+import com.mileway.core.ui.resources.tracking_restore_check_dismissed
+import com.mileway.core.ui.resources.tracking_restore_empty
+import com.mileway.core.ui.resources.tracking_restore_sheet_subtitle
+import com.mileway.core.ui.resources.tracking_restore_sheet_title
+import com.mileway.core.ui.resources.tracking_resume_char_count
+import com.mileway.core.ui.resources.tracking_resume_notes_placeholder
+import com.mileway.core.ui.resources.tracking_resume_optional_notes
+import com.mileway.core.ui.resources.tracking_resume_ready_continue
+import com.mileway.core.ui.resources.tracking_resume_title
+import com.mileway.core.ui.resources.tracking_resume_you_paused_for
+import org.jetbrains.compose.resources.stringResource
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Pause / Resume / Restore sheet bodies (STATELESS)
@@ -152,7 +179,7 @@ fun PauseReasonSheet(
         ) {
             Column {
                 Text(
-                    text = "Pause Tracking",
+                    text = stringResource(Res.string.tracking_pause_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -168,7 +195,7 @@ fun PauseReasonSheet(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(
-                        text = "Pausing at $timestamp",
+                        text = stringResource(Res.string.tracking_pause_at, timestamp),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -178,7 +205,7 @@ fun PauseReasonSheet(
             IconButton(onClick = onCancel) {
                 Icon(
                     imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
+                    contentDescription = stringResource(Res.string.tracking_action_close),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -187,7 +214,7 @@ fun PauseReasonSheet(
         Spacer(Modifier.height(24.dp))
 
         Text(
-            text = "Why are you pausing? This helps track time more accurately.",
+            text = stringResource(Res.string.tracking_pause_why),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.fillMaxWidth(),
@@ -196,7 +223,7 @@ fun PauseReasonSheet(
         Spacer(Modifier.height(20.dp))
 
         Text(
-            text = "Quick Reasons",
+            text = stringResource(Res.string.tracking_pause_quick_reasons),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -240,7 +267,7 @@ fun PauseReasonSheet(
                             {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Selected",
+                                    contentDescription = stringResource(Res.string.tracking_pause_cd_selected),
                                     modifier = Modifier.size(18.dp),
                                 )
                             }
@@ -275,7 +302,7 @@ fun PauseReasonSheet(
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Add custom reason")
+                Text(stringResource(Res.string.tracking_pause_add_custom))
             }
         }
 
@@ -305,11 +332,11 @@ fun PauseReasonSheet(
                     },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = {
-                        Text("e.g., Stopped for a client meeting on the way")
+                        Text(stringResource(Res.string.tracking_pause_custom_placeholder))
                     },
                     supportingText = {
                         Text(
-                            text = "${customReason.length}/200 characters",
+                            text = stringResource(Res.string.tracking_pause_char_count, customReason.length),
                             style = MaterialTheme.typography.labelSmall,
                             color =
                                 if (customReason.length > 180) {
@@ -334,7 +361,7 @@ fun PauseReasonSheet(
                     },
                     modifier = Modifier.align(Alignment.End),
                 ) {
-                    Text("Use quick reason instead")
+                    Text(stringResource(Res.string.tracking_pause_use_quick))
                 }
             }
         }
@@ -362,7 +389,7 @@ fun PauseReasonSheet(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f),
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.tracking_action_cancel))
             }
 
             Button(
@@ -384,7 +411,7 @@ fun PauseReasonSheet(
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Pause Tracking")
+                Text(stringResource(Res.string.tracking_pause_title))
             }
         }
     }
@@ -429,7 +456,7 @@ fun ResumeTrackingSheet(
         )
 
         Text(
-            text = "Resume Tracking?",
+            text = stringResource(Res.string.tracking_resume_title),
             style =
                 MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
@@ -441,7 +468,7 @@ fun ResumeTrackingSheet(
 
         if (!pauseReason.isNullOrBlank()) {
             Text(
-                text = "You paused for:",
+                text = stringResource(Res.string.tracking_resume_you_paused_for),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -459,7 +486,7 @@ fun ResumeTrackingSheet(
             Spacer(modifier = Modifier.height(16.dp))
         } else {
             Text(
-                text = "Ready to continue tracking?",
+                text = stringResource(Res.string.tracking_resume_ready_continue),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -470,7 +497,7 @@ fun ResumeTrackingSheet(
         HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
         Text(
-            text = "Optional: Add resume notes",
+            text = stringResource(Res.string.tracking_resume_optional_notes),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier =
@@ -483,11 +510,11 @@ fun ResumeTrackingSheet(
             value = resumeNotes,
             onValueChange = { if (it.length <= 200) onNotesChange(it) },
             placeholder = {
-                Text("e.g., Break over, Back on route")
+                Text(stringResource(Res.string.tracking_resume_notes_placeholder))
             },
             supportingText = {
                 Text(
-                    text = "${resumeNotes.length}/200",
+                    text = stringResource(Res.string.tracking_resume_char_count, resumeNotes.length),
                     style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(),
@@ -508,7 +535,7 @@ fun ResumeTrackingSheet(
                 onClick = onCancel,
                 modifier = Modifier.weight(1f),
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.tracking_action_cancel))
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -522,7 +549,7 @@ fun ResumeTrackingSheet(
                     contentDescription = null,
                     modifier = Modifier.padding(end = 8.dp),
                 )
-                Text("Resume")
+                Text(stringResource(Res.string.tracking_action_resume))
             }
         }
     }
@@ -598,13 +625,13 @@ fun SessionRestoreSheet(
             }
             Column {
                 Text(
-                    text = "Drafts & Server Sessions",
+                    text = stringResource(Res.string.tracking_restore_sheet_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "Continue drafts, resubmit discarded, or copy server tokens",
+                    text = stringResource(Res.string.tracking_restore_sheet_subtitle),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -623,13 +650,13 @@ fun SessionRestoreSheet(
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("Check dismissed restore sessions")
+                Text(stringResource(Res.string.tracking_restore_check_dismissed))
             }
         }
 
         if (sessions.isEmpty()) {
             Text(
-                text = "No unfinished sessions to restore.",
+                text = stringResource(Res.string.tracking_restore_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -724,7 +751,7 @@ private fun RestorableSessionRow(
                             vertical = 8.dp,
                         ),
                 ) {
-                    Text("Restore", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(Res.string.tracking_restore_action_restore), style = MaterialTheme.typography.labelLarge)
                 }
                 OutlinedButton(
                     onClick = onDiscard,
@@ -735,7 +762,7 @@ private fun RestorableSessionRow(
                             vertical = 8.dp,
                         ),
                 ) {
-                    Text("Discard", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(Res.string.tracking_action_discard), style = MaterialTheme.typography.labelLarge)
                 }
                 TextButton(
                     onClick = onIgnore,
@@ -745,7 +772,7 @@ private fun RestorableSessionRow(
                             vertical = 8.dp,
                         ),
                 ) {
-                    Text("Ignore", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(Res.string.tracking_restore_action_ignore), style = MaterialTheme.typography.labelLarge)
                 }
             }
         }

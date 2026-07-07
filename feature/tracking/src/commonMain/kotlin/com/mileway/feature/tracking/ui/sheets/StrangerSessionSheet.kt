@@ -22,8 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_not_now
+import com.mileway.core.ui.resources.tracking_stranger_desc
+import com.mileway.core.ui.resources.tracking_stranger_resume
+import com.mileway.core.ui.resources.tracking_stranger_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.viewmodel.StrangerSessionConfig
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * PLAN_V22 P3.5: cold-start reconciliation dialog — shown instead of silently restoring a
@@ -58,14 +64,14 @@ fun StrangerSessionSheet(
                 modifier = Modifier.padding(bottom = DesignTokens.Spacing.m),
             )
             Text(
-                text = "Resume session for ${config.ownerLabel}?",
+                text = stringResource(Res.string.tracking_stranger_title, config.ownerLabel),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
-                text = "A journey is still in progress for a different persona than the one signed in now.",
+                text = stringResource(Res.string.tracking_stranger_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -76,7 +82,7 @@ fun StrangerSessionSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.roundedSm,
             ) {
-                Text("Resume Session", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_stranger_resume), fontWeight = FontWeight.Bold)
             }
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             OutlinedButton(
@@ -84,7 +90,7 @@ fun StrangerSessionSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.roundedSm,
             ) {
-                Text("Not Now", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_action_not_now), fontWeight = FontWeight.Bold)
             }
         }
     }

@@ -21,11 +21,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_not_now
+import com.mileway.core.ui.resources.tracking_action_resume
+import com.mileway.core.ui.resources.tracking_multi_different_persona
+import com.mileway.core.ui.resources.tracking_multi_draft_journey
+import com.mileway.core.ui.resources.tracking_multi_journey_in_progress
+import com.mileway.core.ui.resources.tracking_multi_no_data
+import com.mileway.core.ui.resources.tracking_multi_ready_resume
+import com.mileway.core.ui.resources.tracking_multi_restore_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.tracking.service.RestorableSession
 import com.mileway.feature.tracking.service.SessionValidationStatus
 import com.mileway.feature.tracking.ui.components.StatusBadge
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToLong
 
 /**
@@ -53,7 +63,7 @@ fun MultiSessionRestoreSheet(
                     .padding(bottom = DesignTokens.Spacing.l, top = DesignTokens.Spacing.xs),
         ) {
             Text(
-                text = "Restore a journey",
+                text = stringResource(Res.string.tracking_multi_restore_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
@@ -72,7 +82,7 @@ fun MultiSessionRestoreSheet(
                 }
             }
             OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp)) {
-                Text("Not Now", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.tracking_action_not_now), fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -91,7 +101,14 @@ private fun RestorableSessionRow(
                 val distText = "${(session.distanceKm * 10).roundToLong() / 10.0} km"
                 val durationMin = session.durationMs / 60_000
                 Text(
-                    text = if (session.isDraft) "Draft journey" else "Journey in progress",
+                    text =
+                        if (session.isDraft) {
+                            stringResource(
+                                Res.string.tracking_multi_draft_journey,
+                            )
+                        } else {
+                            stringResource(Res.string.tracking_multi_journey_in_progress)
+                        },
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -103,9 +120,9 @@ private fun RestorableSessionRow(
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
                 val (badgeText, badgeColor) =
                     when (session.status) {
-                        SessionValidationStatus.VALID -> "Ready to resume" to MilewayColors.success
-                        SessionValidationStatus.OWNER_MISMATCH -> "Different persona" to MilewayColors.warning
-                        SessionValidationStatus.EMPTY -> "No data recorded" to MilewayColors.neutral
+                        SessionValidationStatus.VALID -> stringResource(Res.string.tracking_multi_ready_resume) to MilewayColors.success
+                        SessionValidationStatus.OWNER_MISMATCH -> stringResource(Res.string.tracking_multi_different_persona) to MilewayColors.warning
+                        SessionValidationStatus.EMPTY -> stringResource(Res.string.tracking_multi_no_data) to MilewayColors.neutral
                     }
                 StatusBadge(text = badgeText, color = badgeColor)
             }
@@ -113,7 +130,7 @@ private fun RestorableSessionRow(
                 onClick = { onResume(session.routeId) },
                 enabled = session.status != SessionValidationStatus.EMPTY,
             ) {
-                Text("Resume")
+                Text(stringResource(Res.string.tracking_action_resume))
             }
         }
     }
