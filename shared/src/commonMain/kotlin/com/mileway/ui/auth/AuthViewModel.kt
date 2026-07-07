@@ -174,4 +174,6 @@ class AuthViewModel(
 val authModule =
     module {
         viewModelOf(::AuthViewModel)
+        // PLAN_V24 P1.2: the shared OTP entry screen's ViewModel (LocalOtpEngine-backed).
+        viewModelOf(::OtpVerificationViewModel)
     }

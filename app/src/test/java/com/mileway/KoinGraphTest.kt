@@ -71,6 +71,7 @@ import com.mileway.feature.tracking.viewmodel.SavedTracksViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import com.mileway.feature.tracking.viewmodel.TrackInsightsViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
+import com.mileway.ui.auth.OtpVerificationViewModel
 import com.mileway.ui.auth.authModule
 import com.mileway.ui.auth.pinModule
 import com.mileway.ui.auth.AuthViewModel
@@ -289,6 +290,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<EventsHistoryViewModel>())
         assertNotNull(get<MasterSearchViewModel>())
         assertNotNull(get<AuthViewModel>())
+        assertNotNull(get<OtpVerificationViewModel>())
         assertNotNull(get<PinViewModel>())
     }
 

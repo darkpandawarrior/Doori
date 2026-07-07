@@ -76,6 +76,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.core.network.model.DemoAccount
 import com.mileway.core.ui.components.DotsIndicator
 import com.mileway.core.ui.resources.Res
@@ -197,6 +198,8 @@ fun LoginScreen(
     // the registry and passes the resolved value. Defaulted off so email/password stays the
     // baseline (and direct-construction tests/previews see today's flow unchanged).
     phoneLoginEnabled: Boolean = false,
+    // P1.2: "Get OTP via call" secondary action on the OTP screen, gated by its own plugin.
+    otpViaCallEnabled: Boolean = false,
     authViewModel: AuthViewModel = koinViewModel(),
 ) {
     val currentOnCredentials by rememberUpdatedState(onSignInWithCredentials)
@@ -214,6 +217,8 @@ fun LoginScreen(
     var selectedCountry by remember { mutableStateOf(DEFAULT_COUNTRY_CODE) }
     var phoneError by remember { mutableStateOf<PhoneValidation?>(null) }
     val lastLoginOtp by authViewModel.lastLoginOtp.collectAsStateWithLifecycle()
+    // P1.2: phone flow sub-step — false = enter phone, true = enter OTP.
+    var showOtpEntry by remember { mutableStateOf(false) }
 
     val authState by authViewModel.state.collectAsStateWithLifecycle()
     val isSigningIn = authState !is MilewayAuthState.Idle
@@ -293,7 +298,22 @@ fun LoginScreen(
                 Spacer(Modifier.height(DesignTokens.Spacing.l))
             }
 
-            if (phoneLoginEnabled && usePhoneMode) {
+            if (phoneLoginEnabled && usePhoneMode && showOtpEntry && lastLoginOtp != null) {
+                OtpVerificationScreen(
+                    purpose = OtpPurpose.LOGIN,
+                    target = lastLoginOtp!!.target,
+                    delivery = lastLoginOtp,
+                    otpViaCallEnabled = otpViaCallEnabled,
+                    onVerified = {
+                        // Phone-OTP success joins the same staged completion as credentials: use the
+                        // verified number as the session identity (mock — no real credential store).
+                        email = lastLoginOtp!!.target
+                        isGuestPath = false
+                        authViewModel.beginSignIn()
+                    },
+                    onChangeNumber = { showOtpEntry = false },
+                )
+            } else if (phoneLoginEnabled && usePhoneMode) {
                 PhoneLoginFields(
                     country = selectedCountry,
                     onCountryChange = { selectedCountry = it },
@@ -305,7 +325,11 @@ fun LoginScreen(
                     validation = phoneError,
                     enabled = !isSigningIn,
                     delivery = lastLoginOtp,
-                    onSendOtp = { phoneError = authViewModel.sendLoginOtp(selectedCountry.dialCode, phone) },
+                    onSendOtp = {
+                        val result = authViewModel.sendLoginOtp(selectedCountry.dialCode, phone)
+                        phoneError = result
+                        if (result is PhoneValidation.Valid) showOtpEntry = true
+                    },
                 )
             } else {
                 CredentialFields(

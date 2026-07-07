@@ -1917,4 +1917,17 @@
     <string name="shared_auth_phone_error_length">मान्य 10-अंकीय नंबर दर्ज करें</string>
     <string name="shared_auth_otp_sent">%1$s पर OTP भेजा गया</string>
     <string name="shared_auth_demo_code">डेमो कोड: %1$s</string>
+
+    <!-- PLAN_V24 P1.2: OTP verification screen -->
+    <string name="plugin_auth_otp_via_call_title">कॉल के ज़रिए OTP</string>
+    <string name="plugin_auth_otp_via_call_desc">OTP स्क्रीन पर "कॉल के ज़रिए OTP पाएँ" विकल्प दें</string>
+    <string name="shared_otp_title">कोड दर्ज करें</string>
+    <string name="shared_otp_subtitle">हमने %1$s पर 6-अंकीय कोड भेजा</string>
+    <string name="shared_otp_resend">कोड फिर भेजें</string>
+    <string name="shared_otp_resend_in">%1$d सेकंड में फिर भेजें</string>
+    <string name="shared_otp_via_call">कॉल के ज़रिए OTP पाएँ</string>
+    <string name="shared_otp_change_number">नंबर बदलें</string>
+    <string name="shared_otp_error_wrong">गलत कोड, फिर कोशिश करें</string>
+    <string name="shared_otp_error_expired">कोड समाप्त — नया भेजें</string>
+    <string name="shared_otp_error_locked">बहुत ज़्यादा कोशिशें — नया कोड भेजें</string>
 </resources>

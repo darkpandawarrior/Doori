@@ -47,6 +47,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_auth_phone_login_desc",
                 defaultOn = false,
             ),
+            PluginDescriptor(
+                id = "otpViaCallEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.AUTH,
+                titleKey = "plugin_auth_otp_via_call_title",
+                descriptionKey = "plugin_auth_otp_via_call_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

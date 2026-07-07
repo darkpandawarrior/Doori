@@ -1921,4 +1921,17 @@
     <string name="shared_auth_phone_error_length">Enter a valid 10-digit number</string>
     <string name="shared_auth_otp_sent">OTP sent to %1$s</string>
     <string name="shared_auth_demo_code">Demo code: %1$s</string>
+
+    <!-- PLAN_V24 P1.2: OTP verification screen -->
+    <string name="plugin_auth_otp_via_call_title">OTP via call</string>
+    <string name="plugin_auth_otp_via_call_desc">Offer a "Get OTP via call" fallback on the OTP screen</string>
+    <string name="shared_otp_title">Enter the code</string>
+    <string name="shared_otp_subtitle">We sent a 6-digit code to %1$s</string>
+    <string name="shared_otp_resend">Resend code</string>
+    <string name="shared_otp_resend_in">Resend in %1$ds</string>
+    <string name="shared_otp_via_call">Get OTP via call</string>
+    <string name="shared_otp_change_number">Change number</string>
+    <string name="shared_otp_error_wrong">Incorrect code, try again</string>
+    <string name="shared_otp_error_expired">Code expired — resend a new one</string>
+    <string name="shared_otp_error_locked">Too many attempts — resend a new code</string>
 </resources>

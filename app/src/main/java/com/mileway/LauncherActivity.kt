@@ -131,8 +131,9 @@ private fun AppEntry(
     pluginRegistry: PluginRegistry = koinInject(),
 ) {
     val sessionScope = rememberCoroutineScope()
-    // PLAN_V24 P1.1: phone-OTP login is gated by the `phoneLoginEnabled` plugin (Consumer persona).
+    // PLAN_V24 P1.1/P1.2: phone-OTP login + via-call fallback, each gated by its plugin.
     val phoneLoginEnabled by pluginRegistry.observe("phoneLoginEnabled").collectAsStateWithLifecycle(initialValue = false)
+    val otpViaCallEnabled by pluginRegistry.observe("otpViaCallEnabled").collectAsStateWithLifecycle(initialValue = false)
     // A.1: the persisted session is the source of truth for "did the user pass login, and how".
     // null = still loading; once known we can skip the splash/login theatre for a returning user
     // (guest or credentials), so navigation, deep links and process recreation never bounce them.
@@ -219,6 +220,7 @@ private fun AppEntry(
                                         sessionScope.launch { sessionRepository.markWelcomeDisclaimerShown() }
                                     },
                                     phoneLoginEnabled = phoneLoginEnabled,
+                                    otpViaCallEnabled = otpViaCallEnabled,
                                 )
                             AppStage.PIN ->
                                 PinGateStage(hasPin = session?.hasPin == true, onPassed = { stage = AppStage.APP })
