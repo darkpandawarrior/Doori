@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,12 +79,12 @@ fun CreateEventScreen(
         submitLabel = stringResource(Res.string.events_publish_event),
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
-            SectionCard(title = stringResource(Res.string.events_section_event), leadingIcon = null) {
+            SectionCard(title = stringResource(Res.string.events_section_event), leadingIcon = Icons.Default.Event) {
                 Field(stringResource(Res.string.events_field_title), ui.title) { viewModel.onAction(CreateEventAction.SetTitle(it)) }
                 Field(stringResource(Res.string.events_field_venue), ui.venue) { viewModel.onAction(CreateEventAction.SetVenue(it)) }
                 Field(stringResource(Res.string.events_field_category), ui.category) { viewModel.onAction(CreateEventAction.SetCategory(it)) }
             }
-            SectionCard(title = stringResource(Res.string.events_section_schedule_capacity), leadingIcon = null) {
+            SectionCard(title = stringResource(Res.string.events_section_schedule_capacity), leadingIcon = Icons.Default.Schedule) {
                 Field(stringResource(Res.string.events_field_date), ui.date) { viewModel.onAction(CreateEventAction.SetDate(it)) }
                 Field(
                     stringResource(Res.string.events_field_capacity),
