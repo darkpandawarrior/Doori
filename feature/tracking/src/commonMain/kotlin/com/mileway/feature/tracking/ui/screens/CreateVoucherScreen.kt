@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -92,10 +92,10 @@ import com.mileway.core.ui.resources.tracking_voucher_summary_total
 import com.mileway.core.ui.resources.tracking_voucher_title_label
 import com.mileway.core.ui.resources.tracking_voucher_total
 import com.mileway.core.ui.resources.tracking_voucher_total_amount_label
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
-import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.viewmodel.CreateVoucherAction
 import com.mileway.feature.tracking.viewmodel.CreateVoucherUiState
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
@@ -154,12 +154,13 @@ fun CreateVoucherScreen(
                         TextButton(
                             shape = DesignTokens.Shape.button,
                             onClick = {
-                            if (uiState.selectedTokens.size == uiState.expenses.size) {
-                                viewModel.onAction(CreateVoucherAction.DeselectAll)
-                            } else {
-                                viewModel.onAction(CreateVoucherAction.SelectAll)
-                            }
-                        }) {
+                                if (uiState.selectedTokens.size == uiState.expenses.size) {
+                                    viewModel.onAction(CreateVoucherAction.DeselectAll)
+                                } else {
+                                    viewModel.onAction(CreateVoucherAction.SelectAll)
+                                }
+                            },
+                        ) {
                             Text(
                                 if (uiState.selectedTokens.size == uiState.expenses.size) {
                                     stringResource(Res.string.tracking_voucher_deselect_all)
@@ -507,7 +508,9 @@ private fun StepSuccess(
         Spacer(Modifier.height(32.dp))
         Button(
             shape = DesignTokens.Shape.button,
-            onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+            onClick = onBack,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
             Text(stringResource(Res.string.tracking_voucher_back_to_detail))
         }
     }

@@ -84,7 +84,9 @@ fun MultiSessionRestoreSheet(
             }
             OutlinedButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                onClick = onDismiss,
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+            ) {
                 Text(stringResource(Res.string.tracking_action_not_now), fontWeight = FontWeight.Bold)
             }
         }

@@ -236,8 +236,10 @@ private fun RemainingPill(remaining: Int) {
         }
     val content =
         if (allSet) DesignTokens.StatusColors.success else MaterialTheme.colorScheme.primary
-    Surface(shape = DesignTokens.Shape.button,
- color = container) {
+    Surface(
+        shape = DesignTokens.Shape.button,
+        color = container,
+    ) {
         Text(
             text = if (allSet) stringResource(Res.string.tracking_submit_ready) else stringResource(Res.string.tracking_submit_remaining, remaining),
             style = MaterialTheme.typography.labelMedium,

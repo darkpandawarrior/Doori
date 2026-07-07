@@ -181,17 +181,26 @@ fun TrackDetailScreen(
                         DropdownMenuItem(
                             text = { Text(stringResource(Res.string.tracking_cd_view_insights)) },
                             leadingIcon = { Icon(Icons.Default.Insights, contentDescription = null) },
-                            onClick = { showOverflowMenu = false; onOpenInsights() },
+                            onClick = {
+                                showOverflowMenu = false
+                                onOpenInsights()
+                            },
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(Res.string.tracking_cd_hardware_events)) },
                             leadingIcon = { Icon(Icons.Default.History, contentDescription = null) },
-                            onClick = { showOverflowMenu = false; onOpenHwEvents() },
+                            onClick = {
+                                showOverflowMenu = false
+                                onOpenHwEvents()
+                            },
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(Res.string.tracking_cd_data_preview)) },
                             leadingIcon = { Icon(Icons.Default.Analytics, contentDescription = null) },
-                            onClick = { showOverflowMenu = false; onOpenDataPreview() },
+                            onClick = {
+                                showOverflowMenu = false
+                                onOpenDataPreview()
+                            },
                         )
                     }
                 },
@@ -249,7 +258,9 @@ fun TrackDetailScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             FilledTonalButton(
                 shape = DesignTokens.Shape.button,
-                onClick = { showExportDialog = true }, modifier = Modifier.fillMaxWidth()) {
+                onClick = { showExportDialog = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.Download, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(
@@ -262,35 +273,45 @@ fun TrackDetailScreen(
             }
             FilledTonalButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onOpenMap, modifier = Modifier.fillMaxWidth()) {
+                onClick = onOpenMap,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.Map, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_view_route_map))
             }
             FilledTonalButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onOpenInsights, modifier = Modifier.fillMaxWidth()) {
+                onClick = onOpenInsights,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.Insights, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_trip_insights))
             }
             FilledTonalButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onOpenHwEvents, modifier = Modifier.fillMaxWidth()) {
+                onClick = onOpenHwEvents,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.History, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_hardware_events_btn))
             }
             FilledTonalButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onOpenRoutePoints, modifier = Modifier.fillMaxWidth()) {
+                onClick = onOpenRoutePoints,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.Place, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_route_points))
             }
             FilledTonalButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onOpenDataPreview, modifier = Modifier.fillMaxWidth()) {
+                onClick = onOpenDataPreview,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
                 Icon(Icons.Default.Analytics, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
                 Text(stringResource(Res.string.tracking_detail_data_preview))

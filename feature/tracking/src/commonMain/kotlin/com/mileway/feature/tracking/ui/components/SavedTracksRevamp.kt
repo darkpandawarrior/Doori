@@ -648,7 +648,8 @@ fun SubmissionSelectionRow(
         )
         TextButton(
             shape = DesignTokens.Shape.button,
-            onClick = onClearSelection) {
+            onClick = onClearSelection,
+        ) {
             Text(stringResource(Res.string.tracking_submission_clear_selection))
         }
     }
@@ -698,7 +699,8 @@ fun NoJourneysThisWeekState(
     ) {
         OutlinedButton(
             shape = DesignTokens.Shape.button,
-            onClick = onViewAll) {
+            onClick = onViewAll,
+        ) {
             Icon(Icons.AutoMirrored.Filled.ReceiptLong, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.badge))
             Spacer(Modifier.width(DesignTokens.Spacing.s))
             Text(stringResource(Res.string.tracking_saved_view_all))

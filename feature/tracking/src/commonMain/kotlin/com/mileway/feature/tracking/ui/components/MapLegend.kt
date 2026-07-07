@@ -28,8 +28,8 @@ import com.mileway.core.ui.resources.tracking_legend_mock
 import com.mileway.core.ui.resources.tracking_legend_normal
 import com.mileway.core.ui.resources.tracking_legend_paused
 import com.mileway.core.ui.resources.tracking_legend_slow
-import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayColors
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

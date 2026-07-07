@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayColors
 
 @Composable
 fun TogglePill(

@@ -172,7 +172,8 @@ fun RoutePointsScreen(
                                         )
                                         Button(
                                             shape = DesignTokens.Shape.button,
-                                            onClick = { points.retry() }) {
+                                            onClick = { points.retry() },
+                                        ) {
                                             Icon(
                                                 Icons.Default.Refresh,
                                                 contentDescription = null,
@@ -291,7 +292,8 @@ private fun RoutePointsMessage(
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             Button(
                 shape = DesignTokens.Shape.button,
-                onClick = onAction) { Text(actionLabel) }
+                onClick = onAction,
+            ) { Text(actionLabel) }
         }
     }
 }

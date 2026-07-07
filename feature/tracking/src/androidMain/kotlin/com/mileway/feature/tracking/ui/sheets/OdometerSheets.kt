@@ -139,7 +139,8 @@ fun OdometerReadingConfirmSheet(
                 )
                 TextButton(
                     shape = DesignTokens.Shape.button,
-                    onClick = { showManualDialog = true }) {
+                    onClick = { showManualDialog = true },
+                ) {
                     Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
                     Text("Manual Entry")
@@ -155,7 +156,9 @@ fun OdometerReadingConfirmSheet(
             ) {
                 OutlinedButton(
                     shape = DesignTokens.Shape.button,
-                    onClick = onRetake, modifier = Modifier.weight(1f)) { Text("Retake") }
+                    onClick = onRetake,
+                    modifier = Modifier.weight(1f),
+                ) { Text("Retake") }
                 Button(
                     shape = DesignTokens.Shape.button,
                     onClick = { onUseReading(displayedReading, false) },

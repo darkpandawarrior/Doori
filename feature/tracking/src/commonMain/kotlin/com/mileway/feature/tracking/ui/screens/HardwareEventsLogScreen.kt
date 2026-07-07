@@ -261,8 +261,11 @@ private fun HardwareEventItem(event: HardwareEvent) {
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = DesignTokens.Shape.button,
- color = color.copy(alpha = 0.15f), modifier = Modifier.size(36.dp)) {
+            Surface(
+                shape = DesignTokens.Shape.button,
+                color = color.copy(alpha = 0.15f),
+                modifier = Modifier.size(36.dp),
+            ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
                 }
@@ -300,8 +303,10 @@ private fun AudienceBadge(audience: EventAudience) {
             EventAudience.SUMMARY -> MilewayColors.success
             else -> MilewayColors.neutral
         }
-    Surface(shape = DesignTokens.Shape.button,
- color = color.copy(alpha = 0.12f)) {
+    Surface(
+        shape = DesignTokens.Shape.button,
+        color = color.copy(alpha = 0.12f),
+    ) {
         Text(
             audience.name.take(3),
             style = MaterialTheme.typography.labelSmall,

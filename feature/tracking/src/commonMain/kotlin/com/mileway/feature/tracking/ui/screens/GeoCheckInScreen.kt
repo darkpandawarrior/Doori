@@ -296,14 +296,16 @@ fun GeoCheckInScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
                         OutlinedButton(
                             shape = DesignTokens.Shape.button,
-                            onClick = { openInMaps() }) {
+                            onClick = { openInMaps() },
+                        ) {
                             Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.tracking_open_in_maps))
                         }
                         OutlinedButton(
                             shape = DesignTokens.Shape.button,
-                            onClick = { copyCoords() }) {
+                            onClick = { copyCoords() },
+                        ) {
                             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
                             Text(stringResource(Res.string.tracking_action_copy))

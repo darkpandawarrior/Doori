@@ -307,8 +307,10 @@ private fun ChecklistRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (isComplete) {
-                Surface(shape = DesignTokens.Shape.button,
- color = MaterialTheme.colorScheme.primary) {
+                Surface(
+                    shape = DesignTokens.Shape.button,
+                    color = MaterialTheme.colorScheme.primary,
+                ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,

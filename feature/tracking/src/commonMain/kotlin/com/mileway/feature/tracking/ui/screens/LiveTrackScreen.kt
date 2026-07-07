@@ -33,8 +33,8 @@ import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_cd_open_map
 import com.mileway.core.ui.resources.tracking_live_subtitle
 import com.mileway.core.ui.resources.tracking_live_title
-import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.ui.components.LiveHealthMonitorCard
 import com.mileway.feature.tracking.ui.components.LiveSyncStatusCard
 import com.mileway.feature.tracking.ui.components.LiveTrackingOverviewCard
@@ -79,7 +79,8 @@ fun LiveTrackScreen(
         floatingActionButton = {
             FloatingActionButton(
                 shape = DesignTokens.Shape.button,
-                onClick = onOpenMap) {
+                onClick = onOpenMap,
+            ) {
                 Icon(Icons.Default.Map, contentDescription = stringResource(Res.string.tracking_cd_open_map))
             }
         },

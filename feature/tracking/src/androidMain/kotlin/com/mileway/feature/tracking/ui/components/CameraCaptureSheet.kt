@@ -106,15 +106,17 @@ fun CameraCaptureSheet(
                             OutlinedButton(
                                 shape = DesignTokens.Shape.button,
                                 onClick = {
-                                capturedUri = null
-                                ocr = null
-                            }) { Text("Retake") }
+                                    capturedUri = null
+                                    ocr = null
+                                },
+                            ) { Text("Retake") }
                             Button(
                                 shape = DesignTokens.Shape.button,
                                 onClick = {
-                                onOdometerReading(result.detectedOdometer.orEmpty())
-                                onDismiss()
-                            }) { Text("Use reading") }
+                                    onOdometerReading(result.detectedOdometer.orEmpty())
+                                    onDismiss()
+                                },
+                            ) { Text("Use reading") }
                         }
                     }
                 }

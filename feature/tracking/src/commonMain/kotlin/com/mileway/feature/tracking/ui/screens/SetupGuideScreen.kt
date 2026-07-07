@@ -252,7 +252,8 @@ private fun SetupStepRow(
             } else {
                 Button(
                     shape = DesignTokens.Shape.button,
-                    onClick = onAction) {
+                    onClick = onAction,
+                ) {
                     Icon(Icons.Filled.GpsFixed, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(Res.string.tracking_action_configure))

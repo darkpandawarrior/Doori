@@ -846,7 +846,8 @@ fun MarkerInfoDialog(
                 Text(stringResource(Res.string.tracking_map_marker_type, marker.type), style = MaterialTheme.typography.bodySmall)
                 Button(
                     shape = DesignTokens.Shape.button,
-                    onClick = onDismiss) { Text(stringResource(Res.string.tracking_action_close)) }
+                    onClick = onDismiss,
+                ) { Text(stringResource(Res.string.tracking_action_close)) }
             }
         }
     }

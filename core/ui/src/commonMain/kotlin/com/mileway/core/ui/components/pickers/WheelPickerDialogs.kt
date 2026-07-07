@@ -68,7 +68,11 @@ fun WheelDatePickerDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_cancel)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.action_cancel)) }
             Button(
                 onClick = { onConfirm(snapped.toEpochMillis()) },
                 modifier = Modifier.weight(1f),
@@ -108,7 +112,11 @@ fun WheelTimePickerDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_cancel)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.action_cancel)) }
             Button(
                 onClick = { onConfirm(snapped.hour, snapped.minute) },
                 modifier = Modifier.weight(1f),
