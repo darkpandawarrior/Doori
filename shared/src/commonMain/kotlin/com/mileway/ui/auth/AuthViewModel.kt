@@ -2,6 +2,9 @@ package com.mileway.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.otp.LocalOtpEngine
+import com.mileway.core.data.otp.OtpDelivery
+import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.network.model.DemoAccount
 import com.mileway.feature.profile.repository.MockAccountRepository
@@ -86,9 +89,17 @@ sealed interface MilewayAuthState {
 class AuthViewModel(
     private val mockAccountRepository: MockAccountRepository,
     private val activeAccountSource: ActiveAccountSource,
+    // PLAN_V24 P1.1: defaulted so direct-construction tests and previews still compile; Koin
+    // injects the shared singleton so the delivery reaches P1.2's OTP screen.
+    private val localOtpEngine: LocalOtpEngine = LocalOtpEngine(),
 ) : ViewModel() {
     private val _state = MutableStateFlow<MilewayAuthState>(MilewayAuthState.Idle)
     val state: StateFlow<MilewayAuthState> = _state.asStateFlow()
+
+    private val _lastLoginOtp = MutableStateFlow<OtpDelivery?>(null)
+
+    /** The last dispatched login OTP (phone mode) — the screen surfaces its code as a demo hint. */
+    val lastLoginOtp: StateFlow<OtpDelivery?> = _lastLoginOtp.asStateFlow()
 
     /** Live, DAO-ordered list of switchable demo personas the picker offers. */
     val personas: StateFlow<List<DemoAccount>> =
@@ -110,6 +121,23 @@ class AuthViewModel(
     /** Records the picked persona; the picker sheet then dismisses itself. */
     fun selectPersona(accountId: String) {
         _selectedPersonaId.value = accountId
+    }
+
+    /**
+     * PLAN_V24 P1.1: validate a phone number (the reference app rules) and, if valid, dispatch a LOGIN OTP via
+     * the shared [LocalOtpEngine]. Returns the validation so the screen can surface field errors;
+     * on success [lastLoginOtp] carries the deterministic demo code for the OTP screen (P1.2).
+     */
+    fun sendLoginOtp(
+        dialCode: String,
+        phone: String,
+    ): PhoneValidation {
+        val validation = PhoneNumberValidator.validate(phone)
+        if (validation is PhoneValidation.Valid) {
+            val target = PhoneNumberValidator.fullNumber(dialCode, validation.nationalNumber)
+            _lastLoginOtp.value = localOtpEngine.send(OtpPurpose.LOGIN, target)
+        }
+        return validation
     }
 
     /** Begins the staged sign-in sequence. No-op if a sequence is already in flight. */

@@ -22,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.common.deeplink.DeepLinkRouter
 import com.mileway.core.common.deeplink.DeepLinkValidator
+import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.SessionState
 import com.mileway.core.network.config.ConfigProvider
@@ -127,8 +128,11 @@ private fun AppEntry(
     themeController: ThemeController = koinInject(),
     configProvider: ConfigProvider = koinInject(),
     sessionRepository: SessionRepository = koinInject(),
+    pluginRegistry: PluginRegistry = koinInject(),
 ) {
     val sessionScope = rememberCoroutineScope()
+    // PLAN_V24 P1.1: phone-OTP login is gated by the `phoneLoginEnabled` plugin (Consumer persona).
+    val phoneLoginEnabled by pluginRegistry.observe("phoneLoginEnabled").collectAsStateWithLifecycle(initialValue = false)
     // A.1: the persisted session is the source of truth for "did the user pass login, and how".
     // null = still loading; once known we can skip the splash/login theatre for a returning user
     // (guest or credentials), so navigation, deep links and process recreation never bounce them.
@@ -214,6 +218,7 @@ private fun AppEntry(
                                     onWelcomeDisclaimerShown = {
                                         sessionScope.launch { sessionRepository.markWelcomeDisclaimerShown() }
                                     },
+                                    phoneLoginEnabled = phoneLoginEnabled,
                                 )
                             AppStage.PIN ->
                                 PinGateStage(hasPin = session?.hasPin == true, onPassed = { stage = AppStage.APP })

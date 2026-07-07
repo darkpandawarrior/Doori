@@ -1905,4 +1905,16 @@
     <string name="persona_gig_driver_desc">गिग पहचान — सत्यापन, गैराज, दरें, प्लान, टूर।</string>
     <string name="persona_minimal_guest_name">न्यूनतम अतिथि</string>
     <string name="persona_minimal_guest_desc">केवल ट्रैकिंग और लॉगिंग।</string>
+
+    <!-- PLAN_V24 P1.1: phone-number login mode -->
+    <string name="plugin_auth_phone_login_title">फ़ोन नंबर लॉगिन</string>
+    <string name="plugin_auth_phone_login_desc">ईमेल के बजाय फ़ोन नंबर और OTP से साइन इन करें</string>
+    <string name="shared_auth_use_phone">फ़ोन नंबर का उपयोग करें</string>
+    <string name="shared_auth_use_email">ईमेल का उपयोग करें</string>
+    <string name="shared_auth_phone_label">फ़ोन नंबर</string>
+    <string name="shared_auth_send_otp">OTP भेजें</string>
+    <string name="shared_auth_phone_error_empty">अपना फ़ोन नंबर दर्ज करें</string>
+    <string name="shared_auth_phone_error_length">मान्य 10-अंकीय नंबर दर्ज करें</string>
+    <string name="shared_auth_otp_sent">%1$s पर OTP भेजा गया</string>
+    <string name="shared_auth_demo_code">डेमो कोड: %1$s</string>
 </resources>

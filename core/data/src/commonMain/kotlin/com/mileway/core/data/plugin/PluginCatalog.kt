@@ -33,8 +33,24 @@ object PluginCatalog {
             coreModule("marketingStrip"),
         )
 
+    /**
+     * Auth-depth plugins (P1). Each defaults OFF — the email/password flow is the baseline; a
+     * persona preset (P0.2) turns these on (e.g. Super-App Consumer → phone login).
+     */
+    val authPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "phoneLoginEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.AUTH,
+                titleKey = "plugin_auth_phone_login_title",
+                descriptionKey = "plugin_auth_phone_login_desc",
+                defaultOn = false,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
-    val all: List<PluginDescriptor> = coreModulePlugins
+    val all: List<PluginDescriptor> = coreModulePlugins + authPlugins
 
     private val byId: Map<String, PluginDescriptor> = all.associateBy { it.id }
 

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.Lock
@@ -39,6 +41,8 @@ import androidx.compose.material.icons.outlined.MailOutline
 import androidx.compose.material.icons.outlined.SwitchAccount
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -79,12 +83,20 @@ import com.mileway.core.ui.resources.auth_continue_guest
 import com.mileway.core.ui.resources.auth_email
 import com.mileway.core.ui.resources.auth_password
 import com.mileway.core.ui.resources.auth_sign_in
+import com.mileway.core.ui.resources.shared_auth_demo_code
 import com.mileway.core.ui.resources.shared_auth_email_error
 import com.mileway.core.ui.resources.shared_auth_hide_password
+import com.mileway.core.ui.resources.shared_auth_otp_sent
 import com.mileway.core.ui.resources.shared_auth_password_error
 import com.mileway.core.ui.resources.shared_auth_password_placeholder
+import com.mileway.core.ui.resources.shared_auth_phone_error_empty
+import com.mileway.core.ui.resources.shared_auth_phone_error_length
+import com.mileway.core.ui.resources.shared_auth_phone_label
+import com.mileway.core.ui.resources.shared_auth_send_otp
 import com.mileway.core.ui.resources.shared_auth_show_password
 import com.mileway.core.ui.resources.shared_auth_signing_in
+import com.mileway.core.ui.resources.shared_auth_use_email
+import com.mileway.core.ui.resources.shared_auth_use_phone
 import com.mileway.core.ui.resources.shared_login_cd_choose_persona
 import com.mileway.core.ui.resources.shared_login_demo_mode_subtitle
 import com.mileway.core.ui.resources.shared_login_demo_mode_title
@@ -181,6 +193,10 @@ fun LoginScreen(
     // Android-only runtime permission request, injected by the host (:app's PermissionsController).
     // Defaulted so the screen stays commonMain/previewable and iOS (no runtime prompt) is a no-op.
     onRequestPermissions: () -> Unit = {},
+    // PLAN_V24 P1.1: phone-OTP login mode. Gated by the `phoneLoginEnabled` plugin — the host reads
+    // the registry and passes the resolved value. Defaulted off so email/password stays the
+    // baseline (and direct-construction tests/previews see today's flow unchanged).
+    phoneLoginEnabled: Boolean = false,
     authViewModel: AuthViewModel = koinViewModel(),
 ) {
     val currentOnCredentials by rememberUpdatedState(onSignInWithCredentials)
@@ -191,6 +207,13 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var isGuestPath by remember { mutableStateOf(false) }
     var attemptedSubmit by remember { mutableStateOf(false) }
+
+    // P1.1: phone-login mode state (only reachable when phoneLoginEnabled).
+    var usePhoneMode by remember { mutableStateOf(false) }
+    var phone by remember { mutableStateOf("") }
+    var selectedCountry by remember { mutableStateOf(DEFAULT_COUNTRY_CODE) }
+    var phoneError by remember { mutableStateOf<PhoneValidation?>(null) }
+    val lastLoginOtp by authViewModel.lastLoginOtp.collectAsStateWithLifecycle()
 
     val authState by authViewModel.state.collectAsStateWithLifecycle()
     val isSigningIn = authState !is MilewayAuthState.Idle
@@ -261,40 +284,65 @@ fun LoginScreen(
 
             Spacer(Modifier.height(DesignTokens.Spacing.xl))
 
-            CredentialFields(
-                email = email,
-                onEmailChange = { email = it },
-                password = password,
-                onPasswordChange = { password = it },
-                passwordVisible = passwordVisible,
-                onTogglePasswordVisible = { passwordVisible = !passwordVisible },
-                emailError = attemptedSubmit && !emailValid,
-                passwordError = attemptedSubmit && !passwordValid,
-                enabled = !isSigningIn,
-                onImeDone = ::attemptCredentialsSignIn,
-            )
+            if (phoneLoginEnabled) {
+                AuthModeToggle(
+                    usePhoneMode = usePhoneMode,
+                    onToggle = { usePhoneMode = it },
+                    enabled = !isSigningIn,
+                )
+                Spacer(Modifier.height(DesignTokens.Spacing.l))
+            }
 
-            Spacer(Modifier.height(DesignTokens.Spacing.xl))
+            if (phoneLoginEnabled && usePhoneMode) {
+                PhoneLoginFields(
+                    country = selectedCountry,
+                    onCountryChange = { selectedCountry = it },
+                    phone = phone,
+                    onPhoneChange = {
+                        phone = it
+                        phoneError = null
+                    },
+                    validation = phoneError,
+                    enabled = !isSigningIn,
+                    delivery = lastLoginOtp,
+                    onSendOtp = { phoneError = authViewModel.sendLoginOtp(selectedCountry.dialCode, phone) },
+                )
+            } else {
+                CredentialFields(
+                    email = email,
+                    onEmailChange = { email = it },
+                    password = password,
+                    onPasswordChange = { password = it },
+                    passwordVisible = passwordVisible,
+                    onTogglePasswordVisible = { passwordVisible = !passwordVisible },
+                    emailError = attemptedSubmit && !emailValid,
+                    passwordError = attemptedSubmit && !passwordValid,
+                    enabled = !isSigningIn,
+                    onImeDone = ::attemptCredentialsSignIn,
+                )
 
-            Button(
-                onClick = ::attemptCredentialsSignIn,
-                enabled = canSubmit,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                shape = DesignTokens.Shape.roundedMd,
-            ) {
-                if (isSigningIn) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                    Spacer(Modifier.width(DesignTokens.Spacing.m))
-                    Text(stringResource(Res.string.shared_auth_signing_in), fontWeight = FontWeight.SemiBold)
-                } else {
-                    Text(stringResource(Res.string.auth_sign_in), fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(DesignTokens.Spacing.xl))
+
+                Button(
+                    onClick = ::attemptCredentialsSignIn,
+                    enabled = canSubmit,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                    shape = DesignTokens.Shape.roundedMd,
+                ) {
+                    if (isSigningIn) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                        Spacer(Modifier.width(DesignTokens.Spacing.m))
+                        Text(stringResource(Res.string.shared_auth_signing_in), fontWeight = FontWeight.SemiBold)
+                    } else {
+                        Text(stringResource(Res.string.auth_sign_in), fontWeight = FontWeight.SemiBold)
+                    }
                 }
             }
 
@@ -786,5 +834,151 @@ private fun CredentialFields(
             keyboardActions = KeyboardActions(onDone = { onImeDone() }),
             shape = DesignTokens.Shape.roundedMd,
         )
+    }
+}
+
+/**
+ * PLAN_V24 P1.1: email ↔ phone mode switch, shown only when the `phoneLoginEnabled` plugin is on
+ * (Super-App Consumer persona). A pair of text buttons rather than a segmented control — matches
+ * Mileway's minimal auth idiom.
+ */
+@Composable
+private fun AuthModeToggle(
+    usePhoneMode: Boolean,
+    onToggle: (Boolean) -> Unit,
+    enabled: Boolean,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TextButton(onClick = { onToggle(false) }, enabled = enabled && usePhoneMode) {
+            Text(stringResource(Res.string.shared_auth_use_email))
+        }
+        Text("·", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        TextButton(onClick = { onToggle(true) }, enabled = enabled && !usePhoneMode) {
+            Text(stringResource(Res.string.shared_auth_use_phone))
+        }
+    }
+}
+
+/**
+ * PLAN_V24 P1.1: phone + country-code entry with the reference app' validation rules ([PhoneNumberValidator]),
+ * a "Send OTP" action wired to the shared [com.mileway.core.data.otp.LocalOtpEngine], and — since
+ * this is an offline demo — the dispatched code surfaced inline. The full 6-box entry + verify is
+ * P1.2; here Send OTP proves the number is valid and dispatches the deterministic code.
+ */
+@Composable
+private fun PhoneLoginFields(
+    country: CountryDialCode,
+    onCountryChange: (CountryDialCode) -> Unit,
+    phone: String,
+    onPhoneChange: (String) -> Unit,
+    validation: PhoneValidation?,
+    enabled: Boolean,
+    delivery: com.mileway.core.data.otp.OtpDelivery?,
+    onSendOtp: () -> Unit,
+) {
+    Column {
+        Row(verticalAlignment = Alignment.Top) {
+            var menuOpen by remember { mutableStateOf(false) }
+            Box {
+                OutlinedTextField(
+                    value = country.dialCode,
+                    onValueChange = {},
+                    readOnly = true,
+                    enabled = enabled,
+                    singleLine = true,
+                    label = { Text(country.isoCode) },
+                    modifier =
+                        Modifier
+                            .width(104.dp)
+                            .clickable(enabled = enabled) { menuOpen = true },
+                    shape = DesignTokens.Shape.roundedMd,
+                )
+                // A transparent overlay guarantees the tap opens the menu even over the field.
+                Box(
+                    modifier =
+                        Modifier
+                            .matchParentSize()
+                            .clickable(enabled = enabled) { menuOpen = true },
+                )
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    LOGIN_COUNTRY_CODES.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text("${option.name} (${option.dialCode})") },
+                            onClick = {
+                                onCountryChange(option)
+                                menuOpen = false
+                            },
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.width(DesignTokens.Spacing.m))
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = onPhoneChange,
+                modifier = Modifier.weight(1f),
+                enabled = enabled,
+                singleLine = true,
+                isError = validation is PhoneValidation.Empty || validation is PhoneValidation.WrongLength,
+                label = { Text(stringResource(Res.string.shared_auth_phone_label)) },
+                leadingIcon = { Icon(Icons.Filled.Phone, contentDescription = null) },
+                supportingText =
+                    when (validation) {
+                        is PhoneValidation.Empty -> {
+                            { Text(stringResource(Res.string.shared_auth_phone_error_empty)) }
+                        }
+                        is PhoneValidation.WrongLength -> {
+                            { Text(stringResource(Res.string.shared_auth_phone_error_length)) }
+                        }
+                        else -> null
+                    },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { onSendOtp() }),
+                shape = DesignTokens.Shape.roundedMd,
+            )
+        }
+
+        Spacer(Modifier.height(DesignTokens.Spacing.l))
+
+        Button(
+            onClick = onSendOtp,
+            enabled = enabled,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+            shape = DesignTokens.Shape.roundedMd,
+        ) {
+            Text(stringResource(Res.string.shared_auth_send_otp), fontWeight = FontWeight.SemiBold)
+        }
+
+        if (delivery != null) {
+            Spacer(Modifier.height(DesignTokens.Spacing.m))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.roundedMd,
+                color = MaterialTheme.colorScheme.secondaryContainer,
+            ) {
+                Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
+                    Text(
+                        text = stringResource(Res.string.shared_auth_otp_sent, delivery.target),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                    Text(
+                        text = stringResource(Res.string.shared_auth_demo_code, delivery.code),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                }
+            }
+        }
     }
 }

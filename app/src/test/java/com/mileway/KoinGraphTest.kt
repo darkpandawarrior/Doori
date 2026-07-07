@@ -197,6 +197,24 @@ class KoinGraphTest : KoinTest {
         single<ShareSheet> { mockk(relaxed = true) }
         single<PermissionsProvider> { mockk(relaxed = true) }
         single<UrlOpener> { mockk(relaxed = true) }
+        // PLAN_V24 P0: the plugin registry + engines coreDataModule provides, mirrored here so
+        // ViewModels that depend on them (AuthViewModel/PluginManagerViewModel and every later
+        // V24 VM) are constructible against the fake data layer. PersonaPresetProvider comes from
+        // stubModule (StubPersonaPresetProvider).
+        single { com.mileway.core.data.otp.LocalOtpEngine() }
+        single { com.mileway.core.data.review.SimulatedReviewEngine() }
+        single<com.mileway.core.data.dao.PluginOverrideDao> { mockk(relaxed = true) }
+        single<com.mileway.core.data.plugin.PluginDebugForceSource> {
+            com.mileway.core.data.plugin.InMemoryPluginDebugForceSource()
+        }
+        single {
+            com.mileway.core.data.plugin.PluginRegistry(
+                overrideDao = get(),
+                activeAccount = get(),
+                presets = get(),
+                debugForce = get(),
+            )
+        }
     }
 
     @Before
@@ -260,6 +278,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<ConnectedAccountsViewModel>())
         assertNotNull(get<StorageViewModel>())
         assertNotNull(get<SyncDiagnosticsViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.PluginManagerViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<PayablesViewModel>())

@@ -1909,4 +1909,16 @@
     <string name="persona_gig_driver_desc">Gig identity — verification, garage, rates, plans, tours.</string>
     <string name="persona_minimal_guest_name">Minimal Guest</string>
     <string name="persona_minimal_guest_desc">Tracking and logging only.</string>
+
+    <!-- PLAN_V24 P1.1: phone-number login mode -->
+    <string name="plugin_auth_phone_login_title">Phone number login</string>
+    <string name="plugin_auth_phone_login_desc">Sign in with a phone number and OTP instead of email</string>
+    <string name="shared_auth_use_phone">Use phone number</string>
+    <string name="shared_auth_use_email">Use email</string>
+    <string name="shared_auth_phone_label">Phone number</string>
+    <string name="shared_auth_send_otp">Send OTP</string>
+    <string name="shared_auth_phone_error_empty">Enter your phone number</string>
+    <string name="shared_auth_phone_error_length">Enter a valid 10-digit number</string>
+    <string name="shared_auth_otp_sent">OTP sent to %1$s</string>
+    <string name="shared_auth_demo_code">Demo code: %1$s</string>
 </resources>
