@@ -68,7 +68,6 @@ data class LogMilesUiState(
     val journeyDateMillis: Long? = null,
     val journeyTimeMinutes: Int? = null,
     val saveAsDraft: Boolean = false,
-    val recentLocations: List<LocationEntry> = emptyList(),
     /** Wave 3: most-used routes, for one-tap retrace (see [LogMilesAction.RetraceRoute]). */
     val frequentRoutes: List<LogMilesFrequentRoute> = emptyList(),
     /**
@@ -209,8 +208,6 @@ sealed interface LogMilesAction {
 
     data class MoveStopDown(val index: Int) : LogMilesAction
 
-    data object ClearRecentLocations : LogMilesAction
-
     /** Wave 3: pre-fills the form's stops from a cached [LogMilesFrequentRoute] (one-tap retrace). */
     data class RetraceRoute(val routeKey: String) : LogMilesAction
 
@@ -348,7 +345,6 @@ class LogMilesViewModel(
             }
             is LogMilesAction.MoveStopUp -> reorder(action.index, action.index - 1)
             is LogMilesAction.MoveStopDown -> reorder(action.index, action.index + 1)
-            LogMilesAction.ClearRecentLocations -> setState { copy(recentLocations = emptyList()) }
             is LogMilesAction.RetraceRoute -> retraceRoute(action.routeKey)
             is LogMilesAction.OverrideDistance -> {
                 setState { copy(distanceKm = action.km, isDistanceOverridden = true) }
@@ -396,12 +392,7 @@ class LogMilesViewModel(
 
     private fun addStop(entry: LocationEntry) {
         val stop = LocationStop(id = stopIdCounter++, entry = entry)
-        setState {
-            copy(
-                stops = stops + stop,
-                recentLocations = (listOf(entry) + recentLocations).distinctBy { it.name }.take(8),
-            )
-        }
+        setState { copy(stops = stops + stop) }
         recomputeDistance()
     }
 
@@ -414,10 +405,7 @@ class LogMilesViewModel(
             val list = stops.toMutableList()
             val target = (afterIndex + 1).coerceIn(0, list.size)
             list.add(target, stop)
-            copy(
-                stops = list,
-                recentLocations = (listOf(entry) + recentLocations).distinctBy { it.name }.take(8),
-            )
+            copy(stops = list)
         }
         recomputeDistance()
     }
@@ -582,7 +570,6 @@ class LogMilesViewModel(
                 isLoadingServices = false,
                 drafts = drafts,
                 submitted = submitted,
-                recentLocations = recentLocations,
                 // The capture flag mirrors a persisted setting, not per-submission form state.
                 odometerCaptureEnabled = odometerCaptureEnabled,
             )
