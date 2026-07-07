@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Icon
@@ -30,6 +29,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.agent_cd_open_assistant
+import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AssistantFab(
@@ -63,8 +66,8 @@ fun AssistantFab(
             modifier
                 .offset { IntOffset(animatedOffsetX.roundToPx(), animatedOffsetY.roundToPx()) }
                 .size(fabSizeDp)
-                .shadow(8.dp, CircleShape)
-                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                .shadow(8.dp, DesignTokens.Shape.button)
+                .background(MaterialTheme.colorScheme.primary, DesignTokens.Shape.button)
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = { isDragging = true },
@@ -95,7 +98,7 @@ fun AssistantFab(
     ) {
         Icon(
             Icons.Filled.AutoAwesome,
-            contentDescription = "Open AI assistant",
+            contentDescription = stringResource(Res.string.agent_cd_open_assistant),
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(24.dp),
         )

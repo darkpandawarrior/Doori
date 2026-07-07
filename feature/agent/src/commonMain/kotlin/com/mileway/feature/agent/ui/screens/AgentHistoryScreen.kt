@@ -30,10 +30,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.agent_history_subtitle
+import com.mileway.core.ui.resources.agent_plural_messages
+import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.agent.model.AgentConversation
 import com.mileway.feature.agent.viewmodel.AgentAction
 import com.mileway.feature.agent.viewmodel.AgentViewModel
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,11 +55,12 @@ fun AgentHistoryScreen(
         topBar = {
             DepthAwareTopBar(
                 title = "Chat History",
-                subtitle = "Previous AI conversations",
+                subtitle = stringResource(Res.string.agent_history_subtitle),
                 depth = NavigationDepth.LEVEL_1,
+                titleIcon = Icons.Filled.ChatBubbleOutline,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
                     }
                 },
             )
@@ -106,7 +113,7 @@ private fun ConversationRow(
                 fontWeight = FontWeight.Medium,
             )
             Text(
-                text = "${conversation.messages.size} messages",
+                text = pluralStringResource(Res.plurals.agent_plural_messages, conversation.messages.size, conversation.messages.size),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

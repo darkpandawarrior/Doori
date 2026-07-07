@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Icon
@@ -28,6 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.agent_ask_mileway
+import com.mileway.core.ui.resources.agent_cd_open_assistant
+import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 enum class ChatIndicatorMode { FULL, COMPACT }
 
@@ -53,7 +57,7 @@ fun ChatAgentIndicator(
         contentAlignment = Alignment.Center,
         modifier =
             modifier
-                .clip(RoundedCornerShape(20.dp))
+                .clip(DesignTokens.Shape.button)
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .clickable(onClick = onClick)
                 .padding(horizontal = if (mode == ChatIndicatorMode.FULL) 12.dp else 8.dp, vertical = 6.dp),
@@ -64,7 +68,7 @@ fun ChatAgentIndicator(
         ) {
             Icon(
                 Icons.Filled.AutoAwesome,
-                contentDescription = "Open AI assistant",
+                contentDescription = if (mode == ChatIndicatorMode.COMPACT) stringResource(Res.string.agent_cd_open_assistant) else null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier =
                     Modifier
@@ -73,7 +77,7 @@ fun ChatAgentIndicator(
             )
             if (mode == ChatIndicatorMode.FULL) {
                 Text(
-                    "Ask Mileway",
+                    stringResource(Res.string.agent_ask_mileway),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )

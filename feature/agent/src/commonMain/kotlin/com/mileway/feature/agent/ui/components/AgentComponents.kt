@@ -28,8 +28,15 @@ import androidx.compose.ui.unit.dp
 import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.agent_cd_helpful
+import com.mileway.core.ui.resources.agent_cd_not_helpful
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.TerminalType
 import com.mileway.feature.agent.model.AgentMessage
+import org.jetbrains.compose.resources.stringResource
+
+private val USER_BUBBLE_SHAPE = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 12.dp, bottomEnd = 4.dp)
 
 private val EMBER_ACCENT = Color(0xFFF5A623)
 private val EMBER_DIM = Color(0xFFB87A1C)
@@ -52,15 +59,8 @@ fun AgentMessageBubble(
                 modifier =
                     Modifier
                         .widthIn(max = 300.dp)
-                        .background(
-                            Color(0xFF3A2A12),
-                            RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 8.dp, bottomEnd = 2.dp),
-                        )
-                        .border(
-                            1.dp,
-                            TERMINAL_BORDER,
-                            RoundedCornerShape(topStart = 2.dp, topEnd = 2.dp, bottomStart = 8.dp, bottomEnd = 2.dp),
-                        )
+                        .background(Color(0xFF3A2A12), USER_BUBBLE_SHAPE)
+                        .border(1.dp, TERMINAL_BORDER, USER_BUBBLE_SHAPE)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -84,12 +84,12 @@ fun AgentMessageBubble(
                         .widthIn(max = 340.dp)
                         .background(
                             Color(0xFF0B0806),
-                            RoundedCornerShape(2.dp),
+                            DesignTokens.Shape.button,
                         )
                         .border(
                             1.dp,
                             TERMINAL_BORDER,
-                            RoundedCornerShape(2.dp),
+                            DesignTokens.Shape.button,
                         )
                         .padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
@@ -115,7 +115,7 @@ fun AgentMessageBubble(
                 IconButton(onClick = { onFeedback(1) }, modifier = Modifier.size(32.dp)) {
                     Icon(
                         Icons.Filled.ThumbUp,
-                        contentDescription = "Helpful",
+                        contentDescription = stringResource(Res.string.agent_cd_helpful),
                         tint = if (feedbackRating == 1) EMBER_ACCENT else EMBER_DIM,
                         modifier = Modifier.size(16.dp),
                     )
@@ -123,7 +123,7 @@ fun AgentMessageBubble(
                 IconButton(onClick = { onFeedback(-1) }, modifier = Modifier.size(32.dp)) {
                     Icon(
                         Icons.Filled.ThumbDown,
-                        contentDescription = "Not helpful",
+                        contentDescription = stringResource(Res.string.agent_cd_not_helpful),
                         tint = if (feedbackRating == -1) MaterialTheme.colorScheme.error else EMBER_DIM,
                         modifier = Modifier.size(16.dp),
                     )
@@ -143,8 +143,8 @@ fun AgentStreamingBubble(
             modifier =
                 Modifier
                     .widthIn(max = 340.dp)
-                    .background(Color(0xFF0B0806), RoundedCornerShape(2.dp))
-                    .border(1.dp, TERMINAL_BORDER, RoundedCornerShape(2.dp))
+                    .background(Color(0xFF0B0806), DesignTokens.Shape.button)
+                    .border(1.dp, TERMINAL_BORDER, DesignTokens.Shape.button)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
             Text(
@@ -173,8 +173,8 @@ fun AgentThinkingIndicator(phrase: String) {
         Column(
             modifier =
                 Modifier
-                    .background(Color(0xFF0B0806), RoundedCornerShape(2.dp))
-                    .border(1.dp, TERMINAL_BORDER, RoundedCornerShape(2.dp))
+                    .background(Color(0xFF0B0806), DesignTokens.Shape.button)
+                    .border(1.dp, TERMINAL_BORDER, DesignTokens.Shape.button)
                     .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
             Text(

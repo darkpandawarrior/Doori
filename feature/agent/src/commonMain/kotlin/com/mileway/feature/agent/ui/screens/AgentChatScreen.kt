@@ -27,21 +27,25 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -78,6 +82,35 @@ import com.mileway.core.ui.components.CrtVignette
 import com.mileway.core.ui.components.PhosphorDotGrid
 import com.mileway.core.ui.components.ScanlineOverlay
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_cancel
+import com.mileway.core.ui.resources.agent_action_submit
+import com.mileway.core.ui.resources.agent_asked_count
+import com.mileway.core.ui.resources.agent_cd_export
+import com.mileway.core.ui.resources.agent_cd_history
+import com.mileway.core.ui.resources.agent_cd_send
+import com.mileway.core.ui.resources.agent_cd_start_voice
+import com.mileway.core.ui.resources.agent_cd_stop_voice
+import com.mileway.core.ui.resources.agent_cd_toggle_voice_mode
+import com.mileway.core.ui.resources.agent_export_unavailable
+import com.mileway.core.ui.resources.agent_input_placeholder
+import com.mileway.core.ui.resources.agent_prompt_mileage_policy
+import com.mileway.core.ui.resources.agent_prompt_pending_approvals
+import com.mileway.core.ui.resources.agent_prompt_plan_trip
+import com.mileway.core.ui.resources.agent_prompt_summarise_week
+import com.mileway.core.ui.resources.agent_prompt_travel_spend
+import com.mileway.core.ui.resources.agent_prompt_why_rejected
+import com.mileway.core.ui.resources.agent_question_submitted
+import com.mileway.core.ui.resources.agent_status_online
+import com.mileway.core.ui.resources.agent_submit_question_placeholder
+import com.mileway.core.ui.resources.agent_submit_question_title
+import com.mileway.core.ui.resources.agent_system_ready
+import com.mileway.core.ui.resources.agent_tab_chat
+import com.mileway.core.ui.resources.agent_tab_popular
+import com.mileway.core.ui.resources.agent_tab_unanswered
+import com.mileway.core.ui.resources.agent_trending_badge
+import com.mileway.core.ui.resources.core_cd_back
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.TerminalType
 import com.mileway.feature.agent.model.AgentMessage
@@ -92,6 +125,7 @@ import com.mileway.feature.agent.viewmodel.AgentAction
 import com.mileway.feature.agent.viewmodel.AgentEffect
 import com.mileway.feature.agent.viewmodel.AgentViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val AI_GRADIENT = Brush.verticalGradient(listOf(Color(0xFF0B0806), Color(0xFF1C140D)))
@@ -99,15 +133,6 @@ private val CHIP_BG = Color(0x14F5A623)
 private val EMBER_ACCENT = Color(0xFFF5A623)
 private val EMBER_DIM = Color(0xFFB87A1C)
 private val TERMINAL_BORDER = Color(0xFF3D2E1C)
-private val QUICK_PROMPTS =
-    listOf(
-        "Summarise my week",
-        "Why was EXP-003 rejected?",
-        "How much have I spent on travel?",
-        "Check mileage policy",
-        "Plan a trip to Delhi",
-        "Pending approvals count",
-    )
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -174,10 +199,11 @@ fun AgentChatScreen(
             PhosphorDotGrid(dotAlpha = 0.055f)
             Column(modifier = Modifier.fillMaxSize()) {
                 // Custom header
+                val exportUnavailableText = stringResource(Res.string.agent_export_unavailable)
                 AgentHeader(
                     onBack = onBack,
                     onHistory = onOpenHistory,
-                    onDownload = { scope.launch { snackbarState.showSnackbar("Export available in full version") } },
+                    onDownload = { scope.launch { snackbarState.showSnackbar(exportUnavailableText) } },
                 )
 
                 // Tab row — terminal bracket style
@@ -191,10 +217,21 @@ fun AgentChatScreen(
                         )
                     },
                 ) {
-                    listOf("[ CHAT ]", "[ POPULAR ]", "[ UNANSWERED ]").forEachIndexed { index, title ->
+                    listOf(
+                        "[ ${stringResource(Res.string.agent_tab_chat).uppercase()} ]" to Icons.AutoMirrored.Filled.Chat,
+                        "[ ${stringResource(Res.string.agent_tab_popular).uppercase()} ]" to Icons.AutoMirrored.Filled.TrendingUp,
+                        "[ ${stringResource(Res.string.agent_tab_unanswered).uppercase()} ]" to Icons.AutoMirrored.Filled.HelpOutline,
+                    ).forEachIndexed { index, (title, icon) ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
+                            icon = {
+                                Icon(
+                                    icon,
+                                    contentDescription = null,
+                                    tint = if (selectedTab == index) EMBER_ACCENT else EMBER_DIM,
+                                )
+                            },
                             text = {
                                 Text(
                                     title,
@@ -265,15 +302,17 @@ fun AgentChatScreen(
     }
 
     if (showQuestionDialog) {
+        val questionSubmittedText = stringResource(Res.string.agent_question_submitted)
         AppActionSheet(
             onDismiss = { showQuestionDialog = false },
-            title = "Submit a question",
+            title = stringResource(Res.string.agent_submit_question_title),
         ) {
             OutlinedTextField(
                 value = dialogText,
                 onValueChange = { dialogText = it },
-                placeholder = { Text("Type your question…") },
+                placeholder = { Text(stringResource(Res.string.agent_submit_question_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
             )
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -282,15 +321,25 @@ fun AgentChatScreen(
                 OutlinedButton(
                     onClick = { showQuestionDialog = false },
                     modifier = Modifier.weight(1f),
-                ) { Text("Cancel") }
+                    shape = DesignTokens.Shape.button,
+                ) {
+                    Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(Res.string.action_cancel))
+                }
                 Button(
                     onClick = {
                         showQuestionDialog = false
                         dialogText = ""
-                        scope.launch { snackbarState.showSnackbar("Question submitted.") }
+                        scope.launch { snackbarState.showSnackbar(questionSubmittedText) }
                     },
                     modifier = Modifier.weight(1f),
-                ) { Text("Submit") }
+                    shape = DesignTokens.Shape.button,
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(Res.string.agent_action_submit))
+                }
             }
         }
     }
@@ -318,15 +367,15 @@ private fun AgentHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = EMBER_DIM)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back), tint = EMBER_DIM)
                 }
                 // Terminal avatar: thin phosphor-green border ring, monogram inside
                 Box(
                     modifier =
                         Modifier
                             .size(36.dp)
-                            .border(width = 1.dp, color = EMBER_ACCENT, shape = RoundedCornerShape(4.dp))
-                            .background(Color(0xFF00280E), RoundedCornerShape(4.dp)),
+                            .border(width = 1.dp, color = EMBER_ACCENT, shape = DesignTokens.Shape.button)
+                            .background(Color(0xFF00280E), DesignTokens.Shape.button),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -348,17 +397,17 @@ private fun AgentHeader(
                             color = EMBER_ACCENT,
                         )
                         Text(
-                            "SYSTEM ONLINE",
+                            stringResource(Res.string.agent_status_online).uppercase(),
                             style = TerminalType.statusLine,
                             color = EMBER_DIM,
                         )
                     }
                 }
                 IconButton(onClick = onHistory) {
-                    Icon(Icons.Filled.Schedule, contentDescription = "History", tint = EMBER_DIM)
+                    Icon(Icons.Filled.Schedule, contentDescription = stringResource(Res.string.agent_cd_history), tint = EMBER_DIM)
                 }
                 IconButton(onClick = onDownload) {
-                    Icon(Icons.Filled.Download, contentDescription = "Export", tint = EMBER_DIM)
+                    Icon(Icons.Filled.Download, contentDescription = stringResource(Res.string.agent_cd_export), tint = EMBER_DIM)
                 }
             }
             // Phosphor separator line
@@ -393,7 +442,15 @@ private fun ChatTab(
     isVoiceConversationMode: Boolean,
     voiceRms: Float,
     voiceTranscript: String,
-    popularPrompts: List<String> = QUICK_PROMPTS,
+    popularPrompts: List<String> =
+        listOf(
+            stringResource(Res.string.agent_prompt_summarise_week),
+            stringResource(Res.string.agent_prompt_why_rejected),
+            stringResource(Res.string.agent_prompt_travel_spend),
+            stringResource(Res.string.agent_prompt_mileage_policy),
+            stringResource(Res.string.agent_prompt_plan_trip),
+            stringResource(Res.string.agent_prompt_pending_approvals),
+        ),
 ) {
     val waveformState =
         when {
@@ -413,7 +470,7 @@ private fun ChatTab(
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Text(
-                            "SYSTEM READY. ASK ANYTHING.",
+                            stringResource(Res.string.agent_system_ready).uppercase(),
                             style = TerminalType.sectionLabel,
                             color = EMBER_DIM,
                         )
@@ -425,7 +482,7 @@ private fun ChatTab(
                                 Surface(
                                     onClick = { onChipClicked(prompt) },
                                     color = CHIP_BG,
-                                    shape = RoundedCornerShape(4.dp),
+                                    shape = DesignTokens.Shape.button,
                                     border = androidx.compose.foundation.BorderStroke(1.dp, TERMINAL_BORDER),
                                 ) {
                                     Text(
@@ -470,7 +527,7 @@ private fun ChatTab(
                             Surface(
                                 onClick = { onChipClicked(prompt) },
                                 color = CHIP_BG,
-                                shape = RoundedCornerShape(4.dp),
+                                shape = DesignTokens.Shape.button,
                                 border = androidx.compose.foundation.BorderStroke(1.dp, TERMINAL_BORDER),
                             ) {
                                 Text(
@@ -517,7 +574,7 @@ private fun ChatTab(
                 },
                 placeholder = {
                     Text(
-                        "type query_",
+                        stringResource(Res.string.agent_input_placeholder),
                         style = TerminalType.prompt,
                         color = EMBER_DIM,
                     )
@@ -525,7 +582,7 @@ private fun ChatTab(
                 textStyle = TerminalType.prompt.copy(color = EMBER_ACCENT),
                 singleLine = true,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(4.dp),
+                shape = DesignTokens.Shape.button,
                 colors =
                     OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EMBER_ACCENT,
@@ -543,14 +600,15 @@ private fun ChatTab(
             ) {
                 Icon(
                     Icons.Filled.Mic,
-                    contentDescription = if (isListening) "Stop voice" else "Start voice",
+                    contentDescription =
+                        stringResource(if (isListening) Res.string.agent_cd_stop_voice else Res.string.agent_cd_start_voice),
                     tint = if (isListening) EMBER_ACCENT else EMBER_DIM,
                 )
             }
             IconButton(onClick = onToggleVoiceConversation) {
                 Icon(
                     if (isVoiceConversationMode) Icons.AutoMirrored.Filled.VolumeUp else Icons.AutoMirrored.Filled.VolumeOff,
-                    contentDescription = "Toggle hands-free mode",
+                    contentDescription = stringResource(Res.string.agent_cd_toggle_voice_mode),
                     tint = if (isVoiceConversationMode) EMBER_ACCENT else EMBER_DIM,
                 )
             }
@@ -560,7 +618,7 @@ private fun ChatTab(
             ) {
                 Icon(
                     Icons.AutoMirrored.Filled.Send,
-                    contentDescription = "Send",
+                    contentDescription = stringResource(Res.string.agent_cd_send),
                     tint = if (inputText.isNotBlank()) EMBER_ACCENT else EMBER_DIM,
                 )
             }
@@ -602,7 +660,11 @@ private fun PopularTab(
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 if (question.isTrending) {
                                     Badge(containerColor = MilewayColors.warning) {
-                                        Text("Trending", style = MaterialTheme.typography.labelSmall, color = Color.White)
+                                        Text(
+                                            stringResource(Res.string.agent_trending_badge),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.White,
+                                        )
                                     }
                                 }
                                 Text("${question.askCount}", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
@@ -636,9 +698,13 @@ private fun UnansweredTab(
                 trailingContent = {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         if (question.askCount > 3) {
-                            Box(modifier = Modifier.size(8.dp).background(MilewayColors.danger, CircleShape))
+                            Box(modifier = Modifier.size(8.dp).background(MilewayColors.danger, DesignTokens.Shape.button))
                         }
-                        Text("${question.askCount} asked", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.6f))
+                        Text(
+                            stringResource(Res.string.agent_asked_count, question.askCount),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.6f),
+                        )
                     }
                 },
                 colors = ListItemDefaults.colors(containerColor = Color.White.copy(alpha = 0.06f)),
@@ -649,8 +715,16 @@ private fun UnansweredTab(
                 OutlinedButton(
                     onClick = onSubmit,
                     border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)),
+                    shape = DesignTokens.Shape.button,
                 ) {
-                    Text("Submit a question", color = Color.White)
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                        tint = Color.White,
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(Res.string.agent_submit_question_title), color = Color.White)
                 }
             }
         }
