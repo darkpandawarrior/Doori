@@ -5,8 +5,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -87,6 +93,13 @@ fun CreatePaymentScreen(
                             selected = ui.direction == dir,
                             onClick = { viewModel.onAction(CreatePaymentAction.SetDirection(dir)) },
                             label = { Text(dir.localizedLabel()) },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = if (dir == PaymentDirection.PAY) Icons.AutoMirrored.Filled.Send else Icons.Filled.Call,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                                )
+                            },
                         )
                     }
                 }
