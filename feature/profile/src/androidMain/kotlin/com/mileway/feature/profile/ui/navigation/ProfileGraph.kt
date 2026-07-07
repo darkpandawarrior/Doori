@@ -18,6 +18,7 @@ import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
 import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
 import com.mileway.feature.profile.ui.screens.OrgChartScreen
+import com.mileway.feature.profile.ui.screens.PluginManagerScreen
 import com.mileway.feature.profile.ui.screens.PreferencesScreen
 import com.mileway.feature.profile.ui.screens.ProfileDetailsScreen
 import com.mileway.feature.profile.ui.screens.ProfileScreen
@@ -46,6 +47,7 @@ object ProfileRoutes {
     const val ROOT_GUARD = "profile/root_guard"
     const val ROOT_GUARD_DETECTED = "profile/root_guard_detected"
     const val ORG_CHART = "profile/org_chart"
+    const val PLUGINS = "profile/plugins"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -119,6 +121,12 @@ fun NavGraphBuilder.profileGraph(
         SettingsScreen(
             onBack = { navController.popBackStack() },
             onOpenDebugMenu = onOpenDebugMenu,
+            onOpenPlugins = { navController.navigate(ProfileRoutes.PLUGINS) },
+        )
+    }
+    composable(ProfileRoutes.PLUGINS) {
+        PluginManagerScreen(
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.HELP) {

@@ -47,8 +47,9 @@ object PluginCatalog {
             id = id,
             kind = PluginKind.TILE,
             category = PluginCategory.CORE_MODULES,
-            titleKey = "plugin_core_${id}_title",
-            descriptionKey = "plugin_core_${id}_desc",
+            // Resource names must be lowercase; the id itself keeps its camelCase for gating.
+            titleKey = "plugin_core_${id.lowercase()}_title",
+            descriptionKey = "plugin_core_${id.lowercase()}_desc",
             defaultOn = true,
         )
 }

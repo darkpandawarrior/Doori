@@ -88,6 +88,35 @@ class PluginRegistry(
     /** One-shot resolved value (for non-reactive callers). */
     suspend fun value(id: String): PluginValue = catalog.byId(id)?.let { resolveValue(it, layers.first()) } ?: PluginValue.Bool(false)
 
+    /** Every catalog plugin resolved with its winning value + source — drives the Master Plugin page. */
+    fun observeResolved(): Flow<List<ResolvedPlugin>> =
+        layers.map { l ->
+            catalog.all.map { descriptor ->
+                ResolvedPlugin(descriptor, resolveValue(descriptor, l), sourceOf(descriptor.id, l))
+            }
+        }
+
+    /**
+     * PLAN_V24 P0.3 — the experimental-section unlock (the reference app `*_unlock_press_count` pattern),
+     * persisted per-account by reusing the USER-override table under a reserved id (no new store).
+     * The id is not a catalog plugin, so it never renders as a togglable row.
+     */
+    fun observeExperimentalUnlocked(): Flow<Boolean> =
+        activeAccount.activeAccountId.flatMapLatest { accountId ->
+            if (accountId == null) {
+                flowOf(false)
+            } else {
+                overrideDao.observeForAccount(accountId)
+                    .map { rows -> rows.any { it.pluginId == EXPERIMENTAL_UNLOCK_ID && it.value == "true" } }
+                    .distinctUntilChanged()
+            }
+        }
+
+    suspend fun unlockExperimental() {
+        val accountId = activeAccount.activeAccountId.first() ?: return
+        overrideDao.upsert(PluginOverrideEntity(accountId, EXPERIMENTAL_UNLOCK_ID, "true"))
+    }
+
     /** Set a per-account USER override on the active account (no-op with no active account). */
     suspend fun setUserOverride(
         id: String,
@@ -132,4 +161,15 @@ class PluginRegistry(
         id: String,
         layers: Layers,
     ): PluginSource = rawFor(id, layers)?.second ?: PluginSource.DEFAULT
+
+    private companion object {
+        const val EXPERIMENTAL_UNLOCK_ID = "__experimental_unlocked"
+    }
 }
+
+/** One catalog plugin resolved to its winning value + which layer won. */
+data class ResolvedPlugin(
+    val descriptor: PluginDescriptor,
+    val value: PluginValue,
+    val source: PluginSource,
+)

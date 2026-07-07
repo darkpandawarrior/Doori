@@ -14,7 +14,22 @@ import kotlinx.coroutines.flow.flowOf
 interface PersonaPresetProvider {
     /** Raw plugin overrides (toggle "true"/"false" and value strings) for the account's persona. */
     fun presetOverrides(accountId: String?): Flow<Map<String, String>>
+
+    /** The personas the Master Plugin page's switcher (P0.3) can apply. Empty if none. */
+    fun availablePersonas(): List<PersonaSummary> = emptyList()
 }
+
+/**
+ * A persona the Master Plugin page can apply onto the current account. [nameKey]/[descriptionKey]
+ * are Compose-resource string names (resolved at the UI layer, like plugin descriptors);
+ * [overrides] is the same raw map [PersonaPresetProvider.presetOverrides] returns.
+ */
+data class PersonaSummary(
+    val id: String,
+    val nameKey: String,
+    val descriptionKey: String,
+    val overrides: Map<String, String>,
+)
 
 /** No-preset default: every account resolves to descriptor defaults. Replaced by P0.2. */
 object EmptyPersonaPresetProvider : PersonaPresetProvider {

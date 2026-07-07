@@ -19,6 +19,7 @@ import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
 import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
+import com.mileway.feature.profile.viewmodel.PluginManagerViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
@@ -61,4 +62,6 @@ val profileModule =
         viewModelOf(::StorageViewModel)
         viewModelOf(::SyncDiagnosticsViewModel)
         viewModelOf(::SupportTicketViewModel)
+        // PLAN_V24 P0.3: the Master Plugin page (PluginRegistry + PersonaPresetProvider injected).
+        viewModelOf(::PluginManagerViewModel)
     }

@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -98,6 +99,8 @@ import com.mileway.core.ui.resources.profile_settings_organization
 import com.mileway.core.ui.resources.profile_settings_palette_style
 import com.mileway.core.ui.resources.profile_settings_perm_denied
 import com.mileway.core.ui.resources.profile_settings_permission_health
+import com.mileway.core.ui.resources.profile_settings_plugins
+import com.mileway.core.ui.resources.profile_settings_plugins_desc
 import com.mileway.core.ui.resources.profile_settings_preferences
 import com.mileway.core.ui.resources.profile_settings_recommended
 import com.mileway.core.ui.resources.profile_settings_reset
@@ -136,6 +139,7 @@ import android.provider.Settings as SystemSettings
 fun SettingsScreen(
     onBack: () -> Unit,
     onOpenDebugMenu: () -> Unit = {},
+    onOpenPlugins: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     localeController: LocaleController = koinInject(),
 ) {
@@ -479,6 +483,25 @@ fun SettingsScreen(
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
             SettingsSectionLabel(stringResource(Res.string.profile_settings_developer))
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Extension,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_plugins)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_plugins_desc)) },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+                modifier = Modifier.clickable(onClick = onOpenPlugins),
+            )
             ListItem(
                 leadingContent = {
                     Icon(

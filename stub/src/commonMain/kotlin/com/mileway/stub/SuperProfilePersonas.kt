@@ -1,6 +1,7 @@
 package com.mileway.stub
 
 import com.mileway.core.data.plugin.PersonaPresetProvider
+import com.mileway.core.data.plugin.PersonaSummary
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -175,4 +176,14 @@ object SuperProfilePersonas {
 class StubPersonaPresetProvider : PersonaPresetProvider {
     override fun presetOverrides(accountId: String?): Flow<Map<String, String>> =
         flowOf(SuperProfilePersonas.forAccount(accountId).overrides())
+
+    override fun availablePersonas(): List<PersonaSummary> =
+        SuperProfilePersonas.all.map { preset ->
+            PersonaSummary(
+                id = preset.id,
+                nameKey = preset.nameKey,
+                descriptionKey = preset.descriptionKey,
+                overrides = preset.overrides(),
+            )
+        }
 }
