@@ -43,6 +43,16 @@ import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_back
+import com.mileway.core.ui.resources.core_cd_clear
+import com.mileway.core.ui.resources.shared_search_empty_subtitle
+import com.mileway.core.ui.resources.shared_search_empty_title
+import com.mileway.core.ui.resources.shared_search_no_matches_subtitle
+import com.mileway.core.ui.resources.shared_search_no_matches_title
+import com.mileway.core.ui.resources.shared_search_placeholder
+import com.mileway.core.ui.resources.shared_search_title
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -101,10 +111,10 @@ fun MasterSearchContent(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("Search", fontWeight = FontWeight.SemiBold) },
+                title = { Text(stringResource(Res.string.shared_search_title), fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
                     }
                 },
             )
@@ -114,12 +124,12 @@ fun MasterSearchContent(
             OutlinedTextField(
                 value = state.query,
                 onValueChange = onQueryChange,
-                placeholder = { Text("Search trips, payments, events…") },
+                placeholder = { Text(stringResource(Res.string.shared_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 trailingIcon = {
                     if (state.query.isNotEmpty()) {
                         IconButton(onClick = { onQueryChange("") }) {
-                            Icon(Icons.Filled.Close, contentDescription = "Clear")
+                            Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.core_cd_clear))
                         }
                     }
                 },
@@ -163,13 +173,13 @@ fun MasterSearchContent(
                 when {
                     state.query.trim().length < 2 ->
                         DefaultEmptyState(
-                            title = "Search everything",
-                            subtitle = "Find trips, expenses, payments, bookings and more across the app.",
+                            title = stringResource(Res.string.shared_search_empty_title),
+                            subtitle = stringResource(Res.string.shared_search_empty_subtitle),
                         )
                     groups.isEmpty() ->
                         DefaultEmptyState(
-                            title = "No matches",
-                            subtitle = "Nothing matched \"${state.query.trim()}\". Try a different term or scope.",
+                            title = stringResource(Res.string.shared_search_no_matches_title),
+                            subtitle = stringResource(Res.string.shared_search_no_matches_subtitle, state.query.trim()),
                         )
                     else -> ResultList(groups = groups, onResultClick = onResultClick)
                 }

@@ -23,9 +23,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_retry
+import com.mileway.core.ui.resources.core_error_generic
+import com.mileway.core.ui.resources.core_loading
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LoadingScreen(message: String = "Loading…") {
+fun LoadingScreen(message: String = stringResource(Res.string.core_loading)) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             CircularProgressIndicator()
@@ -42,7 +47,7 @@ fun ErrorScreen(
 ) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-            Text("Something went wrong", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.core_error_generic), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
             Text(
                 message,
@@ -52,7 +57,7 @@ fun ErrorScreen(
             )
             if (onRetry != null) {
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onRetry) { Text("Retry") }
+                Button(onClick = onRetry) { Text(stringResource(Res.string.action_retry)) }
             }
         }
     }

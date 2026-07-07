@@ -16,6 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_maintenance_message
+import com.mileway.core.ui.resources.core_maintenance_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * CF.5: blocking maintenance / kill-switch wall, a sibling of the FORCED [UpdateGate] wall. When the
@@ -52,14 +56,12 @@ private fun MaintenanceWall() {
                 tint = MaterialTheme.colorScheme.primary,
             )
             Text(
-                text = "Under maintenance",
+                text = stringResource(Res.string.core_maintenance_title),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(top = 24.dp),
             )
             Text(
-                text =
-                    "Mileway is briefly unavailable or this version is no longer supported. " +
-                        "Please update or check back soon.",
+                text = stringResource(Res.string.core_maintenance_message),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 12.dp),

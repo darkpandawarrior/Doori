@@ -29,7 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_continue
+import com.mileway.core.ui.resources.action_not_now
+import com.mileway.core.ui.resources.shared_welcome_disclaimer_body
+import com.mileway.core.ui.resources.shared_welcome_disclaimer_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /** One disclosed permission row: icon, title, and the reason Mileway is asking for it. */
 private data class PermissionDisclosure(
@@ -82,15 +88,13 @@ fun WelcomeDisclaimerSheet(
                     .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
         ) {
             Text(
-                text = "Before you start tracking",
+                text = stringResource(Res.string.shared_welcome_disclaimer_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text =
-                    "Mileway records trips fully offline on your device. It needs a couple of " +
-                        "permissions to do that:",
+                text = stringResource(Res.string.shared_welcome_disclaimer_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -108,14 +112,14 @@ fun WelcomeDisclaimerSheet(
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
             ) {
-                Text("Continue", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.action_continue), fontWeight = FontWeight.SemiBold)
             }
 
             TextButton(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Not now")
+                Text(stringResource(Res.string.action_not_now))
             }
         }
     }

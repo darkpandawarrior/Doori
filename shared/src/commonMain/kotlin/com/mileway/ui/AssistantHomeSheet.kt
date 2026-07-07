@@ -51,12 +51,18 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.shared_assistant_input_placeholder
+import com.mileway.core.ui.resources.shared_assistant_powered_by
+import com.mileway.core.ui.resources.shared_assistant_title
+import com.mileway.core.ui.resources.shared_cd_send
 import com.mileway.feature.agent.ui.components.AgentMessageBubble
 import com.mileway.feature.agent.ui.components.AgentStreamingBubble
 import com.mileway.feature.agent.ui.components.AgentThinkingIndicator
 import com.mileway.feature.agent.viewmodel.AgentAction
 import com.mileway.feature.agent.viewmodel.AgentEffect
 import com.mileway.feature.agent.viewmodel.AgentViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val SHEET_BG = Brush.verticalGradient(listOf(Color(0xFF0D1B2A), Color(0xFF1A237E)))
@@ -141,8 +147,17 @@ fun AssistantHomeSheet(
                     )
                 }
                 Column {
-                    Text("AI Assistant", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
-                    Text("Powered by Mileway AI", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.7f))
+                    Text(
+                        stringResource(Res.string.shared_assistant_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    )
+                    Text(
+                        stringResource(Res.string.shared_assistant_powered_by),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.7f),
+                    )
                 }
             }
 
@@ -211,7 +226,7 @@ fun AssistantHomeSheet(
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = { inputText = it },
-                    placeholder = { Text("Ask me anything…", color = Color.White.copy(alpha = 0.5f)) },
+                    placeholder = { Text(stringResource(Res.string.shared_assistant_input_placeholder), color = Color.White.copy(alpha = 0.5f)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(24.dp),
@@ -222,7 +237,7 @@ fun AssistantHomeSheet(
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send",
+                        contentDescription = stringResource(Res.string.shared_cd_send),
                         tint = if (inputText.isNotBlank()) Color.White else Color.White.copy(alpha = 0.4f),
                     )
                 }

@@ -33,6 +33,11 @@ import androidx.compose.ui.window.Dialog
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_cancel
+import com.mileway.core.ui.resources.core_action_select
+import com.mileway.core.ui.resources.core_choose_color
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A reusable colour picker dialog with an HSV colour wheel.
@@ -50,7 +55,7 @@ fun ColorWheelDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
     showHexcode: Boolean = false,
-    title: String = "Choose Color",
+    title: String = stringResource(Res.string.core_choose_color),
 ) {
     val controller = rememberColorPickerController()
     var currentColor by remember { mutableStateOf(selectedColor) }
@@ -140,7 +145,7 @@ fun ColorWheelDialog(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
                     ) {
-                        Text("Cancel")
+                        Text(stringResource(Res.string.action_cancel))
                     }
                     Button(
                         onClick = {
@@ -155,7 +160,7 @@ fun ColorWheelDialog(
                         },
                         modifier = Modifier.weight(1f),
                     ) {
-                        Text("Select")
+                        Text(stringResource(Res.string.core_action_select))
                     }
                 }
             }

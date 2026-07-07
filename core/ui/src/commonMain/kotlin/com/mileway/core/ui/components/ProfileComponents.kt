@@ -58,7 +58,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_almost_there
+import com.mileway.core.ui.resources.core_cd_hide_checklist
+import com.mileway.core.ui.resources.core_cd_profile_complete
+import com.mileway.core.ui.resources.core_cd_show_checklist
+import com.mileway.core.ui.resources.core_field_optional
+import com.mileway.core.ui.resources.core_field_required
+import com.mileway.core.ui.resources.core_profile_all_up_to_date
+import com.mileway.core.ui.resources.core_profile_almost_there
+import com.mileway.core.ui.resources.core_profile_checklist
+import com.mileway.core.ui.resources.core_profile_complete_cta
+import com.mileway.core.ui.resources.core_profile_complete_title
+import com.mileway.core.ui.resources.core_profile_more_items
+import com.mileway.core.ui.resources.core_profile_optional_available
+import com.mileway.core.ui.resources.core_profile_required_remaining
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Visual status states for profile grid items.
@@ -638,7 +654,7 @@ fun ProfileCompletionBanner(
                             // Success icon with scale animation
                             Icon(
                                 imageVector = Icons.Default.CheckCircle,
-                                contentDescription = "Profile Complete",
+                                contentDescription = stringResource(Res.string.core_cd_profile_complete),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier =
                                     Modifier
@@ -659,7 +675,7 @@ fun ProfileCompletionBanner(
                                 if (isHighProgress) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.TrendingUp,
-                                        contentDescription = "Almost there",
+                                        contentDescription = stringResource(Res.string.core_cd_almost_there),
                                         tint = MaterialTheme.colorScheme.tertiary,
                                         modifier = Modifier.size(12.dp),
                                     )
@@ -676,9 +692,9 @@ fun ProfileCompletionBanner(
                         Text(
                             text =
                                 when {
-                                    isComplete -> "🎉 Profile Complete!"
-                                    isHighProgress -> "Almost There!"
-                                    else -> "Complete Your Profile"
+                                    isComplete -> stringResource(Res.string.core_profile_complete_title)
+                                    isHighProgress -> stringResource(Res.string.core_profile_almost_there)
+                                    else -> stringResource(Res.string.core_profile_complete_cta)
                                 },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
@@ -707,9 +723,9 @@ fun ProfileCompletionBanner(
                             val requiredMissing = missingItems.filter { it.isRequired }
                             val text =
                                 if (requiredMissing.isNotEmpty()) {
-                                    "${requiredMissing.size} required items remaining"
+                                    stringResource(Res.string.core_profile_required_remaining, requiredMissing.size)
                                 } else {
-                                    "${missingItems.size} optional items available"
+                                    stringResource(Res.string.core_profile_optional_available, missingItems.size)
                                 }
                             Text(
                                 text = text,
@@ -720,7 +736,7 @@ fun ProfileCompletionBanner(
                             )
                         } else if (isComplete) {
                             Text(
-                                text = "All profile information is up to date",
+                                text = stringResource(Res.string.core_profile_all_up_to_date),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                             )
@@ -746,7 +762,14 @@ fun ProfileCompletionBanner(
                         ) {
                             Icon(
                                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = if (expanded) "Hide checklist" else "Show checklist",
+                                contentDescription =
+                                    if (expanded) {
+                                        stringResource(
+                                            Res.string.core_cd_hide_checklist,
+                                        )
+                                    } else {
+                                        stringResource(Res.string.core_cd_show_checklist)
+                                    },
                                 tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.size(DesignTokens.IconSize.header),
                             )
@@ -786,7 +809,7 @@ fun ProfileCompletionBanner(
                                     .padding(DesignTokens.Spacing.m),
                         ) {
                             Text(
-                                text = "Profile Checklist",
+                                text = stringResource(Res.string.core_profile_checklist),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface,
@@ -799,7 +822,7 @@ fun ProfileCompletionBanner(
 
                             if (requiredItems.isNotEmpty()) {
                                 Text(
-                                    text = "Required",
+                                    text = stringResource(Res.string.core_field_required),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.error.copy(alpha = 0.8f),
                                     fontWeight = FontWeight.Medium,
@@ -816,7 +839,7 @@ fun ProfileCompletionBanner(
 
                             if (optionalItems.isNotEmpty()) {
                                 Text(
-                                    text = "Optional",
+                                    text = stringResource(Res.string.core_field_optional),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontWeight = FontWeight.Medium,
@@ -830,7 +853,7 @@ fun ProfileCompletionBanner(
                                 }
                                 if (optionalItems.size > 5) {
                                     Text(
-                                        text = "+${optionalItems.size - 5} more items",
+                                        text = stringResource(Res.string.core_profile_more_items, optionalItems.size - 5),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                         modifier = Modifier.padding(start = 32.dp, top = 4.dp),
@@ -957,7 +980,7 @@ private fun MissingItemRow(
                 color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
             ) {
                 Text(
-                    text = "Required",
+                    text = stringResource(Res.string.core_field_required),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),

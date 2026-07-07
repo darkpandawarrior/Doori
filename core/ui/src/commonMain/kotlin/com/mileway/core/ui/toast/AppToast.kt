@@ -26,7 +26,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_dismiss
 import com.mileway.core.ui.theme.MilewayColors
+import org.jetbrains.compose.resources.stringResource
 
 /** Icon for each [ToastType]. */
 private fun ToastType.icon(): ImageVector =
@@ -119,7 +122,7 @@ fun AppToast(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = onDismiss) { Text("Dismiss") }
+                    TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_dismiss)) }
                 }
             }
         }

@@ -33,6 +33,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_close
+import org.jetbrains.compose.resources.stringResource
 
 /** Maximum zoom level for pinch gestures. */
 private const val MAX_SCALE = 5f
@@ -147,7 +150,7 @@ fun ZoomImageViewer(
                     IconButton(onClick = onDismiss) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
+                            contentDescription = stringResource(Res.string.core_cd_close),
                             tint = Color.White,
                         )
                     }

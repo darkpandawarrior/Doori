@@ -36,6 +36,13 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_back
+import com.mileway.core.ui.resources.core_cd_refresh
+import com.mileway.core.ui.resources.core_cd_search
+import com.mileway.core.ui.resources.core_empty_default
+import com.mileway.core.ui.resources.core_search_placeholder
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Shared chrome for every V17 history / list surface (F0.4): a top bar with a collapsible search field and a
@@ -58,8 +65,8 @@ fun <T> HistoryListScaffold(
     onSelectTab: (Int) -> Unit = {},
     query: String = "",
     onQueryChange: ((String) -> Unit)? = null,
-    searchPlaceholder: String = "Search…",
-    emptyTitle: String = "Nothing here yet",
+    searchPlaceholder: String = stringResource(Res.string.core_search_placeholder),
+    emptyTitle: String = stringResource(Res.string.core_empty_default),
     emptySubtitle: String? = null,
     filterChips: (@Composable FlowRowScope.() -> Unit)? = null,
     itemKey: ((T) -> Any)? = null,
@@ -81,17 +88,17 @@ fun <T> HistoryListScaffold(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
                     }
                 },
                 actions = {
                     if (onQueryChange != null) {
                         IconButton(onClick = { searchOpen = !searchOpen }) {
-                            Icon(Icons.Filled.Search, contentDescription = "Search")
+                            Icon(Icons.Filled.Search, contentDescription = stringResource(Res.string.core_cd_search))
                         }
                     }
                     IconButton(onClick = onRetry) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh")
+                        Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.core_cd_refresh))
                     }
                 },
             )

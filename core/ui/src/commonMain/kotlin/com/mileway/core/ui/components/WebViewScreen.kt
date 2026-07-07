@@ -17,10 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_back
 import com.multiplatform.webview.web.LoadingState
 import com.multiplatform.webview.web.WebView
 import com.multiplatform.webview.web.rememberWebViewNavigator
 import com.multiplatform.webview.web.rememberWebViewState
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Embedded web view screen. Multiplatform (Android WebView / iOS WKWebView via
@@ -54,7 +57,7 @@ fun EmbeddedWebViewScreen(
                             onBack()
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
                     }
                 },
             )

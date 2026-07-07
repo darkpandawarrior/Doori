@@ -33,7 +33,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_continue
+import com.mileway.core.ui.resources.shared_action_confirm
+import com.mileway.core.ui.resources.shared_auth_confirm_pin_subtitle
+import com.mileway.core.ui.resources.shared_auth_confirm_pin_title
+import com.mileway.core.ui.resources.shared_auth_set_pin_subtitle
+import com.mileway.core.ui.resources.shared_auth_set_pin_title
+import com.mileway.core.ui.resources.shared_auth_skip_for_now
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -67,12 +76,17 @@ fun SetPinScreen(
     }
 
     val activeDigits = if (state.isConfirmStep) state.confirmDigits else state.digits
-    val title = if (state.isConfirmStep) "Confirm your PIN" else "Set a PIN"
+    val title =
+        if (state.isConfirmStep) {
+            stringResource(Res.string.shared_auth_confirm_pin_title)
+        } else {
+            stringResource(Res.string.shared_auth_set_pin_title)
+        }
     val subtitle =
         if (state.isConfirmStep) {
-            "Re-enter your 4-digit PIN to confirm"
+            stringResource(Res.string.shared_auth_confirm_pin_subtitle)
         } else {
-            "Choose a 4-digit PIN to protect this app"
+            stringResource(Res.string.shared_auth_set_pin_subtitle)
         }
 
     Surface(
@@ -131,11 +145,18 @@ fun SetPinScreen(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.roundedSm,
             ) {
-                Text(if (state.isConfirmStep) "Confirm" else "Continue", fontWeight = FontWeight.Bold)
+                Text(
+                    if (state.isConfirmStep) {
+                        stringResource(Res.string.shared_action_confirm)
+                    } else {
+                        stringResource(Res.string.action_continue)
+                    },
+                    fontWeight = FontWeight.Bold,
+                )
             }
 
             TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
-                Text("Skip for now")
+                Text(stringResource(Res.string.shared_auth_skip_for_now))
             }
         }
     }

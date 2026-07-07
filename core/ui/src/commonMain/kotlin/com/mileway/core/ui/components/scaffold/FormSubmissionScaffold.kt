@@ -32,6 +32,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_action_save_draft
+import com.mileway.core.ui.resources.core_action_submit
+import com.mileway.core.ui.resources.core_cd_back
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Shared chrome for every V17 create / submission flow (F0.1): a top bar, a scrollable sectioned body slot,
@@ -49,9 +54,9 @@ fun FormSubmissionScaffold(
     modifier: Modifier = Modifier,
     canSubmit: Boolean = true,
     isSubmitting: Boolean = false,
-    submitLabel: String = "Submit",
+    submitLabel: String = stringResource(Res.string.core_action_submit),
     onSaveDraft: (() -> Unit)? = null,
-    saveDraftLabel: String = "Save draft",
+    saveDraftLabel: String = stringResource(Res.string.core_action_save_draft),
     content: @Composable (contentPadding: PaddingValues) -> Unit,
 ) {
     Scaffold(
@@ -61,7 +66,7 @@ fun FormSubmissionScaffold(
                 title = { Text(title, fontWeight = FontWeight.SemiBold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back))
                     }
                 },
             )

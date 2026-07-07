@@ -11,6 +11,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_retry
+import com.mileway.core.ui.resources.core_action_exit
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Non-dismissible error dialog for unrecoverable failures (e.g. corrupt local data, a fatal
@@ -42,12 +46,12 @@ fun CriticalErrorDialog(
         containerColor = MaterialTheme.colorScheme.errorContainer,
         confirmButton = {
             TextButton(onClick = onRetry) {
-                Text(text = "Retry", color = MaterialTheme.colorScheme.error)
+                Text(text = stringResource(Res.string.action_retry), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
             TextButton(onClick = onExit) {
-                Text(text = "Exit", color = MaterialTheme.colorScheme.onErrorContainer)
+                Text(text = stringResource(Res.string.core_action_exit), color = MaterialTheme.colorScheme.onErrorContainer)
             }
         },
     )

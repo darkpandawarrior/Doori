@@ -29,6 +29,11 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.common.UiText
 import com.mileway.core.common.asString
 import com.mileway.core.ui.components.UnifiedListShimmer
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_error
+import com.mileway.core.ui.resources.core_empty_default
+import com.mileway.core.ui.resources.core_try_again
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Single switchboard for any data-loading screen. Replaces ad-hoc
@@ -86,7 +91,7 @@ fun ShimmerList(
 fun DefaultEmptyState(
     modifier: Modifier = Modifier,
     icon: ImageVector = Icons.Outlined.Inbox,
-    title: String = "Nothing here yet",
+    title: String = stringResource(Res.string.core_empty_default),
     subtitle: String? = null,
     ctaLabel: String? = null,
     onCta: (() -> Unit)? = null,
@@ -170,7 +175,7 @@ fun DefaultErrorState(
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = "Error",
+                contentDescription = stringResource(Res.string.core_cd_error),
                 tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(32.dp),
             )
@@ -187,7 +192,7 @@ fun DefaultErrorState(
                 onClick = onRetry,
                 modifier = Modifier.padding(top = 20.dp),
             ) {
-                Text("Try Again")
+                Text(stringResource(Res.string.core_try_again))
             }
         }
     }

@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.EmptyState
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.shared_shell_placeholder_subtitle
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Stand-in destination for shell tabs whose feature area is not part of the demo yet
@@ -43,7 +46,7 @@ fun ShellPlaceholderScreen(
         Spacer(Modifier.height(16.dp))
         EmptyState(
             title = title,
-            subtitle = "This area is illustrative in the demo. Mileage, expenses, and profile are fully functional.",
+            subtitle = stringResource(Res.string.shared_shell_placeholder_subtitle),
         )
     }
 }

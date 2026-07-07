@@ -59,6 +59,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_retry
+import com.mileway.core.ui.resources.core_cd_error
+import org.jetbrains.compose.resources.stringResource
 
 // =============================================================================
 // Shimmer loading skeletons
@@ -334,7 +338,7 @@ fun SectionErrorState(
             ) {
                 Icon(
                     imageVector = icon,
-                    contentDescription = "Error",
+                    contentDescription = stringResource(Res.string.core_cd_error),
                     modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.error,
                 )
@@ -361,7 +365,7 @@ fun SectionErrorState(
                         modifier = Modifier.size(18.dp),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(text = "Retry", style = MaterialTheme.typography.bodySmall)
+                    Text(text = stringResource(Res.string.action_retry), style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

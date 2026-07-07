@@ -49,6 +49,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_action_apply
+import com.mileway.core.ui.resources.core_cd_back
+import com.mileway.core.ui.resources.core_filter_clear_all
+import com.mileway.core.ui.resources.core_filter_title
+import org.jetbrains.compose.resources.stringResource
 
 /** Whether a [FilterSection] lets the user pick one option or several. */
 enum class FilterSelectionMode { SINGLE, MULTI }
@@ -85,7 +91,7 @@ fun FilterBottomSheet(
     initialSelected: Map<String, Set<String>>,
     onApply: (Map<String, Set<String>>) -> Unit,
     onDismiss: () -> Unit,
-    title: String = "Filter",
+    title: String = stringResource(Res.string.core_filter_title),
 ) {
     val staged: SnapshotStateMap<String, Set<String>> =
         remember {
@@ -163,7 +169,7 @@ private fun FilterMain(
     Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            TextButton(onClick = onClear) { Text("Clear all") }
+            TextButton(onClick = onClear) { Text(stringResource(Res.string.core_filter_clear_all)) }
         }
         Spacer(Modifier.height(8.dp))
         Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
@@ -185,7 +191,7 @@ private fun FilterMain(
         }
         Spacer(Modifier.height(16.dp))
         Button(onClick = onApply, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(8.dp)) {
-            Text("Apply", fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.core_action_apply), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -199,7 +205,7 @@ private fun FilterSectionDetail(
 ) {
     Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back") }
+            IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.core_cd_back)) }
             Text(section.title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
         }
         Spacer(Modifier.height(8.dp))

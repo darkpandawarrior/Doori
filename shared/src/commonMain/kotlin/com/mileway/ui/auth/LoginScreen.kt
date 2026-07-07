@@ -74,9 +74,25 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.network.model.DemoAccount
 import com.mileway.core.ui.components.DotsIndicator
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.auth_continue_guest
+import com.mileway.core.ui.resources.auth_email
+import com.mileway.core.ui.resources.auth_password
+import com.mileway.core.ui.resources.auth_sign_in
+import com.mileway.core.ui.resources.shared_auth_email_error
+import com.mileway.core.ui.resources.shared_auth_hide_password
+import com.mileway.core.ui.resources.shared_auth_password_error
+import com.mileway.core.ui.resources.shared_auth_password_placeholder
+import com.mileway.core.ui.resources.shared_auth_show_password
+import com.mileway.core.ui.resources.shared_auth_signing_in
+import com.mileway.core.ui.resources.shared_login_cd_choose_persona
+import com.mileway.core.ui.resources.shared_login_demo_mode_subtitle
+import com.mileway.core.ui.resources.shared_login_demo_mode_title
+import com.mileway.core.ui.resources.shared_login_tagline
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Prefilled demo identity so the fake login works without typing anything. */
@@ -276,9 +292,9 @@ fun LoginScreen(
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                     Spacer(Modifier.width(DesignTokens.Spacing.m))
-                    Text("Signing in…", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.shared_auth_signing_in), fontWeight = FontWeight.SemiBold)
                 } else {
-                    Text("Sign In", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.auth_sign_in), fontWeight = FontWeight.SemiBold)
                 }
             }
 
@@ -298,7 +314,7 @@ fun LoginScreen(
                 enabled = !isSigningIn,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Continue as guest")
+                Text(stringResource(Res.string.auth_continue_guest))
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.l))
@@ -440,7 +456,7 @@ private fun BrandHeader(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                text = "Mileage tracking, offline-first",
+                text = stringResource(Res.string.shared_login_tagline),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -464,7 +480,7 @@ private fun BrandHeader(
             } else {
                 Icon(
                     imageVector = Icons.Outlined.SwitchAccount,
-                    contentDescription = "Choose demo persona",
+                    contentDescription = stringResource(Res.string.shared_login_cd_choose_persona),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -502,13 +518,13 @@ private fun DemoModePersonaPickerSheet(
                     .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
         ) {
             Text(
-                text = "Demo mode",
+                text = stringResource(Res.string.shared_login_demo_mode_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text = "Choose which persona you're signing in as.",
+                text = stringResource(Res.string.shared_login_demo_mode_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -699,14 +715,14 @@ private fun CredentialFields(
             enabled = enabled,
             singleLine = true,
             isError = emailError,
-            label = { Text("Email") },
+            label = { Text(stringResource(Res.string.auth_email)) },
             placeholder = { Text(DEMO_EMAIL) },
             leadingIcon = {
                 Icon(Icons.Outlined.MailOutline, contentDescription = null)
             },
             supportingText =
                 if (emailError) {
-                    { Text("Enter your email to continue") }
+                    { Text(stringResource(Res.string.shared_auth_email_error)) }
                 } else {
                     null
                 },
@@ -727,8 +743,8 @@ private fun CredentialFields(
             enabled = enabled,
             singleLine = true,
             isError = passwordError,
-            label = { Text("Password") },
-            placeholder = { Text("Any password works") },
+            label = { Text(stringResource(Res.string.auth_password)) },
+            placeholder = { Text(stringResource(Res.string.shared_auth_password_placeholder)) },
             leadingIcon = {
                 Icon(Icons.Outlined.Lock, contentDescription = null)
             },
@@ -743,9 +759,9 @@ private fun CredentialFields(
                             },
                         contentDescription =
                             if (passwordVisible) {
-                                "Hide password"
+                                stringResource(Res.string.shared_auth_hide_password)
                             } else {
-                                "Show password"
+                                stringResource(Res.string.shared_auth_show_password)
                             },
                     )
                 }
@@ -758,7 +774,7 @@ private fun CredentialFields(
                 },
             supportingText =
                 if (passwordError) {
-                    { Text("Enter any password to continue") }
+                    { Text(stringResource(Res.string.shared_auth_password_error)) }
                 } else {
                     null
                 },

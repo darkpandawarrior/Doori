@@ -27,6 +27,15 @@ import com.mileway.core.platform.UpdateConfig
 import com.mileway.core.platform.UpdateMode
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_update_action
+import com.mileway.core.ui.resources.core_update_available_message
+import com.mileway.core.ui.resources.core_update_available_title
+import com.mileway.core.ui.resources.core_update_later
+import com.mileway.core.ui.resources.core_update_now
+import com.mileway.core.ui.resources.core_update_required_message
+import com.mileway.core.ui.resources.core_update_required_title
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * UP.4: shared in-app update gate (commonMain, used by both platforms).
@@ -62,10 +71,10 @@ fun UpdateGate(
 
     if (available != null && available.mode == UpdateMode.FLEXIBLE) {
         ActionConfirmationBottomSheet(
-            title = "Update available",
-            description = "A new version of Mileway is available with the latest improvements.",
-            confirmLabel = "Update",
-            dismissLabel = "Later",
+            title = stringResource(Res.string.core_update_available_title),
+            description = stringResource(Res.string.core_update_available_message),
+            confirmLabel = stringResource(Res.string.core_update_action),
+            dismissLabel = stringResource(Res.string.core_update_later),
             icon = Icons.Rounded.SystemUpdate,
             tone = ActionConfirmationToneType.Info,
             onConfirm = {
@@ -92,18 +101,18 @@ private fun ForcedUpdateWall(onUpdate: () -> Unit) {
                 tint = MaterialTheme.colorScheme.primary,
             )
             Text(
-                text = "Update required",
+                text = stringResource(Res.string.core_update_required_title),
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(top = 24.dp),
             )
             Text(
-                text = "A newer version of Mileway is required to continue. Please update to keep tracking.",
+                text = stringResource(Res.string.core_update_required_message),
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 12.dp),
             )
             Button(onClick = onUpdate, modifier = Modifier.padding(top = 32.dp)) {
-                Text("Update now")
+                Text(stringResource(Res.string.core_update_now))
             }
         }
     }

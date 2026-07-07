@@ -31,7 +31,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_action_next
+import com.mileway.core.ui.resources.core_action_skip
+import com.mileway.core.ui.resources.core_get_started
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 /** One page of an [OnboardingCarousel], a hero icon, title and supporting copy. */
 data class OnboardingPage(
@@ -52,7 +57,7 @@ fun OnboardingCarousel(
     onFinish: () -> Unit,
     modifier: Modifier = Modifier,
     onSkip: () -> Unit = onFinish,
-    finishLabel: String = "Get started",
+    finishLabel: String = stringResource(Res.string.core_get_started),
 ) {
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val scope = rememberCoroutineScope()
@@ -61,7 +66,7 @@ fun OnboardingCarousel(
     Column(modifier = modifier.fillMaxSize().padding(24.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
             TextButton(onClick = onSkip, enabled = !isLast) {
-                Text(if (isLast) "" else "Skip")
+                Text(if (isLast) "" else stringResource(Res.string.core_action_skip))
             }
         }
 
@@ -102,7 +107,7 @@ fun OnboardingCarousel(
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(8.dp),
         ) {
-            Text(if (isLast) finishLabel else "Next", fontWeight = FontWeight.Bold)
+            Text(if (isLast) finishLabel else stringResource(Res.string.core_action_next), fontWeight = FontWeight.Bold)
         }
     }
 }

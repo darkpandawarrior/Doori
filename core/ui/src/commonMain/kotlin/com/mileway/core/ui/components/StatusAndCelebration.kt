@@ -53,8 +53,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_airplane_mode
+import com.mileway.core.ui.resources.core_cd_network_connected
+import com.mileway.core.ui.resources.core_cd_network_disconnected
+import com.mileway.core.ui.resources.core_cd_network_unknown
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -262,7 +268,7 @@ private fun NetworkStatusBadge(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Flight,
-                        contentDescription = "Airplane mode",
+                        contentDescription = stringResource(Res.string.core_cd_airplane_mode),
                         tint = Color.White,
                         modifier = Modifier.size(size * 0.6f),
                     )
@@ -288,7 +294,7 @@ private fun NetworkStatusBadge(
                                     networkInfo.type,
                                     networkInfo.signalStrength,
                                 ),
-                            contentDescription = "Network Connected",
+                            contentDescription = stringResource(Res.string.core_cd_network_connected),
                             tint = Color.White,
                             modifier =
                                 Modifier
@@ -354,7 +360,7 @@ private fun NetworkStatusBadge(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Network Disconnected",
+                            contentDescription = stringResource(Res.string.core_cd_network_disconnected),
                             tint = Color.White,
                             modifier = Modifier.size(size * 0.5f),
                         )
@@ -385,7 +391,7 @@ private fun NetworkStatusBadge(
                     ) {
                         Icon(
                             imageVector = Icons.Default.NetworkCheck,
-                            contentDescription = "Network Status Unknown",
+                            contentDescription = stringResource(Res.string.core_cd_network_unknown),
                             tint = Color.White,
                             modifier =
                                 Modifier

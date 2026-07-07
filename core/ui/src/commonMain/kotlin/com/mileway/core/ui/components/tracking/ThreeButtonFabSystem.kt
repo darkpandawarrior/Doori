@@ -47,7 +47,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.TrackMilesMainActionButton
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_fab_actions
+import com.mileway.core.ui.resources.core_geo_check_in
+import com.mileway.core.ui.resources.core_quick_actions
+import com.mileway.core.ui.resources.core_track_start
+import com.mileway.core.ui.resources.core_track_stop
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A single quick action surfaced in the expanding grid above the control cluster.
@@ -158,7 +165,7 @@ fun ThreeButtonFabSystem(
 
                 // Hero START / STOP.
                 TrackMilesMainActionButton(
-                    text = if (isActive) "STOP" else "START",
+                    text = if (isActive) stringResource(Res.string.core_track_stop) else stringResource(Res.string.core_track_start),
                     icon = if (isActive) Icons.Filled.Stop else Icons.Filled.PlayArrow,
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -177,7 +184,7 @@ fun ThreeButtonFabSystem(
                     Spacer(Modifier.width(DesignTokens.Spacing.xl))
                     SideFab(
                         icon = if (menuExpanded) Icons.Filled.Close else Icons.Filled.Apps,
-                        label = "Actions",
+                        label = stringResource(Res.string.core_fab_actions),
                         container = MaterialTheme.colorScheme.primaryContainer,
                         content = MaterialTheme.colorScheme.onPrimaryContainer,
                         onClick = {
@@ -240,7 +247,12 @@ private fun GeoCheckInChip(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Icon(Icons.Filled.LocationOn, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-            Text("Geo Check-In", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold, color = Color.White)
+            Text(
+                stringResource(Res.string.core_geo_check_in),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
+            )
         }
     }
 }
@@ -273,7 +285,7 @@ private fun QuickActionGrid(
     ) {
         Column(Modifier.padding(DesignTokens.Spacing.l)) {
             Text(
-                text = "Quick Actions",
+                text = stringResource(Res.string.core_quick_actions),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,

@@ -30,7 +30,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_clear
+import com.mileway.core.ui.resources.core_search_placeholder
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Reusable searchable-picker scaffold: a modal sheet with a title
@@ -45,7 +49,7 @@ fun <T> SearchablePickerSheet(
     items: List<T>,
     filter: (item: T, query: String) -> Boolean,
     onDismiss: () -> Unit,
-    searchPlaceholder: String = "Search…",
+    searchPlaceholder: String = stringResource(Res.string.core_search_placeholder),
     results: @Composable ColumnScope.(filtered: List<T>, query: String) -> Unit,
 ) {
     var query by remember { mutableStateOf("") }
@@ -74,7 +78,7 @@ fun <T> AsyncSearchablePickerSheet(
     title: String,
     onSearch: suspend (String) -> List<T>,
     onDismiss: () -> Unit,
-    searchPlaceholder: String = "Search…",
+    searchPlaceholder: String = stringResource(Res.string.core_search_placeholder),
     debounceMs: Long = 300L,
     results: @Composable ColumnScope.(state: PickerSearchState<T>) -> Unit,
 ) {
@@ -138,7 +142,7 @@ private fun PickerScaffold(
                 trailingIcon = {
                     if (query.isNotEmpty()) {
                         IconButton(onClick = { onQueryChange("") }) {
-                            Icon(Icons.Filled.Clear, contentDescription = "Clear")
+                            Icon(Icons.Filled.Clear, contentDescription = stringResource(Res.string.core_cd_clear))
                         }
                     }
                 },

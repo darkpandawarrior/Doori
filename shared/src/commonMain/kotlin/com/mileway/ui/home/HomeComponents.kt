@@ -94,6 +94,43 @@ import com.mileway.core.ui.components.CurrentLocationPinMap
 import com.mileway.core.ui.components.LocationPin
 import com.mileway.core.ui.components.ScanlineOverlay
 import com.mileway.core.ui.previews.PreviewSurface
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_dismiss
+import com.mileway.core.ui.resources.core_cd_search
+import com.mileway.core.ui.resources.shared_home_action_required
+import com.mileway.core.ui.resources.shared_home_balance
+import com.mileway.core.ui.resources.shared_home_cd_dismiss_welcome
+import com.mileway.core.ui.resources.shared_home_cd_notifications
+import com.mileway.core.ui.resources.shared_home_check_in
+import com.mileway.core.ui.resources.shared_home_check_in_in
+import com.mileway.core.ui.resources.shared_home_check_in_office
+import com.mileway.core.ui.resources.shared_home_check_in_out
+import com.mileway.core.ui.resources.shared_home_check_in_subtitle
+import com.mileway.core.ui.resources.shared_home_greeting
+import com.mileway.core.ui.resources.shared_home_greeting_subtitle
+import com.mileway.core.ui.resources.shared_home_km_total
+import com.mileway.core.ui.resources.shared_home_log_miles
+import com.mileway.core.ui.resources.shared_home_mileage
+import com.mileway.core.ui.resources.shared_home_my_cards
+import com.mileway.core.ui.resources.shared_home_pay
+import com.mileway.core.ui.resources.shared_home_recent
+import com.mileway.core.ui.resources.shared_home_recent_activity
+import com.mileway.core.ui.resources.shared_home_request
+import com.mileway.core.ui.resources.shared_home_request_card
+import com.mileway.core.ui.resources.shared_home_signed_in_at
+import com.mileway.core.ui.resources.shared_home_start
+import com.mileway.core.ui.resources.shared_home_stat_amount
+import com.mileway.core.ui.resources.shared_home_stat_distance
+import com.mileway.core.ui.resources.shared_home_stat_trips
+import com.mileway.core.ui.resources.shared_home_take_action
+import com.mileway.core.ui.resources.shared_home_track_journey
+import com.mileway.core.ui.resources.shared_home_view_all
+import com.mileway.core.ui.resources.shared_home_welcome
+import com.mileway.core.ui.resources.shared_home_welcome_named
+import com.mileway.core.ui.resources.shared_status_approved
+import com.mileway.core.ui.resources.shared_status_pending
+import com.mileway.core.ui.resources.shared_status_rejected
+import com.mileway.core.ui.resources.shared_status_submitted
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -106,6 +143,7 @@ import com.mileway.stub.AtAGlanceCounts
 import com.mileway.stub.MarketingCarouselItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 // =============================================================================
 // Header
@@ -207,12 +245,12 @@ fun HomeProfileHeader(
 
             Column(modifier = Modifier.weight(1f)) {
                 AutoSizeGreeting(
-                    greeting = "Hello,",
+                    greeting = stringResource(Res.string.shared_home_greeting),
                     name = name,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Text(
-                    text = "Let's manage your spends!",
+                    text = stringResource(Res.string.shared_home_greeting_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f),
                     maxLines = 1,
@@ -230,7 +268,7 @@ fun HomeProfileHeader(
 
             HeaderIconButton(
                 icon = Icons.Filled.Search,
-                contentDescription = "Search",
+                contentDescription = stringResource(Res.string.core_cd_search),
                 onClick = onSearch,
             )
 
@@ -238,7 +276,7 @@ fun HomeProfileHeader(
             Box {
                 HeaderIconButton(
                     icon = Icons.Filled.Notifications,
-                    contentDescription = "Notifications",
+                    contentDescription = stringResource(Res.string.shared_home_cd_notifications),
                     onClick = onNotifications,
                 )
                 if (notificationCount > 0) {
@@ -344,7 +382,7 @@ fun ActionRequiredCard(
                         modifier = Modifier.size(DesignTokens.IconSize.badge),
                     )
                     Text(
-                        text = "Action Required",
+                        text = stringResource(Res.string.shared_home_action_required),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -374,7 +412,7 @@ fun ActionRequiredCard(
                         ),
                 ) {
                     Text(
-                        text = "Take Action",
+                        text = stringResource(Res.string.shared_home_take_action),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -430,7 +468,12 @@ fun WelcomeBanner(
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (displayName.isNullOrBlank()) "Welcome!" else "Welcome, $displayName!",
+                        text =
+                            if (displayName.isNullOrBlank()) {
+                                stringResource(Res.string.shared_home_welcome)
+                            } else {
+                                stringResource(Res.string.shared_home_welcome_named, displayName)
+                            },
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -438,7 +481,7 @@ fun WelcomeBanner(
                     if (!officeName.isNullOrBlank()) {
                         Spacer(Modifier.height(DesignTokens.Spacing.xs))
                         Text(
-                            text = "You're signed in at $officeName.",
+                            text = stringResource(Res.string.shared_home_signed_in_at, officeName),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -447,7 +490,7 @@ fun WelcomeBanner(
                 IconButton(onClick = onDismiss, modifier = Modifier.size(DesignTokens.IconSize.minTouchTarget)) {
                     Icon(
                         Icons.Filled.Close,
-                        contentDescription = "Dismiss welcome banner",
+                        contentDescription = stringResource(Res.string.shared_home_cd_dismiss_welcome),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(16.dp),
                     )
@@ -708,7 +751,7 @@ private fun StartPill(onClick: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
         ) {
             Text(
-                text = "Start",
+                text = stringResource(Res.string.shared_home_start),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.surface,
@@ -965,7 +1008,12 @@ fun AnimatedBannerStrip(
                             onClick = { dismissed = true },
                             modifier = Modifier.size(DesignTokens.IconSize.minTouchTarget),
                         ) {
-                            Icon(Icons.Filled.Close, contentDescription = "Dismiss", tint = banner.color, modifier = Modifier.size(16.dp))
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = stringResource(Res.string.action_dismiss),
+                                tint = banner.color,
+                                modifier = Modifier.size(16.dp),
+                            )
                         }
                     }
                 }
@@ -1096,9 +1144,9 @@ fun MyCardsSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader("My Cards", Icons.Filled.CreditCard)
+            HomeSectionHeader(stringResource(Res.string.shared_home_my_cards), Icons.Filled.CreditCard)
             TextButton(onClick = { scope.launch { onSnackbar() } }) {
-                Text("Request Card", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(Res.string.shared_home_request_card), style = MaterialTheme.typography.labelMedium)
             }
         }
         LazyRow(
@@ -1133,13 +1181,13 @@ private fun MockCardView(
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 Column {
-                    Text("Balance", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
+                    Text(stringResource(Res.string.shared_home_balance), style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
                     Text(card.balance, style = MaterialTheme.typography.titleMedium.dataStyle(), fontWeight = FontWeight.Bold, color = Color.White)
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(onClick = onAction, shape = RoundedCornerShape(20.dp), color = Color.White.copy(alpha = 0.2f)) {
                         Text(
-                            "Pay",
+                            stringResource(Res.string.shared_home_pay),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -1152,7 +1200,7 @@ private fun MockCardView(
                         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f)),
                     ) {
                         Text(
-                            "Request",
+                            stringResource(Res.string.shared_home_request),
                             style = MaterialTheme.typography.labelSmall,
                             color = Color.White,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
@@ -1193,9 +1241,9 @@ fun RecentActivitySection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader("Recent Activity", Icons.Filled.CheckCircle)
+            HomeSectionHeader(stringResource(Res.string.shared_home_recent_activity), Icons.Filled.CheckCircle)
             TextButton(onClick = { scope.launch { onSnackbar() } }) {
-                Text("View All", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(Res.string.shared_home_view_all), style = MaterialTheme.typography.labelMedium)
             }
         }
         RECENT_ACTIVITIES.forEachIndexed { index, item ->
@@ -1221,10 +1269,10 @@ private fun ActivityRow(
         }
     val statusLabel =
         when (item.status) {
-            ActivityStatus.APPROVED -> "Approved"
-            ActivityStatus.PENDING -> "Pending"
-            ActivityStatus.SUBMITTED -> "Submitted"
-            ActivityStatus.REJECTED -> "Rejected"
+            ActivityStatus.APPROVED -> stringResource(Res.string.shared_status_approved)
+            ActivityStatus.PENDING -> stringResource(Res.string.shared_status_pending)
+            ActivityStatus.SUBMITTED -> stringResource(Res.string.shared_status_submitted)
+            ActivityStatus.REJECTED -> stringResource(Res.string.shared_status_rejected)
         }
     Row(
         modifier =
@@ -1312,13 +1360,13 @@ fun HomeMileageCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Mileage",
+                        text = stringResource(Res.string.shared_home_mileage),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
                     Text(
-                        text = "${WEEK_KM_DEMO.formatDecimal(0)} km total",
+                        text = stringResource(Res.string.shared_home_km_total, WEEK_KM_DEMO.formatDecimal(0)),
                         style = MaterialTheme.typography.bodyLarge.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.9f),
@@ -1387,9 +1435,17 @@ fun HomeMileageCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    MileageStat(label = "Trips", value = WEEK_TRIPS_DEMO.toString(), modifier = Modifier.weight(1f))
-                    MileageStat(label = "Distance", value = "${WEEK_KM_DEMO.formatDecimal(0)} km", modifier = Modifier.weight(1f))
-                    MileageStat(label = "Amount", value = "₹${WEEK_AMOUNT_DEMO.formatDecimal(0)}", modifier = Modifier.weight(1f))
+                    MileageStat(label = stringResource(Res.string.shared_home_stat_trips), value = WEEK_TRIPS_DEMO.toString(), modifier = Modifier.weight(1f))
+                    MileageStat(
+                        label = stringResource(Res.string.shared_home_stat_distance),
+                        value = "${WEEK_KM_DEMO.formatDecimal(0)} km",
+                        modifier = Modifier.weight(1f),
+                    )
+                    MileageStat(
+                        label = stringResource(Res.string.shared_home_stat_amount),
+                        value = "₹${WEEK_AMOUNT_DEMO.formatDecimal(0)}",
+                        modifier = Modifier.weight(1f),
+                    )
                 }
 
                 // Quick-action buttons
@@ -1404,14 +1460,14 @@ fun HomeMileageCard(
                     ) {
                         Icon(Icons.Filled.DirectionsCar, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
                         Spacer(Modifier.width(DesignTokens.Spacing.xs))
-                        Text("Track Journey", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(Res.string.shared_home_track_journey), style = MaterialTheme.typography.labelMedium)
                     }
                     OutlinedButton(
                         onClick = onLogMiles,
                         modifier = Modifier.weight(1f),
                         shape = DesignTokens.Shape.roundedSm,
                     ) {
-                        Text("Log Miles", style = MaterialTheme.typography.labelMedium)
+                        Text(stringResource(Res.string.shared_home_log_miles), style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -1496,13 +1552,13 @@ fun HomeCheckInCard(
                     }
                     Column {
                         Text(
-                            "Check In",
+                            stringResource(Res.string.shared_home_check_in),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            "Office & client locations",
+                            stringResource(Res.string.shared_home_check_in_subtitle),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -1519,12 +1575,12 @@ fun HomeCheckInCard(
             ) {
                 Icon(Icons.Filled.Navigation, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
                 Spacer(Modifier.width(DesignTokens.Spacing.xs))
-                Text("Check In at Office", style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(Res.string.shared_home_check_in_office), style = MaterialTheme.typography.labelMedium)
             }
 
             // Recent check-ins list
             Text(
-                "Recent",
+                stringResource(Res.string.shared_home_recent),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -1553,7 +1609,7 @@ fun HomeCheckInCard(
                         Text(entry.time, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(
-                        if (entry.isIn) "IN" else "OUT",
+                        if (entry.isIn) stringResource(Res.string.shared_home_check_in_in) else stringResource(Res.string.shared_home_check_in_out),
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         fontWeight = FontWeight.Bold,
                         color = if (entry.isIn) MilewayColors.success else MilewayColors.warning,

@@ -72,8 +72,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_activity
+import com.mileway.core.ui.resources.core_analyzing_activity
+import com.mileway.core.ui.resources.core_unit_kmh
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
@@ -372,7 +377,7 @@ fun ActivityTimeline(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Activity",
+                text = stringResource(Res.string.core_activity),
                 style = MaterialTheme.typography.labelMedium,
                 color = onSurface.copy(alpha = 0.6f),
             )
@@ -399,7 +404,7 @@ fun ActivityTimeline(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Analyzing activity…",
+                text = stringResource(Res.string.core_analyzing_activity),
                 style = MaterialTheme.typography.bodySmall,
                 color = onSurface.copy(alpha = 0.6f),
             )
@@ -650,7 +655,7 @@ fun HeroTrackingCard(
                             )
                         }
                         Text(
-                            text = "km/h",
+                            text = stringResource(Res.string.core_unit_kmh),
                             style = MaterialTheme.typography.labelMedium,
                             color = onSurface.copy(alpha = 0.55f),
                         )

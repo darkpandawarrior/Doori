@@ -50,8 +50,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_search
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
+import org.jetbrains.compose.resources.stringResource
 
 /** Title font size when the bar is fully expanded. */
 private val TitleExpandedFontSize = 22.sp
@@ -352,7 +355,7 @@ private fun AnimatedSearchAction(
             // Search glyph with the breathing pulse (paused while pressed).
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = "Search",
+                contentDescription = stringResource(Res.string.core_cd_search),
                 tint = tint,
                 modifier =
                     Modifier

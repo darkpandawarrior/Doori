@@ -16,6 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_cancel
+import com.mileway.core.ui.resources.action_ok
+import com.mileway.core.ui.resources.core_select_date
+import com.mileway.core.ui.resources.core_select_time
 import dev.darkokoa.datetimewheelpicker.WheelDatePicker
 import dev.darkokoa.datetimewheelpicker.WheelTimePicker
 import kotlinx.datetime.LocalDate
@@ -23,6 +28,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -43,7 +49,7 @@ fun WheelDatePickerDialog(
     initialDateMillis: Long?,
     onConfirm: (millis: Long) -> Unit,
     onDismiss: () -> Unit,
-    title: String = "Select date",
+    title: String = stringResource(Res.string.core_select_date),
 ) {
     val startDate =
         remember(initialDateMillis) {
@@ -61,11 +67,11 @@ fun WheelDatePickerDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.action_cancel)) }
             Button(
                 onClick = { onConfirm(snapped.toEpochMillis()) },
                 modifier = Modifier.weight(1f),
-            ) { Text("OK") }
+            ) { Text(stringResource(Res.string.action_ok)) }
         }
     }
 }
@@ -79,7 +85,7 @@ fun WheelTimePickerDialog(
     initialMinutes: Int,
     onConfirm: (hour: Int, minute: Int) -> Unit,
     onDismiss: () -> Unit,
-    title: String = "Select time",
+    title: String = stringResource(Res.string.core_select_time),
 ) {
     val startTime =
         remember(initialMinutes) {
@@ -100,11 +106,11 @@ fun WheelTimePickerDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.action_cancel)) }
             Button(
                 onClick = { onConfirm(snapped.hour, snapped.minute) },
                 modifier = Modifier.weight(1f),
-            ) { Text("OK") }
+            ) { Text(stringResource(Res.string.action_ok)) }
         }
     }
 }

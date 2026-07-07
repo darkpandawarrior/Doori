@@ -85,6 +85,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_collapse_nav
+import com.mileway.core.ui.resources.core_cd_collapsed_nav_for
+import com.mileway.core.ui.resources.core_cd_switch_to
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -663,7 +668,7 @@ fun DraggableFloatingFab(
             ) {
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Collapse bottom navigation",
+                    contentDescription = stringResource(Res.string.core_cd_collapse_nav),
                     modifier = Modifier.size(12.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -925,7 +930,7 @@ fun CollapsedBottomPuck(
                             item.selectedIcon != null -> {
                                 Icon(
                                     imageVector = item.selectedIcon,
-                                    contentDescription = "Switch to ${item.label}",
+                                    contentDescription = stringResource(Res.string.core_cd_switch_to, item.label),
                                     modifier = Modifier.size(if (isHovered) 22.dp else 19.dp),
                                     tint =
                                         if (isHovered) {
@@ -938,7 +943,7 @@ fun CollapsedBottomPuck(
                             item.painter != null -> {
                                 Icon(
                                     painter = item.painter.invoke(),
-                                    contentDescription = "Switch to ${item.label}",
+                                    contentDescription = stringResource(Res.string.core_cd_switch_to, item.label),
                                     modifier = Modifier.size(if (isHovered) 24.dp else 20.dp),
                                     tint =
                                         if (isHovered) {
@@ -1036,7 +1041,7 @@ fun CollapsedBottomPuck(
                     selectedItem.selectedIcon != null -> {
                         Icon(
                             imageVector = selectedItem.selectedIcon,
-                            contentDescription = "Collapsed navigation for ${selectedItem.label}",
+                            contentDescription = stringResource(Res.string.core_cd_collapsed_nav_for, selectedItem.label),
                             modifier = Modifier.size(26.dp),
                             tint = MaterialTheme.colorScheme.onPrimary,
                         )
@@ -1044,7 +1049,7 @@ fun CollapsedBottomPuck(
                     selectedItem.painter != null -> {
                         Icon(
                             painter = selectedItem.painter.invoke(),
-                            contentDescription = "Collapsed navigation for ${selectedItem.label}",
+                            contentDescription = stringResource(Res.string.core_cd_collapsed_nav_for, selectedItem.label),
                             modifier = Modifier.size(34.dp),
                             tint = MaterialTheme.colorScheme.onPrimary,
                         )

@@ -18,6 +18,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_selected
+import org.jetbrains.compose.resources.stringResource
 
 /** One choice in a [SortBottomSheet], a value plus its leading icon and label. */
 data class SortOption<T>(
@@ -77,7 +80,7 @@ fun <T> SortBottomSheet(
                 if (isSelected) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "Selected",
+                        contentDescription = stringResource(Res.string.core_cd_selected),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(20.dp),
                     )

@@ -35,8 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.platform.BiometricAuthenticator
 import com.mileway.core.platform.BiometricResult
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.shared_auth_enter_pin
+import com.mileway.core.ui.resources.shared_auth_locked_out
+import com.mileway.core.ui.resources.shared_auth_unlock
+import com.mileway.core.ui.resources.shared_auth_unlock_subtitle
+import com.mileway.core.ui.resources.shared_auth_use_biometrics
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -100,14 +107,14 @@ fun CheckPinScreen(
 
             Spacer(Modifier.height(DesignTokens.Spacing.l))
             Text(
-                text = "Enter your PIN",
+                text = stringResource(Res.string.shared_auth_enter_pin),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text = "Unlock Mileway to continue",
+                text = stringResource(Res.string.shared_auth_unlock_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -119,7 +126,7 @@ fun CheckPinScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             val statusText =
                 when {
-                    state.isLockedOut -> "Locked — sign out and back in to try again"
+                    state.isLockedOut -> stringResource(Res.string.shared_auth_locked_out)
                     state.error != null -> state.error.orEmpty()
                     else -> " "
                 }
@@ -145,7 +152,7 @@ fun CheckPinScreen(
                 shape = DesignTokens.Shape.roundedSm,
                 colors = ButtonDefaults.buttonColors(),
             ) {
-                Text("Unlock", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.shared_auth_unlock), fontWeight = FontWeight.Bold)
             }
 
             if (biometricAvailable) {
@@ -164,7 +171,7 @@ fun CheckPinScreen(
                 ) {
                     Icon(imageVector = Icons.Filled.Fingerprint, contentDescription = null)
                     Spacer(Modifier.width(DesignTokens.Spacing.s))
-                    Text("Use biometrics instead", fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.shared_auth_use_biometrics), fontWeight = FontWeight.SemiBold)
                 }
             }
         }

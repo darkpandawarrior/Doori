@@ -36,7 +36,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_collapse
+import com.mileway.core.ui.resources.core_cd_expand
+import com.mileway.core.ui.resources.core_current_journey
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 // =============================================================================
 // Expandable journey-stats card
@@ -60,7 +65,7 @@ fun ExpandableStatsCard(
     expanded: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
-    title: String = "Current Journey",
+    title: String = stringResource(Res.string.core_current_journey),
 ) {
     val chevronRotation by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
@@ -94,7 +99,7 @@ fun ExpandableStatsCard(
                 )
                 Icon(
                     imageVector = Icons.Filled.ExpandMore,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) stringResource(Res.string.core_cd_collapse) else stringResource(Res.string.core_cd_expand),
                     modifier = Modifier.rotate(chevronRotation),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

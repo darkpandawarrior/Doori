@@ -41,6 +41,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_cancel
+import com.mileway.core.ui.resources.core_action_confirm
+import com.mileway.core.ui.resources.core_action_done
+import com.mileway.core.ui.resources.core_bulk_remarks_note
+import com.mileway.core.ui.resources.core_remarks_placeholder
+import com.mileway.core.ui.resources.core_remarks_required
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Tone for [ActionConfirmationBottomSheet]. Drives the
@@ -85,13 +93,13 @@ fun ActionConfirmationBottomSheet(
     onConfirm: (remarks: String) -> Unit,
     onDismiss: () -> Unit,
     description: String? = null,
-    confirmLabel: String = "Confirm",
-    dismissLabel: String = "Cancel",
+    confirmLabel: String = stringResource(Res.string.core_action_confirm),
+    dismissLabel: String = stringResource(Res.string.action_cancel),
     icon: ImageVector = Icons.AutoMirrored.Filled.Help,
     tone: ActionConfirmationToneType = ActionConfirmationToneType.Success,
     showRemarksField: Boolean = false,
     isRemarksMandatory: Boolean = false,
-    remarksPlaceholder: String = "Enter remarks",
+    remarksPlaceholder: String = stringResource(Res.string.core_remarks_placeholder),
     maxRemarksLength: Int = 500,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
@@ -157,7 +165,7 @@ fun ActionConfirmationBottomSheet(
                     isError = showValidationError,
                     supportingText = {
                         if (showValidationError) {
-                            Text("Remarks are required for this action", color = MaterialTheme.colorScheme.error)
+                            Text(stringResource(Res.string.core_remarks_required), color = MaterialTheme.colorScheme.error)
                         } else {
                             Text("${remarks.length}/$maxRemarksLength")
                         }
@@ -228,7 +236,7 @@ fun BulkActionConfirmationBottomSheet(
         }
     ActionConfirmationBottomSheet(
         title = "${actionType.name} $selectedCount item${if (selectedCount == 1) "" else "s"}",
-        description = "The same remarks will be applied to all selected items.",
+        description = stringResource(Res.string.core_bulk_remarks_note),
         confirmLabel = confirmLabel,
         icon = icon,
         tone = tone,
@@ -271,7 +279,7 @@ fun BulkActionProgressBottomSheet(
             if (!inProgress) {
                 Spacer(Modifier.height(20.dp))
                 Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(8.dp)) {
-                    Text("Done", fontWeight = FontWeight.Bold)
+                    Text(stringResource(Res.string.core_action_done), fontWeight = FontWeight.Bold)
                 }
             }
         }

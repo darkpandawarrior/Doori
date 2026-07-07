@@ -33,7 +33,13 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_action_hide
+import com.mileway.core.ui.resources.core_action_show
+import com.mileway.core.ui.resources.core_cd_collapse
+import com.mileway.core.ui.resources.core_cd_expand
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Reusable section card with consistent styling.
@@ -161,12 +167,12 @@ fun CollapsibleSectionCard(
                 modifier = Modifier.height(32.dp),
             ) {
                 Text(
-                    text = if (expanded) "Hide" else "Show",
+                    text = if (expanded) stringResource(Res.string.core_action_hide) else stringResource(Res.string.core_action_show),
                     style = MaterialTheme.typography.labelMedium,
                 )
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    contentDescription = if (expanded) stringResource(Res.string.core_cd_collapse) else stringResource(Res.string.core_cd_expand),
                     modifier =
                         Modifier
                             .padding(start = DesignTokens.Spacing.xs)

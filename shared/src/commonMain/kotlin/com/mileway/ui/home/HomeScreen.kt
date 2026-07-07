@@ -35,8 +35,13 @@ import com.mileway.core.platform.FeatureFlags
 import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.components.DotsIndicator
 import com.mileway.core.ui.platform.LocalAppReviewManager
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.shared_home_at_a_glance
+import com.mileway.core.ui.resources.shared_home_benefits
+import com.mileway.core.ui.resources.shared_home_quick_actions
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.stub.MarketingCarouselItem
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -173,7 +178,7 @@ fun HomeScreenContent(
 
                 // 3. Quick Actions.
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                    HomeSectionHeader(title = "Quick Actions", leadingIcon = Icons.Filled.Bolt)
+                    HomeSectionHeader(title = stringResource(Res.string.shared_home_quick_actions), leadingIcon = Icons.Filled.Bolt)
                     QuickActionsRow(
                         actions =
                             quickActions(
@@ -195,7 +200,7 @@ fun HomeScreenContent(
 
                 // 6. At A Glance 2×2 grid — each cell now routes to a distinct destination (Bug 5).
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                    HomeSectionHeader(title = "At A Glance", leadingIcon = Icons.Filled.Insights)
+                    HomeSectionHeader(title = stringResource(Res.string.shared_home_at_a_glance), leadingIcon = Icons.Filled.Insights)
                     AtAGlanceGrid(
                         counts = state.atAGlance,
                         onPendingExpenses = onAddExpense,
@@ -275,7 +280,7 @@ private fun FeatureCarousel(
 private fun MarketingStrip(items: List<MarketingCarouselItem>) {
     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
         Box(modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal)) {
-            HomeSectionHeader(title = "Benefits", leadingIcon = Icons.Filled.CardGiftcard)
+            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits), leadingIcon = Icons.Filled.CardGiftcard)
         }
         LazyRow(
             contentPadding = PaddingValues(horizontal = DesignTokens.Spacing.screenHorizontal),
