@@ -18,6 +18,7 @@ import com.mileway.core.data.plugin.PersonaPresetProvider
 import com.mileway.core.data.plugin.PluginDebugForceSource
 import com.mileway.core.data.plugin.PluginDebugForceStore
 import com.mileway.core.data.plugin.PluginRegistry
+import com.mileway.core.data.review.SimulatedReviewEngine
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.ActiveAccountStore
 import com.mileway.core.data.session.CurrentTrackDataSource
@@ -67,6 +68,8 @@ val coreDataModule =
         single<PersonaPresetProvider> { EmptyPersonaPresetProvider }
         // PLAN_V24 P0.4: the one OTP simulator, injected wherever a purpose needs a code.
         single { LocalOtpEngine() }
+        // PLAN_V24 P0.5: async review simulator (KYC, referral payout, deletion, self-audit).
+        single { SimulatedReviewEngine() }
         single {
             PluginRegistry(
                 overrideDao = get(),
