@@ -2,9 +2,9 @@ package com.mileway.feature.logging.ui.model
 
 import com.mileway.core.data.location.SavedPlace
 
-/**
- * Boundary mappers between core:data's persistence model ([SavedPlace]) and the logging feature's UI
- * model ([LocationEntry]). Kept here so core:data stays UI-free — the store persists `SavedPlace`, the
+/*
+ * Boundary mappers between core:data's persistence model (SavedPlace) and the logging feature's UI
+ * model (LocationEntry). Kept here so core:data stays UI-free — the store persists `SavedPlace`, the
  * screen/ViewModel work in `LocationEntry`.
  */
 
