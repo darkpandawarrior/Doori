@@ -63,6 +63,57 @@ import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.theme.MilewayThemePicker
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_settings_about
+import com.mileway.core.ui.resources.profile_settings_account
+import com.mileway.core.ui.resources.profile_settings_aggressive_gps
+import com.mileway.core.ui.resources.profile_settings_aggressive_gps_desc
+import com.mileway.core.ui.resources.profile_settings_app_version
+import com.mileway.core.ui.resources.profile_settings_back
+import com.mileway.core.ui.resources.profile_settings_battery_aware
+import com.mileway.core.ui.resources.profile_settings_battery_aware_desc
+import com.mileway.core.ui.resources.profile_settings_custom_color
+import com.mileway.core.ui.resources.profile_settings_custom_color_desc
+import com.mileway.core.ui.resources.profile_settings_custom_theme_color
+import com.mileway.core.ui.resources.profile_settings_customization
+import com.mileway.core.ui.resources.profile_settings_dark_theme
+import com.mileway.core.ui.resources.profile_settings_dark_theme_desc
+import com.mileway.core.ui.resources.profile_settings_demo_build
+import com.mileway.core.ui.resources.profile_settings_denied
+import com.mileway.core.ui.resources.profile_settings_developer
+import com.mileway.core.ui.resources.profile_settings_developer_options
+import com.mileway.core.ui.resources.profile_settings_developer_options_desc
+import com.mileway.core.ui.resources.profile_settings_distance_units
+import com.mileway.core.ui.resources.profile_settings_employee_code
+import com.mileway.core.ui.resources.profile_settings_experimental
+import com.mileway.core.ui.resources.profile_settings_granted
+import com.mileway.core.ui.resources.profile_settings_low_end
+import com.mileway.core.ui.resources.profile_settings_low_end_desc
+import com.mileway.core.ui.resources.profile_settings_map_provider
+import com.mileway.core.ui.resources.profile_settings_map_provider_desc
+import com.mileway.core.ui.resources.profile_settings_material_you_desc
+import com.mileway.core.ui.resources.profile_settings_notifications
+import com.mileway.core.ui.resources.profile_settings_off
+import com.mileway.core.ui.resources.profile_settings_organization
+import com.mileway.core.ui.resources.profile_settings_palette_style
+import com.mileway.core.ui.resources.profile_settings_perm_denied
+import com.mileway.core.ui.resources.profile_settings_permission_health
+import com.mileway.core.ui.resources.profile_settings_preferences
+import com.mileway.core.ui.resources.profile_settings_recommended
+import com.mileway.core.ui.resources.profile_settings_reset
+import com.mileway.core.ui.resources.profile_settings_reset_confirm
+import com.mileway.core.ui.resources.profile_settings_reset_desc
+import com.mileway.core.ui.resources.profile_settings_reset_sheet_desc
+import com.mileway.core.ui.resources.profile_settings_subtitle
+import com.mileway.core.ui.resources.profile_settings_theme
+import com.mileway.core.ui.resources.profile_settings_theme_color
+import com.mileway.core.ui.resources.profile_settings_theme_color_custom
+import com.mileway.core.ui.resources.profile_settings_title
+import com.mileway.core.ui.resources.profile_settings_trip_reminders_on
+import com.mileway.core.ui.resources.profile_settings_unit_km
+import com.mileway.core.ui.resources.profile_settings_unit_miles
+import com.mileway.core.ui.resources.profile_settings_use_system_colors
+import com.mileway.core.ui.resources.settings_language
 import com.mileway.core.ui.theme.AccentPalette
 import com.mileway.core.ui.theme.AppLanguage
 import com.mileway.core.ui.theme.DesignTokens
@@ -75,6 +126,7 @@ import com.mileway.feature.profile.model.computePermissionHealth
 import com.mileway.feature.profile.ui.components.SyncDiagnosticsCard
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import android.provider.Settings as SystemSettings
@@ -114,14 +166,14 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(permSnackbarState) },
         topBar = {
             DepthAwareTopBar(
-                title = "Settings",
-                subtitle = "App, privacy & account",
+                title = stringResource(Res.string.profile_settings_title),
+                subtitle = stringResource(Res.string.profile_settings_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(Res.string.profile_settings_back),
                         )
                     }
                 },
@@ -136,11 +188,12 @@ fun SettingsScreen(
                     .verticalScroll(rememberScrollState()),
         ) {
             val permissionRows = rememberPermissionHealthRows()
+            val permDeniedMessage = stringResource(Res.string.profile_settings_perm_denied)
             val requestPermissionLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
                     if (!granted) {
                         permScope.launch {
-                            permSnackbarState.showSnackbar("Denied — enable it from system settings instead.")
+                            permSnackbarState.showSnackbar(permDeniedMessage)
                         }
                     }
                 }
@@ -166,7 +219,7 @@ fun SettingsScreen(
             SyncDiagnosticsCard()
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
-            SettingsSectionLabel("Account")
+            SettingsSectionLabel(stringResource(Res.string.profile_settings_account))
             val header = profile.header
             ListItem(
                 headlineContent = { Text(header.name) },
@@ -174,26 +227,26 @@ fun SettingsScreen(
             )
             if (header.code.isNotBlank()) {
                 ListItem(
-                    headlineContent = { Text("Employee code") },
+                    headlineContent = { Text(stringResource(Res.string.profile_settings_employee_code)) },
                     supportingContent = { Text(header.code) },
                 )
             }
             if (header.tenant.isNotBlank()) {
                 ListItem(
-                    headlineContent = { Text("Organization") },
+                    headlineContent = { Text(stringResource(Res.string.profile_settings_organization)) },
                     supportingContent = { Text(header.tenant) },
                 )
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
-            SettingsSectionLabel("Preferences")
+            SettingsSectionLabel(stringResource(Res.string.profile_settings_preferences))
             // The curated theme dictates light/dark (e.g. Daybreak is light, Matrix is dark), so the
             // manual override is superseded while one is active — surface that instead of a no-op switch.
             ListItem(
-                headlineContent = { Text("Dark theme") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_dark_theme)) },
                 supportingContent = {
-                    Text("Set by the “${milewayTheme.label}” theme — change it above")
+                    Text(stringResource(Res.string.profile_settings_dark_theme_desc, milewayTheme.label))
                 },
                 trailingContent = {
                     Switch(
@@ -204,8 +257,16 @@ fun SettingsScreen(
                 },
             )
             ListItem(
-                headlineContent = { Text("Distance units") },
-                supportingContent = { Text(if (useMiles) "Miles" else "Kilometers") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_distance_units)) },
+                supportingContent = {
+                    Text(
+                        if (useMiles) {
+                            stringResource(Res.string.profile_settings_unit_miles)
+                        } else {
+                            stringResource(Res.string.profile_settings_unit_km)
+                        },
+                    )
+                },
                 trailingContent = {
                     Switch(
                         checked = useMiles,
@@ -214,8 +275,16 @@ fun SettingsScreen(
                 },
             )
             ListItem(
-                headlineContent = { Text("Notifications") },
-                supportingContent = { Text(if (notificationsEnabled) "Trip reminders on" else "Off") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_notifications)) },
+                supportingContent = {
+                    Text(
+                        if (notificationsEnabled) {
+                            stringResource(Res.string.profile_settings_trip_reminders_on)
+                        } else {
+                            stringResource(Res.string.profile_settings_off)
+                        },
+                    )
+                },
                 trailingContent = {
                     Switch(
                         checked = notificationsEnabled,
@@ -229,12 +298,12 @@ fun SettingsScreen(
             // ----------------------------------------------------------------
             // Customization section
             // ----------------------------------------------------------------
-            SettingsSectionLabel("Customization")
+            SettingsSectionLabel(stringResource(Res.string.profile_settings_customization))
 
             // Design Language v2 — curated theme gallery (Matrix / Amoled / Ion / Daybreak).
             // Self-previewing swatches; picking one applies the hand-tuned, AA-verified scheme.
             Text(
-                text = "Theme",
+                text = stringResource(Res.string.profile_settings_theme),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier =
@@ -257,9 +326,15 @@ fun SettingsScreen(
 
             // Theme colour — preset seed the whole scheme is generated from
             ListItem(
-                headlineContent = { Text("Theme color") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_theme_color)) },
                 supportingContent = {
-                    Text(if (customSeedHex.isBlank()) accentPalette.label else "Custom ($customSeedHex)")
+                    Text(
+                        if (customSeedHex.isBlank()) {
+                            accentPalette.label
+                        } else {
+                            stringResource(Res.string.profile_settings_theme_color_custom, customSeedHex)
+                        },
+                    )
                 },
                 trailingContent = {
                     Box(
@@ -279,8 +354,8 @@ fun SettingsScreen(
 
             // Fully custom seed via colour wheel
             ListItem(
-                headlineContent = { Text("Custom color") },
-                supportingContent = { Text("Pick any seed color with the color wheel") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_custom_color)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_custom_color_desc)) },
                 trailingContent = {
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
@@ -293,7 +368,7 @@ fun SettingsScreen(
 
             // Palette generation style
             ListItem(
-                headlineContent = { Text("Palette style") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_palette_style)) },
                 supportingContent = { Text(paletteStyle) },
                 trailingContent = {
                     Icon(
@@ -308,8 +383,8 @@ fun SettingsScreen(
             // Android 12+ wallpaper-derived colours
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 ListItem(
-                    headlineContent = { Text("Use system colors") },
-                    supportingContent = { Text("Material You: colors from your wallpaper") },
+                    headlineContent = { Text(stringResource(Res.string.profile_settings_use_system_colors)) },
+                    supportingContent = { Text(stringResource(Res.string.profile_settings_material_you_desc)) },
                     trailingContent = {
                         Switch(
                             checked = useSystemColors,
@@ -321,7 +396,7 @@ fun SettingsScreen(
 
             // Language / locale
             ListItem(
-                headlineContent = { Text("Language") },
+                headlineContent = { Text(stringResource(Res.string.settings_language)) },
                 supportingContent = { Text(language.displayName) },
                 trailingContent = {
                     Icon(
@@ -335,18 +410,18 @@ fun SettingsScreen(
 
             // Map provider (OSM only, multi-provider toggle not meaningful)
             ListItem(
-                headlineContent = { Text("Map provider") },
-                supportingContent = { Text("OpenStreetMap (fixed: single provider build)") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_map_provider)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_map_provider_desc)) },
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
             // Experimental toggles
-            SettingsSectionLabel("Experimental")
+            SettingsSectionLabel(stringResource(Res.string.profile_settings_experimental))
 
             ListItem(
-                headlineContent = { Text("Battery-aware tracking") },
-                supportingContent = { Text("Reduce GPS polling below 15% battery (real effect)") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_battery_aware)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_battery_aware_desc)) },
                 trailingContent = {
                     Switch(
                         checked = experimentalFlags.batteryAwareTracking,
@@ -355,8 +430,8 @@ fun SettingsScreen(
                 },
             )
             ListItem(
-                headlineContent = { Text("Low-end device tuning") },
-                supportingContent = { Text("Fewer UI animations (cosmetic in demo)") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_low_end)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_low_end_desc)) },
                 trailingContent = {
                     Switch(
                         checked = experimentalFlags.lowEndDeviceTuning,
@@ -365,8 +440,8 @@ fun SettingsScreen(
                 },
             )
             ListItem(
-                headlineContent = { Text("Aggressive GPS filter") },
-                supportingContent = { Text("Tighter spike rejection radius: 40 m vs 80 m (real effect)") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_aggressive_gps)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_aggressive_gps_desc)) },
                 trailingContent = {
                     Switch(
                         checked = experimentalFlags.aggressiveGpsFilter,
@@ -377,20 +452,20 @@ fun SettingsScreen(
 
             // Reset customization
             ListItem(
-                headlineContent = { Text("Reset customization") },
-                supportingContent = { Text("Restore palette, language, and experimental flags to defaults") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_reset)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_reset_desc)) },
                 modifier = Modifier.clickable { showResetConfirm = true },
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
-            SettingsSectionLabel("About")
+            SettingsSectionLabel(stringResource(Res.string.profile_settings_about))
             ListItem(
-                headlineContent = { Text("App version") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_app_version)) },
                 supportingContent = { Text(about.appVersion) },
             )
             Text(
-                text = "Demo build: mock data only, no network calls.",
+                text = stringResource(Res.string.profile_settings_demo_build),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
@@ -402,7 +477,7 @@ fun SettingsScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
 
-            SettingsSectionLabel("Developer")
+            SettingsSectionLabel(stringResource(Res.string.profile_settings_developer))
             ListItem(
                 leadingContent = {
                     Icon(
@@ -411,8 +486,8 @@ fun SettingsScreen(
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 },
-                headlineContent = { Text("Developer options") },
-                supportingContent = { Text("Debug flags, profiles, export tools") },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_developer_options)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_developer_options_desc)) },
                 trailingContent = {
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
@@ -431,7 +506,7 @@ fun SettingsScreen(
 
     if (showPalettePicker) {
         SimpleSelectionDialog(
-            title = "Theme color",
+            title = stringResource(Res.string.profile_settings_theme_color),
             options = AccentPalette.entries.map { it.label },
             selected = if (customSeedHex.isBlank()) accentPalette.label else "",
             onDismiss = { showPalettePicker = false },
@@ -449,7 +524,7 @@ fun SettingsScreen(
                     ?: parseHexColor(accentPalette.seedHex)
                     ?: MaterialTheme.colorScheme.primary,
             showHexcode = true,
-            title = "Custom theme color",
+            title = stringResource(Res.string.profile_settings_custom_theme_color),
             onDismiss = { showColorWheel = false },
             onColorSelected = { _, hex ->
                 showColorWheel = false
@@ -460,7 +535,7 @@ fun SettingsScreen(
 
     if (showStylePicker) {
         SimpleSelectionDialog(
-            title = "Palette style",
+            title = stringResource(Res.string.profile_settings_palette_style),
             options = PaletteStyleNames,
             selected = paletteStyle,
             onDismiss = { showStylePicker = false },
@@ -473,7 +548,7 @@ fun SettingsScreen(
 
     if (showLanguagePicker) {
         SimpleSelectionDialog(
-            title = "Language",
+            title = stringResource(Res.string.settings_language),
             options = AppLanguage.entries.map { it.displayName },
             selected = language.displayName,
             onDismiss = { showLanguagePicker = false },
@@ -495,9 +570,9 @@ fun SettingsScreen(
 
     if (showResetConfirm) {
         ActionConfirmationBottomSheet(
-            title = "Reset customization",
-            description = "Palette, language, and experimental flags will return to defaults.",
-            confirmLabel = "Reset",
+            title = stringResource(Res.string.profile_settings_reset),
+            description = stringResource(Res.string.profile_settings_reset_sheet_desc),
+            confirmLabel = stringResource(Res.string.profile_settings_reset_confirm),
             tone = ActionConfirmationToneType.Warning,
             onConfirm = {
                 showResetConfirm = false
@@ -575,7 +650,7 @@ private fun PermissionHealthSection(
     val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
     val summary = computePermissionHealth(rows.map { it.toHealthEntry() })
 
-    SettingsSectionLabel("Permission Health")
+    SettingsSectionLabel(stringResource(Res.string.profile_settings_permission_health))
 
     Card(
         modifier =
@@ -686,7 +761,12 @@ private fun PermissionCard(
     onToggle: () -> Unit,
 ) {
     val grantedColor = if (entry.isGranted) DesignTokens.StatusColors.success else DesignTokens.StatusColors.error
-    val grantedLabel = if (entry.isGranted) "GRANTED" else "DENIED"
+    val grantedLabel =
+        if (entry.isGranted) {
+            stringResource(Res.string.profile_settings_granted)
+        } else {
+            stringResource(Res.string.profile_settings_denied)
+        }
     ListItem(
         leadingContent = {
             Box(
@@ -725,7 +805,7 @@ private fun PermissionCard(
                 }
                 if (!entry.isRequired) {
                     Text(
-                        "recommended",
+                        stringResource(Res.string.profile_settings_recommended),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                     )

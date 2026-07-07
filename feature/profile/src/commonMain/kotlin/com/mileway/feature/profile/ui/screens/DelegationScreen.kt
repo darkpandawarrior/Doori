@@ -63,6 +63,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_delegation_active
+import com.mileway.core.ui.resources.profile_delegation_add_cd
+import com.mileway.core.ui.resources.profile_delegation_add_new
+import com.mileway.core.ui.resources.profile_delegation_add_title
+import com.mileway.core.ui.resources.profile_delegation_back
+import com.mileway.core.ui.resources.profile_delegation_cancel
+import com.mileway.core.ui.resources.profile_delegation_delegate_to
+import com.mileway.core.ui.resources.profile_delegation_expires
+import com.mileway.core.ui.resources.profile_delegation_my_subtitle
+import com.mileway.core.ui.resources.profile_delegation_my_title
+import com.mileway.core.ui.resources.profile_delegation_none_incoming
+import com.mileway.core.ui.resources.profile_delegation_revoke
+import com.mileway.core.ui.resources.profile_delegation_revoke_desc
+import com.mileway.core.ui.resources.profile_delegation_revoke_title
+import com.mileway.core.ui.resources.profile_delegation_select_member
+import com.mileway.core.ui.resources.profile_delegation_submit
+import com.mileway.core.ui.resources.profile_delegation_subtitle
+import com.mileway.core.ui.resources.profile_delegation_title
+import com.mileway.core.ui.resources.profile_delegation_to_me_subtitle
+import com.mileway.core.ui.resources.profile_delegation_to_me_title
+import com.mileway.core.ui.resources.profile_delegation_type
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.model.Delegation
@@ -74,6 +96,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
@@ -158,14 +181,23 @@ fun DelegationScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_delegation_back), tint = Color.White)
                     }
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Delegation", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Manage who acts on your behalf", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
+                        Text(
+                            stringResource(Res.string.profile_delegation_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            stringResource(Res.string.profile_delegation_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.8f),
+                        )
                     }
                     IconButton(onClick = { showAddSheet = true }) {
-                        Icon(Icons.Default.Add, contentDescription = "Add delegation", tint = Color.White)
+                        Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.profile_delegation_add_cd), tint = Color.White)
                     }
                 }
             }
@@ -176,7 +208,11 @@ fun DelegationScreen(
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
                 item {
-                    SectionHeader(icon = Icons.Default.PersonAddAlt, title = "My Delegations", subtitle = "People you've authorised to act for you")
+                    SectionHeader(
+                        icon = Icons.Default.PersonAddAlt,
+                        title = stringResource(Res.string.profile_delegation_my_title),
+                        subtitle = stringResource(Res.string.profile_delegation_my_subtitle),
+                    )
                 }
                 item {
                     Card(
@@ -203,12 +239,16 @@ fun DelegationScreen(
                 item { Spacer(Modifier.height(DesignTokens.Spacing.s)) }
 
                 item {
-                    SectionHeader(icon = Icons.Default.Group, title = "Delegated To Me", subtitle = "You're covering for these people")
+                    SectionHeader(
+                        icon = Icons.Default.Group,
+                        title = stringResource(Res.string.profile_delegation_to_me_title),
+                        subtitle = stringResource(Res.string.profile_delegation_to_me_subtitle),
+                    )
                 }
                 item {
                     if (DELEGATED_TO_ME.isEmpty()) {
                         Text(
-                            "No active incoming delegations",
+                            stringResource(Res.string.profile_delegation_none_incoming),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -237,7 +277,7 @@ fun DelegationScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(Modifier.width(DesignTokens.Spacing.s))
-                        Text("Add New Delegation")
+                        Text(stringResource(Res.string.profile_delegation_add_new))
                     }
                 }
             }
@@ -272,9 +312,9 @@ fun DelegationScreen(
 
     revokeTarget?.let { target ->
         ActionConfirmationBottomSheet(
-            title = "Revoke Delegation",
-            description = "Remove ${target.delegateName}'s access? This cannot be undone.",
-            confirmLabel = "Revoke",
+            title = stringResource(Res.string.profile_delegation_revoke_title),
+            description = stringResource(Res.string.profile_delegation_revoke_desc, target.delegateName),
+            confirmLabel = stringResource(Res.string.profile_delegation_revoke),
             tone = ActionConfirmationToneType.Danger,
             onConfirm = {
                 viewModel.revoke(target.id)
@@ -304,7 +344,7 @@ private fun AddDelegationSheet(
                 .padding(bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Add Delegation", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(Res.string.profile_delegation_add_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
 
         ExposedDropdownMenuBox(
             expanded = memberExpanded,
@@ -314,8 +354,8 @@ private fun AddDelegationSheet(
                 value = selectedMember,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Delegate To") },
-                placeholder = { Text("Select team member") },
+                label = { Text(stringResource(Res.string.profile_delegation_delegate_to)) },
+                placeholder = { Text(stringResource(Res.string.profile_delegation_select_member)) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(memberExpanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             )
@@ -335,7 +375,7 @@ private fun AddDelegationSheet(
             }
         }
 
-        Text("Delegation Type", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(Res.string.profile_delegation_type), style = MaterialTheme.typography.labelMedium)
         DELEGATION_TYPES.forEach { type ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -354,11 +394,11 @@ private fun AddDelegationSheet(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.profile_delegation_cancel)) }
             Button(
                 onClick = { onSubmit(selectedMember, selectedType) },
                 modifier = Modifier.weight(1f),
-            ) { Text("Submit") }
+            ) { Text(stringResource(Res.string.profile_delegation_submit)) }
         }
     }
 }
@@ -429,14 +469,18 @@ private fun DelegationRow(
             ) {
                 Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(12.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(
-                    "Expires ${formatDelegationExpiry(entry.expiresAtMillis)}",
+                    stringResource(Res.string.profile_delegation_expires, formatDelegationExpiry(entry.expiresAtMillis)),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             if (isActive) {
                 TextButton(onClick = onRevoke, modifier = Modifier.height(28.dp)) {
-                    Text("Revoke", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(Res.string.profile_delegation_revoke),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
             }
         }
@@ -485,7 +529,7 @@ private fun DelegatedByRow(entry: DelegatedByEntry) {
             color = MilewayColors.success.copy(alpha = 0.15f),
         ) {
             Text(
-                "Active",
+                stringResource(Res.string.profile_delegation_active),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MilewayColors.success,

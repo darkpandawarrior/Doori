@@ -62,6 +62,13 @@ import com.mileway.core.ui.components.ProfileGridItem
 import com.mileway.core.ui.components.ProfileItemStatus
 import com.mileway.core.ui.components.ProfileSectionHeader
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_details_back
+import com.mileway.core.ui.resources.profile_details_contact_info
+import com.mileway.core.ui.resources.profile_details_custom_fields
+import com.mileway.core.ui.resources.profile_details_not_set
+import com.mileway.core.ui.resources.profile_details_subtitle
+import com.mileway.core.ui.resources.profile_details_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.model.PassportDetails
@@ -71,6 +78,7 @@ import com.mileway.feature.profile.model.VehicleDetails
 import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Sheets [ProfileDetailsScreen] can push over itself — at most one at a time. */
@@ -163,12 +171,12 @@ fun ProfileDetailsScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Profile Details",
-                subtitle = "Manage your information",
+                title = stringResource(Res.string.profile_details_title),
+                subtitle = stringResource(Res.string.profile_details_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_details_back))
                     }
                 },
             )
@@ -191,7 +199,7 @@ fun ProfileDetailsScreen(
 
             item(span = { GridItemSpan(2) }) {
                 CollapsibleSectionCard(
-                    title = "Contact Info",
+                    title = stringResource(Res.string.profile_details_contact_info),
                     initiallyExpanded = true,
                     leadingIcon = Icons.Default.Person,
                 ) {
@@ -206,7 +214,7 @@ fun ProfileDetailsScreen(
             if (profile.customFields.isNotEmpty()) {
                 item(span = { GridItemSpan(2) }) {
                     CollapsibleSectionCard(
-                        title = "Custom Fields",
+                        title = stringResource(Res.string.profile_details_custom_fields),
                         initiallyExpanded = true,
                         leadingIcon = Icons.Default.Apps,
                     ) {
@@ -354,7 +362,7 @@ private fun ContactRow(
             modifier = Modifier.size(DesignTokens.IconSize.navigation),
         )
         Text(
-            text = value.ifBlank { "Not set" },
+            text = value.ifBlank { stringResource(Res.string.profile_details_not_set) },
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )

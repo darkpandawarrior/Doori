@@ -28,8 +28,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mileway.core.security.RootDetector
 import com.mileway.core.ui.previews.PreviewSurface
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_root_cd_root
+import com.mileway.core.ui.resources.profile_root_cd_secure
+import com.mileway.core.ui.resources.profile_root_continue
+import com.mileway.core.ui.resources.profile_root_continue_anyway
+import com.mileway.core.ui.resources.profile_root_root_body
+import com.mileway.core.ui.resources.profile_root_root_title
+import com.mileway.core.ui.resources.profile_root_secure_body
+import com.mileway.core.ui.resources.profile_root_secure_title
+import com.mileway.core.ui.resources.profile_root_signal_item
+import com.mileway.core.ui.resources.profile_root_signals_label
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RootGuardScreen(
@@ -51,7 +63,7 @@ fun RootGuardScreen(
     ) {
         Icon(
             imageVector = if (isClean) Icons.Default.GppGood else Icons.Default.GppBad,
-            contentDescription = if (isClean) "Device secure" else "Root detected",
+            contentDescription = if (isClean) stringResource(Res.string.profile_root_cd_secure) else stringResource(Res.string.profile_root_cd_root),
             tint = Color.White,
             modifier = Modifier.size(96.dp),
         )
@@ -59,7 +71,7 @@ fun RootGuardScreen(
         Spacer(Modifier.height(24.dp))
 
         Text(
-            text = if (isClean) "Device Secure" else "Root Detected",
+            text = if (isClean) stringResource(Res.string.profile_root_secure_title) else stringResource(Res.string.profile_root_root_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = Color.White,
@@ -71,10 +83,9 @@ fun RootGuardScreen(
         Text(
             text =
                 if (isClean) {
-                    "No root signals detected. This device appears to be running in a standard, secure environment."
+                    stringResource(Res.string.profile_root_secure_body)
                 } else {
-                    "This device appears to be rooted or running in an insecure environment. " +
-                        "The app may not function correctly."
+                    stringResource(Res.string.profile_root_root_body)
                 },
             style = MaterialTheme.typography.bodyLarge,
             color = Color.White.copy(alpha = 0.87f),
@@ -84,7 +95,7 @@ fun RootGuardScreen(
         if (!isClean) {
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "Signals detected:",
+                text = stringResource(Res.string.profile_root_signals_label),
                 style = MaterialTheme.typography.titleSmall,
                 color = Color.White.copy(alpha = 0.7f),
                 textAlign = TextAlign.Center,
@@ -92,7 +103,7 @@ fun RootGuardScreen(
             Spacer(Modifier.height(8.dp))
             signals.forEach { signal ->
                 Text(
-                    text = "• $signal",
+                    text = stringResource(Res.string.profile_root_signal_item, signal),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.White.copy(alpha = 0.7f),
                     textAlign = TextAlign.Center,
@@ -111,7 +122,7 @@ fun RootGuardScreen(
                 ),
         ) {
             Text(
-                text = if (isClean) "Continue" else "Continue Anyway (Demo)",
+                text = if (isClean) stringResource(Res.string.profile_root_continue) else stringResource(Res.string.profile_root_continue_anyway),
                 fontWeight = FontWeight.SemiBold,
             )
         }

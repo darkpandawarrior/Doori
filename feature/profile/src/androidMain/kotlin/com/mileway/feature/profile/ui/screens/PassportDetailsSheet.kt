@@ -26,11 +26,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_passport_country
+import com.mileway.core.ui.resources.profile_passport_expiry_title
+import com.mileway.core.ui.resources.profile_passport_number
+import com.mileway.core.ui.resources.profile_passport_title
+import com.mileway.core.ui.resources.profile_vehicle_save
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.model.PassportDetails
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 
 private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -76,21 +83,21 @@ fun PassportDetailsSheet(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Text(
-                text = "Passport Details",
+                text = stringResource(Res.string.profile_passport_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
             OutlinedTextField(
                 value = passportNumber,
                 onValueChange = { passportNumber = it },
-                label = { Text("Passport Number") },
+                label = { Text(stringResource(Res.string.profile_passport_number)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = issuingCountry,
                 onValueChange = { issuingCountry = it },
-                label = { Text("Issuing Country") },
+                label = { Text(stringResource(Res.string.profile_passport_country)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
@@ -117,7 +124,7 @@ fun PassportDetailsSheet(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(),
             ) {
-                Text("Save", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_vehicle_save), fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -130,7 +137,7 @@ fun PassportDetailsSheet(
                 showDatePicker = false
             },
             onDismiss = { showDatePicker = false },
-            title = "Passport Expiry",
+            title = stringResource(Res.string.profile_passport_expiry_title),
         )
     }
 }

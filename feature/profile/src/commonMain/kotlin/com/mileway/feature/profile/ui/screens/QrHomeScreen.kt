@@ -64,11 +64,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_qr_amount_label
+import com.mileway.core.ui.resources.profile_qr_back
+import com.mileway.core.ui.resources.profile_qr_cancel
+import com.mileway.core.ui.resources.profile_qr_cards_count
+import com.mileway.core.ui.resources.profile_qr_daily_limit
+import com.mileway.core.ui.resources.profile_qr_generate_qr
+import com.mileway.core.ui.resources.profile_qr_linked_cards
+import com.mileway.core.ui.resources.profile_qr_note_label
+import com.mileway.core.ui.resources.profile_qr_received_today
+import com.mileway.core.ui.resources.profile_qr_request_amount
+import com.mileway.core.ui.resources.profile_qr_request_hint
+import com.mileway.core.ui.resources.profile_qr_share_qr
+import com.mileway.core.ui.resources.profile_qr_subtitle
+import com.mileway.core.ui.resources.profile_qr_this_month
+import com.mileway.core.ui.resources.profile_qr_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.profile.model.CorporateCard
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private const val QR_SIZE = 21
@@ -168,14 +185,19 @@ fun QrHomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_qr_back), tint = Color.White)
                     }
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("QR Pay", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Scan to receive payments", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
+                        Text(
+                            stringResource(Res.string.profile_qr_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(stringResource(Res.string.profile_qr_subtitle), style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
                     }
                     IconButton(onClick = { /* share: illustrative */ }) {
-                        Icon(Icons.Default.Share, contentDescription = "Share QR", tint = Color.White)
+                        Icon(Icons.Default.Share, contentDescription = stringResource(Res.string.profile_qr_share_qr), tint = Color.White)
                     }
                 }
             }
@@ -234,8 +256,16 @@ fun QrHomeScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text("Linked Cards", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                            Text("${state.cards.size} cards", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                stringResource(Res.string.profile_qr_linked_cards),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                stringResource(Res.string.profile_qr_cards_count, state.cards.size),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                         Spacer(Modifier.height(DesignTokens.Spacing.m))
                         LazyRow(
@@ -269,7 +299,7 @@ fun QrHomeScreen(
                     ) {
                         Icon(Icons.Default.RequestPage, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Request Amount")
+                        Text(stringResource(Res.string.profile_qr_request_amount))
                     }
                 }
 
@@ -336,9 +366,9 @@ private fun QrInfoRow() {
                 .padding(horizontal = DesignTokens.Spacing.l),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
-        QrInfoTile(label = "Daily Limit", value = "₹50,000", modifier = Modifier.weight(1f))
-        QrInfoTile(label = "Received Today", value = "₹0", modifier = Modifier.weight(1f))
-        QrInfoTile(label = "This Month", value = "₹12,400", modifier = Modifier.weight(1f))
+        QrInfoTile(label = stringResource(Res.string.profile_qr_daily_limit), value = "₹50,000", modifier = Modifier.weight(1f))
+        QrInfoTile(label = stringResource(Res.string.profile_qr_received_today), value = "₹0", modifier = Modifier.weight(1f))
+        QrInfoTile(label = stringResource(Res.string.profile_qr_this_month), value = "₹12,400", modifier = Modifier.weight(1f))
     }
 }
 
@@ -392,8 +422,12 @@ private fun QrRequestSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
-                    Text("Request Amount", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text("QR will update to show the amount", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(Res.string.profile_qr_request_amount), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(Res.string.profile_qr_request_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 Box(
                     modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF00796B).copy(alpha = 0.12f)),
@@ -406,7 +440,7 @@ private fun QrRequestSheet(
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } },
-                label = { Text("Amount (₹)") },
+                label = { Text(stringResource(Res.string.profile_qr_amount_label)) },
                 prefix = { Text("₹ ") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -416,7 +450,7 @@ private fun QrRequestSheet(
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note (optional)") },
+                label = { Text(stringResource(Res.string.profile_qr_note_label)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -425,11 +459,11 @@ private fun QrRequestSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text("Cancel") }
+                TextButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.profile_qr_cancel)) }
                 Button(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
-                ) { Text("Generate QR") }
+                ) { Text(stringResource(Res.string.profile_qr_generate_qr)) }
             }
         }
     }

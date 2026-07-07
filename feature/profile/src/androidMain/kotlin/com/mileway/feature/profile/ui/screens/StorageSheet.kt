@@ -20,8 +20,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_storage_cache
+import com.mileway.core.ui.resources.profile_storage_cache_cleared
+import com.mileway.core.ui.resources.profile_storage_clear_cache
+import com.mileway.core.ui.resources.profile_storage_clearing
+import com.mileway.core.ui.resources.profile_storage_close
+import com.mileway.core.ui.resources.profile_storage_database
+import com.mileway.core.ui.resources.profile_storage_description
+import com.mileway.core.ui.resources.profile_storage_title
+import com.mileway.core.ui.resources.profile_storage_total
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.viewmodel.StorageViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -40,10 +51,10 @@ fun StorageSheet(
     val state by viewModel.state.collectAsState()
 
     ActionConfirmationBottomSheet(
-        title = "Storage",
-        description = "Manage the space this app uses on your device.",
-        confirmLabel = if (state.isClearing) "Clearing…" else "Clear Cache",
-        dismissLabel = "Close",
+        title = stringResource(Res.string.profile_storage_title),
+        description = stringResource(Res.string.profile_storage_description),
+        confirmLabel = if (state.isClearing) stringResource(Res.string.profile_storage_clearing) else stringResource(Res.string.profile_storage_clear_cache),
+        dismissLabel = stringResource(Res.string.profile_storage_close),
         icon = Icons.Default.Storage,
         tone = ActionConfirmationToneType.Info,
         onConfirm = { viewModel.clearCache() },
@@ -58,9 +69,9 @@ fun StorageSheet(
                 modifier = Modifier.padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                StorageRow(label = "Database", value = state.databaseLabel)
-                StorageRow(label = "Cache", value = state.cacheLabel)
-                StorageRow(label = "Total", value = state.totalLabel)
+                StorageRow(label = stringResource(Res.string.profile_storage_database), value = state.databaseLabel)
+                StorageRow(label = stringResource(Res.string.profile_storage_cache), value = state.cacheLabel)
+                StorageRow(label = stringResource(Res.string.profile_storage_total), value = state.totalLabel)
             }
         }
         if (state.isClearing) {
@@ -68,7 +79,7 @@ fun StorageSheet(
         }
         if (state.didClear) {
             Text(
-                text = "Cache cleared",
+                text = stringResource(Res.string.profile_storage_cache_cleared),
                 style = MaterialTheme.typography.labelMedium,
                 color = DesignTokens.StatusColors.success,
                 modifier = Modifier.padding(top = DesignTokens.Spacing.s),

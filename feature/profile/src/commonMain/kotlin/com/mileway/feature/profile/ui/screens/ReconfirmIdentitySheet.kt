@@ -25,7 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_reconfirm_body
+import com.mileway.core.ui.resources.profile_reconfirm_confirm
+import com.mileway.core.ui.resources.profile_reconfirm_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * PLAN_V22 P3.2: a soft, dismissible "Re-confirm it's you" nudge shown from `ProfileScreen` once
@@ -67,14 +72,14 @@ fun ReconfirmIdentitySheet(onDismiss: () -> Unit) {
 
             Spacer(Modifier.height(DesignTokens.Spacing.l))
             Text(
-                text = "Re-confirm it's you",
+                text = stringResource(Res.string.profile_reconfirm_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text = "Your session has been idle a while. Just a soft check-in — no need to sign in again.",
+                text = stringResource(Res.string.profile_reconfirm_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -86,7 +91,7 @@ fun ReconfirmIdentitySheet(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.roundedSm,
             ) {
-                Text("It's me", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_reconfirm_confirm), fontWeight = FontWeight.Bold)
             }
         }
     }

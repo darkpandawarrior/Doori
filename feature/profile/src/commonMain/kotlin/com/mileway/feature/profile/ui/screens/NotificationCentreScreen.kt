@@ -51,12 +51,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_notifications_back
+import com.mileway.core.ui.resources.profile_notifications_mark_all_read
+import com.mileway.core.ui.resources.profile_notifications_title
+import com.mileway.core.ui.resources.profile_notifications_unread_count
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.feature.profile.data.NotifType
 import com.mileway.feature.profile.data.NotificationRecord
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private enum class NotifCategory { ALL, UNREAD, APPROVALS, SYSTEM }
@@ -115,17 +121,17 @@ fun NotificationCentreScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Notifications",
-                subtitle = "${state.unreadCount} unread",
+                title = stringResource(Res.string.profile_notifications_title),
+                subtitle = stringResource(Res.string.profile_notifications_unread_count, state.unreadCount),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_notifications_back))
                     }
                 },
                 actions = {
                     TextButton(onClick = { viewModel.markAllRead() }) {
-                        Text("Mark all read")
+                        Text(stringResource(Res.string.profile_notifications_mark_all_read))
                     }
                 },
             )

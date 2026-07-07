@@ -26,6 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_tickets_back
+import com.mileway.core.ui.resources.profile_tickets_empty
+import com.mileway.core.ui.resources.profile_tickets_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.model.SupportTicket
@@ -34,6 +38,7 @@ import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -75,12 +80,12 @@ fun MyTicketsScreen(
         modifier = modifier,
         topBar = {
             DepthAwareTopBar(
-                title = "My Tickets",
+                title = stringResource(Res.string.profile_tickets_title),
                 subtitle = "${uiState.tickets.size} ticket${if (uiState.tickets.size == 1) "" else "s"} submitted",
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_tickets_back))
                     }
                 },
             )
@@ -92,7 +97,7 @@ fun MyTicketsScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    "No tickets yet. Submit one from Help & Support → Contact Support.",
+                    stringResource(Res.string.profile_tickets_empty),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

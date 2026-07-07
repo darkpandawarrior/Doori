@@ -41,11 +41,40 @@ import com.mileway.core.security.RootDetector
 import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.previews.PreviewSurface
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_demo_auto_discard_subtitle
+import com.mileway.core.ui.resources.profile_demo_auto_discard_title
+import com.mileway.core.ui.resources.profile_demo_back
+import com.mileway.core.ui.resources.profile_demo_biometric_guard_subtitle
+import com.mileway.core.ui.resources.profile_demo_biometric_guard_title
+import com.mileway.core.ui.resources.profile_demo_device_clean
+import com.mileway.core.ui.resources.profile_demo_feature_flags
+import com.mileway.core.ui.resources.profile_demo_gps_drift_subtitle
+import com.mileway.core.ui.resources.profile_demo_gps_drift_title
+import com.mileway.core.ui.resources.profile_demo_mode_only
+import com.mileway.core.ui.resources.profile_demo_mode_only_desc
+import com.mileway.core.ui.resources.profile_demo_no_root_signals
+import com.mileway.core.ui.resources.profile_demo_ok
+import com.mileway.core.ui.resources.profile_demo_root_signals_detected
+import com.mileway.core.ui.resources.profile_demo_run_root_check
+import com.mileway.core.ui.resources.profile_demo_security_tests
+import com.mileway.core.ui.resources.profile_demo_signal_item
+import com.mileway.core.ui.resources.profile_demo_signals_found
+import com.mileway.core.ui.resources.profile_demo_simulate_offline_subtitle
+import com.mileway.core.ui.resources.profile_demo_simulate_offline_title
+import com.mileway.core.ui.resources.profile_demo_simulate_root_subtitle
+import com.mileway.core.ui.resources.profile_demo_simulate_root_title
+import com.mileway.core.ui.resources.profile_demo_subtitle
+import com.mileway.core.ui.resources.profile_demo_test_biometric
+import com.mileway.core.ui.resources.profile_demo_title
+import com.mileway.core.ui.resources.profile_demo_view_root_clean
+import com.mileway.core.ui.resources.profile_demo_view_root_detected
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
 import com.mileway.feature.profile.viewmodel.DemoSettingsAction
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,12 +92,12 @@ fun DemoSettingsScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Demo Settings",
-                subtitle = "Interactive feature toggles",
+                title = stringResource(Res.string.profile_demo_title),
+                subtitle = stringResource(Res.string.profile_demo_subtitle),
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_demo_back))
                     }
                 },
             )
@@ -92,14 +121,14 @@ fun DemoSettingsScreen(
                 ListItem(
                     headlineContent = {
                         Text(
-                            "Demo Mode Only",
+                            stringResource(Res.string.profile_demo_mode_only),
                             style = MaterialTheme.typography.titleSmall,
                             color = MilewayColors.warning,
                         )
                     },
                     supportingContent = {
                         Text(
-                            "These toggles showcase architecture capabilities. They have no effect in production.",
+                            stringResource(Res.string.profile_demo_mode_only_desc),
                             style = MaterialTheme.typography.bodySmall,
                         )
                     },
@@ -111,40 +140,40 @@ fun DemoSettingsScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            Text("Feature Flags", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.profile_demo_feature_flags), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
             DemoToggle(
-                title = "Simulate Root Detection",
-                subtitle = "App treats this device as rooted: shows RootGuardScreen on restart",
+                title = stringResource(Res.string.profile_demo_simulate_root_title),
+                subtitle = stringResource(Res.string.profile_demo_simulate_root_subtitle),
                 checked = settings.simulateRoot,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleSimulateRoot) },
             )
 
             DemoToggle(
-                title = "Simulate Offline Mode",
-                subtitle = "NetworkMonitor reports disconnected; data served from Room/DataStore",
+                title = stringResource(Res.string.profile_demo_simulate_offline_title),
+                subtitle = stringResource(Res.string.profile_demo_simulate_offline_subtitle),
                 checked = settings.simulateOffline,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleSimulateOffline) },
             )
 
             DemoToggle(
-                title = "Biometric Guard",
-                subtitle = "Require biometric auth before viewing Cards and Advance screens",
+                title = stringResource(Res.string.profile_demo_biometric_guard_title),
+                subtitle = stringResource(Res.string.profile_demo_biometric_guard_subtitle),
                 checked = settings.biometricGuardEnabled,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleBiometricGuard) },
             )
 
             DemoToggle(
-                title = "GPS Drift Simulation",
-                subtitle = "Tracking service adds ±30m noise to coordinates to demo spike detection",
+                title = stringResource(Res.string.profile_demo_gps_drift_title),
+                subtitle = stringResource(Res.string.profile_demo_gps_drift_subtitle),
                 checked = settings.simulateGpsDrift,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleGpsDrift) },
             )
 
             DemoToggle(
-                title = "Auto-Discard at End of Day",
-                subtitle = "WorkManager discards any active journey at 22:00: demo of AutoDiscardWorker",
+                title = stringResource(Res.string.profile_demo_auto_discard_title),
+                subtitle = stringResource(Res.string.profile_demo_auto_discard_subtitle),
                 checked = settings.autoDiscardEnabled,
                 onToggle = { viewModel.onAction(DemoSettingsAction.ToggleAutoDiscard) },
                 warningColor = MilewayColors.warning,
@@ -152,14 +181,14 @@ fun DemoSettingsScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            Text("Security Tests", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(Res.string.profile_demo_security_tests), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
 
             OutlinedButton(
                 onClick = { rootDialogResult = RootDetector.check() },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Run Root Detection Check")
+                Text(stringResource(Res.string.profile_demo_run_root_check))
             }
 
             Spacer(Modifier.height(8.dp))
@@ -168,7 +197,7 @@ fun DemoSettingsScreen(
                 onClick = onOpenRootGuard,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("View Root Guard: Clean Device")
+                Text(stringResource(Res.string.profile_demo_view_root_clean))
             }
 
             Spacer(Modifier.height(8.dp))
@@ -177,7 +206,7 @@ fun DemoSettingsScreen(
                 onClick = onOpenRootGuardDetected,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("View Root Guard: Detected (Demo)")
+                Text(stringResource(Res.string.profile_demo_view_root_detected))
             }
 
             Spacer(Modifier.height(8.dp))
@@ -212,7 +241,7 @@ fun DemoSettingsScreen(
                         containerColor = Color(0xFF1A237E),
                     ),
             ) {
-                Text("Test Biometric Prompt")
+                Text(stringResource(Res.string.profile_demo_test_biometric))
             }
         }
     }
@@ -220,17 +249,24 @@ fun DemoSettingsScreen(
     rootDialogResult?.let { result ->
         AppActionSheet(
             onDismiss = { rootDialogResult = null },
-            title = if (result.isRooted) "Root Signals Detected" else "Device Appears Clean",
+            title =
+                if (result.isRooted) {
+                    stringResource(
+                        Res.string.profile_demo_root_signals_detected,
+                    )
+                } else {
+                    stringResource(Res.string.profile_demo_device_clean)
+                },
         ) {
             if (result.signals.isEmpty()) {
-                Text("No root signals found. This device appears to be a standard environment.")
+                Text(stringResource(Res.string.profile_demo_no_root_signals))
             } else {
-                Text("Signals found:")
+                Text(stringResource(Res.string.profile_demo_signals_found))
                 result.signals.forEach { signal ->
-                    Text("• $signal", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.profile_demo_signal_item, signal), style = MaterialTheme.typography.bodySmall)
                 }
             }
-            Button(onClick = { rootDialogResult = null }, modifier = Modifier.fillMaxWidth()) { Text("OK") }
+            Button(onClick = { rootDialogResult = null }, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.profile_demo_ok)) }
         }
     }
 }

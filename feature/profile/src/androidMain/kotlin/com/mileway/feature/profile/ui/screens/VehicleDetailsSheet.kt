@@ -26,8 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_vehicle_fuel_type
+import com.mileway.core.ui.resources.profile_vehicle_make
+import com.mileway.core.ui.resources.profile_vehicle_model
+import com.mileway.core.ui.resources.profile_vehicle_registration
+import com.mileway.core.ui.resources.profile_vehicle_save
+import com.mileway.core.ui.resources.profile_vehicle_seating
+import com.mileway.core.ui.resources.profile_vehicle_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.model.VehicleDetails
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * PLAN_V22 P6.2: add/edit sheet for the Vehicle tile — Room-backed via
@@ -63,42 +72,42 @@ fun VehicleDetailsSheet(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Text(
-                text = "Vehicle Details",
+                text = stringResource(Res.string.profile_vehicle_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
             OutlinedTextField(
                 value = make,
                 onValueChange = { make = it },
-                label = { Text("Make") },
+                label = { Text(stringResource(Res.string.profile_vehicle_make)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = model,
                 onValueChange = { model = it },
-                label = { Text("Model") },
+                label = { Text(stringResource(Res.string.profile_vehicle_model)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = registration,
                 onValueChange = { registration = it },
-                label = { Text("Registration Number") },
+                label = { Text(stringResource(Res.string.profile_vehicle_registration)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = fuelType,
                 onValueChange = { fuelType = it },
-                label = { Text("Fuel Type") },
+                label = { Text(stringResource(Res.string.profile_vehicle_fuel_type)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = seatingText,
                 onValueChange = { seatingText = it.filter(Char::isDigit) },
-                label = { Text("Seating Capacity") },
+                label = { Text(stringResource(Res.string.profile_vehicle_seating)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -122,7 +131,7 @@ fun VehicleDetailsSheet(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(),
             ) {
-                Text("Save", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_vehicle_save), fontWeight = FontWeight.Bold)
             }
         }
     }

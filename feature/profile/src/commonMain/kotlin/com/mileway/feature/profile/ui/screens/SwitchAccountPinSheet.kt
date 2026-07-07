@@ -31,9 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_switch_cancel
+import com.mileway.core.ui.resources.profile_switch_confirm
+import com.mileway.core.ui.resources.profile_switch_locked
+import com.mileway.core.ui.resources.profile_switch_subtitle
+import com.mileway.core.ui.resources.profile_switch_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.viewmodel.SWITCH_ACCOUNT_PIN_LENGTH
 import com.mileway.feature.profile.viewmodel.SwitchAccountUiState
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * PLAN_V22 P2.3: 4-digit PIN entry gate shown before committing a persona switch when biometric
@@ -89,14 +96,14 @@ fun SwitchAccountPinSheet(
 
             Spacer(Modifier.height(DesignTokens.Spacing.l))
             Text(
-                text = "Confirm it's you",
+                text = stringResource(Res.string.profile_switch_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text = "Enter your PIN to switch to $accountLabel",
+                text = stringResource(Res.string.profile_switch_subtitle, accountLabel),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -108,7 +115,7 @@ fun SwitchAccountPinSheet(
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             val statusText =
                 when {
-                    state.isLockedOut -> "Locked — dismiss and reopen to try again"
+                    state.isLockedOut -> stringResource(Res.string.profile_switch_locked)
                     state.error != null -> state.error
                     else -> " "
                 }
@@ -134,11 +141,11 @@ fun SwitchAccountPinSheet(
                 shape = DesignTokens.Shape.roundedSm,
                 colors = ButtonDefaults.buttonColors(),
             ) {
-                Text("Confirm", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_switch_confirm), fontWeight = FontWeight.Bold)
             }
 
             TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
-                Text("Cancel")
+                Text(stringResource(Res.string.profile_switch_cancel))
             }
         }
     }

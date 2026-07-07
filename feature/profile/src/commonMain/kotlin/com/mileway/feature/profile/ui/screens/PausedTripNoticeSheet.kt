@@ -25,7 +25,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_paused_body
+import com.mileway.core.ui.resources.profile_paused_confirm
+import com.mileway.core.ui.resources.profile_paused_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * PLAN_V22 P3.4: shown after [com.mileway.feature.profile.viewmodel.ProfileAction.CommitAccountSwitch]
@@ -67,16 +72,14 @@ fun PausedTripNoticeSheet(onDismiss: () -> Unit) {
 
             Spacer(Modifier.height(DesignTokens.Spacing.l))
             Text(
-                text = "Trip in progress — paused",
+                text = stringResource(Res.string.profile_paused_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text =
-                    "The running trip for the previous persona was paused and saved. Switch back to " +
-                        "that persona any time to resume it.",
+                text = stringResource(Res.string.profile_paused_body),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -88,7 +91,7 @@ fun PausedTripNoticeSheet(onDismiss: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.roundedSm,
             ) {
-                Text("Got it", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_paused_confirm), fontWeight = FontWeight.Bold)
             }
         }
     }

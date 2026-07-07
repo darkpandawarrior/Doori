@@ -31,10 +31,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.network.model.DemoAccount
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_accounts_close
+import com.mileway.core.ui.resources.profile_accounts_created
+import com.mileway.core.ui.resources.profile_accounts_employee_code
+import com.mileway.core.ui.resources.profile_accounts_last_login
+import com.mileway.core.ui.resources.profile_accounts_organization
+import com.mileway.core.ui.resources.profile_sessions_status_active
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 
 private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -102,7 +110,7 @@ fun AccountDetailsSheet(
                     color = DesignTokens.StatusColors.success.copy(alpha = 0.15f),
                 ) {
                     Text(
-                        text = "Active",
+                        text = stringResource(Res.string.profile_sessions_status_active),
                         style = MaterialTheme.typography.labelSmall,
                         color = DesignTokens.StatusColors.success,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
@@ -120,10 +128,10 @@ fun AccountDetailsSheet(
                     modifier = Modifier.padding(DesignTokens.Spacing.l),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
-                    DetailRow(label = "Employee code", value = account.employeeCode)
-                    DetailRow(label = "Organization", value = account.organization.ifBlank { "—" })
-                    DetailRow(label = "Last login", value = formatTimestamp(account.lastLoginAtMs))
-                    DetailRow(label = "Created", value = formatTimestamp(account.createdAtMs))
+                    DetailRow(label = stringResource(Res.string.profile_accounts_employee_code), value = account.employeeCode)
+                    DetailRow(label = stringResource(Res.string.profile_accounts_organization), value = account.organization.ifBlank { "—" })
+                    DetailRow(label = stringResource(Res.string.profile_accounts_last_login), value = formatTimestamp(account.lastLoginAtMs))
+                    DetailRow(label = stringResource(Res.string.profile_accounts_created), value = formatTimestamp(account.createdAtMs))
                 }
             }
 
@@ -134,7 +142,7 @@ fun AccountDetailsSheet(
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(),
             ) {
-                Text("Close", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_accounts_close), fontWeight = FontWeight.Bold)
             }
         }
     }

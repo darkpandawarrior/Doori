@@ -39,10 +39,31 @@ import com.mileway.core.ui.components.ProfileGridItem
 import com.mileway.core.ui.components.ProfileItemStatus
 import com.mileway.core.ui.components.ProfileSectionHeader
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_settings_back
+import com.mileway.core.ui.resources.profile_settings_connected_accounts
+import com.mileway.core.ui.resources.profile_settings_connected_accounts_sub
+import com.mileway.core.ui.resources.profile_settings_disabled
+import com.mileway.core.ui.resources.profile_settings_enabled
+import com.mileway.core.ui.resources.profile_settings_manage_data
+import com.mileway.core.ui.resources.profile_settings_manage_subtitle
+import com.mileway.core.ui.resources.profile_settings_notification_center
+import com.mileway.core.ui.resources.profile_settings_notification_center_sub
+import com.mileway.core.ui.resources.profile_settings_permissions
+import com.mileway.core.ui.resources.profile_settings_preferences
+import com.mileway.core.ui.resources.profile_settings_push_channel
+import com.mileway.core.ui.resources.profile_settings_push_notifications
+import com.mileway.core.ui.resources.profile_settings_slack_channel
+import com.mileway.core.ui.resources.profile_settings_storage
+import com.mileway.core.ui.resources.profile_settings_system_settings
+import com.mileway.core.ui.resources.profile_settings_title
+import com.mileway.core.ui.resources.profile_settings_usage_analytics
+import com.mileway.core.ui.resources.profile_settings_whatsapp_channel
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.viewmodel.ProfileAction
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import android.provider.Settings as SystemSettings
 
@@ -83,12 +104,15 @@ fun PreferencesScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Preferences",
-                subtitle = "Manage your settings",
+                title = stringResource(Res.string.profile_settings_preferences),
+                subtitle = stringResource(Res.string.profile_settings_manage_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.profile_settings_back),
+                        )
                     }
                 },
             )
@@ -101,16 +125,26 @@ fun PreferencesScreen(
             listOf(
                 ProfileGridItem(
                     id = "push_notifications",
-                    title = "Push Notifications",
-                    subtitle = if (prefs.pushNotifications) "Enabled" else "Disabled",
+                    title = stringResource(Res.string.profile_settings_push_notifications),
+                    subtitle =
+                        if (prefs.pushNotifications) {
+                            stringResource(Res.string.profile_settings_enabled)
+                        } else {
+                            stringResource(Res.string.profile_settings_disabled)
+                        },
                     icon = Icons.Default.Notifications,
                     status = if (prefs.pushNotifications) ProfileItemStatus.COMPLETE else ProfileItemStatus.INCOMPLETE,
                     action = { viewModel.onAction(ProfileAction.TogglePushNotifications) },
                 ),
                 ProfileGridItem(
                     id = "usage_analytics",
-                    title = "Usage Analytics",
-                    subtitle = if (prefs.usageAnalytics) "Enabled" else "Disabled",
+                    title = stringResource(Res.string.profile_settings_usage_analytics),
+                    subtitle =
+                        if (prefs.usageAnalytics) {
+                            stringResource(Res.string.profile_settings_enabled)
+                        } else {
+                            stringResource(Res.string.profile_settings_disabled)
+                        },
                     icon = Icons.Default.BarChart,
                     status = if (prefs.usageAnalytics) ProfileItemStatus.COMPLETE else ProfileItemStatus.INCOMPLETE,
                     action = { viewModel.onAction(ProfileAction.ToggleUsageAnalytics) },
@@ -118,8 +152,8 @@ fun PreferencesScreen(
                 // P6.6: routes to P6.5's real NotificationCentreScreen instead of a placeholder snackbar.
                 ProfileGridItem(
                     id = "notification_center",
-                    title = "Notification Center",
-                    subtitle = "WhatsApp, Slack",
+                    title = stringResource(Res.string.profile_settings_notification_center),
+                    subtitle = stringResource(Res.string.profile_settings_notification_center_sub),
                     icon = Icons.Default.NotificationsActive,
                     status = ProfileItemStatus.COMPLETE,
                     action = onOpenNotificationCenter,
@@ -128,24 +162,39 @@ fun PreferencesScreen(
                 // of connect/disconnect switches, DataStore-backed so state survives restart.
                 ProfileGridItem(
                     id = "channel_push",
-                    title = "Push Channel",
-                    subtitle = if (channels.pushEnabled) "Enabled" else "Disabled",
+                    title = stringResource(Res.string.profile_settings_push_channel),
+                    subtitle =
+                        if (channels.pushEnabled) {
+                            stringResource(Res.string.profile_settings_enabled)
+                        } else {
+                            stringResource(Res.string.profile_settings_disabled)
+                        },
                     icon = Icons.Default.Notifications,
                     status = if (channels.pushEnabled) ProfileItemStatus.COMPLETE else ProfileItemStatus.INCOMPLETE,
                     action = { viewModel.onAction(ProfileAction.TogglePushChannel) },
                 ),
                 ProfileGridItem(
                     id = "channel_whatsapp",
-                    title = "WhatsApp Channel",
-                    subtitle = if (channels.whatsappEnabled) "Enabled" else "Disabled",
+                    title = stringResource(Res.string.profile_settings_whatsapp_channel),
+                    subtitle =
+                        if (channels.whatsappEnabled) {
+                            stringResource(Res.string.profile_settings_enabled)
+                        } else {
+                            stringResource(Res.string.profile_settings_disabled)
+                        },
                     icon = Icons.Default.NotificationsActive,
                     status = if (channels.whatsappEnabled) ProfileItemStatus.COMPLETE else ProfileItemStatus.INCOMPLETE,
                     action = { viewModel.onAction(ProfileAction.ToggleWhatsappChannel) },
                 ),
                 ProfileGridItem(
                     id = "channel_slack",
-                    title = "Slack Channel",
-                    subtitle = if (channels.slackEnabled) "Enabled" else "Disabled",
+                    title = stringResource(Res.string.profile_settings_slack_channel),
+                    subtitle =
+                        if (channels.slackEnabled) {
+                            stringResource(Res.string.profile_settings_enabled)
+                        } else {
+                            stringResource(Res.string.profile_settings_disabled)
+                        },
                     icon = Icons.Default.Link,
                     status = if (channels.slackEnabled) ProfileItemStatus.COMPLETE else ProfileItemStatus.INCOMPLETE,
                     action = { viewModel.onAction(ProfileAction.ToggleSlackChannel) },
@@ -153,8 +202,8 @@ fun PreferencesScreen(
                 // P6.6: routes to the new Room-backed ConnectedAccountsScreen instead of a placeholder snackbar.
                 ProfileGridItem(
                     id = "connected_accounts",
-                    title = "Connected Accounts",
-                    subtitle = "Cabs, Passport",
+                    title = stringResource(Res.string.profile_settings_connected_accounts),
+                    subtitle = stringResource(Res.string.profile_settings_connected_accounts_sub),
                     icon = Icons.Default.Link,
                     status = ProfileItemStatus.COMPLETE,
                     action = onOpenConnectedAccounts,
@@ -162,8 +211,8 @@ fun PreferencesScreen(
                 // P6.6: launches the real system app-details intent instead of a placeholder snackbar.
                 ProfileGridItem(
                     id = "permissions",
-                    title = "Permissions",
-                    subtitle = "System settings",
+                    title = stringResource(Res.string.profile_settings_permissions),
+                    subtitle = stringResource(Res.string.profile_settings_system_settings),
                     icon = Icons.Default.Security,
                     status = ProfileItemStatus.COMPLETE,
                     action = {
@@ -178,8 +227,8 @@ fun PreferencesScreen(
                 // a placeholder snackbar.
                 ProfileGridItem(
                     id = "storage",
-                    title = "Storage",
-                    subtitle = "Manage data",
+                    title = stringResource(Res.string.profile_settings_storage),
+                    subtitle = stringResource(Res.string.profile_settings_manage_data),
                     icon = Icons.Default.Storage,
                     status = ProfileItemStatus.COMPLETE,
                     action = { showStorageSheet = true },
@@ -198,7 +247,7 @@ fun PreferencesScreen(
         ) {
             item(span = { GridItemSpan(2) }) {
                 ProfileSectionHeader(
-                    title = "Settings",
+                    title = stringResource(Res.string.profile_settings_title),
                     itemCount = items.size,
                     icon = Icons.Default.Settings,
                 )

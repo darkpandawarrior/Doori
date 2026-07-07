@@ -87,6 +87,52 @@ import com.mileway.core.ui.components.ProfileItemStatus
 import com.mileway.core.ui.components.ReferralCard
 import com.mileway.core.ui.components.buildReferralInvite
 import com.mileway.core.ui.platform.LocalShareSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_home_active
+import com.mileway.core.ui.resources.profile_home_add
+import com.mileway.core.ui.resources.profile_home_add_persona
+import com.mileway.core.ui.resources.profile_home_analytics
+import com.mileway.core.ui.resources.profile_home_analytics_live
+import com.mileway.core.ui.resources.profile_home_cancel
+import com.mileway.core.ui.resources.profile_home_deep_link_demo
+import com.mileway.core.ui.resources.profile_home_deep_link_desc
+import com.mileway.core.ui.resources.profile_home_details
+import com.mileway.core.ui.resources.profile_home_edit_photo
+import com.mileway.core.ui.resources.profile_home_field_display_name
+import com.mileway.core.ui.resources.profile_home_field_employee_code
+import com.mileway.core.ui.resources.profile_home_field_organization
+import com.mileway.core.ui.resources.profile_home_live_insights
+import com.mileway.core.ui.resources.profile_home_remove
+import com.mileway.core.ui.resources.profile_home_sign_out
+import com.mileway.core.ui.resources.profile_home_switch
+import com.mileway.core.ui.resources.profile_home_switch_persona
+import com.mileway.core.ui.resources.profile_home_this_persona
+import com.mileway.core.ui.resources.profile_home_tile_about_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_about_title
+import com.mileway.core.ui.resources.profile_home_tile_advance_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_advance_title
+import com.mileway.core.ui.resources.profile_home_tile_cards_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_cards_title
+import com.mileway.core.ui.resources.profile_home_tile_delegation_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_delegation_title
+import com.mileway.core.ui.resources.profile_home_tile_demo_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_demo_title
+import com.mileway.core.ui.resources.profile_home_tile_details_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_insights_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_insights_title
+import com.mileway.core.ui.resources.profile_home_tile_notifications_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_notifications_title
+import com.mileway.core.ui.resources.profile_home_tile_preferences_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_preferences_title
+import com.mileway.core.ui.resources.profile_home_tile_qr_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_qr_title
+import com.mileway.core.ui.resources.profile_home_tile_sessions_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_sessions_title
+import com.mileway.core.ui.resources.profile_home_tile_settings_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_settings_title
+import com.mileway.core.ui.resources.profile_home_total_spend
+import com.mileway.core.ui.resources.profile_home_transactions
+import com.mileway.core.ui.resources.profile_home_updated_at
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.profile.model.AccountAnalyticsSnapshot
@@ -97,6 +143,7 @@ import com.mileway.feature.profile.viewmodel.ProfileEffect
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -271,7 +318,7 @@ fun ProfileScreen(
 
     state.pendingSwitchAccountId?.let { pendingId ->
         val pinState by switchAccountViewModel.state.collectAsStateWithLifecycle()
-        val label = state.accounts.find { it.id == pendingId }?.displayName ?: "this persona"
+        val label = state.accounts.find { it.id == pendingId }?.displayName ?: stringResource(Res.string.profile_home_this_persona)
 
         LaunchedEffect(pendingId) { switchAccountViewModel.reset() }
         LaunchedEffect(pinState.verified) {
@@ -413,7 +460,7 @@ private fun ProfileHeaderSection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Edit profile photo",
+                            contentDescription = stringResource(Res.string.profile_home_edit_photo),
                             tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(DesignTokens.IconSize.inline),
                         )
@@ -547,12 +594,20 @@ private fun AccountTileGrid(
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         TileRow(
-            left = accountTile("acc_details", "Details", "Personal info", Icons.Default.Person, blue, onOpenDetails),
+            left =
+                accountTile(
+                    "acc_details",
+                    stringResource(Res.string.profile_home_details),
+                    stringResource(Res.string.profile_home_tile_details_subtitle),
+                    Icons.Default.Person,
+                    blue,
+                    onOpenDetails,
+                ),
             right =
                 accountTile(
                     "acc_notifications",
-                    "Notifications",
-                    "Stay updated",
+                    stringResource(Res.string.profile_home_tile_notifications_title),
+                    stringResource(Res.string.profile_home_tile_notifications_subtitle),
                     Icons.Default.Notifications,
                     red,
                     onOpenNotifications,
@@ -560,24 +615,104 @@ private fun AccountTileGrid(
                 ),
         )
         TileRow(
-            left = accountTile("acc_settings", "Settings", "App settings", Icons.Default.Settings, green, onOpenSettings),
-            right = accountTile("acc_preferences", "Preferences", "Manage settings", Icons.Default.Tune, orange, onOpenPreferences),
+            left =
+                accountTile(
+                    "acc_settings",
+                    stringResource(Res.string.profile_home_tile_settings_title),
+                    stringResource(Res.string.profile_home_tile_settings_subtitle),
+                    Icons.Default.Settings,
+                    green,
+                    onOpenSettings,
+                ),
+            right =
+                accountTile(
+                    "acc_preferences",
+                    stringResource(Res.string.profile_home_tile_preferences_title),
+                    stringResource(Res.string.profile_home_tile_preferences_subtitle),
+                    Icons.Default.Tune,
+                    orange,
+                    onOpenPreferences,
+                ),
         )
         TileRow(
-            left = accountTile("acc_sessions", "Active Sessions", "Devices", Icons.Default.Devices, purple, onOpenSessions),
-            right = accountTile("acc_about", "About & Support", "Help & info", Icons.AutoMirrored.Filled.HelpOutline, violet, onOpenAboutSupport),
+            left =
+                accountTile(
+                    "acc_sessions",
+                    stringResource(Res.string.profile_home_tile_sessions_title),
+                    stringResource(Res.string.profile_home_tile_sessions_subtitle),
+                    Icons.Default.Devices,
+                    purple,
+                    onOpenSessions,
+                ),
+            right =
+                accountTile(
+                    "acc_about",
+                    stringResource(Res.string.profile_home_tile_about_title),
+                    stringResource(Res.string.profile_home_tile_about_subtitle),
+                    Icons.AutoMirrored.Filled.HelpOutline,
+                    violet,
+                    onOpenAboutSupport,
+                ),
         )
         TileRow(
-            left = accountTile("acc_advance", "My Advances", "Cash advances", Icons.Default.MonetizationOn, teal, onOpenAdvance),
-            right = accountTile("acc_cards", "Corporate Cards", "Manage cards", Icons.Default.CreditCard, indigo, onOpenCards),
+            left =
+                accountTile(
+                    "acc_advance",
+                    stringResource(Res.string.profile_home_tile_advance_title),
+                    stringResource(Res.string.profile_home_tile_advance_subtitle),
+                    Icons.Default.MonetizationOn,
+                    teal,
+                    onOpenAdvance,
+                ),
+            right =
+                accountTile(
+                    "acc_cards",
+                    stringResource(Res.string.profile_home_tile_cards_title),
+                    stringResource(Res.string.profile_home_tile_cards_subtitle),
+                    Icons.Default.CreditCard,
+                    indigo,
+                    onOpenCards,
+                ),
         )
         TileRow(
-            left = accountTile("acc_delegation", "Delegation", "Manage authority", Icons.Default.SupervisorAccount, cyan, onOpenDelegation),
-            right = accountTile("acc_insights", "Insights", "Analytics view", Icons.Default.History, Color(0xFF6D28D9), action = {}),
+            left =
+                accountTile(
+                    "acc_delegation",
+                    stringResource(Res.string.profile_home_tile_delegation_title),
+                    stringResource(Res.string.profile_home_tile_delegation_subtitle),
+                    Icons.Default.SupervisorAccount,
+                    cyan,
+                    onOpenDelegation,
+                ),
+            right =
+                accountTile(
+                    "acc_insights",
+                    stringResource(Res.string.profile_home_tile_insights_title),
+                    stringResource(Res.string.profile_home_tile_insights_subtitle),
+                    Icons.Default.History,
+                    Color(0xFF6D28D9),
+                    action = {},
+                ),
         )
         TileRow(
-            left = accountTile("acc_demo", "Demo Settings", "Feature toggles", Icons.Default.BugReport, darkTeal, onOpenDemoSettings),
-            right = accountTile("acc_qr", "My QR Code", "Scan to share", Icons.Default.QrCode2, Color(0xFF0F4C81), onOpenQr),
+            left =
+                accountTile(
+                    "acc_demo",
+                    stringResource(Res.string.profile_home_tile_demo_title),
+                    stringResource(Res.string.profile_home_tile_demo_subtitle),
+                    Icons.Default.BugReport,
+                    darkTeal,
+                    onOpenDemoSettings,
+                ),
+            right =
+                accountTile(
+                    "acc_qr",
+                    stringResource(Res.string.profile_home_tile_qr_title),
+                    stringResource(Res.string.profile_home_tile_qr_subtitle),
+                    Icons.Default.QrCode2,
+                    Color(0xFF0F4C81),
+                    onOpenQr,
+                ),
         )
     }
 }
@@ -653,13 +788,13 @@ private fun AnalyticsCard(
                     }
                     Column {
                         Text(
-                            text = "Analytics",
+                            text = stringResource(Res.string.profile_home_analytics),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "Live · ${analytics.window}",
+                            text = stringResource(Res.string.profile_home_analytics_live, analytics.window),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -675,7 +810,7 @@ private fun AnalyticsCard(
                     )
                     Spacer(Modifier.width(DesignTokens.Spacing.xs))
                     Text(
-                        text = "Live insights",
+                        text = stringResource(Res.string.profile_home_live_insights),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -691,7 +826,7 @@ private fun AnalyticsCard(
             ) {
                 Column {
                     Text(
-                        text = "Total Spend",
+                        text = stringResource(Res.string.profile_home_total_spend),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -714,7 +849,7 @@ private fun AnalyticsCard(
 
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "Transactions",
+                        text = stringResource(Res.string.profile_home_transactions),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -729,7 +864,7 @@ private fun AnalyticsCard(
 
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
-                text = "Updated at ${analytics.updatedAt}",
+                text = stringResource(Res.string.profile_home_updated_at, analytics.updatedAt),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -796,13 +931,13 @@ private fun DeepLinkDemoCard(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Text(
-                text = "Deep Link Demo",
+                text = stringResource(Res.string.profile_home_deep_link_demo),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                text = "Fires mileway:// VIEW intents to exercise deep link routing.",
+                text = stringResource(Res.string.profile_home_deep_link_desc),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -856,7 +991,7 @@ private fun PersonaSwitcherRow(
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
     ) {
         Text(
-            text = "Switch Persona",
+            text = stringResource(Res.string.profile_home_switch_persona),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -954,7 +1089,7 @@ private fun PersonaChip(
                         )
                     }
                     Text(
-                        text = if (isSelected) "Active" else "Switch",
+                        text = if (isSelected) stringResource(Res.string.profile_home_active) else stringResource(Res.string.profile_home_switch),
                         style = MaterialTheme.typography.labelSmall,
                         color =
                             if (isSelected) {
@@ -995,21 +1130,21 @@ private fun PersonaChip(
 
         DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
             DropdownMenuItem(
-                text = { Text("Details") },
+                text = { Text(stringResource(Res.string.profile_home_details)) },
                 onClick = {
                     showMenu = false
                     onViewDetails()
                 },
             )
             DropdownMenuItem(
-                text = { Text("Remove") },
+                text = { Text(stringResource(Res.string.profile_home_remove)) },
                 onClick = {
                     showMenu = false
                     onRemove()
                 },
             )
             DropdownMenuItem(
-                text = { Text("Sign Out") },
+                text = { Text(stringResource(Res.string.profile_home_sign_out)) },
                 onClick = {
                     showMenu = false
                     onSignOut()
@@ -1038,11 +1173,11 @@ private fun AddPersonaTile(onClick: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add persona",
+                contentDescription = stringResource(Res.string.profile_home_add_persona),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                text = "Add",
+                text = stringResource(Res.string.profile_home_add),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -1076,28 +1211,28 @@ private fun AddPersonaSheet(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Text(
-                text = "Add persona",
+                text = stringResource(Res.string.profile_home_add_persona),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
             OutlinedTextField(
                 value = displayName,
                 onValueChange = { displayName = it },
-                label = { Text("Display name *") },
+                label = { Text(stringResource(Res.string.profile_home_field_display_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = employeeCode,
                 onValueChange = { employeeCode = it },
-                label = { Text("Employee code *") },
+                label = { Text(stringResource(Res.string.profile_home_field_employee_code)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = organization,
                 onValueChange = { organization = it },
-                label = { Text("Organization") },
+                label = { Text(stringResource(Res.string.profile_home_field_organization)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -1108,10 +1243,10 @@ private fun AddPersonaSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = RoundedCornerShape(8.dp),
             ) {
-                Text("Add", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_home_add), fontWeight = FontWeight.Bold)
             }
             OutlinedButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(8.dp)) {
-                Text("Cancel", fontWeight = FontWeight.Bold)
+                Text(stringResource(Res.string.profile_home_cancel), fontWeight = FontWeight.Bold)
             }
         }
     }

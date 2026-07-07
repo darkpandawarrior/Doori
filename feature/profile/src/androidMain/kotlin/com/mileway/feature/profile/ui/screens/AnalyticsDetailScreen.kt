@@ -41,9 +41,19 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_analytics_back
+import com.mileway.core.ui.resources.profile_analytics_detail_subtitle
+import com.mileway.core.ui.resources.profile_analytics_detail_title
+import com.mileway.core.ui.resources.profile_analytics_export
+import com.mileway.core.ui.resources.profile_analytics_exporting_report
+import com.mileway.core.ui.resources.profile_analytics_pct_of_top_spend
+import com.mileway.core.ui.resources.profile_analytics_thirty_day_trend
+import com.mileway.core.ui.resources.profile_analytics_top_merchants
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.stub.AnalyticsMockData
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,10 +66,11 @@ fun AnalyticsDetailScreen(
     val merchants = AnalyticsMockData.merchantsForCategory(category)
     val snackbarHostState = remember { SnackbarHostState() }
     var showExportSnackbar by remember { mutableStateOf(false) }
+    val exportingMessage = stringResource(Res.string.profile_analytics_exporting_report, category)
 
     LaunchedEffect(showExportSnackbar) {
         if (showExportSnackbar) {
-            snackbarHostState.showSnackbar("Exporting $category report…")
+            snackbarHostState.showSnackbar(exportingMessage)
             showExportSnackbar = false
         }
     }
@@ -67,17 +78,17 @@ fun AnalyticsDetailScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "$category Analytics",
-                subtitle = "30-day trend",
+                title = stringResource(Res.string.profile_analytics_detail_title, category),
+                subtitle = stringResource(Res.string.profile_analytics_detail_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_analytics_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showExportSnackbar = true }) {
-                        Icon(Icons.Filled.FileDownload, contentDescription = "Export")
+                        Icon(Icons.Filled.FileDownload, contentDescription = stringResource(Res.string.profile_analytics_export))
                     }
                 },
             )
@@ -105,7 +116,11 @@ fun AnalyticsDetailScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
-                        Text("30-Day Trend", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            stringResource(Res.string.profile_analytics_thirty_day_trend),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                         Spacer(Modifier.height(DesignTokens.Spacing.m))
                         val primaryColor = MaterialTheme.colorScheme.primary
                         val fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
@@ -159,7 +174,11 @@ fun AnalyticsDetailScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
-                        Text("Top Merchants / Routes", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            stringResource(Res.string.profile_analytics_top_merchants),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
                         Spacer(Modifier.height(DesignTokens.Spacing.m))
                         val maxAmount = merchants.maxOfOrNull { it.amountRupees } ?: 1.0
                         merchants.forEachIndexed { i, merchant ->
@@ -179,7 +198,11 @@ fun AnalyticsDetailScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(merchant.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                                     val pct = (merchant.amountRupees / maxAmount * 100).toInt()
-                                    Text("$pct% of top spend", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(
+                                        stringResource(Res.string.profile_analytics_pct_of_top_spend, pct),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
                                 }
                                 Text("₹%,.0f".format(merchant.amountRupees), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                             }

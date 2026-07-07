@@ -42,12 +42,27 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_sessions_back
+import com.mileway.core.ui.resources.profile_sessions_revoke
+import com.mileway.core.ui.resources.profile_sessions_revoke_desc
+import com.mileway.core.ui.resources.profile_sessions_revoke_title
+import com.mileway.core.ui.resources.profile_sessions_sign_out_all_others
+import com.mileway.core.ui.resources.profile_sessions_signout_all_confirm
+import com.mileway.core.ui.resources.profile_sessions_signout_all_desc
+import com.mileway.core.ui.resources.profile_sessions_signout_all_title
+import com.mileway.core.ui.resources.profile_sessions_status_active
+import com.mileway.core.ui.resources.profile_sessions_status_idle
+import com.mileway.core.ui.resources.profile_sessions_status_recent
+import com.mileway.core.ui.resources.profile_sessions_this_device
+import com.mileway.core.ui.resources.profile_sessions_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.model.ActiveSession
 import com.mileway.feature.profile.model.SessionStatus
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
@@ -76,18 +91,18 @@ fun ActiveSessionsScreen(
         modifier = modifier,
         topBar = {
             DepthAwareTopBar(
-                title = "Active Sessions",
+                title = stringResource(Res.string.profile_sessions_title),
                 subtitle = "${uiState.sessions.size} device${if (uiState.sessions.size == 1) "" else "s"} signed in",
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_sessions_back))
                     }
                 },
                 actions = {
                     if (hasOtherSessions) {
                         TextButton(onClick = { confirmSignOutAll = true }) {
-                            Text("Sign out all others")
+                            Text(stringResource(Res.string.profile_sessions_sign_out_all_others))
                         }
                     }
                 },
@@ -111,9 +126,9 @@ fun ActiveSessionsScreen(
 
     revokeTarget?.let { target ->
         ActionConfirmationBottomSheet(
-            title = "Revoke Session",
-            description = "Sign out ${target.deviceName}? This device will need to sign in again.",
-            confirmLabel = "Revoke",
+            title = stringResource(Res.string.profile_sessions_revoke_title),
+            description = stringResource(Res.string.profile_sessions_revoke_desc, target.deviceName),
+            confirmLabel = stringResource(Res.string.profile_sessions_revoke),
             tone = ActionConfirmationToneType.Danger,
             onConfirm = {
                 viewModel.revoke(target.id)
@@ -125,9 +140,9 @@ fun ActiveSessionsScreen(
 
     if (confirmSignOutAll) {
         ActionConfirmationBottomSheet(
-            title = "Sign Out All Other Sessions",
-            description = "Every device except this one will be signed out.",
-            confirmLabel = "Sign Out All",
+            title = stringResource(Res.string.profile_sessions_signout_all_title),
+            description = stringResource(Res.string.profile_sessions_signout_all_desc),
+            confirmLabel = stringResource(Res.string.profile_sessions_signout_all_confirm),
             tone = ActionConfirmationToneType.Danger,
             onConfirm = {
                 viewModel.revokeAllExceptCurrent()
@@ -182,7 +197,7 @@ private fun SessionRow(
                             color = MilewayColors.success.copy(alpha = 0.15f),
                         ) {
                             Text(
-                                text = "This device",
+                                text = stringResource(Res.string.profile_sessions_this_device),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MilewayColors.success,
                                 modifier = Modifier.padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
@@ -200,7 +215,7 @@ private fun SessionRow(
             }
             if (!session.isCurrent) {
                 TextButton(onClick = onRevoke) {
-                    Text("Revoke", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(Res.string.profile_sessions_revoke), color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -211,9 +226,9 @@ private fun SessionRow(
 private fun StatusBadge(status: SessionStatus) {
     val (label, color) =
         when (status) {
-            SessionStatus.ACTIVE -> "Active" to MilewayColors.success
-            SessionStatus.RECENT -> "Recent" to MilewayColors.warning
-            SessionStatus.IDLE -> "Idle" to MilewayColors.neutral
+            SessionStatus.ACTIVE -> stringResource(Res.string.profile_sessions_status_active) to MilewayColors.success
+            SessionStatus.RECENT -> stringResource(Res.string.profile_sessions_status_recent) to MilewayColors.warning
+            SessionStatus.IDLE -> stringResource(Res.string.profile_sessions_status_idle) to MilewayColors.neutral
         }
     Surface(
         shape = DesignTokens.Shape.chip,

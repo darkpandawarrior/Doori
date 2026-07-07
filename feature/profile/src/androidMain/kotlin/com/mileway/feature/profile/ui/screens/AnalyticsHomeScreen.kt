@@ -60,6 +60,27 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_analytics_ai_insights_period
+import com.mileway.core.ui.resources.profile_analytics_back
+import com.mileway.core.ui.resources.profile_analytics_category_breakdown
+import com.mileway.core.ui.resources.profile_analytics_hard_stops
+import com.mileway.core.ui.resources.profile_analytics_home_subtitle
+import com.mileway.core.ui.resources.profile_analytics_member_breakdown
+import com.mileway.core.ui.resources.profile_analytics_policy_health
+import com.mileway.core.ui.resources.profile_analytics_quick_insights
+import com.mileway.core.ui.resources.profile_analytics_recent_activity
+import com.mileway.core.ui.resources.profile_analytics_seven_day_spending
+import com.mileway.core.ui.resources.profile_analytics_tab_insights
+import com.mileway.core.ui.resources.profile_analytics_tab_my_spend
+import com.mileway.core.ui.resources.profile_analytics_tab_team
+import com.mileway.core.ui.resources.profile_analytics_team_period
+import com.mileway.core.ui.resources.profile_analytics_team_spend
+import com.mileway.core.ui.resources.profile_analytics_title
+import com.mileway.core.ui.resources.profile_analytics_total
+import com.mileway.core.ui.resources.profile_analytics_total_spend
+import com.mileway.core.ui.resources.profile_analytics_violations
+import com.mileway.core.ui.resources.profile_analytics_vs_last_week
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -68,6 +89,7 @@ import com.mileway.stub.RecentActivityItem
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalLayoutApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
@@ -102,11 +124,20 @@ fun AnalyticsHomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_analytics_back), tint = Color.White)
                     }
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Analytics", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text("Last 30 days · all categories", style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.85f))
+                        Text(
+                            stringResource(Res.string.profile_analytics_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            stringResource(Res.string.profile_analytics_home_subtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.85f),
+                        )
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
@@ -115,13 +146,21 @@ fun AnalyticsHomeScreen(
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                         )
-                        Text("total spend", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
+                        Text(
+                            stringResource(Res.string.profile_analytics_total_spend),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White.copy(alpha = 0.7f),
+                        )
                     }
                 }
             }
 
             PrimaryTabRow(selectedTabIndex = selectedTab) {
-                listOf("MY SPEND", "TEAM", "INSIGHTS").forEachIndexed { idx, title ->
+                listOf(
+                    stringResource(Res.string.profile_analytics_tab_my_spend),
+                    stringResource(Res.string.profile_analytics_tab_team),
+                    stringResource(Res.string.profile_analytics_tab_insights),
+                ).forEachIndexed { idx, title ->
                     Tab(
                         selected = selectedTab == idx,
                         onClick = { selectedTab = idx },
@@ -161,13 +200,13 @@ private fun MySpendTab(
         item { CategoryBreakdownCard(data, onOpenDetail) }
         item { PolicyHealthCard(data) }
         item {
-            Text("Recent Activity", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_analytics_recent_activity), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         }
         items(data.recentActivity) { item ->
             RecentActivityRow(item)
         }
         item {
-            Text("Quick Insights", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_analytics_quick_insights), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s), verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
                 data.quickInsights.forEach { insight ->
@@ -218,8 +257,16 @@ private fun TeamTab() {
                 Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Column {
-                            Text("Team Spend", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                            Text("5 members · June 2026", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                stringResource(Res.string.profile_analytics_team_spend),
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                stringResource(Res.string.profile_analytics_team_period),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
@@ -228,7 +275,11 @@ private fun TeamTab() {
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
                             )
-                            Text("total", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                stringResource(Res.string.profile_analytics_total),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
                 }
@@ -236,7 +287,7 @@ private fun TeamTab() {
         }
 
         item {
-            Text("Member Breakdown", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_analytics_member_breakdown), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         }
 
         item {
@@ -337,7 +388,11 @@ private fun InsightsTab() {
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
             ) {
                 Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color(0xFF5C6BC0), modifier = Modifier.size(20.dp))
-                Text("AI-generated insights · June 2026", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    stringResource(Res.string.profile_analytics_ai_insights_period),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
         items(AI_INSIGHTS) { insight ->
@@ -394,10 +449,14 @@ private fun SpendingOverviewCard(data: AnalyticsMockData) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("7-Day Spending", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(Res.string.profile_analytics_seven_day_spending),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
                 Surface(color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), shape = RoundedCornerShape(6.dp)) {
                     Text(
-                        "vs last week +12%",
+                        stringResource(Res.string.profile_analytics_vs_last_week),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
@@ -461,7 +520,7 @@ private fun CategoryBreakdownCard(
         elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
-            Text("Category Breakdown", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_analytics_category_breakdown), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.m))
 
             val total = data.categoryTotals.values.sum()
@@ -536,11 +595,19 @@ private fun PolicyHealthCard(data: AnalyticsMockData) {
             }
 
             Column(modifier = Modifier.weight(1f)) {
-                Text("Policy Health", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(Res.string.profile_analytics_policy_health), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
                 Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                    PolicyStat(label = "Violations", value = "${data.violationCount}", color = DesignTokens.StatusColors.warning)
-                    PolicyStat(label = "Hard Stops", value = "${data.hardStopCount}", color = DesignTokens.StatusColors.error)
+                    PolicyStat(
+                        label = stringResource(Res.string.profile_analytics_violations),
+                        value = "${data.violationCount}",
+                        color = DesignTokens.StatusColors.warning,
+                    )
+                    PolicyStat(
+                        label = stringResource(Res.string.profile_analytics_hard_stops),
+                        value = "${data.hardStopCount}",
+                        color = DesignTokens.StatusColors.error,
+                    )
                 }
             }
         }

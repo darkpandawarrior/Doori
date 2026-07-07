@@ -56,6 +56,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.CollapsibleSectionCard
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_help_back
+import com.mileway.core.ui.resources.profile_help_bug_submitted
+import com.mileway.core.ui.resources.profile_help_cancel
+import com.mileway.core.ui.resources.profile_help_clear
+import com.mileway.core.ui.resources.profile_help_contact_support
+import com.mileway.core.ui.resources.profile_help_describe_issue
+import com.mileway.core.ui.resources.profile_help_my_tickets_count
+import com.mileway.core.ui.resources.profile_help_need_more_help
+import com.mileway.core.ui.resources.profile_help_no_results
+import com.mileway.core.ui.resources.profile_help_pause
+import com.mileway.core.ui.resources.profile_help_play
+import com.mileway.core.ui.resources.profile_help_questions_count
+import com.mileway.core.ui.resources.profile_help_report_bug
+import com.mileway.core.ui.resources.profile_help_resume
+import com.mileway.core.ui.resources.profile_help_search_placeholder
+import com.mileway.core.ui.resources.profile_help_show_answer
+import com.mileway.core.ui.resources.profile_help_show_less
+import com.mileway.core.ui.resources.profile_help_subject
+import com.mileway.core.ui.resources.profile_help_submit_ticket
+import com.mileway.core.ui.resources.profile_help_subtitle
+import com.mileway.core.ui.resources.profile_help_support_hours
+import com.mileway.core.ui.resources.profile_help_ticket_submitted
+import com.mileway.core.ui.resources.profile_help_title
+import com.mileway.core.ui.resources.profile_help_video_tutorials
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.data.VIDEO_TUTORIALS
@@ -63,6 +88,7 @@ import com.mileway.feature.profile.data.VideoTutorial
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private data class Faq(val q: String, val a: String, val category: String)
@@ -187,17 +213,19 @@ fun HelpScreen(
     var showContactForm by rememberSaveable { mutableStateOf(false) }
     var subjectInput by rememberSaveable { mutableStateOf("") }
     var bodyInput by rememberSaveable { mutableStateOf("") }
+    val ticketSubmittedMsg = stringResource(Res.string.profile_help_ticket_submitted)
+    val bugSubmittedMsg = stringResource(Res.string.profile_help_bug_submitted)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DepthAwareTopBar(
-                title = "Help & Support",
-                subtitle = "Browse FAQs & contact support",
+                title = stringResource(Res.string.profile_help_title),
+                subtitle = stringResource(Res.string.profile_help_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_help_back))
                     }
                 },
             )
@@ -215,12 +243,12 @@ fun HelpScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search FAQs…") },
+                placeholder = { Text(stringResource(Res.string.profile_help_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotBlank()) {
                         IconButton(onClick = { searchQuery = "" }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(Res.string.profile_help_clear))
                         }
                     }
                 },
@@ -242,7 +270,7 @@ fun HelpScreen(
             if (searchQuery.isNotBlank()) {
                 if (filtered.isEmpty()) {
                     Text(
-                        "No results for \"$searchQuery\"",
+                        stringResource(Res.string.profile_help_no_results, searchQuery),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 8.dp),
@@ -255,7 +283,7 @@ fun HelpScreen(
                     val catFaqs = ALL_FAQS.filter { it.category == category }
                     CollapsibleSectionCard(
                         title = category,
-                        subtitle = "${catFaqs.size} questions",
+                        subtitle = stringResource(Res.string.profile_help_questions_count, catFaqs.size),
                         initiallyExpanded = category == "Getting Started",
                     ) {
                         Column(
@@ -270,7 +298,7 @@ fun HelpScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            Text("Video Tutorials", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_help_video_tutorials), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                 items(VIDEO_TUTORIALS, key = { it.id }) { tutorial -> VideoTutorialCard(tutorial) }
             }
@@ -284,9 +312,9 @@ fun HelpScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text("Need more help?", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.profile_help_need_more_help), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                     Text(
-                        "Our support team is available Mon–Fri, 9 AM–6 PM IST.",
+                        stringResource(Res.string.profile_help_support_hours),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -303,14 +331,14 @@ fun HelpScreen(
                         OutlinedTextField(
                             value = subjectInput,
                             onValueChange = { subjectInput = it },
-                            label = { Text("Subject") },
+                            label = { Text(stringResource(Res.string.profile_help_subject)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                         )
                         OutlinedTextField(
                             value = bodyInput,
                             onValueChange = { bodyInput = it },
-                            label = { Text("Describe the issue") },
+                            label = { Text(stringResource(Res.string.profile_help_describe_issue)) },
                             modifier = Modifier.fillMaxWidth(),
                         )
                         Button(
@@ -320,18 +348,18 @@ fun HelpScreen(
                                     subjectInput = ""
                                     bodyInput = ""
                                     showContactForm = false
-                                    scope.launch { snackbarHostState.showSnackbar("Ticket submitted — view it in My Tickets") }
+                                    scope.launch { snackbarHostState.showSnackbar(ticketSubmittedMsg) }
                                 }
                             },
                             modifier = Modifier.fillMaxWidth(),
                         ) {
-                            Text("Submit Ticket")
+                            Text(stringResource(Res.string.profile_help_submit_ticket))
                         }
                         TextButton(onClick = {
                             showContactForm = false
                             viewModel.clearSubmitError()
                         }) {
-                            Text("Cancel")
+                            Text(stringResource(Res.string.profile_help_cancel))
                         }
                     } else {
                         Button(
@@ -340,7 +368,7 @@ fun HelpScreen(
                         ) {
                             Icon(Icons.Default.Email, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.size(8.dp))
-                            Text("Contact Support")
+                            Text(stringResource(Res.string.profile_help_contact_support))
                         }
                         Button(
                             onClick = {
@@ -348,17 +376,17 @@ fun HelpScreen(
                                     subject = "Bug report",
                                     body = "Auto-filed from Help & Support's Report a Bug action.",
                                 )
-                                scope.launch { snackbarHostState.showSnackbar("Bug report submitted — view it in My Tickets") }
+                                scope.launch { snackbarHostState.showSnackbar(bugSubmittedMsg) }
                             },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
                         ) {
-                            Text("Report a Bug")
+                            Text(stringResource(Res.string.profile_help_report_bug))
                         }
                         TextButton(onClick = onOpenMyTickets, modifier = Modifier.fillMaxWidth()) {
                             Icon(Icons.Default.ConfirmationNumber, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(Modifier.size(8.dp))
-                            Text("My Tickets (${ticketState.tickets.size})")
+                            Text(stringResource(Res.string.profile_help_my_tickets_count, ticketState.tickets.size))
                         }
                     }
                 }
@@ -385,7 +413,7 @@ private fun VideoTutorialCard(tutorial: VideoTutorial) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayCircle,
-                    contentDescription = if (isPlaying) "Pause" else "Play",
+                    contentDescription = if (isPlaying) stringResource(Res.string.profile_help_pause) else stringResource(Res.string.profile_help_play),
                     modifier = Modifier.size(28.dp),
                 )
                 Spacer(Modifier.width(8.dp))
@@ -405,11 +433,11 @@ private fun VideoTutorialCard(tutorial: VideoTutorial) {
                 Spacer(Modifier.size(4.dp))
                 Text(
                     if (isPlaying) {
-                        "Pause"
+                        stringResource(Res.string.profile_help_pause)
                     } else if (progress > 0f) {
-                        "Resume"
+                        stringResource(Res.string.profile_help_resume)
                     } else {
-                        "Play"
+                        stringResource(Res.string.profile_help_play)
                     },
                 )
             }
@@ -471,7 +499,10 @@ private fun FaqItem(faq: Faq) {
             )
         }
         TextButton(onClick = { expanded = !expanded }) {
-            Text(if (expanded) "Show less" else "Show answer", style = MaterialTheme.typography.labelSmall)
+            Text(
+                if (expanded) stringResource(Res.string.profile_help_show_less) else stringResource(Res.string.profile_help_show_answer),
+                style = MaterialTheme.typography.labelSmall,
+            )
         }
     }
 }

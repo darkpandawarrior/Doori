@@ -35,11 +35,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_accounts_connected
+import com.mileway.core.ui.resources.profile_accounts_disconnected
+import com.mileway.core.ui.resources.profile_accounts_subtitle
+import com.mileway.core.ui.resources.profile_accounts_title
+import com.mileway.core.ui.resources.profile_sessions_back
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.model.ConnectedAccount
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -62,12 +69,12 @@ fun ConnectedAccountsScreen(
         modifier = modifier,
         topBar = {
             DepthAwareTopBar(
-                title = "Connected Accounts",
-                subtitle = "Cabs, Passport integrations",
+                title = stringResource(Res.string.profile_accounts_title),
+                subtitle = stringResource(Res.string.profile_accounts_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_sessions_back))
                     }
                 },
             )
@@ -134,7 +141,14 @@ private fun ConnectedAccountRow(
                     color = (if (account.isConnected) MilewayColors.success else MilewayColors.neutral).copy(alpha = 0.15f),
                 ) {
                     Text(
-                        text = if (account.isConnected) "Connected" else "Disconnected",
+                        text =
+                            if (account.isConnected) {
+                                stringResource(
+                                    Res.string.profile_accounts_connected,
+                                )
+                            } else {
+                                stringResource(Res.string.profile_accounts_disconnected)
+                            },
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
                         color = if (account.isConnected) MilewayColors.success else MilewayColors.neutral,

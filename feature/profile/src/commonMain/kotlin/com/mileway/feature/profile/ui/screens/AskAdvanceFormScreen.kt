@@ -52,6 +52,37 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_advance_amount_label
+import com.mileway.core.ui.resources.profile_advance_amount_purpose
+import com.mileway.core.ui.resources.profile_advance_approved_title
+import com.mileway.core.ui.resources.profile_advance_auto_approved_note
+import com.mileway.core.ui.resources.profile_advance_back
+import com.mileway.core.ui.resources.profile_advance_back_to_advances
+import com.mileway.core.ui.resources.profile_advance_continue
+import com.mileway.core.ui.resources.profile_advance_declaration
+import com.mileway.core.ui.resources.profile_advance_declaration_agree
+import com.mileway.core.ui.resources.profile_advance_declaration_text
+import com.mileway.core.ui.resources.profile_advance_manager_approval_note
+import com.mileway.core.ui.resources.profile_advance_manager_review_note
+import com.mileway.core.ui.resources.profile_advance_mode_card_desc
+import com.mileway.core.ui.resources.profile_advance_mode_card_title
+import com.mileway.core.ui.resources.profile_advance_mode_cash_desc
+import com.mileway.core.ui.resources.profile_advance_mode_cash_title
+import com.mileway.core.ui.resources.profile_advance_no_documents_note
+import com.mileway.core.ui.resources.profile_advance_purpose_label
+import com.mileway.core.ui.resources.profile_advance_purpose_placeholder
+import com.mileway.core.ui.resources.profile_advance_receive_prompt
+import com.mileway.core.ui.resources.profile_advance_request_advance
+import com.mileway.core.ui.resources.profile_advance_request_id
+import com.mileway.core.ui.resources.profile_advance_required_by_label
+import com.mileway.core.ui.resources.profile_advance_required_by_placeholder
+import com.mileway.core.ui.resources.profile_advance_select_linked_card
+import com.mileway.core.ui.resources.profile_advance_step_of_4
+import com.mileway.core.ui.resources.profile_advance_submit_request
+import com.mileway.core.ui.resources.profile_advance_submitted_title
+import com.mileway.core.ui.resources.profile_advance_supporting_documents
+import com.mileway.core.ui.resources.profile_advance_type_optional
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
@@ -61,6 +92,7 @@ import com.mileway.feature.profile.model.AdvanceType
 import com.mileway.feature.profile.model.CorporateCard
 import com.mileway.feature.profile.viewmodel.AdvanceAction
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -90,8 +122,8 @@ fun AskAdvanceFormScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Request Advance",
-                subtitle = "Step ${form.step + 1} of 4",
+                title = stringResource(Res.string.profile_advance_request_advance),
+                subtitle = stringResource(Res.string.profile_advance_step_of_4, form.step + 1),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = {
@@ -100,7 +132,7 @@ fun AskAdvanceFormScreen(
                             else -> viewModel.onAction(AdvanceAction.GoToStep(form.step - 1))
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_advance_back))
                     }
                 },
             )
@@ -133,7 +165,15 @@ fun AskAdvanceFormScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = enabled,
                     ) {
-                        Text(if (form.step == 3) "Submit Advance Request" else "Continue")
+                        Text(
+                            if (form.step == 3) {
+                                stringResource(
+                                    Res.string.profile_advance_submit_request,
+                                )
+                            } else {
+                                stringResource(Res.string.profile_advance_continue)
+                            },
+                        )
                     }
                 }
             }
@@ -155,27 +195,31 @@ fun AskAdvanceFormScreen(
 
             when (form.step) {
                 0 -> {
-                    Text("How would you like to receive this advance?", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        stringResource(Res.string.profile_advance_receive_prompt),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
 
                     AdvanceModeOption(
                         icon = Icons.Filled.Payments,
-                        title = "Cash",
-                        description = "Disbursed directly, settle with expense claims later.",
+                        title = stringResource(Res.string.profile_advance_mode_cash_title),
+                        description = stringResource(Res.string.profile_advance_mode_cash_desc),
                         selected = form.mode == AdvanceMode.CASH,
                         onSelect = { viewModel.onAction(AdvanceAction.SetMode(AdvanceMode.CASH)) },
                     )
 
                     AdvanceModeOption(
                         icon = Icons.Filled.CreditCard,
-                        title = "Card-linked",
-                        description = "Spend directly on a linked corporate card, no cash handling.",
+                        title = stringResource(Res.string.profile_advance_mode_card_title),
+                        description = stringResource(Res.string.profile_advance_mode_card_desc),
                         selected = form.mode == AdvanceMode.CARD_LINKED,
                         onSelect = { viewModel.onAction(AdvanceAction.SetMode(AdvanceMode.CARD_LINKED)) },
                     )
 
                     if (form.mode == AdvanceMode.CARD_LINKED) {
                         Text(
-                            "Select a linked card",
+                            stringResource(Res.string.profile_advance_select_linked_card),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -190,12 +234,16 @@ fun AskAdvanceFormScreen(
                 }
 
                 1 -> {
-                    Text("Amount & Purpose", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        stringResource(Res.string.profile_advance_amount_purpose),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
 
                     OutlinedTextField(
                         value = form.amountText,
                         onValueChange = { viewModel.onAction(AdvanceAction.SetAmount(it)) },
-                        label = { Text("Amount (₹)") },
+                        label = { Text(stringResource(Res.string.profile_advance_amount_label)) },
                         prefix = { Text("₹") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         singleLine = true,
@@ -209,7 +257,7 @@ fun AskAdvanceFormScreen(
                             shape = DesignTokens.Shape.roundedSm,
                         ) {
                             Text(
-                                "Advances ≥ ₹10,000 require manager approval (1–2 business days).",
+                                stringResource(Res.string.profile_advance_manager_approval_note),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                                 modifier = Modifier.padding(DesignTokens.Spacing.m),
@@ -220,8 +268,8 @@ fun AskAdvanceFormScreen(
                     OutlinedTextField(
                         value = form.purpose,
                         onValueChange = { viewModel.onAction(AdvanceAction.SetPurpose(it)) },
-                        label = { Text("Purpose") },
-                        placeholder = { Text("Brief description of use…") },
+                        label = { Text(stringResource(Res.string.profile_advance_purpose_label)) },
+                        placeholder = { Text(stringResource(Res.string.profile_advance_purpose_placeholder)) },
                         keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                         minLines = 2,
                         maxLines = 4,
@@ -231,14 +279,14 @@ fun AskAdvanceFormScreen(
                     OutlinedTextField(
                         value = form.requiredByDate,
                         onValueChange = { viewModel.onAction(AdvanceAction.SetRequiredByDate(it)) },
-                        label = { Text("Required By Date") },
-                        placeholder = { Text("e.g. 2024-02-15") },
+                        label = { Text(stringResource(Res.string.profile_advance_required_by_label)) },
+                        placeholder = { Text(stringResource(Res.string.profile_advance_required_by_placeholder)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                     )
 
                     Text(
-                        "Type (optional)",
+                        stringResource(Res.string.profile_advance_type_optional),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -262,7 +310,11 @@ fun AskAdvanceFormScreen(
                 }
 
                 2 -> {
-                    Text("Supporting Documents", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        stringResource(Res.string.profile_advance_supporting_documents),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
 
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -283,7 +335,7 @@ fun AskAdvanceFormScreen(
                                 modifier = Modifier.size(48.dp),
                             )
                             Text(
-                                "No documents required for amounts below ₹25,000 (illustrative)",
+                                stringResource(Res.string.profile_advance_no_documents_note),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -293,14 +345,14 @@ fun AskAdvanceFormScreen(
                 }
 
                 3 -> {
-                    Text("Declaration", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(Res.string.profile_advance_declaration), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 
                     Surface(
                         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
                         shape = DesignTokens.Shape.roundedMd,
                     ) {
                         Text(
-                            "I hereby declare that the advance requested is for official purposes only, and I will submit proper receipts and expense claims within 7 working days of the expenditure.",
+                            stringResource(Res.string.profile_advance_declaration_text),
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(DesignTokens.Spacing.l),
                         )
@@ -315,7 +367,7 @@ fun AskAdvanceFormScreen(
                             checked = form.declarationChecked,
                             onCheckedChange = { viewModel.onAction(AdvanceAction.SetDeclaration(it)) },
                         )
-                        Text("I agree to the above declaration", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(Res.string.profile_advance_declaration_agree), style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
@@ -429,7 +481,7 @@ private fun AdvanceSuccessContent(
         )
         Spacer(Modifier.height(24.dp))
         Text(
-            text = if (autoApproved) "Advance Approved!" else "Request Submitted",
+            text = if (autoApproved) stringResource(Res.string.profile_advance_approved_title) else stringResource(Res.string.profile_advance_submitted_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -443,7 +495,7 @@ private fun AdvanceSuccessContent(
             textAlign = TextAlign.Center,
         )
         Text(
-            text = "Request ID: $id",
+            text = stringResource(Res.string.profile_advance_request_id, id),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -452,9 +504,9 @@ private fun AdvanceSuccessContent(
         Text(
             text =
                 if (autoApproved) {
-                    "Amount < ₹10,000: auto-approved. Disbursement within 24 hours."
+                    stringResource(Res.string.profile_advance_auto_approved_note)
                 } else {
-                    "Amount ≥ ₹10,000: under manager review. Expected decision in 1–2 business days."
+                    stringResource(Res.string.profile_advance_manager_review_note)
                 },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -462,7 +514,7 @@ private fun AdvanceSuccessContent(
         )
         Spacer(Modifier.height(32.dp))
         Button(onClick = onDone, modifier = Modifier.fillMaxWidth()) {
-            Text("Back to My Advances")
+            Text(stringResource(Res.string.profile_advance_back_to_advances))
         }
     }
 }

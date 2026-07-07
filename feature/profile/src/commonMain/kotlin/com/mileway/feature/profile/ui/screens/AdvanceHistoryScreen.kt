@@ -47,6 +47,18 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_advance_back
+import com.mileway.core.ui.resources.profile_advance_empty_subtitle
+import com.mileway.core.ui.resources.profile_advance_empty_title
+import com.mileway.core.ui.resources.profile_advance_my_advances
+import com.mileway.core.ui.resources.profile_advance_records_count
+import com.mileway.core.ui.resources.profile_advance_request_advance
+import com.mileway.core.ui.resources.profile_advance_status_approved
+import com.mileway.core.ui.resources.profile_advance_status_disbursed
+import com.mileway.core.ui.resources.profile_advance_status_pending
+import com.mileway.core.ui.resources.profile_advance_status_rejected
+import com.mileway.core.ui.resources.profile_advance_status_under_review
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.core.ui.theme.dataStyle
@@ -59,6 +71,7 @@ import com.mileway.feature.profile.viewmodel.AdvanceViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -76,7 +89,7 @@ fun AdvanceHistoryScreen(
             ExtendedFloatingActionButton(
                 onClick = onRequestAdvance,
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Request Advance") },
+                text = { Text(stringResource(Res.string.profile_advance_request_advance)) },
             )
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -101,12 +114,17 @@ fun AdvanceHistoryScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_advance_back), tint = Color.White)
                     }
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("My Advances", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
                         Text(
-                            "${ui.list.records.dataOrNull?.size ?: 0} records",
+                            stringResource(Res.string.profile_advance_my_advances),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                        )
+                        Text(
+                            stringResource(Res.string.profile_advance_records_count, ui.list.records.dataOrNull?.size ?: 0),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.85f),
                         )
@@ -142,9 +160,9 @@ fun AdvanceHistoryScreen(
                 onRetry = { viewModel.onAction(AdvanceAction.Refresh) },
                 empty = {
                     DefaultEmptyState(
-                        title = "No advances yet",
-                        subtitle = "Your advance requests will appear here.",
-                        ctaLabel = "Request Advance",
+                        title = stringResource(Res.string.profile_advance_empty_title),
+                        subtitle = stringResource(Res.string.profile_advance_empty_subtitle),
+                        ctaLabel = stringResource(Res.string.profile_advance_request_advance),
                         onCta = onRequestAdvance,
                     )
                 },
@@ -183,11 +201,11 @@ private fun AdvanceCard(
 ) {
     val (statusLabel, statusColor) =
         when (record.status) {
-            AdvanceStatus.PENDING -> "Pending" to StatusColors.warning
-            AdvanceStatus.UNDER_REVIEW -> "Under Review" to StatusColors.info
-            AdvanceStatus.APPROVED -> "Approved" to StatusColors.success
-            AdvanceStatus.DISBURSED -> "Disbursed" to StatusColors.info
-            AdvanceStatus.REJECTED -> "Rejected" to StatusColors.error
+            AdvanceStatus.PENDING -> stringResource(Res.string.profile_advance_status_pending) to StatusColors.warning
+            AdvanceStatus.UNDER_REVIEW -> stringResource(Res.string.profile_advance_status_under_review) to StatusColors.info
+            AdvanceStatus.APPROVED -> stringResource(Res.string.profile_advance_status_approved) to StatusColors.success
+            AdvanceStatus.DISBURSED -> stringResource(Res.string.profile_advance_status_disbursed) to StatusColors.info
+            AdvanceStatus.REJECTED -> stringResource(Res.string.profile_advance_status_rejected) to StatusColors.error
         }
     val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 

@@ -31,11 +31,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_details_back
+import com.mileway.core.ui.resources.profile_org_name_you
+import com.mileway.core.ui.resources.profile_org_subtitle
+import com.mileway.core.ui.resources.profile_org_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.model.OrgChartBuilder
 import com.mileway.feature.profile.model.OrgChartNode
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -58,12 +64,12 @@ fun OrgChartScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Org Chart",
-                subtitle = "Reporting structure",
+                title = stringResource(Res.string.profile_org_title),
+                subtitle = stringResource(Res.string.profile_org_subtitle),
                 depth = NavigationDepth.LEVEL_3_PLUS,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_details_back))
                     }
                 },
             )
@@ -127,7 +133,7 @@ private fun OrgChartRowContent(
                 }
                 Column {
                     Text(
-                        text = node.name + if (node.isCurrentUser) " (You)" else "",
+                        text = if (node.isCurrentUser) stringResource(Res.string.profile_org_name_you, node.name) else node.name,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,

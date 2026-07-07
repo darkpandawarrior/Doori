@@ -21,12 +21,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_sync_events
+import com.mileway.core.ui.resources.profile_sync_failed
+import com.mileway.core.ui.resources.profile_sync_force
+import com.mileway.core.ui.resources.profile_sync_last_sync
+import com.mileway.core.ui.resources.profile_sync_locations
+import com.mileway.core.ui.resources.profile_sync_syncing
+import com.mileway.core.ui.resources.profile_sync_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.model.SyncMetrics
 import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -67,7 +76,7 @@ internal fun SyncDiagnosticsCardContent(
     ) {
         Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
             Text(
-                text = "Sync Diagnostics",
+                text = stringResource(Res.string.profile_sync_title),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -76,10 +85,10 @@ internal fun SyncDiagnosticsCardContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                SyncMetricColumn(label = "Locations", value = metrics.locationsSynced.toString())
-                SyncMetricColumn(label = "Events", value = metrics.eventsSynced.toString())
+                SyncMetricColumn(label = stringResource(Res.string.profile_sync_locations), value = metrics.locationsSynced.toString())
+                SyncMetricColumn(label = stringResource(Res.string.profile_sync_events), value = metrics.eventsSynced.toString())
                 SyncMetricColumn(
-                    label = "Failed",
+                    label = stringResource(Res.string.profile_sync_failed),
                     value = metrics.failedAttempts.toString(),
                     valueColor =
                         if (metrics.failedAttempts > 0) {
@@ -91,7 +100,7 @@ internal fun SyncDiagnosticsCardContent(
             }
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             Text(
-                text = "Last sync: ${formatLastSync(metrics.lastSyncTimeMs)}",
+                text = stringResource(Res.string.profile_sync_last_sync, formatLastSync(metrics.lastSyncTimeMs)),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -110,10 +119,10 @@ internal fun SyncDiagnosticsCardContent(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp,
                         )
-                        Text(text = "Syncing…")
+                        Text(text = stringResource(Res.string.profile_sync_syncing))
                     }
                 } else {
-                    Text(text = "Force Sync")
+                    Text(text = stringResource(Res.string.profile_sync_force))
                 }
             }
         }

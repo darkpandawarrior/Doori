@@ -42,6 +42,20 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_advance_approver_chain
+import com.mileway.core.ui.resources.profile_advance_back
+import com.mileway.core.ui.resources.profile_advance_decline_reason
+import com.mileway.core.ui.resources.profile_advance_not_found_subtitle
+import com.mileway.core.ui.resources.profile_advance_not_found_title
+import com.mileway.core.ui.resources.profile_advance_request_title
+import com.mileway.core.ui.resources.profile_advance_start_trip
+import com.mileway.core.ui.resources.profile_advance_status_approved
+import com.mileway.core.ui.resources.profile_advance_status_disbursed
+import com.mileway.core.ui.resources.profile_advance_status_pending
+import com.mileway.core.ui.resources.profile_advance_status_rejected
+import com.mileway.core.ui.resources.profile_advance_status_under_review
+import com.mileway.core.ui.resources.profile_advance_timeline
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
@@ -57,6 +71,7 @@ import com.mileway.feature.profile.viewmodel.AdvanceViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
@@ -98,12 +113,12 @@ fun AdvanceRequestDetailsScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Advance Request",
+                title = stringResource(Res.string.profile_advance_request_title),
                 subtitle = advanceId,
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.profile_advance_back))
                     }
                 },
             )
@@ -119,8 +134,8 @@ fun AdvanceRequestDetailsScreen(
                     .navigationBarsPadding(),
             empty = {
                 DefaultEmptyState(
-                    title = "Advance not found",
-                    subtitle = "This advance request could not be located.",
+                    title = stringResource(Res.string.profile_advance_not_found_title),
+                    subtitle = stringResource(Res.string.profile_advance_not_found_subtitle),
                 )
             },
         ) { record ->
@@ -173,7 +188,7 @@ private fun StartTripCta(onClick: () -> Unit) {
     ) {
         Icon(Icons.Filled.DirectionsCar, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
         Spacer(Modifier.width(DesignTokens.Spacing.s))
-        Text("Start Trip Against This Advance")
+        Text(stringResource(Res.string.profile_advance_start_trip))
     }
 }
 
@@ -181,11 +196,11 @@ private fun StartTripCta(onClick: () -> Unit) {
 private fun HeroCard(record: AdvanceRecord) {
     val (statusLabel, statusColor) =
         when (record.status) {
-            AdvanceStatus.PENDING -> "Pending" to StatusColors.warning
-            AdvanceStatus.UNDER_REVIEW -> "Under Review" to StatusColors.info
-            AdvanceStatus.APPROVED -> "Approved" to StatusColors.success
-            AdvanceStatus.DISBURSED -> "Disbursed" to StatusColors.info
-            AdvanceStatus.REJECTED -> "Rejected" to StatusColors.error
+            AdvanceStatus.PENDING -> stringResource(Res.string.profile_advance_status_pending) to StatusColors.warning
+            AdvanceStatus.UNDER_REVIEW -> stringResource(Res.string.profile_advance_status_under_review) to StatusColors.info
+            AdvanceStatus.APPROVED -> stringResource(Res.string.profile_advance_status_approved) to StatusColors.success
+            AdvanceStatus.DISBURSED -> stringResource(Res.string.profile_advance_status_disbursed) to StatusColors.info
+            AdvanceStatus.REJECTED -> stringResource(Res.string.profile_advance_status_rejected) to StatusColors.error
         }
 
     Card(
@@ -238,7 +253,7 @@ private fun DeclineReasonCard(reason: String) {
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
             Text(
-                "Decline Reason",
+                stringResource(Res.string.profile_advance_decline_reason),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = StatusColors.error,
@@ -257,7 +272,7 @@ private fun ApproverChainCard(steps: List<ApproverStep>) {
         elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
-            Text("Approver Chain", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_advance_approver_chain), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             steps.forEachIndexed { index, step ->
                 if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.xs))
@@ -277,9 +292,9 @@ private fun ApproverStepRow(step: ApproverStep) {
         }
     val statusLabel =
         when (step.status) {
-            ApproverStepStatus.APPROVED -> "Approved"
-            ApproverStepStatus.REJECTED -> "Rejected"
-            ApproverStepStatus.PENDING -> "Pending"
+            ApproverStepStatus.APPROVED -> stringResource(Res.string.profile_advance_status_approved)
+            ApproverStepStatus.REJECTED -> stringResource(Res.string.profile_advance_status_rejected)
+            ApproverStepStatus.PENDING -> stringResource(Res.string.profile_advance_status_pending)
         }
 
     Row(
@@ -309,7 +324,7 @@ private fun TimelineCard(entries: List<TimelineEntry>) {
         elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l)) {
-            Text("Timeline", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(Res.string.profile_advance_timeline), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             entries.forEachIndexed { index, entry ->
                 if (index > 0) HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.xs))
