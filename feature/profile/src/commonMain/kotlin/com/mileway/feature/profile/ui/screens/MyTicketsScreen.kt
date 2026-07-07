@@ -27,6 +27,7 @@ import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_plural_tickets_submitted
 import com.mileway.core.ui.resources.profile_ticket_status_in_progress
 import com.mileway.core.ui.resources.profile_ticket_status_open
 import com.mileway.core.ui.resources.profile_ticket_status_resolved
@@ -41,6 +42,7 @@ import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -85,7 +87,7 @@ fun MyTicketsScreen(
         topBar = {
             DepthAwareTopBar(
                 title = stringResource(Res.string.profile_tickets_title),
-                subtitle = "${uiState.tickets.size} ticket${if (uiState.tickets.size == 1) "" else "s"} submitted",
+                subtitle = pluralStringResource(Res.plurals.profile_plural_tickets_submitted, uiState.tickets.size, uiState.tickets.size),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

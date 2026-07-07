@@ -1734,4 +1734,42 @@
     <string name="profile_storage_cache">कैश</string>
     <string name="profile_storage_total">कुल</string>
     <string name="profile_storage_cache_cleared">कैश साफ़ किया गया</string>
+
+    <!-- Media library -->
+    <string name="media_delete_confirm">हटाएँ</string>
+    <string name="media_delete_description">यह उन्हें केवल लाइब्रेरी से हटाता है: मूल फ़ाइल अपरिवर्तित रहती है।</string>
+
+    <!-- Pluralized counts (pluralStringResource) -->
+    <plurals name="profile_plural_tickets_submitted">
+        <item quantity="one">%1$d टिकट सबमिट किया गया</item>
+        <item quantity="other">%1$d टिकट सबमिट किए गए</item>
+    </plurals>
+    <plurals name="profile_plural_devices_signed_in">
+        <item quantity="one">%1$d डिवाइस साइन इन है</item>
+        <item quantity="other">%1$d डिवाइस साइन इन हैं</item>
+    </plurals>
+    <plurals name="tracking_plural_interrupted_journeys">
+        <item quantity="one">इस डिवाइस पर %1$d बाधित यात्रा मिली</item>
+        <item quantity="other">इस डिवाइस पर %1$d बाधित यात्राएँ मिलीं</item>
+    </plurals>
+    <plurals name="logging_plural_violations">
+        <item quantity="one">%1$d उल्लंघन</item>
+        <item quantity="other">%1$d उल्लंघन</item>
+    </plurals>
+    <plurals name="logging_plural_submission_violations">
+        <item quantity="one">आपके सबमिशन में %1$d उल्लंघन है:</item>
+        <item quantity="other">आपके सबमिशन में %1$d उल्लंघन हैं:</item>
+    </plurals>
+    <plurals name="logging_plural_items">
+        <item quantity="one">%1$d आइटम</item>
+        <item quantity="other">%1$d आइटम</item>
+    </plurals>
+    <plurals name="media_plural_delete_items">
+        <item quantity="one">%1$d आइटम हटाएँ?</item>
+        <item quantity="other">%1$d आइटम हटाएँ?</item>
+    </plurals>
+    <plurals name="core_plural_action_items">
+        <item quantity="one">%1$s %2$d आइटम</item>
+        <item quantity="other">%1$s %2$d आइटम</item>
+    </plurals>
 </resources>

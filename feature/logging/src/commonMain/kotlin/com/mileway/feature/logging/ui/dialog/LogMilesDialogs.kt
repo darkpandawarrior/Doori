@@ -48,6 +48,7 @@ import com.mileway.core.ui.resources.logging_claimed
 import com.mileway.core.ui.resources.logging_close
 import com.mileway.core.ui.resources.logging_current
 import com.mileway.core.ui.resources.logging_done
+import com.mileway.core.ui.resources.logging_plural_submission_violations
 import com.mileway.core.ui.resources.logging_policy_violations_title
 import com.mileway.core.ui.resources.logging_reimbursable
 import com.mileway.core.ui.resources.logging_remarks_label
@@ -61,6 +62,7 @@ import com.mileway.core.ui.resources.logging_verify_distance_body
 import com.mileway.core.ui.resources.logging_verify_distance_title
 import com.mileway.core.ui.resources.logging_violations_fallback
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -314,7 +316,7 @@ private fun PolicyViolationContent(
             tint = DesignTokens.StatusColors.error,
         )
         Text(
-            "Your submission has ${messages.size} violation${if (messages.size == 1) "" else "s"}:",
+            pluralStringResource(Res.plurals.logging_plural_submission_violations, messages.size, messages.size),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

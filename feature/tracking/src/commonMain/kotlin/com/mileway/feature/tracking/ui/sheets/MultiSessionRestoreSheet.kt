@@ -30,11 +30,13 @@ import com.mileway.core.ui.resources.tracking_multi_journey_in_progress
 import com.mileway.core.ui.resources.tracking_multi_no_data
 import com.mileway.core.ui.resources.tracking_multi_ready_resume
 import com.mileway.core.ui.resources.tracking_multi_restore_title
+import com.mileway.core.ui.resources.tracking_plural_interrupted_journeys
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.tracking.service.RestorableSession
 import com.mileway.feature.tracking.service.SessionValidationStatus
 import com.mileway.feature.tracking.ui.components.StatusBadge
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToLong
 
@@ -68,9 +70,8 @@ fun MultiSessionRestoreSheet(
                 fontWeight = FontWeight.Bold,
             )
             Spacer(Modifier.height(DesignTokens.Spacing.s))
-            val plural = if (sessions.size == 1) "" else "s"
             Text(
-                text = "${sessions.size} interrupted journey$plural found on this device",
+                text = pluralStringResource(Res.plurals.tracking_plural_interrupted_journeys, sessions.size, sessions.size),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

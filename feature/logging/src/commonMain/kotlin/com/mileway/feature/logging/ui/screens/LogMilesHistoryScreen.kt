@@ -56,6 +56,7 @@ import com.mileway.core.ui.resources.logging_no_submissions_subtitle
 import com.mileway.core.ui.resources.logging_no_submissions_title
 import com.mileway.core.ui.resources.logging_none
 import com.mileway.core.ui.resources.logging_office
+import com.mileway.core.ui.resources.logging_plural_violations
 import com.mileway.core.ui.resources.logging_policy_violation
 import com.mileway.core.ui.resources.logging_submitted_count
 import com.mileway.core.ui.resources.logging_submitted_on
@@ -65,6 +66,7 @@ import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesDraftUi
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -412,7 +414,7 @@ private fun VoucherCard(voucher: SubmittedVoucher) {
                 voucher.chips.forEach { chip -> Pill(text = chip) }
                 if (voucher.violationCount > 0) {
                     Pill(
-                        text = "${voucher.violationCount} Violation${if (voucher.violationCount == 1) "" else "s"}",
+                        text = pluralStringResource(Res.plurals.logging_plural_violations, voucher.violationCount, voucher.violationCount),
                         container = DesignTokens.StatusColors.warning.copy(alpha = 0.15f),
                         content = DesignTokens.StatusColors.warning,
                         leadingWarning = true,

@@ -21,6 +21,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_filter_all
 import com.mileway.core.ui.resources.logging_no_settlements_subtitle
 import com.mileway.core.ui.resources.logging_no_settlements_title
+import com.mileway.core.ui.resources.logging_plural_items
 import com.mileway.core.ui.resources.logging_settlement_status_pending
 import com.mileway.core.ui.resources.logging_settlement_status_processing
 import com.mileway.core.ui.resources.logging_settlement_status_settled
@@ -30,6 +31,7 @@ import com.mileway.feature.logging.repository.SettlementStatus
 import com.mileway.feature.logging.viewmodel.SETTLEMENT_HISTORY_TABS
 import com.mileway.feature.logging.viewmodel.SettlementHistoryAction
 import com.mileway.feature.logging.viewmodel.SettlementHistoryViewModel
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -71,7 +73,7 @@ private fun SettlementCard(settlement: SettlementRecord) {
                 StatusChip(label = localizedSettlementStatus(settlement.status), tone = toneFor(settlement.status))
             }
             Text(
-                "${settlement.method} · ${settlement.itemCount} item${if (settlement.itemCount == 1) "" else "s"}",
+                "${settlement.method} · ${pluralStringResource(Res.plurals.logging_plural_items, settlement.itemCount, settlement.itemCount)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),

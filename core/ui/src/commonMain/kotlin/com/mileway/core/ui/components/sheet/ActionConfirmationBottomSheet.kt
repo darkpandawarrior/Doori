@@ -46,8 +46,10 @@ import com.mileway.core.ui.resources.action_cancel
 import com.mileway.core.ui.resources.core_action_confirm
 import com.mileway.core.ui.resources.core_action_done
 import com.mileway.core.ui.resources.core_bulk_remarks_note
+import com.mileway.core.ui.resources.core_plural_action_items
 import com.mileway.core.ui.resources.core_remarks_placeholder
 import com.mileway.core.ui.resources.core_remarks_required
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -235,7 +237,7 @@ fun BulkActionConfirmationBottomSheet(
             BulkActionType.Unhold -> Icons.Filled.Info
         }
     ActionConfirmationBottomSheet(
-        title = "${actionType.name} $selectedCount item${if (selectedCount == 1) "" else "s"}",
+        title = pluralStringResource(Res.plurals.core_plural_action_items, selectedCount, actionType.name, selectedCount),
         description = stringResource(Res.string.core_bulk_remarks_note),
         confirmLabel = confirmLabel,
         icon = icon,

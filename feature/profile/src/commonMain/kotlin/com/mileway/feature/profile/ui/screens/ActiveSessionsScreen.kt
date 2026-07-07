@@ -43,6 +43,7 @@ import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_plural_devices_signed_in
 import com.mileway.core.ui.resources.profile_sessions_back
 import com.mileway.core.ui.resources.profile_sessions_revoke
 import com.mileway.core.ui.resources.profile_sessions_revoke_desc
@@ -62,6 +63,7 @@ import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.model.ActiveSession
 import com.mileway.feature.profile.model.SessionStatus
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
@@ -92,7 +94,7 @@ fun ActiveSessionsScreen(
         topBar = {
             DepthAwareTopBar(
                 title = stringResource(Res.string.profile_sessions_title),
-                subtitle = "${uiState.sessions.size} device${if (uiState.sessions.size == 1) "" else "s"} signed in",
+                subtitle = pluralStringResource(Res.plurals.profile_plural_devices_signed_in, uiState.sessions.size, uiState.sessions.size),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {

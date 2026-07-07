@@ -1738,4 +1738,42 @@
     <string name="core_get_started">Get started</string>
     <string name="core_action_next">Next</string>
     <string name="core_action_skip">Skip</string>
+
+    <!-- Media library -->
+    <string name="media_delete_confirm">Delete</string>
+    <string name="media_delete_description">This removes them from the library only: the original file is unchanged.</string>
+
+    <!-- Pluralized counts (pluralStringResource) -->
+    <plurals name="profile_plural_tickets_submitted">
+        <item quantity="one">%1$d ticket submitted</item>
+        <item quantity="other">%1$d tickets submitted</item>
+    </plurals>
+    <plurals name="profile_plural_devices_signed_in">
+        <item quantity="one">%1$d device signed in</item>
+        <item quantity="other">%1$d devices signed in</item>
+    </plurals>
+    <plurals name="tracking_plural_interrupted_journeys">
+        <item quantity="one">%1$d interrupted journey found on this device</item>
+        <item quantity="other">%1$d interrupted journeys found on this device</item>
+    </plurals>
+    <plurals name="logging_plural_violations">
+        <item quantity="one">%1$d Violation</item>
+        <item quantity="other">%1$d Violations</item>
+    </plurals>
+    <plurals name="logging_plural_submission_violations">
+        <item quantity="one">Your submission has %1$d violation:</item>
+        <item quantity="other">Your submission has %1$d violations:</item>
+    </plurals>
+    <plurals name="logging_plural_items">
+        <item quantity="one">%1$d item</item>
+        <item quantity="other">%1$d items</item>
+    </plurals>
+    <plurals name="media_plural_delete_items">
+        <item quantity="one">Delete %1$d item?</item>
+        <item quantity="other">Delete %1$d items?</item>
+    </plurals>
+    <plurals name="core_plural_action_items">
+        <item quantity="one">%1$s %2$d item</item>
+        <item quantity="other">%1$s %2$d items</item>
+    </plurals>
 </resources>

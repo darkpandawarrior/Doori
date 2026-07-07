@@ -47,9 +47,15 @@ import com.mileway.core.data.library.MediaLibraryEntry
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.media_delete_confirm
+import com.mileway.core.ui.resources.media_delete_description
+import com.mileway.core.ui.resources.media_plural_delete_items
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.viewmodel.CloudLibraryAction
 import com.mileway.feature.media.viewmodel.CloudLibraryViewModel
+import org.jetbrains.compose.resources.pluralStringResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,9 +165,9 @@ fun CloudLibraryScreen(
 
     if (showDeleteDialog) {
         ActionConfirmationBottomSheet(
-            title = "Delete ${selectedIds.size} item(s)?",
-            description = "This removes them from the library only: the original file is unchanged.",
-            confirmLabel = "Delete",
+            title = pluralStringResource(Res.plurals.media_plural_delete_items, selectedIds.size, selectedIds.size),
+            description = stringResource(Res.string.media_delete_description),
+            confirmLabel = stringResource(Res.string.media_delete_confirm),
             tone = ActionConfirmationToneType.Danger,
             onConfirm = {
                 val toDelete = entries.filter { it.id in selectedIds }
