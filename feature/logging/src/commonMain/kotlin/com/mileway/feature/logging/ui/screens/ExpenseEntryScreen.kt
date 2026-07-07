@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -166,7 +165,7 @@ fun ExpenseEntryScreen(
                 // P2.4: local CSV/TSV bulk-import — parses the picked file's raw text into rows
                 // appended alongside whatever the grid already has.
                 val importCsv = rememberExpenseCsvImportLauncher { text -> viewModel.onAction(ExpenseAction.ImportCsv(text)) }
-                OutlinedButton(onClick = importCsv, modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(onClick = importCsv, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                     Icon(Icons.Filled.UploadFile, contentDescription = null)
                     Text(stringResource(Res.string.logging_import_csv))
                 }
@@ -248,7 +247,7 @@ private fun BulkDraftGrid(
             )
         }
         item {
-            OutlinedButton(onClick = onAddRow, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onAddRow, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Text(stringResource(Res.string.logging_add_row))
             }
@@ -409,8 +408,8 @@ private fun ResumeDraftCard(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                OutlinedButton(onClick = onResume) { Text(stringResource(Res.string.logging_resume)) }
-                TextButton(onClick = onDiscard) { Text(stringResource(Res.string.logging_discard)) }
+                OutlinedButton(onClick = onResume, shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.logging_resume)) }
+                TextButton(onClick = onDiscard, shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.logging_discard)) }
             }
         }
     }
@@ -427,9 +426,9 @@ private fun CategoryTile(
             modifier
                 .fillMaxWidth()
                 .height(96.dp)
-                .clip(DesignTokens.Shape.roundedMd)
+                .clip(DesignTokens.Shape.button)
                 .clickable(onClick = onClick),
-        shape = DesignTokens.Shape.roundedMd,
+        shape = DesignTokens.Shape.button,
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
@@ -450,7 +449,7 @@ private fun CategoryTile(
                         .size(40.dp)
                         .background(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                            RoundedCornerShape(10.dp),
+                            DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {

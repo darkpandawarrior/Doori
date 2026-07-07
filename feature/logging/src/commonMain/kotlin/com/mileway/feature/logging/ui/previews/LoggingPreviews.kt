@@ -127,7 +127,7 @@ private fun LogMilesSuccessContentPreview() {
             verticalArrangement = Arrangement.Center,
         ) {
             Surface(
-                shape = androidx.compose.foundation.shape.CircleShape,
+                shape = DesignTokens.Shape.button,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
             ) {
                 Icon(

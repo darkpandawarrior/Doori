@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -60,6 +58,7 @@ import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_description
 import com.mileway.core.ui.resources.logging_edit_expense
 import com.mileway.core.ui.resources.logging_expense_details_header
+import com.mileway.core.ui.resources.logging_expense_details_subtitle
 import com.mileway.core.ui.resources.logging_expense_not_found
 import com.mileway.core.ui.resources.logging_line_items
 import com.mileway.core.ui.resources.logging_note
@@ -105,7 +104,9 @@ fun ExpenseDetailScreen(
         topBar = {
             DepthAwareTopBar(
                 title = stringResource(Res.string.logging_expense_details_header),
+                subtitle = stringResource(Res.string.logging_expense_details_subtitle),
                 depth = NavigationDepth.LEVEL_2,
+                titleIcon = Icons.Filled.Receipt,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd))
@@ -176,6 +177,7 @@ fun ExpenseDetailScreen(
                         onEdit(expense.id)
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.size(DesignTokens.Spacing.s))
@@ -225,7 +227,7 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                     modifier =
                         Modifier
                             .size(60.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(MaterialTheme.colorScheme.secondaryContainer),
                 )
             } else {
@@ -235,7 +237,7 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                             .size(60.dp)
                             .background(
                                 MaterialTheme.colorScheme.secondaryContainer,
-                                CircleShape,
+                                DesignTokens.Shape.button,
                             ),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -266,7 +268,7 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
             if (expense.requiresApproval) {
                 Surface(
                     color = MaterialTheme.colorScheme.tertiaryContainer,
-                    shape = RoundedCornerShape(6.dp),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Text(
                         text = stringResource(Res.string.logging_approval_required),
@@ -387,7 +389,7 @@ private fun TimelineRow(step: TimelineStep) {
                     .size(32.dp)
                     .background(
                         if (step.active) step.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
-                        CircleShape,
+                        DesignTokens.Shape.button,
                     ),
             contentAlignment = Alignment.Center,
         ) {

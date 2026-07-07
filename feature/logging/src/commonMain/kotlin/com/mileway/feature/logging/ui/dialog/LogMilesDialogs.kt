@@ -121,11 +121,16 @@ fun VerifyDistanceDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_cancel)) }
             Button(
                 onClick = { parsed?.let(onSave) },
                 enabled = parsed != null && parsed >= 0.0,
                 modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
             ) { Text(stringResource(Res.string.logging_save)) }
         }
     }
@@ -198,8 +203,16 @@ fun TaggedEmployeesDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
-            Button(onClick = { onConfirm(selected.toList()) }, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_done)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_cancel)) }
+            Button(
+                onClick = { onConfirm(selected.toList()) },
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_done)) }
         }
     }
 }
@@ -291,8 +304,16 @@ private fun ReimbursableAdjustedContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
-            Button(onClick = onAccept, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_accept_resubmit)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_cancel)) }
+            Button(
+                onClick = onAccept,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_accept_resubmit)) }
         }
     }
 }
@@ -336,11 +357,16 @@ private fun PolicyViolationContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_cancel)) }
             Button(
                 onClick = { onResubmit(remarks) },
                 enabled = remarks.isNotBlank(),
                 modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
             ) { Text(stringResource(Res.string.logging_resubmit_with_remarks)) }
         }
     }
@@ -372,6 +398,10 @@ private fun HardStopContent(
                 Text(msg, style = MaterialTheme.typography.bodyMedium)
             }
         }
-        Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.logging_close)) }
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier.fillMaxWidth(),
+            shape = DesignTokens.Shape.button,
+        ) { Text(stringResource(Res.string.logging_close)) }
     }
 }

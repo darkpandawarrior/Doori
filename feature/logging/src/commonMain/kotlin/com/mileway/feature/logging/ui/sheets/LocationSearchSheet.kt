@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Clear
@@ -220,7 +219,12 @@ fun LocationSearchSheet(
                                 SectionHeader(
                                     icon = Icons.Filled.History,
                                     title = stringResource(Res.string.logging_recent),
-                                    trailing = { TextButton(onClick = actions.onClearRecent) { Text(stringResource(Res.string.logging_clear_all)) } },
+                                    trailing = {
+                                        TextButton(
+                                            onClick = actions.onClearRecent,
+                                            shape = DesignTokens.Shape.button,
+                                        ) { Text(stringResource(Res.string.logging_clear_all)) }
+                                    },
                                 )
                             }
                             items(recent, key = { "recent-${it.name}" }) { entry ->
@@ -410,7 +414,7 @@ private fun LocationRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
-            Surface(shape = CircleShape, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) {
+            Surface(shape = DesignTokens.Shape.button, color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)) {
                 Icon(
                     imageVector = entry.category.icon(),
                     contentDescription = null,

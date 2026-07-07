@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
@@ -182,7 +181,7 @@ private fun SegmentedControl(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(50),
+        shape = DesignTokens.Shape.button,
         border =
             androidx.compose.foundation.BorderStroke(
                 1.dp,
@@ -219,7 +218,7 @@ private fun SegmentButton(
 ) {
     val container = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f) else Color.Transparent
     val content = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-    Surface(color = container, shape = RoundedCornerShape(50), modifier = modifier, onClick = onClick) {
+    Surface(color = container, shape = DesignTokens.Shape.button, modifier = modifier, onClick = onClick) {
         Row(
             modifier = Modifier.padding(vertical = DesignTokens.Spacing.m),
             horizontalArrangement = Arrangement.Center,

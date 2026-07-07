@@ -137,6 +137,7 @@ fun ExpenseDetailsInputScreen(
                     Button(
                         onClick = { viewModel.onAction(ExpenseAction.SubmitExpense) },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = DesignTokens.Shape.button,
                     ) {
                         Text(stringResource(Res.string.logging_submit_expense))
                     }
@@ -144,6 +145,7 @@ fun ExpenseDetailsInputScreen(
                     OutlinedButton(
                         onClick = { viewModel.onAction(ExpenseAction.SaveDraft) },
                         modifier = Modifier.fillMaxWidth(),
+                        shape = DesignTokens.Shape.button,
                     ) {
                         Text(stringResource(Res.string.logging_save_draft))
                     }

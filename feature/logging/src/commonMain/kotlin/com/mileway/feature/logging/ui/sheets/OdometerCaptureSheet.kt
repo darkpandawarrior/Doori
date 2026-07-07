@@ -83,14 +83,18 @@ fun OdometerCaptureSheet(
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
         )
-        OutlinedButton(onClick = launchPicker, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = launchPicker, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
             Text(if (photoUri.isBlank()) stringResource(Res.string.logging_attach_odometer_photo) else stringResource(Res.string.logging_odometer_photo_retake))
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.logging_cancel)) }
+            OutlinedButton(
+                onClick = onDismiss,
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) { Text(stringResource(Res.string.logging_cancel)) }
             Button(
                 onClick = {
                     val value = parsed ?: return@Button
@@ -106,6 +110,7 @@ fun OdometerCaptureSheet(
                 },
                 enabled = parsed != null && parsed >= 0,
                 modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
             ) { Text(stringResource(Res.string.logging_confirm)) }
         }
     }

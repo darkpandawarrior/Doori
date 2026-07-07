@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
@@ -179,7 +178,7 @@ private fun PrimaryActionCard(
             modifier
                 .height(160.dp)
                 .clickable(onClick = onClick),
-        shape = DesignTokens.Shape.roundedMd,
+        shape = DesignTokens.Shape.button,
         elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
     ) {
         Box(
@@ -197,7 +196,7 @@ private fun PrimaryActionCard(
                     modifier =
                         Modifier
                             .size(44.dp)
-                            .background(Color.White.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
+                            .background(Color.White.copy(alpha = 0.2f), DesignTokens.Shape.button),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
@@ -253,7 +252,7 @@ private fun HistoryLinkRow(
                         .size(40.dp)
                         .background(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                            RoundedCornerShape(10.dp),
+                            DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {

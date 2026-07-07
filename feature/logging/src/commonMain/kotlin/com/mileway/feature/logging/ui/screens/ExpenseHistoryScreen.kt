@@ -18,8 +18,6 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Sort
@@ -288,7 +286,7 @@ private fun ExpenseCard(
                         .size(44.dp)
                         .background(
                             MaterialTheme.colorScheme.secondaryContainer,
-                            CircleShape,
+                            DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -338,7 +336,7 @@ private fun ExpenseStatusChip(status: ExpenseStatus) {
         }
     Surface(
         color = color.copy(alpha = 0.15f),
-        shape = RoundedCornerShape(6.dp),
+        shape = DesignTokens.Shape.button,
     ) {
         Text(
             text = label,

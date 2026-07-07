@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
@@ -165,7 +164,10 @@ fun TravelledLocationsCard(
                         )
                         if (stops.size >= 2) {
                             Spacer(Modifier.size(DesignTokens.Spacing.s))
-                            TextButton(onClick = actions.onVerifyDistance) { Text(stringResource(Res.string.logging_verify)) }
+                            TextButton(
+                                onClick = actions.onVerifyDistance,
+                                shape = DesignTokens.Shape.button,
+                            ) { Text(stringResource(Res.string.logging_verify)) }
                         }
                     }
                 }
@@ -268,7 +270,7 @@ fun TravelledLocationsCard(
                 OutlinedButton(
                     onClick = actions.onAddLocation,
                     modifier = Modifier.weight(1f),
-                    shape = DesignTokens.Shape.roundedMd,
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
@@ -277,7 +279,7 @@ fun TravelledLocationsCard(
                 OutlinedButton(
                     onClick = actions.onUseCurrent,
                     modifier = Modifier.weight(1f),
-                    shape = DesignTokens.Shape.roundedMd,
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Icon(Icons.Filled.MyLocation, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
@@ -308,7 +310,7 @@ private fun StopRow(
             modifier =
                 Modifier
                     .size(28.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {
@@ -407,7 +409,7 @@ private fun InsertAffordance(onClick: () -> Unit) {
                 .padding(start = 40.dp, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(onClick = onClick) {
+        TextButton(onClick = onClick, shape = DesignTokens.Shape.button) {
             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(14.dp))
             Spacer(Modifier.size(DesignTokens.Spacing.xs))
             Text(stringResource(Res.string.logging_add_stop_here), style = MaterialTheme.typography.labelMedium)

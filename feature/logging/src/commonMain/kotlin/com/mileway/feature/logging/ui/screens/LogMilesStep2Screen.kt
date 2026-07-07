@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -488,7 +487,7 @@ private fun AdditionalDetailsCard(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
                     Surface(
-                        shape = RoundedCornerShape(10.dp),
+                        shape = DesignTokens.Shape.button,
                         color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
                     ) {
                         Icon(
@@ -616,7 +615,7 @@ private fun TaggedEmployeesCard(
         Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
+                    shape = DesignTokens.Shape.button,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
                 ) {
                     Icon(
@@ -693,7 +692,7 @@ private fun AttachmentsCard(
         Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    shape = RoundedCornerShape(10.dp),
+                    shape = DesignTokens.Shape.button,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
                 ) {
                     Icon(
@@ -787,7 +786,7 @@ private fun Step2Footer(
                     Modifier
                         .fillMaxWidth()
                         .height(52.dp),
-                shape = DesignTokens.Shape.roundedMd,
+                shape = DesignTokens.Shape.button,
             ) { Text(stringResource(Res.string.logging_back)) }
 
             Surface(
@@ -824,7 +823,7 @@ private fun Step2Footer(
                     Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                shape = DesignTokens.Shape.roundedMd,
+                shape = DesignTokens.Shape.button,
             ) {
                 if (isSubmitting) {
                     Box(contentAlignment = Alignment.Center) {

@@ -149,6 +149,7 @@ fun ExpenseSuccessScreen(
                     onAddAnother()
                 },
                 modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.logging_add_another_expense))
             }
@@ -158,6 +159,7 @@ fun ExpenseSuccessScreen(
             OutlinedButton(
                 onClick = onViewHistory,
                 modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.logging_view_expense_history))
             }

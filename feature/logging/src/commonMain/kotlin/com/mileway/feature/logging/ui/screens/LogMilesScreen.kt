@@ -365,7 +365,7 @@ fun LogMilesScreen(
                         Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                    shape = DesignTokens.Shape.roundedMd,
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Text(stringResource(Res.string.logging_next))
                     Spacer(Modifier.size(DesignTokens.Spacing.s))

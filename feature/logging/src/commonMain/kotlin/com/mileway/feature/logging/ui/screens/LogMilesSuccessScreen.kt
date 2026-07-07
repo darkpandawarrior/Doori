@@ -79,7 +79,7 @@ fun LogMilesSuccessScreen(
                             .navigationBarsPadding()
                             .padding(DesignTokens.Spacing.l)
                             .height(56.dp),
-                    shape = DesignTokens.Shape.roundedMd,
+                    shape = DesignTokens.Shape.button,
                 ) { Text(stringResource(Res.string.logging_log_another)) }
             }
         },
@@ -94,7 +94,7 @@ fun LogMilesSuccessScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Surface(
-                shape = androidx.compose.foundation.shape.CircleShape,
+                shape = DesignTokens.Shape.button,
                 color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
             ) {
                 Icon(

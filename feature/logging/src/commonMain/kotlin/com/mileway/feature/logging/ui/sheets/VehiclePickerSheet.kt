@@ -95,7 +95,7 @@ private fun VehicleTile(
             Modifier
                 .fillMaxWidth()
                 .aspectRatio(1.2f),
-        shape = DesignTokens.Shape.roundedMd,
+        shape = DesignTokens.Shape.button,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
         onClick = onClick,
     ) {
