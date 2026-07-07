@@ -69,6 +69,88 @@ import com.mileway.core.ui.components.LoadingScreen
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.SparklineChart
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_data_preview
+import com.mileway.core.ui.resources.tracking_detail_avg_speed
+import com.mileway.core.ui.resources.tracking_detail_vehicle
+import com.mileway.core.ui.resources.tracking_insights_distance
+import com.mileway.core.ui.resources.tracking_insights_duration
+import com.mileway.core.ui.resources.tracking_insights_journey_summary
+import com.mileway.core.ui.resources.tracking_preview_abnormal_removed
+import com.mileway.core.ui.resources.tracking_preview_account_binding
+import com.mileway.core.ui.resources.tracking_preview_actual_points
+import com.mileway.core.ui.resources.tracking_preview_clean_distance
+import com.mileway.core.ui.resources.tracking_preview_completeness_pct
+import com.mileway.core.ui.resources.tracking_preview_context
+import com.mileway.core.ui.resources.tracking_preview_created_at
+import com.mileway.core.ui.resources.tracking_preview_data_completeness
+import com.mileway.core.ui.resources.tracking_preview_distance_breakdown
+import com.mileway.core.ui.resources.tracking_preview_email
+import com.mileway.core.ui.resources.tracking_preview_employee_code
+import com.mileway.core.ui.resources.tracking_preview_end_app_version
+import com.mileway.core.ui.resources.tracking_preview_end_device
+import com.mileway.core.ui.resources.tracking_preview_end_ocr
+import com.mileway.core.ui.resources.tracking_preview_end_reading
+import com.mileway.core.ui.resources.tracking_preview_end_time
+import com.mileway.core.ui.resources.tracking_preview_expected_points
+import com.mileway.core.ui.resources.tracking_preview_health_assessment
+import com.mileway.core.ui.resources.tracking_preview_health_critical
+import com.mileway.core.ui.resources.tracking_preview_health_excellent
+import com.mileway.core.ui.resources.tracking_preview_health_fair
+import com.mileway.core.ui.resources.tracking_preview_health_good
+import com.mileway.core.ui.resources.tracking_preview_health_poor
+import com.mileway.core.ui.resources.tracking_preview_issue_battery_impact
+import com.mileway.core.ui.resources.tracking_preview_issue_battery_title
+import com.mileway.core.ui.resources.tracking_preview_issue_killed_impact
+import com.mileway.core.ui.resources.tracking_preview_issue_killed_title
+import com.mileway.core.ui.resources.tracking_preview_issue_mock_impact
+import com.mileway.core.ui.resources.tracking_preview_issue_mock_title
+import com.mileway.core.ui.resources.tracking_preview_issue_perm_impact
+import com.mileway.core.ui.resources.tracking_preview_issue_perm_title
+import com.mileway.core.ui.resources.tracking_preview_issue_powersaver_impact
+import com.mileway.core.ui.resources.tracking_preview_issue_powersaver_title
+import com.mileway.core.ui.resources.tracking_preview_issue_shutdown_impact
+import com.mileway.core.ui.resources.tracking_preview_issue_shutdown_title
+import com.mileway.core.ui.resources.tracking_preview_issues
+import com.mileway.core.ui.resources.tracking_preview_issues_count
+import com.mileway.core.ui.resources.tracking_preview_itinerary_id
+import com.mileway.core.ui.resources.tracking_preview_last_synced
+import com.mileway.core.ui.resources.tracking_preview_max_speed
+import com.mileway.core.ui.resources.tracking_preview_mock_removed
+import com.mileway.core.ui.resources.tracking_preview_never
+import com.mileway.core.ui.resources.tracking_preview_no_events
+import com.mileway.core.ui.resources.tracking_preview_not_submitted
+import com.mileway.core.ui.resources.tracking_preview_odometer
+import com.mileway.core.ui.resources.tracking_preview_odometer_distance
+import com.mileway.core.ui.resources.tracking_preview_original_distance
+import com.mileway.core.ui.resources.tracking_preview_petty_id
+import com.mileway.core.ui.resources.tracking_preview_route_id
+import com.mileway.core.ui.resources.tracking_preview_series_accel
+import com.mileway.core.ui.resources.tracking_preview_series_altitude
+import com.mileway.core.ui.resources.tracking_preview_series_speed
+import com.mileway.core.ui.resources.tracking_preview_spike_removed
+import com.mileway.core.ui.resources.tracking_preview_start_app_version
+import com.mileway.core.ui.resources.tracking_preview_start_device
+import com.mileway.core.ui.resources.tracking_preview_start_ocr
+import com.mileway.core.ui.resources.tracking_preview_start_reading
+import com.mileway.core.ui.resources.tracking_preview_start_time
+import com.mileway.core.ui.resources.tracking_preview_submission_time
+import com.mileway.core.ui.resources.tracking_preview_subtitle
+import com.mileway.core.ui.resources.tracking_preview_sync_interval
+import com.mileway.core.ui.resources.tracking_preview_sync_status
+import com.mileway.core.ui.resources.tracking_preview_tab_details
+import com.mileway.core.ui.resources.tracking_preview_tab_events
+import com.mileway.core.ui.resources.tracking_preview_tab_overview
+import com.mileway.core.ui.resources.tracking_preview_tab_quality
+import com.mileway.core.ui.resources.tracking_preview_telemetry
+import com.mileway.core.ui.resources.tracking_preview_tenant
+import com.mileway.core.ui.resources.tracking_preview_timestamps
+import com.mileway.core.ui.resources.tracking_preview_total_points
+import com.mileway.core.ui.resources.tracking_preview_transaction_id
+import com.mileway.core.ui.resources.tracking_preview_trip_id
+import com.mileway.core.ui.resources.tracking_preview_unsynced_points
+import com.mileway.core.ui.resources.tracking_preview_version_device
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
@@ -79,6 +161,7 @@ import com.mileway.feature.tracking.ui.util.computeHealthLevel
 import com.mileway.feature.tracking.viewmodel.TrackDetailAction
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -114,19 +197,25 @@ fun TrackDataPreviewScreen(
 
     LaunchedEffect(routeId) { viewModel.onAction(TrackDetailAction.Load(routeId)) }
 
-    val tabs = listOf("Overview", "Quality", "Events", "Details")
+    val tabs =
+        listOf(
+            stringResource(Res.string.tracking_preview_tab_overview),
+            stringResource(Res.string.tracking_preview_tab_quality),
+            stringResource(Res.string.tracking_preview_tab_events),
+            stringResource(Res.string.tracking_preview_tab_details),
+        )
     val pagerState = rememberPagerState { tabs.size }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DepthAwareTopBar(
-                title = "Data Preview",
-                subtitle = "Raw trip data before submission",
+                title = stringResource(Res.string.tracking_cd_data_preview),
+                subtitle = stringResource(Res.string.tracking_preview_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.tracking_cd_back))
                     }
                 },
             )
@@ -201,21 +290,21 @@ private fun OverviewTab(
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         // Journey summary
-        SectionCard(title = "Journey Summary") {
+        SectionCard(title = stringResource(Res.string.tracking_insights_journey_summary)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                PreviewRow("Distance", displayTrack.getFormattedDistance())
-                PreviewRow("Duration", displayTrack.getFormattedDuration())
-                PreviewRow("Avg speed", "${(track.avgSpeed.coerceAtLeast(0.0) * 10).toLong() / 10.0} km/h")
-                PreviewRow("Max speed", "${(track.maxSpeed.coerceAtLeast(0.0) * 10).toLong() / 10.0} km/h")
-                PreviewRow("Vehicle", track.selectedVehicleType.ifBlank { "—" })
+                PreviewRow(stringResource(Res.string.tracking_insights_distance), displayTrack.getFormattedDistance())
+                PreviewRow(stringResource(Res.string.tracking_insights_duration), displayTrack.getFormattedDuration())
+                PreviewRow(stringResource(Res.string.tracking_detail_avg_speed), "${(track.avgSpeed.coerceAtLeast(0.0) * 10).toLong() / 10.0} km/h")
+                PreviewRow(stringResource(Res.string.tracking_preview_max_speed), "${(track.maxSpeed.coerceAtLeast(0.0) * 10).toLong() / 10.0} km/h")
+                PreviewRow(stringResource(Res.string.tracking_detail_vehicle), track.selectedVehicleType.ifBlank { "—" })
             }
         }
 
         // Data completeness
-        SectionCard(title = "Data Completeness") {
+        SectionCard(title = stringResource(Res.string.tracking_preview_data_completeness)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                PreviewRow("Actual points", actualPoints.toString())
-                PreviewRow("Expected points", expectedPoints.toString())
+                PreviewRow(stringResource(Res.string.tracking_preview_actual_points), actualPoints.toString())
+                PreviewRow(stringResource(Res.string.tracking_preview_expected_points), expectedPoints.toString())
                 Spacer(Modifier.height(4.dp))
                 LinearProgressIndicator(
                     progress = { completeness },
@@ -223,7 +312,7 @@ private fun OverviewTab(
                     color = if (completeness > 0.8f) MilewayColors.success else MaterialTheme.colorScheme.error,
                 )
                 Text(
-                    "${(completeness * 100).toLong()}% completeness",
+                    stringResource(Res.string.tracking_preview_completeness_pct, (completeness * 100).toLong()),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -231,26 +320,34 @@ private fun OverviewTab(
         }
 
         // Distance breakdown
-        SectionCard(title = "Distance Breakdown") {
+        SectionCard(title = stringResource(Res.string.tracking_preview_distance_breakdown)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                PreviewRow("Original distance", "${(track.originalDistance / 1000 * 1000).toLong() / 1000.0} km")
+                PreviewRow(stringResource(Res.string.tracking_preview_original_distance), "${(track.originalDistance / 1000 * 1000).toLong() / 1000.0} km")
                 if (track.mockDistance > 0) {
-                    PreviewRow("Mock removed", "-${(track.mockDistance / 1000 * 1000).toLong() / 1000.0} km", valueColor = MaterialTheme.colorScheme.error)
+                    PreviewRow(
+                        stringResource(Res.string.tracking_preview_mock_removed),
+                        "-${(track.mockDistance / 1000 * 1000).toLong() / 1000.0} km",
+                        valueColor = MaterialTheme.colorScheme.error,
+                    )
                 }
                 if (track.abnormalDistance > 0) {
                     PreviewRow(
-                        "Abnormal removed",
+                        stringResource(Res.string.tracking_preview_abnormal_removed),
                         "-${(track.abnormalDistance / 1000 * 1000).toLong() / 1000.0} km",
                         valueColor = MaterialTheme.colorScheme.error,
                     )
                 }
                 if (track.spikeDistance > 0) {
-                    PreviewRow("Spike removed", "-${(track.spikeDistance / 1000 * 1000).toLong() / 1000.0} km", valueColor = MaterialTheme.colorScheme.error)
+                    PreviewRow(
+                        stringResource(Res.string.tracking_preview_spike_removed),
+                        "-${(track.spikeDistance / 1000 * 1000).toLong() / 1000.0} km",
+                        valueColor = MaterialTheme.colorScheme.error,
+                    )
                 }
                 Spacer(Modifier.height(4.dp))
                 Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
                 PreviewRow(
-                    "Clean distance",
+                    stringResource(Res.string.tracking_preview_clean_distance),
                     "${(track.cleanedDistance.let { if (it > 0) it / 1000.0 else track.distance / 1000.0 } * 1000).toLong() / 1000.0} km",
                     labelStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
                 )
@@ -270,11 +367,11 @@ private fun TelemetryGraphsCard(locations: List<LocationData>) {
     val series = remember(locations) { TelemetryChartData.derive(locations) }
     if (series.speedKmh.isEmpty && series.altitudeM.isEmpty && series.accelMagnitude.isEmpty) return
 
-    SectionCard(title = "Telemetry") {
+    SectionCard(title = stringResource(Res.string.tracking_preview_telemetry)) {
         Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-            TelemetrySeriesRow("Speed (km/h)", series.speedKmh, MilewayColors.info)
-            TelemetrySeriesRow("Altitude (m)", series.altitudeM, MilewayColors.success)
-            TelemetrySeriesRow("Accel magnitude", series.accelMagnitude, MilewayColors.warning)
+            TelemetrySeriesRow(stringResource(Res.string.tracking_preview_series_speed), series.speedKmh, MilewayColors.info)
+            TelemetrySeriesRow(stringResource(Res.string.tracking_preview_series_altitude), series.altitudeM, MilewayColors.success)
+            TelemetrySeriesRow(stringResource(Res.string.tracking_preview_series_accel), series.accelMagnitude, MilewayColors.warning)
         }
     }
 }
@@ -322,33 +419,62 @@ private fun QualityTab(track: SavedTrack) {
         buildList {
             if (track.wasMockLocationUsed) {
                 add(
-                    IssueRow(Icons.Default.GpsOff, "Mock Location Was Used", "Distance accuracy severely degraded", IssueSeverity.CRITICAL),
+                    IssueRow(
+                        Icons.Default.GpsOff,
+                        stringResource(Res.string.tracking_preview_issue_mock_title),
+                        stringResource(Res.string.tracking_preview_issue_mock_impact),
+                        IssueSeverity.CRITICAL,
+                    ),
                 )
             }
-            if (track.wasPermissionsViolated) add(IssueRow(Icons.Default.Block, "Permissions Were Violated", "GPS data may be missing", IssueSeverity.HIGH))
+            if (track.wasPermissionsViolated) {
+                add(
+                    IssueRow(
+                        Icons.Default.Block,
+                        stringResource(Res.string.tracking_preview_issue_perm_title),
+                        stringResource(Res.string.tracking_preview_issue_perm_impact),
+                        IssueSeverity.HIGH,
+                    ),
+                )
+            }
             if (track.wasPhoneShutDown) {
                 add(
-                    IssueRow(Icons.Default.PowerOff, "Phone Was Shut Down", "Tracking gap: distance may be under-reported", IssueSeverity.HIGH),
+                    IssueRow(
+                        Icons.Default.PowerOff,
+                        stringResource(Res.string.tracking_preview_issue_shutdown_title),
+                        stringResource(Res.string.tracking_preview_issue_shutdown_impact),
+                        IssueSeverity.HIGH,
+                    ),
                 )
             }
             if (track.wasAppKilled) {
                 add(
                     IssueRow(
                         Icons.Default.ScreenLockPortrait,
-                        "App Was Force-Killed",
-                        "Background tracking interrupted (${track.appKilledCount}×)",
+                        stringResource(Res.string.tracking_preview_issue_killed_title),
+                        stringResource(Res.string.tracking_preview_issue_killed_impact, track.appKilledCount),
                         IssueSeverity.MEDIUM,
                     ),
                 )
             }
             if (track.wasBatteryOptimizationEnabled) {
                 add(
-                    IssueRow(Icons.Default.BatteryAlert, "Battery Optimization Was ON", "Distance may be under-reported", IssueSeverity.MEDIUM),
+                    IssueRow(
+                        Icons.Default.BatteryAlert,
+                        stringResource(Res.string.tracking_preview_issue_battery_title),
+                        stringResource(Res.string.tracking_preview_issue_battery_impact),
+                        IssueSeverity.MEDIUM,
+                    ),
                 )
             }
             if (track.wasPowerSaverEnabled) {
                 add(
-                    IssueRow(Icons.Default.PhoneLocked, "Power Saver Was ON", "GPS sampling reduced: distance affected", IssueSeverity.LOW),
+                    IssueRow(
+                        Icons.Default.PhoneLocked,
+                        stringResource(Res.string.tracking_preview_issue_powersaver_title),
+                        stringResource(Res.string.tracking_preview_issue_powersaver_impact),
+                        IssueSeverity.LOW,
+                    ),
                 )
             }
         }
@@ -358,7 +484,7 @@ private fun QualityTab(track: SavedTrack) {
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         // Health badge card
-        SectionCard(title = "Health Assessment") {
+        SectionCard(title = stringResource(Res.string.tracking_preview_health_assessment)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier.size(48.dp).background(health.color(), RoundedCornerShape(12.dp)),
@@ -376,11 +502,11 @@ private fun QualityTab(track: SavedTrack) {
                     Text(health.label(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = health.color())
                     Text(
                         when (health) {
-                            HealthLevel.EXCELLENT -> "No issues detected"
-                            HealthLevel.GOOD -> "Minor issues: data reliable"
-                            HealthLevel.FAIR -> "Some issues: review recommended"
-                            HealthLevel.POOR -> "Significant issues: distance may vary"
-                            HealthLevel.CRITICAL -> "Critical issues: data unreliable"
+                            HealthLevel.EXCELLENT -> stringResource(Res.string.tracking_preview_health_excellent)
+                            HealthLevel.GOOD -> stringResource(Res.string.tracking_preview_health_good)
+                            HealthLevel.FAIR -> stringResource(Res.string.tracking_preview_health_fair)
+                            HealthLevel.POOR -> stringResource(Res.string.tracking_preview_health_poor)
+                            HealthLevel.CRITICAL -> stringResource(Res.string.tracking_preview_health_critical)
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -391,7 +517,7 @@ private fun QualityTab(track: SavedTrack) {
 
         // Issues
         if (issues.isNotEmpty()) {
-            SectionCard(title = "Issues (${issues.size})") {
+            SectionCard(title = stringResource(Res.string.tracking_preview_issues_count, issues.size)) {
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     issues.forEach { issue ->
                         Row(verticalAlignment = Alignment.Top) {
@@ -415,21 +541,25 @@ private fun QualityTab(track: SavedTrack) {
                 }
             }
         } else {
-            SectionCard(title = "Issues") {
-                Text("No issues detected", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            SectionCard(title = stringResource(Res.string.tracking_preview_issues)) {
+                Text(
+                    stringResource(Res.string.tracking_preview_health_excellent),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
 
         // Sync status
-        SectionCard(title = "Sync Status") {
+        SectionCard(title = stringResource(Res.string.tracking_preview_sync_status)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                PreviewRow("Total location points", track.totalLocationPoints.toString())
-                PreviewRow("Unsynced points", track.unsyncedLocationPoints.toString())
+                PreviewRow(stringResource(Res.string.tracking_preview_total_points), track.totalLocationPoints.toString())
+                PreviewRow(stringResource(Res.string.tracking_preview_unsynced_points), track.unsyncedLocationPoints.toString())
                 PreviewRow(
-                    "Last synced",
-                    if (track.lastSyncedTime > 0) DateUtils.epochToDisplayDate(track.lastSyncedTime) else "Never",
+                    stringResource(Res.string.tracking_preview_last_synced),
+                    if (track.lastSyncedTime > 0) DateUtils.epochToDisplayDate(track.lastSyncedTime) else stringResource(Res.string.tracking_preview_never),
                 )
-                PreviewRow("Sync interval", "${track.syncIntervalTime / 1000}s")
+                PreviewRow(stringResource(Res.string.tracking_preview_sync_interval), "${track.syncIntervalTime / 1000}s")
             }
         }
 
@@ -452,7 +582,11 @@ private fun EventsTab(
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         if (events.isEmpty()) {
-            Text("No hardware events recorded", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(Res.string.tracking_preview_no_events),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         } else {
             audienceOrder.forEach { audience ->
                 val bucket = grouped[audience] ?: return@forEach
@@ -490,34 +624,48 @@ private fun DetailsTab(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
-        CollapsibleSectionCard(title = "Timestamps", initiallyExpanded = true) {
+        CollapsibleSectionCard(title = stringResource(Res.string.tracking_preview_timestamps), initiallyExpanded = true) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Start time", DateUtils.epochToDisplayDate(track.startTime), onCopy)
-                CopyableRow("End time", if (track.endTime > 0) DateUtils.epochToDisplayDate(track.endTime) else "—", onCopy)
-                CopyableRow("Submission time", if (track.submissionTime > 0) DateUtils.epochToDisplayDate(track.submissionTime) else "Not submitted", onCopy)
-                CopyableRow("Created at", DateUtils.epochToDisplayDate(track.createdAt), onCopy)
+                CopyableRow(stringResource(Res.string.tracking_preview_start_time), DateUtils.epochToDisplayDate(track.startTime), onCopy)
+                CopyableRow(
+                    stringResource(Res.string.tracking_preview_end_time),
+                    if (track.endTime > 0) DateUtils.epochToDisplayDate(track.endTime) else "—",
+                    onCopy,
+                )
+                CopyableRow(
+                    stringResource(Res.string.tracking_preview_submission_time),
+                    if (track.submissionTime > 0) {
+                        DateUtils.epochToDisplayDate(
+                            track.submissionTime,
+                        )
+                    } else {
+                        stringResource(Res.string.tracking_preview_not_submitted)
+                    },
+                    onCopy,
+                )
+                CopyableRow(stringResource(Res.string.tracking_preview_created_at), DateUtils.epochToDisplayDate(track.createdAt), onCopy)
             }
         }
 
-        CollapsibleSectionCard(title = "Account Binding") {
+        CollapsibleSectionCard(title = stringResource(Res.string.tracking_preview_account_binding)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Employee code", track.startedByEmployeeCode.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("Tenant", track.startedByTenant.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("Email", track.startedByAccountEmail.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("Route ID", track.routeId, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_employee_code), track.startedByEmployeeCode.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_tenant), track.startedByTenant.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_email), track.startedByAccountEmail.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_route_id), track.routeId, onCopy, showStatus = true)
             }
         }
 
         // G8: the odometer section is the reviewer's canonical tri-state example — each reading is
         // green when captured, red when missing, on this completed-journey preview.
-        CollapsibleSectionCard(title = "Odometer") {
+        CollapsibleSectionCard(title = stringResource(Res.string.tracking_preview_odometer)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Start reading", track.odometerStartReading.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("End reading", track.odometerEndReading.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("Start OCR", track.odometerStartOcr.ifBlank { "—" }, onCopy, showStatus = true)
-                CopyableRow("End OCR", track.odometerEndOcr.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_start_reading), track.odometerStartReading.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_end_reading), track.odometerEndReading.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_start_ocr), track.odometerStartOcr.ifBlank { "—" }, onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_end_ocr), track.odometerEndOcr.ifBlank { "—" }, onCopy, showStatus = true)
                 CopyableRow(
-                    "Odometer distance",
+                    stringResource(Res.string.tracking_preview_odometer_distance),
                     if (track.odometerDistance > 0) "${(track.odometerDistance / 1000 * 1000).toLong() / 1000.0} km" else "—",
                     onCopy,
                     showStatus = true,
@@ -525,21 +673,26 @@ private fun DetailsTab(
             }
         }
 
-        CollapsibleSectionCard(title = "Context") {
+        CollapsibleSectionCard(title = stringResource(Res.string.tracking_preview_context)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Trip ID", track.tripId ?: "—", onCopy, showStatus = true)
-                CopyableRow("Petty cash ID", if (track.pettyId >= 0) track.pettyId.toString() else "—", onCopy, showStatus = true)
-                CopyableRow("Itinerary ID", track.itineraryId ?: "—", onCopy, showStatus = true)
-                CopyableRow("Transaction ID", track.transId ?: "—", onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_trip_id), track.tripId ?: "—", onCopy, showStatus = true)
+                CopyableRow(
+                    stringResource(Res.string.tracking_preview_petty_id),
+                    if (track.pettyId >= 0) track.pettyId.toString() else "—",
+                    onCopy,
+                    showStatus = true,
+                )
+                CopyableRow(stringResource(Res.string.tracking_preview_itinerary_id), track.itineraryId ?: "—", onCopy, showStatus = true)
+                CopyableRow(stringResource(Res.string.tracking_preview_transaction_id), track.transId ?: "—", onCopy, showStatus = true)
             }
         }
 
-        CollapsibleSectionCard(title = "Version & Device") {
+        CollapsibleSectionCard(title = stringResource(Res.string.tracking_preview_version_device)) {
             Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                CopyableRow("Start app version", track.startAppVersion, onCopy)
-                CopyableRow("End app version", track.endAppVersion, onCopy)
-                CopyableRow("Start device", track.startDeviceVersion, onCopy)
-                CopyableRow("End device", track.endDeviceVersion, onCopy)
+                CopyableRow(stringResource(Res.string.tracking_preview_start_app_version), track.startAppVersion, onCopy)
+                CopyableRow(stringResource(Res.string.tracking_preview_end_app_version), track.endAppVersion, onCopy)
+                CopyableRow(stringResource(Res.string.tracking_preview_start_device), track.startDeviceVersion, onCopy)
+                CopyableRow(stringResource(Res.string.tracking_preview_end_device), track.endDeviceVersion, onCopy)
             }
         }
 

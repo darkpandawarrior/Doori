@@ -43,7 +43,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_configure
+import com.mileway.core.ui.resources.tracking_action_done
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_setup_all_set
+import com.mileway.core.ui.resources.tracking_setup_subtitle
+import com.mileway.core.ui.resources.tracking_setup_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 private data class SetupStep(
     val number: Int,
@@ -74,12 +82,15 @@ fun SetupGuideScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Setup Guide",
-                subtitle = "Configure the app for accurate tracking",
+                title = stringResource(Res.string.tracking_setup_title),
+                subtitle = stringResource(Res.string.tracking_setup_subtitle),
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
@@ -114,7 +125,7 @@ fun SetupGuideScreen(
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                     Text(
-                        text = "All set! You're ready to track.",
+                        text = stringResource(Res.string.tracking_setup_all_set),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -235,11 +246,11 @@ private fun SetupStepRow(
                 ) {
                     Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Done")
+                    Text(stringResource(Res.string.tracking_action_done))
                 }
             } else {
                 Button(onClick = onAction) {
-                    Text("Configure")
+                    Text(stringResource(Res.string.tracking_action_configure))
                 }
             }
             if (!isLast) {

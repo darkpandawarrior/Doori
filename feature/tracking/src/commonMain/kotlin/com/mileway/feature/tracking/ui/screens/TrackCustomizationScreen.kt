@@ -43,7 +43,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.CollapsibleSectionCard
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_custom_abnormal_speed
+import com.mileway.core.ui.resources.tracking_custom_algo_thresholds
+import com.mileway.core.ui.resources.tracking_custom_dead_reckoning_chip
+import com.mileway.core.ui.resources.tracking_custom_dead_reckoning_label
+import com.mileway.core.ui.resources.tracking_custom_dead_reckoning_subtitle
+import com.mileway.core.ui.resources.tracking_custom_disclaimer
+import com.mileway.core.ui.resources.tracking_custom_experimental_opts
+import com.mileway.core.ui.resources.tracking_custom_gap_chip
+import com.mileway.core.ui.resources.tracking_custom_gap_label
+import com.mileway.core.ui.resources.tracking_custom_gap_subtitle
+import com.mileway.core.ui.resources.tracking_custom_kalman_chip
+import com.mileway.core.ui.resources.tracking_custom_kalman_label
+import com.mileway.core.ui.resources.tracking_custom_kalman_subtitle
+import com.mileway.core.ui.resources.tracking_custom_motion_chip
+import com.mileway.core.ui.resources.tracking_custom_motion_label
+import com.mileway.core.ui.resources.tracking_custom_motion_subtitle
+import com.mileway.core.ui.resources.tracking_custom_spike_threshold
+import com.mileway.core.ui.resources.tracking_custom_subtitle
+import com.mileway.core.ui.resources.tracking_custom_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,12 +85,15 @@ fun TrackCustomizationScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Tracking Customization",
-                subtitle = "Experimental algorithms & thresholds",
+                title = stringResource(Res.string.tracking_custom_title),
+                subtitle = stringResource(Res.string.tracking_custom_subtitle),
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
@@ -84,40 +109,40 @@ fun TrackCustomizationScreen(
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
         ) {
             CollapsibleSectionCard(
-                title = "Experimental Optimizations",
+                title = stringResource(Res.string.tracking_custom_experimental_opts),
                 leadingIcon = Icons.Filled.Tune,
                 initiallyExpanded = true,
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     CustomizationToggleRow(
                         icon = Icons.Filled.Filter,
-                        label = "Kalman Smoothing",
-                        subtitle = "Reduces GPS noise by predicting position trajectory",
-                        infoChip = "Reduces GPS noise",
+                        label = stringResource(Res.string.tracking_custom_kalman_label),
+                        subtitle = stringResource(Res.string.tracking_custom_kalman_subtitle),
+                        infoChip = stringResource(Res.string.tracking_custom_kalman_chip),
                         checked = kalmanEnabled,
                         onCheckedChange = onKalmanChange,
                     )
                     CustomizationToggleRow(
                         icon = Icons.Filled.BugReport,
-                        label = "Gap Detection",
-                        subtitle = "Identifies and fills gaps in location signal",
-                        infoChip = "Catches location gaps",
+                        label = stringResource(Res.string.tracking_custom_gap_label),
+                        subtitle = stringResource(Res.string.tracking_custom_gap_subtitle),
+                        infoChip = stringResource(Res.string.tracking_custom_gap_chip),
                         checked = gapDetectionEnabled,
                         onCheckedChange = { gapDetectionEnabled = it },
                     )
                     CustomizationToggleRow(
                         icon = Icons.Filled.Bolt,
-                        label = "Motion Stability",
-                        subtitle = "Uses accelerometer to validate GPS readings",
-                        infoChip = "Uses accelerometer for activity",
+                        label = stringResource(Res.string.tracking_custom_motion_label),
+                        subtitle = stringResource(Res.string.tracking_custom_motion_subtitle),
+                        infoChip = stringResource(Res.string.tracking_custom_motion_chip),
                         checked = motionStabilityEnabled,
                         onCheckedChange = { motionStabilityEnabled = it },
                     )
                     CustomizationToggleRow(
                         icon = Icons.Filled.Navigation,
-                        label = "Predictive Dead Reckoning",
-                        subtitle = "Continues tracking during temporary GPS outages",
-                        infoChip = "Continues tracking during gaps",
+                        label = stringResource(Res.string.tracking_custom_dead_reckoning_label),
+                        subtitle = stringResource(Res.string.tracking_custom_dead_reckoning_subtitle),
+                        infoChip = stringResource(Res.string.tracking_custom_dead_reckoning_chip),
                         checked = deadReckoningEnabled,
                         onCheckedChange = { deadReckoningEnabled = it },
                     )
@@ -125,20 +150,20 @@ fun TrackCustomizationScreen(
             }
 
             CollapsibleSectionCard(
-                title = "Algorithm Thresholds",
+                title = stringResource(Res.string.tracking_custom_algo_thresholds),
                 leadingIcon = Icons.Filled.Timeline,
                 initiallyExpanded = true,
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     AlgorithmSliderRow(
-                        label = "Spike threshold",
+                        label = stringResource(Res.string.tracking_custom_spike_threshold),
                         value = spikeThreshold,
                         onValueChange = { spikeThreshold = it },
                         valueRange = 100f..2000f,
                         unit = "m",
                     )
                     AlgorithmSliderRow(
-                        label = "Abnormal speed threshold",
+                        label = stringResource(Res.string.tracking_custom_abnormal_speed),
                         value = abnormalSpeed,
                         onValueChange = { abnormalSpeed = it },
                         valueRange = 50f..300f,
@@ -166,7 +191,7 @@ fun TrackCustomizationScreen(
                     tint = MaterialTheme.colorScheme.tertiary,
                 )
                 Text(
-                    text = "Experimental features may affect battery and accuracy.",
+                    text = stringResource(Res.string.tracking_custom_disclaimer),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                 )

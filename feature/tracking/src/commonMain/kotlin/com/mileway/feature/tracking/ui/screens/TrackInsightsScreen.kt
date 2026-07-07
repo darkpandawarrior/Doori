@@ -37,6 +37,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_insights_activity_style
+import com.mileway.core.ui.resources.tracking_insights_avg_speed
+import com.mileway.core.ui.resources.tracking_insights_distance
+import com.mileway.core.ui.resources.tracking_insights_distance_quality
+import com.mileway.core.ui.resources.tracking_insights_duration
+import com.mileway.core.ui.resources.tracking_insights_error
+import com.mileway.core.ui.resources.tracking_insights_journey_summary
+import com.mileway.core.ui.resources.tracking_insights_quality_score
+import com.mileway.core.ui.resources.tracking_insights_recommendations
+import com.mileway.core.ui.resources.tracking_insights_subtitle
+import com.mileway.core.ui.resources.tracking_insights_system_impact
+import com.mileway.core.ui.resources.tracking_insights_title
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -51,6 +65,7 @@ import com.mileway.feature.tracking.ui.components.formatDuration
 import com.mileway.feature.tracking.ui.components.qualityColor
 import com.mileway.feature.tracking.viewmodel.TrackInsightsAction
 import com.mileway.feature.tracking.viewmodel.TrackInsightsViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,12 +85,15 @@ fun TrackInsightsScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Track Insights",
-                subtitle = "Quality score & activity breakdown",
+                title = stringResource(Res.string.tracking_insights_title),
+                subtitle = stringResource(Res.string.tracking_insights_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
@@ -92,7 +110,10 @@ fun TrackInsightsScreen(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(48.dp))
                             Spacer(Modifier.height(8.dp))
-                            Text(error ?: "Error loading insights", color = MaterialTheme.colorScheme.error)
+                            Text(
+                                error ?: stringResource(Res.string.tracking_insights_error),
+                                color = MaterialTheme.colorScheme.error,
+                            )
                         }
                     }
                 insights != null -> {
@@ -121,7 +142,10 @@ fun TrackInsightsScreen(
                                         fontWeight = FontWeight.Bold,
                                         color = qualityColor(data.qualityScore),
                                     )
-                                    Text("Quality Score", style = MaterialTheme.typography.titleSmall)
+                                    Text(
+                                        stringResource(Res.string.tracking_insights_quality_score),
+                                        style = MaterialTheme.typography.titleSmall,
+                                    )
                                     Text(
                                         data.qualityLabel,
                                         style = MaterialTheme.typography.labelLarge,
@@ -133,26 +157,26 @@ fun TrackInsightsScreen(
                         }
 
                         item {
-                            SectionHeader("Journey Summary")
+                            SectionHeader(stringResource(Res.string.tracking_insights_journey_summary))
                             Row(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 StatItem(
                                     icon = Icons.AutoMirrored.Filled.TrendingUp,
-                                    label = "Distance",
+                                    label = stringResource(Res.string.tracking_insights_distance),
                                     value = "${(data.distanceKm * 100).toLong() / 100.0} km",
                                     modifier = Modifier.weight(1f),
                                 )
                                 StatItem(
                                     icon = Icons.Default.Timer,
-                                    label = "Duration",
+                                    label = stringResource(Res.string.tracking_insights_duration),
                                     value = formatDuration(data.durationMs),
                                     modifier = Modifier.weight(1f),
                                 )
                                 StatItem(
                                     icon = Icons.Default.Speed,
-                                    label = "Avg Speed",
+                                    label = stringResource(Res.string.tracking_insights_avg_speed),
                                     value = "${(data.avgSpeedKmh * 10).toLong() / 10.0} km/h",
                                     modifier = Modifier.weight(1f),
                                 )
@@ -180,7 +204,7 @@ fun TrackInsightsScreen(
                         // Activity analysis card
                         data.activityResult?.let { activity ->
                             item {
-                                SectionHeader("Activity & Driving Style")
+                                SectionHeader(stringResource(Res.string.tracking_insights_activity_style))
                                 ActivityBreakdownCard(
                                     activityResult = activity,
                                     modifier = Modifier.fillMaxWidth(),
@@ -191,7 +215,7 @@ fun TrackInsightsScreen(
                         // System impact card
                         data.systemImpactResult?.let { systemImpact ->
                             item {
-                                SectionHeader("System Impact")
+                                SectionHeader(stringResource(Res.string.tracking_insights_system_impact))
                                 SystemImpactCard(
                                     systemImpactResult = systemImpact,
                                     modifier = Modifier.fillMaxWidth(),
@@ -202,7 +226,7 @@ fun TrackInsightsScreen(
                         // Distance quality card
                         data.distanceQualityResult?.let { dq ->
                             item {
-                                SectionHeader("Distance Quality")
+                                SectionHeader(stringResource(Res.string.tracking_insights_distance_quality))
                                 DistanceQualityCard(
                                     distanceQualityResult = dq,
                                     modifier = Modifier.fillMaxWidth(),
@@ -212,7 +236,7 @@ fun TrackInsightsScreen(
 
                         if (data.recommendations.isNotEmpty()) {
                             item {
-                                SectionHeader("Recommendations")
+                                SectionHeader(stringResource(Res.string.tracking_insights_recommendations))
                                 Card(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = RoundedCornerShape(16.dp),

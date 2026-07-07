@@ -48,6 +48,17 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_retry
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_load_more_error
+import com.mileway.core.ui.resources.tracking_route_points_count
+import com.mileway.core.ui.resources.tracking_route_points_empty_subtitle
+import com.mileway.core.ui.resources.tracking_route_points_empty_title
+import com.mileway.core.ui.resources.tracking_route_points_load_error
+import com.mileway.core.ui.resources.tracking_route_points_subtitle
+import com.mileway.core.ui.resources.tracking_route_points_title
+import com.mileway.core.ui.resources.tracking_unknown_error
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.viewmodel.RoutePointUi
@@ -56,6 +67,7 @@ import com.mileway.feature.tracking.viewmodel.RoutePointsViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
@@ -79,12 +91,17 @@ fun RoutePointsScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = ui.totalPoints?.let { "Route Points ($it)" } ?: "Route Points",
-                subtitle = "Raw GPS coordinates for this trip",
+                title =
+                    ui.totalPoints?.let { stringResource(Res.string.tracking_route_points_count, it) }
+                        ?: stringResource(Res.string.tracking_route_points_title),
+                subtitle = stringResource(Res.string.tracking_route_points_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
@@ -106,17 +123,17 @@ fun RoutePointsScreen(
                 refresh is LoadState.Error && points.itemCount == 0 -> {
                     RoutePointsMessage(
                         icon = Icons.Filled.Warning,
-                        title = "Couldn't load points",
-                        subtitle = refresh.error.message ?: "Unknown error",
-                        actionLabel = "Retry",
+                        title = stringResource(Res.string.tracking_route_points_load_error),
+                        subtitle = refresh.error.message ?: stringResource(Res.string.tracking_unknown_error),
+                        actionLabel = stringResource(Res.string.tracking_action_retry),
                         onAction = { points.retry() },
                     )
                 }
                 refresh is LoadState.NotLoading && points.itemCount == 0 -> {
                     RoutePointsMessage(
                         icon = Icons.Filled.LocationOff,
-                        title = "No GPS points",
-                        subtitle = "This journey has no recorded location fixes.",
+                        title = stringResource(Res.string.tracking_route_points_empty_title),
+                        subtitle = stringResource(Res.string.tracking_route_points_empty_subtitle),
                     )
                 }
                 else -> {
@@ -147,11 +164,13 @@ fun RoutePointsScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
                                         Text(
-                                            append.error.message ?: "Couldn't load more",
+                                            append.error.message ?: stringResource(Res.string.tracking_load_more_error),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.error,
                                         )
-                                        Button(onClick = { points.retry() }) { Text("Retry") }
+                                        Button(onClick = { points.retry() }) {
+                                            Text(stringResource(Res.string.tracking_action_retry))
+                                        }
                                     }
                                 }
                             else -> Unit

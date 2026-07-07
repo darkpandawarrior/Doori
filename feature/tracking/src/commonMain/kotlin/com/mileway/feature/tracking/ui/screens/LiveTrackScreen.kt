@@ -27,6 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_open_map
+import com.mileway.core.ui.resources.tracking_live_subtitle
+import com.mileway.core.ui.resources.tracking_live_title
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.ui.components.LiveHealthMonitorCard
 import com.mileway.feature.tracking.ui.components.LiveSyncStatusCard
@@ -35,6 +40,7 @@ import com.mileway.feature.tracking.ui.components.RecentEventsCard
 import com.mileway.feature.tracking.viewmodel.LiveTrackAction
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
 import com.mileway.feature.tracking.viewmodel.LiveTrackingUiState
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,19 +60,22 @@ fun LiveTrackScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Live Tracking",
-                subtitle = "Journey in progress",
+                title = stringResource(Res.string.tracking_live_title),
+                subtitle = stringResource(Res.string.tracking_live_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onOpenMap) {
-                Icon(Icons.Default.Map, contentDescription = "Open Map")
+                Icon(Icons.Default.Map, contentDescription = stringResource(Res.string.tracking_cd_open_map))
             }
         },
     ) { padding ->

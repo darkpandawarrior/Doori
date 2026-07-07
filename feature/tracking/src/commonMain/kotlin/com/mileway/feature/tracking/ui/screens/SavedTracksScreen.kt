@@ -66,6 +66,43 @@ import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.ui.components.ConfettiBurst
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.LoadingScreen
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_collapse
+import com.mileway.core.ui.resources.tracking_cd_exit_selection
+import com.mileway.core.ui.resources.tracking_cd_expand
+import com.mileway.core.ui.resources.tracking_detail_amount
+import com.mileway.core.ui.resources.tracking_insights_distance
+import com.mileway.core.ui.resources.tracking_insights_duration
+import com.mileway.core.ui.resources.tracking_saved_empty_journeys_hint
+import com.mileway.core.ui.resources.tracking_saved_empty_journeys_none
+import com.mileway.core.ui.resources.tracking_saved_empty_journeys_query
+import com.mileway.core.ui.resources.tracking_saved_empty_search_hint
+import com.mileway.core.ui.resources.tracking_saved_empty_submissions_hint
+import com.mileway.core.ui.resources.tracking_saved_empty_submissions_none
+import com.mileway.core.ui.resources.tracking_saved_empty_submissions_query
+import com.mileway.core.ui.resources.tracking_saved_filter_all
+import com.mileway.core.ui.resources.tracking_saved_filter_all_count
+import com.mileway.core.ui.resources.tracking_saved_filter_filed_count
+import com.mileway.core.ui.resources.tracking_saved_filter_kept
+import com.mileway.core.ui.resources.tracking_saved_filter_new_tracker
+import com.mileway.core.ui.resources.tracking_saved_filter_other
+import com.mileway.core.ui.resources.tracking_saved_filter_this_week
+import com.mileway.core.ui.resources.tracking_saved_filter_unclaimed_count
+import com.mileway.core.ui.resources.tracking_saved_insight_avg
+import com.mileway.core.ui.resources.tracking_saved_insight_count
+import com.mileway.core.ui.resources.tracking_saved_journey_default
+import com.mileway.core.ui.resources.tracking_saved_search_journeys
+import com.mileway.core.ui.resources.tracking_saved_search_submissions
+import com.mileway.core.ui.resources.tracking_saved_select_hint
+import com.mileway.core.ui.resources.tracking_saved_select_submissions
+import com.mileway.core.ui.resources.tracking_saved_start_journey
+import com.mileway.core.ui.resources.tracking_saved_stat_reimbursed
+import com.mileway.core.ui.resources.tracking_saved_stat_trips
+import com.mileway.core.ui.resources.tracking_saved_subtitle
+import com.mileway.core.ui.resources.tracking_saved_title
+import com.mileway.core.ui.resources.tracking_status_saved
+import com.mileway.core.ui.resources.tracking_status_submitted
+import com.mileway.core.ui.resources.tracking_voucher_summary_total
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -94,6 +131,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFilter
 import com.mileway.feature.tracking.viewmodel.SubmissionItem
 import com.mileway.feature.tracking.viewmodel.SubmissionSource
 import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
@@ -137,7 +175,7 @@ fun SavedTracksScreen(
                 ExtendedFloatingActionButton(
                     onClick = onStartNew,
                     icon = { Icon(Icons.Default.PlayArrow, null) },
-                    text = { Text("Start Journey") },
+                    text = { Text(stringResource(Res.string.tracking_saved_start_journey)) },
                     // Lift above the floating bubble bar.
                     modifier = Modifier.padding(bottom = 88.dp),
                 )
@@ -203,13 +241,20 @@ private fun TrackMilesHeader(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = if (selectionMode) "Select Submissions" else "Saved Tracks",
+                        text =
+                            if (selectionMode) {
+                                stringResource(
+                                    Res.string.tracking_saved_select_submissions,
+                                )
+                            } else {
+                                stringResource(Res.string.tracking_saved_title)
+                            },
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold,
                         color = Color.White,
                     )
                     Text(
-                        text = if (selectionMode) "Long-press to select more" else "Track and manage your journeys",
+                        text = if (selectionMode) stringResource(Res.string.tracking_saved_select_hint) else stringResource(Res.string.tracking_saved_subtitle),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White.copy(alpha = 0.85f),
                     )
@@ -217,15 +262,23 @@ private fun TrackMilesHeader(
                 // VI.3: "X" button exits selection mode
                 if (selectionMode) {
                     IconButton(onClick = onClearSelection) {
-                        Icon(Icons.Default.Close, contentDescription = "Exit selection", tint = Color.White)
+                        Icon(Icons.Default.Close, contentDescription = stringResource(Res.string.tracking_cd_exit_selection), tint = Color.White)
                     }
                 }
             }
             Spacer(Modifier.height(DesignTokens.Spacing.l))
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                HeaderStat(value = totalTrips.toString(), label = "Trips", modifier = Modifier.weight(1f))
-                HeaderStat(value = "${totalKm.formatDecimal(0)} km", label = "Distance", modifier = Modifier.weight(1f))
-                HeaderStat(value = "₹${totalReimbursable.formatDecimal(0)}", label = "Reimbursed", modifier = Modifier.weight(1f))
+                HeaderStat(value = totalTrips.toString(), label = stringResource(Res.string.tracking_saved_stat_trips), modifier = Modifier.weight(1f))
+                HeaderStat(
+                    value = "${totalKm.formatDecimal(0)} km",
+                    label = stringResource(Res.string.tracking_insights_distance),
+                    modifier = Modifier.weight(1f),
+                )
+                HeaderStat(
+                    value = "₹${totalReimbursable.formatDecimal(0)}",
+                    label = stringResource(Res.string.tracking_saved_stat_reimbursed),
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
@@ -311,7 +364,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.journeysSection(
     item {
         SavedTracksSearchField(
             query = uiState.journeySearch,
-            placeholder = "Search journeys…",
+            placeholder = stringResource(Res.string.tracking_saved_search_journeys),
             onQueryChange = { viewModel.onAction(SavedTracksAction.JourneySearchChanged(it)) },
             onFilterClick = null,
         )
@@ -319,17 +372,17 @@ private fun androidx.compose.foundation.lazy.LazyListScope.journeysSection(
     item {
         SavedTracksChipRow {
             SavedTracksFilterChip(
-                label = "This Week",
+                label = stringResource(Res.string.tracking_saved_filter_this_week),
                 selected = uiState.journeyFilter == JourneyFilter.THIS_WEEK,
                 onClick = { viewModel.onAction(SavedTracksAction.JourneyFilterSelected(JourneyFilter.THIS_WEEK)) },
             )
             SavedTracksFilterChip(
-                label = "Kept",
+                label = stringResource(Res.string.tracking_saved_filter_kept),
                 selected = uiState.journeyFilter == JourneyFilter.KEPT,
                 onClick = { viewModel.onAction(SavedTracksAction.JourneyFilterSelected(JourneyFilter.KEPT)) },
             )
             SavedTracksFilterChip(
-                label = "All",
+                label = stringResource(Res.string.tracking_saved_filter_all),
                 selected = uiState.journeyFilter == JourneyFilter.ALL,
                 onClick = { viewModel.onAction(SavedTracksAction.JourneyFilterSelected(JourneyFilter.ALL)) },
             )
@@ -346,8 +399,22 @@ private fun androidx.compose.foundation.lazy.LazyListScope.journeysSection(
         journeys.isEmpty() -> {
             item {
                 EmptyState(
-                    title = if (uiState.journeySearch.isNotBlank()) "No matching journeys" else "No saved journeys",
-                    subtitle = if (uiState.journeySearch.isNotBlank()) "Try a different search term" else "Tap 'Start Journey' to record your first trip",
+                    title =
+                        if (uiState.journeySearch.isNotBlank()) {
+                            stringResource(
+                                Res.string.tracking_saved_empty_journeys_query,
+                            )
+                        } else {
+                            stringResource(Res.string.tracking_saved_empty_journeys_none)
+                        },
+                    subtitle =
+                        if (uiState.journeySearch.isNotBlank()) {
+                            stringResource(
+                                Res.string.tracking_saved_empty_search_hint,
+                            )
+                        } else {
+                            stringResource(Res.string.tracking_saved_empty_journeys_hint)
+                        },
                 )
             }
         }
@@ -433,7 +500,7 @@ private fun JourneyCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = track.name ?: "Journey",
+                            text = track.name ?: stringResource(Res.string.tracking_saved_journey_default),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
@@ -470,10 +537,10 @@ private fun JourneyCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
                 ) {
-                    Metric(label = "Distance", value = track.getFormattedDistance(), modifier = Modifier.weight(1f))
-                    Metric(label = "Duration", value = track.getFormattedDuration(), modifier = Modifier.weight(1f))
+                    Metric(label = stringResource(Res.string.tracking_insights_distance), value = track.getFormattedDistance(), modifier = Modifier.weight(1f))
+                    Metric(label = stringResource(Res.string.tracking_insights_duration), value = track.getFormattedDuration(), modifier = Modifier.weight(1f))
                     Metric(
-                        label = "Amount",
+                        label = stringResource(Res.string.tracking_detail_amount),
                         value = if (track.reimbursableAmount > 0) "₹${track.reimbursableAmount.formatDecimal(0)}" else "—",
                         valueColor = if (track.reimbursableAmount > 0) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f),
@@ -561,9 +628,9 @@ private fun Metric(
 private fun StatusChip(isSubmitted: Boolean) {
     val (label, color) =
         if (isSubmitted) {
-            "Submitted" to DesignTokens.StatusColors.success
+            stringResource(Res.string.tracking_status_submitted) to DesignTokens.StatusColors.success
         } else {
-            "Saved" to DesignTokens.StatusColors.info
+            stringResource(Res.string.tracking_status_saved) to DesignTokens.StatusColors.info
         }
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -592,7 +659,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection(
     item {
         SavedTracksSearchField(
             query = uiState.submissionSearch,
-            placeholder = "Search submissions…",
+            placeholder = stringResource(Res.string.tracking_saved_search_submissions),
             onQueryChange = { viewModel.onAction(SavedTracksAction.SubmissionSearchChanged(it)) },
             onFilterClick = null,
         )
@@ -601,17 +668,17 @@ private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection(
     item {
         SavedTracksChipRow {
             SavedTracksFilterChip(
-                label = "All (${uiState.submissionCount})",
+                label = stringResource(Res.string.tracking_saved_filter_all_count, uiState.submissionCount),
                 selected = uiState.submissionFilter == SubmissionFilter.ALL,
                 onClick = { viewModel.onAction(SavedTracksAction.SubmissionFilterSelected(SubmissionFilter.ALL)) },
             )
             SavedTracksFilterChip(
-                label = "Unclaimed (${uiState.unclaimedCount})",
+                label = stringResource(Res.string.tracking_saved_filter_unclaimed_count, uiState.unclaimedCount),
                 selected = uiState.submissionFilter == SubmissionFilter.UNCLAIMED,
                 onClick = { viewModel.onAction(SavedTracksAction.SubmissionFilterSelected(SubmissionFilter.UNCLAIMED)) },
             )
             SavedTracksFilterChip(
-                label = "Filed (${uiState.filedCount})",
+                label = stringResource(Res.string.tracking_saved_filter_filed_count, uiState.filedCount),
                 selected = uiState.submissionFilter == SubmissionFilter.FILED,
                 onClick = { viewModel.onAction(SavedTracksAction.SubmissionFilterSelected(SubmissionFilter.FILED)) },
             )
@@ -621,17 +688,17 @@ private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection(
     item {
         SavedTracksChipRow {
             SavedTracksFilterChip(
-                label = "All",
+                label = stringResource(Res.string.tracking_saved_filter_all),
                 selected = uiState.submissionSource == SubmissionSource.ALL,
                 onClick = { viewModel.onAction(SavedTracksAction.SubmissionSourceSelected(SubmissionSource.ALL)) },
             )
             SavedTracksFilterChip(
-                label = "New Tracker",
+                label = stringResource(Res.string.tracking_saved_filter_new_tracker),
                 selected = uiState.submissionSource == SubmissionSource.NEW_TRACKER,
                 onClick = { viewModel.onAction(SavedTracksAction.SubmissionSourceSelected(SubmissionSource.NEW_TRACKER)) },
             )
             SavedTracksFilterChip(
-                label = "Other",
+                label = stringResource(Res.string.tracking_saved_filter_other),
                 selected = uiState.submissionSource == SubmissionSource.OTHER,
                 onClick = { viewModel.onAction(SavedTracksAction.SubmissionSourceSelected(SubmissionSource.OTHER)) },
             )
@@ -670,8 +737,22 @@ private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection(
     if (submissions.isEmpty()) {
         item {
             NoSubmissionsState(
-                title = if (uiState.submissionSearch.isNotBlank()) "No matching submissions" else "No submissions yet",
-                subtitle = if (uiState.submissionSearch.isNotBlank()) "Try a different search term" else "Submit mileage from your journeys to see them here",
+                title =
+                    if (uiState.submissionSearch.isNotBlank()) {
+                        stringResource(
+                            Res.string.tracking_saved_empty_submissions_query,
+                        )
+                    } else {
+                        stringResource(Res.string.tracking_saved_empty_submissions_none)
+                    },
+                subtitle =
+                    if (uiState.submissionSearch.isNotBlank()) {
+                        stringResource(
+                            Res.string.tracking_saved_empty_search_hint,
+                        )
+                    } else {
+                        stringResource(Res.string.tracking_saved_empty_submissions_hint)
+                    },
             )
         }
     } else {
@@ -772,7 +853,7 @@ private fun SubmittedInsightsCard(
                 IconButton(onClick = { expanded = !expanded }, modifier = Modifier.size(24.dp)) {
                     Icon(
                         imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                        contentDescription = if (expanded) "Collapse" else "Expand",
+                        contentDescription = if (expanded) stringResource(Res.string.tracking_cd_collapse) else stringResource(Res.string.tracking_cd_expand),
                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
@@ -786,9 +867,17 @@ private fun SubmittedInsightsCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
-                    InsightMetric(label = "Count", value = "${thisWeek.size}", modifier = Modifier.weight(1f))
-                    InsightMetric(label = "Total", value = "₹${weekTotal.formatDecimal(0)}", modifier = Modifier.weight(1f))
-                    InsightMetric(label = "Avg/trip", value = "₹${avgPerTrip.formatDecimal(0)}", modifier = Modifier.weight(1f))
+                    InsightMetric(label = stringResource(Res.string.tracking_saved_insight_count), value = "${thisWeek.size}", modifier = Modifier.weight(1f))
+                    InsightMetric(
+                        label = stringResource(Res.string.tracking_voucher_summary_total),
+                        value = "₹${weekTotal.formatDecimal(0)}",
+                        modifier = Modifier.weight(1f),
+                    )
+                    InsightMetric(
+                        label = stringResource(Res.string.tracking_saved_insight_avg),
+                        value = "₹${avgPerTrip.formatDecimal(0)}",
+                        modifier = Modifier.weight(1f),
+                    )
                 }
             }
         }

@@ -25,6 +25,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_submission_entity
+import com.mileway.core.ui.resources.tracking_submission_field_required
+import com.mileway.core.ui.resources.tracking_submission_info
+import com.mileway.core.ui.resources.tracking_submission_loading_address
+import com.mileway.core.ui.resources.tracking_submission_office
+import com.mileway.core.ui.resources.tracking_submission_required_field
+import com.mileway.core.ui.resources.tracking_submission_select_entity
+import com.mileway.core.ui.resources.tracking_submission_select_office
+import com.mileway.core.ui.resources.tracking_submission_subtitle
+import com.mileway.core.ui.resources.tracking_submission_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.ui.components.AdditionalDetailsForm
@@ -52,6 +64,7 @@ import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
 import com.mileway.feature.tracking.viewmodel.SubmissionFieldType
 import com.mileway.feature.tracking.viewmodel.SubmissionSheet
 import com.mileway.feature.tracking.viewmodel.SubmissionUiState
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val SUBMISSION_TABS = listOf("Journey", "Vehicle", "Odometer", "Forms", "Attachments")
@@ -127,12 +140,15 @@ fun TrackSubmissionScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Submit Track Miles",
-                subtitle = "Fill out the details given below",
+                title = stringResource(Res.string.tracking_submission_title),
+                subtitle = stringResource(Res.string.tracking_submission_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
@@ -144,7 +160,7 @@ fun TrackSubmissionScreen(
                 submitEnabled = form.canSubmit && state !is SubmissionUiState.Submitting,
                 onDiscard = onBack,
                 onSubmit = { viewModel.onAction(MileageSubmissionAction.OpenSubmitConfirm) },
-                infoText = "Review journey details and required fields before submitting.",
+                infoText = stringResource(Res.string.tracking_submission_info),
             )
         },
     ) { padding ->
@@ -194,8 +210,8 @@ fun TrackSubmissionScreen(
 
                 item {
                     LocationDetailsCard(
-                        startAddress = form.startAddress.ifEmpty { "Loading address…" },
-                        endAddress = form.endAddress.ifEmpty { "Loading address…" },
+                        startAddress = form.startAddress.ifEmpty { stringResource(Res.string.tracking_submission_loading_address) },
+                        endAddress = form.endAddress.ifEmpty { stringResource(Res.string.tracking_submission_loading_address) },
                         startTime = DateUtils.epochToTime12h(startTime),
                         endTime = DateUtils.epochToTime12h(endTime),
                     )
@@ -236,7 +252,15 @@ fun TrackSubmissionScreen(
                                     value = form.values[f.id].orEmpty(),
                                     required = f.required,
                                     options = f.options,
-                                    errorText = if (f.required && form.values[f.id].isNullOrBlank()) "${f.label} is required" else null,
+                                    errorText =
+                                        if (f.required && form.values[f.id].isNullOrBlank()) {
+                                            stringResource(
+                                                Res.string.tracking_submission_field_required,
+                                                f.label,
+                                            )
+                                        } else {
+                                            null
+                                        },
                                 )
                             },
                         onValueChange = { id, value -> viewModel.onAction(MileageSubmissionAction.SetFormValue(id, value)) },
@@ -246,17 +270,31 @@ fun TrackSubmissionScreen(
                 // Always show office/entity rows (demo always has these visible).
                 item {
                     OfficeEntitySelectRow(
-                        label = "Office",
+                        label = stringResource(Res.string.tracking_submission_office),
                         value = form.selectedOffice?.let { "${it.code} - ${it.name}" },
-                        requiredHint = if (form.officeRequired) "Required field" else "Select office",
+                        requiredHint =
+                            if (form.officeRequired) {
+                                stringResource(
+                                    Res.string.tracking_submission_required_field,
+                                )
+                            } else {
+                                stringResource(Res.string.tracking_submission_select_office)
+                            },
                         onClick = { viewModel.onAction(MileageSubmissionAction.OpenOfficePicker) },
                     )
                 }
                 item {
                     OfficeEntitySelectRow(
-                        label = "Entity",
+                        label = stringResource(Res.string.tracking_submission_entity),
                         value = form.selectedEntity?.name,
-                        requiredHint = if (form.officeRequired) "Required field" else "Select entity",
+                        requiredHint =
+                            if (form.officeRequired) {
+                                stringResource(
+                                    Res.string.tracking_submission_required_field,
+                                )
+                            } else {
+                                stringResource(Res.string.tracking_submission_select_entity)
+                            },
                         onClick = { viewModel.onAction(MileageSubmissionAction.OpenEntityPicker) },
                     )
                 }

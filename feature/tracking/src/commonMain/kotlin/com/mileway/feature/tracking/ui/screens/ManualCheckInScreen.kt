@@ -51,12 +51,29 @@ import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_copy
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_refresh_location
+import com.mileway.core.ui.resources.tracking_manual_checkin_current_location
+import com.mileway.core.ui.resources.tracking_manual_checkin_datetime_label
+import com.mileway.core.ui.resources.tracking_manual_checkin_details
+import com.mileway.core.ui.resources.tracking_manual_checkin_now
+import com.mileway.core.ui.resources.tracking_manual_checkin_reason_label
+import com.mileway.core.ui.resources.tracking_manual_checkin_reason_placeholder
+import com.mileway.core.ui.resources.tracking_manual_checkin_submit
+import com.mileway.core.ui.resources.tracking_manual_checkin_subtitle
+import com.mileway.core.ui.resources.tracking_manual_checkin_title
+import com.mileway.core.ui.resources.tracking_manual_checkin_type_label
+import com.mileway.core.ui.resources.tracking_manual_checkin_type_placeholder
+import com.mileway.core.ui.resources.tracking_open_in_maps
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.manager.TrackingConfigManager
 import com.mileway.feature.tracking.repository.HardwareEventRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 /**
@@ -130,12 +147,12 @@ fun ManualCheckInScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DepthAwareTopBar(
-                title = "Manual Check-In",
-                subtitle = "Enter your location manually",
+                title = stringResource(Res.string.tracking_manual_checkin_title),
+                subtitle = stringResource(Res.string.tracking_manual_checkin_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.tracking_cd_back))
                     }
                 },
             )
@@ -159,7 +176,7 @@ fun ManualCheckInScreen(
                             color = MaterialTheme.colorScheme.onPrimary,
                         )
                     } else {
-                        Text("Submit Check-In")
+                        Text(stringResource(Res.string.tracking_manual_checkin_submit))
                     }
                 }
             }
@@ -186,7 +203,7 @@ fun ManualCheckInScreen(
                         )
                         Spacer(Modifier.width(DesignTokens.Spacing.s))
                         Text(
-                            "Current Location",
+                            stringResource(Res.string.tracking_manual_checkin_current_location),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.weight(1f),
@@ -195,7 +212,10 @@ fun ManualCheckInScreen(
                             CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                         } else {
                             IconButton(onClick = { refreshLocation() }) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Refresh location")
+                                Icon(
+                                    Icons.Default.Refresh,
+                                    contentDescription = stringResource(Res.string.tracking_cd_refresh_location),
+                                )
                             }
                         }
                     }
@@ -215,12 +235,12 @@ fun ManualCheckInScreen(
                         OutlinedButton(onClick = { openInMaps() }) {
                             Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Open in Maps")
+                            Text(stringResource(Res.string.tracking_open_in_maps))
                         }
                         OutlinedButton(onClick = { copyCoords() }) {
                             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Copy")
+                            Text(stringResource(Res.string.tracking_action_copy))
                         }
                     }
                 }
@@ -233,7 +253,7 @@ fun ManualCheckInScreen(
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
                     Text(
-                        "Check-in Details",
+                        stringResource(Res.string.tracking_manual_checkin_details),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -241,8 +261,8 @@ fun ManualCheckInScreen(
                     OutlinedTextField(
                         value = reason,
                         onValueChange = { if (it.length <= 200) reason = it },
-                        label = { Text("Reason / Notes") },
-                        placeholder = { Text("What's the reason for this check-in?") },
+                        label = { Text(stringResource(Res.string.tracking_manual_checkin_reason_label)) },
+                        placeholder = { Text(stringResource(Res.string.tracking_manual_checkin_reason_placeholder)) },
                         modifier = Modifier.fillMaxWidth(),
                         minLines = 3,
                         maxLines = 5,
@@ -259,10 +279,10 @@ fun ManualCheckInScreen(
                         onExpandedChange = { typeExpanded = it },
                     ) {
                         OutlinedTextField(
-                            value = selectedType ?: "Select check-in type (optional)",
+                            value = selectedType ?: stringResource(Res.string.tracking_manual_checkin_type_placeholder),
                             onValueChange = {},
                             readOnly = true,
-                            label = { Text("Check-in Type") },
+                            label = { Text(stringResource(Res.string.tracking_manual_checkin_type_label)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
                             modifier =
                                 Modifier
@@ -286,10 +306,10 @@ fun ManualCheckInScreen(
                     }
 
                     OutlinedTextField(
-                        value = "Now",
+                        value = stringResource(Res.string.tracking_manual_checkin_now),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Date & Time") },
+                        label = { Text(stringResource(Res.string.tracking_manual_checkin_datetime_label)) },
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }

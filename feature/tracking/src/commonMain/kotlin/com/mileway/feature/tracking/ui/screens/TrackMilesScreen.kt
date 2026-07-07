@@ -70,6 +70,14 @@ import com.mileway.core.ui.components.tracking.StatusChip
 import com.mileway.core.ui.components.tracking.StatusLevel
 import com.mileway.core.ui.components.tracking.SystemStatusBanner
 import com.mileway.core.ui.components.tracking.ThreeButtonFabSystem
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_all_synced
+import com.mileway.core.ui.resources.tracking_cd_points_queued
+import com.mileway.core.ui.resources.tracking_miles_all_ok
+import com.mileway.core.ui.resources.tracking_miles_journey_guide
+import com.mileway.core.ui.resources.tracking_miles_synced
+import com.mileway.core.ui.resources.tracking_miles_title
+import com.mileway.core.ui.resources.tracking_time_now
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -96,6 +104,7 @@ import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackSheet
 import com.mileway.feature.tracking.viewmodel.TrackSignal
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -196,7 +205,7 @@ fun TrackMilesScreen(
     Scaffold(
         topBar = {
             TrackingTopBar(
-                title = "Track Miles",
+                title = stringResource(Res.string.tracking_miles_title),
                 status = trackingStatus,
                 actions = {
                     // Right-side sync / network-status indicator, only meaningful while a journey
@@ -264,7 +273,7 @@ fun TrackMilesScreen(
                 if (isActive) {
                     CompactSystemStatusIndicator(chips = uiState.statusChips())
                 }
-                SystemStatusBanner(allOk = uiState.error == null, message = uiState.error ?: "All systems OK")
+                SystemStatusBanner(allOk = uiState.error == null, message = uiState.error ?: stringResource(Res.string.tracking_miles_all_ok))
 
                 if (isActive) {
                     ExpandableStatsCard(
@@ -281,7 +290,7 @@ fun TrackMilesScreen(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
                         Text(
-                            text = "Journey Guide →",
+                            text = stringResource(Res.string.tracking_miles_journey_guide),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -381,7 +390,7 @@ fun TrackMilesScreen(
 
         TrackSheet.PAUSE ->
             PauseReasonSheet(
-                timestamp = "now",
+                timestamp = stringResource(Res.string.tracking_time_now),
                 selectedReason = uiState.pauseSelectedReason,
                 customReason = uiState.pauseCustomReason,
                 onSelectReason = { viewModel.onAction(TrackMilesAction.SetPauseReason(it)) },
@@ -667,12 +676,20 @@ private fun SyncStatusAction(unsyncedPoints: Long) {
     ) {
         Icon(
             imageVector = if (pending) Icons.Filled.CloudQueue else Icons.Filled.CloudDone,
-            contentDescription = if (pending) "$unsyncedPoints points queued to sync" else "All points synced",
+            contentDescription =
+                if (pending) {
+                    stringResource(
+                        Res.string.tracking_cd_points_queued,
+                        unsyncedPoints,
+                    )
+                } else {
+                    stringResource(Res.string.tracking_cd_all_synced)
+                },
             tint = tint,
             modifier = Modifier.size(DesignTokens.IconSize.navigation),
         )
         Text(
-            text = if (pending) "$unsyncedPoints" else "Synced",
+            text = if (pending) "$unsyncedPoints" else stringResource(Res.string.tracking_miles_synced),
             style = MaterialTheme.typography.labelSmall.dataStyle(),
             color = tint,
             fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,

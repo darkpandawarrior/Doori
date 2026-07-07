@@ -55,6 +55,37 @@ import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_voucher_back_to_detail
+import com.mileway.core.ui.resources.tracking_voucher_category_label
+import com.mileway.core.ui.resources.tracking_voucher_create_button
+import com.mileway.core.ui.resources.tracking_voucher_created_title
+import com.mileway.core.ui.resources.tracking_voucher_deselect_all
+import com.mileway.core.ui.resources.tracking_voucher_empty_subtitle
+import com.mileway.core.ui.resources.tracking_voucher_empty_title
+import com.mileway.core.ui.resources.tracking_voucher_next_details
+import com.mileway.core.ui.resources.tracking_voucher_next_review
+import com.mileway.core.ui.resources.tracking_voucher_notes_label
+import com.mileway.core.ui.resources.tracking_voucher_review_title
+import com.mileway.core.ui.resources.tracking_voucher_saved_locally
+import com.mileway.core.ui.resources.tracking_voucher_select_all
+import com.mileway.core.ui.resources.tracking_voucher_step_confirm_subtitle
+import com.mileway.core.ui.resources.tracking_voucher_step_confirm_title
+import com.mileway.core.ui.resources.tracking_voucher_step_details_subtitle
+import com.mileway.core.ui.resources.tracking_voucher_step_details_title
+import com.mileway.core.ui.resources.tracking_voucher_step_select_subtitle
+import com.mileway.core.ui.resources.tracking_voucher_step_select_title
+import com.mileway.core.ui.resources.tracking_voucher_step_success_subtitle
+import com.mileway.core.ui.resources.tracking_voucher_step_success_title
+import com.mileway.core.ui.resources.tracking_voucher_summary_category
+import com.mileway.core.ui.resources.tracking_voucher_summary_expenses
+import com.mileway.core.ui.resources.tracking_voucher_summary_notes
+import com.mileway.core.ui.resources.tracking_voucher_summary_title
+import com.mileway.core.ui.resources.tracking_voucher_summary_total
+import com.mileway.core.ui.resources.tracking_voucher_title_label
+import com.mileway.core.ui.resources.tracking_voucher_total
+import com.mileway.core.ui.resources.tracking_voucher_total_amount_label
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -65,6 +96,7 @@ import com.mileway.feature.tracking.viewmodel.VoucherDeclaration
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -82,17 +114,17 @@ fun CreateVoucherScreen(
             DepthAwareTopBar(
                 title =
                     when (uiState.step) {
-                        0 -> "Select Expenses"
-                        1 -> "Voucher Details"
-                        2 -> "Confirmation"
-                        else -> "Voucher Created"
+                        0 -> stringResource(Res.string.tracking_voucher_step_select_title)
+                        1 -> stringResource(Res.string.tracking_voucher_step_details_title)
+                        2 -> stringResource(Res.string.tracking_voucher_step_confirm_title)
+                        else -> stringResource(Res.string.tracking_voucher_step_success_title)
                     },
                 subtitle =
                     when (uiState.step) {
-                        0 -> "Select trips to reimburse"
-                        1 -> "Add claim details"
-                        2 -> "Review and submit"
-                        else -> "Claim submitted"
+                        0 -> stringResource(Res.string.tracking_voucher_step_select_subtitle)
+                        1 -> stringResource(Res.string.tracking_voucher_step_details_subtitle)
+                        2 -> stringResource(Res.string.tracking_voucher_step_confirm_subtitle)
+                        else -> stringResource(Res.string.tracking_voucher_step_success_subtitle)
                     },
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
@@ -103,7 +135,10 @@ fun CreateVoucherScreen(
                             viewModel.onAction(CreateVoucherAction.GoToStep(uiState.step - 1))
                         }
                     }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
                 actions = {
@@ -117,9 +152,9 @@ fun CreateVoucherScreen(
                         }) {
                             Text(
                                 if (uiState.selectedTokens.size == uiState.expenses.size) {
-                                    "Deselect All"
+                                    stringResource(Res.string.tracking_voucher_deselect_all)
                                 } else {
-                                    "Select All"
+                                    stringResource(Res.string.tracking_voucher_select_all)
                                 },
                             )
                         }
@@ -177,12 +212,12 @@ private fun StepSelectExpenses(
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "No submitted expenses found",
+                        stringResource(Res.string.tracking_voucher_empty_title),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
                     )
                     Text(
-                        "Submit a journey first to include it in a voucher.",
+                        stringResource(Res.string.tracking_voucher_empty_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -204,7 +239,7 @@ private fun StepSelectExpenses(
             Column(Modifier.padding(16.dp)) {
                 if (uiState.selectedTokens.isNotEmpty()) {
                     Text(
-                        "Total: ₹${viewModel.totalAmount.formatDecimal(2)}",
+                        stringResource(Res.string.tracking_voucher_total, viewModel.totalAmount.formatDecimal(2)),
                         style = MaterialTheme.typography.titleMedium.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
                         modifier = Modifier.padding(bottom = 8.dp),
@@ -215,7 +250,7 @@ private fun StepSelectExpenses(
                     enabled = uiState.selectedTokens.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Next: Voucher Details")
+                    Text(stringResource(Res.string.tracking_voucher_next_details))
                 }
             }
         }
@@ -281,7 +316,7 @@ private fun StepVoucherDetails(
         OutlinedTextField(
             value = uiState.title,
             onValueChange = { viewModel.onAction(CreateVoucherAction.SetTitle(it)) },
-            label = { Text("Voucher Title") },
+            label = { Text(stringResource(Res.string.tracking_voucher_title_label)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
@@ -294,7 +329,7 @@ private fun StepVoucherDetails(
                 value = uiState.category.label,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Expense Category") },
+                label = { Text(stringResource(Res.string.tracking_voucher_category_label)) },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(categoryExpanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             )
@@ -323,7 +358,7 @@ private fun StepVoucherDetails(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column {
-                    Text("Total Amount", style = MaterialTheme.typography.labelMedium)
+                    Text(stringResource(Res.string.tracking_voucher_total_amount_label), style = MaterialTheme.typography.labelMedium)
                     Text(
                         "₹${viewModel.totalAmount.formatDecimal(2)}",
                         style = MaterialTheme.typography.headlineMedium.dataStyle(),
@@ -342,7 +377,7 @@ private fun StepVoucherDetails(
         OutlinedTextField(
             value = uiState.notes,
             onValueChange = { viewModel.onAction(CreateVoucherAction.SetNotes(it)) },
-            label = { Text("Notes (optional)") },
+            label = { Text(stringResource(Res.string.tracking_voucher_notes_label)) },
             modifier = Modifier.fillMaxWidth().height(100.dp),
             maxLines = 4,
         )
@@ -354,7 +389,7 @@ private fun StepVoucherDetails(
             enabled = uiState.title.isNotBlank(),
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Next: Review")
+            Text(stringResource(Res.string.tracking_voucher_next_review))
         }
     }
 }
@@ -373,15 +408,19 @@ private fun StepConfirmation(
                 .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Review & Submit", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(
+            stringResource(Res.string.tracking_voucher_review_title),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+        )
 
         Card {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                SummaryRow("Title", uiState.title)
-                SummaryRow("Category", uiState.category.label)
-                SummaryRow("Total", "₹${viewModel.totalAmount.formatDecimal(2)}")
-                SummaryRow("Expenses", "${uiState.selectedTokens.size} selected")
-                if (uiState.notes.isNotBlank()) SummaryRow("Notes", uiState.notes)
+                SummaryRow(stringResource(Res.string.tracking_voucher_summary_title), uiState.title)
+                SummaryRow(stringResource(Res.string.tracking_voucher_summary_category), uiState.category.label)
+                SummaryRow(stringResource(Res.string.tracking_voucher_summary_total), "₹${viewModel.totalAmount.formatDecimal(2)}")
+                SummaryRow(stringResource(Res.string.tracking_voucher_summary_expenses), "${uiState.selectedTokens.size} selected")
+                if (uiState.notes.isNotBlank()) SummaryRow(stringResource(Res.string.tracking_voucher_summary_notes), uiState.notes)
             }
         }
 
@@ -407,7 +446,7 @@ private fun StepConfirmation(
             if (uiState.isSubmitting) {
                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
             } else {
-                Text("Create Voucher")
+                Text(stringResource(Res.string.tracking_voucher_create_button))
             }
         }
     }
@@ -430,7 +469,11 @@ private fun StepSuccess(
             tint = MilewayColors.success,
         )
         Spacer(Modifier.height(16.dp))
-        Text("Voucher Created!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+        Text(
+            stringResource(Res.string.tracking_voucher_created_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold,
+        )
         Spacer(Modifier.height(8.dp))
         uiState.submittedVoucherNumber?.let { number ->
             Text(
@@ -442,13 +485,13 @@ private fun StepSuccess(
         }
         Spacer(Modifier.height(4.dp))
         Text(
-            "Your voucher has been saved locally.",
+            stringResource(Res.string.tracking_voucher_saved_locally),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(32.dp))
         Button(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("Back to Track Detail")
+            Text(stringResource(Res.string.tracking_voucher_back_to_detail))
         }
     }
 }

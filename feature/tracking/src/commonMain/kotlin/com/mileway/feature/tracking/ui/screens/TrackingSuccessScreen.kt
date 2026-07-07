@@ -74,8 +74,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.ConfettiBurst
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_insights_distance
+import com.mileway.core.ui.resources.tracking_success_add_to_claim
+import com.mileway.core.ui.resources.tracking_success_cd_badge
+import com.mileway.core.ui.resources.tracking_success_cd_view_expense
+import com.mileway.core.ui.resources.tracking_success_policy_issues
+import com.mileway.core.ui.resources.tracking_success_reimbursable
+import com.mileway.core.ui.resources.tracking_success_title
+import com.mileway.core.ui.resources.tracking_success_track_new
+import com.mileway.core.ui.resources.tracking_success_txn_id
+import com.mileway.core.ui.resources.tracking_success_view_expense
+import com.mileway.core.ui.resources.tracking_success_voucher
+import com.mileway.core.ui.resources.tracking_voucher_create_button
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.round
 
 /**
@@ -290,7 +304,7 @@ fun TrackingSuccessScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Expense Submitted Successfully",
+                                text = stringResource(Res.string.tracking_success_title),
                                 style =
                                     MaterialTheme.typography.headlineMedium.copy(
                                         fontSize = 26.sp,
@@ -475,7 +489,7 @@ private fun SuccessBadge(
         ) {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
-                contentDescription = "Submission successful",
+                contentDescription = stringResource(Res.string.tracking_success_cd_badge),
                 modifier = Modifier.size(42.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
@@ -539,7 +553,7 @@ private fun DistanceCard(distanceKm: Double) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Distance",
+                text = stringResource(Res.string.tracking_insights_distance),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -635,7 +649,7 @@ private fun TransactionCard(
                 )
                 Spacer(modifier = Modifier.width(DesignTokens.Spacing.m))
                 Text(
-                    text = "Txn ID: #$transactionId",
+                    text = stringResource(Res.string.tracking_success_txn_id, transactionId),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -645,7 +659,7 @@ private fun TransactionCard(
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
-                    contentDescription = "View expense details",
+                    contentDescription = stringResource(Res.string.tracking_success_cd_view_expense),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     modifier = Modifier.size(DesignTokens.IconSize.navigation),
                 )
@@ -670,7 +684,7 @@ private fun TransactionCard(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Reimbursable",
+                            text = stringResource(Res.string.tracking_success_reimbursable),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -776,7 +790,7 @@ private fun PolicyIssuesCard(
                 Spacer(modifier = Modifier.width(DesignTokens.Spacing.s))
                 Column {
                     Text(
-                        text = "Policy Issues",
+                        text = stringResource(Res.string.tracking_success_policy_issues),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.error,
@@ -868,7 +882,7 @@ private fun VoucherCard(
             Spacer(modifier = Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Voucher",
+                    text = stringResource(Res.string.tracking_success_voucher),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -928,24 +942,24 @@ private fun SuccessActionBar(
         ) {
             if (hasVoucher) {
                 PrimaryCta(
-                    label = "Add to Claim",
+                    label = stringResource(Res.string.tracking_success_add_to_claim),
                     icon = Icons.Filled.AccountBalance,
                     onClick = onViewExpense,
                 )
                 SecondaryCta(
-                    label = "Create Voucher",
+                    label = stringResource(Res.string.tracking_voucher_create_button),
                     icon = Icons.Outlined.Description,
                     onClick = onCreateVoucher,
                 )
             } else {
                 PrimaryCta(
-                    label = "Track New Journey",
+                    label = stringResource(Res.string.tracking_success_track_new),
                     icon = Icons.Filled.DirectionsCar,
                     onClick = onTrackNewJourney,
                 )
                 if (hasTransaction) {
                     SecondaryCta(
-                        label = "View Expense",
+                        label = stringResource(Res.string.tracking_success_view_expense),
                         icon = Icons.Filled.Receipt,
                         onClick = onViewExpense,
                     )

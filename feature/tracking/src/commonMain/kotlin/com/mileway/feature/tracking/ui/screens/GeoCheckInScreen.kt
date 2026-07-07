@@ -63,12 +63,25 @@ import com.mileway.core.maps.MapSurface
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_copy
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_geo_additional_details
+import com.mileway.core.ui.resources.tracking_geo_checkin_subtitle
+import com.mileway.core.ui.resources.tracking_geo_checkin_title
+import com.mileway.core.ui.resources.tracking_geo_checkin_type
+import com.mileway.core.ui.resources.tracking_geo_nearby_locations
+import com.mileway.core.ui.resources.tracking_geo_override_checkin
+import com.mileway.core.ui.resources.tracking_geo_select_type
+import com.mileway.core.ui.resources.tracking_manual_checkin_current_location
+import com.mileway.core.ui.resources.tracking_open_in_maps
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.manager.TrackingConfigManager
 import com.mileway.feature.tracking.repository.HardwareEventRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import kotlin.math.PI
 import kotlin.math.atan2
@@ -155,12 +168,12 @@ fun GeoCheckInScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DepthAwareTopBar(
-                title = "Check In",
-                subtitle = "Select a nearby location to record",
+                title = stringResource(Res.string.tracking_geo_checkin_title),
+                subtitle = stringResource(Res.string.tracking_geo_checkin_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.tracking_cd_back))
                     }
                 },
             )
@@ -195,7 +208,7 @@ fun GeoCheckInScreen(
                             onClick = { doCheckIn() },
                             modifier = Modifier.weight(1f),
                             colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                        ) { Text("Override & Check In") }
+                        ) { Text(stringResource(Res.string.tracking_geo_override_checkin)) }
                         Button(
                             onClick = { doCheckIn() },
                             modifier = Modifier.weight(1f),
@@ -204,7 +217,7 @@ fun GeoCheckInScreen(
                             if (isSubmitting) {
                                 CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
                             } else {
-                                Text("Check In")
+                                Text(stringResource(Res.string.tracking_geo_checkin_title))
                             }
                         }
                     }
@@ -221,7 +234,7 @@ fun GeoCheckInScreen(
                                 color = MaterialTheme.colorScheme.onPrimary,
                             )
                         } else {
-                            Text("Check In")
+                            Text(stringResource(Res.string.tracking_geo_checkin_title))
                         }
                     }
                 }
@@ -249,7 +262,7 @@ fun GeoCheckInScreen(
                         )
                         Spacer(Modifier.width(DesignTokens.Spacing.s))
                         Text(
-                            "Current Location",
+                            stringResource(Res.string.tracking_manual_checkin_current_location),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -281,12 +294,12 @@ fun GeoCheckInScreen(
                         OutlinedButton(onClick = { openInMaps() }) {
                             Icon(Icons.Default.Map, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Open in Maps")
+                            Text(stringResource(Res.string.tracking_open_in_maps))
                         }
                         OutlinedButton(onClick = { copyCoords() }) {
                             Icon(Icons.Default.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(Modifier.width(4.dp))
-                            Text("Copy")
+                            Text(stringResource(Res.string.tracking_action_copy))
                         }
                     }
                 }
@@ -296,7 +309,7 @@ fun GeoCheckInScreen(
             SectionCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
                     Text(
-                        "Check-In Type",
+                        stringResource(Res.string.tracking_geo_checkin_type),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -306,7 +319,7 @@ fun GeoCheckInScreen(
                         onExpandedChange = { typeExpanded = it },
                     ) {
                         OutlinedTextField(
-                            value = selectedType ?: "Select type",
+                            value = selectedType ?: stringResource(Res.string.tracking_geo_select_type),
                             onValueChange = {},
                             readOnly = true,
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
@@ -338,7 +351,7 @@ fun GeoCheckInScreen(
             SectionCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(DesignTokens.Spacing.m)) {
                     Text(
-                        "Nearby Locations",
+                        stringResource(Res.string.tracking_geo_nearby_locations),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -395,7 +408,7 @@ fun GeoCheckInScreen(
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                     ) {
                         Text(
-                            "Additional Details",
+                            stringResource(Res.string.tracking_geo_additional_details),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold,
                         )

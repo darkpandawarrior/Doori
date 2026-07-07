@@ -65,6 +65,37 @@ import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.LoadingScreen
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_data_preview
+import com.mileway.core.ui.resources.tracking_cd_export_track
+import com.mileway.core.ui.resources.tracking_cd_hardware_events
+import com.mileway.core.ui.resources.tracking_cd_odometer_proof
+import com.mileway.core.ui.resources.tracking_cd_receipt_photo
+import com.mileway.core.ui.resources.tracking_cd_view_insights
+import com.mileway.core.ui.resources.tracking_cd_view_map
+import com.mileway.core.ui.resources.tracking_detail_amount
+import com.mileway.core.ui.resources.tracking_detail_attachments
+import com.mileway.core.ui.resources.tracking_detail_avg_speed
+import com.mileway.core.ui.resources.tracking_detail_data_preview
+import com.mileway.core.ui.resources.tracking_detail_export_data
+import com.mileway.core.ui.resources.tracking_detail_exporting
+import com.mileway.core.ui.resources.tracking_detail_gps_points
+import com.mileway.core.ui.resources.tracking_detail_hardware_events_btn
+import com.mileway.core.ui.resources.tracking_detail_odo_end
+import com.mileway.core.ui.resources.tracking_detail_odo_start
+import com.mileway.core.ui.resources.tracking_detail_odometer_proofs
+import com.mileway.core.ui.resources.tracking_detail_receipts_count
+import com.mileway.core.ui.resources.tracking_detail_route_points
+import com.mileway.core.ui.resources.tracking_detail_subtitle
+import com.mileway.core.ui.resources.tracking_detail_title
+import com.mileway.core.ui.resources.tracking_detail_trip_insights
+import com.mileway.core.ui.resources.tracking_detail_vehicle
+import com.mileway.core.ui.resources.tracking_detail_view_route_map
+import com.mileway.core.ui.resources.tracking_insights_distance
+import com.mileway.core.ui.resources.tracking_insights_duration
+import com.mileway.core.ui.resources.tracking_status_saved
+import com.mileway.core.ui.resources.tracking_status_submitted
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
@@ -76,6 +107,7 @@ import com.mileway.feature.tracking.viewmodel.ExportAction
 import com.mileway.feature.tracking.viewmodel.ExportViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailAction
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -122,29 +154,29 @@ fun TrackDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DepthAwareTopBar(
-                title = uiState.track?.name ?: "Journey Details",
-                subtitle = "Journey overview & actions",
+                title = uiState.track?.name ?: stringResource(Res.string.tracking_detail_title),
+                subtitle = stringResource(Res.string.tracking_detail_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(Res.string.tracking_cd_back))
                     }
                 },
                 actions = {
                     IconButton(onClick = { showExportDialog = true }) {
-                        Icon(Icons.Default.Download, contentDescription = "Export track")
+                        Icon(Icons.Default.Download, contentDescription = stringResource(Res.string.tracking_cd_export_track))
                     }
                     IconButton(onClick = onOpenMap) {
-                        Icon(Icons.Default.Map, contentDescription = "View Map")
+                        Icon(Icons.Default.Map, contentDescription = stringResource(Res.string.tracking_cd_view_map))
                     }
                     IconButton(onClick = onOpenInsights) {
-                        Icon(Icons.Default.Insights, contentDescription = "View Insights")
+                        Icon(Icons.Default.Insights, contentDescription = stringResource(Res.string.tracking_cd_view_insights))
                     }
                     IconButton(onClick = onOpenHwEvents) {
-                        Icon(Icons.Default.History, contentDescription = "Hardware Events")
+                        Icon(Icons.Default.History, contentDescription = stringResource(Res.string.tracking_cd_hardware_events))
                     }
                     IconButton(onClick = onOpenDataPreview) {
-                        Icon(Icons.Default.Analytics, contentDescription = "Data Preview")
+                        Icon(Icons.Default.Analytics, contentDescription = stringResource(Res.string.tracking_cd_data_preview))
                     }
                 },
             )
@@ -169,24 +201,24 @@ fun TrackDetailScreen(
 
             // Metrics grid (2 columns)
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                MetricTile(Icons.Default.Straighten, "Distance", track.getFormattedDistance(), Modifier.weight(1f))
-                MetricTile(Icons.Default.Timer, "Duration", track.getFormattedDuration(), Modifier.weight(1f))
+                MetricTile(Icons.Default.Straighten, stringResource(Res.string.tracking_insights_distance), track.getFormattedDistance(), Modifier.weight(1f))
+                MetricTile(Icons.Default.Timer, stringResource(Res.string.tracking_insights_duration), track.getFormattedDuration(), Modifier.weight(1f))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                MetricTile(Icons.Default.Speed, "Avg speed", "${track.avgSpeedKmh.toLong()} km/h", Modifier.weight(1f))
-                MetricTile(Icons.Default.Place, "GPS points", gpsPoints.toString(), Modifier.weight(1f))
+                MetricTile(Icons.Default.Speed, stringResource(Res.string.tracking_detail_avg_speed), "${track.avgSpeedKmh.toLong()} km/h", Modifier.weight(1f))
+                MetricTile(Icons.Default.Place, stringResource(Res.string.tracking_detail_gps_points), gpsPoints.toString(), Modifier.weight(1f))
             }
             if (track.reimbursableAmount > 0 || track.selectedVehicleType.isNotBlank()) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     MetricTile(
                         Icons.Default.CheckCircle,
-                        "Amount",
+                        stringResource(Res.string.tracking_detail_amount),
                         if (track.reimbursableAmount > 0) "₹${track.reimbursableAmount.toLong()}" else "—",
                         Modifier.weight(1f),
                     )
                     MetricTile(
                         Icons.Default.Map,
-                        "Vehicle",
+                        stringResource(Res.string.tracking_detail_vehicle),
                         humanizeVehicle(track.selectedVehicleType),
                         Modifier.weight(1f),
                     )
@@ -202,32 +234,38 @@ fun TrackDetailScreen(
             FilledTonalButton(onClick = { showExportDialog = true }, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Download, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text(if (exportState.isExporting) "Exporting…" else "Export track data")
+                Text(
+                    if (exportState.isExporting) {
+                        stringResource(Res.string.tracking_detail_exporting)
+                    } else {
+                        stringResource(Res.string.tracking_detail_export_data)
+                    },
+                )
             }
             FilledTonalButton(onClick = onOpenMap, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Map, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("View route map")
+                Text(stringResource(Res.string.tracking_detail_view_route_map))
             }
             FilledTonalButton(onClick = onOpenInsights, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Insights, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Trip insights")
+                Text(stringResource(Res.string.tracking_detail_trip_insights))
             }
             FilledTonalButton(onClick = onOpenHwEvents, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.History, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Hardware events")
+                Text(stringResource(Res.string.tracking_detail_hardware_events_btn))
             }
             FilledTonalButton(onClick = onOpenRoutePoints, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Place, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Route points")
+                Text(stringResource(Res.string.tracking_detail_route_points))
             }
             FilledTonalButton(onClick = onOpenDataPreview, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.Analytics, null, Modifier.size(18.dp))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Data preview")
+                Text(stringResource(Res.string.tracking_detail_data_preview))
             }
         }
     }
@@ -335,7 +373,12 @@ private fun MetricTile(
 
 @Composable
 private fun DetailStatusChip(isSubmitted: Boolean) {
-    val label = if (isSubmitted) "Submitted" else "Saved"
+    val label =
+        if (isSubmitted) {
+            stringResource(Res.string.tracking_status_submitted)
+        } else {
+            stringResource(Res.string.tracking_status_saved)
+        }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -380,7 +423,7 @@ private fun AttachmentsCard(attachments: List<TripAttachmentEntity>) {
                 )
                 Spacer(Modifier.size(DesignTokens.Spacing.m))
                 Text(
-                    "Attachments",
+                    stringResource(Res.string.tracking_detail_attachments),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -389,16 +432,16 @@ private fun AttachmentsCard(attachments: List<TripAttachmentEntity>) {
             // Odometer proofs
             if (odoStart != null || odoEnd != null) {
                 Text(
-                    "Odometer proofs",
+                    stringResource(Res.string.tracking_detail_odometer_proofs),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     odoStart?.let { a ->
-                        OdometerProofTile(label = "Start", uri = a.uri, ocrText = a.ocrText)
+                        OdometerProofTile(label = stringResource(Res.string.tracking_detail_odo_start), uri = a.uri, ocrText = a.ocrText)
                     }
                     odoEnd?.let { a ->
-                        OdometerProofTile(label = "End", uri = a.uri, ocrText = a.ocrText)
+                        OdometerProofTile(label = stringResource(Res.string.tracking_detail_odo_end), uri = a.uri, ocrText = a.ocrText)
                     }
                 }
             }
@@ -406,7 +449,7 @@ private fun AttachmentsCard(attachments: List<TripAttachmentEntity>) {
             // Receipt thumbnails
             if (receipts.isNotEmpty()) {
                 Text(
-                    "Receipts (${receipts.size})",
+                    stringResource(Res.string.tracking_detail_receipts_count, receipts.size),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -418,7 +461,7 @@ private fun AttachmentsCard(attachments: List<TripAttachmentEntity>) {
                         Box(modifier = Modifier.size(80.dp)) {
                             AsyncImage(
                                 model = a.uri,
-                                contentDescription = "Receipt photo",
+                                contentDescription = stringResource(Res.string.tracking_cd_receipt_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier =
                                     Modifier
@@ -457,7 +500,7 @@ private fun OdometerProofTile(
         )
         AsyncImage(
             model = uri,
-            contentDescription = "$label odometer proof",
+            contentDescription = stringResource(Res.string.tracking_cd_odometer_proof, label),
             contentScale = ContentScale.Crop,
             modifier =
                 Modifier

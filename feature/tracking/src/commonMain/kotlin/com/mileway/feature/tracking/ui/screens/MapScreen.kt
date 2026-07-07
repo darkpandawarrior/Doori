@@ -128,6 +128,75 @@ import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.platform.AppPermission
 import com.mileway.core.platform.PermissionsProvider
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_close
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_center_map
+import com.mileway.core.ui.resources.tracking_cd_collapse
+import com.mileway.core.ui.resources.tracking_cd_collapse_markers
+import com.mileway.core.ui.resources.tracking_cd_expand
+import com.mileway.core.ui.resources.tracking_cd_expand_markers
+import com.mileway.core.ui.resources.tracking_cd_gps
+import com.mileway.core.ui.resources.tracking_cd_zoom_in
+import com.mileway.core.ui.resources.tracking_cd_zoom_out
+import com.mileway.core.ui.resources.tracking_map_cd_heading
+import com.mileway.core.ui.resources.tracking_map_confidence_high
+import com.mileway.core.ui.resources.tracking_map_confidence_low
+import com.mileway.core.ui.resources.tracking_map_confidence_medium
+import com.mileway.core.ui.resources.tracking_map_current_speed
+import com.mileway.core.ui.resources.tracking_map_data_quality
+import com.mileway.core.ui.resources.tracking_map_filters_unavailable
+import com.mileway.core.ui.resources.tracking_map_getting_location
+import com.mileway.core.ui.resources.tracking_map_grant_permissions
+import com.mileway.core.ui.resources.tracking_map_gyroscope
+import com.mileway.core.ui.resources.tracking_map_heatmap_legend
+import com.mileway.core.ui.resources.tracking_map_info_gps_desc
+import com.mileway.core.ui.resources.tracking_map_info_gps_title
+import com.mileway.core.ui.resources.tracking_map_info_gyro_desc
+import com.mileway.core.ui.resources.tracking_map_info_gyro_title
+import com.mileway.core.ui.resources.tracking_map_information
+import com.mileway.core.ui.resources.tracking_map_journey_controls
+import com.mileway.core.ui.resources.tracking_map_keep_active
+import com.mileway.core.ui.resources.tracking_map_layer_accuracy
+import com.mileway.core.ui.resources.tracking_map_layer_battery
+import com.mileway.core.ui.resources.tracking_map_layer_compass
+import com.mileway.core.ui.resources.tracking_map_layer_issues
+import com.mileway.core.ui.resources.tracking_map_layer_offline_tiles
+import com.mileway.core.ui.resources.tracking_map_layer_traffic
+import com.mileway.core.ui.resources.tracking_map_marker_default
+import com.mileway.core.ui.resources.tracking_map_marker_type
+import com.mileway.core.ui.resources.tracking_map_markers
+import com.mileway.core.ui.resources.tracking_map_overlays
+import com.mileway.core.ui.resources.tracking_map_pause
+import com.mileway.core.ui.resources.tracking_map_perm_location
+import com.mileway.core.ui.resources.tracking_map_perm_notification
+import com.mileway.core.ui.resources.tracking_map_permissions_required
+import com.mileway.core.ui.resources.tracking_map_play
+import com.mileway.core.ui.resources.tracking_map_playback_empty
+import com.mileway.core.ui.resources.tracking_map_playback_speed
+import com.mileway.core.ui.resources.tracking_map_playback_x
+import com.mileway.core.ui.resources.tracking_map_route_playback
+import com.mileway.core.ui.resources.tracking_map_setting_autocenter_desc
+import com.mileway.core.ui.resources.tracking_map_setting_autocenter_title
+import com.mileway.core.ui.resources.tracking_map_setting_bearing_desc
+import com.mileway.core.ui.resources.tracking_map_setting_bearing_title
+import com.mileway.core.ui.resources.tracking_map_setting_gyro_desc
+import com.mileway.core.ui.resources.tracking_map_setting_gyro_title
+import com.mileway.core.ui.resources.tracking_map_setting_orientation_desc
+import com.mileway.core.ui.resources.tracking_map_setting_orientation_title
+import com.mileway.core.ui.resources.tracking_map_settings
+import com.mileway.core.ui.resources.tracking_map_speed_heatmap
+import com.mileway.core.ui.resources.tracking_map_speed_legend
+import com.mileway.core.ui.resources.tracking_map_start
+import com.mileway.core.ui.resources.tracking_map_status_legend_text
+import com.mileway.core.ui.resources.tracking_map_status_legend_title
+import com.mileway.core.ui.resources.tracking_map_status_mode
+import com.mileway.core.ui.resources.tracking_map_status_paused
+import com.mileway.core.ui.resources.tracking_map_status_playback
+import com.mileway.core.ui.resources.tracking_map_status_recording
+import com.mileway.core.ui.resources.tracking_map_stop
+import com.mileway.core.ui.resources.tracking_map_stop_hint
+import com.mileway.core.ui.resources.tracking_map_tilt
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.LocalMapProvider
 import com.mileway.core.ui.theme.MapProvider
@@ -140,6 +209,7 @@ import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.abs
@@ -328,7 +398,7 @@ fun LocationMapScreen(
                 ) {
                     CircularProgressIndicator()
                     Text(
-                        text = "Getting your location...",
+                        text = stringResource(Res.string.tracking_map_getting_location),
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -371,7 +441,7 @@ fun PermissionRequestScreen(
                 )
 
                 Text(
-                    text = "Permissions Required",
+                    text = stringResource(Res.string.tracking_map_permissions_required),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -380,7 +450,7 @@ fun PermissionRequestScreen(
                 if (!hasLocationPermission) {
                     InfoRow(
                         icon = Icons.Default.MyLocation,
-                        text = "Location permission is needed to track your mileage.",
+                        text = stringResource(Res.string.tracking_map_perm_location),
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -388,7 +458,7 @@ fun PermissionRequestScreen(
                 if (!hasNotificationPermission) {
                     InfoRow(
                         icon = Icons.Default.Info,
-                        text = "Notification permission is needed for background tracking.",
+                        text = stringResource(Res.string.tracking_map_perm_notification),
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
@@ -397,7 +467,7 @@ fun PermissionRequestScreen(
                     onClick = onRequestPermissions,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Grant Permissions")
+                    Text(stringResource(Res.string.tracking_map_grant_permissions))
                 }
             }
         }
@@ -733,7 +803,7 @@ fun EnhancedLiveTrackingUI(
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = stringResource(Res.string.tracking_cd_back),
                 modifier = Modifier.size(28.dp),
             )
         }
@@ -773,9 +843,9 @@ fun MarkerInfoDialog(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(marker.title.ifEmpty { "Marker" }, style = MaterialTheme.typography.titleMedium)
-                Text("Type: ${marker.type}", style = MaterialTheme.typography.bodySmall)
-                Button(onClick = onDismiss) { Text("Close") }
+                Text(marker.title.ifEmpty { stringResource(Res.string.tracking_map_marker_default) }, style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(Res.string.tracking_map_marker_type, marker.type), style = MaterialTheme.typography.bodySmall)
+                Button(onClick = onDismiss) { Text(stringResource(Res.string.tracking_action_close)) }
             }
         }
     }
@@ -794,7 +864,7 @@ fun MarkerFilterChips(
 ) {
     // No-op stub for demo
     Text(
-        text = "Marker filters not available in demo",
+        text = stringResource(Res.string.tracking_map_filters_unavailable),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier.padding(8.dp),
@@ -808,7 +878,7 @@ fun MarkerFilterChips(
 @Composable
 fun HeatmapLegend() {
     Text(
-        text = "Speed heatmap legend",
+        text = stringResource(Res.string.tracking_map_heatmap_legend),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -817,7 +887,7 @@ fun HeatmapLegend() {
 @Composable
 fun StatusLegend() {
     Text(
-        text = "Status legend",
+        text = stringResource(Res.string.tracking_map_status_legend_text),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -865,7 +935,7 @@ fun EnhancedLiveIndicatorBadge(
         ) {
             Icon(
                 imageVector = Icons.Default.FiberManualRecord,
-                contentDescription = "Recording",
+                contentDescription = stringResource(Res.string.tracking_map_status_recording),
                 tint = Color.Red.copy(alpha = alpha),
                 modifier = Modifier.size(12.dp),
             )
@@ -888,7 +958,7 @@ fun EnhancedLiveIndicatorBadge(
 
             Icon(
                 imageVector = Icons.Default.GpsFixed,
-                contentDescription = "GPS",
+                contentDescription = stringResource(Res.string.tracking_cd_gps),
                 tint = gpsQuality.color,
                 modifier = Modifier.size(12.dp),
             )
@@ -914,9 +984,9 @@ fun BearingConfidenceIndicator(
 ) {
     val confidence =
         when {
-            accuracy <= 15 -> "High"
-            accuracy <= 45 -> "Medium"
-            else -> "Low"
+            accuracy <= 15 -> stringResource(Res.string.tracking_map_confidence_high)
+            accuracy <= 45 -> stringResource(Res.string.tracking_map_confidence_medium)
+            else -> stringResource(Res.string.tracking_map_confidence_low)
         }
 
     val color =
@@ -1001,7 +1071,7 @@ fun GyroscopeVisualization(
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(
-                text = "Gyroscope",
+                text = stringResource(Res.string.tracking_map_gyroscope),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -1013,7 +1083,7 @@ fun GyroscopeVisualization(
 
             val tiltMagnitude = sqrt(gyroscopeX * gyroscopeX + gyroscopeY * gyroscopeY + gyroscopeZ * gyroscopeZ)
             Text(
-                text = "Tilt: ${kotlin.math.round(tiltMagnitude * 100).toLong() / 100.0}°/s",
+                text = stringResource(Res.string.tracking_map_tilt, (kotlin.math.round(tiltMagnitude * 100).toLong() / 100.0).toString()),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -1091,7 +1161,7 @@ fun PlaybackIndicator(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Playback ${playbackSpeed}x",
+                    text = stringResource(Res.string.tracking_map_playback_x, playbackSpeed.toString()),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -1215,7 +1285,7 @@ fun EnhancedCompactLiveStatsCard(
             ) {
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "Current Speed",
+                        text = stringResource(Res.string.tracking_map_current_speed),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -1330,7 +1400,7 @@ fun DataQualityIndicator(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "Data Quality",
+            text = stringResource(Res.string.tracking_map_data_quality),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -1385,7 +1455,7 @@ private fun LiveMapControlCluster(
                     pressedElevation = 8.dp,
                 ),
         ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "Zoom In")
+            Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(Res.string.tracking_cd_zoom_in))
         }
 
         SmallFloatingActionButton(
@@ -1398,7 +1468,7 @@ private fun LiveMapControlCluster(
                     pressedElevation = 8.dp,
                 ),
         ) {
-            Icon(imageVector = Icons.Default.MyLocation, contentDescription = "Center Map")
+            Icon(imageVector = Icons.Default.MyLocation, contentDescription = stringResource(Res.string.tracking_cd_center_map))
         }
 
         SmallFloatingActionButton(
@@ -1411,7 +1481,7 @@ private fun LiveMapControlCluster(
                     pressedElevation = 8.dp,
                 ),
         ) {
-            Icon(imageVector = Icons.Default.Remove, contentDescription = "Zoom Out")
+            Icon(imageVector = Icons.Default.Remove, contentDescription = stringResource(Res.string.tracking_cd_zoom_out))
         }
     }
 }
@@ -1653,7 +1723,7 @@ fun CompactLiveControlHeader(
     ) {
         Icon(
             imageVector = Icons.Default.ExpandLess,
-            contentDescription = if (isExpanded) "Collapse" else "Expand",
+            contentDescription = if (isExpanded) stringResource(Res.string.tracking_cd_collapse) else stringResource(Res.string.tracking_cd_expand),
             modifier =
                 Modifier
                     .size(28.dp)
@@ -1688,9 +1758,9 @@ fun CompactLiveControlHeader(
             Text(
                 text =
                     when {
-                        isPlayingBack -> "Playback"
-                        isTracking -> "Recording"
-                        else -> "Paused"
+                        isPlayingBack -> stringResource(Res.string.tracking_map_status_playback)
+                        isTracking -> stringResource(Res.string.tracking_map_status_recording)
+                        else -> stringResource(Res.string.tracking_map_status_paused)
                     },
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
@@ -1713,7 +1783,7 @@ fun CompactLiveControlHeader(
             ) {
                 Icon(
                     imageVector = if (isTracking) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isTracking) "Pause" else "Start",
+                    contentDescription = if (isTracking) stringResource(Res.string.tracking_map_pause) else stringResource(Res.string.tracking_map_start),
                     tint = if (isTracking) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(if (isSmallScreen) 20.dp else 24.dp),
                 )
@@ -1737,7 +1807,7 @@ fun LiveJourneyTab(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "Journey Controls",
+            text = stringResource(Res.string.tracking_map_journey_controls),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -1760,13 +1830,13 @@ fun LiveJourneyTab(
                 modifier = Modifier.size(20.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(if (isTracking) "Pause" else "Start", fontWeight = FontWeight.Bold)
+            Text(if (isTracking) stringResource(Res.string.tracking_map_pause) else stringResource(Res.string.tracking_map_start), fontWeight = FontWeight.Bold)
         }
 
         HorizontalDivider()
 
         Text(
-            text = "Keep your phone active for accurate tracking. Background tracking is enabled, but some devices may require additional optimization settings.",
+            text = stringResource(Res.string.tracking_map_keep_active),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -1775,7 +1845,7 @@ fun LiveJourneyTab(
         HorizontalDivider()
 
         Text(
-            text = "To stop tracking, use the back button or notification controls.",
+            text = stringResource(Res.string.tracking_map_stop_hint),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
@@ -1825,14 +1895,14 @@ fun LiveLayersTab(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Map Overlays",
+                text = stringResource(Res.string.tracking_map_overlays),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
             )
             Icon(
                 imageVector = if (overlaysExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (overlaysExpanded) "Collapse" else "Expand",
+                contentDescription = if (overlaysExpanded) stringResource(Res.string.tracking_cd_collapse) else stringResource(Res.string.tracking_cd_expand),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
@@ -1899,7 +1969,7 @@ private fun LiveLayersInnerContent(
             onClick = { onToggleSpeedHeatmap(!speedHeatmap) },
             label = {
                 Text(
-                    if (speedHeatmap) "Speed Heatmap" else "Status Mode",
+                    if (speedHeatmap) stringResource(Res.string.tracking_map_speed_heatmap) else stringResource(Res.string.tracking_map_status_mode),
                     style = MaterialTheme.typography.labelLarge,
                 )
             },
@@ -1920,7 +1990,7 @@ private fun LiveLayersInnerContent(
         FilterChip(
             selected = showAccuracy,
             onClick = { onToggleAccuracy(!showAccuracy) },
-            label = { Text("Accuracy", style = MaterialTheme.typography.labelLarge) },
+            label = { Text(stringResource(Res.string.tracking_map_layer_accuracy), style = MaterialTheme.typography.labelLarge) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.GpsFixed,
@@ -1938,7 +2008,7 @@ private fun LiveLayersInnerContent(
         FilterChip(
             selected = showBattery,
             onClick = { onToggleBattery(!showBattery) },
-            label = { Text("Battery", style = MaterialTheme.typography.labelLarge) },
+            label = { Text(stringResource(Res.string.tracking_map_layer_battery), style = MaterialTheme.typography.labelLarge) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.BatteryFull,
@@ -1956,7 +2026,7 @@ private fun LiveLayersInnerContent(
         FilterChip(
             selected = showIssues,
             onClick = { onToggleIssues(!showIssues) },
-            label = { Text("Issues", style = MaterialTheme.typography.labelLarge) },
+            label = { Text(stringResource(Res.string.tracking_map_layer_issues), style = MaterialTheme.typography.labelLarge) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Info,
@@ -1974,7 +2044,7 @@ private fun LiveLayersInnerContent(
         FilterChip(
             selected = showOfflineTiles,
             onClick = { onToggleOfflineTiles(!showOfflineTiles) },
-            label = { Text("Offline Tiles", style = MaterialTheme.typography.labelLarge) },
+            label = { Text(stringResource(Res.string.tracking_map_layer_offline_tiles), style = MaterialTheme.typography.labelLarge) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Layers,
@@ -1992,7 +2062,7 @@ private fun LiveLayersInnerContent(
         FilterChip(
             selected = showCompass,
             onClick = { onToggleCompass(!showCompass) },
-            label = { Text("Compass", style = MaterialTheme.typography.labelLarge) },
+            label = { Text(stringResource(Res.string.tracking_map_layer_compass), style = MaterialTheme.typography.labelLarge) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.MyLocation,
@@ -2010,7 +2080,7 @@ private fun LiveLayersInnerContent(
         FilterChip(
             selected = showTraffic,
             onClick = { onToggleTraffic(!showTraffic) },
-            label = { Text("Traffic", style = MaterialTheme.typography.labelLarge) },
+            label = { Text(stringResource(Res.string.tracking_map_layer_traffic), style = MaterialTheme.typography.labelLarge) },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Route,
@@ -2030,7 +2100,7 @@ private fun LiveLayersInnerContent(
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = if (speedHeatmap) "Speed Legend" else "Status Legend",
+            text = if (speedHeatmap) stringResource(Res.string.tracking_map_speed_legend) else stringResource(Res.string.tracking_map_status_legend_title),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -2057,14 +2127,21 @@ private fun LiveLayersInnerContent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = "Map Markers",
+            text = stringResource(Res.string.tracking_map_markers),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Icon(
             imageVector = if (markerFiltersExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-            contentDescription = if (markerFiltersExpanded) "Collapse markers" else "Expand markers",
+            contentDescription =
+                if (markerFiltersExpanded) {
+                    stringResource(
+                        Res.string.tracking_cd_collapse_markers,
+                    )
+                } else {
+                    stringResource(Res.string.tracking_cd_expand_markers)
+                },
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
@@ -2102,36 +2179,36 @@ fun EnhancedLiveSettingsTab(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "Tracking Settings",
+            text = stringResource(Res.string.tracking_map_settings),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
 
         SettingCard(
-            title = "Auto-Center Map",
-            description = "Automatically center map on current location while tracking",
+            title = stringResource(Res.string.tracking_map_setting_autocenter_title),
+            description = stringResource(Res.string.tracking_map_setting_autocenter_desc),
             enabled = autoCenterEnabled,
             onToggle = onToggleAutoCenter,
         )
 
         SettingCard(
-            title = "Gyroscope Visualization",
-            description = "Show real-time gyroscope data and device tilt",
+            title = stringResource(Res.string.tracking_map_setting_gyro_title),
+            description = stringResource(Res.string.tracking_map_setting_gyro_desc),
             enabled = showGyroscope,
             onToggle = onToggleGyroscope,
         )
 
         SettingCard(
-            title = "Bearing Confidence",
-            description = "Display GPS bearing accuracy indicator",
+            title = stringResource(Res.string.tracking_map_setting_bearing_title),
+            description = stringResource(Res.string.tracking_map_setting_bearing_desc),
             enabled = showBearingConfidence,
             onToggle = onToggleBearingConfidence,
         )
 
         SettingCard(
-            title = "Device Orientation",
-            description = "Show if device is mounted or handheld",
+            title = stringResource(Res.string.tracking_map_setting_orientation_title),
+            description = stringResource(Res.string.tracking_map_setting_orientation_desc),
             enabled = showOrientation,
             onToggle = onToggleOrientation,
         )
@@ -2139,7 +2216,7 @@ fun EnhancedLiveSettingsTab(
         HorizontalDivider()
 
         Text(
-            text = "Information",
+            text = stringResource(Res.string.tracking_map_information),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -2147,14 +2224,14 @@ fun EnhancedLiveSettingsTab(
 
         InfoCard(
             icon = Icons.Default.GpsFixed,
-            title = "GPS & Bearing",
-            description = "Direction marker uses GPS bearing and compass data for accurate heading with sub-degree precision when available.",
+            title = stringResource(Res.string.tracking_map_info_gps_title),
+            description = stringResource(Res.string.tracking_map_info_gps_desc),
         )
 
         InfoCard(
             icon = Icons.Default.PhoneAndroid,
-            title = "Gyroscope Data",
-            description = "Gyroscope sensors detect device tilt and orientation, helping identify if your phone is mounted or handheld.",
+            title = stringResource(Res.string.tracking_map_info_gyro_title),
+            description = stringResource(Res.string.tracking_map_info_gyro_desc),
         )
     }
 }
@@ -2227,7 +2304,7 @@ fun LivePlaybackTab(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            text = "Route Playback",
+            text = stringResource(Res.string.tracking_map_route_playback),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
@@ -2235,7 +2312,7 @@ fun LivePlaybackTab(
 
         if (locationPoints.isEmpty()) {
             Text(
-                text = "Start tracking to enable playback",
+                text = stringResource(Res.string.tracking_map_playback_empty),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -2264,7 +2341,7 @@ fun LivePlaybackTab(
                             modifier = Modifier.size(20.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Play", fontWeight = FontWeight.Bold)
+                        Text(stringResource(Res.string.tracking_map_play), fontWeight = FontWeight.Bold)
                     }
                 } else {
                     Button(
@@ -2284,7 +2361,7 @@ fun LivePlaybackTab(
                             modifier = Modifier.size(20.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Pause", fontWeight = FontWeight.Bold)
+                        Text(stringResource(Res.string.tracking_map_pause), fontWeight = FontWeight.Bold)
                     }
                 }
 
@@ -2306,7 +2383,7 @@ fun LivePlaybackTab(
                             modifier = Modifier.size(20.dp),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Stop", fontWeight = FontWeight.Bold)
+                        Text(stringResource(Res.string.tracking_map_stop), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -2341,7 +2418,7 @@ fun LivePlaybackTab(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Playback Speed",
+                        text = stringResource(Res.string.tracking_map_playback_speed),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -2523,7 +2600,7 @@ private fun HeadingArrow(
     val rotation = remember(bearing) { LiveMapOverlayData.headingRotationDegrees(bearing) }
     Icon(
         imageVector = Icons.Default.MyLocation,
-        contentDescription = "Heading ${rotation.toInt()}°",
+        contentDescription = stringResource(Res.string.tracking_map_cd_heading, rotation.toInt()),
         tint = MaterialTheme.colorScheme.primary,
         modifier = modifier.size(16.dp).rotate(rotation),
     )

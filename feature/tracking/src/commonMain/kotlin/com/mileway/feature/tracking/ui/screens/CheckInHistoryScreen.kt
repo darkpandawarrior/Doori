@@ -63,12 +63,27 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_geo_checkin
+import com.mileway.core.ui.resources.tracking_cd_manual_checkin
+import com.mileway.core.ui.resources.tracking_history_copy_coords
+import com.mileway.core.ui.resources.tracking_history_empty_none
+import com.mileway.core.ui.resources.tracking_history_empty_none_hint
+import com.mileway.core.ui.resources.tracking_history_empty_query
+import com.mileway.core.ui.resources.tracking_history_empty_query_hint
+import com.mileway.core.ui.resources.tracking_history_search_placeholder
+import com.mileway.core.ui.resources.tracking_history_subtitle
+import com.mileway.core.ui.resources.tracking_history_title
+import com.mileway.core.ui.resources.tracking_history_type_geo
+import com.mileway.core.ui.resources.tracking_history_type_manual
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Instant
 
 /**
@@ -152,14 +167,14 @@ fun CheckInHistoryScreen(
         modifier = modifier,
         topBar = {
             DepthAwareTopBar(
-                title = "Check-In History",
-                subtitle = "All office & client visits",
+                title = stringResource(Res.string.tracking_history_title),
+                subtitle = stringResource(Res.string.tracking_history_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
                         )
                     }
                 },
@@ -215,7 +230,7 @@ private fun SearchField(
                     horizontal = DesignTokens.Spacing.screenHorizontal,
                     vertical = DesignTokens.Spacing.s,
                 ),
-        placeholder = { Text("Search history") },
+        placeholder = { Text(stringResource(Res.string.tracking_history_search_placeholder)) },
         leadingIcon = {
             Icon(imageVector = Icons.Filled.Search, contentDescription = null)
         },
@@ -520,7 +535,14 @@ private fun TypeChip(
     accent: androidx.compose.ui.graphics.Color,
     modifier: Modifier = Modifier,
 ) {
-    val label = type.ifBlank { if (isManual) "Manual" else "Geo" }
+    val label =
+        type.ifBlank {
+            if (isManual) {
+                stringResource(Res.string.tracking_history_type_manual)
+            } else {
+                stringResource(Res.string.tracking_history_type_geo)
+            }
+        }
     Row(
         modifier =
             modifier
@@ -532,7 +554,7 @@ private fun TypeChip(
     ) {
         Icon(
             imageVector = if (isManual) Icons.Filled.EditLocationAlt else Icons.Filled.MyLocation,
-            contentDescription = if (isManual) "Manual check-in" else "Geo check-in",
+            contentDescription = if (isManual) stringResource(Res.string.tracking_cd_manual_checkin) else stringResource(Res.string.tracking_cd_geo_checkin),
             tint = accent,
             modifier = Modifier.size(14.dp),
         )
@@ -584,7 +606,7 @@ private fun ExpandedDetails(
                 modifier = Modifier.size(DesignTokens.IconSize.inline),
             )
             Spacer(Modifier.width(DesignTokens.Spacing.s))
-            Text("Copy coordinates")
+            Text(stringResource(Res.string.tracking_history_copy_coords))
         }
     }
 }
@@ -671,7 +693,7 @@ private fun EmptyHistoryState(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             Text(
-                text = if (hasQuery) "No matching check-ins" else "No check-in history yet",
+                text = if (hasQuery) stringResource(Res.string.tracking_history_empty_query) else stringResource(Res.string.tracking_history_empty_none),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -680,9 +702,9 @@ private fun EmptyHistoryState(
             Text(
                 text =
                     if (hasQuery) {
-                        "Try a different search or time range."
+                        stringResource(Res.string.tracking_history_empty_query_hint)
                     } else {
-                        "Your geo and manual check-ins will appear here."
+                        stringResource(Res.string.tracking_history_empty_none_hint)
                     },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -66,11 +66,21 @@ import com.mileway.core.data.util.DateUtils
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_cd_clear
+import com.mileway.core.ui.resources.tracking_hw_export_prompt
+import com.mileway.core.ui.resources.tracking_hw_export_title
+import com.mileway.core.ui.resources.tracking_hw_no_events
+import com.mileway.core.ui.resources.tracking_hw_search_placeholder
+import com.mileway.core.ui.resources.tracking_hw_subtitle
+import com.mileway.core.ui.resources.tracking_hw_title_count
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.tracking.viewmodel.HardwareEventsAction
 import com.mileway.feature.tracking.viewmodel.HardwareEventsViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -98,10 +108,10 @@ fun HardwareEventsLogScreen(
     if (showExportDialog) {
         AppActionSheet(
             onDismiss = { showExportDialog = false },
-            title = "Export events",
+            title = stringResource(Res.string.tracking_hw_export_title),
         ) {
             Text(
-                "Choose a format for the ${events.size} visible events:",
+                stringResource(Res.string.tracking_hw_export_prompt, events.size),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -145,17 +155,20 @@ fun HardwareEventsLogScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             DepthAwareTopBar(
-                title = "Hardware Events (${stats.totalCount})",
-                subtitle = "Sensor & motion event log",
+                title = stringResource(Res.string.tracking_hw_title_count, stats.totalCount),
+                subtitle = stringResource(Res.string.tracking_hw_subtitle),
                 depth = NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
                 actions = {
                     IconButton(onClick = { showExportDialog = true }, enabled = events.isNotEmpty()) {
-                        Icon(Icons.Default.FileDownload, contentDescription = "Export events")
+                        Icon(Icons.Default.FileDownload, contentDescription = stringResource(Res.string.tracking_hw_export_title))
                     }
                 },
             )
@@ -166,12 +179,12 @@ fun HardwareEventsLogScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onAction(HardwareEventsAction.SetSearchQuery(it)) },
-                placeholder = { Text("Search events…") },
+                placeholder = { Text(stringResource(Res.string.tracking_hw_search_placeholder)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
                     if (searchQuery.isNotBlank()) {
                         IconButton(onClick = { viewModel.onAction(HardwareEventsAction.SetSearchQuery("")) }) {
-                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                            Icon(Icons.Default.Clear, contentDescription = stringResource(Res.string.tracking_cd_clear))
                         }
                     }
                 },
@@ -206,7 +219,7 @@ fun HardwareEventsLogScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(8.dp))
-                        Text("No events found", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(Res.string.tracking_hw_no_events), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {

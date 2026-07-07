@@ -38,7 +38,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.CollapsibleSectionCard
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_settings_auto_pause
+import com.mileway.core.ui.resources.tracking_settings_auto_pause_desc
+import com.mileway.core.ui.resources.tracking_settings_background_network
+import com.mileway.core.ui.resources.tracking_settings_force_gps
+import com.mileway.core.ui.resources.tracking_settings_force_gps_desc
+import com.mileway.core.ui.resources.tracking_settings_gps_accuracy
+import com.mileway.core.ui.resources.tracking_settings_location_interval
+import com.mileway.core.ui.resources.tracking_settings_min_accuracy
+import com.mileway.core.ui.resources.tracking_settings_min_displacement
+import com.mileway.core.ui.resources.tracking_settings_provider
+import com.mileway.core.ui.resources.tracking_settings_smart_pause
+import com.mileway.core.ui.resources.tracking_settings_subtitle
+import com.mileway.core.ui.resources.tracking_settings_title
+import com.mileway.core.ui.resources.tracking_settings_update_interval
+import com.mileway.core.ui.resources.tracking_settings_upload_background
+import com.mileway.core.ui.resources.tracking_settings_upload_background_desc
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,12 +72,15 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Settings",
-                subtitle = "Tracking configuration",
+                title = stringResource(Res.string.tracking_settings_title),
+                subtitle = stringResource(Res.string.tracking_settings_subtitle),
                 depth = DesignTokens.NavigationDepth.LEVEL_2,
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(Res.string.tracking_cd_back),
+                        )
                     }
                 },
             )
@@ -74,12 +96,12 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
         ) {
             CollapsibleSectionCard(
-                title = "GPS Accuracy",
+                title = stringResource(Res.string.tracking_settings_gps_accuracy),
                 leadingIcon = Icons.Filled.GpsFixed,
                 initiallyExpanded = true,
             ) {
                 SettingSliderRow(
-                    label = "Min accuracy threshold",
+                    label = stringResource(Res.string.tracking_settings_min_accuracy),
                     value = gpsAccuracy,
                     onValueChange = { gpsAccuracy = it },
                     valueRange = 10f..100f,
@@ -88,12 +110,12 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
             }
 
             CollapsibleSectionCard(
-                title = "Location Interval",
+                title = stringResource(Res.string.tracking_settings_location_interval),
                 leadingIcon = Icons.Filled.Timeline,
                 initiallyExpanded = true,
             ) {
                 SettingSliderRow(
-                    label = "Update interval",
+                    label = stringResource(Res.string.tracking_settings_update_interval),
                     value = locationInterval,
                     onValueChange = { locationInterval = it },
                     valueRange = 5f..60f,
@@ -101,7 +123,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                 )
                 Spacer(Modifier.height(DesignTokens.Spacing.m))
                 SettingSliderRow(
-                    label = "Min displacement before recording",
+                    label = stringResource(Res.string.tracking_settings_min_displacement),
                     value = distanceThreshold,
                     onValueChange = { distanceThreshold = it },
                     valueRange = 5f..50f,
@@ -110,13 +132,13 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
             }
 
             CollapsibleSectionCard(
-                title = "Background & Network",
+                title = stringResource(Res.string.tracking_settings_background_network),
                 leadingIcon = Icons.Filled.Wifi,
                 initiallyExpanded = true,
             ) {
                 SettingToggleRow(
-                    label = "Upload in background",
-                    description = "Sync tracking data when app is in background",
+                    label = stringResource(Res.string.tracking_settings_upload_background),
+                    description = stringResource(Res.string.tracking_settings_upload_background_desc),
                     icon = Icons.Filled.BatteryFull,
                     checked = uploadInBackground,
                     onCheckedChange = { uploadInBackground = it },
@@ -124,13 +146,13 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
             }
 
             CollapsibleSectionCard(
-                title = "Smart Pause",
+                title = stringResource(Res.string.tracking_settings_smart_pause),
                 leadingIcon = Icons.Filled.Pause,
                 initiallyExpanded = true,
             ) {
                 SettingToggleRow(
-                    label = "Auto-pause detection",
-                    description = "Pauses when speed < 2 km/h for 3+ minutes",
+                    label = stringResource(Res.string.tracking_settings_auto_pause),
+                    description = stringResource(Res.string.tracking_settings_auto_pause_desc),
                     icon = Icons.Filled.Pause,
                     checked = autoPauseDetection,
                     onCheckedChange = { autoPauseDetection = it },
@@ -138,13 +160,13 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
             }
 
             CollapsibleSectionCard(
-                title = "Provider",
+                title = stringResource(Res.string.tracking_settings_provider),
                 leadingIcon = Icons.Filled.Settings,
                 initiallyExpanded = true,
             ) {
                 SettingToggleRow(
-                    label = "Force GPS only",
-                    description = "Disable network/fused provider (GPS only)",
+                    label = stringResource(Res.string.tracking_settings_force_gps),
+                    description = stringResource(Res.string.tracking_settings_force_gps_desc),
                     icon = Icons.Filled.GpsFixed,
                     checked = forceGpsOnly,
                     onCheckedChange = { forceGpsOnly = it },
