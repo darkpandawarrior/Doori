@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
@@ -38,6 +39,7 @@ import com.mileway.core.ui.resources.logging_no_vouchers_subtitle
 import com.mileway.core.ui.resources.logging_no_vouchers_title
 import com.mileway.core.ui.resources.logging_search_vouchers_placeholder
 import com.mileway.core.ui.resources.logging_voucher_actions_cd
+import com.mileway.core.ui.resources.logging_voucher_history_subtitle
 import com.mileway.core.ui.resources.logging_voucher_history_title
 import com.mileway.core.ui.resources.logging_voucher_status_approved
 import com.mileway.core.ui.resources.logging_voucher_status_draft
@@ -65,6 +67,8 @@ fun VoucherHistoryScreen(
 
     HistoryListScaffold(
         title = stringResource(Res.string.logging_voucher_history_title),
+        subtitle = stringResource(Res.string.logging_voucher_history_subtitle),
+        titleIcon = Icons.Filled.ConfirmationNumber,
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(VoucherHistoryAction.Refresh) },

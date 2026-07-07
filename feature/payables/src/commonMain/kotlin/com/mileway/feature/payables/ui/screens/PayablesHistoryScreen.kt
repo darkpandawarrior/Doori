@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +35,7 @@ import com.mileway.core.ui.resources.payables_filter_all
 import com.mileway.core.ui.resources.payables_history_empty_subtitle
 import com.mileway.core.ui.resources.payables_history_empty_title
 import com.mileway.core.ui.resources.payables_history_search_placeholder
+import com.mileway.core.ui.resources.payables_history_subtitle
 import com.mileway.core.ui.resources.payables_history_title
 import com.mileway.feature.payables.model.PayablesDoc
 import com.mileway.feature.payables.model.PayablesDocStatus
@@ -61,6 +64,8 @@ fun PayablesHistoryScreen(
         state = ui.list,
         onRetry = { viewModel.onAction(PayablesHistoryAction.Refresh) },
         modifier = modifier,
+        subtitle = stringResource(Res.string.payables_history_subtitle),
+        titleIcon = Icons.Filled.Receipt,
         tabs = PAYABLES_HISTORY_TABS.map { it?.localizedLabel() ?: stringResource(Res.string.payables_filter_all) },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(PayablesHistoryAction.SelectTab(it)) },

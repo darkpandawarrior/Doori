@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +28,7 @@ import com.mileway.core.ui.resources.payables_invoice_field_vendor
 import com.mileway.core.ui.resources.payables_invoice_section_amount
 import com.mileway.core.ui.resources.payables_invoice_section_invoice
 import com.mileway.core.ui.resources.payables_invoice_submit
+import com.mileway.core.ui.resources.payables_invoice_subtitle
 import com.mileway.core.ui.resources.payables_invoice_title
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
@@ -66,9 +70,12 @@ fun CreateInvoiceScreen(
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateInvoiceAction.Submit) },
         modifier = modifier,
+        subtitle = stringResource(Res.string.payables_invoice_subtitle),
+        titleIcon = Icons.Filled.Receipt,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = stringResource(Res.string.payables_invoice_submit),
+        submitIcon = Icons.AutoMirrored.Filled.Send,
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.payables_invoice_section_invoice), leadingIcon = null) {

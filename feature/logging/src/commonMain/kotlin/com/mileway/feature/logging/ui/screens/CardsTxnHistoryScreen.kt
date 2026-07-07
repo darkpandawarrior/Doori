@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +23,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_card_status_disputed
 import com.mileway.core.ui.resources.logging_card_status_reconciled
 import com.mileway.core.ui.resources.logging_card_status_unreconciled
+import com.mileway.core.ui.resources.logging_card_transactions_subtitle
 import com.mileway.core.ui.resources.logging_card_transactions_title
 import com.mileway.core.ui.resources.logging_filter_all
 import com.mileway.core.ui.resources.logging_no_transactions_subtitle
@@ -44,6 +47,8 @@ fun CardsTxnHistoryScreen(
 
     HistoryListScaffold(
         title = stringResource(Res.string.logging_card_transactions_title),
+        subtitle = stringResource(Res.string.logging_card_transactions_subtitle),
+        titleIcon = Icons.Filled.CreditCard,
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(CardsTxnHistoryAction.Refresh) },

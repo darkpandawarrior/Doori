@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -17,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_create_hotel_subtitle
 import com.mileway.core.ui.resources.travel_guests_required
 import com.mileway.feature.travel.viewmodel.CreateHotelAction
 import com.mileway.feature.travel.viewmodel.CreateHotelViewModel
@@ -39,12 +43,15 @@ fun CreateHotelScreen(
 
     FormSubmissionScaffold(
         title = "Add Hotel",
+        subtitle = stringResource(Res.string.travel_create_hotel_subtitle),
+        titleIcon = Icons.Filled.Hotel,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateHotelAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = "Request hotel",
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
             SectionCard(title = "Stay", leadingIcon = null) {

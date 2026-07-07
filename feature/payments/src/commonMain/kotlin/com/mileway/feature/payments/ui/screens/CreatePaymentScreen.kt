@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.payments_create_subtitle
 import com.mileway.core.ui.resources.payments_create_title
 import com.mileway.core.ui.resources.payments_field_amount
 import com.mileway.core.ui.resources.payments_field_counterparty
@@ -75,12 +77,15 @@ fun CreatePaymentScreen(
 
     FormSubmissionScaffold(
         title = stringResource(Res.string.payments_create_title),
+        subtitle = stringResource(Res.string.payments_create_subtitle),
+        titleIcon = Icons.Filled.Payments,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreatePaymentAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = ui.direction.localizedLabel(),
+        submitIcon = Icons.AutoMirrored.Filled.Send,
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.payments_section_mode), leadingIcon = null) {

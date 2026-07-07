@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +28,7 @@ import com.mileway.core.ui.resources.payables_gin_field_warehouse
 import com.mileway.core.ui.resources.payables_gin_section_goods
 import com.mileway.core.ui.resources.payables_gin_section_receipt
 import com.mileway.core.ui.resources.payables_gin_submit
+import com.mileway.core.ui.resources.payables_gin_subtitle
 import com.mileway.core.ui.resources.payables_gin_title
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
@@ -66,9 +70,12 @@ fun CreateGinScreen(
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateGinAction.Submit) },
         modifier = modifier,
+        subtitle = stringResource(Res.string.payables_gin_subtitle),
+        titleIcon = Icons.Filled.LocalShipping,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = stringResource(Res.string.payables_gin_submit),
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.payables_gin_section_receipt), leadingIcon = null) {

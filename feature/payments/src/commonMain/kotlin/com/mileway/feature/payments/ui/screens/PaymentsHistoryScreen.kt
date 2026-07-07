@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,6 +24,7 @@ import com.mileway.core.ui.resources.payments_direction_pay
 import com.mileway.core.ui.resources.payments_direction_request
 import com.mileway.core.ui.resources.payments_empty_subtitle
 import com.mileway.core.ui.resources.payments_empty_title
+import com.mileway.core.ui.resources.payments_history_subtitle
 import com.mileway.core.ui.resources.payments_history_title
 import com.mileway.core.ui.resources.payments_search_placeholder
 import com.mileway.core.ui.resources.payments_status_completed
@@ -49,6 +52,8 @@ fun PaymentsHistoryScreen(
     val allLabel = stringResource(Res.string.payments_tab_all)
     HistoryListScaffold(
         title = stringResource(Res.string.payments_history_title),
+        subtitle = stringResource(Res.string.payments_history_subtitle),
+        titleIcon = Icons.Filled.Payments,
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(PaymentsHistoryAction.Refresh) },

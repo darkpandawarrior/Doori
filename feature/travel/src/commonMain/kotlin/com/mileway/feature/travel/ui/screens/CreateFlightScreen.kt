@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_create_flight_subtitle
 import com.mileway.feature.travel.viewmodel.CreateFlightAction
 import com.mileway.feature.travel.viewmodel.CreateFlightViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val CABIN_CLASSES = listOf("Economy", "Premium", "Business")
@@ -33,12 +39,15 @@ fun CreateFlightScreen(
 
     FormSubmissionScaffold(
         title = "Add Flight",
+        subtitle = stringResource(Res.string.travel_create_flight_subtitle),
+        titleIcon = Icons.Filled.Flight,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateFlightAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = "Request flight",
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
             SectionCard(title = "Route", leadingIcon = null) {

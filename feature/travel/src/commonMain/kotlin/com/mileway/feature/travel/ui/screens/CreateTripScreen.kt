@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CardTravel
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -16,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_create_trip_subtitle
 import com.mileway.core.ui.resources.travel_request_advance
 import com.mileway.feature.travel.viewmodel.CreateTripAction
 import com.mileway.feature.travel.viewmodel.CreateTripViewModel
@@ -36,12 +40,15 @@ fun CreateTripScreen(
 
     FormSubmissionScaffold(
         title = "Create Trip",
+        subtitle = stringResource(Res.string.travel_create_trip_subtitle),
+        titleIcon = Icons.Filled.CardTravel,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateTripAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = "Submit trip",
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
             SectionCard(title = "Trip", leadingIcon = null) {

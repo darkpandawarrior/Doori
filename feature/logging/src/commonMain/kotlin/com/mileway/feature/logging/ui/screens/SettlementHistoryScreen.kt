@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,6 +27,7 @@ import com.mileway.core.ui.resources.logging_plural_items
 import com.mileway.core.ui.resources.logging_settlement_status_pending
 import com.mileway.core.ui.resources.logging_settlement_status_processing
 import com.mileway.core.ui.resources.logging_settlement_status_settled
+import com.mileway.core.ui.resources.logging_settlements_subtitle
 import com.mileway.core.ui.resources.logging_settlements_title
 import com.mileway.feature.logging.repository.SettlementRecord
 import com.mileway.feature.logging.repository.SettlementStatus
@@ -46,6 +49,8 @@ fun SettlementHistoryScreen(
 
     HistoryListScaffold(
         title = stringResource(Res.string.logging_settlements_title),
+        subtitle = stringResource(Res.string.logging_settlements_subtitle),
+        titleIcon = Icons.Filled.ReceiptLong,
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(SettlementHistoryAction.Refresh) },

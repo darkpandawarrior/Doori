@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +23,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.events_attendees_count
 import com.mileway.core.ui.resources.events_empty_subtitle
 import com.mileway.core.ui.resources.events_empty_title
+import com.mileway.core.ui.resources.events_history_subtitle
 import com.mileway.core.ui.resources.events_history_title
 import com.mileway.core.ui.resources.events_search_placeholder
 import com.mileway.core.ui.resources.events_status_cancelled
@@ -48,6 +51,8 @@ fun EventsHistoryScreen(
     val allLabel = stringResource(Res.string.events_tab_all)
     HistoryListScaffold(
         title = stringResource(Res.string.events_history_title),
+        subtitle = stringResource(Res.string.events_history_subtitle),
+        titleIcon = Icons.Filled.Event,
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(EventsHistoryAction.Refresh) },

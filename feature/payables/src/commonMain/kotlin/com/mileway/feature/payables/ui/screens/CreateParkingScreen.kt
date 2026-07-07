@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -28,6 +31,7 @@ import com.mileway.core.ui.resources.payables_parking_section_direction
 import com.mileway.core.ui.resources.payables_parking_section_reference
 import com.mileway.core.ui.resources.payables_parking_section_vehicle
 import com.mileway.core.ui.resources.payables_parking_submit
+import com.mileway.core.ui.resources.payables_parking_subtitle
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.payables.repository.ParkMode
@@ -69,9 +73,12 @@ fun CreateParkingScreen(
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateParkingAction.Submit) },
         modifier = modifier,
+        subtitle = stringResource(Res.string.payables_parking_subtitle),
+        titleIcon = Icons.Filled.LocalShipping,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = stringResource(Res.string.payables_parking_submit, ui.mode.localizedLabel().lowercase()),
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.payables_parking_section_direction), leadingIcon = null) {

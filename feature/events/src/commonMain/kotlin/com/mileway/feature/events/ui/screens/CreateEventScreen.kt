@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.OutlinedTextField
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.events_create_subtitle
 import com.mileway.core.ui.resources.events_create_title
 import com.mileway.core.ui.resources.events_field_capacity
 import com.mileway.core.ui.resources.events_field_category
@@ -71,12 +73,15 @@ fun CreateEventScreen(
 
     FormSubmissionScaffold(
         title = stringResource(Res.string.events_create_title),
+        subtitle = stringResource(Res.string.events_create_subtitle),
+        titleIcon = Icons.Filled.Event,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateEventAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = stringResource(Res.string.events_publish_event),
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         Column(modifier = Modifier.fillMaxWidth().padding(contentPadding).padding(16.dp)) {
             SectionCard(title = stringResource(Res.string.events_section_event), leadingIcon = Icons.Default.Event) {

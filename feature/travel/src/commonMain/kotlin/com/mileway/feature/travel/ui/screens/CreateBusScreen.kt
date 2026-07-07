@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,8 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_create_bus_subtitle
 import com.mileway.feature.travel.viewmodel.CreateBusAction
 import com.mileway.feature.travel.viewmodel.CreateBusViewModel
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 private val SEAT_PREFERENCES = listOf("Seater", "Sleeper", "Semi-sleeper")
@@ -33,12 +39,15 @@ fun CreateBusScreen(
 
     FormSubmissionScaffold(
         title = "Add Bus",
+        subtitle = stringResource(Res.string.travel_create_bus_subtitle),
+        titleIcon = Icons.Filled.DirectionsBus,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateBusAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = "Request bus",
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
             SectionCard(title = "Route", leadingIcon = null) {

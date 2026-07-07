@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -20,6 +22,7 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_add_leg
+import com.mileway.core.ui.resources.travel_create_mjp_subtitle
 import com.mileway.core.ui.resources.travel_remove_leg
 import com.mileway.core.ui.resources.travel_route
 import com.mileway.core.ui.theme.DesignTokens
@@ -42,12 +45,15 @@ fun CreateMjpScreen(
 
     FormSubmissionScaffold(
         title = "Journey Plan",
+        subtitle = stringResource(Res.string.travel_create_mjp_subtitle),
+        titleIcon = Icons.Filled.Map,
         onBack = onBack,
         onSubmit = { viewModel.onAction(CreateMjpAction.Submit) },
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
         submitLabel = "Submit plan",
+        submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
             SectionCard(title = "Plan", leadingIcon = null) {
