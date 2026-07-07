@@ -18,7 +18,11 @@ import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_card_status_disputed
+import com.mileway.core.ui.resources.logging_card_status_reconciled
+import com.mileway.core.ui.resources.logging_card_status_unreconciled
 import com.mileway.core.ui.resources.logging_card_transactions_title
+import com.mileway.core.ui.resources.logging_filter_all
 import com.mileway.core.ui.resources.logging_no_transactions_subtitle
 import com.mileway.core.ui.resources.logging_no_transactions_title
 import com.mileway.feature.logging.repository.CardExpenseTxn
@@ -44,7 +48,7 @@ fun CardsTxnHistoryScreen(
         state = ui.list,
         onRetry = { viewModel.onAction(CardsTxnHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = CARDS_TXN_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = CARDS_TXN_HISTORY_TABS.map { it?.localizedLabel() ?: stringResource(Res.string.logging_filter_all) },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(CardsTxnHistoryAction.SelectTab(it)) },
         emptyTitle = stringResource(Res.string.logging_no_transactions_title),
@@ -64,7 +68,7 @@ private fun CardTxnCard(txn: CardExpenseTxn) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(txn.merchant, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                StatusChip(label = txn.status, tone = toneFor(txn.status))
+                StatusChip(label = localizedCardStatus(txn.status), tone = toneFor(txn.status))
             }
             Text(
                 "${txn.category} · •••• ${txn.cardLast4}",
@@ -88,4 +92,22 @@ private fun toneFor(status: String): StatusTone =
         CardTxnStatus.RECONCILED.label -> StatusTone.Success
         CardTxnStatus.DISPUTED.label -> StatusTone.Error
         else -> StatusTone.Neutral
+    }
+
+/** Localized display label for a reconciliation status; the enum's `label` stays canonical. */
+@Composable
+private fun CardTxnStatus.localizedLabel(): String =
+    when (this) {
+        CardTxnStatus.UNRECONCILED -> stringResource(Res.string.logging_card_status_unreconciled)
+        CardTxnStatus.RECONCILED -> stringResource(Res.string.logging_card_status_reconciled)
+        CardTxnStatus.DISPUTED -> stringResource(Res.string.logging_card_status_disputed)
+    }
+
+@Composable
+private fun localizedCardStatus(status: String): String =
+    when (status) {
+        CardTxnStatus.UNRECONCILED.label -> stringResource(Res.string.logging_card_status_unreconciled)
+        CardTxnStatus.RECONCILED.label -> stringResource(Res.string.logging_card_status_reconciled)
+        CardTxnStatus.DISPUTED.label -> stringResource(Res.string.logging_card_status_disputed)
+        else -> status
     }

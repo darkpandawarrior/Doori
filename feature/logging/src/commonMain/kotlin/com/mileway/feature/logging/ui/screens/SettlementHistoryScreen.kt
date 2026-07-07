@@ -18,8 +18,12 @@ import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_filter_all
 import com.mileway.core.ui.resources.logging_no_settlements_subtitle
 import com.mileway.core.ui.resources.logging_no_settlements_title
+import com.mileway.core.ui.resources.logging_settlement_status_pending
+import com.mileway.core.ui.resources.logging_settlement_status_processing
+import com.mileway.core.ui.resources.logging_settlement_status_settled
 import com.mileway.core.ui.resources.logging_settlements_title
 import com.mileway.feature.logging.repository.SettlementRecord
 import com.mileway.feature.logging.repository.SettlementStatus
@@ -44,7 +48,7 @@ fun SettlementHistoryScreen(
         state = ui.list,
         onRetry = { viewModel.onAction(SettlementHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = SETTLEMENT_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = SETTLEMENT_HISTORY_TABS.map { it?.localizedLabel() ?: stringResource(Res.string.logging_filter_all) },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(SettlementHistoryAction.SelectTab(it)) },
         emptyTitle = stringResource(Res.string.logging_no_settlements_title),
@@ -64,7 +68,7 @@ private fun SettlementCard(settlement: SettlementRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text("${settlement.periodLabel} · ${settlement.id}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                StatusChip(label = settlement.status, tone = toneFor(settlement.status))
+                StatusChip(label = localizedSettlementStatus(settlement.status), tone = toneFor(settlement.status))
             }
             Text(
                 "${settlement.method} · ${settlement.itemCount} item${if (settlement.itemCount == 1) "" else "s"}",
@@ -88,4 +92,22 @@ private fun toneFor(status: String): StatusTone =
         SettlementStatus.PROCESSING.label -> StatusTone.Info
         SettlementStatus.SETTLED.label -> StatusTone.Success
         else -> StatusTone.Neutral
+    }
+
+/** Localized display label for a settlement's canonical status string; unknown values pass through. */
+@Composable
+private fun SettlementStatus.localizedLabel(): String =
+    when (this) {
+        SettlementStatus.PENDING -> stringResource(Res.string.logging_settlement_status_pending)
+        SettlementStatus.PROCESSING -> stringResource(Res.string.logging_settlement_status_processing)
+        SettlementStatus.SETTLED -> stringResource(Res.string.logging_settlement_status_settled)
+    }
+
+@Composable
+private fun localizedSettlementStatus(status: String): String =
+    when (status) {
+        SettlementStatus.PENDING.label -> stringResource(Res.string.logging_settlement_status_pending)
+        SettlementStatus.PROCESSING.label -> stringResource(Res.string.logging_settlement_status_processing)
+        SettlementStatus.SETTLED.label -> stringResource(Res.string.logging_settlement_status_settled)
+        else -> status
     }

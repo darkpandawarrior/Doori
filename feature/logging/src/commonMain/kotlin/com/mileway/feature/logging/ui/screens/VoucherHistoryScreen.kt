@@ -33,11 +33,17 @@ import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_cancel
+import com.mileway.core.ui.resources.logging_filter_all
 import com.mileway.core.ui.resources.logging_no_vouchers_subtitle
 import com.mileway.core.ui.resources.logging_no_vouchers_title
 import com.mileway.core.ui.resources.logging_search_vouchers_placeholder
 import com.mileway.core.ui.resources.logging_voucher_actions_cd
 import com.mileway.core.ui.resources.logging_voucher_history_title
+import com.mileway.core.ui.resources.logging_voucher_status_approved
+import com.mileway.core.ui.resources.logging_voucher_status_draft
+import com.mileway.core.ui.resources.logging_voucher_status_pending
+import com.mileway.core.ui.resources.logging_voucher_status_rejected
+import com.mileway.core.ui.resources.logging_voucher_status_settled
 import com.mileway.core.ui.resources.logging_withdraw
 import com.mileway.core.ui.resources.logging_withdraw_description
 import com.mileway.core.ui.resources.logging_withdraw_title
@@ -63,7 +69,7 @@ fun VoucherHistoryScreen(
         state = ui.list,
         onRetry = { viewModel.onAction(VoucherHistoryAction.Refresh) },
         modifier = modifier,
-        tabs = VOUCHER_HISTORY_TABS.map { it?.label ?: "All" },
+        tabs = VOUCHER_HISTORY_TABS.map { it?.localizedLabel() ?: stringResource(Res.string.logging_filter_all) },
         selectedTab = ui.tabIndex,
         onSelectTab = { viewModel.onAction(VoucherHistoryAction.SelectTab(it)) },
         query = ui.query,
@@ -103,7 +109,7 @@ private fun VoucherCard(
             ) {
                 Text(voucher.id, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Row {
-                    StatusChip(label = voucher.voucherState, tone = toneFor(voucher.voucherState))
+                    StatusChip(label = localizedVoucherState(voucher.voucherState), tone = toneFor(voucher.voucherState))
                     if (canWithdraw) {
                         Box {
                             IconButton(onClick = { menuExpanded = true }) {
@@ -162,4 +168,27 @@ private fun toneFor(state: String): StatusTone =
         VoucherStatus.REJECTED.label -> StatusTone.Error
         VoucherStatus.SETTLED.label -> StatusTone.Info
         else -> StatusTone.Neutral
+    }
+
+/** Localized display label for a voucher status; the enum's `label` stays the persisted DB value. */
+@Composable
+private fun VoucherStatus.localizedLabel(): String =
+    when (this) {
+        VoucherStatus.DRAFT -> stringResource(Res.string.logging_voucher_status_draft)
+        VoucherStatus.PENDING -> stringResource(Res.string.logging_voucher_status_pending)
+        VoucherStatus.APPROVED -> stringResource(Res.string.logging_voucher_status_approved)
+        VoucherStatus.REJECTED -> stringResource(Res.string.logging_voucher_status_rejected)
+        VoucherStatus.SETTLED -> stringResource(Res.string.logging_voucher_status_settled)
+    }
+
+/** Localized label for a voucher's canonical stored state string; unknown values pass through. */
+@Composable
+private fun localizedVoucherState(state: String): String =
+    when (state) {
+        VoucherStatus.DRAFT.label -> stringResource(Res.string.logging_voucher_status_draft)
+        VoucherStatus.PENDING.label -> stringResource(Res.string.logging_voucher_status_pending)
+        VoucherStatus.APPROVED.label -> stringResource(Res.string.logging_voucher_status_approved)
+        VoucherStatus.REJECTED.label -> stringResource(Res.string.logging_voucher_status_rejected)
+        VoucherStatus.SETTLED.label -> stringResource(Res.string.logging_voucher_status_settled)
+        else -> state
     }

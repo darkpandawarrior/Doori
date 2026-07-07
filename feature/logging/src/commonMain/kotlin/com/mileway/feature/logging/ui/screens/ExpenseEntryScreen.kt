@@ -63,7 +63,14 @@ import com.mileway.core.ui.resources.logging_attach_receipt_cd
 import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_bulk_entry
 import com.mileway.core.ui.resources.logging_bulk_prompt
+import com.mileway.core.ui.resources.logging_category_accommodation
+import com.mileway.core.ui.resources.logging_category_communication
+import com.mileway.core.ui.resources.logging_category_food
+import com.mileway.core.ui.resources.logging_category_medical
+import com.mileway.core.ui.resources.logging_category_office_supplies
+import com.mileway.core.ui.resources.logging_category_other
 import com.mileway.core.ui.resources.logging_category_prompt
+import com.mileway.core.ui.resources.logging_category_travel
 import com.mileway.core.ui.resources.logging_discard
 import com.mileway.core.ui.resources.logging_duplicate_row_cd
 import com.mileway.core.ui.resources.logging_import_csv
@@ -326,7 +333,7 @@ private fun DraftRowCard(
                     FilterChip(
                         selected = row.category == categoryDef.category,
                         onClick = { onCategoryChange(categoryDef.category) },
-                        label = { Text(categoryDef.category.label) },
+                        label = { Text(categoryDef.category.localizedLabel()) },
                     )
                 }
             }
@@ -456,7 +463,7 @@ private fun CategoryTile(
             }
             Spacer(Modifier.height(6.dp))
             Text(
-                text = category.label,
+                text = category.localizedLabel(),
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -465,3 +472,19 @@ private fun CategoryTile(
         }
     }
 }
+
+/**
+ * Localized display label for an expense category. The enum's `label` stays
+ * canonical English — it doubles as the search/CSV-import lookup key.
+ */
+@Composable
+internal fun ExpenseCategory.localizedLabel(): String =
+    when (this) {
+        ExpenseCategory.FOOD -> stringResource(Res.string.logging_category_food)
+        ExpenseCategory.TRAVEL -> stringResource(Res.string.logging_category_travel)
+        ExpenseCategory.ACCOMMODATION -> stringResource(Res.string.logging_category_accommodation)
+        ExpenseCategory.OFFICE_SUPPLIES -> stringResource(Res.string.logging_category_office_supplies)
+        ExpenseCategory.COMMUNICATION -> stringResource(Res.string.logging_category_communication)
+        ExpenseCategory.MEDICAL -> stringResource(Res.string.logging_category_medical)
+        ExpenseCategory.OTHER -> stringResource(Res.string.logging_category_other)
+    }

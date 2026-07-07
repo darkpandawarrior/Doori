@@ -110,7 +110,7 @@ fun ExpenseHistoryScreen(
                 title = stringResource(Res.string.logging_category),
                 icon = Icons.Filled.FilterList,
                 mode = FilterSelectionMode.MULTI,
-                options = ExpenseCategory.entries.map { FilterOption(it.name, it.label) },
+                options = ExpenseCategory.entries.map { FilterOption(it.name, it.localizedLabel()) },
             )
         FilterBottomSheet(
             sections = listOf(categorySection),
@@ -308,7 +308,7 @@ private fun ExpenseCard(
                     maxLines = 1,
                 )
                 Text(
-                    text = "${expense.category.label} · ${formatDate(expense.dateMs)}",
+                    text = "${expense.category.localizedLabel()} · ${formatDate(expense.dateMs)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

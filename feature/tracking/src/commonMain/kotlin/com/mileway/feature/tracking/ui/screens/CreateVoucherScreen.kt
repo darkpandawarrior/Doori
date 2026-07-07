@@ -58,7 +58,11 @@ import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_voucher_back_to_detail
+import com.mileway.core.ui.resources.tracking_voucher_category_fuel
 import com.mileway.core.ui.resources.tracking_voucher_category_label
+import com.mileway.core.ui.resources.tracking_voucher_category_maintenance
+import com.mileway.core.ui.resources.tracking_voucher_category_mileage
+import com.mileway.core.ui.resources.tracking_voucher_category_other
 import com.mileway.core.ui.resources.tracking_voucher_create_button
 import com.mileway.core.ui.resources.tracking_voucher_created_title
 import com.mileway.core.ui.resources.tracking_voucher_deselect_all
@@ -326,7 +330,7 @@ private fun StepVoucherDetails(
             onExpandedChange = { categoryExpanded = it },
         ) {
             OutlinedTextField(
-                value = uiState.category.label,
+                value = uiState.category.localizedLabel(),
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(stringResource(Res.string.tracking_voucher_category_label)) },
@@ -339,7 +343,7 @@ private fun StepVoucherDetails(
             ) {
                 VoucherCategory.entries.forEach { cat ->
                     DropdownMenuItem(
-                        text = { Text(cat.label) },
+                        text = { Text(cat.localizedLabel()) },
                         onClick = {
                             viewModel.onAction(CreateVoucherAction.SetCategory(cat))
                             categoryExpanded = false
@@ -417,7 +421,7 @@ private fun StepConfirmation(
         Card {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 SummaryRow(stringResource(Res.string.tracking_voucher_summary_title), uiState.title)
-                SummaryRow(stringResource(Res.string.tracking_voucher_summary_category), uiState.category.label)
+                SummaryRow(stringResource(Res.string.tracking_voucher_summary_category), uiState.category.localizedLabel())
                 SummaryRow(stringResource(Res.string.tracking_voucher_summary_total), "₹${viewModel.totalAmount.formatDecimal(2)}")
                 SummaryRow(stringResource(Res.string.tracking_voucher_summary_expenses), "${uiState.selectedTokens.size} selected")
                 if (uiState.notes.isNotBlank()) SummaryRow(stringResource(Res.string.tracking_voucher_summary_notes), uiState.notes)
@@ -506,3 +510,16 @@ private fun SummaryRow(
         Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
     }
 }
+
+/**
+ * Localized display label for a voucher category. The enum's `label` stays
+ * canonical English — it is the value persisted in the voucher DB column.
+ */
+@Composable
+private fun VoucherCategory.localizedLabel(): String =
+    when (this) {
+        VoucherCategory.MILEAGE -> stringResource(Res.string.tracking_voucher_category_mileage)
+        VoucherCategory.FUEL -> stringResource(Res.string.tracking_voucher_category_fuel)
+        VoucherCategory.MAINTENANCE -> stringResource(Res.string.tracking_voucher_category_maintenance)
+        VoucherCategory.OTHER -> stringResource(Res.string.tracking_voucher_category_other)
+    }
