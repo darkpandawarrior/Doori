@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,16 +27,25 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.platform.LocationNameResolver
+import com.mileway.core.platform.LocationTracker
+import com.mileway.core.ui.components.CurrentLocationPinMap
+import com.mileway.core.ui.components.LocationPin
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.tracking.CompassGauge
 import com.mileway.core.ui.components.tracking.GaugeSignal
+import org.koin.mp.KoinPlatform
 
 @Composable
 fun IosDemoApp() {
@@ -69,8 +79,43 @@ fun IosDemoApp() {
                 }
             }
         }
+        item { LiveLocationCard() }
         item { DemoStatsCard() }
         item { TechStackCard() }
+    }
+}
+
+/**
+ * Interactive current-location card: the same commonMain [CurrentLocationPinMap] the Android home
+ * header uses. Resolves the device's real location (offline place name), falling back to a demo pin
+ * on the simulator so the pulsing pin + tap-to-reveal callout are always demonstrable. Tap the pin.
+ */
+@Composable
+private fun LiveLocationCard() {
+    var pin by remember { mutableStateOf<LocationPin?>(null) }
+    LaunchedEffect(Unit) {
+        val koin = KoinPlatform.getKoin()
+        val tracker = koin.getOrNull<LocationTracker>()
+        val resolver = koin.getOrNull<LocationNameResolver>()
+        val fix = tracker?.current()
+        if (fix != null && resolver != null) {
+            val place = resolver.resolve(fix.latitude, fix.longitude)
+            pin = LocationPin(fix.latitude, fix.longitude, place.name, place.coordinates)
+        }
+    }
+    val demo = LocationPin(18.5204, 73.8567, "Pune, India", "18.5204, 73.8567")
+    SectionCard(
+        title = "Live location — tap the pin",
+        leadingIcon = Icons.Default.Explore,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+    ) {
+        CurrentLocationPinMap(
+            modifier = Modifier.fillMaxWidth().height(160.dp),
+            pin = pin ?: demo,
+            dotColor = MaterialTheme.colorScheme.primary,
+            dotAlpha = 0.35f,
+            pinColor = MaterialTheme.colorScheme.error,
+        )
     }
 }
 

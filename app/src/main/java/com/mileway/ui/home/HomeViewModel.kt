@@ -1,7 +1,11 @@
 package com.mileway.ui.home
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mileway.core.network.model.EmployeeProfile
+import com.mileway.core.platform.LocationNameResolver
+import com.mileway.core.platform.LocationTracker
+import com.mileway.core.ui.components.LocationPin
 import com.mileway.stub.ActionRequiredBanner
 import com.mileway.stub.AtAGlanceCounts
 import com.mileway.stub.HomeMockData
@@ -10,6 +14,8 @@ import com.mileway.stub.ProfileMockData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -27,12 +33,25 @@ import org.koin.dsl.module
  * @property atAGlance the three "At A Glance" summary counters.
  * @property marketingItems the static marketing/benefits card strip.
  */
+/**
+ * Demo "current location" pin (Pune) — the default so previews and the screenshot gallery render a
+ * pinned map. The real [HomeViewModel] replaces it with the device's actual location at runtime,
+ * or `null` when location permission isn't granted.
+ */
+val DemoHomeLocationPin = LocationPin(
+    latitude = 18.5204,
+    longitude = 73.8567,
+    label = "Pune, India",
+    coordinates = "18.5204, 73.8567",
+)
+
 data class HomeUiState(
     val greetingName: String = "",
     val notificationCount: Int = 0,
     val actionRequired: ActionRequiredBanner = HomeMockData.actionRequiredBanner(),
     val atAGlance: AtAGlanceCounts = HomeMockData.atAGlance(),
     val marketingItems: List<MarketingCarouselItem> = emptyList(),
+    val currentPin: LocationPin? = DemoHomeLocationPin,
 )
 
 /**
@@ -44,10 +63,32 @@ data class HomeUiState(
  * the ViewModel (rather than calling the callbacks straight from the composable) keeps the
  * screen stateless and gives a single, testable entry point per user action.
  */
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val locationTracker: LocationTracker,
+    private val locationNameResolver: LocationNameResolver,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(buildInitialState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    init {
+        // Best-effort one-shot: pin the device's real current location on the header map, with an
+        // offline-resolved place label. A null fix (no permission / unavailable) leaves no pin.
+        viewModelScope.launch {
+            val fix = locationTracker.current() ?: return@launch
+            val place = locationNameResolver.resolve(fix.latitude, fix.longitude)
+            _uiState.update {
+                it.copy(
+                    currentPin = LocationPin(
+                        latitude = fix.latitude,
+                        longitude = fix.longitude,
+                        label = place.name,
+                        coordinates = place.coordinates,
+                    ),
+                )
+            }
+        }
+    }
 
     /**
      * User tapped the primary "Start" pill on the Mileage carousel card.
@@ -75,6 +116,8 @@ class HomeViewModel : ViewModel() {
             actionRequired = HomeMockData.actionRequiredBanner(),
             atAGlance = HomeMockData.atAGlance(),
             marketingItems = HomeMockData.carouselItems(),
+            // Real app starts pin-less; the init coroutine fills the device's actual location.
+            currentPin = null,
         )
 
         /** First whitespace-delimited token of the profile name, e.g. "Demo User" -> "Demo". */

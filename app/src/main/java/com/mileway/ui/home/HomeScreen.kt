@@ -148,6 +148,7 @@ internal fun HomeScreenContent(
                 onSearch = onOpenSearch,
                 onNotifications = onOpenAccount,
                 onOpenAgent = onOpenAgent,
+                currentPin = state.currentPin,
             )
 
             // 2. Animated banner strip (rotating 4000ms; replaces static ActionRequired card).

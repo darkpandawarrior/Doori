@@ -69,6 +69,25 @@ private val landBits: BooleanArray by lazy {
 }
 
 /**
+ * Shared equirectangular projection: maps a geographic coordinate to a pixel [Offset] on a
+ * width-fitted, vertically-centred world map of the given pixel size. Used by both the backdrop's
+ * own marker and the interactive [CurrentLocationPinMap] overlay so their pins line up exactly.
+ */
+internal fun worldMapOffset(
+    latitude: Double,
+    longitude: Double,
+    widthPx: Float,
+    heightPx: Float,
+): Offset {
+    val cell = widthPx / MAP_W
+    val mapH = cell * MAP_H
+    val top = (heightPx - mapH) / 2f
+    val x = ((longitude + 180.0) / 360.0).toFloat() * widthPx
+    val y = top + ((90.0 - latitude) / 180.0).toFloat() * mapH
+    return Offset(x, y)
+}
+
+/**
  * @param dotColor colour of the land dots.
  * @param dotAlpha per-dot opacity (kept low so the map stays a background texture).
  * @param markerLatLng optional (latitude, longitude) to pin; null draws no marker.
@@ -100,9 +119,7 @@ fun WorldMapBackdrop(
             }
         }
         markerLatLng?.let { (lat, lon) ->
-            val mx = ((lon + 180.0) / 360.0).toFloat() * size.width
-            val my = top + ((90.0 - lat) / 180.0).toFloat() * mapH
-            val c = Offset(mx, my)
+            val c = worldMapOffset(lat, lon, size.width, size.height)
             drawCircle(markerColor, cell * 3.4f, c, alpha = 0.16f) // glow
             drawCircle(markerColor, cell * 1.7f, c, alpha = 0.32f) // ring
             drawCircle(markerColor, cell * 0.9f, c, alpha = 0.95f) // core

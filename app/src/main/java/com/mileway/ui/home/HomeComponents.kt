@@ -22,7 +22,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import com.mileway.core.ui.components.WorldMapBackdrop
+import com.mileway.core.ui.components.CurrentLocationPinMap
+import com.mileway.core.ui.components.LocationPin
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -117,9 +118,6 @@ private val HeaderContentHeight = 96.dp
 /** Diameter of the leading avatar circle in the header. */
 private val AvatarSize = 44.dp
 
-/** Demo "current location" pinned on the header world map (Pune, India). */
-private val HomeMapMarker = 18.5204 to 73.8567
-
 /**
  * Primary-gradient home header that draws behind the status bar.
  *
@@ -142,7 +140,7 @@ fun HomeProfileHeader(
     onSearch: () -> Unit,
     onNotifications: () -> Unit,
     onOpenAgent: (() -> Unit)? = null,
-    markerLatLng: Pair<Double, Double>? = HomeMapMarker,
+    currentPin: LocationPin? = DemoHomeLocationPin,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -153,12 +151,12 @@ fun HomeProfileHeader(
         // Terminal world-map backdrop — pure Canvas dots from an embedded land mask (no raster
         // asset), so it renders on device *and* in host-side Roborazzi screenshots (which can't
         // rasterize PNGs), and pins the user's current location.
-        WorldMapBackdrop(
+        CurrentLocationPinMap(
             modifier = Modifier.matchParentSize(),
+            pin = currentPin,
             dotColor = Color.White,
             dotAlpha = 0.24f,
-            markerLatLng = markerLatLng,
-            markerColor = MaterialTheme.colorScheme.error,
+            pinColor = MaterialTheme.colorScheme.error,
         )
         // Terminal scanline overlay
         ScanlineOverlay(lineAlpha = 0.04f)
