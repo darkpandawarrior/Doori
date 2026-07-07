@@ -12,7 +12,8 @@ struct ContentView: View {
 /// Bridges Compose Multiplatform's UIViewController into SwiftUI.
 private struct ComposeViewControllerRepresentable: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
-        IosTrackingEntryKt.MilwayViewController()
+        // Renders the real shared app-shell (home dashboard + core features) — full KMP shell parity.
+        MilewayAppViewControllerKt.MilewayAppViewController()
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}

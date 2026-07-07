@@ -1,6 +1,5 @@
 package com.mileway.ui.auth
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,28 +24,27 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mileway.core.security.BiometricGuard
+import com.mileway.core.platform.BiometricAuthenticator
+import com.mileway.core.platform.BiometricResult
 import com.mileway.core.ui.theme.DesignTokens
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-
-/** The current context as a [FragmentActivity], or null if hosted somewhere `BiometricPrompt` can't attach. */
-private fun ComponentActivity?.asFragmentActivity(): FragmentActivity? = this as? FragmentActivity
 
 /**
  * PLAN_V22 P7.4: PIN/biometric gate shown on every app launch after the first (once
  * [com.mileway.core.data.session.SessionState.hasPin] is true), between `AppStage.LOGIN` and
- * `AppStage.APP`. Layers [BiometricGuard] as an optional first attempt — offered automatically
- * when the device has biometrics enrolled — before falling back to PIN entry, mirroring the
+ * `AppStage.APP`. Layers [BiometricAuthenticator] as an optional first attempt — offered
+ * automatically when the device has biometrics enrolled — before falling back to PIN entry, mirroring the
  * reference app's biometric-first UX *pattern* locally (own visuals, no `CryptoObject`: there is
  * no secret this demo needs biometrics to unlock, only friction to reproduce).
  *
@@ -60,9 +58,9 @@ fun CheckPinScreen(
 ) {
     val currentOnUnlocked by rememberUpdatedState(onUnlocked)
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val activity = (LocalContext.current as? ComponentActivity).asFragmentActivity()
-    val biometricAvailable =
-        activity != null && BiometricGuard.checkAvailability(activity) == BiometricGuard.Availability.Available
+    val biometric = koinInject<BiometricAuthenticator>()
+    val scope = rememberCoroutineScope()
+    val biometricAvailable = remember { biometric.isAvailable() }
     var biometricOffered by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) { viewModel.reset() }
@@ -70,19 +68,18 @@ fun CheckPinScreen(
         if (state.completed) currentOnUnlocked()
     }
 
-    // Offer BiometricPrompt exactly once per screen composition, before the reviewer has to type
-    // anything, if the device actually has biometrics enrolled — a FragmentActivity is required,
-    // so this is skipped gracefully (falls straight to PIN entry) on any other host.
+    // Offer biometrics exactly once per screen composition, before the reviewer has to type
+    // anything, if the device actually has biometrics enrolled — otherwise this falls straight
+    // through to PIN entry.
     LaunchedEffect(biometricAvailable) {
-        if (biometricOffered || !biometricAvailable || activity == null) return@LaunchedEffect
+        if (biometricOffered || !biometricAvailable) return@LaunchedEffect
         biometricOffered = true
-        BiometricGuard.showPrompt(
-            activity = activity,
-            title = "Unlock Mileway",
-            subtitle = "Use your fingerprint or face to continue",
-            onSuccess = { currentOnUnlocked() },
-            onFailure = { /* fall through to PIN entry, no error copy needed for a cancelled prompt */ },
-        )
+        scope.launch {
+            when (biometric.authenticate(reason = "Use your fingerprint or face to continue")) {
+                is BiometricResult.Success -> currentOnUnlocked()
+                else -> { /* fall through to PIN entry, no error copy needed for a cancelled prompt */ }
+            }
+        }
     }
 
     Surface(
@@ -151,17 +148,16 @@ fun CheckPinScreen(
                 Text("Unlock", fontWeight = FontWeight.Bold)
             }
 
-            if (biometricAvailable && activity != null) {
+            if (biometricAvailable) {
                 Spacer(Modifier.height(DesignTokens.Spacing.m))
                 OutlinedButton(
                     onClick = {
-                        BiometricGuard.showPrompt(
-                            activity = activity,
-                            title = "Unlock Mileway",
-                            subtitle = "Use your fingerprint or face to continue",
-                            onSuccess = { currentOnUnlocked() },
-                            onFailure = {},
-                        )
+                        scope.launch {
+                            when (biometric.authenticate(reason = "Use your fingerprint or face to continue")) {
+                                is BiometricResult.Success -> currentOnUnlocked()
+                                else -> {}
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(52.dp),
                     shape = DesignTokens.Shape.roundedSm,

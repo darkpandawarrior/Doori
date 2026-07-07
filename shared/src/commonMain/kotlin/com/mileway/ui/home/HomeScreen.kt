@@ -37,7 +37,6 @@ import com.mileway.core.ui.components.DotsIndicator
 import com.mileway.core.ui.platform.LocalAppReviewManager
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.stub.MarketingCarouselItem
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -105,7 +104,7 @@ fun HomeScreen(
  */
 @Suppress("LongParameterList") // Stateless preview/test entry point mirroring HomeScreen's own param set.
 @Composable
-internal fun HomeScreenContent(
+fun HomeScreenContent(
     state: HomeUiState,
     onStartTracking: () -> Unit,
     onAddExpense: () -> Unit,
@@ -128,18 +127,20 @@ internal fun HomeScreenContent(
     val paymentsSnackbar: suspend () -> Unit = { snackbarState.showSnackbar("Payments require network in production.") }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            // Top-level tab: own the background so the body renders on the theme surface
-            // (deep-dark under the Matrix default) instead of inheriting whatever the host
-            // happens to paint. Without this the scrollable body is transparent and falls
-            // through to the window/canvas colour.
-            .background(MaterialTheme.colorScheme.background),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                // Top-level tab: own the background so the body renders on the theme surface
+                // (deep-dark under the Matrix default) instead of inheriting whatever the host
+                // happens to paint. Without this the scrollable body is transparent and falls
+                // through to the window/canvas colour.
+                .background(MaterialTheme.colorScheme.background),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
         ) {
             // 1. Gradient header (draws behind the status bar; owns the top inset).
             HomeProfileHeader(
@@ -174,10 +175,11 @@ internal fun HomeScreenContent(
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     HomeSectionHeader(title = "Quick Actions", leadingIcon = Icons.Filled.Bolt)
                     QuickActionsRow(
-                        actions = quickActions(
-                            onAddExpense = onAddExpense,
-                            onIllustrative = onOpenAccount,
-                        ),
+                        actions =
+                            quickActions(
+                                onAddExpense = onAddExpense,
+                                onIllustrative = onOpenAccount,
+                            ),
                     )
                 }
 
@@ -246,9 +248,10 @@ private fun FeatureCarousel(
     onStartTracking: () -> Unit,
     onIllustrative: () -> Unit,
 ) {
-    val cards = remember(onStartTracking, onIllustrative) {
-        featureCarouselCards(onStartTracking = onStartTracking, onIllustrative = onIllustrative)
-    }
+    val cards =
+        remember(onStartTracking, onIllustrative) {
+            featureCarouselCards(onStartTracking = onStartTracking, onIllustrative = onIllustrative)
+        }
     val pagerState = rememberPagerState(pageCount = { cards.size })
 
     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {

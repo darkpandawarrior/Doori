@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -103,23 +102,24 @@ private data class OnboardingSlide(
 )
 
 /** The three onboarding slides cycled by the welcome pager. */
-private val ONBOARDING_SLIDES = listOf(
-    OnboardingSlide(
-        icon = Icons.Filled.Explore,
-        title = "Track every mile",
-        caption = "Start a trip and Mileway records your route, distance, and duration automatically.",
-    ),
-    OnboardingSlide(
-        icon = Icons.Filled.CloudOff,
-        title = "Works fully offline",
-        caption = "No signal, no problem. Trips are saved on your device and are ready whenever you are.",
-    ),
-    OnboardingSlide(
-        icon = Icons.Filled.LocationOn,
-        title = "Your data stays put",
-        caption = "Everything lives locally on your phone: capture mileage anywhere, sync nothing.",
-    ),
-)
+private val ONBOARDING_SLIDES =
+    listOf(
+        OnboardingSlide(
+            icon = Icons.Filled.Explore,
+            title = "Track every mile",
+            caption = "Start a trip and Mileway records your route, distance, and duration automatically.",
+        ),
+        OnboardingSlide(
+            icon = Icons.Filled.CloudOff,
+            title = "Works fully offline",
+            caption = "No signal, no problem. Trips are saved on your device and are ready whenever you are.",
+        ),
+        OnboardingSlide(
+            icon = Icons.Filled.LocationOn,
+            title = "Your data stays put",
+            caption = "Everything lives locally on your phone: capture mileage anywhere, sync nothing.",
+        ),
+    )
 
 /**
  * Polished fake login screen for the demo. No real authentication happens: any non-empty
@@ -162,6 +162,9 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     hasShownWelcomeDisclaimer: Boolean = true,
     onWelcomeDisclaimerShown: () -> Unit = {},
+    // Android-only runtime permission request, injected by the host (:app's PermissionsController).
+    // Defaulted so the screen stays commonMain/previewable and iOS (no runtime prompt) is a no-op.
+    onRequestPermissions: () -> Unit = {},
     authViewModel: AuthViewModel = koinViewModel(),
 ) {
     val currentOnCredentials by rememberUpdatedState(onSignInWithCredentials)
@@ -184,16 +187,15 @@ fun LoginScreen(
     var showPersonaPicker by remember { mutableStateOf(false) }
 
     // P7.5: gates WelcomeDisclaimerSheet + queues a sign-in tap made while it's showing.
-    val disclaimerState = rememberWelcomeDisclaimerState(
-        initiallyShown = hasShownWelcomeDisclaimer,
-        onShown = onWelcomeDisclaimerShown,
-        onResumeSignIn = { isGuest ->
-            isGuestPath = isGuest
-            authViewModel.beginSignIn()
-        },
-    )
-    val permissionsController = rememberPermissionsController(onResult = {})
-
+    val disclaimerState =
+        rememberWelcomeDisclaimerState(
+            initiallyShown = hasShownWelcomeDisclaimer,
+            onShown = onWelcomeDisclaimerShown,
+            onResumeSignIn = { isGuest ->
+                isGuestPath = isGuest
+                authViewModel.beginSignIn()
+            },
+        )
     val emailValid = email.isNotBlank()
     val passwordValid = password.isNotBlank()
     val canSubmit = emailValid && passwordValid && !isSigningIn
@@ -221,13 +223,14 @@ fun LoginScreen(
         color = MaterialTheme.colorScheme.background,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .statusBarsPadding()
-                .imePadding()
-                .navigationBarsPadding()
-                .padding(horizontal = DesignTokens.Spacing.xl),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .statusBarsPadding()
+                    .imePadding()
+                    .navigationBarsPadding()
+                    .padding(horizontal = DesignTokens.Spacing.xl),
         ) {
             Spacer(Modifier.height(DesignTokens.Spacing.xl))
 
@@ -260,9 +263,10 @@ fun LoginScreen(
             Button(
                 onClick = ::attemptCredentialsSignIn,
                 enabled = canSubmit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
                 shape = DesignTokens.Shape.roundedMd,
             ) {
                 if (isSigningIn) {
@@ -316,7 +320,7 @@ fun LoginScreen(
     if (disclaimerState.isShowing) {
         WelcomeDisclaimerSheet(
             onRequestPermissions = {
-                permissionsController.request()
+                onRequestPermissions()
                 disclaimerState.dismiss()
             },
             onDismiss = { disclaimerState.dismiss() },
@@ -378,9 +382,10 @@ private fun SignInStepRow(
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = null,
-                        modifier = Modifier
-                            .size(DesignTokens.IconSize.badge)
-                            .alpha(checkAlpha),
+                        modifier =
+                            Modifier
+                                .size(DesignTokens.IconSize.badge)
+                                .alpha(checkAlpha),
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 active ->
@@ -403,11 +408,12 @@ private fun SignInStepRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = if (active || completed) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
+            color =
+                if (active || completed) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
         )
     }
 }
@@ -488,11 +494,12 @@ private fun DemoModePersonaPickerSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = DesignTokens.Spacing.xl)
-                .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = DesignTokens.Spacing.xl)
+                    .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
         ) {
             Text(
                 text = "Demo mode",
@@ -529,11 +536,12 @@ private fun PersonaPickerRow(
     Surface(
         onClick = onClick,
         shape = DesignTokens.Shape.roundedMd,
-        color = if (isSelected) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceVariant
-        },
+        color =
+            if (isSelected) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            },
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
@@ -611,17 +619,21 @@ private fun OnboardingPager() {
 
 /** A single onboarding slide: tinted icon disc, title, and caption. Tapping advances the pager. */
 @Composable
-private fun OnboardingSlideContent(slide: OnboardingSlide, onTap: () -> Unit) {
+private fun OnboardingSlideContent(
+    slide: OnboardingSlide,
+    onTap: () -> Unit,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = DesignTokens.Spacing.s)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onTap,
-            )
-            .semantics { contentDescription = "${slide.title}. ${slide.caption}" },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DesignTokens.Spacing.s)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onTap,
+                )
+                .semantics { contentDescription = "${slide.title}. ${slide.caption}" },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(
@@ -692,15 +704,17 @@ private fun CredentialFields(
             leadingIcon = {
                 Icon(Icons.Outlined.MailOutline, contentDescription = null)
             },
-            supportingText = if (emailError) {
-                { Text("Enter your email to continue") }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next,
-            ),
+            supportingText =
+                if (emailError) {
+                    { Text("Enter your email to continue") }
+                } else {
+                    null
+                },
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                ),
             shape = DesignTokens.Shape.roundedMd,
         )
 
@@ -721,33 +735,38 @@ private fun CredentialFields(
             trailingIcon = {
                 IconButton(onClick = onTogglePasswordVisible) {
                     Icon(
-                        imageVector = if (passwordVisible) {
-                            Icons.Filled.VisibilityOff
-                        } else {
-                            Icons.Filled.Visibility
-                        },
-                        contentDescription = if (passwordVisible) {
-                            "Hide password"
-                        } else {
-                            "Show password"
-                        },
+                        imageVector =
+                            if (passwordVisible) {
+                                Icons.Filled.VisibilityOff
+                            } else {
+                                Icons.Filled.Visibility
+                            },
+                        contentDescription =
+                            if (passwordVisible) {
+                                "Hide password"
+                            } else {
+                                "Show password"
+                            },
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
-            supportingText = if (passwordError) {
-                { Text("Enter any password to continue") }
-            } else {
-                null
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done,
-            ),
+            visualTransformation =
+                if (passwordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
+            supportingText =
+                if (passwordError) {
+                    { Text("Enter any password to continue") }
+                } else {
+                    null
+                },
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done,
+                ),
             keyboardActions = KeyboardActions(onDone = { onImeDone() }),
             shape = DesignTokens.Shape.roundedMd,
         )

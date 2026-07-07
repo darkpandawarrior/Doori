@@ -220,7 +220,11 @@ fun AssistantHomeSheet(
                     onClick = ::sendMessage,
                     enabled = inputText.isNotBlank() && !uiState.isStreaming,
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Send", tint = if (inputText.isNotBlank()) Color.White else Color.White.copy(alpha = 0.4f))
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "Send",
+                        tint = if (inputText.isNotBlank()) Color.White else Color.White.copy(alpha = 0.4f),
+                    )
                 }
             }
 

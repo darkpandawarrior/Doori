@@ -34,6 +34,7 @@ import com.mileway.core.ui.platform.isUnderMaintenance
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.ui.MilewayAppRoot
+import com.mileway.ui.auth.rememberPermissionsController
 import com.mileway.ui.auth.CheckPinScreen
 import com.mileway.ui.auth.LoginScreen
 import com.mileway.ui.auth.SetPinScreen
@@ -181,6 +182,9 @@ private fun AppEntry(
                 // so a forced/flexible update blocks the login screen itself, matching MaintenanceGate's
                 // existing scope — only AppStage.APP's inner behavior is unchanged.
                 UpdateGate(config = updateConfig) {
+                    // Android runtime-permission bridge, passed into the (now shared) LoginScreen so the
+                    // welcome-disclaimer "Continue" still triggers the real system permission dialog.
+                    val permissionsController = rememberPermissionsController(onResult = {})
                     AnimatedContent(
                         targetState = stage,
                         transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -202,6 +206,7 @@ private fun AppEntry(
                                         sessionScope.launch { sessionRepository.continueAsGuest() }
                                         stage = AppStage.PIN
                                     },
+                                    onRequestPermissions = { permissionsController.request() },
                                     // P7.5: show WelcomeDisclaimerSheet once per install, persisted so
                                     // it never replays after this first shown-and-dismissed session.
                                     hasShownWelcomeDisclaimer = session?.hasShownWelcomeDisclaimer == true,

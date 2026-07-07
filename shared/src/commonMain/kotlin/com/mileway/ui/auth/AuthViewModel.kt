@@ -33,11 +33,12 @@ data class AuthSignInStep(
  * rather than a single flat spinner — with no real network/OAuth mechanics behind it (there is
  * nothing to redirect to; every step is a scripted local delay).
  */
-internal val SIGN_IN_STEPS = listOf(
-    AuthSignInStep(label = "Validating credentials…", durationMs = 350L),
-    AuthSignInStep(label = "Preparing local session…", durationMs = 350L),
-    AuthSignInStep(label = "Done", durationMs = 200L),
-)
+internal val SIGN_IN_STEPS =
+    listOf(
+        AuthSignInStep(label = "Validating credentials…", durationMs = 350L),
+        AuthSignInStep(label = "Preparing local session…", durationMs = 350L),
+        AuthSignInStep(label = "Done", durationMs = 200L),
+    )
 
 /**
  * Sealed sign-in state machine driving [LoginScreen]'s stepped-progress overlay.
@@ -86,7 +87,6 @@ class AuthViewModel(
     private val mockAccountRepository: MockAccountRepository,
     private val activeAccountSource: ActiveAccountSource,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow<MilewayAuthState>(MilewayAuthState.Idle)
     val state: StateFlow<MilewayAuthState> = _state.asStateFlow()
 
@@ -115,21 +115,23 @@ class AuthViewModel(
     /** Begins the staged sign-in sequence. No-op if a sequence is already in flight. */
     fun beginSignIn() {
         if (_state.value is MilewayAuthState.Loading) return
-        signInJob = viewModelScope.launch {
-            SIGN_IN_STEPS.forEachIndexed { index, step ->
-                _state.value = MilewayAuthState.Loading(
-                    step = index + 1,
-                    totalSteps = SIGN_IN_STEPS.size,
-                    label = step.label,
-                )
-                delay(step.durationMs)
+        signInJob =
+            viewModelScope.launch {
+                SIGN_IN_STEPS.forEachIndexed { index, step ->
+                    _state.value =
+                        MilewayAuthState.Loading(
+                            step = index + 1,
+                            totalSteps = SIGN_IN_STEPS.size,
+                            label = step.label,
+                        )
+                    delay(step.durationMs)
+                }
+                _selectedPersonaId.value?.let { accountId ->
+                    mockAccountRepository.setActive(accountId)
+                    activeAccountSource.setActiveAccountId(accountId)
+                }
+                _state.value = MilewayAuthState.Success
             }
-            _selectedPersonaId.value?.let { accountId ->
-                mockAccountRepository.setActive(accountId)
-                activeAccountSource.setActiveAccountId(accountId)
-            }
-            _state.value = MilewayAuthState.Success
-        }
     }
 
     /** Returns to [MilewayAuthState.Idle], cancelling any in-flight sequence. */
@@ -141,6 +143,7 @@ class AuthViewModel(
 }
 
 /** Koin module for [AuthViewModel] — registered alongside the other screen-scoped ViewModels. */
-val authModule = module {
-    viewModelOf(::AuthViewModel)
-}
+val authModule =
+    module {
+        viewModelOf(::AuthViewModel)
+    }

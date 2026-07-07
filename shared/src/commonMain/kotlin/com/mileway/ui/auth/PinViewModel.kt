@@ -141,6 +141,7 @@ class PinViewModel(
 }
 
 /** Koin module for [PinViewModel] — registered alongside [authModule]'s own entries. */
-val pinModule = module {
-    viewModelOf(::PinViewModel)
-}
+val pinModule =
+    module {
+        viewModelOf(::PinViewModel)
+    }

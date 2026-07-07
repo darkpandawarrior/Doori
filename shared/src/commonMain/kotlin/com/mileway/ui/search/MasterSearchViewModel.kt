@@ -62,7 +62,6 @@ sealed interface MasterSearchEffect {
 class MasterSearchViewModel(
     private val repository: MasterSearchRepository,
 ) : BaseViewModel<MasterSearchUiState, MasterSearchEffect, MasterSearchAction>(MasterSearchUiState()) {
-
     /** The full set of types any provider can serve, drives the filter chips. */
     val availableTypes: List<SearchEntityType> = repository.availableTypes.toList()
 

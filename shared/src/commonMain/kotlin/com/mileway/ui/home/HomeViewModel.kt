@@ -20,6 +20,19 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 /**
+ * Demo "current location" pin (Pune) — the default so previews and the screenshot gallery render a
+ * pinned map. The real [HomeViewModel] replaces it with the device's actual location at runtime,
+ * or `null` when location permission isn't granted.
+ */
+val DemoHomeLocationPin =
+    LocationPin(
+        latitude = 18.5204,
+        longitude = 73.8567,
+        label = "Pune, India",
+        coordinates = "18.5204, 73.8567",
+    )
+
+/**
  * Immutable state for the Home tab.
  *
  * Everything the screen renders is assembled once, up front, from the deterministic
@@ -33,18 +46,6 @@ import org.koin.dsl.module
  * @property atAGlance the three "At A Glance" summary counters.
  * @property marketingItems the static marketing/benefits card strip.
  */
-/**
- * Demo "current location" pin (Pune) — the default so previews and the screenshot gallery render a
- * pinned map. The real [HomeViewModel] replaces it with the device's actual location at runtime,
- * or `null` when location permission isn't granted.
- */
-val DemoHomeLocationPin = LocationPin(
-    latitude = 18.5204,
-    longitude = 73.8567,
-    label = "Pune, India",
-    coordinates = "18.5204, 73.8567",
-)
-
 data class HomeUiState(
     val greetingName: String = "",
     val notificationCount: Int = 0,
@@ -67,7 +68,6 @@ class HomeViewModel(
     private val locationTracker: LocationTracker,
     private val locationNameResolver: LocationNameResolver,
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow(buildInitialState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
@@ -79,12 +79,13 @@ class HomeViewModel(
             val place = locationNameResolver.resolve(fix.latitude, fix.longitude)
             _uiState.update {
                 it.copy(
-                    currentPin = LocationPin(
-                        latitude = fix.latitude,
-                        longitude = fix.longitude,
-                        label = place.name,
-                        coordinates = place.coordinates,
-                    ),
+                    currentPin =
+                        LocationPin(
+                            latitude = fix.latitude,
+                            longitude = fix.longitude,
+                            label = place.name,
+                            coordinates = place.coordinates,
+                        ),
                 )
             }
         }
@@ -109,20 +110,19 @@ class HomeViewModel(
     fun onOpenAccount(navigateToAccount: () -> Unit) = navigateToAccount()
 
     private companion object {
-
-        fun buildInitialState(): HomeUiState = HomeUiState(
-            greetingName = firstName(ProfileMockData.primaryProfile()),
-            notificationCount = HomeMockData.notificationCount(),
-            actionRequired = HomeMockData.actionRequiredBanner(),
-            atAGlance = HomeMockData.atAGlance(),
-            marketingItems = HomeMockData.carouselItems(),
-            // Real app starts pin-less; the init coroutine fills the device's actual location.
-            currentPin = null,
-        )
+        fun buildInitialState(): HomeUiState =
+            HomeUiState(
+                greetingName = firstName(ProfileMockData.primaryProfile()),
+                notificationCount = HomeMockData.notificationCount(),
+                actionRequired = HomeMockData.actionRequiredBanner(),
+                atAGlance = HomeMockData.atAGlance(),
+                marketingItems = HomeMockData.carouselItems(),
+                // Real app starts pin-less; the init coroutine fills the device's actual location.
+                currentPin = null,
+            )
 
         /** First whitespace-delimited token of the profile name, e.g. "Demo User" -> "Demo". */
-        fun firstName(profile: EmployeeProfile): String =
-            profile.name.trim().substringBefore(' ').ifBlank { profile.name.trim() }
+        fun firstName(profile: EmployeeProfile): String = profile.name.trim().substringBefore(' ').ifBlank { profile.name.trim() }
     }
 }
 
@@ -130,6 +130,7 @@ class HomeViewModel(
  * Koin module for the Home tab. Registered by the integrator alongside the other feature
  * modules; exposes [HomeViewModel] via `koinViewModel()`.
  */
-val homeModule = module {
-    viewModelOf(::HomeViewModel)
-}
+val homeModule =
+    module {
+        viewModelOf(::HomeViewModel)
+    }

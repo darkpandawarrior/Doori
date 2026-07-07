@@ -1,12 +1,6 @@
 package com.mileway.ui.home
 
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mileway.feature.agent.ui.AssistantEntryMode
-import com.mileway.feature.agent.ui.AssistantFabSessionState
-import com.mileway.feature.agent.ui.components.ChatAgentIndicator
-import com.mileway.feature.agent.ui.components.ChatIndicatorMode
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,17 +10,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import com.mileway.core.ui.components.CurrentLocationPinMap
-import com.mileway.core.ui.components.LocationPin
-import com.mileway.core.ui.previews.PreviewSurface
-import androidx.compose.ui.tooling.preview.Preview
-import com.mileway.core.common.formatDecimal
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,32 +24,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.PriorityHigh
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.RequestQuote
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Storefront
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.NotificationImportant
-import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material.icons.filled.RadioButtonChecked
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -74,7 +58,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,22 +72,35 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.AutoSizeGreeting
 import com.mileway.core.ui.components.CountBadge
+import com.mileway.core.ui.components.CurrentLocationPinMap
+import com.mileway.core.ui.components.LocationPin
 import com.mileway.core.ui.components.ScanlineOverlay
+import com.mileway.core.ui.previews.PreviewSurface
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.TerminalType
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
+import com.mileway.feature.agent.ui.AssistantEntryMode
+import com.mileway.feature.agent.ui.AssistantFabSessionState
+import com.mileway.feature.agent.ui.components.ChatAgentIndicator
+import com.mileway.feature.agent.ui.components.ChatIndicatorMode
 import com.mileway.stub.ActionRequiredBanner
 import com.mileway.stub.AtAGlanceCounts
 import com.mileway.stub.MarketingCarouselItem
@@ -147,9 +143,10 @@ fun HomeProfileHeader(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(DesignTokens.topBarGradientBrush()),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .background(DesignTokens.topBarGradientBrush()),
     ) {
         // Terminal world-map backdrop — pure Canvas dots from an embedded land mask (no raster
         // asset), so it renders on device *and* in host-side Roborazzi screenshots (which can't
@@ -165,36 +162,39 @@ fun HomeProfileHeader(
         ScanlineOverlay(lineAlpha = 0.04f)
         // Subtle diagonal sheen
         Canvas(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
-            val sheenBrush = Brush.linearGradient(
-                colors = listOf(Color.White.copy(alpha = 0.04f), Color.Transparent),
-                start = Offset(0f, 0f),
-                end = Offset(size.width * 0.55f, size.height),
-            )
+            val sheenBrush =
+                Brush.linearGradient(
+                    colors = listOf(Color.White.copy(alpha = 0.04f), Color.Transparent),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width * 0.55f, size.height),
+                )
             drawRect(brush = sheenBrush)
         }
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .height(HeaderContentHeight)
-                .padding(horizontal = DesignTokens.Spacing.l),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .height(HeaderContentHeight)
+                    .padding(horizontal = DesignTokens.Spacing.l),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             // Terminal avatar — thin phosphor border, `>_` label inside
             Box(
-                modifier = Modifier
-                    .size(AvatarSize)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                        shape = RoundedCornerShape(6.dp),
-                    )
-                    .background(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        RoundedCornerShape(6.dp),
-                    ),
+                modifier =
+                    Modifier
+                        .size(AvatarSize)
+                        .border(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(6.dp),
+                        )
+                        .background(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            RoundedCornerShape(6.dp),
+                        ),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -270,9 +270,10 @@ private fun HeaderIconButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = Color.White,
-            modifier = Modifier
-                .padding(9.dp)
-                .size(DesignTokens.IconSize.navigation),
+            modifier =
+                Modifier
+                    .padding(9.dp)
+                    .size(DesignTokens.IconSize.navigation),
         )
     }
 }
@@ -325,10 +326,11 @@ fun ActionRequiredCard(
         Column {
             // Red top accent strip.
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(DesignTokens.StatusColors.error),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .background(DesignTokens.StatusColors.error),
             )
             Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
                 Row(
@@ -352,8 +354,9 @@ fun ActionRequiredCard(
                 Spacer(Modifier.height(DesignTokens.Spacing.s))
 
                 Text(
-                    text = "${banner.amountText} in ${banner.count} transactions " +
-                        "awaiting voucher submission",
+                    text =
+                        "${banner.amountText} in ${banner.count} transactions " +
+                            "awaiting voucher submission",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -364,10 +367,11 @@ fun ActionRequiredCard(
                     onClick = onTakeAction,
                     modifier = Modifier.fillMaxWidth(),
                     shape = DesignTokens.Shape.roundedSm,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        contentColor = MaterialTheme.colorScheme.primary,
-                    ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            contentColor = MaterialTheme.colorScheme.primary,
+                        ),
                 ) {
                     Text(
                         text = "Take Action",
@@ -407,10 +411,11 @@ fun WelcomeBanner(
     ) {
         Column {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(MilewayColors.success),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .background(MilewayColors.success),
             )
             Row(
                 modifier = Modifier.padding(DesignTokens.Spacing.l),
@@ -528,12 +533,13 @@ private fun QuickActionTile(
 fun quickActions(
     onAddExpense: () -> Unit,
     onIllustrative: () -> Unit,
-): List<QuickAction> = listOf(
-    QuickAction("Add Expense", Icons.AutoMirrored.Filled.NoteAdd, onAddExpense),
-    QuickAction("Create Voucher", Icons.Filled.CreditCard, onIllustrative),
-    QuickAction("Ask Advance", Icons.Filled.RequestQuote, onIllustrative),
-    QuickAction("Add Invoice", Icons.Filled.AttachFile, onIllustrative),
-)
+): List<QuickAction> =
+    listOf(
+        QuickAction("Add Expense", Icons.AutoMirrored.Filled.NoteAdd, onAddExpense),
+        QuickAction("Create Voucher", Icons.Filled.CreditCard, onIllustrative),
+        QuickAction("Ask Advance", Icons.Filled.RequestQuote, onIllustrative),
+        QuickAction("Add Invoice", Icons.Filled.AttachFile, onIllustrative),
+    )
 
 // =============================================================================
 // Mileage carousel
@@ -556,40 +562,41 @@ data class FeatureCarouselCard(
 fun featureCarouselCards(
     onStartTracking: () -> Unit,
     onIllustrative: () -> Unit,
-): List<FeatureCarouselCard> = listOf(
-    FeatureCarouselCard(
-        title = "Mileage",
-        subtitle = "Get reimbursed for fuel by your miles travelled",
-        accent = DesignTokens.StatusColors.success,
-        icon = Icons.Filled.DirectionsCar,
-        primary = true,
-        onAction = onStartTracking,
-    ),
-    FeatureCarouselCard(
-        title = "Customer Navigation",
-        subtitle = "Navigate to your next customer location",
-        accent = DesignTokens.StatusColors.info,
-        icon = Icons.Filled.Navigation,
-        primary = false,
-        onAction = onIllustrative,
-    ),
-    FeatureCarouselCard(
-        title = "Track Reportees",
-        subtitle = "View team analytics and field activity",
-        accent = DesignTokens.StatusColors.success,
-        icon = Icons.Filled.Group,
-        primary = false,
-        onAction = onIllustrative,
-    ),
-    FeatureCarouselCard(
-        title = "Center Check-In",
-        subtitle = "Check in at a center near you",
-        accent = DesignTokens.StatusColors.warning,
-        icon = Icons.Filled.Storefront,
-        primary = false,
-        onAction = onIllustrative,
-    ),
-)
+): List<FeatureCarouselCard> =
+    listOf(
+        FeatureCarouselCard(
+            title = "Mileage",
+            subtitle = "Get reimbursed for fuel by your miles travelled",
+            accent = DesignTokens.StatusColors.success,
+            icon = Icons.Filled.DirectionsCar,
+            primary = true,
+            onAction = onStartTracking,
+        ),
+        FeatureCarouselCard(
+            title = "Customer Navigation",
+            subtitle = "Navigate to your next customer location",
+            accent = DesignTokens.StatusColors.info,
+            icon = Icons.Filled.Navigation,
+            primary = false,
+            onAction = onIllustrative,
+        ),
+        FeatureCarouselCard(
+            title = "Track Reportees",
+            subtitle = "View team analytics and field activity",
+            accent = DesignTokens.StatusColors.success,
+            icon = Icons.Filled.Group,
+            primary = false,
+            onAction = onIllustrative,
+        ),
+        FeatureCarouselCard(
+            title = "Center Check-In",
+            subtitle = "Check in at a center near you",
+            accent = DesignTokens.StatusColors.warning,
+            icon = Icons.Filled.Storefront,
+            primary = false,
+            onAction = onIllustrative,
+        ),
+    )
 
 /** Fixed height for the feature carousel pages. */
 val FeatureCarouselCardHeight = 150.dp
@@ -604,9 +611,10 @@ fun FeatureCarouselCardView(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(FeatureCarouselCardHeight),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(FeatureCarouselCardHeight),
         shape = DesignTokens.Shape.carouselCard,
         color = card.accent.copy(alpha = 0.14f),
     ) {
@@ -616,25 +624,28 @@ fun FeatureCarouselCardView(
                 imageVector = card.icon,
                 contentDescription = null,
                 tint = card.accent.copy(alpha = 0.22f),
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = DesignTokens.Spacing.s)
-                    .size(112.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = DesignTokens.Spacing.s)
+                        .size(112.dp),
             )
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(DesignTokens.Spacing.l),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
                     // Accent badge icon.
                     Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(CircleShape)
-                            .background(card.accent),
+                        modifier =
+                            Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(card.accent),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -668,9 +679,10 @@ fun FeatureCarouselCardView(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = card.title,
                         tint = card.accent,
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .size(DesignTokens.IconSize.header),
+                        modifier =
+                            Modifier
+                                .align(Alignment.End)
+                                .size(DesignTokens.IconSize.header),
                     )
                 }
             }
@@ -687,10 +699,11 @@ private fun StartPill(onClick: () -> Unit) {
         color = MaterialTheme.colorScheme.onSurface,
     ) {
         Row(
-            modifier = Modifier.padding(
-                horizontal = DesignTokens.Spacing.l,
-                vertical = DesignTokens.Spacing.s,
-            ),
+            modifier =
+                Modifier.padding(
+                    horizontal = DesignTokens.Spacing.l,
+                    vertical = DesignTokens.Spacing.s,
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
         ) {
@@ -722,23 +735,24 @@ data class AtAGlanceRow(
 )
 
 /** Maps the [AtAGlanceCounts] into the three rows the section renders, in order. */
-fun atAGlanceRows(counts: AtAGlanceCounts): List<AtAGlanceRow> = listOf(
-    AtAGlanceRow(
-        count = counts.unreportedTransactions,
-        title = "Unreported Transactions",
-        subtitle = "expenses & vouchers this month",
-    ),
-    AtAGlanceRow(
-        count = counts.upcomingTrips,
-        title = "Upcoming Trips",
-        subtitle = "scheduled in the coming weeks",
-    ),
-    AtAGlanceRow(
-        count = counts.pendingInvoices,
-        title = "Pending Invoices",
-        subtitle = "awaiting processing",
-    ),
-)
+fun atAGlanceRows(counts: AtAGlanceCounts): List<AtAGlanceRow> =
+    listOf(
+        AtAGlanceRow(
+            count = counts.unreportedTransactions,
+            title = "Unreported Transactions",
+            subtitle = "expenses & vouchers this month",
+        ),
+        AtAGlanceRow(
+            count = counts.upcomingTrips,
+            title = "Upcoming Trips",
+            subtitle = "scheduled in the coming weeks",
+        ),
+        AtAGlanceRow(
+            count = counts.pendingInvoices,
+            title = "Pending Invoices",
+            subtitle = "awaiting processing",
+        ),
+    )
 
 /** A single tappable "At A Glance" row. */
 @Composable
@@ -748,14 +762,15 @@ fun AtAGlanceRowView(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .clip(DesignTokens.Shape.roundedSm)
-            .clickable(onClick = onClick)
-            .semantics(mergeDescendants = true) {
-                contentDescription = "${row.count} ${row.title}, ${row.subtitle}"
-            }
-            .fillMaxWidth()
-            .padding(vertical = DesignTokens.Spacing.m),
+        modifier =
+            modifier
+                .clip(DesignTokens.Shape.roundedSm)
+                .clickable(onClick = onClick)
+                .semantics(mergeDescendants = true) {
+                    contentDescription = "${row.count} ${row.title}, ${row.subtitle}"
+                }
+                .fillMaxWidth()
+                .padding(vertical = DesignTokens.Spacing.m),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
     ) {
@@ -802,16 +817,18 @@ fun MarketingCardView(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier
-            .width(MarketingCardWidth)
-            .height(132.dp),
+        modifier =
+            modifier
+                .width(MarketingCardWidth)
+                .height(132.dp),
         shape = DesignTokens.Shape.carouselCard,
         color = MaterialTheme.colorScheme.primaryContainer,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(DesignTokens.Spacing.l),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(DesignTokens.Spacing.l),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             Surface(
@@ -823,10 +840,11 @@ fun MarketingCardView(
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(
-                        horizontal = DesignTokens.Spacing.s,
-                        vertical = 2.dp,
-                    ),
+                    modifier =
+                        Modifier.padding(
+                            horizontal = DesignTokens.Spacing.s,
+                            vertical = 2.dp,
+                        ),
                 )
             }
             Text(
@@ -892,13 +910,14 @@ fun AnimatedBannerStrip(
     val successTone = MilewayColors.success
     val warningTone = MilewayColors.warning
     val infoTone = MilewayColors.info
-    val banners = remember(isTrackingActive, successTone, warningTone, infoTone) {
-        buildList {
-            if (isTrackingActive) add(BannerSpec(Icons.Filled.RadioButtonChecked, "Tracking active · 4.2 km · 00:18:32", successTone))
-            add(BannerSpec(Icons.Filled.NotificationImportant, "3 items need your attention", warningTone))
-            add(BannerSpec(Icons.Filled.Info, "Submit your Oct expenses before 31st Nov.", infoTone, dismissible = true))
+    val banners =
+        remember(isTrackingActive, successTone, warningTone, infoTone) {
+            buildList {
+                if (isTrackingActive) add(BannerSpec(Icons.Filled.RadioButtonChecked, "Tracking active · 4.2 km · 00:18:32", successTone))
+                add(BannerSpec(Icons.Filled.NotificationImportant, "3 items need your attention", warningTone))
+                add(BannerSpec(Icons.Filled.Info, "Submit your Oct expenses before 31st Nov.", infoTone, dismissible = true))
+            }
         }
-    }
     var currentIndex by remember { mutableIntStateOf(0) }
     var dismissed by remember { mutableStateOf(false) }
 
@@ -922,9 +941,10 @@ fun AnimatedBannerStrip(
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.s),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.s),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
                 ) {
@@ -993,12 +1013,13 @@ fun AtAGlanceGrid(
     onNotifications: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val cells = listOf(
-        GlanceCell(counts.pendingExpenses, "Pending Expenses", MilewayColors.warning, Icons.Filled.ReceiptLong, "expenses", onPendingExpenses),
-        GlanceCell(counts.upcomingTrips, "Upcoming Trips", MilewayColors.info, Icons.Filled.Flight, "trips", onUpcomingTrips),
-        GlanceCell(counts.pendingApprovals, "Pending Approvals", MilewayColors.danger, Icons.Filled.FactCheck, "approvals", onPendingApprovals),
-        GlanceCell(counts.unreadNotifications, "Unread Notifications", MilewayColors.premium, Icons.Filled.Notifications, "notifications", onNotifications),
-    )
+    val cells =
+        listOf(
+            GlanceCell(counts.pendingExpenses, "Pending Expenses", MilewayColors.warning, Icons.Filled.ReceiptLong, "expenses", onPendingExpenses),
+            GlanceCell(counts.upcomingTrips, "Upcoming Trips", MilewayColors.info, Icons.Filled.Flight, "trips", onUpcomingTrips),
+            GlanceCell(counts.pendingApprovals, "Pending Approvals", MilewayColors.danger, Icons.Filled.FactCheck, "approvals", onPendingApprovals),
+            GlanceCell(counts.unreadNotifications, "Unread Notifications", MilewayColors.premium, Icons.Filled.Notifications, "notifications", onNotifications),
+        )
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
         Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s), modifier = Modifier.fillMaxWidth()) {
             GlanceCell(cells[0], Modifier.weight(1f))
@@ -1012,12 +1033,16 @@ fun AtAGlanceGrid(
 }
 
 @Composable
-private fun GlanceCell(cell: GlanceCell, modifier: Modifier = Modifier) {
+private fun GlanceCell(
+    cell: GlanceCell,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         onClick = cell.onClick,
-        modifier = modifier.semantics {
-            contentDescription = "${cell.count} ${cell.label}. Tap to view ${cell.destinationLabel}."
-        },
+        modifier =
+            modifier.semantics {
+                contentDescription = "${cell.count} ${cell.label}. Tap to view ${cell.destinationLabel}."
+            },
         shape = DesignTokens.Shape.roundedMd,
         color = cell.color.copy(alpha = 0.08f),
         border = BorderStroke(1.dp, cell.color.copy(alpha = 0.2f)),
@@ -1039,7 +1064,7 @@ private fun GlanceCell(cell: GlanceCell, modifier: Modifier = Modifier) {
             val animatedCount by animateIntAsState(
                 targetValue = cell.count,
                 animationSpec = tween(durationMillis = 900),
-                label = "glanceCount"
+                label = "glanceCount",
             )
             Text(animatedCount.toString(), style = MaterialTheme.typography.headlineSmall.dataStyle(), fontWeight = FontWeight.Bold, color = cell.color)
             Text(cell.label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
@@ -1053,10 +1078,11 @@ private fun GlanceCell(cell: GlanceCell, modifier: Modifier = Modifier) {
 
 private data class MockCard(val label: String, val balance: String, val last4: String, val gradient: Brush)
 
-private val MOCK_CARDS = listOf(
-    MockCard("PETTY CASH", "₹2,400", "QR1", Brush.linearGradient(listOf(Color(0xFF00695C), Color(0xFF00ACC1)))),
-    MockCard("CORPORATE", "₹48,000", "4821", Brush.linearGradient(listOf(Color(0xFF1A237E), Color(0xFF283593)))),
-)
+private val MOCK_CARDS =
+    listOf(
+        MockCard("PETTY CASH", "₹2,400", "QR1", Brush.linearGradient(listOf(Color(0xFF00695C), Color(0xFF00ACC1)))),
+        MockCard("CORPORATE", "₹48,000", "4821", Brush.linearGradient(listOf(Color(0xFF1A237E), Color(0xFF283593)))),
+    )
 
 @Composable
 fun MyCardsSection(
@@ -1087,14 +1113,18 @@ fun MyCardsSection(
 }
 
 @Composable
-private fun MockCardView(card: MockCard, onAction: () -> Unit) {
+private fun MockCardView(
+    card: MockCard,
+    onAction: () -> Unit,
+) {
     Box(
-        modifier = Modifier
-            .width(260.dp)
-            .height(140.dp)
-            .clip(DesignTokens.Shape.roundedLg)
-            .background(card.gradient)
-            .padding(DesignTokens.Spacing.l),
+        modifier =
+            Modifier
+                .width(260.dp)
+                .height(140.dp)
+                .clip(DesignTokens.Shape.roundedLg)
+                .background(card.gradient)
+                .padding(DesignTokens.Spacing.l),
     ) {
         Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
             Column {
@@ -1108,10 +1138,25 @@ private fun MockCardView(card: MockCard, onAction: () -> Unit) {
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Surface(onClick = onAction, shape = RoundedCornerShape(20.dp), color = Color.White.copy(alpha = 0.2f)) {
-                        Text("Pay", style = MaterialTheme.typography.labelSmall, color = Color.White, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                        Text(
+                            "Pay",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        )
                     }
-                    Surface(onClick = onAction, shape = RoundedCornerShape(20.dp), color = Color.Transparent, border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f))) {
-                        Text("Request", style = MaterialTheme.typography.labelSmall, color = Color.White, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp))
+                    Surface(
+                        onClick = onAction,
+                        shape = RoundedCornerShape(20.dp),
+                        color = Color.Transparent,
+                        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.6f)),
+                    ) {
+                        Text(
+                            "Request",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        )
                     }
                 }
             }
@@ -1124,15 +1169,17 @@ private fun MockCardView(card: MockCard, onAction: () -> Unit) {
 // =============================================================================
 
 private enum class ActivityStatus { APPROVED, PENDING, SUBMITTED, REJECTED }
+
 private data class ActivityItem(val id: String, val title: String, val amount: String, val status: ActivityStatus, val date: String)
 
-private val RECENT_ACTIVITIES = listOf(
-    ActivityItem("EXP-001", "Business dinner", "₹3,200", ActivityStatus.APPROVED, "Today"),
-    ActivityItem("EXP-002", "Office supplies", "₹680", ActivityStatus.PENDING, "Today"),
-    ActivityItem("MI-001", "Client visit · 48 km", "₹576", ActivityStatus.SUBMITTED, "Yesterday"),
-    ActivityItem("ADV-001", "Field advance", "₹5,000", ActivityStatus.APPROVED, "Yesterday"),
-    ActivityItem("INV-001", "Vendor invoice", "₹12,000", ActivityStatus.PENDING, "2 days ago"),
-)
+private val RECENT_ACTIVITIES =
+    listOf(
+        ActivityItem("EXP-001", "Business dinner", "₹3,200", ActivityStatus.APPROVED, "Today"),
+        ActivityItem("EXP-002", "Office supplies", "₹680", ActivityStatus.PENDING, "Today"),
+        ActivityItem("MI-001", "Client visit · 48 km", "₹576", ActivityStatus.SUBMITTED, "Yesterday"),
+        ActivityItem("ADV-001", "Field advance", "₹5,000", ActivityStatus.APPROVED, "Yesterday"),
+        ActivityItem("INV-001", "Vendor invoice", "₹12,000", ActivityStatus.PENDING, "2 days ago"),
+    )
 
 @Composable
 fun RecentActivitySection(
@@ -1161,27 +1208,33 @@ fun RecentActivitySection(
 }
 
 @Composable
-private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
-    val statusColor = when (item.status) {
-        ActivityStatus.APPROVED -> MilewayColors.success
-        ActivityStatus.PENDING -> MilewayColors.warning
-        ActivityStatus.SUBMITTED -> MilewayColors.info
-        ActivityStatus.REJECTED -> MilewayColors.danger
-    }
-    val statusLabel = when (item.status) {
-        ActivityStatus.APPROVED -> "Approved"
-        ActivityStatus.PENDING -> "Pending"
-        ActivityStatus.SUBMITTED -> "Submitted"
-        ActivityStatus.REJECTED -> "Rejected"
-    }
+private fun ActivityRow(
+    item: ActivityItem,
+    onClick: () -> Unit,
+) {
+    val statusColor =
+        when (item.status) {
+            ActivityStatus.APPROVED -> MilewayColors.success
+            ActivityStatus.PENDING -> MilewayColors.warning
+            ActivityStatus.SUBMITTED -> MilewayColors.info
+            ActivityStatus.REJECTED -> MilewayColors.danger
+        }
+    val statusLabel =
+        when (item.status) {
+            ActivityStatus.APPROVED -> "Approved"
+            ActivityStatus.PENDING -> "Pending"
+            ActivityStatus.SUBMITTED -> "Submitted"
+            ActivityStatus.REJECTED -> "Rejected"
+        }
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .semantics(mergeDescendants = true) {
-                contentDescription = "${item.title}, ${item.id}, ${item.date}, ${item.amount}, $statusLabel"
-            }
-            .padding(vertical = DesignTokens.Spacing.s),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .semantics(mergeDescendants = true) {
+                    contentDescription = "${item.title}, ${item.id}, ${item.date}, ${item.amount}, $statusLabel"
+                }
+                .padding(vertical = DesignTokens.Spacing.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
@@ -1191,16 +1244,29 @@ private fun ActivityRow(item: ActivityItem, onClick: () -> Unit) {
             Text("${item.id} · ${item.date}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text(item.amount, style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                item.amount,
+                style = MaterialTheme.typography.bodyMedium.dataStyle(),
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
             Surface(shape = DesignTokens.Shape.chip, color = statusColor.copy(alpha = 0.12f)) {
-                Text(statusLabel, style = MaterialTheme.typography.labelSmall, color = statusColor, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
+                Text(
+                    statusLabel,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = statusColor,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TextButton(onClick: () -> Unit, content: @Composable () -> Unit) {
+private fun TextButton(
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
     androidx.compose.material3.TextButton(onClick = onClick) { content() }
 }
 
@@ -1234,10 +1300,11 @@ fun HomeMileageCard(
         Column {
             // Gradient header
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(DesignTokens.topBarGradientBrush())
-                    .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .background(DesignTokens.topBarGradientBrush())
+                        .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -1266,13 +1333,14 @@ fun HomeMileageCard(
                 // Canvas progress ring (120dp) + centre text. Merge into one TalkBack node so the
                 // ring is announced as a single "X of Y km" progress reading, not loose digits.
                 Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .align(Alignment.CenterHorizontally)
-                        .semantics(mergeDescendants = true) {
-                            contentDescription =
-                                "Mileage progress: ${WEEK_KM_DEMO.toInt()} of ${WEEK_KM_GOAL.toInt()} kilometres this week"
-                        },
+                    modifier =
+                        Modifier
+                            .size(120.dp)
+                            .align(Alignment.CenterHorizontally)
+                            .semantics(mergeDescendants = true) {
+                                contentDescription =
+                                    "Mileage progress: ${WEEK_KM_DEMO.toInt()} of ${WEEK_KM_GOAL.toInt()} kilometres this week"
+                            },
                     contentAlignment = Alignment.Center,
                 ) {
                     Canvas(modifier = Modifier.matchParentSize()) {
@@ -1352,7 +1420,11 @@ fun HomeMileageCard(
 }
 
 @Composable
-private fun MileageStat(label: String, value: String, modifier: Modifier = Modifier) {
+private fun MileageStat(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
@@ -1374,11 +1446,12 @@ private fun MileageStat(label: String, value: String, modifier: Modifier = Modif
 
 private data class DemoCheckIn(val location: String, val time: String, val isIn: Boolean)
 
-private val DEMO_CHECK_INS = listOf(
-    DemoCheckIn("Head Office, Baner", "09:12 AM · Today", isIn = true),
-    DemoCheckIn("Client Site, Koregaon Park", "02:35 PM · Yesterday", isIn = false),
-    DemoCheckIn("Head Office, Baner", "09:05 AM · Yesterday", isIn = true),
-)
+private val DEMO_CHECK_INS =
+    listOf(
+        DemoCheckIn("Head Office, Baner", "09:12 AM · Today", isIn = true),
+        DemoCheckIn("Client Site, Koregaon Park", "02:35 PM · Yesterday", isIn = false),
+        DemoCheckIn("Head Office, Baner", "09:05 AM · Yesterday", isIn = true),
+    )
 
 /**
  * VII.2: Check-In card with location pin header, count badge, "Check In at Office" primary
@@ -1407,10 +1480,11 @@ fun HomeCheckInCard(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        modifier =
+                            Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
@@ -1462,13 +1536,20 @@ fun HomeCheckInCard(
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(if (entry.isIn) MilewayColors.success else MilewayColors.warning),
+                        modifier =
+                            Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(if (entry.isIn) MilewayColors.success else MilewayColors.warning),
                     )
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(entry.location, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface, maxLines = 1)
+                        Text(
+                            entry.location,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                        )
                         Text(entry.time, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Text(

@@ -38,18 +38,19 @@ private data class PermissionDisclosure(
     val reason: String,
 )
 
-private val DISCLOSURES = listOf(
-    PermissionDisclosure(
-        icon = Icons.Filled.LocationOn,
-        title = "Location",
-        reason = "to record your trip route",
-    ),
-    PermissionDisclosure(
-        icon = Icons.Filled.Notifications,
-        title = "Notifications",
-        reason = "to show tracking status",
-    ),
-)
+private val DISCLOSURES =
+    listOf(
+        PermissionDisclosure(
+            icon = Icons.Filled.LocationOn,
+            title = "Location",
+            reason = "to record your trip route",
+        ),
+        PermissionDisclosure(
+            icon = Icons.Filled.Notifications,
+            title = "Notifications",
+            reason = "to show tracking status",
+        ),
+    )
 
 /**
  * PLAN_V22 P7.5: shown once on [LoginScreen]'s first composition, before the reviewer signs in.
@@ -73,11 +74,12 @@ fun WelcomeDisclaimerSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = DesignTokens.Spacing.xl)
-                .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = DesignTokens.Spacing.xl)
+                    .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
         ) {
             Text(
                 text = "Before you start tracking",
@@ -86,8 +88,9 @@ fun WelcomeDisclaimerSheet(
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text = "Mileway records trips fully offline on your device. It needs a couple of " +
-                    "permissions to do that:",
+                text =
+                    "Mileway records trips fully offline on your device. It needs a couple of " +
+                        "permissions to do that:",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

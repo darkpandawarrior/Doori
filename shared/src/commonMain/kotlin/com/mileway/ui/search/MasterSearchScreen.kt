@@ -42,7 +42,6 @@ import com.mileway.core.data.search.displayLabel
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.mvi.DefaultEmptyState
-import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -201,7 +200,10 @@ private fun ResultList(
 }
 
 @Composable
-private fun SectionHeader(label: String, count: Int) {
+private fun SectionHeader(
+    label: String,
+    count: Int,
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -221,7 +223,10 @@ private fun SectionHeader(label: String, count: Int) {
 }
 
 @Composable
-private fun ResultRow(result: SearchResult, onClick: () -> Unit) {
+private fun ResultRow(
+    result: SearchResult,
+    onClick: () -> Unit,
+) {
     val status = result.status
     val amount = result.amount
     Surface(
@@ -263,4 +268,3 @@ private fun ResultRow(result: SearchResult, onClick: () -> Unit) {
         }
     }
 }
-

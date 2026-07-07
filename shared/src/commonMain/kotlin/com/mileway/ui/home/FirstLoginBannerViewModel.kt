@@ -28,19 +28,19 @@ data class FirstLoginBannerUiState(
 class FirstLoginBannerViewModel(
     private val sessionRepository: SessionRepository,
 ) : ViewModel() {
-
-    val uiState: StateFlow<FirstLoginBannerUiState> = sessionRepository.sessionState
-        .map { session ->
-            FirstLoginBannerUiState(
-                isVisible = session.isFirstLoginPending,
-                displayName = session.displayName,
-                officeName = session.officeName,
-            )
-        }
-        // Eagerly (not WhileSubscribed): this is a cheap DataStore-derived projection read once
-        // at Home composition, and eager sharing keeps `.value` correct even before Compose has
-        // a chance to collect (matters for unit tests that assert on `.value` directly).
-        .stateIn(viewModelScope, SharingStarted.Eagerly, FirstLoginBannerUiState())
+    val uiState: StateFlow<FirstLoginBannerUiState> =
+        sessionRepository.sessionState
+            .map { session ->
+                FirstLoginBannerUiState(
+                    isVisible = session.isFirstLoginPending,
+                    displayName = session.displayName,
+                    officeName = session.officeName,
+                )
+            }
+            // Eagerly (not WhileSubscribed): this is a cheap DataStore-derived projection read once
+            // at Home composition, and eager sharing keeps `.value` correct even before Compose has
+            // a chance to collect (matters for unit tests that assert on `.value` directly).
+            .stateIn(viewModelScope, SharingStarted.Eagerly, FirstLoginBannerUiState())
 
     /** Called once the banner has actually been composed/shown — clears the one-shot flag. */
     fun onBannerShown() {
@@ -51,6 +51,7 @@ class FirstLoginBannerViewModel(
 }
 
 /** Koin module for [FirstLoginBannerViewModel] — registered alongside [homeModule]'s own entries. */
-val firstLoginBannerModule = module {
-    viewModelOf(::FirstLoginBannerViewModel)
-}
+val firstLoginBannerModule =
+    module {
+        viewModelOf(::FirstLoginBannerViewModel)
+    }

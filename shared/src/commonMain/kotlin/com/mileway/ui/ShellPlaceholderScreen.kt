@@ -22,24 +22,28 @@ import com.mileway.core.ui.components.EmptyState
  * while those surfaces are built out.
  */
 @Composable
-fun ShellPlaceholderScreen(title: String, icon: ImageVector) {
+fun ShellPlaceholderScreen(
+    title: String,
+    icon: ImageVector,
+) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(24.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(56.dp),
-            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
         )
         Spacer(Modifier.height(16.dp))
         EmptyState(
             title = title,
-            subtitle = "This area is illustrative in the demo. Mileage, expenses, and profile are fully functional."
+            subtitle = "This area is illustrative in the demo. Mileage, expenses, and profile are fully functional.",
         )
     }
 }

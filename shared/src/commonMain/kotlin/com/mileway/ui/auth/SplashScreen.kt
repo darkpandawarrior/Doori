@@ -42,7 +42,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 
 /**
@@ -50,11 +49,12 @@ import kotlinx.coroutines.delay
  * Each stage is shown for [STAGE_DURATION_MS] before advancing; after the last one the
  * screen reports completion via the supplied callback.
  */
-private val SPLASH_STAGES = listOf(
-    "Checking session…",
-    "Syncing configuration…",
-    "Preparing your workspace…",
-)
+private val SPLASH_STAGES =
+    listOf(
+        "Checking session…",
+        "Syncing configuration…",
+        "Preparing your workspace…",
+    )
 
 /** How long each [SPLASH_STAGES] message stays on screen. */
 private const val STAGE_DURATION_MS = 700L
@@ -99,18 +99,20 @@ fun SplashScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             // Centred logo mark, the visual anchor of the launch screen.
             CompassMark(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .size(96.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .size(96.dp),
             )
 
             // Spinner + staged status copy, weighted toward the lower third to match the
             // reference layout where the indicator sits well below the centred mark.
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxSize()
-                    .padding(bottom = 96.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxSize()
+                        .padding(bottom = 96.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Bottom,
             ) {
@@ -166,21 +168,23 @@ internal fun CompassMark(
         val waist = w * 0.18f
 
         // North (bright) half: tip at top, waist at centre.
-        val north = Path().apply {
-            moveTo(cx, h * 0.06f)
-            lineTo(cx + waist, cy)
-            lineTo(cx, cy - h * 0.07f)
-            lineTo(cx - waist, cy)
-            close()
-        }
+        val north =
+            Path().apply {
+                moveTo(cx, h * 0.06f)
+                lineTo(cx + waist, cy)
+                lineTo(cx, cy - h * 0.07f)
+                lineTo(cx - waist, cy)
+                close()
+            }
         // South (faded) half: tail toward the bottom.
-        val south = Path().apply {
-            moveTo(cx, h * 0.94f)
-            lineTo(cx - waist, cy)
-            lineTo(cx, cy + h * 0.07f)
-            lineTo(cx + waist, cy)
-            close()
-        }
+        val south =
+            Path().apply {
+                moveTo(cx, h * 0.94f)
+                lineTo(cx - waist, cy)
+                lineTo(cx, cy + h * 0.07f)
+                lineTo(cx + waist, cy)
+                close()
+            }
 
         drawPath(path = north, color = color)
         drawPath(path = south, color = color.copy(alpha = 0.4f))
@@ -201,10 +205,11 @@ private fun ArcSpinner(
     val rotation by transition.animateFloat(
         initialValue = 0f,
         targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 900, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = 900, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
         label = "arcRotation",
     )
 
@@ -218,10 +223,11 @@ private fun ArcSpinner(
                 sweepAngle = 90f,
                 useCenter = false,
                 topLeft = Offset(inset, inset),
-                size = androidx.compose.ui.geometry.Size(
-                    width = size.width - strokeWidthPx,
-                    height = size.height - strokeWidthPx,
-                ),
+                size =
+                    androidx.compose.ui.geometry.Size(
+                        width = size.width - strokeWidthPx,
+                        height = size.height - strokeWidthPx,
+                    ),
                 style = Stroke(width = strokeWidthPx, cap = StrokeCap.Round),
             )
         }

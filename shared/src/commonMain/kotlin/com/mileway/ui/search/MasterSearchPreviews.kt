@@ -13,22 +13,55 @@ private fun sampleGroups(): List<SearchResultGroup> =
             type = SearchEntityType.TRIP,
             results =
                 listOf(
-                    SearchResult(SearchEntityType.TRIP, "t1", "Goa offsite", "Mar 12 · 248 km", status = "Submitted", dateEpochDay = 20_160, deeplink = "mileway://travel/t1"),
-                    SearchResult(SearchEntityType.TRIP, "t2", "Client visit · Pune", "Mar 09 · 41 km", status = "Approved", dateEpochDay = 20_157, deeplink = "mileway://travel/t2"),
+                    SearchResult(
+                        SearchEntityType.TRIP,
+                        "t1",
+                        "Goa offsite",
+                        "Mar 12 · 248 km",
+                        status = "Submitted",
+                        dateEpochDay = 20_160,
+                        deeplink = "mileway://travel/t1",
+                    ),
+                    SearchResult(
+                        SearchEntityType.TRIP,
+                        "t2",
+                        "Client visit · Pune",
+                        "Mar 09 · 41 km",
+                        status = "Approved",
+                        dateEpochDay = 20_157,
+                        deeplink = "mileway://travel/t2",
+                    ),
                 ),
         ),
         SearchResultGroup(
             type = SearchEntityType.QR,
             results =
                 listOf(
-                    SearchResult(SearchEntityType.QR, "p1", "Paid · Chai Point", "UPI · Reimbursable", status = "Completed", amount = 240.0, dateEpochDay = 20_158, deeplink = "mileway://payments/p1"),
+                    SearchResult(
+                        SearchEntityType.QR,
+                        "p1",
+                        "Paid · Chai Point",
+                        "UPI · Reimbursable",
+                        status = "Completed",
+                        amount = 240.0,
+                        dateEpochDay = 20_158,
+                        deeplink = "mileway://payments/p1",
+                    ),
                 ),
         ),
         SearchResultGroup(
             type = SearchEntityType.EVENT,
             results =
                 listOf(
-                    SearchResult(SearchEntityType.EVENT, "e1", "Quarterly summit", "Bengaluru · 3 days", status = "Upcoming", dateEpochDay = 20_170, deeplink = "mileway://events/e1"),
+                    SearchResult(
+                        SearchEntityType.EVENT,
+                        "e1",
+                        "Quarterly summit",
+                        "Bengaluru · 3 days",
+                        status = "Upcoming",
+                        dateEpochDay = 20_170,
+                        deeplink = "mileway://events/e1",
+                    ),
                 ),
         ),
     )
