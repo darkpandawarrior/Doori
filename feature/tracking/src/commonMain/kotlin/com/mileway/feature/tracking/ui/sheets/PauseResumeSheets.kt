@@ -70,6 +70,12 @@ import com.mileway.core.ui.resources.tracking_pause_cd_selected
 import com.mileway.core.ui.resources.tracking_pause_char_count
 import com.mileway.core.ui.resources.tracking_pause_custom_placeholder
 import com.mileway.core.ui.resources.tracking_pause_quick_reasons
+import com.mileway.core.ui.resources.tracking_pause_reason_break
+import com.mileway.core.ui.resources.tracking_pause_reason_fuel
+import com.mileway.core.ui.resources.tracking_pause_reason_meeting
+import com.mileway.core.ui.resources.tracking_pause_reason_personal
+import com.mileway.core.ui.resources.tracking_pause_reason_traffic
+import com.mileway.core.ui.resources.tracking_pause_reason_vehicle_issue
 import com.mileway.core.ui.resources.tracking_pause_title
 import com.mileway.core.ui.resources.tracking_pause_use_quick
 import com.mileway.core.ui.resources.tracking_pause_why
@@ -100,7 +106,13 @@ import org.jetbrains.compose.resources.stringResource
 // migrated UI keeps visual parity.
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** The six default quick-pause reasons, in display order. */
+/**
+ * The six default quick-pause reasons, in display order.
+ *
+ * These are canonical English keys, not display text: they double as the icon
+ * lookup key ([pauseReasonIcon]), the selection-match value, and the stored
+ * reason. The localized chip label is resolved separately via [pauseReasonLabel].
+ */
 val DefaultPauseReasons: List<String> =
     listOf(
         "Break",
@@ -121,6 +133,22 @@ private fun pauseReasonIcon(reason: String): ImageVector =
         "personal" -> Icons.Default.Person
         "vehicle issue" -> Icons.Default.DirectionsCar
         else -> Icons.Default.MoreHoriz
+    }
+
+/**
+ * Localized display label for a quick reason. Canonical keys map to a string
+ * resource; any other value (e.g. a custom free-text reason) is returned as-is.
+ */
+@Composable
+private fun pauseReasonLabel(reason: String): String =
+    when (reason.lowercase()) {
+        "break" -> stringResource(Res.string.tracking_pause_reason_break)
+        "meeting" -> stringResource(Res.string.tracking_pause_reason_meeting)
+        "traffic" -> stringResource(Res.string.tracking_pause_reason_traffic)
+        "fuel" -> stringResource(Res.string.tracking_pause_reason_fuel)
+        "personal" -> stringResource(Res.string.tracking_pause_reason_personal)
+        "vehicle issue" -> stringResource(Res.string.tracking_pause_reason_vehicle_issue)
+        else -> reason
     }
 
 /**
@@ -259,7 +287,7 @@ fun PauseReasonSheet(
                                 contentDescription = null,
                                 modifier = Modifier.size(18.dp),
                             )
-                            Text(reason)
+                            Text(pauseReasonLabel(reason))
                         }
                     },
                     leadingIcon =
@@ -474,7 +502,7 @@ fun ResumeTrackingSheet(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "\"$pauseReason\"",
+                text = "\"${pauseReasonLabel(pauseReason)}\"",
                 style =
                     MaterialTheme.typography.bodyLarge.copy(
                         fontWeight = FontWeight.SemiBold,

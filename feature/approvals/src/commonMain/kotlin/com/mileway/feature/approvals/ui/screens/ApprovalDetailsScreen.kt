@@ -70,6 +70,10 @@ import com.mileway.core.ui.resources.approvals_request_details
 import com.mileway.core.ui.resources.approvals_resolved
 import com.mileway.core.ui.resources.approvals_submitted_request
 import com.mileway.core.ui.resources.approvals_subtitle_approval_request
+import com.mileway.core.ui.resources.approvals_type_advance
+import com.mileway.core.ui.resources.approvals_type_expense
+import com.mileway.core.ui.resources.approvals_type_mileage
+import com.mileway.core.ui.resources.approvals_type_travel
 import com.mileway.core.ui.resources.approvals_you_approved
 import com.mileway.core.ui.resources.approvals_you_rejected
 import com.mileway.core.ui.theme.MilewayColors
@@ -322,10 +326,11 @@ private fun DetailRow(
     }
 }
 
+@Composable
 private fun typeLabel(type: ApprovalType) =
     when (type) {
-        ApprovalType.MILEAGE -> "Mileage"
-        ApprovalType.EXPENSE -> "Expense"
-        ApprovalType.TRAVEL -> "Travel"
-        ApprovalType.ADVANCE -> "Advance"
+        ApprovalType.MILEAGE -> stringResource(Res.string.approvals_type_mileage)
+        ApprovalType.EXPENSE -> stringResource(Res.string.approvals_type_expense)
+        ApprovalType.TRAVEL -> stringResource(Res.string.approvals_type_travel)
+        ApprovalType.ADVANCE -> stringResource(Res.string.approvals_type_advance)
     }

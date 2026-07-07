@@ -65,6 +65,14 @@ import com.mileway.core.ui.resources.logging_line_items
 import com.mileway.core.ui.resources.logging_note
 import com.mileway.core.ui.resources.logging_qty
 import com.mileway.core.ui.resources.logging_resubmit
+import com.mileway.core.ui.resources.logging_timeline_approved
+import com.mileway.core.ui.resources.logging_timeline_awaiting_decision
+import com.mileway.core.ui.resources.logging_timeline_contact_manager
+import com.mileway.core.ui.resources.logging_timeline_reimbursement_in_progress
+import com.mileway.core.ui.resources.logging_timeline_rejected
+import com.mileway.core.ui.resources.logging_timeline_sent_to_manager
+import com.mileway.core.ui.resources.logging_timeline_submitted
+import com.mileway.core.ui.resources.logging_timeline_under_review
 import com.mileway.core.ui.resources.logging_total
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
@@ -416,10 +424,11 @@ private data class TimelineStep(
     val timestamp: String = "",
 )
 
+@Composable
 private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
     val submitted =
         TimelineStep(
-            label = "Submitted",
+            label = stringResource(Res.string.logging_timeline_submitted),
             icon = Icons.Filled.Receipt,
             color = StatusColors.info,
             active = true,
@@ -427,35 +436,40 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
         )
     val underReview =
         TimelineStep(
-            label = "Under Review",
+            label = stringResource(Res.string.logging_timeline_under_review),
             icon = Icons.Filled.HourglassBottom,
             color = StatusColors.warning,
             active = expense.status != ExpenseStatus.DRAFT,
-            timestamp = if (expense.status != ExpenseStatus.DRAFT) "Sent to manager" else "",
+            timestamp =
+                if (expense.status != ExpenseStatus.DRAFT) {
+                    stringResource(Res.string.logging_timeline_sent_to_manager)
+                } else {
+                    ""
+                },
         )
     val terminal =
         when (expense.status) {
             ExpenseStatus.APPROVED ->
                 TimelineStep(
-                    label = "Approved",
+                    label = stringResource(Res.string.logging_timeline_approved),
                     icon = Icons.Filled.CheckCircle,
                     color = StatusColors.success,
                     active = true,
-                    timestamp = "Reimbursement in progress",
+                    timestamp = stringResource(Res.string.logging_timeline_reimbursement_in_progress),
                 )
             ExpenseStatus.REJECTED ->
                 TimelineStep(
-                    label = "Rejected",
+                    label = stringResource(Res.string.logging_timeline_rejected),
                     icon = Icons.Filled.Error,
                     color = StatusColors.error,
                     active = true,
                     // P1.9: real per-record rejection reason, falling back to the previous
                     // generic copy for any rejected record seeded before this reason existed.
-                    timestamp = expense.rejectionReason ?: "Contact your manager",
+                    timestamp = expense.rejectionReason ?: stringResource(Res.string.logging_timeline_contact_manager),
                 )
             else ->
                 TimelineStep(
-                    label = "Awaiting Decision",
+                    label = stringResource(Res.string.logging_timeline_awaiting_decision),
                     icon = Icons.Filled.HourglassBottom,
                     color = StatusColors.neutral,
                     active = false,

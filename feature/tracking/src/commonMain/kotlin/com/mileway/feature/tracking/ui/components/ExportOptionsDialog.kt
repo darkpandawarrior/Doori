@@ -52,6 +52,18 @@ import com.mileway.core.ui.resources.tracking_export_exclude_paused
 import com.mileway.core.ui.resources.tracking_export_exclude_paused_desc
 import com.mileway.core.ui.resources.tracking_export_exporting
 import com.mileway.core.ui.resources.tracking_export_format
+import com.mileway.core.ui.resources.tracking_export_format_csv
+import com.mileway.core.ui.resources.tracking_export_format_csv_desc
+import com.mileway.core.ui.resources.tracking_export_format_excel
+import com.mileway.core.ui.resources.tracking_export_format_excel_desc
+import com.mileway.core.ui.resources.tracking_export_format_geojson
+import com.mileway.core.ui.resources.tracking_export_format_geojson_desc
+import com.mileway.core.ui.resources.tracking_export_format_gpx
+import com.mileway.core.ui.resources.tracking_export_format_gpx_desc
+import com.mileway.core.ui.resources.tracking_export_format_json
+import com.mileway.core.ui.resources.tracking_export_format_json_desc
+import com.mileway.core.ui.resources.tracking_export_format_kml
+import com.mileway.core.ui.resources.tracking_export_format_kml_desc
 import com.mileway.core.ui.resources.tracking_export_max_accuracy
 import com.mileway.core.ui.resources.tracking_export_min_accuracy
 import com.mileway.core.ui.resources.tracking_export_min_battery
@@ -68,6 +80,11 @@ import org.jetbrains.compose.resources.stringResource
 
 /**
  * Supported export formats for location data.
+ *
+ * [displayName] and [description] are canonical English: they back the
+ * non-composable Android share-sheet chooser title in `TrackExportManager`. The
+ * localized labels shown in [ExportOptionsDialog] come from
+ * [localizedDisplayName] / [localizedDescription] instead.
  */
 enum class ExportFormat(
     val displayName: String,
@@ -113,6 +130,30 @@ enum class ExportFormat(
         description = "Excel spreadsheet with summary and per-point sheets, opens in Excel/Sheets/Numbers",
     ),
 }
+
+/** Localized display name shown in the export dialog. */
+@Composable
+private fun ExportFormat.localizedDisplayName(): String =
+    when (this) {
+        ExportFormat.CSV -> stringResource(Res.string.tracking_export_format_csv)
+        ExportFormat.JSON -> stringResource(Res.string.tracking_export_format_json)
+        ExportFormat.GPX -> stringResource(Res.string.tracking_export_format_gpx)
+        ExportFormat.KML -> stringResource(Res.string.tracking_export_format_kml)
+        ExportFormat.GEOJSON -> stringResource(Res.string.tracking_export_format_geojson)
+        ExportFormat.EXCEL -> stringResource(Res.string.tracking_export_format_excel)
+    }
+
+/** Localized description shown in the export dialog. */
+@Composable
+private fun ExportFormat.localizedDescription(): String =
+    when (this) {
+        ExportFormat.CSV -> stringResource(Res.string.tracking_export_format_csv_desc)
+        ExportFormat.JSON -> stringResource(Res.string.tracking_export_format_json_desc)
+        ExportFormat.GPX -> stringResource(Res.string.tracking_export_format_gpx_desc)
+        ExportFormat.KML -> stringResource(Res.string.tracking_export_format_kml_desc)
+        ExportFormat.GEOJSON -> stringResource(Res.string.tracking_export_format_geojson_desc)
+        ExportFormat.EXCEL -> stringResource(Res.string.tracking_export_format_excel_desc)
+    }
 
 /**
  * Filter options for location data queries.
@@ -227,12 +268,12 @@ fun ExportOptionsDialog(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = format.displayName,
+                                text = format.localizedDisplayName(),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                             )
                             Text(
-                                text = format.description,
+                                text = format.localizedDescription(),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

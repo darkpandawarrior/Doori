@@ -40,6 +40,13 @@ import com.mileway.core.ui.resources.tracking_dq_cleaned_ratio
 import com.mileway.core.ui.resources.tracking_dq_mock
 import com.mileway.core.ui.resources.tracking_dq_reliable
 import com.mileway.core.ui.resources.tracking_dq_title
+import com.mileway.core.ui.resources.tracking_impact_app_killed
+import com.mileway.core.ui.resources.tracking_impact_battery_optimization
+import com.mileway.core.ui.resources.tracking_impact_mock_location
+import com.mileway.core.ui.resources.tracking_impact_network_issues
+import com.mileway.core.ui.resources.tracking_impact_phone_restart
+import com.mileway.core.ui.resources.tracking_impact_poor_gps
+import com.mileway.core.ui.resources.tracking_impact_power_saver
 import com.mileway.core.ui.resources.tracking_quality_abnormal_points
 import com.mileway.core.ui.resources.tracking_quality_analysis
 import com.mileway.core.ui.resources.tracking_quality_data_completeness
@@ -528,15 +535,16 @@ fun DistanceQualityCard(
     }
 }
 
+@Composable
 private fun SystemImpactType.displayName(): String =
     when (this) {
-        SystemImpactType.BATTERY_OPTIMIZATION -> "Battery Optimisation"
-        SystemImpactType.POWER_SAVER -> "Power Saver Mode"
-        SystemImpactType.APP_KILLED -> "App Killed"
-        SystemImpactType.PHONE_RESTART -> "Device Restarted"
-        SystemImpactType.MOCK_LOCATION -> "Mock Location"
-        SystemImpactType.POOR_GPS_ACCURACY -> "Poor GPS Accuracy"
-        SystemImpactType.NETWORK_ISSUES -> "Network Issues"
+        SystemImpactType.BATTERY_OPTIMIZATION -> stringResource(Res.string.tracking_impact_battery_optimization)
+        SystemImpactType.POWER_SAVER -> stringResource(Res.string.tracking_impact_power_saver)
+        SystemImpactType.APP_KILLED -> stringResource(Res.string.tracking_impact_app_killed)
+        SystemImpactType.PHONE_RESTART -> stringResource(Res.string.tracking_impact_phone_restart)
+        SystemImpactType.MOCK_LOCATION -> stringResource(Res.string.tracking_impact_mock_location)
+        SystemImpactType.POOR_GPS_ACCURACY -> stringResource(Res.string.tracking_impact_poor_gps)
+        SystemImpactType.NETWORK_ISSUES -> stringResource(Res.string.tracking_impact_network_issues)
     }
 
 private fun impactColor(pct: Double): Color =

@@ -54,6 +54,8 @@ import com.mileway.core.ui.resources.tracking_guide_cd_capture_odometer
 import com.mileway.core.ui.resources.tracking_guide_cd_change_vehicle
 import com.mileway.core.ui.resources.tracking_guide_cd_current_step
 import com.mileway.core.ui.resources.tracking_guide_checklist
+import com.mileway.core.ui.resources.tracking_guide_checklist_capture_odometer
+import com.mileway.core.ui.resources.tracking_guide_checklist_select_vehicle
 import com.mileway.core.ui.resources.tracking_guide_draft_desc
 import com.mileway.core.ui.resources.tracking_guide_draft_mode
 import com.mileway.core.ui.resources.tracking_guide_draft_subtitle
@@ -63,6 +65,10 @@ import com.mileway.core.ui.resources.tracking_guide_odo_captured
 import com.mileway.core.ui.resources.tracking_guide_select_vehicle
 import com.mileway.core.ui.resources.tracking_guide_start_odometer
 import com.mileway.core.ui.resources.tracking_guide_start_tracking
+import com.mileway.core.ui.resources.tracking_guide_step_chip
+import com.mileway.core.ui.resources.tracking_guide_step_subtitle_permissions
+import com.mileway.core.ui.resources.tracking_guide_step_subtitle_tracking
+import com.mileway.core.ui.resources.tracking_guide_step_subtitle_vehicle
 import com.mileway.core.ui.resources.tracking_guide_title
 import com.mileway.core.ui.resources.tracking_guide_vehicle_selection
 import com.mileway.core.ui.resources.tracking_guide_vehicle_type
@@ -843,26 +849,45 @@ private fun JourneyDragHandle() {
 private data class ChecklistItem(val title: String, val complete: Boolean)
 
 /** Builds the Quick Start Checklist rows from the current state. */
+@Composable
 private fun checklistItems(state: JourneyGuideState): List<ChecklistItem> =
     buildList {
-        add(ChecklistItem("Select Vehicle", state.vehicleSelected))
+        add(
+            ChecklistItem(
+                stringResource(Res.string.tracking_guide_checklist_select_vehicle),
+                state.vehicleSelected,
+            ),
+        )
         if (state.requiresOdometer) {
-            add(ChecklistItem("Capture Start Odometer", state.odometerCaptured))
+            add(
+                ChecklistItem(
+                    stringResource(Res.string.tracking_guide_checklist_capture_odometer),
+                    state.odometerCaptured,
+                ),
+            )
         }
     }
 
 /** Subtitle under the header, per step. */
+@Composable
 private fun stepSubtitle(step: JourneyGuideStep): String =
     when (step) {
-        JourneyGuideStep.PERMISSIONS -> "Grant the permissions needed to track"
-        JourneyGuideStep.VEHICLE -> "Choose your vehicle and (if required) capture start odometer"
-        JourneyGuideStep.TRACKING -> "Tracking in progress"
+        JourneyGuideStep.PERMISSIONS ->
+            stringResource(Res.string.tracking_guide_step_subtitle_permissions)
+        JourneyGuideStep.VEHICLE ->
+            stringResource(Res.string.tracking_guide_step_subtitle_vehicle)
+        JourneyGuideStep.TRACKING ->
+            stringResource(Res.string.tracking_guide_step_subtitle_tracking)
     }
 
 /** Short chip label shown in the bottom bar, per step. */
-private fun stepChipLabel(step: JourneyGuideStep): String =
-    when (step) {
-        JourneyGuideStep.PERMISSIONS -> "Step 1"
-        JourneyGuideStep.VEHICLE -> "Step 2"
-        JourneyGuideStep.TRACKING -> "Step 3"
-    }
+@Composable
+private fun stepChipLabel(step: JourneyGuideStep): String {
+    val number =
+        when (step) {
+            JourneyGuideStep.PERMISSIONS -> 1
+            JourneyGuideStep.VEHICLE -> 2
+            JourneyGuideStep.TRACKING -> 3
+        }
+    return stringResource(Res.string.tracking_guide_step_chip, number)
+}
