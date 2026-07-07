@@ -1938,4 +1938,7 @@
     <!-- PLAN_V24 P1.3: MFA -->
     <string name="plugin_auth_mfa_required_title">Two-factor authentication</string>
     <string name="plugin_auth_mfa_required_desc">Require an OTP after sign-in, before the app opens</string>
+
+    <!-- PLAN_V24 P1.4: tiered PIN lockout -->
+    <string name="shared_pin_locked_countdown">Locked — try again in %1$ds</string>
 </resources>

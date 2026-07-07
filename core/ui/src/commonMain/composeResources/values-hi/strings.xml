@@ -1934,4 +1934,7 @@
     <!-- PLAN_V24 P1.3: MFA -->
     <string name="plugin_auth_mfa_required_title">दो-चरणीय प्रमाणीकरण</string>
     <string name="plugin_auth_mfa_required_desc">साइन-इन के बाद, ऐप खुलने से पहले OTP आवश्यक करें</string>
+
+    <!-- PLAN_V24 P1.4: tiered PIN lockout -->
+    <string name="shared_pin_locked_countdown">लॉक — %1$d सेकंड में फिर कोशिश करें</string>
 </resources>

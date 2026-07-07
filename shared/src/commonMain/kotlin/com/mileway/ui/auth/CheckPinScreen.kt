@@ -41,6 +41,7 @@ import com.mileway.core.ui.resources.shared_auth_locked_out
 import com.mileway.core.ui.resources.shared_auth_unlock
 import com.mileway.core.ui.resources.shared_auth_unlock_subtitle
 import com.mileway.core.ui.resources.shared_auth_use_biometrics
+import com.mileway.core.ui.resources.shared_pin_locked_countdown
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -126,6 +127,10 @@ fun CheckPinScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             val statusText =
                 when {
+                    // PLAN_V24 P1.4: tiered lockout shows a live countdown; falls back to the flat
+                    // "locked out" copy if the remaining seconds aren't known.
+                    state.isLockedOut && state.lockoutRemainingSeconds > 0 ->
+                        stringResource(Res.string.shared_pin_locked_countdown, state.lockoutRemainingSeconds)
                     state.isLockedOut -> stringResource(Res.string.shared_auth_locked_out)
                     state.error != null -> state.error.orEmpty()
                     else -> " "

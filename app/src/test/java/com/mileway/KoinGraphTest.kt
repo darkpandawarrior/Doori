@@ -163,6 +163,19 @@ class KoinGraphTest : KoinTest {
         // P2.3: SwitchAccountViewModel.verify() reads this; a real in-memory fake avoids the
         // suspend-fun-on-a-relaxed-mockk trap (memory: screenshot Koin needs deterministic fakes).
         single<PinHashSource> { FakePinHashSource() }
+        single<com.mileway.core.data.session.PinLockoutSource> {
+            object : com.mileway.core.data.session.PinLockoutSource {
+                override suspend fun getState(accountId: String) = com.mileway.core.data.session.PinLockoutState()
+
+                override suspend fun setState(
+                    accountId: String,
+                    state: com.mileway.core.data.session.PinLockoutState,
+                ) = Unit
+
+                override suspend fun clear(accountId: String) = Unit
+            }
+        }
+        single<kotlin.time.Clock> { kotlin.time.Clock.System }
         // P6.5: ProfileViewModel now collects `settings` eagerly in init() (Notification Center
         // channel toggles); a relaxed mockk's auto-generated Flow<DemoSettings> is not guaranteed
         // to behave like a real Flow under `.onEach{}.launchIn()` (memory: screenshot Koin needs

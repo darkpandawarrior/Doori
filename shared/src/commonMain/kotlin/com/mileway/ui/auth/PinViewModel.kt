@@ -4,14 +4,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.session.PIN_GATE_ACCOUNT_ID
 import com.mileway.core.data.session.PinHashSource
+import com.mileway.core.data.session.PinLockoutPolicy
+import com.mileway.core.data.session.PinLockoutSource
+import com.mileway.core.data.session.PinLockoutState
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.sha256Hex
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import kotlin.time.Clock
 
 /** PIN length `SetPinScreen`/`CheckPinScreen` accept; matches P2.3's switch-account PIN length. */
 const val LOGIN_PIN_LENGTH: Int = 4
@@ -30,6 +36,8 @@ data class PinUiState(
     val error: String? = null,
     val attemptsRemaining: Int = LOGIN_PIN_MAX_ATTEMPTS,
     val isLockedOut: Boolean = false,
+    /** PLAN_V24 P1.4: seconds left on the current tiered lockout window (0 when not locked). */
+    val lockoutRemainingSeconds: Int = 0,
     /** Set once a set-PIN or verify-PIN attempt succeeds; the screen advances to `AppStage.APP` on this. */
     val completed: Boolean = false,
 )
@@ -48,9 +56,14 @@ data class PinUiState(
 class PinViewModel(
     private val pinHashSource: PinHashSource,
     private val sessionRepository: SessionRepository,
+    // PLAN_V24 P1.4: tiered lockout state, persisted per account; defaulted clock for testability.
+    private val pinLockoutSource: PinLockoutSource,
+    private val clock: Clock = Clock.System,
 ) : ViewModel() {
     private val _state = MutableStateFlow(PinUiState())
     val state: StateFlow<PinUiState> = _state.asStateFlow()
+
+    private var lockoutTicker: Job? = null
 
     fun onDigitEntered(digit: Char) {
         val current = _state.value
@@ -109,34 +122,73 @@ class PinViewModel(
     }
 
     /**
-     * `CheckPinScreen`: checks [PinUiState.digits] against the stored hash. On success, sets
-     * [PinUiState.completed]; on failure, decrements [PinUiState.attemptsRemaining] and latches
-     * [PinUiState.isLockedOut] once it reaches zero.
+     * `CheckPinScreen`: checks [PinUiState.digits] against the stored hash. PLAN_V24 P1.4: a wrong
+     * entry increments the persisted per-account failed-attempt count and applies
+     * [PinLockoutPolicy]'s escalating lockout window; a correct entry clears the counters. The
+     * lockout is persisted so a kill can't reset the backoff.
      */
     fun verify() {
         val current = _state.value
         if (current.isLockedOut || current.digits.length != LOGIN_PIN_LENGTH) return
         viewModelScope.launch {
+            val now = clock.now().toEpochMilliseconds()
+            val lockout = pinLockoutSource.getState(PIN_GATE_ACCOUNT_ID)
+            if (lockout.isLocked(now)) {
+                enterLockout(lockout.remainingSeconds(now))
+                return@launch
+            }
             val storedHash = pinHashSource.getPinHash(PIN_GATE_ACCOUNT_ID)
-            val enteredHash = sha256Hex(current.digits)
-            if (storedHash != null && enteredHash == storedHash) {
+            if (storedHash != null && sha256Hex(current.digits) == storedHash) {
+                pinLockoutSource.clear(PIN_GATE_ACCOUNT_ID)
                 _state.value = current.copy(completed = true, error = null)
             } else {
-                val remaining = (current.attemptsRemaining - 1).coerceAtLeast(0)
-                _state.value =
-                    current.copy(
-                        digits = "",
-                        attemptsRemaining = remaining,
-                        error = if (remaining > 0) "Incorrect PIN — $remaining attempt(s) left" else "Too many attempts",
-                        isLockedOut = remaining <= 0,
-                    )
+                val attempts = lockout.failedAttempts + 1
+                val lockMillis = PinLockoutPolicy.lockoutMillisFor(attempts)
+                val until = if (lockMillis > 0) now + lockMillis else 0L
+                pinLockoutSource.setState(PIN_GATE_ACCOUNT_ID, PinLockoutState(attempts, until))
+                if (lockMillis > 0) {
+                    enterLockout((lockMillis / 1000).toInt())
+                } else {
+                    val free = (PinLockoutPolicy.FREE_ATTEMPTS - attempts).coerceAtLeast(0)
+                    _state.value =
+                        current.copy(
+                            digits = "",
+                            attemptsRemaining = free,
+                            error = "Incorrect PIN — $free attempt(s) before lockout",
+                        )
+                }
             }
         }
     }
 
-    /** Resets entry/lockout state — call when the screen is (re)opened for a fresh attempt sequence. */
+    /** Enters the locked state and ticks the countdown down to 0, then unlocks. Local decrement so a frozen test clock still terminates. */
+    private fun enterLockout(seconds: Int) {
+        _state.value = _state.value.copy(digits = "", isLockedOut = true, lockoutRemainingSeconds = seconds, error = null)
+        lockoutTicker?.cancel()
+        lockoutTicker =
+            viewModelScope.launch {
+                var remaining = seconds
+                while (remaining > 0) {
+                    delay(1_000)
+                    remaining -= 1
+                    _state.value = _state.value.copy(lockoutRemainingSeconds = remaining)
+                }
+                _state.value = _state.value.copy(isLockedOut = false, lockoutRemainingSeconds = 0)
+            }
+    }
+
+    /**
+     * Resets entry state and re-hydrates any persisted lockout — call when the screen is (re)opened.
+     * A relaunch while still locked re-enters the lockout with its remaining countdown.
+     */
     fun reset() {
+        lockoutTicker?.cancel()
         _state.value = PinUiState()
+        viewModelScope.launch {
+            val now = clock.now().toEpochMilliseconds()
+            val lockout = pinLockoutSource.getState(PIN_GATE_ACCOUNT_ID)
+            if (lockout.isLocked(now)) enterLockout(lockout.remainingSeconds(now))
+        }
     }
 }
 
