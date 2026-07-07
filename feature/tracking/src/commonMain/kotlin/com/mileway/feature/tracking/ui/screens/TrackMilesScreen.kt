@@ -48,6 +48,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.platform.AppPermission
 import com.mileway.core.platform.OemBatteryHints
@@ -77,6 +78,7 @@ import com.mileway.feature.tracking.ui.sheets.CenterOption
 import com.mileway.feature.tracking.ui.sheets.JourneyConsentSheet
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideSheet
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideState
+import com.mileway.feature.tracking.ui.sheets.MultiSessionRestoreSheet
 import com.mileway.feature.tracking.ui.sheets.PauseReasonSheet
 import com.mileway.feature.tracking.ui.sheets.PermissionOnboardingSheet
 import com.mileway.feature.tracking.ui.sheets.ResumeTrackingSheet
@@ -86,6 +88,7 @@ import com.mileway.feature.tracking.ui.sheets.VendorPickerSheet
 import com.mileway.feature.tracking.viewmodel.CheckInAction
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
 import com.mileway.feature.tracking.viewmodel.HeroGaugeMode
+import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesAction
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.viewmodel.TrackMilesUiState
@@ -426,6 +429,31 @@ fun TrackMilesScreen(
             }
 
         TrackSheet.NONE -> Unit
+    }
+
+    // Wave-4 §2.1: multi-session restore — shown instead of the single-session SESSION_RESTORE/
+    // STRANGER_SESSION sheets above when more than one local restorable session exists. A single
+    // session keeps using those existing flows untouched.
+    val multiSessionViewModel: MultiSessionRestoreViewModel = koinViewModel()
+    val restorableSessions by multiSessionViewModel.sessions.collectAsStateWithLifecycle()
+    var multiSessionDismissed by remember { mutableStateOf(false) }
+    LaunchedEffect(uiState.phase) {
+        // Reset once tracking starts, so a future interruption can show the sheet again.
+        if (isActive) multiSessionDismissed = false
+    }
+    if (restorableSessions.size > 1 &&
+        !multiSessionDismissed &&
+        uiState.activeSheet == TrackSheet.NONE &&
+        uiState.phase == TrackMilesPhase.IDLE
+    ) {
+        MultiSessionRestoreSheet(
+            sessions = restorableSessions,
+            onResume = { routeId ->
+                multiSessionDismissed = true
+                viewModel.onAction(TrackMilesAction.MultiSessionResume(routeId))
+            },
+            onDismiss = { multiSessionDismissed = true },
+        )
     }
 
     // Wave-3 tiered permission onboarding — optional tiers only, offered once tracking is underway so the

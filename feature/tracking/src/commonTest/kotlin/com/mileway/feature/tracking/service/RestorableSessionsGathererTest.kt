@@ -85,4 +85,13 @@ class RestorableSessionsGathererTest {
 
         assertEquals(listOf("new", "old"), result.map { it.routeId })
     }
+
+    @Test
+    fun `two or more restorable sessions is the multi-restore trigger condition`() {
+        val singleSession = listOf(track("r1"))
+        val multipleSessions = listOf(track("r1"), track("r2"))
+
+        assertEquals(1, RestorableSessionsGatherer.gather(singleSession, activeAccountId = "acc-1").size)
+        assertEquals(2, RestorableSessionsGatherer.gather(multipleSessions, activeAccountId = "acc-1").size)
+    }
 }

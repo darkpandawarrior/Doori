@@ -262,6 +262,8 @@ class TrackMilesViewModel(
             // P3.5: cold-start ownership-mismatch dialog outcomes.
             TrackMilesAction.StrangerSessionResume -> handleStrangerSessionResume()
             TrackMilesAction.StrangerSessionDismiss -> handleStrangerSessionDismiss()
+            // Wave-4 §2.1: multi-session restore sheet outcome.
+            is TrackMilesAction.MultiSessionResume -> handleMultiSessionResume(action.routeId)
         }
     }
 
@@ -555,6 +557,20 @@ class TrackMilesViewModel(
     /** Dialog dismissed — leaves the trip untouched (still persisted, just not displayed) and stays IDLE. */
     fun handleStrangerSessionDismiss() {
         setState { copy(activeSheet = TrackSheet.NONE, activeStrangerSession = null) }
+    }
+
+    /**
+     * Wave-4 §2.1: a session was picked from [com.mileway.feature.tracking.ui.sheets.MultiSessionRestoreSheet]
+     * (shown instead of the single-session [TrackSheet.SESSION_RESTORE] flow when more than one
+     * restorable session exists). Reuses the same restore path as [handleStrangerSessionResume].
+     */
+    fun handleMultiSessionResume(routeId: String) {
+        viewModelScope.launch {
+            trackRepo.getByRouteId(routeId)?.let { track ->
+                trackingController.start(track.routeId)
+                restoreTrackIntoState(track.routeId, track.distance, track.startTime)
+            }
+        }
     }
 
     fun selectVehicle(vehicle: ApprovedVehicle) {

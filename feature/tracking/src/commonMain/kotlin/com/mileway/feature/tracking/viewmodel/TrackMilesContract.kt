@@ -69,6 +69,9 @@ sealed interface TrackMilesAction {
     data object StrangerSessionResume : TrackMilesAction
 
     data object StrangerSessionDismiss : TrackMilesAction
+
+    // Wave-4 §2.1: multi-session restore sheet — resume a specific session picked from the list.
+    data class MultiSessionResume(val routeId: String) : TrackMilesAction
 }
 
 sealed interface TrackMilesEffect {

@@ -37,6 +37,10 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
         ocrText: String?,
         ocrConfidence: Float = 0f,
         ocrVerified: Boolean = false,
+        // Wave-4 §2.4b: the real typed capture result (reading + provenance), when the caller has
+        // one — falls back to parsing ocrText/DEVICE_OCR only when genuinely absent.
+        typedReading: Int? = null,
+        typedSource: OdometerReadingSource? = null,
     ): Long {
         val now = Clock.System.now().toEpochMilliseconds()
         return dao.insert(
@@ -49,7 +53,7 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 ocrConfidence = ocrConfidence,
                 ocrVerified = ocrVerified,
                 createdAt = now,
-                odometerAnalysisJson = analysisJsonFor(ocrText, now),
+                odometerAnalysisJson = analysisJsonFor(ocrText, typedReading, typedSource, now),
             ),
         )
     }
@@ -61,6 +65,8 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
         ocrText: String?,
         ocrConfidence: Float = 0f,
         ocrVerified: Boolean = false,
+        typedReading: Int? = null,
+        typedSource: OdometerReadingSource? = null,
     ): Long {
         val now = Clock.System.now().toEpochMilliseconds()
         return dao.insert(
@@ -73,25 +79,27 @@ class TripAttachmentRepository(private val dao: TripAttachmentDao) {
                 ocrConfidence = ocrConfidence,
                 ocrVerified = ocrVerified,
                 createdAt = now,
-                odometerAnalysisJson = analysisJsonFor(ocrText, now),
+                odometerAnalysisJson = analysisJsonFor(ocrText, typedReading, typedSource, now),
             ),
         )
     }
 
     /**
-     * §2.4: builds the typed [OdometerAnalysisSnapshot] JSON for an odometer capture from what
-     * this single-reading insert has available — [ocrText] parsed to an [Int] reading, source is
-     * always [OdometerReadingSource.DEVICE_OCR] since a parseable [ocrText] means OCR produced it.
-     * Null when there's no parseable reading (nothing to analyze).
+     * §2.4/§2.4b: builds the typed [OdometerAnalysisSnapshot] JSON for an odometer capture.
+     * Prefers the real [typedReading]/[typedSource] from the capture path; falls back to parsing
+     * [ocrText] (as [OdometerReadingSource.DEVICE_OCR]) only when the typed reading is genuinely
+     * absent. Null when neither is available (nothing to analyze).
      * ponytail: this is a per-attachment snapshot, not the paired start→end trip validation — that
      * still happens where both readings are compared (LogMilesUiState.odometerValidationError).
      */
     private fun analysisJsonFor(
         ocrText: String?,
+        typedReading: Int?,
+        typedSource: OdometerReadingSource?,
         analyzedAtMs: Long,
     ): String? {
-        val reading = ocrText?.toIntOrNull() ?: return null
-        val snapshot = OdometerAnalysisSnapshot.fromReading(reading, OdometerReadingSource.DEVICE_OCR, analyzedAtMs)
+        val reading = typedReading ?: ocrText?.toIntOrNull() ?: return null
+        val snapshot = OdometerAnalysisSnapshot.fromReading(reading, typedSource ?: OdometerReadingSource.DEVICE_OCR, analyzedAtMs)
         return OdometerAnalysisSnapshot.encode(snapshot)
     }
 

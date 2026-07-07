@@ -3,6 +3,7 @@ package com.mileway.feature.tracking.viewmodel
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.display.OdometerCaptureResult
+import com.mileway.core.data.model.display.OdometerReadingSource
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.model.network.SubmissionStatus
@@ -104,13 +105,26 @@ data class SubmissionFormUi(
     val canSubmit: Boolean get() = remainingRequirements.isEmpty()
 }
 
+/**
+ * Wave-4 §2.4b: a not-yet-persisted odometer capture, carrying the raw OCR text (back-compat) plus
+ * the real typed [reading]/[source] when the capture path provided one — threaded through to
+ * [TripAttachmentRepository.setOdometerStart]/[TripAttachmentRepository.setOdometerEnd] instead of
+ * being re-derived from [ocrText] alone.
+ */
+data class PendingOdometerCapture(
+    val uri: String,
+    val ocrText: String?,
+    val reading: Int? = null,
+    val source: OdometerReadingSource? = null,
+)
+
 data class MileageSubmissionUiState(
     val submissionState: SubmissionUiState = SubmissionUiState.Idle,
     val form: SubmissionFormUi = SubmissionFormUi(),
     val lastResponse: ExpenseSubmissionResponse? = null,
     val pendingReceipts: List<String> = emptyList(),
-    val pendingOdoStart: Pair<String, String?>? = null,
-    val pendingOdoEnd: Pair<String, String?>? = null,
+    val pendingOdoStart: PendingOdometerCapture? = null,
+    val pendingOdoEnd: PendingOdometerCapture? = null,
 )
 
 sealed interface MileageSubmissionAction {
@@ -230,9 +244,9 @@ class MileageSubmissionViewModel(
             is MileageSubmissionAction.RemoveReceipt ->
                 setState { copy(pendingReceipts = pendingReceipts - action.uri) }
             is MileageSubmissionAction.SetOdometerStart ->
-                setState { copy(pendingOdoStart = action.uri to action.ocrText) }
+                setState { copy(pendingOdoStart = PendingOdometerCapture(action.uri, action.ocrText)) }
             is MileageSubmissionAction.SetOdometerEnd ->
-                setState { copy(pendingOdoEnd = action.uri to action.ocrText) }
+                setState { copy(pendingOdoEnd = PendingOdometerCapture(action.uri, action.ocrText)) }
             is MileageSubmissionAction.SetFormValue ->
                 setState { copy(form = form.copy(values = form.values + (action.id to action.value))) }
             is MileageSubmissionAction.ToggleDraft ->
@@ -293,6 +307,15 @@ class MileageSubmissionViewModel(
                                 odometerStartImageUri = action.result.imageUri,
                                 odometerStartCaptureMs = action.result.captureTimeMs,
                             ),
+                        // Wave-4 §2.4b: carry the real typed reading/source through to persistence,
+                        // instead of leaving pendingOdoStart unset and losing this capture entirely.
+                        pendingOdoStart =
+                            PendingOdometerCapture(
+                                uri = action.result.imageUri,
+                                ocrText = action.result.reading.toString(),
+                                reading = action.result.reading,
+                                source = action.result.source,
+                            ),
                     )
                 }
             is MileageSubmissionAction.CaptureOdometerEnd -> {
@@ -307,6 +330,13 @@ class MileageSubmissionViewModel(
                                 odometerEndImageUri = action.result.imageUri,
                                 odometerEndCaptureMs = action.result.captureTimeMs,
                                 smartDistanceOdometerKm = distKm,
+                            ),
+                        pendingOdoEnd =
+                            PendingOdometerCapture(
+                                uri = action.result.imageUri,
+                                ocrText = action.result.reading.toString(),
+                                reading = action.result.reading,
+                                source = action.result.source,
                             ),
                     )
                 }
@@ -477,11 +507,23 @@ class MileageSubmissionViewModel(
         currentState.pendingReceipts.forEach { uri ->
             attachmentRepository.addReceipt(routeId, uri)
         }
-        currentState.pendingOdoStart?.let { (uri, ocr) ->
-            attachmentRepository.setOdometerStart(routeId, uri, ocr)
+        currentState.pendingOdoStart?.let { capture ->
+            attachmentRepository.setOdometerStart(
+                trackToken = routeId,
+                uri = capture.uri,
+                ocrText = capture.ocrText,
+                typedReading = capture.reading,
+                typedSource = capture.source,
+            )
         }
-        currentState.pendingOdoEnd?.let { (uri, ocr) ->
-            attachmentRepository.setOdometerEnd(routeId, uri, ocr)
+        currentState.pendingOdoEnd?.let { capture ->
+            attachmentRepository.setOdometerEnd(
+                trackToken = routeId,
+                uri = capture.uri,
+                ocrText = capture.ocrText,
+                typedReading = capture.reading,
+                typedSource = capture.source,
+            )
         }
     }
 
