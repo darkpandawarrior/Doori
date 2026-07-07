@@ -32,6 +32,9 @@
     <string name="home_my_cards">My Cards</string>
     <string name="home_request_card">Request Card</string>
 
+    <!-- Settings -->
+    <string name="settings_language">Language</string>
+
     <!-- Location pin -->
     <string name="location_you_are_here">You\'re here</string>
 

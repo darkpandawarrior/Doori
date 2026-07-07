@@ -7,20 +7,28 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.mileway.core.ui.components.LanguageSelectionSheet
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.app_name
+import com.mileway.core.ui.resources.settings_language
 import com.mileway.core.ui.resources.tab_home
 import com.mileway.core.ui.resources.tab_spends
 import com.mileway.core.ui.resources.tab_track
@@ -48,10 +56,28 @@ private val shellTabs =
  * uses this composable directly (the Navigation-3 graph is Android-only), so iOS now shows the real
  * home dashboard + core features instead of a component showcase — full KMP/CMP shell parity.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MilewayApp() {
     var tab by remember { mutableIntStateOf(0) }
+    var showLanguage by remember { mutableStateOf(false) }
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.app_name)) },
+                actions = {
+                    // Shared language switcher — the only in-app entry on iOS (Android also exposes it
+                    // in Settings). Selecting a language flips LocalAppLocale, re-resolving every
+                    // string instantly on both platforms.
+                    IconButton(onClick = { showLanguage = true }) {
+                        Icon(
+                            Icons.Filled.Language,
+                            contentDescription = stringResource(Res.string.settings_language),
+                        )
+                    }
+                },
+            )
+        },
         bottomBar = {
             NavigationBar {
                 shellTabs.forEachIndexed { i, t ->
@@ -89,5 +115,8 @@ fun MilewayApp() {
                 else -> TravelHomeScreen()
             }
         }
+    }
+    if (showLanguage) {
+        LanguageSelectionSheet(onDismiss = { showLanguage = false })
     }
 }

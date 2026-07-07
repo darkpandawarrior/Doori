@@ -31,6 +31,7 @@ import com.mileway.core.ui.platform.LocalManagerProvider
 import com.mileway.core.ui.platform.MaintenanceGate
 import com.mileway.core.ui.platform.UpdateGate
 import com.mileway.core.ui.platform.isUnderMaintenance
+import com.mileway.core.ui.theme.AppLocaleEnvironment
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.ui.MilewayAppRoot
@@ -65,7 +66,7 @@ class LauncherActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         applySecurityFlags()
         enableEdgeToEdge()
-        setContent { AppEntry(initialRoute = intent.deepLinkRoute()) }
+        setContent { AppLocaleEnvironment { AppEntry(initialRoute = intent.deepLinkRoute()) } }
     }
 
     /**
@@ -80,7 +81,7 @@ class LauncherActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        setContent { AppEntry(initialRoute = intent.deepLinkRoute()) }
+        setContent { AppLocaleEnvironment { AppEntry(initialRoute = intent.deepLinkRoute()) } }
     }
 }
 

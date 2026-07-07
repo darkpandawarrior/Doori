@@ -33,6 +33,7 @@ kotlin {
             implementation(libs.ui.tooling.preview.mp)
 
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.datastore.preferences.core)
             implementation(libs.materialkolor)
@@ -55,7 +56,6 @@ kotlin {
             implementation(libs.jb.navigation.compose)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.koin.android)
-            implementation(libs.koin.compose)
             implementation(libs.kotlinx.coroutines.android)
 
             implementation(libs.datastore.preferences)

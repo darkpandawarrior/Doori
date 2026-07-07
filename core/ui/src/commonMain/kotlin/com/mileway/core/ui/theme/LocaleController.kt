@@ -9,10 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
  * held app-wide as a Koin single so any feature can observe it (the cards module already reads
  * `currentLocaleTag()` for its mock data; pointing that at this flow keeps everything in sync).
  *
- * State only: the *platform apply* stays platform-specific, Android calls `AppCompatDelegate
- * .setApplicationLocales` (the cross-API per-app-locale API, already wired in Settings) right after
- * [setLocale]; iOS observes [currentTag] (a full `NSUserDefaults` AppleLanguages apply needs an app
- * relaunch). This avoids pulling appcompat into a core module just to re-implement the apply.
+ * State only: the *in-app apply* is driven by the `LocalAppLocale` Compose environment
+ * (`AppLocaleEnvironment`), which observes [currentTag] and re-resolves every `stringResource` on
+ * both Android and iOS instantly — no restart. Android additionally calls `AppCompatDelegate
+ * .setApplicationLocales` in Settings so the OS per-app locale (and non-Compose resources) match;
+ * iOS mirrors the tag into `NSUserDefaults` AppleLanguages for the same reason. Keeping this class
+ * state-only avoids pulling appcompat into a core module.
  */
 class LocaleController(initialTag: String = AppLanguage.ENGLISH.tag) {
     private val _currentTag = MutableStateFlow(initialTag)

@@ -17,6 +17,8 @@
     <string name="home_recent_activity">हाल की गतिविधि</string>
     <string name="home_my_cards">मेरे कार्ड</string>
 
+    <string name="settings_language">भाषा</string>
+
     <string name="location_you_are_here">आप यहाँ हैं</string>
 
     <string name="auth_sign_in">साइन इन करें</string>
