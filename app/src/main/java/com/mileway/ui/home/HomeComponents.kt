@@ -22,13 +22,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import com.mileway.R
+import com.mileway.core.ui.components.WorldMapBackdrop
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -123,12 +117,16 @@ private val HeaderContentHeight = 96.dp
 /** Diameter of the leading avatar circle in the header. */
 private val AvatarSize = 44.dp
 
+/** Demo "current location" pinned on the header world map (Pune, India). */
+private val HomeMapMarker = 18.5204 to 73.8567
+
 /**
  * Primary-gradient home header that draws behind the status bar.
  *
  * Owns the status-bar inset itself (`statusBarsPadding` inside the gradient box) so the
  * colour bleeds to the top edge while the content stays clear of the system clock. A faint
- * translucent dot-grid Canvas overlay evokes a world map without needing an image asset.
+ * Canvas-drawn world-map dot texture (with a location pin) plus scanline and sheen overlays give
+ * the header its terminal-map depth — all vector, so it also renders in Roborazzi screenshots.
  *
  * Layout: avatar circle, an amber auto-sizing "Hello, <name>" greeting with a
  * "Let's manage your spends!" subtitle, then a trailing search icon and a notification bell
@@ -144,6 +142,7 @@ fun HomeProfileHeader(
     onSearch: () -> Unit,
     onNotifications: () -> Unit,
     onOpenAgent: (() -> Unit)? = null,
+    markerLatLng: Pair<Double, Double>? = HomeMapMarker,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -151,17 +150,15 @@ fun HomeProfileHeader(
             .fillMaxWidth()
             .background(DesignTokens.topBarGradientBrush()),
     ) {
-        // World map background, loaded via Coil to safely downsample the 4312×2128 PNG.
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(R.drawable.home_world_map)
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop,
-            alpha = 0.18f,
-            colorFilter = null,
+        // Terminal world-map backdrop — pure Canvas dots from an embedded land mask (no raster
+        // asset), so it renders on device *and* in host-side Roborazzi screenshots (which can't
+        // rasterize PNGs), and pins the user's current location.
+        WorldMapBackdrop(
+            modifier = Modifier.matchParentSize(),
+            dotColor = Color.White,
+            dotAlpha = 0.24f,
+            markerLatLng = markerLatLng,
+            markerColor = MaterialTheme.colorScheme.error,
         )
         // Terminal scanline overlay
         ScanlineOverlay(lineAlpha = 0.04f)
