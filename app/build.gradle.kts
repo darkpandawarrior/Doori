@@ -303,6 +303,9 @@ dependencyGuard {
 }
 
 dependencies {
+    // Shared app-shell (home dashboard now lives here; nav/auth/search follow). :shared re-exports
+    // core:ui + all features, so the Android host renders the same MilewayApp() as iOS.
+    implementation(project(":shared"))
     implementation(project(":core:common"))
     implementation(project(":core:ui"))
     implementation(project(":core:data"))

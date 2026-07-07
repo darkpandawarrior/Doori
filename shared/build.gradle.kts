@@ -49,9 +49,19 @@ kotlin {
             implementation(libs.material3)
             implementation(libs.ui)
             implementation(libs.material.icons.extended)
+            implementation(libs.ui.tooling.preview.mp)
             implementation(libs.koin.core)
+            implementation(libs.koin.compose)
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.lifecycle.viewmodel)
+
+            // Core + stub deps the hoisted app-shell (home/nav/auth/search) uses directly.
+            implementation(project(":core:common"))
+            implementation(project(":core:data"))
+            implementation(project(":core:network"))
+            implementation(project(":core:platform"))
+            implementation(project(":stub"))
 
             // api(...) is required for export(...) above to surface these modules' public API in the framework.
             api(project(":core:ui"))

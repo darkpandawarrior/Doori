@@ -24,6 +24,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import com.mileway.core.ui.components.CurrentLocationPinMap
 import com.mileway.core.ui.components.LocationPin
+import com.mileway.core.ui.previews.PreviewSurface
+import androidx.compose.ui.tooling.preview.Preview
+import com.mileway.core.common.formatDecimal
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -1248,7 +1251,7 @@ fun HomeMileageCard(
                         color = Color.White,
                     )
                     Text(
-                        text = "%.0f km total".format(WEEK_KM_DEMO),
+                        text = "${WEEK_KM_DEMO.formatDecimal(0)} km total",
                         style = MaterialTheme.typography.bodyLarge.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
                         color = Color.White.copy(alpha = 0.9f),
@@ -1298,13 +1301,13 @@ fun HomeMileageCard(
                     }
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "%.0f".format(WEEK_KM_DEMO),
+                            text = "${WEEK_KM_DEMO.formatDecimal(0)}",
                             style = MaterialTheme.typography.titleLarge.dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "/ %.0f km".format(WEEK_KM_GOAL),
+                            text = "/ ${WEEK_KM_GOAL.formatDecimal(0)} km",
                             style = MaterialTheme.typography.labelSmall.dataStyle(),
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -1317,8 +1320,8 @@ fun HomeMileageCard(
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     MileageStat(label = "Trips", value = WEEK_TRIPS_DEMO.toString(), modifier = Modifier.weight(1f))
-                    MileageStat(label = "Distance", value = "%.0f km".format(WEEK_KM_DEMO), modifier = Modifier.weight(1f))
-                    MileageStat(label = "Amount", value = "₹%.0f".format(WEEK_AMOUNT_DEMO), modifier = Modifier.weight(1f))
+                    MileageStat(label = "Distance", value = "${WEEK_KM_DEMO.formatDecimal(0)} km", modifier = Modifier.weight(1f))
+                    MileageStat(label = "Amount", value = "₹${WEEK_AMOUNT_DEMO.formatDecimal(0)}", modifier = Modifier.weight(1f))
                 }
 
                 // Quick-action buttons
@@ -1484,10 +1487,10 @@ fun HomeCheckInCard(
 // Previews
 // ---------------------------------------------------------------------------
 
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Home Header – light")
+@Preview(name = "Home Header")
 @Composable
 private fun PreviewHomeProfileHeader() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    PreviewSurface {
         HomeProfileHeader(
             name = "Priya Sharma",
             notificationCount = 3,
@@ -1497,27 +1500,10 @@ private fun PreviewHomeProfileHeader() {
     }
 }
 
-@androidx.compose.ui.tooling.preview.Preview(
-    showBackground = true,
-    uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES,
-    name = "Home Header – dark",
-)
-@Composable
-private fun PreviewHomeProfileHeaderDark() {
-    com.mileway.core.ui.theme.MilewayTheme {
-        HomeProfileHeader(
-            name = "Priya Sharma",
-            notificationCount = 0,
-            onSearch = {},
-            onNotifications = {},
-        )
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, name = "Section Header")
+@Preview(name = "Section Header")
 @Composable
 private fun PreviewHomeSectionHeader() {
-    com.mileway.core.ui.theme.MilewayTheme {
+    PreviewSurface {
         HomeSectionHeader(
             title = "Recent Trips",
             leadingIcon = androidx.compose.material.icons.Icons.Default.DirectionsCar,
