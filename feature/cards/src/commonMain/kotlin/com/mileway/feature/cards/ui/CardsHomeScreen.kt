@@ -8,9 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -32,6 +33,7 @@ import com.mileway.core.ui.resources.cards_home_subtitle
 import com.mileway.core.ui.resources.cards_request_a_card
 import com.mileway.core.ui.resources.cards_tab_cards
 import com.mileway.core.ui.resources.cards_tab_requests
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.cards.model.CardRequestModel
 import com.mileway.feature.cards.ui.components.CardFace
@@ -74,18 +76,20 @@ internal fun CardsHomeContent(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onRequestCard) {
+            FloatingActionButton(onClick = onRequestCard, shape = DesignTokens.Shape.button) {
                 Icon(Icons.Filled.Add, contentDescription = stringResource(Res.string.cards_request_a_card))
             }
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             TabRow(selectedTabIndex = state.selectedTab) {
+                val tabIcons = listOf(Icons.Filled.CreditCard, Icons.Filled.FactCheck)
                 tabs.forEachIndexed { index, title ->
                     Tab(
                         selected = state.selectedTab == index,
                         onClick = { onAction(CardsHomeAction.SelectTab(index)) },
                         text = { Text(title) },
+                        icon = { Icon(tabIcons[index], contentDescription = null) },
                     )
                 }
             }
@@ -129,7 +133,7 @@ internal fun CardsHomeContent(
 
 @Composable
 private fun RequestRow(request: CardRequestModel) {
-    Card(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
+    Card(shape = DesignTokens.Shape.roundedSm, modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Text(request.cardType, style = MaterialTheme.typography.titleMedium)
             Text(

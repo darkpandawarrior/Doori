@@ -3,16 +3,20 @@ package com.mileway.feature.cards.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -52,6 +56,7 @@ import com.mileway.core.ui.resources.cards_request_reason_label
 import com.mileway.core.ui.resources.cards_request_submitted
 import com.mileway.core.ui.resources.cards_request_subtitle
 import com.mileway.core.ui.resources.cards_submit
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
@@ -164,16 +169,35 @@ internal fun CardRequestContent(
                     OutlinedButton(
                         onClick = { onAction(CardRequestAction.Back) },
                         modifier = Modifier.weight(1f),
-                    ) { Text(stringResource(Res.string.cards_back)) }
+                        shape = DesignTokens.Shape.button,
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                        Spacer(Modifier.size(8.dp))
+                        Text(stringResource(Res.string.cards_back))
+                    }
                 }
                 if (state.step < state.totalSteps - 1) {
-                    Button(onClick = {
-                        onAction(CardRequestAction.Next)
-                    }, enabled = state.canAdvance, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.cards_next)) }
+                    Button(
+                        onClick = { onAction(CardRequestAction.Next) },
+                        enabled = state.canAdvance,
+                        modifier = Modifier.weight(1f),
+                        shape = DesignTokens.Shape.button,
+                    ) {
+                        Text(stringResource(Res.string.cards_next))
+                        Spacer(Modifier.size(8.dp))
+                        Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    }
                 } else {
-                    Button(onClick = {
-                        onAction(CardRequestAction.Submit)
-                    }, enabled = state.agreeToPolicies, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.cards_submit)) }
+                    Button(
+                        onClick = { onAction(CardRequestAction.Submit) },
+                        enabled = state.agreeToPolicies,
+                        modifier = Modifier.weight(1f),
+                        shape = DesignTokens.Shape.button,
+                    ) {
+                        Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                        Spacer(Modifier.size(8.dp))
+                        Text(stringResource(Res.string.cards_submit))
+                    }
                 }
             }
         }
@@ -187,7 +211,7 @@ private fun ConfirmStep(
 ) {
     val type = state.cardTypes.firstOrNull { it.id == state.selectedCardTypeId }
     Card(
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -220,6 +244,10 @@ private fun SuccessContent(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 8.dp),
         )
-        Button(onClick = onDone, modifier = Modifier.padding(top = 24.dp)) { Text(stringResource(Res.string.cards_done)) }
+        Button(onClick = onDone, modifier = Modifier.padding(top = 24.dp), shape = DesignTokens.Shape.button) {
+            Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            Spacer(Modifier.size(8.dp))
+            Text(stringResource(Res.string.cards_done))
+        }
     }
 }

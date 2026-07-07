@@ -10,14 +10,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Undo
+import androidx.compose.material.icons.filled.AcUnit
+import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,6 +98,7 @@ import com.mileway.core.ui.resources.cards_transaction_no
 import com.mileway.core.ui.resources.cards_transactions
 import com.mileway.core.ui.resources.cards_unblock
 import com.mileway.core.ui.resources.cards_unfreeze
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.core.ui.toast.ToastType
@@ -217,7 +232,7 @@ private fun BalanceHeader(card: CardModel) {
 @Composable
 private fun KycPendingBanner(onResend: () -> Unit) {
     Card(
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -227,7 +242,11 @@ private fun KycPendingBanner(onResend: () -> Unit) {
                 stringResource(Res.string.cards_kyc_pending_message),
                 style = MaterialTheme.typography.bodySmall,
             )
-            OutlinedButton(onClick = onResend) { Text(stringResource(Res.string.cards_send_kyc_link)) }
+            OutlinedButton(onClick = onResend, shape = DesignTokens.Shape.button) {
+                Icon(Icons.Filled.Send, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(8.dp))
+                Text(stringResource(Res.string.cards_send_kyc_link))
+            }
         }
     }
 }
@@ -238,19 +257,51 @@ private fun CardControls(
     onAction: (CardDetailAction) -> Unit,
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(onClick = { onAction(CardDetailAction.ToggleBlock) }, modifier = Modifier.weight(1f)) {
+        OutlinedButton(
+            onClick = { onAction(CardDetailAction.ToggleBlock) },
+            modifier = Modifier.weight(1f),
+            shape = DesignTokens.Shape.button,
+        ) {
+            Icon(
+                if (card.status == CardStatus.BLOCKED) Icons.Filled.CheckCircle else Icons.Filled.Block,
+                contentDescription = null,
+                modifier = Modifier.size(ButtonDefaults.IconSize),
+            )
+            Spacer(Modifier.size(8.dp))
             Text(if (card.status == CardStatus.BLOCKED) stringResource(Res.string.cards_unblock) else stringResource(Res.string.cards_block))
         }
-        OutlinedButton(onClick = { onAction(CardDetailAction.ToggleFreeze) }, modifier = Modifier.weight(1f)) {
+        OutlinedButton(
+            onClick = { onAction(CardDetailAction.ToggleFreeze) },
+            modifier = Modifier.weight(1f),
+            shape = DesignTokens.Shape.button,
+        ) {
+            Icon(
+                if (card.isFrozen) Icons.Filled.LockOpen else Icons.Filled.AcUnit,
+                contentDescription = null,
+                modifier = Modifier.size(ButtonDefaults.IconSize),
+            )
+            Spacer(Modifier.size(8.dp))
             Text(if (card.isFrozen) stringResource(Res.string.cards_unfreeze) else stringResource(Res.string.cards_freeze))
         }
     }
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        OutlinedButton(onClick = { onAction(CardDetailAction.OpenMonthlyLimit) }, modifier = Modifier.weight(1f)) {
+        OutlinedButton(
+            onClick = { onAction(CardDetailAction.OpenMonthlyLimit) },
+            modifier = Modifier.weight(1f),
+            shape = DesignTokens.Shape.button,
+        ) {
+            Icon(Icons.Filled.Tune, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            Spacer(Modifier.size(8.dp))
             Text(stringResource(Res.string.cards_set_monthly_limit))
         }
         if (card.status != CardStatus.PHYSICAL_ISSUED) {
-            OutlinedButton(onClick = { onAction(CardDetailAction.OpenPhysicalCard) }, modifier = Modifier.weight(1f)) {
+            OutlinedButton(
+                onClick = { onAction(CardDetailAction.OpenPhysicalCard) },
+                modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
+            ) {
+                Icon(Icons.Filled.CreditCard, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(8.dp))
                 Text(stringResource(Res.string.cards_issue_physical_card))
             }
         }
@@ -270,10 +321,20 @@ private fun ClaimTabs(
                 selected = status == selected,
                 onClick = { onSelect(status) },
                 text = { Text(status.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                icon = { Icon(claimStatusIcon(status), contentDescription = null) },
             )
         }
     }
 }
+
+private fun claimStatusIcon(status: CardTxnClaimStatus) =
+    when (status) {
+        CardTxnClaimStatus.UNCLAIMED -> Icons.Filled.Receipt
+        CardTxnClaimStatus.PERSONAL -> Icons.Filled.Person
+        CardTxnClaimStatus.CLAIMED -> Icons.Filled.CheckCircle
+        CardTxnClaimStatus.RECOVERED -> Icons.AutoMirrored.Filled.Undo
+        CardTxnClaimStatus.REJECTED -> Icons.Filled.Cancel
+    }
 
 @Composable
 private fun TransactionRow(
@@ -321,7 +382,12 @@ private fun MonthlyLimitSheet(
                 onClick = { value.toDoubleOrNull()?.let(onConfirm) },
                 enabled = value.toDoubleOrNull() != null,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(Res.string.cards_set_limit)) }
+                shape = DesignTokens.Shape.button,
+            ) {
+                Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(8.dp))
+                Text(stringResource(Res.string.cards_set_limit))
+            }
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -384,7 +450,12 @@ private fun PhysicalCardSheet(
                 onClick = { onConfirm(CardShippingAddress(address, locality, city, state, pincode)) },
                 enabled = valid,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(stringResource(Res.string.cards_ship_card)) }
+                shape = DesignTokens.Shape.button,
+            ) {
+                Icon(Icons.Filled.LocalShipping, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(8.dp))
+                Text(stringResource(Res.string.cards_ship_card))
+            }
             Spacer(Modifier.height(8.dp))
         }
     }
@@ -412,7 +483,9 @@ private fun TransactionDetailSheet(
             DetailInfoRow(stringResource(Res.string.cards_status), txn.claimStatus.name.lowercase().replaceFirstChar { it.uppercase() })
         }
         if (txn.claimStatus == CardTxnClaimStatus.UNCLAIMED) {
-            Button(onClick = onClaim, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onClaim, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
+                Icon(Icons.Filled.ReceiptLong, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.size(8.dp))
                 Text(stringResource(Res.string.cards_claim_expense))
             }
         }

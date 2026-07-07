@@ -2,7 +2,6 @@ package com.mileway.feature.cards.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,7 +74,7 @@ internal fun CardStatusBadge(
         color = Color.White,
         modifier =
             modifier
-                .clip(RoundedCornerShape(50))
+                .clip(DesignTokens.Shape.button)
                 .background(color)
                 .padding(horizontal = 10.dp, vertical = 3.dp),
     )

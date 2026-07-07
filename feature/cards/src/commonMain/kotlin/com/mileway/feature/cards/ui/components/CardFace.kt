@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,13 +22,15 @@ import androidx.compose.ui.unit.sp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.cards_card_holder
 import com.mileway.core.ui.resources.cards_valid_thru
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.cards.model.CardModel
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Q+.2: the corporate card face. Mirrors the web styling: a 13dp-radius card with the `#6367FA`
- * (3.2dp) accent border, a gradient fill, masked PAN, holder, validity, brand, and a status badge.
+ * Q+.2: the corporate card face. Mirrors the web styling: a squared-corner card with the
+ * `#6367FA` (3.2dp) accent border, a gradient fill, masked PAN, holder, validity, brand, and a
+ * status badge.
  */
 @Composable
 fun CardFace(
@@ -41,8 +42,8 @@ fun CardFace(
             modifier
                 .fillMaxWidth()
                 .aspectRatio(1.586f)
-                .clip(RoundedCornerShape(13.dp))
-                .border(3.2.dp, CardAccent, RoundedCornerShape(13.dp))
+                .clip(DesignTokens.Shape.roundedSm)
+                .border(3.2.dp, CardAccent, DesignTokens.Shape.roundedSm)
                 .background(
                     Brush.linearGradient(listOf(Color(0xFF2D2F6B), CardAccent)),
                 )
