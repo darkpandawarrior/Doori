@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload to Amazon Appstore
         if: env.HAS_SECRET == 'true'
-        uses: galonga/upload-amazon-appstore@v1.0.2
+        uses: galonga/upload-amazon-appstore@v1.0.4
         with:
           clientId: ${{ secrets.AMAZON_APPSTORE_CLIENT_ID }}
           clientSecret: ${{ secrets.AMAZON_APPSTORE_CLIENT_SECRET }}
