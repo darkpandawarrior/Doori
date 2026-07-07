@@ -20,6 +20,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_filter_all
 import com.mileway.core.ui.resources.travel_trip_empty_subtitle
 import com.mileway.core.ui.resources.travel_trip_empty_title
+import com.mileway.core.ui.resources.travel_trip_history_subtitle
 import com.mileway.core.ui.resources.travel_trip_history_title
 import com.mileway.core.ui.resources.travel_trip_search_placeholder
 import com.mileway.feature.travel.model.TripRecord
@@ -41,6 +42,7 @@ fun TripHistoryScreen(
     val allLabel = stringResource(Res.string.travel_filter_all)
     HistoryListScaffold(
         title = stringResource(Res.string.travel_trip_history_title),
+        subtitle = stringResource(Res.string.travel_trip_history_subtitle),
         onBack = onBack,
         state = ui.list,
         onRetry = { viewModel.onAction(TripHistoryAction.Refresh) },

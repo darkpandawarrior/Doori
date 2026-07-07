@@ -22,6 +22,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_add_leg
 import com.mileway.core.ui.resources.travel_remove_leg
 import com.mileway.core.ui.resources.travel_route
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.travel.viewmodel.CreateMjpAction
 import com.mileway.feature.travel.viewmodel.CreateMjpViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -73,6 +74,7 @@ fun CreateMjpScreen(
             OutlinedButton(
                 onClick = { viewModel.onAction(CreateMjpAction.AddLeg) },
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.padding(end = 6.dp))
                 Text(stringResource(Res.string.travel_add_leg))

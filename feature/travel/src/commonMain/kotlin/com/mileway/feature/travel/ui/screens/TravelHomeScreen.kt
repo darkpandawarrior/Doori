@@ -16,9 +16,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirplanemodeActive
+import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.DirectionsRailway
 import androidx.compose.material.icons.filled.Info
@@ -173,11 +173,15 @@ fun TravelHomeScreen(viewModel: TravelViewModel = koinViewModel()) {
                     totalSpend = data.totalSpend,
                 )
                 PrimaryTabRow(selectedTabIndex = selectedTab) {
-                    listOf("BOOKINGS", "ITINERARY").forEachIndexed { index, title ->
+                    listOf(
+                        "BOOKINGS" to Icons.Filled.ConfirmationNumber,
+                        "ITINERARY" to Icons.Filled.MeetingRoom,
+                    ).forEachIndexed { index, (title, icon) ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
                             text = { Text(title, style = MaterialTheme.typography.labelMedium) },
+                            icon = { Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp)) },
                         )
                     }
                 }
@@ -312,13 +316,13 @@ private fun ItineraryItemRow(item: ItineraryItem) {
             modifier =
                 Modifier
                     .size(width = 3.dp, height = 44.dp)
-                    .background(typeColor, RoundedCornerShape(2.dp)),
+                    .background(typeColor, DesignTokens.Shape.button),
         )
         Box(
             modifier =
                 Modifier
                     .size(32.dp)
-                    .background(typeColor.copy(alpha = 0.12f), RoundedCornerShape(8.dp)),
+                    .background(typeColor.copy(alpha = 0.12f), DesignTokens.Shape.button),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -487,7 +491,14 @@ private fun ActiveTripCard(
             OutlinedButton(
                 onClick = onViewBoardingPass,
                 modifier = Modifier.fillMaxWidth(),
+                shape = DesignTokens.Shape.button,
             ) {
+                Icon(
+                    imageVector = Icons.Filled.ConfirmationNumber,
+                    contentDescription = null,
+                    modifier = Modifier.size(androidx.compose.material3.ButtonDefaults.IconSize),
+                )
+                Spacer(Modifier.size(8.dp))
                 Text(stringResource(Res.string.travel_view_boarding_pass))
             }
         }
@@ -517,7 +528,7 @@ private fun UpcomingBookingCard(
                         .size(40.dp)
                         .background(
                             MaterialTheme.colorScheme.secondaryContainer,
-                            RoundedCornerShape(8.dp),
+                            DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -542,7 +553,7 @@ private fun UpcomingBookingCard(
             }
             Surface(
                 color = MaterialTheme.colorScheme.tertiaryContainer,
-                shape = RoundedCornerShape(6.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(
                     text = "₹${booking.amountRupees.toLong()}",
@@ -566,12 +577,12 @@ private fun QuickActionsRow(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
-        OutlinedButton(onClick = onBookFlight, modifier = Modifier.weight(1f)) {
+        OutlinedButton(onClick = onBookFlight, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) {
             Icon(Icons.Filled.AirplanemodeActive, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.size(6.dp))
             Text(stringResource(Res.string.travel_book_flight))
         }
-        OutlinedButton(onClick = onBookTrain, modifier = Modifier.weight(1f)) {
+        OutlinedButton(onClick = onBookTrain, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) {
             Icon(Icons.Filled.DirectionsRailway, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.size(6.dp))
             Text(stringResource(Res.string.travel_book_train))
