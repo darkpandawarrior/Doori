@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
@@ -35,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_close
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /** Maximum zoom level for pinch gestures. */
@@ -144,7 +144,7 @@ fun ZoomImageViewer(
             ) {
                 Surface(
                     modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
+                    shape = DesignTokens.Shape.button,
                     color = Color.Black.copy(alpha = 0.6f),
                 ) {
                     IconButton(onClick = onDismiss) {

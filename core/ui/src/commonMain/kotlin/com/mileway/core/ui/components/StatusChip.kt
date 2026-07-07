@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -15,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.theme.DesignTokens
 
 /**
  * The six status tones, a generalisation of cards' `CardStatusBadge`, reused by every
@@ -40,7 +40,7 @@ fun StatusChip(
     Surface(
         modifier = modifier,
         color = tone.color.copy(alpha = 0.15f),
-        shape = RoundedCornerShape(6.dp),
+        shape = DesignTokens.Shape.button,
     ) {
         Text(
             text = label,
@@ -75,7 +75,7 @@ fun WizardProgressBar(
             Surface(
                 modifier = Modifier.weight(1f).height(4.dp),
                 color = color,
-                shape = RoundedCornerShape(2.dp),
+                shape = DesignTokens.Shape.button,
             ) {}
         }
     }

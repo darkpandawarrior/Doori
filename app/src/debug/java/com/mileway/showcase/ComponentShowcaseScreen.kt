@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
@@ -58,6 +57,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.feature.agent.model.PopularQuestion
 import com.mileway.feature.approvals.model.ApprovalItem
@@ -165,7 +165,7 @@ val ALL_SHOWCASES: List<ShowcaseEntry> = listOf(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 PopularQuestionRow(
                     question = PopularQuestion(
@@ -187,7 +187,7 @@ val ALL_SHOWCASES: List<ShowcaseEntry> = listOf(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 PopularQuestionRow(
                     question = PopularQuestion(
@@ -378,7 +378,7 @@ fun ComponentShowcaseScreen(onBack: () -> Unit) {
 private fun ShowcaseEntryCard(entry: ShowcaseEntry, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.roundedMd,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -412,7 +412,7 @@ private fun ShowcaseEntryCard(entry: ShowcaseEntry, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(DesignTokens.Shape.button)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     .padding(12.dp),
             ) {
@@ -500,7 +500,7 @@ private fun ApprovalCardShowcase(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(DesignTokens.Shape.roundedSm)
             .background(MaterialTheme.colorScheme.surface)
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -570,7 +570,7 @@ private fun PopularQuestionRow(question: PopularQuestion) {
 @Composable
 private fun QrCardChipShowcase(card: CorporateCard) {
     Surface(
-        shape = RoundedCornerShape(50.dp),
+        shape = DesignTokens.Shape.button,
         color = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier.padding(horizontal = 4.dp),
     ) {
@@ -598,7 +598,7 @@ private fun QrInfoRowShowcase() {
         listOf("Daily Limit" to "₹50,000", "Today" to "₹0", "This Month" to "₹12,400").forEach { (label, value) ->
             Surface(
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(12.dp),
+                shape = DesignTokens.Shape.roundedSm,
                 color = MaterialTheme.colorScheme.surfaceVariant,
             ) {
                 Column(

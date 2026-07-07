@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_action_exit
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -45,12 +46,12 @@ fun CriticalErrorDialog(
         text = { Text(text = message, color = MaterialTheme.colorScheme.onErrorContainer) },
         containerColor = MaterialTheme.colorScheme.errorContainer,
         confirmButton = {
-            TextButton(onClick = onRetry) {
+            TextButton(onClick = onRetry, shape = DesignTokens.Shape.button) {
                 Text(text = stringResource(Res.string.action_retry), color = MaterialTheme.colorScheme.error)
             }
         },
         dismissButton = {
-            TextButton(onClick = onExit) {
+            TextButton(onClick = onExit, shape = DesignTokens.Shape.button) {
                 Text(text = stringResource(Res.string.core_action_exit), color = MaterialTheme.colorScheme.onErrorContainer)
             }
         },

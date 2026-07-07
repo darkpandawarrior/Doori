@@ -21,6 +21,7 @@ import com.mileway.core.ui.resources.action_cancel
 import com.mileway.core.ui.resources.action_ok
 import com.mileway.core.ui.resources.core_select_date
 import com.mileway.core.ui.resources.core_select_time
+import com.mileway.core.ui.theme.DesignTokens
 import dev.darkokoa.datetimewheelpicker.WheelDatePicker
 import dev.darkokoa.datetimewheelpicker.WheelTimePicker
 import kotlinx.datetime.LocalDate
@@ -67,10 +68,11 @@ fun WheelDatePickerDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.action_cancel)) }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_cancel)) }
             Button(
                 onClick = { onConfirm(snapped.toEpochMillis()) },
                 modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
             ) { Text(stringResource(Res.string.action_ok)) }
         }
     }
@@ -106,10 +108,11 @@ fun WheelTimePickerDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) { Text(stringResource(Res.string.action_cancel)) }
+            OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_cancel)) }
             Button(
                 onClick = { onConfirm(snapped.hour, snapped.minute) },
                 modifier = Modifier.weight(1f),
+                shape = DesignTokens.Shape.button,
             ) { Text(stringResource(Res.string.action_ok)) }
         }
     }

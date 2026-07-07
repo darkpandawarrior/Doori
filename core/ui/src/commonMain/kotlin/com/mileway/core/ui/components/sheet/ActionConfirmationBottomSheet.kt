@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.CheckCircle
@@ -49,6 +47,7 @@ import com.mileway.core.ui.resources.core_bulk_remarks_note
 import com.mileway.core.ui.resources.core_plural_action_items
 import com.mileway.core.ui.resources.core_remarks_placeholder
 import com.mileway.core.ui.resources.core_remarks_required
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -125,11 +124,11 @@ fun ActionConfirmationBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Box(
-                modifier = Modifier.size(64.dp).background(palette.containerColor.copy(alpha = 0.18f), CircleShape),
+                modifier = Modifier.size(64.dp).background(palette.containerColor.copy(alpha = 0.18f), DesignTokens.Shape.button),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(
-                    modifier = Modifier.size(46.dp).background(palette.primaryColor, CircleShape),
+                    modifier = Modifier.size(46.dp).background(palette.primaryColor, DesignTokens.Shape.button),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(icon, contentDescription = null, tint = palette.onPrimaryColor, modifier = Modifier.size(26.dp))
@@ -189,7 +188,7 @@ fun ActionConfirmationBottomSheet(
                 },
                 enabled = canConfirm,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor = palette.primaryColor,
@@ -202,7 +201,7 @@ fun ActionConfirmationBottomSheet(
             OutlinedButton(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(dismissLabel, fontWeight = FontWeight.Bold)
             }
@@ -280,7 +279,7 @@ fun BulkActionProgressBottomSheet(
             )
             if (!inProgress) {
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(8.dp)) {
+                Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth().height(52.dp), shape = DesignTokens.Shape.button) {
                     Text(stringResource(Res.string.core_action_done), fontWeight = FontWeight.Bold)
                 }
             }

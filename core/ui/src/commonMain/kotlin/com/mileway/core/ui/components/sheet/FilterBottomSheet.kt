@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -54,6 +53,7 @@ import com.mileway.core.ui.resources.core_action_apply
 import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.resources.core_filter_clear_all
 import com.mileway.core.ui.resources.core_filter_title
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /** Whether a [FilterSection] lets the user pick one option or several. */
@@ -169,7 +169,7 @@ private fun FilterMain(
     Column(Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            TextButton(onClick = onClear) { Text(stringResource(Res.string.core_filter_clear_all)) }
+            TextButton(onClick = onClear, shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.core_filter_clear_all)) }
         }
         Spacer(Modifier.height(8.dp))
         Column(Modifier.heightIn(max = 360.dp).verticalScroll(rememberScrollState())) {
@@ -190,7 +190,7 @@ private fun FilterMain(
             }
         }
         Spacer(Modifier.height(16.dp))
-        Button(onClick = onApply, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(8.dp)) {
+        Button(onClick = onApply, modifier = Modifier.fillMaxWidth().height(52.dp), shape = DesignTokens.Shape.button) {
             Text(stringResource(Res.string.core_action_apply), fontWeight = FontWeight.Bold)
         }
     }

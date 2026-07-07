@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
@@ -121,11 +120,11 @@ fun TrackMilesMainActionButton(
                     .fillMaxSize()
                     .shadow(
                         elevation = GlowElevation,
-                        shape = CircleShape,
+                        shape = DesignTokens.Shape.button,
                         ambientColor = animatedContainerColor.copy(alpha = GLOW_ALPHA),
                         spotColor = animatedContainerColor.copy(alpha = GLOW_ALPHA),
                     ),
-            shape = CircleShape,
+            shape = DesignTokens.Shape.button,
             color = Color.Transparent,
         ) {}
 
@@ -142,7 +141,7 @@ fun TrackMilesMainActionButton(
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onClick()
                     },
-            shape = CircleShape,
+            shape = DesignTokens.Shape.button,
             color = if (enabled) animatedContainerColor else MaterialTheme.colorScheme.surfaceVariant,
         ) {
             Column(

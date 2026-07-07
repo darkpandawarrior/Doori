@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -126,7 +125,7 @@ private fun ThemeSwatchCard(
                     modifier =
                         Modifier
                             .size(20.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(spec.accent),
                 )
                 Column(
@@ -155,7 +154,7 @@ private fun ThemeSwatchCard(
                     modifier =
                         Modifier
                             .size(20.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(spec.accent),
                     contentAlignment = Alignment.Center,
                 ) {

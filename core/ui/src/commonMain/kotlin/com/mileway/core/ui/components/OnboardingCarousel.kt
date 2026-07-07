@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +33,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_action_next
 import com.mileway.core.ui.resources.core_action_skip
 import com.mileway.core.ui.resources.core_get_started
+import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
@@ -65,7 +64,7 @@ fun OnboardingCarousel(
 
     Column(modifier = modifier.fillMaxSize().padding(24.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-            TextButton(onClick = onSkip, enabled = !isLast) {
+            TextButton(onClick = onSkip, enabled = !isLast, shape = DesignTokens.Shape.button) {
                 Text(if (isLast) "" else stringResource(Res.string.core_action_skip))
             }
         }
@@ -91,7 +90,7 @@ fun OnboardingCarousel(
                             .padding(horizontal = 4.dp)
                             .height(8.dp)
                             .size(width = width, height = 8.dp)
-                            .background(color, CircleShape),
+                            .background(color, DesignTokens.Shape.button),
                 )
             }
         }
@@ -105,7 +104,7 @@ fun OnboardingCarousel(
                 }
             },
             modifier = Modifier.fillMaxWidth().height(52.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = DesignTokens.Shape.button,
         ) {
             Text(if (isLast) finishLabel else stringResource(Res.string.core_action_next), fontWeight = FontWeight.Bold)
         }
@@ -120,7 +119,7 @@ private fun OnboardingPageContent(page: OnboardingPage) {
         verticalArrangement = Arrangement.Center,
     ) {
         Box(
-            modifier = Modifier.size(120.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+            modifier = Modifier.size(120.dp).background(MaterialTheme.colorScheme.primaryContainer, DesignTokens.Shape.button),
             contentAlignment = Alignment.Center,
         ) {
             Icon(

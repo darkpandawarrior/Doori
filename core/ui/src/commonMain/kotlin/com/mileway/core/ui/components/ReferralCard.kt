@@ -23,6 +23,7 @@ import com.mileway.core.ui.resources.core_referral_enter_code
 import com.mileway.core.ui.resources.core_referral_redeem
 import com.mileway.core.ui.resources.core_referral_share
 import com.mileway.core.ui.resources.core_referral_title
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -50,7 +51,7 @@ fun ReferralCard(
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Button(onClick = onShare, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onShare, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                 Text(stringResource(Res.string.core_referral_share))
             }
             OutlinedTextField(
@@ -66,6 +67,7 @@ fun ReferralCard(
                     entered = ""
                 },
                 enabled = entered.isNotBlank(),
+                shape = DesignTokens.Shape.button,
             ) {
                 Text(stringResource(Res.string.core_referral_redeem))
             }

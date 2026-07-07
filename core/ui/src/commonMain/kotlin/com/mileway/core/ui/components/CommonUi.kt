@@ -27,6 +27,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_error_generic
 import com.mileway.core.ui.resources.core_loading
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -57,7 +58,7 @@ fun ErrorScreen(
             )
             if (onRetry != null) {
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onRetry) { Text(stringResource(Res.string.action_retry)) }
+                Button(onClick = onRetry, shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_retry)) }
             }
         }
     }
@@ -106,9 +107,9 @@ fun TwoButtonRow(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        OutlinedButton(onClick = onSecondary, modifier = Modifier.weight(1f)) { Text(secondaryText) }
+        OutlinedButton(onClick = onSecondary, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(secondaryText) }
         Spacer(Modifier.width(12.dp))
-        Button(onClick = onPrimary, modifier = Modifier.weight(1f)) { Text(primaryText) }
+        Button(onClick = onPrimary, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(primaryText) }
     }
 }
 

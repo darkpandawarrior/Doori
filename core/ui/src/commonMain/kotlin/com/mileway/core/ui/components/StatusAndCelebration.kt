@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Flight
@@ -262,7 +261,7 @@ private fun NetworkStatusBadge(
                     modifier =
                         Modifier
                             .size(size)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(animatedColor),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -284,7 +283,7 @@ private fun NetworkStatusBadge(
                             Modifier
                                 .size(size)
                                 .scale(animatedScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(animatedColor),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -308,7 +307,7 @@ private fun NetworkStatusBadge(
                             Modifier
                                 .size(size * 0.4f)
                                 .scale(animatedScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(animatedColor),
                     )
                 }
@@ -321,7 +320,7 @@ private fun NetworkStatusBadge(
                         Modifier
                             .size(size)
                             .scale(animatedScale)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(animatedColor.copy(alpha = 0.18f)),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -354,7 +353,7 @@ private fun NetworkStatusBadge(
                             Modifier
                                 .size(size)
                                 .scale(animatedScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(animatedColor),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -371,7 +370,7 @@ private fun NetworkStatusBadge(
                             Modifier
                                 .size(size * 0.4f)
                                 .scale(animatedScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(animatedColor),
                     )
                 }
@@ -385,7 +384,7 @@ private fun NetworkStatusBadge(
                             Modifier
                                 .size(size)
                                 .scale(animatedScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(animatedColor),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -404,7 +403,7 @@ private fun NetworkStatusBadge(
                             Modifier
                                 .size(size * 0.4f)
                                 .scale(animatedScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(animatedColor),
                     )
                 }

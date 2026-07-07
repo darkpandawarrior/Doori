@@ -60,6 +60,12 @@
     <string name="travel_booking_search_placeholder">Search bookings…</string>
     <string name="travel_booking_empty_title">No bookings here</string>
     <string name="travel_booking_empty_subtitle">Submitted booking requests appear under their type and status.</string>
+    <string name="travel_create_flight_subtitle">Flight details and travellers</string>
+    <string name="travel_create_bus_subtitle">Bus route and passengers</string>
+    <string name="travel_create_hotel_subtitle">Stay dates and guests</string>
+    <string name="travel_create_visa_subtitle">Visa application details</string>
+    <string name="travel_create_mjp_subtitle">Multi-city journey plan</string>
+    <string name="travel_create_trip_subtitle">Trip request details</string>
     <string name="travel_trip_history_title">Trip History</string>
     <string name="travel_trip_search_placeholder">Search trips…</string>
     <string name="travel_trip_empty_title">No trips here</string>
@@ -100,6 +106,8 @@
     <string name="events_empty_title">No events here</string>
     <string name="events_empty_subtitle">Created events appear under their status.</string>
     <string name="events_attendees_count">%1$s attendees</string>
+    <string name="events_create_subtitle">Event details and schedule</string>
+    <string name="events_history_subtitle">Your events and RSVPs</string>
     <string name="payments_create_title">Pay / Request</string>
     <string name="payments_section_mode">Mode</string>
     <string name="payments_section_details">Details</string>
@@ -119,6 +127,8 @@
     <string name="payments_search_placeholder">Search payments…</string>
     <string name="payments_empty_title">No payments here</string>
     <string name="payments_empty_subtitle">Your UPI / QR pays and requests appear under their status.</string>
+    <string name="payments_create_subtitle">Send or request money</string>
+    <string name="payments_history_subtitle">All payments and requests</string>
     <string name="approvals_bulk_action_illustrative">Bulk action is illustrative.</string>
     <string name="approvals_reject_all">Reject All (%1$s)</string>
     <string name="approvals_approve_all">Approve All (%1$s)</string>
@@ -961,6 +971,9 @@
     <string name="logging_withdraw">Withdraw</string>
     <string name="logging_withdraw_title">Withdraw Voucher?</string>
     <string name="logging_withdraw_description">This draft voucher (%1$s) will be removed. This action cannot be undone.</string>
+    <string name="logging_settlements_subtitle">Settlement records and status</string>
+    <string name="logging_card_transactions_subtitle">Card transactions and spends</string>
+    <string name="logging_voucher_history_subtitle">Vouchers and their status</string>
 
     <!-- ===== L10n sweep: tracking screens ===== -->
     <string name="tracking_action_close">Close</string>

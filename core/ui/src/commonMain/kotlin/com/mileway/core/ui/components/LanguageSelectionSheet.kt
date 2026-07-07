@@ -20,6 +20,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_cancel
 import com.mileway.core.ui.resources.settings_language
 import com.mileway.core.ui.theme.AppLanguage
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.LocaleController
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -57,7 +58,7 @@ fun LanguageSelectionSheet(
         },
         confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel)) }
+            TextButton(onClick = onDismiss, shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_cancel)) }
         },
     )
 }

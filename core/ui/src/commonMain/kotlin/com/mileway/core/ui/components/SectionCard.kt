@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
@@ -85,7 +84,7 @@ fun SectionCard(
                         if (leadingIcon != null) {
                             Surface(
                                 color = leadingIconContainerColor,
-                                shape = RoundedCornerShape(10.dp),
+                                shape = DesignTokens.Shape.button,
                             ) {
                                 Icon(
                                     imageVector = leadingIcon,
@@ -158,7 +157,7 @@ fun CollapsibleSectionCard(
             // Rectangular toggle with 8dp corners
             Button(
                 onClick = { expanded = !expanded },
-                shape = RoundedCornerShape(8.dp),
+                shape = DesignTokens.Shape.button,
                 contentPadding =
                     PaddingValues(
                         horizontal = DesignTokens.Spacing.m,

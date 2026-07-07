@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -104,7 +103,7 @@ fun TrackingStatusPill(
 
     Surface(
         modifier = modifier.graphicsLayer { alpha = pulseAlpha },
-        shape = CircleShape,
+        shape = DesignTokens.Shape.button,
         color = color.copy(alpha = 0.16f),
     ) {
         Row(
@@ -141,14 +140,14 @@ private fun StatusDot(
                     Modifier
                         .size(16.dp)
                         .blur(6.dp)
-                        .background(color.copy(alpha = 0.55f), CircleShape),
+                        .background(color.copy(alpha = 0.55f), DesignTokens.Shape.button),
             )
         }
         Box(
             modifier =
                 Modifier
                     .size(8.dp)
-                    .background(color, CircleShape),
+                    .background(color, DesignTokens.Shape.button),
         )
     }
 }

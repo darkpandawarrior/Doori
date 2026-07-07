@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.CheckCircle
@@ -313,7 +311,7 @@ fun GridProfileTile(
                                 .size(if (compact) 36.dp else 40.dp)
                                 .background(
                                     color = iconBaseColor.copy(alpha = 0.12f),
-                                    shape = CircleShape,
+                                    shape = DesignTokens.Shape.button,
                                 ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -359,9 +357,9 @@ fun GridProfileTile(
                                         .size(12.dp)
                                         .align(Alignment.TopEnd)
                                         .offset(x = 4.dp, y = (-4).dp)
-                                        .clip(CircleShape)
+                                        .clip(DesignTokens.Shape.button)
                                         .background(MaterialTheme.colorScheme.error)
-                                        .border(1.5.dp, containerColor, CircleShape),
+                                        .border(1.5.dp, containerColor, DesignTokens.Shape.button),
                             )
                         }
                         ProfileItemStatus.UPDATING -> {
@@ -749,7 +747,7 @@ fun ProfileCompletionBanner(
                             modifier =
                                 Modifier
                                     .size(40.dp)
-                                    .clip(CircleShape)
+                                    .clip(DesignTokens.Shape.button)
                                     .background(
                                         if (isHighProgress) {
                                             MaterialTheme.colorScheme.tertiary.copy(alpha = 0.3f)
@@ -938,7 +936,7 @@ private fun MissingItemRow(
             modifier =
                 Modifier
                     .size(20.dp)
-                    .clip(CircleShape)
+                    .clip(DesignTokens.Shape.button)
                     .background(
                         if (item.isRequired) {
                             MaterialTheme.colorScheme.error.copy(alpha = 0.15f)
@@ -976,7 +974,7 @@ private fun MissingItemRow(
 
         if (item.isRequired) {
             Surface(
-                shape = RoundedCornerShape(4.dp),
+                shape = DesignTokens.Shape.button,
                 color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
             ) {
                 Text(

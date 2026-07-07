@@ -26,8 +26,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -62,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_cd_error
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 // =============================================================================
@@ -144,7 +143,7 @@ fun ShimmerBar(
             modifier
                 .fillMaxWidth(widthFraction)
                 .height(height.dp)
-                .clip(RoundedCornerShape(6.dp))
+                .clip(DesignTokens.Shape.button)
                 .background(brush),
     )
 }
@@ -169,7 +168,7 @@ fun UnifiedShimmerCard(
             Modifier
                 .width(ShimmerSpecs.CARD_WIDTH.dp)
                 .height(height.dp),
-        shape = RoundedCornerShape(ShimmerSpecs.CORNER_RADIUS.dp),
+        shape = DesignTokens.Shape.roundedSm,
         border =
             BorderStroke(
                 1.dp,
@@ -251,7 +250,7 @@ fun UnifiedListShimmer(
                     CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                     ),
-                shape = RoundedCornerShape(12.dp),
+                shape = DesignTokens.Shape.roundedSm,
                 border =
                     BorderStroke(
                         1.dp,
@@ -272,7 +271,7 @@ fun UnifiedListShimmer(
                                 .size(40.dp)
                                 .background(
                                     MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-                                    CircleShape,
+                                    DesignTokens.Shape.button,
                                 ),
                     )
                     Column(modifier = Modifier.weight(1f)) {
@@ -311,7 +310,7 @@ fun SectionErrorState(
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f),
             ),
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         border =
             BorderStroke(
                 1.dp,
@@ -332,7 +331,7 @@ fun SectionErrorState(
                         .size(48.dp)
                         .background(
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
-                            shape = CircleShape,
+                            shape = DesignTokens.Shape.button,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
@@ -358,6 +357,7 @@ fun SectionErrorState(
                 Button(
                     onClick = onRetry,
                     modifier = Modifier.height(36.dp),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
@@ -457,7 +457,7 @@ private fun SimpleDotsRow(
             modifier =
                 Modifier
                     .size(animatedSize)
-                    .background(color = animatedColor, shape = CircleShape)
+                    .background(color = animatedColor, shape = DesignTokens.Shape.button)
                     .semantics { contentDescription = dotDescription }
                     .let { dotModifier ->
                         if (onDotClick != null) {
@@ -520,7 +520,7 @@ private fun CyclingDotsRow(
             modifier =
                 Modifier
                     .size(animatedSize)
-                    .background(color = animatedColor, shape = CircleShape),
+                    .background(color = animatedColor, shape = DesignTokens.Shape.button),
         )
         if (displayIndex != windowInfo.visibleIndices.lastIndex) {
             Spacer(modifier = Modifier.width(spacing))
@@ -568,7 +568,7 @@ private fun PageNumberBadge(
     Box(
         modifier =
             Modifier
-                .clip(RoundedCornerShape(10.dp))
+                .clip(DesignTokens.Shape.button)
                 .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f))
                 .padding(horizontal = 8.dp, vertical = 4.dp),
         contentAlignment = Alignment.Center,
@@ -638,7 +638,7 @@ fun CountBadge(
     textColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     val displayText = if (count > 99) "99+" else count.toString()
-    val shape = if (count > 9) RoundedCornerShape(10.dp) else CircleShape
+    val shape = DesignTokens.Shape.button
 
     Box(
         modifier =

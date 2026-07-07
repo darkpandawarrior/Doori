@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +36,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_cancel
 import com.mileway.core.ui.resources.core_action_select
 import com.mileway.core.ui.resources.core_choose_color
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -110,12 +110,12 @@ fun ColorWheelDialog(
                         modifier =
                             Modifier
                                 .size(60.dp, 40.dp)
-                                .clip(RoundedCornerShape(8.dp))
+                                .clip(DesignTokens.Shape.button)
                                 .background(currentColor)
                                 .border(
                                     width = 1.dp,
                                     color = MaterialTheme.colorScheme.outline,
-                                    shape = RoundedCornerShape(8.dp),
+                                    shape = DesignTokens.Shape.button,
                                 ),
                     )
 
@@ -144,6 +144,7 @@ fun ColorWheelDialog(
                     OutlinedButton(
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
+                        shape = DesignTokens.Shape.button,
                     ) {
                         Text(stringResource(Res.string.action_cancel))
                     }
@@ -159,6 +160,7 @@ fun ColorWheelDialog(
                             onColorSelected(currentColor, hex)
                         },
                         modifier = Modifier.weight(1f),
+                        shape = DesignTokens.Shape.button,
                     ) {
                         Text(stringResource(Res.string.core_action_select))
                     }

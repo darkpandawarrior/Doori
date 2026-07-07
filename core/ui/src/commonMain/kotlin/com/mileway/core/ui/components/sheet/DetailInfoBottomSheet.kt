@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.theme.DesignTokens
 
 /** A labelled value row for a [DetailInfoBottomSheet] card (e.g. "Merchant, Cafe Coffee Day"). */
 @Composable
@@ -62,7 +61,7 @@ fun DetailInfoCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f), RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f), DesignTokens.Shape.roundedSm)
                 .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
@@ -107,7 +106,7 @@ fun DetailInfoBottomSheet(
             ) {
                 if (headerIcon != null) {
                     Column(
-                        modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), CircleShape),
+                        modifier = Modifier.size(48.dp).background(Color.White.copy(alpha = 0.2f), DesignTokens.Shape.button),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
                     ) {

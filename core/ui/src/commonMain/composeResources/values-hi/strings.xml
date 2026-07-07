@@ -42,6 +42,12 @@
     <string name="travel_booking_search_placeholder">बुकिंग खोजें…</string>
     <string name="travel_booking_empty_title">यहाँ कोई बुकिंग नहीं</string>
     <string name="travel_booking_empty_subtitle">सबमिट की गई बुकिंग अनुरोध उनके प्रकार और स्थिति के अंतर्गत दिखाई देते हैं।</string>
+    <string name="travel_create_flight_subtitle">फ्लाइट विवरण और यात्री</string>
+    <string name="travel_create_bus_subtitle">बस मार्ग और यात्री</string>
+    <string name="travel_create_hotel_subtitle">ठहरने की तारीखें और मेहमान</string>
+    <string name="travel_create_visa_subtitle">वीज़ा आवेदन विवरण</string>
+    <string name="travel_create_mjp_subtitle">बहु-शहर यात्रा योजना</string>
+    <string name="travel_create_trip_subtitle">यात्रा अनुरोध विवरण</string>
     <string name="travel_trip_history_title">यात्रा इतिहास</string>
     <string name="travel_trip_search_placeholder">यात्राएँ खोजें…</string>
     <string name="travel_trip_empty_title">यहाँ कोई यात्रा नहीं</string>
@@ -80,6 +86,8 @@
     <string name="events_empty_title">यहाँ कोई इवेंट नहीं</string>
     <string name="events_empty_subtitle">बनाए गए इवेंट उनकी स्थिति के अनुसार दिखाई देते हैं।</string>
     <string name="events_attendees_count">%1$s उपस्थित</string>
+    <string name="events_create_subtitle">इवेंट विवरण और कार्यक्रम</string>
+    <string name="events_history_subtitle">आपके इवेंट और RSVP</string>
     <!-- payments -->
     <string name="payments_create_title">भुगतान / अनुरोध</string>
     <string name="payments_section_mode">मोड</string>
@@ -100,6 +108,8 @@
     <string name="payments_search_placeholder">भुगतान खोजें…</string>
     <string name="payments_empty_title">यहाँ कोई भुगतान नहीं</string>
     <string name="payments_empty_subtitle">आपके UPI / QR भुगतान और अनुरोध उनकी स्थिति के अनुसार दिखाई देते हैं।</string>
+    <string name="payments_create_subtitle">पैसे भेजें या मांगें</string>
+    <string name="payments_history_subtitle">सभी भुगतान और अनुरोध</string>
     <string name="approvals_bulk_action_illustrative">बल्क कार्रवाई केवल उदाहरण के लिए है।</string>
     <string name="approvals_reject_all">सभी अस्वीकार करें (%1$s)</string>
     <string name="approvals_approve_all">सभी स्वीकृत करें (%1$s)</string>
@@ -506,6 +516,9 @@
     <string name="logging_withdraw">वापस लें</string>
     <string name="logging_withdraw_title">वाउचर वापस लें?</string>
     <string name="logging_withdraw_description">यह ड्राफ़्ट वाउचर (%1$s) हटा दिया जाएगा। यह क्रिया पूर्ववत नहीं की जा सकती।</string>
+    <string name="logging_settlements_subtitle">निपटान रिकॉर्ड और स्थिति</string>
+    <string name="logging_card_transactions_subtitle">कार्ड लेनदेन और खर्च</string>
+    <string name="logging_voucher_history_subtitle">वाउचर और उनकी स्थिति</string>
 
     <!-- tracking hi -->
     <string name="tracking_action_close">बंद करें</string>

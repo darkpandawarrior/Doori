@@ -400,7 +400,7 @@ fun ActivityTimeline(
                     Modifier
                         .fillMaxWidth()
                         .height(10.dp)
-                        .background(trackColor.copy(alpha = 0.4f), RoundedCornerShape(50)),
+                        .background(trackColor.copy(alpha = 0.4f), DesignTokens.Shape.button),
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
@@ -417,7 +417,7 @@ fun ActivityTimeline(
                 Modifier
                     .fillMaxWidth()
                     .height(10.dp)
-                    .background(trackColor.copy(alpha = 0.25f), RoundedCornerShape(50))
+                    .background(trackColor.copy(alpha = 0.25f), DesignTokens.Shape.button)
                     .padding(horizontal = 2.dp, vertical = 2.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -434,7 +434,7 @@ fun ActivityTimeline(
                             .weight(animatedWeight)
                             .fillMaxWidth()
                             .height(6.dp)
-                            .background(segment.type.color(), RoundedCornerShape(50)),
+                            .background(segment.type.color(), DesignTokens.Shape.button),
                 )
             }
         }
@@ -453,7 +453,7 @@ fun ActivityTimeline(
                         modifier =
                             Modifier
                                 .size(6.dp)
-                                .background(segment.type.color(), RoundedCornerShape(50)),
+                                .background(segment.type.color(), DesignTokens.Shape.button),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -710,7 +710,7 @@ fun HeroTrackingCard(
                 if (isPaused && !pauseReason.isNullOrBlank()) {
                     Surface(
                         color = MaterialTheme.colorScheme.tertiaryContainer,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = DesignTokens.Shape.roundedSm,
                         tonalElevation = 0.dp,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -804,7 +804,7 @@ private fun ActivityChipsRow(
                             } else {
                                 MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
                             },
-                        shape = RoundedCornerShape(50),
+                        shape = DesignTokens.Shape.button,
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -871,7 +871,7 @@ private fun HistoryCountChip(
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        shape = RoundedCornerShape(50),
+        shape = DesignTokens.Shape.button,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
@@ -930,7 +930,7 @@ private fun GaugeModePill(
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-        shape = RoundedCornerShape(20.dp),
+        shape = DesignTokens.Shape.button,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = borderAlpha)),
         modifier = Modifier.clickable(onClickLabel = "Switch gauge mode") { onClick() },
     ) {

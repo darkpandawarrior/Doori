@@ -24,8 +24,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -44,6 +42,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.location_you_are_here
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -119,7 +118,7 @@ fun CurrentLocationPinMap(
                     IntOffset((center.x - half).roundToInt(), (center.y - half).roundToInt())
                 }
                 .size(hotspot)
-                .clip(CircleShape)
+                .clip(DesignTokens.Shape.button)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
@@ -152,7 +151,7 @@ private fun LocationCallout(
     accent: Color,
 ) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
+        shape = DesignTokens.Shape.roundedSm,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
         tonalElevation = 6.dp,
         shadowElevation = 8.dp,
@@ -162,7 +161,7 @@ private fun LocationCallout(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Box(Modifier.size(9.dp).clip(CircleShape).background(accent))
+            Box(Modifier.size(9.dp).clip(DesignTokens.Shape.button).background(accent))
             Column {
                 Text(
                     text = pin.label ?: stringResource(Res.string.location_you_are_here),

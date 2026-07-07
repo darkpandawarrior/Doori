@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Close
@@ -211,8 +209,8 @@ private fun SideFab(
             modifier =
                 Modifier
                     .size(56.dp)
-                    .shadow(6.dp, CircleShape),
-            shape = CircleShape,
+                    .shadow(6.dp, DesignTokens.Shape.button),
+            shape = DesignTokens.Shape.button,
             color = container,
             onClick = onClick,
         ) {
@@ -324,7 +322,7 @@ private fun QuickActionTile(
 ) {
     Surface(
         modifier = modifier.height(84.dp),
-        shape = RoundedCornerShape(16.dp),
+        shape = DesignTokens.Shape.button,
         color = tint,
         onClick = { onAction(action.id) },
     ) {
@@ -337,7 +335,7 @@ private fun QuickActionTile(
                 modifier =
                     Modifier
                         .size(32.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(Color.White.copy(alpha = 0.25f)),
                 contentAlignment = Alignment.Center,
             ) {

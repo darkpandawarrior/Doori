@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Badge
@@ -89,6 +88,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_collapse_nav
 import com.mileway.core.ui.resources.core_cd_collapsed_nav_for
 import com.mileway.core.ui.resources.core_cd_switch_to
+import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
 import kotlin.math.abs
@@ -616,10 +616,10 @@ fun DraggableFloatingFab(
                         .scale(scale)
                         .shadow(
                             elevation = shadowElevation,
-                            shape = CircleShape,
+                            shape = DesignTokens.Shape.button,
                             clip = false,
                         )
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(primaryColor)
                         .clickable(
                             interactionSource = interactionSource,
@@ -657,7 +657,7 @@ fun DraggableFloatingFab(
                 modifier =
                     Modifier
                         .size(18.dp)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f))
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -826,7 +826,7 @@ fun CollapsedBottomPuck(
                     modifier =
                         Modifier
                             .size(wheelDiameter)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(
                                 brush =
                                     Brush.radialGradient(
@@ -888,7 +888,7 @@ fun CollapsedBottomPuck(
                                 .offset { IntOffset(x, y) }
                                 .size(if (isHovered) hoveredChipSize else chipSize)
                                 .scale(chipScale)
-                                .clip(CircleShape)
+                                .clip(DesignTokens.Shape.button)
                                 .background(
                                     brush =
                                         Brush.radialGradient(
@@ -914,7 +914,7 @@ fun CollapsedBottomPuck(
                                         } else {
                                             MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                                         },
-                                    shape = CircleShape,
+                                    shape = DesignTokens.Shape.button,
                                 )
                                 .clickable(
                                     interactionSource = remember { MutableInteractionSource() },
@@ -1004,7 +1004,7 @@ fun CollapsedBottomPuck(
                             }
                         },
                     ),
-            shape = CircleShape,
+            shape = DesignTokens.Shape.button,
             color = MaterialTheme.colorScheme.surface,
             shadowElevation = if (isWheelVisible) 20.dp else 14.dp,
             tonalElevation = 2.dp,
@@ -1025,7 +1025,7 @@ fun CollapsedBottomPuck(
                     modifier =
                         Modifier
                             .size(46.dp)
-                            .clip(CircleShape)
+                            .clip(DesignTokens.Shape.button)
                             .background(
                                 brush =
                                     Brush.radialGradient(
@@ -1247,7 +1247,7 @@ fun DynamicNavItem(
                 modifier =
                     Modifier
                         .size(dotSize)
-                        .clip(CircleShape)
+                        .clip(DesignTokens.Shape.button)
                         .background(primaryColor),
             )
         }
