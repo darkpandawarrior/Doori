@@ -45,6 +45,9 @@ class SessionRepository(
     private val hasPinKey = booleanPreferencesKey("session_has_pin")
     private val hasShownWelcomeDisclaimerKey = booleanPreferencesKey("session_has_shown_welcome_disclaimer")
     private val mfaDoneKey = booleanPreferencesKey("session_mfa_done")
+    private val onboardingDoneKey = booleanPreferencesKey("session_onboarding_done")
+    private val genderKey = stringPreferencesKey("session_gender")
+    private val dobKey = longPreferencesKey("session_dob")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -66,6 +69,9 @@ class SessionRepository(
                 hasPin = prefs[hasPinKey] ?: false,
                 hasShownWelcomeDisclaimer = prefs[hasShownWelcomeDisclaimerKey] ?: false,
                 mfaDone = prefs[mfaDoneKey] ?: false,
+                onboardingDone = prefs[onboardingDoneKey] ?: false,
+                gender = prefs[genderKey] ?: "",
+                dateOfBirthMillis = prefs[dobKey],
             )
         }
 
@@ -89,6 +95,8 @@ class SessionRepository(
             prefs[firstLoginPendingKey] = true
             // P1.3: a fresh sign-in must re-clear MFA (challenge the new login again if required).
             prefs[mfaDoneKey] = false
+            // P2.1: a fresh sign-in re-opens the onboarding form (if the persona requires it).
+            prefs[onboardingDoneKey] = false
         }
     }
 
@@ -107,6 +115,8 @@ class SessionRepository(
             prefs.remove(firstLoginPendingKey)
             // P1.3: guest sessions never do MFA.
             prefs[mfaDoneKey] = true
+            // P2.1: guests skip signup onboarding.
+            prefs[onboardingDoneKey] = true
         }
     }
 
@@ -141,6 +151,30 @@ class SessionRepository(
     /** PLAN_V24 P1.3: marks this login's MFA step complete, so the auth flow proceeds to the PIN gate. */
     suspend fun markMfaDone() {
         context.sessionDataStore.edit { prefs -> prefs[mfaDoneKey] = true }
+    }
+
+    /**
+     * PLAN_V24 P2.1: persists the signup onboarding form and marks it done. [displayName] is
+     * derived from first+last by the caller; blank optional fields are simply not written.
+     */
+    suspend fun saveOnboarding(
+        displayName: String,
+        email: String?,
+        gender: String,
+        dateOfBirthMillis: Long?,
+    ) {
+        context.sessionDataStore.edit { prefs ->
+            if (displayName.isNotBlank()) prefs[displayNameKey] = displayName
+            if (!email.isNullOrBlank()) prefs[emailKey] = email
+            if (gender.isNotBlank()) prefs[genderKey] = gender
+            if (dateOfBirthMillis != null) prefs[dobKey] = dateOfBirthMillis
+            prefs[onboardingDoneKey] = true
+        }
+    }
+
+    /** PLAN_V24 P2.1: skip the onboarding form (allowed only when the persona shows Skip). */
+    suspend fun skipOnboarding() {
+        context.sessionDataStore.edit { prefs -> prefs[onboardingDoneKey] = true }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */

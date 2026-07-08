@@ -183,4 +183,6 @@ val authModule =
         viewModelOf(::AuthViewModel)
         // PLAN_V24 P1.2: the shared OTP entry screen's ViewModel (LocalOtpEngine-backed).
         viewModelOf(::OtpVerificationViewModel)
+        // PLAN_V24 P2.1: the config-driven signup onboarding form ViewModel.
+        viewModelOf(::SignupOnboardingViewModel)
     }

@@ -1959,4 +1959,32 @@
     <string name="shared_login_duplicate_title">मौजूदा खाते मिले</string>
     <string name="shared_login_duplicate_subtitle">यह नंबर पहले से पंजीकृत है। इनमें से किसी एक के रूप में जारी रखें, या नया खाता बनाएँ।</string>
     <string name="shared_login_duplicate_create_new">नया खाता बनाएँ</string>
+
+    <!-- PLAN_V24 P2.1: signup onboarding form -->
+    <string name="onboarding_title">अपनी प्रोफ़ाइल पूरी करें</string>
+    <string name="onboarding_subtitle">शुरू करने के लिए कुछ विवरण</string>
+    <string name="onboarding_first_name">पहला नाम</string>
+    <string name="onboarding_last_name">अंतिम नाम</string>
+    <string name="onboarding_email">ईमेल</string>
+    <string name="onboarding_gender">लिंग</string>
+    <string name="onboarding_dob">जन्म तिथि</string>
+    <string name="onboarding_dob_set">जन्म तिथि सेट</string>
+    <string name="onboarding_referral">रेफ़रल कोड (वैकल्पिक)</string>
+    <string name="onboarding_submit">जारी रखें</string>
+    <string name="onboarding_skip">अभी छोड़ें</string>
+    <string name="onboarding_optional">(वैकल्पिक)</string>
+    <string name="plugin_onboarding_signuponboardingenabled_title">साइनअप ऑनबोर्डिंग फ़ॉर्म</string>
+    <string name="plugin_onboarding_signuponboardingenabled_desc">नए पर्सोना के पहले लॉगिन के बाद विवरण फ़ॉर्म दिखाएँ</string>
+    <string name="plugin_onboarding_signuplastnameoptional_title">अंतिम नाम वैकल्पिक</string>
+    <string name="plugin_onboarding_signuplastnameoptional_desc">अंतिम नाम के बिना साइनअप की अनुमति दें</string>
+    <string name="plugin_onboarding_signupemailoptional_title">ईमेल वैकल्पिक</string>
+    <string name="plugin_onboarding_signupemailoptional_desc">ईमेल के बिना साइनअप की अनुमति दें</string>
+    <string name="plugin_onboarding_genderrequired_title">लिंग आवश्यक</string>
+    <string name="plugin_onboarding_genderrequired_desc">साइनअप पर लिंग आवश्यक करें</string>
+    <string name="plugin_onboarding_dobrequired_title">जन्म तिथि आवश्यक</string>
+    <string name="plugin_onboarding_dobrequired_desc">साइनअप पर जन्म तिथि आवश्यक करें</string>
+    <string name="plugin_onboarding_showpromoonboarding_title">रेफ़रल फ़ील्ड</string>
+    <string name="plugin_onboarding_showpromoonboarding_desc">साइनअप फ़ॉर्म पर रेफ़रल-कोड फ़ील्ड दिखाएँ</string>
+    <string name="plugin_onboarding_showskiponboarding_title">छोड़ने की अनुमति</string>
+    <string name="plugin_onboarding_showskiponboarding_desc">साइनअप फ़ॉर्म पर छोड़ें बटन दिखाएँ</string>
 </resources>

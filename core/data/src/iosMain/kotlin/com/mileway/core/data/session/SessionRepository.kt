@@ -35,6 +35,9 @@ class SessionRepository(
     private val hasPinKey = booleanPreferencesKey("session_has_pin")
     private val hasShownWelcomeDisclaimerKey = booleanPreferencesKey("session_has_shown_welcome_disclaimer")
     private val mfaDoneKey = booleanPreferencesKey("session_mfa_done")
+    private val onboardingDoneKey = booleanPreferencesKey("session_onboarding_done")
+    private val genderKey = stringPreferencesKey("session_gender")
+    private val dobKey = longPreferencesKey("session_dob")
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
@@ -61,6 +64,9 @@ class SessionRepository(
                 hasPin = prefs[hasPinKey] ?: false,
                 hasShownWelcomeDisclaimer = prefs[hasShownWelcomeDisclaimerKey] ?: false,
                 mfaDone = prefs[mfaDoneKey] ?: false,
+                onboardingDone = prefs[onboardingDoneKey] ?: false,
+                gender = prefs[genderKey] ?: "",
+                dateOfBirthMillis = prefs[dobKey],
             )
         }
 
@@ -78,6 +84,7 @@ class SessionRepository(
             prefs[currencySymbolKey] = profile.currencySymbol
             prefs[firstLoginPendingKey] = true
             prefs[mfaDoneKey] = false
+            prefs[onboardingDoneKey] = false
         }
     }
 
@@ -94,6 +101,7 @@ class SessionRepository(
             prefs.remove(currencySymbolKey)
             prefs.remove(firstLoginPendingKey)
             prefs[mfaDoneKey] = true
+            prefs[onboardingDoneKey] = true
         }
     }
 
@@ -117,6 +125,27 @@ class SessionRepository(
     /** PLAN_V24 P1.3: marks this login's MFA step complete (see androidMain doc). */
     suspend fun markMfaDone() {
         store.edit { prefs -> prefs[mfaDoneKey] = true }
+    }
+
+    /** PLAN_V24 P2.1: persists the signup onboarding form (see androidMain doc). */
+    suspend fun saveOnboarding(
+        displayName: String,
+        email: String?,
+        gender: String,
+        dateOfBirthMillis: Long?,
+    ) {
+        store.edit { prefs ->
+            if (displayName.isNotBlank()) prefs[displayNameKey] = displayName
+            if (!email.isNullOrBlank()) prefs[emailKey] = email
+            if (gender.isNotBlank()) prefs[genderKey] = gender
+            if (dateOfBirthMillis != null) prefs[dobKey] = dateOfBirthMillis
+            prefs[onboardingDoneKey] = true
+        }
+    }
+
+    /** PLAN_V24 P2.1: skip the onboarding form (see androidMain doc). */
+    suspend fun skipOnboarding() {
+        store.edit { prefs -> prefs[onboardingDoneKey] = true }
     }
 
     suspend fun signOut() {

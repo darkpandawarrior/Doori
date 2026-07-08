@@ -45,8 +45,10 @@ import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.ui.auth.rememberPermissionsController
 import com.mileway.ui.auth.CheckPinScreen
 import com.mileway.ui.auth.LoginScreen
+import com.mileway.ui.auth.OnboardingFormConfig
 import com.mileway.ui.auth.OtpVerificationScreen
 import com.mileway.ui.auth.SetPinScreen
+import com.mileway.ui.auth.SignupOnboardingScreen
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.toAppRoute
 import kotlinx.coroutines.launch
@@ -59,7 +61,7 @@ import org.koin.compose.koinInject
  * `SetPinScreen` the first time (`SessionState.hasPin == false`) or `CheckPinScreen` on every
  * later launch until sign-out.
  */
-private enum class AppStage { SPLASH, LOGIN, MFA, PIN, APP }
+private enum class AppStage { SPLASH, LOGIN, MFA, PIN, ONBOARDING, APP }
 
 /**
  * Single entry point for the app. Plays the splash and fake-login theatre, then hosts the
@@ -125,7 +127,11 @@ private fun sessionOwesMfa(
 ): Boolean = session.isSignedIn && mfaRequired && !session.mfaDone && !session.hasPin
 
 /** A stage the app only reaches after login — used to bounce a signed-out session back to LOGIN. */
-private fun AppStage.isPastLogin(): Boolean = this == AppStage.PIN || this == AppStage.APP || this == AppStage.MFA
+private fun AppStage.isPastLogin(): Boolean =
+    this == AppStage.PIN || this == AppStage.APP || this == AppStage.MFA || this == AppStage.ONBOARDING
+
+/** Stages where the "signed-in + has PIN → go to APP" reconciliation must NOT yank the user out. */
+private fun AppStage.isMidAuthFlow(): Boolean = this == AppStage.PIN || this == AppStage.APP || this == AppStage.ONBOARDING
 
 private fun nextStageForSession(
     session: SessionState?,
@@ -136,7 +142,7 @@ private fun nextStageForSession(
     return when {
         sessionOwesMfa(session, mfaRequired) && currentStage != AppStage.MFA && currentStage != AppStage.APP ->
             AppStage.MFA
-        session.isSignedIn && session.hasPin && currentStage != AppStage.PIN && currentStage != AppStage.APP ->
+        session.isSignedIn && session.hasPin && !currentStage.isMidAuthFlow() ->
             AppStage.APP
         session.isSignedIn && !session.hasPin && currentStage == AppStage.SPLASH -> AppStage.PIN
         !session.isSignedIn && currentStage.isPastLogin() -> AppStage.LOGIN
@@ -158,6 +164,17 @@ private fun AppEntry(
     val otpViaCallEnabled by pluginRegistry.observe("otpViaCallEnabled").collectAsStateWithLifecycle(initialValue = false)
     // PLAN_V24 P1.3: MFA step gated by the `mfaRequired` plugin (Corporate Commuter persona).
     val mfaRequired by pluginRegistry.observe("mfaRequired").collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P2.1: signup onboarding form, gated + config-driven by the onboarding plugins.
+    val signupOnboardingEnabled by pluginRegistry.observe("signupOnboardingEnabled").collectAsStateWithLifecycle(initialValue = false)
+    val onboardingConfig =
+        OnboardingFormConfig(
+            lastNameOptional = pluginRegistry.observe("signupLastNameOptional").collectAsStateWithLifecycle(initialValue = true).value,
+            emailOptional = pluginRegistry.observe("signupEmailOptional").collectAsStateWithLifecycle(initialValue = true).value,
+            genderRequired = pluginRegistry.observe("genderRequired").collectAsStateWithLifecycle(initialValue = false).value,
+            dobRequired = pluginRegistry.observe("dobRequired").collectAsStateWithLifecycle(initialValue = false).value,
+            showPromo = pluginRegistry.observe("showPromoOnboarding").collectAsStateWithLifecycle(initialValue = false).value,
+            showSkip = pluginRegistry.observe("showSkipOnboarding").collectAsStateWithLifecycle(initialValue = true).value,
+        )
     // A.1: the persisted session is the source of truth for "did the user pass login, and how".
     // null = still loading; once known we can skip the splash/login theatre for a returning user
     // (guest or credentials), so navigation, deep links and process recreation never bounce them.
@@ -258,7 +275,23 @@ private fun AppEntry(
                                     },
                                 )
                             AppStage.PIN ->
-                                PinGateStage(hasPin = session?.hasPin == true, onPassed = { stage = AppStage.APP })
+                                PinGateStage(
+                                    hasPin = session?.hasPin == true,
+                                    onPassed = {
+                                        // P2.1: a fresh persona that owes onboarding sees the form before the app.
+                                        stage =
+                                            if (signupOnboardingEnabled && session?.onboardingDone != true) {
+                                                AppStage.ONBOARDING
+                                            } else {
+                                                AppStage.APP
+                                            }
+                                    },
+                                )
+                            AppStage.ONBOARDING ->
+                                SignupOnboardingScreen(
+                                    config = onboardingConfig,
+                                    onComplete = { stage = AppStage.APP },
+                                )
                             AppStage.APP ->
                                 MilewayAppRoot(
                                     deepLinkRoute = initialRoute,

@@ -73,8 +73,36 @@ object PluginCatalog {
             ),
         )
 
+    /**
+     * Signup-onboarding form config (P2.1) — the reference app `SignupOnboardingFragment` gating flags.
+     * `signupOnboardingEnabled` is the master gate; the rest shape the field set.
+     */
+    val onboardingPlugins: List<PluginDescriptor> =
+        listOf(
+            onboardingFlag("signupOnboardingEnabled", defaultOn = false),
+            onboardingFlag("signupLastNameOptional", defaultOn = true),
+            onboardingFlag("signupEmailOptional", defaultOn = true),
+            onboardingFlag("genderRequired", defaultOn = false),
+            onboardingFlag("dobRequired", defaultOn = false),
+            onboardingFlag("showPromoOnboarding", defaultOn = false),
+            onboardingFlag("showSkipOnboarding", defaultOn = true),
+        )
+
     /** Every registered descriptor across all categories. */
-    val all: List<PluginDescriptor> = coreModulePlugins + authPlugins
+    val all: List<PluginDescriptor> = coreModulePlugins + authPlugins + onboardingPlugins
+
+    private fun onboardingFlag(
+        id: String,
+        defaultOn: Boolean,
+    ): PluginDescriptor =
+        PluginDescriptor(
+            id = id,
+            kind = PluginKind.CAPABILITY,
+            category = PluginCategory.ONBOARDING,
+            titleKey = "plugin_onboarding_${id.lowercase()}_title",
+            descriptionKey = "plugin_onboarding_${id.lowercase()}_desc",
+            defaultOn = defaultOn,
+        )
 
     private val byId: Map<String, PluginDescriptor> = all.associateBy { it.id }
 

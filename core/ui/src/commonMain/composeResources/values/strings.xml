@@ -1963,4 +1963,32 @@
     <string name="shared_login_duplicate_title">We found existing accounts</string>
     <string name="shared_login_duplicate_subtitle">This number is already registered. Continue as one of these, or create a new account.</string>
     <string name="shared_login_duplicate_create_new">Create a new account</string>
+
+    <!-- PLAN_V24 P2.1: signup onboarding form -->
+    <string name="onboarding_title">Complete your profile</string>
+    <string name="onboarding_subtitle">A few details to get you started</string>
+    <string name="onboarding_first_name">First name</string>
+    <string name="onboarding_last_name">Last name</string>
+    <string name="onboarding_email">Email</string>
+    <string name="onboarding_gender">Gender</string>
+    <string name="onboarding_dob">Date of birth</string>
+    <string name="onboarding_dob_set">Date of birth set</string>
+    <string name="onboarding_referral">Referral code (optional)</string>
+    <string name="onboarding_submit">Continue</string>
+    <string name="onboarding_skip">Skip for now</string>
+    <string name="onboarding_optional">(optional)</string>
+    <string name="plugin_onboarding_signuponboardingenabled_title">Signup onboarding form</string>
+    <string name="plugin_onboarding_signuponboardingenabled_desc">Show a details form after a new persona\'s first login</string>
+    <string name="plugin_onboarding_signuplastnameoptional_title">Last name optional</string>
+    <string name="plugin_onboarding_signuplastnameoptional_desc">Allow signup without a last name</string>
+    <string name="plugin_onboarding_signupemailoptional_title">Email optional</string>
+    <string name="plugin_onboarding_signupemailoptional_desc">Allow signup without an email</string>
+    <string name="plugin_onboarding_genderrequired_title">Gender required</string>
+    <string name="plugin_onboarding_genderrequired_desc">Require gender at signup</string>
+    <string name="plugin_onboarding_dobrequired_title">Date of birth required</string>
+    <string name="plugin_onboarding_dobrequired_desc">Require date of birth at signup</string>
+    <string name="plugin_onboarding_showpromoonboarding_title">Referral field</string>
+    <string name="plugin_onboarding_showpromoonboarding_desc">Show a referral-code field on the signup form</string>
+    <string name="plugin_onboarding_showskiponboarding_title">Allow skip</string>
+    <string name="plugin_onboarding_showskiponboarding_desc">Show a Skip button on the signup form</string>
 </resources>

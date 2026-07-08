@@ -320,6 +320,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<MasterSearchViewModel>())
         assertNotNull(get<AuthViewModel>())
         assertNotNull(get<OtpVerificationViewModel>())
+        assertNotNull(get<com.mileway.ui.auth.SignupOnboardingViewModel>())
         assertNotNull(get<PinViewModel>())
     }
 

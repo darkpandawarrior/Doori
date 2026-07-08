@@ -43,6 +43,12 @@ data class SessionState(
     val hasShownWelcomeDisclaimer: Boolean = false,
     // PLAN_V24 P1.3: true once this session cleared the MFA step (per-login, reset on fresh sign-in).
     val mfaDone: Boolean = false,
+    // PLAN_V24 P2.1: true once the signup onboarding form was submitted or skipped (or never
+    // required). Gates the one-shot onboarding stage separately from isFirstLoginPending (which
+    // drives the home first-login banner).
+    val onboardingDone: Boolean = false,
+    val gender: String = "",
+    val dateOfBirthMillis: Long? = null,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

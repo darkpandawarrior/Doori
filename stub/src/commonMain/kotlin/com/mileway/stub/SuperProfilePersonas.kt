@@ -89,6 +89,10 @@ object SuperProfilePersonas {
                     APPROVALS to false,
                     PAYABLES to false,
                     "phoneLoginEnabled" to true,
+                    // P2.1: the reference app-shaped signup onboarding form (last name + email optional, skip on).
+                    "signupOnboardingEnabled" to true,
+                    "genderRequired" to true,
+                    "showPromoOnboarding" to true,
                     "referralProgramEnabled" to true,
                     "couponsEnabled" to true,
                     "scratchRewardsEnabled" to true,
