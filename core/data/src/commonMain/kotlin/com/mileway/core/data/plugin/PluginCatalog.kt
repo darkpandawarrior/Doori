@@ -99,6 +99,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_profile_phone_change_desc",
                 defaultOn = true,
             ),
+            PluginDescriptor(
+                id = "emailVerificationEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PROFILE,
+                titleKey = "plugin_profile_email_verify_title",
+                descriptionKey = "plugin_profile_email_verify_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

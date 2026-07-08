@@ -52,6 +52,7 @@ class SessionRepository(
     private val whatsNewSeenKey = intPreferencesKey("session_whats_new_seen")
     private val phoneKey = stringPreferencesKey("session_phone")
     private val pendingPhoneKey = stringPreferencesKey("session_pending_phone")
+    private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -79,6 +80,7 @@ class SessionRepository(
                 whatsNewLastSeenVersion = prefs[whatsNewSeenKey] ?: 0,
                 phone = prefs[phoneKey] ?: "",
                 pendingPhoneChangeTarget = prefs[pendingPhoneKey],
+                emailVerified = prefs[emailVerifiedKey] ?: false,
             )
         }
 
@@ -104,6 +106,8 @@ class SessionRepository(
             prefs[mfaDoneKey] = false
             // P2.1: a fresh sign-in re-opens the onboarding form (if the persona requires it).
             prefs[onboardingDoneKey] = false
+            // P3.2: a fresh email starts unverified.
+            prefs[emailVerifiedKey] = false
         }
     }
 
@@ -205,6 +209,11 @@ class SessionRepository(
     /** Abandon the pending phone change (cancel / wrong-number). */
     suspend fun cancelPhoneChange() {
         context.sessionDataStore.edit { prefs -> prefs.remove(pendingPhoneKey) }
+    }
+
+    /** PLAN_V24 P3.2: mark the session email verified (after the demo verify-link is "clicked"). */
+    suspend fun markEmailVerified() {
+        context.sessionDataStore.edit { prefs -> prefs[emailVerifiedKey] = true }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */

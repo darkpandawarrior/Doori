@@ -56,6 +56,9 @@ data class SessionState(
     // a non-null pending target resumes the verify step.
     val phone: String = "",
     val pendingPhoneChangeTarget: String? = null,
+    // PLAN_V24 P3.2: whether the session email is verified. Reset false on a fresh credentials
+    // sign-in (a new email is unverified); guests have no email to verify.
+    val emailVerified: Boolean = false,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

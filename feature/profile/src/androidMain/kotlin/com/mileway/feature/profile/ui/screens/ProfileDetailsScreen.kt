@@ -85,6 +85,11 @@ import com.mileway.core.ui.resources.profile_details_section_policy
 import com.mileway.core.ui.resources.profile_details_section_travel
 import com.mileway.core.ui.resources.profile_details_subtitle
 import com.mileway.core.ui.resources.profile_details_title
+import com.mileway.core.ui.resources.profile_email_link_sent
+import com.mileway.core.ui.resources.profile_email_simulate_click
+import com.mileway.core.ui.resources.profile_email_unverified
+import com.mileway.core.ui.resources.profile_email_verified
+import com.mileway.core.ui.resources.profile_email_verify
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.model.PassportDetails
@@ -128,6 +133,7 @@ fun ProfileDetailsScreen(
     val profile = state.profile
     // PLAN_V24 P3.1: phone shown from the session (changed value) falling back to the profile.
     val phoneChangeEnabled by pluginRegistry.observe("phoneChangeEnabled").collectAsStateWithLifecycle(initialValue = true)
+    val emailVerificationEnabled by pluginRegistry.observe("emailVerificationEnabled").collectAsStateWithLifecycle(initialValue = true)
     val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
     val completion = state.completion
     var activeSheet by remember { mutableStateOf<ProfileDetailSheet?>(null) }
@@ -225,7 +231,10 @@ fun ProfileDetailsScreen(
                     initiallyExpanded = true,
                     leadingIcon = Icons.Default.Person,
                 ) {
-                    ContactRow(icon = Icons.Default.Email, value = profile.email)
+                    EmailVerificationRow(
+                        email = profile.email,
+                        enabled = emailVerificationEnabled,
+                    )
                     ContactRow(icon = Icons.Default.Badge, value = profile.employeeCode)
                     ContactRow(icon = Icons.Default.Phone, value = session.phone.ifBlank { profile.phone })
                     if (phoneChangeEnabled) {
@@ -371,6 +380,70 @@ private fun DetailChip(text: String) {
             color = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.s),
         )
+    }
+}
+
+/**
+ * PLAN_V24 P3.2: the email row with a Verified/Unverified chip. When unverified and enabled, a
+ * "Verify" action sends a demo link whose "Simulate clicking the link" affordance flips the status.
+ */
+@Composable
+private fun EmailVerificationRow(
+    email: String,
+    enabled: Boolean,
+    viewModel: com.mileway.feature.profile.viewmodel.EmailVerificationViewModel = org.koin.compose.viewmodel.koinViewModel(),
+) {
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Email,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(DesignTokens.IconSize.navigation),
+            )
+            Text(
+                text = email.ifBlank { stringResource(Res.string.profile_details_not_set) },
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+            val chipColor = if (state.isVerified) DesignTokens.StatusColors.success else DesignTokens.StatusColors.warning
+            Surface(color = chipColor.copy(alpha = 0.12f), shape = DesignTokens.Shape.chip) {
+                Text(
+                    text =
+                        if (state.isVerified) {
+                            stringResource(Res.string.profile_email_verified)
+                        } else {
+                            stringResource(Res.string.profile_email_unverified)
+                        },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = chipColor,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                )
+            }
+        }
+        if (enabled && !state.isVerified && email.isNotBlank()) {
+            if (state.linkSent) {
+                Text(
+                    text = stringResource(Res.string.profile_email_link_sent),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                androidx.compose.material3.TextButton(onClick = viewModel::confirmClicked) {
+                    Text(stringResource(Res.string.profile_email_simulate_click))
+                }
+            } else {
+                androidx.compose.material3.TextButton(onClick = viewModel::sendLink) {
+                    Text(stringResource(Res.string.profile_email_verify))
+                }
+            }
+        }
     }
 }
 

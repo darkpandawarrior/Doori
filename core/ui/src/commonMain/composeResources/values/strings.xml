@@ -2011,4 +2011,13 @@
     <string name="phone_change_err_invalid">Enter a valid 10-digit number</string>
     <string name="phone_change_err_wrong">Incorrect code</string>
     <string name="phone_change_err_expired">Code expired — resend</string>
+
+    <!-- PLAN_V24 P3.2: email verification -->
+    <string name="plugin_profile_email_verify_title">Email verification</string>
+    <string name="plugin_profile_email_verify_desc">Show verify-email status and a mock verify link</string>
+    <string name="profile_email_verified">Verified</string>
+    <string name="profile_email_unverified">Unverified</string>
+    <string name="profile_email_verify">Verify email</string>
+    <string name="profile_email_link_sent">We sent a verification link to your email.</string>
+    <string name="profile_email_simulate_click">Simulate clicking the link</string>
 </resources>

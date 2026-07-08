@@ -42,6 +42,7 @@ class SessionRepository(
     private val whatsNewSeenKey = intPreferencesKey("session_whats_new_seen")
     private val phoneKey = stringPreferencesKey("session_phone")
     private val pendingPhoneKey = stringPreferencesKey("session_pending_phone")
+    private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
@@ -74,6 +75,7 @@ class SessionRepository(
                 whatsNewLastSeenVersion = prefs[whatsNewSeenKey] ?: 0,
                 phone = prefs[phoneKey] ?: "",
                 pendingPhoneChangeTarget = prefs[pendingPhoneKey],
+                emailVerified = prefs[emailVerifiedKey] ?: false,
             )
         }
 
@@ -92,6 +94,7 @@ class SessionRepository(
             prefs[firstLoginPendingKey] = true
             prefs[mfaDoneKey] = false
             prefs[onboardingDoneKey] = false
+            prefs[emailVerifiedKey] = false
         }
     }
 
@@ -174,6 +177,11 @@ class SessionRepository(
 
     suspend fun cancelPhoneChange() {
         store.edit { prefs -> prefs.remove(pendingPhoneKey) }
+    }
+
+    /** PLAN_V24 P3.2: mark the session email verified (see androidMain doc). */
+    suspend fun markEmailVerified() {
+        store.edit { prefs -> prefs[emailVerifiedKey] = true }
     }
 
     suspend fun signOut() {
