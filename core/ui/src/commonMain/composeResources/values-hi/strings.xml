@@ -2170,6 +2170,17 @@
     <string name="coupons_notif_title">कूपन भुनाया गया</string>
     <string name="coupons_notif_body">%1$s आपके खाते में लागू किया गया।</string>
     <string name="coupons_notif_time">अभी</string>
+    <!-- PLAN_V24 P5.3: scratch-card rewards -->
+    <string name="plugin_growth_rewards_title">स्क्रैच इनाम</string>
+    <string name="plugin_growth_rewards_desc">अर्जित स्क्रैच कार्ड और रिवील इंटरैक्शन दिखाएँ</string>
+    <string name="profile_home_tile_rewards_title">इनाम</string>
+    <string name="profile_home_tile_rewards_subtitle">स्क्रैच करें और जीतें</string>
+    <string name="rewards_title">स्क्रैच इनाम</string>
+    <string name="rewards_subtitle">अपने पुरस्कार प्रकट करने के लिए स्क्रैच करें</string>
+    <string name="rewards_back">वापस</string>
+    <string name="rewards_total">अर्जित: %1$d क्रेडिट</string>
+    <string name="rewards_scratch_hint">प्रकट करने के लिए स्क्रैच करें</string>
+    <string name="rewards_empty">अभी तक कोई इनाम नहीं — स्क्रैच कार्ड अर्जित करने के लिए दोस्तों को रेफ़र करें।</string>
     <!-- PLAN_V24 P4.4: corporate email verification -->
     <string name="plugin_corporate_verify_title">कॉर्पोरेट ईमेल सत्यापन</string>
     <string name="plugin_corporate_verify_desc">कॉर्पोरेट बैज के लिए OTP से कंपनी ईमेल सत्यापित करें</string>

@@ -2171,6 +2171,17 @@
     <string name="coupons_notif_title">Coupon redeemed</string>
     <string name="coupons_notif_body">%1$s was applied to your account.</string>
     <string name="coupons_notif_time">Just now</string>
+    <!-- PLAN_V24 P5.3: scratch-card rewards -->
+    <string name="plugin_growth_rewards_title">Scratch rewards</string>
+    <string name="plugin_growth_rewards_desc">Show earned scratch cards and the reveal interaction</string>
+    <string name="profile_home_tile_rewards_title">Rewards</string>
+    <string name="profile_home_tile_rewards_subtitle">Scratch &amp; win</string>
+    <string name="rewards_title">Scratch Rewards</string>
+    <string name="rewards_subtitle">Scratch to reveal your prizes</string>
+    <string name="rewards_back">Back</string>
+    <string name="rewards_total">Earned: %1$d credits</string>
+    <string name="rewards_scratch_hint">Scratch to reveal</string>
+    <string name="rewards_empty">No rewards yet — refer friends to earn scratch cards.</string>
     <!-- PLAN_V24 P4.4: corporate email verification -->
     <string name="plugin_corporate_verify_title">Corporate email verification</string>
     <string name="plugin_corporate_verify_desc">Verify a company email with an OTP for a corporate badge</string>

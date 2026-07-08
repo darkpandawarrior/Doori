@@ -75,6 +75,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().documentDao() }
         single { get<MilewayDatabase>().referralTxnDao() }
         single { get<MilewayDatabase>().couponDao() }
+        single { get<MilewayDatabase>().rewardCardDao() }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore(androidContext()) }

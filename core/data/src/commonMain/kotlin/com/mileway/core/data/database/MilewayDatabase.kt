@@ -20,6 +20,7 @@ import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.PluginOverrideDao
 import com.mileway.core.data.dao.ReferralTxnDao
+import com.mileway.core.data.dao.RewardCardDao
 import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
@@ -47,6 +48,7 @@ import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PassportDetailsEntity
 import com.mileway.core.data.model.db.PluginOverrideEntity
 import com.mileway.core.data.model.db.ReferralTxnEntity
+import com.mileway.core.data.model.db.RewardCardEntity
 import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SessionEntity
@@ -84,8 +86,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         DocumentEntity::class,
         ReferralTxnEntity::class,
         CouponEntity::class,
+        RewardCardEntity::class,
     ],
-    version = 25,
+    version = 26,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -139,6 +142,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun referralTxnDao(): ReferralTxnDao
 
     abstract fun couponDao(): CouponDao
+
+    abstract fun rewardCardDao(): RewardCardDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

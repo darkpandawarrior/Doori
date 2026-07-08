@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MonetizationOn
@@ -137,6 +138,8 @@ import com.mileway.core.ui.resources.profile_home_tile_qr_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_qr_title
 import com.mileway.core.ui.resources.profile_home_tile_referral_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_referral_title
+import com.mileway.core.ui.resources.profile_home_tile_rewards_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_rewards_title
 import com.mileway.core.ui.resources.profile_home_tile_saved_places_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_saved_places_title
 import com.mileway.core.ui.resources.profile_home_tile_sessions_subtitle
@@ -203,6 +206,7 @@ fun ProfileScreen(
     onOpenVerification: () -> Unit = {},
     onOpenReferral: () -> Unit = {},
     onOpenCoupons: () -> Unit = {},
+    onOpenRewards: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
@@ -346,6 +350,7 @@ fun ProfileScreen(
                         onOpenVerification = onOpenVerification,
                         onOpenReferral = onOpenReferral,
                         onOpenCoupons = onOpenCoupons,
+                        onOpenRewards = onOpenRewards,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -665,6 +670,7 @@ private fun AccountTileGrid(
     onOpenVerification: () -> Unit,
     onOpenReferral: () -> Unit,
     onOpenCoupons: () -> Unit,
+    onOpenRewards: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -678,6 +684,8 @@ private fun AccountTileGrid(
     val referralHubEnabled by pluginRegistry.observe("referralProgramEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val couponsEnabled by pluginRegistry.observe("couponsEnabled")
+        .collectAsStateWithLifecycle(initialValue = true)
+    val rewardsEnabled by pluginRegistry.observe("scratchRewardsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -881,8 +889,21 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val rewardsTile =
+            if (rewardsEnabled) {
+                accountTile(
+                    "acc_rewards",
+                    stringResource(Res.string.profile_home_tile_rewards_title),
+                    stringResource(Res.string.profile_home_tile_rewards_subtitle),
+                    Icons.Default.Favorite,
+                    Color(0xFFEA580C),
+                    onOpenRewards,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
-        val depthTiles = listOfNotNull(savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile)
+        val depthTiles = listOfNotNull(savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile)
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))
         }

@@ -12,6 +12,7 @@ import com.mileway.feature.profile.repository.NotificationRepository
 import com.mileway.feature.profile.repository.PassportDetailsRepository
 import com.mileway.feature.profile.repository.ProfileRepository
 import com.mileway.feature.profile.repository.ReferralProgramRepository
+import com.mileway.feature.profile.repository.RewardsRepository
 import com.mileway.feature.profile.repository.SavedPlacesRepository
 import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
@@ -32,6 +33,7 @@ import com.mileway.feature.profile.viewmodel.PhoneChangeViewModel
 import com.mileway.feature.profile.viewmodel.PluginManagerViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import com.mileway.feature.profile.viewmodel.ReferralHubViewModel
+import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
@@ -70,6 +72,8 @@ val profileModule =
         single { ReferralProgramRepository(get(), get()) }
         // PLAN_V24 P5.2: coupons Room-backed repository.
         single { CouponsRepository(get()) }
+        // PLAN_V24 P5.3: scratch-card rewards Room-backed repository.
+        single { RewardsRepository(get()) }
         viewModelOf(::ProfileViewModel)
         viewModel { AdvanceViewModel(get()) }
         viewModelOf(::DemoSettingsViewModel)
@@ -103,4 +107,6 @@ val profileModule =
         viewModelOf(::ReferralHubViewModel)
         // PLAN_V24 P5.2: coupons (explicit so the Clock default is honored; NotificationDao from graph).
         viewModel { CouponsViewModel(get(), get()) }
+        // PLAN_V24 P5.3: scratch-card rewards.
+        viewModelOf(::RewardsViewModel)
     }

@@ -27,6 +27,7 @@ import com.mileway.feature.profile.ui.screens.ProfileDetailsScreen
 import com.mileway.feature.profile.ui.screens.ProfileScreen
 import com.mileway.feature.profile.ui.screens.QrHomeScreen
 import com.mileway.feature.profile.ui.screens.ReferralHubScreen
+import com.mileway.feature.profile.ui.screens.RewardsScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
@@ -60,6 +61,7 @@ object ProfileRoutes {
     const val VERIFICATION_DOCUMENT = "profile/verification/{docType}"
     const val REFERRAL_HUB = "profile/referral"
     const val COUPONS = "profile/coupons"
+    const val REWARDS = "profile/rewards"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -105,7 +107,13 @@ fun NavGraphBuilder.profileGraph(
             onOpenVerification = { navController.navigate(ProfileRoutes.VERIFICATION_CENTRE) },
             onOpenReferral = { navController.navigate(ProfileRoutes.REFERRAL_HUB) },
             onOpenCoupons = { navController.navigate(ProfileRoutes.COUPONS) },
+            onOpenRewards = { navController.navigate(ProfileRoutes.REWARDS) },
             onSignedOut = onSignedOut,
+        )
+    }
+    composable(ProfileRoutes.REWARDS) {
+        RewardsScreen(
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.REFERRAL_HUB) {
