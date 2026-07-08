@@ -2071,6 +2071,9 @@
     <string name="plugin_profile_emergency_contacts_desc">Manage the contacts alerted by SOS</string>
     <string name="plugin_tracking_emergency_mode_title">Driver SOS mode</string>
     <string name="plugin_tracking_emergency_mode_desc">Show the emergency SOS action while tracking</string>
+    <!-- PLAN_V24 P4.1: verification centre -->
+    <string name="plugin_verification_centre_title">Verification centre</string>
+    <string name="plugin_verification_centre_desc">Upload and track verification documents</string>
     <string name="profile_email_verified">Verified</string>
     <string name="profile_email_unverified">Unverified</string>
     <string name="profile_email_verify">Verify email</string>

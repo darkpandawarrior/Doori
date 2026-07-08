@@ -138,9 +138,23 @@ object PluginCatalog {
             ),
         )
 
+    /** Verification-centre plugins (P4). */
+    val verificationPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "verificationCentreEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.VERIFICATION,
+                titleKey = "plugin_verification_centre_title",
+                descriptionKey = "plugin_verification_centre_desc",
+                defaultOn = true,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
-        coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins
+        coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
+            verificationPlugins
 
     private fun onboardingFlag(
         id: String,

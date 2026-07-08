@@ -5,6 +5,38 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 22 → 23 (PLAN_V24 P4.1): additive `documents` table — the verification centre's
+ * per-doc requirement + status rows (the reference app `DocRequirementResponse`). `doc_url[]`/`doc_info[]`
+ * are JSON-encoded TEXT; enum columns store the enum name. Empty on first run (seeded by
+ * `DocumentRepository.seedIfEmpty()`). See [com.mileway.core.data.model.db.DocumentEntity].
+ */
+val MIGRATION_22_23 =
+    object : Migration(22, 23) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `documents` (
+                    `docType`            TEXT    NOT NULL PRIMARY KEY,
+                    `docTypeText`        TEXT    NOT NULL,
+                    `requirement`        TEXT    NOT NULL,
+                    `status`             TEXT    NOT NULL,
+                    `docCount`           INTEGER NOT NULL,
+                    `isEditable`         INTEGER NOT NULL,
+                    `docUrlsJson`        TEXT    NOT NULL,
+                    `reason`             TEXT    NOT NULL,
+                    `instructions`       TEXT    NOT NULL,
+                    `galleryRestricted`  INTEGER NOT NULL,
+                    `category`           TEXT    NOT NULL,
+                    `docInfoJson`        TEXT    NOT NULL,
+                    `isDocInfoEditable`  INTEGER NOT NULL,
+                    `updatedAtMs`        INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 21 → 22 (PLAN_V24 P3.5): additive `emergency_contacts` table — name + phone +
  * dial-code, capped at 5 by the repository. Empty on first run.
  * See [com.mileway.core.data.model.db.EmergencyContactEntity].

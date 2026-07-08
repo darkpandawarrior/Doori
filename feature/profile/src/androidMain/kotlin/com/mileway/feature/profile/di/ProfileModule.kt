@@ -4,6 +4,7 @@ import com.mileway.feature.profile.repository.ActiveSessionsRepository
 import com.mileway.feature.profile.repository.AdvanceRepository
 import com.mileway.feature.profile.repository.ConnectedAccountsRepository
 import com.mileway.feature.profile.repository.DelegationRepository
+import com.mileway.feature.profile.repository.DocumentRepository
 import com.mileway.feature.profile.repository.FakeProfileRepository
 import com.mileway.feature.profile.repository.MockAccountRepository
 import com.mileway.feature.profile.repository.NotificationRepository
@@ -57,6 +58,8 @@ val profileModule =
         single { SupportTicketRepository(get()) }
         // PLAN_V24 P3.4: saved places (home/work/other) Room-backed repository.
         single { SavedPlacesRepository(get()) }
+        // PLAN_V24 P4.1: verification-centre documents Room-backed repository (seeded by P4.2's VM).
+        single { DocumentRepository(get()) }
         viewModelOf(::ProfileViewModel)
         viewModel { AdvanceViewModel(get()) }
         viewModelOf(::DemoSettingsViewModel)
