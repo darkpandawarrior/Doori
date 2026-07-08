@@ -153,6 +153,8 @@ class KoinGraphTest : KoinTest {
         // tracking SOS. The repository lives in core:data (real CoreDataModule isn't loaded here).
         single<com.mileway.core.data.dao.EmergencyContactDao> { FakeEmergencyContactDao() }
         single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
+        // PLAN_V24 P4.1/P4.2: VerificationCentreViewModel collects DocumentRepository in init.
+        single<com.mileway.core.data.dao.DocumentDao> { FakeDocumentDao() }
         // P6.6: StorageViewModel reads real on-device byte counts; the app-under-test's real
         // Context/cacheDir/getDatabasePath work fine on Robolectric, unlike a relaxed mockk Context.
         single { com.mileway.core.data.settings.StorageRepository(androidContext()) }
@@ -320,6 +322,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.SavedPlacesViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.EmergencyContactsViewModel>())
         assertNotNull(get<com.mileway.feature.tracking.viewmodel.SosViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.VerificationCentreViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<PayablesViewModel>())

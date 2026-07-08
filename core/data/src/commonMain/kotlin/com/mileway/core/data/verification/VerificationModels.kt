@@ -63,6 +63,9 @@ data class VerificationDocument(
     val category: DocumentCategory,
     val docInfo: List<DocInfoField>,
     val isDocInfoEditable: Boolean,
+    // The doc's last-write time — used as the SimulatedReviewEngine submit timestamp while
+    // APPROVAL_PENDING so the review can resolve on observe and survive process death.
+    val updatedAtMillis: Long = 0L,
 ) {
     /**
      * A mandatory doc counts as "filled" when it sits in a good uploaded state (UPLOADED / pending /

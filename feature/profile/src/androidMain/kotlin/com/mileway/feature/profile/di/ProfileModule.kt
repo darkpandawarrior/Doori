@@ -32,6 +32,7 @@ import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
 import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
+import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -85,4 +86,6 @@ val profileModule =
         viewModelOf(::SavedPlacesViewModel)
         // PLAN_V24 P3.5: emergency contacts (repository provided by core:data — shared with tracking SOS).
         viewModelOf(::EmergencyContactsViewModel)
+        // PLAN_V24 P4.2: verification centre (DocumentRepository + SimulatedReviewEngine).
+        viewModelOf(::VerificationCentreViewModel)
     }

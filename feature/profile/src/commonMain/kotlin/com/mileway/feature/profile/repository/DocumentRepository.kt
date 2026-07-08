@@ -123,6 +123,7 @@ class DocumentRepository(private val dao: DocumentDao, private val clock: Clock 
             category = DocumentCategory.entries.firstOrNull { it.name == category } ?: DocumentCategory.DRIVER,
             docInfo = DocumentCodec.decodeDocInfo(docInfoJson),
             isDocInfoEditable = isDocInfoEditable,
+            updatedAtMillis = updatedAtMs,
         )
 
     private fun VerificationDocument.toEntity(now: Long): DocumentEntity =

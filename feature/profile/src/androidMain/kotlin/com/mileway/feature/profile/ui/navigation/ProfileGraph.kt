@@ -14,6 +14,7 @@ import com.mileway.feature.profile.ui.screens.AskAdvanceFormScreen
 import com.mileway.feature.profile.ui.screens.ConnectedAccountsScreen
 import com.mileway.feature.profile.ui.screens.DelegationScreen
 import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
+import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
@@ -27,6 +28,7 @@ import com.mileway.feature.profile.ui.screens.QrHomeScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
+import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 
 object ProfileRoutes {
     const val HOME = "profile_home"
@@ -52,10 +54,14 @@ object ProfileRoutes {
     const val PLUGINS = "profile/plugins"
     const val SAVED_PLACES = "profile/saved_places"
     const val EMERGENCY_CONTACTS = "profile/emergency_contacts"
+    const val VERIFICATION_CENTRE = "profile/verification"
+    const val VERIFICATION_DOCUMENT = "profile/verification/{docType}"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
     fun advanceDetailsRoute(advanceId: String) = "profile/advance/$advanceId"
+
+    fun verificationDocumentRoute(docType: String) = "profile/verification/$docType"
 }
 
 /**
@@ -92,7 +98,24 @@ fun NavGraphBuilder.profileGraph(
             onOpenSessions = { navController.navigate(ProfileRoutes.ACTIVE_SESSIONS) },
             onOpenSavedPlaces = { navController.navigate(ProfileRoutes.SAVED_PLACES) },
             onOpenEmergency = { navController.navigate(ProfileRoutes.EMERGENCY_CONTACTS) },
+            onOpenVerification = { navController.navigate(ProfileRoutes.VERIFICATION_CENTRE) },
             onSignedOut = onSignedOut,
+        )
+    }
+    composable(ProfileRoutes.VERIFICATION_CENTRE) {
+        VerificationCentreScreen(
+            onBack = { navController.popBackStack() },
+            onOpenDocument = { docType -> navController.navigate(ProfileRoutes.verificationDocumentRoute(docType)) },
+        )
+    }
+    composable(
+        route = ProfileRoutes.VERIFICATION_DOCUMENT,
+        arguments = listOf(navArgument("docType") { type = NavType.StringType }),
+    ) { backStackEntry ->
+        val docType = backStackEntry.arguments?.getString("docType") ?: return@composable
+        DocumentDetailScreen(
+            docType = docType,
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.SAVED_PLACES) {
