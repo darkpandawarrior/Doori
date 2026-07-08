@@ -20,6 +20,7 @@ import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
 import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
+import com.mileway.feature.profile.viewmodel.PhoneChangeViewModel
 import com.mileway.feature.profile.viewmodel.PluginManagerViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
@@ -67,4 +68,6 @@ val profileModule =
         viewModelOf(::PluginManagerViewModel)
         // PLAN_V24 P1.5: change-password sheet (CredentialSource-backed).
         viewModelOf(::ChangePasswordViewModel)
+        // PLAN_V24 P3.1: phone change with OTP re-verify.
+        viewModelOf(::PhoneChangeViewModel)
     }

@@ -63,6 +63,7 @@ import com.mileway.core.ui.components.ProfileSectionHeader
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_details_back
+import com.mileway.core.ui.resources.profile_details_change_phone
 import com.mileway.core.ui.resources.profile_details_contact_info
 import com.mileway.core.ui.resources.profile_details_custom_fields
 import com.mileway.core.ui.resources.profile_details_field_code
@@ -97,7 +98,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Sheets [ProfileDetailsScreen] can push over itself — at most one at a time. */
-private enum class ProfileDetailSheet { VEHICLE, PASSPORT }
+private enum class ProfileDetailSheet { VEHICLE, PASSPORT, PHONE_CHANGE }
 
 /**
  * Profile Details, a full-detail editor surface pushed from the Account hub.
@@ -119,10 +120,15 @@ fun ProfileDetailsScreen(
     onOpenOrgChart: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     personalDetailsViewModel: PersonalDetailsViewModel = koinViewModel(),
+    pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = org.koin.compose.koinInject(),
+    sessionRepository: com.mileway.core.data.session.SessionRepository = org.koin.compose.koinInject(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val personalDetailsState by personalDetailsViewModel.state.collectAsStateWithLifecycle()
     val profile = state.profile
+    // PLAN_V24 P3.1: phone shown from the session (changed value) falling back to the profile.
+    val phoneChangeEnabled by pluginRegistry.observe("phoneChangeEnabled").collectAsStateWithLifecycle(initialValue = true)
+    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
     val completion = state.completion
     var activeSheet by remember { mutableStateOf<ProfileDetailSheet?>(null) }
 
@@ -221,7 +227,12 @@ fun ProfileDetailsScreen(
                 ) {
                     ContactRow(icon = Icons.Default.Email, value = profile.email)
                     ContactRow(icon = Icons.Default.Badge, value = profile.employeeCode)
-                    ContactRow(icon = Icons.Default.Phone, value = profile.phone)
+                    ContactRow(icon = Icons.Default.Phone, value = session.phone.ifBlank { profile.phone })
+                    if (phoneChangeEnabled) {
+                        androidx.compose.material3.TextButton(onClick = { activeSheet = ProfileDetailSheet.PHONE_CHANGE }) {
+                            androidx.compose.material3.Text(stringResource(Res.string.profile_details_change_phone))
+                        }
+                    }
                 }
             }
 
@@ -285,6 +296,8 @@ fun ProfileDetailsScreen(
                 onSave = personalDetailsViewModel::savePassport,
                 onDismiss = { activeSheet = null },
             )
+        ProfileDetailSheet.PHONE_CHANGE ->
+            PhoneChangeSheet(onDismiss = { activeSheet = null })
         null -> Unit
     }
 }

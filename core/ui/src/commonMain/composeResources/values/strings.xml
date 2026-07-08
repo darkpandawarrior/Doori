@@ -1995,4 +1995,20 @@
     <!-- PLAN_V24 P2.2: what's-new sheet -->
     <string name="whats_new_title">What\'s new in Mileway</string>
     <string name="whats_new_got_it">Got it</string>
+
+    <!-- PLAN_V24 P3.1: phone change -->
+    <string name="plugin_profile_phone_change_title">Change phone number</string>
+    <string name="plugin_profile_phone_change_desc">Let users change their phone with OTP re-verify</string>
+    <string name="profile_details_change_phone">Change number</string>
+    <string name="phone_change_title">Change phone number</string>
+    <string name="phone_change_current">Current: </string>
+    <string name="phone_change_new">New phone number</string>
+    <string name="phone_change_send_otp">Send OTP</string>
+    <string name="phone_change_code">Enter the 6-digit code</string>
+    <string name="phone_change_resend">Resend</string>
+    <string name="phone_change_cancel">Cancel</string>
+    <string name="phone_change_demo_code">Demo code: </string>
+    <string name="phone_change_err_invalid">Enter a valid 10-digit number</string>
+    <string name="phone_change_err_wrong">Incorrect code</string>
+    <string name="phone_change_err_expired">Code expired — resend</string>
 </resources>

@@ -88,8 +88,21 @@ object PluginCatalog {
             onboardingFlag("showSkipOnboarding", defaultOn = true),
         )
 
+    /** Profile-depth plugins (P3). */
+    val profilePlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "phoneChangeEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PROFILE,
+                titleKey = "plugin_profile_phone_change_title",
+                descriptionKey = "plugin_profile_phone_change_desc",
+                defaultOn = true,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
-    val all: List<PluginDescriptor> = coreModulePlugins + authPlugins + onboardingPlugins
+    val all: List<PluginDescriptor> = coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins
 
     private fun onboardingFlag(
         id: String,

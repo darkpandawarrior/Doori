@@ -309,6 +309,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<SyncDiagnosticsViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.PluginManagerViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.ChangePasswordViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.PhoneChangeViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<PayablesViewModel>())

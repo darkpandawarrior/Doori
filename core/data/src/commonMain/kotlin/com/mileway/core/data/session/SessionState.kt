@@ -52,6 +52,10 @@ data class SessionState(
     // PLAN_V24 P2.2: the last app version whose "What's new" sheet was acknowledged. Per-install
     // (NOT reset on sign-in, like hasShownWelcomeDisclaimer); the sheet shows while this < current.
     val whatsNewLastSeenVersion: Int = 0,
+    // PLAN_V24 P3.1: the verified registered phone + an in-flight OTP-verify change. A relaunch with
+    // a non-null pending target resumes the verify step.
+    val phone: String = "",
+    val pendingPhoneChangeTarget: String? = null,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

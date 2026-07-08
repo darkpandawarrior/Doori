@@ -1991,4 +1991,20 @@
     <!-- PLAN_V24 P2.2: what's-new sheet -->
     <string name="whats_new_title">Mileway में नया क्या है</string>
     <string name="whats_new_got_it">समझ गया</string>
+
+    <!-- PLAN_V24 P3.1: phone change -->
+    <string name="plugin_profile_phone_change_title">फ़ोन नंबर बदलें</string>
+    <string name="plugin_profile_phone_change_desc">उपयोगकर्ताओं को OTP सत्यापन के साथ फ़ोन बदलने दें</string>
+    <string name="profile_details_change_phone">नंबर बदलें</string>
+    <string name="phone_change_title">फ़ोन नंबर बदलें</string>
+    <string name="phone_change_current">वर्तमान: </string>
+    <string name="phone_change_new">नया फ़ोन नंबर</string>
+    <string name="phone_change_send_otp">OTP भेजें</string>
+    <string name="phone_change_code">6-अंकीय कोड दर्ज करें</string>
+    <string name="phone_change_resend">फिर भेजें</string>
+    <string name="phone_change_cancel">रद्द करें</string>
+    <string name="phone_change_demo_code">डेमो कोड: </string>
+    <string name="phone_change_err_invalid">मान्य 10-अंकीय नंबर दर्ज करें</string>
+    <string name="phone_change_err_wrong">गलत कोड</string>
+    <string name="phone_change_err_expired">कोड समाप्त — फिर भेजें</string>
 </resources>
