@@ -26,12 +26,14 @@ import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.SubmitDraftDao
+import com.mileway.core.data.dao.SubscriptionDao
 import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TripAttachmentDao
 import com.mileway.core.data.dao.VehicleDetailsDao
 import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
+import com.mileway.core.data.model.db.ActiveSubscriptionEntity
 import com.mileway.core.data.model.db.AgentConversationEntity
 import com.mileway.core.data.model.db.AgentMessageEntity
 import com.mileway.core.data.model.db.CampaignEntity
@@ -55,6 +57,7 @@ import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SessionEntity
 import com.mileway.core.data.model.db.SubmitDraftEntity
+import com.mileway.core.data.model.db.SubscriptionPlanEntity
 import com.mileway.core.data.model.db.SupportTicketEntity
 import com.mileway.core.data.model.db.TripAttachmentEntity
 import com.mileway.core.data.model.db.VehicleDetailsEntity
@@ -90,8 +93,10 @@ import com.mileway.core.data.model.db.VoucherEntity
         CouponEntity::class,
         RewardCardEntity::class,
         CampaignEntity::class,
+        SubscriptionPlanEntity::class,
+        ActiveSubscriptionEntity::class,
     ],
-    version = 27,
+    version = 28,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -149,6 +154,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun rewardCardDao(): RewardCardDao
 
     abstract fun campaignDao(): CampaignDao
+
+    abstract fun subscriptionDao(): SubscriptionDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

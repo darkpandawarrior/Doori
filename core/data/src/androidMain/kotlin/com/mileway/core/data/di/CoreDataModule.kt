@@ -79,6 +79,9 @@ val coreDataModule =
         single { get<MilewayDatabase>().campaignDao() }
         // PLAN_V24 P5.4: shared by the profile marketing hub and the HomeScreen marketing strip.
         single { com.mileway.core.data.campaign.CampaignRepository(get()) }
+        single { get<MilewayDatabase>().subscriptionDao() }
+        // PLAN_V24 P6.2: subscription plans + single active-subscription lifecycle (mock purchase).
+        single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore(androidContext()) }

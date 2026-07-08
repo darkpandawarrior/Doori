@@ -5,6 +5,43 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 27 → 28 (PLAN_V24 P6.2): additive `subscription_plans` (seeded tier catalogue) +
+ * `active_subscription` (single-row lifecycle) tables. Both empty on first run — plans seeded by
+ * `SubscriptionRepository.seedIfEmpty()`, the active row created by a mock purchase.
+ */
+val MIGRATION_27_28 =
+    object : Migration(27, 28) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `subscription_plans` (
+                    `id`                   TEXT    NOT NULL PRIMARY KEY,
+                    `name`                 TEXT    NOT NULL,
+                    `priceAmount`          REAL    NOT NULL,
+                    `period`               TEXT    NOT NULL,
+                    `savingsCopy`          TEXT    NOT NULL,
+                    `monthlySavingsAmount` REAL    NOT NULL,
+                    `featuresCsv`          TEXT    NOT NULL,
+                    `tierRank`             INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `active_subscription` (
+                    `id`                TEXT    NOT NULL PRIMARY KEY,
+                    `planId`            TEXT    NOT NULL,
+                    `status`            TEXT    NOT NULL,
+                    `startedAtMs`       INTEGER NOT NULL,
+                    `renewsAtMs`        INTEGER NOT NULL,
+                    `cancelAtPeriodEnd` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 26 → 27 (PLAN_V24 P5.4): additive `campaigns` table — marketing campaigns (status
  * LIVE/UPCOMING/ENDED, one-shot interestCaptured). Empty on first run (seeded by
  * `CampaignRepository.seedIfEmpty()`). See [com.mileway.core.data.model.db.CampaignEntity].

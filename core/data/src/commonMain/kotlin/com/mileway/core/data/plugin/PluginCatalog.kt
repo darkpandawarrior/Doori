@@ -215,6 +215,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_membership_club_desc",
                 defaultOn = true,
             ),
+            PluginDescriptor(
+                id = "subscriptionsEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.MEMBERSHIP,
+                titleKey = "plugin_membership_subscriptions_title",
+                descriptionKey = "plugin_membership_subscriptions_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

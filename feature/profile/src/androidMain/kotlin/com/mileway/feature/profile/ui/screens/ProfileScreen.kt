@@ -150,6 +150,8 @@ import com.mileway.core.ui.resources.profile_home_tile_sessions_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_sessions_title
 import com.mileway.core.ui.resources.profile_home_tile_settings_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_settings_title
+import com.mileway.core.ui.resources.profile_home_tile_subscriptions_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_subscriptions_title
 import com.mileway.core.ui.resources.profile_home_tile_verification_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_verification_title
 import com.mileway.core.ui.resources.profile_home_total_spend
@@ -213,6 +215,7 @@ fun ProfileScreen(
     onOpenRewards: () -> Unit = {},
     onOpenCampaigns: () -> Unit = {},
     onOpenClub: () -> Unit = {},
+    onOpenSubscriptions: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
@@ -359,6 +362,7 @@ fun ProfileScreen(
                         onOpenRewards = onOpenRewards,
                         onOpenCampaigns = onOpenCampaigns,
                         onOpenClub = onOpenClub,
+                        onOpenSubscriptions = onOpenSubscriptions,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -681,6 +685,7 @@ private fun AccountTileGrid(
     onOpenRewards: () -> Unit,
     onOpenCampaigns: () -> Unit,
     onOpenClub: () -> Unit,
+    onOpenSubscriptions: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -700,6 +705,8 @@ private fun AccountTileGrid(
     val campaignsEnabled by pluginRegistry.observe("campaignMarketingEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val clubEnabled by pluginRegistry.observe("clubEnabled")
+        .collectAsStateWithLifecycle(initialValue = true)
+    val subscriptionsEnabled by pluginRegistry.observe("subscriptionsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -942,9 +949,25 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val subscriptionsTile =
+            if (subscriptionsEnabled) {
+                accountTile(
+                    "acc_subscriptions",
+                    stringResource(Res.string.profile_home_tile_subscriptions_title),
+                    stringResource(Res.string.profile_home_tile_subscriptions_subtitle),
+                    Icons.Default.Star,
+                    Color(0xFF1D4ED8),
+                    onOpenSubscriptions,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
         val depthTiles =
-            listOfNotNull(savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile, campaignsTile, clubTile)
+            listOfNotNull(
+                savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
+                campaignsTile, clubTile, subscriptionsTile,
+            )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))
         }

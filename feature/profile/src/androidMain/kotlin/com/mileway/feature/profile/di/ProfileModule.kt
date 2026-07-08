@@ -38,6 +38,7 @@ import com.mileway.feature.profile.viewmodel.ReferralHubViewModel
 import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
+import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
 import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
@@ -115,4 +116,6 @@ val profileModule =
         viewModelOf(::MarketingHubViewModel)
         // PLAN_V24 P6.1: Mileway Club membership (session-backed).
         viewModelOf(::MembershipViewModel)
+        // PLAN_V24 P6.2: subscription plans + active subscription (explicit so the Clock default holds).
+        viewModel { SubscriptionViewModel(get()) }
     }

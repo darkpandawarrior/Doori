@@ -20,9 +20,11 @@ import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.MarketingHubScreen
+import com.mileway.feature.profile.ui.screens.MySubscriptionScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
 import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
 import com.mileway.feature.profile.ui.screens.OrgChartScreen
+import com.mileway.feature.profile.ui.screens.PlansScreen
 import com.mileway.feature.profile.ui.screens.PluginManagerScreen
 import com.mileway.feature.profile.ui.screens.PreferencesScreen
 import com.mileway.feature.profile.ui.screens.ProfileDetailsScreen
@@ -66,6 +68,8 @@ object ProfileRoutes {
     const val REWARDS = "profile/rewards"
     const val MARKETING_HUB = "profile/campaigns"
     const val CLUB = "profile/club"
+    const val PLANS = "profile/plans"
+    const val MY_SUBSCRIPTION = "profile/my_subscription"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -114,6 +118,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenRewards = { navController.navigate(ProfileRoutes.REWARDS) },
             onOpenCampaigns = { navController.navigate(ProfileRoutes.MARKETING_HUB) },
             onOpenClub = { navController.navigate(ProfileRoutes.CLUB) },
+            onOpenSubscriptions = { navController.navigate(ProfileRoutes.PLANS) },
             onSignedOut = onSignedOut,
         )
     }
@@ -130,6 +135,18 @@ fun NavGraphBuilder.profileGraph(
     composable(ProfileRoutes.CLUB) {
         ClubBenefitsScreen(
             onBack = { navController.popBackStack() },
+        )
+    }
+    composable(ProfileRoutes.PLANS) {
+        PlansScreen(
+            onBack = { navController.popBackStack() },
+            onOpenManage = { navController.navigate(ProfileRoutes.MY_SUBSCRIPTION) },
+        )
+    }
+    composable(ProfileRoutes.MY_SUBSCRIPTION) {
+        MySubscriptionScreen(
+            onBack = { navController.popBackStack() },
+            onOpenPlans = { navController.navigate(ProfileRoutes.PLANS) },
         )
     }
     composable(ProfileRoutes.REFERRAL_HUB) {
