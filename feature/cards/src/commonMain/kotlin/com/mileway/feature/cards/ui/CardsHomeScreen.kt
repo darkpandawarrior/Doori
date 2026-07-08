@@ -30,6 +30,7 @@ import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.cards_home_subtitle
+import com.mileway.core.ui.resources.cards_kyc_home_cta
 import com.mileway.core.ui.resources.cards_request_a_card
 import com.mileway.core.ui.resources.cards_tab_cards
 import com.mileway.core.ui.resources.cards_tab_requests
@@ -47,14 +48,19 @@ import org.koin.compose.viewmodel.koinViewModel
 fun CardsHomeScreen(
     onOpenCard: (Long) -> Unit,
     onRequestCard: () -> Unit,
+    onStartKyc: () -> Unit = {},
     viewModel: CardsHomeViewModel = koinViewModel(),
+    pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = org.koin.compose.koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    // PLAN_V24 P4.3: the KYC entry is plugin-gated (zero hardcoded visibility).
+    val kycEnabled by pluginRegistry.observe("cardKycEnabled").collectAsStateWithLifecycle(initialValue = false)
     CardsHomeContent(
         state = state,
         onAction = viewModel::onAction,
         onOpenCard = onOpenCard,
         onRequestCard = onRequestCard,
+        onStartKyc = if (kycEnabled) onStartKyc else null,
     )
 }
 
@@ -65,6 +71,7 @@ internal fun CardsHomeContent(
     onAction: (CardsHomeAction) -> Unit,
     onOpenCard: (Long) -> Unit,
     onRequestCard: () -> Unit,
+    onStartKyc: (() -> Unit)? = null,
 ) {
     val tabs = listOf(stringResource(Res.string.cards_tab_cards), stringResource(Res.string.cards_tab_requests))
     Scaffold(
@@ -82,6 +89,25 @@ internal fun CardsHomeContent(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            onStartKyc?.let { start ->
+                Card(
+                    onClick = start,
+                    modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
+                    shape = DesignTokens.Shape.roundedMd,
+                ) {
+                    androidx.compose.foundation.layout.Row(
+                        modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                    ) {
+                        Icon(Icons.Filled.FactCheck, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Text(
+                            stringResource(Res.string.cards_kyc_home_cta),
+                            style = MaterialTheme.typography.titleSmall,
+                            modifier = Modifier.padding(start = DesignTokens.Spacing.m),
+                        )
+                    }
+                }
+            }
             TabRow(selectedTabIndex = state.selectedTab) {
                 val tabIcons = listOf(Icons.Filled.CreditCard, Icons.Filled.FactCheck)
                 tabs.forEachIndexed { index, title ->

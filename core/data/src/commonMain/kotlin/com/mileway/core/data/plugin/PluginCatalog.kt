@@ -149,6 +149,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_verification_centre_desc",
                 defaultOn = true,
             ),
+            PluginDescriptor(
+                id = "cardKycEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PAYMENTS,
+                titleKey = "plugin_cards_kyc_title",
+                descriptionKey = "plugin_cards_kyc_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

@@ -159,6 +159,28 @@
     <string name="cards_next">आगे</string>
     <string name="cards_submit">सबमिट करें</string>
     <string name="cards_done">पूर्ण</string>
+    <!-- PLAN_V24 P4.3: card KYC wizard -->
+    <string name="cards_kyc_title">कार्ड KYC</string>
+    <string name="cards_kyc_home_cta">कार्ड KYC पूरा करें</string>
+    <string name="cards_kyc_step">चरण %1$d / %2$d</string>
+    <string name="cards_kyc_intro_title">अपनी पहचान सत्यापित करें</string>
+    <string name="cards_kyc_intro_body">अपना कॉर्पोरेट कार्ड सक्रिय करने के लिए हमें आपकी पहचान की पुष्टि करनी होगी। इसमें कुछ मिनट लगेंगे: व्यक्तिगत विवरण, एक OTP, एक ID दस्तावेज़ और एक सेल्फ़ी।</string>
+    <string name="cards_kyc_full_name">पूरा नाम</string>
+    <string name="cards_kyc_id_number">ID नंबर</string>
+    <string name="cards_kyc_phone">फ़ोन नंबर</string>
+    <string name="cards_kyc_otp_label">6-अंकों का कोड दर्ज करें</string>
+    <string name="cards_kyc_otp_sent">%1$s पर कोड भेजा गया</string>
+    <string name="cards_kyc_otp_demo">डेमो कोड: %1$s</string>
+    <string name="cards_kyc_otp_error">गलत कोड। कृपया पुनः प्रयास करें।</string>
+    <string name="cards_kyc_doc_title">ID दस्तावेज़ अपलोड करें</string>
+    <string name="cards_kyc_doc_body">ID कार्ड (आगे और पीछे) या पासपोर्ट, 5 MB से कम।</string>
+    <string name="cards_kyc_attach_document">दस्तावेज़ संलग्न करें</string>
+    <string name="cards_kyc_attached">संलग्न</string>
+    <string name="cards_kyc_selfie_title">सेल्फ़ी लें</string>
+    <string name="cards_kyc_selfie_body">पहचान मिलान के लिए आपके चेहरे की स्पष्ट तस्वीर।</string>
+    <string name="cards_kyc_capture_selfie">सेल्फ़ी कैप्चर करें</string>
+    <string name="cards_kyc_success_title">KYC सबमिट किया गया</string>
+    <string name="cards_kyc_success_body">हम आपके विवरण सत्यापित करेंगे और शीघ्र ही आपके कार्ड की स्थिति अपडेट करेंगे।</string>
     <string name="cards_request_intro">कॉर्पोरेट कार्ड का अनुरोध करें। आप एक कार्ड प्रकार चुनेंगे, एक कारण देंगे, और पुष्टि करेंगे। स्वीकृतियाँ आपके मैनेजर और वित्त विभाग से होकर जाती हैं।</string>
     <string name="cards_ai_suggested">AI सुझाया गया</string>
     <string name="cards_request_reason_label">आपको यह कार्ड क्यों चाहिए?</string>
@@ -2096,6 +2118,9 @@
     <!-- PLAN_V24 P4.1: verification centre -->
     <string name="plugin_verification_centre_title">सत्यापन केंद्र</string>
     <string name="plugin_verification_centre_desc">सत्यापन दस्तावेज़ अपलोड करें और ट्रैक करें</string>
+    <!-- PLAN_V24 P4.3: card KYC -->
+    <string name="plugin_cards_kyc_title">कार्ड KYC</string>
+    <string name="plugin_cards_kyc_desc">कार्ड KYC सत्यापन विज़ार्ड दिखाएँ</string>
     <string name="profile_email_verified">सत्यापित</string>
     <string name="profile_email_unverified">असत्यापित</string>
     <string name="profile_email_verify">ईमेल सत्यापित करें</string>

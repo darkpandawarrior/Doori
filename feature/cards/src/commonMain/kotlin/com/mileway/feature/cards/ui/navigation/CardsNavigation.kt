@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.mileway.feature.cards.ui.CardDetailScreen
+import com.mileway.feature.cards.ui.CardKycScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
 import com.mileway.feature.cards.ui.CardsHomeScreen
 
@@ -15,6 +16,7 @@ object CardRoutes {
     const val HOME = "cards_home"
     const val REQUEST = "cards_request"
     const val DETAIL = "cards_detail/{cardId}"
+    const val KYC = "cards_kyc"
 
     fun detail(cardId: Long): String = "cards_detail/$cardId"
 }
@@ -24,10 +26,14 @@ fun NavGraphBuilder.cardsGraph(navController: NavHostController) {
         CardsHomeScreen(
             onOpenCard = { navController.navigate(CardRoutes.detail(it)) },
             onRequestCard = { navController.navigate(CardRoutes.REQUEST) },
+            onStartKyc = { navController.navigate(CardRoutes.KYC) },
         )
     }
     composable(CardRoutes.REQUEST) {
         CardRequestScreen(onDone = { navController.popBackStack() })
+    }
+    composable(CardRoutes.KYC) {
+        CardKycScreen(onDone = { navController.popBackStack() })
     }
     composable(
         route = CardRoutes.DETAIL,

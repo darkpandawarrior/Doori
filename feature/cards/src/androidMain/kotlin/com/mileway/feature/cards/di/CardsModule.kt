@@ -4,13 +4,14 @@ import com.mileway.feature.cards.data.CardsMockDataProvider
 import com.mileway.feature.cards.data.CardsMockDataProviderFactory
 import com.mileway.feature.cards.security.CardSecurityManager
 import com.mileway.feature.cards.viewmodel.CardDetailViewModel
+import com.mileway.feature.cards.viewmodel.CardKycViewModel
 import com.mileway.feature.cards.viewmodel.CardRequestViewModel
 import com.mileway.feature.cards.viewmodel.CardsHomeViewModel
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
-/** Cards feature DI, locale-aware mock provider + the three MVI ViewModels. */
+/** Cards feature DI, locale-aware mock provider + the MVI ViewModels. */
 val cardsModule: Module =
     module {
         single<CardsMockDataProvider> { CardsMockDataProviderFactory.provider() }
@@ -18,4 +19,6 @@ val cardsModule: Module =
         viewModelOf(::CardsHomeViewModel)
         viewModelOf(::CardDetailViewModel)
         viewModelOf(::CardRequestViewModel)
+        // PLAN_V24 P4.3: card KYC wizard (LocalOtpEngine resolved from core:data's module).
+        viewModelOf(::CardKycViewModel)
     }
