@@ -2209,6 +2209,26 @@
     <string name="incentive_monsoon_title">मानसून बचतकर्ता</string>
     <string name="incentive_monsoon_desc">पूर्ण — 10 बरसाती-दिन यात्राएँ ट्रैक कीं।</string>
     <string name="incentive_monsoon_reward">+300 क्रेडिट</string>
+    <!-- PLAN_V24 P7.1: account deletion lifecycle -->
+    <string name="profile_settings_delete_account">खाता हटाएँ</string>
+    <string name="profile_settings_delete_account_desc">इस प्रोफ़ाइल को स्थायी रूप से हटाने का अनुरोध करें</string>
+    <string name="delete_back">वापस</string>
+    <string name="delete_title">खाता हटाएँ</string>
+    <string name="delete_warning_title">यह पूर्ववत नहीं किया जा सकता</string>
+    <string name="delete_warning_body">आपका खाता हटाने से इस प्रोफ़ाइल का डेटा डिवाइस से हट जाता है और आप साइन आउट हो जाते हैं।</string>
+    <string name="delete_reason_label">कारण (वैकल्पिक)</string>
+    <string name="delete_confirm_label">पुष्टि के लिए DELETE टाइप करें</string>
+    <string name="delete_submit">खाता हटाने का अनुरोध करें</string>
+    <string name="delete_requested_title">हटाने का अनुरोध किया गया</string>
+    <string name="delete_requested_body">आपका खाता हटाने के लिए निर्धारित है। प्रोसेसिंग शुरू होने से पहले आप अब भी रद्द कर सकते हैं।</string>
+    <string name="delete_requested_reason">कारण: %1$s</string>
+    <string name="delete_cancel">अनुरोध रद्द करें</string>
+    <string name="delete_processing_title">हटाने की प्रक्रिया जारी</string>
+    <string name="delete_processing_body">इस प्रोफ़ाइल को हटाया जा रहा है और आपको साइन आउट किया जा रहा है…</string>
+    <string name="profile_delete_banner_requested">खाता हटाने का अनुरोध</string>
+    <string name="profile_delete_banner_processing">हटाने की प्रक्रिया जारी</string>
+    <string name="profile_delete_banner_subtitle">समीक्षा के लिए टैप करें</string>
+    <string name="profile_delete_banner_cancel">रद्द करें</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">रेफ़रल प्रोग्राम</string>
     <string name="plugin_growth_referral_program_desc">पूर्ण रेफ़रल हब — लेजर, लीडरबोर्ड और गतिविधि</string>

@@ -5,6 +5,27 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 28 → 29 (PLAN_V24 P7.1): additive `deletion_request` single-row table — the
+ * account-deletion lifecycle (status NONE/REQUESTED/PROCESSING, reason, requestedAt). Empty on first
+ * run; a row is created when the user requests deletion, cleared on cancel/completion.
+ */
+val MIGRATION_28_29 =
+    object : Migration(28, 29) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `deletion_request` (
+                    `id`            TEXT    NOT NULL PRIMARY KEY,
+                    `status`        TEXT    NOT NULL,
+                    `reason`        TEXT,
+                    `requestedAtMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 27 → 28 (PLAN_V24 P6.2): additive `subscription_plans` (seeded tier catalogue) +
  * `active_subscription` (single-row lifecycle) tables. Both empty on first run — plans seeded by
  * `SubscriptionRepository.seedIfEmpty()`, the active row created by a mock purchase.

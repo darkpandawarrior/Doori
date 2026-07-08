@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -79,6 +80,8 @@ import com.mileway.core.ui.resources.profile_settings_custom_theme_color
 import com.mileway.core.ui.resources.profile_settings_customization
 import com.mileway.core.ui.resources.profile_settings_dark_theme
 import com.mileway.core.ui.resources.profile_settings_dark_theme_desc
+import com.mileway.core.ui.resources.profile_settings_delete_account
+import com.mileway.core.ui.resources.profile_settings_delete_account_desc
 import com.mileway.core.ui.resources.profile_settings_demo_build
 import com.mileway.core.ui.resources.profile_settings_denied
 import com.mileway.core.ui.resources.profile_settings_developer
@@ -140,6 +143,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onOpenDebugMenu: () -> Unit = {},
     onOpenPlugins: () -> Unit = {},
+    onOpenAccountDeletion: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     localeController: LocaleController = koinInject(),
 ) {
@@ -520,6 +524,35 @@ fun SettingsScreen(
                     )
                 },
                 modifier = Modifier.clickable(onClick = onOpenDebugMenu),
+            )
+
+            // ----------------------------------------------------------------
+            // PLAN_V24 P7.1: Danger zone — account deletion lifecycle
+            // ----------------------------------------------------------------
+            HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                },
+                headlineContent = {
+                    Text(
+                        stringResource(Res.string.profile_settings_delete_account),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_delete_account_desc)) },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Default.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+                modifier = Modifier.clickable(onClick = onOpenAccountDeletion),
             )
         }
     }

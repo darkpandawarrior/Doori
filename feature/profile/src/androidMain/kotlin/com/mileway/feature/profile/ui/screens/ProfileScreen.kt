@@ -94,6 +94,7 @@ import com.mileway.core.ui.components.ReferralCard
 import com.mileway.core.ui.components.buildReferralInvite
 import com.mileway.core.ui.platform.LocalShareSheet
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.resources.profile_home_active
 import com.mileway.core.ui.resources.profile_home_add
 import com.mileway.core.ui.resources.profile_home_add_persona
@@ -219,11 +220,14 @@ fun ProfileScreen(
     onOpenClub: () -> Unit = {},
     onOpenSubscriptions: () -> Unit = {},
     onOpenIncentives: () -> Unit = {},
+    onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
+    accountDeletionViewModel: com.mileway.feature.profile.viewmodel.AccountDeletionViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val deletionState by accountDeletionViewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
 
@@ -316,6 +320,18 @@ fun ProfileScreen(
                             )
                         },
                     )
+                }
+
+                // PLAN_V24 P7.1: account-deletion banner — visible while a request is pending.
+                if (deletionState.status != com.mileway.core.data.lifecycle.DeletionStatus.NONE) {
+                    item {
+                        AccountDeletionBanner(
+                            processing = deletionState.status == com.mileway.core.data.lifecycle.DeletionStatus.PROCESSING,
+                            onReview = onOpenAccountDeletion,
+                            onCancel = { accountDeletionViewModel.cancel() },
+                            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
+                        )
+                    }
                 }
 
                 item {
@@ -993,6 +1009,53 @@ private fun AccountTileGrid(
         }
     }
 }
+
+@Composable
+private fun AccountDeletionBanner(
+    processing: Boolean,
+    onReview: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.errorContainer,
+        shape = DesignTokens.Shape.roundedMd,
+        modifier = modifier.fillMaxWidth().clickable(onClick = onReview),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Default.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+            Spacer(Modifier.width(DesignTokens.Spacing.m))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    pdel(
+                        if (processing) "profile_delete_banner_processing" else "profile_delete_banner_requested",
+                        if (processing) "Deletion processing" else "Account deletion requested",
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+                Text(
+                    pdel("profile_delete_banner_subtitle", "Tap to review"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+            if (!processing) {
+                OutlinedButton(onClick = onCancel) { Text(pdel("profile_delete_banner_cancel", "Cancel")) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun pdel(
+    key: String,
+    fallback: String,
+): String = Res.allStringResources[key]?.let { stringResource(it) } ?: fallback
 
 @Composable
 private fun TileRow(

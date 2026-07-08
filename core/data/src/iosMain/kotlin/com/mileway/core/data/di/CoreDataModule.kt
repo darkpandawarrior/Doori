@@ -79,6 +79,9 @@ val coreDataModule =
         single { get<MilewayDatabase>().subscriptionDao() }
         // PLAN_V24 P6.2: subscription plans + single active-subscription lifecycle (mock purchase).
         single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
+        single { get<MilewayDatabase>().deletionRequestDao() }
+        // PLAN_V24 P7.1: account-deletion lifecycle (REQUESTED→PROCESSING via SimulatedReviewEngine).
+        single { com.mileway.core.data.lifecycle.DeletionRequestRepository(get(), get()) }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore() }

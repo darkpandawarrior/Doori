@@ -17,6 +17,7 @@ import com.mileway.feature.profile.repository.SavedPlacesRepository
 import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
+import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
 import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
@@ -121,4 +122,6 @@ val profileModule =
         viewModel { SubscriptionViewModel(get()) }
         // PLAN_V24 P6.3: incentive programs (live progress from the shared core:data SavedTrackDao).
         viewModelOf(::IncentiveViewModel)
+        // PLAN_V24 P7.1: account-deletion lifecycle (DeletionRequestRepository + persona wipe + sign-out).
+        viewModelOf(::AccountDeletionViewModel)
     }

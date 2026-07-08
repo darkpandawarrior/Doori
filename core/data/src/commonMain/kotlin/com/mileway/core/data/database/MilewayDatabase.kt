@@ -9,6 +9,7 @@ import com.mileway.core.data.dao.CampaignDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.CouponDao
 import com.mileway.core.data.dao.DelegationDao
+import com.mileway.core.data.dao.DeletionRequestDao
 import com.mileway.core.data.dao.DocumentDao
 import com.mileway.core.data.dao.DraftExpenseDao
 import com.mileway.core.data.dao.EmergencyContactDao
@@ -40,6 +41,7 @@ import com.mileway.core.data.model.db.CampaignEntity
 import com.mileway.core.data.model.db.ConnectedAccountEntity
 import com.mileway.core.data.model.db.CouponEntity
 import com.mileway.core.data.model.db.DelegationEntity
+import com.mileway.core.data.model.db.DeletionRequestEntity
 import com.mileway.core.data.model.db.DocumentEntity
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.data.model.db.EmergencyContactEntity
@@ -95,8 +97,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         CampaignEntity::class,
         SubscriptionPlanEntity::class,
         ActiveSubscriptionEntity::class,
+        DeletionRequestEntity::class,
     ],
-    version = 28,
+    version = 29,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -156,6 +159,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun campaignDao(): CampaignDao
 
     abstract fun subscriptionDao(): SubscriptionDao
+
+    abstract fun deletionRequestDao(): DeletionRequestDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

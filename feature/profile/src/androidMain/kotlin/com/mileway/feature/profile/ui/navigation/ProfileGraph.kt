@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
 import com.mileway.feature.profile.ui.screens.AdvanceHistoryScreen
 import com.mileway.feature.profile.ui.screens.AdvanceRequestDetailsScreen
@@ -72,6 +73,7 @@ object ProfileRoutes {
     const val PLANS = "profile/plans"
     const val MY_SUBSCRIPTION = "profile/my_subscription"
     const val INCENTIVES = "profile/incentives"
+    const val ACCOUNT_DELETION = "profile/account_deletion"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -122,6 +124,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenClub = { navController.navigate(ProfileRoutes.CLUB) },
             onOpenSubscriptions = { navController.navigate(ProfileRoutes.PLANS) },
             onOpenIncentives = { navController.navigate(ProfileRoutes.INCENTIVES) },
+            onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
             onSignedOut = onSignedOut,
         )
     }
@@ -155,6 +158,12 @@ fun NavGraphBuilder.profileGraph(
     composable(ProfileRoutes.INCENTIVES) {
         IncentiveProgramsScreen(
             onBack = { navController.popBackStack() },
+        )
+    }
+    composable(ProfileRoutes.ACCOUNT_DELETION) {
+        AccountDeletionScreen(
+            onBack = { navController.popBackStack() },
+            onAccountDeleted = onSignedOut,
         )
     }
     composable(ProfileRoutes.REFERRAL_HUB) {
@@ -226,6 +235,7 @@ fun NavGraphBuilder.profileGraph(
             onBack = { navController.popBackStack() },
             onOpenDebugMenu = onOpenDebugMenu,
             onOpenPlugins = { navController.navigate(ProfileRoutes.PLUGINS) },
+            onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
         )
     }
     composable(ProfileRoutes.PLUGINS) {

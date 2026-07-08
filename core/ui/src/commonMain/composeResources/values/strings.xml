@@ -2209,6 +2209,26 @@
     <string name="incentive_monsoon_title">Monsoon saver</string>
     <string name="incentive_monsoon_desc">Completed — 10 rainy-day trips tracked.</string>
     <string name="incentive_monsoon_reward">+300 credits</string>
+    <!-- PLAN_V24 P7.1: account deletion lifecycle -->
+    <string name="profile_settings_delete_account">Delete account</string>
+    <string name="profile_settings_delete_account_desc">Request permanent deletion of this profile</string>
+    <string name="delete_back">Back</string>
+    <string name="delete_title">Delete account</string>
+    <string name="delete_warning_title">This can\'t be undone</string>
+    <string name="delete_warning_body">Deleting your account removes this profile\'s data from the device and signs you out.</string>
+    <string name="delete_reason_label">Reason (optional)</string>
+    <string name="delete_confirm_label">Type DELETE to confirm</string>
+    <string name="delete_submit">Request account deletion</string>
+    <string name="delete_requested_title">Deletion requested</string>
+    <string name="delete_requested_body">Your account is scheduled for deletion. You can still cancel before it starts processing.</string>
+    <string name="delete_requested_reason">Reason: %1$s</string>
+    <string name="delete_cancel">Cancel request</string>
+    <string name="delete_processing_title">Processing deletion</string>
+    <string name="delete_processing_body">Wiping this profile and signing you out…</string>
+    <string name="profile_delete_banner_requested">Account deletion requested</string>
+    <string name="profile_delete_banner_processing">Deletion processing</string>
+    <string name="profile_delete_banner_subtitle">Tap to review</string>
+    <string name="profile_delete_banner_cancel">Cancel</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">Referral program</string>
     <string name="plugin_growth_referral_program_desc">Full referral hub — ledger, leaderboard and activity</string>

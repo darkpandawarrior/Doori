@@ -170,6 +170,9 @@ class KoinGraphTest : KoinTest {
         // PLAN_V24 P6.2: SubscriptionViewModel seeds via SubscriptionRepository (core:data) in init.
         single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
         single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
+        // PLAN_V24 P7.1: AccountDeletionViewModel constructs from DeletionRequestRepository (core:data).
+        single<com.mileway.core.data.dao.DeletionRequestDao> { mockk(relaxed = true) }
+        single { com.mileway.core.data.lifecycle.DeletionRequestRepository(get(), get()) }
         // P6.6: StorageViewModel reads real on-device byte counts; the app-under-test's real
         // Context/cacheDir/getDatabasePath work fine on Robolectric, unlike a relaxed mockk Context.
         single { com.mileway.core.data.settings.StorageRepository(androidContext()) }
@@ -346,6 +349,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.MembershipViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.SubscriptionViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.IncentiveViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.AccountDeletionViewModel>())
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
