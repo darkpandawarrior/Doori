@@ -76,11 +76,13 @@ fun HomeScreen(
     onOpenAgent: (() -> Unit)? = null,
     viewModel: HomeViewModel = koinViewModel(),
     firstLoginBannerViewModel: FirstLoginBannerViewModel = koinViewModel(),
+    whatsNewViewModel: WhatsNewViewModel = koinViewModel(),
     reviewTracker: ReviewTracker = koinInject(),
     featureFlags: FeatureFlags = koinInject(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val welcomeBannerState by firstLoginBannerViewModel.uiState.collectAsStateWithLifecycle()
+    val whatsNewState by whatsNewViewModel.uiState.collectAsStateWithLifecycle()
 
     // V15 RV.4/CF.1: Home is a meaningful engagement signal, record it and prompt for review if eligible
     // and the in-app-review flag is on.
@@ -101,6 +103,11 @@ fun HomeScreen(
         welcomeBanner = welcomeBannerState,
         onWelcomeBannerShown = firstLoginBannerViewModel::onBannerShown,
     )
+
+    // PLAN_V24 P2.2: one-shot "What's new" sheet, shown once per release after login.
+    if (whatsNewState.isVisible) {
+        WhatsNewSheet(items = whatsNewState.items, onDismiss = whatsNewViewModel::acknowledge)
+    }
 }
 
 /**

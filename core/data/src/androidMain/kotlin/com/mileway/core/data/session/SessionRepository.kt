@@ -3,6 +3,7 @@ package com.mileway.core.data.session
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -48,6 +49,7 @@ class SessionRepository(
     private val onboardingDoneKey = booleanPreferencesKey("session_onboarding_done")
     private val genderKey = stringPreferencesKey("session_gender")
     private val dobKey = longPreferencesKey("session_dob")
+    private val whatsNewSeenKey = intPreferencesKey("session_whats_new_seen")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -72,6 +74,7 @@ class SessionRepository(
                 onboardingDone = prefs[onboardingDoneKey] ?: false,
                 gender = prefs[genderKey] ?: "",
                 dateOfBirthMillis = prefs[dobKey],
+                whatsNewLastSeenVersion = prefs[whatsNewSeenKey] ?: 0,
             )
         }
 
@@ -175,6 +178,11 @@ class SessionRepository(
     /** PLAN_V24 P2.1: skip the onboarding form (allowed only when the persona shows Skip). */
     suspend fun skipOnboarding() {
         context.sessionDataStore.edit { prefs -> prefs[onboardingDoneKey] = true }
+    }
+
+    /** PLAN_V24 P2.2: records the app version whose What's-new sheet was acknowledged. */
+    suspend fun markWhatsNewSeen(version: Int) {
+        context.sessionDataStore.edit { prefs -> prefs[whatsNewSeenKey] = version }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */

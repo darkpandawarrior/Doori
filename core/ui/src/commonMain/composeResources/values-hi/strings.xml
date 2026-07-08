@@ -1987,4 +1987,8 @@
     <string name="plugin_onboarding_showpromoonboarding_desc">साइनअप फ़ॉर्म पर रेफ़रल-कोड फ़ील्ड दिखाएँ</string>
     <string name="plugin_onboarding_showskiponboarding_title">छोड़ने की अनुमति</string>
     <string name="plugin_onboarding_showskiponboarding_desc">साइनअप फ़ॉर्म पर छोड़ें बटन दिखाएँ</string>
+
+    <!-- PLAN_V24 P2.2: what's-new sheet -->
+    <string name="whats_new_title">Mileway में नया क्या है</string>
+    <string name="whats_new_got_it">समझ गया</string>
 </resources>

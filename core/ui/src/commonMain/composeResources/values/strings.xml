@@ -1991,4 +1991,8 @@
     <string name="plugin_onboarding_showpromoonboarding_desc">Show a referral-code field on the signup form</string>
     <string name="plugin_onboarding_showskiponboarding_title">Allow skip</string>
     <string name="plugin_onboarding_showskiponboarding_desc">Show a Skip button on the signup form</string>
+
+    <!-- PLAN_V24 P2.2: what's-new sheet -->
+    <string name="whats_new_title">What\'s new in Mileway</string>
+    <string name="whats_new_got_it">Got it</string>
 </resources>

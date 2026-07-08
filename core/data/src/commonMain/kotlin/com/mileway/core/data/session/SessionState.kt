@@ -49,6 +49,9 @@ data class SessionState(
     val onboardingDone: Boolean = false,
     val gender: String = "",
     val dateOfBirthMillis: Long? = null,
+    // PLAN_V24 P2.2: the last app version whose "What's new" sheet was acknowledged. Per-install
+    // (NOT reset on sign-in, like hasShownWelcomeDisclaimer); the sheet shows while this < current.
+    val whatsNewLastSeenVersion: Int = 0,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

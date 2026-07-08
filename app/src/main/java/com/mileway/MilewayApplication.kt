@@ -29,6 +29,7 @@ import com.mileway.seeder.DatabaseSeeder
 import com.mileway.ui.auth.authModule
 import com.mileway.ui.auth.pinModule
 import com.mileway.ui.home.firstLoginBannerModule
+import com.mileway.ui.home.whatsNewModule
 import com.mileway.ui.home.homeModule
 import com.mileway.debug.WormaCeptorHelper
 import com.mileway.stub.DemoConfigManager
@@ -173,6 +174,7 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
                 eventsModule,
                 homeModule,
                 firstLoginBannerModule,
+                whatsNewModule,
                 authModule,
                 pinModule,
                 appModule
