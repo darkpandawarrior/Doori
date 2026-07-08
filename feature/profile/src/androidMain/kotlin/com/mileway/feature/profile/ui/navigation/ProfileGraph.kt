@@ -25,6 +25,7 @@ import com.mileway.feature.profile.ui.screens.PreferencesScreen
 import com.mileway.feature.profile.ui.screens.ProfileDetailsScreen
 import com.mileway.feature.profile.ui.screens.ProfileScreen
 import com.mileway.feature.profile.ui.screens.QrHomeScreen
+import com.mileway.feature.profile.ui.screens.ReferralHubScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
@@ -56,6 +57,7 @@ object ProfileRoutes {
     const val EMERGENCY_CONTACTS = "profile/emergency_contacts"
     const val VERIFICATION_CENTRE = "profile/verification"
     const val VERIFICATION_DOCUMENT = "profile/verification/{docType}"
+    const val REFERRAL_HUB = "profile/referral"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -99,7 +101,13 @@ fun NavGraphBuilder.profileGraph(
             onOpenSavedPlaces = { navController.navigate(ProfileRoutes.SAVED_PLACES) },
             onOpenEmergency = { navController.navigate(ProfileRoutes.EMERGENCY_CONTACTS) },
             onOpenVerification = { navController.navigate(ProfileRoutes.VERIFICATION_CENTRE) },
+            onOpenReferral = { navController.navigate(ProfileRoutes.REFERRAL_HUB) },
             onSignedOut = onSignedOut,
+        )
+    }
+    composable(ProfileRoutes.REFERRAL_HUB) {
+        ReferralHubScreen(
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.VERIFICATION_CENTRE) {

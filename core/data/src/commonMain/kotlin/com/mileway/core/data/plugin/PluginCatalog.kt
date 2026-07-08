@@ -167,10 +167,23 @@ object PluginCatalog {
             ),
         )
 
+    /** Growth plugins (P5). */
+    val growthPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "referralProgramEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.GROWTH,
+                titleKey = "plugin_growth_referral_program_title",
+                descriptionKey = "plugin_growth_referral_program_desc",
+                defaultOn = true,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            verificationPlugins
+            verificationPlugins + growthPlugins
 
     private fun onboardingFlag(
         id: String,

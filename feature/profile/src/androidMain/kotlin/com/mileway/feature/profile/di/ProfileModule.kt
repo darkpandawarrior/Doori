@@ -10,6 +10,7 @@ import com.mileway.feature.profile.repository.MockAccountRepository
 import com.mileway.feature.profile.repository.NotificationRepository
 import com.mileway.feature.profile.repository.PassportDetailsRepository
 import com.mileway.feature.profile.repository.ProfileRepository
+import com.mileway.feature.profile.repository.ReferralProgramRepository
 import com.mileway.feature.profile.repository.SavedPlacesRepository
 import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
@@ -28,6 +29,7 @@ import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
 import com.mileway.feature.profile.viewmodel.PhoneChangeViewModel
 import com.mileway.feature.profile.viewmodel.PluginManagerViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
+import com.mileway.feature.profile.viewmodel.ReferralHubViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
@@ -62,6 +64,8 @@ val profileModule =
         single { SavedPlacesRepository(get()) }
         // PLAN_V24 P4.1: verification-centre documents Room-backed repository (seeded by P4.2's VM).
         single { DocumentRepository(get()) }
+        // PLAN_V24 P5.1: referral ledger (DAO + SimulatedReviewEngine for pending→success/failed).
+        single { ReferralProgramRepository(get(), get()) }
         viewModelOf(::ProfileViewModel)
         viewModel { AdvanceViewModel(get()) }
         viewModelOf(::DemoSettingsViewModel)
@@ -91,4 +95,6 @@ val profileModule =
         viewModelOf(::VerificationCentreViewModel)
         // PLAN_V24 P4.4: corporate email verification (SessionRepository + LocalOtpEngine).
         viewModelOf(::CorporateVerificationViewModel)
+        // PLAN_V24 P5.1: referral hub (ReferralProgramRepository + ReferralManager).
+        viewModelOf(::ReferralHubViewModel)
     }

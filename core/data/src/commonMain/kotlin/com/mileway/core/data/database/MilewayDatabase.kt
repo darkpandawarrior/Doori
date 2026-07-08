@@ -18,6 +18,7 @@ import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.PluginOverrideDao
+import com.mileway.core.data.dao.ReferralTxnDao
 import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
@@ -43,6 +44,7 @@ import com.mileway.core.data.model.db.MockAccountEntity
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PassportDetailsEntity
 import com.mileway.core.data.model.db.PluginOverrideEntity
+import com.mileway.core.data.model.db.ReferralTxnEntity
 import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SessionEntity
@@ -78,8 +80,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         SavedPlaceEntity::class,
         EmergencyContactEntity::class,
         DocumentEntity::class,
+        ReferralTxnEntity::class,
     ],
-    version = 23,
+    version = 24,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -129,6 +132,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun emergencyContactDao(): EmergencyContactDao
 
     abstract fun documentDao(): DocumentDao
+
+    abstract fun referralTxnDao(): ReferralTxnDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

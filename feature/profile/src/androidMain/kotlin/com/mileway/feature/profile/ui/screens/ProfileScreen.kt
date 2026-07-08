@@ -41,6 +41,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Warning
@@ -131,6 +132,8 @@ import com.mileway.core.ui.resources.profile_home_tile_preferences_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_preferences_title
 import com.mileway.core.ui.resources.profile_home_tile_qr_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_qr_title
+import com.mileway.core.ui.resources.profile_home_tile_referral_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_referral_title
 import com.mileway.core.ui.resources.profile_home_tile_saved_places_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_saved_places_title
 import com.mileway.core.ui.resources.profile_home_tile_sessions_subtitle
@@ -195,6 +198,7 @@ fun ProfileScreen(
     onOpenSavedPlaces: () -> Unit = {},
     onOpenEmergency: () -> Unit = {},
     onOpenVerification: () -> Unit = {},
+    onOpenReferral: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
@@ -336,6 +340,7 @@ fun ProfileScreen(
                         onOpenSavedPlaces = onOpenSavedPlaces,
                         onOpenEmergency = onOpenEmergency,
                         onOpenVerification = onOpenVerification,
+                        onOpenReferral = onOpenReferral,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -653,15 +658,18 @@ private fun AccountTileGrid(
     onOpenSavedPlaces: () -> Unit,
     onOpenEmergency: () -> Unit,
     onOpenVerification: () -> Unit,
+    onOpenReferral: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
-    // PLAN_V24 P3.4/P3.5/P4.2: the Saved Places, Emergency and Verification tiles are plugin-gated.
+    // PLAN_V24 P3.4/P3.5/P4.2/P5.1: the depth tiles are each plugin-gated (zero hardcoded visibility).
     val savedPlacesEnabled by pluginRegistry.observe("savedPlacesEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val emergencyEnabled by pluginRegistry.observe("emergencyContactsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val verificationEnabled by pluginRegistry.observe("verificationCentreEnabled")
+        .collectAsStateWithLifecycle(initialValue = true)
+    val referralHubEnabled by pluginRegistry.observe("referralProgramEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -839,8 +847,21 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val referralTile =
+            if (referralHubEnabled) {
+                accountTile(
+                    "acc_referral",
+                    stringResource(Res.string.profile_home_tile_referral_title),
+                    stringResource(Res.string.profile_home_tile_referral_subtitle),
+                    Icons.Default.Star,
+                    Color(0xFF7B1FA2),
+                    onOpenReferral,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
-        val depthTiles = listOfNotNull(savedPlacesTile, emergencyTile, verificationTile)
+        val depthTiles = listOfNotNull(savedPlacesTile, emergencyTile, verificationTile, referralTile)
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))
         }

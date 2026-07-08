@@ -5,6 +5,34 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 23 → 24 (PLAN_V24 P5.1): additive `referral_txns` table — the referral-program ledger
+ * (one row per referred user, status PENDING/SUCCESS/FAILED). Empty on first run (seeded by
+ * `ReferralRepository.seedIfEmpty()`). See [com.mileway.core.data.model.db.ReferralTxnEntity].
+ */
+val MIGRATION_23_24 =
+    object : Migration(23, 24) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `referral_txns` (
+                    `id`               TEXT    NOT NULL PRIMARY KEY,
+                    `refereeName`      TEXT    NOT NULL,
+                    `status`           TEXT    NOT NULL,
+                    `taskMessage`      TEXT    NOT NULL,
+                    `processedMoney`   REAL    NOT NULL,
+                    `processedCredits` INTEGER NOT NULL,
+                    `userNumRides`     INTEGER NOT NULL,
+                    `nextTargetRides`  INTEGER NOT NULL,
+                    `nextTargetMoney`  REAL    NOT NULL,
+                    `nextTargetCredits` INTEGER NOT NULL,
+                    `submittedAtMillis` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 22 → 23 (PLAN_V24 P4.1): additive `documents` table — the verification centre's
  * per-doc requirement + status rows (the reference app `DocRequirementResponse`). `doc_url[]`/`doc_info[]`
  * are JSON-encoded TEXT; enum columns store the enum name. Empty on first run (seeded by
