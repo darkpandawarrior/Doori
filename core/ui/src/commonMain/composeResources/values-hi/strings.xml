@@ -1714,6 +1714,34 @@
     <string name="profile_saved_places_save">सहेजें</string>
     <string name="profile_saved_places_cancel">रद्द करें</string>
     <string name="profile_saved_places_delete">हटाएँ</string>
+    <string name="profile_home_tile_emergency_title">आपातकाल</string>
+    <string name="profile_home_tile_emergency_subtitle">SOS संपर्क</string>
+    <string name="profile_emergency_title">आपातकालीन संपर्क</string>
+    <string name="profile_emergency_subtitle">SOS ट्रिगर करने पर हम जिन्हें सूचित करते हैं</string>
+    <string name="profile_emergency_back">वापस</string>
+    <string name="profile_emergency_add_cd">संपर्क जोड़ें</string>
+    <string name="profile_emergency_add_title">संपर्क जोड़ें</string>
+    <string name="profile_emergency_edit_title">संपर्क संपादित करें</string>
+    <string name="profile_emergency_empty">अभी तक कोई आपातकालीन संपर्क नहीं। SOS से सूचित करने के लिए 5 तक लोग जोड़ें।</string>
+    <string name="profile_emergency_name">नाम</string>
+    <string name="profile_emergency_country_code">कोड</string>
+    <string name="profile_emergency_phone">फ़ोन नंबर</string>
+    <string name="profile_emergency_save">सहेजें</string>
+    <string name="profile_emergency_cancel">रद्द करें</string>
+    <string name="profile_emergency_delete">हटाएँ</string>
+    <string name="sos_title">आपातकालीन SOS</string>
+    <string name="sos_subtitle">अपने आपातकालीन संपर्कों को सूचित करें</string>
+    <string name="sos_no_contacts">SOS उपयोग करने के लिए अपनी प्रोफ़ाइल में आपातकालीन संपर्क जोड़ें।</string>
+    <string name="sos_contacts_count">%1$d संपर्क को सूचित किया जाएगा</string>
+    <string name="sos_send">SOS अलर्ट भेजें</string>
+    <string name="sos_share_status">यात्रा स्थिति साझा करें</string>
+    <string name="sos_disable">बंद करें</string>
+    <string name="sos_alerted">%1$d आपातकालीन संपर्क को सूचित किया</string>
+    <string name="sos_share_message">आपातकाल: मैंने Mileway पर SOS ट्रिगर किया है और मुझे मदद की आवश्यकता हो सकती है। यह मेरी वर्तमान यात्रा स्थिति है।</string>
+    <string name="sos_notif_title">आपातकालीन SOS भेजा गया</string>
+    <string name="sos_notif_body">आपने SOS के माध्यम से अपने आपातकालीन संपर्कों को सूचित किया।</string>
+    <string name="sos_notif_time">अभी</string>
+    <string name="tracking_sos_cd">आपातकालीन SOS</string>
     <string name="profile_home_analytics">विश्लेषण</string>
     <string name="profile_home_analytics_live">लाइव · %1$s</string>
     <string name="profile_home_live_insights">लाइव अंतर्दृष्टि</string>
@@ -2034,6 +2062,11 @@
     <!-- PLAN_V24 P3.4: saved places -->
     <string name="plugin_profile_saved_places_title">सहेजे गए स्थान</string>
     <string name="plugin_profile_saved_places_desc">त्वरित पुन: उपयोग के लिए घर, कार्यालय और अन्य पते सहेजें</string>
+    <!-- PLAN_V24 P3.5: emergency contacts + SOS -->
+    <string name="plugin_profile_emergency_contacts_title">आपातकालीन संपर्क</string>
+    <string name="plugin_profile_emergency_contacts_desc">SOS द्वारा सूचित किए जाने वाले संपर्क प्रबंधित करें</string>
+    <string name="plugin_tracking_emergency_mode_title">ड्राइवर SOS मोड</string>
+    <string name="plugin_tracking_emergency_mode_desc">ट्रैकिंग के दौरान आपातकालीन SOS क्रिया दिखाएँ</string>
     <string name="profile_email_verified">सत्यापित</string>
     <string name="profile_email_unverified">असत्यापित</string>
     <string name="profile_email_verify">ईमेल सत्यापित करें</string>

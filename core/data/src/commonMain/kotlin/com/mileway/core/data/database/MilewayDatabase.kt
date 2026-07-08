@@ -8,6 +8,7 @@ import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.DelegationDao
 import com.mileway.core.data.dao.DraftExpenseDao
+import com.mileway.core.data.dao.EmergencyContactDao
 import com.mileway.core.data.dao.HardwareEventDao
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.LogMilesDraftDao
@@ -31,6 +32,7 @@ import com.mileway.core.data.model.db.AgentMessageEntity
 import com.mileway.core.data.model.db.ConnectedAccountEntity
 import com.mileway.core.data.model.db.DelegationEntity
 import com.mileway.core.data.model.db.DraftExpenseEntity
+import com.mileway.core.data.model.db.EmergencyContactEntity
 import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.LogMilesDraftEntity
@@ -72,8 +74,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         SupportTicketEntity::class,
         PluginOverrideEntity::class,
         SavedPlaceEntity::class,
+        EmergencyContactEntity::class,
     ],
-    version = 21,
+    version = 22,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -119,6 +122,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun pluginOverrideDao(): PluginOverrideDao
 
     abstract fun savedPlaceDao(): SavedPlaceDao
+
+    abstract fun emergencyContactDao(): EmergencyContactDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

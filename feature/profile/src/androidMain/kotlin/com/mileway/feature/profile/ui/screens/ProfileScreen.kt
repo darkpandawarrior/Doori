@@ -42,6 +42,7 @@ import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -119,6 +120,8 @@ import com.mileway.core.ui.resources.profile_home_tile_delegation_title
 import com.mileway.core.ui.resources.profile_home_tile_demo_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_demo_title
 import com.mileway.core.ui.resources.profile_home_tile_details_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_emergency_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_emergency_title
 import com.mileway.core.ui.resources.profile_home_tile_insights_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_insights_title
 import com.mileway.core.ui.resources.profile_home_tile_notifications_subtitle
@@ -187,6 +190,7 @@ fun ProfileScreen(
     onOpenQr: () -> Unit = {},
     onOpenSessions: () -> Unit = {},
     onOpenSavedPlaces: () -> Unit = {},
+    onOpenEmergency: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
@@ -326,6 +330,7 @@ fun ProfileScreen(
                         onOpenDemoSettings = onOpenDemoSettings,
                         onOpenQr = onOpenQr,
                         onOpenSavedPlaces = onOpenSavedPlaces,
+                        onOpenEmergency = onOpenEmergency,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -641,11 +646,14 @@ private fun AccountTileGrid(
     onOpenDemoSettings: () -> Unit,
     onOpenQr: () -> Unit,
     onOpenSavedPlaces: () -> Unit,
+    onOpenEmergency: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
-    // PLAN_V24 P3.4: the Saved Places tile is plugin-gated (zero hardcoded visibility).
+    // PLAN_V24 P3.4/P3.5: the Saved Places and Emergency tiles are plugin-gated (zero hardcoded visibility).
     val savedPlacesEnabled by pluginRegistry.observe("savedPlacesEnabled")
+        .collectAsStateWithLifecycle(initialValue = true)
+    val emergencyEnabled by pluginRegistry.observe("emergencyContactsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -783,18 +791,38 @@ private fun AccountTileGrid(
                     onOpenQr,
                 ),
         )
-        if (savedPlacesEnabled) {
+        // PLAN_V24 P3.4/P3.5: independently plugin-gated tiles, paired into one row when both on.
+        val savedPlacesTile =
+            if (savedPlacesEnabled) {
+                accountTile(
+                    "acc_saved_places",
+                    stringResource(Res.string.profile_home_tile_saved_places_title),
+                    stringResource(Res.string.profile_home_tile_saved_places_subtitle),
+                    Icons.Default.Place,
+                    Color(0xFFB45309),
+                    onOpenSavedPlaces,
+                )
+            } else {
+                null
+            }
+        val emergencyTile =
+            if (emergencyEnabled) {
+                accountTile(
+                    "acc_emergency",
+                    stringResource(Res.string.profile_home_tile_emergency_title),
+                    stringResource(Res.string.profile_home_tile_emergency_subtitle),
+                    Icons.Default.Warning,
+                    Color(0xFFB91C1C),
+                    onOpenEmergency,
+                )
+            } else {
+                null
+            }
+        val leftTile = savedPlacesTile ?: emergencyTile
+        if (leftTile != null) {
             TileRow(
-                left =
-                    accountTile(
-                        "acc_saved_places",
-                        stringResource(Res.string.profile_home_tile_saved_places_title),
-                        stringResource(Res.string.profile_home_tile_saved_places_subtitle),
-                        Icons.Default.Place,
-                        Color(0xFFB45309),
-                        onOpenSavedPlaces,
-                    ),
-                right = null,
+                left = leftTile,
+                right = if (savedPlacesTile != null) emergencyTile else null,
             )
         }
     }

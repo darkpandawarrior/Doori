@@ -115,10 +115,32 @@ object PluginCatalog {
                 descriptionKey = "plugin_profile_saved_places_desc",
                 defaultOn = true,
             ),
+            PluginDescriptor(
+                id = "emergencyContactsEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PROFILE,
+                titleKey = "plugin_profile_emergency_contacts_title",
+                descriptionKey = "plugin_profile_emergency_contacts_desc",
+                defaultOn = true,
+            ),
+        )
+
+    /** Tracking-depth plugins (P3.5, P10, P11). */
+    val trackingPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "driverEmergencyModeEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_emergency_mode_title",
+                descriptionKey = "plugin_tracking_emergency_mode_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Every registered descriptor across all categories. */
-    val all: List<PluginDescriptor> = coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins
+    val all: List<PluginDescriptor> =
+        coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins
 
     private fun onboardingFlag(
         id: String,

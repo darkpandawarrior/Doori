@@ -5,6 +5,28 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 21 → 22 (PLAN_V24 P3.5): additive `emergency_contacts` table — name + phone +
+ * dial-code, capped at 5 by the repository. Empty on first run.
+ * See [com.mileway.core.data.model.db.EmergencyContactEntity].
+ */
+val MIGRATION_21_22 =
+    object : Migration(21, 22) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `emergency_contacts` (
+                    `id`          TEXT    NOT NULL PRIMARY KEY,
+                    `name`        TEXT    NOT NULL,
+                    `phoneNo`     TEXT    NOT NULL,
+                    `countryCode` TEXT    NOT NULL,
+                    `createdAtMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 20 → 21 (PLAN_V24 P3.4): additive `saved_places` table — home/work/other saved
  * addresses (label + free-text address + optional coordinates). Empty on first run; the HOME row,
  * when present, is the canonical home location surfaced alongside `EmployeeProfile.homeLocation`.

@@ -31,6 +31,7 @@ import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.RoutePointsViewModel
 import com.mileway.feature.tracking.viewmodel.SavedTracksViewModel
+import com.mileway.feature.tracking.viewmodel.SosViewModel
 import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import com.mileway.feature.tracking.viewmodel.TrackInsightsViewModel
@@ -135,6 +136,9 @@ val trackingModule =
         viewModelOf(::HardwareEventsViewModel)
         viewModelOf(::TrackInsightsViewModel)
         viewModelOf(::ExportViewModel)
+        // PLAN_V24 P3.5: SOS sheet — explicit (not viewModelOf) so the Clock default is honored;
+        // EmergencyContactsRepository + NotificationDao resolve from core:data's graph.
+        viewModel { SosViewModel(get(), get()) }
         viewModelOf(::DebugMenuComposeViewModel)
         // No HttpClient wired yet (app is offline/:stub) — getOrNull() keeps the tester graceful.
         viewModel { NetworkLogViewModel(store = get(), httpClient = getOrNull()) }

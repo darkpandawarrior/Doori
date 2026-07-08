@@ -69,6 +69,9 @@ val coreDataModule =
         single { get<MilewayDatabase>().connectedAccountDao() }
         single { get<MilewayDatabase>().pluginOverrideDao() }
         single { get<MilewayDatabase>().savedPlaceDao() }
+        single { get<MilewayDatabase>().emergencyContactDao() }
+        // PLAN_V24 P3.5: shared by the profile management screen and the tracking SOS sheet.
+        single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore(androidContext()) }

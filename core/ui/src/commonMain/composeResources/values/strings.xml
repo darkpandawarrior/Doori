@@ -618,6 +618,34 @@
     <string name="profile_saved_places_save">Save</string>
     <string name="profile_saved_places_cancel">Cancel</string>
     <string name="profile_saved_places_delete">Delete</string>
+    <string name="profile_home_tile_emergency_title">Emergency</string>
+    <string name="profile_home_tile_emergency_subtitle">SOS contacts</string>
+    <string name="profile_emergency_title">Emergency Contacts</string>
+    <string name="profile_emergency_subtitle">People we alert if you trigger SOS</string>
+    <string name="profile_emergency_back">Back</string>
+    <string name="profile_emergency_add_cd">Add contact</string>
+    <string name="profile_emergency_add_title">Add contact</string>
+    <string name="profile_emergency_edit_title">Edit contact</string>
+    <string name="profile_emergency_empty">No emergency contacts yet. Add up to 5 people to alert with SOS.</string>
+    <string name="profile_emergency_name">Name</string>
+    <string name="profile_emergency_country_code">Code</string>
+    <string name="profile_emergency_phone">Phone number</string>
+    <string name="profile_emergency_save">Save</string>
+    <string name="profile_emergency_cancel">Cancel</string>
+    <string name="profile_emergency_delete">Delete</string>
+    <string name="sos_title">Emergency SOS</string>
+    <string name="sos_subtitle">Alert your emergency contacts</string>
+    <string name="sos_no_contacts">Add emergency contacts in your profile to use SOS.</string>
+    <string name="sos_contacts_count">%1$d contact(s) will be alerted</string>
+    <string name="sos_send">Send SOS alert</string>
+    <string name="sos_share_status">Share ride status</string>
+    <string name="sos_disable">Close</string>
+    <string name="sos_alerted">Alerted %1$d emergency contact(s)</string>
+    <string name="sos_share_message">Emergency: I have triggered an SOS on Mileway and may need help. This is my current trip status.</string>
+    <string name="sos_notif_title">Emergency SOS sent</string>
+    <string name="sos_notif_body">You alerted your emergency contacts via SOS.</string>
+    <string name="sos_notif_time">Just now</string>
+    <string name="tracking_sos_cd">Emergency SOS</string>
     <string name="profile_home_analytics">Analytics</string>
     <string name="profile_home_analytics_live">Live · %1$s</string>
     <string name="profile_home_live_insights">Live insights</string>
@@ -2038,6 +2066,11 @@
     <!-- PLAN_V24 P3.4: saved places -->
     <string name="plugin_profile_saved_places_title">Saved places</string>
     <string name="plugin_profile_saved_places_desc">Save home, work and other addresses for quick reuse</string>
+    <!-- PLAN_V24 P3.5: emergency contacts + SOS -->
+    <string name="plugin_profile_emergency_contacts_title">Emergency contacts</string>
+    <string name="plugin_profile_emergency_contacts_desc">Manage the contacts alerted by SOS</string>
+    <string name="plugin_tracking_emergency_mode_title">Driver SOS mode</string>
+    <string name="plugin_tracking_emergency_mode_desc">Show the emergency SOS action while tracking</string>
     <string name="profile_email_verified">Verified</string>
     <string name="profile_email_unverified">Unverified</string>
     <string name="profile_email_verify">Verify email</string>

@@ -47,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
@@ -77,6 +78,7 @@ import com.mileway.core.ui.resources.tracking_miles_all_ok
 import com.mileway.core.ui.resources.tracking_miles_journey_guide
 import com.mileway.core.ui.resources.tracking_miles_synced
 import com.mileway.core.ui.resources.tracking_miles_title
+import com.mileway.core.ui.resources.tracking_sos_cd
 import com.mileway.core.ui.resources.tracking_time_now
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
@@ -145,6 +147,12 @@ fun TrackMilesScreen(
     val isPaused = uiState.phase == TrackMilesPhase.PAUSED
     var statsExpanded by remember { mutableStateOf(true) }
 
+    // PLAN_V24 P3.5: the emergency SOS action is plugin-gated (driverEmergencyModeEnabled).
+    val pluginRegistry = koinInject<com.mileway.core.data.plugin.PluginRegistry>()
+    val emergencyModeEnabled by pluginRegistry.observe("driverEmergencyModeEnabled")
+        .collectAsStateWithLifecycle(initialValue = false)
+    var showSos by remember { mutableStateOf(false) }
+
     // Once tracking is active, skip past any onboarding tier already granted (e.g. from a previous
     // session) so the sheet only ever prompts for what's genuinely still outstanding.
     LaunchedEffect(isActive) {
@@ -212,6 +220,16 @@ fun TrackMilesScreen(
                     // is live; communicates queued vs synced points without a coloured chrome band.
                     if (isActive) {
                         SyncStatusAction(unsyncedPoints = uiState.unsyncedPoints)
+                    }
+                    // PLAN_V24 P3.5: emergency SOS, gated by driverEmergencyModeEnabled.
+                    if (emergencyModeEnabled) {
+                        androidx.compose.material3.IconButton(onClick = { showSos = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = stringResource(Res.string.tracking_sos_cd),
+                                tint = Color(0xFFB91C1C),
+                            )
+                        }
                     }
                 },
             )
@@ -439,6 +457,11 @@ fun TrackMilesScreen(
             }
 
         TrackSheet.NONE -> Unit
+    }
+
+    // PLAN_V24 P3.5: emergency SOS sheet — local state, gated by driverEmergencyModeEnabled above.
+    if (showSos) {
+        com.mileway.feature.tracking.ui.sheets.SosBottomSheet(onDismiss = { showSos = false })
     }
 
     // Wave-4 §2.1: multi-session restore — shown instead of the single-session SESSION_RESTORE/

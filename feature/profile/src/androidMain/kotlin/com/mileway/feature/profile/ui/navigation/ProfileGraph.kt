@@ -14,6 +14,7 @@ import com.mileway.feature.profile.ui.screens.AskAdvanceFormScreen
 import com.mileway.feature.profile.ui.screens.ConnectedAccountsScreen
 import com.mileway.feature.profile.ui.screens.DelegationScreen
 import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
+import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
 import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
@@ -50,6 +51,7 @@ object ProfileRoutes {
     const val ORG_CHART = "profile/org_chart"
     const val PLUGINS = "profile/plugins"
     const val SAVED_PLACES = "profile/saved_places"
+    const val EMERGENCY_CONTACTS = "profile/emergency_contacts"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -89,11 +91,17 @@ fun NavGraphBuilder.profileGraph(
             onOpenQr = { navController.navigate(ProfileRoutes.QR_HOME) },
             onOpenSessions = { navController.navigate(ProfileRoutes.ACTIVE_SESSIONS) },
             onOpenSavedPlaces = { navController.navigate(ProfileRoutes.SAVED_PLACES) },
+            onOpenEmergency = { navController.navigate(ProfileRoutes.EMERGENCY_CONTACTS) },
             onSignedOut = onSignedOut,
         )
     }
     composable(ProfileRoutes.SAVED_PLACES) {
         SavedPlacesScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+    composable(ProfileRoutes.EMERGENCY_CONTACTS) {
+        EmergencyContactsScreen(
             onBack = { navController.popBackStack() },
         )
     }
