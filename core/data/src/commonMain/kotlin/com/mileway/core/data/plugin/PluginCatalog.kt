@@ -194,6 +194,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_growth_rewards_desc",
                 defaultOn = true,
             ),
+            PluginDescriptor(
+                id = "campaignMarketingEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.GROWTH,
+                titleKey = "plugin_growth_campaigns_title",
+                descriptionKey = "plugin_growth_campaigns_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

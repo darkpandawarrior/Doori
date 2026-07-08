@@ -37,5 +37,6 @@ fun buildMilewayDatabase(): MilewayDatabase =
             MIGRATION_23_24,
             MIGRATION_24_25,
             MIGRATION_25_26,
+            MIGRATION_26_27,
         )
         .build()

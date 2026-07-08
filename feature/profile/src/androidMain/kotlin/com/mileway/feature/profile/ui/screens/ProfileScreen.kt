@@ -117,6 +117,8 @@ import com.mileway.core.ui.resources.profile_home_tile_about_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_about_title
 import com.mileway.core.ui.resources.profile_home_tile_advance_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_advance_title
+import com.mileway.core.ui.resources.profile_home_tile_campaigns_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_campaigns_title
 import com.mileway.core.ui.resources.profile_home_tile_cards_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_cards_title
 import com.mileway.core.ui.resources.profile_home_tile_coupons_subtitle
@@ -207,6 +209,7 @@ fun ProfileScreen(
     onOpenReferral: () -> Unit = {},
     onOpenCoupons: () -> Unit = {},
     onOpenRewards: () -> Unit = {},
+    onOpenCampaigns: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
@@ -351,6 +354,7 @@ fun ProfileScreen(
                         onOpenReferral = onOpenReferral,
                         onOpenCoupons = onOpenCoupons,
                         onOpenRewards = onOpenRewards,
+                        onOpenCampaigns = onOpenCampaigns,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -671,6 +675,7 @@ private fun AccountTileGrid(
     onOpenReferral: () -> Unit,
     onOpenCoupons: () -> Unit,
     onOpenRewards: () -> Unit,
+    onOpenCampaigns: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -686,6 +691,8 @@ private fun AccountTileGrid(
     val couponsEnabled by pluginRegistry.observe("couponsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val rewardsEnabled by pluginRegistry.observe("scratchRewardsEnabled")
+        .collectAsStateWithLifecycle(initialValue = true)
+    val campaignsEnabled by pluginRegistry.observe("campaignMarketingEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -902,8 +909,22 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val campaignsTile =
+            if (campaignsEnabled) {
+                accountTile(
+                    "acc_campaigns",
+                    stringResource(Res.string.profile_home_tile_campaigns_title),
+                    stringResource(Res.string.profile_home_tile_campaigns_subtitle),
+                    Icons.Default.Notifications,
+                    Color(0xFF3730A3),
+                    onOpenCampaigns,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
-        val depthTiles = listOfNotNull(savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile)
+        val depthTiles =
+            listOfNotNull(savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile, campaignsTile)
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))
         }

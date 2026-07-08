@@ -84,6 +84,14 @@ fun HomeScreen(
     val welcomeBannerState by firstLoginBannerViewModel.uiState.collectAsStateWithLifecycle()
     val whatsNewState by whatsNewViewModel.uiState.collectAsStateWithLifecycle()
 
+    // PLAN_V24 P5.4: the marketing strip is backed by the shared CampaignRepository (also feeding the
+    // profile marketing hub) when campaignMarketingEnabled — else the existing static demo items.
+    val campaignRepository = org.koin.compose.koinInject<com.mileway.core.data.campaign.CampaignRepository>()
+    val campaignPluginRegistry = org.koin.compose.koinInject<com.mileway.core.data.plugin.PluginRegistry>()
+    val campaignMarketingEnabled by campaignPluginRegistry.observe("campaignMarketingEnabled").collectAsStateWithLifecycle(initialValue = false)
+    val campaigns by campaignRepository.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
+    LaunchedEffect(Unit) { campaignRepository.seedIfEmpty() }
+
     // V15 RV.4/CF.1: Home is a meaningful engagement signal, record it and prompt for review if eligible
     // and the in-app-review flag is on.
     val reviewManager = LocalAppReviewManager.current
@@ -102,6 +110,12 @@ fun HomeScreen(
         onOpenAgent = onOpenAgent,
         welcomeBanner = welcomeBannerState,
         onWelcomeBannerShown = firstLoginBannerViewModel::onBannerShown,
+        marketingOverride =
+            if (campaignMarketingEnabled && campaigns.isNotEmpty()) {
+                campaigns.map { MarketingCarouselItem(title = it.name, subtitle = it.description, badge = it.badge) }
+            } else {
+                null
+            },
     )
 
     // PLAN_V24 P2.2: one-shot "What's new" sheet, shown once per release after login.
@@ -125,6 +139,8 @@ fun HomeScreenContent(
     onOpenAgent: (() -> Unit)? = null,
     welcomeBanner: FirstLoginBannerUiState = FirstLoginBannerUiState(),
     onWelcomeBannerShown: () -> Unit = {},
+    // PLAN_V24 P5.4: repo-backed marketing items; null keeps the existing static state.marketingItems.
+    marketingOverride: List<MarketingCarouselItem>? = null,
 ) {
     // Clear the one-shot flag right after the banner is actually composed once — not on every
     // recomposition of the Home tab, so it never reappears on scroll/rotation before sign-out.
@@ -241,8 +257,9 @@ fun HomeScreenContent(
 
             Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
 
-            // 8. Marketing / benefits strip (full-bleed horizontal list).
-            MarketingStrip(items = state.marketingItems)
+            // 8. Marketing / benefits strip (full-bleed horizontal list). PLAN_V24 P5.4: repo-backed
+            // campaign items (via [marketingOverride]) when campaignMarketingEnabled, else static.
+            MarketingStrip(items = marketingOverride ?: state.marketingItems)
 
             Spacer(Modifier.height(BottomBarClearance))
         }

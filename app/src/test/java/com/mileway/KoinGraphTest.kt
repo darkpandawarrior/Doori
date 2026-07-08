@@ -163,6 +163,10 @@ class KoinGraphTest : KoinTest {
         single<com.mileway.core.data.dao.CouponDao> { FakeCouponDao() }
         // PLAN_V24 P5.3: RewardsViewModel collects RewardsRepository in init.
         single<com.mileway.core.data.dao.RewardCardDao> { FakeRewardCardDao() }
+        // PLAN_V24 P5.4: MarketingHubViewModel collects CampaignRepository (in core:data — the real
+        // CoreDataModule isn't loaded here, so provide the DAO fake + the repository).
+        single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
+        single { com.mileway.core.data.campaign.CampaignRepository(get()) }
         // P6.6: StorageViewModel reads real on-device byte counts; the app-under-test's real
         // Context/cacheDir/getDatabasePath work fine on Robolectric, unlike a relaxed mockk Context.
         single { com.mileway.core.data.settings.StorageRepository(androidContext()) }
@@ -335,6 +339,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.ReferralHubViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.CouponsViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.RewardsViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.MarketingHubViewModel>())
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())

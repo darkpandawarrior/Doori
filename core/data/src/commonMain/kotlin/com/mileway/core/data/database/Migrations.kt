@@ -5,6 +5,32 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 26 → 27 (PLAN_V24 P5.4): additive `campaigns` table — marketing campaigns (status
+ * LIVE/UPCOMING/ENDED, one-shot interestCaptured). Empty on first run (seeded by
+ * `CampaignRepository.seedIfEmpty()`). See [com.mileway.core.data.model.db.CampaignEntity].
+ */
+val MIGRATION_26_27 =
+    object : Migration(26, 27) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `campaigns` (
+                    `id`               TEXT    NOT NULL PRIMARY KEY,
+                    `name`             TEXT    NOT NULL,
+                    `description`      TEXT    NOT NULL,
+                    `badge`            TEXT    NOT NULL,
+                    `status`           TEXT    NOT NULL,
+                    `mobileExclusive`  INTEGER NOT NULL,
+                    `contactEmail`     TEXT    NOT NULL,
+                    `interestCaptured` INTEGER NOT NULL,
+                    `startedOnMs`      INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 25 → 26 (PLAN_V24 P5.3): additive `reward_cards` table — scratch-card rewards (status
  * UNSCRATCHED/SCRATCHED). Empty on first run (seeded by `RewardsRepository.seedIfEmpty()`).
  * See [com.mileway.core.data.model.db.RewardCardEntity].

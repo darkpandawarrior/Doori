@@ -73,6 +73,9 @@ val coreDataModule =
         single { get<MilewayDatabase>().referralTxnDao() }
         single { get<MilewayDatabase>().couponDao() }
         single { get<MilewayDatabase>().rewardCardDao() }
+        single { get<MilewayDatabase>().campaignDao() }
+        // PLAN_V24 P5.4: shared by the profile marketing hub and the HomeScreen marketing strip.
+        single { com.mileway.core.data.campaign.CampaignRepository(get()) }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore() }

@@ -18,6 +18,7 @@ import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
 import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
+import com.mileway.feature.profile.ui.screens.MarketingHubScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
 import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
 import com.mileway.feature.profile.ui.screens.OrgChartScreen
@@ -62,6 +63,7 @@ object ProfileRoutes {
     const val REFERRAL_HUB = "profile/referral"
     const val COUPONS = "profile/coupons"
     const val REWARDS = "profile/rewards"
+    const val MARKETING_HUB = "profile/campaigns"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -108,11 +110,17 @@ fun NavGraphBuilder.profileGraph(
             onOpenReferral = { navController.navigate(ProfileRoutes.REFERRAL_HUB) },
             onOpenCoupons = { navController.navigate(ProfileRoutes.COUPONS) },
             onOpenRewards = { navController.navigate(ProfileRoutes.REWARDS) },
+            onOpenCampaigns = { navController.navigate(ProfileRoutes.MARKETING_HUB) },
             onSignedOut = onSignedOut,
         )
     }
     composable(ProfileRoutes.REWARDS) {
         RewardsScreen(
+            onBack = { navController.popBackStack() },
+        )
+    }
+    composable(ProfileRoutes.MARKETING_HUB) {
+        MarketingHubScreen(
             onBack = { navController.popBackStack() },
         )
     }
