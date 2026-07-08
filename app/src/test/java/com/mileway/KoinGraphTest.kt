@@ -159,6 +159,8 @@ class KoinGraphTest : KoinTest {
         // ReferralManager is normally bound by the flavor module (absent here), so mock it.
         single<com.mileway.core.data.dao.ReferralTxnDao> { FakeReferralTxnDao() }
         single<com.mileway.core.platform.ReferralManager> { mockk(relaxed = true) }
+        // PLAN_V24 P5.2: CouponsViewModel collects CouponsRepository in init.
+        single<com.mileway.core.data.dao.CouponDao> { FakeCouponDao() }
         // P6.6: StorageViewModel reads real on-device byte counts; the app-under-test's real
         // Context/cacheDir/getDatabasePath work fine on Robolectric, unlike a relaxed mockk Context.
         single { com.mileway.core.data.settings.StorageRepository(androidContext()) }
@@ -329,6 +331,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.VerificationCentreViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.CorporateVerificationViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.ReferralHubViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.CouponsViewModel>())
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())

@@ -2147,6 +2147,30 @@
     <string name="referral_hub_status_failed">Expired</string>
     <string name="referral_hub_your_rank">Your rank: #%1$d</string>
     <string name="referral_hub_empty">No referrals yet — share your code to get started.</string>
+    <!-- PLAN_V24 P5.2: promo codes + coupons -->
+    <string name="plugin_growth_coupons_title">Coupons &amp; promos</string>
+    <string name="plugin_growth_coupons_desc">Show the coupons screen and apply-code entry</string>
+    <string name="profile_home_tile_coupons_title">Coupons</string>
+    <string name="profile_home_tile_coupons_subtitle">Offers &amp; promos</string>
+    <string name="coupons_title">Coupons &amp; Offers</string>
+    <string name="coupons_subtitle">Promo codes and rewards</string>
+    <string name="coupons_back">Back</string>
+    <string name="coupons_have_code">Have a code?</string>
+    <string name="coupons_code_hint">Enter promo code</string>
+    <string name="coupons_apply">Apply</string>
+    <string name="coupons_active">Active offers</string>
+    <string name="coupons_inactive">Expired &amp; used</string>
+    <string name="coupons_result_success">Coupon applied successfully!</string>
+    <string name="coupons_result_invalid">That code isn\'t valid.</string>
+    <string name="coupons_result_expired">This code has expired.</string>
+    <string name="coupons_result_used">This code has already been used.</string>
+    <string name="coupons_status_active">Active</string>
+    <string name="coupons_status_expired">Expired</string>
+    <string name="coupons_status_redeemed">Used</string>
+    <string name="coupons_empty">No coupons available right now.</string>
+    <string name="coupons_notif_title">Coupon redeemed</string>
+    <string name="coupons_notif_body">%1$s was applied to your account.</string>
+    <string name="coupons_notif_time">Just now</string>
     <!-- PLAN_V24 P4.4: corporate email verification -->
     <string name="plugin_corporate_verify_title">Corporate email verification</string>
     <string name="plugin_corporate_verify_desc">Verify a company email with an OTP for a corporate badge</string>

@@ -2146,6 +2146,30 @@
     <string name="referral_hub_status_failed">समाप्त</string>
     <string name="referral_hub_your_rank">आपकी रैंक: #%1$d</string>
     <string name="referral_hub_empty">अभी तक कोई रेफ़रल नहीं — शुरू करने के लिए अपना कोड साझा करें।</string>
+    <!-- PLAN_V24 P5.2: promo codes + coupons -->
+    <string name="plugin_growth_coupons_title">कूपन और प्रोमो</string>
+    <string name="plugin_growth_coupons_desc">कूपन स्क्रीन और कोड-अप्लाई प्रविष्टि दिखाएँ</string>
+    <string name="profile_home_tile_coupons_title">कूपन</string>
+    <string name="profile_home_tile_coupons_subtitle">ऑफ़र और प्रोमो</string>
+    <string name="coupons_title">कूपन और ऑफ़र</string>
+    <string name="coupons_subtitle">प्रोमो कोड और इनाम</string>
+    <string name="coupons_back">वापस</string>
+    <string name="coupons_have_code">कोड है?</string>
+    <string name="coupons_code_hint">प्रोमो कोड दर्ज करें</string>
+    <string name="coupons_apply">लागू करें</string>
+    <string name="coupons_active">सक्रिय ऑफ़र</string>
+    <string name="coupons_inactive">समाप्त और उपयोग किए गए</string>
+    <string name="coupons_result_success">कूपन सफलतापूर्वक लागू किया गया!</string>
+    <string name="coupons_result_invalid">यह कोड मान्य नहीं है।</string>
+    <string name="coupons_result_expired">यह कोड समाप्त हो गया है।</string>
+    <string name="coupons_result_used">यह कोड पहले ही उपयोग किया जा चुका है।</string>
+    <string name="coupons_status_active">सक्रिय</string>
+    <string name="coupons_status_expired">समाप्त</string>
+    <string name="coupons_status_redeemed">उपयोग किया गया</string>
+    <string name="coupons_empty">अभी कोई कूपन उपलब्ध नहीं है।</string>
+    <string name="coupons_notif_title">कूपन भुनाया गया</string>
+    <string name="coupons_notif_body">%1$s आपके खाते में लागू किया गया।</string>
+    <string name="coupons_notif_time">अभी</string>
     <!-- PLAN_V24 P4.4: corporate email verification -->
     <string name="plugin_corporate_verify_title">कॉर्पोरेट ईमेल सत्यापन</string>
     <string name="plugin_corporate_verify_desc">कॉर्पोरेट बैज के लिए OTP से कंपनी ईमेल सत्यापित करें</string>

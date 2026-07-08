@@ -5,6 +5,30 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 24 → 25 (PLAN_V24 P5.2): additive `coupons` table — promo codes / coupons (status
+ * ACTIVE/EXPIRED/REDEEMED). Empty on first run (seeded by `CouponsRepository.seedIfEmpty()`).
+ * See [com.mileway.core.data.model.db.CouponEntity].
+ */
+val MIGRATION_24_25 =
+    object : Migration(24, 25) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `coupons` (
+                    `id`          TEXT    NOT NULL PRIMARY KEY,
+                    `code`        TEXT    NOT NULL,
+                    `title`       TEXT    NOT NULL,
+                    `terms`       TEXT    NOT NULL,
+                    `expiryLabel` TEXT    NOT NULL,
+                    `status`      TEXT    NOT NULL,
+                    `updatedAtMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 23 → 24 (PLAN_V24 P5.1): additive `referral_txns` table — the referral-program ledger
  * (one row per referred user, status PENDING/SUCCESS/FAILED). Empty on first run (seeded by
  * `ReferralRepository.seedIfEmpty()`). See [com.mileway.core.data.model.db.ReferralTxnEntity].

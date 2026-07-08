@@ -3,6 +3,7 @@ package com.mileway.feature.profile.di
 import com.mileway.feature.profile.repository.ActiveSessionsRepository
 import com.mileway.feature.profile.repository.AdvanceRepository
 import com.mileway.feature.profile.repository.ConnectedAccountsRepository
+import com.mileway.feature.profile.repository.CouponsRepository
 import com.mileway.feature.profile.repository.DelegationRepository
 import com.mileway.feature.profile.repository.DocumentRepository
 import com.mileway.feature.profile.repository.FakeProfileRepository
@@ -20,6 +21,7 @@ import com.mileway.feature.profile.viewmodel.AdvanceViewModel
 import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
 import com.mileway.feature.profile.viewmodel.CorporateVerificationViewModel
+import com.mileway.feature.profile.viewmodel.CouponsViewModel
 import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
@@ -66,6 +68,8 @@ val profileModule =
         single { DocumentRepository(get()) }
         // PLAN_V24 P5.1: referral ledger (DAO + SimulatedReviewEngine for pending→success/failed).
         single { ReferralProgramRepository(get(), get()) }
+        // PLAN_V24 P5.2: coupons Room-backed repository.
+        single { CouponsRepository(get()) }
         viewModelOf(::ProfileViewModel)
         viewModel { AdvanceViewModel(get()) }
         viewModelOf(::DemoSettingsViewModel)
@@ -97,4 +101,6 @@ val profileModule =
         viewModelOf(::CorporateVerificationViewModel)
         // PLAN_V24 P5.1: referral hub (ReferralProgramRepository + ReferralManager).
         viewModelOf(::ReferralHubViewModel)
+        // PLAN_V24 P5.2: coupons (explicit so the Clock default is honored; NotificationDao from graph).
+        viewModel { CouponsViewModel(get(), get()) }
     }

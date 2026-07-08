@@ -71,6 +71,7 @@ val coreDataModule =
         single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
         single { get<MilewayDatabase>().documentDao() }
         single { get<MilewayDatabase>().referralTxnDao() }
+        single { get<MilewayDatabase>().couponDao() }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore() }
