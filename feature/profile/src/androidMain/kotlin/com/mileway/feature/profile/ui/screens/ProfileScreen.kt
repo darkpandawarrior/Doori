@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SupervisorAccount
@@ -126,6 +127,8 @@ import com.mileway.core.ui.resources.profile_home_tile_preferences_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_preferences_title
 import com.mileway.core.ui.resources.profile_home_tile_qr_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_qr_title
+import com.mileway.core.ui.resources.profile_home_tile_saved_places_subtitle
+import com.mileway.core.ui.resources.profile_home_tile_saved_places_title
 import com.mileway.core.ui.resources.profile_home_tile_sessions_subtitle
 import com.mileway.core.ui.resources.profile_home_tile_sessions_title
 import com.mileway.core.ui.resources.profile_home_tile_settings_subtitle
@@ -183,6 +186,7 @@ fun ProfileScreen(
     onOpenDemoSettings: () -> Unit = {},
     onOpenQr: () -> Unit = {},
     onOpenSessions: () -> Unit = {},
+    onOpenSavedPlaces: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     switchAccountViewModel: SwitchAccountViewModel = koinViewModel(),
@@ -321,6 +325,7 @@ fun ProfileScreen(
                         onOpenDelegation = onOpenDelegation,
                         onOpenDemoSettings = onOpenDemoSettings,
                         onOpenQr = onOpenQr,
+                        onOpenSavedPlaces = onOpenSavedPlaces,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -635,8 +640,13 @@ private fun AccountTileGrid(
     onOpenDelegation: () -> Unit,
     onOpenDemoSettings: () -> Unit,
     onOpenQr: () -> Unit,
+    onOpenSavedPlaces: () -> Unit,
     modifier: Modifier = Modifier,
+    pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
+    // PLAN_V24 P3.4: the Saved Places tile is plugin-gated (zero hardcoded visibility).
+    val savedPlacesEnabled by pluginRegistry.observe("savedPlacesEnabled")
+        .collectAsStateWithLifecycle(initialValue = true)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
     val green = Color(0xFF16A34A)
@@ -773,17 +783,35 @@ private fun AccountTileGrid(
                     onOpenQr,
                 ),
         )
+        if (savedPlacesEnabled) {
+            TileRow(
+                left =
+                    accountTile(
+                        "acc_saved_places",
+                        stringResource(Res.string.profile_home_tile_saved_places_title),
+                        stringResource(Res.string.profile_home_tile_saved_places_subtitle),
+                        Icons.Default.Place,
+                        Color(0xFFB45309),
+                        onOpenSavedPlaces,
+                    ),
+                right = null,
+            )
+        }
     }
 }
 
 @Composable
 private fun TileRow(
     left: ProfileGridItem,
-    right: ProfileGridItem,
+    right: ProfileGridItem?,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
         GridProfileTile(item = left, modifier = Modifier.weight(1f), compact = true)
-        GridProfileTile(item = right, modifier = Modifier.weight(1f), compact = true)
+        if (right != null) {
+            GridProfileTile(item = right, modifier = Modifier.weight(1f), compact = true)
+        } else {
+            Spacer(modifier = Modifier.weight(1f))
+        }
     }
 }
 

@@ -1694,6 +1694,26 @@
     <string name="profile_home_tile_demo_subtitle">फ़ीचर टॉगल</string>
     <string name="profile_home_tile_qr_title">मेरा QR कोड</string>
     <string name="profile_home_tile_qr_subtitle">साझा करने के लिए स्कैन करें</string>
+    <string name="profile_home_tile_saved_places_title">सहेजे गए स्थान</string>
+    <string name="profile_home_tile_saved_places_subtitle">घर, कार्यालय और अधिक</string>
+    <string name="profile_saved_places_title">सहेजे गए स्थान</string>
+    <string name="profile_saved_places_subtitle">घर, कार्यालय और अन्य पते</string>
+    <string name="profile_saved_places_back">वापस</string>
+    <string name="profile_saved_places_add_cd">स्थान जोड़ें</string>
+    <string name="profile_saved_places_add_title">स्थान जोड़ें</string>
+    <string name="profile_saved_places_edit_title">स्थान संपादित करें</string>
+    <string name="profile_saved_places_empty">अभी तक कोई स्थान सहेजा नहीं गया। त्वरित पहुँच के लिए अपना घर या कार्यालय का पता जोड़ें।</string>
+    <string name="profile_saved_places_type">प्रकार</string>
+    <string name="profile_saved_places_type_home">घर</string>
+    <string name="profile_saved_places_type_work">कार्यालय</string>
+    <string name="profile_saved_places_type_other">अन्य</string>
+    <string name="profile_saved_places_label">लेबल</string>
+    <string name="profile_saved_places_address">पता</string>
+    <string name="profile_saved_places_lat">अक्षांश (वैकल्पिक)</string>
+    <string name="profile_saved_places_lng">देशांतर (वैकल्पिक)</string>
+    <string name="profile_saved_places_save">सहेजें</string>
+    <string name="profile_saved_places_cancel">रद्द करें</string>
+    <string name="profile_saved_places_delete">हटाएँ</string>
     <string name="profile_home_analytics">विश्लेषण</string>
     <string name="profile_home_analytics_live">लाइव · %1$s</string>
     <string name="profile_home_live_insights">लाइव अंतर्दृष्टि</string>
@@ -2011,6 +2031,9 @@
     <!-- PLAN_V24 P3.2: email verification -->
     <string name="plugin_profile_email_verify_title">ईमेल सत्यापन</string>
     <string name="plugin_profile_email_verify_desc">ईमेल-सत्यापन स्थिति और एक मॉक सत्यापन लिंक दिखाएँ</string>
+    <!-- PLAN_V24 P3.4: saved places -->
+    <string name="plugin_profile_saved_places_title">सहेजे गए स्थान</string>
+    <string name="plugin_profile_saved_places_desc">त्वरित पुन: उपयोग के लिए घर, कार्यालय और अन्य पते सहेजें</string>
     <string name="profile_email_verified">सत्यापित</string>
     <string name="profile_email_unverified">असत्यापित</string>
     <string name="profile_email_verify">ईमेल सत्यापित करें</string>

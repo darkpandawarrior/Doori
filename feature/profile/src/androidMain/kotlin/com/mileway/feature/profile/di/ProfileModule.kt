@@ -9,6 +9,7 @@ import com.mileway.feature.profile.repository.MockAccountRepository
 import com.mileway.feature.profile.repository.NotificationRepository
 import com.mileway.feature.profile.repository.PassportDetailsRepository
 import com.mileway.feature.profile.repository.ProfileRepository
+import com.mileway.feature.profile.repository.SavedPlacesRepository
 import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
@@ -24,6 +25,7 @@ import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
 import com.mileway.feature.profile.viewmodel.PhoneChangeViewModel
 import com.mileway.feature.profile.viewmodel.PluginManagerViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
+import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
@@ -52,6 +54,8 @@ val profileModule =
         single { SyncDiagnosticsRepository() }
         // P6.8: Help & Support's "Contact Support"/"My Tickets" Room-backed repository.
         single { SupportTicketRepository(get()) }
+        // PLAN_V24 P3.4: saved places (home/work/other) Room-backed repository.
+        single { SavedPlacesRepository(get()) }
         viewModelOf(::ProfileViewModel)
         viewModel { AdvanceViewModel(get()) }
         viewModelOf(::DemoSettingsViewModel)
@@ -73,4 +77,6 @@ val profileModule =
         viewModelOf(::PhoneChangeViewModel)
         // PLAN_V24 P3.2: email verification status.
         viewModelOf(::EmailVerificationViewModel)
+        // PLAN_V24 P3.4: saved places (home/work/other).
+        viewModelOf(::SavedPlacesViewModel)
     }

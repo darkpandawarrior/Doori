@@ -598,6 +598,26 @@
     <string name="profile_home_tile_demo_subtitle">Feature toggles</string>
     <string name="profile_home_tile_qr_title">My QR Code</string>
     <string name="profile_home_tile_qr_subtitle">Scan to share</string>
+    <string name="profile_home_tile_saved_places_title">Saved Places</string>
+    <string name="profile_home_tile_saved_places_subtitle">Home, work &amp; more</string>
+    <string name="profile_saved_places_title">Saved Places</string>
+    <string name="profile_saved_places_subtitle">Home, work and other addresses</string>
+    <string name="profile_saved_places_back">Back</string>
+    <string name="profile_saved_places_add_cd">Add place</string>
+    <string name="profile_saved_places_add_title">Add place</string>
+    <string name="profile_saved_places_edit_title">Edit place</string>
+    <string name="profile_saved_places_empty">No saved places yet. Add your home or work address for quick access.</string>
+    <string name="profile_saved_places_type">Type</string>
+    <string name="profile_saved_places_type_home">Home</string>
+    <string name="profile_saved_places_type_work">Work</string>
+    <string name="profile_saved_places_type_other">Other</string>
+    <string name="profile_saved_places_label">Label</string>
+    <string name="profile_saved_places_address">Address</string>
+    <string name="profile_saved_places_lat">Latitude (optional)</string>
+    <string name="profile_saved_places_lng">Longitude (optional)</string>
+    <string name="profile_saved_places_save">Save</string>
+    <string name="profile_saved_places_cancel">Cancel</string>
+    <string name="profile_saved_places_delete">Delete</string>
     <string name="profile_home_analytics">Analytics</string>
     <string name="profile_home_analytics_live">Live · %1$s</string>
     <string name="profile_home_live_insights">Live insights</string>
@@ -2015,6 +2035,9 @@
     <!-- PLAN_V24 P3.2: email verification -->
     <string name="plugin_profile_email_verify_title">Email verification</string>
     <string name="plugin_profile_email_verify_desc">Show verify-email status and a mock verify link</string>
+    <!-- PLAN_V24 P3.4: saved places -->
+    <string name="plugin_profile_saved_places_title">Saved places</string>
+    <string name="plugin_profile_saved_places_desc">Save home, work and other addresses for quick reuse</string>
     <string name="profile_email_verified">Verified</string>
     <string name="profile_email_unverified">Unverified</string>
     <string name="profile_email_verify">Verify email</string>

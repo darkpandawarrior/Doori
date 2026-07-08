@@ -147,6 +147,8 @@ class KoinGraphTest : KoinTest {
         single<NotificationDao> { FakeNotificationDao() }
         // P6.6: ConnectedAccountsViewModel collects this in init(); same null-collector trap as above.
         single<ConnectedAccountDao> { FakeConnectedAccountDao() }
+        // PLAN_V24 P3.4: SavedPlacesViewModel collects this in init(); same null-collector trap as above.
+        single<com.mileway.core.data.dao.SavedPlaceDao> { FakeSavedPlaceDao() }
         // P6.6: StorageViewModel reads real on-device byte counts; the app-under-test's real
         // Context/cacheDir/getDatabasePath work fine on Robolectric, unlike a relaxed mockk Context.
         single { com.mileway.core.data.settings.StorageRepository(androidContext()) }
@@ -311,6 +313,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.ChangePasswordViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.PhoneChangeViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.EmailVerificationViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.SavedPlacesViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<PayablesViewModel>())

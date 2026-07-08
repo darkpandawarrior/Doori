@@ -107,6 +107,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_profile_email_verify_desc",
                 defaultOn = true,
             ),
+            PluginDescriptor(
+                id = "savedPlacesEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PROFILE,
+                titleKey = "plugin_profile_saved_places_title",
+                descriptionKey = "plugin_profile_saved_places_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

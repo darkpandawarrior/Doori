@@ -5,6 +5,31 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 20 → 21 (PLAN_V24 P3.4): additive `saved_places` table — home/work/other saved
+ * addresses (label + free-text address + optional coordinates). Empty on first run; the HOME row,
+ * when present, is the canonical home location surfaced alongside `EmployeeProfile.homeLocation`.
+ * See [com.mileway.core.data.model.db.SavedPlaceEntity].
+ */
+val MIGRATION_20_21 =
+    object : Migration(20, 21) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `saved_places` (
+                    `id`         TEXT    NOT NULL PRIMARY KEY,
+                    `type`       TEXT    NOT NULL,
+                    `label`      TEXT    NOT NULL,
+                    `address`    TEXT    NOT NULL,
+                    `latitude`   REAL,
+                    `longitude`  REAL,
+                    `updatedAtMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 19 → 20 (PLAN_V24 P1.6): additive `phone` column on `mock_accounts` — the persona's
  * registered phone, used for duplicate-account resolution on phone-OTP login. Nullable-safe:
  * defaults to `''` for existing rows (they simply won't match any phone-login).

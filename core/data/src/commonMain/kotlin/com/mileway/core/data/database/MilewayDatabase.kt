@@ -16,6 +16,7 @@ import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.PluginOverrideDao
+import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.SubmitDraftDao
@@ -38,6 +39,7 @@ import com.mileway.core.data.model.db.MockAccountEntity
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PassportDetailsEntity
 import com.mileway.core.data.model.db.PluginOverrideEntity
+import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SessionEntity
 import com.mileway.core.data.model.db.SubmitDraftEntity
@@ -69,8 +71,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         ConnectedAccountEntity::class,
         SupportTicketEntity::class,
         PluginOverrideEntity::class,
+        SavedPlaceEntity::class,
     ],
-    version = 20,
+    version = 21,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -114,6 +117,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun supportTicketDao(): SupportTicketDao
 
     abstract fun pluginOverrideDao(): PluginOverrideDao
+
+    abstract fun savedPlaceDao(): SavedPlaceDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

@@ -24,6 +24,7 @@ import com.mileway.feature.profile.ui.screens.ProfileDetailsScreen
 import com.mileway.feature.profile.ui.screens.ProfileScreen
 import com.mileway.feature.profile.ui.screens.QrHomeScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
+import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
 
 object ProfileRoutes {
@@ -48,6 +49,7 @@ object ProfileRoutes {
     const val ROOT_GUARD_DETECTED = "profile/root_guard_detected"
     const val ORG_CHART = "profile/org_chart"
     const val PLUGINS = "profile/plugins"
+    const val SAVED_PLACES = "profile/saved_places"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -86,7 +88,13 @@ fun NavGraphBuilder.profileGraph(
             onOpenDemoSettings = { navController.navigate(ProfileRoutes.DEMO_SETTINGS) },
             onOpenQr = { navController.navigate(ProfileRoutes.QR_HOME) },
             onOpenSessions = { navController.navigate(ProfileRoutes.ACTIVE_SESSIONS) },
+            onOpenSavedPlaces = { navController.navigate(ProfileRoutes.SAVED_PLACES) },
             onSignedOut = onSignedOut,
+        )
+    }
+    composable(ProfileRoutes.SAVED_PLACES) {
+        SavedPlacesScreen(
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.ACTIVE_SESSIONS) {
