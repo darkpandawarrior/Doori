@@ -101,6 +101,9 @@ import com.mileway.core.ui.resources.shared_auth_use_phone
 import com.mileway.core.ui.resources.shared_login_cd_choose_persona
 import com.mileway.core.ui.resources.shared_login_demo_mode_subtitle
 import com.mileway.core.ui.resources.shared_login_demo_mode_title
+import com.mileway.core.ui.resources.shared_login_duplicate_create_new
+import com.mileway.core.ui.resources.shared_login_duplicate_subtitle
+import com.mileway.core.ui.resources.shared_login_duplicate_title
 import com.mileway.core.ui.resources.shared_login_tagline
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
@@ -219,6 +222,21 @@ fun LoginScreen(
     val lastLoginOtp by authViewModel.lastLoginOtp.collectAsStateWithLifecycle()
     // P1.2: phone flow sub-step — false = enter phone, true = enter OTP.
     var showOtpEntry by remember { mutableStateOf(false) }
+    // P1.6: personas found matching the verified phone → show the duplicate-resolution sheet.
+    var duplicateAccounts by remember { mutableStateOf<List<DemoAccount>>(emptyList()) }
+
+    // P1.6: complete a phone-OTP login as [identity], optionally as a picked persona.
+    fun completePhoneLogin(
+        identity: String,
+        personaId: String?,
+    ) {
+        personaId?.let { authViewModel.selectPersona(it) }
+        email = identity
+        isGuestPath = false
+        showOtpEntry = false
+        duplicateAccounts = emptyList()
+        authViewModel.beginSignIn()
+    }
 
     val authState by authViewModel.state.collectAsStateWithLifecycle()
     val isSigningIn = authState !is MilewayAuthState.Idle
@@ -305,11 +323,16 @@ fun LoginScreen(
                     delivery = lastLoginOtp,
                     otpViaCallEnabled = otpViaCallEnabled,
                     onVerified = {
-                        // Phone-OTP success joins the same staged completion as credentials: use the
-                        // verified number as the session identity (mock — no real credential store).
-                        email = lastLoginOtp!!.target
-                        isGuestPath = false
-                        authViewModel.beginSignIn()
+                        // P1.6: if the verified number is registered to existing personas, resolve
+                        // the duplicate before completing; otherwise complete as a new phone identity.
+                        val target = lastLoginOtp!!.target
+                        val dupes = authViewModel.duplicatesFor(target)
+                        if (dupes.isNotEmpty()) {
+                            duplicateAccounts = dupes
+                            showOtpEntry = false
+                        } else {
+                            completePhoneLogin(identity = target, personaId = null)
+                        }
                     },
                     onChangeNumber = { showOtpEntry = false },
                 )
@@ -402,6 +425,15 @@ fun LoginScreen(
                 showPersonaPicker = false
             },
             onDismiss = { showPersonaPicker = false },
+        )
+    }
+
+    if (duplicateAccounts.isNotEmpty()) {
+        DuplicateAccountsSheet(
+            accounts = duplicateAccounts,
+            onContinueAs = { account -> completePhoneLogin(identity = account.employeeCode, personaId = account.id) },
+            onCreateNew = { completePhoneLogin(identity = lastLoginOtp?.target ?: "", personaId = null) },
+            onDismiss = { duplicateAccounts = emptyList() },
         )
     }
 
@@ -609,6 +641,64 @@ private fun DemoModePersonaPickerSheet(
                     onClick = { onSelect(persona.id) },
                 )
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
+            }
+        }
+    }
+}
+
+/**
+ * PLAN_V24 P1.6: duplicate-account resolution (the reference app `MultipleAccountsActivity`). Shown after a
+ * phone-OTP login when the verified number is already registered to existing personas — the
+ * reviewer either continues as one of them or creates a new identity. Own bottom-sheet design.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DuplicateAccountsSheet(
+    accounts: List<DemoAccount>,
+    onContinueAs: (DemoAccount) -> Unit,
+    onCreateNew: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = DesignTokens.Spacing.xl)
+                    .padding(bottom = DesignTokens.Spacing.xl, top = DesignTokens.Spacing.xs),
+        ) {
+            Text(
+                text = stringResource(Res.string.shared_login_duplicate_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(DesignTokens.Spacing.xs))
+            Text(
+                text = stringResource(Res.string.shared_login_duplicate_subtitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(DesignTokens.Spacing.l))
+
+            accounts.forEach { account ->
+                PersonaPickerRow(
+                    persona = account,
+                    isSelected = false,
+                    onClick = { onContinueAs(account) },
+                )
+                Spacer(Modifier.height(DesignTokens.Spacing.xs))
+            }
+
+            Spacer(Modifier.height(DesignTokens.Spacing.s))
+            TextButton(
+                onClick = onCreateNew,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text(stringResource(Res.string.shared_login_duplicate_create_new))
             }
         }
     }

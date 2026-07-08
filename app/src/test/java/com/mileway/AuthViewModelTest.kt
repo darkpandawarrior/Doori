@@ -121,6 +121,23 @@ class AuthViewModelTest {
     }
 
     @Test
+    fun `duplicatesFor returns the personas sharing a seeded phone`() = runTest {
+        val vm = buildViewModel(mockAccountRepository = MockAccountRepository(FakeMockAccountDao()))
+        advanceUntilIdle()
+        // Trigger stateIn collection so personas.value is populated.
+        vm.personas.test {
+            var seeded = awaitItem()
+            while (seeded.isEmpty()) seeded = awaitItem()
+            cancelAndIgnoreRemainingEvents()
+        }
+
+        // P1.6: ACC-001 + ACC-003 share +919876543210; ACC-002 does not.
+        val dupes = vm.duplicatesFor("+919876543210")
+        assertEquals(setOf("ACC-001", "ACC-003"), dupes.map { it.id }.toSet())
+        assertTrue(vm.duplicatesFor("+910000000000").isEmpty())
+    }
+
+    @Test
     fun `no picker interaction leaves the active persona unchanged (default behavior)`() = runTest {
         val dao = FakeMockAccountDao()
         val activeAccountSource = FakeActiveAccountSource(seed = "ACC-001")

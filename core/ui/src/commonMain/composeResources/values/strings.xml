@@ -1958,4 +1958,9 @@
     <string name="profile_change_password_strength_weak">Weak</string>
     <string name="profile_change_password_strength_fair">Fair</string>
     <string name="profile_change_password_strength_strong">Strong</string>
+
+    <!-- PLAN_V24 P1.6: duplicate-account resolution -->
+    <string name="shared_login_duplicate_title">We found existing accounts</string>
+    <string name="shared_login_duplicate_subtitle">This number is already registered. Continue as one of these, or create a new account.</string>
+    <string name="shared_login_duplicate_create_new">Create a new account</string>
 </resources>

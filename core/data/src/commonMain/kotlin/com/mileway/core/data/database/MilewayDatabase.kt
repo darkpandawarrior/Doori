@@ -70,7 +70,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         SupportTicketEntity::class,
         PluginOverrideEntity::class,
     ],
-    version = 19,
+    version = 20,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)

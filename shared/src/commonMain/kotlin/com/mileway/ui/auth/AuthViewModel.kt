@@ -124,6 +124,13 @@ class AuthViewModel(
     }
 
     /**
+     * PLAN_V24 P1.6: personas already registered to [fullNumber] (the reference app AUTH_DUPLICATE_REGISTRATION).
+     * A non-empty result means phone-OTP login should offer duplicate-account resolution rather
+     * than silently creating a new identity. `:stub` seeds one number shared by two personas.
+     */
+    fun duplicatesFor(fullNumber: String): List<DemoAccount> = personas.value.filter { it.phone.isNotBlank() && it.phone == fullNumber }
+
+    /**
      * PLAN_V24 P1.1: validate a phone number (the reference app rules) and, if valid, dispatch a LOGIN OTP via
      * the shared [LocalOtpEngine]. Returns the validation so the screen can surface field errors;
      * on success [lastLoginOtp] carries the deterministic demo code for the OTP screen (P1.2).

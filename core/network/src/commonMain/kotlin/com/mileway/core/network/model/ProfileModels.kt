@@ -90,4 +90,7 @@ data class DemoAccount(
     @SerialName("isActive") val isActive: Boolean = false,
     @SerialName("lastLoginAtMs") val lastLoginAtMs: Long = 0L,
     @SerialName("createdAtMs") val createdAtMs: Long = 0L,
+    // PLAN_V24 P1.6: the persona's registered phone (E.164-ish), for duplicate-account resolution
+    // on phone-OTP login. Two seeded personas deliberately share a number.
+    @SerialName("phone") val phone: String = "",
 )

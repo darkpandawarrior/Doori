@@ -5,6 +5,18 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 19 → 20 (PLAN_V24 P1.6): additive `phone` column on `mock_accounts` — the persona's
+ * registered phone, used for duplicate-account resolution on phone-OTP login. Nullable-safe:
+ * defaults to `''` for existing rows (they simply won't match any phone-login).
+ */
+val MIGRATION_19_20 =
+    object : Migration(19, 20) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `mock_accounts` ADD COLUMN `phone` TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
+/**
  * Migration 18 → 19 (PLAN_V24 P0.1): additive `plugin_overrides` table — the per-account USER
  * layer of the Plugin Registry (the single feature-composition mechanism). Composite key
  * `(accountId, pluginId)` isolates each persona's overrides (respects V23 multi-profile

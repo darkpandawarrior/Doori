@@ -24,4 +24,6 @@ data class MockAccountEntity(
     val isActive: Boolean,
     val lastLoginAtMs: Long,
     val createdAtMs: Long,
+    // PLAN_V24 P1.6: registered phone (added by MIGRATION_19_20); two seeded personas share one.
+    val phone: String = "",
 )

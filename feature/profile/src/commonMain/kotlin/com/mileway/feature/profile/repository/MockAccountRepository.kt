@@ -73,6 +73,8 @@ class MockAccountRepository(private val dao: MockAccountDao, private val clock: 
                 isActive = true,
                 lastLoginAtMs = nowMs,
                 createdAtMs = nowMs,
+                // P1.6: ACC-001 + ACC-003 share this number → duplicate-account resolution on login.
+                phone = "+919876543210",
             ),
             MockAccountEntity(
                 accountId = "ACC-002",
@@ -83,6 +85,7 @@ class MockAccountRepository(private val dao: MockAccountDao, private val clock: 
                 isActive = false,
                 lastLoginAtMs = nowMs,
                 createdAtMs = nowMs + 1,
+                phone = "+919000000002",
             ),
             MockAccountEntity(
                 accountId = "ACC-003",
@@ -93,6 +96,7 @@ class MockAccountRepository(private val dao: MockAccountDao, private val clock: 
                 isActive = false,
                 lastLoginAtMs = nowMs,
                 createdAtMs = nowMs + 2,
+                phone = "+919876543210",
             ),
         )
 
@@ -105,5 +109,6 @@ class MockAccountRepository(private val dao: MockAccountDao, private val clock: 
             isActive = isActive,
             lastLoginAtMs = lastLoginAtMs,
             createdAtMs = createdAtMs,
+            phone = phone,
         )
 }

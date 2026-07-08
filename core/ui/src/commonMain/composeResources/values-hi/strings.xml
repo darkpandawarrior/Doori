@@ -1954,4 +1954,9 @@
     <string name="profile_change_password_strength_weak">कमज़ोर</string>
     <string name="profile_change_password_strength_fair">ठीक</string>
     <string name="profile_change_password_strength_strong">मज़बूत</string>
+
+    <!-- PLAN_V24 P1.6: duplicate-account resolution -->
+    <string name="shared_login_duplicate_title">मौजूदा खाते मिले</string>
+    <string name="shared_login_duplicate_subtitle">यह नंबर पहले से पंजीकृत है। इनमें से किसी एक के रूप में जारी रखें, या नया खाता बनाएँ।</string>
+    <string name="shared_login_duplicate_create_new">नया खाता बनाएँ</string>
 </resources>
