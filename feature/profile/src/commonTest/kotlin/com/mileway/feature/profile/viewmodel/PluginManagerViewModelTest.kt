@@ -99,7 +99,11 @@ class PluginManagerViewModelTest {
         runTest {
             val vm = newVm()
             advanceUntilIdle()
-            assertEquals(36, vm.state.value.plugins.size, "13 CORE + 4 AUTH + 7 ONBOARDING + 4 PROFILE + 1 TRACKING + 3 VERIFICATION/PAYMENTS + 4 GROWTH")
+            assertEquals(
+                37,
+                vm.state.value.plugins.size,
+                "13 CORE + 4 AUTH + 7 ONBOARDING + 4 PROFILE + 1 TRACKING + 3 VERIFICATION/PAYMENTS + 4 GROWTH + 1 MEMBERSHIP",
+            )
             assertTrue(vm.state.value.plugins.all { it.source.name == "DEFAULT" })
         }
 

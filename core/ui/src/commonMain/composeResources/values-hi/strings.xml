@@ -2122,6 +2122,34 @@
     <string name="plugin_cards_kyc_title">कार्ड KYC</string>
     <string name="plugin_cards_kyc_desc">कार्ड KYC सत्यापन विज़ार्ड दिखाएँ</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
+    <!-- PLAN_V24 P6.1: Mileway Club membership -->
+    <string name="plugin_membership_club_title">माइलवे क्लब</string>
+    <string name="plugin_membership_club_desc">सदस्यता जॉइन फ़्लो और लाभ दिखाएँ</string>
+    <string name="profile_home_tile_club_title">माइलवे क्लब</string>
+    <string name="profile_home_tile_club_subtitle">सदस्यता और लाभ</string>
+    <string name="club_title">माइलवे क्लब</string>
+    <string name="club_subtitle">सदस्य लाभ और सुविधाएँ</string>
+    <string name="club_back">वापस</string>
+    <string name="club_join_headline">माइलवे क्लब जॉइन करें</string>
+    <string name="club_join_body">सदस्य-विशेष लाभ अनलॉक करें — तेज़ प्रतिपूर्ति, विशेष ऑफ़र और हर यात्रा पर बोनस इनाम।</string>
+    <string name="club_join_cta">अभी जॉइन करें</string>
+    <string name="club_member_badge">क्लब सदस्य</string>
+    <string name="club_member_since">%1$s से सदस्य</string>
+    <string name="club_benefits_heading">आपके लाभ</string>
+    <string name="club_benefit_1_title">प्राथमिकता समर्थन</string>
+    <string name="club_benefit_1_desc">तेज़ प्रतिपूर्ति और समर्पित सहायता कतार।</string>
+    <string name="club_benefit_2_title">विशेष ऑफ़र</string>
+    <string name="club_benefit_2_desc">केवल सदस्यों के लिए कूपन और पार्टनर छूट।</string>
+    <string name="club_benefit_3_title">बोनस इनाम</string>
+    <string name="club_benefit_3_desc">हर ट्रैक की गई यात्रा पर अतिरिक्त इनाम क्रेडिट।</string>
+    <string name="club_benefit_4_title">जल्दी पहुँच</string>
+    <string name="club_benefit_4_desc">नई सुविधाएँ सबसे पहले आज़माएँ।</string>
+    <string name="club_consent_title">सदस्यता शर्तें</string>
+    <string name="club_consent_body">जॉइन करके आप माइलवे क्लब की शर्तों से सहमत होते हैं। सदस्यता निःशुल्क है और आप कभी भी छोड़ सकते हैं।</string>
+    <string name="club_consent_accept">मैं सहमत हूँ — सक्रिय करें</string>
+    <string name="club_consent_decline">अभी नहीं</string>
+    <string name="club_confetti">माइलवे क्लब में आपका स्वागत है!</string>
+    <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">रेफ़रल प्रोग्राम</string>
     <string name="plugin_growth_referral_program_desc">पूर्ण रेफ़रल हब — लेजर, लीडरबोर्ड और गतिविधि</string>
     <string name="profile_home_tile_referral_title">रेफ़रल</string>

@@ -340,6 +340,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.CouponsViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.RewardsViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.MarketingHubViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.MembershipViewModel>())
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())

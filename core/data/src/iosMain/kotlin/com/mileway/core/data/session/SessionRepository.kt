@@ -45,6 +45,9 @@ class SessionRepository(
     private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
     private val avatarPathKey = stringPreferencesKey("session_avatar_path")
     private val corporateEmailKey = stringPreferencesKey("session_corporate_email")
+    private val clubConsentedKey = booleanPreferencesKey("session_club_consented")
+    private val clubActivatedAtKey = longPreferencesKey("session_club_activated_at")
+    private val clubConfettiShownKey = booleanPreferencesKey("session_club_confetti_shown")
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
@@ -80,6 +83,9 @@ class SessionRepository(
                 emailVerified = prefs[emailVerifiedKey] ?: false,
                 avatarPath = prefs[avatarPathKey],
                 corporateEmail = prefs[corporateEmailKey],
+                clubConsented = prefs[clubConsentedKey] ?: false,
+                clubActivatedAtMs = prefs[clubActivatedAtKey],
+                clubConfettiShown = prefs[clubConfettiShownKey] ?: false,
             )
         }
 
@@ -100,6 +106,9 @@ class SessionRepository(
             prefs[onboardingDoneKey] = false
             prefs[emailVerifiedKey] = false
             prefs.remove(corporateEmailKey)
+            prefs.remove(clubConsentedKey)
+            prefs.remove(clubActivatedAtKey)
+            prefs.remove(clubConfettiShownKey)
         }
     }
 
@@ -199,6 +208,19 @@ class SessionRepository(
     /** PLAN_V24 P4.4: records the corporate email as verified (see androidMain doc). */
     suspend fun markCorporateVerified(email: String) {
         store.edit { prefs -> prefs[corporateEmailKey] = email }
+    }
+
+    /** PLAN_V24 P6.1: activates "Mileway Club" — sets the join date (see androidMain doc). */
+    suspend fun activateClub() {
+        store.edit { prefs ->
+            prefs[clubConsentedKey] = true
+            prefs[clubActivatedAtKey] = Clock.System.now().toEpochMilliseconds()
+        }
+    }
+
+    /** PLAN_V24 P6.1: marks the one-time club activation confetti as shown. */
+    suspend fun markClubConfettiShown() {
+        store.edit { prefs -> prefs[clubConfettiShownKey] = true }
     }
 
     suspend fun signOut() {

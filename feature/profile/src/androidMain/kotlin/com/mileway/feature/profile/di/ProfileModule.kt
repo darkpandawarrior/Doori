@@ -28,6 +28,7 @@ import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
 import com.mileway.feature.profile.viewmodel.EmergencyContactsViewModel
 import com.mileway.feature.profile.viewmodel.MarketingHubViewModel
+import com.mileway.feature.profile.viewmodel.MembershipViewModel
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
 import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
 import com.mileway.feature.profile.viewmodel.PhoneChangeViewModel
@@ -112,4 +113,6 @@ val profileModule =
         viewModelOf(::RewardsViewModel)
         // PLAN_V24 P5.4: campaign-marketing hub (CampaignRepository from core:data).
         viewModelOf(::MarketingHubViewModel)
+        // PLAN_V24 P6.1: Mileway Club membership (session-backed).
+        viewModelOf(::MembershipViewModel)
     }

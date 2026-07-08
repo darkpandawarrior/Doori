@@ -55,6 +55,9 @@ class SessionRepository(
     private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
     private val avatarPathKey = stringPreferencesKey("session_avatar_path")
     private val corporateEmailKey = stringPreferencesKey("session_corporate_email")
+    private val clubConsentedKey = booleanPreferencesKey("session_club_consented")
+    private val clubActivatedAtKey = longPreferencesKey("session_club_activated_at")
+    private val clubConfettiShownKey = booleanPreferencesKey("session_club_confetti_shown")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -85,6 +88,9 @@ class SessionRepository(
                 emailVerified = prefs[emailVerifiedKey] ?: false,
                 avatarPath = prefs[avatarPathKey],
                 corporateEmail = prefs[corporateEmailKey],
+                clubConsented = prefs[clubConsentedKey] ?: false,
+                clubActivatedAtMs = prefs[clubActivatedAtKey],
+                clubConfettiShown = prefs[clubConfettiShownKey] ?: false,
             )
         }
 
@@ -114,6 +120,10 @@ class SessionRepository(
             prefs[emailVerifiedKey] = false
             // P4.4: corporate verification is per-account — clear it on a fresh sign-in.
             prefs.remove(corporateEmailKey)
+            // P6.1: club membership is per-account — clear it on a fresh sign-in.
+            prefs.remove(clubConsentedKey)
+            prefs.remove(clubActivatedAtKey)
+            prefs.remove(clubConfettiShownKey)
         }
     }
 
@@ -232,6 +242,19 @@ class SessionRepository(
     /** PLAN_V24 P4.4: records the corporate email as verified (after its OTP is confirmed). */
     suspend fun markCorporateVerified(email: String) {
         context.sessionDataStore.edit { prefs -> prefs[corporateEmailKey] = email }
+    }
+
+    /** PLAN_V24 P6.1: activates "Mileway Club" after the consent flow — sets the join date. */
+    suspend fun activateClub() {
+        context.sessionDataStore.edit { prefs ->
+            prefs[clubConsentedKey] = true
+            prefs[clubActivatedAtKey] = Clock.System.now().toEpochMilliseconds()
+        }
+    }
+
+    /** PLAN_V24 P6.1: marks the one-time club activation confetti as shown. */
+    suspend fun markClubConfettiShown() {
+        context.sessionDataStore.edit { prefs -> prefs[clubConfettiShownKey] = true }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */

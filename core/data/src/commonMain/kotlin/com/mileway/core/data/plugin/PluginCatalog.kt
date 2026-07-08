@@ -204,10 +204,23 @@ object PluginCatalog {
             ),
         )
 
+    /** Membership plugins (P6). */
+    val membershipPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "clubEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.MEMBERSHIP,
+                titleKey = "plugin_membership_club_title",
+                descriptionKey = "plugin_membership_club_desc",
+                defaultOn = true,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            verificationPlugins + growthPlugins
+            verificationPlugins + growthPlugins + membershipPlugins
 
     private fun onboardingFlag(
         id: String,

@@ -64,10 +64,17 @@ data class SessionState(
     // PLAN_V24 P4.4: the verified corporate email (null until the corporate-email OTP flow succeeds).
     // Reset on a fresh credentials sign-in, like emailVerified.
     val corporateEmail: String? = null,
+    // PLAN_V24 P6.1: "Mileway Club" membership state (DataStore). [clubActivatedAtMs] is non-null once
+    // the consent flow completes (the join date); [clubConfettiShown] is the one-shot celebration flag.
+    // Reset on a fresh credentials sign-in (per-account), like the verification flags.
+    val clubConsented: Boolean = false,
+    val clubActivatedAtMs: Long? = null,
+    val clubConfettiShown: Boolean = false,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST
     val isCorporateVerified: Boolean get() = !corporateEmail.isNullOrBlank()
+    val isClubMember: Boolean get() = clubActivatedAtMs != null
 }
 
 /**
