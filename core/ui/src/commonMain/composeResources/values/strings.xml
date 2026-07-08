@@ -1941,4 +1941,21 @@
 
     <!-- PLAN_V24 P1.4: tiered PIN lockout -->
     <string name="shared_pin_locked_countdown">Locked — try again in %1$ds</string>
+
+    <!-- PLAN_V24 P1.5: password change -->
+    <string name="plugin_auth_password_settings_title">Password settings</string>
+    <string name="plugin_auth_password_settings_desc">Show change-password in Preferences</string>
+    <string name="profile_change_password_grid_title">Change password</string>
+    <string name="profile_change_password_grid_sub">Update your login password</string>
+    <string name="profile_change_password_title">Change password</string>
+    <string name="profile_change_password_current">Current password</string>
+    <string name="profile_change_password_new">New password</string>
+    <string name="profile_change_password_confirm">Confirm new password</string>
+    <string name="profile_change_password_submit">Update password</string>
+    <string name="profile_change_password_err_current">Current password is incorrect</string>
+    <string name="profile_change_password_err_short">Use at least 8 characters</string>
+    <string name="profile_change_password_err_mismatch">Passwords don\'t match</string>
+    <string name="profile_change_password_strength_weak">Weak</string>
+    <string name="profile_change_password_strength_fair">Fair</string>
+    <string name="profile_change_password_strength_strong">Strong</string>
 </resources>

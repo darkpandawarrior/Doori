@@ -21,6 +21,8 @@ import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.review.SimulatedReviewEngine
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.ActiveAccountStore
+import com.mileway.core.data.session.CredentialSource
+import com.mileway.core.data.session.CredentialStore
 import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.core.data.session.CurrentTrackDataStore
 import com.mileway.core.data.session.MockAccountSessionCoordinator
@@ -97,6 +99,8 @@ val coreDataModule =
         single<PinLockoutSource> { get<PinLockoutStore>() }
         // PLAN_V24 P1.4: a shared clock singleton (PinViewModel injects it for tiered-lockout timing).
         single<kotlin.time.Clock> { kotlin.time.Clock.System }
+        // PLAN_V24 P1.5: mock login credential store (change-password + forgot-password).
+        single<CredentialSource> { CredentialStore(androidContext()) }
         single { DemoSettingsRepository(androidContext()) }
         // Location switching: recents/favorites/saved places (offline, DataStore-backed).
         single<SavedLocationsSource> { SavedLocationsStore(androidContext()) }

@@ -1937,4 +1937,21 @@
 
     <!-- PLAN_V24 P1.4: tiered PIN lockout -->
     <string name="shared_pin_locked_countdown">लॉक — %1$d सेकंड में फिर कोशिश करें</string>
+
+    <!-- PLAN_V24 P1.5: password change -->
+    <string name="plugin_auth_password_settings_title">पासवर्ड सेटिंग्स</string>
+    <string name="plugin_auth_password_settings_desc">प्राथमिकताओं में पासवर्ड बदलें दिखाएँ</string>
+    <string name="profile_change_password_grid_title">पासवर्ड बदलें</string>
+    <string name="profile_change_password_grid_sub">अपना लॉगिन पासवर्ड अपडेट करें</string>
+    <string name="profile_change_password_title">पासवर्ड बदलें</string>
+    <string name="profile_change_password_current">वर्तमान पासवर्ड</string>
+    <string name="profile_change_password_new">नया पासवर्ड</string>
+    <string name="profile_change_password_confirm">नया पासवर्ड पुष्टि करें</string>
+    <string name="profile_change_password_submit">पासवर्ड अपडेट करें</string>
+    <string name="profile_change_password_err_current">वर्तमान पासवर्ड गलत है</string>
+    <string name="profile_change_password_err_short">कम से कम 8 अक्षर उपयोग करें</string>
+    <string name="profile_change_password_err_mismatch">पासवर्ड मेल नहीं खाते</string>
+    <string name="profile_change_password_strength_weak">कमज़ोर</string>
+    <string name="profile_change_password_strength_fair">ठीक</string>
+    <string name="profile_change_password_strength_strong">मज़बूत</string>
 </resources>

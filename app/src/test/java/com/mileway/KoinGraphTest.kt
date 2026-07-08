@@ -176,6 +176,21 @@ class KoinGraphTest : KoinTest {
             }
         }
         single<kotlin.time.Clock> { kotlin.time.Clock.System }
+        single<com.mileway.core.data.session.CredentialSource> {
+            object : com.mileway.core.data.session.CredentialSource {
+                override suspend fun ensureSeeded(accountId: String) = Unit
+
+                override suspend fun verify(
+                    accountId: String,
+                    password: String,
+                ) = true
+
+                override suspend fun setPassword(
+                    accountId: String,
+                    password: String,
+                ) = Unit
+            }
+        }
         // P6.5: ProfileViewModel now collects `settings` eagerly in init() (Notification Center
         // channel toggles); a relaxed mockk's auto-generated Flow<DemoSettings> is not guaranteed
         // to behave like a real Flow under `.onEach{}.launchIn()` (memory: screenshot Koin needs
@@ -293,6 +308,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<StorageViewModel>())
         assertNotNull(get<SyncDiagnosticsViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.PluginManagerViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.ChangePasswordViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<PayablesViewModel>())

@@ -14,6 +14,7 @@ import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
+import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
 import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
@@ -64,4 +65,6 @@ val profileModule =
         viewModelOf(::SupportTicketViewModel)
         // PLAN_V24 P0.3: the Master Plugin page (PluginRegistry + PersonaPresetProvider injected).
         viewModelOf(::PluginManagerViewModel)
+        // PLAN_V24 P1.5: change-password sheet (CredentialSource-backed).
+        viewModelOf(::ChangePasswordViewModel)
     }

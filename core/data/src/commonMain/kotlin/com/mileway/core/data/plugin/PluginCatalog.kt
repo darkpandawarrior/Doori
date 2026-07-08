@@ -63,6 +63,14 @@ object PluginCatalog {
                 descriptionKey = "plugin_auth_mfa_required_desc",
                 defaultOn = false,
             ),
+            PluginDescriptor(
+                id = "showPasswordSettings",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.AUTH,
+                titleKey = "plugin_auth_password_settings_title",
+                descriptionKey = "plugin_auth_password_settings_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Every registered descriptor across all categories. */

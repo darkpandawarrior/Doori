@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Security
@@ -34,12 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.components.GridProfileTile
 import com.mileway.core.ui.components.ProfileGridItem
 import com.mileway.core.ui.components.ProfileItemStatus
 import com.mileway.core.ui.components.ProfileSectionHeader
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_change_password_grid_sub
+import com.mileway.core.ui.resources.profile_change_password_grid_title
 import com.mileway.core.ui.resources.profile_settings_back
 import com.mileway.core.ui.resources.profile_settings_connected_accounts
 import com.mileway.core.ui.resources.profile_settings_connected_accounts_sub
@@ -87,11 +91,16 @@ fun PreferencesScreen(
     onOpenNotificationCenter: () -> Unit = {},
     onOpenConnectedAccounts: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
+    pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = org.koin.compose.koinInject(),
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     var showStorageSheet by remember { mutableStateOf(false) }
+    // PLAN_V24 P1.5: the change-password entry is gated by the showPasswordSettings plugin.
+    var showChangePasswordSheet by remember { mutableStateOf(false) }
+    val changePasswordEnabled by pluginRegistry.observe("showPasswordSettings")
+        .collectAsStateWithLifecycle(initialValue = false)
 
     // Surface any one-shot preference demo message as a snackbar, then clear it.
     LaunchedEffect(state.preferenceMessage) {
@@ -234,7 +243,22 @@ fun PreferencesScreen(
                     status = ProfileItemStatus.COMPLETE,
                     action = { showStorageSheet = true },
                 ),
-            )
+            ) +
+                // PLAN_V24 P1.5: change-password entry, only when the plugin is on (Corporate persona).
+                if (changePasswordEnabled) {
+                    listOf(
+                        ProfileGridItem(
+                            id = "change_password",
+                            title = stringResource(Res.string.profile_change_password_grid_title),
+                            subtitle = stringResource(Res.string.profile_change_password_grid_sub),
+                            icon = Icons.Default.Lock,
+                            status = ProfileItemStatus.COMPLETE,
+                            action = { showChangePasswordSheet = true },
+                        ),
+                    )
+                } else {
+                    emptyList()
+                }
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -261,5 +285,9 @@ fun PreferencesScreen(
 
     if (showStorageSheet) {
         StorageSheet(onDismiss = { showStorageSheet = false })
+    }
+
+    if (showChangePasswordSheet) {
+        ChangePasswordSheet(onDismiss = { showChangePasswordSheet = false })
     }
 }
