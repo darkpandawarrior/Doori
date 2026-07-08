@@ -225,10 +225,23 @@ object PluginCatalog {
             ),
         )
 
+    /** Incentive-program plugins (P6.3). */
+    val incentivePlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "incentiveProgramsEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.ENGAGEMENT,
+                titleKey = "plugin_engagement_incentives_title",
+                descriptionKey = "plugin_engagement_incentives_desc",
+                defaultOn = true,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            verificationPlugins + growthPlugins + membershipPlugins
+            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins
 
     private fun onboardingFlag(
         id: String,

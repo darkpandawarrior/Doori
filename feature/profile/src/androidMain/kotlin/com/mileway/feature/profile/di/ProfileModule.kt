@@ -27,6 +27,7 @@ import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
 import com.mileway.feature.profile.viewmodel.EmergencyContactsViewModel
+import com.mileway.feature.profile.viewmodel.IncentiveViewModel
 import com.mileway.feature.profile.viewmodel.MarketingHubViewModel
 import com.mileway.feature.profile.viewmodel.MembershipViewModel
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
@@ -118,4 +119,6 @@ val profileModule =
         viewModelOf(::MembershipViewModel)
         // PLAN_V24 P6.2: subscription plans + active subscription (explicit so the Clock default holds).
         viewModel { SubscriptionViewModel(get()) }
+        // PLAN_V24 P6.3: incentive programs (live progress from the shared core:data SavedTrackDao).
+        viewModelOf(::IncentiveViewModel)
     }

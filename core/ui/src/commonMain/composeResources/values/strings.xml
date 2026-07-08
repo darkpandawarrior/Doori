@@ -2190,6 +2190,25 @@
     <string name="mysub_status_active">Active</string>
     <string name="mysub_status_expired">Expired</string>
     <string name="mysub_status_cancelled">Cancelled</string>
+    <!-- PLAN_V24 P6.3: incentive programs -->
+    <string name="plugin_engagement_incentives_title">Incentive programs</string>
+    <string name="plugin_engagement_incentives_desc">Show target-based incentive programs and progress</string>
+    <string name="profile_home_tile_incentives_title">Incentives</string>
+    <string name="profile_home_tile_incentives_subtitle">Targets &amp; rewards</string>
+    <string name="incentive_back">Back</string>
+    <string name="incentive_title">Incentive programs</string>
+    <string name="incentive_subtitle">Hit targets, earn rewards</string>
+    <string name="incentive_section_active">Active</string>
+    <string name="incentive_section_expired">Expired</string>
+    <string name="incentive_weekly_trips_title">Weekly trips</string>
+    <string name="incentive_weekly_trips_desc">Complete 3 tracked trips this week.</string>
+    <string name="incentive_weekly_trips_reward">+150 credits</string>
+    <string name="incentive_log_expenses_title">Expense logger</string>
+    <string name="incentive_log_expenses_desc">Log 5 expenses this month.</string>
+    <string name="incentive_log_expenses_reward">+100 credits</string>
+    <string name="incentive_monsoon_title">Monsoon saver</string>
+    <string name="incentive_monsoon_desc">Completed — 10 rainy-day trips tracked.</string>
+    <string name="incentive_monsoon_reward">+300 credits</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">Referral program</string>
     <string name="plugin_growth_referral_program_desc">Full referral hub — ledger, leaderboard and activity</string>

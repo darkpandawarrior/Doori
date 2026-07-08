@@ -19,6 +19,7 @@ import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
 import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
+import com.mileway.feature.profile.ui.screens.IncentiveProgramsScreen
 import com.mileway.feature.profile.ui.screens.MarketingHubScreen
 import com.mileway.feature.profile.ui.screens.MySubscriptionScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
@@ -70,6 +71,7 @@ object ProfileRoutes {
     const val CLUB = "profile/club"
     const val PLANS = "profile/plans"
     const val MY_SUBSCRIPTION = "profile/my_subscription"
+    const val INCENTIVES = "profile/incentives"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -119,6 +121,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenCampaigns = { navController.navigate(ProfileRoutes.MARKETING_HUB) },
             onOpenClub = { navController.navigate(ProfileRoutes.CLUB) },
             onOpenSubscriptions = { navController.navigate(ProfileRoutes.PLANS) },
+            onOpenIncentives = { navController.navigate(ProfileRoutes.INCENTIVES) },
             onSignedOut = onSignedOut,
         )
     }
@@ -147,6 +150,11 @@ fun NavGraphBuilder.profileGraph(
         MySubscriptionScreen(
             onBack = { navController.popBackStack() },
             onOpenPlans = { navController.navigate(ProfileRoutes.PLANS) },
+        )
+    }
+    composable(ProfileRoutes.INCENTIVES) {
+        IncentiveProgramsScreen(
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.REFERRAL_HUB) {

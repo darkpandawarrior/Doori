@@ -2190,6 +2190,25 @@
     <string name="mysub_status_active">सक्रिय</string>
     <string name="mysub_status_expired">समाप्त</string>
     <string name="mysub_status_cancelled">रद्द</string>
+    <!-- PLAN_V24 P6.3: incentive programs -->
+    <string name="plugin_engagement_incentives_title">प्रोत्साहन कार्यक्रम</string>
+    <string name="plugin_engagement_incentives_desc">लक्ष्य-आधारित प्रोत्साहन कार्यक्रम और प्रगति दिखाएँ</string>
+    <string name="profile_home_tile_incentives_title">प्रोत्साहन</string>
+    <string name="profile_home_tile_incentives_subtitle">लक्ष्य और इनाम</string>
+    <string name="incentive_back">वापस</string>
+    <string name="incentive_title">प्रोत्साहन कार्यक्रम</string>
+    <string name="incentive_subtitle">लक्ष्य पूरे करें, इनाम पाएँ</string>
+    <string name="incentive_section_active">सक्रिय</string>
+    <string name="incentive_section_expired">समाप्त</string>
+    <string name="incentive_weekly_trips_title">साप्ताहिक यात्राएँ</string>
+    <string name="incentive_weekly_trips_desc">इस सप्ताह 3 ट्रैक की गई यात्राएँ पूरी करें।</string>
+    <string name="incentive_weekly_trips_reward">+150 क्रेडिट</string>
+    <string name="incentive_log_expenses_title">व्यय लॉगर</string>
+    <string name="incentive_log_expenses_desc">इस माह 5 व्यय दर्ज करें।</string>
+    <string name="incentive_log_expenses_reward">+100 क्रेडिट</string>
+    <string name="incentive_monsoon_title">मानसून बचतकर्ता</string>
+    <string name="incentive_monsoon_desc">पूर्ण — 10 बरसाती-दिन यात्राएँ ट्रैक कीं।</string>
+    <string name="incentive_monsoon_reward">+300 क्रेडिट</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">रेफ़रल प्रोग्राम</string>
     <string name="plugin_growth_referral_program_desc">पूर्ण रेफ़रल हब — लेजर, लीडरबोर्ड और गतिविधि</string>
