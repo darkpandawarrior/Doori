@@ -59,6 +59,8 @@ data class SessionState(
     // PLAN_V24 P3.2: whether the session email is verified. Reset false on a fresh credentials
     // sign-in (a new email is unverified); guests have no email to verify.
     val emailVerified: Boolean = false,
+    // PLAN_V24 P3.3: local file path of the picked profile photo, or null for initials-only.
+    val avatarPath: String? = null,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

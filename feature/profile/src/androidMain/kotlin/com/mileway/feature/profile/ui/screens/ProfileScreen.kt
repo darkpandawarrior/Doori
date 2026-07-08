@@ -1,5 +1,6 @@
 package com.mileway.feature.profile.ui.screens
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -141,10 +142,13 @@ import com.mileway.feature.profile.viewmodel.ProfileAction
 import com.mileway.feature.profile.viewmodel.ProfileEffect
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import java.io.File
 
 /**
  * The Account hub (top-level tab). A soft gradient header with a 96dp avatar, the user's
@@ -186,6 +190,24 @@ fun ProfileScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+
+    // PLAN_V24 P3.3: profile-photo picker. The Photo Picker is an Android UI-lifecycle concern, so
+    // it lives here (like Settings' permission launcher) rather than a core:platform expect/actual —
+    // the picked image is copied into the app's files dir and its path persisted in the session.
+    val sessionRepository = org.koin.compose.koinInject<com.mileway.core.data.session.SessionRepository>()
+    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
+    val avatarScope = rememberCoroutineScope()
+    val avatarPickerLauncher =
+        androidx.activity.compose.rememberLauncherForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
+        ) { uri ->
+            if (uri != null) {
+                avatarScope.launch {
+                    val path = copyPickedAvatar(context, uri)
+                    if (path != null) sessionRepository.setAvatarPath(path)
+                }
+            }
+        }
 
     // P1.3: surfaces the RemoveDemoAccount guard-rejection message (active/last-account block).
     LaunchedEffect(state.preferenceMessage) {
@@ -249,6 +271,14 @@ fun ProfileScreen(
                         header = state.header,
                         role = state.profile.role,
                         gender = state.profile.gender,
+                        avatarPath = session.avatarPath,
+                        onEditPhoto = {
+                            avatarPickerLauncher.launch(
+                                androidx.activity.result.PickVisualMediaRequest(
+                                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
+                                ),
+                            )
+                        },
                     )
                 }
 
@@ -349,6 +379,24 @@ private const val NOTIFICATION_BADGE = 174
 private val AvatarSize = 96.dp
 
 /**
+ * PLAN_V24 P3.3: copy a picked image into the app's files dir so its path survives beyond the
+ * transient content-URI grant, and return that path (or null on failure).
+ */
+private suspend fun copyPickedAvatar(
+    context: Context,
+    uri: Uri,
+): String? =
+    withContext(Dispatchers.IO) {
+        runCatching {
+            val file = File(context.filesDir, "avatar.jpg")
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                file.outputStream().use { output -> input.copyTo(output) }
+            }
+            file.absolutePath
+        }.getOrNull()
+    }
+
+/**
  * P1.4: persistent active-account indicator for this tab — a small initials-in-a-ring badge plus
  * the active persona's display name, updating live off [ProfileUiState.selectedAccountId]. Sits
  * above the scrolling content (this screen has no host Scaffold/TopAppBar of its own), so it never
@@ -399,6 +447,8 @@ private fun ProfileHeaderSection(
     header: ProfileHeader,
     role: String,
     gender: String,
+    avatarPath: String? = null,
+    onEditPhoto: () -> Unit = {},
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -426,7 +476,7 @@ private fun ProfileHeaderSection(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                // Avatar + edit pencil badge
+                // Avatar (picked photo or initials) + edit pencil badge
                 Box(contentAlignment = Alignment.BottomEnd) {
                     Box(
                         modifier =
@@ -441,12 +491,21 @@ private fun ProfileHeaderSection(
                                 ),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = header.initials,
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
+                        if (avatarPath != null) {
+                            coil3.compose.AsyncImage(
+                                model = File(avatarPath),
+                                contentDescription = stringResource(Res.string.profile_home_edit_photo),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                modifier = Modifier.size(AvatarSize).clip(DesignTokens.Shape.button),
+                            )
+                        } else {
+                            Text(
+                                text = header.initials,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            )
+                        }
                     }
                     Box(
                         modifier =
@@ -454,7 +513,8 @@ private fun ProfileHeaderSection(
                                 .size(30.dp)
                                 .clip(DesignTokens.Shape.button)
                                 .background(MaterialTheme.colorScheme.primary)
-                                .border(2.dp, MaterialTheme.colorScheme.surface, DesignTokens.Shape.button),
+                                .border(2.dp, MaterialTheme.colorScheme.surface, DesignTokens.Shape.button)
+                                .clickable(onClick = onEditPhoto),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(

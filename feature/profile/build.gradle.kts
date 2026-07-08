@@ -22,6 +22,8 @@ kotlin {
             implementation(project(":core:platform"))
             // P6.4: ActiveSessionsRepository seeds from ProfileMockData.sessions() on first run.
             implementation(project(":stub"))
+            // PLAN_V24 P3.3: render the picked profile photo (same loader other feature modules use).
+            implementation(libs.coil3.compose)
         }
         androidMain.dependencies {
             implementation("androidx.appcompat:appcompat:1.7.1")

@@ -43,6 +43,7 @@ class SessionRepository(
     private val phoneKey = stringPreferencesKey("session_phone")
     private val pendingPhoneKey = stringPreferencesKey("session_pending_phone")
     private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
+    private val avatarPathKey = stringPreferencesKey("session_avatar_path")
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
@@ -76,6 +77,7 @@ class SessionRepository(
                 phone = prefs[phoneKey] ?: "",
                 pendingPhoneChangeTarget = prefs[pendingPhoneKey],
                 emailVerified = prefs[emailVerifiedKey] ?: false,
+                avatarPath = prefs[avatarPathKey],
             )
         }
 
@@ -182,6 +184,13 @@ class SessionRepository(
     /** PLAN_V24 P3.2: mark the session email verified (see androidMain doc). */
     suspend fun markEmailVerified() {
         store.edit { prefs -> prefs[emailVerifiedKey] = true }
+    }
+
+    /** PLAN_V24 P3.3: set (or clear) the local profile-photo path (see androidMain doc). */
+    suspend fun setAvatarPath(path: String?) {
+        store.edit { prefs ->
+            if (path == null) prefs.remove(avatarPathKey) else prefs[avatarPathKey] = path
+        }
     }
 
     suspend fun signOut() {

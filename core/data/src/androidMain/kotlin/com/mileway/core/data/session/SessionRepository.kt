@@ -53,6 +53,7 @@ class SessionRepository(
     private val phoneKey = stringPreferencesKey("session_phone")
     private val pendingPhoneKey = stringPreferencesKey("session_pending_phone")
     private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
+    private val avatarPathKey = stringPreferencesKey("session_avatar_path")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -81,6 +82,7 @@ class SessionRepository(
                 phone = prefs[phoneKey] ?: "",
                 pendingPhoneChangeTarget = prefs[pendingPhoneKey],
                 emailVerified = prefs[emailVerifiedKey] ?: false,
+                avatarPath = prefs[avatarPathKey],
             )
         }
 
@@ -214,6 +216,13 @@ class SessionRepository(
     /** PLAN_V24 P3.2: mark the session email verified (after the demo verify-link is "clicked"). */
     suspend fun markEmailVerified() {
         context.sessionDataStore.edit { prefs -> prefs[emailVerifiedKey] = true }
+    }
+
+    /** PLAN_V24 P3.3: set (or, with null, clear) the local profile-photo path. */
+    suspend fun setAvatarPath(path: String?) {
+        context.sessionDataStore.edit { prefs ->
+            if (path == null) prefs.remove(avatarPathKey) else prefs[avatarPathKey] = path
+        }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */
