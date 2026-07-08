@@ -18,6 +18,7 @@ import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
 import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
+import com.mileway.feature.profile.viewmodel.CorporateVerificationViewModel
 import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
@@ -88,4 +89,6 @@ val profileModule =
         viewModelOf(::EmergencyContactsViewModel)
         // PLAN_V24 P4.2: verification centre (DocumentRepository + SimulatedReviewEngine).
         viewModelOf(::VerificationCentreViewModel)
+        // PLAN_V24 P4.4: corporate email verification (SessionRepository + LocalOtpEngine).
+        viewModelOf(::CorporateVerificationViewModel)
     }

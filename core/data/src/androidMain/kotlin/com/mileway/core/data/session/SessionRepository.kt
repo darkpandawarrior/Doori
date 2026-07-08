@@ -54,6 +54,7 @@ class SessionRepository(
     private val pendingPhoneKey = stringPreferencesKey("session_pending_phone")
     private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
     private val avatarPathKey = stringPreferencesKey("session_avatar_path")
+    private val corporateEmailKey = stringPreferencesKey("session_corporate_email")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -83,6 +84,7 @@ class SessionRepository(
                 pendingPhoneChangeTarget = prefs[pendingPhoneKey],
                 emailVerified = prefs[emailVerifiedKey] ?: false,
                 avatarPath = prefs[avatarPathKey],
+                corporateEmail = prefs[corporateEmailKey],
             )
         }
 
@@ -110,6 +112,8 @@ class SessionRepository(
             prefs[onboardingDoneKey] = false
             // P3.2: a fresh email starts unverified.
             prefs[emailVerifiedKey] = false
+            // P4.4: corporate verification is per-account — clear it on a fresh sign-in.
+            prefs.remove(corporateEmailKey)
         }
     }
 
@@ -223,6 +227,11 @@ class SessionRepository(
         context.sessionDataStore.edit { prefs ->
             if (path == null) prefs.remove(avatarPathKey) else prefs[avatarPathKey] = path
         }
+    }
+
+    /** PLAN_V24 P4.4: records the corporate email as verified (after its OTP is confirmed). */
+    suspend fun markCorporateVerified(email: String) {
+        context.sessionDataStore.edit { prefs -> prefs[corporateEmailKey] = email }
     }
 
     /** Clear the session (sign out) — returns the app to the login screen on next launch. */

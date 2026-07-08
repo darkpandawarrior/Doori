@@ -44,6 +44,7 @@ class SessionRepository(
     private val pendingPhoneKey = stringPreferencesKey("session_pending_phone")
     private val emailVerifiedKey = booleanPreferencesKey("session_email_verified")
     private val avatarPathKey = stringPreferencesKey("session_avatar_path")
+    private val corporateEmailKey = stringPreferencesKey("session_corporate_email")
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
@@ -78,6 +79,7 @@ class SessionRepository(
                 pendingPhoneChangeTarget = prefs[pendingPhoneKey],
                 emailVerified = prefs[emailVerifiedKey] ?: false,
                 avatarPath = prefs[avatarPathKey],
+                corporateEmail = prefs[corporateEmailKey],
             )
         }
 
@@ -97,6 +99,7 @@ class SessionRepository(
             prefs[mfaDoneKey] = false
             prefs[onboardingDoneKey] = false
             prefs[emailVerifiedKey] = false
+            prefs.remove(corporateEmailKey)
         }
     }
 
@@ -191,6 +194,11 @@ class SessionRepository(
         store.edit { prefs ->
             if (path == null) prefs.remove(avatarPathKey) else prefs[avatarPathKey] = path
         }
+    }
+
+    /** PLAN_V24 P4.4: records the corporate email as verified (see androidMain doc). */
+    suspend fun markCorporateVerified(email: String) {
+        store.edit { prefs -> prefs[corporateEmailKey] = email }
     }
 
     suspend fun signOut() {

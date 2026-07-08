@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CardTravel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Gavel
@@ -62,6 +63,7 @@ import com.mileway.core.ui.components.ProfileItemStatus
 import com.mileway.core.ui.components.ProfileSectionHeader
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.resources.profile_details_back
 import com.mileway.core.ui.resources.profile_details_change_phone
 import com.mileway.core.ui.resources.profile_details_contact_info
@@ -103,7 +105,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /** Sheets [ProfileDetailsScreen] can push over itself — at most one at a time. */
-private enum class ProfileDetailSheet { VEHICLE, PASSPORT, PHONE_CHANGE }
+private enum class ProfileDetailSheet { VEHICLE, PASSPORT, PHONE_CHANGE, CORPORATE }
 
 /**
  * Profile Details, a full-detail editor surface pushed from the Account hub.
@@ -134,6 +136,7 @@ fun ProfileDetailsScreen(
     // PLAN_V24 P3.1: phone shown from the session (changed value) falling back to the profile.
     val phoneChangeEnabled by pluginRegistry.observe("phoneChangeEnabled").collectAsStateWithLifecycle(initialValue = true)
     val emailVerificationEnabled by pluginRegistry.observe("emailVerificationEnabled").collectAsStateWithLifecycle(initialValue = true)
+    val corporateVerificationEnabled by pluginRegistry.observe("corporateVerificationEnabled").collectAsStateWithLifecycle(initialValue = true)
     val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
     val completion = state.completion
     var activeSheet by remember { mutableStateOf<ProfileDetailSheet?>(null) }
@@ -242,6 +245,21 @@ fun ProfileDetailsScreen(
                             androidx.compose.material3.Text(stringResource(Res.string.profile_details_change_phone))
                         }
                     }
+                    // PLAN_V24 P4.4: corporate-email verification row (badge when verified, else CTA).
+                    if (corporateVerificationEnabled) {
+                        if (session.isCorporateVerified) {
+                            androidx.compose.material3.AssistChip(
+                                onClick = {},
+                                enabled = false,
+                                leadingIcon = { Icon(Icons.Default.CheckCircle, contentDescription = null) },
+                                label = { androidx.compose.material3.Text(cvRes("corporate_verified_badge", "Corporate verified")) },
+                            )
+                        } else {
+                            androidx.compose.material3.TextButton(onClick = { activeSheet = ProfileDetailSheet.CORPORATE }) {
+                                androidx.compose.material3.Text(cvRes("corporate_verify_cta", "Verify corporate email"))
+                            }
+                        }
+                    }
                 }
             }
 
@@ -307,8 +325,20 @@ fun ProfileDetailsScreen(
             )
         ProfileDetailSheet.PHONE_CHANGE ->
             PhoneChangeSheet(onDismiss = { activeSheet = null })
+        ProfileDetailSheet.CORPORATE ->
+            CorporateVerificationSheet(onDismiss = { activeSheet = null })
         null -> Unit
     }
+}
+
+/** Dynamic string resolver for P4.4 corporate keys (avoids per-key generated imports). */
+@Composable
+private fun cvRes(
+    key: String,
+    fallback: String,
+): String {
+    val resource = Res.allStringResources[key] ?: return fallback
+    return stringResource(resource)
 }
 
 /** Number of full-width rows rendered before the first per-field tile (identity, contact, banner). */

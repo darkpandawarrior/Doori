@@ -61,9 +61,13 @@ data class SessionState(
     val emailVerified: Boolean = false,
     // PLAN_V24 P3.3: local file path of the picked profile photo, or null for initials-only.
     val avatarPath: String? = null,
+    // PLAN_V24 P4.4: the verified corporate email (null until the corporate-email OTP flow succeeds).
+    // Reset on a fresh credentials sign-in, like emailVerified.
+    val corporateEmail: String? = null,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST
+    val isCorporateVerified: Boolean get() = !corporateEmail.isNullOrBlank()
 }
 
 /**

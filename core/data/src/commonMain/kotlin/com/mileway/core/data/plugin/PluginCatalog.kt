@@ -150,6 +150,14 @@ object PluginCatalog {
                 defaultOn = true,
             ),
             PluginDescriptor(
+                id = "corporateVerificationEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.VERIFICATION,
+                titleKey = "plugin_corporate_verify_title",
+                descriptionKey = "plugin_corporate_verify_desc",
+                defaultOn = true,
+            ),
+            PluginDescriptor(
                 id = "cardKycEnabled",
                 kind = PluginKind.CAPABILITY,
                 category = PluginCategory.PAYMENTS,
