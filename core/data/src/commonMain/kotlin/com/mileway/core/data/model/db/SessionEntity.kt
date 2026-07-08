@@ -21,4 +21,8 @@ data class SessionEntity(
     val platform: String,
     val lastActiveMillis: Long,
     val isCurrent: Boolean,
+    // PLAN_V24 P7.2: device-detail enrichment (deviceType is derived from platform, not stored).
+    val os: String = "",
+    val appVersion: String = "",
+    val ip: String = "",
 )

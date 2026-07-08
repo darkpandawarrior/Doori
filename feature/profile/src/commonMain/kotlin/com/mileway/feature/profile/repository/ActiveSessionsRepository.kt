@@ -37,6 +37,9 @@ class ActiveSessionsRepository(private val dao: SessionDao) {
             platform = platform,
             lastActiveMillis = lastActiveMillis,
             isCurrent = isCurrent,
+            os = os,
+            appVersion = appVersion,
+            ip = ip,
         )
 
     private fun UserSession.toEntity(index: Int): SessionEntity =
@@ -46,5 +49,8 @@ class ActiveSessionsRepository(private val dao: SessionDao) {
             platform = platform,
             lastActiveMillis = lastActiveMillis,
             isCurrent = isCurrent,
+            os = os,
+            appVersion = appVersion,
+            ip = ip,
         )
 }

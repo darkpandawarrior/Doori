@@ -72,6 +72,10 @@ data class UserSession(
     @SerialName("platform") val platform: String,
     @SerialName("lastActiveMillis") val lastActiveMillis: Long = 0L,
     @SerialName("isCurrent") val isCurrent: Boolean = false,
+    // PLAN_V24 P7.2: device-detail enrichment surfaced in the session-details sheet.
+    @SerialName("os") val os: String = "",
+    @SerialName("appVersion") val appVersion: String = "",
+    @SerialName("ip") val ip: String = "",
 )
 
 /**

@@ -99,7 +99,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         ActiveSubscriptionEntity::class,
         DeletionRequestEntity::class,
     ],
-    version = 29,
+    version = 30,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)

@@ -5,6 +5,20 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 29 → 30 (PLAN_V24 P7.2): additive device-detail columns on `sessions` (os, appVersion,
+ * ip). deviceType is derived from `platform` at read time, so it is not stored. Existing rows get
+ * empty defaults; the seed re-populates on a fresh install.
+ */
+val MIGRATION_29_30 =
+    object : Migration(29, 30) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `sessions` ADD COLUMN `os` TEXT NOT NULL DEFAULT ''")
+            connection.execSQL("ALTER TABLE `sessions` ADD COLUMN `appVersion` TEXT NOT NULL DEFAULT ''")
+            connection.execSQL("ALTER TABLE `sessions` ADD COLUMN `ip` TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
+/**
  * Migration 28 → 29 (PLAN_V24 P7.1): additive `deletion_request` single-row table — the
  * account-deletion lifecycle (status NONE/REQUESTED/PROCESSING, reason, requestedAt). Empty on first
  * run; a row is created when the user requests deletion, cleared on cancel/completion.

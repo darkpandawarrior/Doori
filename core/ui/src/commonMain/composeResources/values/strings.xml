@@ -2229,6 +2229,12 @@
     <string name="profile_delete_banner_processing">Deletion processing</string>
     <string name="profile_delete_banner_subtitle">Tap to review</string>
     <string name="profile_delete_banner_cancel">Cancel</string>
+    <!-- PLAN_V24 P7.2: session detail enrichment -->
+    <string name="session_detail_type">Device type</string>
+    <string name="session_detail_os">Operating system</string>
+    <string name="session_detail_app">App version</string>
+    <string name="session_detail_ip">IP address</string>
+    <string name="session_detail_last_active">Last active</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">Referral program</string>
     <string name="plugin_growth_referral_program_desc">Full referral hub — ledger, leaderboard and activity</string>

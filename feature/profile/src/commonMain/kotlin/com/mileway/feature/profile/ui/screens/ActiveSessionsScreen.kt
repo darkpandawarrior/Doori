@@ -1,6 +1,7 @@
 package com.mileway.feature.profile.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +24,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -42,6 +45,7 @@ import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.resources.profile_plural_devices_signed_in
 import com.mileway.core.ui.resources.profile_sessions_back
 import com.mileway.core.ui.resources.profile_sessions_revoke
@@ -62,6 +66,9 @@ import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.model.ActiveSession
 import com.mileway.feature.profile.model.SessionStatus
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -84,6 +91,7 @@ fun ActiveSessionsScreen(
     val uiState by viewModel.state.collectAsState()
     val now = remember { Clock.System.now().toEpochMilliseconds() }
     var revokeTarget by remember { mutableStateOf<ActiveSession?>(null) }
+    var detailsTarget by remember { mutableStateOf<ActiveSession?>(null) }
     var confirmSignOutAll by remember { mutableStateOf(false) }
 
     val hasOtherSessions = uiState.sessions.any { !it.isCurrent }
@@ -121,6 +129,7 @@ fun ActiveSessionsScreen(
                     session = session,
                     status = session.status(now),
                     onRevoke = { revokeTarget = session },
+                    onOpenDetails = { detailsTarget = session },
                 )
             }
         }
@@ -138,6 +147,10 @@ fun ActiveSessionsScreen(
             },
             onDismiss = { revokeTarget = null },
         )
+    }
+
+    detailsTarget?.let { target ->
+        SessionDetailsSheet(session = target, status = target.status(now), onDismiss = { detailsTarget = null })
     }
 
     if (confirmSignOutAll) {
@@ -160,9 +173,10 @@ private fun SessionRow(
     session: ActiveSession,
     status: SessionStatus,
     onRevoke: () -> Unit,
+    onOpenDetails: () -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onOpenDetails),
         shape = DesignTokens.Shape.roundedMd,
         elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
     ) {
@@ -223,6 +237,62 @@ private fun SessionRow(
         }
     }
 }
+
+private val SESSION_MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+/**
+ * PLAN_V24 P7.2: device-details sheet (source: the reference app `SessionDetailsBottomSheet`). Opened by tapping a
+ * row; shows the enriched device fields (type/os/app version/ip), last-activity and the derived
+ * status. Hidden by default, so it does not alter the list's rendered layout.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SessionDetailsSheet(
+    session: ActiveSession,
+    status: SessionStatus,
+    onDismiss: () -> Unit,
+) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.xl),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                Text(session.deviceName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                StatusBadge(status)
+            }
+            DetailLine(ss("session_detail_type", "Device type"), session.deviceType.name)
+            if (session.os.isNotBlank()) DetailLine(ss("session_detail_os", "Operating system"), session.os)
+            if (session.appVersion.isNotBlank()) DetailLine(ss("session_detail_app", "App version"), session.appVersion)
+            if (session.ip.isNotBlank()) DetailLine(ss("session_detail_ip", "IP address"), session.ip)
+            DetailLine(ss("session_detail_last_active", "Last active"), formatSessionDate(session.lastActiveMillis))
+            Spacer(Modifier.height(DesignTokens.Spacing.s))
+        }
+    }
+}
+
+@Composable
+private fun DetailLine(
+    label: String,
+    value: String,
+) {
+    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
+        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+private fun formatSessionDate(ms: Long): String =
+    Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
+        "${ldt.dayOfMonth} ${SESSION_MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+    }
+
+@Composable
+private fun ss(
+    key: String,
+    fallback: String,
+): String = Res.allStringResources[key]?.let { stringResource(it) } ?: fallback
 
 @Composable
 private fun StatusBadge(status: SessionStatus) {

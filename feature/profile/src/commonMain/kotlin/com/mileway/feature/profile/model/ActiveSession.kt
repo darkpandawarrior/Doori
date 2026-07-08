@@ -38,6 +38,28 @@ data class ActiveSession(
     val platform: String,
     val lastActiveMillis: Long,
     val isCurrent: Boolean,
+    // PLAN_V24 P7.2: session detail enrichment (source: the reference app DeviceDetails{os, appVersion, ip}).
+    // Defaulted so pre-P7.2 construction sites (tests, mappers) compile unchanged.
+    val os: String = "",
+    val appVersion: String = "",
+    val ip: String = "",
 ) {
     fun status(nowMillis: Long): SessionStatus = deriveSessionStatus(lastActiveMillis, nowMillis)
+
+    /** PLAN_V24 P7.2: device family, derived from [platform] (not stored) — source `DeviceType`. */
+    val deviceType: SessionDeviceType get() = deriveDeviceType(platform)
+}
+
+/** PLAN_V24 P7.2: the device family a session runs on (source: the reference app `DeviceType{IOS, ANDROID, WEB}`). */
+enum class SessionDeviceType { ANDROID, IOS, WEB, UNKNOWN }
+
+/** Classifies a [platform] label (e.g. "Android 15", "iPadOS 18", "Web") into a [SessionDeviceType]. */
+fun deriveDeviceType(platform: String): SessionDeviceType {
+    val p = platform.lowercase()
+    return when {
+        "android" in p -> SessionDeviceType.ANDROID
+        "ios" in p || "ipad" in p || "iphone" in p -> SessionDeviceType.IOS
+        "web" in p || "chrome" in p || "windows" in p || "mac" in p -> SessionDeviceType.WEB
+        else -> SessionDeviceType.UNKNOWN
+    }
 }

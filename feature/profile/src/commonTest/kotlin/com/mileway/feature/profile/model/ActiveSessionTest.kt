@@ -30,4 +30,21 @@ class ActiveSessionTest {
 
         assertEquals(SessionStatus.ACTIVE, session.status(now))
     }
+
+    @Test
+    fun `deriveDeviceType classifies platform labels`() {
+        assertEquals(SessionDeviceType.ANDROID, deriveDeviceType("Android 15"))
+        assertEquals(SessionDeviceType.IOS, deriveDeviceType("iPadOS 18"))
+        assertEquals(SessionDeviceType.IOS, deriveDeviceType("iPhone 16"))
+        assertEquals(SessionDeviceType.WEB, deriveDeviceType("Web"))
+        assertEquals(SessionDeviceType.WEB, deriveDeviceType("Chrome on Windows"))
+        assertEquals(SessionDeviceType.UNKNOWN, deriveDeviceType("Smart Fridge"))
+    }
+
+    @Test
+    fun `ActiveSession deviceType derives from platform`() {
+        val web = ActiveSession(id = "S2", deviceName = "Chrome", platform = "Web", lastActiveMillis = now, isCurrent = false)
+
+        assertEquals(SessionDeviceType.WEB, web.deviceType)
+    }
 }

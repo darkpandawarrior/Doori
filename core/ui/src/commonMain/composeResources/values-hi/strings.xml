@@ -2229,6 +2229,12 @@
     <string name="profile_delete_banner_processing">हटाने की प्रक्रिया जारी</string>
     <string name="profile_delete_banner_subtitle">समीक्षा के लिए टैप करें</string>
     <string name="profile_delete_banner_cancel">रद्द करें</string>
+    <!-- PLAN_V24 P7.2: session detail enrichment -->
+    <string name="session_detail_type">डिवाइस प्रकार</string>
+    <string name="session_detail_os">ऑपरेटिंग सिस्टम</string>
+    <string name="session_detail_app">ऐप संस्करण</string>
+    <string name="session_detail_ip">आईपी पता</string>
+    <string name="session_detail_last_active">अंतिम सक्रिय</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
     <string name="plugin_growth_referral_program_title">रेफ़रल प्रोग्राम</string>
     <string name="plugin_growth_referral_program_desc">पूर्ण रेफ़रल हब — लेजर, लीडरबोर्ड और गतिविधि</string>
