@@ -68,6 +68,8 @@ object SuperProfilePersonas {
                     "campaignMarketingEnabled" to true,
                     "superDelegateMode" to true,
                     "trackMileageManagerView" to true,
+                    // P11.1: enterprise personas get per-km policy rates; the consumer persona gets none.
+                    "perKmRatesEnabled" to true,
                     "verificationCentreEnabled" to false,
                     "subscriptionsEnabled" to false,
                     "destinationMode" to false,

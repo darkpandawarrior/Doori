@@ -116,6 +116,8 @@ val trackingModule =
                 mockAccountDao = getOrNull(),
                 // P7.3: bound by coreDataModule (DelegationSessionController -> DelegationSessionSource).
                 delegationSource = getOrNull() ?: com.mileway.core.data.session.NoDelegationSessionSource,
+                // P11.1: per-km policy-rate overlay; getOrNull() keeps graphs that omit core:data building.
+                vehicleRateRepo = getOrNull(),
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

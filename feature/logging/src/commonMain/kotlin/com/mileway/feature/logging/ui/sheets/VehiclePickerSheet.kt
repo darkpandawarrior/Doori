@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsBike
+import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocalTaxi
 import androidx.compose.material3.Icon
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.data.model.network.ApprovedVehicle
+import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.ui.components.sheet.SearchablePickerSheet
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_choose_vehicle_type
@@ -38,8 +40,25 @@ import com.mileway.core.ui.resources.logging_vehicle_fallback
 import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
-/** Picks an icon for a vehicle from its display name (two-wheeler vs taxi vs car). */
-private fun vehicleIcon(name: String?): ImageVector {
+/**
+ * P11.1: picks an icon for a vehicle from its catalog key (the commonMain [VehicleCatalog.iconKeyFor]
+ * key→icon-family mapping), falling back to a name heuristic for any vehicle not in the catalog.
+ */
+private fun vehicleIcon(
+    key: String?,
+    name: String?,
+): ImageVector {
+    return when (VehicleCatalog.iconKeyFor(key)) {
+        VehicleCatalog.ICON_BIKE -> Icons.Filled.DirectionsBike
+        VehicleCatalog.ICON_TAXI -> Icons.Filled.LocalTaxi
+        VehicleCatalog.ICON_AUTO -> Icons.Filled.LocalTaxi
+        VehicleCatalog.ICON_BUS -> Icons.Filled.DirectionsBus
+        else -> vehicleIconByName(name)
+    }
+}
+
+/** Fallback name heuristic for a vehicle whose key isn't in the catalog. */
+private fun vehicleIconByName(name: String?): ImageVector {
     val n = name?.lowercase().orEmpty()
     return when {
         "two" in n || "bike" in n || "cycle" in n || "scooter" in n -> Icons.Filled.DirectionsBike
@@ -108,7 +127,7 @@ private fun VehicleTile(
             verticalArrangement = Arrangement.Center,
         ) {
             Icon(
-                imageVector = vehicleIcon(vehicle.vehicleName),
+                imageVector = vehicleIcon(vehicle.vehicleKey, vehicle.vehicleName),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(DesignTokens.IconSize.header),

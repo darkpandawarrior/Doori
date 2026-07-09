@@ -505,6 +505,24 @@ object PluginCatalog {
             ),
         )
 
+    /**
+     * Vehicle plugins (P11). [perKmRatesEnabled] is the per-km policy-rate gate consumed by
+     * [com.mileway.core.data.vehicle.VehicleRateRepository]: on ⇒ vehicle keys resolve to their
+     * catalog policy rate (₹/km chips + reimbursable amounts); off ⇒ no rate at all. Defaults OFF so
+     * the baseline persona shows no rates; the Corporate/Gig presets turn it on.
+     */
+    val vehiclePlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "perKmRatesEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.VEHICLES,
+                titleKey = "plugin_vehicles_per_km_rates_title",
+                descriptionKey = "plugin_vehicles_per_km_rates_desc",
+                defaultOn = false,
+            ),
+        )
+
     /** Incentive-program plugins (P6.3). */
     val incentivePlugins: List<PluginDescriptor> =
         listOf(
@@ -522,7 +540,7 @@ object PluginCatalog {
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
             trackingTuningPlugins + abnormalTuningPlugins + experimentalPlugins + syncSettingsPlugins +
-            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins
+            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins + vehiclePlugins
 
     // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
     // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.

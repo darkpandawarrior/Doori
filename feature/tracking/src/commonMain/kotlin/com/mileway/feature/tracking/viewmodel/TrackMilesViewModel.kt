@@ -19,6 +19,9 @@ import com.mileway.core.data.session.TripOwnershipBinding
 import com.mileway.core.data.session.doesSessionBelongTo
 import com.mileway.core.data.session.effectiveSignedInIdentity
 import com.mileway.core.data.session.from
+import com.mileway.core.data.vehicle.VehicleCatalog
+import com.mileway.core.data.vehicle.VehicleRateRepository
+import com.mileway.core.data.vehicle.reimbursableAmount
 import com.mileway.core.platform.LocationNameResolver
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.PlaceName
@@ -214,6 +217,11 @@ class TrackMilesViewModel(
     // see effectiveSignedInIdentity. Defaulted to the never-acting source so JVM tests can omit it;
     // Koin injects the real DelegationSessionController (androidMain/iosMain) in production.
     private val delegationSource: DelegationSessionSource = NoDelegationSessionSource,
+    // PLAN_V24 P11.1: per-km policy-rate source. When present, it overlays each vehicle's rate with
+    // the persona-gated catalog rate (off ⇒ no rate). Null in JVM tests/graphs that omit it — the
+    // vehicles keep whatever pricing the (stub) vehicle source already carried, so those tests and
+    // the screenshot harness stay unchanged.
+    private val vehicleRateRepo: VehicleRateRepository? = null,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -479,7 +487,16 @@ class TrackMilesViewModel(
     private fun loadVehicles() {
         viewModelScope.launch {
             runCatching { vehicleRepo.getVehicles(trackMiles = true) }
-                .onSuccess { vehicles ->
+                .onSuccess { loaded ->
+                    // P11.1: overlay per-km policy rates gated by the active persona. When rates are
+                    // off for this persona, pricing is null (no ₹/km chip, no reimbursable amount).
+                    val vehicles =
+                        vehicleRateRepo?.let { repo ->
+                            val enabled = repo.ratesEnabled()
+                            loaded.map { v ->
+                                v.copy(vehiclePricing = if (enabled) VehicleCatalog.rateFor(v.vehicleKey.orEmpty()) else null)
+                            }
+                        } ?: loaded
                     setState { copy(vehicles = vehicles, selectedVehicle = vehicles.firstOrNull()) }
                 }
                 .onFailure { Napier.w("Failed to load vehicles", it, tag = "TrackMilesVM") }
@@ -645,7 +662,14 @@ class TrackMilesViewModel(
                     if (track == null) return@onEach
                     val pricing = currentState.selectedVehicle?.vehiclePricing ?: track.vehiclePricing
                     val km = track.distance / 1000.0
-                    setState { copy(distanceKm = km, durationMs = track.duration, reimbursableAmount = km * pricing) }
+                    val amount =
+                        reimbursableAmount(
+                            ratePerKm = pricing,
+                            gpsDistanceKm = km,
+                            odometerDistanceKm = track.odometerDistance / 1000.0,
+                            viaOdometer = currentState.config.calculateExpenseViaOdometer,
+                        )
+                    setState { copy(distanceKm = km, durationMs = track.duration, reimbursableAmount = amount) }
                 }
                 .launchIn(viewModelScope)
     }
@@ -674,7 +698,7 @@ class TrackMilesViewModel(
 
     fun updateDistance(km: Double) {
         val pricing = currentState.selectedVehicle?.vehiclePricing ?: 0.0
-        setState { copy(distanceKm = km, reimbursableAmount = km * pricing) }
+        setState { copy(distanceKm = km, reimbursableAmount = reimbursableAmount(pricing, km)) }
     }
 
     fun discardTracking() {
