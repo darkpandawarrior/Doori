@@ -175,6 +175,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_payments_wallet_linking_desc",
                 defaultOn = false,
             ),
+            // PLAN_V24 P8.2: payout identity (bank display + editable UPI handle + QR). Defaults OFF —
+            // a driver-ish persona preset (or the Master Plugin page) enables it.
+            PluginDescriptor(
+                id = "payoutDetailsEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PAYMENTS,
+                titleKey = "plugin_payments_payout_details_title",
+                descriptionKey = "plugin_payments_payout_details_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Growth plugins (P5). */

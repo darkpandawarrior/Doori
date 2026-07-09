@@ -2355,4 +2355,13 @@
     <string name="profile_wallet_unlink_title">Unlink %1$s?</string>
     <string name="profile_wallet_unlink_desc">You will need to verify again to relink this wallet.</string>
     <string name="profile_wallet_unlink_confirm">Unlink</string>
+    <!-- PLAN_V24 P8.2: payout identity (bank display + editable UPI handle + QR) -->
+    <string name="plugin_payments_payout_details_title">Payout details</string>
+    <string name="plugin_payments_payout_details_desc">Show bank payout details and an editable UPI handle</string>
+    <string name="payout_section_title">Payout details</string>
+    <string name="payout_upi_label">UPI handle</string>
+    <string name="payout_upi_hint">name@bank</string>
+    <string name="payout_upi_invalid">Enter a valid UPI handle (name@bank).</string>
+    <string name="payout_upi_save">Save</string>
+    <string name="payout_upi_qr_caption">Scan to pay</string>
 </resources>

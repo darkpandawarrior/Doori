@@ -70,6 +70,9 @@ data class SessionState(
     val clubConsented: Boolean = false,
     val clubActivatedAtMs: Long? = null,
     val clubConfettiShown: Boolean = false,
+    // PLAN_V24 P8.2: the payout UPI handle (\w+@\w+), editable on Profile Details. Per-account —
+    // reset on a fresh credentials sign-in, like the verification flags. Null until first set.
+    val upiHandle: String? = null,
 ) {
     val isSignedIn: Boolean get() = kind != SessionKind.NONE
     val isGuest: Boolean get() = kind == SessionKind.GUEST

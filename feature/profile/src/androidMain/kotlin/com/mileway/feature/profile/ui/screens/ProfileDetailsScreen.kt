@@ -1,16 +1,20 @@
 package com.mileway.feature.profile.ui.screens
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -18,6 +22,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Book
@@ -30,11 +35,14 @@ import androidx.compose.material.icons.filled.Gavel
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.SupervisorAccount
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,8 +55,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.network.model.CompletionCategory
@@ -95,6 +109,7 @@ import com.mileway.core.ui.resources.profile_email_verify
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.model.PassportDetails
+import com.mileway.feature.profile.model.PayoutDetails
 import com.mileway.feature.profile.model.ProfileFieldCompletion
 import com.mileway.feature.profile.model.ProfileRoute
 import com.mileway.feature.profile.model.VehicleDetails
@@ -137,6 +152,8 @@ fun ProfileDetailsScreen(
     val phoneChangeEnabled by pluginRegistry.observe("phoneChangeEnabled").collectAsStateWithLifecycle(initialValue = true)
     val emailVerificationEnabled by pluginRegistry.observe("emailVerificationEnabled").collectAsStateWithLifecycle(initialValue = true)
     val corporateVerificationEnabled by pluginRegistry.observe("corporateVerificationEnabled").collectAsStateWithLifecycle(initialValue = true)
+    // PLAN_V24 P8.2: payout identity (bank + editable UPI + QR) — off by default, driver-ish persona.
+    val payoutDetailsEnabled by pluginRegistry.observe("payoutDetailsEnabled").collectAsStateWithLifecycle(initialValue = false)
     val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
     val completion = state.completion
     var activeSheet by remember { mutableStateOf<ProfileDetailSheet?>(null) }
@@ -260,6 +277,16 @@ fun ProfileDetailsScreen(
                             }
                         }
                     }
+                }
+            }
+
+            // PLAN_V24 P8.2: payout identity — seeded read-only bank + editable UPI handle + QR.
+            if (payoutDetailsEnabled) {
+                item(span = { GridItemSpan(2) }) {
+                    PayoutDetailsCard(
+                        upiHandle = session.upiHandle,
+                        onSaveUpi = { handle -> scope.launch { sessionRepository.setUpiHandle(handle) } },
+                    )
                 }
             }
 
@@ -475,6 +502,144 @@ private fun EmailVerificationRow(
             }
         }
     }
+}
+
+/**
+ * PLAN_V24 P8.2: payout identity block — a seeded, display-only bank account (masked) plus an
+ * editable UPI handle (validated `\w+@\w+`) rendered as an illustrative QR. Bank fields are mock
+ * constants; only the UPI handle persists (session). Restyled with Mileway's own card idiom — not
+ * a port of the reference app's payout screen.
+ */
+@Composable
+private fun PayoutDetailsCard(
+    upiHandle: String?,
+    onSaveUpi: (String) -> Unit,
+) {
+    var upiText by remember(upiHandle) { mutableStateOf(upiHandle.orEmpty()) }
+    val trimmed = upiText.trim()
+    val isValid = PayoutDetails.isValidUpiHandle(trimmed)
+    val showError = trimmed.isNotEmpty() && !isValid
+
+    CollapsibleSectionCard(
+        title = cvRes("payout_section_title", "Payout details"),
+        initiallyExpanded = true,
+        leadingIcon = Icons.Default.AccountBalance,
+    ) {
+        ContactRow(icon = Icons.Default.AccountBalance, value = PayoutDetails.maskedAccount)
+        Text(
+            text = "${PayoutDetails.BANK_NAME} · IFSC ${PayoutDetails.IFSC}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+
+        Spacer(Modifier.height(DesignTokens.Spacing.m))
+
+        OutlinedTextField(
+            value = upiText,
+            onValueChange = { upiText = it },
+            label = { Text(cvRes("payout_upi_label", "UPI handle")) },
+            placeholder = { Text(cvRes("payout_upi_hint", "name@bank")) },
+            singleLine = true,
+            isError = showError,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Email),
+            modifier = Modifier.fillMaxWidth(),
+        )
+        if (showError) {
+            Text(
+                cvRes("payout_upi_invalid", "Enter a valid UPI handle (name@bank)."),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        Button(
+            onClick = { onSaveUpi(trimmed) },
+            enabled = isValid,
+            shape = DesignTokens.Shape.button,
+        ) {
+            Text(cvRes("payout_upi_save", "Save"))
+        }
+
+        // Illustrative UPI QR (derived from the handle) — shown once a valid handle is saved.
+        if (!upiHandle.isNullOrBlank() && PayoutDetails.isValidUpiHandle(upiHandle)) {
+            Spacer(Modifier.height(DesignTokens.Spacing.m))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                UpiQrCanvas(data = PayoutDetails.upiPayString(upiHandle))
+                Column {
+                    Icon(Icons.Default.QrCode, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text(
+                        cvRes("payout_upi_qr_caption", "Scan to pay"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(upiHandle, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A compact, illustrative QR whose module pattern is derived deterministically from [data] (so a
+ * different UPI handle draws a different code). Reuses `QrHomeScreen`'s Canvas idiom — ponytail:
+ * this is a demo QR, not a spec-compliant encoder (upgrade path: a real QR library if scanning is
+ * ever needed).
+ */
+@Composable
+private fun UpiQrCanvas(
+    data: String,
+    modifier: Modifier = Modifier,
+) {
+    val seed = data.fold(0) { acc, c -> acc * 31 + c.code }
+    val dark = MaterialTheme.colorScheme.onSurface
+    Box(
+        modifier = modifier.size(96.dp).clip(DesignTokens.Shape.roundedSm).background(Color.White).padding(6.dp),
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val n = 21
+            val cell = size.width / n
+            for (row in 0 until n) {
+                for (col in 0 until n) {
+                    if (payoutQrBit(row, col, n, seed)) {
+                        drawPayoutQrModule(row, col, cell, dark)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun payoutQrBit(
+    row: Int,
+    col: Int,
+    n: Int,
+    seed: Int,
+): Boolean {
+    val last = n - 1
+    val inFinder =
+        (row in 0..6 && col in 0..6) ||
+            (row in 0..6 && col in (last - 6)..last) ||
+            (row in (last - 6)..last && col in 0..6)
+    if (inFinder) {
+        val r = if (row <= 6) row else row - (last - 6)
+        val c = if (col <= 6) col else col - (last - 6)
+        return r == 0 || r == 6 || c == 0 || c == 6 || (r in 2..4 && c in 2..4)
+    }
+    val h = (row * 73856093) xor (col * 19349663) xor seed
+    return (h ushr 3) and 1 == 1
+}
+
+private fun DrawScope.drawPayoutQrModule(
+    row: Int,
+    col: Int,
+    cell: Float,
+    color: Color,
+) {
+    drawRoundRect(
+        color = color,
+        topLeft = Offset(col * cell + 0.5f, row * cell + 0.5f),
+        size = Size(cell - 1f, cell - 1f),
+        cornerRadius = CornerRadius(cell * 0.15f, cell * 0.15f),
+    )
 }
 
 @Composable

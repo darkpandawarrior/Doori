@@ -58,6 +58,7 @@ class SessionRepository(
     private val clubConsentedKey = booleanPreferencesKey("session_club_consented")
     private val clubActivatedAtKey = longPreferencesKey("session_club_activated_at")
     private val clubConfettiShownKey = booleanPreferencesKey("session_club_confetti_shown")
+    private val upiHandleKey = stringPreferencesKey("session_upi_handle")
 
     override val sessionState: Flow<SessionState> =
         context.sessionDataStore.data.map { prefs ->
@@ -91,6 +92,7 @@ class SessionRepository(
                 clubConsented = prefs[clubConsentedKey] ?: false,
                 clubActivatedAtMs = prefs[clubActivatedAtKey],
                 clubConfettiShown = prefs[clubConfettiShownKey] ?: false,
+                upiHandle = prefs[upiHandleKey],
             )
         }
 
@@ -124,6 +126,8 @@ class SessionRepository(
             prefs.remove(clubConsentedKey)
             prefs.remove(clubActivatedAtKey)
             prefs.remove(clubConfettiShownKey)
+            // P8.2: payout UPI handle is per-account — clear it on a fresh sign-in.
+            prefs.remove(upiHandleKey)
         }
     }
 
@@ -242,6 +246,13 @@ class SessionRepository(
     /** PLAN_V24 P4.4: records the corporate email as verified (after its OTP is confirmed). */
     suspend fun markCorporateVerified(email: String) {
         context.sessionDataStore.edit { prefs -> prefs[corporateEmailKey] = email }
+    }
+
+    /** PLAN_V24 P8.2: set (or, with null/blank, clear) the payout UPI handle. */
+    suspend fun setUpiHandle(handle: String?) {
+        context.sessionDataStore.edit { prefs ->
+            if (handle.isNullOrBlank()) prefs.remove(upiHandleKey) else prefs[upiHandleKey] = handle
+        }
     }
 
     /** PLAN_V24 P6.1: activates "Mileway Club" after the consent flow — sets the join date. */
