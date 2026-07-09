@@ -36,7 +36,7 @@ play-services-wearable = "20.0.1"
 coil = "2.7.0"
 core-ktx = "1.19.0"
 camerax = "1.7.0-alpha02"
-wormaceptor = "2.2.2"
+wormaceptor = "2.3.1"
 leakcanary = "3.0-alpha-9"
 paging = "3.5.0"
 glance = "1.3.0-alpha02"
@@ -164,8 +164,8 @@ camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" 
 # Image
 konnection = { group = "dev.tmapps", name = "konnection", version.ref = "konnection" }
 kmpworkmanager = { module = "dev.brewkits:kmpworkmanager", version.ref = "kmpworkmanager" }
-wormaceptor-api = { module = "com.github.azikar24.WormaCeptor:api-client", version.ref = "wormaceptor" }
-wormaceptor-impl = { module = "com.github.azikar24.WormaCeptor:api-impl-persistence", version.ref = "wormaceptor" }
+wormaceptor-api = { module = "com.azikar24.wormaceptor:wormaceptor-client", version.ref = "wormaceptor" }
+wormaceptor-impl = { module = "com.azikar24.wormaceptor:wormaceptor-persistence", version.ref = "wormaceptor" }
 # G15: leak detection, debugImplementation + Android-only ONLY (same rule as WormaCeptor —
 # never release, never commonMain). Foreground-service + tracking app is leak-prone.
 leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
