@@ -21,6 +21,21 @@ plugins {
     alias(libs.plugins.firebase.crashlytics)
 }
 
+// Compose resources workaround (see SharedKmpComposeConventionPlugin) — AGP's KMP androidLibrary
+// plugin doesn't support Sources.assets, so we pull each compose-resource module's prepared output
+// directly and merge it into :app's own (fully-supported) assets source set.
+val composeAndroidAssets =
+    configurations.create("composeAndroidAssets") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
+
+dependencies {
+    // Only core:ui ships composeResources content today. Add one line per module here if/when
+    // core:maps, core:maps-maplibre, or :shared start shipping their own composeResources/.
+    add("composeAndroidAssets", project(mapOf("path" to ":core:ui", "configuration" to "composeAndroidAssetsElements")))
+}
+
 // Release signing, reads from keystore.properties (gitignored) or env vars (CI).
 // Falls back to debug signing if neither is present, so `assembleGmsRelease` still
 // succeeds locally and in CI without secrets configured.
@@ -154,6 +169,10 @@ android {
         // staging has no source set of its own; reuse the release no-op stubs for
         // WormaCeptorHelper / ShowcaseLauncher (the real impls are debug-only).
         getByName("staging").kotlin.srcDir("src/release/java")
+
+        getByName("main") {
+            assets.srcDir(composeAndroidAssets)
+        }
     }
 
     testOptions {
