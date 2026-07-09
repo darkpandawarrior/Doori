@@ -289,6 +289,10 @@ class ScreenshotGalleryTest {
             single<NotificationDao> { FakeNotificationDao() }
             // P6.6: ConnectedAccountsViewModel collects this in init(); same null-collector trap as above.
             single<ConnectedAccountDao> { FakeConnectedAccountDao() }
+            // PLAN_V24 P8.1: ConnectedAccountsViewModel now also seeds/collects the wallet DAO + uses
+            // the OTP engine (wallet link flow). Section hidden by default (walletLinkingEnabled off).
+            single<com.mileway.core.data.dao.PaymentWalletDao> { FakePaymentWalletDao() }
+            single { com.mileway.core.data.otp.LocalOtpEngine() }
             // P6.8: SupportTicketViewModel collects this in init() (HelpScreen + MyTicketsScreen);
             // same null-collector trap as above.
             single<SupportTicketDao> { FakeSupportTicketDao() }

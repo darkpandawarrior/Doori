@@ -2339,4 +2339,20 @@
     <string name="profile_delegation_act_as">Act as</string>
     <string name="profile_delegation_acting_as">Acting as %1$s</string>
     <string name="profile_delegation_end">End</string>
+    <!-- PLAN_V24 P8.1: external payment wallet linking (offline OTP) -->
+    <string name="plugin_payments_wallet_linking_title">Payment wallets</string>
+    <string name="plugin_payments_wallet_linking_desc">Link external wallets (Paytm/Mobikwik) via OTP</string>
+    <string name="profile_wallet_section_title">Payment wallets</string>
+    <string name="profile_wallet_link">Link</string>
+    <string name="profile_wallet_unlink">Unlink</string>
+    <string name="profile_wallet_linked">Linked</string>
+    <string name="profile_wallet_balance">Balance: %1$s</string>
+    <string name="profile_wallet_otp_title">Verify to link %1$s</string>
+    <string name="profile_wallet_otp_sent">Enter the 6-digit code sent to %1$s</string>
+    <string name="profile_wallet_otp_demo">Demo code: %1$s</string>
+    <string name="profile_wallet_otp_wrong">Incorrect code. Please try again.</string>
+    <string name="profile_wallet_otp_cancel">Cancel</string>
+    <string name="profile_wallet_unlink_title">Unlink %1$s?</string>
+    <string name="profile_wallet_unlink_desc">You will need to verify again to relink this wallet.</string>
+    <string name="profile_wallet_unlink_confirm">Unlink</string>
 </resources>

@@ -66,6 +66,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().sessionDao() }
         single { get<MilewayDatabase>().notificationDao() }
         single { get<MilewayDatabase>().connectedAccountDao() }
+        single { get<MilewayDatabase>().paymentWalletDao() }
         single { get<MilewayDatabase>().pluginOverrideDao() }
         single { get<MilewayDatabase>().savedPlaceDao() }
         single { get<MilewayDatabase>().emergencyContactDao() }

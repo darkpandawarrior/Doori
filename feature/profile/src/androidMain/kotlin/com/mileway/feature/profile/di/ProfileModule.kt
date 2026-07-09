@@ -17,6 +17,7 @@ import com.mileway.feature.profile.repository.SavedPlacesRepository
 import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
+import com.mileway.feature.profile.repository.WalletRepository
 import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
@@ -66,6 +67,8 @@ val profileModule =
         single { NotificationRepository(get()) }
         // P6.6: Connected Accounts' Room-backed repository (see ConnectedAccountsScreen).
         single { ConnectedAccountsRepository(get()) }
+        // PLAN_V24 P8.1: external payment wallets (Room-backed) linked via offline OTP.
+        single { WalletRepository(get()) }
         // P6.7: Settings' Sync Diagnostics card — in-memory local counter (see SyncDiagnosticsCard).
         single { SyncDiagnosticsRepository() }
         // P6.8: Help & Support's "Contact Support"/"My Tickets" Room-backed repository.

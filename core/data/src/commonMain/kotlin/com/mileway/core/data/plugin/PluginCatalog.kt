@@ -165,6 +165,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_cards_kyc_desc",
                 defaultOn = true,
             ),
+            // PLAN_V24 P8.1: external payment-wallet linking (Paytm/Mobikwik-style) via offline OTP.
+            // Defaults OFF — a wallet-carrying persona preset (or the Master Plugin page) enables it.
+            PluginDescriptor(
+                id = "walletLinkingEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PAYMENTS,
+                titleKey = "plugin_payments_wallet_linking_title",
+                descriptionKey = "plugin_payments_wallet_linking_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Growth plugins (P5). */

@@ -20,6 +20,7 @@ import com.mileway.core.data.dao.LogMilesFrequentRouteDao
 import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
+import com.mileway.core.data.dao.PaymentWalletDao
 import com.mileway.core.data.dao.PluginOverrideDao
 import com.mileway.core.data.dao.ReferralTxnDao
 import com.mileway.core.data.dao.RewardCardDao
@@ -52,6 +53,7 @@ import com.mileway.core.data.model.db.LogMilesFrequentRouteEntity
 import com.mileway.core.data.model.db.MockAccountEntity
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PassportDetailsEntity
+import com.mileway.core.data.model.db.PaymentWalletEntity
 import com.mileway.core.data.model.db.PluginOverrideEntity
 import com.mileway.core.data.model.db.ReferralTxnEntity
 import com.mileway.core.data.model.db.RewardCardEntity
@@ -98,8 +100,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         SubscriptionPlanEntity::class,
         ActiveSubscriptionEntity::class,
         DeletionRequestEntity::class,
+        PaymentWalletEntity::class,
     ],
-    version = 30,
+    version = 31,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -161,6 +164,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun subscriptionDao(): SubscriptionDao
 
     abstract fun deletionRequestDao(): DeletionRequestDao
+
+    abstract fun paymentWalletDao(): PaymentWalletDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

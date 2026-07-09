@@ -2336,4 +2336,20 @@
     <string name="profile_delegation_act_as">इस रूप में कार्य करें</string>
     <string name="profile_delegation_acting_as">%1$s के रूप में कार्यरत</string>
     <string name="profile_delegation_end">समाप्त</string>
+    <!-- PLAN_V24 P8.1: external payment wallet linking (offline OTP) -->
+    <string name="plugin_payments_wallet_linking_title">भुगतान वॉलेट</string>
+    <string name="plugin_payments_wallet_linking_desc">OTP से बाहरी वॉलेट (Paytm/Mobikwik) लिंक करें</string>
+    <string name="profile_wallet_section_title">भुगतान वॉलेट</string>
+    <string name="profile_wallet_link">लिंक करें</string>
+    <string name="profile_wallet_unlink">अनलिंक करें</string>
+    <string name="profile_wallet_linked">लिंक किया गया</string>
+    <string name="profile_wallet_balance">शेष: %1$s</string>
+    <string name="profile_wallet_otp_title">%1$s लिंक करने के लिए सत्यापित करें</string>
+    <string name="profile_wallet_otp_sent">%1$s पर भेजा गया 6-अंकों का कोड दर्ज करें</string>
+    <string name="profile_wallet_otp_demo">डेमो कोड: %1$s</string>
+    <string name="profile_wallet_otp_wrong">गलत कोड। कृपया पुनः प्रयास करें।</string>
+    <string name="profile_wallet_otp_cancel">रद्द करें</string>
+    <string name="profile_wallet_unlink_title">%1$s अनलिंक करें?</string>
+    <string name="profile_wallet_unlink_desc">इस वॉलेट को पुनः लिंक करने के लिए आपको फिर से सत्यापित करना होगा।</string>
+    <string name="profile_wallet_unlink_confirm">अनलिंक करें</string>
 </resources>

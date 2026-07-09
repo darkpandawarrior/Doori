@@ -5,6 +5,29 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 30 → 31 (PLAN_V24 P8.1): additive `payment_wallets` table — external wallet linking
+ * (Paytm/Mobikwik-style) via offline OTP. Empty on first run; seeded by
+ * `WalletRepository.seedIfEmpty()`, `isLinked` flipped by the link/unlink flow. No real payment SDK.
+ */
+val MIGRATION_30_31 =
+    object : Migration(30, 31) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `payment_wallets` (
+                    `id`           TEXT    NOT NULL PRIMARY KEY,
+                    `providerName` TEXT    NOT NULL,
+                    `mobile`       TEXT    NOT NULL,
+                    `isLinked`     INTEGER NOT NULL,
+                    `balanceMinor` INTEGER NOT NULL,
+                    `updatedAtMs`  INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 29 → 30 (PLAN_V24 P7.2): additive device-detail columns on `sessions` (os, appVersion,
  * ip). deviceType is derived from `platform` at read time, so it is not stored. Existing rows get
  * empty defaults; the seed re-populates on a fresh install.

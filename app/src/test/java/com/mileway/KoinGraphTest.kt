@@ -147,6 +147,8 @@ class KoinGraphTest : KoinTest {
         single<NotificationDao> { FakeNotificationDao() }
         // P6.6: ConnectedAccountsViewModel collects this in init(); same null-collector trap as above.
         single<ConnectedAccountDao> { FakeConnectedAccountDao() }
+        // PLAN_V24 P8.1: ConnectedAccountsViewModel now also seeds/collects the wallet DAO in init().
+        single<com.mileway.core.data.dao.PaymentWalletDao> { FakePaymentWalletDao() }
         // PLAN_V24 P3.4: SavedPlacesViewModel collects this in init(); same null-collector trap as above.
         single<com.mileway.core.data.dao.SavedPlaceDao> { FakeSavedPlaceDao() }
         // PLAN_V24 P3.5: emergency contacts (DAO + shared repository) — feeds the profile screen and
