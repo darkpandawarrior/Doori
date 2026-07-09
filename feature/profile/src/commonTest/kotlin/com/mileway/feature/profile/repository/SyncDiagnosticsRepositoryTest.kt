@@ -1,5 +1,6 @@
 package com.mileway.feature.profile.repository
 
+import com.mileway.feature.profile.model.SyncConfig
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -41,5 +42,41 @@ class SyncDiagnosticsRepositoryTest {
             assertTrue(after.eventsSynced > before.eventsSynced)
             assertEquals(fixedNowMs, after.lastSyncTimeMs)
             assertTrue(!after.isSyncing)
+        }
+
+    @Test
+    fun `forceSync drains exactly the enabled staging buckets`() =
+        runTest {
+            val repository = SyncDiagnosticsRepository(clock = FixedClock(1_700_000_000_000L))
+            val before = repository.metrics.value
+
+            // Only locations enabled — events + debug pending must stay staged, not synced.
+            repository.forceSync(SyncConfig(locationEnabled = true, eventsEnabled = false, debugEventsEnabled = false))
+
+            val after = repository.metrics.value
+            assertEquals(before.locationsSynced + before.pendingLocations, after.locationsSynced)
+            assertEquals(before.eventsSynced, after.eventsSynced)
+        }
+
+    @Test
+    fun `forceSync with everything disabled is a no-op`() =
+        runTest {
+            val repository = SyncDiagnosticsRepository(clock = FixedClock(1_700_000_000_000L))
+            val before = repository.metrics.value
+
+            repository.forceSync(SyncConfig(locationEnabled = false, eventsEnabled = false, debugEventsEnabled = false))
+
+            assertEquals(before, repository.metrics.value)
+        }
+
+    @Test
+    fun `forceSync sets the next auto-sync due time from the interval`() =
+        runTest {
+            val nowMs = 1_700_000_000_000L
+            val repository = SyncDiagnosticsRepository(clock = FixedClock(nowMs))
+
+            repository.forceSync(SyncConfig(intervalMinutes = 10))
+
+            assertEquals(nowMs + 10 * 60_000L, repository.metrics.value.nextSyncDueMs)
         }
 }

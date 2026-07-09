@@ -221,6 +221,66 @@ object PluginCatalog {
             ),
         )
 
+    /**
+     * Mileage-sync settings (P10.2) — the reference app `MileageSyncSettingsCard`. Each toggle gates a real
+     * local behavior in [SyncDiagnosticsRepository][com.mileway.feature.profile.repository.SyncDiagnosticsRepository]'s
+     * force-sync drain (which local staging buckets get moved to the synced counters); the interval
+     * VALUE drives the displayed next-auto-sync-due time. No backend — see CLAUDE.md "The backend".
+     */
+    val syncSettingsPlugins: List<PluginDescriptor> =
+        listOf(
+            // Gates the location staging bucket in force-sync. defaultOn=true = today's behavior
+            // (all buckets drain).
+            PluginDescriptor(
+                id = "sync_location_enabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_sync_location_title",
+                descriptionKey = "plugin_sync_location_desc",
+                defaultOn = true,
+            ),
+            // Gates the event staging bucket in force-sync. defaultOn=true.
+            PluginDescriptor(
+                id = "sync_events_enabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_sync_events_title",
+                descriptionKey = "plugin_sync_events_desc",
+                defaultOn = true,
+            ),
+            // Gates an extra debug-events staging bucket in force-sync. defaultOn=false (diagnostic
+            // opt-in), matching the reference app where debug-event upload is off by default.
+            PluginDescriptor(
+                id = "sync_debug_events_enabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_sync_debug_events_title",
+                descriptionKey = "plugin_sync_debug_events_desc",
+                defaultOn = false,
+            ),
+            // NOTED SKIP for behavior — picks the backend sync protocol version; no offline consumer
+            // (Mileway has no backend yet). Persisted for parity so the toggle isn't remember-only.
+            // defaultOn=false (v1 baseline).
+            PluginDescriptor(
+                id = "sync_v2_api_enabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_sync_v2_api_title",
+                descriptionKey = "plugin_sync_v2_api_desc",
+                defaultOn = false,
+            ),
+            // Consumer = SyncDiagnosticsRepository.nextSyncDueMs (lastSync + interval), shown on the
+            // card as the next auto-sync-due time. Default 15 min.
+            PluginDescriptor(
+                id = "sync_interval_minutes",
+                kind = PluginKind.VALUE,
+                category = PluginCategory.TRACKING_TUNING,
+                titleKey = "plugin_sync_interval_title",
+                descriptionKey = "plugin_sync_interval_desc",
+                valueSpec = PluginValueSpec.IntSpec(defaultValue = 15, min = 5, max = 60, step = 5, unit = "min"),
+            ),
+        )
+
     /** Verification-centre plugins (P4). */
     val verificationPlugins: List<PluginDescriptor> =
         listOf(
@@ -354,7 +414,8 @@ object PluginCatalog {
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            trackingTuningPlugins + verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins
+            trackingTuningPlugins + syncSettingsPlugins + verificationPlugins + growthPlugins +
+            membershipPlugins + incentivePlugins
 
     private fun onboardingFlag(
         id: String,

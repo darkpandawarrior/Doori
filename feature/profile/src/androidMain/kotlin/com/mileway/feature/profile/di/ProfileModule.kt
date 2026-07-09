@@ -96,7 +96,10 @@ val profileModule =
         viewModelOf(::ConnectedAccountsViewModel)
         // P6.6: Preferences' Storage tile/sheet (real cache-size readout + clear-cache action).
         viewModelOf(::StorageViewModel)
-        viewModelOf(::SyncDiagnosticsViewModel)
+        // P10.2: now takes PluginRegistry (persisted sync defaults) + CurrentTrackDataSource
+        // (current-journey override) — both are Koin singles, so viewModelOf resolves them too, but
+        // spelled out for clarity alongside the new constructor shape.
+        viewModel { SyncDiagnosticsViewModel(get(), get(), get()) }
         viewModelOf(::SupportTicketViewModel)
         // PLAN_V24 P0.3: the Master Plugin page (PluginRegistry + PersonaPresetProvider injected).
         viewModelOf(::PluginManagerViewModel)

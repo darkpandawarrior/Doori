@@ -280,6 +280,19 @@
     <string name="profile_sync_last_sync">अंतिम सिंक: %1$s</string>
     <string name="profile_sync_syncing">सिंक हो रहा है…</string>
     <string name="profile_sync_force">जबरन सिंक करें</string>
+    <string name="profile_sync_pending">%1$d स्थान, %2$d इवेंट लंबित</string>
+    <string name="profile_sync_next_due">अगला ऑटो-सिंक: %1$s</string>
+    <string name="profile_sync_settings_title">सिंक सेटिंग्स</string>
+    <string name="profile_sync_toggle_location">स्थान बिंदु सिंक करें</string>
+    <string name="profile_sync_toggle_events">यात्रा इवेंट सिंक करें</string>
+    <string name="profile_sync_toggle_debug">डिबग इवेंट सिंक करें</string>
+    <string name="profile_sync_toggle_v2">V2 सिंक API उपयोग करें</string>
+    <string name="profile_sync_interval_label">ऑटो-सिंक अंतराल</string>
+    <string name="profile_sync_interval_value">%1$d मिनट</string>
+    <string name="profile_sync_apply_future">भविष्य की यात्राओं पर लागू करें</string>
+    <string name="profile_sync_apply_current">केवल वर्तमान यात्रा पर लागू होता है</string>
+    <string name="profile_sync_testing">कनेक्शन जाँच रहा है…</string>
+    <string name="profile_sync_test_passed">कनेक्शन ठीक है</string>
 
     <!-- logging hi -->
     <string name="logging_log_miles_title">माइल्स लॉग करें</string>
@@ -2376,4 +2389,14 @@
     <string name="plugin_tracking_auto_pause_desc">रुकने पर ट्रैकिंग अपने आप रोकें</string>
     <string name="plugin_profile_notifications_title">सूचनाएँ</string>
     <string name="plugin_profile_notifications_desc">यात्रा और खाता सूचनाएँ प्राप्त करें</string>
+    <string name="plugin_sync_location_title">स्थान बिंदु सिंक करें</string>
+    <string name="plugin_sync_location_desc">ट्रैक की गई यात्राएँ सिंक करते समय स्टेज किए गए स्थान बिंदु शामिल करें</string>
+    <string name="plugin_sync_events_title">यात्रा इवेंट सिंक करें</string>
+    <string name="plugin_sync_events_desc">सिंक करते समय आरंभ/रोक/विराम यात्रा इवेंट शामिल करें</string>
+    <string name="plugin_sync_debug_events_title">डिबग इवेंट सिंक करें</string>
+    <string name="plugin_sync_debug_events_desc">नैदानिक इवेंट भी अपलोड करें (बड़ा पेलोड, डिफ़ॉल्ट रूप से बंद)</string>
+    <string name="plugin_sync_v2_api_title">V2 सिंक API उपयोग करें</string>
+    <string name="plugin_sync_v2_api_desc">V2 सिंक प्रोटोकॉल चुनें (ऑफ़लाइन कोई प्रभाव नहीं — केवल समानता)</string>
+    <string name="plugin_sync_interval_title">ऑटो-सिंक अंतराल</string>
+    <string name="plugin_sync_interval_desc">कनेक्शन उपलब्ध होने पर यात्राएँ कितनी बार ऑटो-सिंक होती हैं</string>
 </resources>

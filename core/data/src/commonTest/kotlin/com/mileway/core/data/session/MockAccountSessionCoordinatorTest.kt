@@ -23,6 +23,10 @@ private class FakeCurrentTrackDataSource(initial: CurrentTrackData = CurrentTrac
 
     override val currentTrackFlow: Flow<CurrentTrackData> = flow
 
+    override val syncSessionOverrideFlow: Flow<SyncSessionOverride?> = MutableStateFlow(null)
+
+    override suspend fun setSyncSessionOverride(override: SyncSessionOverride?) = Unit
+
     override suspend fun saveSession(data: CurrentTrackData) {
         flow.value = data
     }

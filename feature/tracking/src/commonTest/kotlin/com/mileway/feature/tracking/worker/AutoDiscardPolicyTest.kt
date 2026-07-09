@@ -320,6 +320,11 @@ private class FakeDiscardCurrentTrackSource : CurrentTrackDataSource {
 
     override val currentTrackFlow: Flow<CurrentTrackData> = MutableStateFlow(CurrentTrackData(token = ""))
 
+    override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
+        MutableStateFlow(null)
+
+    override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) {}
+
     override suspend fun saveSession(data: CurrentTrackData) {}
 
     override suspend fun updateDistance(

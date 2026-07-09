@@ -66,6 +66,11 @@ class PersonaSwitchPauseRestoreTest {
 
         override val currentTrackFlow: Flow<CurrentTrackData> = flow
 
+        override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
+            MutableStateFlow(null)
+
+        override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) = Unit
+
         override suspend fun saveSession(data: CurrentTrackData) {
             flow.value = data
         }

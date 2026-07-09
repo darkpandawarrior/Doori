@@ -42,12 +42,22 @@ class CurrentTrackDataStore(private val sessionRepository: SessionRepository) : 
         val KEY_STARTED_BY_EMPLOYEE_CODE = stringPreferencesKey("started_by_employee_code")
         val KEY_STARTED_BY_ACCOUNT_EMAIL = stringPreferencesKey("started_by_account_email")
         val KEY_STARTED_BY_TENANT = stringPreferencesKey("started_by_tenant")
+        val KEY_SYNC_OVERRIDE = stringPreferencesKey("sync_override")
     }
 
     private val store: DataStore<Preferences> =
         PreferenceDataStoreFactory.createWithPath(
             produceFile = { (NSTemporaryDirectory() + "current_track_session.preferences_pb").toPath() },
         )
+
+    override val syncSessionOverrideFlow: Flow<SyncSessionOverride?> =
+        store.data.map { prefs -> SyncSessionOverride.decode(prefs[KEY_SYNC_OVERRIDE]) }
+
+    override suspend fun setSyncSessionOverride(override: SyncSessionOverride?) {
+        store.edit { prefs ->
+            if (override == null) prefs.remove(KEY_SYNC_OVERRIDE) else prefs[KEY_SYNC_OVERRIDE] = override.encode()
+        }
+    }
 
     override val currentTrackFlow: Flow<CurrentTrackData> =
         store.data.map { prefs ->

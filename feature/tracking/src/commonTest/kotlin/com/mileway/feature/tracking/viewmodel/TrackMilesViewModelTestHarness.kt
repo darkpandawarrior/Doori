@@ -414,6 +414,11 @@ private object FakeCurrentTrackDataSource : CurrentTrackDataSource {
     private val _flow = MutableStateFlow(CurrentTrackData(token = ""))
     override val currentTrackFlow: Flow<CurrentTrackData> = _flow
 
+    override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
+        MutableStateFlow(null)
+
+    override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) {}
+
     override suspend fun saveSession(data: CurrentTrackData) {
         _flow.value = data
     }

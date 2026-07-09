@@ -160,6 +160,12 @@ private class FakeCurrentTrackSource(private val initial: CurrentTrackData) : Cu
 
     override suspend fun clearSession() {}
 
+    // P10.2: sync-settings current-journey override (no-op fake).
+    override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
+        MutableStateFlow(null)
+
+    override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) {}
+
     override suspend fun updateLastHardwareEvent(
         token: String,
         eventText: String,

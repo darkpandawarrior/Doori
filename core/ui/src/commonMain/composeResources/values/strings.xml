@@ -809,6 +809,19 @@
     <string name="profile_sync_last_sync">Last sync: %1$s</string>
     <string name="profile_sync_syncing">Syncing…</string>
     <string name="profile_sync_force">Force Sync</string>
+    <string name="profile_sync_pending">%1$d locations, %2$d events pending</string>
+    <string name="profile_sync_next_due">Next auto-sync: %1$s</string>
+    <string name="profile_sync_settings_title">Sync Settings</string>
+    <string name="profile_sync_toggle_location">Sync location points</string>
+    <string name="profile_sync_toggle_events">Sync trip events</string>
+    <string name="profile_sync_toggle_debug">Sync debug events</string>
+    <string name="profile_sync_toggle_v2">Use V2 sync API</string>
+    <string name="profile_sync_interval_label">Auto-sync interval</string>
+    <string name="profile_sync_interval_value">%1$d min</string>
+    <string name="profile_sync_apply_future">Apply to future journeys</string>
+    <string name="profile_sync_apply_current">Applies to the current journey only</string>
+    <string name="profile_sync_testing">Testing connection…</string>
+    <string name="profile_sync_test_passed">Connection OK</string>
 
     <!-- ===== L10n sweep: logging ===== -->
     <string name="logging_log_miles_title">Log Miles</string>
@@ -2379,4 +2392,14 @@
     <string name="plugin_tracking_auto_pause_desc">Pause tracking automatically when you stop moving</string>
     <string name="plugin_profile_notifications_title">Notifications</string>
     <string name="plugin_profile_notifications_desc">Receive trip and account notifications</string>
+    <string name="plugin_sync_location_title">Sync location points</string>
+    <string name="plugin_sync_location_desc">Include staged location points when syncing tracked trips</string>
+    <string name="plugin_sync_events_title">Sync trip events</string>
+    <string name="plugin_sync_events_desc">Include start/stop/pause trip events when syncing</string>
+    <string name="plugin_sync_debug_events_title">Sync debug events</string>
+    <string name="plugin_sync_debug_events_desc">Also upload diagnostic events (larger payload, off by default)</string>
+    <string name="plugin_sync_v2_api_title">Use V2 sync API</string>
+    <string name="plugin_sync_v2_api_desc">Select the V2 sync protocol (no effect offline — parity only)</string>
+    <string name="plugin_sync_interval_title">Auto-sync interval</string>
+    <string name="plugin_sync_interval_desc">How often trips auto-sync when a connection is available</string>
 </resources>
