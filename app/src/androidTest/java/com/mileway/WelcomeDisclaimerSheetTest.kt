@@ -1,7 +1,7 @@
 package com.mileway
 
-import android.app.Application
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -10,11 +10,10 @@ import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.feature.profile.repository.MockAccountRepository
 import com.mileway.ui.auth.AuthViewModel
 import com.mileway.ui.auth.LoginScreen
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
-import kotlin.test.assertEquals
 
 /**
  * PLAN_V22 P7.5: behavioural tests for [LoginScreen]'s [com.mileway.ui.auth.WelcomeDisclaimerSheet]
@@ -24,20 +23,19 @@ import kotlin.test.assertEquals
  * showing resumes automatically once it's dismissed.
  *
  * [AuthViewModel] is constructed directly (mirroring [AuthViewModelTest]'s fakes) rather than
- * resolved through Koin, so these tests don't depend on Koin's `ViewModelStore` timing in a
- * Robolectric host.
+ * resolved through Koin, so these tests don't depend on Koin's `ViewModelStore` timing.
  *
- * `qualifiers` pins a realistic phone viewport (matching [ScreenshotGalleryTest]'s convention) —
- * without it Robolectric's default ~320x470dp window is too short for [LoginScreen]'s scrolling
- * layout, leaving "Continue as guest" laid out with zero-size bounds ([performScrollTo] before
- * the click is still required so the node is actually within the (scrollable) viewport).
+ * Instrumented (androidTest) rather than JVM/Robolectric: `LoginScreen` calls `stringResource(...)`
+ * against `core:ui`'s Compose-Multiplatform `composeResources`, which only resolve on a device —
+ * they are absent from the JVM unit-test classpath, so a Robolectric host throws
+ * `MissingResourceException` during composition. Real string assertions ("Before you start
+ * tracking", "Sign In", …) only work on-device.
  */
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-mdpi")
 class WelcomeDisclaimerSheetTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private fun buildAuthViewModel() =
         AuthViewModel(
@@ -46,7 +44,7 @@ class WelcomeDisclaimerSheetTest {
         )
 
     @Test
-    fun `sheet shows on first composition when not yet shown`() {
+    fun sheetShowsOnFirstCompositionWhenNotYetShown() {
         composeRule.setContent {
             MilewayTheme {
                 LoginScreen(
@@ -62,7 +60,7 @@ class WelcomeDisclaimerSheetTest {
     }
 
     @Test
-    fun `sheet does not show once already shown`() {
+    fun sheetDoesNotShowOnceAlreadyShown() {
         composeRule.setContent {
             MilewayTheme {
                 LoginScreen(
@@ -78,7 +76,7 @@ class WelcomeDisclaimerSheetTest {
     }
 
     @Test
-    fun `dismissing with Not now proceeds without blocking a subsequent guest tap`() {
+    fun dismissingWithNotNowProceedsWithoutBlockingASubsequentGuestTap() {
         var shownCallbackCount = 0
 
         composeRule.setContent {
@@ -105,7 +103,7 @@ class WelcomeDisclaimerSheetTest {
     }
 
     @Test
-    fun `a sign-in tap made while the sheet is showing resumes once it is dismissed`() {
+    fun aSignInTapMadeWhileTheSheetIsShowingResumesOnceItIsDismissed() {
         composeRule.setContent {
             MilewayTheme {
                 LoginScreen(
@@ -128,7 +126,7 @@ class WelcomeDisclaimerSheetTest {
     }
 
     @Test
-    fun `tapping Continue dismisses the sheet`() {
+    fun tappingContinueDismissesTheSheet() {
         composeRule.setContent {
             MilewayTheme {
                 LoginScreen(

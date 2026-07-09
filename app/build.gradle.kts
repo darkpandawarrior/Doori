@@ -450,6 +450,10 @@ dependencies {
     androidTestImplementation(libs.sqlite.bundled)
     // FusedLocation test double (setMockMode / setMockLocation) for the tracking-lifecycle test.
     androidTestImplementation(libs.play.services.location)
+    // Compose UI testing for on-device behavioural tests (WelcomeDisclaimerSheetTest) — these
+    // assert on real composeResources strings that only resolve on a device, not the JVM gate.
+    androidTestImplementation(platform(libs.compose.bom))
+    androidTestImplementation(libs.compose.ui.test.junit4)
 }
 
 // ─── FLFD.2, Proprietary-dependency guard for the noGms (F-Droid) release ───────────────────────────
