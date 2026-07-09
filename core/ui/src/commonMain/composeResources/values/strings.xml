@@ -2331,4 +2331,12 @@
     <string name="profile_email_verify">Verify email</string>
     <string name="profile_email_link_sent">We sent a verification link to your email.</string>
     <string name="profile_email_simulate_click">Simulate clicking the link</string>
+    <!-- PLAN_V24 P7.3: delegate act-on-behalf (session delegation) -->
+    <string name="plugin_membership_super_delegate_title">Act on behalf</string>
+    <string name="plugin_membership_super_delegate_desc">Let managers operate the app as one of their reportees</string>
+    <string name="profile_delegation_act_title">Act on behalf</string>
+    <string name="profile_delegation_act_subtitle">Operate the app as one of your reportees</string>
+    <string name="profile_delegation_act_as">Act as</string>
+    <string name="profile_delegation_acting_as">Acting as %1$s</string>
+    <string name="profile_delegation_end">End</string>
 </resources>

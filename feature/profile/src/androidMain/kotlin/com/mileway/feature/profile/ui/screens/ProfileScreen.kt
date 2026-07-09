@@ -95,6 +95,8 @@ import com.mileway.core.ui.components.buildReferralInvite
 import com.mileway.core.ui.platform.LocalShareSheet
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
+import com.mileway.core.ui.resources.profile_delegation_acting_as
+import com.mileway.core.ui.resources.profile_delegation_end
 import com.mileway.core.ui.resources.profile_home_active
 import com.mileway.core.ui.resources.profile_home_add
 import com.mileway.core.ui.resources.profile_home_add_persona
@@ -236,6 +238,13 @@ fun ProfileScreen(
     // the picked image is copied into the app's files dir and its path persisted in the session.
     val sessionRepository = org.koin.compose.koinInject<com.mileway.core.data.session.SessionRepository>()
     val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
+
+    // PLAN_V24 P7.3: surface the acting identity on the hub while a session delegation is active.
+    val delegationSource = org.koin.compose.koinInject<com.mileway.core.data.session.DelegationSessionSource>()
+    val delegation by delegationSource.delegationState.collectAsStateWithLifecycle(
+        initialValue = com.mileway.core.data.session.DelegationState(),
+    )
+    val delegationScope = rememberCoroutineScope()
     val avatarScope = rememberCoroutineScope()
     val avatarPickerLauncher =
         androidx.activity.compose.rememberLauncherForActivityResult(
@@ -320,6 +329,17 @@ fun ProfileScreen(
                             )
                         },
                     )
+                }
+
+                // PLAN_V24 P7.3: "Acting as <name>" banner — visible while acting on behalf.
+                if (delegation.isActing) {
+                    item {
+                        AccountActingBanner(
+                            name = delegation.actingName.orEmpty(),
+                            onEnd = { delegationScope.launch { delegationSource.endDelegation() } },
+                            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
+                        )
+                    }
                 }
 
                 // PLAN_V24 P7.1: account-deletion banner — visible while a request is pending.
@@ -1006,6 +1026,35 @@ private fun AccountTileGrid(
             )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))
+        }
+    }
+}
+
+@Composable
+private fun AccountActingBanner(
+    name: String,
+    onEnd: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        shape = DesignTokens.Shape.roundedMd,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Default.SupervisorAccount, contentDescription = null, tint = MaterialTheme.colorScheme.onTertiaryContainer)
+            Spacer(Modifier.width(DesignTokens.Spacing.m))
+            Text(
+                stringResource(Res.string.profile_delegation_acting_as, name),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier.weight(1f),
+            )
+            OutlinedButton(onClick = onEnd) { Text(stringResource(Res.string.profile_delegation_end)) }
         }
     }
 }

@@ -126,6 +126,9 @@ val trackingModule =
                 // MockAccountDao registered there; omitted graphs fall back to the VM's own defaults.
                 activeAccountSource = getOrNull() ?: com.mileway.feature.tracking.viewmodel.NoActiveAccountSource,
                 mockAccountDao = getOrNull(),
+                // P7.3: bound by coreDataModule (DelegationSessionController -> DelegationSessionSource);
+                // omitted graphs fall back to the VM's never-acting default.
+                delegationSource = getOrNull() ?: com.mileway.core.data.session.NoDelegationSessionSource,
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

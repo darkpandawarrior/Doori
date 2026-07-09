@@ -25,6 +25,8 @@ import com.mileway.core.data.session.CredentialSource
 import com.mileway.core.data.session.CredentialStore
 import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.core.data.session.CurrentTrackDataStore
+import com.mileway.core.data.session.DelegationSessionController
+import com.mileway.core.data.session.DelegationSessionSource
 import com.mileway.core.data.session.MockAccountSessionCoordinator
 import com.mileway.core.data.session.MockPostLoginInitializer
 import com.mileway.core.data.session.PinHashSource
@@ -110,6 +112,9 @@ val coreDataModule =
         single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
         single { ActiveAccountStore(androidContext()) }
         single<ActiveAccountSource> { get<ActiveAccountStore>() }
+        // PLAN_V24 P7.3: session-delegation overlay ("Acting as <name>"), persisted like the session.
+        single { DelegationSessionController(androidContext()) }
+        single<DelegationSessionSource> { get<DelegationSessionController>() }
         single { PinHashStore(androidContext()) }
         single<PinHashSource> { get<PinHashStore>() }
         single { PinLockoutStore(androidContext()) }

@@ -2328,4 +2328,12 @@
     <string name="profile_email_verify">ईमेल सत्यापित करें</string>
     <string name="profile_email_link_sent">हमने आपके ईमेल पर सत्यापन लिंक भेजा।</string>
     <string name="profile_email_simulate_click">लिंक पर क्लिक करने का अनुकरण करें</string>
+    <!-- PLAN_V24 P7.3: delegate act-on-behalf (session delegation) -->
+    <string name="plugin_membership_super_delegate_title">की ओर से कार्य करें</string>
+    <string name="plugin_membership_super_delegate_desc">प्रबंधकों को अपने किसी अधीनस्थ के रूप में ऐप संचालित करने दें</string>
+    <string name="profile_delegation_act_title">की ओर से कार्य करें</string>
+    <string name="profile_delegation_act_subtitle">अपने किसी अधीनस्थ के रूप में ऐप संचालित करें</string>
+    <string name="profile_delegation_act_as">इस रूप में कार्य करें</string>
+    <string name="profile_delegation_acting_as">%1$s के रूप में कार्यरत</string>
+    <string name="profile_delegation_end">समाप्त</string>
 </resources>

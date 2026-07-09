@@ -114,6 +114,8 @@ val trackingModule =
                 // MockAccountDao registered there.
                 activeAccountSource = getOrNull() ?: com.mileway.feature.tracking.viewmodel.NoActiveAccountSource,
                 mockAccountDao = getOrNull(),
+                // P7.3: bound by coreDataModule (DelegationSessionController -> DelegationSessionSource).
+                delegationSource = getOrNull() ?: com.mileway.core.data.session.NoDelegationSessionSource,
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

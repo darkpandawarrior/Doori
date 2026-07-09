@@ -11,11 +11,13 @@ import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.data.model.network.ApprovedVehicle
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
 import com.mileway.core.data.session.ActiveAccountSource
+import com.mileway.core.data.session.DelegationSessionSource
+import com.mileway.core.data.session.NoDelegationSessionSource
 import com.mileway.core.data.session.SessionSource
 import com.mileway.core.data.session.SessionState
-import com.mileway.core.data.session.SignedInIdentity
 import com.mileway.core.data.session.TripOwnershipBinding
 import com.mileway.core.data.session.doesSessionBelongTo
+import com.mileway.core.data.session.effectiveSignedInIdentity
 import com.mileway.core.data.session.from
 import com.mileway.core.platform.LocationNameResolver
 import com.mileway.core.platform.OfflineLocationNameResolver
@@ -207,6 +209,11 @@ class TrackMilesViewModel(
     // persona}?" dialog. Null in JVM tests/graphs that omit it — falls back to the raw employee
     // code in that case.
     private val mockAccountDao: MockAccountDao? = null,
+    // PLAN_V24 P7.3: the session-delegation overlay. While acting on behalf of a reportee, a new
+    // trip is stamped with (and reconciled against) the ACTING identity, not the base persona's —
+    // see effectiveSignedInIdentity. Defaulted to the never-acting source so JVM tests can omit it;
+    // Koin injects the real DelegationSessionController (androidMain/iosMain) in production.
+    private val delegationSource: DelegationSessionSource = NoDelegationSessionSource,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -507,13 +514,10 @@ class TrackMilesViewModel(
     private suspend fun isStrangerSession(track: SavedTrack): Boolean {
         val activeAccountId = activeAccountSource.activeAccountId.first() ?: return false
         val session = sessionSource.sessionState.first()
+        // P7.3: while acting on behalf of a reportee, the current identity IS the delegate's, so a
+        // trip the base persona started reads as a stranger session (and vice-versa).
         val currentIdentity =
-            SignedInIdentity(
-                accountId = activeAccountId,
-                employeeCode = session.employeeCode,
-                accountEmail = session.email,
-                tenant = session.tenant,
-            )
+            effectiveSignedInIdentity(activeAccountId, session, delegationSource.delegationState.first())
         val binding = TripOwnershipBinding.from(track)
         return !doesSessionBelongTo(binding, currentIdentity)
     }
@@ -590,8 +594,11 @@ class TrackMilesViewModel(
         viewModelScope.launch {
             // P3.3: stamp the real signed-in identity's ownership pointer instead of a hardcoded
             // "EMP001" literal, so cross-account isolation (AccountBinding) has something real to
-            // match against.
+            // match against. P7.3: while acting on behalf of a reportee, the effective identity is
+            // the delegate's, so the trip isolates to the delegate, not the manager's base account.
             val session = sessionSource.sessionState.first()
+            val stampIdentity =
+                effectiveSignedInIdentity(null, session, delegationSource.delegationState.first())
             val track =
                 SavedTrack(
                     routeId = routeId,
@@ -604,9 +611,9 @@ class TrackMilesViewModel(
                     selectedVehicleType = vehicle.vehicleKey ?: "",
                     vehiclePricing = vehicle.vehiclePricing ?: 0.0,
                     createdAt = now, startedAtTimestamp = now,
-                    startedByEmployeeCode = session.employeeCode ?: "EMP001",
-                    startedByAccountEmail = session.email.orEmpty(),
-                    startedByTenant = session.tenant,
+                    startedByEmployeeCode = stampIdentity.employeeCode ?: "EMP001",
+                    startedByAccountEmail = stampIdentity.accountEmail.orEmpty(),
+                    startedByTenant = stampIdentity.tenant,
                 )
             trackRepo.insert(track)
             setState {

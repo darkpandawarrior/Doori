@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.PersonAddAlt
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,6 +63,10 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_delegation_act_as
+import com.mileway.core.ui.resources.profile_delegation_act_subtitle
+import com.mileway.core.ui.resources.profile_delegation_act_title
+import com.mileway.core.ui.resources.profile_delegation_acting_as
 import com.mileway.core.ui.resources.profile_delegation_active
 import com.mileway.core.ui.resources.profile_delegation_add_cd
 import com.mileway.core.ui.resources.profile_delegation_add_new
@@ -69,6 +74,7 @@ import com.mileway.core.ui.resources.profile_delegation_add_title
 import com.mileway.core.ui.resources.profile_delegation_back
 import com.mileway.core.ui.resources.profile_delegation_cancel
 import com.mileway.core.ui.resources.profile_delegation_delegate_to
+import com.mileway.core.ui.resources.profile_delegation_end
 import com.mileway.core.ui.resources.profile_delegation_expires
 import com.mileway.core.ui.resources.profile_delegation_my_subtitle
 import com.mileway.core.ui.resources.profile_delegation_my_title
@@ -86,7 +92,9 @@ import com.mileway.core.ui.resources.profile_delegation_type
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.model.Delegation
+import com.mileway.feature.profile.viewmodel.DelegateSessionViewModel
 import com.mileway.feature.profile.viewmodel.DelegationViewModel
+import com.mileway.feature.profile.viewmodel.Reportee
 import com.mileway.feature.profile.viewmodel.formatDelegationExpiry
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -146,9 +154,11 @@ fun DelegationScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DelegationViewModel = koinViewModel(),
+    delegateSessionViewModel: DelegateSessionViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.state.collectAsState()
     val myDelegations = uiState.delegations
+    val delegateState by delegateSessionViewModel.state.collectAsState()
 
     var showAddSheet by remember { mutableStateOf(false) }
     var revokeTarget by remember { mutableStateOf<Delegation?>(null) }
@@ -261,6 +271,46 @@ fun DelegationScreen(
                                     DelegatedByRow(entry = entry)
                                     if (index < DELEGATED_TO_ME.lastIndex) {
                                         HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // PLAN_V24 P7.3: "Act on behalf" (session delegation) — manager-only, gated on the
+                // superDelegateMode plugin (off by default). Separate from the approval-delegation
+                // lists above.
+                if (delegateState.enabled) {
+                    item { Spacer(Modifier.height(DesignTokens.Spacing.s)) }
+                    item {
+                        SectionHeader(
+                            icon = Icons.Default.SupervisorAccount,
+                            title = stringResource(Res.string.profile_delegation_act_title),
+                            subtitle = stringResource(Res.string.profile_delegation_act_subtitle),
+                        )
+                    }
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = DesignTokens.Shape.roundedMd,
+                            elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
+                        ) {
+                            Column {
+                                if (delegateState.isActing) {
+                                    ActingAsRow(
+                                        name = delegateState.actingName.orEmpty(),
+                                        onEnd = { delegateSessionViewModel.endDelegation() },
+                                    )
+                                } else {
+                                    delegateState.reportees.forEachIndexed { index, reportee ->
+                                        ReporteeRow(
+                                            reportee = reportee,
+                                            onActAs = { delegateSessionViewModel.actAs(reportee) },
+                                        )
+                                        if (index < delegateState.reportees.lastIndex) {
+                                            HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+                                        }
                                     }
                                 }
                             }
@@ -403,6 +453,74 @@ private fun AddDelegationSheet(
                 onClick = { onSubmit(selectedMember, selectedType) },
                 modifier = Modifier.weight(1f),
             ) { Text(stringResource(Res.string.profile_delegation_submit)) }
+        }
+    }
+}
+
+@Composable
+private fun ReporteeRow(
+    reportee: Reportee,
+    onActAs: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .clip(DesignTokens.Shape.button)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                reportee.name.first().toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
+        }
+        Spacer(Modifier.width(DesignTokens.Spacing.m))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(reportee.name, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Text(reportee.code, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Button(onClick = onActAs, shape = DesignTokens.Shape.button) {
+            Text(stringResource(Res.string.profile_delegation_act_as))
+        }
+    }
+}
+
+@Composable
+private fun ActingAsRow(
+    name: String,
+    onEnd: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            Icons.Default.SupervisorAccount,
+            contentDescription = null,
+            tint = MilewayColors.success,
+        )
+        Spacer(Modifier.width(DesignTokens.Spacing.m))
+        Text(
+            stringResource(Res.string.profile_delegation_acting_as, name),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.weight(1f),
+        )
+        OutlinedButton(onClick = onEnd, shape = DesignTokens.Shape.button) {
+            Text(stringResource(Res.string.profile_delegation_end))
         }
     }
 }

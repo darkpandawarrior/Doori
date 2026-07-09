@@ -202,6 +202,11 @@ class KoinGraphTest : KoinTest {
             }
         }
         single<kotlin.time.Clock> { kotlin.time.Clock.System }
+        // PLAN_V24 P7.3: session-delegation overlay — DelegateSessionViewModel + TrackMilesViewModel
+        // depend on it. In-memory (not the DataStore-backed controller, which needs a real Context).
+        single<com.mileway.core.data.session.DelegationSessionSource> {
+            com.mileway.core.data.session.InMemoryDelegationSessionSource()
+        }
         single<com.mileway.core.data.session.CredentialSource> {
             object : com.mileway.core.data.session.CredentialSource {
                 override suspend fun ensureSeeded(accountId: String) = Unit
@@ -328,6 +333,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<SwitchAccountViewModel>())
         assertNotNull(get<PersonalDetailsViewModel>())
         assertNotNull(get<DelegationViewModel>())
+        assertNotNull(get<com.mileway.feature.profile.viewmodel.DelegateSessionViewModel>())
         assertNotNull(get<ActiveSessionsViewModel>())
         assertNotNull(get<NotificationViewModel>())
         assertNotNull(get<ConnectedAccountsViewModel>())

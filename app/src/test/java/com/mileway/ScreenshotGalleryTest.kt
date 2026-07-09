@@ -302,6 +302,24 @@ class ScreenshotGalleryTest {
             // Flow<String?>-from-relaxed-mockk null-collector trap (memory: screenshot Koin
             // needs deterministic fakes, same reason FakeVoucherDao exists above).
             single<ActiveAccountSource> { FakeActiveAccountSource() }
+            // PLAN_V24 P7.3: DelegationScreen/ProfileScreen resolve the session-delegation overlay +
+            // (via DelegateSessionViewModel) the PluginRegistry. FakeActiveAccountSource emits a null
+            // active account, so PluginRegistry never touches the relaxed-mockk override DAO.
+            single<com.mileway.core.data.session.DelegationSessionSource> {
+                com.mileway.core.data.session.InMemoryDelegationSessionSource()
+            }
+            single<com.mileway.core.data.dao.PluginOverrideDao> { mockk(relaxed = true) }
+            single<com.mileway.core.data.plugin.PluginDebugForceSource> {
+                com.mileway.core.data.plugin.InMemoryPluginDebugForceSource()
+            }
+            single {
+                com.mileway.core.data.plugin.PluginRegistry(
+                    overrideDao = get(),
+                    activeAccount = get(),
+                    presets = get(),
+                    debugForce = get(),
+                )
+            }
             // P2.3: SwitchAccountViewModel.verify() reads this; a real in-memory fake avoids the
             // suspend-fun-on-a-relaxed-mockk trap (memory: screenshot Koin needs deterministic fakes).
             single<PinHashSource> { FakePinHashSource() }

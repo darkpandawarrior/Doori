@@ -104,4 +104,52 @@ class AccountBindingTest {
         assertEquals(matchingBinding, binding)
         assertTrue(doesSessionBelongTo(binding, matchingIdentity))
     }
+
+    // ── PLAN_V24 P7.3: act-on-behalf session isolation ──────────────────────────
+
+    private val baseSession =
+        SessionState(employeeCode = "EMP-MGR", email = "manager@mileway.app", tenant = "DEMO-TENANT")
+
+    private val acting =
+        DelegationState(
+            isActing = true,
+            actingName = "Priya Sharma",
+            actingEmail = "priya.sharma@mileway.app",
+            actingCode = "EMP-2101",
+        )
+
+    @Test
+    fun `a trip stamped while acting belongs to the delegate, not the manager's base account`() {
+        val actingIdentity = effectiveSignedInIdentity(accountId = null, session = baseSession, delegation = acting)
+        val baseIdentity = effectiveSignedInIdentity(accountId = null, session = baseSession, delegation = DelegationState())
+
+        // A trip stamped with the effective (acting) identity's ownership pointer.
+        val actingTrip =
+            TripOwnershipBinding(
+                accountId = null,
+                employeeCode = actingIdentity.employeeCode!!,
+                accountEmail = actingIdentity.accountEmail!!,
+                tenant = actingIdentity.tenant,
+            )
+
+        assertTrue(doesSessionBelongTo(actingTrip, actingIdentity), "delegate's trip belongs to the delegate")
+        assertFalse(doesSessionBelongTo(actingTrip, baseIdentity), "delegate's trip must NOT belong to the base manager")
+    }
+
+    @Test
+    fun `a trip the manager stamped does not belong to the acting delegate identity`() {
+        val actingIdentity = effectiveSignedInIdentity(accountId = null, session = baseSession, delegation = acting)
+        val baseIdentity = effectiveSignedInIdentity(accountId = null, session = baseSession, delegation = DelegationState())
+
+        val baseTrip =
+            TripOwnershipBinding(
+                accountId = null,
+                employeeCode = baseIdentity.employeeCode!!,
+                accountEmail = baseIdentity.accountEmail!!,
+                tenant = baseIdentity.tenant,
+            )
+
+        assertTrue(doesSessionBelongTo(baseTrip, baseIdentity))
+        assertFalse(doesSessionBelongTo(baseTrip, actingIdentity), "base manager's trip must NOT belong to the delegate")
+    }
 }

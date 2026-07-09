@@ -8,11 +8,15 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +30,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Business
@@ -36,18 +41,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.data.session.DelegationSessionSource
+import com.mileway.core.data.session.DelegationState
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_delegation_acting_as
+import com.mileway.core.ui.resources.profile_delegation_end
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -133,6 +148,11 @@ fun MilewayAppRoot(
     ) {
         AppToastHost {
         val navController = rememberNavController()
+
+        // PLAN_V24 P7.3: app-wide "Acting as <name>" banner while a session delegation is active.
+        val delegationSource = koinInject<DelegationSessionSource>()
+        val delegation by delegationSource.delegationState.collectAsStateWithLifecycle(DelegationState())
+        val delegationScope = rememberCoroutineScope()
 
         // Navigate to a deep-linked graph immediately after the nav graph is ready.
         androidx.compose.runtime.LaunchedEffect(deepLinkRoute) {
@@ -358,6 +378,20 @@ fun MilewayAppRoot(
                     agentGraph(navController)
                 }
 
+                // PLAN_V24 P7.3: persistent "Acting as <name>" banner, pinned to the top and
+                // visible on every screen while a session delegation is active. End restores base.
+                AnimatedVisibility(
+                    visible = delegation.isActing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    ActingAsBanner(
+                        name = delegation.actingName.orEmpty(),
+                        onEnd = { delegationScope.launch { delegationSource.endDelegation() } },
+                    )
+                }
+
                 // Global AI assistant FAB — hidden while agent chat is open.
                 val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()
                 val isChatOpen by AssistantFabSessionState.isChatOpen.collectAsStateWithLifecycle()
@@ -419,5 +453,49 @@ fun MilewayAppRoot(
 
         } // AppToastHost
 
+    }
+}
+
+/** PLAN_V24 P7.3: the app-wide "Acting as <name> · End" banner shown while acting on behalf. */
+@Composable
+private fun ActingAsBanner(
+    name: String,
+    onEnd: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.tertiaryContainer,
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Filled.SupervisorAccount,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                stringResource(Res.string.profile_delegation_acting_as, name),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                stringResource(Res.string.profile_delegation_end),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier
+                    .clickable(onClick = onEnd)
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+            )
+        }
     }
 }

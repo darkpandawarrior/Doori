@@ -223,6 +223,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_membership_subscriptions_desc",
                 defaultOn = true,
             ),
+            // PLAN_V24 P7.3: manager-only "Act on behalf" (session delegation). Defaults OFF — a
+            // privileged capability a manager persona preset (or the Master Plugin page) enables.
+            PluginDescriptor(
+                id = "superDelegateMode",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.MEMBERSHIP,
+                titleKey = "plugin_membership_super_delegate_title",
+                descriptionKey = "plugin_membership_super_delegate_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Incentive-program plugins (P6.3). */

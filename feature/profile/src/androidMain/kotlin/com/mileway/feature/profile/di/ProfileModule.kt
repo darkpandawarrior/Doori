@@ -24,6 +24,7 @@ import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
 import com.mileway.feature.profile.viewmodel.CorporateVerificationViewModel
 import com.mileway.feature.profile.viewmodel.CouponsViewModel
+import com.mileway.feature.profile.viewmodel.DelegateSessionViewModel
 import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
@@ -85,6 +86,8 @@ val profileModule =
         viewModelOf(::SwitchAccountViewModel)
         viewModelOf(::PersonalDetailsViewModel)
         viewModelOf(::DelegationViewModel)
+        // PLAN_V24 P7.3: session-delegation (act on behalf) — separate from approval-delegation above.
+        viewModelOf(::DelegateSessionViewModel)
         viewModelOf(::ActiveSessionsViewModel)
         viewModelOf(::NotificationViewModel)
         viewModelOf(::ConnectedAccountsViewModel)

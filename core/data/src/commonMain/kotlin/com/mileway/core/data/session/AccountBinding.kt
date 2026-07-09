@@ -62,6 +62,34 @@ fun isSessionFromDifferentAccount(
 ): Boolean = !doesSessionBelongTo(binding, currentIdentity)
 
 /**
+ * PLAN_V24 P7.3: the identity a new trip is stamped with (and the identity a restored trip is
+ * validated against) — the ACTING delegate's while a session delegation is active, otherwise the
+ * base signed-in identity. This is the single seam that makes session isolation respect
+ * act-on-behalf: a trip started while acting belongs to the delegate, not the manager's base
+ * account, and vice-versa. Tenant always stays the base tenant (session delegation is within-tenant).
+ */
+fun effectiveSignedInIdentity(
+    accountId: String?,
+    session: SessionState,
+    delegation: DelegationState,
+): SignedInIdentity =
+    if (delegation.isActing) {
+        SignedInIdentity(
+            accountId = accountId,
+            employeeCode = delegation.actingCode,
+            accountEmail = delegation.actingEmail,
+            tenant = session.tenant,
+        )
+    } else {
+        SignedInIdentity(
+            accountId = accountId,
+            employeeCode = session.employeeCode,
+            accountEmail = session.email,
+            tenant = session.tenant,
+        )
+    }
+
+/**
  * PLAN_V22 P3.5: reads a persisted [SavedTrack]'s `started_by_*` columns into a
  * [TripOwnershipBinding], so cold-start reconciliation can validate a restored trip's ownership
  * pointer the same way [MockAccountSessionCoordinator] validates a live in-memory session.
