@@ -30,11 +30,14 @@ val composeAndroidAssets =
         isCanBeResolved = true
     }
 
-dependencies {
-    // Only core:ui ships composeResources content today. Add one line per module here if/when
-    // core:maps, core:maps-maplibre, or :shared start shipping their own composeResources/.
-    add("composeAndroidAssets", project(mapOf("path" to ":core:ui", "configuration" to "composeAndroidAssetsElements")))
-}
+// Deferred to task-execution time (not project-configuration time) — passing a resolvable
+// Configuration directly to assets.srcDir() forces Gradle to resolve it during :app's
+// configuration phase, which Gradle flags as a scalability/ordering risk in a multi-module build.
+val copyComposeResourcesForAssets =
+    tasks.register<Sync>("copyComposeResourcesForAssets") {
+        from(composeAndroidAssets)
+        into(layout.buildDirectory.dir("composeResourcesForAppAssets"))
+    }
 
 // Release signing, reads from keystore.properties (gitignored) or env vars (CI).
 // Falls back to debug signing if neither is present, so `assembleGmsRelease` still
@@ -169,10 +172,6 @@ android {
         // staging has no source set of its own; reuse the release no-op stubs for
         // WormaCeptorHelper / ShowcaseLauncher (the real impls are debug-only).
         getByName("staging").kotlin.srcDir("src/release/java")
-
-        getByName("main") {
-            assets.srcDir(composeAndroidAssets)
-        }
     }
 
     testOptions {
@@ -205,6 +204,24 @@ android {
             }
         }
     }
+}
+
+// Variant API: the legacy sourceSets.assets.srcDir() rejects Provider instances (AGP enforces
+// static-vs-generated directory tracking here). Wire the Sync task's output as a generated
+// assets directory for every variant instead — see copyComposeResourcesForAssets above.
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        variant.sources.assets?.addGeneratedSourceDirectory(copyComposeResourcesForAssets) { syncTask ->
+            objects.directoryProperty().fileValue(syncTask.destinationDir)
+        }
+    }
+}
+
+// The lambda above hands AGP a plain File-backed DirectoryProperty, which carries no task
+// dependency of its own — Gradle's task-validation confirmed mergeAssets was reading
+// copyComposeResourcesForAssets' output without an ordering guarantee. Force it explicitly.
+tasks.matching { it.name.startsWith("merge") && it.name.endsWith("Assets") }.configureEach {
+    dependsOn(copyComposeResourcesForAssets)
 }
 
 // --------------------------------------------------------------------------
@@ -327,6 +344,9 @@ dependencies {
     implementation(project(":shared"))
     implementation(project(":core:common"))
     implementation(project(":core:ui"))
+    // Only core:ui ships composeResources content today. Add one line per module here if/when
+    // core:maps, core:maps-maplibre, or :shared start shipping their own composeResources/.
+    add("composeAndroidAssets", project(mapOf("path" to ":core:ui", "configuration" to "composeAndroidAssetsElements")))
     implementation(project(":core:data"))
     implementation(project(":core:network"))
     implementation(project(":core:security"))
