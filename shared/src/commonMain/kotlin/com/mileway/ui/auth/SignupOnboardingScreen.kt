@@ -38,7 +38,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PLAN_V24 P2.1 — the config-driven signup onboarding form (the reference app `SignupOnboardingFragment`).
+ * PLAN_V24 P2.1 — the config-driven signup onboarding form (per the reference app's signup onboarding form).
  * The field set + required/optional gating come entirely from [OnboardingFormConfig] (resolved
  * from the onboarding plugins by the host). Submit persists via the ViewModel; Skip is offered
  * only when the persona allows it.

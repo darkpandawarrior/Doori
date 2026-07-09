@@ -7,7 +7,7 @@ import kotlin.test.assertTrue
 
 /**
  * PLAN_V24 P1.4 — the tiered lockout durations are the security-relevant contract, so they are
- * pinned exactly against the the reference app `incrementFailedAttempts` table.
+ * pinned exactly against the reference app's failed-attempt escalation table.
  */
 class PinLockoutPolicyTest {
     @Test

@@ -38,7 +38,7 @@ object EmptyPersonaPresetProvider : PersonaPresetProvider {
 
 /**
  * PLAN_V24 P0.1 — the FORCED resolution layer (highest priority). Debug forces survive account
- * switch (they are not per-account — mirrors the reference app `DebugDataStore`). The Master Plugin page's
+ * switch (they are not per-account — mirrors the reference app's debug store). The Master Plugin page's
  * experimental section (P0.3) and the tuning editor (P10.3) write here. Platform DataStore-backed
  * implementations live in androidMain/iosMain ([PluginDebugForceStore]); tests use
  * [InMemoryPluginDebugForceSource].

@@ -33,7 +33,7 @@ data class CorporateVerificationUiState(
 }
 
 /**
- * PLAN_V24 P4.4 — corporate email verification (the reference app `carpoolv2/corporate/`). Enter a company
+ * PLAN_V24 P4.4 — corporate email verification (per the reference app's corporate verification). Enter a company
  * email whose domain is on the recognised [CorporateDomains] list → an OTP is dispatched to that
  * email (purpose CORPORATE_EMAIL, via the shared [LocalOtpEngine]) → a correct code marks the
  * session corporate-verified. Offline — no real email is sent. The document-upload fallback is

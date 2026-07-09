@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-/** Pre-enable connectivity self-test state (the reference app `SyncEnableGuardState` analog — all simulated). */
+/** Pre-enable connectivity self-test state (analogous to the reference app's sync-enable guard — all simulated). */
 enum class SyncGuardState { Idle, Testing, Passed }
 
 /**
@@ -124,7 +124,7 @@ class SyncDiagnosticsViewModel(
     }
 
     /**
-     * `applyToFutureJourneys` = the the reference app apply-target switch. ON clears any current-journey override
+     * `applyToFutureJourneys` = the reference app's apply-target switch. ON clears any current-journey override
      * (edits become the persisted default); OFF snapshots the current effective settings as the
      * starting current-journey override.
      */

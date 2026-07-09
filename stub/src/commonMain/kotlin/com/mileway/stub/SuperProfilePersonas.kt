@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.flowOf
 /*
  * PLAN_V24 P0.2 — persona presets: the PRESET resolution layer of the Plugin Registry. Four seeded
  * personas each declare a different plugin mix so the same app renders four visibly different
- * stories (the super-profile demo). Generalized from the reference app `DebugProfiles` (named
- * option→Boolean bundles) to product plugins, with the reference app/the reference app per-tenant flag sets as the
- * content model.
+ * stories (the super-profile demo). Generalized from the reference app's named option→Boolean
+ * profile bundles to product plugins, with its per-tenant flag sets as the content model.
  *
  * A preset override only takes effect once its plugin's descriptor is registered in
  * [com.mileway.core.data.plugin.PluginCatalog]. P0.1 registered CORE_MODULES, so the module
@@ -52,7 +51,7 @@ object SuperProfilePersonas {
     private const val REFERRAL_CARD = "referralCard"
     private const val MARKETING_STRIP = "marketingStrip"
 
-    /** the reference app-shaped: enterprise expense identity — MFA, delegation, club, campaigns, manager view. */
+    /** Enterprise expense identity — MFA, delegation, club, campaigns, manager view. */
     val CorporateCommuter =
         PersonaPreset(
             id = "corporate_commuter",
@@ -76,7 +75,7 @@ object SuperProfilePersonas {
                 ),
         )
 
-    /** the reference app-shaped: consumer super-app identity — phone-OTP, referrals, coupons, wallets, ecometer. */
+    /** Consumer super-app identity — phone-OTP, referrals, coupons, wallets, ecometer. */
     val SuperAppConsumer =
         PersonaPreset(
             id = "super_app_consumer",
@@ -89,7 +88,7 @@ object SuperProfilePersonas {
                     APPROVALS to false,
                     PAYABLES to false,
                     "phoneLoginEnabled" to true,
-                    // P2.1: the reference app-shaped signup onboarding form (last name + email optional, skip on).
+                    // P2.1: signup onboarding form (last name + email optional, skip on).
                     "signupOnboardingEnabled" to true,
                     "genderRequired" to true,
                     "showPromoOnboarding" to true,
@@ -106,7 +105,7 @@ object SuperProfilePersonas {
                 ),
         )
 
-    /** the reference app-shaped: gig/KYC identity — verification centre, garage, per-km rates, plans, tour. */
+    /** Gig/KYC identity — verification centre, garage, per-km rates, plans, tour. */
     val GigDriver =
         PersonaPreset(
             id = "gig_driver",

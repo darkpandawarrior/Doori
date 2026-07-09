@@ -3,7 +3,7 @@ package com.mileway.core.data.verification
 import kotlinx.serialization.Serializable
 
 /*
- * PLAN_V24 P4.1: verification-document model, rebuilt from the the reference app app's DocRequirementResponse
+ * PLAN_V24 P4.1: verification-document model, rebuilt from the reference app's verification-document
  * shape. Offline/mock for now — no real backend — so these live in core:data (the base module the
  * Room entity and every consumer can reach) rather than core:network as the plan sketched: core:data
  * has no dependency on core:network (the arrow runs the other way), so a core:network home would make

@@ -1,7 +1,7 @@
 package com.mileway.core.data.rewards
 
 /*
- * PLAN_V24 P5.3: scratch-card reward models (the reference app `RewardsActivity` / `scratch_coupon`). Offline/
+ * PLAN_V24 P5.3: scratch-card reward models (reference app scratch-card rewards). Offline/
  * mock — in core:data (the base module the Room entity and every consumer reach), same seam choice
  * as the P5.1/P5.2 growth models.
  */

@@ -241,7 +241,7 @@ private fun SessionRow(
 private val SESSION_MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 /**
- * PLAN_V24 P7.2: device-details sheet (source: the reference app `SessionDetailsBottomSheet`). Opened by tapping a
+ * PLAN_V24 P7.2: device-details sheet (source: the reference app's session-details sheet). Opened by tapping a
  * row; shows the enriched device fields (type/os/app version/ip), last-activity and the derived
  * status. Hidden by default, so it does not alter the list's rendered layout.
  */

@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.map
  * and VALUE plugins. The composition root reads [observe]/[observeValue]; the Master Plugin page
  * (P0.3) additionally reads [observeSource] to show *which* layer won.
  *
- * the reference app merges its three tiers invisibly inside helper methods; Mileway externalizes the merge here
+ * The reference app merges its three tiers invisibly inside helper methods; Mileway externalizes the merge here
  * so [observeSource] can name the winning layer per flag (the demo story).
  */
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,7 +97,7 @@ class PluginRegistry(
         }
 
     /**
-     * PLAN_V24 P0.3 — the experimental-section unlock (the reference app `*_unlock_press_count` pattern),
+     * PLAN_V24 P0.3 — the experimental-section unlock (the reference app's tap-to-unlock pattern),
      * persisted per-account by reusing the USER-override table under a reserved id (no new store).
      * The id is not a catalog plugin, so it never renders as a togglable row.
      */

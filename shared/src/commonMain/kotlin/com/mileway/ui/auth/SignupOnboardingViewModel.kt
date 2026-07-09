@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 enum class OnboardingField { FIRST_NAME, LAST_NAME, EMAIL, GENDER, DOB }
 
 /**
- * PLAN_V24 P2.1 — the gating flags from the signup-onboarding plugins (the reference app
- * `SignupOnboardingFragment`). The screen resolves these from the registry and passes them via
+ * PLAN_V24 P2.1 — the gating flags from the signup-onboarding plugins (per the reference app's
+ * signup onboarding). The screen resolves these from the registry and passes them via
  * [SignupOnboardingViewModel.configure] so the validation stays a pure function of config + input.
  */
 data class OnboardingFormConfig(

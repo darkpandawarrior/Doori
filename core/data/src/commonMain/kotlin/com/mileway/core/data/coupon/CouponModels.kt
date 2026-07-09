@@ -1,7 +1,7 @@
 package com.mileway.core.data.coupon
 
 /*
- * PLAN_V24 P5.2: promo-code / coupon models (the reference app `get_coupons_and_promotions` → `PromoCoupon`).
+ * PLAN_V24 P5.2: promo-code / coupon models (reference app promo codes / coupons).
  * Offline/mock — in core:data (the base module the Room entity and every consumer reach), same
  * seam choice as the P4.1 verification and P5.1 referral models.
  */

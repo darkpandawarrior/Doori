@@ -12,8 +12,8 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 /*
- * PLAN_V24 P2.2 — "What's new" content, version-keyed (the reference app WHATS_NEW_ACK /
- * WHATS_NEW_LAST_SEEN_VERSION). ponytail: the static list lives here as UI data rather than in
+ * PLAN_V24 P2.2 — "What's new" content, version-keyed (per the reference app's what's-new
+ * acknowledgement). ponytail: the static list lives here as UI data rather than in
  * :stub — shared doesn't depend on :stub and this is a small in-app changelog, not backend mock.
  */
 

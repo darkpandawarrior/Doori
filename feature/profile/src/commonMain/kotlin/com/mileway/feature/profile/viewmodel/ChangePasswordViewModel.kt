@@ -26,8 +26,8 @@ data class ChangePasswordUiState(
 }
 
 /**
- * PLAN_V24 P1.5 — the change-password flow (the reference app `PasswordChangeRequestV2(password, original)`
- * shape): verify the original against the mock [CredentialSource], validate the new one
+ * PLAN_V24 P1.5 — the change-password flow (per the reference app's change-password shape):
+ * verify the original against the mock [CredentialSource], validate the new one
  * (min length via [PasswordPolicy]) and its confirmation, then persist the new salted hash.
  */
 class ChangePasswordViewModel(

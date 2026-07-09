@@ -6,7 +6,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 /**
- * PLAN_V24 P1.1: phone-login validation rules ported from the reference app `LoginFragment` — digit-only
+ * PLAN_V24 P1.1: phone-login validation rules ported from the reference app's phone login — digit-only
  * normalization, leading-zero strip, 10-digit requirement, and the full-number assembly used as
  * the OTP target.
  */

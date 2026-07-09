@@ -28,8 +28,8 @@ data class PhoneChangeUiState(
 )
 
 /**
- * PLAN_V24 P3.1 — phone change with OTP re-verify (the reference app `verify_my_contact_number` /
- * the reference app `ProfileUpdateMode.PHONE`). Requesting a change dispatches a PHONE_CHANGE OTP to the new
+ * PLAN_V24 P3.1 — phone change with OTP re-verify (per the reference app's phone-change flow).
+ * Requesting a change dispatches a PHONE_CHANGE OTP to the new
  * number and persists it as pending ([SessionRepository.startPhoneChange]); only a correct OTP
  * commits it. A relaunch with a pending target resumes the verify step (re-sending a fresh code,
  * since the in-memory challenge doesn't survive process death). Cancel leaves the old number.

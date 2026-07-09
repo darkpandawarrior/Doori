@@ -647,7 +647,7 @@ private fun DemoModePersonaPickerSheet(
 }
 
 /**
- * PLAN_V24 P1.6: duplicate-account resolution (the reference app `MultipleAccountsActivity`). Shown after a
+ * PLAN_V24 P1.6: duplicate-account resolution (per the reference app's multiple-accounts screen). Shown after a
  * phone-OTP login when the verified number is already registered to existing personas — the
  * reviewer either continues as one of them or creates a new identity. Own bottom-sheet design.
  */
@@ -978,7 +978,7 @@ private fun AuthModeToggle(
 }
 
 /**
- * PLAN_V24 P1.1: phone + country-code entry with the reference app' validation rules ([PhoneNumberValidator]),
+ * PLAN_V24 P1.1: phone + country-code entry with the reference app's validation rules ([PhoneNumberValidator]),
  * a "Send OTP" action wired to the shared [com.mileway.core.data.otp.LocalOtpEngine], and — since
  * this is an offline demo — the dispatched code surfaced inline. The full 6-box entry + verify is
  * P1.2; here Send OTP proves the number is valid and dispatches the deterministic code.

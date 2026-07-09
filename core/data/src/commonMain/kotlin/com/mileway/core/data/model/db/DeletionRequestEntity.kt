@@ -4,8 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * PLAN_V24 P7.1: the single account-deletion request row (source: the reference app/the reference app
- * `KEY_REQUESTED_FOR_ACCOUNT_DELETION`). [id] is the constant [DELETION_REQUEST_ID] so there is at
+ * PLAN_V24 P7.1: the single account-deletion request row (source: the reference app's
+ * account-deletion request flag). [id] is the constant [DELETION_REQUEST_ID] so there is at
  * most one row; requesting REPLACEs it, cancelling clears it. [status] stores the `DeletionStatus`
  * enum name; [reason] is the optional user-entered note (also the SimulatedReviewEngine payload).
  */

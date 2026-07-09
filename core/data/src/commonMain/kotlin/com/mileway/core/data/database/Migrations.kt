@@ -202,7 +202,7 @@ val MIGRATION_23_24 =
 
 /**
  * Migration 22 → 23 (PLAN_V24 P4.1): additive `documents` table — the verification centre's
- * per-doc requirement + status rows (the reference app `DocRequirementResponse`). `doc_url[]`/`doc_info[]`
+ * per-doc requirement + status rows (per the reference app's verification requirements). `doc_url[]`/`doc_info[]`
  * are JSON-encoded TEXT; enum columns store the enum name. Empty on first run (seeded by
  * `DocumentRepository.seedIfEmpty()`). See [com.mileway.core.data.model.db.DocumentEntity].
  */

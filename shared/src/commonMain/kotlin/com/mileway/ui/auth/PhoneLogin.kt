@@ -1,8 +1,8 @@
 package com.mileway.ui.auth
 
 /*
- * PLAN_V24 P1.1 — phone-number login validation + country list, reimplementing the reference app
- * LoginFragment's rules on Mileway's own foundation: strip non-digits, drop a leading zero, and
+ * PLAN_V24 P1.1 — phone-number login validation + country list, reimplementing the reference app's
+ * phone-login rules on Mileway's own foundation: strip non-digits, drop a leading zero, and
  * require a 10-digit national number. Pure + platform-agnostic so it unit-tests without a UI.
  *
  * ponytail: the small country list lives here as static UI data rather than in :stub — a picker
@@ -16,7 +16,7 @@ data class CountryDialCode(
     val dialCode: String,
 )
 
-/** Small static list; India (+91) is the default, matching the reference app' default country. */
+/** Small static list; India (+91) is the default, matching the reference app's default country. */
 val LOGIN_COUNTRY_CODES: List<CountryDialCode> =
     listOf(
         CountryDialCode("IN", "India", "+91"),
@@ -41,7 +41,7 @@ sealed interface PhoneValidation {
 object PhoneNumberValidator {
     private const val NATIONAL_LENGTH = 10
 
-    /** Digits only, with a single leading zero stripped (the reference app' auto-strip behaviour). */
+    /** Digits only, with a single leading zero stripped (the reference app's auto-strip behaviour). */
     fun normalize(raw: String): String {
         val digits = raw.filter { it.isDigit() }
         return if (digits.startsWith("0")) digits.trimStart('0') else digits

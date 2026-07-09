@@ -1,8 +1,8 @@
 package com.mileway.feature.profile.viewmodel
 
 /**
- * PLAN_V24 P6.3: an incentive program (source: the reference app `fetch_incentive_data` → `ProgramModel`,
- * grouped active vs expired by `programType`, each with target / progress / reward). String content
+ * PLAN_V24 P6.3: an incentive program (source: the reference app's incentive data,
+ * grouped active vs expired by program type, each with target / progress / reward). String content
  * is carried as resource keys ([titleKey]/[descKey]/[rewardKey]) resolved in the screen, so the model
  * stays i18n-clean and the [IncentiveCatalog.build] logic stays pure/testable.
  */

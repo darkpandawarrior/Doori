@@ -74,7 +74,7 @@ object PluginCatalog {
         )
 
     /**
-     * Signup-onboarding form config (P2.1) — the reference app `SignupOnboardingFragment` gating flags.
+     * Signup-onboarding form config (P2.1) — the reference app's signup-onboarding gating flags.
      * `signupOnboardingEnabled` is the master gate; the rest shape the field set.
      */
     val onboardingPlugins: List<PluginDescriptor> =
@@ -179,8 +179,8 @@ object PluginCatalog {
                 descriptionKey = "plugin_tracking_auto_pause_desc",
                 defaultOn = false,
             ),
-            // PLAN_V24 P10.6: manager-only reportee tracking view (the reference app enableTrackMileageManagerView /
-            // ExpensePluginConfig.showTrackReportees). A whole new profile-hub destination (TILE).
+            // PLAN_V24 P10.6: manager-only reportee tracking view (per the reference app's manager
+            // reportee-tracking flags). A whole new profile-hub destination (TILE).
             // defaultOn=false keeps the profile-hub gallery golden byte-identical; the id is already
             // declared true in SuperProfilePersonas.CorporateCommuter, so registering this descriptor
             // is what turns the tile on for that (manager) persona.
@@ -329,7 +329,7 @@ object PluginCatalog {
         )
 
     /**
-     * Mileage-sync settings (P10.2) — the reference app `MileageSyncSettingsCard`. Each toggle gates a real
+     * Mileage-sync settings (P10.2) — the reference app's mileage-sync settings card. Each toggle gates a real
      * local behavior in [SyncDiagnosticsRepository][com.mileway.feature.profile.repository.SyncDiagnosticsRepository]'s
      * force-sync drain (which local staging buckets get moved to the synced counters); the interval
      * VALUE drives the displayed next-auto-sync-due time. No backend — see CLAUDE.md "The backend".

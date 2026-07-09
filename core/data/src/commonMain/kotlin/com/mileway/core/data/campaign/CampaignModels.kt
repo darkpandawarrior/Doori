@@ -1,7 +1,7 @@
 package com.mileway.core.data.campaign
 
 /*
- * PLAN_V24 P5.4: campaign-marketing models (the reference app `MarketingViewModel` / `CampaignFeature`).
+ * PLAN_V24 P5.4: campaign-marketing models (reference app campaign marketing).
  * Offline/mock — in core:data (the base module the Room entity, the profile hub AND the shared
  * HomeScreen marketing strip all reach). Closes MASTER_GAP:70.
  */

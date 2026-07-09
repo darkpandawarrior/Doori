@@ -1,8 +1,8 @@
 package com.mileway.core.data.subscription
 
 /*
- * PLAN_V24 P6.2: subscription-plan models (the reference app `subscriptions/` MVVM + the reference app
- * `fetch_driver_plans`). Offline/mock — Room-backed via [SubscriptionRepository], purchase is a mock
+ * PLAN_V24 P6.2: subscription-plan models (per the reference app's subscription plans).
+ * Offline/mock — Room-backed via [SubscriptionRepository], purchase is a mock
  * confirm (NO payment integration). Closes part of Phase 6.
  */
 

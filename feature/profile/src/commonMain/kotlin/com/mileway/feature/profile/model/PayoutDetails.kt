@@ -2,7 +2,7 @@ package com.mileway.feature.profile.model
 
 /**
  * PLAN_V24 P8.2: the payout-identity block shown on Profile Details — a seeded, display-only bank
- * account (the reference app `bank_account_no`/`ifsc_code`/`bank_name`) plus an editable UPI handle rendered
+ * account (per the reference app's bank account fields) plus an editable UPI handle rendered
  * as a QR. Bank fields are mock constants (no backend); only the UPI handle is user-editable and
  * persisted (in the session — see `SessionRepository.setUpiHandle`).
  */

@@ -17,8 +17,8 @@ data class EmailVerificationUiState(
 )
 
 /**
- * PLAN_V24 P3.2 — email verification status (the reference app `emailVerificationStatus` /
- * `send_verify_email_link`). Offline: [sendLink] flips to a "link sent" state whose demo action
+ * PLAN_V24 P3.2 — email verification status (per the reference app's email verification).
+ * Offline: [sendLink] flips to a "link sent" state whose demo action
  * ([confirmClicked]) marks the email verified in the session. No real link is sent.
  */
 class EmailVerificationViewModel(

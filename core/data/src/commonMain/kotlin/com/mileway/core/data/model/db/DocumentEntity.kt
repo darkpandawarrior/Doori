@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * PLAN_V24 P4.1: a persisted verification document (the reference app `DocRequirementResponse`, one row per
+ * PLAN_V24 P4.1: a persisted verification document (per the reference app's verification requirements, one row per
  * doc type). [docUrlsJson] and [docInfoJson] carry the `doc_url[]` / `doc_info[]` lists as
  * JSON-encoded `TEXT` (no `@TypeConverter`, the same convention as [VoucherEntity]'s
  * `expenseRouteIdsJson`). Enum-valued columns ([requirement]/[status]/[category]) store the enum

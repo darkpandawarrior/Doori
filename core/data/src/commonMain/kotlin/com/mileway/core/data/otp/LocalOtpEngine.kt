@@ -11,8 +11,8 @@ import kotlin.time.Clock
  * (purpose, target) is a stable hash, so the demo is reproducible and self-serving — [deliveries]
  * re-emits the code as a "demo SMS/call" banner the UI surfaces on the OTP screen.
  *
- * Merges the source apps' behaviours: the reference app `MfaComposeViewModel` (6-digit send/verify), the reference app
- * `OTPConfirmScreen` (resend countdown + OTP-via-call fallback), the reference app's 10-minute validity.
+ * Merges the reference app's OTP behaviours: 6-digit send/verify, a resend countdown with an
+ * OTP-via-call fallback, and a 10-minute code validity window.
  */
 enum class OtpPurpose { LOGIN, MFA, PHONE_CHANGE, WALLET_LINK, CARD_KYC, CORPORATE_EMAIL }
 
@@ -99,7 +99,7 @@ class LocalOtpEngine(private val clock: Clock = Clock.System) {
         return delivery
     }
 
-    /** The the reference app "Get OTP via call" fallback — same code, different delivery label. */
+    /** The "Get OTP via call" fallback (per the reference app) — same code, different delivery label. */
     fun requestViaCall(
         purpose: OtpPurpose,
         target: String,
@@ -126,7 +126,7 @@ class LocalOtpEngine(private val clock: Clock = Clock.System) {
         return OtpVerifyResult.WrongCode(challenge.attemptsRemaining)
     }
 
-    /** Seconds until "Resend" becomes available again (the reference app 10s countdown); 0 when ready or idle. */
+    /** Seconds until "Resend" becomes available again (10s countdown per the reference app); 0 when idle. */
     fun resendAvailableInSeconds(
         purpose: OtpPurpose,
         target: String,
@@ -147,8 +147,8 @@ class LocalOtpEngine(private val clock: Clock = Clock.System) {
     }
 
     private companion object {
-        const val VALIDITY_MILLIS = 10 * 60 * 1000L // 10 minutes (the reference app)
-        const val RESEND_COOLDOWN_SECONDS = 10 // the reference app OTPConfirmScreen countdown
+        const val VALIDITY_MILLIS = 10 * 60 * 1000L // 10 minutes (per the reference app)
+        const val RESEND_COOLDOWN_SECONDS = 10 // reference app resend countdown
         const val MAX_ATTEMPTS = 3
     }
 }

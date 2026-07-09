@@ -32,7 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PLAN_V24 P1.5 — the change-password sheet (the reference app change-password bottomsheet shape): current +
+ * PLAN_V24 P1.5 — the change-password sheet (per the reference app's change-password sheet shape): current +
  * new + confirm, a strength meter, and validation errors surfaced from [ChangePasswordViewModel].
  * Gated by the `showPasswordSettings` plugin at the call site.
  */

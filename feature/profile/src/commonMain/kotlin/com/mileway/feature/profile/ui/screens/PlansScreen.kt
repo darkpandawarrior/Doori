@@ -57,7 +57,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PLAN_V24 P6.2: subscription plan picker (source: the reference app `subscriptions/` plan list). Cards show
+ * PLAN_V24 P6.2: subscription plan picker (source: the reference app's subscription plan list). Cards show
  * price / period / savings copy / features. Tapping a non-active plan opens a mock purchase confirm
  * sheet (NO payment). An existing subscription surfaces a "manage" entry to [MySubscriptionScreen].
  */

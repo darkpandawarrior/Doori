@@ -37,8 +37,8 @@ fun hashPassword(
 ): String = sha256Hex("$accountId::$password")
 
 /**
- * PLAN_V24 P1.5 — password rules for the change/forgot flows (the reference app `PasswordChangeRequestV2`
- * validation shape). Pure, so it unit-tests without a UI.
+ * PLAN_V24 P1.5 — password rules for the change/forgot flows (per the reference app's
+ * password-change validation shape). Pure, so it unit-tests without a UI.
  */
 object PasswordPolicy {
     const val MIN_LENGTH: Int = 8

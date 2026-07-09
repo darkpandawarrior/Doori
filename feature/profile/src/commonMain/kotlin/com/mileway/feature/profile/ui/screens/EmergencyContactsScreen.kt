@@ -71,7 +71,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PLAN_V24 P3.5: manage the emergency-contacts list (the reference app/the reference app `emergency/`). Room-backed list
+ * PLAN_V24 P3.5: manage the emergency-contacts list (per the reference app's emergency contacts). Room-backed list
  * capped at 5, with an add/edit bottom sheet (name + dial code + phone, phone validated) and
  * delete. Reachable from the Account hub's plugin-gated Emergency tile. The contacts feed the
  * tracking SOS sheet.

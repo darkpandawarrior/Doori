@@ -90,7 +90,7 @@ object ReferralMockData {
             ReferralLeaderboardEntry(10, "Nikhil Joshi", 4, 800),
         )
 
-    /** Seeded activity feed (the reference app `get_activity`). */
+    /** Seeded activity feed (reference app activity feed). */
     val activity: List<ReferralActivity> =
         listOf(
             ReferralActivity("ACT-1", "Rahul Mehra completed 5 trips — you earned 500 credits", "2h ago"),

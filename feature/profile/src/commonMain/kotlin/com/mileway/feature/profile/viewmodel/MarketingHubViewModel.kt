@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 /**
  * PLAN_V24 P5.4: drives `MarketingHubScreen` — the campaign list and the one-shot "Get in touch"
- * interest capture (the reference app `MarketingViewModel`). Campaigns come from the shared core:data
+ * interest capture (per the reference app's marketing hub). Campaigns come from the shared core:data
  * [CampaignRepository] (also backing the HomeScreen marketing strip).
  */
 data class MarketingHubUiState(

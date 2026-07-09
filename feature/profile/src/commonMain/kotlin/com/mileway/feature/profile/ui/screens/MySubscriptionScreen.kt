@@ -59,7 +59,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private val SUB_MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 /**
- * PLAN_V24 P6.2: active subscription detail (source: the reference app active-subscription screen). Shows plan,
+ * PLAN_V24 P6.2: active subscription detail (source: the reference app's active-subscription screen). Shows plan,
  * status, dates, the "savings so far" counter, and renew / change-plan / cancel actions. Cancel keeps
  * access until the period end (source semantics) — surfaced as a "cancels on …" note, not an instant
  * loss of access. Renew and cancel are guarded by confirm dialogs.

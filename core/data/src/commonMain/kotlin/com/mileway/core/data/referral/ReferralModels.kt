@@ -1,17 +1,17 @@
 package com.mileway.core.data.referral
 
 /*
- * PLAN_V24 P5.1: referral-program v2 models (the reference app ReferralTxn / the reference app ReferInfo). Offline/mock —
+ * PLAN_V24 P5.1: referral-program v2 models, rebuilt from the reference app's referral records. Offline/mock —
  * these live in core:data (the base module the Room entity and every consumer reach), same seam
  * choice as the P4.1 verification models.
  */
 
-/** A referred user's status lifecycle (the reference app `ReferInfo`): PENDING → SUCCESS | FAILED. */
+/** A referred user's status lifecycle (per the reference app): PENDING → SUCCESS | FAILED. */
 enum class ReferralStatus { PENDING, SUCCESS, FAILED }
 
 /**
- * One referred user's progress. [userNumRides]/[nextTargetRides] drives the the reference app-style
- * "N of M trips done" meter; [processedMoney]/[processedCredits] are what's been earned so far,
+ * One referred user's progress. [userNumRides]/[nextTargetRides] drives the
+ * "N of M trips done" progress meter; [processedMoney]/[processedCredits] are what's been earned so far,
  * [nextTargetMoney]/[nextTargetCredits] what the next milestone unlocks. [taskMessage] is the
  * source's human-readable status line.
  */
@@ -35,7 +35,7 @@ data class ReferralTxn(
     val isCompleted: Boolean get() = status == ReferralStatus.SUCCESS
 }
 
-/** A leaderboard row (the reference app `get_leaderboards`). [isCurrentUser] highlights the signed-in user's rank. */
+/** A leaderboard row (reference app leaderboards). [isCurrentUser] highlights the signed-in user's rank. */
 data class ReferralLeaderboardEntry(
     val rank: Int,
     val name: String,
@@ -44,7 +44,7 @@ data class ReferralLeaderboardEntry(
     val isCurrentUser: Boolean = false,
 )
 
-/** An activity-feed event (the reference app `get_activity`) — a dated one-line milestone. */
+/** An activity-feed event (reference app activity feed) — a dated one-line milestone. */
 data class ReferralActivity(
     val id: String,
     val message: String,

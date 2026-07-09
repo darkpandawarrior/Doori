@@ -12,7 +12,7 @@ private const val PREFIX = "force_"
 
 /**
  * PLAN_V24 P0.1 — DataStore-backed [PluginDebugForceSource] (the FORCED layer). Not per-account —
- * forces survive account switch, mirroring the reference app's `DebugDataStore`. Each force is one string pref
+ * forces survive account switch, mirroring the reference app's debug store. Each force is one string pref
  * keyed `force_<pluginId>`.
  */
 class PluginDebugForceStore(private val context: Context) : PluginDebugForceSource {

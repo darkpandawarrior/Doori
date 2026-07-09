@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * PLAN_V24 P10.2 — a current-journey-only override of the mileage-sync settings. When set (and a
  * track is active), it wins over the persisted defaults (the sync-settings plugins in the registry)
- * for the running journey only; it is cleared with the session. This is the reference app's `applyToFutureJourneys`
+ * for the running journey only; it is cleared with the session. This is the reference app's apply-to-future-journeys
  * model: a change either updates the persisted default (registry) or just this journey (here).
  */
 data class SyncSessionOverride(

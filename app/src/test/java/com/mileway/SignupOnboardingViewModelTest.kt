@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * PLAN_V24 P2.1 — the onboarding form's value is its config-driven validation (the reference app gating flags),
+ * PLAN_V24 P2.1 — the onboarding form's value is its config-driven validation (per the reference app's gating flags),
  * so the required/optional matrix is pinned here.
  */
 class SignupOnboardingViewModelTest {

@@ -1,7 +1,7 @@
 package com.mileway.core.data.subscription
 
 /**
- * PLAN_V24 P6.2: seed set for the subscription plans — 3 tiers (source: the reference app plan cards with
+ * PLAN_V24 P6.2: seed set for the subscription plans — 3 tiers (source: the reference app's plan cards with
  * price / period / savings copy). Seeded once by [SubscriptionRepository.seedIfEmpty].
  */
 internal object SubscriptionMockData {

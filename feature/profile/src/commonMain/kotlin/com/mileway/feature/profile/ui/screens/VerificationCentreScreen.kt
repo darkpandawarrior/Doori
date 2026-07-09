@@ -96,7 +96,7 @@ internal fun docStatusColor(status: DocStatus): Color =
 /**
  * PLAN_V24 P4.2: the verification centre. Lists every document with its status chip (and rejection
  * reason line), aggregate counters, and a "Submit for verification" action gated on all mandatory
- * docs being complete, behind a T&C agreement dialog (the reference app `DocumentListFragment`).
+ * docs being complete, behind a T&C agreement dialog (per the reference app's document list).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,7 +1,7 @@
 package com.mileway.core.data.session
 
 /**
- * PLAN_V24 P1.4 — tiered PIN lockout, porting the reference app `AccountRepositoryImpl.incrementFailedAttempts`:
+ * PLAN_V24 P1.4 — tiered PIN lockout, reimplementing the reference app's failed-attempt escalation:
  * the first few wrong attempts are free, then each further wrong attempt locks the PIN for an
  * escalating window. Pure + table-driven so it unit-tests without a store or clock.
  *

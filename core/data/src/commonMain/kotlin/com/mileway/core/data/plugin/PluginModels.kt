@@ -5,9 +5,9 @@ package com.mileway.core.data.plugin
  * mechanism. Every feature surface below the composition root is gated by a PluginDescriptor;
  * there is no hardcoded feature visibility after this plan.
  *
- * The registry merges three source-app patterns deliberately: the reference app's 3-tier resolution (debug
- * force → per-user unlock → config default), the reference app' dual-layer gating (a menu tag AND a capability
- * flag — modelled here as distinct PluginKinds, not two parallel systems), and the reference app's
+ * The registry merges three reference-app patterns deliberately: a 3-tier resolution (debug
+ * force → per-user unlock → config default), a dual-layer gating (a menu tag AND a capability
+ * flag — modelled here as distinct PluginKinds, not two parallel systems), and a
  * server-composed side menu (whole modules toggled — modelled as TILE plugins in CORE_MODULES).
  */
 

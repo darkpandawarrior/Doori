@@ -45,7 +45,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PLAN_V24 P6.3: incentive programs surface (source: the reference app incentives). Two sections — active and
+ * PLAN_V24 P6.3: incentive programs surface (source: the reference app's incentives). Two sections — active and
  * expired — each program a card with a target/progress bar and reward line. The "complete N tracked
  * trips" program's progress reflects real completed trips.
  */

@@ -58,7 +58,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val DELETE_CONFIRM_WORD = "DELETE"
 
 /**
- * PLAN_V24 P7.1: account-deletion flow (source: the reference app/the reference app `DeleteMyAccountActivity`). A
+ * PLAN_V24 P7.1: account-deletion flow (source: the reference app's account-deletion flow). A
  * destructive request behind a typed confirmation ("DELETE") + an optional reason. Once requested it
  * is cancelable until the simulated review moves it to PROCESSING; on completion the active persona
  * is wiped and the session ends ([onAccountDeleted] routes to login).

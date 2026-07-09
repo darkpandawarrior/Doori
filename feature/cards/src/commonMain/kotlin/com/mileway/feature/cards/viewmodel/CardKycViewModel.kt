@@ -11,11 +11,11 @@ import kotlinx.coroutines.launch
 /** Digits the KYC personal-info step requires for the phone number (India, matching P1.1/P3.1). */
 private const val PHONE_LENGTH = 10
 
-/** Simulated "back-office is processing your KYC" spinner duration (source: the reference app ~2s). */
+/** Simulated "back-office is processing your KYC" spinner duration (source: the reference app, ~2s). */
 private const val KYC_PROCESSING_MILLIS = 2_000L
 
 /**
- * PLAN_V24 P4.3: the 5-step Card-KYC wizard (the reference app `KycVerificationScreen`) — (0) Intro,
+ * PLAN_V24 P4.3: the 5-step Card-KYC wizard (per the reference app's KYC wizard) — (0) Intro,
  * (1) Personal info, (2) OTP, (3) Document upload, (4) Selfie → Success. OTP goes through the
  * shared [LocalOtpEngine] (purpose CARD_KYC). Per-step [CardKycUiState.isCurrentStepValid] gates
  * "Next"; the final submit shows a simulated processing spinner before success.
