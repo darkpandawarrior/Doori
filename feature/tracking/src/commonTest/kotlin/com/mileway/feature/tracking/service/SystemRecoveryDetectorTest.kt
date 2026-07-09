@@ -59,6 +59,14 @@ class SystemRecoveryDetectorTest {
 // ── Fake ──────────────────────────────────────────────────────────────────────
 
 private class FakeSystemRecoveryDao : SavedTrackDao {
+    // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
+    // SmartDistance commit without updating these test fakes; no-op override so this test source
+    // set compiles (pre-existing breakage, incidental to P10.1).
+    override suspend fun updateSmartDistanceFinal(
+        routeId: String,
+        value: Double,
+    ) = Unit
+
     val routeIdsInDb = mutableListOf<String>()
     val fgTerminatedRouteIds = mutableListOf<String>()
 

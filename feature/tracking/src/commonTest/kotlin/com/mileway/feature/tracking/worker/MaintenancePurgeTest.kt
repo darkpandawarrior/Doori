@@ -57,6 +57,14 @@ class MaintenancePurgeTest {
 }
 
 private class FakeEligibleSavedTrackDao(private val eligibleRouteIds: List<String>) : SavedTrackDao {
+    // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
+    // SmartDistance commit without updating these test fakes; no-op override so this test source
+    // set compiles (pre-existing breakage, incidental to P10.1).
+    override suspend fun updateSmartDistanceFinal(
+        routeId: String,
+        value: Double,
+    ) = Unit
+
     val purgedRouteIds = mutableListOf<String>()
 
     override suspend fun getRouteIdsEligibleForCleanup(cutoffMillis: Long): List<String> = eligibleRouteIds
