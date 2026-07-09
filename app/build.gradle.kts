@@ -57,7 +57,7 @@ abstract class CopyComposeResourcesForAssetsTask : DefaultTask() {
 
     @TaskAction
     fun copy() {
-        fs.copy {
+        fs.sync {
             from(inputFiles)
             into(outputDir)
         }
