@@ -390,6 +390,15 @@
     <string name="profile_settings_low_end_desc">Fewer UI animations (cosmetic in demo)</string>
     <string name="profile_settings_aggressive_gps">Aggressive GPS filter</string>
     <string name="profile_settings_aggressive_gps_desc">Tighter spike rejection radius: 40 m vs 80 m (real effect)</string>
+    <!-- PLAN_V24 P10.7: experimental optimizations card parity -->
+    <string name="profile_settings_capture_kalman">Capture Kalman state</string>
+    <string name="profile_settings_capture_kalman_desc">Record the Kalman filter estimate alongside each fix</string>
+    <string name="profile_settings_path_simplification">Path simplification</string>
+    <string name="profile_settings_path_simplification_desc">Thin dense route points before storing the track</string>
+    <string name="profile_settings_gap_telemetry">Gap telemetry</string>
+    <string name="profile_settings_gap_telemetry_desc">Log sampling-gap recovery diagnostics</string>
+    <string name="profile_settings_imu_logging">IMU logging</string>
+    <string name="profile_settings_imu_logging_desc">Record accelerometer and gyroscope samples per fix</string>
     <string name="profile_settings_reset">Reset customization</string>
     <string name="profile_settings_reset_desc">Restore palette, language, and experimental flags to defaults</string>
     <string name="profile_settings_reset_sheet_desc">Palette, language, and experimental flags will return to defaults.</string>
@@ -2421,6 +2430,21 @@
     <string name="plugin_track_gap_tier_1h_mps_desc">Relaxed plausible-speed cap for medium gaps</string>
     <string name="plugin_track_gap_tier_6h_mps_title">Gap tier 3 speed cap</string>
     <string name="plugin_track_gap_tier_6h_mps_desc">Relaxed plausible-speed cap for long gaps</string>
+    <!-- PLAN_V24 P10.7: experimental optimization plugins -->
+    <string name="plugin_exp_battery_aware_title">Battery-aware tracking</string>
+    <string name="plugin_exp_battery_aware_desc">Ease location polling when the battery runs low</string>
+    <string name="plugin_exp_low_end_tuning_title">Low-end device tuning</string>
+    <string name="plugin_exp_low_end_tuning_desc">Reduce recomposition and animation load on weaker devices</string>
+    <string name="plugin_exp_aggressive_gps_title">Aggressive GPS filter</string>
+    <string name="plugin_exp_aggressive_gps_desc">Tighten spike rejection for noisier environments</string>
+    <string name="plugin_exp_capture_kalman_title">Capture Kalman state</string>
+    <string name="plugin_exp_capture_kalman_desc">Record the Kalman filter estimate alongside each fix</string>
+    <string name="plugin_exp_path_simplification_title">Path simplification</string>
+    <string name="plugin_exp_path_simplification_desc">Thin dense route points before storing the track</string>
+    <string name="plugin_exp_gap_telemetry_title">Gap telemetry</string>
+    <string name="plugin_exp_gap_telemetry_desc">Log sampling-gap recovery diagnostics</string>
+    <string name="plugin_exp_imu_logging_title">IMU logging</string>
+    <string name="plugin_exp_imu_logging_desc">Record accelerometer and gyroscope samples per fix</string>
     <string name="plugin_tracking_force_gps_title">Force GPS provider</string>
     <string name="plugin_tracking_force_gps_desc">Use raw GPS instead of the fused provider</string>
     <string name="plugin_tracking_upload_background_title">Upload in background</string>

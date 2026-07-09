@@ -74,6 +74,8 @@ import com.mileway.core.ui.resources.profile_settings_app_version
 import com.mileway.core.ui.resources.profile_settings_back
 import com.mileway.core.ui.resources.profile_settings_battery_aware
 import com.mileway.core.ui.resources.profile_settings_battery_aware_desc
+import com.mileway.core.ui.resources.profile_settings_capture_kalman
+import com.mileway.core.ui.resources.profile_settings_capture_kalman_desc
 import com.mileway.core.ui.resources.profile_settings_custom_color
 import com.mileway.core.ui.resources.profile_settings_custom_color_desc
 import com.mileway.core.ui.resources.profile_settings_custom_theme_color
@@ -90,7 +92,11 @@ import com.mileway.core.ui.resources.profile_settings_developer_options_desc
 import com.mileway.core.ui.resources.profile_settings_distance_units
 import com.mileway.core.ui.resources.profile_settings_employee_code
 import com.mileway.core.ui.resources.profile_settings_experimental
+import com.mileway.core.ui.resources.profile_settings_gap_telemetry
+import com.mileway.core.ui.resources.profile_settings_gap_telemetry_desc
 import com.mileway.core.ui.resources.profile_settings_granted
+import com.mileway.core.ui.resources.profile_settings_imu_logging
+import com.mileway.core.ui.resources.profile_settings_imu_logging_desc
 import com.mileway.core.ui.resources.profile_settings_low_end
 import com.mileway.core.ui.resources.profile_settings_low_end_desc
 import com.mileway.core.ui.resources.profile_settings_map_provider
@@ -100,6 +106,8 @@ import com.mileway.core.ui.resources.profile_settings_notifications
 import com.mileway.core.ui.resources.profile_settings_off
 import com.mileway.core.ui.resources.profile_settings_organization
 import com.mileway.core.ui.resources.profile_settings_palette_style
+import com.mileway.core.ui.resources.profile_settings_path_simplification
+import com.mileway.core.ui.resources.profile_settings_path_simplification_desc
 import com.mileway.core.ui.resources.profile_settings_perm_denied
 import com.mileway.core.ui.resources.profile_settings_permission_health
 import com.mileway.core.ui.resources.profile_settings_plugins
@@ -455,6 +463,47 @@ fun SettingsScreen(
                     Switch(
                         checked = experimentalFlags.aggressiveGpsFilter,
                         onCheckedChange = { viewModel.toggleAggressiveGpsFilter() },
+                    )
+                },
+            )
+            // PLAN_V24 P10.7: parity with the reference "Experimental optimizations" card (7 toggles).
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.profile_settings_capture_kalman)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_capture_kalman_desc)) },
+                trailingContent = {
+                    Switch(
+                        checked = experimentalFlags.captureKalman,
+                        onCheckedChange = { viewModel.toggleCaptureKalman() },
+                    )
+                },
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.profile_settings_path_simplification)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_path_simplification_desc)) },
+                trailingContent = {
+                    Switch(
+                        checked = experimentalFlags.pathSimplification,
+                        onCheckedChange = { viewModel.togglePathSimplification() },
+                    )
+                },
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.profile_settings_gap_telemetry)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_gap_telemetry_desc)) },
+                trailingContent = {
+                    Switch(
+                        checked = experimentalFlags.gapTelemetry,
+                        onCheckedChange = { viewModel.toggleGapTelemetry() },
+                    )
+                },
+            )
+            ListItem(
+                headlineContent = { Text(stringResource(Res.string.profile_settings_imu_logging)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_imu_logging_desc)) },
+                trailingContent = {
+                    Switch(
+                        checked = experimentalFlags.imuLogging,
+                        onCheckedChange = { viewModel.toggleImuLogging() },
                     )
                 },
             )

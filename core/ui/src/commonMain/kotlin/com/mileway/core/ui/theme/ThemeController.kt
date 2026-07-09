@@ -38,19 +38,25 @@ enum class AppLanguage(val tag: String, val displayName: String) {
 }
 
 /**
- * Three experimental optimization toggles.
- * - [batteryAwareTracking]: defers location polling when battery < 15% (real runtime
- *   effect wired in tracking service; no-op when battery is healthy).
- * - [lowEndDeviceTuning]: reduces recomposition frequency and drops some UI animations
- *   (cosmetic in demo, real tuning would require Baseline Profile gating).
- * - [aggressiveGpsFilter]: tightens the spike-rejection radius from 80 m to 40 m
- *   (real effect on the LocationProcessor filter; marked for demo because actual
- *   field impact requires extended trips to observe).
+ * PLAN_V24 P10.7 — the experimental-optimizations toggle set. Extended 3 → 7 to reach the
+ * reference "Experimental optimizations" card's parity. Each toggle is a registry-backed
+ * CAPABILITY plugin (persisted per-account, surfaced on BOTH the settings card and the Master
+ * Plugin page's experimental section — one store, two surfaces); this data class is the view of
+ * those 7 plugin values that [ProfileViewModel] exposes to the settings card. Every field defaults
+ * OFF so a fresh account renders exactly as before (goldens unchanged).
+ *
+ * Values are persisted, not remember-only (the pre-P10.7 in-memory bug). Live-pipeline behavioural
+ * wiring of these optimisations is sequenced under the live-pipeline phase (P10.4); the Kalman
+ * capture path already has its live control on the Track settings screen.
  */
 data class ExperimentalFlags(
     val batteryAwareTracking: Boolean = false,
     val lowEndDeviceTuning: Boolean = false,
     val aggressiveGpsFilter: Boolean = false,
+    val captureKalman: Boolean = false,
+    val pathSimplification: Boolean = false,
+    val gapTelemetry: Boolean = false,
+    val imuLogging: Boolean = false,
 )
 
 /** DataStore keys for persisted theme preferences. */
@@ -91,7 +97,6 @@ class ThemeController(
     private val _milewayTheme = MutableStateFlow(MilewayThemeVariant.DEFAULT)
     private val _mapProvider = MutableStateFlow(ThemeDefaults.MAP_PROVIDER)
     private val _language = MutableStateFlow(AppLanguage.ENGLISH)
-    private val _experimentalFlags = MutableStateFlow(ExperimentalFlags())
 
     /** `null` = follow system, `true` = force dark, `false` = force light. */
     val darkThemeOverride: StateFlow<Boolean?> = _darkThemeOverride.asStateFlow()
@@ -123,9 +128,6 @@ class ThemeController(
 
     /** Currently selected app language. */
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
-
-    /** Experimental optimization flags. */
-    val experimentalFlags: StateFlow<ExperimentalFlags> = _experimentalFlags.asStateFlow()
 
     init {
         prefs?.let { store ->
@@ -243,10 +245,6 @@ class ThemeController(
         persist { p -> p[ThemePreferenceKeys.LANGUAGE] = language.tag }
     }
 
-    fun updateExperimentalFlags(flags: ExperimentalFlags) {
-        _experimentalFlags.value = flags
-    }
-
     fun resetCustomization() {
         _accentPalette.value = AccentPalette.DEFAULT
         _customSeedHex.value = ThemeDefaults.CUSTOM_THEME
@@ -256,7 +254,6 @@ class ThemeController(
         _milewayTheme.value = MilewayThemeVariant.DEFAULT
         _mapProvider.value = ThemeDefaults.MAP_PROVIDER
         _language.value = AppLanguage.ENGLISH
-        _experimentalFlags.value = ExperimentalFlags()
         persist { p ->
             p[ThemePreferenceKeys.ACCENT_PALETTE] = AccentPalette.DEFAULT.name
             p[ThemePreferenceKeys.CUSTOM_THEME] = ThemeDefaults.CUSTOM_THEME

@@ -236,14 +236,20 @@ class CustomizationSettingsTest {
     }
 
     @Test
-    fun `updateExperimentalFlags replaces all flags atomically`() {
-        val tc = controller()
-        val vm = viewModel(tc)
-        vm.toggleBatteryAwareTracking()
-        tc.updateExperimentalFlags(ExperimentalFlags(aggressiveGpsFilter = true))
+    fun `P10_7 four new experimental toggles flip independently`() {
+        val vm = viewModel()
+        vm.toggleCaptureKalman()
+        vm.togglePathSimplification()
+        vm.toggleGapTelemetry()
+        vm.toggleImuLogging()
         val flags = vm.experimentalFlags.value
-        assertFalse(flags.batteryAwareTracking, "Battery flag should be replaced")
-        assertTrue(flags.aggressiveGpsFilter)
+        assertTrue(flags.captureKalman)
+        assertTrue(flags.pathSimplification)
+        assertTrue(flags.gapTelemetry)
+        assertTrue(flags.imuLogging)
+        // The original three stay off — toggles are independent.
+        assertFalse(flags.batteryAwareTracking)
+        assertFalse(flags.aggressiveGpsFilter)
     }
 
     // =========================================================================
@@ -324,10 +330,11 @@ class CustomizationSettingsTest {
 
     @Test
     fun `resetCustomization clears all experimental flags`() {
-        val tc = controller()
-        tc.updateExperimentalFlags(ExperimentalFlags(batteryAwareTracking = true, aggressiveGpsFilter = true))
-        tc.resetCustomization()
-        assertEquals(ExperimentalFlags(), tc.experimentalFlags.value)
+        val vm = viewModel()
+        vm.toggleBatteryAwareTracking()
+        vm.toggleAggressiveGpsFilter()
+        vm.resetCustomization()
+        assertEquals(ExperimentalFlags(), vm.experimentalFlags.value)
     }
 
     @Test

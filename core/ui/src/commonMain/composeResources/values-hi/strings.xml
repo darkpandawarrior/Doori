@@ -1499,6 +1499,15 @@
     <string name="profile_settings_low_end_desc">कम UI एनिमेशन (डेमो में कॉस्मेटिक)</string>
     <string name="profile_settings_aggressive_gps">आक्रामक GPS फ़िल्टर</string>
     <string name="profile_settings_aggressive_gps_desc">सख्त स्पाइक अस्वीकृति त्रिज्या: 40 मी बनाम 80 मी (वास्तविक प्रभाव)</string>
+    <!-- PLAN_V24 P10.7: प्रायोगिक ऑप्टिमाइज़ेशन कार्ड समता -->
+    <string name="profile_settings_capture_kalman">कालमन स्थिति कैप्चर करें</string>
+    <string name="profile_settings_capture_kalman_desc">प्रत्येक फ़िक्स के साथ कालमन फ़िल्टर अनुमान रिकॉर्ड करें</string>
+    <string name="profile_settings_path_simplification">पथ सरलीकरण</string>
+    <string name="profile_settings_path_simplification_desc">ट्रैक संग्रहीत करने से पहले सघन मार्ग बिंदु पतले करें</string>
+    <string name="profile_settings_gap_telemetry">गैप टेलीमेट्री</string>
+    <string name="profile_settings_gap_telemetry_desc">सैंपलिंग-गैप रिकवरी डायग्नोस्टिक्स लॉग करें</string>
+    <string name="profile_settings_imu_logging">IMU लॉगिंग</string>
+    <string name="profile_settings_imu_logging_desc">प्रति फ़िक्स एक्सेलेरोमीटर और जाइरोस्कोप सैंपल रिकॉर्ड करें</string>
     <string name="profile_settings_reset">अनुकूलन रीसेट करें</string>
     <string name="profile_settings_reset_desc">पैलेट, भाषा और प्रायोगिक फ़्लैग को डिफ़ॉल्ट पर पुनर्स्थापित करें</string>
     <string name="profile_settings_reset_sheet_desc">पैलेट, भाषा और प्रायोगिक फ़्लैग डिफ़ॉल्ट पर वापस आ जाएंगे।</string>
@@ -2418,6 +2427,21 @@
     <string name="plugin_track_gap_tier_1h_mps_desc">मध्यम गैप के लिए शिथिल प्रशंसनीय-गति सीमा</string>
     <string name="plugin_track_gap_tier_6h_mps_title">गैप टियर 3 गति सीमा</string>
     <string name="plugin_track_gap_tier_6h_mps_desc">लंबे गैप के लिए शिथिल प्रशंसनीय-गति सीमा</string>
+    <!-- PLAN_V24 P10.7: प्रायोगिक ऑप्टिमाइज़ेशन प्लगइन -->
+    <string name="plugin_exp_battery_aware_title">बैटरी-सजग ट्रैकिंग</string>
+    <string name="plugin_exp_battery_aware_desc">बैटरी कम होने पर लोकेशन पोलिंग कम करें</string>
+    <string name="plugin_exp_low_end_tuning_title">लो-एंड डिवाइस ट्यूनिंग</string>
+    <string name="plugin_exp_low_end_tuning_desc">कमज़ोर डिवाइस पर रीकंपोज़िशन और एनिमेशन भार घटाएँ</string>
+    <string name="plugin_exp_aggressive_gps_title">आक्रामक GPS फ़िल्टर</string>
+    <string name="plugin_exp_aggressive_gps_desc">शोर भरे वातावरण के लिए स्पाइक अस्वीकृति सख्त करें</string>
+    <string name="plugin_exp_capture_kalman_title">कालमन स्थिति कैप्चर करें</string>
+    <string name="plugin_exp_capture_kalman_desc">प्रत्येक फ़िक्स के साथ कालमन फ़िल्टर अनुमान रिकॉर्ड करें</string>
+    <string name="plugin_exp_path_simplification_title">पथ सरलीकरण</string>
+    <string name="plugin_exp_path_simplification_desc">ट्रैक संग्रहीत करने से पहले सघन मार्ग बिंदु पतले करें</string>
+    <string name="plugin_exp_gap_telemetry_title">गैप टेलीमेट्री</string>
+    <string name="plugin_exp_gap_telemetry_desc">सैंपलिंग-गैप रिकवरी डायग्नोस्टिक्स लॉग करें</string>
+    <string name="plugin_exp_imu_logging_title">IMU लॉगिंग</string>
+    <string name="plugin_exp_imu_logging_desc">प्रति फ़िक्स एक्सेलेरोमीटर और जाइरोस्कोप सैंपल रिकॉर्ड करें</string>
     <string name="plugin_tracking_force_gps_title">GPS प्रदाता बाध्य करें</string>
     <string name="plugin_tracking_force_gps_desc">फ़्यूज़्ड प्रदाता के बजाय कच्चे GPS का उपयोग करें</string>
     <string name="plugin_tracking_upload_background_title">पृष्ठभूमि में अपलोड</string>

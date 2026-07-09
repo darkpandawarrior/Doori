@@ -276,6 +276,26 @@ object PluginCatalog {
         )
 
     /**
+     * PLAN_V24 P10.7 — the experimental-optimizations toggle set (7 toggles) matching the reference
+     * "Experimental optimizations" card. Registry-backed CAPABILITY plugins (experimental=true so
+     * they only show on the Master Plugin page behind the 7-tap unlock; the settings card always
+     * shows them). All default OFF so a fresh account renders unchanged. These replace the former
+     * in-memory `ExperimentalFlags` (they now persist per-account instead of being remember-only).
+     * Behavioural wiring into the live pipeline is sequenced under the live-pipeline phase; see
+     * PROGRESS for the per-toggle consumer status.
+     */
+    val experimentalPlugins: List<PluginDescriptor> =
+        listOf(
+            experimentalFlag("exp_battery_aware"),
+            experimentalFlag("exp_low_end_tuning"),
+            experimentalFlag("exp_aggressive_gps"),
+            experimentalFlag("exp_capture_kalman"),
+            experimentalFlag("exp_path_simplification"),
+            experimentalFlag("exp_gap_telemetry"),
+            experimentalFlag("exp_imu_logging"),
+        )
+
+    /**
      * Mileage-sync settings (P10.2) — the reference app `MileageSyncSettingsCard`. Each toggle gates a real
      * local behavior in [SyncDiagnosticsRepository][com.mileway.feature.profile.repository.SyncDiagnosticsRepository]'s
      * force-sync drain (which local staging buckets get moved to the synced counters); the interval
@@ -468,8 +488,8 @@ object PluginCatalog {
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            trackingTuningPlugins + abnormalTuningPlugins + syncSettingsPlugins + verificationPlugins +
-            growthPlugins + membershipPlugins + incentivePlugins
+            trackingTuningPlugins + abnormalTuningPlugins + experimentalPlugins + syncSettingsPlugins +
+            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins
 
     // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
     // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.
@@ -505,6 +525,19 @@ object PluginCatalog {
             titleKey = "plugin_${id}_title",
             descriptionKey = "plugin_${id}_desc",
             valueSpec = PluginValueSpec.IntSpec(defaultValue = default, min = min, max = max, step = step, unit = unit),
+        )
+
+    // PLAN_V24 P10.7: experimental CAPABILITY-plugin builder. TRACKING category, experimental=true,
+    // defaultOn=false. Title/description keys derived from the id (plugin_<id>_title / _desc).
+    private fun experimentalFlag(id: String): PluginDescriptor =
+        PluginDescriptor(
+            id = id,
+            kind = PluginKind.CAPABILITY,
+            category = PluginCategory.TRACKING,
+            titleKey = "plugin_${id}_title",
+            descriptionKey = "plugin_${id}_desc",
+            defaultOn = false,
+            experimental = true,
         )
 
     private fun onboardingFlag(

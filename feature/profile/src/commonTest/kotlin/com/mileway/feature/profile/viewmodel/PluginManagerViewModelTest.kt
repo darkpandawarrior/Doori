@@ -100,11 +100,11 @@ class PluginManagerViewModelTest {
             val vm = newVm()
             advanceUntilIdle()
             assertEquals(
-                73,
+                80,
                 vm.state.value.plugins.size,
-                "13 CORE + 4 AUTH + 7 ONBOARDING + 5 PROFILE + 9 TRACKING + 22 TRACKING_TUNING + " +
+                "13 CORE + 4 AUTH + 7 ONBOARDING + 5 PROFILE + 16 TRACKING + 22 TRACKING_TUNING + " +
                     "5 VERIFICATION/PAYMENTS + 4 GROWTH + 3 MEMBERSHIP + 1 ENGAGEMENT " +
-                    "(P10.3 added 18 TRACKING_TUNING VALUE fine-tuning knobs)",
+                    "(P10.3 added 18 TRACKING_TUNING knobs; P10.7 added 7 TRACKING experimental toggles)",
             )
             assertTrue(vm.state.value.plugins.all { it.source.name == "DEFAULT" })
         }

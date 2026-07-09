@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -333,7 +334,32 @@ class ProfileViewModel(
 
     val language: StateFlow<AppLanguage> = themeController.language
 
-    val experimentalFlags: StateFlow<ExperimentalFlags> = themeController.experimentalFlags
+    // PLAN_V24 P10.7: the 7 experimental-optimization toggles are registry-backed CAPABILITY plugins
+    // now (persisted per-account, also shown on the Master Plugin experimental section). Null
+    // pluginRegistry (test-only) falls back to in-memory flags = the pre-P10.7 behaviour.
+    private val fallbackExperimental = MutableStateFlow(ExperimentalFlags())
+    val experimentalFlags: StateFlow<ExperimentalFlags> =
+        pluginRegistry?.let { reg ->
+            combine(
+                reg.observe("exp_battery_aware"),
+                reg.observe("exp_low_end_tuning"),
+                reg.observe("exp_aggressive_gps"),
+                reg.observe("exp_capture_kalman"),
+                reg.observe("exp_path_simplification"),
+                reg.observe("exp_gap_telemetry"),
+                reg.observe("exp_imu_logging"),
+            ) { v ->
+                ExperimentalFlags(
+                    batteryAwareTracking = v[0],
+                    lowEndDeviceTuning = v[1],
+                    aggressiveGpsFilter = v[2],
+                    captureKalman = v[3],
+                    pathSimplification = v[4],
+                    gapTelemetry = v[5],
+                    imuLogging = v[6],
+                )
+            }.stateIn(viewModelScope, SharingStarted.Eagerly, ExperimentalFlags())
+        } ?: fallbackExperimental.asStateFlow()
 
     private val _useMiles = MutableStateFlow(true)
     val useMiles: StateFlow<Boolean> = _useMiles.asStateFlow()
@@ -381,20 +407,55 @@ class ProfileViewModel(
 
     fun setLanguage(language: AppLanguage) = themeController.setLanguage(language)
 
-    fun toggleBatteryAwareTracking() {
-        val current = themeController.experimentalFlags.value
-        themeController.updateExperimentalFlags(current.copy(batteryAwareTracking = !current.batteryAwareTracking))
+    fun toggleBatteryAwareTracking() =
+        toggleExperimental("exp_battery_aware", { it.batteryAwareTracking }) { copy(batteryAwareTracking = !batteryAwareTracking) }
+
+    fun toggleLowEndDeviceTuning() = toggleExperimental("exp_low_end_tuning", { it.lowEndDeviceTuning }) { copy(lowEndDeviceTuning = !lowEndDeviceTuning) }
+
+    fun toggleAggressiveGpsFilter() = toggleExperimental("exp_aggressive_gps", { it.aggressiveGpsFilter }) { copy(aggressiveGpsFilter = !aggressiveGpsFilter) }
+
+    fun toggleCaptureKalman() = toggleExperimental("exp_capture_kalman", { it.captureKalman }) { copy(captureKalman = !captureKalman) }
+
+    fun togglePathSimplification() = toggleExperimental("exp_path_simplification", { it.pathSimplification }) { copy(pathSimplification = !pathSimplification) }
+
+    fun toggleGapTelemetry() = toggleExperimental("exp_gap_telemetry", { it.gapTelemetry }) { copy(gapTelemetry = !gapTelemetry) }
+
+    fun toggleImuLogging() = toggleExperimental("exp_imu_logging", { it.imuLogging }) { copy(imuLogging = !imuLogging) }
+
+    // Registry-backed toggle (persist a USER override); in-memory fallback when no registry (tests).
+    private fun toggleExperimental(
+        id: String,
+        current: (ExperimentalFlags) -> Boolean,
+        flip: ExperimentalFlags.() -> ExperimentalFlags,
+    ) {
+        val registry = pluginRegistry
+        if (registry == null) {
+            fallbackExperimental.value = fallbackExperimental.value.flip()
+            return
+        }
+        val next = !current(experimentalFlags.value)
+        viewModelScope.launch {
+            registry.setUserOverride(id, com.mileway.core.data.plugin.PluginValue.Bool(next))
+        }
     }
 
-    fun toggleLowEndDeviceTuning() {
-        val current = themeController.experimentalFlags.value
-        themeController.updateExperimentalFlags(current.copy(lowEndDeviceTuning = !current.lowEndDeviceTuning))
+    fun resetCustomization() {
+        themeController.resetCustomization()
+        val registry = pluginRegistry
+        if (registry == null) {
+            fallbackExperimental.value = ExperimentalFlags()
+            return
+        }
+        viewModelScope.launch {
+            listOf(
+                "exp_battery_aware",
+                "exp_low_end_tuning",
+                "exp_aggressive_gps",
+                "exp_capture_kalman",
+                "exp_path_simplification",
+                "exp_gap_telemetry",
+                "exp_imu_logging",
+            ).forEach { registry.clearUserOverride(it) }
+        }
     }
-
-    fun toggleAggressiveGpsFilter() {
-        val current = themeController.experimentalFlags.value
-        themeController.updateExperimentalFlags(current.copy(aggressiveGpsFilter = !current.aggressiveGpsFilter))
-    }
-
-    fun resetCustomization() = themeController.resetCustomization()
 }
