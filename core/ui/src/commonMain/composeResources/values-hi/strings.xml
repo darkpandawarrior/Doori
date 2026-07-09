@@ -1894,6 +1894,47 @@
     <string name="media_cd_exposure">एक्सपोज़र</string>
     <string name="media_cd_capture_photo">फ़ोटो कैप्चर करें</string>
     <string name="media_cd_remove_capture">कैप्चर हटाएँ</string>
+    <string name="media_library_empty_title">अभी तक कोई मीडिया सहेजा नहीं गया है।</string>
+    <string name="media_library_empty_subtitle">आपके द्वारा कैप्चर किए गए अटैचमेंट यहाँ दिखाई देंगे।</string>
+    <string name="media_delete_selected_count">हटाएँ (%1$d)</string>
+    <string name="media_cd_attachment_preview">अटैचमेंट पूर्वावलोकन</string>
+    <string name="media_cd_captured_preview">कैप्चर किया गया अटैचमेंट पूर्वावलोकन</string>
+    <string name="media_preview_empty">पूर्वावलोकन के लिए कोई फ़ोटो नहीं है।</string>
+    <string name="media_action_retake">फिर से लें</string>
+    <string name="media_action_run_ocr">OCR चलाएँ</string>
+    <string name="media_action_use_photo">फ़ोटो उपयोग करें</string>
+    <string name="media_review_captures_title">कैप्चर की समीक्षा करें</string>
+    <string name="media_action_discard_all">सभी को हटाएँ</string>
+    <string name="media_cd_capture_index">कैप्चर %1$s</string>
+    <string name="media_cd_add_more">और जोड़ें</string>
+    <string name="media_add_more_label">और जोड़ें</string>
+    <string name="media_ocr_result_title">OCR परिणाम</string>
+    <string name="media_ocr_detected_odometer">पहचाना गया ओडोमीटर</string>
+    <string name="media_ocr_confidence">विश्वास %1$d%%</string>
+    <string name="media_ocr_watermarked">वॉटरमार्क किया गया</string>
+    <string name="media_action_edit">संपादित करें</string>
+    <string name="media_action_confirm">पुष्टि करें</string>
+    <string name="media_camera_permission_required">फ़ोटो कैप्चर करने के लिए कैमरा अनुमति आवश्यक है।</string>
+    <string name="media_action_grant_permission">अनुमति दें</string>
+    <string name="media_auto_capture_off">ऑटो कैप्चर: बंद</string>
+    <string name="media_odometer_align_caption">फ़्रेम के भीतर ओडोमीटर अंकों को संरेखित करें</string>
+    <string name="media_source_camera">कैमरा</string>
+    <string name="media_source_gallery">गैलरी</string>
+    <string name="media_source_odometer">ओडोमीटर</string>
+    <string name="media_source_document_scanner">दस्तावेज़ स्कैनर</string>
+    <string name="media_source_pdf">PDF</string>
+    <string name="media_source_qr">QR कोड</string>
+    <string name="media_source_barcode">बारकोड</string>
+    <string name="media_source_cloud_library">क्लाउड लाइब्रेरी</string>
+    <string name="media_source_files">फ़ाइलें</string>
+    <string name="media_select_source_title">एक अटैचमेंट स्रोत चुनें</string>
+    <string name="media_captured_count">कैप्चर किया गया (%1$d)</string>
+    <string name="media_illustrative_snackbar">%1$s इस डेमो में केवल उदाहरणात्मक है</string>
+    <string name="media_cd_attachment_index">अटैचमेंट %1$s</string>
+    <string name="media_cd_ocr_verified">OCR सत्यापित</string>
+    <string name="media_cd_ocr_reading">OCR रीडिंग</string>
+    <string name="media_ocr_verified_label">सत्यापित</string>
+    <string name="media_ocr_label">OCR</string>
 
     <!-- ===== L10n sweep: agent ===== -->
     <string name="agent_history_subtitle">पिछली AI बातचीत</string>
@@ -1955,6 +1996,10 @@
     <plurals name="media_plural_delete_items">
         <item quantity="one">%1$d आइटम हटाएँ?</item>
         <item quantity="other">%1$d आइटम हटाएँ?</item>
+    </plurals>
+    <plurals name="media_plural_use_photos">
+        <item quantity="one">%1$d फ़ोटो उपयोग करें</item>
+        <item quantity="other">%1$d फ़ोटो उपयोग करें</item>
     </plurals>
     <plurals name="core_plural_action_items">
         <item quantity="one">%1$s %2$d आइटम</item>
@@ -2470,6 +2515,8 @@
     <string name="plugin_track_show_overlay_desc">ऑन-स्क्रीन ट्रैकिंग ओवरले और बबल के लिए मास्टर स्विच</string>
     <string name="plugin_reverse_geocode_remote_title">रिमोट रिवर्स जियोकोडिंग</string>
     <string name="plugin_reverse_geocode_remote_desc">स्थान नाम स्थानीय तालिका के बजाय सिम्युलेटेड रिमोट लुकअप से हल करें</string>
+    <string name="plugin_vehicles_per_km_rates_title">प्रति किमी नीति दरें</string>
+    <string name="plugin_vehicles_per_km_rates_desc">वाहन प्रकार के अनुसार प्रति-किमी प्रतिपूर्ति दरें लागू करें और यात्रा राशि दिखाएँ</string>
     <string name="profile_home_tile_manager_view_title">मेरे रिपोर्टी</string>
     <string name="profile_home_tile_manager_view_subtitle">टीम ट्रैकिंग</string>
     <string name="manager_view_title">मेरे रिपोर्टी</string>

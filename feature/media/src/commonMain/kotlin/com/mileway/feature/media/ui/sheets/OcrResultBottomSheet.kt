@@ -28,8 +28,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.media_action_confirm
+import com.mileway.core.ui.resources.media_action_edit
+import com.mileway.core.ui.resources.media_ocr_confidence
+import com.mileway.core.ui.resources.media_ocr_detected_odometer
+import com.mileway.core.ui.resources.media_ocr_result_title
+import com.mileway.core.ui.resources.media_ocr_watermarked
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.model.OcrResult
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Material3 bottom sheet presenting a mocked [OcrResult]: the detected odometer
@@ -66,7 +74,7 @@ fun OcrResultBottomSheet(
                     ),
         ) {
             Text(
-                text = "OCR result",
+                text = stringResource(Res.string.media_ocr_result_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -74,7 +82,7 @@ fun OcrResultBottomSheet(
             Spacer(Modifier.height(DesignTokens.Spacing.l))
 
             Text(
-                text = "Detected odometer",
+                text = stringResource(Res.string.media_ocr_detected_odometer),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -89,7 +97,7 @@ fun OcrResultBottomSheet(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "Confidence ${(result.confidence * 100).toInt()}%",
+                    text = stringResource(Res.string.media_ocr_confidence, (result.confidence * 100).toInt()),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.width(DesignTokens.Spacing.l))
@@ -119,7 +127,7 @@ fun OcrResultBottomSheet(
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                     Spacer(Modifier.width(DesignTokens.Spacing.s))
-                    Text("Edit")
+                    Text(stringResource(Res.string.media_action_edit))
                 }
                 Button(
                     onClick = onConfirm,
@@ -128,7 +136,7 @@ fun OcrResultBottomSheet(
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                     Spacer(Modifier.width(DesignTokens.Spacing.s))
-                    Text("Confirm")
+                    Text(stringResource(Res.string.media_action_confirm))
                 }
             }
 
@@ -158,7 +166,7 @@ private fun WatermarkBadge() {
         )
         Spacer(Modifier.width(DesignTokens.Spacing.xs))
         Text(
-            text = "Watermarked",
+            text = stringResource(Res.string.media_ocr_watermarked),
             style = MaterialTheme.typography.labelMedium,
             color = DesignTokens.StatusColors.success,
             fontWeight = FontWeight.Medium,

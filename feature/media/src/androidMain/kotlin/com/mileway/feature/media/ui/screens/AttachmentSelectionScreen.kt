@@ -70,9 +70,26 @@ import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.resources.core_cd_more_options
 import com.mileway.core.ui.resources.media_add_attachment_subtitle
 import com.mileway.core.ui.resources.media_add_attachment_title
+import com.mileway.core.ui.resources.media_captured_count
+import com.mileway.core.ui.resources.media_cd_attachment_index
 import com.mileway.core.ui.resources.media_cd_biometric_lock
+import com.mileway.core.ui.resources.media_cd_ocr_reading
+import com.mileway.core.ui.resources.media_cd_ocr_verified
 import com.mileway.core.ui.resources.media_cd_scan
 import com.mileway.core.ui.resources.media_cd_theme_color
+import com.mileway.core.ui.resources.media_illustrative_snackbar
+import com.mileway.core.ui.resources.media_ocr_label
+import com.mileway.core.ui.resources.media_ocr_verified_label
+import com.mileway.core.ui.resources.media_select_source_title
+import com.mileway.core.ui.resources.media_source_barcode
+import com.mileway.core.ui.resources.media_source_camera
+import com.mileway.core.ui.resources.media_source_cloud_library
+import com.mileway.core.ui.resources.media_source_document_scanner
+import com.mileway.core.ui.resources.media_source_files
+import com.mileway.core.ui.resources.media_source_gallery
+import com.mileway.core.ui.resources.media_source_odometer
+import com.mileway.core.ui.resources.media_source_pdf
+import com.mileway.core.ui.resources.media_source_qr
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.media.model.AttachmentItem
@@ -131,27 +148,32 @@ fun AttachmentSelectionScreen(
             if (pages.isNotEmpty()) onNavigateToPreview()
         }
 
+    val illustrativeSnackbarTemplate = stringResource(Res.string.media_illustrative_snackbar)
+
     fun showIllustrative(label: String) {
         scope.launch {
-            snackbarHostState.showSnackbar("$label is illustrative in this demo")
+            snackbarHostState.showSnackbar(String.format(illustrativeSnackbarTemplate, label))
         }
     }
 
     // The nine source tiles, in reading order across the 3-column grid.
     val sources =
-        remember {
-            listOf(
-                SourceTileSpec(SourceKey.CAMERA, "Camera", Icons.Default.CameraAlt),
-                SourceTileSpec(SourceKey.GALLERY, "Gallery", Icons.Default.PhotoLibrary),
-                SourceTileSpec(SourceKey.ODOMETER, "Odometer", Icons.Default.Speed, accent = OdometerAccent),
-                SourceTileSpec(SourceKey.DOC_SCANNER, "Document Scanner", Icons.Default.DocumentScanner),
-                SourceTileSpec(SourceKey.PDF, "PDF", Icons.Default.PictureAsPdf),
-                SourceTileSpec(SourceKey.QR, "QR Code", Icons.Default.QrCode),
-                SourceTileSpec(SourceKey.BARCODE, "Barcode", Icons.Default.QrCodeScanner),
-                SourceTileSpec(SourceKey.CLOUD, "Cloud Library", Icons.Default.CloudDownload),
-                SourceTileSpec(SourceKey.FILES, "Files", Icons.Default.Folder),
-            )
-        }
+        listOf(
+            SourceTileSpec(SourceKey.CAMERA, stringResource(Res.string.media_source_camera), Icons.Default.CameraAlt),
+            SourceTileSpec(SourceKey.GALLERY, stringResource(Res.string.media_source_gallery), Icons.Default.PhotoLibrary),
+            SourceTileSpec(
+                SourceKey.ODOMETER,
+                stringResource(Res.string.media_source_odometer),
+                Icons.Default.Speed,
+                accent = OdometerAccent,
+            ),
+            SourceTileSpec(SourceKey.DOC_SCANNER, stringResource(Res.string.media_source_document_scanner), Icons.Default.DocumentScanner),
+            SourceTileSpec(SourceKey.PDF, stringResource(Res.string.media_source_pdf), Icons.Default.PictureAsPdf),
+            SourceTileSpec(SourceKey.QR, stringResource(Res.string.media_source_qr), Icons.Default.QrCode),
+            SourceTileSpec(SourceKey.BARCODE, stringResource(Res.string.media_source_barcode), Icons.Default.QrCodeScanner),
+            SourceTileSpec(SourceKey.CLOUD, stringResource(Res.string.media_source_cloud_library), Icons.Default.CloudDownload),
+            SourceTileSpec(SourceKey.FILES, stringResource(Res.string.media_source_files), Icons.Default.Folder),
+        )
 
     Scaffold(
         modifier = modifier,
@@ -225,7 +247,7 @@ fun AttachmentSelectionScreen(
         ) {
             item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
                 Text(
-                    text = "Select an attachment source",
+                    text = stringResource(Res.string.media_select_source_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier =
@@ -272,7 +294,7 @@ fun AttachmentSelectionScreen(
                     Column {
                         Spacer(Modifier.height(DesignTokens.Spacing.l))
                         Text(
-                            text = "Captured (${state.attachments.size})",
+                            text = stringResource(Res.string.media_captured_count, state.attachments.size),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = DesignTokens.Spacing.s),
@@ -373,7 +395,7 @@ private fun AttachmentThumbnail(item: AttachmentItem) {
         Box(modifier = Modifier.fillMaxSize()) {
             AsyncImage(
                 model = item.uri,
-                contentDescription = "Attachment ${item.id}",
+                contentDescription = stringResource(Res.string.media_cd_attachment_index, item.id),
                 modifier =
                     Modifier
                         .fillMaxSize()
@@ -403,13 +425,18 @@ private fun AttachmentThumbnail(item: AttachmentItem) {
                 ) {
                     Icon(
                         imageVector = if (verified) Icons.Default.Verified else Icons.Default.DocumentScanner,
-                        contentDescription = if (verified) "OCR verified" else "OCR reading",
+                        contentDescription =
+                            if (verified) {
+                                stringResource(Res.string.media_cd_ocr_verified)
+                            } else {
+                                stringResource(Res.string.media_cd_ocr_reading)
+                            },
                         tint = Color.White,
                         modifier = Modifier.size(12.dp),
                     )
                     Spacer(Modifier.size(2.dp))
                     Text(
-                        text = if (verified) "Verified" else "OCR",
+                        text = if (verified) stringResource(Res.string.media_ocr_verified_label) else stringResource(Res.string.media_ocr_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color.White,
                     )
