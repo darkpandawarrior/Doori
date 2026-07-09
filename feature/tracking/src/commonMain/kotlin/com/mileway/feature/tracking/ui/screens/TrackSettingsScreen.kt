@@ -27,11 +27,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -59,16 +54,29 @@ import com.mileway.core.ui.resources.tracking_settings_upload_background_desc
 import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * PLAN_V24 P10.1: state is hoisted so the live call site (TrackingNavigation) can back each knob
+ * with the persisted PluginRegistry value, while the defaults below reproduce the previous
+ * `remember{}` defaults (30/10/10/true/false/false) verbatim — so the gallery/preview/showcase
+ * render byte-identically without going through the registry.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrackSettingsScreen(onBack: () -> Unit) {
-    var gpsAccuracy by remember { mutableFloatStateOf(30f) }
-    var locationInterval by remember { mutableFloatStateOf(10f) }
-    var distanceThreshold by remember { mutableFloatStateOf(10f) }
-    var uploadInBackground by remember { mutableStateOf(true) }
-    var autoPauseDetection by remember { mutableStateOf(false) }
-    var forceGpsOnly by remember { mutableStateOf(false) }
-
+fun TrackSettingsScreen(
+    onBack: () -> Unit,
+    gpsAccuracy: Float = 30f,
+    onGpsAccuracyChange: (Float) -> Unit = {},
+    locationInterval: Float = 10f,
+    onLocationIntervalChange: (Float) -> Unit = {},
+    distanceThreshold: Float = 10f,
+    onDistanceThresholdChange: (Float) -> Unit = {},
+    uploadInBackground: Boolean = true,
+    onUploadInBackgroundChange: (Boolean) -> Unit = {},
+    autoPauseDetection: Boolean = false,
+    onAutoPauseDetectionChange: (Boolean) -> Unit = {},
+    forceGpsOnly: Boolean = false,
+    onForceGpsOnlyChange: (Boolean) -> Unit = {},
+) {
     Scaffold(
         topBar = {
             DepthAwareTopBar(
@@ -104,7 +112,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                 SettingSliderRow(
                     label = stringResource(Res.string.tracking_settings_min_accuracy),
                     value = gpsAccuracy,
-                    onValueChange = { gpsAccuracy = it },
+                    onValueChange = onGpsAccuracyChange,
                     valueRange = 10f..100f,
                     unit = "m",
                 )
@@ -118,7 +126,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                 SettingSliderRow(
                     label = stringResource(Res.string.tracking_settings_update_interval),
                     value = locationInterval,
-                    onValueChange = { locationInterval = it },
+                    onValueChange = onLocationIntervalChange,
                     valueRange = 5f..60f,
                     unit = "s",
                 )
@@ -126,7 +134,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                 SettingSliderRow(
                     label = stringResource(Res.string.tracking_settings_min_displacement),
                     value = distanceThreshold,
-                    onValueChange = { distanceThreshold = it },
+                    onValueChange = onDistanceThresholdChange,
                     valueRange = 5f..50f,
                     unit = "m",
                 )
@@ -142,7 +150,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                     description = stringResource(Res.string.tracking_settings_upload_background_desc),
                     icon = Icons.Filled.BatteryFull,
                     checked = uploadInBackground,
-                    onCheckedChange = { uploadInBackground = it },
+                    onCheckedChange = onUploadInBackgroundChange,
                 )
             }
 
@@ -156,7 +164,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                     description = stringResource(Res.string.tracking_settings_auto_pause_desc),
                     icon = Icons.Filled.Pause,
                     checked = autoPauseDetection,
-                    onCheckedChange = { autoPauseDetection = it },
+                    onCheckedChange = onAutoPauseDetectionChange,
                 )
             }
 
@@ -170,7 +178,7 @@ fun TrackSettingsScreen(onBack: () -> Unit) {
                     description = stringResource(Res.string.tracking_settings_force_gps_desc),
                     icon = Icons.Filled.GpsFixed,
                     checked = forceGpsOnly,
-                    onCheckedChange = { forceGpsOnly = it },
+                    onCheckedChange = onForceGpsOnlyChange,
                 )
             }
 

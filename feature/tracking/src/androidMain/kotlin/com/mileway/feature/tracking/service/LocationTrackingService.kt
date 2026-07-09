@@ -80,6 +80,7 @@ class LocationTrackingService : Service() {
     private val savedTrackDao: SavedTrackDao by inject()
     private val sessionStore: CurrentTrackDataStore by inject()
     private val demoSettings: DemoSettingsRepository by inject()
+    private val pluginRegistry: com.mileway.core.data.plugin.PluginRegistry by inject()
     private val configManager: com.mileway.feature.tracking.manager.TrackingConfigManager by inject()
     private val locationRepository: LocationRepository by inject()
     private val currentTrackRepository: CurrentTrackRepository by inject()
@@ -110,6 +111,22 @@ class LocationTrackingService : Service() {
     // lifetime of a running trip; we don't swap algorithms mid-journey).
     @Volatile
     private var enableKalman: Boolean = false
+
+    // P10.1: persisted Track Miles knobs, mirrored from the PluginRegistry the same way as
+    // enableKalman — read at the next trip start, fixed for the running trip. Defaults reproduce
+    // today's math exactly: the shipped accuracy gate, no displacement floor, no interval floor,
+    // fused (not raw-GPS) provider.
+    @Volatile
+    private var maxAccuracyM: Double = LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M
+
+    @Volatile
+    private var minDisplacementFloorM: Double = 0.0
+
+    @Volatile
+    private var intervalFloorMs: Long = 0L
+
+    @Volatile
+    private var forceGpsOnly: Boolean = false
 
     // Wave-2 AbnormalDetectionConfig: hot-reloaded from TrackingConfigManager (debug settings
     // today, server config later). Same "fixed for the running trip" rule as enableKalman above.
@@ -206,6 +223,28 @@ class LocationTrackingService : Service() {
         createNotificationChannel()
         // G6: keep the Kalman opt-in mirrored from persisted settings.
         scope.launch { demoSettings.settings.collect { enableKalman = it.enableKalman } }
+        // P10.1: mirror the persisted Track Miles knobs from the PluginRegistry (same "fixed for
+        // the running trip" rule as enableKalman — read at the next startTracking()).
+        scope.launch {
+            pluginRegistry.observeValue("track_min_accuracy_m").collect {
+                maxAccuracyM =
+                    (
+                        (it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value
+                            ?: LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M.toInt()
+                    ).toDouble()
+            }
+        }
+        scope.launch {
+            pluginRegistry.observeValue("track_min_displacement_m").collect {
+                minDisplacementFloorM = ((it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value ?: 0).toDouble()
+            }
+        }
+        scope.launch {
+            pluginRegistry.observeValue("track_location_interval_s").collect {
+                intervalFloorMs = ((it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value ?: 0).toLong() * 1_000L
+            }
+        }
+        scope.launch { pluginRegistry.observe("track_force_gps_only").collect { forceGpsOnly = it } }
         // Wave-2 AbnormalDetectionConfig: mirror the hot-reload Flow into a plain var the
         // per-fix path reads (process() is not suspend and runs off the main thread).
         scope.launch { configManager.abnormalDetectionConfig.collect { abnormalDetectionConfig = it } }
@@ -334,8 +373,11 @@ class LocationTrackingService : Service() {
                 initialStats = resumeFrom?.let { seedStats(it) },
                 // G6: route live fixes through the Kalman smoother when the user has opted in.
                 enableKalman = enableKalman,
-                // P-A.1: per-deployment accuracy gate; default 50 m from ConfigProvider.
-                maxAccuracyThreshold = configManager.getMaxAccuracyThresholdM(),
+                // P10.1: user-set accuracy gate (Track Miles setting), default = the shipped
+                // MAX_ACCURACY_THRESHOLD_M so unset behavior matches configManager's default.
+                maxAccuracyThreshold = maxAccuracyM,
+                // P10.1: user-set global min-displacement floor over the per-band jitter gate.
+                minDisplacementFloorM = minDisplacementFloorM,
                 // Wave-2 AbnormalDetectionConfig: latest hot-reloaded thresholds, fixed for this trip.
                 abnormalConfig = abnormalDetectionConfig,
             )
@@ -357,7 +399,8 @@ class LocationTrackingService : Service() {
         }
 
         firstFixSeen = false
-        source = if (SIMULATE_LOCATION) SimulatedLocationSource() else FusedLocationSource(this)
+        // P10.1: forceGpsOnly (Track Miles setting) selects the raw-GPS provider inside FusedLocationSource.
+        source = if (SIMULATE_LOCATION) SimulatedLocationSource() else FusedLocationSource(this, forceGpsOnly = forceGpsOnly)
         source?.start { fix -> onFix(token, fix) }
         // A.2: arm the no-fix watchdog for the real-GPS path only.
         if (!SIMULATE_LOCATION) armFirstFixWatchdog(token)
@@ -489,6 +532,8 @@ class LocationTrackingService : Service() {
                     elapsedMs = durationMs,
                     tierMultiplier = tierIntervalMultiplier,
                     harshAccel = imuAnalysis.harshAccel,
+                    // P10.1: user-set minimum-interval floor (Track Miles setting); 0 = no floor.
+                    userFloorMs = intervalFloorMs,
                 ),
             )
         source?.updateInterval(interval)

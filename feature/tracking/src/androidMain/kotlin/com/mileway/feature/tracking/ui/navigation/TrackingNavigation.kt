@@ -16,6 +16,8 @@ import androidx.navigation.navArgument
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.display.OdometerReadingSource
+import com.mileway.core.data.plugin.PluginRegistry
+import com.mileway.core.data.plugin.PluginValue
 import com.mileway.core.data.settings.DemoSettings
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.data.settings.LAST_ODOMETER_NONE
@@ -482,7 +484,35 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
     }
 
     composable(TrackingRoutes.TRACK_SETTINGS) {
-        TrackSettingsScreen(onBack = { navController.popBackStack() })
+        // P10.1: bind each knob to its persisted PluginRegistry value (mirrors the G6 Kalman
+        // pattern above). VALUE plugins map IntVal↔Float for the sliders; CAPABILITY plugins are
+        // read via observe(id). The service re-reads these at the next trip start.
+        val registry = koinInject<PluginRegistry>()
+        val scope = rememberCoroutineScope()
+        val gpsAccuracy by registry.observeValue("track_min_accuracy_m")
+            .collectAsState(initial = PluginValue.IntVal(50))
+        val locationInterval by registry.observeValue("track_location_interval_s")
+            .collectAsState(initial = PluginValue.IntVal(10))
+        val minDisplacement by registry.observeValue("track_min_displacement_m")
+            .collectAsState(initial = PluginValue.IntVal(0))
+        val uploadInBackground by registry.observe("track_upload_in_background").collectAsState(initial = true)
+        val autoPause by registry.observe("track_auto_pause_detection").collectAsState(initial = false)
+        val forceGpsOnly by registry.observe("track_force_gps_only").collectAsState(initial = false)
+        TrackSettingsScreen(
+            onBack = { navController.popBackStack() },
+            gpsAccuracy = ((gpsAccuracy as? PluginValue.IntVal)?.value ?: 50).toFloat(),
+            onGpsAccuracyChange = { v -> scope.launch { registry.setUserOverride("track_min_accuracy_m", PluginValue.IntVal(v.toInt())) } },
+            locationInterval = ((locationInterval as? PluginValue.IntVal)?.value ?: 10).toFloat(),
+            onLocationIntervalChange = { v -> scope.launch { registry.setUserOverride("track_location_interval_s", PluginValue.IntVal(v.toInt())) } },
+            distanceThreshold = ((minDisplacement as? PluginValue.IntVal)?.value ?: 0).toFloat(),
+            onDistanceThresholdChange = { v -> scope.launch { registry.setUserOverride("track_min_displacement_m", PluginValue.IntVal(v.toInt())) } },
+            uploadInBackground = uploadInBackground,
+            onUploadInBackgroundChange = { v -> scope.launch { registry.setUserOverride("track_upload_in_background", PluginValue.Bool(v)) } },
+            autoPauseDetection = autoPause,
+            onAutoPauseDetectionChange = { v -> scope.launch { registry.setUserOverride("track_auto_pause_detection", PluginValue.Bool(v)) } },
+            forceGpsOnly = forceGpsOnly,
+            onForceGpsOnlyChange = { v -> scope.launch { registry.setUserOverride("track_force_gps_only", PluginValue.Bool(v)) } },
+        )
     }
 
     composable(TrackingRoutes.TRACK_CUSTOMIZATION) {

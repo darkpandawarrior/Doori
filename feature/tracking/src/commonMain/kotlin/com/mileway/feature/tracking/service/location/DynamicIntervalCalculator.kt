@@ -15,6 +15,10 @@ data class IntervalInputs(
     // Wave-2 IMU polish: harsh accel/braking this fix — boosts GPS frequency (shorter interval) to
     // capture the event at higher resolution. Default false ⇒ 1.0 ⇒ no behavior change.
     val harshAccel: Boolean = false,
+    // P10.1: user-set minimum-interval floor (Track Miles "location interval" setting), in ms.
+    // Raises the lower clamp bound so the cadence never goes below the user's chosen floor. Default
+    // 0 ⇒ the clamp stays at MIN_INTERVAL_MS ⇒ no behavior change.
+    val userFloorMs: Long = 0L,
 )
 
 /**
@@ -91,6 +95,6 @@ object DynamicIntervalCalculator {
         ms *= durationMultiplier(inputs.elapsedMs)
         ms *= inputs.tierMultiplier
         ms *= accelMultiplier(inputs.harshAccel)
-        return ms.roundToLong().coerceIn(MIN_INTERVAL_MS, MAX_INTERVAL_MS)
+        return ms.roundToLong().coerceIn(maxOf(MIN_INTERVAL_MS, inputs.userFloorMs), MAX_INTERVAL_MS)
     }
 }

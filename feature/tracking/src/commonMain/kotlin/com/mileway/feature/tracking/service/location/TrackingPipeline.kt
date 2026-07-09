@@ -79,6 +79,9 @@ class LocationProcessor(
     private val enableKalman: Boolean = true,
     // P-A.1: fixes with accuracy > this threshold are persisted but excluded from cleanedDistance.
     private val maxAccuracyThreshold: Double = LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M,
+    // P10.1: user-set global min-displacement floor (Track Miles setting). Applied over the per-band
+    // jitter gate in minDisplacementForSpeed(). Default 0.0 leaves the shipped math unchanged.
+    private val minDisplacementFloorM: Double = 0.0,
     // Wave-2 AbnormalDetectionConfig: all abnormal-detection thresholds, runtime-tweakable.
     // Default equals the pre-refactor hardcoded constants, so behavior is unchanged unless a
     // caller passes an override (debug settings today, server config later).
@@ -314,12 +317,16 @@ class LocationProcessor(
      * C.1a: minimum displacement (m) a fix must cover to escape jitter suppression, tuned to the
      * current speed band. Faster travel expects (and tolerates) larger steps between fixes.
      */
-    private fun minDisplacementForSpeed(speedMps: Double): Double =
-        when {
-            speedMps < abnormalConfig.walkingMaxMps -> abnormalConfig.walkingJitterM
-            speedMps < abnormalConfig.cyclingMaxMps -> abnormalConfig.cyclingJitterM
-            else -> abnormalConfig.drivingJitterM
-        }
+    private fun minDisplacementForSpeed(speedMps: Double): Double {
+        val bandJitter =
+            when {
+                speedMps < abnormalConfig.walkingMaxMps -> abnormalConfig.walkingJitterM
+                speedMps < abnormalConfig.cyclingMaxMps -> abnormalConfig.cyclingJitterM
+                else -> abnormalConfig.drivingJitterM
+            }
+        // P10.1: the user-set floor only ever raises the gate; 0.0 (default) is a no-op.
+        return max(bandJitter, minDisplacementFloorM)
+    }
 
     /** C.1c: true when the recent window shows sustained movement, so a small step isn't jitter. */
     private fun hasMovementHistory(): Boolean = recentSpeedHistory.isNotEmpty() && recentSpeedHistory.average() >= abnormalConfig.movementHistoryMps

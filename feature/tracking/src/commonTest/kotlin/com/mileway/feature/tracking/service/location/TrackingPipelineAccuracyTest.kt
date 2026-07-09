@@ -205,4 +205,28 @@ class TrackingPipelineAccuracyTest {
         assertNotNull(result)
         assertFalse(result.countedTowardDistance, "accuracy>50m outside grace must also be gated")
     }
+
+    // ── P10.1 user-set min-displacement floor ─────────────────────────────────
+
+    @Test
+    fun `min-displacement floor suppresses a sub-floor step that the default gate would count`() {
+        // A ~15 m driving step: above the default 5 m driving jitter gate, below a 25 m user floor.
+        val far = 18.5000 + 15.0 / 111_320.0
+
+        // Default floor (0.0): the 15 m step clears the 5 m band gate → counted.
+        val proc = LocationProcessor(enableKalman = false)
+        proc.process(fix(lat = 18.5000, t = 0L, speed = 11f, accuracy = 10f), isPaused = false, motionStill = true)
+        val counted =
+            proc.process(fix(lat = far, t = 1_000L, speed = 11f, accuracy = 10f), isPaused = false, motionStill = true)
+        assertNotNull(counted, "15 m step must clear the default 5 m gate")
+        assertTrue(proc.cleanedDistanceM > 5.0, "default floor must count the 15 m step")
+
+        // Floor 25 m: the same 15 m step is now sub-floor jitter → suppressed, no cleaned distance.
+        val floored = LocationProcessor(enableKalman = false, minDisplacementFloorM = 25.0)
+        floored.process(fix(lat = 18.5000, t = 0L, speed = 11f, accuracy = 10f), isPaused = false, motionStill = true)
+        val suppressed =
+            floored.process(fix(lat = far, t = 1_000L, speed = 11f, accuracy = 10f), isPaused = false, motionStill = true)
+        assertNull(suppressed, "15 m step below the 25 m floor must be suppressed")
+        assertTrue(floored.cleanedDistanceM < 1.0, "floor must exclude the sub-floor step from cleaned distance")
+    }
 }

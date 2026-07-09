@@ -2364,4 +2364,19 @@
     <string name="payout_upi_invalid">Enter a valid UPI handle (name@bank).</string>
     <string name="payout_upi_save">Save</string>
     <string name="payout_upi_qr_caption">Scan to pay</string>
+    <!-- PLAN_V24 P10.1: Track Miles settings registered as plugins -->
+    <string name="plugin_tracking_tuning_min_accuracy_title">Minimum GPS accuracy</string>
+    <string name="plugin_tracking_tuning_min_accuracy_desc">Fixes worse than this accuracy are logged but excluded from cleaned distance</string>
+    <string name="plugin_tracking_tuning_location_interval_title">Location update interval</string>
+    <string name="plugin_tracking_tuning_location_interval_desc">Floor for how often a location fix is requested</string>
+    <string name="plugin_tracking_tuning_min_displacement_title">Minimum displacement</string>
+    <string name="plugin_tracking_tuning_min_displacement_desc">Smaller moves than this are treated as GPS jitter, not distance</string>
+    <string name="plugin_tracking_force_gps_title">Force GPS provider</string>
+    <string name="plugin_tracking_force_gps_desc">Use raw GPS instead of the fused provider</string>
+    <string name="plugin_tracking_upload_background_title">Upload in background</string>
+    <string name="plugin_tracking_upload_background_desc">Sync tracked trips while the app is in the background</string>
+    <string name="plugin_tracking_auto_pause_title">Auto-pause detection</string>
+    <string name="plugin_tracking_auto_pause_desc">Pause tracking automatically when you stop moving</string>
+    <string name="plugin_profile_notifications_title">Notifications</string>
+    <string name="plugin_profile_notifications_desc">Receive trip and account notifications</string>
 </resources>

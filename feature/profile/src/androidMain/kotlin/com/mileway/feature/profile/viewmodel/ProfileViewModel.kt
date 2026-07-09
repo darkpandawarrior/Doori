@@ -17,12 +17,14 @@ import com.mileway.feature.profile.model.NotificationChannels
 import com.mileway.feature.profile.model.ProfileUiState
 import com.mileway.feature.profile.repository.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
@@ -134,6 +136,11 @@ class ProfileViewModel(
     // null so existing test call sites (5 files, all built before this task) don't need updating;
     // production Koin always supplies the real singleton.
     private val sessionCoordinator: MockAccountSessionCoordinator? = null,
+    // P10.1: registry-backed notifications toggle (persisted per-account). Nullable-defaulted for
+    // the same reason as sessionCoordinator above — direct-construction test sites omit it and get
+    // the pre-P10.1 in-memory fallback; production Koin (viewModelOf) always resolves the real
+    // singleton from the graph (defaults are ignored by viewModelOf when the type is bound).
+    private val pluginRegistry: com.mileway.core.data.plugin.PluginRegistry? = null,
 ) : BaseViewModel<ProfileUiState, ProfileEffect, ProfileAction>(
         repository.accounts().let { acc ->
             ProfileUiState(
@@ -331,15 +338,32 @@ class ProfileViewModel(
     private val _useMiles = MutableStateFlow(true)
     val useMiles: StateFlow<Boolean> = _useMiles.asStateFlow()
 
-    private val _notificationsEnabled = MutableStateFlow(true)
-    val notificationsEnabled: StateFlow<Boolean> = _notificationsEnabled.asStateFlow()
+    // P10.1: registry-backed so the toggle persists per-account across VM recreation instead of
+    // being an in-memory MutableStateFlow. NOTED SKIP for behavior — the tracking FGS notification
+    // is mandatory and no offline path reads this flag; persistence satisfies "not remember-only".
+    // Null pluginRegistry (test-only) falls back to an in-memory flag = the pre-P10.1 behavior.
+    private val fallbackNotifications = MutableStateFlow(true)
+    val notificationsEnabled: StateFlow<Boolean> =
+        pluginRegistry?.observe("notificationsEnabled")
+            ?.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+            ?: fallbackNotifications.asStateFlow()
 
     fun toggleUnits() {
         _useMiles.value = !_useMiles.value
     }
 
     fun toggleNotifications() {
-        _notificationsEnabled.value = !_notificationsEnabled.value
+        val registry = pluginRegistry
+        if (registry == null) {
+            fallbackNotifications.value = !fallbackNotifications.value
+            return
+        }
+        viewModelScope.launch {
+            registry.setUserOverride(
+                "notificationsEnabled",
+                com.mileway.core.data.plugin.PluginValue.Bool(!notificationsEnabled.value),
+            )
+        }
     }
 
     fun setDarkTheme(dark: Boolean?) = themeController.set(dark)

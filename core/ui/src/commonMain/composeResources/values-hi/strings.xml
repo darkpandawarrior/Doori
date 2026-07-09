@@ -2361,4 +2361,19 @@
     <string name="payout_upi_invalid">मान्य UPI हैंडल दर्ज करें (name@bank)।</string>
     <string name="payout_upi_save">सहेजें</string>
     <string name="payout_upi_qr_caption">भुगतान के लिए स्कैन करें</string>
+    <!-- PLAN_V24 P10.1: Track Miles settings registered as plugins -->
+    <string name="plugin_tracking_tuning_min_accuracy_title">न्यूनतम GPS सटीकता</string>
+    <string name="plugin_tracking_tuning_min_accuracy_desc">इससे कम सटीक फ़िक्स दर्ज होते हैं पर साफ़ दूरी में शामिल नहीं किए जाते</string>
+    <string name="plugin_tracking_tuning_location_interval_title">स्थान अपडेट अंतराल</string>
+    <string name="plugin_tracking_tuning_location_interval_desc">स्थान फ़िक्स कितनी बार माँगा जाए, उसकी न्यूनतम सीमा</string>
+    <string name="plugin_tracking_tuning_min_displacement_title">न्यूनतम विस्थापन</string>
+    <string name="plugin_tracking_tuning_min_displacement_desc">इससे छोटी हलचल को दूरी नहीं, GPS जिटर माना जाता है</string>
+    <string name="plugin_tracking_force_gps_title">GPS प्रदाता बाध्य करें</string>
+    <string name="plugin_tracking_force_gps_desc">फ़्यूज़्ड प्रदाता के बजाय कच्चे GPS का उपयोग करें</string>
+    <string name="plugin_tracking_upload_background_title">पृष्ठभूमि में अपलोड</string>
+    <string name="plugin_tracking_upload_background_desc">ऐप के पृष्ठभूमि में रहते हुए ट्रैक की गई यात्राएँ सिंक करें</string>
+    <string name="plugin_tracking_auto_pause_title">स्वतः-रोक पहचान</string>
+    <string name="plugin_tracking_auto_pause_desc">रुकने पर ट्रैकिंग अपने आप रोकें</string>
+    <string name="plugin_profile_notifications_title">सूचनाएँ</string>
+    <string name="plugin_profile_notifications_desc">यात्रा और खाता सूचनाएँ प्राप्त करें</string>
 </resources>

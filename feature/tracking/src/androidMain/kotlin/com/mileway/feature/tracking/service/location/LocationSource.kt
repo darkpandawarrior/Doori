@@ -35,15 +35,28 @@ interface LocationSource {
     fun updateInterval(intervalMs: Long) = Unit
 }
 
-/** Real GPS via the fused location provider. */
+/**
+ * Real GPS via the fused location provider.
+ *
+ * P10.1: [forceGpsOnly] (Track Miles "force GPS provider" setting) swaps the fused client for the
+ * platform [android.location.LocationManager] GPS_PROVIDER, so fixes come straight from the GNSS
+ * hardware with no Wi-Fi/cell fusion. Default false keeps the fused high-accuracy behavior.
+ */
 class FusedLocationSource(
     private val context: Context,
     private val initialIntervalMs: Long = 4_000L,
+    private val forceGpsOnly: Boolean = false,
 ) : LocationSource {
     private val client = LocationServices.getFusedLocationProviderClient(context)
     private var callback: LocationCallback? = null
     private var onFix: ((GpsFix) -> Unit)? = null
     private var currentIntervalMs: Long = initialIntervalMs
+
+    // P10.1: raw-GPS path.
+    private val locationManager by lazy {
+        context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
+    }
+    private var rawGpsListener: android.location.LocationListener? = null
 
     override fun start(onFix: (GpsFix) -> Unit) {
         this.onFix = onFix
@@ -51,7 +64,7 @@ class FusedLocationSource(
     }
 
     /**
-     * Re-register the fused request only when the cadence actually moves (≥1s), re-registering on
+     * Re-register the request only when the cadence actually moves (≥1s), re-registering on
      * every fix would churn the provider for no benefit. Removes the old callback first so a single
      * callback is ever active.
      */
@@ -59,12 +72,16 @@ class FusedLocationSource(
         if (onFix == null) return // not started
         if (kotlin.math.abs(intervalMs - currentIntervalMs) < 1_000L) return
         currentIntervalMs = intervalMs
-        callback?.let { client.removeLocationUpdates(it) }
+        removeUpdates()
         register(intervalMs)
     }
 
     private fun register(intervalMs: Long) {
         val fix = onFix ?: return
+        if (forceGpsOnly) {
+            registerRawGps(intervalMs, fix)
+            return
+        }
         val request =
             LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalMs)
                 .setMinUpdateIntervalMillis(intervalMs / 2)
@@ -83,9 +100,37 @@ class FusedLocationSource(
         }
     }
 
-    override fun stop() {
+    private fun registerRawGps(
+        intervalMs: Long,
+        fix: (GpsFix) -> Unit,
+    ) {
+        val listener =
+            android.location.LocationListener { location -> fix(location.toGpsFix()) }
+        rawGpsListener = listener
+        try {
+            locationManager.requestLocationUpdates(
+                android.location.LocationManager.GPS_PROVIDER,
+                intervalMs,
+                0f,
+                listener,
+                Looper.getMainLooper(),
+            )
+        } catch (_: SecurityException) {
+            // Permission revoked mid-session; the service handles the empty stream.
+        } catch (_: IllegalArgumentException) {
+            // GPS_PROVIDER not present on this device; empty stream, service falls back.
+        }
+    }
+
+    private fun removeUpdates() {
         callback?.let { client.removeLocationUpdates(it) }
         callback = null
+        rawGpsListener?.let { locationManager.removeUpdates(it) }
+        rawGpsListener = null
+    }
+
+    override fun stop() {
+        removeUpdates()
         onFix = null
     }
 

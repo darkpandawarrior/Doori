@@ -123,6 +123,17 @@ object PluginCatalog {
                 descriptionKey = "plugin_profile_emergency_contacts_desc",
                 defaultOn = true,
             ),
+            // PLAN_V24 P10.1: SettingsScreen's notifications toggle. NOTED SKIP for behavior (the
+            // tracking FGS notification is mandatory; no offline consumer), but registry-backed so
+            // it survives VM recreation instead of being an in-memory MutableStateFlow.
+            PluginDescriptor(
+                id = "notificationsEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PROFILE,
+                titleKey = "plugin_profile_notifications_title",
+                descriptionKey = "plugin_profile_notifications_desc",
+                defaultOn = true,
+            ),
         )
 
     /** Tracking-depth plugins (P3.5, P10, P11). */
@@ -135,6 +146,78 @@ object PluginCatalog {
                 titleKey = "plugin_tracking_emergency_mode_title",
                 descriptionKey = "plugin_tracking_emergency_mode_desc",
                 defaultOn = true,
+            ),
+            // PLAN_V24 P10.1: force raw-GPS provider instead of Fused. Consumer =
+            // FusedLocationSource provider/priority selection (androidMain). defaultOn=false keeps
+            // the current Fused-high-accuracy behavior.
+            PluginDescriptor(
+                id = "track_force_gps_only",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_force_gps_title",
+                descriptionKey = "plugin_tracking_force_gps_desc",
+                defaultOn = false,
+            ),
+            // PLAN_V24 P10.1: NOTED SKIP — no offline consumer (no backend upload path exists).
+            // Persisted only so the toggle is not remember-only; parity placeholder for a future
+            // backend phase. defaultOn=true matches the screen's current default.
+            PluginDescriptor(
+                id = "track_upload_in_background",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_upload_background_title",
+                descriptionKey = "plugin_tracking_upload_background_desc",
+                defaultOn = true,
+            ),
+            // PLAN_V24 P10.1: NOTED SKIP — no trip auto-pause logic exists (only stationary
+            // detection, not auto-pause). Persisted only. defaultOn=false matches the screen.
+            PluginDescriptor(
+                id = "track_auto_pause_detection",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_auto_pause_title",
+                descriptionKey = "plugin_tracking_auto_pause_desc",
+                defaultOn = false,
+            ),
+        )
+
+    /**
+     * Tracking-tuning VALUE plugins (P10.1) — the Track Miles settings sliders, now registry-backed
+     * so they persist per-account AND drive the live location engine. NOTE (P10.3 overlap):
+     * `track_min_displacement_m` and `track_location_interval_s` are thin single floors that P10.3's
+     * full categorized key set will supersede — P10.3 must reconcile, not double-register.
+     */
+    val trackingTuningPlugins: List<PluginDescriptor> =
+        listOf(
+            // Consumer = LocationProcessor.maxAccuracyThreshold. Default 50 preserves the shipped
+            // pipeline default (LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M) — NOT the
+            // screen's dead 30 — so live tracking math is unchanged when unset.
+            PluginDescriptor(
+                id = "track_min_accuracy_m",
+                kind = PluginKind.VALUE,
+                category = PluginCategory.TRACKING_TUNING,
+                titleKey = "plugin_tracking_tuning_min_accuracy_title",
+                descriptionKey = "plugin_tracking_tuning_min_accuracy_desc",
+                valueSpec = PluginValueSpec.IntSpec(defaultValue = 50, min = 10, max = 100, step = 1, unit = "m"),
+            ),
+            // Consumer = DynamicIntervalCalculator via a new IntervalInputs floor. Default 10 s.
+            PluginDescriptor(
+                id = "track_location_interval_s",
+                kind = PluginKind.VALUE,
+                category = PluginCategory.TRACKING_TUNING,
+                titleKey = "plugin_tracking_tuning_location_interval_title",
+                descriptionKey = "plugin_tracking_tuning_location_interval_desc",
+                valueSpec = PluginValueSpec.IntSpec(defaultValue = 10, min = 5, max = 60, step = 1, unit = "s"),
+            ),
+            // Consumer = LocationProcessor.minDisplacementForSpeed floor. Default 0 = existing math
+            // untouched when unset.
+            PluginDescriptor(
+                id = "track_min_displacement_m",
+                kind = PluginKind.VALUE,
+                category = PluginCategory.TRACKING_TUNING,
+                titleKey = "plugin_tracking_tuning_min_displacement_title",
+                descriptionKey = "plugin_tracking_tuning_min_displacement_desc",
+                valueSpec = PluginValueSpec.IntSpec(defaultValue = 0, min = 0, max = 50, step = 1, unit = "m"),
             ),
         )
 
@@ -271,7 +354,7 @@ object PluginCatalog {
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins
+            trackingTuningPlugins + verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins
 
     private fun onboardingFlag(
         id: String,

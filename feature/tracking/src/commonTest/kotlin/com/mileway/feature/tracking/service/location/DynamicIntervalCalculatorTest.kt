@@ -48,4 +48,18 @@ class DynamicIntervalCalculatorTest {
         val lowButCharging = DynamicIntervalCalculator.intervalMs(inputs(batteryPct = 10, isCharging = true))
         assertEquals(full, lowButCharging)
     }
+
+    // ── P10.1 user-set interval floor ───────────────────────────────────────────
+
+    @Test
+    fun `userFloorMs default 0 reproduces the pre-change interval`() {
+        assertEquals(10_000L, DynamicIntervalCalculator.intervalMs(inputs().copy(userFloorMs = 0L)))
+    }
+
+    @Test
+    fun `userFloorMs raises the interval and is never undercut even under harsh accel`() {
+        val floored =
+            DynamicIntervalCalculator.intervalMs(inputs(harshAccel = true).copy(userFloorMs = 15_000L))
+        assertTrue(floored >= 15_000L, "expected interval ($floored) to respect the 15s floor")
+    }
 }
