@@ -2,6 +2,8 @@ package com.mileway.feature.tracking.debug
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.plugin.PluginCategory
+import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.export.TrackExportManager
 import com.mileway.feature.tracking.repository.LocationRepository
@@ -13,6 +15,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -62,6 +65,10 @@ sealed interface DebugMenuComposeEffect
 class DebugMenuComposeViewModel(
     private val savedTrackRepository: SavedTrackRepository,
     private val locationRepository: LocationRepository,
+    // PLAN_V24 P10.3: the location fine-tuning knobs are registry-backed VALUE plugins now. The
+    // debug menu reads their resolved values for display (the editor itself lives on the Master
+    // Plugin page). Nullable so graphs that omit core:data (e.g. the screenshot harness) still build.
+    private val pluginRegistry: PluginRegistry? = null,
 ) : BaseViewModel<DebugMenuComposeUiState, DebugMenuComposeEffect, DebugMenuComposeAction>(DebugMenuComposeUiState()) {
     companion object {
         private const val TAG = "DebugMenuViewModel"
@@ -86,6 +93,17 @@ class DebugMenuComposeViewModel(
     init {
         loadDebugOptions()
 
+        // P10.3: live-mirror the resolved fine-tuning values from the registry (was emptyMap()).
+        pluginRegistry?.let { reg ->
+            viewModelScope.launch {
+                reg.observeResolved().collect { resolved ->
+                    mutableAbnormalConfig.value =
+                        resolved
+                            .filter { it.descriptor.category == PluginCategory.TRACKING_TUNING }
+                            .associate { it.descriptor.id to it.value.toRaw() }
+                }
+            }
+        }
         viewModelScope.launch {
             abnormalConfigEvents.collect { loadAbnormalConfigValues() }
         }
@@ -277,8 +295,12 @@ class DebugMenuComposeViewModel(
 
     // ── Private helpers ───────────────────────────────────────────────────────
 
-    private fun loadAbnormalConfigValues() {
-        mutableAbnormalConfig.value = emptyMap()
+    private suspend fun loadAbnormalConfigValues() {
+        val registry = pluginRegistry ?: return
+        mutableAbnormalConfig.value =
+            registry.observeResolved().first()
+                .filter { it.descriptor.category == PluginCategory.TRACKING_TUNING }
+                .associate { it.descriptor.id to it.value.toRaw() }
     }
 
     private fun loadDebugOptions() {

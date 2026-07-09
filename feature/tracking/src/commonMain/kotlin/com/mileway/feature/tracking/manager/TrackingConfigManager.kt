@@ -28,7 +28,20 @@ class TrackingConfigManager(
         abnormalDetectionOverrides.map { o ->
             val d = AbnormalDetectionConfig.DEFAULT
             AbnormalDetectionConfig(
+                walkingMaxMps = o.walkingMaxMps ?: d.walkingMaxMps,
+                cyclingMaxMps = o.cyclingMaxMps ?: d.cyclingMaxMps,
+                walkingJitterM = o.walkingJitterM ?: d.walkingJitterM,
+                cyclingJitterM = o.cyclingJitterM ?: d.cyclingJitterM,
+                drivingJitterM = o.drivingJitterM ?: d.drivingJitterM,
+                stationarySpeedMps = o.stationarySpeedMps ?: d.stationarySpeedMps,
+                stationaryJitterM = o.stationaryJitterM ?: d.stationaryJitterM,
+                speedHistorySize = o.speedHistorySize ?: d.speedHistorySize,
+                movementHistoryMps = o.movementHistoryMps ?: d.movementHistoryMps,
                 spikeHardGateM = o.spikeHardGateM ?: d.spikeHardGateM,
+                gapMinSec = o.gapMinSec ?: d.gapMinSec,
+                gap5mSec = o.gap5mSec ?: d.gap5mSec,
+                gap1hSec = o.gap1hSec ?: d.gap1hSec,
+                gap6hSec = o.gap6hSec ?: d.gap6hSec,
                 gapTier5mMps = o.gapTier5mMps ?: d.gapTier5mMps,
                 gapTier1hMps = o.gapTier1hMps ?: d.gapTier1hMps,
                 gapTier6hMps = o.gapTier6hMps ?: d.gapTier6hMps,

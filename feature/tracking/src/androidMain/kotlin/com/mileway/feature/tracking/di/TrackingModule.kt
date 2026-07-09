@@ -142,7 +142,9 @@ val trackingModule =
         // PLAN_V24 P3.5: SOS sheet — explicit (not viewModelOf) so the Clock default is honored;
         // EmergencyContactsRepository + NotificationDao resolve from core:data's graph.
         viewModel { SosViewModel(get(), get()) }
-        viewModelOf(::DebugMenuComposeViewModel)
+        // P10.3: PluginRegistry (core:data) resolved for the fine-tuning readout; getOrNull() keeps
+        // graphs that omit core:data (screenshot harness) building.
+        viewModel { DebugMenuComposeViewModel(get(), get(), getOrNull()) }
         // No HttpClient wired yet (app is offline/:stub) — getOrNull() keeps the tester graceful.
         viewModel { NetworkLogViewModel(store = get(), httpClient = getOrNull()) }
         viewModelOf(::CreateVoucherViewModel)

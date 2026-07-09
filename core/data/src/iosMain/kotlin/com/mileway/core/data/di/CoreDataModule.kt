@@ -35,11 +35,11 @@ import com.mileway.core.data.session.PinLockoutSource
 import com.mileway.core.data.session.PinLockoutStore
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.SessionSource
-import com.mileway.core.data.settings.AbnormalDetectionSettingsDataStore
 import com.mileway.core.data.settings.AbnormalDetectionSettingsSource
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.AgentSessionStoreImpl
 import com.mileway.core.data.settings.DemoSettingsRepository
+import com.mileway.core.data.settings.RegistryAbnormalDetectionSource
 import com.mileway.core.data.watch.SnapshotCache
 import com.mileway.core.data.watch.SnapshotCacheStore
 import kotlinx.serialization.json.Json
@@ -124,8 +124,9 @@ val coreDataModule =
         single { DemoSettingsRepository() }
         // Location switching: recents/favorites/saved places (offline, DataStore-backed).
         single<SavedLocationsSource> { SavedLocationsStore() }
-        single { AbnormalDetectionSettingsDataStore() }
-        single<AbnormalDetectionSettingsSource> { get<AbnormalDetectionSettingsDataStore>() }
+        // PLAN_V24 P10.3: abnormal-detection thresholds are registry-backed VALUE plugins now, so
+        // the override source just projects the registry (one store, two surfaces).
+        single<AbnormalDetectionSettingsSource> { RegistryAbnormalDetectionSource(get()) }
         // P3.4: pause/restore hook run before ProfileViewModel.CommitAccountSwitch flips the
         // active-account pointer.
         single { MockAccountSessionCoordinator(get(), get(), get()) }

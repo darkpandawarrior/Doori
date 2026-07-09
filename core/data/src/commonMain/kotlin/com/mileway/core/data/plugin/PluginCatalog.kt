@@ -235,6 +235,47 @@ object PluginCatalog {
         )
 
     /**
+     * PLAN_V24 P10.3 — the full location fine-tuning key set. Every knob here is a field of
+     * `AbnormalDetectionConfig` that `LocationProcessor` actually consumes on the live pipeline
+     * (jitter gates, speed bands, spike/gap-recovery tiers, movement window). Each defaults to
+     * exactly the shipped `AbnormalDetectionConfig.DEFAULT` value, so an untouched knob leaves the
+     * tracking math byte-for-byte unchanged; moving one on the Master Plugin page (which renders the
+     * categorized VALUE editor) flows through `RegistryAbnormalDetectionSource` →
+     * `TrackingConfigManager.abnormalDetectionConfig` → `LocationProcessor`. No dead knobs.
+     *
+     * Reference keys with no Mileway consumer (Kalman params, battery thresholds, path simplification,
+     * activity detection, event aggregation, min/max accuracy pair) are NOT registered here — see
+     * PROGRESS for the skip list. The boolean experimental optimisation toggles live in P10.7.
+     */
+    val abnormalTuningPlugins: List<PluginDescriptor> =
+        listOf(
+            // Speed-classification bands (m/s).
+            tuningDouble("track_walking_max_mps", 2.5, 0.5, 5.0, 0.1, "m/s"),
+            tuningDouble("track_cycling_max_mps", 7.0, 3.0, 15.0, 0.5, "m/s"),
+            tuningDouble("track_stationary_speed_mps", 1.2, 0.2, 3.0, 0.1, "m/s"),
+            tuningDouble("track_movement_history_mps", 1.5, 0.2, 5.0, 0.1, "m/s"),
+            // Per-band min-displacement jitter gates (m).
+            tuningDouble("track_walking_jitter_m", 2.0, 0.5, 10.0, 0.5, "m"),
+            tuningDouble("track_cycling_jitter_m", 3.0, 0.5, 15.0, 0.5, "m"),
+            tuningDouble("track_driving_jitter_m", 5.0, 1.0, 25.0, 0.5, "m"),
+            tuningDouble("track_stationary_jitter_m", 1.2, 0.2, 5.0, 0.1, "m"),
+            // Movement-history window (samples).
+            tuningInt("track_speed_history_size", 5, 2, 20, 1, null),
+            // Spike / abnormal distance gates (m).
+            tuningDouble("track_spike_hard_gate_m", 5_000.0, 500.0, 20_000.0, 100.0, "m"),
+            tuningDouble("track_gap_max_distance_m", 10_000.0, 1_000.0, 50_000.0, 500.0, "m"),
+            // Gap-recovery windows (s).
+            tuningInt("track_gap_min_s", 30, 5, 120, 5, "s"),
+            tuningInt("track_gap_5m_s", 300, 60, 900, 30, "s"),
+            tuningInt("track_gap_1h_s", 3_600, 600, 7_200, 60, "s"),
+            tuningInt("track_gap_6h_s", 21_600, 7_200, 43_200, 600, "s"),
+            // Gap-recovery relaxed speed caps (m/s).
+            tuningDouble("track_gap_tier_5m_mps", 150.0, 30.0, 300.0, 5.0, "m/s"),
+            tuningDouble("track_gap_tier_1h_mps", 100.0, 20.0, 250.0, 5.0, "m/s"),
+            tuningDouble("track_gap_tier_6h_mps", 60.0, 10.0, 200.0, 5.0, "m/s"),
+        )
+
+    /**
      * Mileage-sync settings (P10.2) — the reference app `MileageSyncSettingsCard`. Each toggle gates a real
      * local behavior in [SyncDiagnosticsRepository][com.mileway.feature.profile.repository.SyncDiagnosticsRepository]'s
      * force-sync drain (which local staging buckets get moved to the synced counters); the interval
@@ -427,8 +468,44 @@ object PluginCatalog {
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
-            trackingTuningPlugins + syncSettingsPlugins + verificationPlugins + growthPlugins +
-            membershipPlugins + incentivePlugins
+            trackingTuningPlugins + abnormalTuningPlugins + syncSettingsPlugins + verificationPlugins +
+            growthPlugins + membershipPlugins + incentivePlugins
+
+    // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
+    // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.
+    private fun tuningDouble(
+        id: String,
+        default: Double,
+        min: Double,
+        max: Double,
+        step: Double,
+        unit: String?,
+    ): PluginDescriptor =
+        PluginDescriptor(
+            id = id,
+            kind = PluginKind.VALUE,
+            category = PluginCategory.TRACKING_TUNING,
+            titleKey = "plugin_${id}_title",
+            descriptionKey = "plugin_${id}_desc",
+            valueSpec = PluginValueSpec.DoubleSpec(defaultValue = default, min = min, max = max, step = step, unit = unit),
+        )
+
+    private fun tuningInt(
+        id: String,
+        default: Int,
+        min: Int,
+        max: Int,
+        step: Int,
+        unit: String?,
+    ): PluginDescriptor =
+        PluginDescriptor(
+            id = id,
+            kind = PluginKind.VALUE,
+            category = PluginCategory.TRACKING_TUNING,
+            titleKey = "plugin_${id}_title",
+            descriptionKey = "plugin_${id}_desc",
+            valueSpec = PluginValueSpec.IntSpec(defaultValue = default, min = min, max = max, step = step, unit = unit),
+        )
 
     private fun onboardingFlag(
         id: String,
