@@ -335,7 +335,8 @@ Every feature is fully interactive on mocked, offline data.
 | **Travel** | Travel hub, active-trip card (flight / train), upcoming bookings, plus trip &amp; booking history surfaces. |
 | **Approvals &amp; Payables** | Approval queue with policy-violation badges and seek-clarification sheet; payables hub, multi-step create-PR / invoice flows and history surfaces. |
 | **Payments, Events &amp; Cards** | QR pay / request + history; event creation + history; card home / detail / request (KYC-lite). |
-| **Profile &amp; Account** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, and a MaterialKolor theme engine. |
+| **Profile &amp; Account (super-profile, V24)** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, MaterialKolor theme engine; **plus V24 depth:** verification centre + corporate-email/OTP verification, growth surfaces (referral, coupons, scratch rewards, campaigns), membership (Mileway Club, subscription plans, incentive programs), account-deletion lifecycle, enriched active-sessions, **act-on-behalf session delegation** with an app-wide "Acting as" banner, external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle + QR), and a manager/reportee tracking view. |
+| **Customization / personas (V24)** | A single **plugin registry** is the composition mechanism — every feature (tile, capability, tunable value) gates through it, resolved by layering FORCED &gt; USER &gt; PRESET &gt; DEFAULT. A **Master Plugin page** toggles any of them live with source chips; **persona presets** (Corporate Commuter, Super-App Consumer, Gig Driver, Minimal Guest) reshape the whole app — different hubs, auth flows, tracking behavior and tunable knobs — from one account. Tracking settings (accuracy/interval/displacement floors, force-GPS, sync toggles) are registry-backed and persisted, driving the live location engine. |
 | **Local dev &amp; infra** | A local analytics sink with a kill switch, a Ktor network-log + API-tester debug console, and a server-driven tracking config loaded from local JSON — all offline, no backend. |
 | **Media** | CameraX capture (flash, pinch-zoom, tap-focus), on-device odometer OCR, attachment grid. |
 | **Master search** | A registry-based search that fans a query across every feature module. |
@@ -612,6 +613,20 @@ roadmap reflects direction rather than commitments.
       logging; offline sync scaffolding (local-data flagging + multi-session restore); and local-only
       dev infra — an analytics sink with kill switch, a Ktor network-log/API-tester console, and a
       server-driven tracking config loaded from local JSON. All offline/mock, no backend.
+- [x] **Super-profile &amp; plugin-composition platform (V24, in progress).** A single **plugin
+      registry** as the app's composition mechanism (TILE / CAPABILITY / VALUE plugins resolved by
+      layering FORCED &gt; USER &gt; PRESET &gt; DEFAULT), a live Master Plugin page with source chips, and
+      four **persona presets** that reshape the whole app from one account. On top of it: auth depth
+      (phone login, MFA, OTP-via-call), signup onboarding + what's-new, profile depth (OTP phone
+      change, email/corporate verification, avatar, saved places, emergency contacts), a verification
+      centre + card KYC, growth (referral, coupons, scratch rewards, campaigns), membership (Mileway
+      Club, subscription plans, incentive programs), account-deletion lifecycle + enriched sessions,
+      **act-on-behalf session delegation** (app-wide "Acting as" banner, trip-ownership isolation),
+      external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle +
+      QR), and registry-backed **tracking-settings persistence** (accuracy/interval/displacement
+      floors, force-GPS, mileage-sync toggles) wired into the live location engine, plus a
+      manager/reportee tracking view. (Remaining V24: vehicle garage &amp; rates, destination mode,
+      ecometer, engagement/trust depth, unified banner system, and hub reorganization.)
 
 **Exploring**
 
