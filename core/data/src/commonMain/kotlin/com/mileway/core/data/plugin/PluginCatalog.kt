@@ -179,6 +179,19 @@ object PluginCatalog {
                 descriptionKey = "plugin_tracking_auto_pause_desc",
                 defaultOn = false,
             ),
+            // PLAN_V24 P10.6: manager-only reportee tracking view (the reference app enableTrackMileageManagerView /
+            // ExpensePluginConfig.showTrackReportees). A whole new profile-hub destination (TILE).
+            // defaultOn=false keeps the profile-hub gallery golden byte-identical; the id is already
+            // declared true in SuperProfilePersonas.CorporateCommuter, so registering this descriptor
+            // is what turns the tile on for that (manager) persona.
+            PluginDescriptor(
+                id = "trackMileageManagerView",
+                kind = PluginKind.TILE,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_manager_view_title",
+                descriptionKey = "plugin_tracking_manager_view_desc",
+                defaultOn = false,
+            ),
         )
 
     /**

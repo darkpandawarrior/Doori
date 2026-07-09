@@ -31,6 +31,7 @@ import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
 import com.mileway.feature.profile.viewmodel.EmergencyContactsViewModel
 import com.mileway.feature.profile.viewmodel.IncentiveViewModel
+import com.mileway.feature.profile.viewmodel.ManagerReporteesViewModel
 import com.mileway.feature.profile.viewmodel.MarketingHubViewModel
 import com.mileway.feature.profile.viewmodel.MembershipViewModel
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
@@ -91,6 +92,8 @@ val profileModule =
         viewModelOf(::DelegationViewModel)
         // PLAN_V24 P7.3: session-delegation (act on behalf) — separate from approval-delegation above.
         viewModelOf(::DelegateSessionViewModel)
+        // PLAN_V24 P10.6: manager-only reportee tracking view (only needs PluginRegistry).
+        viewModelOf(::ManagerReporteesViewModel)
         viewModelOf(::ActiveSessionsViewModel)
         viewModelOf(::NotificationViewModel)
         viewModelOf(::ConnectedAccountsViewModel)

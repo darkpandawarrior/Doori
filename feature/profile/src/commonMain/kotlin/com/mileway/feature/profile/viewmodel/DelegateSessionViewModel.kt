@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.session.DelegationSessionSource
+import com.mileway.feature.profile.model.SeededReportees
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,7 +43,7 @@ class DelegateSessionViewModel(
     private val delegation: DelegationSessionSource,
     private val pluginRegistry: PluginRegistry,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(DelegateSessionUiState(reportees = SEEDED_REPORTEES))
+    private val _state = MutableStateFlow(DelegateSessionUiState(reportees = SeededReportees.all))
     val state: StateFlow<DelegateSessionUiState> = _state.asStateFlow()
 
     init {
@@ -68,16 +69,5 @@ class DelegateSessionViewModel(
     /** Restore the base identity. */
     fun endDelegation() {
         viewModelScope.launch { delegation.endDelegation() }
-    }
-
-    private companion object {
-        /** Seeded reportees for the demo — each a distinct identity so their trips stay isolated. */
-        val SEEDED_REPORTEES =
-            listOf(
-                Reportee("Priya Sharma", "priya.sharma@mileway.app", "EMP-2101"),
-                Reportee("Rahul Mehra", "rahul.mehra@mileway.app", "EMP-2102"),
-                Reportee("Asha Verma", "asha.verma@mileway.app", "EMP-2103"),
-                Reportee("Vikram Nair", "vikram.nair@mileway.app", "EMP-2104"),
-            )
     }
 }

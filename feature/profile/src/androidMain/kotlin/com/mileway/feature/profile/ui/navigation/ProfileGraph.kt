@@ -21,6 +21,8 @@ import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.IncentiveProgramsScreen
+import com.mileway.feature.profile.ui.screens.ManagerReporteeDetailScreen
+import com.mileway.feature.profile.ui.screens.ManagerReporteesScreen
 import com.mileway.feature.profile.ui.screens.MarketingHubScreen
 import com.mileway.feature.profile.ui.screens.MySubscriptionScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
@@ -74,6 +76,10 @@ object ProfileRoutes {
     const val MY_SUBSCRIPTION = "profile/my_subscription"
     const val INCENTIVES = "profile/incentives"
     const val ACCOUNT_DELETION = "profile/account_deletion"
+    const val MANAGER_REPORTEES = "profile/manager_reportees"
+    const val MANAGER_REPORTEE = "profile/manager_reportees/{code}"
+
+    fun managerReporteeRoute(code: String) = "profile/manager_reportees/$code"
 
     fun analyticsDetailRoute(category: String) = "profile/analytics/$category"
 
@@ -124,8 +130,25 @@ fun NavGraphBuilder.profileGraph(
             onOpenClub = { navController.navigate(ProfileRoutes.CLUB) },
             onOpenSubscriptions = { navController.navigate(ProfileRoutes.PLANS) },
             onOpenIncentives = { navController.navigate(ProfileRoutes.INCENTIVES) },
+            onOpenManagerView = { navController.navigate(ProfileRoutes.MANAGER_REPORTEES) },
             onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
             onSignedOut = onSignedOut,
+        )
+    }
+    composable(ProfileRoutes.MANAGER_REPORTEES) {
+        ManagerReporteesScreen(
+            onBack = { navController.popBackStack() },
+            onOpenReportee = { code -> navController.navigate(ProfileRoutes.managerReporteeRoute(code)) },
+        )
+    }
+    composable(
+        route = ProfileRoutes.MANAGER_REPORTEE,
+        arguments = listOf(navArgument("code") { type = NavType.StringType }),
+    ) { backStackEntry ->
+        val code = backStackEntry.arguments?.getString("code") ?: return@composable
+        ManagerReporteeDetailScreen(
+            code = code,
+            onBack = { navController.popBackStack() },
         )
     }
     composable(ProfileRoutes.REWARDS) {

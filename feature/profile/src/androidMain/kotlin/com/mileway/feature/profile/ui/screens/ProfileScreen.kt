@@ -222,6 +222,7 @@ fun ProfileScreen(
     onOpenClub: () -> Unit = {},
     onOpenSubscriptions: () -> Unit = {},
     onOpenIncentives: () -> Unit = {},
+    onOpenManagerView: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
@@ -403,6 +404,7 @@ fun ProfileScreen(
                         onOpenClub = onOpenClub,
                         onOpenSubscriptions = onOpenSubscriptions,
                         onOpenIncentives = onOpenIncentives,
+                        onOpenManagerView = onOpenManagerView,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -727,6 +729,7 @@ private fun AccountTileGrid(
     onOpenClub: () -> Unit,
     onOpenSubscriptions: () -> Unit,
     onOpenIncentives: () -> Unit,
+    onOpenManagerView: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -751,6 +754,10 @@ private fun AccountTileGrid(
         .collectAsStateWithLifecycle(initialValue = true)
     val incentivesEnabled by pluginRegistry.observe("incentiveProgramsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
+    // PLAN_V24 P10.6: manager-only view. initialValue=false + defaultOn=false keep the profile-hub
+    // gallery golden byte-identical; only the Corporate Commuter persona flips it on.
+    val managerViewEnabled by pluginRegistry.observe("trackMileageManagerView")
+        .collectAsStateWithLifecycle(initialValue = false)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
     val green = Color(0xFF16A34A)
@@ -1018,11 +1025,24 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val managerViewTile =
+            if (managerViewEnabled) {
+                accountTile(
+                    "acc_manager_view",
+                    pdel("profile_home_tile_manager_view_title", "My reportees"),
+                    pdel("profile_home_tile_manager_view_subtitle", "Team tracking"),
+                    Icons.Default.SupervisorAccount,
+                    Color(0xFF0F766E),
+                    onOpenManagerView,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
         val depthTiles =
             listOfNotNull(
                 savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
-                campaignsTile, clubTile, subscriptionsTile, incentivesTile,
+                campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile,
             )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))

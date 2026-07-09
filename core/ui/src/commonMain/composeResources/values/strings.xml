@@ -2402,4 +2402,18 @@
     <string name="plugin_sync_v2_api_desc">Select the V2 sync protocol (no effect offline — parity only)</string>
     <string name="plugin_sync_interval_title">Auto-sync interval</string>
     <string name="plugin_sync_interval_desc">How often trips auto-sync when a connection is available</string>
+    <!-- PLAN_V24 P10.6: manager/reportee tracking view -->
+    <string name="plugin_tracking_manager_view_title">Reportee tracking view</string>
+    <string name="plugin_tracking_manager_view_desc">Let managers see their reportees\' trips and mileage summaries</string>
+    <string name="profile_home_tile_manager_view_title">My reportees</string>
+    <string name="profile_home_tile_manager_view_subtitle">Team tracking</string>
+    <string name="manager_view_title">My reportees</string>
+    <string name="manager_view_subtitle">Team tracking overview</string>
+    <string name="manager_view_back">Back</string>
+    <string name="manager_view_reportee">Reportee</string>
+    <string name="manager_view_disabled">Manager view is not enabled</string>
+    <string name="manager_view_no_trips">No trips recorded yet</string>
+    <string name="manager_view_trips">{n} trips</string>
+    <string name="manager_view_pending">{n} pending</string>
+    <string name="manager_view_last_trip">Last: {label}</string>
 </resources>

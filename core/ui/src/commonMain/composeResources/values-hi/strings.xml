@@ -2399,4 +2399,18 @@
     <string name="plugin_sync_v2_api_desc">V2 सिंक प्रोटोकॉल चुनें (ऑफ़लाइन कोई प्रभाव नहीं — केवल समानता)</string>
     <string name="plugin_sync_interval_title">ऑटो-सिंक अंतराल</string>
     <string name="plugin_sync_interval_desc">कनेक्शन उपलब्ध होने पर यात्राएँ कितनी बार ऑटो-सिंक होती हैं</string>
+    <!-- PLAN_V24 P10.6: manager/reportee tracking view -->
+    <string name="plugin_tracking_manager_view_title">रिपोर्टी ट्रैकिंग व्यू</string>
+    <string name="plugin_tracking_manager_view_desc">प्रबंधकों को उनके रिपोर्टी की यात्राएँ और माइलेज सारांश देखने दें</string>
+    <string name="profile_home_tile_manager_view_title">मेरे रिपोर्टी</string>
+    <string name="profile_home_tile_manager_view_subtitle">टीम ट्रैकिंग</string>
+    <string name="manager_view_title">मेरे रिपोर्टी</string>
+    <string name="manager_view_subtitle">टीम ट्रैकिंग अवलोकन</string>
+    <string name="manager_view_back">वापस</string>
+    <string name="manager_view_reportee">रिपोर्टी</string>
+    <string name="manager_view_disabled">प्रबंधक व्यू सक्षम नहीं है</string>
+    <string name="manager_view_no_trips">अभी तक कोई यात्रा दर्ज नहीं है</string>
+    <string name="manager_view_trips">{n} यात्राएँ</string>
+    <string name="manager_view_pending">{n} लंबित</string>
+    <string name="manager_view_last_trip">अंतिम: {label}</string>
 </resources>
