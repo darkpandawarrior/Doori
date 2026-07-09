@@ -129,6 +129,8 @@ val trackingModule =
                 // P7.3: bound by coreDataModule (DelegationSessionController -> DelegationSessionSource);
                 // omitted graphs fall back to the VM's never-acting default.
                 delegationSource = getOrNull() ?: com.mileway.core.data.session.NoDelegationSessionSource,
+                // P11.1: per-km policy-rate overlay; getOrNull() keeps graphs that omit core:data building.
+                vehicleRateRepo = getOrNull(),
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

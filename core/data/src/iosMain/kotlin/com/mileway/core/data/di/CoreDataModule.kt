@@ -102,6 +102,8 @@ val coreDataModule =
                 debugForce = get(),
             )
         }
+        // PLAN_V24 P11.1: per-km policy-rate source (persona-gated by the registry).
+        single { com.mileway.core.data.vehicle.VehicleRateRepository(get()) }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }
