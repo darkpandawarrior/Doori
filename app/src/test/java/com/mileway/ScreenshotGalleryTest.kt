@@ -8,6 +8,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.data.dao.AgentDao
@@ -105,9 +106,25 @@ import com.mileway.feature.profile.ui.screens.AdvanceHistoryScreen
 import com.mileway.feature.profile.ui.screens.AnalyticsDetailScreen
 import com.mileway.feature.profile.ui.screens.AnalyticsHomeScreen
 import com.mileway.feature.profile.ui.screens.AskAdvanceFormScreen
+import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
+import com.mileway.feature.profile.ui.screens.ClubBenefitsScreen
 import com.mileway.feature.profile.ui.screens.ConnectedAccountsScreen
+import com.mileway.feature.profile.ui.screens.CouponsScreen
 import com.mileway.feature.profile.ui.screens.DelegationScreen
+import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
+import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
+import com.mileway.feature.profile.ui.screens.IncentiveProgramsScreen
+import com.mileway.feature.profile.ui.screens.ManagerReporteesScreen
+import com.mileway.feature.profile.ui.screens.MarketingHubScreen
+import com.mileway.feature.profile.ui.screens.MySubscriptionScreen
+import com.mileway.feature.profile.ui.screens.OrgChartScreen
+import com.mileway.feature.profile.ui.screens.PlansScreen
+import com.mileway.feature.profile.ui.screens.PluginManagerScreen
+import com.mileway.feature.profile.ui.screens.ReferralHubScreen
+import com.mileway.feature.profile.ui.screens.RewardsScreen
+import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
+import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
@@ -148,8 +165,12 @@ import com.mileway.stub.di.stubModule
 import com.mileway.ui.AssistantHomeSheet
 import com.mileway.ui.ShellPlaceholderScreen
 import com.mileway.ui.auth.LoginScreen
+import com.mileway.ui.auth.OnboardingFormConfig
+import com.mileway.ui.auth.SignupOnboardingScreen
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.auth.authModule
+import com.mileway.ui.home.WHATS_NEW_ENTRIES
+import com.mileway.ui.home.WhatsNewSheet
 import com.mileway.ui.home.HomeScreenContent
 import com.mileway.ui.home.HomeUiState
 import com.mileway.ui.home.homeModule
@@ -293,6 +314,63 @@ class ScreenshotGalleryTest {
             // the OTP engine (wallet link flow). Section hidden by default (walletLinkingEnabled off).
             single<com.mileway.core.data.dao.PaymentWalletDao> { FakePaymentWalletDao() }
             single { com.mileway.core.data.otp.LocalOtpEngine() }
+            // PLAN_V24 super-profile screens (Plugins / Verification / Referral / Coupons / Rewards /
+            // Marketing / Membership / Subscription / Incentives / Account-deletion / Saved-places /
+            // Emergency-contacts / Manager-reportees). The real CoreDataModule isn't loaded here, so
+            // supply each Room DAO fake + the core:data repositories the VMs collect in init(). These
+            // mirror KoinGraphTest's fake layer 1:1.
+            single { com.mileway.core.data.review.SimulatedReviewEngine() }
+            single<com.mileway.core.data.dao.SavedPlaceDao> { FakeSavedPlaceDao() }
+            single<com.mileway.core.data.dao.EmergencyContactDao> { FakeEmergencyContactDao() }
+            single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
+            single<com.mileway.core.data.dao.DocumentDao> { FakeDocumentDao() }
+            single<com.mileway.core.data.dao.ReferralTxnDao> { FakeReferralTxnDao() }
+            single<com.mileway.core.data.dao.CouponDao> { FakeCouponDao() }
+            single<com.mileway.core.data.dao.RewardCardDao> { FakeRewardCardDao() }
+            single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
+            single { com.mileway.core.data.campaign.CampaignRepository(get()) }
+            single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
+            single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
+            single<com.mileway.core.data.dao.DeletionRequestDao> { FakeDeletionRequestDao() }
+            single { com.mileway.core.data.lifecycle.DeletionRequestRepository(get(), get()) }
+            // PinViewModel (Set/Check-PIN screens) now takes a PinLockoutSource + Clock, and
+            // SearchLocationViewModel (LogMiles step-1 location sheet) a SavedLocationsSource — both
+            // normally bound in the excluded CoreDataModule. In-memory/no-op fakes (a relaxed mockk's
+            // null Flow would crash the collectors) mirroring KoinGraphTest's bindings.
+            single<kotlin.time.Clock> { kotlin.time.Clock.System }
+            single<com.mileway.core.data.session.PinLockoutSource> {
+                object : com.mileway.core.data.session.PinLockoutSource {
+                    override suspend fun getState(accountId: String) =
+                        com.mileway.core.data.session.PinLockoutState()
+
+                    override suspend fun setState(
+                        accountId: String,
+                        state: com.mileway.core.data.session.PinLockoutState,
+                    ) = Unit
+
+                    override suspend fun clear(accountId: String) = Unit
+                }
+            }
+            single<com.mileway.core.data.location.SavedLocationsSource> {
+                object : com.mileway.core.data.location.SavedLocationsSource {
+                    override val data = MutableStateFlow(com.mileway.core.data.location.SavedLocationsData())
+
+                    override suspend fun addRecent(place: com.mileway.core.data.location.SavedPlace) = Unit
+
+                    override suspend fun removeRecent(name: String) = Unit
+
+                    override suspend fun clearRecent() = Unit
+
+                    override suspend fun toggleFavorite(place: com.mileway.core.data.location.SavedPlace) = Unit
+
+                    override suspend fun saveAs(
+                        place: com.mileway.core.data.location.SavedPlace,
+                        label: String,
+                    ) = Unit
+
+                    override suspend fun removeSaved(label: String) = Unit
+                }
+            }
             // P6.8: SupportTicketViewModel collects this in init() (HelpScreen + MyTicketsScreen);
             // same null-collector trap as above.
             single<SupportTicketDao> { FakeSupportTicketDao() }
@@ -377,6 +455,10 @@ class ScreenshotGalleryTest {
         // Listed LAST in modules(...) so Koin's last-definition-wins override picks them.
         private val fakeOverrides = module {
             single<NotificationScheduler> { mockk(relaxed = true) }
+            // CheckPinScreen koinInjects this (biometric-unlock affordance); the real impl is bound by
+            // the excluded platformModule. Relaxed mockk → isAvailable()=false, so the screen renders
+            // its PIN-entry state.
+            single<com.mileway.core.platform.BiometricAuthenticator> { mockk(relaxed = true) }
             single<ReferralManager> {
                 object : ReferralManager {
                     override suspend fun myReferralCode(): String = "MILEWAY-SID-9F2K"
@@ -437,6 +519,23 @@ class ScreenshotGalleryTest {
 
     @get:Rule
     val composeRule = createComposeRule()
+
+    // Compose Multiplatform resources (1.12) resolve `Res.string.*` through an Android Context that
+    // is normally wired by an auto-init ContentProvider. Under Robolectric with a plain Application
+    // that provider doesn't run, so string-backed screens throw MissingResourceException ("Android
+    // context is not initialized"). Feed the real Robolectric app context (its merged assets carry
+    // every module's composeResources) via the library's documented escape hatch. This must run in a
+    // per-test @Before (not @BeforeClass) — ApplicationProvider needs Robolectric's per-test
+    // environment, which isn't set up yet during static class init. The static it sets persists for
+    // the whole JVM fork, so re-setting it each test is cheap and idempotent.
+    @OptIn(org.jetbrains.compose.resources.ExperimentalResourceApi::class)
+    @org.junit.Before
+    fun initComposeResources() {
+        ComposeResourcesTestFixture.install()
+        org.jetbrains.compose.resources.setResourceReaderAndroidContext(
+            ApplicationProvider.getApplicationContext(),
+        )
+    }
 
     // ── Tracking ───────────────────────────────────────────────────────────────
 
@@ -1479,6 +1578,188 @@ class ScreenshotGalleryTest {
             }
         }
         capture("root_guard_screen_clean")
+    }
+
+    // ── V24 Super-Profile: plugins, membership, growth, verification, account ────────
+
+    @Test
+    fun pluginManagerScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                PluginManagerScreen(onBack = {})
+            }
+        }
+        capture("plugin_manager_screen")
+    }
+
+    @Test
+    fun clubBenefitsScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                ClubBenefitsScreen(onBack = {})
+            }
+        }
+        capture("club_benefits_screen")
+    }
+
+    @Test
+    fun subscriptionPlansScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                PlansScreen(onBack = {}, onOpenManage = {})
+            }
+        }
+        capture("subscription_plans_screen")
+    }
+
+    @Test
+    fun mySubscriptionScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                MySubscriptionScreen(onBack = {}, onOpenPlans = {})
+            }
+        }
+        capture("my_subscription_screen")
+    }
+
+    @Test
+    fun incentiveProgramsScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                IncentiveProgramsScreen(onBack = {})
+            }
+        }
+        capture("incentive_programs_screen")
+    }
+
+    @Test
+    fun verificationCentreScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                VerificationCentreScreen(onBack = {}, onOpenDocument = {})
+            }
+        }
+        capture("verification_centre_screen")
+    }
+
+    @Test
+    fun verificationDocumentScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                DocumentDetailScreen(docType = "driving_license", onBack = {})
+            }
+        }
+        capture("verification_document_screen")
+    }
+
+    @Test
+    fun referralHubScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                ReferralHubScreen(onBack = {})
+            }
+        }
+        capture("referral_hub_screen")
+    }
+
+    @Test
+    fun couponsScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                CouponsScreen(onBack = {})
+            }
+        }
+        capture("coupons_screen")
+    }
+
+    @Test
+    fun rewardsScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                RewardsScreen(onBack = {})
+            }
+        }
+        capture("rewards_screen")
+    }
+
+    @Test
+    fun marketingHubScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                MarketingHubScreen(onBack = {})
+            }
+        }
+        capture("marketing_hub_screen")
+    }
+
+    @Test
+    fun accountDeletionScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                AccountDeletionScreen(onBack = {}, onAccountDeleted = {})
+            }
+        }
+        capture("account_deletion_screen")
+    }
+
+    @Test
+    fun managerReporteesScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                ManagerReporteesScreen(onBack = {}, onOpenReportee = {})
+            }
+        }
+        capture("manager_reportees_screen")
+    }
+
+    @Test
+    fun savedPlacesScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                SavedPlacesScreen(onBack = {})
+            }
+        }
+        capture("saved_places_screen")
+    }
+
+    @Test
+    fun emergencyContactsScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                EmergencyContactsScreen(onBack = {})
+            }
+        }
+        capture("emergency_contacts_screen")
+    }
+
+    @Test
+    fun orgChartScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                OrgChartScreen(onBack = {})
+            }
+        }
+        capture("org_chart_screen")
+    }
+
+    @Test
+    fun signupOnboardingScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                SignupOnboardingScreen(config = OnboardingFormConfig(), onComplete = {})
+            }
+        }
+        capture("signup_onboarding_screen")
+    }
+
+    @Test
+    fun whatsNewSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                WhatsNewSheet(items = WHATS_NEW_ENTRIES, onDismiss = {})
+            }
+        }
+        capture("whats_new_sheet")
     }
 
     private fun capture(name: String) =

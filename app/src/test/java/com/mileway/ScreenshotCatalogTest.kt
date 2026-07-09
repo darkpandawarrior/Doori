@@ -3,6 +3,7 @@ package com.mileway
 import android.app.Application
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.ui.previews.PreviewHeroTrackingCardActive
@@ -38,6 +39,7 @@ import com.mileway.feature.travel.ui.previews.PreviewBookingCardUpcomingTrain
 import com.mileway.feature.travel.ui.previews.PreviewBookingListMatrix
 import com.mileway.ui.search.PreviewMasterSearchEmpty
 import com.mileway.ui.search.PreviewMasterSearchResults
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,6 +72,20 @@ class ScreenshotCatalogTest {
 
     @get:Rule
     val composeRule = createComposeRule()
+
+    // See the same @Before in ScreenshotGalleryTest: Compose Multiplatform 1.12 resources need an
+    // Android Context that the auto-init ContentProvider doesn't supply under Robolectric. Preview
+    // composables that read `Res.string.*` otherwise throw MissingResourceException. Must be a
+    // per-test @Before (not @BeforeClass) so Robolectric's per-test environment is ready for
+    // ApplicationProvider; the static it sets persists for the whole JVM fork.
+    @OptIn(org.jetbrains.compose.resources.ExperimentalResourceApi::class)
+    @Before
+    fun initComposeResources() {
+        ComposeResourcesTestFixture.install()
+        org.jetbrains.compose.resources.setResourceReaderAndroidContext(
+            ApplicationProvider.getApplicationContext(),
+        )
+    }
 
     private fun capture(name: String) =
         composeRule.onRoot().captureRoboImage(

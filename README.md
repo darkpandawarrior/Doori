@@ -93,215 +93,115 @@ sit under the same [portfolio](https://cv-siddharth.vercel.app/).
 
 ## Screenshots
 
-> All screens render from deterministic mock data. Images are recorded with
-> [Roborazzi](https://github.com/takahirom/roborazzi) on the JVM, so **no emulator is required**
-> (`./gradlew recordRoborazziNoGmsDebug`).
+> Every frame renders from deterministic mock data, recorded with
+> [Roborazzi](https://github.com/takahirom/roborazzi) on the JVM — **no emulator, no device**.
+> The journeys below are stitched from those host-rendered frames into animated flows with `ffmpeg`
+> (`scripts/build-flow-gifs.sh`), so the showcase is everything *moving in synergy*, not a wall of
+> stills. Regenerate the frames with `./gradlew :app:screenshotTestNoGmsDebug`.
 
-| Track Miles | Journey Detail | Trip Success |
-|:---:|:---:|:---:|
-| ![Track Miles ready-to-start screen with vehicle selector and distance card](docs/screenshots/track_miles_idle_screen.png) | ![Track detail with route stats, journey overview and GPS-point breakdown](docs/screenshots/track_detail_screen.png) | ![Tracking success summary with distance, reimbursement amount and voucher](docs/screenshots/tracking_success_screen.png) |
+### Super-profile & personas
 
-**Animated flows** (stitched from the deterministic host-rendered frames — no emulator needed):
+The V24 headline: one account hub that reshapes itself. Profile → identity details → the live
+**Plugin manager** (every feature toggled on/off per persona) → preferences → settings — the same
+app becoming a different app.
 
-| Live tracking: idle → recording → success | One KMP core, five platforms |
-|:---:|:---:|
-| ![Tracking flow animation from ready-to-start through recording to the success summary](docs/demo/tracking_flow.gif) | ![The same shared core rendered on phone, Wear OS, an iOS widget, watchOS and Compose Desktop](docs/demo/multiplatform.gif) |
+![Account hub, profile details, plugin manager, preferences and settings in sequence](docs/gifs/super_profile_personas.gif)
 
-<details>
-<summary><b>Full screen gallery</b>: every screen across the feature modules, grouped by area</summary>
+### Track a trip
 
-<br/>
+The core happy path, end to end: ready-to-start → setup guide → recording → success summary →
+submission for reimbursement.
 
-#### Tracking
+![Track Miles idle through recording to the success and submission screens](docs/gifs/track_a_trip.gif)
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Track Miles ready-to-start screen with vehicle selector](docs/screenshots/track_miles_idle_screen.png) | ![Tracking success summary with distance, reimbursement and voucher](docs/screenshots/tracking_success_screen.png) | ![Saved tracks journeys tab with date-grouped trip cards](docs/screenshots/saved_tracks_journeys_tab.png) |
+### Delegation — acting as a manager
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Track detail with route stats, speed and GPS-point breakdown](docs/screenshots/track_detail_screen.png) | ![Track insights with quality-score ring and activity breakdown](docs/screenshots/track_insights_screen.png) | ![Geo check-in with map overlay and radius indicator](docs/screenshots/geo_check_in_screen.png) |
+Assign approver authority, then switch into the manager view to track the whole team's journeys —
+the "act on behalf" flow.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Location map surface with current-position marker](docs/screenshots/location_map_screen.png) | ![Manual check-in with location, notes, type and time](docs/screenshots/manual_check_in_screen.png) | ![Check-in history list with geo and manual entries](docs/screenshots/check_in_history_screen.png) |
+![Delegation assignment into the manager reportees tracking view](docs/gifs/delegation_manager.gif)
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Hardware-events log with tracking lifecycle entries and filter chips](docs/screenshots/hardware_events_log_screen.png) | ![Track data preview overview tab with completeness metrics](docs/screenshots/track_data_preview_overview_tab.png) | ![Tracking settings with accuracy, interval and battery options](docs/screenshots/track_settings_screen.png) |
+### Log & expense
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Track customization with map style and overlay toggles](docs/screenshots/track_customization_screen.png) | ![Tracking setup guide walking through permissions](docs/screenshots/tracking_setup_guide_screen.png) | ![Tracking loading screen with progress sub-statuses](docs/screenshots/tracking_loading_screen.png) |
+Manual entry when the tracker was off: log miles across two steps, then capture an expense with its
+category, policy details and receipt.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Create voucher screen selecting reimbursable expenses](docs/screenshots/create_voucher_select_expenses.png) | ![Developer debug menu for tracking internals](docs/screenshots/debug_menu_screen.png) | ![Track submission screen confirming distance, vehicle and time range before upload](docs/screenshots/track_submission_screen.png) |
+![Log-miles two-step, expense entry, details input and expense detail](docs/gifs/log_and_expense.gif)
 
-#### Logging & Expenses
+### Approvals & payables
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Spends home with totals and recent activity](docs/screenshots/spends_home_screen.png) | ![Manual log-miles step 1 with location search and route preview](docs/screenshots/log_miles_step1_screen.png) | ![Manual log-miles step 2 with travelled locations and amount](docs/screenshots/log_miles_step2_screen.png) |
+The approver side: a pending queue with policy-violation badges, a flagged approval detail, the
+payables hub, and creating and reviewing a purchase request.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Log-miles history with date-grouped mileage entries](docs/screenshots/log_miles_history_screen.png) | ![Expense entry with category, amount and attachment](docs/screenshots/expense_entry_screen.png) | ![Expense details input with policy fields](docs/screenshots/expense_details_input_screen.png) |
+![Approvals queue, a violation detail, payables hub and purchase-request create/detail](docs/gifs/approvals_payables.gif)
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Expense detail view with status and receipt](docs/screenshots/expense_detail_screen.png) | ![Expense history with status filter chips and itemised cards](docs/screenshots/expense_history_screen.png) | ![Voucher history with settlement status](docs/screenshots/voucher_history_screen.png) |
+### Verification & growth
 
-#### Travel
+Identity verification centre, the referral hub, coupons, scratch-card rewards and the campaign
+marketing hub — the engagement surface.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Travel hub with active trip and upcoming bookings](docs/screenshots/travel_home_screen.png) | ![Create trip request form with purpose and itinerary](docs/screenshots/create_trip_screen.png) | ![Create multi-journey plan with route legs](docs/screenshots/create_mjp_screen.png) |
+![Verification centre, referral hub, coupons, rewards and marketing hub](docs/gifs/verification_growth.gif)
 
-| &nbsp; | &nbsp; |
-|:---:|:---:|
-| ![Trip-request history with status tabs and route cards](docs/screenshots/trip_history_screen.png) | ![Booking history with type tabs, status filter chips and fare cards](docs/screenshots/booking_history_screen.png) |
+### Membership & subscription
 
-#### Approvals & Payables
+The Mileway Club benefits, subscription plans, the active subscription and incentive programs.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Approvals pending tab with policy-violation badges](docs/screenshots/approvals_screen_pending_tab.png) | ![Approval detail with a flagged policy violation](docs/screenshots/approval_details_screen_violation.png) | ![Payables hub with invoices, PRs and GINs](docs/screenshots/payables_home_screen.png) |
+![Club benefits, subscription plans, my subscription and incentive programs](docs/gifs/membership.gif)
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Create purchase-request form with line items](docs/screenshots/create_purchase_request_screen.png) | ![Purchase-request detail with approval trail](docs/screenshots/purchase_request_details_screen.png) | ![Create invoice form with vendor and amount](docs/screenshots/create_invoice_screen.png) |
+### AI assistant
 
-| &nbsp; |
-|:---:|
-| ![Unified payables history across document types](docs/screenshots/payables_history_screen.png) |
+The on-device assistant: an expense chat, saved conversation history and the built-in question
+analytics.
 
-#### Payments, Events & Cards
+![Assistant chat, conversation history and chat analytics](docs/gifs/ai_assistant.gif)
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Pay or Request form with UPI payee, amount and mode toggle](docs/screenshots/create_payment_screen.png) | ![Payments history with status tabs and UPI pay/request cards](docs/screenshots/payments_history_screen.png) | ![Create event form with title, venue, category and capacity](docs/screenshots/create_event_screen.png) |
+### Onboarding & auth
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Events history with status tabs and venue/attendee cards](docs/screenshots/events_history_screen.png) | ![Cards home with virtual card faces and balances](docs/screenshots/cards_home_screen.png) | ![Card detail with transactions and controls](docs/screenshots/card_detail_screen.png) |
+First run: splash → login → signup onboarding → set a PIN → unlock.
 
-| &nbsp; |
-|:---:|
-| ![Card request form with KYC-lite fields](docs/screenshots/card_request_screen.png) |
+![Splash, login, signup onboarding, set-PIN and check-PIN](docs/gifs/onboarding_auth.gif)
 
-#### Profile & Account
+### Wallet & payout
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Account hub with persona switcher, deep-link demo and referral card](docs/screenshots/profile_account_hub.png) | ![Profile details with employee information](docs/screenshots/profile_details_screen.png) | ![Settings with sections for app, privacy and account](docs/screenshots/settings_screen.png) |
+Connected accounts (per-integration connect/disconnect) and the QR scan-to-pay identity screen.
+The external-wallet-link and payout sections are feature-gated and hidden in these standalone
+captures.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Preferences with units, theme and notification toggles](docs/screenshots/preferences_screen.png) | ![Demo settings to seed and reset mock data](docs/screenshots/demo_settings_screen.png) | ![Analytics dashboard with Canvas-rendered charts](docs/screenshots/analytics_home_screen.png) |
+![Connected accounts and QR pay/identity](docs/gifs/wallet_payout.gif)
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Mileage analytics detail with trend chart](docs/screenshots/analytics_detail_mileage_screen.png) | ![Advance-request history with status](docs/screenshots/advance_history_screen.png) | ![Ask-advance form step 1 with amount and reason](docs/screenshots/ask_advance_form_step1_screen.png) |
+### Account & sessions
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Delegation screen assigning approver authority](docs/screenshots/delegation_screen.png) | ![Notification centre with grouped alerts](docs/screenshots/notification_centre_screen.png) | ![QR home for scan-to-pay and identity](docs/screenshots/qr_home_screen.png) |
+Active-device sessions with per-device revoke, the account-deletion lifecycle, saved places and
+emergency contacts.
 
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Help and support with FAQs and contact](docs/screenshots/help_support_screen.png) | ![My tickets with a submitted-support-ticket list and empty state](docs/screenshots/my_tickets_screen.png) | ![Active sessions with per-device revoke and sign-out-all-others](docs/screenshots/active_sessions_screen.png) |
+![Active sessions, account deletion, saved places and emergency contacts](docs/gifs/account_sessions.gif)
 
-| &nbsp; |
-|:---:|
-| ![Connected accounts with per-integration connect/disconnect toggles](docs/screenshots/connected_accounts_screen.png) |
+<sub>The full still catalogue — every screen plus component matrices (status cards, booking cards,
+PO cards, success-state variants, theme pickers) rendered from <code>@Preview</code> composables by
+<code>ScreenshotCatalogTest</code> — lives in
+<a href="docs/screenshots"><code>docs/screenshots/</code></a>. Full screens are recorded by
+<code>ScreenshotGalleryTest</code> (phone) / <code>WearScreenshotGalleryTest</code> (watch) / a JVM
+`desktopTest` (desktop).</sub>
 
-#### Search
+### Beyond the phone
 
-| &nbsp; | &nbsp; |
-|:---:|:---:|
-| ![Master search with query, category tabs and grouped results across trips, payments and events](docs/screenshots/search_masterSearch_results.png) | ![Master search empty state prompting across all record types](docs/screenshots/search_masterSearch_empty.png) |
-
-#### Media & Assistant
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Attachment selection with camera and gallery sources](docs/screenshots/media_attachment_selection_screen.png) | ![Attachment preview before attaching](docs/screenshots/media_attachment_preview_screen.png) | ![Media library grid of saved attachments](docs/screenshots/media_cloud_library_screen.png) |
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Camera capture screen with permission prompt](docs/screenshots/media_camera_permission_required.png) | ![AI assistant chat answering an expense query](docs/screenshots/agent_chat_screen.png) | ![Assistant conversation history](docs/screenshots/agent_history_screen.png) |
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Assistant home bottom sheet with suggested actions](docs/screenshots/assistant_home_sheet.png) | ![Assistant chat analytics, popular-questions tab](docs/screenshots/agent_chat_analytics_popular.png) | ![Assistant chat analytics, unanswered-questions tab](docs/screenshots/agent_chat_analytics_unanswered.png) |
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Assistant floating action button](docs/screenshots/assistant_fab.png) | ![Chat agent indicator, full variant](docs/screenshots/chat_agent_indicator_full.png) | ![Chat agent indicator, compact variant](docs/screenshots/chat_agent_indicator_compact.png) |
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Voice waveform, idle state](docs/screenshots/voice_waveform_idle.png) | ![Voice waveform, listening state](docs/screenshots/voice_waveform_listening.png) | ![Voice waveform, speaking state](docs/screenshots/voice_waveform_speaking.png) |
-
-#### App shell & Security
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Home dashboard with greeting and quick actions](docs/screenshots/home_screen_loaded.png) | ![Login screen with demo credentials](docs/screenshots/login_screen.png) | ![Branded splash screen](docs/screenshots/splash_screen.png) |
-
-| &nbsp; | &nbsp; | &nbsp; |
-|:---:|:---:|:---:|
-| ![Shell placeholder for an in-progress destination](docs/screenshots/shell_placeholder_screen.png) | ![Root guard showing detected root signals in red](docs/screenshots/root_guard_screen.png) | ![Root guard confirming a clean, secure device](docs/screenshots/root_guard_screen_clean.png) |
-
-| &nbsp; | &nbsp; |
-|:---:|:---:|
-| ![Set-PIN screen with a numeric keypad and step dots](docs/screenshots/set_pin_screen.png) | ![Check-PIN screen unlocking the app with biometric fallback](docs/screenshots/check_pin_screen.png) |
+One shared Kotlin Multiplatform core, rendered on every target — all host-side with Roborazzi /
+SwiftUI `ImageRenderer`, no watch, launcher or windowing system required.
 
 #### Wear OS
 
 The watch app shares `commonMain`'s `SurfaceSnapshot`/`WearPresentation` mapping with the phone,
-skinned with the same Ember accent via `WearMilewayTheme` (`androidx.wear.compose.material3`, its
-own design system — never the phone/iOS CMP theming module). Host-rendered with Roborazzi, no
-watch emulator needed.
+skinned with the same Ember accent via `WearMilewayTheme` (`androidx.wear.compose.material3` — its
+own design system, never the phone/iOS CMP theming module).
 
-| &nbsp; | &nbsp; |
+| Dashboard | Recent trips |
 |:---:|:---:|
 | ![Wear OS dashboard with today/week distance cards and week-goal ring](docs/screenshots/wear_dashboard.png) | ![Wear OS recent-trips list](docs/screenshots/wear_trip_list.png) |
-
-#### Compose Desktop
-
-A thin Compose Desktop window over the same shared `core:{data,ui}` dashboard model as the phone
-and watch — no `feature:tracking`/Room repository, fixed mock trips instead (a deliberate sequencing
-choice, not a permanent one). Rendered host-side with Compose Multiplatform's
-`runDesktopComposeUiTest`, no windowing system required.
-
-| &nbsp; |
-|:---:|
-| ![Compose Desktop dashboard window with today/week stats and a recent-trips list](docs/screenshots/desktop_dashboard.png) |
-
-#### Widgets
-
-**Android home-screen widget (Glance).** Renders the shared `SurfaceSnapshot` — today/week distance
-plus a red "Tracking now" live indicator — host-rendered with Roborazzi over the `GlanceAppWidget`,
-no launcher or emulator needed.
-
-| &nbsp; |
-|:---:|
-| ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) |
-
-**iOS WidgetKit.** Home-screen + Lock Screen widgets over the same shared snapshot (App-Group
-store), with an interactive App-Intent Start/Stop button — SwiftUI `ImageRenderer`, no home-screen
-placement needed.
-
-| Home widget | Lock Screen |
-|:---:|:---:|
-| ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) | ![iOS Lock Screen accessory widget with today's distance](docs/screenshots/widget_ios_lockscreen.png) |
 
 #### watchOS app
 
 Native SwiftUI over the `:sharedWatch` KMP framework — today/week distance, a red live-tracking
-pill, and a trips drill-down. Host-rendered on the watchOS simulator via SwiftUI `ImageRenderer`.
+pill and a trips drill-down.
 
 | &nbsp; |
 |:---:|
@@ -309,20 +209,31 @@ pill, and a trips drill-down. Host-rendered on the watchOS simulator via SwiftUI
 
 #### Live Activity & Dynamic Island
 
-ActivityKit Live Activity (Lock Screen banner) + a Dynamic Island expanded presentation for an
-in-progress trip, driven by the phone's `TrackingLiveActivityController`. Presentation content is
-factored out of the `ActivityConfiguration` so `ImageRenderer` can host-render it.
+An ActivityKit Live Activity (Lock Screen banner) plus a Dynamic Island expanded presentation for an
+in-progress trip, driven by the phone's `TrackingLiveActivityController`.
 
 | Lock Screen banner | Dynamic Island (expanded) |
 |:---:|:---:|
 | ![Live Activity banner: Tracking, 12.4 km, elapsed 12:34](docs/screenshots/live_activity.png) | ![Dynamic Island expanded: distance, elapsed time and tracking status](docs/screenshots/live_activity_dynamic_island.png) |
 
-<sub>Plus component matrices (status cards, booking cards, PO cards, success-state variants) in
-<a href="docs/screenshots"><code>docs/screenshots/</code></a>, rendered from <code>@Preview</code> composables by
-<code>ScreenshotCatalogTest</code>. Every full screen above is recorded by <code>ScreenshotGalleryTest</code>
-(phone) / <code>WearScreenshotGalleryTest</code> (watch) / a JVM `desktopTest` (desktop).</sub>
+#### Widgets
 
-</details>
+**Android home-screen widget (Glance)** and **iOS WidgetKit** (home-screen + Lock Screen), both over
+the same shared `SurfaceSnapshot` — today/week distance with a live "Tracking now" indicator and an
+interactive App-Intent Start/Stop button on iOS.
+
+| Android Glance | iOS home | iOS Lock Screen |
+|:---:|:---:|:---:|
+| ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) | ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) | ![iOS Lock Screen accessory widget with today's distance](docs/screenshots/widget_ios_lockscreen.png) |
+
+#### Compose Desktop
+
+A thin Compose Desktop window over the same shared `core:{data,ui}` dashboard model as the phone and
+watch — rendered host-side with Compose Multiplatform's `runDesktopComposeUiTest`.
+
+| &nbsp; |
+|:---:|
+| ![Compose Desktop dashboard window with today/week stats and a recent-trips list](docs/screenshots/desktop_dashboard.png) |
 
 ## Features
 
