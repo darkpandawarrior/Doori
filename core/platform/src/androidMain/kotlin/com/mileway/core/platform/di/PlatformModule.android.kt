@@ -20,8 +20,10 @@ import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.TextRecognizer
 import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.UrlOpener
+import kotlinx.coroutines.flow.StateFlow
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 /**
@@ -35,7 +37,13 @@ actual fun platformModule(): Module =
         // Reverse geocoding → place names. The offline-first demo binds the deterministic offline
         // resolver (no network) so live tracking shows real-looking Pune waypoint names; the
         // device-backed AndroidLocationNameResolver(Geocoder) remains the production path.
-        single<LocationNameResolver> { OfflineLocationNameResolver() }
+        // PLAN_V24 P10.5: the reverse-geocode source toggle is a named StateFlow bound in core:data
+        // (which owns the PluginRegistry). Resolved by qualifier here so core:platform stays free of a
+        // core:data compile dependency; getOrNull keeps graphs that omit it on the local-table default.
+        single<LocationNameResolver> {
+            val remote = getOrNull<StateFlow<Boolean>>(named("reverseGeocodeRemote"))
+            OfflineLocationNameResolver(remoteSourceEnabled = { remote?.value ?: false })
+        }
         single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
         single<TextRecognizer> { AndroidTextRecognizer() }
         // SH.1: real system-chooser share sheet (LocalManagerProvider resolves it via Koin).

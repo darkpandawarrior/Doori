@@ -2466,6 +2466,13 @@
     <!-- PLAN_V24 P10.6: manager/reportee tracking view -->
     <string name="plugin_tracking_manager_view_title">Reportee tracking view</string>
     <string name="plugin_tracking_manager_view_desc">Let managers see their reportees\' trips and mileage summaries</string>
+    <!-- PLAN_V24 P10.5: bubble / overlay / reverse-geocode toggles -->
+    <string name="plugin_show_tracking_bubble_title">Floating tracking bubble</string>
+    <string name="plugin_show_tracking_bubble_desc">Show a draggable bubble over other apps while a trip is tracking</string>
+    <string name="plugin_track_show_overlay_title">Tracking overlay</string>
+    <string name="plugin_track_show_overlay_desc">Master switch for the on-screen tracking overlay and bubble</string>
+    <string name="plugin_reverse_geocode_remote_title">Remote reverse geocoding</string>
+    <string name="plugin_reverse_geocode_remote_desc">Resolve place names via a simulated remote lookup instead of the local table</string>
     <string name="profile_home_tile_manager_view_title">My reportees</string>
     <string name="profile_home_tile_manager_view_subtitle">Team tracking</string>
     <string name="manager_view_title">My reportees</string>

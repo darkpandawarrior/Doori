@@ -28,6 +28,16 @@ class OfflineLocationNameResolverTest {
         }
 
     @Test
+    fun remote_source_returns_a_richer_label_than_the_local_table() =
+        runTest {
+            // PLAN_V24 P10.5: the reverse-geocode source toggle. Local table = the gazetteer label;
+            // simulated-remote = the same match with the administrative region appended.
+            val remote = OfflineLocationNameResolver(remoteSourceEnabled = { true })
+            assertEquals("Pune City Centre", resolver.resolve(18.5204, 73.8567).name)
+            assertEquals("Pune City Centre, Maharashtra", remote.resolve(18.5204, 73.8567).name)
+        }
+
+    @Test
     fun identical_coordinates_resolve_deterministically() =
         runTest {
             val a = resolver.resolve(18.5479, 73.9010)

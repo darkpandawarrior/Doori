@@ -44,6 +44,7 @@ import com.mileway.core.data.settings.StorageRepository
 import com.mileway.core.data.watch.PhoneSnapshotSync
 import com.mileway.core.data.watch.SnapshotCache
 import com.mileway.core.data.watch.SnapshotCacheStore
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -104,6 +105,16 @@ val coreDataModule =
                 presets = get(),
                 debugForce = get(),
             )
+        }
+        // PLAN_V24 P10.5: reverse-geocode source toggle, exposed as a named StateFlow so core:platform's
+        // OfflineLocationNameResolver can read it by qualifier without depending on core:data.
+        single<kotlinx.coroutines.flow.StateFlow<Boolean>>(org.koin.core.qualifier.named("reverseGeocodeRemote")) {
+            get<PluginRegistry>().observe("reverse_geocode_remote")
+                .stateIn(
+                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Default),
+                    kotlinx.coroutines.flow.SharingStarted.Eagerly,
+                    false,
+                )
         }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }

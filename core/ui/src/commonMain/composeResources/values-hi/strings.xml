@@ -2463,6 +2463,13 @@
     <!-- PLAN_V24 P10.6: manager/reportee tracking view -->
     <string name="plugin_tracking_manager_view_title">रिपोर्टी ट्रैकिंग व्यू</string>
     <string name="plugin_tracking_manager_view_desc">प्रबंधकों को उनके रिपोर्टी की यात्राएँ और माइलेज सारांश देखने दें</string>
+    <!-- PLAN_V24 P10.5: बबल / ओवरले / रिवर्स-जियोकोड टॉगल -->
+    <string name="plugin_show_tracking_bubble_title">फ़्लोटिंग ट्रैकिंग बबल</string>
+    <string name="plugin_show_tracking_bubble_desc">यात्रा ट्रैक होते समय अन्य ऐप्स के ऊपर खींचने-योग्य बबल दिखाएँ</string>
+    <string name="plugin_track_show_overlay_title">ट्रैकिंग ओवरले</string>
+    <string name="plugin_track_show_overlay_desc">ऑन-स्क्रीन ट्रैकिंग ओवरले और बबल के लिए मास्टर स्विच</string>
+    <string name="plugin_reverse_geocode_remote_title">रिमोट रिवर्स जियोकोडिंग</string>
+    <string name="plugin_reverse_geocode_remote_desc">स्थान नाम स्थानीय तालिका के बजाय सिम्युलेटेड रिमोट लुकअप से हल करें</string>
     <string name="profile_home_tile_manager_view_title">मेरे रिपोर्टी</string>
     <string name="profile_home_tile_manager_view_subtitle">टीम ट्रैकिंग</string>
     <string name="manager_view_title">मेरे रिपोर्टी</string>

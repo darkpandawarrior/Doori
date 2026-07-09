@@ -21,6 +21,12 @@ class OfflineLocationNameResolver(
     private val waypoints: List<Waypoint> = PUNE_WAYPOINTS,
     /** Maximum great-circle-ish distance (degrees) to accept a named match before falling back. */
     private val maxMatchDegrees: Double = 0.18,
+    // PLAN_V24 P10.5: reverse-geocode source toggle. When this returns true the resolver simulates a
+    // richer "remote" geocoder by appending the administrative region to the local gazetteer label
+    // (deterministic, still fully offline); false = the plain local-table label. Injected as a
+    // provider so the value can change at runtime without rebuilding the resolver. Default { false }
+    // keeps every existing construction site (and iOS) on the local-table behavior unchanged.
+    private val remoteSourceEnabled: () -> Boolean = { false },
 ) : LocationNameResolver {
     /** A named place in the offline gazetteer. */
     data class Waypoint(
@@ -50,7 +56,10 @@ class OfflineLocationNameResolver(
 
         val dist = kotlin.math.sqrt(squaredDistance(latitude, longitude, nearest.latitude, nearest.longitude))
         return if (dist <= maxMatchDegrees) {
-            PlaceName(name = nearest.name, coordinates = PlaceName.formatCoordinates(latitude, longitude))
+            // P10.5: the simulated-remote source returns a fuller address; the local table stops at
+            // the gazetteer label. Names already end in ", Pune", so remote adds the region tail.
+            val label = if (remoteSourceEnabled()) "${nearest.name}, Maharashtra" else nearest.name
+            PlaceName(name = label, coordinates = PlaceName.formatCoordinates(latitude, longitude))
         } else {
             PlaceName.coordinatesOnly(latitude, longitude)
         }

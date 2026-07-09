@@ -192,6 +192,39 @@ object PluginCatalog {
                 descriptionKey = "plugin_tracking_manager_view_desc",
                 defaultOn = false,
             ),
+            // PLAN_V24 P10.5: floating-bubble toggle. Consumer = LocationTrackingService, which starts
+            // FloatingBubbleService for the running trip when this + the overlay master are on.
+            // defaultOn=false = today's behavior (the bubble was never started before this task).
+            PluginDescriptor(
+                id = "show_tracking_bubble",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_show_tracking_bubble_title",
+                descriptionKey = "plugin_show_tracking_bubble_desc",
+                defaultOn = false,
+            ),
+            // PLAN_V24 P10.5: overlay master (reference showTrackingOverlay). Consumer =
+            // LocationTrackingService — when off, no tracking overlay/bubble shows even if the bubble
+            // toggle is on. defaultOn=true matches the reference default; gates only the opt-in bubble.
+            PluginDescriptor(
+                id = "track_show_overlay",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_track_show_overlay_title",
+                descriptionKey = "plugin_track_show_overlay_desc",
+                defaultOn = true,
+            ),
+            // PLAN_V24 P10.5: reverse-geocode source. Consumer = OfflineLocationNameResolver (Android):
+            // off = the local gazetteer label; on = a simulated-remote lookup returning a richer
+            // address. defaultOn=false keeps the local-table label (unchanged names/goldens).
+            PluginDescriptor(
+                id = "reverse_geocode_remote",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_reverse_geocode_remote_title",
+                descriptionKey = "plugin_reverse_geocode_remote_desc",
+                defaultOn = false,
+            ),
         )
 
     /**

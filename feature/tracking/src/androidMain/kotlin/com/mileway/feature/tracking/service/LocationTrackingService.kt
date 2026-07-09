@@ -128,6 +128,16 @@ class LocationTrackingService : Service() {
     @Volatile
     private var forceGpsOnly: Boolean = false
 
+    // P10.5: floating-bubble + overlay master, mirrored from the PluginRegistry. The bubble shows
+    // during a trip only when the overlay master is on AND the bubble toggle is on (both default so
+    // that no bubble appears unless the user opts in — unchanged shipped behavior). Read at trip
+    // start (bubble lifecycle is bound to the running trip).
+    @Volatile
+    private var showBubble: Boolean = false
+
+    @Volatile
+    private var showTrackingOverlay: Boolean = true
+
     // Wave-2 AbnormalDetectionConfig: hot-reloaded from TrackingConfigManager (debug settings
     // today, server config later). Same "fixed for the running trip" rule as enableKalman above.
     @Volatile
@@ -245,6 +255,9 @@ class LocationTrackingService : Service() {
             }
         }
         scope.launch { pluginRegistry.observe("track_force_gps_only").collect { forceGpsOnly = it } }
+        // P10.5: mirror the bubble + overlay-master toggles (read at trip start).
+        scope.launch { pluginRegistry.observe("show_tracking_bubble").collect { showBubble = it } }
+        scope.launch { pluginRegistry.observe("track_show_overlay").collect { showTrackingOverlay = it } }
         // Wave-2 AbnormalDetectionConfig: mirror the hot-reload Flow into a plain var the
         // per-fix path reads (process() is not suspend and runs off the main thread).
         scope.launch { configManager.abnormalDetectionConfig.collect { abnormalDetectionConfig = it } }
@@ -404,6 +417,9 @@ class LocationTrackingService : Service() {
         source?.start { fix -> onFix(token, fix) }
         // A.2: arm the no-fix watchdog for the real-GPS path only.
         if (!SIMULATE_LOCATION) armFirstFixWatchdog(token)
+        // P10.5: show the floating bubble for the running trip when the overlay master + bubble
+        // toggles are both on (FloatingBubbleService itself no-ops without the overlay permission).
+        if (showBubble && showTrackingOverlay) FloatingBubbleService.start(this)
     }
 
     /**
@@ -637,6 +653,8 @@ class LocationTrackingService : Service() {
         fixWatchdogJob?.cancel()
         source?.stop()
         sensorMonitor.stop()
+        // P10.5: tear the floating bubble down with the trip (no-op if it was never shown).
+        FloatingBubbleService.stop(this)
         statePublisher.update { it.copy(state = TrackingState.COMPLETED, lastEvent = EventType.TRACKING_STOPPED) }
         if (token != null && proc != null) {
             val stats = proc.stats()
