@@ -64,11 +64,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.media_action_grant_permission
+import com.mileway.core.ui.resources.media_auto_capture_off
+import com.mileway.core.ui.resources.media_camera_permission_required
 import com.mileway.core.ui.resources.media_cd_capture_photo
 import com.mileway.core.ui.resources.media_cd_exposure
 import com.mileway.core.ui.resources.media_cd_flash_auto
 import com.mileway.core.ui.resources.media_cd_flash_off
 import com.mileway.core.ui.resources.media_cd_flash_on
+import com.mileway.core.ui.resources.media_odometer_align_caption
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.model.FlashMode
 import kotlinx.coroutines.delay
@@ -136,14 +140,14 @@ fun CameraCaptureScreen(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                text = "Camera permission is required to capture a photo.",
+                text = stringResource(Res.string.media_camera_permission_required),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = DesignTokens.Spacing.l),
             )
             Button(onClick = permission.request, shape = DesignTokens.Shape.button) {
                 Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Text("Grant permission")
+                Text(stringResource(Res.string.media_action_grant_permission))
             }
         }
         return
@@ -381,7 +385,7 @@ private fun AutoCapturePill(modifier: Modifier = Modifier) {
         color = Color.Black.copy(alpha = 0.45f),
     ) {
         Text(
-            text = "Auto Capture: Off",
+            text = stringResource(Res.string.media_auto_capture_off),
             style = MaterialTheme.typography.labelMedium,
             color = Color.White,
             modifier =
@@ -421,7 +425,7 @@ private fun OdometerAlignmentOverlay(modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "Align odometer digits within the frame",
+                    text = stringResource(Res.string.media_odometer_align_caption),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = Color.White,

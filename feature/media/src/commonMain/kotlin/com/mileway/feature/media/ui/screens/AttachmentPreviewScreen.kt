@@ -56,12 +56,25 @@ import coil3.compose.AsyncImage
 import coil3.compose.rememberAsyncImagePainter
 import com.mileway.core.ui.components.ZoomImageViewer
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.media_action_discard_all
+import com.mileway.core.ui.resources.media_action_retake
+import com.mileway.core.ui.resources.media_action_run_ocr
+import com.mileway.core.ui.resources.media_action_use_photo
+import com.mileway.core.ui.resources.media_add_more_label
+import com.mileway.core.ui.resources.media_cd_add_more
+import com.mileway.core.ui.resources.media_cd_attachment_preview
+import com.mileway.core.ui.resources.media_cd_capture_index
+import com.mileway.core.ui.resources.media_cd_captured_preview
 import com.mileway.core.ui.resources.media_cd_remove_capture
+import com.mileway.core.ui.resources.media_plural_use_photos
+import com.mileway.core.ui.resources.media_preview_empty
+import com.mileway.core.ui.resources.media_review_captures_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.model.AttachmentItem
 import com.mileway.feature.media.ui.sheets.OcrResultBottomSheet
 import com.mileway.feature.media.viewmodel.MediaAction
 import com.mileway.feature.media.viewmodel.MediaViewModel
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -135,7 +148,7 @@ fun AttachmentPreviewScreen(
     viewerUri?.let { uri ->
         ZoomImageViewer(
             painter = rememberAsyncImagePainter(model = uri),
-            contentDescription = "Attachment preview",
+            contentDescription = stringResource(Res.string.media_cd_attachment_preview),
             onDismiss = { viewerUri = null },
         )
     }
@@ -181,7 +194,7 @@ private fun SingleCaptureContent(
             if (pending != null) {
                 AsyncImage(
                     model = pending.uri,
-                    contentDescription = "Captured attachment preview",
+                    contentDescription = stringResource(Res.string.media_cd_captured_preview),
                     contentScale = ContentScale.Fit,
                     modifier =
                         Modifier
@@ -190,7 +203,7 @@ private fun SingleCaptureContent(
                 )
             } else {
                 Text(
-                    text = "No photo to preview.",
+                    text = stringResource(Res.string.media_preview_empty),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -217,7 +230,7 @@ private fun SingleCaptureContent(
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.width(DesignTokens.Spacing.s))
-                Text("Retake")
+                Text(stringResource(Res.string.media_action_retake))
             }
             TextButton(
                 onClick = onRunOcr,
@@ -227,7 +240,7 @@ private fun SingleCaptureContent(
             ) {
                 Icon(Icons.Default.DocumentScanner, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.width(DesignTokens.Spacing.s))
-                Text("Run OCR")
+                Text(stringResource(Res.string.media_action_run_ocr))
             }
             Button(
                 onClick = onUsePhoto,
@@ -237,7 +250,7 @@ private fun SingleCaptureContent(
             ) {
                 Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.width(DesignTokens.Spacing.s))
-                Text("Use photo")
+                Text(stringResource(Res.string.media_action_use_photo))
             }
         }
     }
@@ -262,7 +275,7 @@ private fun MultiCaptureContent(
                 .padding(contentPadding),
     ) {
         Text(
-            text = "Review captures",
+            text = stringResource(Res.string.media_review_captures_title),
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             modifier =
@@ -315,7 +328,7 @@ private fun MultiCaptureContent(
                 } else {
                     Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                     Spacer(Modifier.width(DesignTokens.Spacing.s))
-                    Text("Use ${items.size} photos")
+                    Text(pluralStringResource(Res.plurals.media_plural_use_photos, items.size, items.size))
                 }
             }
             Spacer(Modifier.height(DesignTokens.Spacing.s))
@@ -327,7 +340,7 @@ private fun MultiCaptureContent(
             ) {
                 Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.width(DesignTokens.Spacing.s))
-                Text("Discard all")
+                Text(stringResource(Res.string.media_action_discard_all))
             }
         }
     }
@@ -352,7 +365,7 @@ private fun CaptureThumbnail(
         ) {
             AsyncImage(
                 model = item.uri,
-                contentDescription = "Capture ${item.id}",
+                contentDescription = stringResource(Res.string.media_cd_capture_index, item.id),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
@@ -408,13 +421,13 @@ private fun AddMoreTile(onClick: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add more",
+                contentDescription = stringResource(Res.string.media_cd_add_more),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(DesignTokens.IconSize.header),
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             Text(
-                text = "Add More",
+                text = stringResource(Res.string.media_add_more_label),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

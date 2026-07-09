@@ -51,6 +51,9 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.resources.media_delete_confirm
 import com.mileway.core.ui.resources.media_delete_description
+import com.mileway.core.ui.resources.media_delete_selected_count
+import com.mileway.core.ui.resources.media_library_empty_subtitle
+import com.mileway.core.ui.resources.media_library_empty_title
 import com.mileway.core.ui.resources.media_library_subtitle
 import com.mileway.core.ui.resources.media_library_title
 import com.mileway.core.ui.resources.media_plural_delete_items
@@ -92,7 +95,7 @@ fun CloudLibraryScreen(
                 ExtendedFloatingActionButton(
                     onClick = { showDeleteDialog = true },
                     icon = { Icon(Icons.Default.Delete, contentDescription = null) },
-                    text = { Text("Delete (${selectedIds.size})") },
+                    text = { Text(stringResource(Res.string.media_delete_selected_count, selectedIds.size)) },
                     shape = DesignTokens.Shape.button,
                     containerColor = MaterialTheme.colorScheme.errorContainer,
                     contentColor = MaterialTheme.colorScheme.onErrorContainer,
@@ -117,12 +120,12 @@ fun CloudLibraryScreen(
                     )
                     Spacer(Modifier.height(16.dp))
                     Text(
-                        "No media saved yet.",
+                        stringResource(Res.string.media_library_empty_title),
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "Attachments you capture will appear here.",
+                        stringResource(Res.string.media_library_empty_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline,
                     )

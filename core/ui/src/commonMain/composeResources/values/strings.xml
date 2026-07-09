@@ -1898,6 +1898,47 @@
     <string name="media_cd_exposure">Exposure</string>
     <string name="media_cd_capture_photo">Capture photo</string>
     <string name="media_cd_remove_capture">Remove capture</string>
+    <string name="media_library_empty_title">No media saved yet.</string>
+    <string name="media_library_empty_subtitle">Attachments you capture will appear here.</string>
+    <string name="media_delete_selected_count">Delete (%1$d)</string>
+    <string name="media_cd_attachment_preview">Attachment preview</string>
+    <string name="media_cd_captured_preview">Captured attachment preview</string>
+    <string name="media_preview_empty">No photo to preview.</string>
+    <string name="media_action_retake">Retake</string>
+    <string name="media_action_run_ocr">Run OCR</string>
+    <string name="media_action_use_photo">Use photo</string>
+    <string name="media_review_captures_title">Review captures</string>
+    <string name="media_action_discard_all">Discard all</string>
+    <string name="media_cd_capture_index">Capture %1$s</string>
+    <string name="media_cd_add_more">Add more</string>
+    <string name="media_add_more_label">Add More</string>
+    <string name="media_ocr_result_title">OCR result</string>
+    <string name="media_ocr_detected_odometer">Detected odometer</string>
+    <string name="media_ocr_confidence">Confidence %1$d%%</string>
+    <string name="media_ocr_watermarked">Watermarked</string>
+    <string name="media_action_edit">Edit</string>
+    <string name="media_action_confirm">Confirm</string>
+    <string name="media_camera_permission_required">Camera permission is required to capture a photo.</string>
+    <string name="media_action_grant_permission">Grant permission</string>
+    <string name="media_auto_capture_off">Auto Capture: Off</string>
+    <string name="media_odometer_align_caption">Align odometer digits within the frame</string>
+    <string name="media_source_camera">Camera</string>
+    <string name="media_source_gallery">Gallery</string>
+    <string name="media_source_odometer">Odometer</string>
+    <string name="media_source_document_scanner">Document Scanner</string>
+    <string name="media_source_pdf">PDF</string>
+    <string name="media_source_qr">QR Code</string>
+    <string name="media_source_barcode">Barcode</string>
+    <string name="media_source_cloud_library">Cloud Library</string>
+    <string name="media_source_files">Files</string>
+    <string name="media_select_source_title">Select an attachment source</string>
+    <string name="media_captured_count">Captured (%1$d)</string>
+    <string name="media_illustrative_snackbar">%1$s is illustrative in this demo</string>
+    <string name="media_cd_attachment_index">Attachment %1$s</string>
+    <string name="media_cd_ocr_verified">OCR verified</string>
+    <string name="media_cd_ocr_reading">OCR reading</string>
+    <string name="media_ocr_verified_label">Verified</string>
+    <string name="media_ocr_label">OCR</string>
 
     <!-- ===== L10n sweep: agent ===== -->
     <string name="agent_history_subtitle">Previous AI conversations</string>
@@ -1959,6 +2000,10 @@
     <plurals name="media_plural_delete_items">
         <item quantity="one">Delete %1$d item?</item>
         <item quantity="other">Delete %1$d items?</item>
+    </plurals>
+    <plurals name="media_plural_use_photos">
+        <item quantity="one">Use %1$d photo</item>
+        <item quantity="other">Use %1$d photos</item>
     </plurals>
     <plurals name="core_plural_action_items">
         <item quantity="one">%1$s %2$d item</item>
@@ -2473,6 +2518,8 @@
     <string name="plugin_track_show_overlay_desc">Master switch for the on-screen tracking overlay and bubble</string>
     <string name="plugin_reverse_geocode_remote_title">Remote reverse geocoding</string>
     <string name="plugin_reverse_geocode_remote_desc">Resolve place names via a simulated remote lookup instead of the local table</string>
+    <string name="plugin_vehicles_per_km_rates_title">Per-km policy rates</string>
+    <string name="plugin_vehicles_per_km_rates_desc">Apply per-km reimbursement rates by vehicle type and show trip amounts</string>
     <string name="profile_home_tile_manager_view_title">My reportees</string>
     <string name="profile_home_tile_manager_view_subtitle">Team tracking</string>
     <string name="manager_view_title">My reportees</string>
