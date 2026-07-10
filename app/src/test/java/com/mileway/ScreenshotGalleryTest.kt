@@ -29,6 +29,7 @@ import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
+import com.mileway.core.data.dao.SignatureDao
 import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TripAttachmentDao
 import com.mileway.core.data.dao.VehicleDetailsDao
@@ -302,6 +303,10 @@ class ScreenshotGalleryTest {
             // needs deterministic fakes, same reason FakeVoucherDao exists above).
             single<VehicleDetailsDao> { FakeVehicleDetailsDao() }
             single<PassportDetailsDao> { FakePassportDetailsDao() }
+            // P12.7: SignatureViewModel combines SignatureDao.observe() with the plugin registry;
+            // a relaxed mockk would return a null-backed Flow and crash the collector (memory:
+            // screenshot Koin needs deterministic fakes, same null-collector trap as above).
+            single<SignatureDao> { FakeSignatureDao() }
             // P6.3: DelegationViewModel collects this in init(); same null-collector trap as above.
             single<DelegationDao> { FakeDelegationDao() }
             // P6.4: ActiveSessionsViewModel collects this in init(); same null-collector trap as above.
