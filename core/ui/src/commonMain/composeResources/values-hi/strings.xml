@@ -2576,6 +2576,8 @@
     <string name="plugin_tracking_auto_pause_desc">रुकने पर ट्रैकिंग अपने आप रोकें</string>
     <string name="plugin_profile_notifications_title">सूचनाएँ</string>
     <string name="plugin_profile_notifications_desc">यात्रा और खाता सूचनाएँ प्राप्त करें</string>
+    <string name="plugin_profile_signature_title">डिजिटल हस्ताक्षर</string>
+    <string name="plugin_profile_signature_desc">उपयोगकर्ता को व्यक्तिगत विवरण में डिजिटल हस्ताक्षर बनाने और सहेजने दें</string>
     <string name="plugin_sync_location_title">स्थान बिंदु सिंक करें</string>
     <string name="plugin_sync_location_desc">ट्रैक की गई यात्राएँ सिंक करते समय स्टेज किए गए स्थान बिंदु शामिल करें</string>
     <string name="plugin_sync_events_title">यात्रा इवेंट सिंक करें</string>

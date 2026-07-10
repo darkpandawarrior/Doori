@@ -14,6 +14,7 @@ import com.mileway.feature.profile.repository.ProfileRepository
 import com.mileway.feature.profile.repository.ReferralProgramRepository
 import com.mileway.feature.profile.repository.RewardsRepository
 import com.mileway.feature.profile.repository.SavedPlacesRepository
+import com.mileway.feature.profile.repository.SignatureRepository
 import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
@@ -45,6 +46,7 @@ import com.mileway.feature.profile.viewmodel.ReferralHubViewModel
 import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.SelfAuditViewModel
+import com.mileway.feature.profile.viewmodel.SignatureViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
@@ -64,6 +66,8 @@ val profileModule =
         // P6.2: Vehicle/Passport tiles' Room-backed repositories.
         single { VehicleDetailsRepository(get()) }
         single { PassportDetailsRepository(get()) }
+        // PLAN_V24 P12.7: digital-signature tile — Room-backed single-row PNG-path store.
+        single { SignatureRepository(get()) }
         // P6.3: approval-delegation Room-backed repository (see DelegationScreen).
         single { DelegationRepository(get()) }
         // P6.4: Active Sessions' Room-backed repository (see ActiveSessionsScreen).
@@ -102,6 +106,8 @@ val profileModule =
         viewModelOf(::VehicleGarageViewModel)
         // PLAN_V24 P12.6: vehicle self-audit — GarageRepository + SelfAuditRepository (both core:data).
         viewModelOf(::SelfAuditViewModel)
+        // PLAN_V24 P12.7: digital-signature tile in Personal Details (SignatureRepository + registry).
+        viewModelOf(::SignatureViewModel)
         // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
         viewModelOf(::EcoDashboardViewModel)
         // PLAN_V24 P12.1: profile-hub badge board — BadgeRepository (core:data) over real completed trips.

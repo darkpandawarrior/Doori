@@ -134,6 +134,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_profile_notifications_desc",
                 defaultOn = true,
             ),
+            // PLAN_V24 P12.7: the digital-signature tile in Personal Details. defaultOn=false keeps the
+            // profile-details golden byte-identical; the Gig Driver persona turns it on.
+            PluginDescriptor(
+                id = "signature",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.PROFILE,
+                titleKey = "plugin_profile_signature_title",
+                descriptionKey = "plugin_profile_signature_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Tracking-depth plugins (P3.5, P10, P11). */

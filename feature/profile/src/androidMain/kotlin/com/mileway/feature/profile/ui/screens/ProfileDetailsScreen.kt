@@ -115,6 +115,7 @@ import com.mileway.feature.profile.model.ProfileRoute
 import com.mileway.feature.profile.model.VehicleDetails
 import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
+import com.mileway.feature.profile.viewmodel.SignatureViewModel
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -142,11 +143,14 @@ fun ProfileDetailsScreen(
     onOpenOrgChart: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     personalDetailsViewModel: PersonalDetailsViewModel = koinViewModel(),
+    signatureViewModel: SignatureViewModel = koinViewModel(),
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = org.koin.compose.koinInject(),
     sessionRepository: com.mileway.core.data.session.SessionRepository = org.koin.compose.koinInject(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val personalDetailsState by personalDetailsViewModel.state.collectAsStateWithLifecycle()
+    val signatureState by signatureViewModel.state.collectAsStateWithLifecycle()
+    var showSignaturePad by remember { mutableStateOf(false) }
     val profile = state.profile
     // PLAN_V24 P3.1: phone shown from the session (changed value) falling back to the profile.
     val phoneChangeEnabled by pluginRegistry.observe("phoneChangeEnabled").collectAsStateWithLifecycle(initialValue = true)
@@ -290,6 +294,17 @@ fun ProfileDetailsScreen(
                 }
             }
 
+            // PLAN_V24 P12.7: the digital-signature tile — draw-to-sign pad, saved PNG on the profile.
+            if (signatureState.enabled) {
+                item(span = { GridItemSpan(2) }) {
+                    SignatureCard(
+                        signaturePath = signatureState.signaturePath,
+                        onOpenPad = { showSignaturePad = true },
+                        onDelete = signatureViewModel::clear,
+                    )
+                }
+            }
+
             // P6.2: custom fields render on the Personal Info tile group as their own card,
             // only when the profile actually carries any (tenant-defined key/value pairs).
             if (profile.customFields.isNotEmpty()) {
@@ -355,6 +370,17 @@ fun ProfileDetailsScreen(
         ProfileDetailSheet.CORPORATE ->
             CorporateVerificationSheet(onDismiss = { activeSheet = null })
         null -> Unit
+    }
+
+    // PLAN_V24 P12.7: the draw-to-sign pad; on save the rasterised PNG path persists on the profile.
+    if (showSignaturePad) {
+        SignaturePadSheet(
+            onSave = { path ->
+                signatureViewModel.save(path)
+                showSignaturePad = false
+            },
+            onDismiss = { showSignaturePad = false },
+        )
     }
 }
 

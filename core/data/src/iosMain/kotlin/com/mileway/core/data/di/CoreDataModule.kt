@@ -63,6 +63,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().vehicleDetailsDao() }
         single { get<MilewayDatabase>().vehicleDao() }
         single { get<MilewayDatabase>().vehicleAuditDao() }
+        single { get<MilewayDatabase>().signatureDao() }
         single { get<MilewayDatabase>().passportDetailsDao() }
         single { get<MilewayDatabase>().delegationDao() }
         single { get<MilewayDatabase>().sessionDao() }

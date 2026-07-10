@@ -2579,6 +2579,8 @@
     <string name="plugin_tracking_auto_pause_desc">Pause tracking automatically when you stop moving</string>
     <string name="plugin_profile_notifications_title">Notifications</string>
     <string name="plugin_profile_notifications_desc">Receive trip and account notifications</string>
+    <string name="plugin_profile_signature_title">Digital signature</string>
+    <string name="plugin_profile_signature_desc">Let the user draw and save a digital signature in Personal Details</string>
     <string name="plugin_sync_location_title">Sync location points</string>
     <string name="plugin_sync_location_desc">Include staged location points when syncing tracked trips</string>
     <string name="plugin_sync_events_title">Sync trip events</string>

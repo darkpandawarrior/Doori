@@ -5,6 +5,26 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 34 → 35 (PLAN_V24 P12.7): additive single-row `signature` table — the profile's digital
+ * signature PNG path. Empty on first run; a row is written when the user draws + saves a signature,
+ * deleted when they clear it. Same single-row shape as `passport_details` / `vehicle_details`.
+ */
+val MIGRATION_34_35 =
+    object : Migration(34, 35) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `signature` (
+                    `id`          TEXT    NOT NULL PRIMARY KEY,
+                    `imagePath`   TEXT    NOT NULL,
+                    `updatedAtMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 33 → 34 (PLAN_V24 P12.6): additive `vehicle_audits` table — the per-vehicle self-audit
  * (self-inspection) history. Empty on first run; a row is appended per submitted audit. The verdict
  * is derived at read time by `SimulatedReviewEngine`, so no status column is stored.
