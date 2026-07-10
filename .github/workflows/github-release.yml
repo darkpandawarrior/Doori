@@ -18,20 +18,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with: { fetch-depth: 0 }   # full history for the changelog range
-      - name: Build changelog from commits since previous tag
+      - name: Assemble release notes
         id: cl
         run: |
-          set -euo pipefail
+          set -uo pipefail
           cur="${GITHUB_REF_NAME}"
           prev="$(git describe --tags --abbrev=0 "${cur}^" 2>/dev/null || echo "")"
-          range="${prev:+$prev..}$cur"
-          git log --no-merges --pretty='- %s' "$range" > CHANGELOG_BODY.md
-          # Second-layer scrub: only if the scrublist secret is configured (commits are already guard-clean).
+          # Prefer the curated CHANGELOG.md "## [<tag>]" section (rich, styled); fall back to commit log.
+          if [ -f CHANGELOG.md ] && grep -q "^## \[${cur}\]" CHANGELOG.md; then
+            awk -v tag="## [${cur}]" '$0 ~ /^## \[/ { if (started) exit; if (index($0,tag)) started=1 } started { print }' CHANGELOG.md > CHANGELOG_BODY.md
+          else
+            range="${prev:+$prev..}$cur"
+            git log --no-merges --pretty='- %s' "$range" > CHANGELOG_BODY.md
+          fi
+          # Optional second-layer scrub if the secret is set (commits + CHANGELOG are already guard-clean).
           if [ -n "${RELEASE_SCRUBLIST_B64:-}" ]; then
             echo "$RELEASE_SCRUBLIST_B64" | base64 -d > /tmp/scrublist.txt
             pat="$(grep -vE '^\s*#|^\s*$' /tmp/scrublist.txt | paste -sd'|' -)"
             if [ -n "$pat" ] && grep -Eiq "$pat" CHANGELOG_BODY.md; then
-              echo "::error::changelog matches a scrublist term — refusing to publish"; exit 1
+              echo "::error::release notes match a scrublist term — refusing to publish"; exit 1
             fi
           fi
           echo "prev=$prev" >> "$GITHUB_OUTPUT"
@@ -74,8 +79,23 @@ jobs:
               echo "First tracked visual baseline ($(find "$shots" -name '*.png' | wc -l | tr -d ' ') screens)." >> CHANGELOG_BODY.md
             fi
           fi
-      - name: Create release
-        run: gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG_BODY.md dist/*
+      - name: Create or update release
+        run: |
+          set -uo pipefail
+          tag="${GITHUB_REF_NAME}"
+          # nice title from the CHANGELOG header if present, else the tag
+          title="$(grep -m1 "^## \[${tag}\]" CHANGELOG.md 2>/dev/null | sed -E 's/^## \[[^]]*\][[:space:]]*(—[[:space:]]*)?//')"
+          [ -n "$title" ] && title="${tag} — ${title}" || title="$tag"
+          # idempotent: create if absent, else update notes (so a manual pre-create or a re-run never fails)
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release edit "$tag" --title "$title" --notes-file CHANGELOG_BODY.md || true
+          else
+            gh release create "$tag" --title "$title" --notes-file CHANGELOG_BODY.md || true
+          fi
+          # attach artifacts best-effort — a missing/failed build never fails the release
+          shopt -s nullglob
+          files=(dist/*)
+          if [ ${#files[@]} -gt 0 ]; then gh release upload "$tag" "${files[@]}" --clobber || true; else echo "no artifacts to attach"; fi
         env:
           GH_TOKEN: ${{ github.token }}
       # README chores are handled by the existing readme.yml (auto-refreshes fact-spans on main push,
