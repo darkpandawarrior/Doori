@@ -79,6 +79,9 @@ val coreDataModule =
         single { get<MilewayDatabase>().pluginOverrideDao() }
         single { get<MilewayDatabase>().savedPlaceDao() }
         single { get<MilewayDatabase>().destinationModeDao() }
+        single { get<MilewayDatabase>().bannerDismissalDao() }
+        // PLAN_V24 P13.1: the per-account persisted banner-dismissal store (priority banner stack).
+        single { com.mileway.core.data.banner.BannerDismissalRepository(get(), get()) }
         single { get<MilewayDatabase>().emergencyContactDao() }
         // PLAN_V24 P3.5: shared by the profile management screen and the tracking SOS sheet.
         single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }

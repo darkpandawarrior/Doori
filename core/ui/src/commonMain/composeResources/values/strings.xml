@@ -2906,4 +2906,20 @@
     <string name="tour_offer_dismiss">Maybe later</string>
     <string name="support_channel_tour_title">Product tour</string>
     <string name="support_channel_tour_subtitle">Replay the interactive walkthrough</string>
+    <!-- PLAN_V24 P13.1: priority banner stack. -->
+    <string name="plugin_banner_custom_title">Operator banner</string>
+    <string name="plugin_banner_custom_desc">Show a custom message banner at the top of every screen</string>
+    <string name="plugin_banner_update_ready_title">Update-ready banner</string>
+    <string name="plugin_banner_update_ready_desc">Show a non-dismissible \"update ready\" banner</string>
+    <string name="plugin_banner_document_expiry_title">Document reminder banner</string>
+    <string name="plugin_banner_document_expiry_desc">Show a banner when verification documents need attention</string>
+    <string name="plugin_banner_subscription_expiry_title">Subscription expiry alert (days)</string>
+    <string name="plugin_banner_subscription_expiry_desc">Days before renewal to start showing the expiry banner</string>
+    <string name="banner_custom_text">Scheduled maintenance tonight, 11pm–1am. Some features may be briefly unavailable.</string>
+    <string name="banner_update_ready">A new version of Mileway is ready to install.</string>
+    <string name="banner_update_action">Update</string>
+    <string name="banner_deletion_requested">Your account-deletion request is being processed.</string>
+    <string name="banner_document_expiry">%1$d document(s) need your attention.</string>
+    <string name="banner_subscription_expiry">Your subscription renews in %1$d day(s).</string>
+    <string name="banner_dismiss">Dismiss</string>
 </resources>

@@ -5,6 +5,28 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 37 → 38 (PLAN_V24 P13.1): additive `banners_dismissed` table — the per-account,
+ * persisted set of priority-stack banners the user dismissed (composite key account+banner). A
+ * deliberate improvement over an in-memory dismissal set: a dismissed banner stays dismissed across
+ * app restarts. Empty on first run; a row is added per dismissal. No backend.
+ */
+val MIGRATION_37_38 =
+    object : Migration(37, 38) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `banners_dismissed` (
+                    `accountId`     TEXT    NOT NULL,
+                    `bannerId`      TEXT    NOT NULL,
+                    `dismissedAtMs` INTEGER NOT NULL,
+                    PRIMARY KEY(`accountId`, `bannerId`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 36 → 37 (PLAN_V24 P12.5): additive per-account `tour_progress` table — the interactive
  * training tour's step + completed/skipped outcome. Empty on first run (no row = never started); a
  * row is upserted as the user advances/skips/completes the tour. No backend.

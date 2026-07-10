@@ -56,8 +56,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.data.banner.Banner
+import com.mileway.core.data.banner.BannerAssembler
+import com.mileway.core.data.banner.BannerDismissalRepository
+import com.mileway.core.data.lifecycle.DeletionRequestRepository
+import com.mileway.core.data.lifecycle.DeletionState
+import com.mileway.core.data.lifecycle.DeletionStatus
+import com.mileway.core.data.plugin.PluginRegistry
+import com.mileway.core.data.plugin.PluginValue
 import com.mileway.core.data.session.DelegationSessionSource
 import com.mileway.core.data.session.DelegationState
+import com.mileway.core.data.subscription.SubscriptionRepository
+import com.mileway.core.data.verification.DocStatus
+import com.mileway.core.ui.components.banner.BannerHost
+import com.mileway.core.ui.resources.banner_custom_text
+import com.mileway.feature.profile.repository.DocumentRepository
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_delegation_acting_as
 import com.mileway.core.ui.resources.profile_delegation_end
@@ -378,19 +391,13 @@ fun MilewayAppRoot(
                     agentGraph(navController)
                 }
 
-                // PLAN_V24 P7.3: persistent "Acting as <name>" banner, pinned to the top and
-                // visible on every screen while a session delegation is active. End restores base.
-                AnimatedVisibility(
-                    visible = delegation.isActing,
+                // PLAN_V24 P13.1: the priority banner stack, pinned to the top and visible on every
+                // screen. Empty in the baseline; the delegate "Acting as <name>" banner is one variant.
+                RootBannerHost(
+                    delegation = delegation,
+                    onDelegateEnd = { delegationScope.launch { delegationSource.endDelegation() } },
                     modifier = Modifier.align(Alignment.TopCenter),
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    ActingAsBanner(
-                        name = delegation.actingName.orEmpty(),
-                        onEnd = { delegationScope.launch { delegationSource.endDelegation() } },
-                    )
-                }
+                )
 
                 // Global AI assistant FAB — hidden while agent chat is open.
                 val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()
@@ -456,46 +463,90 @@ fun MilewayAppRoot(
     }
 }
 
-/** PLAN_V24 P7.3: the app-wide "Acting as <name> · End" banner shown while acting on behalf. */
+/**
+ * PLAN_V24 P13.1: collects every priority-banner source (delegate, deletion, documents,
+ * subscription, plus the plugin-gated custom/update-ready banners), assembles them with
+ * [BannerAssembler], and renders the [BannerHost]. Split out of [MilewayAppRoot] so the root stays
+ * within the cyclomatic-complexity budget. Every non-delegate source is default-off / empty in the
+ * baseline, so this renders nothing there and the goldens stay byte-identical.
+ */
 @Composable
-private fun ActingAsBanner(
-    name: String,
-    onEnd: () -> Unit,
+private fun RootBannerHost(
+    delegation: DelegationState,
+    onDelegateEnd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
-        color = MaterialTheme.colorScheme.tertiaryContainer,
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                Icons.Filled.SupervisorAccount,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onTertiaryContainer,
-            )
-            Spacer(Modifier.width(12.dp))
-            Text(
-                stringResource(Res.string.profile_delegation_acting_as, name),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                stringResource(Res.string.profile_delegation_end),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onTertiaryContainer,
-                modifier = Modifier
-                    .clickable(onClick = onEnd)
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-            )
-        }
-    }
+    val scope = rememberCoroutineScope()
+    val dismissalRepo = koinInject<BannerDismissalRepository>()
+    val deletionRepo = koinInject<DeletionRequestRepository>()
+    val documentRepo = koinInject<DocumentRepository>()
+    val subscriptionRepo = koinInject<SubscriptionRepository>()
+    val registry = koinInject<PluginRegistry>()
+
+    val dismissedIds by dismissalRepo.observeDismissed().collectAsStateWithLifecycle(emptySet())
+    val deletionState by deletionRepo.observe().collectAsStateWithLifecycle(DeletionState())
+    val activeSubscription by subscriptionRepo.observeActive().collectAsStateWithLifecycle(null)
+    val documents by documentRepo.observeAll().collectAsStateWithLifecycle(emptyList())
+    val customEnabled by registry.observe("customBannerEnabled").collectAsStateWithLifecycle(false)
+    val updateEnabled by registry.observe("updateReadyBanner").collectAsStateWithLifecycle(false)
+    val docExpiryEnabled by registry.observe("documentExpiryBanner").collectAsStateWithLifecycle(false)
+    val subAlertValue by registry.observeValue("subscriptionExpiryAlertDays")
+        .collectAsStateWithLifecycle(PluginValue.IntVal(7))
+    val customText = stringResource(Res.string.banner_custom_text)
+
+    val banners =
+        assembleRootBanners(
+            updateReadyEnabled = updateEnabled,
+            customBannerEnabled = customEnabled,
+            customBannerText = customText,
+            delegation = delegation,
+            deletionStatus = deletionState.status,
+            documentExpiryEnabled = docExpiryEnabled,
+            rejectedDocCount = documents.count { it.status == DocStatus.REJECTED },
+            activeSubscription = activeSubscription,
+            subscriptionThresholdDays = (subAlertValue as? PluginValue.IntVal)?.value ?: 7,
+            dismissedIds = dismissedIds,
+            nowMs = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+        )
+
+    BannerHost(
+        banners = banners,
+        onDismiss = { banner -> scope.launch { dismissalRepo.dismiss(banner.id) } },
+        onDelegateEnd = onDelegateEnd,
+        modifier = modifier,
+    )
 }
+
+/**
+ * PLAN_V24 P13.1: the pure banner-collection step — turns the resolved source states into the
+ * ordered, dismissal-filtered banner list. Kept a plain function (out of the composable) so the
+ * branchy assembly does not inflate [MilewayAppRoot]/[RootBannerHost] complexity.
+ */
+private fun assembleRootBanners(
+    updateReadyEnabled: Boolean,
+    customBannerEnabled: Boolean,
+    customBannerText: String,
+    delegation: DelegationState,
+    deletionStatus: DeletionStatus,
+    documentExpiryEnabled: Boolean,
+    rejectedDocCount: Int,
+    activeSubscription: com.mileway.core.data.subscription.ActiveSubscription?,
+    subscriptionThresholdDays: Int,
+    dismissedIds: Set<String>,
+    nowMs: Long,
+): List<Banner> {
+    val raw =
+        buildList {
+            if (updateReadyEnabled) add(Banner.UpdateReady)
+            if (customBannerEnabled) add(Banner.Custom(customBannerText))
+            if (delegation.isActing) add(Banner.Delegate(delegation.actingName.orEmpty()))
+            if (deletionStatus != DeletionStatus.NONE) add(Banner.DeletionRequested)
+            if (documentExpiryEnabled && rejectedDocCount > 0) add(Banner.DocumentExpiry(rejectedDocCount))
+            activeSubscription?.let { sub ->
+                val daysLeft = ((sub.renewsAtMs - nowMs) / 86_400_000L).toInt()
+                if (daysLeft in 0..subscriptionThresholdDays) add(Banner.SubscriptionExpiry(daysLeft))
+            }
+        }
+    return BannerAssembler.assemble(raw, dismissedIds)
+}
+

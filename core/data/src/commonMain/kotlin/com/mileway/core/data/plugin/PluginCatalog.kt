@@ -701,12 +701,56 @@ object PluginCatalog {
             ),
         )
 
+    /**
+     * Priority-banner-stack plugins (P13.1) — each gates one Mileway banner variant so the baseline
+     * home/root renders no banner (goldens stay byte-identical) and a persona opts into the demo.
+     * [customBannerEnabled] shows the seeded per-persona operator message; [updateReadyBanner] the
+     * non-dismissible "update ready" banner; [documentExpiryBanner] the "documents need attention"
+     * banner; [subscriptionExpiryAlertDays] is the VALUE threshold below which the active-subscription
+     * expiry banner appears (never in baseline — no active subscription is seeded). All BANNERS-category.
+     */
+    val bannerPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "customBannerEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.BANNERS,
+                titleKey = "plugin_banner_custom_title",
+                descriptionKey = "plugin_banner_custom_desc",
+                defaultOn = false,
+            ),
+            PluginDescriptor(
+                id = "updateReadyBanner",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.BANNERS,
+                titleKey = "plugin_banner_update_ready_title",
+                descriptionKey = "plugin_banner_update_ready_desc",
+                defaultOn = false,
+            ),
+            PluginDescriptor(
+                id = "documentExpiryBanner",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.BANNERS,
+                titleKey = "plugin_banner_document_expiry_title",
+                descriptionKey = "plugin_banner_document_expiry_desc",
+                defaultOn = false,
+            ),
+            PluginDescriptor(
+                id = "subscriptionExpiryAlertDays",
+                kind = PluginKind.VALUE,
+                category = PluginCategory.BANNERS,
+                titleKey = "plugin_banner_subscription_expiry_title",
+                descriptionKey = "plugin_banner_subscription_expiry_desc",
+                valueSpec = PluginValueSpec.IntSpec(defaultValue = 7, min = 1, max = 30, step = 1, unit = "d"),
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
             trackingTuningPlugins + abnormalTuningPlugins + experimentalPlugins + syncSettingsPlugins +
             verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins + vehiclePlugins +
-            badgePlugins + supportPlugins + reviewPlugins
+            badgePlugins + supportPlugins + reviewPlugins + bannerPlugins
 
     // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
     // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.
