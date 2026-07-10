@@ -2,9 +2,11 @@ package com.mileway
 
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
+import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -13,6 +15,25 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+
+/**
+ * P27.E.11: a [ExpenseRepository] test double whose `insert` holds a virtual-time [delay] while
+ * tracking how many calls are in-flight at once — the smallest way to prove the bulk-submit
+ * `Semaphore` genuinely bounds concurrency, rather than merely producing correct end-state.
+ */
+private class ConcurrencyTrackingExpenseRepository : ExpenseRepository() {
+    var maxConcurrent = 0
+        private set
+    private var inFlight = 0
+
+    override suspend fun insert(record: ExpenseRecord) {
+        inFlight++
+        maxConcurrent = maxOf(maxConcurrent, inFlight)
+        delay(50)
+        inFlight--
+        super.insert(record)
+    }
+}
 
 /**
  * H: behavioural coverage for [ExpenseViewModel]'s bulk expense entry grid (P2.1 multi-row grid,
@@ -187,6 +208,40 @@ class ExpenseBulkEntryViewModelTest {
         assertEquals(2, summary.first.size)
         assertEquals(1, summary.second.size)
         assertEquals(secondId, summary.second.first().id)
+    }
+
+    @Test
+    fun `SubmitAllDrafts runs rows concurrently but bounded, and preserves every row's own outcome`() = runTest {
+        val repository = ConcurrencyTrackingExpenseRepository()
+        val vm = ExpenseViewModel(repository)
+        val firstId = vm.state.value.rows.first().id
+        vm.onAction(ExpenseAction.UpdateDraftRow(firstId) { it.copy(category = ExpenseCategory.FOOD, merchantName = "Row 1", amountText = "10") })
+        repeat(6) { i ->
+            vm.onAction(ExpenseAction.AddDraftRow)
+            val id = vm.state.value.rows.last().id
+            // One deliberately-invalid row (blank merchant) among otherwise-valid ones, to prove a
+            // single row failing mid-batch doesn't abort or block its concurrently-running siblings.
+            val merchant = if (i == 3) "" else "Row ${i + 2}"
+            vm.onAction(ExpenseAction.UpdateDraftRow(id) { it.copy(category = ExpenseCategory.FOOD, merchantName = merchant, amountText = "10") })
+        }
+        assertEquals(7, vm.state.value.rows.size)
+
+        vm.onAction(ExpenseAction.SubmitAllDrafts)
+        advanceUntilIdle()
+
+        // Bounded: never more than the Semaphore(4) permit count in flight at once.
+        assertTrue(repository.maxConcurrent <= 4, "expected at most 4 concurrent submits, was ${repository.maxConcurrent}")
+        // Concurrent: more than one row genuinely overlapped, not a sequential fallback in disguise.
+        assertTrue(repository.maxConcurrent > 1, "expected overlapping submits, was ${repository.maxConcurrent}")
+
+        val rows = vm.state.value.rows
+        assertEquals(6, rows.count { it.status == DraftStatus.SUCCESS })
+        assertEquals(1, rows.count { it.status == DraftStatus.ERROR })
+        // submissionSummary keeps its pre-existing (successRows, errorRows) pair shape.
+        val summary = vm.state.value.submissionSummary
+        assertNotNull(summary)
+        assertEquals(6, summary.first.size)
+        assertEquals(1, summary.second.size)
     }
 
     @Test

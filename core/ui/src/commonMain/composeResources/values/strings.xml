@@ -990,6 +990,7 @@
     <string name="logging_category_prompt">What type of expense is this?</string>
     <string name="logging_import_csv">Import CSV</string>
     <string name="logging_add_row">Add row</string>
+    <string name="logging_apply_category_to_all">Apply category to all</string>
     <string name="logging_select_category">Select category</string>
     <string name="logging_receipt_attached_cd">Receipt attached</string>
     <string name="logging_attach_receipt_cd">Attach receipt</string>

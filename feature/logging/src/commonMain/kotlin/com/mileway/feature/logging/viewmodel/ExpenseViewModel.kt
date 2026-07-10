@@ -18,7 +18,15 @@ import com.mileway.feature.logging.model.ExpenseStatus
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.stub.PolicyMockData
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+
+/** P27.E.11: max rows a bulk submit sends to the repo at once (mirrors the reference app's throttle). */
+private const val BULK_SUBMIT_CONCURRENCY = 4
 
 enum class ExpenseFilter { ALL, DRAFTS, PENDING, SETTLED }
 
@@ -454,29 +462,41 @@ class ExpenseViewModel(
         )
     }
 
+    /** Validates+inserts a single row, returning the [DraftStatus] it landed on. Never throws. */
+    private suspend fun submitOneRow(row: ExpenseDraftRow): DraftStatus {
+        val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == row.category }
+        val errors = ExpenseFormValidator.validate(row.toFormState(), catalogDef)
+        if (errors.isNotEmpty()) return DraftStatus.ERROR
+        return runCatching { repository.insert(row.toRecord()) }
+            .fold(onSuccess = { DraftStatus.SUCCESS }, onFailure = { DraftStatus.ERROR })
+    }
+
     /**
-     * Validates and inserts each row in [rowIds] as its own [ExpenseRecord] via a single suspend
-     * loop (fast local Room/repo write, no throttling needed). Updates each row's [DraftStatus] to
-     * [DraftStatus.SUCCESS] on success or [DraftStatus.ERROR] on validation failure (the row card
-     * already surfaces a static "needs attention" message for [DraftStatus.ERROR], mirroring how
-     * the single-entry form surfaces [ExpenseFormValidator] errors), then publishes the resulting
-     * (successRows, errorRows) as [ExpenseUiState.submissionSummary].
+     * Validates and inserts every row in [rowIds] as its own [ExpenseRecord] concurrently, bounded
+     * to [BULK_SUBMIT_CONCURRENCY] in-flight rows at a time via [Semaphore] (P27.E.11 un-defers the
+     * reference app's throttled remote fan-out into a local, still-bounded concurrent submit — no
+     * longer the fully sequential P2.3 loop). [supervisorScope] plus a per-row `runCatching` in
+     * [submitOneRow] means one row's failure never cancels its siblings — every row's outcome is
+     * collected independently via [kotlinx.coroutines.awaitAll], and cooperative cancellation of the
+     * whole batch (e.g. the ViewModel being cleared mid-submit) still cancels every in-flight row.
+     * Updates each row's [DraftStatus] to [DraftStatus.SUCCESS]/[DraftStatus.ERROR] and publishes
+     * the resulting (successRows, errorRows) as [ExpenseUiState.submissionSummary] — same shape as
+     * the sequential version.
      */
     private fun submitRows(rowIds: Set<String>) {
         viewModelScope.launch {
-            var rows = currentState.rows
-            for (id in rowIds) {
-                val row = rows.first { it.id == id }
-                val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == row.category }
-                val errors = ExpenseFormValidator.validate(row.toFormState(), catalogDef)
-                rows =
-                    if (errors.isNotEmpty()) {
-                        rows.map { if (it.id == id) it.copy(status = DraftStatus.ERROR) else it }
-                    } else {
-                        repository.insert(row.toRecord())
-                        rows.map { if (it.id == id) it.copy(status = DraftStatus.SUCCESS) else it }
-                    }
-            }
+            val snapshot = currentState.rows
+            val semaphore = Semaphore(BULK_SUBMIT_CONCURRENCY)
+            val statusById =
+                supervisorScope {
+                    rowIds
+                        .map { id ->
+                            async {
+                                semaphore.withPermit { id to submitOneRow(snapshot.first { it.id == id }) }
+                            }
+                        }.awaitAll()
+                }.toMap()
+            val rows = currentState.rows.map { row -> statusById[row.id]?.let { row.copy(status = it) } ?: row }
             val successRows = rows.filter { it.id in rowIds && it.status == DraftStatus.SUCCESS }
             val errorRows = rows.filter { it.id in rowIds && it.status == DraftStatus.ERROR }
             setState { copy(rows = rows, submissionSummary = successRows to errorRows) }

@@ -58,6 +58,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_add_expense_title
 import com.mileway.core.ui.resources.logging_add_row
 import com.mileway.core.ui.resources.logging_amount
+import com.mileway.core.ui.resources.logging_apply_category_to_all
 import com.mileway.core.ui.resources.logging_attach_receipt_cd
 import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_bulk_entry
@@ -171,6 +172,15 @@ fun ExpenseEntryScreen(
                 }
                 Spacer(Modifier.height(DesignTokens.Spacing.m))
 
+                // P27.E.11: apply one category to every still-PENDING row in a single tap, instead
+                // of picking it row-by-row — wires the previously-unused ApplyCategoryToAll action.
+                if (ui.rows.size > 1) {
+                    ApplyCategoryToAllRow(
+                        onCategorySelected = { category -> viewModel.onAction(ExpenseAction.ApplyCategoryToAll(category)) },
+                    )
+                    Spacer(Modifier.height(DesignTokens.Spacing.m))
+                }
+
                 BulkDraftGrid(
                     rows = ui.rows,
                     onAddRow = { viewModel.onAction(ExpenseAction.AddDraftRow) },
@@ -207,6 +217,38 @@ fun ExpenseEntryScreen(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * P27.E.11: one-tap "apply this category to every PENDING row" control for the bulk-entry grid —
+ * the UI wiring for [ExpenseAction.ApplyCategoryToAll], which was defined (P2.2) but never
+ * reachable from a screen until this task.
+ */
+@Composable
+private fun ApplyCategoryToAllRow(
+    onCategorySelected: (ExpenseCategory) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = stringResource(Res.string.logging_apply_category_to_all),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(DesignTokens.Spacing.xs))
+        Row(
+            modifier = Modifier.fillMaxWidth().horizontalScroll(androidx.compose.foundation.rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+        ) {
+            ExpenseCategoryCatalog.default().forEach { categoryDef ->
+                FilterChip(
+                    selected = false,
+                    onClick = { onCategorySelected(categoryDef.category) },
+                    label = { Text(categoryDef.category.localizedLabel()) },
+                )
             }
         }
     }

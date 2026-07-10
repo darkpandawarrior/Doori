@@ -452,6 +452,7 @@
     <string name="logging_category_prompt">यह किस प्रकार का व्यय है?</string>
     <string name="logging_import_csv">CSV आयात करें</string>
     <string name="logging_add_row">पंक्ति जोड़ें</string>
+    <string name="logging_apply_category_to_all">सभी पर श्रेणी लागू करें</string>
     <string name="logging_select_category">श्रेणी चुनें</string>
     <string name="logging_receipt_attached_cd">रसीद संलग्न</string>
     <string name="logging_attach_receipt_cd">रसीद संलग्न करें</string>

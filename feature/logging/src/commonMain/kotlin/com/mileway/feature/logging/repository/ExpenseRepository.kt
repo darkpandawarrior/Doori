@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 const val PERSISTED_DRAFT_RECORD_ID = "EXP-DRAFT-RESUME"
 
-class ExpenseRepository(
+open class ExpenseRepository(
     private val draftDao: DraftExpenseDao? = null,
 ) {
     private val baseMs = 1_700_000_000_000L
@@ -111,8 +111,12 @@ class ExpenseRepository(
 
     fun filterByStatus(status: ExpenseStatus?): List<ExpenseRecord> = if (status == null) records else records.filter { it.status == status }
 
-    /** Appends a new record, or replaces it if an entry with the same [ExpenseRecord.id] already exists. */
-    suspend fun insert(record: ExpenseRecord) {
+    /**
+     * Appends a new record, or replaces it if an entry with the same [ExpenseRecord.id] already
+     * exists. `open` so tests can subclass to observe/delay concurrent calls (P27.E.11's bounded
+     * bulk-submit test) without a mocking framework.
+     */
+    open suspend fun insert(record: ExpenseRecord) {
         _recordsFlow.value =
             if (records.any { it.id == record.id }) {
                 records.map { if (it.id == record.id) record else it }
