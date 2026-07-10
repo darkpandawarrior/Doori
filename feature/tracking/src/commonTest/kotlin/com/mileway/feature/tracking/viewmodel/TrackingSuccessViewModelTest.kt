@@ -1,6 +1,7 @@
 package com.mileway.feature.tracking.viewmodel
 
 import com.mileway.core.data.dao.VoucherDao
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.VoucherEntity
 import com.mileway.core.data.model.db.VoucherStatus
 import com.mileway.core.data.model.network.ApprovedVehicle
@@ -19,6 +20,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 /**
  * Unit tests for [TrackingSuccessViewModel]: reimbursement is computed by [PolicyRateEngine] from
@@ -155,5 +157,30 @@ class TrackingSuccessViewModelTest {
             vm.onAction(TrackingSuccessAction.ViewExpense)
 
             assertEquals(TrackingSuccessEffect.NavigateToExpenseList, vm.effect.first())
+        }
+
+    // P27.E.5: AddExpense must build an ExpenseSourceContext.Trip carrying the (only available)
+    // per-trip identifier — the ledger transactionId — plus the vehicle name as its display label.
+    @Test
+    fun `add expense action emits navigate-to-add-expense carrying a Trip context`() =
+        runTest {
+            val vm = buildVm(args(transactionId = "TXN-1"))
+            vm.onAction(TrackingSuccessAction.AddExpense)
+
+            val effect = vm.effect.first()
+            assertIs<TrackingSuccessEffect.NavigateToAddExpense>(effect)
+            assertEquals(ExpenseSourceContext.Trip(tripId = "TXN-1", tripLabel = "Car"), effect.context)
+        }
+
+    @Test
+    fun `add expense action is a no-op when no transaction was issued`() =
+        runTest {
+            val vm = buildVm(args(transactionId = null))
+            vm.onAction(TrackingSuccessAction.AddExpense)
+            vm.onAction(TrackingSuccessAction.TrackNewJourney)
+
+            // The effect channel is FIFO: if AddExpense had emitted anything, it would arrive
+            // before TrackNewJourney's NavigateToHub.
+            assertEquals(TrackingSuccessEffect.NavigateToHub, vm.effect.first())
         }
 }

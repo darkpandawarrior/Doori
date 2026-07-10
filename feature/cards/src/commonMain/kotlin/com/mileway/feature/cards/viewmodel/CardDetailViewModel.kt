@@ -1,6 +1,7 @@
 package com.mileway.feature.cards.viewmodel
 
 import com.mileway.core.common.UiText
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.asContent
@@ -54,6 +55,13 @@ sealed interface CardDetailAction {
 
 sealed interface CardDetailEffect {
     data class ShowToast(val message: UiText) : CardDetailEffect
+
+    /**
+     * P27.E.7: replaces the old claim-transaction toast-stub with real navigation into the
+     * expense-entry flow, carrying an [ExpenseSourceContext.Card] built here (not by the nav
+     * layer) so feature:cards never depends on feature:logging directly.
+     */
+    data class NavigateToExpenseEntry(val context: ExpenseSourceContext) : CardDetailEffect
 }
 
 class CardDetailViewModel(
@@ -93,12 +101,24 @@ class CardDetailViewModel(
     }
 
     private fun claimTransaction(transactionId: Long) {
+        val txn = allTransactions.find { it.id == transactionId } ?: return
         allTransactions =
             allTransactions.map {
                 if (it.id == transactionId) it.copy(claimStatus = CardTxnClaimStatus.CLAIMED) else it
             }
         setState { copy(transactions = filtered(claimTab), selectedTransaction = null) }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Expense claimed")))
+        // P27.E.7: real nav to the expense-entry flow, pre-filled/locked from this transaction —
+        // replaces the old toast-only stub.
+        emitEffect(
+            CardDetailEffect.NavigateToExpenseEntry(
+                ExpenseSourceContext.Card(
+                    cardId = txn.cardId.toString(),
+                    transactionId = txn.id.toString(),
+                    merchantName = txn.merchantName,
+                    transactionAmountRupees = txn.amount,
+                ),
+            ),
+        )
     }
 
     private fun filtered(status: CardTxnClaimStatus): ScreenState<List<CardTransactionModel>> {

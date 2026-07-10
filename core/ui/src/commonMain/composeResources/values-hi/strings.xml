@@ -875,6 +875,7 @@
     <string name="tracking_submission_select_office">ऑफ़िस चुनें</string>
     <string name="tracking_submission_subtitle">नीचे दिए गए विवरण भरें</string>
     <string name="tracking_submission_title">ट्रैक माइल्स सबमिट करें</string>
+    <string name="tracking_success_add_expense">व्यय जोड़ें</string>
     <string name="tracking_success_add_to_claim">दावे में जोड़ें</string>
     <string name="tracking_success_cd_badge">सबमिशन सफल</string>
     <string name="tracking_success_cd_view_expense">व्यय विवरण देखें</string>
@@ -1691,6 +1692,7 @@
     <string name="profile_advance_not_found_title">अग्रिम नहीं मिला</string>
     <string name="profile_advance_not_found_subtitle">यह अग्रिम अनुरोध नहीं मिल सका।</string>
     <string name="profile_advance_start_trip">इस अग्रिम के विरुद्ध यात्रा शुरू करें</string>
+    <string name="profile_advance_log_expense">इस अग्रिम के विरुद्ध व्यय दर्ज करें</string>
     <string name="profile_advance_decline_reason">अस्वीकृति का कारण</string>
     <string name="profile_advance_approver_chain">अनुमोदक श्रृंखला</string>
     <string name="profile_advance_timeline">समयरेखा</string>

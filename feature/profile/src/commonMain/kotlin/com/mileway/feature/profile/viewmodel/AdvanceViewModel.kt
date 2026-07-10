@@ -1,6 +1,7 @@
 package com.mileway.feature.profile.viewmodel
 
 import com.mileway.core.common.UiText
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.profile.model.AdvanceMode
@@ -72,6 +73,12 @@ sealed interface AdvanceAction {
 
     /** "Start Trip Against This Advance" CTA on [com.mileway.feature.profile.ui.screens.AdvanceRequestDetailsScreen]. */
     data class StartTripAgainstAdvance(val advanceId: String) : AdvanceAction
+
+    /**
+     * P27.E.8: "Log expense against this advance" CTA on
+     * [com.mileway.feature.profile.ui.screens.AdvanceRequestDetailsScreen].
+     */
+    data class LogExpenseAgainstAdvance(val advanceId: String) : AdvanceAction
 }
 
 sealed interface AdvanceEffect {
@@ -83,6 +90,13 @@ sealed interface AdvanceEffect {
      * use, mirroring how `SavedTracksScreen.onStartNew` mints a new route id at the nav call site.
      */
     data class NavigateToTripStart(val advanceId: String, val tripId: String) : AdvanceEffect
+
+    /**
+     * P27.E.8: navigate into the expense-entry flow carrying this advance's
+     * [ExpenseSourceContext.Advance]. Built here (not by the nav layer) so feature:profile never
+     * depends on feature:logging — mirrors [NavigateToTripStart]'s existing direction.
+     */
+    data class NavigateToExpenseEntry(val context: ExpenseSourceContext) : AdvanceEffect
 }
 
 class AdvanceViewModel(
@@ -125,6 +139,7 @@ class AdvanceViewModel(
                 setState { copy(form = AdvanceFormState(), submitted = false, lastSubmittedId = "", lastAutoApproved = false) }
             is AdvanceAction.ToggleCardBlock -> toggleCardBlock(action.cardId)
             is AdvanceAction.StartTripAgainstAdvance -> startTripAgainstAdvance(action.advanceId)
+            is AdvanceAction.LogExpenseAgainstAdvance -> logExpenseAgainstAdvance(action.advanceId)
         }
     }
 
@@ -199,5 +214,10 @@ class AdvanceViewModel(
     private fun startTripAgainstAdvance(advanceId: String) {
         val tripId = Uuid.random().toString()
         emitEffect(AdvanceEffect.NavigateToTripStart(advanceId = advanceId, tripId = tripId))
+    }
+
+    private fun logExpenseAgainstAdvance(advanceId: String) {
+        val label = repository.advanceRecords.find { it.id == advanceId }?.purpose
+        emitEffect(AdvanceEffect.NavigateToExpenseEntry(ExpenseSourceContext.Advance(advanceId, label)))
     }
 }

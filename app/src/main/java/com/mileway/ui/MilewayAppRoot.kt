@@ -309,7 +309,11 @@ fun MilewayAppRoot(
                         }
                     }
                     navigation(startDestination = TrackingRoutes.SAVED_TRACKS, route = AppGraph.TRACK) {
-                        trackingGraph(navController)
+                        trackingGraph(
+                            navController = navController,
+                            // P27.E.5: trip-completion "Add Expense" CTA.
+                            onAddExpense = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                        )
                     }
                     navigation(startDestination = LoggingRoutes.HOME, route = AppGraph.LOG) {
                         loggingGraph(navController)
@@ -327,12 +331,18 @@ fun MilewayAppRoot(
                                     popUpTo(AppGraph.TRACK)
                                 }
                             },
+                            // P27.E.8: "Log expense against this advance" CTA.
+                            onLogExpenseFromAdvance = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
                             onSignedOut = onSignedOut,
                         )
                     }
                     // Corporate cards feature module (replaces the old profile card screens).
                     navigation(startDestination = CardRoutes.HOME, route = AppGraph.CARDS) {
-                        cardsGraph(navController)
+                        cardsGraph(
+                            navController = navController,
+                            // P27.E.7: claim-transaction CTA (replaces the old toast-only stub).
+                            onClaimTransaction = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                        )
                     }
                     navigation(startDestination = TravelRoutes.HOME, route = AppGraph.TRAVEL) {
                         travelGraph(navController)

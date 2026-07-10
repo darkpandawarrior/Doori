@@ -1,5 +1,6 @@
 package com.mileway.feature.profile.viewmodel
 
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.feature.profile.model.AdvanceStatus
@@ -71,5 +72,31 @@ class AdvanceViewModelTest {
             val secondTripId = (vm.effect.first() as AdvanceEffect.NavigateToTripStart).tripId
 
             assertNotEquals(firstTripId, secondTripId)
+        }
+
+    // P27.E.8: LogExpenseAgainstAdvance must emit a NavigateToExpenseEntry effect carrying an
+    // ExpenseSourceContext.Advance built from the repository record (id + purpose label).
+    @Test
+    fun `LogExpenseAgainstAdvance emits NavigateToExpenseEntry carrying an Advance context`() =
+        runTest {
+            val vm = buildVm()
+            vm.onAction(AdvanceAction.LogExpenseAgainstAdvance("ADV-001"))
+
+            val effect = vm.effect.first()
+            assertIs<AdvanceEffect.NavigateToExpenseEntry>(effect)
+            assertEquals(
+                ExpenseSourceContext.Advance("ADV-001", "Field visit expenses – Nashik"),
+                effect.context,
+            )
+        }
+
+    @Test
+    fun `LogExpenseAgainstAdvance with an unknown id still carries the id, with no label`() =
+        runTest {
+            val vm = buildVm()
+            vm.onAction(AdvanceAction.LogExpenseAgainstAdvance("ADV-DOES-NOT-EXIST"))
+
+            val effect = vm.effect.first() as AdvanceEffect.NavigateToExpenseEntry
+            assertEquals(ExpenseSourceContext.Advance("ADV-DOES-NOT-EXIST", null), effect.context)
         }
 }

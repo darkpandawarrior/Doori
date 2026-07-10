@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
 import com.mileway.feature.profile.ui.screens.AdvanceHistoryScreen
@@ -116,12 +117,15 @@ object ProfileRoutes {
  * [onOpenDebugMenu] and [onStartTripForAdvance] are callbacks supplied by the app shell so the
  * profile module itself does not need to depend on :feature:tracking. [onSignedOut] (P2.4) is
  * supplied by the app shell so this module does not need to depend on `:app`'s `AppStage`.
+ * [onLogExpenseFromAdvance] (P27.E.8) mirrors [onStartTripForAdvance]'s direction for
+ * feature:logging instead of feature:tracking.
  */
 fun NavGraphBuilder.profileGraph(
     navController: NavHostController,
     onOpenDebugMenu: () -> Unit = {},
     onOpenCards: () -> Unit = {},
     onStartTripForAdvance: (advanceId: String, tripId: String) -> Unit = { _, _ -> },
+    onLogExpenseFromAdvance: (ExpenseSourceContext) -> Unit = {},
     onSignedOut: () -> Unit = {},
 ) {
     composable(ProfileRoutes.HOME) {
@@ -367,6 +371,7 @@ fun NavGraphBuilder.profileGraph(
             advanceId = advanceId,
             onBack = { navController.popBackStack() },
             onStartTrip = onStartTripForAdvance,
+            onLogExpense = onLogExpenseFromAdvance,
         )
     }
     composable(ProfileRoutes.ANALYTICS_HOME) {

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -28,6 +29,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
@@ -46,6 +49,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_advance_approver_chain
 import com.mileway.core.ui.resources.profile_advance_back
 import com.mileway.core.ui.resources.profile_advance_decline_reason
+import com.mileway.core.ui.resources.profile_advance_log_expense
 import com.mileway.core.ui.resources.profile_advance_not_found_subtitle
 import com.mileway.core.ui.resources.profile_advance_not_found_title
 import com.mileway.core.ui.resources.profile_advance_request_title
@@ -92,6 +96,9 @@ fun AdvanceRequestDetailsScreen(
     advanceId: String,
     onBack: () -> Unit,
     onStartTrip: (advanceId: String, tripId: String) -> Unit = { _, _ -> },
+    // P27.E.8: default no-op keeps every existing call site unchanged; the app shell's
+    // profileGraph supplies the real navigation into feature:logging's expense-entry route.
+    onLogExpense: (ExpenseSourceContext) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: AdvanceViewModel = koinViewModel(),
 ) {
@@ -105,6 +112,7 @@ fun AdvanceRequestDetailsScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is AdvanceEffect.NavigateToTripStart -> onStartTrip(effect.advanceId, effect.tripId)
+                is AdvanceEffect.NavigateToExpenseEntry -> onLogExpense(effect.context)
                 is AdvanceEffect.ShowToast -> Unit
             }
         }
@@ -143,6 +151,7 @@ fun AdvanceRequestDetailsScreen(
             AdvanceRequestDetailsContent(
                 record = record,
                 onStartTripClick = { viewModel.onAction(AdvanceAction.StartTripAgainstAdvance(record.id)) },
+                onLogExpenseClick = { viewModel.onAction(AdvanceAction.LogExpenseAgainstAdvance(record.id)) },
             )
         }
     }
@@ -152,6 +161,7 @@ fun AdvanceRequestDetailsScreen(
 private fun AdvanceRequestDetailsContent(
     record: AdvanceRecord,
     onStartTripClick: () -> Unit,
+    onLogExpenseClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -169,6 +179,9 @@ private fun AdvanceRequestDetailsContent(
         }
         if (record.status != AdvanceStatus.REJECTED) {
             item { StartTripCta(onClick = onStartTripClick) }
+            // P27.E.8: "Log expense against this advance" — mirrors the start-trip CTA's gating
+            // (a rejected advance can't be spent against either).
+            item { LogExpenseCta(onClick = onLogExpenseClick) }
         }
         if (record.approverChain.isNotEmpty()) {
             item { ApproverChainCard(record.approverChain) }
@@ -190,6 +203,19 @@ private fun StartTripCta(onClick: () -> Unit) {
         Icon(Icons.Filled.DirectionsCar, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
         Spacer(Modifier.width(DesignTokens.Spacing.s))
         Text(stringResource(Res.string.profile_advance_start_trip))
+    }
+}
+
+@Composable
+private fun LogExpenseCta(onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = DesignTokens.Shape.roundedMd,
+    ) {
+        Icon(Icons.Filled.Receipt, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
+        Spacer(Modifier.width(DesignTokens.Spacing.s))
+        Text(stringResource(Res.string.profile_advance_log_expense))
     }
 }
 

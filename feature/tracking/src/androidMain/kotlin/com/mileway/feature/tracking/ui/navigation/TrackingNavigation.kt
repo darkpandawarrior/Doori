@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.display.OdometerReadingSource
@@ -134,8 +135,16 @@ fun TrackingNavHost(navController: NavHostController = rememberNavController()) 
 /**
  * The tracking destinations as a reusable nav-graph builder so the app shell can host
  * them inside a nested graph without an inner [NavHost] or duplicate theming.
+ *
+ * [onAddExpense] (P27.E.5) is supplied by the app shell so feature:tracking never depends on
+ * feature:logging directly — it only hands back the [ExpenseSourceContext] the app shell needs to
+ * build feature:logging's expense-entry route. Defaults to a no-op so [TrackingNavHost] (the
+ * standalone `TrackMilesActivity` host, which has no expense flow to link to) needs no change.
  */
-fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
+fun NavGraphBuilder.trackingGraph(
+    navController: NavHostController,
+    onAddExpense: (ExpenseSourceContext) -> Unit = {},
+) {
     composable(TrackingRoutes.SAVED_TRACKS) {
         SavedTracksScreen(
             onTrackClick = { routeId -> navController.navigate(TrackingRoutes.detail(routeId)) },
@@ -457,6 +466,7 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
                     TrackingSuccessEffect.NavigateToHub -> toSaved()
                     // No per-transaction detail screen yet — route to the voucher/approvals list.
                     TrackingSuccessEffect.NavigateToExpenseList -> navController.navigate(TrackingRoutes.CREATE_VOUCHER)
+                    is TrackingSuccessEffect.NavigateToAddExpense -> onAddExpense(effect.context)
                 }
             }
         }
@@ -476,6 +486,7 @@ fun NavGraphBuilder.trackingGraph(navController: NavHostController) {
             onTrackNewJourney = { viewModel.onAction(TrackingSuccessAction.TrackNewJourney) },
             onViewExpense = { viewModel.onAction(TrackingSuccessAction.ViewExpense) },
             onCreateVoucher = { viewModel.onAction(TrackingSuccessAction.CreateVoucher) },
+            onAddExpense = { viewModel.onAction(TrackingSuccessAction.AddExpense) },
         )
     }
 

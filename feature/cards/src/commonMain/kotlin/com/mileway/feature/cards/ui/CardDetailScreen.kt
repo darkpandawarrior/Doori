@@ -61,6 +61,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.common.asString
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.components.sheet.DetailInfoBottomSheet
 import com.mileway.core.ui.components.sheet.DetailInfoCard
 import com.mileway.core.ui.components.sheet.DetailInfoRow
@@ -122,6 +123,9 @@ import org.koin.compose.viewmodel.koinViewModel
 fun CardDetailScreen(
     cardId: Long,
     onBack: () -> Unit,
+    // P27.E.7: default no-op keeps every existing call site (including the screenshot gallery)
+    // unchanged; the app shell's cardsGraph supplies the real navigation.
+    onClaimTransaction: (ExpenseSourceContext) -> Unit = {},
     viewModel: CardDetailViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -132,6 +136,7 @@ fun CardDetailScreen(
             when (effect) {
                 is CardDetailEffect.ShowToast ->
                     Toasts.show(title = effect.message.asString(), description = "", type = ToastType.Success)
+                is CardDetailEffect.NavigateToExpenseEntry -> onClaimTransaction(effect.context)
             }
         }
     }

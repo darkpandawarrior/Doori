@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardKycScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
@@ -21,7 +22,15 @@ object CardRoutes {
     fun detail(cardId: Long): String = "cards_detail/$cardId"
 }
 
-fun NavGraphBuilder.cardsGraph(navController: NavHostController) {
+/**
+ * [onClaimTransaction] (P27.E.7) is supplied by the app shell so feature:cards never depends on
+ * feature:logging directly — it only hands back the [ExpenseSourceContext] the app shell needs to
+ * build feature:logging's expense-entry route.
+ */
+fun NavGraphBuilder.cardsGraph(
+    navController: NavHostController,
+    onClaimTransaction: (ExpenseSourceContext) -> Unit = {},
+) {
     composable(CardRoutes.HOME) {
         CardsHomeScreen(
             onOpenCard = { navController.navigate(CardRoutes.detail(it)) },
@@ -40,6 +49,10 @@ fun NavGraphBuilder.cardsGraph(navController: NavHostController) {
         arguments = listOf(navArgument("cardId") { type = NavType.StringType }),
     ) { entry ->
         val cardId = entry.arguments?.read { getStringOrNull("cardId") }?.toLongOrNull() ?: 0L
-        CardDetailScreen(cardId = cardId, onBack = { navController.popBackStack() })
+        CardDetailScreen(
+            cardId = cardId,
+            onBack = { navController.popBackStack() },
+            onClaimTransaction = onClaimTransaction,
+        )
     }
 }

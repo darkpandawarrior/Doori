@@ -76,6 +76,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_insights_distance
 import com.mileway.core.ui.resources.tracking_plural_issues_found
 import com.mileway.core.ui.resources.tracking_plural_policy_issues_found
+import com.mileway.core.ui.resources.tracking_success_add_expense
 import com.mileway.core.ui.resources.tracking_success_add_to_claim
 import com.mileway.core.ui.resources.tracking_success_cd_badge
 import com.mileway.core.ui.resources.tracking_success_cd_view_expense
@@ -136,6 +137,8 @@ import kotlin.math.round
  * @param onTrackNewJourney Invoked by the primary CTA (default flow).
  * @param onViewExpense Invoked when the user opens the transaction (card tap or secondary CTA).
  * @param onCreateVoucher Invoked from the voucher section's "Create Voucher" action.
+ * @param onAddExpense P27.E.5: invoked from the "Add Expense" CTA (only shown alongside the
+ *   transaction card); default no-op keeps every existing/preview call site unchanged.
  * @param modifier Applied to the screen's root content column.
  */
 @Composable
@@ -154,6 +157,7 @@ fun TrackingSuccessScreen(
     onTrackNewJourney: () -> Unit,
     onViewExpense: () -> Unit,
     onCreateVoucher: () -> Unit,
+    onAddExpense: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val hasViolations = violationCount > 0
@@ -260,6 +264,7 @@ fun TrackingSuccessScreen(
                         onTrackNewJourney = onTrackNewJourney,
                         onViewExpense = onViewExpense,
                         onCreateVoucher = onCreateVoucher,
+                        onAddExpense = onAddExpense,
                     )
                 }
             },
@@ -912,6 +917,8 @@ private fun VoucherCard(
  * Bottom action bar. The primary CTA depends on context:
  *  - With a voucher: "Add to Claim" (primary) + "Create Voucher" (secondary).
  *  - Otherwise: "Track New Journey" (primary) + optional "View Expense" (secondary).
+ * P27.E.5: "Add Expense" is a further tertiary CTA, shown whenever a transaction exists
+ * (regardless of the voucher branch) so a completed trip can always start a fresh expense.
  */
 @Composable
 private fun SuccessActionBar(
@@ -920,6 +927,7 @@ private fun SuccessActionBar(
     onTrackNewJourney: () -> Unit,
     onViewExpense: () -> Unit,
     onCreateVoucher: () -> Unit,
+    onAddExpense: () -> Unit,
 ) {
     Surface(
         tonalElevation = DesignTokens.Elevation.prominent,
@@ -966,6 +974,15 @@ private fun SuccessActionBar(
                         onClick = onViewExpense,
                     )
                 }
+            }
+            // P27.E.5: independent of the voucher branch above — always offered once a
+            // transaction exists, so "Add Expense" and "Add to Claim"/"View Expense" coexist.
+            if (hasTransaction) {
+                SecondaryCta(
+                    label = stringResource(Res.string.tracking_success_add_expense),
+                    icon = Icons.Filled.Receipt,
+                    onClick = onAddExpense,
+                )
             }
         }
     }

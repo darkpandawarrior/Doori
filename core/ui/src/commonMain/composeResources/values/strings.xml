@@ -580,6 +580,7 @@
     <string name="profile_advance_not_found_title">Advance not found</string>
     <string name="profile_advance_not_found_subtitle">This advance request could not be located.</string>
     <string name="profile_advance_start_trip">Start Trip Against This Advance</string>
+    <string name="profile_advance_log_expense">Log Expense Against This Advance</string>
     <string name="profile_advance_decline_reason">Decline Reason</string>
     <string name="profile_advance_approver_chain">Approver Chain</string>
     <string name="profile_advance_timeline">Timeline</string>
@@ -1413,6 +1414,7 @@
     <string name="tracking_submission_select_office">Select office</string>
     <string name="tracking_submission_subtitle">Fill out the details given below</string>
     <string name="tracking_submission_title">Submit Track Miles</string>
+    <string name="tracking_success_add_expense">Add Expense</string>
     <string name="tracking_success_add_to_claim">Add to Claim</string>
     <string name="tracking_success_cd_badge">Submission successful</string>
     <string name="tracking_success_cd_view_expense">View expense details</string>

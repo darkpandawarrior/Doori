@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.ledger.PolicyRateEngine
 import com.mileway.core.data.ledger.PolicyRateTable
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
@@ -52,6 +53,9 @@ sealed interface TrackingSuccessAction {
     data object ViewExpense : TrackingSuccessAction
 
     data object CreateVoucher : TrackingSuccessAction
+
+    /** P27.E.5: "Add Expense" CTA — logs a fresh expense against this just-completed trip. */
+    data object AddExpense : TrackingSuccessAction
 }
 
 sealed interface TrackingSuccessEffect {
@@ -60,6 +64,13 @@ sealed interface TrackingSuccessEffect {
 
     /** Open the expense/voucher list — Mileway has no per-transaction detail screen yet. */
     data object NavigateToExpenseList : TrackingSuccessEffect
+
+    /**
+     * P27.E.5: open the expense-entry flow carrying this trip's [ExpenseSourceContext.Trip]. Built
+     * here (not by the nav layer) so feature:tracking never depends on feature:logging — see
+     * [ExpenseSourceContext]'s kdoc for why the context type itself lives in core:data.
+     */
+    data class NavigateToAddExpense(val context: ExpenseSourceContext) : TrackingSuccessEffect
 }
 
 /**
@@ -93,7 +104,26 @@ class TrackingSuccessViewModel(
             TrackingSuccessAction.TrackNewJourney -> emitEffect(TrackingSuccessEffect.NavigateToHub)
             TrackingSuccessAction.ViewExpense -> emitEffect(TrackingSuccessEffect.NavigateToExpenseList)
             TrackingSuccessAction.CreateVoucher -> createVoucher()
+            TrackingSuccessAction.AddExpense -> addExpense()
         }
+    }
+
+    /**
+     * P27.E.5: this screen carries no dedicated trip/route id (see [TrackingSuccessArgs]) — the
+     * ledger [TrackingSuccessUiState.transactionId] is the only stable per-trip identifier already
+     * threaded here, so it doubles as [ExpenseSourceContext.Trip.tripId]. A no-op when no
+     * transaction was issued (e.g. a hard-stop submission), mirroring the existing
+     * `hasTransaction` gate the screen already uses for its "View Expense" CTA.
+     * ponytail: reusing transactionId keeps this a same-screen change; thread a real routeId
+     * through TrackingSuccessArgs instead once a per-trip detail screen (V29) needs one.
+     */
+    private fun addExpense() {
+        val tripId = currentState.transactionId ?: return
+        emitEffect(
+            TrackingSuccessEffect.NavigateToAddExpense(
+                ExpenseSourceContext.Trip(tripId = tripId, tripLabel = currentState.vehicleName),
+            ),
+        )
     }
 
     private fun computeReimbursement() {
