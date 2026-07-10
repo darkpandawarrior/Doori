@@ -21,7 +21,15 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_create_hotel_subtitle
+import com.mileway.core.ui.resources.travel_field_checkin_date
+import com.mileway.core.ui.resources.travel_field_checkout_date
+import com.mileway.core.ui.resources.travel_field_city
 import com.mileway.core.ui.resources.travel_guests_required
+import com.mileway.core.ui.resources.travel_noun_hotel_booking
+import com.mileway.core.ui.resources.travel_section_room
+import com.mileway.core.ui.resources.travel_section_stay
+import com.mileway.core.ui.resources.travel_submit_hotel
+import com.mileway.core.ui.resources.travel_title_add_hotel
 import com.mileway.feature.travel.viewmodel.CreateHotelAction
 import com.mileway.feature.travel.viewmodel.CreateHotelViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -39,10 +47,10 @@ fun CreateHotelScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
-    HandleTravelCreateEffects(viewModel.effect, noun = "Hotel booking", onSubmitted = onSubmitted)
+    HandleTravelCreateEffects(viewModel.effect, noun = stringResource(Res.string.travel_noun_hotel_booking), onSubmitted = onSubmitted)
 
     FormSubmissionScaffold(
-        title = "Add Hotel",
+        title = stringResource(Res.string.travel_title_add_hotel),
         subtitle = stringResource(Res.string.travel_create_hotel_subtitle),
         titleIcon = Icons.Filled.Hotel,
         onBack = onBack,
@@ -50,14 +58,17 @@ fun CreateHotelScreen(
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = "Request hotel",
+        submitLabel = stringResource(Res.string.travel_submit_hotel),
         submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
-            SectionCard(title = "Stay", leadingIcon = null) {
-                TravelField("City *", ui.city) { viewModel.onAction(CreateHotelAction.SetCity(it)) }
-                TravelField("Check-in date *", ui.checkInDate) { viewModel.onAction(CreateHotelAction.SetCheckInDate(it)) }
-                TravelField("Check-out date *", ui.checkOutDate) { viewModel.onAction(CreateHotelAction.SetCheckOutDate(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_stay), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_city), ui.city) { viewModel.onAction(CreateHotelAction.SetCity(it)) }
+                TravelField(stringResource(Res.string.travel_field_checkin_date), ui.checkInDate) { viewModel.onAction(CreateHotelAction.SetCheckInDate(it)) }
+                TravelField(
+                    stringResource(Res.string.travel_field_checkout_date),
+                    ui.checkOutDate,
+                ) { viewModel.onAction(CreateHotelAction.SetCheckOutDate(it)) }
                 OutlinedTextField(
                     value = ui.guestsText,
                     onValueChange = { viewModel.onAction(CreateHotelAction.SetGuests(it)) },
@@ -67,7 +78,7 @@ fun CreateHotelScreen(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                 )
             }
-            SectionCard(title = "Room", leadingIcon = null) {
+            SectionCard(title = stringResource(Res.string.travel_section_room), leadingIcon = null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -76,7 +87,7 @@ fun CreateHotelScreen(
                         FilterChip(
                             selected = ui.roomPreference == room,
                             onClick = { viewModel.onAction(CreateHotelAction.SetRoomPreference(room)) },
-                            label = { Text(room) },
+                            label = { Text(travelChipLabel(room)) },
                         )
                     }
                 }

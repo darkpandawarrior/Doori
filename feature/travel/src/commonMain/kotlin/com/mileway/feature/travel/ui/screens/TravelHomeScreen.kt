@@ -59,11 +59,38 @@ import com.mileway.core.common.asString
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.travel_active_trip_label
 import com.mileway.core.ui.resources.travel_active_trips
+import com.mileway.core.ui.resources.travel_boarding_suffix
 import com.mileway.core.ui.resources.travel_book_flight
 import com.mileway.core.ui.resources.travel_book_train
+import com.mileway.core.ui.resources.travel_gate_suffix
+import com.mileway.core.ui.resources.travel_header_subtitle
+import com.mileway.core.ui.resources.travel_header_title
+import com.mileway.core.ui.resources.travel_itin_day1_item1_subtitle
+import com.mileway.core.ui.resources.travel_itin_day1_item1_title
+import com.mileway.core.ui.resources.travel_itin_day1_item2_subtitle
+import com.mileway.core.ui.resources.travel_itin_day1_item2_title
+import com.mileway.core.ui.resources.travel_itin_day1_item3_subtitle
+import com.mileway.core.ui.resources.travel_itin_day1_item3_title
+import com.mileway.core.ui.resources.travel_itin_day1_label
+import com.mileway.core.ui.resources.travel_itin_day2_item1_subtitle
+import com.mileway.core.ui.resources.travel_itin_day2_item1_title
+import com.mileway.core.ui.resources.travel_itin_day2_item2_subtitle
+import com.mileway.core.ui.resources.travel_itin_day2_item2_title
+import com.mileway.core.ui.resources.travel_itin_day2_label
+import com.mileway.core.ui.resources.travel_itin_day3_item1_subtitle
+import com.mileway.core.ui.resources.travel_itin_day3_item1_title
+import com.mileway.core.ui.resources.travel_itin_day3_item2_subtitle
+import com.mileway.core.ui.resources.travel_itin_day3_item2_title
+import com.mileway.core.ui.resources.travel_itin_day3_label
+import com.mileway.core.ui.resources.travel_on_time_chip
+import com.mileway.core.ui.resources.travel_policy_notice
+import com.mileway.core.ui.resources.travel_tab_bookings
+import com.mileway.core.ui.resources.travel_tab_itinerary
 import com.mileway.core.ui.resources.travel_total_spend
 import com.mileway.core.ui.resources.travel_upcoming
+import com.mileway.core.ui.resources.travel_upcoming_bookings_title
 import com.mileway.core.ui.resources.travel_view_boarding_pass
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
@@ -73,6 +100,7 @@ import com.mileway.feature.travel.viewmodel.TravelAction
 import com.mileway.feature.travel.viewmodel.TravelEffect
 import com.mileway.feature.travel.viewmodel.TravelViewModel
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -89,38 +117,74 @@ private enum class ItineraryType { FLIGHT, HOTEL, MEETING, DINING }
 
 private data class ItineraryItem(
     val icon: ImageVector,
-    val title: String,
-    val subtitle: String,
+    val title: StringResource,
+    val subtitle: StringResource,
     val type: ItineraryType,
 )
 
-private data class ItineraryDay(val label: String, val items: List<ItineraryItem>)
+private data class ItineraryDay(val label: StringResource, val items: List<ItineraryItem>)
 
+/** Sample itinerary shown on the Itinerary tab (Phase P). */
 private val ITINERARY =
     listOf(
         ItineraryDay(
-            label = "Day 1: Pune (22 Nov)",
+            label = Res.string.travel_itin_day1_label,
             items =
                 listOf(
-                    ItineraryItem(Icons.Filled.AirplanemodeActive, "Depart PNQ 14:30", "IndiGo 6E-401 · Arrive BOM 15:45", ItineraryType.FLIGHT),
-                    ItineraryItem(Icons.Filled.MeetingRoom, "Check-in: Trident BKC", "Confirmation BK001", ItineraryType.HOTEL),
-                    ItineraryItem(Icons.Filled.MeetingRoom, "Client meeting", "Whitefield office · 18:00", ItineraryType.MEETING),
+                    ItineraryItem(
+                        Icons.Filled.AirplanemodeActive,
+                        Res.string.travel_itin_day1_item1_title,
+                        Res.string.travel_itin_day1_item1_subtitle,
+                        ItineraryType.FLIGHT,
+                    ),
+                    ItineraryItem(
+                        Icons.Filled.MeetingRoom,
+                        Res.string.travel_itin_day1_item2_title,
+                        Res.string.travel_itin_day1_item2_subtitle,
+                        ItineraryType.HOTEL,
+                    ),
+                    ItineraryItem(
+                        Icons.Filled.MeetingRoom,
+                        Res.string.travel_itin_day1_item3_title,
+                        Res.string.travel_itin_day1_item3_subtitle,
+                        ItineraryType.MEETING,
+                    ),
                 ),
         ),
         ItineraryDay(
-            label = "Day 2: Mumbai (23 Nov)",
+            label = Res.string.travel_itin_day2_label,
             items =
                 listOf(
-                    ItineraryItem(Icons.Filled.MeetingRoom, "Conference Day 1", "BKC Convention Centre · 09:00–18:00", ItineraryType.MEETING),
-                    ItineraryItem(Icons.Filled.Restaurant, "Team dinner", "Bayroute Juhu · 20:00", ItineraryType.DINING),
+                    ItineraryItem(
+                        Icons.Filled.MeetingRoom,
+                        Res.string.travel_itin_day2_item1_title,
+                        Res.string.travel_itin_day2_item1_subtitle,
+                        ItineraryType.MEETING,
+                    ),
+                    ItineraryItem(
+                        Icons.Filled.Restaurant,
+                        Res.string.travel_itin_day2_item2_title,
+                        Res.string.travel_itin_day2_item2_subtitle,
+                        ItineraryType.DINING,
+                    ),
                 ),
         ),
         ItineraryDay(
-            label = "Day 3: Mumbai (24 Nov)",
+            label = Res.string.travel_itin_day3_label,
             items =
                 listOf(
-                    ItineraryItem(Icons.Filled.MeetingRoom, "Conference Day 2: wrap up", "09:00–14:00", ItineraryType.MEETING),
-                    ItineraryItem(Icons.Filled.AirplanemodeActive, "Return: BOM 17:30", "IndiGo 6E-208 · Arrive PNQ 18:45", ItineraryType.FLIGHT),
+                    ItineraryItem(
+                        Icons.Filled.MeetingRoom,
+                        Res.string.travel_itin_day3_item1_title,
+                        Res.string.travel_itin_day3_item1_subtitle,
+                        ItineraryType.MEETING,
+                    ),
+                    ItineraryItem(
+                        Icons.Filled.AirplanemodeActive,
+                        Res.string.travel_itin_day3_item2_title,
+                        Res.string.travel_itin_day3_item2_subtitle,
+                        ItineraryType.FLIGHT,
+                    ),
                 ),
         ),
     )
@@ -174,8 +238,8 @@ fun TravelHomeScreen(viewModel: TravelViewModel = koinViewModel()) {
                 )
                 PrimaryTabRow(selectedTabIndex = selectedTab) {
                     listOf(
-                        "BOOKINGS" to Icons.Filled.ConfirmationNumber,
-                        "ITINERARY" to Icons.Filled.MeetingRoom,
+                        stringResource(Res.string.travel_tab_bookings) to Icons.Filled.ConfirmationNumber,
+                        stringResource(Res.string.travel_tab_itinerary) to Icons.Filled.MeetingRoom,
                     ).forEachIndexed { index, (title, icon) ->
                         Tab(
                             selected = selectedTab == index,
@@ -225,7 +289,7 @@ private fun BookingsTab(
         item {
             Spacer(Modifier.height(DesignTokens.Spacing.m))
             Text(
-                text = "Upcoming Bookings",
+                text = stringResource(Res.string.travel_upcoming_bookings_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.padding(horizontal = DesignTokens.Spacing.l),
@@ -281,7 +345,7 @@ private fun ItineraryTab() {
                 ) {
                     Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
                         Text(
-                            text = day.label,
+                            text = stringResource(day.label),
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -333,8 +397,8 @@ private fun ItineraryItemRow(item: ItineraryItem) {
             )
         }
         Column(modifier = Modifier.weight(1f)) {
-            Text(item.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-            Text(item.subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(item.title), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Text(stringResource(item.subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -355,13 +419,13 @@ private fun TravelHeader() {
     ) {
         Column {
             Text(
-                text = "Travel",
+                text = stringResource(Res.string.travel_header_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
             )
             Text(
-                text = "Bookings & trips",
+                text = stringResource(Res.string.travel_header_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.White.copy(alpha = 0.85f),
             )
@@ -441,7 +505,7 @@ private fun ActiveTripCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Active Trip",
+                    text = stringResource(Res.string.travel_active_trip_label),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
                 )
@@ -449,7 +513,7 @@ private fun ActiveTripCard(
                     onClick = {},
                     label = {
                         Text(
-                            text = "ON TIME",
+                            text = stringResource(Res.string.travel_on_time_chip),
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                         )
@@ -482,8 +546,8 @@ private fun ActiveTripCard(
             Text(
                 text =
                     "${booking.carrier} ${booking.flightOrTrainNumber}" +
-                        (if (booking.boardingTime != null) " · Boarding ${booking.boardingTime}" else "") +
-                        (if (booking.gate != null) " · Gate ${booking.gate}" else ""),
+                        (if (booking.boardingTime != null) stringResource(Res.string.travel_boarding_suffix, booking.boardingTime) else "") +
+                        (if (booking.gate != null) stringResource(Res.string.travel_gate_suffix, booking.gate) else ""),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
             )
@@ -609,7 +673,7 @@ private fun TravelPolicyCard(modifier: Modifier = Modifier) {
                 modifier = Modifier.size(20.dp),
             )
             Text(
-                text = "Bookings > ₹10,000 require pre-approval. Submit via the Approvals tab.",
+                text = stringResource(Res.string.travel_policy_notice),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

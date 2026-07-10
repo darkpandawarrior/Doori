@@ -18,6 +18,15 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_create_bus_subtitle
+import com.mileway.core.ui.resources.travel_field_from_city
+import com.mileway.core.ui.resources.travel_field_operator
+import com.mileway.core.ui.resources.travel_field_to_city
+import com.mileway.core.ui.resources.travel_field_travel_date
+import com.mileway.core.ui.resources.travel_noun_bus_booking
+import com.mileway.core.ui.resources.travel_route
+import com.mileway.core.ui.resources.travel_section_preferences
+import com.mileway.core.ui.resources.travel_submit_bus
+import com.mileway.core.ui.resources.travel_title_add_bus
 import com.mileway.feature.travel.viewmodel.CreateBusAction
 import com.mileway.feature.travel.viewmodel.CreateBusViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -35,10 +44,10 @@ fun CreateBusScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
-    HandleTravelCreateEffects(viewModel.effect, noun = "Bus booking", onSubmitted = onSubmitted)
+    HandleTravelCreateEffects(viewModel.effect, noun = stringResource(Res.string.travel_noun_bus_booking), onSubmitted = onSubmitted)
 
     FormSubmissionScaffold(
-        title = "Add Bus",
+        title = stringResource(Res.string.travel_title_add_bus),
         subtitle = stringResource(Res.string.travel_create_bus_subtitle),
         titleIcon = Icons.Filled.DirectionsBus,
         onBack = onBack,
@@ -46,17 +55,17 @@ fun CreateBusScreen(
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = "Request bus",
+        submitLabel = stringResource(Res.string.travel_submit_bus),
         submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
-            SectionCard(title = "Route", leadingIcon = null) {
-                TravelField("From city *", ui.fromCity) { viewModel.onAction(CreateBusAction.SetFromCity(it)) }
-                TravelField("To city *", ui.toCity) { viewModel.onAction(CreateBusAction.SetToCity(it)) }
-                TravelField("Travel date *", ui.travelDate) { viewModel.onAction(CreateBusAction.SetTravelDate(it)) }
+            SectionCard(title = stringResource(Res.string.travel_route), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_from_city), ui.fromCity) { viewModel.onAction(CreateBusAction.SetFromCity(it)) }
+                TravelField(stringResource(Res.string.travel_field_to_city), ui.toCity) { viewModel.onAction(CreateBusAction.SetToCity(it)) }
+                TravelField(stringResource(Res.string.travel_field_travel_date), ui.travelDate) { viewModel.onAction(CreateBusAction.SetTravelDate(it)) }
             }
-            SectionCard(title = "Preferences", leadingIcon = null) {
-                TravelField("Operator", ui.operator) { viewModel.onAction(CreateBusAction.SetOperator(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_preferences), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_operator), ui.operator) { viewModel.onAction(CreateBusAction.SetOperator(it)) }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -65,7 +74,7 @@ fun CreateBusScreen(
                         FilterChip(
                             selected = ui.seatPreference == seat,
                             onClick = { viewModel.onAction(CreateBusAction.SetSeatPreference(seat)) },
-                            label = { Text(seat) },
+                            label = { Text(travelChipLabel(seat)) },
                         )
                     }
                 }

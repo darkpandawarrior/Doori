@@ -20,7 +20,18 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_create_trip_subtitle
+import com.mileway.core.ui.resources.travel_field_end_date
+import com.mileway.core.ui.resources.travel_field_from_city
+import com.mileway.core.ui.resources.travel_field_purpose
+import com.mileway.core.ui.resources.travel_field_start_date
+import com.mileway.core.ui.resources.travel_field_to_city
+import com.mileway.core.ui.resources.travel_noun_trip_request
 import com.mileway.core.ui.resources.travel_request_advance
+import com.mileway.core.ui.resources.travel_section_advance
+import com.mileway.core.ui.resources.travel_section_dates
+import com.mileway.core.ui.resources.travel_section_trip
+import com.mileway.core.ui.resources.travel_submit_trip
+import com.mileway.core.ui.resources.travel_title_create_trip
 import com.mileway.feature.travel.viewmodel.CreateTripAction
 import com.mileway.feature.travel.viewmodel.CreateTripViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -36,10 +47,10 @@ fun CreateTripScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
-    HandleTravelCreateEffects(viewModel.effect, noun = "Trip request", onSubmitted = onSubmitted)
+    HandleTravelCreateEffects(viewModel.effect, noun = stringResource(Res.string.travel_noun_trip_request), onSubmitted = onSubmitted)
 
     FormSubmissionScaffold(
-        title = "Create Trip",
+        title = stringResource(Res.string.travel_title_create_trip),
         subtitle = stringResource(Res.string.travel_create_trip_subtitle),
         titleIcon = Icons.Filled.CardTravel,
         onBack = onBack,
@@ -47,20 +58,20 @@ fun CreateTripScreen(
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = "Submit trip",
+        submitLabel = stringResource(Res.string.travel_submit_trip),
         submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
-            SectionCard(title = "Trip", leadingIcon = null) {
-                TravelField("Purpose *", ui.purpose) { viewModel.onAction(CreateTripAction.SetPurpose(it)) }
-                TravelField("From city *", ui.fromCity) { viewModel.onAction(CreateTripAction.SetFromCity(it)) }
-                TravelField("To city *", ui.toCity) { viewModel.onAction(CreateTripAction.SetToCity(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_trip), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_purpose), ui.purpose) { viewModel.onAction(CreateTripAction.SetPurpose(it)) }
+                TravelField(stringResource(Res.string.travel_field_from_city), ui.fromCity) { viewModel.onAction(CreateTripAction.SetFromCity(it)) }
+                TravelField(stringResource(Res.string.travel_field_to_city), ui.toCity) { viewModel.onAction(CreateTripAction.SetToCity(it)) }
             }
-            SectionCard(title = "Dates", leadingIcon = null) {
-                TravelField("Start date", ui.startDate) { viewModel.onAction(CreateTripAction.SetStartDate(it)) }
-                TravelField("End date", ui.endDate) { viewModel.onAction(CreateTripAction.SetEndDate(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_dates), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_start_date), ui.startDate) { viewModel.onAction(CreateTripAction.SetStartDate(it)) }
+                TravelField(stringResource(Res.string.travel_field_end_date), ui.endDate) { viewModel.onAction(CreateTripAction.SetEndDate(it)) }
             }
-            SectionCard(title = "Advance", leadingIcon = null) {
+            SectionCard(title = stringResource(Res.string.travel_section_advance), leadingIcon = null) {
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
