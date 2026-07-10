@@ -81,6 +81,10 @@ import com.mileway.core.ui.resources.logging_service_type
 import com.mileway.core.ui.resources.logging_step2_title
 import com.mileway.core.ui.resources.logging_submit
 import com.mileway.core.ui.resources.logging_submit_review_hint
+import com.mileway.core.ui.resources.logging_tab_additional_details
+import com.mileway.core.ui.resources.logging_tab_attachments
+import com.mileway.core.ui.resources.logging_tab_expense_details
+import com.mileway.core.ui.resources.logging_tab_stops
 import com.mileway.core.ui.resources.logging_tagged_count
 import com.mileway.core.ui.resources.logging_tagged_employees
 import com.mileway.core.ui.resources.logging_tagged_employees_subtitle
@@ -126,7 +130,11 @@ fun LogMilesStep2Screen(
     var showInvoiceDatePicker by remember { mutableStateOf(false) }
     var showEmployeesDialog by remember { mutableStateOf(false) }
     var additionalExpanded by remember { mutableStateOf(true) }
-    var selectedStep2Tab by remember { mutableStateOf("Stops") }
+    val tabStops = stringResource(Res.string.logging_tab_stops)
+    val tabExpenseDetails = stringResource(Res.string.logging_tab_expense_details)
+    val tabAdditionalDetails = stringResource(Res.string.logging_tab_additional_details)
+    val tabAttachments = stringResource(Res.string.logging_tab_attachments)
+    var selectedStep2Tab by remember { mutableStateOf(tabStops) }
     var purposeText by remember { mutableStateOf("") }
     var costCenter by remember { mutableStateOf("") }
 
@@ -230,13 +238,13 @@ fun LogMilesStep2Screen(
 
             // Tab navigation chips.
             SubmissionTabChips(
-                tabs = listOf("Stops", "Expense Details", "Additional Details", "Attachments"),
+                tabs = listOf(tabStops, tabExpenseDetails, tabAdditionalDetails, tabAttachments),
                 selected = selectedStep2Tab,
                 onSelect = { selectedStep2Tab = it },
             )
 
             // ── Stops tab ────────────────────────────────────────────────────────
-            if (selectedStep2Tab == "Stops") {
+            if (selectedStep2Tab == tabStops) {
                 TravelledLocationsCard(
                     stops = uiState.stops,
                     totalDistanceKm = uiState.distanceKm,
@@ -260,7 +268,7 @@ fun LogMilesStep2Screen(
             }
 
             // ── Expense Details tab ───────────────────────────────────────────────
-            if (selectedStep2Tab == "Expense Details") {
+            if (selectedStep2Tab == tabExpenseDetails) {
                 ExpenseDetailsSection(
                     services = uiState.services,
                     selectedService = uiState.selectedService,
@@ -273,7 +281,7 @@ fun LogMilesStep2Screen(
             }
 
             // ── Additional Details tab ────────────────────────────────────────────
-            if (selectedStep2Tab == "Additional Details") {
+            if (selectedStep2Tab == tabAdditionalDetails) {
                 AdditionalDetailsCard(
                     expanded = additionalExpanded,
                     onToggle = { additionalExpanded = !additionalExpanded },
@@ -289,7 +297,7 @@ fun LogMilesStep2Screen(
             }
 
             // ── Attachments tab ───────────────────────────────────────────────────
-            if (selectedStep2Tab == "Attachments") {
+            if (selectedStep2Tab == tabAttachments) {
                 AttachmentsCard(
                     attachmentCount = uiState.attachmentCount,
                     onAdd = { viewModel.onAction(LogMilesAction.AddAttachment) },

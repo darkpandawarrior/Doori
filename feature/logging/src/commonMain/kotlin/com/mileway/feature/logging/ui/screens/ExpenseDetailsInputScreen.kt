@@ -66,6 +66,7 @@ import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
 import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_expense_details_header
 import com.mileway.core.ui.resources.logging_expense_input_subtitle
+import com.mileway.core.ui.resources.logging_merchant_name_placeholder
 import com.mileway.core.ui.resources.logging_merchant_vendor_label
 import com.mileway.core.ui.resources.logging_note_optional_label
 import com.mileway.core.ui.resources.logging_note_placeholder
@@ -205,7 +206,7 @@ fun ExpenseDetailsInputScreen(
                 value = form.merchantName,
                 onValueChange = { viewModel.onAction(ExpenseAction.SetMerchant(it)) },
                 label = { Text(stringResource(Res.string.logging_merchant_vendor_label)) },
-                placeholder = { Text("e.g. Swiggy, Ola Cabs") },
+                placeholder = { Text(stringResource(Res.string.logging_merchant_name_placeholder)) },
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
                 singleLine = true,
                 isError = merchantError != null,
