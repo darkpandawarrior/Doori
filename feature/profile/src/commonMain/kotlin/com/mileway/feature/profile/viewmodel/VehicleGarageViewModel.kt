@@ -28,6 +28,8 @@ data class VehicleGarageUiState(
     /** The gig-driver availability editor is shown only for multi-vehicle (gig) personas. */
     val availabilityEditorEnabled: Boolean = false,
     val verification: GarageVerification = GarageVerification.INCOMPLETE,
+    /** P12.6: the per-vehicle self-audit entry shows only when the `selfAudit` plugin is on. */
+    val selfAuditEnabled: Boolean = false,
 ) {
     /** In single-vehicle mode, the add affordance hides once a vehicle exists. */
     val canAddVehicle: Boolean get() = multipleVehiclesEnabled || vehicles.isEmpty()
@@ -56,17 +58,16 @@ class VehicleGarageViewModel(
             garage.observeAll(),
             pluginRegistry.observe("multipleVehiclesEnabled"),
             documents.observeAll(),
-        ) { vehicles, multiEnabled, docs ->
-            Triple(vehicles, multiEnabled, aggregateVerification(docs))
-        }.onEach { (vehicles, multiEnabled, verif) ->
-            _state.value =
-                _state.value.copy(
-                    vehicles = vehicles,
-                    multipleVehiclesEnabled = multiEnabled,
-                    availabilityEditorEnabled = multiEnabled,
-                    verification = verif,
-                )
-        }.launchIn(viewModelScope)
+            pluginRegistry.observe("selfAudit"),
+        ) { vehicles, multiEnabled, docs, selfAudit ->
+            _state.value.copy(
+                vehicles = vehicles,
+                multipleVehiclesEnabled = multiEnabled,
+                availabilityEditorEnabled = multiEnabled,
+                verification = aggregateVerification(docs),
+                selfAuditEnabled = selfAudit,
+            )
+        }.onEach { _state.value = it }.launchIn(viewModelScope)
     }
 
     @OptIn(ExperimentalUuidApi::class)

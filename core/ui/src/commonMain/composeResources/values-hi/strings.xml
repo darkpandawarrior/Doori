@@ -2602,6 +2602,8 @@
     <string name="plugin_vehicles_garage_desc">कई वाहन, एक सक्रिय वाहन और प्रति-वाहन दस्तावेज़ प्रबंधित करें</string>
     <string name="plugin_vehicles_multiple_title">एकाधिक वाहन</string>
     <string name="plugin_vehicles_multiple_desc">एकल वाहन के बजाय गैराज में एक से अधिक वाहन की अनुमति दें</string>
+    <string name="plugin_vehicles_self_audit_title">वाहन स्व-ऑडिट</string>
+    <string name="plugin_vehicles_self_audit_desc">ड्राइवरों को गैराज में प्रत्येक वाहन के लिए फ़ोटो स्व-निरीक्षण चेकलिस्ट चलाने दें</string>
     <string name="plugin_tracking_destination_mode_title">घर जाएँ मोड</string>
     <string name="plugin_tracking_destination_mode_desc">एक गंतव्य चुनें और यात्राओं को उसकी ओर वर्गीकृत करें, लाइव काउंटडाउन के साथ</string>
     <string name="tracking_dest_title">घर जाएँ</string>

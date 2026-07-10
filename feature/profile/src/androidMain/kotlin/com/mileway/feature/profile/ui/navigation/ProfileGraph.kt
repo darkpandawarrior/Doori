@@ -39,6 +39,7 @@ import com.mileway.feature.profile.ui.screens.ReferralHubScreen
 import com.mileway.feature.profile.ui.screens.RewardsScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
+import com.mileway.feature.profile.ui.screens.SelfAuditScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
 import com.mileway.feature.profile.ui.screens.SupportChatScreen
 import com.mileway.feature.profile.ui.screens.SupportHubScreen
@@ -85,7 +86,10 @@ object ProfileRoutes {
     const val MANAGER_REPORTEES = "profile/manager_reportees"
     const val MANAGER_REPORTEE = "profile/manager_reportees/{code}"
     const val GARAGE = "profile/garage"
+    const val SELF_AUDIT = "profile/garage/{vehicleId}/audit"
     const val ECOMETER = "profile/ecometer"
+
+    fun selfAuditRoute(vehicleId: String) = "profile/garage/$vehicleId/audit"
 
     fun managerReporteeRoute(code: String) = "profile/manager_reportees/$code"
 
@@ -149,7 +153,20 @@ fun NavGraphBuilder.profileGraph(
         EcoDashboardScreen(onBack = { navController.popBackStack() })
     }
     composable(ProfileRoutes.GARAGE) {
-        VehicleGarageScreen(onBack = { navController.popBackStack() })
+        VehicleGarageScreen(
+            onBack = { navController.popBackStack() },
+            onOpenSelfAudit = { vehicleId -> navController.navigate(ProfileRoutes.selfAuditRoute(vehicleId)) },
+        )
+    }
+    composable(
+        route = ProfileRoutes.SELF_AUDIT,
+        arguments = listOf(navArgument("vehicleId") { type = NavType.StringType }),
+    ) { backStackEntry ->
+        val vehicleId = backStackEntry.arguments?.getString("vehicleId") ?: return@composable
+        SelfAuditScreen(
+            vehicleId = vehicleId,
+            onBack = { navController.popBackStack() },
+        )
     }
     composable(ProfileRoutes.MANAGER_REPORTEES) {
         ManagerReporteesScreen(

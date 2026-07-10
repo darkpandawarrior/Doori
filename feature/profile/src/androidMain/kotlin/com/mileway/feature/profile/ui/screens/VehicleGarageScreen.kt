@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.HourglassEmpty
@@ -81,6 +82,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun VehicleGarageScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenSelfAudit: (String) -> Unit = {},
     viewModel: VehicleGarageViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -98,11 +100,13 @@ fun VehicleGarageScreen(
                     VehicleCard(
                         vehicle = vehicle,
                         availabilityEditorEnabled = state.availabilityEditorEnabled,
+                        selfAuditEnabled = state.selfAuditEnabled,
                         onSetActive = { viewModel.setActive(vehicle.id) },
                         onRemove = { viewModel.removeVehicle(vehicle.id) },
                         onToggleService = { viewModel.toggleService(vehicle.id, it) },
                         onSetAvailability = { start, end, rate -> viewModel.setAvailability(vehicle.id, start, end, rate) },
                         onClearAvailability = { viewModel.clearAvailability(vehicle.id) },
+                        onOpenSelfAudit = { onOpenSelfAudit(vehicle.id) },
                     )
                 }
                 if (state.canAddVehicle) {
@@ -172,11 +176,13 @@ private fun VerificationChip(verification: GarageVerification) {
 private fun VehicleCard(
     vehicle: GarageVehicle,
     availabilityEditorEnabled: Boolean,
+    selfAuditEnabled: Boolean,
     onSetActive: () -> Unit,
     onRemove: () -> Unit,
     onToggleService: (String) -> Unit,
     onSetAvailability: (Int, Int, Double) -> Unit,
     onClearAvailability: () -> Unit,
+    onOpenSelfAudit: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -219,6 +225,14 @@ private fun VehicleCard(
                     onSet = onSetAvailability,
                     onClear = onClearAvailability,
                 )
+            }
+            if (selfAuditEnabled) {
+                Spacer(Modifier.padding(top = DesignTokens.Spacing.xs))
+                OutlinedButton(onClick = onOpenSelfAudit, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Default.Checklist, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(DesignTokens.Spacing.s))
+                    Text(grv("garage_self_audit", "Self-audit"))
+                }
             }
         }
     }

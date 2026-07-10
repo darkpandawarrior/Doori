@@ -5,6 +5,28 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 33 → 34 (PLAN_V24 P12.6): additive `vehicle_audits` table — the per-vehicle self-audit
+ * (self-inspection) history. Empty on first run; a row is appended per submitted audit. The verdict
+ * is derived at read time by `SimulatedReviewEngine`, so no status column is stored.
+ */
+val MIGRATION_33_34 =
+    object : Migration(33, 34) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `vehicle_audits` (
+                    `id`              TEXT    NOT NULL PRIMARY KEY,
+                    `vehicleId`       TEXT    NOT NULL,
+                    `submittedAtMs`   INTEGER NOT NULL,
+                    `checkedItemsCsv` TEXT    NOT NULL,
+                    `note`            TEXT    NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 32 → 33 (PLAN_V24 P11.3): the head-home destination store + an auto-classify tag on
  * trips. Additive — a fresh per-account `destination_mode` table plus a nullable `destinationTag`
  * column on `saved_tracks` (existing rows default null). No backend.

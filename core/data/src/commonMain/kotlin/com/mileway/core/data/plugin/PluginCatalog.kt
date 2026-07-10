@@ -561,6 +561,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_vehicles_multiple_desc",
                 defaultOn = false,
             ),
+            // P12.6: the vehicle self-audit (self-inspection) flow inside the garage. defaultOn=false
+            // keeps the garage golden byte-identical; the Gig Driver persona turns it on.
+            PluginDescriptor(
+                id = "selfAudit",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.VEHICLES,
+                titleKey = "plugin_vehicles_self_audit_title",
+                descriptionKey = "plugin_vehicles_self_audit_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Incentive-program plugins (P6.3). */

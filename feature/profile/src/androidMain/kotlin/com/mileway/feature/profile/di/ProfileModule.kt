@@ -44,6 +44,7 @@ import com.mileway.feature.profile.viewmodel.ProfileViewModel
 import com.mileway.feature.profile.viewmodel.ReferralHubViewModel
 import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
+import com.mileway.feature.profile.viewmodel.SelfAuditViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
@@ -99,6 +100,8 @@ val profileModule =
         viewModelOf(::ManagerReporteesViewModel)
         // PLAN_V24 P11.2: vehicle garage — GarageRepository (core:data) + DocumentRepository + registry.
         viewModelOf(::VehicleGarageViewModel)
+        // PLAN_V24 P12.6: vehicle self-audit — GarageRepository + SelfAuditRepository (both core:data).
+        viewModelOf(::SelfAuditViewModel)
         // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
         viewModelOf(::EcoDashboardViewModel)
         // PLAN_V24 P12.1: profile-hub badge board — BadgeRepository (core:data) over real completed trips.

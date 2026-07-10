@@ -2605,6 +2605,8 @@
     <string name="plugin_vehicles_garage_desc">Manage multiple vehicles, an active vehicle, and per-vehicle documents</string>
     <string name="plugin_vehicles_multiple_title">Multiple vehicles</string>
     <string name="plugin_vehicles_multiple_desc">Allow more than one vehicle in the garage instead of a single vehicle</string>
+    <string name="plugin_vehicles_self_audit_title">Vehicle self-audit</string>
+    <string name="plugin_vehicles_self_audit_desc">Let drivers run a photo self-inspection checklist for each vehicle in the garage</string>
     <string name="plugin_tracking_destination_mode_title">Head home mode</string>
     <string name="plugin_tracking_destination_mode_desc">Pick a destination and auto-classify trips toward it, with a live countdown</string>
     <string name="tracking_dest_title">Head home</string>

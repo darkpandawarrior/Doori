@@ -32,6 +32,7 @@ import com.mileway.core.data.dao.SubmitDraftDao
 import com.mileway.core.data.dao.SubscriptionDao
 import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TripAttachmentDao
+import com.mileway.core.data.dao.VehicleAuditDao
 import com.mileway.core.data.dao.VehicleDao
 import com.mileway.core.data.dao.VehicleDetailsDao
 import com.mileway.core.data.dao.VoucherDao
@@ -67,6 +68,7 @@ import com.mileway.core.data.model.db.SubmitDraftEntity
 import com.mileway.core.data.model.db.SubscriptionPlanEntity
 import com.mileway.core.data.model.db.SupportTicketEntity
 import com.mileway.core.data.model.db.TripAttachmentEntity
+import com.mileway.core.data.model.db.VehicleAuditEntity
 import com.mileway.core.data.model.db.VehicleDetailsEntity
 import com.mileway.core.data.model.db.VehicleEntity
 import com.mileway.core.data.model.db.VoucherEntity
@@ -107,8 +109,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         PaymentWalletEntity::class,
         VehicleEntity::class,
         DestinationModeEntity::class,
+        VehicleAuditEntity::class,
     ],
-    version = 33,
+    version = 34,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -140,6 +143,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun vehicleDetailsDao(): VehicleDetailsDao
 
     abstract fun vehicleDao(): VehicleDao
+
+    abstract fun vehicleAuditDao(): VehicleAuditDao
 
     abstract fun passportDetailsDao(): PassportDetailsDao
 
