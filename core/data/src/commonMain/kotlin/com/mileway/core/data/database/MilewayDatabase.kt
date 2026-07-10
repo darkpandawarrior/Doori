@@ -25,6 +25,7 @@ import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.PaymentWalletDao
 import com.mileway.core.data.dao.PluginOverrideDao
+import com.mileway.core.data.dao.PopupAckDao
 import com.mileway.core.data.dao.ReferralTxnDao
 import com.mileway.core.data.dao.RewardCardDao
 import com.mileway.core.data.dao.SavedPlaceDao
@@ -65,6 +66,7 @@ import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PassportDetailsEntity
 import com.mileway.core.data.model.db.PaymentWalletEntity
 import com.mileway.core.data.model.db.PluginOverrideEntity
+import com.mileway.core.data.model.db.PopupAckEntity
 import com.mileway.core.data.model.db.ReferralTxnEntity
 import com.mileway.core.data.model.db.RewardCardEntity
 import com.mileway.core.data.model.db.SavedPlaceEntity
@@ -122,8 +124,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         FavouriteRouteEntity::class,
         TourProgressEntity::class,
         BannerDismissedEntity::class,
+        PopupAckEntity::class,
     ],
-    version = 38,
+    version = 39,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -201,6 +204,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun destinationModeDao(): DestinationModeDao
 
     abstract fun bannerDismissalDao(): BannerDismissalDao
+
+    abstract fun popupAckDao(): PopupAckDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

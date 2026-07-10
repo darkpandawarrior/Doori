@@ -45,9 +45,14 @@ import com.mileway.core.ui.resources.home_banner_club_title
 import com.mileway.core.ui.resources.home_banner_offers_badge
 import com.mileway.core.ui.resources.home_banner_offers_subtitle
 import com.mileway.core.ui.resources.home_banner_offers_title
+import com.mileway.core.ui.resources.popup_signature_body
+import com.mileway.core.ui.resources.popup_signature_confirm
+import com.mileway.core.ui.resources.popup_signature_later
+import com.mileway.core.ui.resources.popup_signature_title
 import com.mileway.core.ui.resources.shared_home_at_a_glance
 import com.mileway.core.ui.resources.shared_home_quick_actions
 import com.mileway.core.ui.theme.DesignTokens
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -175,32 +180,69 @@ fun HomeScreen(
         RateAppSheet(onDismiss = { showReviewSheet = false })
     }
 
-    // PLAN_V24 P12.9: the one-shot best-offer popup on Home entry — gated by showOfferPopup, over the
-    // top LIVE campaign (the same repo the marketing strip reads; no new data). ponytail: session-scoped
-    // one-shot (a remember flag) — persistent per-release suppression lands with the P13.3 coordinator.
+    // PLAN_V24 P13.3: the forced-popup coordinator. Both the P12.9 best-offer popup (showOfferPopup) and
+    // the P12.7 signature re-sign popup (signature) are candidates; the coordinator shows AT MOST ONE per
+    // app-open (lowest priority wins), and each acknowledgement is PERSISTED per account — a true one-shot
+    // across restarts (closing the P12.9 + P12.7 session-scoped ceilings). Both plugins default off, so the
+    // baseline shows nothing.
+    val popupAckRepo = org.koin.compose.koinInject<com.mileway.core.data.popup.PopupAckRepository>()
+    val popupScope = rememberCoroutineScope()
+    val acknowledgedPopups by popupAckRepo.observeAcknowledged().collectAsStateWithLifecycle(initialValue = emptySet())
     val offerPopupEnabled by campaignPluginRegistry.observe("showOfferPopup").collectAsStateWithLifecycle(initialValue = false)
+    val signatureEnabled by campaignPluginRegistry.observe("signature").collectAsStateWithLifecycle(initialValue = false)
     val bestOffer = campaigns.firstOrNull { it.status == com.mileway.core.data.campaign.CampaignStatus.LIVE }
-    var offerPopupSeen by remember { mutableStateOf(false) }
-    var showOfferDialog by remember { mutableStateOf(false) }
-    LaunchedEffect(offerPopupEnabled, bestOffer) {
-        if (offerPopupEnabled && !offerPopupSeen && bestOffer != null) {
-            offerPopupSeen = true
-            showOfferDialog = true
+    val popupCandidates =
+        buildList {
+            if (signatureEnabled) {
+                add(
+                    com.mileway.core.data.popup.PopupRequest(
+                        com.mileway.core.data.popup.PopupRequest.ID_SIGNATURE_RESIGN,
+                        com.mileway.core.data.popup.PopupRequest.SIGNATURE_RESIGN,
+                    ),
+                )
+            }
+            if (offerPopupEnabled && bestOffer != null) {
+                add(com.mileway.core.data.popup.PopupRequest(com.mileway.core.data.popup.PopupRequest.ID_OFFER, com.mileway.core.data.popup.PopupRequest.OFFER))
+            }
         }
-    }
-    if (showOfferDialog && bestOffer != null) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { showOfferDialog = false },
-            title = { androidx.compose.material3.Text(bestOffer.name) },
-            text = { androidx.compose.material3.Text(bestOffer.description) },
-            confirmButton = {
-                androidx.compose.material3.TextButton(onClick = { showOfferDialog = false }) {
-                    androidx.compose.material3.Text(
-                        Res.allStringResources["shared_offer_popup_cta"]?.let { stringResource(it) } ?: "Got it",
-                    )
-                }
-            },
-        )
+    val nextPopup = com.mileway.core.data.popup.PopupCoordinator.next(popupCandidates, acknowledgedPopups)
+    when (nextPopup?.id) {
+        com.mileway.core.data.popup.PopupRequest.ID_SIGNATURE_RESIGN ->
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { popupScope.launch { popupAckRepo.acknowledge(com.mileway.core.data.popup.PopupRequest.ID_SIGNATURE_RESIGN) } },
+                title = { androidx.compose.material3.Text(stringResource(Res.string.popup_signature_title)) },
+                text = { androidx.compose.material3.Text(stringResource(Res.string.popup_signature_body)) },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(onClick = {
+                        popupScope.launch { popupAckRepo.acknowledge(com.mileway.core.data.popup.PopupRequest.ID_SIGNATURE_RESIGN) }
+                        viewModel.onOpenAccount(onOpenAccount)
+                    }) { androidx.compose.material3.Text(stringResource(Res.string.popup_signature_confirm)) }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(onClick = {
+                        popupScope.launch { popupAckRepo.acknowledge(com.mileway.core.data.popup.PopupRequest.ID_SIGNATURE_RESIGN) }
+                    }) {
+                        androidx.compose.material3.Text(stringResource(Res.string.popup_signature_later))
+                    }
+                },
+            )
+        com.mileway.core.data.popup.PopupRequest.ID_OFFER ->
+            if (bestOffer != null) {
+                androidx.compose.material3.AlertDialog(
+                    onDismissRequest = { popupScope.launch { popupAckRepo.acknowledge(com.mileway.core.data.popup.PopupRequest.ID_OFFER) } },
+                    title = { androidx.compose.material3.Text(bestOffer.name) },
+                    text = { androidx.compose.material3.Text(bestOffer.description) },
+                    confirmButton = {
+                        androidx.compose.material3.TextButton(
+                            onClick = { popupScope.launch { popupAckRepo.acknowledge(com.mileway.core.data.popup.PopupRequest.ID_OFFER) } },
+                        ) {
+                            androidx.compose.material3.Text(
+                                Res.allStringResources["shared_offer_popup_cta"]?.let { stringResource(it) } ?: "Got it",
+                            )
+                        }
+                    },
+                )
+            }
     }
 
     // PLAN_V24 P2.2 + P12.4: the "What's new" sheet — shown once per release after login, or on demand

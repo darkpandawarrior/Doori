@@ -2929,4 +2929,9 @@
     <string name="home_banner_offers_title">Offers &amp; rewards</string>
     <string name="home_banner_offers_subtitle">See the latest coupons and campaigns.</string>
     <string name="home_banner_offers_badge">OFFER</string>
+    <!-- PLAN_V24 P13.3: forced-popup coordinator (signature re-sign one-shot). -->
+    <string name="popup_signature_title">Agreement update</string>
+    <string name="popup_signature_body">We\'ve updated the terms. Please re-sign to continue using Mileway.</string>
+    <string name="popup_signature_confirm">Re-sign now</string>
+    <string name="popup_signature_later">Later</string>
 </resources>

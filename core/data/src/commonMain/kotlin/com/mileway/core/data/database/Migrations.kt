@@ -5,6 +5,28 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 38 → 39 (PLAN_V24 P13.3): additive `popup_acks` table — the per-account, persisted set
+ * of forced popups the user has acknowledged (composite key account+popup). Persisting it is what
+ * turns a one-shot popup into a true one-shot across app restarts. Empty on first run; a row is
+ * added per acknowledgement. No backend.
+ */
+val MIGRATION_38_39 =
+    object : Migration(38, 39) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `popup_acks` (
+                    `accountId`         TEXT    NOT NULL,
+                    `popupId`           TEXT    NOT NULL,
+                    `acknowledgedAtMs`  INTEGER NOT NULL,
+                    PRIMARY KEY(`accountId`, `popupId`)
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 37 → 38 (PLAN_V24 P13.1): additive `banners_dismissed` table — the per-account,
  * persisted set of priority-stack banners the user dismissed (composite key account+banner). A
  * deliberate improvement over an in-memory dismissal set: a dismissed banner stays dismissed across
