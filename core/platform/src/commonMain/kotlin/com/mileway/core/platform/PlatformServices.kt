@@ -84,11 +84,6 @@ data class PlaceName(
     }
 }
 
-/** OCR text recognition from raw image bytes. Android: ML Kit; iOS: Vision (VNRecognizeTextRequest). */
-interface TextRecognizer {
-    suspend fun recognize(imageBytes: ByteArray): String
-}
-
 /** Document scanning → captured page images as bytes. Android: ML Kit doc scanner; iOS: VisionKit. */
 interface DocumentScanner {
     suspend fun scan(maxPages: Int = 1): List<ByteArray>

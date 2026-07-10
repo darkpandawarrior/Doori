@@ -17,8 +17,7 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
         }
         androidMain.dependencies {
-            // TextRecognizer actual: ML Kit on-device Latin text recognition (same artifact
-            // core:platform's AndroidTextRecognizer uses for feature:tracking's odometer OCR).
+            // TextRecognizer actual: ML Kit on-device Latin text recognition.
             implementation(libs.mlkit.text.recognition)
             // DocumentAiAnalyzer actual: ML Kit GenAI Prompt API (Gemini Nano). EXPERIMENTAL —
             // see MlKitGenAiAnalyzer.

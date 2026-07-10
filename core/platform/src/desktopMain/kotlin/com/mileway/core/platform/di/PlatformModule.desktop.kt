@@ -9,7 +9,6 @@ import com.mileway.core.platform.DesktopLocationTracker
 import com.mileway.core.platform.DesktopMotionSensorProvider
 import com.mileway.core.platform.DesktopNotificationScheduler
 import com.mileway.core.platform.DesktopShareSheet
-import com.mileway.core.platform.DesktopTextRecognizer
 import com.mileway.core.platform.DesktopTrackingPresenceController
 import com.mileway.core.platform.DesktopUrlOpener
 import com.mileway.core.platform.Haptics
@@ -21,7 +20,6 @@ import com.mileway.core.platform.NapierCrashReporter
 import com.mileway.core.platform.NotificationScheduler
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ShareSheet
-import com.mileway.core.platform.TextRecognizer
 import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.UrlOpener
 import org.koin.core.module.Module
@@ -38,7 +36,6 @@ actual fun platformModule(): Module =
         single<LocationTracker> { DesktopLocationTracker() }
         single<LocationNameResolver> { OfflineLocationNameResolver() }
         single<NotificationScheduler> { DesktopNotificationScheduler() }
-        single<TextRecognizer> { DesktopTextRecognizer() }
         single<ShareSheet> { DesktopShareSheet() }
         single<UrlOpener> { DesktopUrlOpener() }
         single<AppShortcuts> { DesktopAppShortcuts() }

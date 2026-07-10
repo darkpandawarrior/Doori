@@ -33,10 +33,6 @@ class DesktopNotificationScheduler : NotificationScheduler {
     override fun cancel(id: Int) = Unit
 }
 
-class DesktopTextRecognizer : TextRecognizer {
-    override suspend fun recognize(imageBytes: ByteArray): String = ""
-}
-
 class DesktopShareSheet : ShareSheet {
     override fun share(
         text: String,

@@ -7,7 +7,6 @@ import com.mileway.core.platform.IosDocumentScanner
 import com.mileway.core.platform.IosLocationTracker
 import com.mileway.core.platform.IosNotificationScheduler
 import com.mileway.core.platform.IosPermissionsProvider
-import com.mileway.core.platform.IosTextRecognizer
 import com.mileway.core.platform.IosTrackingPresenceController
 import org.koin.core.module.Module
 import org.koin.dsl.module
@@ -20,7 +19,6 @@ actual fun platformModule(): Module =
         single<com.mileway.core.platform.LocationNameResolver> {
             com.mileway.core.platform.OfflineLocationNameResolver()
         }
-        single<com.mileway.core.platform.TextRecognizer> { IosTextRecognizer() }
         single<com.mileway.core.platform.DocumentScanner> { IosDocumentScanner() }
         single<com.mileway.core.platform.NotificationScheduler> { IosNotificationScheduler() }
         single<com.mileway.core.platform.BiometricAuthenticator> { IosBiometricAuthenticator() }

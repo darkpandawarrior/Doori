@@ -20,9 +20,8 @@ import kotlin.test.assertNotNull
  * a binding that flows `androidContext()` through, proving the module is registered and wired.
  *
  * [NotificationScheduler] is used here — it stores the context and creates channels lazily,
- * so it is safe to instantiate with a mock context. Location/TextRecognizer construct gms/ML-Kit
- * clients eagerly (need real Play-services init), so they are exercised by `assemble` + the iOS
- * framework link instead.
+ * so it is safe to instantiate with a mock context. Location constructs a gms client eagerly
+ * (needs real Play-services init), so it is exercised by `assemble` + the iOS framework link instead.
  */
 class PlatformModuleWiringTest : KoinTest {
 

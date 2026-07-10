@@ -14,11 +14,10 @@ import platform.Vision.VNRecognizedTextObservation
 import platform.Vision.VNRequestTextRecognitionLevelAccurate
 
 /**
- * iOS [TextRecognizer] actual (V26 P26.AI.3) via the Vision framework — the same
- * `VNRecognizeTextRequest` idiom `core:platform`'s `IosTextRecognizer` already uses for
- * feature:tracking's odometer OCR, adapted here for `core:ai`'s [DocumentImageRef] (a path/`file://`
- * URI string) instead of raw bytes: load the file, decode to `UIImage`/`CGImage`, run an
- * accurate-level text request synchronously, join the top candidate of each observation.
+ * iOS [TextRecognizer] actual (V26 P26.AI.3) via the Vision framework's `VNRecognizeTextRequest`,
+ * operating on `core:ai`'s [DocumentImageRef] (a path/`file://` URI string): load the file, decode
+ * to `UIImage`/`CGImage`, run an accurate-level text request synchronously, join the top candidate
+ * of each observation.
  *
  * Never throws — any decode or recognition failure resolves to "", which [DocumentIntelligence]
  * treats as "nothing to contribute" rather than a crash (mirrors [MlKitTextRecognizer]'s contract).

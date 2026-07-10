@@ -13,9 +13,8 @@ import kotlin.coroutines.resume
 
 /**
  * Android [TextRecognizer] backed by ML Kit on-device Latin text recognition (bundled model, no
- * network, no Play Store download) — the same artifact `core:platform`'s `AndroidTextRecognizer`
- * uses for feature:tracking's odometer OCR, just decoding a [DocumentImageRef] (uri/path string)
- * instead of raw bytes. Decode mirrors `feature:media`'s `RealMediaRepository.decodeBitmap`:
+ * network, no Play Store download), decoding a [DocumentImageRef] (uri/path string) to a bitmap
+ * before recognition. Decode mirrors `feature:media`'s `RealMediaRepository.decodeBitmap`:
  * content:// URI via [Context.getContentResolver], falling back to a plain file path.
  *
  * Never throws: any decode or recognition failure resolves to "", which [DocumentIntelligence]

@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.flowOf
 // No-op defaults let commonMain code run in tests without a real platform.
 data class PlatformBindings(
     val locationTracker: LocationTracker = NoOpLocationTracker,
-    val textRecognizer: TextRecognizer = NoOpTextRecognizer,
     val documentScanner: DocumentScanner = NoOpDocumentScanner,
     val notificationScheduler: NotificationScheduler = NoOpNotificationScheduler,
     val biometricAuthenticator: BiometricAuthenticator = NoOpBiometricAuthenticator,
@@ -35,10 +34,6 @@ private object NoOpLocationTracker : LocationTracker {
     override fun start() = Unit
 
     override fun stop() = Unit
-}
-
-private object NoOpTextRecognizer : TextRecognizer {
-    override suspend fun recognize(imageBytes: ByteArray): String = ""
 }
 
 private object NoOpDocumentScanner : DocumentScanner {

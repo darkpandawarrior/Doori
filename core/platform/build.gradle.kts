@@ -28,8 +28,6 @@ kotlin {
             // LocationTracker (Android): fused location + Task.await()
             implementation(libs.play.services.location)
             implementation(libs.kotlinx.coroutines.play.services)
-            // TextRecognizer (Android): ML Kit on-device OCR
-            implementation(libs.mlkit.text.recognition)
             // BackgroundScheduler (Android): WorkManager
             implementation(libs.workmanager.runtime)
         }

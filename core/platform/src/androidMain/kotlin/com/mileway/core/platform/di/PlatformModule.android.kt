@@ -6,7 +6,6 @@ import com.mileway.core.platform.AndroidLocationTracker
 import com.mileway.core.platform.AndroidMotionSensorProvider
 import com.mileway.core.platform.AndroidNotificationScheduler
 import com.mileway.core.platform.AndroidShareSheet
-import com.mileway.core.platform.AndroidTextRecognizer
 import com.mileway.core.platform.AndroidTrackingPresenceController
 import com.mileway.core.platform.AndroidUrlOpener
 import com.mileway.core.platform.AppShortcuts
@@ -17,7 +16,6 @@ import com.mileway.core.platform.MotionSensorProvider
 import com.mileway.core.platform.NotificationScheduler
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ShareSheet
-import com.mileway.core.platform.TextRecognizer
 import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.UrlOpener
 import kotlinx.coroutines.flow.StateFlow
@@ -28,7 +26,7 @@ import org.koin.dsl.module
 
 /**
  * Android bindings for the platform services.
- * 2.2a: Location, Notification. 2.2b: TextRecognizer. 2.2c: BackgroundScheduler.
+ * 2.2a: Location, Notification. 2.2c: BackgroundScheduler.
  * (Biometric/DocScan/Permissions → 2.2d.)
  */
 actual fun platformModule(): Module =
@@ -45,7 +43,6 @@ actual fun platformModule(): Module =
             OfflineLocationNameResolver(remoteSourceEnabled = { remote?.value ?: false })
         }
         single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
-        single<TextRecognizer> { AndroidTextRecognizer() }
         // SH.1: real system-chooser share sheet (LocalManagerProvider resolves it via Koin).
         single<ShareSheet> { AndroidShareSheet(androidContext()) }
         single<UrlOpener> { AndroidUrlOpener(androidContext()) }
