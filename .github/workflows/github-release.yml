@@ -46,10 +46,38 @@ jobs:
       # materialized (F-Droid builds are unsigned + signed downstream) — fine for tracking/Obtainium.
       - name: Build artifacts
         run: |
-          set -euo pipefail
-          ./gradlew assembleNoGmsDebug assembleNoGmsRelease || ./gradlew assembleNoGmsDebug
+          set -uo pipefail
+          # Build command is repo-specific: set repo variable RELEASE_BUILD_CMD (Settings → Variables).
+          # Mileway uses "assembleNoGmsDebug assembleNoGmsRelease"; a repo with no flavors uses
+          # "assembleDebug assembleRelease". Falls back to debug-only if the full build fails (unsigned release).
+          cmd="${RELEASE_BUILD_CMD:-assembleDebug assembleRelease}"
+          ./gradlew $cmd || ./gradlew ${cmd%% *} || true
           mkdir -p dist
-          find app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \; || true
+          find . -path '*/outputs/apk/*' -name '*.apk' -exec cp {} dist/ \; || true
+        env:
+          RELEASE_BUILD_CMD: ${{ vars.RELEASE_BUILD_CMD }}
+      # Visual artifacts + golden diff vs previous release (screenshots/GIFs "tagged against release").
+      - name: Visual artifacts + golden diff
+        run: |
+          set -uo pipefail
+          prev="${{ steps.cl.outputs.prev }}"; cur="${GITHUB_REF_NAME}"
+          shots="docs/screenshots"
+          if [ -d "$shots" ]; then
+            ( cd "$shots" && zip -q -r "$GITHUB_WORKSPACE/dist/screenshots.zip" . ) || true
+            [ -d docs/demo ] && find docs/demo -name '*.gif' -exec cp {} dist/ \; || true
+            { echo; echo "## Visual changes"; echo; } >> CHANGELOG_BODY.md
+            if [ -n "$prev" ] && git rev-parse "$prev" >/dev/null 2>&1; then
+              diff=$(git diff --name-status "$prev".."$cur" -- "$shots" || true)
+              a=$(echo "$diff" | grep -c '^A' || true); m=$(echo "$diff" | grep -c '^M' || true); d=$(echo "$diff" | grep -c '^D' || true)
+              echo "Since \`$prev\`: **$a new**, **$m changed**, **$d removed** screens." >> CHANGELOG_BODY.md
+            else
+              echo "First tracked visual baseline ($(find "$shots" -name '*.png' | wc -l | tr -d ' ') screens)." >> CHANGELOG_BODY.md
+            fi
+          fi
       - name: Create release
-        run: gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG_BODY.md dist/*.apk
-        env: { GH_TOKEN: ${{ github.token }} }
+        run: gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG_BODY.md dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}
+      # README chores are handled by the existing readme.yml (auto-refreshes fact-spans on main push,
+      # commits as github-actions[bot]). A release tag doesn't push to main, so if a release should also
+      # refresh README, dispatch it: `gh workflow run readme.yml` — kept separate so release ≠ README churn.

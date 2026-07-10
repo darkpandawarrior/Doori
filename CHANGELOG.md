@@ -10,11 +10,52 @@ revertable phases. This file is the browsable "what happened when" — each entr
 
 The format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased] — v0.24.0 · Super Profile (in progress)
-A super-profile build-out: identity capture, verification & KYC flows, membership/subscription and
-incentive surfaces, account lifecycle & session depth, vehicle garage with per-km rates, badges,
-support hub, review prompting, self-audit, digital signature, favourites, offers, and a unified
-banner/announcement system — all plugin-gated so different user personas see visibly different apps.
+## [v0.24.0] — Super Profile 🧑‍🚀
+
+> The largest single milestone: a full **super-profile** build-out where one account renders as a
+> visibly different app per persona (consumer, gig driver, corporate, guest) — every surface
+> plugin-gated so features appear and disappear live. This is the reference release: future versions
+> follow this changelog's structure (themed sections, highlights, visual-diff footer).
+
+### ✨ Highlights
+- **Persona-driven UI** — a plugin registry gates ~25 profile destinations, home tiles, carousels and
+  banners; four preset personas walk visibly different end-to-end stories, all offline.
+- **On-device everything** — every capability is backed by Room + DataStore mock data; no backend.
+
+### 🔐 Identity & security
+- Phone-number + OTP login, MFA step, tiered PIN lockout, password change with a credential store,
+  and duplicate-account resolution.
+- Verification centre, document requirements with status, a 5-step card-KYC wizard, and corporate-
+  email verification.
+
+### 👤 Profile & account
+- Config-driven signup onboarding; grouped super-profile hub (identity, vehicles, growth, membership,
+  payments, security, support).
+- Account-deletion request/cancel lifecycle, session-detail enrichment, and delegate act-on-behalf.
+- Wallet / payout account linkage.
+
+### 🚗 Vehicles & tracking
+- Vehicle garage with per-km policy rates and computed trip amounts, "head home" destination mode,
+  and an ecometer.
+- Track-Miles customization: persisted settings, mileage-sync card, a categorized fine-tuning editor,
+  bubble/overlay/reverse-geocode toggles, experimental-optimizations, and a manager/reportee view.
+
+### 🎁 Growth, rewards & engagement
+- Earned badges + compliments, "Mileway Club" membership, subscription plans, incentive programs.
+- Unified support hub (FAQ / tickets / chat bot / call / mail), persistent review gate with a native
+  rate sheet, animated what's-new indicator, favourite routes, and an offers hub with a one-shot popup.
+
+### 📣 Announcements
+- A priority **banner stack** with persisted dismissals, an auto-advancing typed **banner carousel**,
+  and a one-shot **forced-popup coordinator** (at most one announcement per app-open).
+
+### 🧰 Also
+- Vehicle self-audit checklist with a simulated review verdict; draw-to-sign digital signature;
+  interactive training tour with coach marks.
+
+## [Unreleased]
+_Next: the V25→V31 series (media-capture convergence, on-device AI, expense/forms parity, watch/
+widgets, cross-cutting sweeps). See `.ralph/PLAN_V25_ONWARDS_MASTER.md`._
 
 ## [v0.23.0] — Watch platform build-out
 Wear OS app, tile and complication on a shared KMP core; Apple watchOS umbrella framework and app
