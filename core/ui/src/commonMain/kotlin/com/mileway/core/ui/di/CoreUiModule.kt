@@ -1,5 +1,6 @@
 package com.mileway.core.ui.di
 
+import com.mileway.core.ui.home.HomePluginConfigController
 import com.mileway.core.ui.theme.LocaleController
 import com.mileway.core.ui.theme.ThemeController
 import org.koin.core.module.Module
@@ -21,4 +22,6 @@ val coreUiModule =
         single { ThemeController(prefs = get()) }
         // UX.6: shared in-app locale state (Settings writes it; features observe it).
         single { LocaleController() }
+        // P25.A5.3: Home-section visibility flags; V29 P29.H.1 gates HomeViewModel on this.
+        single { HomePluginConfigController(prefs = get()) }
     }

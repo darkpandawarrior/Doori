@@ -2932,4 +2932,21 @@
     <string name="popup_signature_body">हमने शर्तें अपडेट की हैं। Mileway का उपयोग जारी रखने के लिए कृपया फिर से हस्ताक्षर करें।</string>
     <string name="popup_signature_confirm">अभी फिर से हस्ताक्षर करें</string>
     <string name="popup_signature_later">बाद में</string>
+    <!-- PLAN_V25 P25.A5.1: TransactionDetailScaffold's shared DetailSection tab labels. -->
+    <string name="detail_section_details">विवरण</string>
+    <string name="detail_section_timeline">समयरेखा</string>
+    <string name="detail_section_comments">टिप्पणियां</string>
+    <string name="detail_section_clarification">स्पष्टीकरण</string>
+    <string name="detail_section_attachments">अनुलग्नक</string>
+    <string name="detail_section_audit">ऑडिट</string>
+    <!-- PLAN_V25 P25.A5.2: ExpenseContextSummaryCard's locked per-variant placeholder titles. -->
+    <string name="expense_context_edit_title">व्यय संपादित हो रहा है</string>
+    <string name="expense_context_trip_title">यात्रा से जुड़ा हुआ</string>
+    <string name="expense_context_trip_advance_title">यात्रा अग्रिम से लिया गया</string>
+    <string name="expense_context_event_title">इवेंट से जुड़ा हुआ</string>
+    <string name="expense_context_card_title">कार्ड लेनदेन</string>
+    <string name="expense_context_advance_title">अग्रिम से लिया गया</string>
+    <string name="expense_context_message_title">स्पष्टीकरण अनुलग्नक से</string>
+    <string name="expense_context_scanner_title">स्कैन किए गए दस्तावेज़ से</string>
+    <string name="expense_context_todo_slot">सारांश विवरण जल्द आ रहा है</string>
 </resources>

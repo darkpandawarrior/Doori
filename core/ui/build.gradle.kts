@@ -52,6 +52,10 @@ kotlin {
             // in commonMain; the artifact publishes common/android/ios/desktop targets.
             implementation(libs.lifecycle.viewmodel)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+        }
         androidMain.dependencies {
             implementation(libs.core.ktx)
             implementation(libs.activity.compose)
