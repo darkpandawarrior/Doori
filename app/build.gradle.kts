@@ -185,6 +185,13 @@ android {
                 } else {
                     signingConfigs.getByName("debug")
                 }
+            // Size: x86/x86_64 native libs (MapLibre + ML Kit OCR) are ~55 MB and emulator-only —
+            // real Android devices are all ARM (arm64-v8a modern, armeabi-v7a legacy 32-bit). The
+            // distributable release APK ships ARM-only, roughly halving it. Debug/staging keep every
+            // ABI so the emulator/CI instrumented tests still run.
+            ndk {
+                abiFilters += setOf("arm64-v8a", "armeabi-v7a")
+            }
         }
         // QA build: release-like (minified, non-debuggable) but installable alongside
         // the debug build via a distinct applicationId. Always debug-signed so QA can
