@@ -70,7 +70,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mileway.core.common.asString
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.mvi.ScreenStateContent
@@ -81,6 +80,8 @@ import com.mileway.core.ui.resources.approvals_approve_all
 import com.mileway.core.ui.resources.approvals_bulk_action_illustrative
 import com.mileway.core.ui.resources.approvals_cd_filter
 import com.mileway.core.ui.resources.approvals_empty_no_items
+import com.mileway.core.ui.resources.approvals_plural_days_ago
+import com.mileway.core.ui.resources.approvals_plural_hours_ago
 import com.mileway.core.ui.resources.approvals_policy_violation
 import com.mileway.core.ui.resources.approvals_reject_all
 import com.mileway.core.ui.resources.approvals_status_approved
@@ -91,8 +92,10 @@ import com.mileway.core.ui.resources.approvals_subtitle_selecting
 import com.mileway.core.ui.resources.approvals_tab_my_requests
 import com.mileway.core.ui.resources.approvals_tab_team
 import com.mileway.core.ui.resources.approvals_tab_to_approve
+import com.mileway.core.ui.resources.approvals_time_just_now
 import com.mileway.core.ui.resources.approvals_title
 import com.mileway.core.ui.resources.approvals_title_select_items
+import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ApprovalItem
@@ -106,6 +109,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -127,7 +131,7 @@ fun ApprovalsScreen(
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is ApprovalsEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.asString())
+                is ApprovalsEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.getText())
                 is ApprovalsEffect.NavigateToDetail -> onOpenDetail(effect.id)
                 ApprovalsEffect.NavigateBack -> Unit
             }
@@ -622,12 +626,16 @@ private fun PreviewApprovalCardApproved() {
     }
 }
 
+@Composable
 private fun timeAgo(ms: Long): String {
     val diff = kotlin.time.Clock.System.now().toEpochMilliseconds() - ms
-    val hours = diff / 3_600_000
+    val hours = (diff / 3_600_000).toInt()
     return when {
-        hours < 1 -> "Just now"
-        hours < 24 -> "${hours}h ago"
-        else -> "${hours / 24}d ago"
+        hours < 1 -> stringResource(Res.string.approvals_time_just_now)
+        hours < 24 -> pluralStringResource(Res.plurals.approvals_plural_hours_ago, hours, hours)
+        else -> {
+            val days = hours / 24
+            pluralStringResource(Res.plurals.approvals_plural_days_ago, days, days)
+        }
     }
 }

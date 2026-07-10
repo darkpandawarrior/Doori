@@ -49,7 +49,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mileway.core.common.asString
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
@@ -74,6 +73,7 @@ import com.mileway.core.ui.resources.approvals_type_mileage
 import com.mileway.core.ui.resources.approvals_type_travel
 import com.mileway.core.ui.resources.approvals_you_approved
 import com.mileway.core.ui.resources.approvals_you_rejected
+import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ApprovalStatus
@@ -101,7 +101,7 @@ fun ApprovalDetailsScreen(
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is ApprovalsEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.asString())
+                is ApprovalsEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.getText())
                 ApprovalsEffect.NavigateBack -> onBack()
                 is ApprovalsEffect.NavigateToDetail -> Unit
             }

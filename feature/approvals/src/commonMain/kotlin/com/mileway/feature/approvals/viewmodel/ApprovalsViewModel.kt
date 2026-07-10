@@ -4,6 +4,9 @@ import com.mileway.core.common.UiText
 import com.mileway.core.data.ledger.ApprovalTransitions
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_toast_request_approved
+import com.mileway.core.ui.resources.approvals_toast_request_rejected
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ClarificationMessage
@@ -74,8 +77,10 @@ class ApprovalsViewModel :
                 setState { copy(listState = ScreenState.Content(ApprovalsRepository.all)) }
             is ApprovalsAction.SetTab -> setState { copy(activeTab = action.tab) }
             is ApprovalsAction.OpenDetail -> openDetail(action.id)
-            ApprovalsAction.Approve -> resolve(ApprovalStatus.APPROVED, "Request approved")
-            ApprovalsAction.Reject -> resolve(ApprovalStatus.REJECTED, "Request rejected")
+            ApprovalsAction.Approve ->
+                resolve(ApprovalStatus.APPROVED, UiText.Res(Res.string.approvals_toast_request_approved.key))
+            ApprovalsAction.Reject ->
+                resolve(ApprovalStatus.REJECTED, UiText.Res(Res.string.approvals_toast_request_rejected.key))
             ApprovalsAction.OpenClarificationSheet -> updateDetail { copy(showClarificationSheet = true) }
             ApprovalsAction.CloseClarificationSheet -> updateDetail { copy(showClarificationSheet = false) }
             is ApprovalsAction.UpdateDraftMessage -> updateDetail { copy(draftMessage = action.text) }
@@ -107,7 +112,7 @@ class ApprovalsViewModel :
 
     private fun resolve(
         status: ApprovalStatus,
-        toast: String,
+        toast: UiText,
     ) {
         val detail = currentDetail() ?: return
         val id = detail.item.id
@@ -129,7 +134,7 @@ class ApprovalsViewModel :
                 detailState = ScreenState.Content(detail.copy(localStatus = status)),
             )
         }
-        emitEffect(ApprovalsEffect.ShowToast(UiText.Static(toast)))
+        emitEffect(ApprovalsEffect.ShowToast(toast))
         inFlightIds -= id
     }
 
