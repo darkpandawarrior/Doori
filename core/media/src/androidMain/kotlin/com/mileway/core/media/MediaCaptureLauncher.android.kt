@@ -30,6 +30,9 @@ import com.mileway.core.media.model.AttachmentSource
 import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.watermark.burnWatermark
+import com.mileway.core.media.watermark.shouldWatermark
+import com.mileway.core.media.watermark.watermarkText
 import com.mileway.core.ui.components.sheet.BatchOcrItem
 import com.mileway.core.ui.components.sheet.BatchOcrStatus
 import com.mileway.core.ui.components.sheet.OcrBatchResultsSheet
@@ -120,28 +123,38 @@ actual fun rememberMediaCaptureLauncher(
 
     fun deliverAttachments(items: List<AttachmentItem>) {
         if (items.isEmpty()) return
-        if (!config.enableOcr) {
-            onResult(MediaCaptureResult.Attachments(items))
-            return
-        }
         scope.launch {
-            if (items.size == 1) {
-                val analysis = runCatching { documentIntelligence.analyze(items[0].uri, ocrPrompt) }.getOrNull()
+            // V26 P26.WM.3: burn the watermark (real Canvas/Paint burn-in, not the old
+            // "$uri#watermarked" stub) before OCR/delivery so both the OCR pass and the final
+            // attachment see the watermarked image.
+            val watermarked =
+                if (config.shouldWatermark()) {
+                    items.map { item -> item.copy(uri = burnWatermark(item.uri, watermarkText(config, item.capturedAtMillis))) }
+                } else {
+                    items
+                }
+
+            if (!config.enableOcr) {
+                onResult(MediaCaptureResult.Attachments(watermarked))
+                return@launch
+            }
+            if (watermarked.size == 1) {
+                val analysis = runCatching { documentIntelligence.analyze(watermarked[0].uri, ocrPrompt) }.getOrNull()
                 if (analysis == null) {
                     // OCR itself failed (not a duplicate/wrong-doc-type verdict) — still attach the
                     // photo rather than blocking the user on an OCR-plumbing error.
-                    onResult(MediaCaptureResult.Attachments(items))
+                    onResult(MediaCaptureResult.Attachments(watermarked))
                 } else {
-                    pendingItems = items
+                    pendingItems = watermarked
                     singleAnalysis = analysis
                 }
             } else {
                 batchItems =
-                    items.map { item ->
+                    watermarked.map { item ->
                         val analysis = runCatching { documentIntelligence.analyze(item.uri, ocrPrompt) }.getOrNull()
                         BatchOcrItem(label = item.uri.substringAfterLast('/'), status = analysis.toBatchStatus(expectedDocType))
                     }
-                pendingItems = items
+                pendingItems = watermarked
             }
         }
     }

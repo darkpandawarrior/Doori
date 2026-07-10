@@ -28,6 +28,9 @@ kotlin {
             // OcrBatchResultsSheet directly after capture when config.enableOcr is set — no
             // feature module needed as a go-between. No cycle: core:ui doesn't depend on core:media.
             implementation(project(":core:ui"))
+            // V26 P26.WM: watermarkText()'s timestamp formatting (kotlin.time.Instant +
+            // kotlinx.datetime.toLocalDateTime), same pattern core:data's DateUtils.kt uses.
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
@@ -39,6 +42,10 @@ kotlin {
             // V26 P26.CONV: MlKitGalleryMultiPassRecognizer's real multi-pass gallery-image OCR.
             implementation(libs.mlkit.text.recognition)
             implementation(libs.kotlinx.coroutines.play.services)
+            // V26 P26.WM.1: burnWatermark's actual has no Compose scope to pull LocalContext.current
+            // from, so it resolves the app's Context via Koin's global accessor (KoinPlatform.getKoin())
+            // — same pattern TrackingTileService/MileageSummaryWidget use.
+            implementation(libs.koin.core)
         }
         // V26 P26.IOS.1: Peekaboo gallery picker + PeekabooCamera (camera preview composable).
         // ui/foundation are needed directly here for the Dialog+Modifier.fillMaxSize() host that
