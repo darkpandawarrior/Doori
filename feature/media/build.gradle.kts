@@ -7,6 +7,8 @@ kotlin {
         namespace = "com.mileway.feature.media"
         compileSdk = 37
         minSdk = 30
+        // Enable JVM host execution of commonTest so the filter/sort logic test runs in the gradle gate.
+        withHostTest {}
     }
 
     sourceSets {
@@ -31,6 +33,9 @@ kotlin {
             // V26 P26.AND.4: EXIF orientation correction ahead of OCR (RealMediaRepository).
             implementation(libs.androidx.exifinterface)
             implementation(project(":stub"))
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }

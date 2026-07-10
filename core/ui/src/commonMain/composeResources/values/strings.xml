@@ -1974,6 +1974,22 @@
     <string name="media_ocr_field_category">Category</string>
     <string name="media_ocr_field_currency">Currency</string>
 
+    <!-- V26 P26.LIB: Cloud Library filter/sort/favorite/selection -->
+    <string name="media_library_filter_all">All</string>
+    <string name="media_library_filter_images">Images</string>
+    <string name="media_library_filter_pdfs">PDFs</string>
+    <string name="media_library_filter_with_ocr">With OCR</string>
+    <string name="media_library_filter_favorites">Favorites</string>
+    <string name="media_library_sort_newest">Newest first</string>
+    <string name="media_library_sort_oldest">Oldest first</string>
+    <string name="media_library_sort_recently_accessed">Recently viewed</string>
+    <string name="media_library_cd_sort">Sort</string>
+    <string name="media_library_cd_favorite">Mark as favorite</string>
+    <string name="media_library_cd_unfavorite">Remove from favorites</string>
+    <string name="media_library_cd_zoom">Open full screen</string>
+    <string name="media_library_selected_count">%1$d of %2$d selected</string>
+    <string name="media_library_confirm_selection">Confirm</string>
+
     <!-- ===== L10n sweep: agent ===== -->
     <string name="agent_history_subtitle">Previous AI conversations</string>
     <string name="agent_cd_helpful">Helpful</string>

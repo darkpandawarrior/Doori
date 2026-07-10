@@ -1970,6 +1970,22 @@
     <string name="media_ocr_field_category">श्रेणी</string>
     <string name="media_ocr_field_currency">मुद्रा</string>
 
+    <!-- V26 P26.LIB: Cloud Library filter/sort/favorite/selection -->
+    <string name="media_library_filter_all">सभी</string>
+    <string name="media_library_filter_images">छवियाँ</string>
+    <string name="media_library_filter_pdfs">PDF</string>
+    <string name="media_library_filter_with_ocr">OCR सहित</string>
+    <string name="media_library_filter_favorites">पसंदीदा</string>
+    <string name="media_library_sort_newest">पहले नया</string>
+    <string name="media_library_sort_oldest">पहले पुराना</string>
+    <string name="media_library_sort_recently_accessed">हाल में देखा गया</string>
+    <string name="media_library_cd_sort">क्रमबद्ध करें</string>
+    <string name="media_library_cd_favorite">पसंदीदा के रूप में चिह्नित करें</string>
+    <string name="media_library_cd_unfavorite">पसंदीदा से हटाएँ</string>
+    <string name="media_library_cd_zoom">पूर्ण स्क्रीन में खोलें</string>
+    <string name="media_library_selected_count">%2$d में से %1$d चुने गए</string>
+    <string name="media_library_confirm_selection">पुष्टि करें</string>
+
     <!-- ===== L10n sweep: agent ===== -->
     <string name="agent_history_subtitle">पिछली AI बातचीत</string>
     <string name="agent_cd_helpful">सहायक</string>

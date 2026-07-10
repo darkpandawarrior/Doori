@@ -5,6 +5,26 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 39 → 40 (PLAN_V26 P26.LIB.2): five additive columns on `media_library` —
+ * `isFavorite`/`isDeleted`/`deletedAt`/`lastAccessedAt` back the Cloud Library's favorites,
+ * soft-delete (recoverable — [MediaLibraryDao.softDelete]/[MediaLibraryDao.restore] vs the
+ * pre-existing hard `@Delete`) and last-viewed sort; `hasOcr` backs the WithOcr filter chip (one
+ * column beyond the task's literal list — see [MediaLibraryEntry]'s doc comment for why). Existing
+ * rows default to false/false/NULL/NULL/false, i.e. "not favorited, not deleted, never viewed,
+ * no OCR" — the correct interpretation for every row saved before this migration.
+ */
+val MIGRATION_39_40 =
+    object : Migration(39, 40) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `media_library` ADD COLUMN `isFavorite` INTEGER NOT NULL DEFAULT 0")
+            connection.execSQL("ALTER TABLE `media_library` ADD COLUMN `isDeleted` INTEGER NOT NULL DEFAULT 0")
+            connection.execSQL("ALTER TABLE `media_library` ADD COLUMN `deletedAt` INTEGER")
+            connection.execSQL("ALTER TABLE `media_library` ADD COLUMN `lastAccessedAt` INTEGER")
+            connection.execSQL("ALTER TABLE `media_library` ADD COLUMN `hasOcr` INTEGER NOT NULL DEFAULT 0")
+        }
+    }
+
+/**
  * Migration 38 → 39 (PLAN_V24 P13.3): additive `popup_acks` table — the per-account, persisted set
  * of forced popups the user has acknowledged (composite key account+popup). Persisting it is what
  * turns a one-shot popup into a true one-shot across app restarts. Empty on first run; a row is
