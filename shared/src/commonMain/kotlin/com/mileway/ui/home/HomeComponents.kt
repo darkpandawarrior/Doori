@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,12 +27,14 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
@@ -88,6 +91,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.common.formatDecimal
+import com.mileway.core.data.banner.HomeBanner
 import com.mileway.core.ui.components.AutoSizeGreeting
 import com.mileway.core.ui.components.CountBadge
 import com.mileway.core.ui.components.CurrentLocationPinMap
@@ -99,6 +103,7 @@ import com.mileway.core.ui.resources.action_dismiss
 import com.mileway.core.ui.resources.core_cd_search
 import com.mileway.core.ui.resources.shared_home_action_required
 import com.mileway.core.ui.resources.shared_home_balance
+import com.mileway.core.ui.resources.shared_home_benefits
 import com.mileway.core.ui.resources.shared_home_cd_dismiss_welcome
 import com.mileway.core.ui.resources.shared_home_cd_notifications
 import com.mileway.core.ui.resources.shared_home_check_in
@@ -908,6 +913,55 @@ fun MarketingCardView(
         }
     }
 }
+
+/**
+ * PLAN_V24 P13.2: the ONE home banner carousel — supersedes the P5.4 marketing strip. Auto-advances
+ * every [BANNER_CAROUSEL_ADVANCE_MS], logging an id + dwell impression per shown card to the local
+ * analytics stub (via [onImpression]); a tap on a deep-linkable card routes through [onBannerClick]
+ * (the host maps the [HomeBanner.deepLink] to its existing nav lambdas). Empty [items] renders the
+ * header + an empty row exactly as the old strip did, so the home golden stays byte-identical.
+ */
+@Composable
+fun BannerCarousel(
+    items: List<HomeBanner>,
+    onBannerClick: (HomeBanner) -> Unit,
+    onImpression: (HomeBanner, Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val listState = rememberLazyListState()
+    // Auto-advance (same LaunchedEffect + delay loop as AnimatedBannerStrip, safe under the golden test):
+    // the first tick only fires after a delay, so nothing scrolls / no impression logs at capture time.
+    LaunchedEffect(items) {
+        if (items.isEmpty()) return@LaunchedEffect
+        var index = 0
+        while (true) {
+            delay(BANNER_CAROUSEL_ADVANCE_MS)
+            if (items.isEmpty()) break
+            onImpression(items[index % items.size], BANNER_CAROUSEL_ADVANCE_MS)
+            index = (index + 1) % items.size
+            listState.animateScrollToItem(index)
+        }
+    }
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+        Box(modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal)) {
+            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits), leadingIcon = Icons.Filled.CardGiftcard)
+        }
+        LazyRow(
+            state = listState,
+            contentPadding = PaddingValues(horizontal = DesignTokens.Spacing.screenHorizontal),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.carouselSpacing),
+        ) {
+            items(items, key = { it.id }) { banner ->
+                MarketingCardView(
+                    item = MarketingCarouselItem(title = banner.title, subtitle = banner.subtitle, badge = banner.style),
+                    modifier = if (banner.deepLink != null) Modifier.clickable { onBannerClick(banner) } else Modifier,
+                )
+            }
+        }
+    }
+}
+
+private const val BANNER_CAROUSEL_ADVANCE_MS = 4000L
 
 /** Shared section heading used between the home sections. Terminal `//` prefix style. */
 @Composable

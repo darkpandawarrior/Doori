@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -18,7 +17,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
@@ -33,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.data.banner.HomeBanner
 import com.mileway.core.platform.FeatureFlags
 import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.components.DotsIndicator
@@ -40,11 +39,15 @@ import com.mileway.core.ui.components.RateAppSheet
 import com.mileway.core.ui.components.WhatsNewAnimatedButton
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
+import com.mileway.core.ui.resources.home_banner_club_badge
+import com.mileway.core.ui.resources.home_banner_club_subtitle
+import com.mileway.core.ui.resources.home_banner_club_title
+import com.mileway.core.ui.resources.home_banner_offers_badge
+import com.mileway.core.ui.resources.home_banner_offers_subtitle
+import com.mileway.core.ui.resources.home_banner_offers_title
 import com.mileway.core.ui.resources.shared_home_at_a_glance
-import com.mileway.core.ui.resources.shared_home_benefits
 import com.mileway.core.ui.resources.shared_home_quick_actions
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.stub.MarketingCarouselItem
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -88,13 +91,41 @@ fun HomeScreen(
     val welcomeBannerState by firstLoginBannerViewModel.uiState.collectAsStateWithLifecycle()
     val whatsNewState by whatsNewViewModel.uiState.collectAsStateWithLifecycle()
 
-    // PLAN_V24 P5.4: the marketing strip is backed by the shared CampaignRepository (also feeding the
-    // profile marketing hub) when campaignMarketingEnabled — else the existing static demo items.
+    // PLAN_V24 P13.2: the home banner carousel is fed by plugin-gated typed sources — seeded
+    // announcements (baseline) + campaigns (P5.4) + a club promo (P6.1) + an offers promo (P12.9).
+    // Impressions log to the local analytics stub. The shared CampaignRepository also feeds the
+    // profile marketing hub.
     val campaignRepository = org.koin.compose.koinInject<com.mileway.core.data.campaign.CampaignRepository>()
     val campaignPluginRegistry = org.koin.compose.koinInject<com.mileway.core.data.plugin.PluginRegistry>()
     val campaignMarketingEnabled by campaignPluginRegistry.observe("campaignMarketingEnabled").collectAsStateWithLifecycle(initialValue = false)
+    val clubEnabled by campaignPluginRegistry.observe("clubEnabled").collectAsStateWithLifecycle(initialValue = false)
+    val offersHubEnabled by campaignPluginRegistry.observe("offersHubEnabled").collectAsStateWithLifecycle(initialValue = false)
     val campaigns by campaignRepository.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
     LaunchedEffect(Unit) { campaignRepository.seedIfEmpty() }
+    val analytics = com.mileway.core.ui.platform.LocalAnalyticsHelper.current
+    val clubBannerTitle = stringResource(Res.string.home_banner_club_title)
+    val clubBannerSubtitle = stringResource(Res.string.home_banner_club_subtitle)
+    val clubBannerBadge = stringResource(Res.string.home_banner_club_badge)
+    val offersBannerTitle = stringResource(Res.string.home_banner_offers_title)
+    val offersBannerSubtitle = stringResource(Res.string.home_banner_offers_subtitle)
+    val offersBannerBadge = stringResource(Res.string.home_banner_offers_badge)
+    val homeBanners =
+        buildList {
+            state.marketingItems.forEachIndexed { index, item ->
+                add(HomeBanner(id = "seed_$index", title = item.title, subtitle = item.subtitle, style = item.badge))
+            }
+            if (campaignMarketingEnabled) {
+                campaigns.forEach {
+                    add(HomeBanner(id = "camp_${it.id}", title = it.name, subtitle = it.description, style = it.badge, deepLink = "account"))
+                }
+            }
+            if (clubEnabled) {
+                add(HomeBanner(id = "club", title = clubBannerTitle, subtitle = clubBannerSubtitle, style = clubBannerBadge, deepLink = "account"))
+            }
+            if (offersHubEnabled) {
+                add(HomeBanner(id = "offers", title = offersBannerTitle, subtitle = offersBannerSubtitle, style = offersBannerBadge, deepLink = "account"))
+            }
+        }
 
     // V15 RV.4/CF.1 + PLAN_V24 P12.3: Home is a meaningful engagement signal — record first-open +
     // an interaction. The review prompt is now the native RateAppSheet (no Play SDK), gated by the
@@ -123,12 +154,16 @@ fun HomeScreen(
         onOpenAgent = onOpenAgent,
         welcomeBanner = welcomeBannerState,
         onWelcomeBannerShown = firstLoginBannerViewModel::onBannerShown,
-        marketingOverride =
-            if (campaignMarketingEnabled && campaigns.isNotEmpty()) {
-                campaigns.map { MarketingCarouselItem(title = it.name, subtitle = it.description, badge = it.badge) }
-            } else {
-                null
-            },
+        homeBanners = homeBanners,
+        onBannerClick = { banner -> if (banner.deepLink != null) viewModel.onOpenAccount(onOpenAccount) },
+        onBannerImpression = { banner, dwellMs ->
+            analytics.log(
+                com.mileway.core.platform.AnalyticsEvent(
+                    type = "home_banner_impression",
+                    params = mapOf("id" to banner.id, "dwell_ms" to dwellMs.toString()),
+                ),
+            )
+        },
         // PLAN_V24 P12.4: animated "What's new" entry — pulses while this release is unseen, re-opens
         // the changelog. Nullable in HomeScreenContent so the stateless gallery render omits it.
         whatsNewUnseen = whatsNewState.isVisible,
@@ -196,8 +231,10 @@ fun HomeScreenContent(
     onOpenAgent: (() -> Unit)? = null,
     welcomeBanner: FirstLoginBannerUiState = FirstLoginBannerUiState(),
     onWelcomeBannerShown: () -> Unit = {},
-    // PLAN_V24 P5.4: repo-backed marketing items; null keeps the existing static state.marketingItems.
-    marketingOverride: List<MarketingCarouselItem>? = null,
+    // PLAN_V24 P13.2: typed carousel rows; null falls back to the seeded state.marketingItems (baseline).
+    homeBanners: List<HomeBanner>? = null,
+    onBannerClick: (HomeBanner) -> Unit = {},
+    onBannerImpression: (HomeBanner, Long) -> Unit = { _, _ -> },
     // PLAN_V24 P12.4: the animated "What's new" entry. onOpenWhatsNew == null (the default, used by the
     // stateless preview/gallery render) hides it entirely, keeping the home golden byte-identical.
     whatsNewUnseen: Boolean = false,
@@ -323,9 +360,17 @@ fun HomeScreenContent(
 
             Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
 
-            // 8. Marketing / benefits strip (full-bleed horizontal list). PLAN_V24 P5.4: repo-backed
-            // campaign items (via [marketingOverride]) when campaignMarketingEnabled, else static.
-            MarketingStrip(items = marketingOverride ?: state.marketingItems)
+            // 8. PLAN_V24 P13.2: the ONE auto-advancing home banner carousel (supersedes the P5.4
+            // marketing strip). Fed by plugin-gated typed sources in the stateful HomeScreen; falls
+            // back to the seeded state.marketingItems here (keeps the stateless golden byte-identical).
+            BannerCarousel(
+                items =
+                    homeBanners ?: state.marketingItems.mapIndexed { index, item ->
+                        HomeBanner(id = "seed_$index", title = item.title, subtitle = item.subtitle, style = item.badge)
+                    },
+                onBannerClick = onBannerClick,
+                onImpression = onBannerImpression,
+            )
 
             Spacer(Modifier.height(BottomBarClearance))
         }
@@ -362,23 +407,5 @@ private fun FeatureCarousel(
             selectedIndex = pagerState.currentPage,
             modifier = Modifier.fillMaxWidth(),
         )
-    }
-}
-
-/** The static marketing/benefits card strip. */
-@Composable
-private fun MarketingStrip(items: List<MarketingCarouselItem>) {
-    Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-        Box(modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal)) {
-            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits), leadingIcon = Icons.Filled.CardGiftcard)
-        }
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = DesignTokens.Spacing.screenHorizontal),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.carouselSpacing),
-        ) {
-            items(items) { item ->
-                MarketingCardView(item = item)
-            }
-        }
     }
 }

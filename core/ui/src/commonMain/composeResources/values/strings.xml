@@ -2922,4 +2922,11 @@
     <string name="banner_document_expiry">%1$d document(s) need your attention.</string>
     <string name="banner_subscription_expiry">Your subscription renews in %1$d day(s).</string>
     <string name="banner_dismiss">Dismiss</string>
+    <!-- PLAN_V24 P13.2: home banner carousel seeded sources. -->
+    <string name="home_banner_club_title">Mileway Club</string>
+    <string name="home_banner_club_subtitle">Unlock member perks on every trip.</string>
+    <string name="home_banner_club_badge">CLUB</string>
+    <string name="home_banner_offers_title">Offers &amp; rewards</string>
+    <string name="home_banner_offers_subtitle">See the latest coupons and campaigns.</string>
+    <string name="home_banner_offers_badge">OFFER</string>
 </resources>
