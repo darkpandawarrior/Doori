@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.agent_history_subtitle
+import com.mileway.core.ui.resources.agent_history_title
 import com.mileway.core.ui.resources.agent_plural_messages
 import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
@@ -54,7 +55,7 @@ fun AgentHistoryScreen(
     Scaffold(
         topBar = {
             DepthAwareTopBar(
-                title = "Chat History",
+                title = stringResource(Res.string.agent_history_title),
                 subtitle = stringResource(Res.string.agent_history_subtitle),
                 depth = NavigationDepth.LEVEL_1,
                 titleIcon = Icons.Filled.ChatBubbleOutline,

@@ -86,6 +86,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_cancel
 import com.mileway.core.ui.resources.agent_action_submit
 import com.mileway.core.ui.resources.agent_asked_count
+import com.mileway.core.ui.resources.agent_brand_label
 import com.mileway.core.ui.resources.agent_cd_export
 import com.mileway.core.ui.resources.agent_cd_history
 import com.mileway.core.ui.resources.agent_cd_send
@@ -386,7 +387,7 @@ private fun AgentHeader(
                 }
                 Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
                     Text(
-                        "MILEWAY_AI",
+                        stringResource(Res.string.agent_brand_label),
                         style = TerminalType.display,
                         color = EMBER_ACCENT,
                     )

@@ -31,6 +31,7 @@ import com.mikepenz.markdown.m3.markdownTypography
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.agent_cd_helpful
 import com.mileway.core.ui.resources.agent_cd_not_helpful
+import com.mileway.core.ui.resources.agent_terminal_prompt_label
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.TerminalType
 import com.mileway.feature.agent.model.AgentMessage
@@ -95,7 +96,7 @@ fun AgentMessageBubble(
             ) {
                 // System prompt line
                 Text(
-                    "$ mileway_ai",
+                    stringResource(Res.string.agent_terminal_prompt_label),
                     style = TerminalType.statusLine,
                     color = EMBER_DIM,
                     modifier = Modifier.padding(bottom = 4.dp),
@@ -148,7 +149,7 @@ fun AgentStreamingBubble(
                     .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
             Text(
-                "$ mileway_ai",
+                stringResource(Res.string.agent_terminal_prompt_label),
                 style = TerminalType.statusLine,
                 color = EMBER_DIM,
                 modifier = Modifier.padding(bottom = 4.dp),
@@ -178,7 +179,7 @@ fun AgentThinkingIndicator(phrase: String) {
                     .padding(horizontal = 12.dp, vertical = 8.dp),
         ) {
             Text(
-                "$ mileway_ai",
+                stringResource(Res.string.agent_terminal_prompt_label),
                 style = TerminalType.statusLine,
                 color = EMBER_DIM,
                 modifier = Modifier.padding(bottom = 4.dp),
