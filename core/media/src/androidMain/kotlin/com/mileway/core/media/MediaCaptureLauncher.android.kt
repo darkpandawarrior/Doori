@@ -8,19 +8,35 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
+import com.mileway.core.ai.DocumentIntelligence
+import com.mileway.core.ai.KeywordHeuristicClassifier
+import com.mileway.core.ai.MlKitGenAiAnalyzer
+import com.mileway.core.ai.MlKitTextRecognizer
+import com.mileway.core.ai.model.DocPrompt
+import com.mileway.core.ai.model.DocType
+import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.media.model.AttachmentItem
 import com.mileway.core.media.model.AttachmentSource
 import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.ui.components.sheet.BatchOcrItem
+import com.mileway.core.ui.components.sheet.BatchOcrStatus
+import com.mileway.core.ui.components.sheet.OcrBatchResultsSheet
+import com.mileway.core.ui.components.sheet.OcrResultHost
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -56,15 +72,79 @@ private val PDF_MIME_TYPES = arrayOf("application/pdf")
  * [CaptureMode.Camera] stays on `feature:media`'s existing `CameraCaptureScreen` (a full-screen
  * preview, not a single-shot launcher) and Odometer/QRCode/Barcode/CloudLibrary are V26
  * P-CONV/P-QR/P-LIB — all four throw a clear "not yet wired" error rather than silently no-op.
+ *
+ * V26 P26.SHEET: every branch that produces attachments routes through [deliverAttachments]
+ * below instead of calling `onResult` directly — the one place [MediaCaptureConfig.enableOcr] is
+ * read, so every mode (gallery/files/pdf/document) gets the same OCR-then-sheet behavior for free.
  */
 @Composable
 actual fun rememberMediaCaptureLauncher(
     config: MediaCaptureConfig,
     onResult: (MediaCaptureResult) -> Unit,
+    onOcrAnalysis: (DocumentAnalysis) -> Unit,
 ): () -> Unit {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val mode = config.allowedModes.firstOrNull() ?: CaptureMode.Gallery
+
+    // P26.SHEET: real DocumentIntelligence, built the same way rememberOdometerOcrService's
+    // Android actual does (OdometerOcrService.android.kt) — real ML Kit GenAI + text recognition,
+    // no DI module needed for a Compose-scoped construction like this.
+    val documentIntelligence =
+        remember(context) {
+            DocumentIntelligence(
+                aiAnalyzer = MlKitGenAiAnalyzer(context),
+                textRecognizer = MlKitTextRecognizer(context),
+                classifier = KeywordHeuristicClassifier,
+            )
+        }
+    val expectedDocType =
+        remember(config.ocrDocType) {
+            config.ocrDocType?.let { runCatching { DocType.valueOf(it) }.getOrNull() } ?: DocType.RECEIPT
+        }
+    val ocrPrompt =
+        remember(expectedDocType) {
+            DocPrompt(
+                docType = expectedDocType,
+                instruction = "Extract merchant, total, tax, date and category from this ${expectedDocType.name.lowercase()} image.",
+                schemaHint = "{merchant, total, tax, date, invoiceNo, category, currency}",
+            )
+        }
+
+    // Pending single-item analysis (drives OcrResultHost) and pending batch analysis (drives
+    // OcrBatchResultsSheet) — mutually exclusive, only one is non-null at a time. [pendingItems]
+    // is what finally reaches [onResult] once the user resolves whichever sheet is showing.
+    var singleAnalysis by remember { mutableStateOf<DocumentAnalysis?>(null) }
+    var batchItems by remember { mutableStateOf<List<BatchOcrItem>?>(null) }
+    var pendingItems by remember { mutableStateOf<List<AttachmentItem>?>(null) }
+
+    fun deliverAttachments(items: List<AttachmentItem>) {
+        if (items.isEmpty()) return
+        if (!config.enableOcr) {
+            onResult(MediaCaptureResult.Attachments(items))
+            return
+        }
+        scope.launch {
+            if (items.size == 1) {
+                val analysis = runCatching { documentIntelligence.analyze(items[0].uri, ocrPrompt) }.getOrNull()
+                if (analysis == null) {
+                    // OCR itself failed (not a duplicate/wrong-doc-type verdict) — still attach the
+                    // photo rather than blocking the user on an OCR-plumbing error.
+                    onResult(MediaCaptureResult.Attachments(items))
+                } else {
+                    pendingItems = items
+                    singleAnalysis = analysis
+                }
+            } else {
+                batchItems =
+                    items.map { item ->
+                        val analysis = runCatching { documentIntelligence.analyze(item.uri, ocrPrompt) }.getOrNull()
+                        BatchOcrItem(label = item.uri.substringAfterLast('/'), status = analysis.toBatchStatus(expectedDocType))
+                    }
+                pendingItems = items
+            }
+        }
+    }
 
     // Gallery: Peekaboo already EXIF-corrects + JPEG-encodes each pick (P26.AND.4 for this path);
     // we only need to persist the bytes to a cache file for a stable uri AttachmentItem can carry.
@@ -78,39 +158,75 @@ actual fun rememberMediaCaptureLauncher(
                 },
             scope = scope,
         ) { byteArrays ->
-            val items = byteArrays.map { it.toCacheFileAttachment(context, AttachmentSource.GALLERY) }
-            if (items.isNotEmpty()) onResult(MediaCaptureResult.Attachments(items))
+            deliverAttachments(byteArrays.map { it.toCacheFileAttachment(context, AttachmentSource.GALLERY) })
         }
 
     // Files/Pdf: SAF document picker. content:// uris are handed back as-is — no local decode here,
     // that's OCR's job downstream (RealMediaRepository, fixed for EXIF orientation in P26.AND.4).
     val singleFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            if (uri != null) onResult(MediaCaptureResult.Attachments(listOf(uri.toAttachment(context))))
+            if (uri != null) deliverAttachments(listOf(uri.toAttachment(context)))
         }
     val multiFileLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-            if (uris.isNotEmpty()) {
-                onResult(MediaCaptureResult.Attachments(uris.map { it.toAttachment(context) }))
-            }
+            deliverAttachments(uris.map { it.toAttachment(context) })
         }
 
     // Document: GMS scanner with a same-shape file-picker fallback wired on failure — the actual
     // fix for the "silently no-ops when the scanner is unavailable" bug this task calls out.
     val documentFallbackLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-            if (uris.isNotEmpty()) {
-                onResult(MediaCaptureResult.Attachments(uris.map { it.toAttachment(context) }))
-            }
+            deliverAttachments(uris.map { it.toAttachment(context) })
         }
     val documentScanLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val scan = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
-                val items = scan?.pages.orEmpty().map { it.imageUri.toAttachment(context) }
-                if (items.isNotEmpty()) onResult(MediaCaptureResult.Attachments(items))
+                deliverAttachments(scan?.pages.orEmpty().map { it.imageUri.toAttachment(context) })
             }
         }
+
+    pendingItems?.let { items ->
+        OcrResultHost(
+            analysis = singleAnalysis,
+            expectedDocType = expectedDocType,
+            // ponytail: forwards the original DocumentAnalysis, not the sheet's edited field
+            // strings — OcrReviewSheet's edits are UI-local for now. Threading a corrected
+            // DocumentAnalysis back through onOcrAnalysis is straightforward (rebuild `fields`
+            // from the edited map, keep everything else) but no caller needs it yet; do it when
+            // the first real autofill consumer (e.g. feature:logging's expense form) lands.
+            onUseData = {
+                singleAnalysis?.let(onOcrAnalysis)
+                onResult(MediaCaptureResult.Attachments(items))
+                singleAnalysis = null
+                pendingItems = null
+            },
+            onIgnore = {
+                onResult(MediaCaptureResult.Attachments(items))
+                singleAnalysis = null
+                pendingItems = null
+            },
+            onContinueAnyway = {
+                onResult(MediaCaptureResult.Attachments(items))
+                singleAnalysis = null
+                pendingItems = null
+            },
+            onRetake = {
+                singleAnalysis = null
+                pendingItems = null
+            },
+        )
+        batchItems?.let { batch ->
+            OcrBatchResultsSheet(
+                items = batch,
+                onDone = {
+                    onResult(MediaCaptureResult.Attachments(items))
+                    batchItems = null
+                    pendingItems = null
+                },
+            )
+        }
+    }
 
     return remember(mode, config, context) {
         {
@@ -203,3 +319,15 @@ private fun Uri.toAttachment(
         capturedAtMillis = System.currentTimeMillis(),
     )
 }
+
+/**
+ * P26.SHEET: one file's [BatchOcrItem] status for [OcrBatchResultsSheet] — [BatchOcrStatus] only
+ * has three states, so a wrong-doc-type verdict collapses into [BatchOcrStatus.Failed] alongside a
+ * genuine analyzer error (both mean "this file isn't a usable expected-type receipt").
+ */
+private fun DocumentAnalysis?.toBatchStatus(expectedDocType: DocType): BatchOcrStatus =
+    when {
+        this == null || docType != expectedDocType -> BatchOcrStatus.Failed
+        duplicate != DuplicateVerdict.Unique -> BatchOcrStatus.Duplicate
+        else -> BatchOcrStatus.Success
+    }

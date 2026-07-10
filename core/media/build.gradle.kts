@@ -24,6 +24,10 @@ kotlin {
             // TextRecognizer/DocumentIntelligence — the real ML Kit/Vision recognizers — instead of
             // each feature reimplementing its own platform actual.
             implementation(project(":core:ai"))
+            // V26 P26.SHEET: rememberMediaCaptureLauncher renders core:ui's OcrResultHost/
+            // OcrBatchResultsSheet directly after capture when config.enableOcr is set — no
+            // feature module needed as a go-between. No cycle: core:ui doesn't depend on core:media.
+            implementation(project(":core:ui"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

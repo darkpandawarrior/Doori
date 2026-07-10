@@ -1948,6 +1948,32 @@
     <string name="media_ocr_verified_label">Verified</string>
     <string name="media_ocr_label">OCR</string>
 
+    <!-- V26 P26.SHEET: DocumentAnalysis-driven OCR confirmation/review/batch sheets -->
+    <string name="media_ocr_confirmation_duplicate_title">Possible duplicate</string>
+    <string name="media_ocr_confirmation_duplicate_confirmed_title">Duplicate detected</string>
+    <string name="media_ocr_confirmation_duplicate_body">Looks similar to a previous entry (%1$s): %2$s</string>
+    <string name="media_ocr_confirmation_duplicate_confirmed_body">This matches an existing entry (%1$s).</string>
+    <string name="media_ocr_confirmation_not_receipt_title">Doesn\'t look like a receipt</string>
+    <string name="media_ocr_confirmation_not_receipt_body">We couldn\'t confidently read this as a receipt. Continue anyway or retake the photo.</string>
+    <string name="media_action_continue_anyway">Continue anyway</string>
+    <string name="media_action_use_data">Use data</string>
+    <string name="media_action_ignore">Ignore</string>
+    <string name="media_ocr_review_title">Review scanned details</string>
+    <string name="media_ocr_badge_ai_detected">AI-detected</string>
+    <string name="media_ocr_badge_detected">Detected</string>
+    <string name="media_ocr_batch_results_title">Scan results</string>
+    <string name="media_ocr_batch_status_success">Success</string>
+    <string name="media_ocr_batch_status_duplicate">Duplicate</string>
+    <string name="media_ocr_batch_status_failed">Failed</string>
+    <string name="media_ocr_field_merchant">Merchant</string>
+    <string name="media_ocr_field_total">Total</string>
+    <string name="media_ocr_field_tax">Tax</string>
+    <string name="media_ocr_field_date">Date</string>
+    <string name="media_ocr_field_invoice_no">Invoice No.</string>
+    <string name="media_ocr_field_odometer">Odometer</string>
+    <string name="media_ocr_field_category">Category</string>
+    <string name="media_ocr_field_currency">Currency</string>
+
     <!-- ===== L10n sweep: agent ===== -->
     <string name="agent_history_subtitle">Previous AI conversations</string>
     <string name="agent_cd_helpful">Helpful</string>

@@ -9,6 +9,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.window.Dialog
+import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.media.model.AttachmentItem
 import com.mileway.core.media.model.AttachmentSource
 import com.mileway.core.media.model.CaptureMode
@@ -46,11 +47,17 @@ import platform.Foundation.writeToFile
  * (VisionKit document scanner, iOS file picker, QR/barcode, the unified odometer pipeline,
  * cloud-library browsing) — each throws a clear "not yet wired" error, the same shape Android's
  * own out-of-scope modes use.
+ *
+ * ponytail: `config.enableOcr`/[onOcrAnalysis] aren't wired here yet — `core:ai`'s
+ * `DocumentAiAnalyzer` has a real iOS actual (`FoundationModelsAnalyzer`), but threading it
+ * through Peekaboo's byte-array callbacks is real follow-up work (V26 P-IOS.2), not this task's
+ * Android-only real path (see `MediaCaptureLauncher.android.kt`).
  */
 @Composable
 actual fun rememberMediaCaptureLauncher(
     config: MediaCaptureConfig,
     onResult: (MediaCaptureResult) -> Unit,
+    onOcrAnalysis: (DocumentAnalysis) -> Unit,
 ): () -> Unit {
     val scope = rememberCoroutineScope()
     val mode = config.allowedModes.firstOrNull() ?: CaptureMode.Gallery

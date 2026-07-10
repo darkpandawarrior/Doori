@@ -48,6 +48,10 @@ kotlin {
             implementation(project(":core:data"))
             // V15 PF.3: LocalManagerProvider Compose layer over the core:platform service interfaces.
             implementation(project(":core:platform"))
+            // V26 P26.SHEET: OcrConfirmationSheet/OcrReviewSheet/OcrBatchResultsSheet render
+            // core:ai's DocumentAnalysis directly, so every OCR call site reaches them without a
+            // feature module in between.
+            implementation(project(":core:ai"))
             // BaseViewModel (MVI base class) uses androidx.lifecycle.ViewModel/viewModelScope directly
             // in commonMain; the artifact publishes common/android/ios/desktop targets.
             implementation(libs.lifecycle.viewmodel)

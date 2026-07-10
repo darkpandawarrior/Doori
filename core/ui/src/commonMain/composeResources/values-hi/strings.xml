@@ -1944,6 +1944,32 @@
     <string name="media_ocr_verified_label">सत्यापित</string>
     <string name="media_ocr_label">OCR</string>
 
+    <!-- V26 P26.SHEET: DocumentAnalysis-driven OCR confirmation/review/batch sheets -->
+    <string name="media_ocr_confirmation_duplicate_title">संभावित डुप्लिकेट</string>
+    <string name="media_ocr_confirmation_duplicate_confirmed_title">डुप्लिकेट मिला</string>
+    <string name="media_ocr_confirmation_duplicate_body">पिछली प्रविष्टि (%1$s) से मिलता-जुलता है: %2$s</string>
+    <string name="media_ocr_confirmation_duplicate_confirmed_body">यह मौजूदा प्रविष्टि (%1$s) से मेल खाता है।</string>
+    <string name="media_ocr_confirmation_not_receipt_title">यह रसीद जैसा नहीं लगता</string>
+    <string name="media_ocr_confirmation_not_receipt_body">हम इसे भरोसे के साथ रसीद के रूप में नहीं पढ़ पाए। फिर भी जारी रखें या दोबारा फ़ोटो लें।</string>
+    <string name="media_action_continue_anyway">फिर भी जारी रखें</string>
+    <string name="media_action_use_data">डेटा उपयोग करें</string>
+    <string name="media_action_ignore">अनदेखा करें</string>
+    <string name="media_ocr_review_title">स्कैन किया विवरण जांचें</string>
+    <string name="media_ocr_badge_ai_detected">AI-द्वारा पहचाना गया</string>
+    <string name="media_ocr_badge_detected">पहचाना गया</string>
+    <string name="media_ocr_batch_results_title">स्कैन परिणाम</string>
+    <string name="media_ocr_batch_status_success">सफल</string>
+    <string name="media_ocr_batch_status_duplicate">डुप्लिकेट</string>
+    <string name="media_ocr_batch_status_failed">विफल</string>
+    <string name="media_ocr_field_merchant">व्यापारी</string>
+    <string name="media_ocr_field_total">कुल</string>
+    <string name="media_ocr_field_tax">कर</string>
+    <string name="media_ocr_field_date">तारीख</string>
+    <string name="media_ocr_field_invoice_no">इनवॉइस नंबर</string>
+    <string name="media_ocr_field_odometer">ओडोमीटर</string>
+    <string name="media_ocr_field_category">श्रेणी</string>
+    <string name="media_ocr_field_currency">मुद्रा</string>
+
     <!-- ===== L10n sweep: agent ===== -->
     <string name="agent_history_subtitle">पिछली AI बातचीत</string>
     <string name="agent_cd_helpful">सहायक</string>
