@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Devices
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
@@ -102,6 +103,8 @@ import com.mileway.core.ui.resources.profile_home_add
 import com.mileway.core.ui.resources.profile_home_add_persona
 import com.mileway.core.ui.resources.profile_home_analytics
 import com.mileway.core.ui.resources.profile_home_analytics_live
+import com.mileway.core.ui.resources.profile_home_biometric_confirm_title
+import com.mileway.core.ui.resources.profile_home_biometric_switching_subtitle
 import com.mileway.core.ui.resources.profile_home_cancel
 import com.mileway.core.ui.resources.profile_home_deep_link_demo
 import com.mileway.core.ui.resources.profile_home_deep_link_desc
@@ -111,6 +114,7 @@ import com.mileway.core.ui.resources.profile_home_field_display_name
 import com.mileway.core.ui.resources.profile_home_field_employee_code
 import com.mileway.core.ui.resources.profile_home_field_organization
 import com.mileway.core.ui.resources.profile_home_live_insights
+import com.mileway.core.ui.resources.profile_home_referral_share_subject
 import com.mileway.core.ui.resources.profile_home_remove
 import com.mileway.core.ui.resources.profile_home_sign_out
 import com.mileway.core.ui.resources.profile_home_switch
@@ -223,6 +227,7 @@ fun ProfileScreen(
     onOpenSubscriptions: () -> Unit = {},
     onOpenIncentives: () -> Unit = {},
     onOpenManagerView: () -> Unit = {},
+    onOpenGarage: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
@@ -269,6 +274,8 @@ fun ProfileScreen(
 
     // P2.3: biometric-gate path — BiometricPrompt needs a FragmentActivity, which only this
     // Android-only screen (not the commonMain SwitchAccountViewModel) can reach.
+    val biometricConfirmTitle = stringResource(Res.string.profile_home_biometric_confirm_title)
+    val biometricSwitchingSubtitle = stringResource(Res.string.profile_home_biometric_switching_subtitle)
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -277,8 +284,8 @@ fun ProfileScreen(
                     if (activity != null && BiometricGuard.checkAvailability(context) == BiometricGuard.Availability.Available) {
                         BiometricGuard.showPrompt(
                             activity = activity,
-                            title = "Confirm it's you",
-                            subtitle = "Switching persona",
+                            title = biometricConfirmTitle,
+                            subtitle = biometricSwitchingSubtitle,
                             onSuccess = { viewModel.onAction(ProfileAction.CommitAccountSwitch(effect.accountId)) },
                             onFailure = { msg -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show() },
                         )
@@ -405,6 +412,7 @@ fun ProfileScreen(
                         onOpenSubscriptions = onOpenSubscriptions,
                         onOpenIncentives = onOpenIncentives,
                         onOpenManagerView = onOpenManagerView,
+                        onOpenGarage = onOpenGarage,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -730,6 +738,7 @@ private fun AccountTileGrid(
     onOpenSubscriptions: () -> Unit,
     onOpenIncentives: () -> Unit,
     onOpenManagerView: () -> Unit,
+    onOpenGarage: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -757,6 +766,10 @@ private fun AccountTileGrid(
     // PLAN_V24 P10.6: manager-only view. initialValue=false + defaultOn=false keep the profile-hub
     // gallery golden byte-identical; only the Corporate Commuter persona flips it on.
     val managerViewEnabled by pluginRegistry.observe("trackMileageManagerView")
+        .collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P11.2: vehicle garage tile. initialValue=false + defaultOn=false keep the hub gallery
+    // golden byte-identical; only the Gig Driver persona flips it on.
+    val garageEnabled by pluginRegistry.observe("vehicleGarage")
         .collectAsStateWithLifecycle(initialValue = false)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -1038,11 +1051,24 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val garageTile =
+            if (garageEnabled) {
+                accountTile(
+                    "acc_garage",
+                    pdel("profile_home_tile_garage_title", "My garage"),
+                    pdel("profile_home_tile_garage_subtitle", "Vehicles"),
+                    Icons.Default.DirectionsCar,
+                    Color(0xFF00695C),
+                    onOpenGarage,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
         val depthTiles =
             listOfNotNull(
                 savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
-                campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile,
+                campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile, garageTile,
             )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))
@@ -1680,6 +1706,7 @@ private fun ReferralCardHost(modifier: Modifier = Modifier) {
     val shareSheet = LocalShareSheet.current
     val scope = rememberCoroutineScope()
     var myCode by remember { mutableStateOf("") }
+    val referralShareSubject = stringResource(Res.string.profile_home_referral_share_subject)
 
     LaunchedEffect(referralManager) {
         myCode = referralManager.myReferralCode()
@@ -1691,7 +1718,7 @@ private fun ReferralCardHost(modifier: Modifier = Modifier) {
             if (myCode.isNotEmpty()) {
                 shareSheet.share(
                     text = buildReferralInvite(myCode),
-                    subject = "Join me on Mileway",
+                    subject = referralShareSubject,
                 )
             }
         },

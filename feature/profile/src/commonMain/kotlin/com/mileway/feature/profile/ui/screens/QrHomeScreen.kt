@@ -68,6 +68,8 @@ import com.mileway.core.ui.resources.profile_qr_back
 import com.mileway.core.ui.resources.profile_qr_cancel
 import com.mileway.core.ui.resources.profile_qr_cards_count
 import com.mileway.core.ui.resources.profile_qr_daily_limit
+import com.mileway.core.ui.resources.profile_qr_demo_user_name
+import com.mileway.core.ui.resources.profile_qr_demo_user_org
 import com.mileway.core.ui.resources.profile_qr_generate_qr
 import com.mileway.core.ui.resources.profile_qr_linked_cards
 import com.mileway.core.ui.resources.profile_qr_note_label
@@ -239,8 +241,12 @@ fun QrHomeScreen(
 
                 Spacer(Modifier.height(DesignTokens.Spacing.l))
 
-                Text("Siddharth Pandalai", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Text("EMP-4421 · Apex Corp", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(Res.string.profile_qr_demo_user_name), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(Res.string.profile_qr_demo_user_org),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
 
                 Spacer(Modifier.height(DesignTokens.Spacing.xl))
 

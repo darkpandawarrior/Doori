@@ -108,7 +108,11 @@ import com.mileway.core.ui.resources.profile_settings_organization
 import com.mileway.core.ui.resources.profile_settings_palette_style
 import com.mileway.core.ui.resources.profile_settings_path_simplification
 import com.mileway.core.ui.resources.profile_settings_path_simplification_desc
+import com.mileway.core.ui.resources.profile_settings_perm_all_granted
 import com.mileway.core.ui.resources.profile_settings_perm_denied
+import com.mileway.core.ui.resources.profile_settings_perm_missing_count
+import com.mileway.core.ui.resources.profile_settings_perm_recommended_chip
+import com.mileway.core.ui.resources.profile_settings_perm_required_chip
 import com.mileway.core.ui.resources.profile_settings_permission_health
 import com.mileway.core.ui.resources.profile_settings_plugins
 import com.mileway.core.ui.resources.profile_settings_plugins_desc
@@ -217,7 +221,7 @@ fun SettingsScreen(
             PermissionHealthSection(
                 rows = permissionRows,
                 onPermissionToggle = { row ->
-                    val manifestPermission = manifestPermissionFor(row.name)
+                    val manifestPermission = manifestPermissionFor(row.key)
                     if (row.isGranted || manifestPermission == null) {
                         // Already granted, or nothing to request on this API level/permission (e.g.
                         // scoped-storage Storage) — only a real Settings toggle can change it.
@@ -806,9 +810,12 @@ private fun PermissionHealthSection(
                 Text(
                     "${summary.healthScorePercent}%: " +
                         if (allRequiredGranted) {
-                            "All required permissions granted"
+                            stringResource(Res.string.profile_settings_perm_all_granted)
                         } else {
-                            "${summary.requiredTotal - summary.requiredGranted} required permission(s) missing"
+                            stringResource(
+                                Res.string.profile_settings_perm_missing_count,
+                                summary.requiredTotal - summary.requiredGranted,
+                            )
                         },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
@@ -817,11 +824,21 @@ private fun PermissionHealthSection(
                 Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
                     val requiredMark = if (allRequiredGranted) " ✓" else ""
                     PermChip(
-                        label = "Required ${summary.requiredGranted}/${summary.requiredTotal}$requiredMark",
+                        label =
+                            stringResource(
+                                Res.string.profile_settings_perm_required_chip,
+                                summary.requiredGranted,
+                                summary.requiredTotal,
+                            ) + requiredMark,
                         color = if (allRequiredGranted) DesignTokens.StatusColors.success else DesignTokens.StatusColors.error,
                     )
                     PermChip(
-                        label = "Recommended ${summary.recommendedGranted}/${summary.recommendedTotal}",
+                        label =
+                            stringResource(
+                                Res.string.profile_settings_perm_recommended_chip,
+                                summary.recommendedGranted,
+                                summary.recommendedTotal,
+                            ),
                         color = DesignTokens.StatusColors.warning,
                     )
                 }
