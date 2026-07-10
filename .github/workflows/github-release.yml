@@ -1,0 +1,55 @@
+# github-release.yml — tag-triggered GitHub Release (changelog + debug/release artifacts).
+# Template shipped by the versioned-release skill. Copy to .github/workflows/github-release.yml per repo.
+# Distinct from release.yml (that one is STORE distribution via fastlane, manual, inert). This one
+# creates the GitHub Release + attaches build artifacts on every `v*` tag push.
+#
+# Changelog source = commit messages between the previous tag and this one. Commit messages are
+# guard-clean (the pre-commit no-reference-leak hook blocks reference terms), so the changelog is
+# leak-safe by construction. If a RELEASE_SCRUBLIST_B64 secret is set, it's applied as a second layer.
+name: GitHub Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }   # full history for the changelog range
+      - name: Build changelog from commits since previous tag
+        id: cl
+        run: |
+          set -euo pipefail
+          cur="${GITHUB_REF_NAME}"
+          prev="$(git describe --tags --abbrev=0 "${cur}^" 2>/dev/null || echo "")"
+          range="${prev:+$prev..}$cur"
+          git log --no-merges --pretty='- %s' "$range" > CHANGELOG_BODY.md
+          # Second-layer scrub: only if the scrublist secret is configured (commits are already guard-clean).
+          if [ -n "${RELEASE_SCRUBLIST_B64:-}" ]; then
+            echo "$RELEASE_SCRUBLIST_B64" | base64 -d > /tmp/scrublist.txt
+            pat="$(grep -vE '^\s*#|^\s*$' /tmp/scrublist.txt | paste -sd'|' -)"
+            if [ -n "$pat" ] && grep -Eiq "$pat" CHANGELOG_BODY.md; then
+              echo "::error::changelog matches a scrublist term — refusing to publish"; exit 1
+            fi
+          fi
+          echo "prev=$prev" >> "$GITHUB_OUTPUT"
+        env:
+          RELEASE_SCRUBLIST_B64: ${{ secrets.RELEASE_SCRUBLIST_B64 }}
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with: { java-version: '21', distribution: 'temurin' }
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+      # Both debug and release (noGms/F-Droid flavor). Release is unsigned unless a keystore secret is
+      # materialized (F-Droid builds are unsigned + signed downstream) — fine for tracking/Obtainium.
+      - name: Build artifacts
+        run: |
+          set -euo pipefail
+          ./gradlew assembleNoGmsDebug assembleNoGmsRelease || ./gradlew assembleNoGmsDebug
+          mkdir -p dist
+          find app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \; || true
+      - name: Create release
+        run: gh release create "${GITHUB_REF_NAME}" --title "${GITHUB_REF_NAME}" --notes-file CHANGELOG_BODY.md dist/*.apk
+        env: { GH_TOKEN: ${{ github.token }} }

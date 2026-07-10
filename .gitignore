@@ -37,3 +37,7 @@ keystore.properties
 CLAUDE.md
 AGENTS.md
 .kotlin/
+
+# versioned-release skill: local dry-run previews
+.release/preview/
+.release/scrublist.txt
