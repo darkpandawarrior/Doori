@@ -33,6 +33,13 @@ private class FakeSavedTrackDao(tracks: List<SavedTrack> = emptyList()) : SavedT
 
     override suspend fun updateSavedTrack(savedTrack: SavedTrack): Int = 0
 
+    // Stale-fake catch-up: SavedTrackDao.updateSmartDistanceFinal was added by the SmartDistance
+    // commit without updating this test fake (the tracking/core-data fakes were fixed, this one missed).
+    override suspend fun updateSmartDistanceFinal(
+        routeId: String,
+        value: Double,
+    ) = Unit
+
     override suspend fun deleteSavedTrack(track: SavedTrack) = Unit
 
     override suspend fun deleteSavedTrack(routeId: String) = Unit
