@@ -127,6 +127,7 @@ import com.mileway.core.maps.MapSurface
 import com.mileway.core.platform.AppPermission
 import com.mileway.core.platform.PermissionsProvider
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_unit_kmh
 import com.mileway.core.ui.resources.tracking_action_close
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_cd_center_map
@@ -137,6 +138,10 @@ import com.mileway.core.ui.resources.tracking_cd_expand_markers
 import com.mileway.core.ui.resources.tracking_cd_gps
 import com.mileway.core.ui.resources.tracking_cd_zoom_in
 import com.mileway.core.ui.resources.tracking_cd_zoom_out
+import com.mileway.core.ui.resources.tracking_gps_quality_excellent
+import com.mileway.core.ui.resources.tracking_gps_quality_fair
+import com.mileway.core.ui.resources.tracking_gps_quality_good
+import com.mileway.core.ui.resources.tracking_gps_quality_poor
 import com.mileway.core.ui.resources.tracking_map_cd_heading
 import com.mileway.core.ui.resources.tracking_map_confidence_high
 import com.mileway.core.ui.resources.tracking_map_confidence_low
@@ -194,7 +199,14 @@ import com.mileway.core.ui.resources.tracking_map_status_playback
 import com.mileway.core.ui.resources.tracking_map_status_recording
 import com.mileway.core.ui.resources.tracking_map_stop
 import com.mileway.core.ui.resources.tracking_map_stop_hint
+import com.mileway.core.ui.resources.tracking_map_tab_layers
+import com.mileway.core.ui.resources.tracking_map_tab_playback
 import com.mileway.core.ui.resources.tracking_map_tilt
+import com.mileway.core.ui.resources.tracking_orientation_handheld
+import com.mileway.core.ui.resources.tracking_orientation_mounted
+import com.mileway.core.ui.resources.tracking_qa_settings
+import com.mileway.core.ui.resources.tracking_saved_journey_default
+import com.mileway.core.ui.resources.tracking_unknown_place
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.LocalMapProvider
 import com.mileway.core.ui.theme.MapProvider
@@ -237,22 +249,41 @@ data class MarkerFilters(
 // GPS signal quality levels
 // ---------------------------------------------------------------------------
 
-enum class GPSQuality(val label: String, val color: Color) {
-    EXCELLENT("Excellent", DesignTokens.StatusColors.success),
-    GOOD("Good", DesignTokens.StatusColors.success),
-    FAIR("Fair", DesignTokens.StatusColors.warning),
-    POOR("Poor", DesignTokens.StatusColors.error),
+enum class GPSQuality(val color: Color) {
+    EXCELLENT(DesignTokens.StatusColors.success),
+    GOOD(DesignTokens.StatusColors.success),
+    FAIR(DesignTokens.StatusColors.warning),
+    POOR(DesignTokens.StatusColors.error),
 }
+
+/** Localized display label for a [GPSQuality] level. */
+@Composable
+fun GPSQuality.localizedLabel(): String =
+    when (this) {
+        GPSQuality.EXCELLENT -> stringResource(Res.string.tracking_gps_quality_excellent)
+        GPSQuality.GOOD -> stringResource(Res.string.tracking_gps_quality_good)
+        GPSQuality.FAIR -> stringResource(Res.string.tracking_gps_quality_fair)
+        GPSQuality.POOR -> stringResource(Res.string.tracking_gps_quality_poor)
+    }
 
 // ---------------------------------------------------------------------------
 // Device orientation based on gyroscope data
 // ---------------------------------------------------------------------------
 
-enum class DeviceOrientation(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    MOUNTED("Mounted", Icons.Default.PhoneAndroid),
-    HANDHELD("Handheld", Icons.Default.PhoneAndroid),
-    UNKNOWN("Unknown", Icons.Default.PhoneAndroid),
+enum class DeviceOrientation(val icon: androidx.compose.ui.graphics.vector.ImageVector) {
+    MOUNTED(Icons.Default.PhoneAndroid),
+    HANDHELD(Icons.Default.PhoneAndroid),
+    UNKNOWN(Icons.Default.PhoneAndroid),
 }
+
+/** Localized display label for a [DeviceOrientation]. */
+@Composable
+fun DeviceOrientation.localizedLabel(): String =
+    when (this) {
+        DeviceOrientation.MOUNTED -> stringResource(Res.string.tracking_orientation_mounted)
+        DeviceOrientation.HANDHELD -> stringResource(Res.string.tracking_orientation_handheld)
+        DeviceOrientation.UNKNOWN -> stringResource(Res.string.tracking_unknown_place)
+    }
 
 // ---------------------------------------------------------------------------
 // Main live tracking screen with fullscreen map and floating UI
@@ -966,7 +997,7 @@ fun EnhancedLiveIndicatorBadge(
             )
 
             Text(
-                text = gpsQuality.label,
+                text = gpsQuality.localizedLabel(),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 maxLines = 1,
@@ -1041,7 +1072,7 @@ fun DeviceOrientationIndicator(
             tint = MaterialTheme.colorScheme.onErrorContainer,
         )
         Text(
-            text = orientation.label,
+            text = orientation.localizedLabel(),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onErrorContainer,
             maxLines = 1,
@@ -1206,7 +1237,7 @@ fun PlaybackIndicator(
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                         )
                         Text(
-                            text = "km/h",
+                            text = stringResource(Res.string.core_unit_kmh),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
                         )
@@ -1304,7 +1335,7 @@ fun EnhancedCompactLiveStatsCard(
                             maxLines = 1,
                         )
                         Text(
-                            text = "km/h",
+                            text = stringResource(Res.string.core_unit_kmh),
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(bottom = if (isSmallScreen) 2.dp else 3.dp),
@@ -1585,13 +1616,17 @@ fun EnhancedLiveControlPanel(
                 exit = shrinkVertically() + fadeOut(),
             ) {
                 Column {
+                    val journeyTabLabel = stringResource(Res.string.tracking_saved_journey_default)
+                    val layersTabLabel = stringResource(Res.string.tracking_map_tab_layers)
+                    val settingsTabLabel = stringResource(Res.string.tracking_qa_settings)
+                    val playbackTabLabel = stringResource(Res.string.tracking_map_tab_playback)
                     val availableTabs =
                         remember(isTracking, locationPoints.isNotEmpty()) {
                             buildList {
-                                if (!isTracking) add(0 to "Journey")
-                                add(1 to "Layers")
-                                add(2 to "Settings")
-                                if (!isTracking && locationPoints.isNotEmpty()) add(3 to "Playback")
+                                if (!isTracking) add(0 to journeyTabLabel)
+                                add(1 to layersTabLabel)
+                                add(2 to settingsTabLabel)
+                                if (!isTracking && locationPoints.isNotEmpty()) add(3 to playbackTabLabel)
                             }
                         }
 

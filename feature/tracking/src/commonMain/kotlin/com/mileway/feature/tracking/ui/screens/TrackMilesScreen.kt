@@ -73,12 +73,41 @@ import com.mileway.core.ui.components.tracking.SystemStatusBanner
 import com.mileway.core.ui.components.tracking.ThreeButtonFabSystem
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_all_synced
+import com.mileway.core.ui.resources.tracking_cd_gps
 import com.mileway.core.ui.resources.tracking_cd_points_queued
+import com.mileway.core.ui.resources.tracking_checkin_success_desc_default
+import com.mileway.core.ui.resources.tracking_checkin_success_title
+import com.mileway.core.ui.resources.tracking_journey_disclaimer
 import com.mileway.core.ui.resources.tracking_miles_all_ok
 import com.mileway.core.ui.resources.tracking_miles_journey_guide
 import com.mileway.core.ui.resources.tracking_miles_synced
 import com.mileway.core.ui.resources.tracking_miles_title
+import com.mileway.core.ui.resources.tracking_points_queued_short
+import com.mileway.core.ui.resources.tracking_qa_centers
+import com.mileway.core.ui.resources.tracking_qa_check_in
+import com.mileway.core.ui.resources.tracking_qa_data
+import com.mileway.core.ui.resources.tracking_qa_discard
+import com.mileway.core.ui.resources.tracking_qa_history
+import com.mileway.core.ui.resources.tracking_qa_manual_check_in
+import com.mileway.core.ui.resources.tracking_qa_map
+import com.mileway.core.ui.resources.tracking_qa_saved
+import com.mileway.core.ui.resources.tracking_qa_settings
+import com.mileway.core.ui.resources.tracking_quality_pct
 import com.mileway.core.ui.resources.tracking_sos_cd
+import com.mileway.core.ui.resources.tracking_speed_kmh
+import com.mileway.core.ui.resources.tracking_spikes_m
+import com.mileway.core.ui.resources.tracking_stat_activity
+import com.mileway.core.ui.resources.tracking_stat_avg_speed
+import com.mileway.core.ui.resources.tracking_stat_distance
+import com.mileway.core.ui.resources.tracking_stat_duration
+import com.mileway.core.ui.resources.tracking_stat_max_speed
+import com.mileway.core.ui.resources.tracking_stat_pause_reason
+import com.mileway.core.ui.resources.tracking_stat_points
+import com.mileway.core.ui.resources.tracking_status_flag_battery_opt
+import com.mileway.core.ui.resources.tracking_status_flag_gps_off
+import com.mileway.core.ui.resources.tracking_status_flag_mock_gps
+import com.mileway.core.ui.resources.tracking_status_flag_permission
+import com.mileway.core.ui.resources.tracking_status_flag_power_saver
 import com.mileway.core.ui.resources.tracking_time_now
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
@@ -106,6 +135,7 @@ import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackSheet
 import com.mileway.feature.tracking.viewmodel.TrackSignal
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -179,8 +209,11 @@ fun TrackMilesScreen(
         if (checkInUiState.checkInSuccess) {
             Toasts.show(
                 scenario = Toasts.ToastScenario.Success,
-                title = "Checked In",
-                description = checkInUiState.successMessage.ifBlank { "Check-in recorded." },
+                title = getString(Res.string.tracking_checkin_success_title),
+                description =
+                    checkInUiState.successMessage.ifBlank {
+                        getString(Res.string.tracking_checkin_success_desc_default)
+                    },
             )
             checkInViewModel.onAction(CheckInAction.AcknowledgeSuccess)
         }
@@ -289,13 +322,13 @@ fun TrackMilesScreen(
 
                 // Live system-status chips while active; a calm "All systems OK" banner otherwise.
                 if (isActive) {
-                    CompactSystemStatusIndicator(chips = uiState.statusChips())
+                    CompactSystemStatusIndicator(chips = statusChipsFor(uiState))
                 }
                 SystemStatusBanner(allOk = uiState.error == null, message = uiState.error ?: stringResource(Res.string.tracking_miles_all_ok))
 
                 if (isActive) {
                     ExpandableStatsCard(
-                        stats = uiState.statItems(),
+                        stats = statItemsFor(uiState),
                         expanded = statsExpanded,
                         onToggle = { statsExpanded = !statsExpanded },
                     )
@@ -321,7 +354,7 @@ fun TrackMilesScreen(
             ThreeButtonFabSystem(
                 isActive = isActive,
                 isPaused = isPaused,
-                actions = quickActions,
+                actions = quickActions(),
                 onHero = {
                     if (isActive) {
                         viewModel.onAction(TrackMilesAction.StopTracking)
@@ -429,7 +462,7 @@ fun TrackMilesScreen(
 
         TrackSheet.CONSENT ->
             JourneyConsentSheet(
-                disclaimer = uiState.journeyDisclaimerOrDefault(),
+                disclaimer = stringResource(Res.string.tracking_journey_disclaimer),
                 onAccept = { viewModel.onAction(TrackMilesAction.AcceptConsentAndStart) },
                 onDismiss = { viewModel.onAction(TrackMilesAction.DismissSheet) },
             )
@@ -531,17 +564,18 @@ fun TrackMilesScreen(
 
 // ── State → component mapping ───────────────────────────────────────────────────
 
-private val quickActions =
+@Composable
+private fun quickActions(): List<QuickAction> =
     listOf(
-        QuickAction(Qa.MAP, "Map", Icons.Filled.Map),
-        QuickAction(Qa.CHECK_IN, "Check In", Icons.Filled.CheckCircle),
-        QuickAction(Qa.MANUAL_CHECK_IN, "Manual Check In", Icons.Filled.PinDrop),
-        QuickAction(Qa.CENTERS, "Centers", Icons.Filled.Storefront),
-        QuickAction(Qa.HISTORY, "Journey History", Icons.Filled.History),
-        QuickAction(Qa.DATA, "Data", Icons.Filled.DataObject),
-        QuickAction(Qa.SAVED, "Saved Journeys", Icons.Filled.Bookmark),
-        QuickAction(Qa.SETTINGS, "Settings", Icons.Filled.Settings),
-        QuickAction(Qa.DISCARD, "Discard", Icons.Filled.DeleteOutline, destructive = true),
+        QuickAction(Qa.MAP, stringResource(Res.string.tracking_qa_map), Icons.Filled.Map),
+        QuickAction(Qa.CHECK_IN, stringResource(Res.string.tracking_qa_check_in), Icons.Filled.CheckCircle),
+        QuickAction(Qa.MANUAL_CHECK_IN, stringResource(Res.string.tracking_qa_manual_check_in), Icons.Filled.PinDrop),
+        QuickAction(Qa.CENTERS, stringResource(Res.string.tracking_qa_centers), Icons.Filled.Storefront),
+        QuickAction(Qa.HISTORY, stringResource(Res.string.tracking_qa_history), Icons.Filled.History),
+        QuickAction(Qa.DATA, stringResource(Res.string.tracking_qa_data), Icons.Filled.DataObject),
+        QuickAction(Qa.SAVED, stringResource(Res.string.tracking_qa_saved), Icons.Filled.Bookmark),
+        QuickAction(Qa.SETTINGS, stringResource(Res.string.tracking_qa_settings), Icons.Filled.Settings),
+        QuickAction(Qa.DISCARD, stringResource(Res.string.tracking_qa_discard), Icons.Filled.DeleteOutline, destructive = true),
     )
 
 private fun TrackSignal.toGauge(): GaugeSignal =
@@ -569,23 +603,46 @@ private fun TrackMilesUiState.activitySegments(): List<ActivitySegment> {
     return listOf(ActivitySegment(type, 1f))
 }
 
-private fun TrackMilesUiState.statusChips(): List<StatusChip> =
+@Composable
+private fun statusChipsFor(uiState: TrackMilesUiState): List<StatusChip> =
     buildList {
-        add(StatusChip(Icons.Filled.GpsFixed, "GPS", signal.toLevel()))
+        add(StatusChip(Icons.Filled.GpsFixed, stringResource(Res.string.tracking_cd_gps), uiState.signal.toLevel()))
         add(
             StatusChip(
                 Icons.Filled.NetworkCell,
-                if (unsyncedPoints > 0) "$unsyncedPoints queued" else "Synced",
-                if (unsyncedPoints > 0) StatusLevel.WARN else StatusLevel.OK,
+                if (uiState.unsyncedPoints > 0) {
+                    stringResource(Res.string.tracking_points_queued_short, uiState.unsyncedPoints)
+                } else {
+                    stringResource(Res.string.tracking_miles_synced)
+                },
+                if (uiState.unsyncedPoints > 0) StatusLevel.WARN else StatusLevel.OK,
             ),
         )
-        add(StatusChip(Icons.Filled.Speed, "${speedKmh.toLong()} km/h", StatusLevel.OK))
+        add(
+            StatusChip(
+                Icons.Filled.Speed,
+                stringResource(Res.string.tracking_speed_kmh, uiState.speedKmh.toLong()),
+                StatusLevel.OK,
+            ),
+        )
         // C.3: live tracking-quality score, spike filtering, and any active system-health issue.
-        add(StatusChip(Icons.Filled.Insights, "Quality $qualityScore%", qualityScore.toQualityLevel()))
-        if (spikeDistanceM >= 1.0) {
-            add(StatusChip(Icons.Filled.Warning, "Spikes ${spikeDistanceM.toLong()} m", StatusLevel.WARN))
+        add(
+            StatusChip(
+                Icons.Filled.Insights,
+                stringResource(Res.string.tracking_quality_pct, uiState.qualityScore),
+                uiState.qualityScore.toQualityLevel(),
+            ),
+        )
+        if (uiState.spikeDistanceM >= 1.0) {
+            add(
+                StatusChip(
+                    Icons.Filled.Warning,
+                    stringResource(Res.string.tracking_spikes_m, uiState.spikeDistanceM.toLong()),
+                    StatusLevel.WARN,
+                ),
+            )
         }
-        systemFlags.firstIssueLabel()?.let { add(StatusChip(Icons.Filled.Warning, it, StatusLevel.BAD)) }
+        firstIssueLabel(uiState.systemFlags)?.let { add(StatusChip(Icons.Filled.Warning, it, StatusLevel.BAD)) }
     }
 
 private fun TrackSignal.toLevel(): StatusLevel =
@@ -604,32 +661,54 @@ private fun Int.toQualityLevel(): StatusLevel =
     }
 
 /** C.3: the most-severe active system-health issue, as a short chip label (null when healthy). */
-private fun TrackingSystemFlags.firstIssueLabel(): String? =
+@Composable
+private fun firstIssueLabel(flags: TrackingSystemFlags): String? =
     when {
-        gpsDisabled -> "GPS off"
-        permissionMissing -> "Permission"
-        mockLocationDetected -> "Mock GPS"
-        powerSaverOn -> "Power saver"
-        batteryOptimized -> "Battery opt"
+        flags.gpsDisabled -> stringResource(Res.string.tracking_status_flag_gps_off)
+        flags.permissionMissing -> stringResource(Res.string.tracking_status_flag_permission)
+        flags.mockLocationDetected -> stringResource(Res.string.tracking_status_flag_mock_gps)
+        flags.powerSaverOn -> stringResource(Res.string.tracking_status_flag_power_saver)
+        flags.batteryOptimized -> stringResource(Res.string.tracking_status_flag_battery_opt)
         else -> null
     }
 
-private fun TrackMilesUiState.statItems(): List<StatItem> =
+@Composable
+private fun statItemsFor(uiState: TrackMilesUiState): List<StatItem> =
     buildList {
-        add(StatItem("Distance", "${(distanceKm * 100).toLong() / 100.0} km", Icons.Filled.Map))
-        add(StatItem("Duration", formatElapsed(liveElapsedMs(this@statItems)), Icons.Filled.Timer))
-        add(StatItem("Avg Speed", "${(avgSpeedKmh * 10).toLong() / 10.0} km/h", Icons.Filled.Speed))
-        add(StatItem("Points", pointsLabel.toString(), Icons.Filled.GpsFixed))
-        add(StatItem("Max Speed", "${(maxSpeedKmh * 10).toLong() / 10.0} km/h", Icons.Filled.Bolt))
-        add(StatItem("Activity", trackingActivity, Icons.Filled.DirectionsCar))
-        if (pauseReason != null) {
-            add(StatItem("Pause Reason", pauseReason, Icons.Filled.Timer))
+        add(
+            StatItem(
+                stringResource(Res.string.tracking_stat_distance),
+                "${(uiState.distanceKm * 100).toLong() / 100.0} km",
+                Icons.Filled.Map,
+            ),
+        )
+        add(
+            StatItem(
+                stringResource(Res.string.tracking_stat_duration),
+                formatElapsed(liveElapsedMs(uiState)),
+                Icons.Filled.Timer,
+            ),
+        )
+        add(
+            StatItem(
+                stringResource(Res.string.tracking_stat_avg_speed),
+                stringResource(Res.string.tracking_speed_kmh, (uiState.avgSpeedKmh * 10).toLong() / 10.0),
+                Icons.Filled.Speed,
+            ),
+        )
+        add(StatItem(stringResource(Res.string.tracking_stat_points), uiState.pointsLabel.toString(), Icons.Filled.GpsFixed))
+        add(
+            StatItem(
+                stringResource(Res.string.tracking_stat_max_speed),
+                stringResource(Res.string.tracking_speed_kmh, (uiState.maxSpeedKmh * 10).toLong() / 10.0),
+                Icons.Filled.Bolt,
+            ),
+        )
+        add(StatItem(stringResource(Res.string.tracking_stat_activity), uiState.trackingActivity, Icons.Filled.DirectionsCar))
+        uiState.pauseReason?.let {
+            add(StatItem(stringResource(Res.string.tracking_stat_pause_reason), it, Icons.Filled.Timer))
         }
     }
-
-private fun TrackMilesUiState.journeyDisclaimerOrDefault(): String =
-    "By starting this journey you confirm the trip details are accurate and consent to " +
-        "location tracking for the duration of the journey."
 
 private fun liveElapsedMs(uiState: TrackMilesUiState): Long =
     when {

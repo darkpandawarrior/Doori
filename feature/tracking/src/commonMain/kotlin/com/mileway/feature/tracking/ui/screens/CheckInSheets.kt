@@ -37,10 +37,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_checkin_check_in_anyway
+import com.mileway.core.ui.resources.tracking_checkin_coords
+import com.mileway.core.ui.resources.tracking_checkin_distance_allowed
+import com.mileway.core.ui.resources.tracking_checkin_geo_subtitle
+import com.mileway.core.ui.resources.tracking_checkin_geo_title
+import com.mileway.core.ui.resources.tracking_checkin_manual_reason_hint
+import com.mileway.core.ui.resources.tracking_checkin_manual_reason_label
+import com.mileway.core.ui.resources.tracking_checkin_manual_subtitle
+import com.mileway.core.ui.resources.tracking_checkin_manual_title
+import com.mileway.core.ui.resources.tracking_checkin_nearest_location
+import com.mileway.core.ui.resources.tracking_checkin_no_gps
+import com.mileway.core.ui.resources.tracking_checkin_outside_radius_title
+import com.mileway.core.ui.resources.tracking_checkin_validate_and_check_in
+import com.mileway.core.ui.resources.tracking_qa_check_in
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.viewmodel.CheckInAction
 import com.mileway.feature.tracking.viewmodel.CheckInUiState
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
+import org.jetbrains.compose.resources.stringResource
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Manual Check-In Sheet
@@ -91,12 +108,12 @@ fun ManualCheckInSheet(
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Manual Check-In",
+                        text = stringResource(Res.string.tracking_checkin_manual_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = "Record your current position as a check-in point",
+                        text = stringResource(Res.string.tracking_checkin_manual_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -109,8 +126,8 @@ fun ManualCheckInSheet(
             OutlinedTextField(
                 value = uiState.manualReason,
                 onValueChange = { viewModel.onAction(CheckInAction.UpdateManualReason(it)) },
-                label = { Text("Reason (optional)") },
-                placeholder = { Text("e.g. Arrived at client site") },
+                label = { Text(stringResource(Res.string.tracking_checkin_manual_reason_label)) },
+                placeholder = { Text(stringResource(Res.string.tracking_checkin_manual_reason_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3,
                 enabled = !uiState.isSubmitting,
@@ -134,7 +151,7 @@ fun ManualCheckInSheet(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isSubmitting,
-                ) { Text("Cancel") }
+                ) { Text(stringResource(Res.string.tracking_action_cancel)) }
 
                 Button(
                     shape = DesignTokens.Shape.button,
@@ -151,7 +168,7 @@ fun ManualCheckInSheet(
                     } else {
                         Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Check In")
+                        Text(stringResource(Res.string.tracking_qa_check_in))
                     }
                 }
             }
@@ -214,12 +231,12 @@ fun GeoCheckInSheet(
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "Geo Check-In",
+                        text = stringResource(Res.string.tracking_checkin_geo_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = "Validate your position against a nearby check-in location",
+                        text = stringResource(Res.string.tracking_checkin_geo_subtitle),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -241,14 +258,19 @@ fun GeoCheckInSheet(
                         tint = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        text = "${(currentLat * 100_000).toLong() / 100_000.0}, ${(currentLng * 100_000).toLong() / 100_000.0}",
+                        text =
+                            stringResource(
+                                Res.string.tracking_checkin_coords,
+                                (currentLat * 100_000).toLong() / 100_000.0,
+                                (currentLng * 100_000).toLong() / 100_000.0,
+                            ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             } else {
                 Text(
-                    text = "No GPS fix yet. Start tracking to get a location.",
+                    text = stringResource(Res.string.tracking_checkin_no_gps),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -272,7 +294,7 @@ fun GeoCheckInSheet(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
                     enabled = !uiState.isSubmitting,
-                ) { Text("Cancel") }
+                ) { Text(stringResource(Res.string.tracking_action_cancel)) }
 
                 Button(
                     shape = DesignTokens.Shape.button,
@@ -289,7 +311,7 @@ fun GeoCheckInSheet(
                     } else {
                         Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
-                        Text("Validate & Check In")
+                        Text(stringResource(Res.string.tracking_checkin_validate_and_check_in))
                     }
                 }
             }
@@ -349,7 +371,7 @@ fun CheckInRadiusWarningSheet(
                 }
                 Spacer(Modifier.width(12.dp))
                 Text(
-                    text = "Outside Check-In Radius",
+                    text = stringResource(Res.string.tracking_checkin_outside_radius_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.error,
@@ -366,12 +388,22 @@ fun CheckInRadiusWarningSheet(
             // Distance detail chip if we have the result
             uiState.pendingValidationResult?.let { result ->
                 Text(
-                    text = "Nearest location: ${result.nearestLocation.name} (${result.nearestLocation.type})",
+                    text =
+                        stringResource(
+                            Res.string.tracking_checkin_nearest_location,
+                            result.nearestLocation.name,
+                            result.nearestLocation.type.toString(),
+                        ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = "Your distance: ${result.distanceMeters.toInt()} m  |  Allowed: ${result.effectiveRadius.toInt()} m",
+                    text =
+                        stringResource(
+                            Res.string.tracking_checkin_distance_allowed,
+                            result.distanceMeters.toInt(),
+                            result.effectiveRadius.toInt(),
+                        ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -400,7 +432,7 @@ fun CheckInRadiusWarningSheet(
                             color = Color.White,
                         )
                     } else {
-                        Text("Check In Anyway (Override)")
+                        Text(stringResource(Res.string.tracking_checkin_check_in_anyway))
                     }
                 }
 
@@ -408,7 +440,7 @@ fun CheckInRadiusWarningSheet(
                     shape = DesignTokens.Shape.button,
                     onClick = onDismiss,
                     modifier = Modifier.fillMaxWidth(),
-                ) { Text("Cancel") }
+                ) { Text(stringResource(Res.string.tracking_action_cancel)) }
             }
 
             Spacer(Modifier.height(8.dp))

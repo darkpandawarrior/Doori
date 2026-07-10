@@ -50,8 +50,10 @@ class VerificationCentreViewModelTest {
             val v = vm()
             advanceUntilIdle()
 
-            assertEquals(7, v.state.value.documents.size)
-            assertEquals(1, v.state.value.verifiedCount)
+            // 5 DRIVER + 2 CORPORATE + 2 VEHICLE (P11.2) = 9.
+            assertEquals(9, v.state.value.documents.size)
+            // driving_license + vehicle_rc are seeded VERIFIED.
+            assertEquals(2, v.state.value.verifiedCount)
             assertEquals(1, v.state.value.rejectedCount)
             assertFalse(v.state.value.canSubmit)
         }

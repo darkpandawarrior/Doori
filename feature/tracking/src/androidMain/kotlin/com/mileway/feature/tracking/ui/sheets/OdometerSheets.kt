@@ -44,9 +44,24 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_action_confirm
+import com.mileway.core.ui.resources.tracking_action_cancel
+import com.mileway.core.ui.resources.tracking_action_retake
+import com.mileway.core.ui.resources.tracking_odometer_cd_photo
+import com.mileway.core.ui.resources.tracking_odometer_end_title
+import com.mileway.core.ui.resources.tracking_odometer_enter_end_reading
+import com.mileway.core.ui.resources.tracking_odometer_enter_start_reading
+import com.mileway.core.ui.resources.tracking_odometer_manual_entry
+import com.mileway.core.ui.resources.tracking_odometer_ocr_result
+import com.mileway.core.ui.resources.tracking_odometer_reading_km_label
+import com.mileway.core.ui.resources.tracking_odometer_reading_km_value
+import com.mileway.core.ui.resources.tracking_odometer_start_title
+import com.mileway.core.ui.resources.tracking_odometer_use_reading
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.tracking.ocr.OcrResult
 import com.mileway.feature.tracking.ocr.OdometerOcrAnalyzer
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * P-E.1: Android-only OCR confirmation sheet for odometer photos. Kept in androidMain because
@@ -97,7 +112,12 @@ fun OdometerReadingConfirmSheet(
                     .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            val titleText = if (purpose == OdometerPurpose.START) "Start Odometer" else "End Odometer"
+            val titleText =
+                if (purpose == OdometerPurpose.START) {
+                    stringResource(Res.string.tracking_odometer_start_title)
+                } else {
+                    stringResource(Res.string.tracking_odometer_end_title)
+                }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(titleText, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 if (isProcessing) {
@@ -109,7 +129,7 @@ fun OdometerReadingConfirmSheet(
 
             AsyncImage(
                 model = capturedUri,
-                contentDescription = "Odometer photo",
+                contentDescription = stringResource(Res.string.tracking_odometer_cd_photo),
                 contentScale = ContentScale.Crop,
                 modifier =
                     Modifier
@@ -122,13 +142,13 @@ fun OdometerReadingConfirmSheet(
 
             if (!isProcessing) {
                 Text(
-                    text = "OCR Result",
+                    text = stringResource(Res.string.tracking_odometer_ocr_result),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
                 Text(
-                    text = "%,d km".format(displayedReading),
+                    text = stringResource(Res.string.tracking_odometer_reading_km_value, "%,d".format(displayedReading)),
                     style =
                         MaterialTheme.typography.headlineMedium.copy(
                             fontSize = 28.sp,
@@ -143,7 +163,7 @@ fun OdometerReadingConfirmSheet(
                 ) {
                     Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(4.dp))
-                    Text("Manual Entry")
+                    Text(stringResource(Res.string.tracking_odometer_manual_entry))
                 }
                 Spacer(Modifier.height(DesignTokens.Spacing.m))
             } else {
@@ -158,13 +178,13 @@ fun OdometerReadingConfirmSheet(
                     shape = DesignTokens.Shape.button,
                     onClick = onRetake,
                     modifier = Modifier.weight(1f),
-                ) { Text("Retake") }
+                ) { Text(stringResource(Res.string.tracking_action_retake)) }
                 Button(
                     shape = DesignTokens.Shape.button,
                     onClick = { onUseReading(displayedReading, false) },
                     modifier = Modifier.weight(1f),
                     enabled = !isProcessing,
-                ) { Text("Use This Reading") }
+                ) { Text(stringResource(Res.string.tracking_odometer_use_reading)) }
             }
             Spacer(Modifier.height(DesignTokens.Spacing.l))
         }
@@ -173,12 +193,17 @@ fun OdometerReadingConfirmSheet(
     if (showManualDialog) {
         AppActionSheet(
             onDismiss = { showManualDialog = false },
-            title = "Enter ${if (purpose == OdometerPurpose.START) "Start" else "End"} Reading",
+            title =
+                if (purpose == OdometerPurpose.START) {
+                    stringResource(Res.string.tracking_odometer_enter_start_reading)
+                } else {
+                    stringResource(Res.string.tracking_odometer_enter_end_reading)
+                },
         ) {
             OutlinedTextField(
                 value = manualInput,
                 onValueChange = { if (it.length <= 7) manualInput = it.filter { c -> c.isDigit() } },
-                label = { Text("Odometer reading (km)") },
+                label = { Text(stringResource(Res.string.tracking_odometer_reading_km_label)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
@@ -191,7 +216,7 @@ fun OdometerReadingConfirmSheet(
                     shape = DesignTokens.Shape.button,
                     onClick = { showManualDialog = false },
                     modifier = Modifier.weight(1f),
-                ) { Text("Cancel") }
+                ) { Text(stringResource(Res.string.tracking_action_cancel)) }
                 Button(
                     shape = DesignTokens.Shape.button,
                     onClick = {
@@ -201,7 +226,7 @@ fun OdometerReadingConfirmSheet(
                         onUseReading(parsed, true)
                     },
                     modifier = Modifier.weight(1f),
-                ) { Text("Confirm") }
+                ) { Text(stringResource(Res.string.core_action_confirm)) }
             }
         }
     }

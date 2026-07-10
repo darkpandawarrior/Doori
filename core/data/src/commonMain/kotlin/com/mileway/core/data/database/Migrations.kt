@@ -5,6 +5,37 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 31 → 32 (PLAN_V24 P11.2): the multi-vehicle garage table. Additive — a fresh table, no
+ * change to the existing single-row `vehicle_details` store. The seed re-populates on a fresh install.
+ */
+val MIGRATION_31_32 =
+    object : Migration(31, 32) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `vehicles` (
+                    `id`                      TEXT    NOT NULL PRIMARY KEY,
+                    `brand`                   TEXT    NOT NULL,
+                    `model`                   TEXT    NOT NULL,
+                    `registrationNumber`      TEXT    NOT NULL,
+                    `year`                    INTEGER NOT NULL,
+                    `color`                   TEXT    NOT NULL,
+                    `seats`                   INTEGER NOT NULL,
+                    `vehicleTypeKey`          TEXT    NOT NULL,
+                    `photoUri`                TEXT    NOT NULL,
+                    `isActive`                INTEGER NOT NULL,
+                    `servicesCsv`             TEXT    NOT NULL,
+                    `availabilityStartMinute` INTEGER NOT NULL,
+                    `availabilityEndMinute`   INTEGER NOT NULL,
+                    `availabilityRatePerHour` REAL    NOT NULL,
+                    `createdAtMs`             INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 30 → 31 (PLAN_V24 P8.1): additive `payment_wallets` table — external wallet linking
  * (Paytm/Mobikwik-style) via offline OTP. Empty on first run; seeded by
  * `WalletRepository.seedIfEmpty()`, `isLinked` flipped by the link/unlink flow. No real payment SDK.

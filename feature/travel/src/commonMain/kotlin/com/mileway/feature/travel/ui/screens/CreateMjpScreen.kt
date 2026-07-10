@@ -23,8 +23,17 @@ import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_add_leg
 import com.mileway.core.ui.resources.travel_create_mjp_subtitle
+import com.mileway.core.ui.resources.travel_field_from_city
+import com.mileway.core.ui.resources.travel_field_purpose
+import com.mileway.core.ui.resources.travel_field_to_city
+import com.mileway.core.ui.resources.travel_field_travel_date
+import com.mileway.core.ui.resources.travel_leg_number
+import com.mileway.core.ui.resources.travel_noun_journey_plan
 import com.mileway.core.ui.resources.travel_remove_leg
 import com.mileway.core.ui.resources.travel_route
+import com.mileway.core.ui.resources.travel_section_plan
+import com.mileway.core.ui.resources.travel_submit_mjp
+import com.mileway.core.ui.resources.travel_title_journey_plan
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.travel.viewmodel.CreateMjpAction
 import com.mileway.feature.travel.viewmodel.CreateMjpViewModel
@@ -41,10 +50,10 @@ fun CreateMjpScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
-    HandleTravelCreateEffects(viewModel.effect, noun = "Journey plan", onSubmitted = onSubmitted)
+    HandleTravelCreateEffects(viewModel.effect, noun = stringResource(Res.string.travel_noun_journey_plan), onSubmitted = onSubmitted)
 
     FormSubmissionScaffold(
-        title = "Journey Plan",
+        title = stringResource(Res.string.travel_title_journey_plan),
         subtitle = stringResource(Res.string.travel_create_mjp_subtitle),
         titleIcon = Icons.Filled.Map,
         onBack = onBack,
@@ -52,15 +61,15 @@ fun CreateMjpScreen(
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = "Submit plan",
+        submitLabel = stringResource(Res.string.travel_submit_mjp),
         submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
-            SectionCard(title = "Plan", leadingIcon = null) {
-                TravelField("Purpose *", ui.purpose) { viewModel.onAction(CreateMjpAction.SetPurpose(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_plan), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_purpose), ui.purpose) { viewModel.onAction(CreateMjpAction.SetPurpose(it)) }
             }
             ui.legs.forEachIndexed { index, leg ->
-                SectionCard(title = "Leg ${index + 1}", leadingIcon = null) {
+                SectionCard(title = stringResource(Res.string.travel_leg_number, index + 1), leadingIcon = null) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -72,9 +81,12 @@ fun CreateMjpScreen(
                             }
                         }
                     }
-                    TravelField("From city *", leg.fromCity) { viewModel.onAction(CreateMjpAction.SetLegFrom(index, it)) }
-                    TravelField("To city *", leg.toCity) { viewModel.onAction(CreateMjpAction.SetLegTo(index, it)) }
-                    TravelField("Travel date *", leg.travelDate) { viewModel.onAction(CreateMjpAction.SetLegDate(index, it)) }
+                    TravelField(stringResource(Res.string.travel_field_from_city), leg.fromCity) { viewModel.onAction(CreateMjpAction.SetLegFrom(index, it)) }
+                    TravelField(stringResource(Res.string.travel_field_to_city), leg.toCity) { viewModel.onAction(CreateMjpAction.SetLegTo(index, it)) }
+                    TravelField(
+                        stringResource(Res.string.travel_field_travel_date),
+                        leg.travelDate,
+                    ) { viewModel.onAction(CreateMjpAction.SetLegDate(index, it)) }
                 }
             }
             OutlinedButton(

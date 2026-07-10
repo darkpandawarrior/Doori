@@ -30,6 +30,9 @@ import com.mileway.core.ui.resources.payables_gin_section_receipt
 import com.mileway.core.ui.resources.payables_gin_submit
 import com.mileway.core.ui.resources.payables_gin_subtitle
 import com.mileway.core.ui.resources.payables_gin_title
+import com.mileway.core.ui.resources.payables_gin_toast_success_title
+import com.mileway.core.ui.resources.payables_toast_policy_violations
+import com.mileway.core.ui.resources.payables_toast_sent_for_approval
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.payables.viewmodel.CreateGinAction
@@ -47,20 +50,23 @@ fun CreateGinScreen(
     viewModel: CreateGinViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    val toastSuccessTitle = stringResource(Res.string.payables_gin_toast_success_title)
+    val toastSentApproval = stringResource(Res.string.payables_toast_sent_for_approval)
+    val toastPolicyViolations = stringResource(Res.string.payables_toast_policy_violations)
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is CreateGinEffect.Success -> {
-                    Toasts.show("Goods receipt logged", "Reference ${effect.id}", ToastType.Success)
+                    Toasts.show(toastSuccessTitle, "Reference ${effect.id}", ToastType.Success)
                     onSubmitted(effect.id)
                 }
                 is CreateGinEffect.NeedsApproval -> {
-                    Toasts.show("Sent for approval", "${effect.id} is awaiting your manager", ToastType.Info)
+                    Toasts.show(toastSentApproval, "${effect.id} is awaiting your manager", ToastType.Info)
                     onSubmitted(effect.id)
                 }
                 is CreateGinEffect.Violation ->
-                    Toasts.show("Policy violations", effect.messages.joinToString(" · "), ToastType.Warning)
+                    Toasts.show(toastPolicyViolations, effect.messages.joinToString(" · "), ToastType.Warning)
             }
         }
     }

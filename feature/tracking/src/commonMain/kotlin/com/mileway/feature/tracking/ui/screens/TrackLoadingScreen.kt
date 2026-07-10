@@ -41,17 +41,24 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_loading_finalizing
+import com.mileway.core.ui.resources.tracking_loading_preparing
+import com.mileway.core.ui.resources.tracking_loading_syncing
+import com.mileway.core.ui.resources.tracking_loading_working
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Default sub-status messages cycled beneath the headline while work is in flight.
  * Matches the production loader's "Preparing… → Syncing… → Finalizing…" cadence.
  */
-val DefaultLoadingSubStatuses: List<String> =
+@Composable
+fun defaultLoadingSubStatuses(): List<String> =
     listOf(
-        "Preparing…",
-        "Syncing…",
-        "Finalizing…",
+        stringResource(Res.string.tracking_loading_preparing),
+        stringResource(Res.string.tracking_loading_syncing),
+        stringResource(Res.string.tracking_loading_finalizing),
     )
 
 /** How long each sub-status stays on screen before the next is shown. */
@@ -76,8 +83,8 @@ private const val SubStatusDwellMillis = 1_600L
 @Composable
 fun TrackLoadingScreen(
     modifier: Modifier = Modifier,
-    message: String = "Working on your request…",
-    subStatuses: List<String> = DefaultLoadingSubStatuses,
+    message: String = stringResource(Res.string.tracking_loading_working),
+    subStatuses: List<String> = defaultLoadingSubStatuses(),
 ) {
     // Advance the sub-status index on a fixed dwell; pauses naturally for a
     // single-entry list (the loop body is a no-op cycle).

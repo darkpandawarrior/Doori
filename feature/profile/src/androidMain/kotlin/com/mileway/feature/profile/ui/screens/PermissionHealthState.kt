@@ -23,15 +23,29 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_permission_activity_recognition
+import com.mileway.core.ui.resources.profile_permission_bluetooth
+import com.mileway.core.ui.resources.profile_permission_camera
+import com.mileway.core.ui.resources.profile_permission_location_background
+import com.mileway.core.ui.resources.profile_permission_location_precise
+import com.mileway.core.ui.resources.profile_permission_notifications
+import com.mileway.core.ui.resources.profile_permission_storage
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * PLAN_V22 P6.7: one row of Settings' "Permission Health" section, plus the Android permission
  * string [computeHealth] needs to actually check with `ContextCompat.checkSelfPermission`. Storage
  * has no runtime permission from API 30+ onward (scoped storage) — it's rendered as always-granted
  * rather than checking a permission string that no longer gates anything on this app's `minSdk`.
+ *
+ * [key] is a stable, non-localized identifier used for lookup ([manifestPermissionFor]); the
+ * user-visible label is resolved from [labelRes] at composition time.
  */
 private data class PlatformPermissionEntry(
-    val name: String,
+    val key: String,
+    val labelRes: StringResource,
     val icon: ImageVector,
     val isRequired: Boolean,
     /** `null` = nothing to check on this API level (e.g. Storage on scoped-storage devices). */
@@ -42,7 +56,8 @@ private val PLATFORM_PERMISSIONS =
     buildList {
         add(
             PlatformPermissionEntry(
-                "Location (Precise)",
+                "location_precise",
+                Res.string.profile_permission_location_precise,
                 Icons.Filled.LocationOn,
                 isRequired = true,
                 manifestPermission = Manifest.permission.ACCESS_FINE_LOCATION,
@@ -50,7 +65,8 @@ private val PLATFORM_PERMISSIONS =
         )
         add(
             PlatformPermissionEntry(
-                "Location (Background)",
+                "location_background",
+                Res.string.profile_permission_location_background,
                 Icons.Filled.PinDrop,
                 isRequired = true,
                 manifestPermission =
@@ -63,16 +79,26 @@ private val PLATFORM_PERMISSIONS =
         )
         add(
             PlatformPermissionEntry(
-                "Camera",
+                "camera",
+                Res.string.profile_permission_camera,
                 Icons.Filled.Camera,
                 isRequired = true,
                 manifestPermission = Manifest.permission.CAMERA,
             ),
         )
-        add(PlatformPermissionEntry("Storage", Icons.Filled.Folder, isRequired = true, manifestPermission = null))
         add(
             PlatformPermissionEntry(
-                "Notifications",
+                "storage",
+                Res.string.profile_permission_storage,
+                Icons.Filled.Folder,
+                isRequired = true,
+                manifestPermission = null,
+            ),
+        )
+        add(
+            PlatformPermissionEntry(
+                "notifications",
+                Res.string.profile_permission_notifications,
                 Icons.Filled.NotificationsNone,
                 isRequired = false,
                 manifestPermission =
@@ -85,7 +111,8 @@ private val PLATFORM_PERMISSIONS =
         )
         add(
             PlatformPermissionEntry(
-                "Activity Recognition",
+                "activity_recognition",
+                Res.string.profile_permission_activity_recognition,
                 Icons.AutoMirrored.Filled.DirectionsRun,
                 isRequired = false,
                 manifestPermission =
@@ -96,10 +123,19 @@ private val PLATFORM_PERMISSIONS =
                     },
             ),
         )
-        add(PlatformPermissionEntry("Bluetooth", Icons.Filled.Bluetooth, isRequired = false, manifestPermission = null))
+        add(
+            PlatformPermissionEntry(
+                "bluetooth",
+                Res.string.profile_permission_bluetooth,
+                Icons.Filled.Bluetooth,
+                isRequired = false,
+                manifestPermission = null,
+            ),
+        )
     }
 
 internal data class PermissionHealthRow(
+    val key: String,
     val name: String,
     val icon: ImageVector,
     val isRequired: Boolean,
@@ -117,13 +153,21 @@ internal fun rememberPermissionHealthRows(): List<PermissionHealthRow> {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    val labels = PLATFORM_PERMISSIONS.associate { it.key to stringResource(it.labelRes) }
+
     fun snapshot(): List<PermissionHealthRow> =
         PLATFORM_PERMISSIONS.map { entry ->
             val granted =
                 entry.manifestPermission == null ||
                     ContextCompat.checkSelfPermission(context, entry.manifestPermission) ==
                     PackageManager.PERMISSION_GRANTED
-            PermissionHealthRow(name = entry.name, icon = entry.icon, isRequired = entry.isRequired, isGranted = granted)
+            PermissionHealthRow(
+                key = entry.key,
+                name = labels.getValue(entry.key),
+                icon = entry.icon,
+                isRequired = entry.isRequired,
+                isGranted = granted,
+            )
         }
 
     var rows by remember { mutableStateOf(snapshot()) }
@@ -143,9 +187,9 @@ internal fun rememberPermissionHealthRows(): List<PermissionHealthRow> {
 }
 
 /**
- * The runtime-requestable manifest permission string for a [PermissionHealthRow.name], or `null`
+ * The runtime-requestable manifest permission string for a [PermissionHealthRow.key], or `null`
  * if this permission has nothing to request (not runtime-gated on this API level, e.g. Storage
  * under scoped storage) — those cases must fall back to the system app-details Settings screen
  * instead of calling `ActivityResultContracts.RequestPermission()` with a blank string.
  */
-internal fun manifestPermissionFor(name: String): String? = PLATFORM_PERMISSIONS.firstOrNull { it.name == name }?.manifestPermission
+internal fun manifestPermissionFor(key: String): String? = PLATFORM_PERMISSIONS.firstOrNull { it.key == key }?.manifestPermission

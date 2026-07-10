@@ -16,16 +16,33 @@ import com.mileway.core.ui.resources.travel_booking_flight
 import com.mileway.core.ui.resources.travel_booking_hotel
 import com.mileway.core.ui.resources.travel_booking_mjp
 import com.mileway.core.ui.resources.travel_booking_visa
+import com.mileway.core.ui.resources.travel_chip_business
+import com.mileway.core.ui.resources.travel_chip_deluxe
+import com.mileway.core.ui.resources.travel_chip_economy
+import com.mileway.core.ui.resources.travel_chip_premium
+import com.mileway.core.ui.resources.travel_chip_seater
+import com.mileway.core.ui.resources.travel_chip_semi_sleeper
+import com.mileway.core.ui.resources.travel_chip_sleeper
+import com.mileway.core.ui.resources.travel_chip_standard
+import com.mileway.core.ui.resources.travel_chip_suite
+import com.mileway.core.ui.resources.travel_chip_tourist
+import com.mileway.core.ui.resources.travel_chip_transit
 import com.mileway.core.ui.resources.travel_status_approved
 import com.mileway.core.ui.resources.travel_status_completed
 import com.mileway.core.ui.resources.travel_status_pending
 import com.mileway.core.ui.resources.travel_status_rejected
+import com.mileway.core.ui.resources.travel_toast_awaiting_desk
+import com.mileway.core.ui.resources.travel_toast_policy_violations
+import com.mileway.core.ui.resources.travel_toast_reference
+import com.mileway.core.ui.resources.travel_toast_sent_for_approval
+import com.mileway.core.ui.resources.travel_toast_submitted_title
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.travel.model.BookingType
 import com.mileway.feature.travel.model.TravelReqStatus
 import com.mileway.feature.travel.viewmodel.TravelCreateEffect
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -39,19 +56,22 @@ fun HandleTravelCreateEffects(
     noun: String,
     onSubmitted: (id: String) -> Unit,
 ) {
+    val submittedTitle = stringResource(Res.string.travel_toast_submitted_title, noun)
+    val sentForApprovalTitle = stringResource(Res.string.travel_toast_sent_for_approval)
+    val policyViolationsTitle = stringResource(Res.string.travel_toast_policy_violations)
     LaunchedEffect(Unit) {
         effects.collect { effect ->
             when (effect) {
                 is TravelCreateEffect.Success -> {
-                    Toasts.show("$noun submitted", "Reference ${effect.id}", ToastType.Success)
+                    Toasts.show(submittedTitle, getString(Res.string.travel_toast_reference, effect.id), ToastType.Success)
                     onSubmitted(effect.id)
                 }
                 is TravelCreateEffect.NeedsApproval -> {
-                    Toasts.show("Sent for approval", "${effect.id} is awaiting the travel desk", ToastType.Info)
+                    Toasts.show(sentForApprovalTitle, getString(Res.string.travel_toast_awaiting_desk, effect.id), ToastType.Info)
                     onSubmitted(effect.id)
                 }
                 is TravelCreateEffect.Violation ->
-                    Toasts.show("Policy violations", effect.messages.joinToString(" · "), ToastType.Warning)
+                    Toasts.show(policyViolationsTitle, effect.messages.joinToString(" · "), ToastType.Warning)
             }
         }
     }
@@ -112,4 +132,26 @@ internal fun BookingType.localizedLabel(): String =
         BookingType.HOTEL -> stringResource(Res.string.travel_booking_hotel)
         BookingType.MJP -> stringResource(Res.string.travel_booking_mjp)
         BookingType.VISA -> stringResource(Res.string.travel_booking_visa)
+    }
+
+/**
+ * Localized display label for the raw chip-option values used by the TR create forms (seat/room/cabin/visa
+ * preference chips). The stored/compared value in each screen's ViewModel state stays the canonical English
+ * word; only the rendered chip text is localized.
+ */
+@Composable
+internal fun travelChipLabel(value: String): String =
+    when (value) {
+        "Seater" -> stringResource(Res.string.travel_chip_seater)
+        "Sleeper" -> stringResource(Res.string.travel_chip_sleeper)
+        "Semi-sleeper" -> stringResource(Res.string.travel_chip_semi_sleeper)
+        "Business" -> stringResource(Res.string.travel_chip_business)
+        "Tourist" -> stringResource(Res.string.travel_chip_tourist)
+        "Transit" -> stringResource(Res.string.travel_chip_transit)
+        "Standard" -> stringResource(Res.string.travel_chip_standard)
+        "Deluxe" -> stringResource(Res.string.travel_chip_deluxe)
+        "Suite" -> stringResource(Res.string.travel_chip_suite)
+        "Economy" -> stringResource(Res.string.travel_chip_economy)
+        "Premium" -> stringResource(Res.string.travel_chip_premium)
+        else -> value
     }

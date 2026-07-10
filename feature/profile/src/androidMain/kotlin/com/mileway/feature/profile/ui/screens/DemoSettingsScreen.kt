@@ -45,8 +45,12 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_demo_auto_discard_subtitle
 import com.mileway.core.ui.resources.profile_demo_auto_discard_title
 import com.mileway.core.ui.resources.profile_demo_back
+import com.mileway.core.ui.resources.profile_demo_biometric_auth_succeeded
+import com.mileway.core.ui.resources.profile_demo_biometric_auth_title
 import com.mileway.core.ui.resources.profile_demo_biometric_guard_subtitle
 import com.mileway.core.ui.resources.profile_demo_biometric_guard_title
+import com.mileway.core.ui.resources.profile_demo_biometric_status
+import com.mileway.core.ui.resources.profile_demo_biometric_verifying
 import com.mileway.core.ui.resources.profile_demo_device_clean
 import com.mileway.core.ui.resources.profile_demo_feature_flags
 import com.mileway.core.ui.resources.profile_demo_gps_drift_subtitle
@@ -55,6 +59,7 @@ import com.mileway.core.ui.resources.profile_demo_mode_only
 import com.mileway.core.ui.resources.profile_demo_mode_only_desc
 import com.mileway.core.ui.resources.profile_demo_no_root_signals
 import com.mileway.core.ui.resources.profile_demo_ok
+import com.mileway.core.ui.resources.profile_demo_requires_fragment_activity
 import com.mileway.core.ui.resources.profile_demo_root_signals_detected
 import com.mileway.core.ui.resources.profile_demo_run_root_check
 import com.mileway.core.ui.resources.profile_demo_security_tests
@@ -215,6 +220,11 @@ fun DemoSettingsScreen(
 
             Spacer(Modifier.height(8.dp))
 
+            val biometricAuthTitle = stringResource(Res.string.profile_demo_biometric_auth_title)
+            val biometricVerifying = stringResource(Res.string.profile_demo_biometric_verifying)
+            val biometricAuthSucceeded = stringResource(Res.string.profile_demo_biometric_auth_succeeded)
+            val biometricStatus = stringResource(Res.string.profile_demo_biometric_status)
+            val requiresFragmentActivity = stringResource(Res.string.profile_demo_requires_fragment_activity)
             Button(
                 shape = DesignTokens.Shape.button,
                 onClick = {
@@ -224,20 +234,20 @@ fun DemoSettingsScreen(
                         if (availability == BiometricGuard.Availability.Available) {
                             BiometricGuard.showPrompt(
                                 activity = activity,
-                                title = "Biometric Auth Demo",
-                                subtitle = "Verifying your identity",
+                                title = biometricAuthTitle,
+                                subtitle = biometricVerifying,
                                 onSuccess = {
-                                    Toast.makeText(context, "Biometric auth succeeded", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, biometricAuthSucceeded, Toast.LENGTH_SHORT).show()
                                 },
                                 onFailure = { msg ->
                                     Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
                                 },
                             )
                         } else {
-                            Toast.makeText(context, "Biometric: $availability", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "$biometricStatus $availability", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        Toast.makeText(context, "BiometricGuard requires FragmentActivity", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, requiresFragmentActivity, Toast.LENGTH_SHORT).show()
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),

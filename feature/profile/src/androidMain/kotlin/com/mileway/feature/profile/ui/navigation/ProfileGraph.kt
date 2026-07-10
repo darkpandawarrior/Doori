@@ -39,6 +39,7 @@ import com.mileway.feature.profile.ui.screens.RewardsScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
+import com.mileway.feature.profile.ui.screens.VehicleGarageScreen
 import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 
 object ProfileRoutes {
@@ -78,6 +79,7 @@ object ProfileRoutes {
     const val ACCOUNT_DELETION = "profile/account_deletion"
     const val MANAGER_REPORTEES = "profile/manager_reportees"
     const val MANAGER_REPORTEE = "profile/manager_reportees/{code}"
+    const val GARAGE = "profile/garage"
 
     fun managerReporteeRoute(code: String) = "profile/manager_reportees/$code"
 
@@ -131,9 +133,13 @@ fun NavGraphBuilder.profileGraph(
             onOpenSubscriptions = { navController.navigate(ProfileRoutes.PLANS) },
             onOpenIncentives = { navController.navigate(ProfileRoutes.INCENTIVES) },
             onOpenManagerView = { navController.navigate(ProfileRoutes.MANAGER_REPORTEES) },
+            onOpenGarage = { navController.navigate(ProfileRoutes.GARAGE) },
             onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
             onSignedOut = onSignedOut,
         )
+    }
+    composable(ProfileRoutes.GARAGE) {
+        VehicleGarageScreen(onBack = { navController.popBackStack() })
     }
     composable(ProfileRoutes.MANAGER_REPORTEES) {
         ManagerReporteesScreen(

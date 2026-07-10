@@ -19,6 +19,7 @@ import com.mileway.core.data.session.TripOwnershipBinding
 import com.mileway.core.data.session.doesSessionBelongTo
 import com.mileway.core.data.session.effectiveSignedInIdentity
 import com.mileway.core.data.session.from
+import com.mileway.core.data.vehicle.GarageRepository
 import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.data.vehicle.VehicleRateRepository
 import com.mileway.core.data.vehicle.reimbursableAmount
@@ -222,6 +223,10 @@ class TrackMilesViewModel(
     // vehicles keep whatever pricing the (stub) vehicle source already carried, so those tests and
     // the screenshot harness stay unchanged.
     private val vehicleRateRepo: VehicleRateRepository? = null,
+    // PLAN_V24 P11.2: the garage's active vehicle drives the default selected vehicle here (so the
+    // vehicle chosen in the garage is pre-selected for a new trip). Null in JVM tests/graphs that
+    // omit it — the default stays the first vehicle in the list.
+    private val garageRepo: GarageRepository? = null,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -497,7 +502,10 @@ class TrackMilesViewModel(
                                 v.copy(vehiclePricing = if (enabled) VehicleCatalog.rateFor(v.vehicleKey.orEmpty()) else null)
                             }
                         } ?: loaded
-                    setState { copy(vehicles = vehicles, selectedVehicle = vehicles.firstOrNull()) }
+                    // P11.2: default to the garage's active vehicle type when one is set.
+                    val activeKey = garageRepo?.getActive()?.vehicleTypeKey
+                    val default = vehicles.firstOrNull { it.vehicleKey == activeKey } ?: vehicles.firstOrNull()
+                    setState { copy(vehicles = vehicles, selectedVehicle = default) }
                 }
                 .onFailure { Napier.w("Failed to load vehicles", it, tag = "TrackMilesVM") }
         }

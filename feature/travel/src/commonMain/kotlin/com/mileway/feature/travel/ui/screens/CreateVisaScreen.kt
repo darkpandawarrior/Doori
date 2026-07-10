@@ -18,6 +18,14 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.travel_create_visa_subtitle
+import com.mileway.core.ui.resources.travel_field_country
+import com.mileway.core.ui.resources.travel_field_passport_number
+import com.mileway.core.ui.resources.travel_field_travel_date
+import com.mileway.core.ui.resources.travel_noun_visa_request
+import com.mileway.core.ui.resources.travel_section_destination
+import com.mileway.core.ui.resources.travel_section_traveller
+import com.mileway.core.ui.resources.travel_submit_visa
+import com.mileway.core.ui.resources.travel_title_visa_request
 import com.mileway.feature.travel.viewmodel.CreateVisaAction
 import com.mileway.feature.travel.viewmodel.CreateVisaViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -35,10 +43,10 @@ fun CreateVisaScreen(
 ) {
     val ui by viewModel.state.collectAsState()
 
-    HandleTravelCreateEffects(viewModel.effect, noun = "Visa request", onSubmitted = onSubmitted)
+    HandleTravelCreateEffects(viewModel.effect, noun = stringResource(Res.string.travel_noun_visa_request), onSubmitted = onSubmitted)
 
     FormSubmissionScaffold(
-        title = "Visa Request",
+        title = stringResource(Res.string.travel_title_visa_request),
         subtitle = stringResource(Res.string.travel_create_visa_subtitle),
         titleIcon = Icons.Filled.Description,
         onBack = onBack,
@@ -46,16 +54,19 @@ fun CreateVisaScreen(
         modifier = modifier,
         canSubmit = ui.canSubmit,
         isSubmitting = ui.isSubmitting,
-        submitLabel = "Submit visa request",
+        submitLabel = stringResource(Res.string.travel_submit_visa),
         submitIcon = Icons.Filled.Check,
     ) { contentPadding ->
         TravelFormBody(contentPadding) {
-            SectionCard(title = "Destination", leadingIcon = null) {
-                TravelField("Country *", ui.country) { viewModel.onAction(CreateVisaAction.SetCountry(it)) }
-                TravelField("Travel date *", ui.travelDate) { viewModel.onAction(CreateVisaAction.SetTravelDate(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_destination), leadingIcon = null) {
+                TravelField(stringResource(Res.string.travel_field_country), ui.country) { viewModel.onAction(CreateVisaAction.SetCountry(it)) }
+                TravelField(stringResource(Res.string.travel_field_travel_date), ui.travelDate) { viewModel.onAction(CreateVisaAction.SetTravelDate(it)) }
             }
-            SectionCard(title = "Traveller", leadingIcon = null) {
-                TravelField("Passport number *", ui.passportNumber) { viewModel.onAction(CreateVisaAction.SetPassportNumber(it)) }
+            SectionCard(title = stringResource(Res.string.travel_section_traveller), leadingIcon = null) {
+                TravelField(
+                    stringResource(Res.string.travel_field_passport_number),
+                    ui.passportNumber,
+                ) { viewModel.onAction(CreateVisaAction.SetPassportNumber(it)) }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -64,7 +75,7 @@ fun CreateVisaScreen(
                         FilterChip(
                             selected = ui.visaType == type,
                             onClick = { viewModel.onAction(CreateVisaAction.SetVisaType(type)) },
-                            label = { Text(type) },
+                            label = { Text(travelChipLabel(type)) },
                         )
                     }
                 }

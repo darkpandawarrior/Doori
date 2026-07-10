@@ -70,6 +70,10 @@ import com.mileway.core.ui.resources.tracking_saved_no_journeys_week
 import com.mileway.core.ui.resources.tracking_saved_no_journeys_week_hint
 import com.mileway.core.ui.resources.tracking_saved_submissions_count
 import com.mileway.core.ui.resources.tracking_saved_view_all
+import com.mileway.core.ui.resources.tracking_status_approval_approved
+import com.mileway.core.ui.resources.tracking_status_approval_pending
+import com.mileway.core.ui.resources.tracking_status_approval_reimbursed
+import com.mileway.core.ui.resources.tracking_status_approval_rejected
 import com.mileway.core.ui.resources.tracking_submission_acknowledged
 import com.mileway.core.ui.resources.tracking_submission_attachments
 import com.mileway.core.ui.resources.tracking_submission_clear_selection
@@ -459,7 +463,7 @@ fun SubmissionCard(
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Spacer(Modifier.width(DesignTokens.Spacing.m))
-                ApprovalStatusChip(status = data.approvalStatus, color = approvalColor)
+                ApprovalStatusChip(status = data.approvalStatus.localizedApprovalStatus(), color = approvalColor)
                 Spacer(Modifier.width(DesignTokens.Spacing.s))
                 TrackMilesTag()
             }
@@ -505,6 +509,21 @@ fun SubmissionCard(
         }
     }
 }
+
+/**
+ * Localized display text for the canonical (English) approval-status keys stored in
+ * [SubmissionCardData.approvalStatus]. The raw value stays canonical since it also drives
+ * [approvalColor]'s comparison; only the rendered chip text is localized.
+ */
+@Composable
+private fun String.localizedApprovalStatus(): String =
+    when (this) {
+        "Approved" -> stringResource(Res.string.tracking_status_approval_approved)
+        "Rejected" -> stringResource(Res.string.tracking_status_approval_rejected)
+        "Reimbursed" -> stringResource(Res.string.tracking_status_approval_reimbursed)
+        "Pending Approval" -> stringResource(Res.string.tracking_status_approval_pending)
+        else -> this
+    }
 
 @Composable
 private fun ApprovalStatusChip(
