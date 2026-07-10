@@ -2453,6 +2453,7 @@
     <string name="eco_distance">Distance tracked</string>
     <string name="eco_trips">Green trips</string>
     <string name="eco_empty">Track a trip to see your impact.</string>
+    <string name="eco_back">Back</string>
     <string name="profile_home_tile_campaigns_title">What\'s New</string>
     <string name="profile_home_tile_campaigns_subtitle">Campaigns &amp; offers</string>
     <string name="marketing_title">What\'s New</string>

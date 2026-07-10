@@ -35,6 +35,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.theme.DesignTokens
 
@@ -113,6 +116,12 @@ fun CoachMarkOverlay(
         modifier =
             modifier
                 .fillMaxSize()
+                // Focus the tour tooltip before the dimmed, touch-inert content behind it: a
+                // traversal group with a negative index puts the overlay first in TalkBack order.
+                .semantics {
+                    isTraversalGroup = true
+                    traversalIndex = -1f
+                }
                 .onGloballyPositioned { overlayOrigin = it.positionInRoot() }
                 // Consume all gestures so the underlying screen cannot be tapped during the tour.
                 .pointerInput(Unit) { awaitPointerEventScopeConsumeAll() },

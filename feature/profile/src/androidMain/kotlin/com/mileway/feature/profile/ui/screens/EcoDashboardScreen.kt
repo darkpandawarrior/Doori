@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.eco_back
 import com.mileway.core.ui.resources.eco_co2_saved
 import com.mileway.core.ui.resources.eco_distance
 import com.mileway.core.ui.resources.eco_empty
@@ -64,7 +65,7 @@ fun EcoDashboardScreen(
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.eco_back))
                 }
                 Column(modifier = Modifier.padding(start = 4.dp)) {
                     Text(
