@@ -81,6 +81,21 @@ object MockFormCatalog {
                     ),
                 ),
         )
+
+    /**
+     * Canned master data for the enterprise-only field types ([FormFieldType.CITY_AIRPORT],
+     * [FormFieldType.IRN], [FormFieldType.MASTER], [FormFieldType.EMPLOYEE_DEPARTMENT]), keyed by
+     * [MockFormSchema.masterType]. The renderer looks this up instead of calling a backend — see
+     * project CLAUDE.md, "The backend".
+     */
+    val masterData: Map<String, List<String>> =
+        mapOf(
+            "city_airport" to listOf("Mumbai (BOM)", "Delhi (DEL)", "Bengaluru (BLR)", "Chennai (MAA)", "Pune (PNQ)"),
+            "irn" to listOf("IRN-000123", "IRN-000456", "IRN-000789"),
+            "employee_department" to listOf("Engineering", "Sales", "Finance", "Operations", "HR"),
+            "cost_center" to listOf("CC-100", "CC-200", "CC-300"),
+            "vendor" to listOf("Acme Vendors", "Globex Supplies", "Initech Logistics"),
+        )
 }
 
 class MockFormSchemaProvider : FormSchemaProvider {

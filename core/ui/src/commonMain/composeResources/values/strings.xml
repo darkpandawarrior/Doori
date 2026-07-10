@@ -3002,4 +3002,11 @@
     <string name="expense_context_message_title">From clarification attachment</string>
     <string name="expense_context_scanner_title">From scanned document</string>
     <string name="expense_context_todo_slot">Summary details coming soon</string>
+    <!-- V27 P27.F.1-4: core:forms FormRenderer, the shared 16-field-type dynamic form renderer. -->
+    <string name="core_forms_amount_details">Amount Details</string>
+    <string name="core_forms_attach_file">Attach file</string>
+    <string name="core_forms_attach_file_hint">Attachments coming soon</string>
+    <string name="core_forms_reset">Reset</string>
+    <string name="core_forms_select_field">Select %1$s</string>
+    <string name="core_forms_star_cd">Star %1$d</string>
 </resources>

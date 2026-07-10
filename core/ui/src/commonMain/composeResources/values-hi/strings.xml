@@ -2999,4 +2999,11 @@
     <string name="expense_context_message_title">स्पष्टीकरण अनुलग्नक से</string>
     <string name="expense_context_scanner_title">स्कैन किए गए दस्तावेज़ से</string>
     <string name="expense_context_todo_slot">सारांश विवरण जल्द आ रहा है</string>
+    <!-- V27 P27.F.1-4: core:forms FormRenderer, the shared 16-field-type dynamic form renderer. -->
+    <string name="core_forms_amount_details">राशि विवरण</string>
+    <string name="core_forms_attach_file">फ़ाइल संलग्न करें</string>
+    <string name="core_forms_attach_file_hint">अनुलग्नक जल्द आ रहे हैं</string>
+    <string name="core_forms_reset">रीसेट करें</string>
+    <string name="core_forms_select_field">%1$s चुनें</string>
+    <string name="core_forms_star_cd">तारा %1$d</string>
 </resources>

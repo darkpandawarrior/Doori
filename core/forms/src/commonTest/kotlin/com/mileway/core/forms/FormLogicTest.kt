@@ -325,4 +325,47 @@ class FormLogicTest {
 
         assertNull(computedFields(schema, emptyMap())["target"])
     }
+
+    // ---- defaultFormValues: FormFieldType -> FormFieldValue prefill mapping ----
+
+    @Test
+    fun default_form_values_parses_declared_defaults_per_type() {
+        val schema =
+            listOf(
+                textField("name").copy(defaultValue = "Sid"),
+                numberField("amount").copy(defaultValue = "42.5"),
+                MockFormSchema(id = "r", fieldKey = "rating", label = "Rating", type = FormFieldType.RATING, defaultValue = "3"),
+            )
+
+        val defaults = defaultFormValues(schema)
+
+        assertEquals(FormFieldValue.Text("Sid"), defaults["name"])
+        assertEquals(FormFieldValue.Number(42.5), defaults["amount"])
+        assertEquals(FormFieldValue.Rating(3), defaults["rating"])
+    }
+
+    @Test
+    fun default_form_values_falls_back_to_blank_per_type_when_undeclared() {
+        val schema =
+            listOf(
+                textField("name"),
+                numberField("amount"),
+                MockFormSchema(id = "d", fieldKey = "decl", label = "Declaration", type = FormFieldType.DECLARATION),
+                MockFormSchema(id = "f", fieldKey = "file", label = "File", type = FormFieldType.FILE_PDF),
+            )
+
+        val defaults = defaultFormValues(schema)
+
+        assertEquals(FormFieldValue.Text(""), defaults["name"])
+        assertEquals(FormFieldValue.Number(null), defaults["amount"])
+        assertEquals(FormFieldValue.Declaration(false), defaults["decl"])
+        assertEquals(FormFieldValue.FileRef(emptyList()), defaults["file"])
+    }
+
+    @Test
+    fun default_form_values_covers_every_field_type_without_crashing() {
+        val schema = FormFieldType.entries.mapIndexed { i, type -> MockFormSchema(id = "$i", fieldKey = "f$i", label = "F$i", type = type) }
+
+        assertEquals(FormFieldType.entries.size, defaultFormValues(schema).size)
+    }
 }

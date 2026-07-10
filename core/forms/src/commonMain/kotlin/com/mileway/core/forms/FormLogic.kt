@@ -175,6 +175,30 @@ fun computedFields(
     return computed
 }
 
+/**
+ * Prefilled starting values for a schema — [MockFormSchema.defaultValue] parsed into the field's
+ * [FormFieldValue] subtype (blank/zero/false when absent). The `resetFormValues` path: a ViewModel
+ * calls this to build the values map it hands back to the renderer on "Reset".
+ */
+fun defaultFormValues(schema: List<MockFormSchema>): Map<FieldId, FormFieldValue> = schema.associate { it.fieldKey to defaultValueFor(it) }
+
+private fun defaultValueFor(field: MockFormSchema): FormFieldValue {
+    val raw = field.defaultValue
+    return when (field.type) {
+        FormFieldType.TEXT, FormFieldType.TEXTAREA, FormFieldType.EMAIL -> FormFieldValue.Text(raw.orEmpty())
+        FormFieldType.NUMBER -> FormFieldValue.Number(raw?.toDoubleOrNull())
+        FormFieldType.CURRENCY -> FormFieldValue.Currency(raw?.toDoubleOrNull(), "INR")
+        FormFieldType.SELECT, FormFieldType.CITY_AIRPORT, FormFieldType.IRN, FormFieldType.MASTER, FormFieldType.EMPLOYEE_DEPARTMENT ->
+            FormFieldValue.Select(raw)
+        FormFieldType.RATING -> FormFieldValue.Rating(raw?.toIntOrNull() ?: 0)
+        FormFieldType.DATE -> FormFieldValue.Date(raw)
+        FormFieldType.TIME -> FormFieldValue.Time(raw)
+        FormFieldType.LOCATION -> FormFieldValue.Location(lat = null, lng = null, label = raw)
+        FormFieldType.DECLARATION -> FormFieldValue.Declaration(accepted = false)
+        FormFieldType.FILE_PDF -> FormFieldValue.FileRef(emptyList())
+    }
+}
+
 private fun isBlank(value: FormFieldValue?): Boolean =
     when (value) {
         null -> true
