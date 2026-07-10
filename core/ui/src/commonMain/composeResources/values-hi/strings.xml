@@ -2439,6 +2439,13 @@
     <string name="plugin_growth_ecometer_desc">कार चलाने की तुलना में आपकी यात्राओं से बचा CO₂ और ईंधन दिखाएँ</string>
     <string name="profile_home_tile_ecometer_title">इकोमीटर</string>
     <string name="profile_home_tile_ecometer_subtitle">आपका प्रभाव</string>
+    <string name="plugin_growth_offers_hub_title">ऑफ़र हब</string>
+    <string name="plugin_growth_offers_hub_desc">अपने कूपन और अभियानों पर टैब वाला ऑफ़र हब दिखाएँ</string>
+    <string name="plugin_growth_offer_popup_title">ऑफ़र पॉपअप</string>
+    <string name="plugin_growth_offer_popup_desc">होम पर आते ही एकबारगी सर्वोत्तम-ऑफ़र पॉपअप दिखाएँ</string>
+    <string name="profile_home_tile_offers_title">ऑफ़र</string>
+    <string name="profile_home_tile_offers_subtitle">कूपन और डील</string>
+    <string name="shared_offer_popup_cta">ठीक है</string>
     <string name="eco_title">इकोमीटर</string>
     <string name="eco_subtitle">पेट्रोल कार चलाने की तुलना में आपकी बचत</string>
     <string name="eco_co2_saved">CO₂ बचाया</string>

@@ -39,6 +39,7 @@ import com.mileway.feature.profile.viewmodel.ManagerReporteesViewModel
 import com.mileway.feature.profile.viewmodel.MarketingHubViewModel
 import com.mileway.feature.profile.viewmodel.MembershipViewModel
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
+import com.mileway.feature.profile.viewmodel.OffersHubViewModel
 import com.mileway.feature.profile.viewmodel.PersonalDetailsViewModel
 import com.mileway.feature.profile.viewmodel.PhoneChangeViewModel
 import com.mileway.feature.profile.viewmodel.PluginManagerViewModel
@@ -111,6 +112,8 @@ val profileModule =
         viewModelOf(::SignatureViewModel)
         // PLAN_V24 P12.8: favourite routes — FavouriteRoutesRepository (core:data over SavedTrackDao).
         viewModelOf(::FavouriteRoutesViewModel)
+        // PLAN_V24 P12.9: offers hub — one screen over CouponsRepository + CampaignRepository (no new data).
+        viewModelOf(::OffersHubViewModel)
         // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
         viewModelOf(::EcoDashboardViewModel)
         // PLAN_V24 P12.1: profile-hub badge board — BadgeRepository (core:data) over real completed trips.

@@ -39,6 +39,7 @@ import com.mileway.core.ui.components.DotsIndicator
 import com.mileway.core.ui.components.RateAppSheet
 import com.mileway.core.ui.components.WhatsNewAnimatedButton
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.resources.shared_home_at_a_glance
 import com.mileway.core.ui.resources.shared_home_benefits
 import com.mileway.core.ui.resources.shared_home_quick_actions
@@ -137,6 +138,34 @@ fun HomeScreen(
     // PLAN_V24 P12.3: the native "Rate Mileway" sheet shown when the engagement gate is satisfied.
     if (showReviewSheet) {
         RateAppSheet(onDismiss = { showReviewSheet = false })
+    }
+
+    // PLAN_V24 P12.9: the one-shot best-offer popup on Home entry — gated by showOfferPopup, over the
+    // top LIVE campaign (the same repo the marketing strip reads; no new data). ponytail: session-scoped
+    // one-shot (a remember flag) — persistent per-release suppression lands with the P13.3 coordinator.
+    val offerPopupEnabled by campaignPluginRegistry.observe("showOfferPopup").collectAsStateWithLifecycle(initialValue = false)
+    val bestOffer = campaigns.firstOrNull { it.status == com.mileway.core.data.campaign.CampaignStatus.LIVE }
+    var offerPopupSeen by remember { mutableStateOf(false) }
+    var showOfferDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(offerPopupEnabled, bestOffer) {
+        if (offerPopupEnabled && !offerPopupSeen && bestOffer != null) {
+            offerPopupSeen = true
+            showOfferDialog = true
+        }
+    }
+    if (showOfferDialog && bestOffer != null) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showOfferDialog = false },
+            title = { androidx.compose.material3.Text(bestOffer.name) },
+            text = { androidx.compose.material3.Text(bestOffer.description) },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = { showOfferDialog = false }) {
+                    androidx.compose.material3.Text(
+                        Res.allStringResources["shared_offer_popup_cta"]?.let { stringResource(it) } ?: "Got it",
+                    )
+                }
+            },
+        )
     }
 
     // PLAN_V24 P2.2 + P12.4: the "What's new" sheet — shown once per release after login, or on demand

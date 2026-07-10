@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -231,6 +232,7 @@ fun ProfileScreen(
     onOpenGarage: () -> Unit = {},
     onOpenEcometer: () -> Unit = {},
     onOpenFavourites: () -> Unit = {},
+    onOpenOffers: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
@@ -424,6 +426,7 @@ fun ProfileScreen(
                         onOpenGarage = onOpenGarage,
                         onOpenEcometer = onOpenEcometer,
                         onOpenFavourites = onOpenFavourites,
+                        onOpenOffers = onOpenOffers,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -761,6 +764,7 @@ private fun AccountTileGrid(
     onOpenGarage: () -> Unit,
     onOpenEcometer: () -> Unit,
     onOpenFavourites: () -> Unit,
+    onOpenOffers: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -800,6 +804,10 @@ private fun AccountTileGrid(
     // PLAN_V24 P12.8: favourite-routes tile. initialValue=false + defaultOn=false keep the hub gallery
     // golden byte-identical; only the Gig Driver persona flips it on.
     val favouritesEnabled by pluginRegistry.observe("favourites")
+        .collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P12.9: offers-hub tile. initialValue=false + defaultOn=false keep the hub gallery golden
+    // byte-identical; only the Super-App Consumer persona flips it on.
+    val offersHubEnabled by pluginRegistry.observe("offersHubEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -1120,12 +1128,25 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val offersTile =
+            if (offersHubEnabled) {
+                accountTile(
+                    "acc_offers",
+                    pdel("profile_home_tile_offers_title", "Offers"),
+                    pdel("profile_home_tile_offers_subtitle", "Coupons & deals"),
+                    Icons.Default.LocalOffer,
+                    Color(0xFFDB2777),
+                    onOpenOffers,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
         val depthTiles =
             listOfNotNull(
                 savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
                 campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile, garageTile,
-                ecometerTile, favouritesTile,
+                ecometerTile, favouritesTile, offersTile,
             )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))

@@ -100,16 +100,17 @@ class PluginManagerViewModelTest {
             val vm = newVm()
             advanceUntilIdle()
             assertEquals(
-                99,
+                101,
                 vm.state.value.plugins.size,
                 "13 CORE + 4 AUTH + 7 ONBOARDING + 6 PROFILE + 21 TRACKING + 22 TRACKING_TUNING + " +
-                    "5 VERIFICATION/PAYMENTS + 5 GROWTH + 3 MEMBERSHIP + 9 ENGAGEMENT + 4 VEHICLES " +
+                    "5 VERIFICATION/PAYMENTS + 7 GROWTH + 3 MEMBERSHIP + 9 ENGAGEMENT + 4 VEHICLES " +
                     "(P10.3 +18 TRACKING_TUNING; P10.7 +7 TRACKING experimental; P10.5 +3 TRACKING bubble/overlay/geocode; " +
                     "P11.1 +1 VEHICLES per-km rates; P11.2 +2 VEHICLES garage tile + multi-vehicle; " +
                     "P11.3 +1 TRACKING destination mode; P11.4 +1 GROWTH ecometer tile; " +
                     "P12.1 +2 ENGAGEMENT badges + rating chip; P12.2 +5 ENGAGEMENT support channels; " +
                     "P12.3 +1 ENGAGEMENT review prompt; P12.6 +1 VEHICLES self-audit; " +
-                    "P12.7 +1 PROFILE signature; P12.8 +1 TRACKING favourites tile)",
+                    "P12.7 +1 PROFILE signature; P12.8 +1 TRACKING favourites tile; " +
+                    "P12.9 +2 GROWTH offers hub tile + offer popup)",
             )
             assertTrue(vm.state.value.plugins.all { it.source.name == "DEFAULT" })
         }

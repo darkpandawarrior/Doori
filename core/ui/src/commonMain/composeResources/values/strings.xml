@@ -2439,6 +2439,13 @@
     <string name="plugin_growth_ecometer_desc">Show CO₂ and fuel saved from your trips vs driving a car</string>
     <string name="profile_home_tile_ecometer_title">Ecometer</string>
     <string name="profile_home_tile_ecometer_subtitle">Your impact</string>
+    <string name="plugin_growth_offers_hub_title">Offers hub</string>
+    <string name="plugin_growth_offers_hub_desc">Show a tabbed offers hub over your coupons and campaigns</string>
+    <string name="plugin_growth_offer_popup_title">Offer popup</string>
+    <string name="plugin_growth_offer_popup_desc">Show a one-shot best-offer popup on Home entry</string>
+    <string name="profile_home_tile_offers_title">Offers</string>
+    <string name="profile_home_tile_offers_subtitle">Coupons &amp; deals</string>
+    <string name="shared_offer_popup_cta">Got it</string>
     <string name="eco_title">Ecometer</string>
     <string name="eco_subtitle">Your savings vs driving a petrol car</string>
     <string name="eco_co2_saved">CO₂ saved</string>

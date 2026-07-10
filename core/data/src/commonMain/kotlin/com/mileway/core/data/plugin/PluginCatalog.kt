@@ -513,6 +513,27 @@ object PluginCatalog {
                 descriptionKey = "plugin_growth_ecometer_desc",
                 defaultOn = false,
             ),
+            // PLAN_V24 P12.9: the offers hub — a profile-hub TILE with tabs over the existing coupons +
+            // campaigns repos (no new data). defaultOn=false keeps the hub gallery byte-identical; the
+            // Super-App Consumer persona turns it on.
+            PluginDescriptor(
+                id = "offersHubEnabled",
+                kind = PluginKind.TILE,
+                category = PluginCategory.GROWTH,
+                titleKey = "plugin_growth_offers_hub_title",
+                descriptionKey = "plugin_growth_offers_hub_desc",
+                defaultOn = false,
+            ),
+            // PLAN_V24 P12.9: the one-shot best-offer popup on Home entry. defaultOn=false keeps the Home
+            // golden byte-identical (no dialog in the baseline); the Super-App Consumer persona turns it on.
+            PluginDescriptor(
+                id = "showOfferPopup",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.GROWTH,
+                titleKey = "plugin_growth_offer_popup_title",
+                descriptionKey = "plugin_growth_offer_popup_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Membership plugins (P6). */

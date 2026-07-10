@@ -98,6 +98,7 @@ object SuperProfilePersonas {
                     "couponsEnabled" to true,
                     "scratchRewardsEnabled" to true,
                     "offersHubEnabled" to true,
+                    "showOfferPopup" to true,
                     "walletLinkingEnabled" to true,
                     "emergencyContactsEnabled" to true,
                     "savedPlacesEnabled" to true,
