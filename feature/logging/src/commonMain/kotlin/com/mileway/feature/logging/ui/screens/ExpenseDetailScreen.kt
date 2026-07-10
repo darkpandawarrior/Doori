@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.HourglassBottom
@@ -27,38 +25,38 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.common.formatDecimal
-import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.components.scaffold.DetailSection
+import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
+import com.mileway.core.ui.components.timeline.TimelineStep
+import com.mileway.core.ui.components.timeline.TransactionTimeline
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_amount
 import com.mileway.core.ui.resources.logging_approval_required
 import com.mileway.core.ui.resources.logging_approval_timeline
 import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
-import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_description
 import com.mileway.core.ui.resources.logging_edit_expense
 import com.mileway.core.ui.resources.logging_expense_details_header
-import com.mileway.core.ui.resources.logging_expense_details_subtitle
 import com.mileway.core.ui.resources.logging_expense_not_found
 import com.mileway.core.ui.resources.logging_line_items
 import com.mileway.core.ui.resources.logging_note
@@ -74,7 +72,6 @@ import com.mileway.core.ui.resources.logging_timeline_submitted
 import com.mileway.core.ui.resources.logging_timeline_under_review
 import com.mileway.core.ui.resources.logging_total
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
@@ -100,98 +97,96 @@ fun ExpenseDetailScreen(
     LaunchedEffect(expenseId) { viewModel.onAction(ExpenseAction.OpenDetail(expenseId)) }
     val expense = ui.detailState.dataOrNull
 
-    Scaffold(
-        topBar = {
-            DepthAwareTopBar(
-                title = stringResource(Res.string.logging_expense_details_header),
-                subtitle = stringResource(Res.string.logging_expense_details_subtitle),
-                depth = NavigationDepth.LEVEL_2,
-                titleIcon = Icons.Filled.Receipt,
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.logging_back_cd))
-                    }
-                },
-            )
-        },
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-    ) { innerPadding ->
-        if (expense == null) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(Res.string.logging_expense_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        } else {
-            Column(
-                modifier =
-                    modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = DesignTokens.Spacing.l)
-                        .navigationBarsPadding(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
-            ) {
-                Spacer(Modifier.height(DesignTokens.Spacing.s))
+    // ponytail: which tab is showing is pure UI navigation state — no side effects, no need to
+    // round-trip it through the ViewModel (unlike HistoryListScaffold's tab, which re-filters data).
+    var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
 
-                ReceiptPlaceholder(expense)
+    if (expense == null) {
+        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(stringResource(Res.string.logging_expense_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        return
+    }
 
-                LineItemsCard(expense)
+    TransactionDetailScaffold(
+        title = stringResource(Res.string.logging_expense_details_header),
+        titleIcon = Icons.Filled.Receipt,
+        tabs = listOf(DetailSection.Details, DetailSection.Timeline),
+        selectedTab = selectedSection,
+        onSelectTab = { selectedSection = it },
+        onBack = onBack,
+        modifier = modifier,
+    ) { section ->
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = DesignTokens.Spacing.l)
+                    .navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
+        ) {
+            Spacer(Modifier.height(DesignTokens.Spacing.s))
 
-                ApprovalTimelineCard(expense)
+            when (section) {
+                DetailSection.Timeline ->
+                    TransactionTimeline(
+                        steps = buildTimelineSteps(expense),
+                        title = stringResource(Res.string.logging_approval_timeline),
+                    )
+                else -> {
+                    ReceiptPlaceholder(expense)
 
-                if (expense.note.isNotBlank()) {
-                    Card(
-                        shape = DesignTokens.Shape.roundedMd,
-                        elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
-                    ) {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(DesignTokens.Spacing.l),
-                            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                    LineItemsCard(expense)
+
+                    if (expense.note.isNotBlank()) {
+                        Card(
+                            shape = DesignTokens.Shape.roundedMd,
+                            elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
                         ) {
-                            Text(
-                                stringResource(Res.string.logging_note),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(expense.note, style = MaterialTheme.typography.bodyMedium)
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(DesignTokens.Spacing.l),
+                                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                            ) {
+                                Text(
+                                    stringResource(Res.string.logging_note),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(expense.note, style = MaterialTheme.typography.bodyMedium)
+                            }
                         }
                     }
-                }
 
-                // P1.8: edit entry point — navigates into the merged expense wizard carrying an
-                // ExpenseSourceContext.Edit(id) (V27 P27.E.1: the wizard's own ViewModel loads the
-                // record via openWithContext, same as every other linked-entry context — this
-                // screen's own ViewModel no longer needs to dispatch OpenEdit itself).
-                // P1.9: for a REJECTED expense this is the resubmit path, so it's labeled
-                // "Resubmit"; other statuses keep the plain "Edit Expense" affordance.
-                OutlinedButton(
-                    onClick = { onEdit(expense.id) },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = DesignTokens.Shape.button,
-                ) {
-                    Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.size(DesignTokens.Spacing.s))
-                    Text(
-                        if (expense.status == ExpenseStatus.REJECTED) {
-                            stringResource(
-                                Res.string.logging_resubmit,
-                            )
-                        } else {
-                            stringResource(Res.string.logging_edit_expense)
-                        },
-                    )
-                }
+                    // P1.8: edit entry point — navigates into the merged expense wizard carrying an
+                    // ExpenseSourceContext.Edit(id) (V27 P27.E.1: the wizard's own ViewModel loads the
+                    // record via openWithContext, same as every other linked-entry context — this
+                    // screen's own ViewModel no longer needs to dispatch OpenEdit itself).
+                    // P1.9: for a REJECTED expense this is the resubmit path, so it's labeled
+                    // "Resubmit"; other statuses keep the plain "Edit Expense" affordance.
+                    OutlinedButton(
+                        onClick = { onEdit(expense.id) },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = DesignTokens.Shape.button,
+                    ) {
+                        Icon(Icons.Filled.Info, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.size(DesignTokens.Spacing.s))
+                        Text(
+                            if (expense.status == ExpenseStatus.REJECTED) {
+                                stringResource(
+                                    Res.string.logging_resubmit,
+                                )
+                            } else {
+                                stringResource(Res.string.logging_edit_expense)
+                            },
+                        )
+                    }
 
-                Spacer(Modifier.height(DesignTokens.Spacing.l))
+                    Spacer(Modifier.height(DesignTokens.Spacing.l))
+                }
             }
         }
     }
@@ -348,84 +343,6 @@ private fun LineItemsCard(expense: ExpenseRecord) {
 }
 
 @Composable
-private fun ApprovalTimelineCard(expense: ExpenseRecord) {
-    val steps = buildTimelineSteps(expense)
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = DesignTokens.Shape.roundedMd,
-        elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
-    ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(DesignTokens.Spacing.l),
-            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-        ) {
-            Text(
-                text = stringResource(Res.string.logging_approval_timeline),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.SemiBold,
-            )
-            steps.forEach { step ->
-                TimelineRow(step = step)
-            }
-        }
-    }
-}
-
-@Composable
-private fun TimelineRow(step: TimelineStep) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier =
-                Modifier
-                    .size(32.dp)
-                    .background(
-                        if (step.active) step.color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
-                        DesignTokens.Shape.button,
-                    ),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = step.icon,
-                contentDescription = null,
-                tint = if (step.active) step.color else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
-                modifier = Modifier.size(16.dp),
-            )
-        }
-        Column {
-            Text(
-                text = step.label,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = if (step.active) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (step.active) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            )
-            if (step.timestamp.isNotBlank()) {
-                Text(
-                    text = step.timestamp,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
-}
-
-private data class TimelineStep(
-    val label: String,
-    val icon: ImageVector,
-    val color: Color,
-    val active: Boolean,
-    val timestamp: String = "",
-)
-
-@Composable
 private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
     val submitted =
         TimelineStep(
@@ -433,7 +350,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
             icon = Icons.Filled.Receipt,
             color = StatusColors.info,
             active = true,
-            timestamp = formatFullDate(expense.dateMs),
+            note = formatFullDate(expense.dateMs),
         )
     val underReview =
         TimelineStep(
@@ -441,7 +358,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
             icon = Icons.Filled.HourglassBottom,
             color = StatusColors.warning,
             active = expense.status != ExpenseStatus.DRAFT,
-            timestamp =
+            note =
                 if (expense.status != ExpenseStatus.DRAFT) {
                     stringResource(Res.string.logging_timeline_sent_to_manager)
                 } else {
@@ -456,7 +373,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                     icon = Icons.Filled.CheckCircle,
                     color = StatusColors.success,
                     active = true,
-                    timestamp = stringResource(Res.string.logging_timeline_reimbursement_in_progress),
+                    note = stringResource(Res.string.logging_timeline_reimbursement_in_progress),
                 )
             ExpenseStatus.REJECTED ->
                 TimelineStep(
@@ -466,7 +383,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                     active = true,
                     // P1.9: real per-record rejection reason, falling back to the previous
                     // generic copy for any rejected record seeded before this reason existed.
-                    timestamp = expense.rejectionReason ?: stringResource(Res.string.logging_timeline_contact_manager),
+                    note = expense.rejectionReason ?: stringResource(Res.string.logging_timeline_contact_manager),
                 )
             else ->
                 TimelineStep(

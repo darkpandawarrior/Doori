@@ -1789,6 +1789,8 @@
     <string name="shared_status_pending">Pending</string>
     <string name="shared_status_submitted">Submitted</string>
     <string name="shared_status_rejected">Rejected</string>
+    <!-- V28 P28.1 (T-SCAFFOLD): completes the shared_status_* family for approvals-detail's timeline tab. -->
+    <string name="shared_status_under_review">Under Review</string>
     <string name="shared_home_mileage">Mileage</string>
     <string name="shared_home_km_total">%1$s km total</string>
     <string name="shared_home_stat_trips">Trips</string>

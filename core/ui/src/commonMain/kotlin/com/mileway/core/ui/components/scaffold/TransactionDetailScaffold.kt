@@ -1,21 +1,30 @@
 package com.mileway.core.ui.components.scaffold
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import com.mileway.core.common.UiText
 import com.mileway.core.ui.resources.Res
@@ -78,15 +87,32 @@ fun TransactionDetailScaffold(
     selectedTab: DetailSection,
     onSelectTab: (DetailSection) -> Unit,
     modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    titleIcon: ImageVector? = null,
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
+    snackbarHostState: SnackbarHostState? = null,
     content: @Composable (DetailSection) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { snackbarHostState?.let { SnackbarHost(it) } },
         topBar = {
             TopAppBar(
-                title = { Text(title, fontWeight = FontWeight.SemiBold) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        titleIcon?.let { icon ->
+                            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.actionTile))
+                            Spacer(Modifier.width(DesignTokens.Spacing.s))
+                        }
+                        Column {
+                            Text(title, fontWeight = FontWeight.SemiBold)
+                            if (subtitle != null) {
+                                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                },
                 navigationIcon = {
                     onBack?.let { back ->
                         IconButton(onClick = back) {

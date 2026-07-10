@@ -1250,6 +1250,7 @@
     <string name="shared_status_pending">लंबित</string>
     <string name="shared_status_submitted">प्रस्तुत</string>
     <string name="shared_status_rejected">अस्वीकृत</string>
+    <string name="shared_status_under_review">समीक्षाधीन</string>
     <string name="shared_home_mileage">माइलेज</string>
     <string name="shared_home_km_total">कुल %1$s किमी</string>
     <string name="shared_home_stat_trips">ट्रिप</string>
