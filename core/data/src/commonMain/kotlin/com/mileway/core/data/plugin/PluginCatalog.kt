@@ -521,6 +521,26 @@ object PluginCatalog {
                 descriptionKey = "plugin_vehicles_per_km_rates_desc",
                 defaultOn = false,
             ),
+            // P11.2: the multi-vehicle garage — a profile-hub TILE. defaultOn=false keeps the hub
+            // gallery byte-identical; the Gig preset turns it on.
+            PluginDescriptor(
+                id = "vehicleGarage",
+                kind = PluginKind.TILE,
+                category = PluginCategory.VEHICLES,
+                titleKey = "plugin_vehicles_garage_title",
+                descriptionKey = "plugin_vehicles_garage_desc",
+                defaultOn = false,
+            ),
+            // P11.2: multi-vehicle capability. off ⇒ single-vehicle mode (the add affordance hides
+            // once one vehicle exists); on ⇒ the garage keeps many. defaultOn=false = single-vehicle.
+            PluginDescriptor(
+                id = "multipleVehiclesEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.VEHICLES,
+                titleKey = "plugin_vehicles_multiple_title",
+                descriptionKey = "plugin_vehicles_multiple_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Incentive-program plugins (P6.3). */

@@ -131,6 +131,8 @@ val trackingModule =
                 delegationSource = getOrNull() ?: com.mileway.core.data.session.NoDelegationSessionSource,
                 // P11.1: per-km policy-rate overlay; getOrNull() keeps graphs that omit core:data building.
                 vehicleRateRepo = getOrNull(),
+                // P11.2: garage active-vehicle default; getOrNull() keeps omitting graphs building.
+                garageRepo = getOrNull(),
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

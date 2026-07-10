@@ -123,5 +123,38 @@ object DocumentMockData {
                 docInfo = emptyList(),
                 isDocInfoEditable = false,
             ),
+            // PLAN_V24 P11.2: VEHICLE-category documents — the garage's per-vehicle verification chip
+            // aggregates these. (Chip is a shared vehicle-documents status across the garage; true
+            // per-vehicle document linkage is a future refinement.)
+            VerificationDocument(
+                docType = "vehicle_rc",
+                docTypeText = "Registration Certificate",
+                requirement = DocRequirement.MANDATORY,
+                status = DocStatus.VERIFIED,
+                docCount = 1,
+                isEditable = false,
+                docUrls = listOf("stub://vehicle_rc.jpg"),
+                reason = "",
+                instructions = "Upload the vehicle's registration certificate (RC).",
+                galleryRestricted = false,
+                category = DocumentCategory.VEHICLE,
+                docInfo = listOf(DocInfoField("rc_number", "RC number", "MH12AB1234", editable = true)),
+                isDocInfoEditable = true,
+            ),
+            VerificationDocument(
+                docType = "vehicle_puc",
+                docTypeText = "PUC Certificate",
+                requirement = DocRequirement.MANDATORY,
+                status = DocStatus.APPROVAL_PENDING,
+                docCount = 1,
+                isEditable = false,
+                docUrls = listOf("stub://vehicle_puc.jpg"),
+                reason = "",
+                instructions = "Upload a valid pollution-under-control (PUC) certificate.",
+                galleryRestricted = false,
+                category = DocumentCategory.VEHICLE,
+                docInfo = emptyList(),
+                isDocInfoEditable = false,
+            ),
         )
 }

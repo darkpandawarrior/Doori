@@ -31,6 +31,7 @@ import com.mileway.core.data.dao.SubmitDraftDao
 import com.mileway.core.data.dao.SubscriptionDao
 import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TripAttachmentDao
+import com.mileway.core.data.dao.VehicleDao
 import com.mileway.core.data.dao.VehicleDetailsDao
 import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.library.MediaLibraryDao
@@ -65,6 +66,7 @@ import com.mileway.core.data.model.db.SubscriptionPlanEntity
 import com.mileway.core.data.model.db.SupportTicketEntity
 import com.mileway.core.data.model.db.TripAttachmentEntity
 import com.mileway.core.data.model.db.VehicleDetailsEntity
+import com.mileway.core.data.model.db.VehicleEntity
 import com.mileway.core.data.model.db.VoucherEntity
 
 @Database(
@@ -101,8 +103,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         ActiveSubscriptionEntity::class,
         DeletionRequestEntity::class,
         PaymentWalletEntity::class,
+        VehicleEntity::class,
     ],
-    version = 31,
+    version = 32,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -132,6 +135,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun mockAccountDao(): MockAccountDao
 
     abstract fun vehicleDetailsDao(): VehicleDetailsDao
+
+    abstract fun vehicleDao(): VehicleDao
 
     abstract fun passportDetailsDao(): PassportDetailsDao
 

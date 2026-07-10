@@ -47,6 +47,7 @@ import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
 import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
+import com.mileway.feature.profile.viewmodel.VehicleGarageViewModel
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -94,6 +95,8 @@ val profileModule =
         viewModelOf(::DelegateSessionViewModel)
         // PLAN_V24 P10.6: manager-only reportee tracking view (only needs PluginRegistry).
         viewModelOf(::ManagerReporteesViewModel)
+        // PLAN_V24 P11.2: vehicle garage — GarageRepository (core:data) + DocumentRepository + registry.
+        viewModelOf(::VehicleGarageViewModel)
         viewModelOf(::ActiveSessionsViewModel)
         viewModelOf(::NotificationViewModel)
         viewModelOf(::ConnectedAccountsViewModel)

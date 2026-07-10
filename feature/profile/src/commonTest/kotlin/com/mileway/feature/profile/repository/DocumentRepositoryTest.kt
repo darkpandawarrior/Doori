@@ -32,8 +32,9 @@ class DocumentRepositoryTest {
             r.seedIfEmpty()
             val afterSecond = r.observeAll().first().size
 
-            assertEquals(7, afterFirst)
-            assertEquals(7, afterSecond)
+            // 5 DRIVER + 2 CORPORATE + 2 VEHICLE (P11.2) = 9.
+            assertEquals(9, afterFirst)
+            assertEquals(9, afterSecond)
         }
 
     @Test

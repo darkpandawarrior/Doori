@@ -61,6 +61,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().voucherDao() }
         single { get<MilewayDatabase>().mockAccountDao() }
         single { get<MilewayDatabase>().vehicleDetailsDao() }
+        single { get<MilewayDatabase>().vehicleDao() }
         single { get<MilewayDatabase>().passportDetailsDao() }
         single { get<MilewayDatabase>().delegationDao() }
         single { get<MilewayDatabase>().sessionDao() }
@@ -104,6 +105,8 @@ val coreDataModule =
         }
         // PLAN_V24 P11.1: per-km policy-rate source (persona-gated by the registry).
         single { com.mileway.core.data.vehicle.VehicleRateRepository(get()) }
+        // PLAN_V24 P11.2: the multi-vehicle garage store (shared by profile UI + tracking default).
+        single { com.mileway.core.data.vehicle.GarageRepository(get()) }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }

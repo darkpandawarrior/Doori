@@ -65,6 +65,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().voucherDao() }
         single { get<MilewayDatabase>().mockAccountDao() }
         single { get<MilewayDatabase>().vehicleDetailsDao() }
+        single { get<MilewayDatabase>().vehicleDao() }
         single { get<MilewayDatabase>().passportDetailsDao() }
         single { get<MilewayDatabase>().delegationDao() }
         single { get<MilewayDatabase>().sessionDao() }
@@ -108,6 +109,8 @@ val coreDataModule =
         }
         // PLAN_V24 P11.1: per-km policy-rate source (persona-gated by the registry).
         single { com.mileway.core.data.vehicle.VehicleRateRepository(get()) }
+        // PLAN_V24 P11.2: the multi-vehicle garage store (shared by profile UI + tracking default).
+        single { com.mileway.core.data.vehicle.GarageRepository(get()) }
         // PLAN_V24 P10.5: reverse-geocode source toggle, exposed as a named StateFlow so core:platform's
         // OfflineLocationNameResolver can read it by qualifier without depending on core:data.
         single<kotlinx.coroutines.flow.StateFlow<Boolean>>(org.koin.core.qualifier.named("reverseGeocodeRemote")) {
