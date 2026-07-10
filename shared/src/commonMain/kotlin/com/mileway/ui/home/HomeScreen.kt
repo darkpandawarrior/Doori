@@ -37,6 +37,7 @@ import com.mileway.core.platform.FeatureFlags
 import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.components.DotsIndicator
 import com.mileway.core.ui.components.RateAppSheet
+import com.mileway.core.ui.components.WhatsNewAnimatedButton
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.shared_home_at_a_glance
 import com.mileway.core.ui.resources.shared_home_benefits
@@ -99,6 +100,8 @@ fun HomeScreen(
     // reviewPrompt plugin AND the in-app-review flag, and only when the engagement gate is satisfied.
     val reviewPromptEnabled by campaignPluginRegistry.observe("reviewPrompt").collectAsStateWithLifecycle(initialValue = false)
     var showReviewSheet by remember { mutableStateOf(false) }
+    // PLAN_V24 P12.4: manual re-open of the "What's new" changelog from the animated home entry.
+    var showWhatsNewManually by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         reviewTracker.recordFirstOpenIfNeeded()
         reviewTracker.recordInteraction()
@@ -125,6 +128,10 @@ fun HomeScreen(
             } else {
                 null
             },
+        // PLAN_V24 P12.4: animated "What's new" entry — pulses while this release is unseen, re-opens
+        // the changelog. Nullable in HomeScreenContent so the stateless gallery render omits it.
+        whatsNewUnseen = whatsNewState.isVisible,
+        onOpenWhatsNew = { showWhatsNewManually = true },
     )
 
     // PLAN_V24 P12.3: the native "Rate Mileway" sheet shown when the engagement gate is satisfied.
@@ -132,9 +139,16 @@ fun HomeScreen(
         RateAppSheet(onDismiss = { showReviewSheet = false })
     }
 
-    // PLAN_V24 P2.2: one-shot "What's new" sheet, shown once per release after login.
-    if (whatsNewState.isVisible) {
-        WhatsNewSheet(items = whatsNewState.items, onDismiss = whatsNewViewModel::acknowledge)
+    // PLAN_V24 P2.2 + P12.4: the "What's new" sheet — shown once per release after login, or on demand
+    // from the animated home entry. Dismissing acknowledges the version so the auto-show never replays.
+    if (whatsNewState.isVisible || showWhatsNewManually) {
+        WhatsNewSheet(
+            items = whatsNewState.items,
+            onDismiss = {
+                whatsNewViewModel.acknowledge()
+                showWhatsNewManually = false
+            },
+        )
     }
 }
 
@@ -155,6 +169,10 @@ fun HomeScreenContent(
     onWelcomeBannerShown: () -> Unit = {},
     // PLAN_V24 P5.4: repo-backed marketing items; null keeps the existing static state.marketingItems.
     marketingOverride: List<MarketingCarouselItem>? = null,
+    // PLAN_V24 P12.4: the animated "What's new" entry. onOpenWhatsNew == null (the default, used by the
+    // stateless preview/gallery render) hides it entirely, keeping the home golden byte-identical.
+    whatsNewUnseen: Boolean = false,
+    onOpenWhatsNew: (() -> Unit)? = null,
 ) {
     // Clear the one-shot flag right after the banner is actually composed once — not on every
     // recomposition of the Home tab, so it never reappears on scroll/rotation before sign-out.
@@ -211,6 +229,11 @@ fun HomeScreenContent(
                         officeName = welcomeBanner.officeName,
                         onDismiss = onWelcomeBannerShown,
                     )
+                }
+
+                // 2c. PLAN_V24 P12.4: animated "What's new" entry (only in the stateful HomeScreen).
+                onOpenWhatsNew?.let { open ->
+                    WhatsNewAnimatedButton(hasUnseen = whatsNewUnseen, onClick = open)
                 }
 
                 // 3. Quick Actions.

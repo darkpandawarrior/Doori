@@ -2323,6 +2323,10 @@
     <string name="rate_app_star">तारा %1$d</string>
     <string name="profile_settings_rate">Mileway को रेट करें</string>
     <string name="profile_settings_rate_desc">बताएँ कि हम कैसा कर रहे हैं</string>
+    <!-- PLAN_V24 P12.4: what's-new animated indicator -->
+    <string name="whats_new_button">नया क्या है</string>
+    <string name="whats_new_indicator_desc">Mileway में नया क्या है देखें</string>
+    <string name="profile_settings_whats_new_desc">नवीनतम सुविधाएँ देखें</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">प्रोत्साहन कार्यक्रम</string>
     <string name="plugin_engagement_incentives_desc">लक्ष्य-आधारित प्रोत्साहन कार्यक्रम और प्रगति दिखाएँ</string>

@@ -3,6 +3,7 @@ package com.mileway.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.session.SessionRepository
+import com.mileway.core.ui.components.WhatsNewVersion
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -17,8 +18,11 @@ import org.koin.dsl.module
  * :stub — shared doesn't depend on :stub and this is a small in-app changelog, not backend mock.
  */
 
-/** The current changelog version. Bumped whenever [WHATS_NEW_ENTRIES] gains a new release block. */
-const val CURRENT_WHATS_NEW_VERSION: Int = 24
+/**
+ * The current changelog version. Single source of truth is [WhatsNewVersion.CURRENT] (core:ui) so the
+ * P12.4 indicator on Home + Settings agrees with this ViewModel. Bumped when [WHATS_NEW_ENTRIES] grows.
+ */
+const val CURRENT_WHATS_NEW_VERSION: Int = WhatsNewVersion.CURRENT
 
 /** One "what's new" line. */
 data class WhatsNewItem(

@@ -60,7 +60,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.ui.components.CompactWhatsNewButton
 import com.mileway.core.ui.components.RateAppSheet
+import com.mileway.core.ui.components.WhatsNewVersion
 import com.mileway.core.ui.components.dialog.ColorWheelDialog
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
@@ -135,6 +137,7 @@ import com.mileway.core.ui.resources.profile_settings_trip_reminders_on
 import com.mileway.core.ui.resources.profile_settings_unit_km
 import com.mileway.core.ui.resources.profile_settings_unit_miles
 import com.mileway.core.ui.resources.profile_settings_use_system_colors
+import com.mileway.core.ui.resources.profile_settings_whats_new_desc
 import com.mileway.core.ui.resources.settings_language
 import com.mileway.core.ui.theme.AccentPalette
 import com.mileway.core.ui.theme.AppLanguage
@@ -185,6 +188,12 @@ fun SettingsScreen(
     var showResetConfirm by remember { mutableStateOf(false) }
     // PLAN_V24 P12.3: manual "Rate Mileway" sheet (ignores the auto-prompt engagement gate).
     var showRateSheet by remember { mutableStateOf(false) }
+    // PLAN_V24 P12.4: compact "What's new" indicator — pulses while this release is unseen.
+    val sessionRepository = koinInject<com.mileway.core.data.session.SessionRepository>()
+    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(
+        initialValue = com.mileway.core.data.session.SessionState(),
+    )
+    val whatsNewScope = rememberCoroutineScope()
     val permSnackbarState = remember { SnackbarHostState() }
     val permScope = rememberCoroutineScope()
 
@@ -544,6 +553,20 @@ fun SettingsScreen(
                 headlineContent = { Text(stringResource(Res.string.profile_settings_rate)) },
                 supportingContent = { Text(stringResource(Res.string.profile_settings_rate_desc)) },
                 modifier = Modifier.clickable { showRateSheet = true },
+            )
+            // PLAN_V24 P12.4: compact "What's new" indicator. ponytail: tapping acknowledges the
+            // changelog (stops the pulse app-wide) — the full sheet lives on Home, which owns the
+            // WhatsNewViewModel; Settings only surfaces + dismisses the release badge.
+            ListItem(
+                headlineContent = {
+                    CompactWhatsNewButton(
+                        hasUnseen = session.whatsNewLastSeenVersion < WhatsNewVersion.CURRENT,
+                        onClick = {
+                            whatsNewScope.launch { sessionRepository.markWhatsNewSeen(WhatsNewVersion.CURRENT) }
+                        },
+                    )
+                },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_whats_new_desc)) },
             )
             Text(
                 text = stringResource(Res.string.profile_settings_demo_build),

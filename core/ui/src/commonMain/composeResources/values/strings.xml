@@ -2323,6 +2323,10 @@
     <string name="rate_app_star">Star %1$d</string>
     <string name="profile_settings_rate">Rate Mileway</string>
     <string name="profile_settings_rate_desc">Tell us how we\'re doing</string>
+    <!-- PLAN_V24 P12.4: what's-new animated indicator -->
+    <string name="whats_new_button">What\'s new</string>
+    <string name="whats_new_indicator_desc">See what\'s new in Mileway</string>
+    <string name="profile_settings_whats_new_desc">See the latest features</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">Incentive programs</string>
     <string name="plugin_engagement_incentives_desc">Show target-based incentive programs and progress</string>
