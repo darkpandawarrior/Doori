@@ -22,20 +22,35 @@ sealed class ExpenseSourceContext {
     /** Re-opening an already-submitted expense for editing. */
     data class Edit(val expenseId: String) : ExpenseSourceContext()
 
-    /** Logging an expense against a completed trip. */
-    data class Trip(val tripId: String) : ExpenseSourceContext()
+    /**
+     * Logging an expense against a completed trip. [tripLabel] is an optional caller-supplied
+     * display name (e.g. "Mumbai – Pune") — the caller (feature:tracking) already has the trip
+     * loaded when it builds this context, so it's cheaper to carry the label here than to give
+     * feature:logging a new feature→feature dependency just to re-resolve it (see V27 P27.E.4).
+     */
+    data class Trip(val tripId: String, val tripLabel: String? = null) : ExpenseSourceContext()
 
-    /** Logging an expense that draws down a trip's advance. */
-    data class TripAdvance(val tripId: String, val advanceId: String) : ExpenseSourceContext()
+    /** Logging an expense that draws down a trip's advance. [tripLabel] mirrors [Trip.tripLabel]. */
+    data class TripAdvance(val tripId: String, val advanceId: String, val tripLabel: String? = null) : ExpenseSourceContext()
 
-    /** Logging an expense against an event. */
-    data class Event(val eventId: String) : ExpenseSourceContext()
+    /** Logging an expense against an event. [eventLabel] mirrors [Trip.tripLabel]'s caller-supplied convention. */
+    data class Event(val eventId: String, val eventLabel: String? = null) : ExpenseSourceContext()
 
-    /** Claiming a card transaction as an expense — fields get locked/capped against [transactionId]. */
-    data class Card(val cardId: String, val transactionId: String) : ExpenseSourceContext()
+    /**
+     * Claiming a card transaction as an expense — most fields get locked and the entered amount is
+     * capped at [transactionAmountRupees] (DiCE's `editableTypesForCard` + ceiling validation,
+     * V27 P27.E.4). Both are optional/caller-supplied for the same feature-boundary reason as
+     * [Trip.tripLabel]: feature:cards already has the transaction loaded when it builds this context.
+     */
+    data class Card(
+        val cardId: String,
+        val transactionId: String,
+        val merchantName: String? = null,
+        val transactionAmountRupees: Double? = null,
+    ) : ExpenseSourceContext()
 
-    /** Logging an expense against a standalone (non-trip) advance. */
-    data class Advance(val advanceId: String) : ExpenseSourceContext()
+    /** Logging an expense against a standalone (non-trip) advance. [advanceLabel] mirrors [Trip.tripLabel]. */
+    data class Advance(val advanceId: String, val advanceLabel: String? = null) : ExpenseSourceContext()
 
     /** Creating an expense from an attachment on an approval clarification chat message. */
     data class Message(val clarificationId: String, val attachmentUrl: String) : ExpenseSourceContext()

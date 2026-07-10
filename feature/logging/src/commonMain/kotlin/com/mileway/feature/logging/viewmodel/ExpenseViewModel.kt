@@ -2,6 +2,7 @@ package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.common.UiText
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
@@ -59,6 +60,15 @@ data class ExpenseFormState(
     val isEditing: Boolean = false,
     /** P1.8: id of the record being edited when [isEditing] is true; null in the create flow. */
     val editingId: String? = null,
+    /**
+     * P27.E.4: how this form was opened (trip/advance/event/card/message/scanner/edit linkage, or
+     * [ExpenseSourceContext.None]/[ExpenseSourceContext.Regular] for a bare "Add Expense"). Drives
+     * [openWithContext]'s prefill, [com.mileway.feature.logging.validation.ExpenseFormValidator]'s
+     * card-ceiling check, and `core:ui`'s `ExpenseContextSummaryCard`.
+     */
+    val sourceContext: ExpenseSourceContext = ExpenseSourceContext.None,
+    /** P27.E.4: Scanner-context prefill of the OCR-detected date; null uses submit-time `now()`. */
+    val dateMs: Long? = null,
     val errors: Map<String, UiText> = emptyMap(),
 )
 
@@ -118,6 +128,15 @@ sealed interface ExpenseAction {
      * REJECTED expense). A no-op if [id] doesn't resolve to a known record.
      */
     data class OpenEdit(val id: String) : ExpenseAction
+
+    /**
+     * P27.E.4: opens the entry form pre-filled per [context] — Trip/TripAdvance/Event/Advance link
+     * a merchant label, Card locks merchant/category and caps amount, Message carries the
+     * clarification attachment into [ExpenseFormState.receiptImagePath], Scanner prefills
+     * merchant/amount/category/date from its OCR result, and [ExpenseSourceContext.Edit] delegates
+     * to the existing [OpenEdit] load-by-id path.
+     */
+    data class OpenWithContext(val context: ExpenseSourceContext) : ExpenseAction
 
     /** P1.5: persists the current form as a draft (Room-backed, survives kill/relaunch). */
     data object SaveDraft : ExpenseAction
@@ -192,6 +211,9 @@ private fun ExpenseFormState.toDraftEntity(updatedAt: Long): DraftExpenseEntity 
         updatedAt = updatedAt,
     )
 
+/** Round-trips a rupee amount to its plain-text form (no trailing `.0` for whole rupees). */
+private fun Double.toAmountText(): String = if (this == toLong().toDouble()) toLong().toString() else toString()
+
 private fun DraftExpenseEntity.toFormState(): ExpenseFormState =
     ExpenseFormState(
         step = if (categoryName != null) 2 else 1,
@@ -246,6 +268,7 @@ class ExpenseViewModel(
                 }
             is ExpenseAction.OpenDetail -> openDetail(action.id)
             is ExpenseAction.OpenEdit -> openEdit(action.id)
+            is ExpenseAction.OpenWithContext -> openWithContext(action.context)
             ExpenseAction.SaveDraft -> saveDraft()
             ExpenseAction.ResumeDraft -> resumeDraft()
             ExpenseAction.DismissResumeDraft -> setState { copy(resumableDraft = null) }
@@ -308,7 +331,9 @@ class ExpenseViewModel(
                 merchantName = form.merchantName,
                 amountRupees = amount,
                 status = ExpenseStatus.PENDING,
-                dateMs = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                // P27.E.4: a Scanner-context form carries the OCR-detected date; every other source
+                // stamps the actual submit time, same as before this task.
+                dateMs = form.dateMs ?: kotlin.time.Clock.System.now().toEpochMilliseconds(),
                 note = form.note,
                 receiptImagePath = form.receiptImagePath,
                 officeCode = form.officeCode,
@@ -349,15 +374,68 @@ class ExpenseViewModel(
                     ExpenseFormState(
                         step = 2,
                         category = record.category,
-                        amountText = record.amountRupees.let { if (it == it.toLong().toDouble()) it.toLong().toString() else it.toString() },
+                        amountText = record.amountRupees.toAmountText(),
                         merchantName = record.merchantName,
                         note = record.note,
                         receiptImagePath = record.receiptImagePath,
                         officeCode = record.officeCode,
                         isEditing = true,
                         editingId = record.id,
+                        sourceContext = ExpenseSourceContext.Edit(record.id),
                     ),
             )
+        }
+    }
+
+    /**
+     * P27.E.4: opens the form pre-filled per [context]'s variant. [ExpenseSourceContext.Edit]
+     * delegates to [openEdit] (it already knows how to load-by-id from [repository]); every other
+     * variant sets a fresh [ExpenseFormState] whose [ExpenseFormState.sourceContext] is [context]
+     * itself, since the field/id data those variants need (trip label, card ceiling, etc.) is
+     * carried directly on the context (see [ExpenseSourceContext] kdoc for why — no feature:logging
+     * dependency on feature:tracking/profile/events/cards/approvals repositories is added here).
+     */
+    private fun openWithContext(context: ExpenseSourceContext) {
+        when (context) {
+            is ExpenseSourceContext.Edit -> openEdit(context.expenseId)
+            ExpenseSourceContext.None, ExpenseSourceContext.Regular ->
+                setState { copy(form = ExpenseFormState(sourceContext = context)) }
+            is ExpenseSourceContext.Trip ->
+                setState { copy(form = ExpenseFormState(sourceContext = context, merchantName = context.tripLabel.orEmpty())) }
+            is ExpenseSourceContext.TripAdvance ->
+                setState { copy(form = ExpenseFormState(sourceContext = context, merchantName = context.tripLabel.orEmpty())) }
+            is ExpenseSourceContext.Event ->
+                setState { copy(form = ExpenseFormState(sourceContext = context, merchantName = context.eventLabel.orEmpty())) }
+            is ExpenseSourceContext.Advance ->
+                setState { copy(form = ExpenseFormState(sourceContext = context, merchantName = context.advanceLabel.orEmpty())) }
+            is ExpenseSourceContext.Card ->
+                setState {
+                    copy(
+                        form =
+                            ExpenseFormState(
+                                sourceContext = context,
+                                merchantName = context.merchantName.orEmpty(),
+                                amountText = context.transactionAmountRupees?.toAmountText().orEmpty(),
+                            ),
+                    )
+                }
+            is ExpenseSourceContext.Message ->
+                setState { copy(form = ExpenseFormState(sourceContext = context, receiptImagePath = context.attachmentUrl)) }
+            is ExpenseSourceContext.Scanner -> {
+                val prefill = context.prefill
+                setState {
+                    copy(
+                        form =
+                            ExpenseFormState(
+                                sourceContext = context,
+                                merchantName = prefill.merchant.orEmpty(),
+                                amountText = prefill.amountText.orEmpty(),
+                                category = prefill.category?.let { name -> ExpenseCategory.entries.find { it.name == name } },
+                                dateMs = prefill.dateEpochMs,
+                            ),
+                    )
+                }
+            }
         }
     }
 

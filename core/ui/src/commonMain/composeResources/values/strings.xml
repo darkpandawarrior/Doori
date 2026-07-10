@@ -2995,7 +2995,21 @@
     <string name="expense_context_advance_title">Drawn from advance</string>
     <string name="expense_context_message_title">From clarification attachment</string>
     <string name="expense_context_scanner_title">From scanned document</string>
-    <string name="expense_context_todo_slot">Summary details coming soon</string>
+    <!-- V27 P27.E.2: ExpenseContextSummaryCard's per-variant label/value summary rows. -->
+    <string name="expense_context_label_expense_id">Expense ID</string>
+    <string name="expense_context_label_trip">Trip</string>
+    <string name="expense_context_label_trip_id">Trip ID</string>
+    <string name="expense_context_label_advance_id">Advance ID</string>
+    <string name="expense_context_label_event">Event</string>
+    <string name="expense_context_label_event_id">Event ID</string>
+    <string name="expense_context_label_merchant">Merchant</string>
+    <string name="expense_context_label_amount">Amount</string>
+    <string name="expense_context_label_amount_limit">Amount limit</string>
+    <string name="expense_context_label_card_id">Card ID</string>
+    <string name="expense_context_label_transaction_id">Transaction ID</string>
+    <string name="expense_context_label_advance">Advance</string>
+    <string name="expense_context_label_attachment">Attachment</string>
+    <string name="expense_context_label_confidence">Detection confidence</string>
     <!-- V27 P27.F.1-4: core:forms FormRenderer, the shared 16-field-type dynamic form renderer. -->
     <string name="core_forms_amount_details">Amount Details</string>
     <string name="core_forms_attach_file">Attach file</string>

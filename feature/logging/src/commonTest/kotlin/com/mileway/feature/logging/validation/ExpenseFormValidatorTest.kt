@@ -1,5 +1,6 @@
 package com.mileway.feature.logging.validation
 
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.viewmodel.ExpenseFormState
@@ -153,5 +154,59 @@ class ExpenseFormValidatorTest {
             )
         val errors = ExpenseFormValidator.validate(form, foodDef)
         assertTrue(errors.isEmpty())
+    }
+
+    // ── P27.E.4: Card-context amount ceiling ────────────────────────────────
+
+    @Test
+    fun `amount above the card transaction ceiling produces an amount error`() {
+        val form =
+            ExpenseFormState(
+                category = ExpenseCategory.TRAVEL,
+                amountText = "600",
+                merchantName = "Ola Cabs",
+                officeCode = "1345",
+                sourceContext = ExpenseSourceContext.Card("card-1", "txn-1", transactionAmountRupees = 500.0),
+            )
+        val errors = ExpenseFormValidator.validate(form, travelDef)
+        assertEquals(setOf(ExpenseFormValidator.FIELD_AMOUNT), errors.keys)
+    }
+
+    @Test
+    fun `amount at or below the card transaction ceiling has no amount error`() {
+        val form =
+            ExpenseFormState(
+                category = ExpenseCategory.TRAVEL,
+                amountText = "500",
+                merchantName = "Ola Cabs",
+                officeCode = "1345",
+                sourceContext = ExpenseSourceContext.Card("card-1", "txn-1", transactionAmountRupees = 500.0),
+            )
+        val errors = ExpenseFormValidator.validate(form, travelDef)
+        assertTrue(errors.isEmpty())
+    }
+
+    @Test
+    fun `card context without a known transaction amount does not cap the entered amount`() {
+        val form =
+            ExpenseFormState(
+                category = ExpenseCategory.TRAVEL,
+                amountText = "99999",
+                merchantName = "Ola Cabs",
+                officeCode = "1345",
+                sourceContext = ExpenseSourceContext.Card("card-1", "txn-1"),
+            )
+        val errors = ExpenseFormValidator.validate(form, travelDef)
+        assertTrue(errors.isEmpty())
+    }
+
+    @Test
+    fun `lockedFieldKeys locks merchant and category only for the Card context`() {
+        assertEquals(
+            setOf(ExpenseFormValidator.FIELD_MERCHANT_NAME, ExpenseFormValidator.FIELD_CATEGORY),
+            ExpenseFormValidator.lockedFieldKeys(ExpenseSourceContext.Card("card-1", "txn-1")),
+        )
+        assertTrue(ExpenseFormValidator.lockedFieldKeys(ExpenseSourceContext.Trip("trip-1")).isEmpty())
+        assertTrue(ExpenseFormValidator.lockedFieldKeys(ExpenseSourceContext.Regular).isEmpty())
     }
 }

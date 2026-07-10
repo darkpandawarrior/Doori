@@ -1,6 +1,7 @@
 package com.mileway.feature.logging.validation
 
 import com.mileway.core.common.UiText
+import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.logging.model.ExpenseCategoryDef
 import com.mileway.feature.logging.viewmodel.ExpenseFormState
 
@@ -44,8 +45,14 @@ object ExpenseFormValidator {
         }
 
         val amount = form.amountText.toDoubleOrNull()
+        val cardCeiling = (form.sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees
         if (amount == null || amount <= 0.0) {
             errors[FIELD_AMOUNT] = UiText.of("Enter an amount greater than 0")
+        } else if (cardCeiling != null && amount > cardCeiling) {
+            // P27.E.4: DiCE's card-transaction ceiling — a claim can't exceed what the card actually
+            // charged. Capped via validation (rejected on submit) rather than blocking keystrokes,
+            // so the field stays a normal editable text input.
+            errors[FIELD_AMOUNT] = UiText.of("Amount can't exceed the card transaction amount")
         }
 
         // P1.7: cost-center-gated categories (TRAVEL, ACCOMMODATION, OFFICE_SUPPLIES) require a
@@ -56,4 +63,17 @@ object ExpenseFormValidator {
 
         return errors
     }
+
+    /**
+     * P27.E.4: DiCE's `editableTypesForCard` — when an expense is opened against a card transaction,
+     * merchant and category are pinned to the actual transaction and rendered read-only once
+     * E-STRUCT wires this into the screen; amount stays a normal editable field, capped (not
+     * blocked) by [validate] instead.
+     */
+    fun lockedFieldKeys(sourceContext: ExpenseSourceContext): Set<String> =
+        if (sourceContext is ExpenseSourceContext.Card) {
+            setOf(FIELD_MERCHANT_NAME, FIELD_CATEGORY)
+        } else {
+            emptySet()
+        }
 }

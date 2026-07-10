@@ -2992,7 +2992,21 @@
     <string name="expense_context_advance_title">अग्रिम से लिया गया</string>
     <string name="expense_context_message_title">स्पष्टीकरण अनुलग्नक से</string>
     <string name="expense_context_scanner_title">स्कैन किए गए दस्तावेज़ से</string>
-    <string name="expense_context_todo_slot">सारांश विवरण जल्द आ रहा है</string>
+    <!-- V27 P27.E.2: ExpenseContextSummaryCard's per-variant label/value summary rows. -->
+    <string name="expense_context_label_expense_id">व्यय आईडी</string>
+    <string name="expense_context_label_trip">यात्रा</string>
+    <string name="expense_context_label_trip_id">यात्रा आईडी</string>
+    <string name="expense_context_label_advance_id">अग्रिम आईडी</string>
+    <string name="expense_context_label_event">इवेंट</string>
+    <string name="expense_context_label_event_id">इवेंट आईडी</string>
+    <string name="expense_context_label_merchant">व्यापारी</string>
+    <string name="expense_context_label_amount">राशि</string>
+    <string name="expense_context_label_amount_limit">राशि सीमा</string>
+    <string name="expense_context_label_card_id">कार्ड आईडी</string>
+    <string name="expense_context_label_transaction_id">लेनदेन आईडी</string>
+    <string name="expense_context_label_advance">अग्रिम</string>
+    <string name="expense_context_label_attachment">अनुलग्नक</string>
+    <string name="expense_context_label_confidence">पहचान विश्वास</string>
     <!-- V27 P27.F.1-4: core:forms FormRenderer, the shared 16-field-type dynamic form renderer. -->
     <string name="core_forms_amount_details">राशि विवरण</string>
     <string name="core_forms_attach_file">फ़ाइल संलग्न करें</string>
