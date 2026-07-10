@@ -32,6 +32,9 @@ import com.mileway.core.ui.resources.payables_parking_section_reference
 import com.mileway.core.ui.resources.payables_parking_section_vehicle
 import com.mileway.core.ui.resources.payables_parking_submit
 import com.mileway.core.ui.resources.payables_parking_subtitle
+import com.mileway.core.ui.resources.payables_parking_toast_success_title
+import com.mileway.core.ui.resources.payables_toast_policy_violations
+import com.mileway.core.ui.resources.payables_toast_sent_for_approval
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.payables.repository.ParkMode
@@ -50,20 +53,23 @@ fun CreateParkingScreen(
     viewModel: CreateParkingViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    val toastSuccessTitle = stringResource(Res.string.payables_parking_toast_success_title)
+    val toastSentApproval = stringResource(Res.string.payables_toast_sent_for_approval)
+    val toastPolicyViolations = stringResource(Res.string.payables_toast_policy_violations)
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is CreateParkingEffect.Success -> {
-                    Toasts.show("Gate event logged", "Reference ${effect.id}", ToastType.Success)
+                    Toasts.show(toastSuccessTitle, "Reference ${effect.id}", ToastType.Success)
                     onSubmitted(effect.id)
                 }
                 is CreateParkingEffect.NeedsApproval -> {
-                    Toasts.show("Sent for approval", "${effect.id} is awaiting clearance", ToastType.Info)
+                    Toasts.show(toastSentApproval, "${effect.id} is awaiting clearance", ToastType.Info)
                     onSubmitted(effect.id)
                 }
                 is CreateParkingEffect.Violation ->
-                    Toasts.show("Policy violations", effect.messages.joinToString(" · "), ToastType.Warning)
+                    Toasts.show(toastPolicyViolations, effect.messages.joinToString(" · "), ToastType.Warning)
             }
         }
     }
