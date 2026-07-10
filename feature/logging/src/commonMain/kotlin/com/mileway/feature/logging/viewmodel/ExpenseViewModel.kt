@@ -46,6 +46,13 @@ data class ExpenseFormState(
     val step: Int = 1,
     val category: ExpenseCategory? = null,
     val amountText: String = "",
+    /**
+     * P27.E.15: currency the amount above was entered in (static local conversion table only —
+     * no live FX backend, see [com.mileway.feature.logging.currency.CurrencyConverter]).
+     * [submitExpense] stores [ExpenseRecord.amountRupees] unchanged (still the literal figure
+     * typed in) — this only drives the picker and the entry screen's "≈ ₹" preview.
+     */
+    val currencyCode: String = "INR",
     val merchantName: String = "",
     val note: String = "",
     /** Local URI/path of an optional attached receipt photo (P1.4); null when none was attached. */
@@ -106,6 +113,9 @@ sealed interface ExpenseAction {
     data class SelectCategory(val category: ExpenseCategory) : ExpenseAction
 
     data class SetAmount(val text: String) : ExpenseAction
+
+    /** P27.E.15: sets the currency the amount is entered in (defaults to INR). */
+    data class SetCurrency(val code: String) : ExpenseAction
 
     data class SetMerchant(val name: String) : ExpenseAction
 
@@ -209,6 +219,7 @@ private fun ExpenseFormState.toDraftEntity(updatedAt: Long): DraftExpenseEntity 
         note = note,
         receiptImagePath = receiptImagePath,
         updatedAt = updatedAt,
+        currencyCode = currencyCode,
     )
 
 /** Round-trips a rupee amount to its plain-text form (no trailing `.0` for whole rupees). */
@@ -219,6 +230,7 @@ private fun DraftExpenseEntity.toFormState(): ExpenseFormState =
         step = if (categoryName != null) 2 else 1,
         category = categoryName?.let { name -> ExpenseCategory.entries.find { it.name == name } },
         amountText = amountText,
+        currencyCode = currencyCode,
         merchantName = merchantName,
         note = note,
         receiptImagePath = receiptImagePath,
@@ -251,6 +263,7 @@ class ExpenseViewModel(
             is ExpenseAction.SelectCategory ->
                 setState { copy(form = form.copy(category = action.category, step = 2)) }
             is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
+            is ExpenseAction.SetCurrency -> setState { copy(form = form.copy(currencyCode = action.code)) }
             is ExpenseAction.SetMerchant -> setState { copy(form = form.copy(merchantName = action.name)) }
             is ExpenseAction.SetNote -> setState { copy(form = form.copy(note = action.note)) }
             is ExpenseAction.SetReceiptImage -> setState { copy(form = form.copy(receiptImagePath = action.path)) }
@@ -337,6 +350,7 @@ class ExpenseViewModel(
                 note = form.note,
                 receiptImagePath = form.receiptImagePath,
                 officeCode = form.officeCode,
+                currencyCode = form.currencyCode,
             )
         // P1.6: same tiered policy engine as Log Miles, keyed off the expense amount.
         val submissionStatus = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
@@ -375,6 +389,7 @@ class ExpenseViewModel(
                         step = 2,
                         category = record.category,
                         amountText = record.amountRupees.toAmountText(),
+                        currencyCode = record.currencyCode,
                         merchantName = record.merchantName,
                         note = record.note,
                         receiptImagePath = record.receiptImagePath,

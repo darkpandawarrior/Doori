@@ -24,6 +24,8 @@ data class DraftExpenseEntity(
     val note: String,
     val receiptImagePath: String?,
     val updatedAt: Long,
+    /** P27.E.15: the currency the amount was entered in (static local table only — no live FX). */
+    val currencyCode: String = "INR",
 ) {
     companion object {
         const val SINGLETON_ID: String = "expense_draft_singleton"

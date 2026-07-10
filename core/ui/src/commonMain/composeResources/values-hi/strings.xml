@@ -469,6 +469,7 @@
     <string name="logging_submit_expense">व्यय सबमिट करें</string>
     <string name="logging_save_draft">ड्राफ़्ट सहेजें</string>
     <string name="logging_amount_rupees_label">राशि (₹)</string>
+    <string name="logging_currency_label">मुद्रा</string>
     <string name="logging_merchant_vendor_label">व्यापारी / विक्रेता का नाम</string>
     <string name="logging_note_optional_label">नोट (वैकल्पिक)</string>
     <string name="logging_note_placeholder">इस व्यय का उद्देश्य…</string>

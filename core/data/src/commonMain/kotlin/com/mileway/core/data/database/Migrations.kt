@@ -5,6 +5,21 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 40 → 41 (PLAN_V27 P27.E.15): additive `currencyCode` column on `draft_expenses` —
+ * [com.mileway.core.data.model.db.DraftExpenseEntity] mirrors
+ * [com.mileway.feature.logging.viewmodel.ExpenseFormState]'s fields 1:1, so once the form gains a
+ * currency picker, the persisted draft needs the same column or resuming a draft would silently
+ * drop the currency back to INR. Existing rows default to `'INR'` — the correct read of every
+ * draft saved before this migration (currency didn't exist, amount was always rupees).
+ */
+val MIGRATION_40_41 =
+    object : Migration(40, 41) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `draft_expenses` ADD COLUMN `currencyCode` TEXT NOT NULL DEFAULT 'INR'")
+        }
+    }
+
+/**
  * Migration 39 → 40 (PLAN_V26 P26.LIB.2): five additive columns on `media_library` —
  * `isFavorite`/`isDeleted`/`deletedAt`/`lastAccessedAt` back the Cloud Library's favorites,
  * soft-delete (recoverable — [MediaLibraryDao.softDelete]/[MediaLibraryDao.restore] vs the

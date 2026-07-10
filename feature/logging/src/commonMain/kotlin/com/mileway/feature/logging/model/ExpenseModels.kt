@@ -84,6 +84,12 @@ data class ExpenseRecord(
      * of a static placeholder string. Null for any non-rejected record.
      */
     val rejectionReason: String? = null,
+    /**
+     * P27.E.15: the currency [amountRupees] was originally entered in (static local conversion
+     * table only — no live FX backend). [amountRupees] itself is always the rupee figure used for
+     * settlement/policy checks unchanged from before this field existed; this is display metadata.
+     */
+    val currencyCode: String = "INR",
 ) {
     /**
      * P27.E.14: computed from [com.mileway.stub.PolicyMockData]'s tiered expense-amount policy

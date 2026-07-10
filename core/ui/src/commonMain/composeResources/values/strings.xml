@@ -1008,6 +1008,7 @@
     <string name="logging_submit_expense">Submit Expense</string>
     <string name="logging_save_draft">Save Draft</string>
     <string name="logging_amount_rupees_label">Amount (₹)</string>
+    <string name="logging_currency_label">Currency</string>
     <string name="logging_merchant_vendor_label">Merchant / Vendor Name</string>
     <string name="logging_note_optional_label">Note (optional)</string>
     <string name="logging_note_placeholder">Purpose of this expense…</string>

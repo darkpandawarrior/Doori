@@ -126,7 +126,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         BannerDismissedEntity::class,
         PopupAckEntity::class,
     ],
-    version = 40,
+    version = 41,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)

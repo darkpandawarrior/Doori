@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +56,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.common.asString
+import com.mileway.core.common.formatDecimal
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
@@ -64,6 +66,7 @@ import com.mileway.core.ui.resources.logging_amount_rupees_label
 import com.mileway.core.ui.resources.logging_attach_receipt_optional
 import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
 import com.mileway.core.ui.resources.logging_back_cd
+import com.mileway.core.ui.resources.logging_currency_label
 import com.mileway.core.ui.resources.logging_expense_details_header
 import com.mileway.core.ui.resources.logging_expense_input_subtitle
 import com.mileway.core.ui.resources.logging_merchant_name_placeholder
@@ -79,6 +82,7 @@ import com.mileway.core.ui.resources.logging_submit_expense
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
+import com.mileway.feature.logging.currency.CurrencyConverter
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -188,18 +192,39 @@ fun ExpenseDetailsInputScreen(
             }
 
             val amountError = form.errors[ExpenseFormValidator.FIELD_AMOUNT]
-            OutlinedTextField(
-                value = form.amountText,
-                onValueChange = { viewModel.onAction(ExpenseAction.SetAmount(it)) },
-                label = { Text(stringResource(Res.string.logging_amount_rupees_label)) },
-                placeholder = { Text("0.00") },
-                prefix = { Text("₹") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true,
-                isError = amountError != null,
-                supportingText = amountError?.let { { Text(it.asString()) } },
-                modifier = Modifier.fillMaxWidth(),
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+            ) {
+                OutlinedTextField(
+                    value = form.amountText,
+                    onValueChange = { viewModel.onAction(ExpenseAction.SetAmount(it)) },
+                    label = { Text(stringResource(Res.string.logging_amount_rupees_label)) },
+                    placeholder = { Text("0.00") },
+                    prefix = { Text(CurrencyConverter.symbolFor(form.currencyCode)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    isError = amountError != null,
+                    supportingText = amountError?.let { { Text(it.asString()) } },
+                    modifier = Modifier.weight(1f),
+                )
+                CurrencyPickerField(
+                    selectedCode = form.currencyCode,
+                    onSelect = { code -> viewModel.onAction(ExpenseAction.SetCurrency(code)) },
+                    modifier = Modifier.width(110.dp),
+                )
+            }
+
+            // P27.E.15: local, static-table conversion preview — informational only, never applied
+            // to the amount actually stored/checked against policy (see ExpenseFormState.currencyCode).
+            if (form.currencyCode != "INR") {
+                val liveAmountForConversion = form.amountText.toDoubleOrNull() ?: 0.0
+                val convertedRupees = CurrencyConverter.toRupees(liveAmountForConversion, form.currencyCode)
+                Text(
+                    text = "≈ ₹${convertedRupees.formatDecimal(2)}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             val merchantError = form.errors[ExpenseFormValidator.FIELD_MERCHANT_NAME]
             OutlinedTextField(
@@ -310,6 +335,49 @@ private fun OfficePickerField(
                     text = { Text("${office.name} (${office.code})") },
                     onClick = {
                         onSelect(office)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+/**
+ * P27.E.15: currency picker for the amount field, offering [CurrencyConverter.supportedCurrencies]
+ * (static local list — no live FX). Mirrors [OfficePickerField]'s dropdown shape.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CurrencyPickerField(
+    selectedCode: String,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+        modifier = modifier,
+    ) {
+        OutlinedTextField(
+            value = selectedCode,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(Res.string.logging_currency_label)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            CurrencyConverter.supportedCurrencies.forEach { code ->
+                DropdownMenuItem(
+                    text = { Text(code) },
+                    onClick = {
+                        onSelect(code)
                         expanded = false
                     },
                 )
