@@ -5,6 +5,29 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 35 → 36 (PLAN_V24 P12.8): additive `favourite_routes` table — routes the user pinned
+ * from a completed trip (name + quick-start classification default + a distance display cache).
+ * Empty on first run; a row is added per pin, deleted on unpin. No backend.
+ */
+val MIGRATION_35_36 =
+    object : Migration(35, 36) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `favourite_routes` (
+                    `id`            TEXT    NOT NULL PRIMARY KEY,
+                    `sourceTrackId` TEXT    NOT NULL,
+                    `name`          TEXT    NOT NULL,
+                    `purpose`       TEXT    NOT NULL,
+                    `distanceKm`    REAL    NOT NULL,
+                    `createdAtMs`   INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 34 → 35 (PLAN_V24 P12.7): additive single-row `signature` table — the profile's digital
  * signature PNG path. Empty on first run; a row is written when the user draws + saves a signature,
  * deleted when they clear it. Same single-row shape as `passport_details` / `vehicle_details`.

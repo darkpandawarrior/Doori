@@ -20,6 +20,7 @@ import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
 import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EcoDashboardScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
+import com.mileway.feature.profile.ui.screens.FavouriteRoutesScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.IncentiveProgramsScreen
 import com.mileway.feature.profile.ui.screens.ManagerReporteeDetailScreen
@@ -88,6 +89,7 @@ object ProfileRoutes {
     const val GARAGE = "profile/garage"
     const val SELF_AUDIT = "profile/garage/{vehicleId}/audit"
     const val ECOMETER = "profile/ecometer"
+    const val FAVOURITES = "profile/favourites"
 
     fun selfAuditRoute(vehicleId: String) = "profile/garage/$vehicleId/audit"
 
@@ -145,12 +147,16 @@ fun NavGraphBuilder.profileGraph(
             onOpenManagerView = { navController.navigate(ProfileRoutes.MANAGER_REPORTEES) },
             onOpenGarage = { navController.navigate(ProfileRoutes.GARAGE) },
             onOpenEcometer = { navController.navigate(ProfileRoutes.ECOMETER) },
+            onOpenFavourites = { navController.navigate(ProfileRoutes.FAVOURITES) },
             onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
             onSignedOut = onSignedOut,
         )
     }
     composable(ProfileRoutes.ECOMETER) {
         EcoDashboardScreen(onBack = { navController.popBackStack() })
+    }
+    composable(ProfileRoutes.FAVOURITES) {
+        FavouriteRoutesScreen(onBack = { navController.popBackStack() })
     }
     composable(ProfileRoutes.GARAGE) {
         VehicleGarageScreen(

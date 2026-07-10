@@ -68,6 +68,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().vehicleDao() }
         single { get<MilewayDatabase>().vehicleAuditDao() }
         single { get<MilewayDatabase>().signatureDao() }
+        single { get<MilewayDatabase>().favouriteRouteDao() }
         single { get<MilewayDatabase>().passportDetailsDao() }
         single { get<MilewayDatabase>().delegationDao() }
         single { get<MilewayDatabase>().sessionDao() }
@@ -116,6 +117,8 @@ val coreDataModule =
         single { com.mileway.core.data.vehicle.GarageRepository(get()) }
         // PLAN_V24 P12.6: per-vehicle self-audit history (verdict via the shared SimulatedReviewEngine).
         single { com.mileway.core.data.vehicle.SelfAuditRepository(get(), get()) }
+        // PLAN_V24 P12.8: favourite routes pinned from completed trips (reads the shared SavedTrackDao).
+        single { com.mileway.core.data.favourite.FavouriteRoutesRepository(get(), get()) }
         // PLAN_V24 P11.3: the per-account head-home destination store (tracking panel + trip tag).
         single { com.mileway.core.data.location.DestinationModeRepository(get()) }
         // PLAN_V24 P11.4: the Ecometer aggregation source (real completed-trip distances × factors).

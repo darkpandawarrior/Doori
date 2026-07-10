@@ -33,6 +33,7 @@ import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
 import com.mileway.feature.profile.viewmodel.EcoDashboardViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
 import com.mileway.feature.profile.viewmodel.EmergencyContactsViewModel
+import com.mileway.feature.profile.viewmodel.FavouriteRoutesViewModel
 import com.mileway.feature.profile.viewmodel.IncentiveViewModel
 import com.mileway.feature.profile.viewmodel.ManagerReporteesViewModel
 import com.mileway.feature.profile.viewmodel.MarketingHubViewModel
@@ -108,6 +109,8 @@ val profileModule =
         viewModelOf(::SelfAuditViewModel)
         // PLAN_V24 P12.7: digital-signature tile in Personal Details (SignatureRepository + registry).
         viewModelOf(::SignatureViewModel)
+        // PLAN_V24 P12.8: favourite routes — FavouriteRoutesRepository (core:data over SavedTrackDao).
+        viewModelOf(::FavouriteRoutesViewModel)
         // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
         viewModelOf(::EcoDashboardViewModel)
         // PLAN_V24 P12.1: profile-hub badge board — BadgeRepository (core:data) over real completed trips.

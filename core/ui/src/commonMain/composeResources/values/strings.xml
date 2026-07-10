@@ -2611,6 +2611,8 @@
     <string name="plugin_vehicles_self_audit_desc">Let drivers run a photo self-inspection checklist for each vehicle in the garage</string>
     <string name="plugin_tracking_destination_mode_title">Head home mode</string>
     <string name="plugin_tracking_destination_mode_desc">Pick a destination and auto-classify trips toward it, with a live countdown</string>
+    <string name="plugin_tracking_favourites_title">Favourite routes</string>
+    <string name="plugin_tracking_favourites_desc">Pin completed trips as named favourite routes with a quick-start classification</string>
     <string name="tracking_dest_title">Head home</string>
     <string name="tracking_dest_subtitle">Pick where you\'re heading — trips are classified toward it</string>
     <string name="tracking_dest_pick">Pick a destination</string>

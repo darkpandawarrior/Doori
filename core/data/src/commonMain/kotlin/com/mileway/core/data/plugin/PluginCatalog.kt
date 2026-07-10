@@ -245,6 +245,17 @@ object PluginCatalog {
                 descriptionKey = "plugin_tracking_destination_mode_desc",
                 defaultOn = false,
             ),
+            // P12.8: favourite-routes profile-hub tile (pin a completed trip; blocked zones skipped —
+            // see PROGRESS). defaultOn=false keeps the hub gallery byte-identical; the Gig Driver
+            // persona turns it on.
+            PluginDescriptor(
+                id = "favourites",
+                kind = PluginKind.TILE,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_favourites_title",
+                descriptionKey = "plugin_tracking_favourites_desc",
+                defaultOn = false,
+            ),
         )
 
     /**

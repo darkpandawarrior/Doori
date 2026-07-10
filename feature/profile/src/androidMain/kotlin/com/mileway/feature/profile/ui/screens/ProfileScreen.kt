@@ -230,6 +230,7 @@ fun ProfileScreen(
     onOpenManagerView: () -> Unit = {},
     onOpenGarage: () -> Unit = {},
     onOpenEcometer: () -> Unit = {},
+    onOpenFavourites: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
@@ -422,6 +423,7 @@ fun ProfileScreen(
                         onOpenManagerView = onOpenManagerView,
                         onOpenGarage = onOpenGarage,
                         onOpenEcometer = onOpenEcometer,
+                        onOpenFavourites = onOpenFavourites,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -758,6 +760,7 @@ private fun AccountTileGrid(
     onOpenManagerView: () -> Unit,
     onOpenGarage: () -> Unit,
     onOpenEcometer: () -> Unit,
+    onOpenFavourites: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -793,6 +796,10 @@ private fun AccountTileGrid(
     // PLAN_V24 P11.4: Ecometer tile. initialValue=false + defaultOn=false keep the hub gallery golden
     // byte-identical; only the Consumer + Gig Driver personas flip it on.
     val ecometerEnabled by pluginRegistry.observe("ecometerEnabled")
+        .collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P12.8: favourite-routes tile. initialValue=false + defaultOn=false keep the hub gallery
+    // golden byte-identical; only the Gig Driver persona flips it on.
+    val favouritesEnabled by pluginRegistry.observe("favourites")
         .collectAsStateWithLifecycle(initialValue = false)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -1100,12 +1107,25 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val favouritesTile =
+            if (favouritesEnabled) {
+                accountTile(
+                    "acc_favourites",
+                    pdel("profile_home_tile_favourites_title", "Favourites"),
+                    pdel("profile_home_tile_favourites_subtitle", "Saved routes"),
+                    Icons.Default.Star,
+                    Color(0xFFF59E0B),
+                    onOpenFavourites,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
         val depthTiles =
             listOfNotNull(
                 savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
                 campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile, garageTile,
-                ecometerTile,
+                ecometerTile, favouritesTile,
             )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))

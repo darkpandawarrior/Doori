@@ -132,6 +132,7 @@ object SuperProfilePersonas {
                     "trainingTour" to true,
                     "selfAudit" to true,
                     "signature" to true,
+                    "favourites" to true,
                     "showRating" to true,
                     "badgesEnabled" to true,
                     "ecometerEnabled" to true,
