@@ -256,6 +256,18 @@ object PluginCatalog {
                 descriptionKey = "plugin_tracking_favourites_desc",
                 defaultOn = false,
             ),
+            // P12.5: the interactive training tour (coach-mark walkthrough of a simulated trip
+            // lifecycle). Gates both the first-run offer on the profile hub and the Support-hub
+            // re-entry row. defaultOn=false keeps every golden byte-identical (no offer/row in the
+            // baseline); the Gig Driver persona turns it on.
+            PluginDescriptor(
+                id = "trainingTour",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_training_tour_title",
+                descriptionKey = "plugin_tracking_training_tour_desc",
+                defaultOn = false,
+            ),
         )
 
     /**

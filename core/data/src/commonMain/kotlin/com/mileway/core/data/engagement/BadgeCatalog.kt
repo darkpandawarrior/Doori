@@ -7,7 +7,7 @@ package com.mileway.core.data.engagement
  * reference app populated from an API — here it is a fixed local seed, shown on the hub when
  * non-empty (rating hidden when ≤0), so the shape matches without a network.
  */
-enum class BadgeId { FIRST_TRIP, TEN_TRIPS, HUNDRED_KM, WEEK_STREAK }
+enum class BadgeId { FIRST_TRIP, TEN_TRIPS, HUNDRED_KM, WEEK_STREAK, TOUR_COMPLETE }
 
 /** One achievement badge and whether the user has earned it yet. */
 data class Badge(

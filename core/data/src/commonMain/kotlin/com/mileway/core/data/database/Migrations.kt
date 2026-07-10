@@ -5,6 +5,28 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 36 → 37 (PLAN_V24 P12.5): additive per-account `tour_progress` table — the interactive
+ * training tour's step + completed/skipped outcome. Empty on first run (no row = never started); a
+ * row is upserted as the user advances/skips/completes the tour. No backend.
+ */
+val MIGRATION_36_37 =
+    object : Migration(36, 37) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `tour_progress` (
+                    `accountId`   TEXT    NOT NULL PRIMARY KEY,
+                    `stepName`    TEXT    NOT NULL,
+                    `completed`   INTEGER NOT NULL,
+                    `skipped`     INTEGER NOT NULL,
+                    `updatedAtMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 35 → 36 (PLAN_V24 P12.8): additive `favourite_routes` table — routes the user pinned
  * from a completed trip (name + quick-start classification default + a distance display cache).
  * Empty on first run; a row is added per pin, deleted on unpin. No backend.

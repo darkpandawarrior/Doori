@@ -65,6 +65,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().vehicleAuditDao() }
         single { get<MilewayDatabase>().signatureDao() }
         single { get<MilewayDatabase>().favouriteRouteDao() }
+        single { get<MilewayDatabase>().tourProgressDao() }
         single { get<MilewayDatabase>().passportDetailsDao() }
         single { get<MilewayDatabase>().delegationDao() }
         single { get<MilewayDatabase>().sessionDao() }
@@ -119,8 +120,10 @@ val coreDataModule =
         single { com.mileway.core.data.location.DestinationModeRepository(get()) }
         // PLAN_V24 P11.4: the Ecometer aggregation source (real completed-trip distances × factors).
         single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
-        // PLAN_V24 P12.1: the badge board — earned milestones from real completed trips + seeded compliments.
-        single { com.mileway.core.data.engagement.BadgeRepository(get()) }
+        // PLAN_V24 P12.5: the per-account training-tour progress store (drives the tour + the completion badge).
+        single { com.mileway.core.data.engagement.TourRepository(get(), get()) }
+        // PLAN_V24 P12.1: the badge board — earned milestones + seeded compliments + the P12.5 tour-complete badge.
+        single { com.mileway.core.data.engagement.BadgeRepository(get(), get()) }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }

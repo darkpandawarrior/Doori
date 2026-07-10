@@ -54,6 +54,7 @@ import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
 import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
+import com.mileway.feature.profile.viewmodel.TrainingTourViewModel
 import com.mileway.feature.profile.viewmodel.VehicleGarageViewModel
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
 import org.koin.core.module.dsl.viewModel
@@ -114,6 +115,8 @@ val profileModule =
         viewModelOf(::FavouriteRoutesViewModel)
         // PLAN_V24 P12.9: offers hub — one screen over CouponsRepository + CampaignRepository (no new data).
         viewModelOf(::OffersHubViewModel)
+        // PLAN_V24 P12.5: interactive training tour — TourRepository (core:data) drives the state machine.
+        viewModelOf(::TrainingTourViewModel)
         // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
         viewModelOf(::EcoDashboardViewModel)
         // PLAN_V24 P12.1: profile-hub badge board — BadgeRepository (core:data) over real completed trips.

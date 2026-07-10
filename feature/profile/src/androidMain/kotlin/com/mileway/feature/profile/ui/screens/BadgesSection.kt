@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timeline
@@ -45,6 +46,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.badge_first_trip
 import com.mileway.core.ui.resources.badge_hundred_km
 import com.mileway.core.ui.resources.badge_ten_trips
+import com.mileway.core.ui.resources.badge_tour_complete
 import com.mileway.core.ui.resources.badge_week_streak
 import com.mileway.core.ui.resources.compliment_clean_ride
 import com.mileway.core.ui.resources.compliment_great_navigation
@@ -196,6 +198,7 @@ private fun badgeIcon(id: BadgeId): ImageVector =
         BadgeId.TEN_TRIPS -> Icons.Filled.Timeline
         BadgeId.HUNDRED_KM -> Icons.Filled.Route
         BadgeId.WEEK_STREAK -> Icons.Filled.Star
+        BadgeId.TOUR_COMPLETE -> Icons.Filled.School
     }
 
 @Composable
@@ -205,6 +208,7 @@ private fun badgeLabel(id: BadgeId): String =
         BadgeId.TEN_TRIPS -> stringResource(Res.string.badge_ten_trips)
         BadgeId.HUNDRED_KM -> stringResource(Res.string.badge_hundred_km)
         BadgeId.WEEK_STREAK -> stringResource(Res.string.badge_week_streak)
+        BadgeId.TOUR_COMPLETE -> stringResource(Res.string.badge_tour_complete)
     }
 
 private fun complimentIcon(id: String): ImageVector =

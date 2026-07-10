@@ -45,6 +45,7 @@ import com.mileway.feature.profile.ui.screens.SelfAuditScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
 import com.mileway.feature.profile.ui.screens.SupportChatScreen
 import com.mileway.feature.profile.ui.screens.SupportHubScreen
+import com.mileway.feature.profile.ui.screens.TrainingTourScreen
 import com.mileway.feature.profile.ui.screens.VehicleGarageScreen
 import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 
@@ -92,6 +93,7 @@ object ProfileRoutes {
     const val ECOMETER = "profile/ecometer"
     const val FAVOURITES = "profile/favourites"
     const val OFFERS_HUB = "profile/offers"
+    const val TRAINING_TOUR = "profile/tour"
 
     fun selfAuditRoute(vehicleId: String) = "profile/garage/$vehicleId/audit"
 
@@ -151,6 +153,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenEcometer = { navController.navigate(ProfileRoutes.ECOMETER) },
             onOpenFavourites = { navController.navigate(ProfileRoutes.FAVOURITES) },
             onOpenOffers = { navController.navigate(ProfileRoutes.OFFERS_HUB) },
+            onOpenTour = { navController.navigate(ProfileRoutes.TRAINING_TOUR) },
             onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
             onSignedOut = onSignedOut,
         )
@@ -317,7 +320,11 @@ fun NavGraphBuilder.profileGraph(
             onOpenFaq = { navController.navigate(ProfileRoutes.HELP) },
             onOpenTickets = { navController.navigate(ProfileRoutes.MY_TICKETS) },
             onOpenChat = { navController.navigate(ProfileRoutes.SUPPORT_CHAT) },
+            onOpenTour = { navController.navigate(ProfileRoutes.TRAINING_TOUR) },
         )
+    }
+    composable(ProfileRoutes.TRAINING_TOUR) {
+        TrainingTourScreen(onBack = { navController.popBackStack() })
     }
     composable(ProfileRoutes.SUPPORT_CHAT) {
         SupportChatScreen(onBack = { navController.popBackStack() })

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -52,6 +53,8 @@ import com.mileway.core.ui.resources.support_channel_mail_subtitle
 import com.mileway.core.ui.resources.support_channel_mail_title
 import com.mileway.core.ui.resources.support_channel_tickets_subtitle
 import com.mileway.core.ui.resources.support_channel_tickets_title
+import com.mileway.core.ui.resources.support_channel_tour_subtitle
+import com.mileway.core.ui.resources.support_channel_tour_title
 import com.mileway.core.ui.resources.support_hub_back
 import com.mileway.core.ui.resources.support_hub_empty
 import com.mileway.core.ui.resources.support_hub_subtitle
@@ -77,6 +80,7 @@ fun SupportHubScreen(
     onOpenFaq: () -> Unit,
     onOpenTickets: () -> Unit,
     onOpenChat: () -> Unit,
+    onOpenTour: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: PluginRegistry = koinInject(),
 ) {
@@ -86,6 +90,8 @@ fun SupportHubScreen(
     val chatOn by pluginRegistry.observe("chatSupport").collectAsStateWithLifecycle(initialValue = false)
     val callOn by pluginRegistry.observe("callSupport").collectAsStateWithLifecycle(initialValue = true)
     val mailOn by pluginRegistry.observe("mailSupport").collectAsStateWithLifecycle(initialValue = true)
+    // P12.5: training-tour re-entry — only when the tour plugin is on (Gig Driver persona).
+    val tourOn by pluginRegistry.observe("trainingTour").collectAsStateWithLifecycle(initialValue = false)
 
     Scaffold(
         modifier = modifier,
@@ -112,7 +118,7 @@ fun SupportHubScreen(
                     .padding(DesignTokens.Spacing.l),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            val anyOn = faqOn || ticketOn || chatOn || callOn || mailOn
+            val anyOn = faqOn || ticketOn || chatOn || callOn || mailOn || tourOn
             if (!anyOn) {
                 Text(
                     stringResource(Res.string.support_hub_empty),
@@ -166,6 +172,15 @@ fun SupportHubScreen(
                 ) {
                     runCatching { context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse(SUPPORT_MAIL))) }
                 }
+            }
+            if (tourOn) {
+                SupportChannelRow(
+                    Icons.Filled.School,
+                    Color(0xFFD97706),
+                    stringResource(Res.string.support_channel_tour_title),
+                    stringResource(Res.string.support_channel_tour_subtitle),
+                    onOpenTour,
+                )
             }
         }
     }

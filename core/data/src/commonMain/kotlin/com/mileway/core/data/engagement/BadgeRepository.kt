@@ -2,6 +2,7 @@ package com.mileway.core.data.engagement
 
 import com.mileway.core.data.dao.SavedTrackDao
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 /**
@@ -14,12 +15,17 @@ import kotlinx.coroutines.flow.map
  * `SavedTrack.distance` is stored in metres (converted to km); the streak buckets each trip's
  * `createdAt` into a UTC day. ponytail: UTC-day buckets, not the device's calendar day — good enough
  * for a demo streak; swap for a timezone-aware bucket if streaks ever gate real rewards.
+ *
+ * [BadgeId.TOUR_COMPLETE] is the one non-trip badge: it lights up once the active account finishes
+ * the P12.5 training tour ([TourRepository.observeCompleted]), so the tour "awards a badge" through
+ * this same board rather than a parallel achievement store.
  */
 class BadgeRepository(
     private val savedTrackDao: SavedTrackDao,
+    private val tourRepository: TourRepository,
 ) {
     fun observeBoard(): Flow<BadgeBoard> =
-        savedTrackDao.getCompletedTracks().map { tracks ->
+        combine(savedTrackDao.getCompletedTracks(), tourRepository.observeCompleted()) { tracks, tourDone ->
             val trips =
                 tracks.map { track ->
                     BadgeTrip(
@@ -27,7 +33,7 @@ class BadgeRepository(
                         dayEpoch = track.createdAt / MILLIS_PER_DAY,
                     )
                 }
-            val earned = computeEarnedBadges(trips)
+            val earned = computeEarnedBadges(trips) + if (tourDone) setOf(BadgeId.TOUR_COMPLETE) else emptySet()
             BadgeBoard(
                 badges = BadgeId.entries.map { Badge(it, earned = it in earned) },
                 compliments = SEEDED_COMPLIMENTS,

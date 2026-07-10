@@ -33,6 +33,7 @@ import com.mileway.core.data.dao.SignatureDao
 import com.mileway.core.data.dao.SubmitDraftDao
 import com.mileway.core.data.dao.SubscriptionDao
 import com.mileway.core.data.dao.SupportTicketDao
+import com.mileway.core.data.dao.TourProgressDao
 import com.mileway.core.data.dao.TripAttachmentDao
 import com.mileway.core.data.dao.VehicleAuditDao
 import com.mileway.core.data.dao.VehicleDao
@@ -71,6 +72,7 @@ import com.mileway.core.data.model.db.SignatureEntity
 import com.mileway.core.data.model.db.SubmitDraftEntity
 import com.mileway.core.data.model.db.SubscriptionPlanEntity
 import com.mileway.core.data.model.db.SupportTicketEntity
+import com.mileway.core.data.model.db.TourProgressEntity
 import com.mileway.core.data.model.db.TripAttachmentEntity
 import com.mileway.core.data.model.db.VehicleAuditEntity
 import com.mileway.core.data.model.db.VehicleDetailsEntity
@@ -116,8 +118,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         VehicleAuditEntity::class,
         SignatureEntity::class,
         FavouriteRouteEntity::class,
+        TourProgressEntity::class,
     ],
-    version = 36,
+    version = 37,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -155,6 +158,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun signatureDao(): SignatureDao
 
     abstract fun favouriteRouteDao(): FavouriteRouteDao
+
+    abstract fun tourProgressDao(): TourProgressDao
 
     abstract fun passportDetailsDao(): PassportDetailsDao
 

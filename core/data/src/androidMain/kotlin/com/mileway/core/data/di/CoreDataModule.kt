@@ -69,6 +69,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().vehicleAuditDao() }
         single { get<MilewayDatabase>().signatureDao() }
         single { get<MilewayDatabase>().favouriteRouteDao() }
+        single { get<MilewayDatabase>().tourProgressDao() }
         single { get<MilewayDatabase>().passportDetailsDao() }
         single { get<MilewayDatabase>().delegationDao() }
         single { get<MilewayDatabase>().sessionDao() }
@@ -123,8 +124,10 @@ val coreDataModule =
         single { com.mileway.core.data.location.DestinationModeRepository(get()) }
         // PLAN_V24 P11.4: the Ecometer aggregation source (real completed-trip distances × factors).
         single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
-        // PLAN_V24 P12.1: the badge board — earned milestones from real completed trips + seeded compliments.
-        single { com.mileway.core.data.engagement.BadgeRepository(get()) }
+        // PLAN_V24 P12.5: the per-account training-tour progress store (drives the tour + the completion badge).
+        single { com.mileway.core.data.engagement.TourRepository(get(), get()) }
+        // PLAN_V24 P12.1: the badge board — earned milestones + seeded compliments + the P12.5 tour-complete badge.
+        single { com.mileway.core.data.engagement.BadgeRepository(get(), get()) }
         // PLAN_V24 P10.5: reverse-geocode source toggle, exposed as a named StateFlow so core:platform's
         // OfflineLocationNameResolver can read it by qualifier without depending on core:data.
         single<kotlinx.coroutines.flow.StateFlow<Boolean>>(org.koin.core.qualifier.named("reverseGeocodeRemote")) {

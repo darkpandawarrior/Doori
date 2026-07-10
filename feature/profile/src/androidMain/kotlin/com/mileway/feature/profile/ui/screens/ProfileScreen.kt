@@ -43,6 +43,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCode2
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Spa
@@ -65,6 +66,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -168,6 +170,10 @@ import com.mileway.core.ui.resources.profile_home_tile_verification_title
 import com.mileway.core.ui.resources.profile_home_total_spend
 import com.mileway.core.ui.resources.profile_home_transactions
 import com.mileway.core.ui.resources.profile_home_updated_at
+import com.mileway.core.ui.resources.tour_offer_body
+import com.mileway.core.ui.resources.tour_offer_dismiss
+import com.mileway.core.ui.resources.tour_offer_start
+import com.mileway.core.ui.resources.tour_offer_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.profile.model.AccountAnalyticsSnapshot
@@ -233,6 +239,7 @@ fun ProfileScreen(
     onOpenEcometer: () -> Unit = {},
     onOpenFavourites: () -> Unit = {},
     onOpenOffers: () -> Unit = {},
+    onOpenTour: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
@@ -262,6 +269,12 @@ fun ProfileScreen(
     val badgesRegistry = org.koin.compose.koinInject<com.mileway.core.data.plugin.PluginRegistry>()
     val badgesEnabled by badgesRegistry.observe("badgesEnabled").collectAsStateWithLifecycle(initialValue = false)
     val showRatingChip by badgesRegistry.observe("showRating").collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P12.5: first-run training-tour offer. Gated on the trainingTour plugin (Gig Driver
+    // persona; default-off ⇒ never in the baseline golden). TourRepository is only injected inside
+    // the offer item (behind this gate) so screenshot Koin — which omits the tour singleton — is
+    // untouched.
+    val trainingTourOn by badgesRegistry.observe("trainingTour").collectAsStateWithLifecycle(initialValue = false)
+    var tourOfferDismissed by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     val avatarScope = rememberCoroutineScope()
     val avatarPickerLauncher =
         androidx.activity.compose.rememberLauncherForActivityResult(
@@ -348,6 +361,17 @@ fun ProfileScreen(
                             )
                         },
                     )
+                }
+
+                // PLAN_V24 P12.5: first-run training-tour offer (Gig Driver persona; default-off).
+                if (trainingTourOn && !tourOfferDismissed) {
+                    item {
+                        TrainingTourOfferItem(
+                            onStart = onOpenTour,
+                            onDismiss = { tourOfferDismissed = true },
+                            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
+                        )
+                    }
                 }
 
                 // PLAN_V24 P7.3: "Acting as <name>" banner — visible while acting on behalf.
@@ -1803,4 +1827,50 @@ private fun ReferralCardHost(modifier: Modifier = Modifier) {
         onRedeem = { code -> scope.launch { referralManager.redeem(code) } },
         modifier = modifier,
     )
+}
+
+/**
+ * PLAN_V24 P12.5: the first-run training-tour offer item on the profile hub. Reached only when the
+ * `trainingTour` plugin is on; here it injects [com.mileway.core.data.engagement.TourRepository] and
+ * hides itself once the tour is completed/skipped. "Start tour" opens the tour; "Maybe later"
+ * dismisses it for this session.
+ */
+@Composable
+private fun TrainingTourOfferItem(
+    onStart: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val tourRepository = org.koin.compose.koinInject<com.mileway.core.data.engagement.TourRepository>()
+    val tourState by tourRepository.observe().collectAsStateWithLifecycle(
+        initialValue = com.mileway.core.data.engagement.TourState(),
+    )
+    if (tourState.status != com.mileway.core.data.engagement.TourStatus.IN_PROGRESS) return
+
+    Card(modifier = modifier.fillMaxWidth(), shape = DesignTokens.Shape.roundedMd) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
+            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Filled.School,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp),
+            )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs)) {
+                Text(stringResource(Res.string.tour_offer_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(Res.string.tour_offer_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+                    Button(onClick = onStart) { Text(stringResource(Res.string.tour_offer_start)) }
+                    TextButton(onClick = onDismiss) { Text(stringResource(Res.string.tour_offer_dismiss)) }
+                }
+            }
+        }
+    }
 }
