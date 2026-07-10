@@ -18,6 +18,8 @@ import com.mileway.feature.logging.ui.screens.LogMilesScreen
 import com.mileway.feature.logging.ui.screens.LogMilesStep2Screen
 import com.mileway.feature.logging.ui.screens.LogMilesSuccessScreen
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
+import com.mileway.feature.logging.ui.screens.VoucherDetailsScreen
+import com.mileway.feature.logging.ui.screens.VoucherHistoryScreen
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -76,6 +78,14 @@ object LoggingRoutes {
     const val EXPENSE_DETAIL = "expense/detail/{id}"
 
     fun expenseDetailRoute(id: String) = "expense/detail/$id"
+
+    /** Voucher history list (submitted vouchers, Room-backed via the shared VoucherDao). */
+    const val VOUCHER_HISTORY = "voucher/history"
+
+    /** P27.E.12: voucher detail pushed screen, reachable from [VOUCHER_HISTORY]'s cards. Route param: voucherNumber. */
+    const val VOUCHER_DETAIL = "voucher/detail/{voucherNumber}"
+
+    fun voucherDetailRoute(voucherNumber: String) = "voucher/detail/$voucherNumber"
 
     /**
      * P27.E.5/7/8: encodes [context] onto [EXPENSE_ENTRY]'s query params — the shared seam that
@@ -376,6 +386,25 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
             // the same pattern rememberExpenseEntry uses for EXPENSE_ENTRY) to see the
             // pre-filled form, instead of getting a fresh one from EXPENSE_ENTRY's store.
             onEdit = { navController.navigate(LoggingRoutes.EXPENSE_DETAILS) },
+        )
+    }
+
+    // ── Voucher history + detail (P27.E.12) ─────────────────────────────────────
+    composable(LoggingRoutes.VOUCHER_HISTORY) {
+        VoucherHistoryScreen(
+            onBack = { navController.popBackStack() },
+            onOpenDetail = { voucherNumber -> navController.navigate(LoggingRoutes.voucherDetailRoute(voucherNumber)) },
+        )
+    }
+
+    composable(
+        route = LoggingRoutes.VOUCHER_DETAIL,
+        arguments = listOf(navArgument("voucherNumber") { type = NavType.StringType }),
+    ) { backStackEntry ->
+        val voucherNumber = backStackEntry.arguments?.read { getStringOrNull("voucherNumber") } ?: return@composable
+        VoucherDetailsScreen(
+            voucherNumber = voucherNumber,
+            onBack = { navController.popBackStack() },
         )
     }
 }

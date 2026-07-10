@@ -551,6 +551,10 @@
     <string name="logging_settlements_subtitle">निपटान रिकॉर्ड और स्थिति</string>
     <string name="logging_card_transactions_subtitle">कार्ड लेनदेन और खर्च</string>
     <string name="logging_voucher_history_subtitle">वाउचर और उनकी स्थिति</string>
+    <string name="logging_voucher_details_title">वाउचर विवरण</string>
+    <string name="logging_voucher_not_found">वाउचर नहीं मिला</string>
+    <string name="logging_voucher_created">बनाया गया</string>
+    <string name="logging_voucher_linked_expenses">जुड़े हुए खर्च</string>
 
     <!-- tracking hi -->
     <string name="tracking_action_close">बंद करें</string>

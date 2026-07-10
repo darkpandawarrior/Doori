@@ -60,6 +60,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun VoucherHistoryScreen(
     onBack: () -> Unit,
+    /** P27.E.12: opens [VoucherDetailsScreen] for the tapped voucher's id (voucherNumber). */
+    onOpenDetail: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: VoucherHistoryViewModel = koinViewModel(),
 ) {
@@ -85,6 +87,7 @@ fun VoucherHistoryScreen(
     ) { voucher ->
         VoucherCard(
             voucher = voucher,
+            onClick = { onOpenDetail(voucher.id) },
             onWithdraw = { viewModel.onAction(VoucherHistoryAction.Withdraw(voucher.id)) },
         )
     }
@@ -99,13 +102,14 @@ fun VoucherHistoryScreen(
 @Composable
 private fun VoucherCard(
     voucher: SubmittedVoucher,
+    onClick: () -> Unit,
     onWithdraw: () -> Unit,
 ) {
     val canWithdraw = voucher.voucherState == VoucherStatus.DRAFT.label
     var menuExpanded by remember { mutableStateOf(false) }
     var showWithdrawConfirmation by remember { mutableStateOf(false) }
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -113,7 +117,7 @@ private fun VoucherCard(
             ) {
                 Text(voucher.id, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 Row {
-                    StatusChip(label = localizedVoucherState(voucher.voucherState), tone = toneFor(voucher.voucherState))
+                    StatusChip(label = voucherStatusLabel(voucher.voucherState), tone = voucherStatusTone(voucher.voucherState))
                     if (canWithdraw) {
                         Box {
                             IconButton(onClick = { menuExpanded = true }) {
@@ -164,7 +168,8 @@ private fun VoucherCard(
     }
 }
 
-private fun toneFor(state: String): StatusTone =
+/** Shared with [VoucherDetailsScreen] (same package); named to avoid colliding with sibling screens' own `toneFor`. */
+internal fun voucherStatusTone(state: String): StatusTone =
     when (state) {
         VoucherStatus.DRAFT.label -> StatusTone.Neutral
         VoucherStatus.PENDING.label -> StatusTone.Warning
@@ -185,9 +190,12 @@ private fun VoucherStatus.localizedLabel(): String =
         VoucherStatus.SETTLED -> stringResource(Res.string.logging_voucher_status_settled)
     }
 
-/** Localized label for a voucher's canonical stored state string; unknown values pass through. */
+/**
+ * Localized label for a voucher's canonical stored state string; unknown values pass through.
+ * Shared with [VoucherDetailsScreen] (same package).
+ */
 @Composable
-private fun localizedVoucherState(state: String): String =
+internal fun voucherStatusLabel(state: String): String =
     when (state) {
         VoucherStatus.DRAFT.label -> stringResource(Res.string.logging_voucher_status_draft)
         VoucherStatus.PENDING.label -> stringResource(Res.string.logging_voucher_status_pending)

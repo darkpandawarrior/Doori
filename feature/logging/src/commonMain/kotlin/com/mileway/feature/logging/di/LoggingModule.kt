@@ -15,6 +15,7 @@ import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.logging.viewmodel.SearchLocationViewModel
 import com.mileway.feature.logging.viewmodel.SettlementHistoryViewModel
+import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
 import com.mileway.feature.logging.viewmodel.VoucherHistoryViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -34,6 +35,8 @@ val loggingModule =
         // P12.3: reviewTracker is optional (getOrNull) — bound in the app/iOS graph, absent in tests.
         viewModel { ExpenseViewModel(get(), getOrNull()) }
         viewModel { VoucherHistoryViewModel(get(), get()) }
+        // P27.E.12: voucher drill-down — VoucherDao directly (a read, no derived history fields needed).
+        viewModel { VoucherDetailsViewModel(get()) }
         viewModel { SettlementHistoryViewModel(get()) }
         viewModel { CardsTxnHistoryViewModel(get()) }
         // Location switching sheet: SavedLocationsSource (core:data) + optional platform tracker.

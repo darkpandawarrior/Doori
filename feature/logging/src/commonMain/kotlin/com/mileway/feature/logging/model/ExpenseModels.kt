@@ -9,6 +9,8 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.mileway.core.network.model.SubmissionStatus
+import com.mileway.stub.PolicyMockData
 
 enum class ExpenseCategory(val label: String, val icon: ImageVector) {
     FOOD("Food", Icons.Filled.Restaurant),
@@ -83,5 +85,17 @@ data class ExpenseRecord(
      */
     val rejectionReason: String? = null,
 ) {
-    val requiresApproval: Boolean get() = amountRupees > 5000.0
+    /**
+     * P27.E.14: computed from [com.mileway.stub.PolicyMockData]'s tiered expense-amount policy
+     * engine (same three violation-shaped outcomes [ExpenseSuccessScreen] already gates its
+     * approval banner on) instead of a standalone hardcoded `> 5000` literal that could silently
+     * drift from the real policy thresholds.
+     */
+    val requiresApproval: Boolean
+        get() {
+            val outcome = PolicyMockData.outcomeForExpenseAmount(amountRupees, category.name)
+            return outcome == SubmissionStatus.POLICY_VIOLATION ||
+                outcome == SubmissionStatus.NEEDS_APPROVAL ||
+                outcome == SubmissionStatus.HARD_STOP
+        }
 }
