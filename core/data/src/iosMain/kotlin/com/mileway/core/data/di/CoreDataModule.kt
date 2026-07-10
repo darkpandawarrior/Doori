@@ -110,6 +110,8 @@ val coreDataModule =
         single { com.mileway.core.data.vehicle.GarageRepository(get()) }
         // PLAN_V24 P11.3: the per-account head-home destination store (tracking panel + trip tag).
         single { com.mileway.core.data.location.DestinationModeRepository(get()) }
+        // PLAN_V24 P11.4: the Ecometer aggregation source (real completed-trip distances × factors).
+        single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }

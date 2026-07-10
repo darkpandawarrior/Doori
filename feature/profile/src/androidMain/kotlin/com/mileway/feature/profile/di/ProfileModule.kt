@@ -28,6 +28,7 @@ import com.mileway.feature.profile.viewmodel.CouponsViewModel
 import com.mileway.feature.profile.viewmodel.DelegateSessionViewModel
 import com.mileway.feature.profile.viewmodel.DelegationViewModel
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
+import com.mileway.feature.profile.viewmodel.EcoDashboardViewModel
 import com.mileway.feature.profile.viewmodel.EmailVerificationViewModel
 import com.mileway.feature.profile.viewmodel.EmergencyContactsViewModel
 import com.mileway.feature.profile.viewmodel.IncentiveViewModel
@@ -97,6 +98,8 @@ val profileModule =
         viewModelOf(::ManagerReporteesViewModel)
         // PLAN_V24 P11.2: vehicle garage — GarageRepository (core:data) + DocumentRepository + registry.
         viewModelOf(::VehicleGarageViewModel)
+        // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
+        viewModelOf(::EcoDashboardViewModel)
         viewModelOf(::ActiveSessionsViewModel)
         viewModelOf(::NotificationViewModel)
         viewModelOf(::ConnectedAccountsViewModel)

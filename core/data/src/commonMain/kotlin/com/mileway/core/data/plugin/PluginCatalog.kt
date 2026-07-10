@@ -482,6 +482,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_growth_campaigns_desc",
                 defaultOn = true,
             ),
+            // PLAN_V24 P11.4: the Ecometer dashboard — a profile-hub TILE. defaultOn=false keeps the
+            // hub gallery byte-identical; the Consumer + Gig Driver presets turn it on.
+            PluginDescriptor(
+                id = "ecometerEnabled",
+                kind = PluginKind.TILE,
+                category = PluginCategory.GROWTH,
+                titleKey = "plugin_growth_ecometer_title",
+                descriptionKey = "plugin_growth_ecometer_desc",
+                defaultOn = false,
+            ),
         )
 
     /** Membership plugins (P6). */

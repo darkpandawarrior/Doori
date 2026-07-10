@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCode2
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material.icons.filled.Tune
@@ -228,6 +229,7 @@ fun ProfileScreen(
     onOpenIncentives: () -> Unit = {},
     onOpenManagerView: () -> Unit = {},
     onOpenGarage: () -> Unit = {},
+    onOpenEcometer: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
     onSignedOut: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
@@ -413,6 +415,7 @@ fun ProfileScreen(
                         onOpenIncentives = onOpenIncentives,
                         onOpenManagerView = onOpenManagerView,
                         onOpenGarage = onOpenGarage,
+                        onOpenEcometer = onOpenEcometer,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
                 }
@@ -739,6 +742,7 @@ private fun AccountTileGrid(
     onOpenIncentives: () -> Unit,
     onOpenManagerView: () -> Unit,
     onOpenGarage: () -> Unit,
+    onOpenEcometer: () -> Unit,
     modifier: Modifier = Modifier,
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
@@ -770,6 +774,10 @@ private fun AccountTileGrid(
     // PLAN_V24 P11.2: vehicle garage tile. initialValue=false + defaultOn=false keep the hub gallery
     // golden byte-identical; only the Gig Driver persona flips it on.
     val garageEnabled by pluginRegistry.observe("vehicleGarage")
+        .collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P11.4: Ecometer tile. initialValue=false + defaultOn=false keep the hub gallery golden
+    // byte-identical; only the Consumer + Gig Driver personas flip it on.
+    val ecometerEnabled by pluginRegistry.observe("ecometerEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
     val blue = Color(0xFF2563EB)
     val red = Color(0xFFDC2626)
@@ -1064,11 +1072,25 @@ private fun AccountTileGrid(
             } else {
                 null
             }
+        val ecometerTile =
+            if (ecometerEnabled) {
+                accountTile(
+                    "acc_ecometer",
+                    pdel("profile_home_tile_ecometer_title", "Ecometer"),
+                    pdel("profile_home_tile_ecometer_subtitle", "Your impact"),
+                    Icons.Default.Spa,
+                    Color(0xFF16A34A),
+                    onOpenEcometer,
+                )
+            } else {
+                null
+            }
         // Lay the enabled depth tiles out two-per-row, in declaration order.
         val depthTiles =
             listOfNotNull(
                 savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
                 campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile, garageTile,
+                ecometerTile,
             )
         depthTiles.chunked(2).forEach { pair ->
             TileRow(left = pair[0], right = pair.getOrNull(1))

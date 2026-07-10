@@ -2365,6 +2365,17 @@
     <!-- PLAN_V24 P5.4: campaign-marketing hub -->
     <string name="plugin_growth_campaigns_title">अभियान</string>
     <string name="plugin_growth_campaigns_desc">मार्केटिंग हब और रेपो-समर्थित होम बैनर दिखाएँ</string>
+    <string name="plugin_growth_ecometer_title">इकोमीटर</string>
+    <string name="plugin_growth_ecometer_desc">कार चलाने की तुलना में आपकी यात्राओं से बचा CO₂ और ईंधन दिखाएँ</string>
+    <string name="profile_home_tile_ecometer_title">इकोमीटर</string>
+    <string name="profile_home_tile_ecometer_subtitle">आपका प्रभाव</string>
+    <string name="eco_title">इकोमीटर</string>
+    <string name="eco_subtitle">पेट्रोल कार चलाने की तुलना में आपकी बचत</string>
+    <string name="eco_co2_saved">CO₂ बचाया</string>
+    <string name="eco_fuel_saved">ईंधन लागत बचाई</string>
+    <string name="eco_distance">ट्रैक की गई दूरी</string>
+    <string name="eco_trips">हरित यात्राएँ</string>
+    <string name="eco_empty">अपना प्रभाव देखने के लिए एक यात्रा ट्रैक करें।</string>
     <string name="profile_home_tile_campaigns_title">नया क्या है</string>
     <string name="profile_home_tile_campaigns_subtitle">अभियान और ऑफ़र</string>
     <string name="marketing_title">नया क्या है</string>
