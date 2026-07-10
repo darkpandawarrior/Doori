@@ -22,6 +22,9 @@ kotlin {
             // Location switching: LocationTracker / LocationNameResolver for "use current location".
             implementation(project(":core:platform"))
             implementation(project(":core:ui"))
+            // V26 P26.CONV: OdometerCaptureSheet runs real OCR on the attached photo via the one
+            // shared odometer OCR pipeline instead of manual-only entry.
+            implementation(project(":core:media"))
             implementation(project(":feature:tracking"))
             // P1.6: reuses PolicyMockData's tiered policy engine for expense-amount validation.
             implementation(project(":stub"))

@@ -434,6 +434,7 @@
     <string name="logging_odometer_reading_label">ओडोमीटर रीडिंग (किमी)</string>
     <string name="logging_attach_odometer_photo">ओडोमीटर फ़ोटो संलग्न करें</string>
     <string name="logging_odometer_photo_retake">फ़ोटो संलग्न — पुनः लें</string>
+    <string name="logging_odometer_ocr_processing">फ़ोटो से ओडोमीटर पढ़ा जा रहा है…</string>
     <string name="logging_confirm">पुष्टि करें</string>
     <string name="logging_choose_vehicle_type">वाहन का प्रकार चुनें</string>
     <string name="logging_search_vehicles_placeholder">वाहन खोजें...</string>
@@ -1290,6 +1291,13 @@
     <string name="core_action_done">पूर्ण</string>
     <string name="core_remarks_placeholder">टिप्पणी दर्ज करें</string>
     <string name="core_remarks_required">इस कार्रवाई के लिए टिप्पणी आवश्यक है</string>
+    <string name="core_odometer_discrepancy_title">रीडिंग मेल नहीं खाती</string>
+    <string name="core_odometer_discrepancy_body">टाइप की गई, डिवाइस-OCR और AI रीडिंग असहमत हैं। सर्वश्रेष्ठ अनुमान स्वीकार करें या फ़ोटो फिर से लें।</string>
+    <string name="core_odometer_rejection_title">ओडोमीटर नहीं पढ़ा जा सका</string>
+    <string name="core_odometer_action_accept_typed">टाइप किया गया मान उपयोग करें</string>
+    <string name="core_odometer_source_user">टाइप किया गया</string>
+    <string name="core_odometer_source_device">डिवाइस OCR</string>
+    <string name="core_odometer_source_ai">AI OCR</string>
     <string name="core_bulk_remarks_note">वही टिप्पणियां सभी चयनित आइटम पर लागू होंगी।</string>
     <string name="core_select_date">तारीख चुनें</string>
     <string name="core_select_time">समय चुनें</string>

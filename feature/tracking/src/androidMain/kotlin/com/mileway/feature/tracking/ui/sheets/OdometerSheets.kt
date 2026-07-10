@@ -1,6 +1,5 @@
 package com.mileway.feature.tracking.ui.sheets
 
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,7 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.mileway.core.data.model.display.OdometerPurpose
+import com.mileway.core.media.model.OdometerReading
+import com.mileway.core.media.ocr.OdometerReconciler
+import com.mileway.core.media.ocr.rememberOdometerOcrService
 import com.mileway.core.ui.components.sheet.AppActionSheet
+import com.mileway.core.ui.components.sheet.OdometerDiscrepancySheet
+import com.mileway.core.ui.components.sheet.OdometerRejectionSheet
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_action_confirm
 import com.mileway.core.ui.resources.tracking_action_cancel
@@ -59,13 +62,15 @@ import com.mileway.core.ui.resources.tracking_odometer_reading_km_value
 import com.mileway.core.ui.resources.tracking_odometer_start_title
 import com.mileway.core.ui.resources.tracking_odometer_use_reading
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.feature.tracking.ocr.OcrResult
-import com.mileway.feature.tracking.ocr.OdometerOcrAnalyzer
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * P-E.1: Android-only OCR confirmation sheet for odometer photos. Kept in androidMain because
- * it depends on ML Kit (OdometerOcrAnalyzer), LocalContext, and android.net.Uri.
+ * P-E.1/V26 P26.CONV: OCR confirmation sheet for odometer photos, called from `feature:tracking`'s
+ * androidMain-only [com.mileway.feature.tracking.ui.screens.OdometerCameraScreen]. OCR runs through
+ * `core:media`'s [rememberOdometerOcrService] — the one shared odometer OCR pipeline every feature
+ * uses — and a disagreement between the typed/device-OCR/AI readings routes through
+ * [OdometerReconciler] into [OdometerDiscrepancySheet]/[OdometerRejectionSheet] instead of silently
+ * picking one.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,14 +99,37 @@ fun OdometerReadingConfirmSheet(
     var showManualDialog by remember { mutableStateOf(false) }
     var manualInput by remember { mutableStateOf(detectedReading.toString()) }
 
-    val context = LocalContext.current
-    val analyzer = remember { OdometerOcrAnalyzer(context) }
+    // V26 P26.CONV.3: not keyed on capturedUri — survives across retakes within this capture
+    // session so OdometerReconciler.withRetake can accumulate retakeCount/retakeHistory correctly.
+    var odometerReading by remember { mutableStateOf(OdometerReading()) }
+    var verdict by remember { mutableStateOf<OdometerReconciler.Verdict?>(null) }
+
+    val ocrService = rememberOdometerOcrService()
     LaunchedEffect(capturedUri) {
-        when (val result = analyzer.analyze(Uri.parse(capturedUri))) {
-            is OcrResult.Success -> displayedReading = result.reading
-            is OcrResult.Failure -> displayedReading = detectedReading
-        }
+        isProcessing = true
+        val aggregate = ocrService.analyzeSingle(capturedUri)
+        val aiReading = runCatching { ocrService.analyzeAi(capturedUri) }.getOrNull()
+        val reading =
+            odometerReading.copy(
+                url = capturedUri,
+                deviceOcrReading = aggregate.reading?.toString(),
+                aiOcrReading = aiReading,
+            )
+        odometerReading = reading
+        val result = OdometerReconciler.reconcile(reading)
+        verdict = result
+        displayedReading =
+            when (result) {
+                is OdometerReconciler.Verdict.Accepted -> result.reading
+                else -> aggregate.reading ?: detectedReading
+            }
         isProcessing = false
+    }
+
+    fun retakeWithHistory() {
+        odometerReading = OdometerReconciler.withRetake(odometerReading)
+        verdict = null
+        onRetake()
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
@@ -170,24 +198,52 @@ fun OdometerReadingConfirmSheet(
                 Spacer(Modifier.height(56.dp))
             }
 
+            val needsReconciliation = verdict is OdometerReconciler.Verdict.Discrepancy || verdict is OdometerReconciler.Verdict.Rejected
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 OutlinedButton(
                     shape = DesignTokens.Shape.button,
-                    onClick = onRetake,
+                    onClick = ::retakeWithHistory,
                     modifier = Modifier.weight(1f),
                 ) { Text(stringResource(Res.string.tracking_action_retake)) }
                 Button(
                     shape = DesignTokens.Shape.button,
                     onClick = { onUseReading(displayedReading, false) },
                     modifier = Modifier.weight(1f),
-                    enabled = !isProcessing,
+                    // V26 P26.CONV.3: a Discrepancy/Rejected verdict must be resolved via the
+                    // reconciliation sheet below, not silently confirmed with the best-effort guess.
+                    enabled = !isProcessing && !needsReconciliation,
                 ) { Text(stringResource(Res.string.tracking_odometer_use_reading)) }
             }
             Spacer(Modifier.height(DesignTokens.Spacing.l))
         }
+    }
+
+    when (val v = verdict) {
+        is OdometerReconciler.Verdict.Discrepancy ->
+            OdometerDiscrepancySheet(
+                userReading = v.userReading,
+                deviceReading = v.deviceReading,
+                aiReading = v.aiReading,
+                onAccept = { chosen ->
+                    displayedReading = chosen
+                    verdict = OdometerReconciler.Verdict.Accepted(chosen)
+                },
+                onRetake = ::retakeWithHistory,
+            )
+        is OdometerReconciler.Verdict.Rejected ->
+            OdometerRejectionSheet(
+                reason = v.reason,
+                userReading = odometerReading.userReading?.toIntOrNull(),
+                onAccept = { chosen ->
+                    displayedReading = chosen
+                    verdict = OdometerReconciler.Verdict.Accepted(chosen)
+                },
+                onRetake = ::retakeWithHistory,
+            )
+        else -> Unit
     }
 
     if (showManualDialog) {

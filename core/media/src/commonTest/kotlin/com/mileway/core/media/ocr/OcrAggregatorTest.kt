@@ -1,17 +1,24 @@
-package com.mileway.feature.tracking.ocr
+package com.mileway.core.media.ocr
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
+/**
+ * Characterization test for the V26 P26.CONV move from `feature:tracking` into `core:media`: every
+ * assertion here pins the pre-move numeric behavior (consensus reading, quality-weighted voting,
+ * regex-fallback bounds) so the move + the additive `labelled`-bonus change can't silently drift it.
+ */
 class OcrAggregatorTest {
     private fun frame(
         text: String,
         quality: Float = 0.9f,
+        labelled: Boolean = false,
     ) = OcrAggregator.FrameCandidate(
         rawText = text,
         quality = FrameQualityAnalyzer.FrameMetrics(quality, quality, quality),
+        labelled = labelled,
     )
 
     @Test
@@ -98,5 +105,22 @@ class OcrAggregatorTest {
         val result = OcrAggregator.aggregate(emptyList())
         assertNull(result.reading)
         assertEquals(0, result.totalFrames)
+    }
+
+    @Test
+    fun `default labelled=false keeps confidence identical to the pre-move formula`() {
+        // Pins the exact pre-move confidence value: agreementRatio=1, avgQuality=0.9,
+        // confidence = (1 + 0.9) / 2 = 0.95, no labelled bonus.
+        val result = OcrAggregator.aggregate(listOf(frame("48213", quality = 0.9f)))
+        assertTrue(kotlin.math.abs(result.confidence - 0.95f) < 0.0001f, "expected ~0.95, got ${result.confidence}")
+    }
+
+    @Test
+    fun `labelled candidate adds a confidence bonus without changing the winning reading`() {
+        val unlabelled = OcrAggregator.aggregate(listOf(frame("48213", quality = 0.9f)))
+        val labelled = OcrAggregator.aggregate(listOf(frame("48213", quality = 0.9f, labelled = true)))
+
+        assertEquals(unlabelled.reading, labelled.reading)
+        assertTrue(labelled.confidence > unlabelled.confidence)
     }
 }

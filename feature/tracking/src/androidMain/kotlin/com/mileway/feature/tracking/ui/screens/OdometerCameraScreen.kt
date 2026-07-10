@@ -22,16 +22,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.display.OdometerReadingSource
+import com.mileway.core.media.ocr.rememberOdometerOcrService
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_odometer_cd_pick_gallery
-import com.mileway.feature.media.ocr.GalleryOdometerProcessor
-import com.mileway.feature.media.repository.RealMediaRepository
 import com.mileway.feature.media.ui.camera.CameraCaptureScreen
 import com.mileway.feature.tracking.ui.sheets.OdometerReadingConfirmSheet
 import kotlinx.coroutines.launch
@@ -62,9 +60,11 @@ fun OdometerCameraScreen(
     // D.2b: multi-pass OCR reading parsed from a gallery-picked image; pre-fills the confirm sheet.
     var galleryReading by remember { mutableStateOf<Int?>(null) }
 
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val galleryProcessor = remember(context) { GalleryOdometerProcessor(RealMediaRepository(context)) }
+    // V26 P26.CONV.1: the one shared odometer OCR pipeline's gallery entry point — real multi-pass
+    // (image-enhancement variants + voting) on Android, carrying forward the retired
+    // feature:media GalleryOdometerProcessor's multi-pass-verification idea.
+    val ocrService = rememberOdometerOcrService()
     val galleryLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { picked ->
             if (picked != null) {
@@ -72,8 +72,7 @@ fun OdometerCameraScreen(
                 capturedUri = uriStr
                 captureTimeMs = System.currentTimeMillis()
                 scope.launch {
-                    // D.2b: run the same multi-pass OCR pipeline on the picked image, then confirm.
-                    galleryReading = galleryProcessor.process(uriStr).value
+                    galleryReading = ocrService.analyzeGalleryImage(uriStr).reading
                     showConfirmSheet = true
                 }
             }

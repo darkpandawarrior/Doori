@@ -26,6 +26,9 @@ kotlin {
             implementation(project(":core:ui"))
             implementation(project(":core:platform"))
             implementation(project(":core:maps"))
+            // V26 P26.CONV: the sole odometer OCR pipeline (OdometerOcrService/OdometerReconciler)
+            // now lives in core:media so it's reachable without a feature-to-feature dependency.
+            implementation(project(":core:media"))
             // P-E.1: Coil3 is multiplatform; moved from androidMain so submission components can live in commonMain.
             implementation(libs.coil3.compose)
             // V21 §3 Wave 4: NetworkLogViewModel's API tester takes an optional HttpClient.
@@ -39,7 +42,6 @@ kotlin {
             implementation(libs.play.services.location)
             implementation(libs.workmanager.runtime)
             implementation(libs.mlkit.document.scanner)
-            implementation(libs.mlkit.text.recognition)
             implementation(project(":feature:media"))
         }
         commonTest.dependencies {

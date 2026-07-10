@@ -972,6 +972,7 @@
     <string name="logging_odometer_reading_label">Odometer reading (km)</string>
     <string name="logging_attach_odometer_photo">Attach Odometer Photo</string>
     <string name="logging_odometer_photo_retake">Photo Attached — Retake</string>
+    <string name="logging_odometer_ocr_processing">Reading odometer from photo…</string>
     <string name="logging_confirm">Confirm</string>
     <string name="logging_choose_vehicle_type">Choose Vehicle Type</string>
     <string name="logging_search_vehicles_placeholder">Search vehicles...</string>
@@ -1828,6 +1829,13 @@
     <string name="core_action_done">Done</string>
     <string name="core_remarks_placeholder">Enter remarks</string>
     <string name="core_remarks_required">Remarks are required for this action</string>
+    <string name="core_odometer_discrepancy_title">Readings don\'t match</string>
+    <string name="core_odometer_discrepancy_body">The typed, device-OCR and AI readings disagree. Accept the best guess or retake the photo.</string>
+    <string name="core_odometer_rejection_title">Couldn\'t read the odometer</string>
+    <string name="core_odometer_action_accept_typed">Use typed value</string>
+    <string name="core_odometer_source_user">Typed</string>
+    <string name="core_odometer_source_device">Device OCR</string>
+    <string name="core_odometer_source_ai">AI OCR</string>
     <string name="core_bulk_remarks_note">The same remarks will be applied to all selected items.</string>
     <string name="core_select_date">Select date</string>
     <string name="core_select_time">Select time</string>

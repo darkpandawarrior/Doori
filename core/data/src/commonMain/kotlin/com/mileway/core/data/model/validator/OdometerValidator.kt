@@ -22,7 +22,7 @@ enum class OdometerError { BELOW_BOUNDS, ABOVE_BOUNDS, DECREMENT, IMPLAUSIBLE_JU
 
 /** Pure commonMain odometer validator — no Android/Java imports. */
 object OdometerValidator {
-    /** Odometers in this fleet are 6-digit displays; matches [OdometerOcrAnalyzer]'s 1_000..999_999 extraction range. */
+    /** Odometers in this fleet are 6-digit displays; matches `core:media`'s `OcrAggregator` 1_000..999_999 extraction range. */
     const val MAX_ODOMETER: Int = 999_999
 
     /**

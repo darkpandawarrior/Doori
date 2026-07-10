@@ -1,13 +1,16 @@
-package com.mileway.feature.tracking.ocr
+package com.mileway.core.media.ocr
 
 /**
- * Multi-frame OCR (Wave-2 parity item): pure quality gate for a single camera frame.
+ * Multi-frame OCR: pure quality gate for a single camera frame.
  *
  * A frame is worth feeding to the aggregator only if the platform recognizer had a reasonable shot
  * at it. No Android/ML Kit/Vision types here — [sharpness] and [contrast] are cheap proxies the
  * platform actual can compute from its own image buffer (e.g. Laplacian variance, histogram spread)
  * and [textConfidence] is the recognizer's own per-block/line confidence average. Pure Kotlin so
- * it's directly JVM-unit-testable, matching [com.mileway.feature.media.ocr.OdometerOcrParser]'s contract.
+ * it's directly JVM-unit-testable.
+ *
+ * V26 P26.CONV: moved here from `feature:tracking` (single sole odometer OCR pipeline, reachable by
+ * every feature module without a feature-to-feature dependency).
  */
 object FrameQualityAnalyzer {
     /** Per-frame inputs, each normalised to 0f..1f by the caller (platform actual). */

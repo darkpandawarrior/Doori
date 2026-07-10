@@ -1,12 +1,16 @@
-package com.mileway.feature.tracking.ocr
+package com.mileway.core.media.ocr
 
 /**
- * Multi-frame OCR (Wave-2 parity item): orchestration entry point.
+ * Multi-frame OCR: orchestration entry point.
  *
  * The platform recognizer ([FrameTextRecognizer]) is injected — it only has to turn one already-
  * captured frame into raw text + a quality signal; all decision logic (accept/reject, vote,
  * consensus, regex fallback) lives here in pure commonMain via [FrameQualityAnalyzer] and
  * [OcrAggregator]. Single-frame capture is just the N=1 case of [recognizeFrames].
+ *
+ * V26 P26.CONV: the sole odometer OCR pipeline — moved here from `feature:tracking` so
+ * `feature:tracking`, `feature:media`, and `feature:logging` can all reach it without a
+ * feature-to-feature dependency (see [OdometerOcrService] for the ready-to-inject facade).
  */
 class OdometerOcrOrchestrator<T>(
     private val recognizer: FrameTextRecognizer<T>,
@@ -34,10 +38,9 @@ data class RecognizedFrame(
 )
 
 /**
- * Platform text recognizer boundary. `T` is the platform's own image handle (Android: `android.net.Uri`
- * + `Context`; iOS: whatever Vision consumes) — generic so this interface stays commonMain-clean with
- * zero platform imports. The actual recognition (ML Kit / Vision) is the only platform-specific part;
- * everything downstream of [RecognizedFrame] is pure.
+ * Platform text recognizer boundary. `T` is the platform's own image handle — generic so this
+ * interface stays commonMain-clean with zero platform imports. The actual recognition is the only
+ * platform-specific part; everything downstream of [RecognizedFrame] is pure.
  */
 interface FrameTextRecognizer<T> {
     suspend fun recognize(frame: T): RecognizedFrame

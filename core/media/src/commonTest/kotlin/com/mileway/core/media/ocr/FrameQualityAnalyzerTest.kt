@@ -1,4 +1,4 @@
-package com.mileway.feature.tracking.ocr
+package com.mileway.core.media.ocr
 
 import kotlin.test.Test
 import kotlin.test.assertFalse
