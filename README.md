@@ -12,8 +12,8 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 
 [![CI](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml)
 [![Quality](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml)
-![Kotlin](https://img.shields.io/badge/Kotlin-2.4.0-7F52FF?logo=kotlin&logoColor=white)
-![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.11.1-4285F4?logo=jetpackcompose&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
+![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop-3DDC84)
 ![Offline](https://img.shields.io/badge/network-zero%20backend-success)
 
@@ -375,18 +375,18 @@ Mileway/
 
 | Layer | Technology |
 |---|---|
-| Language | Kotlin **2.4.0** |
-| UI | Compose Multiplatform **1.11.1**, Material 3 |
-| Build | AGP **9.2.1**, Gradle Kotlin DSL, convention plugins, version catalog |
+| Language | Kotlin **2.4.20-Beta1** |
+| UI | Compose Multiplatform **1.12.0-beta01**, Material 3 |
+| Build | AGP **9.4.0-alpha03**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
 | Database | Room **2.8.4** (KMP, bundled SQLite) |
 | Settings / session | AndroidX DataStore |
-| Networking | Ktor **3.5.0** (OkHttp + Darwin engines), mocked with no live backend |
+| Networking | Ktor **3.5.1** (OkHttp + Darwin engines), mocked with no live backend |
 | Concurrency | Coroutines + Flow (no LiveData); `kotlinx-datetime` **0.8.0** in commonMain |
 | Maps | osmdroid / MapLibre (`noGms`, offline MBTiles) · KrossMap (`gms`) |
 | Charts | Canvas-only (no MPAndroidChart / Vico) |
-| Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.64.0** screenshots |
-| Quality | detekt **1.23.8**, ktlint, Kover, dependency-guard |
+| Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.67.0** screenshots |
+| Quality | detekt **2.0.0-alpha.5**, ktlint, Kover, dependency-guard |
 | SDK | compileSdk **37**, minSdk **30**, JDK 21 |
 
 ## Getting started
