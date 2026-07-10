@@ -37,6 +37,11 @@ play-services-wearable = "20.0.1"
 coil = "2.7.0"
 core-ktx = "1.19.0"
 camerax = "1.7.0-alpha02"
+# V26 P26.AND: Peekaboo CMP image picker (documented choice, .ralph/kmp-migration-map.md #9)
+peekaboo = "0.5.2"
+# V26 P26.AND.4: EXIF orientation correction ahead of OCR (androidx, Android-only — core:media's
+# commonMain contract stays platform-agnostic; a KMP-shared reader is table #12's future upgrade).
+exifinterface = "1.4.2"
 wormaceptor = "2.3.1"
 leakcanary = "3.0-alpha-9"
 paging = "3.5.0"
@@ -164,6 +169,11 @@ camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" 
 camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camerax" }
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
+
+# V26 P26.AND: gallery picker, Android actual (KMP artifact; iOS actual is P26.IOS.1's job)
+peekaboo-image-picker = { module = "io.github.onseok:peekaboo-image-picker", version.ref = "peekaboo" }
+# V26 P26.AND.4: EXIF orientation correction before OCR (Android-only)
+androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 
 # Image
 konnection = { group = "dev.tmapps", name = "konnection", version.ref = "konnection" }

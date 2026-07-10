@@ -37,12 +37,14 @@ androidx.compose.foundation:foundation-layout:1.12.0-beta01
 androidx.compose.foundation:foundation:1.12.0-beta01
 androidx.compose.material3:material3-android:1.5.0-alpha22
 androidx.compose.material3:material3:1.5.0-alpha22
+androidx.compose.material:material-android:1.11.4
 androidx.compose.material:material-icons-core-android:1.7.8
 androidx.compose.material:material-icons-core:1.7.8
 androidx.compose.material:material-icons-extended-android:1.7.8
 androidx.compose.material:material-icons-extended:1.7.8
 androidx.compose.material:material-ripple-android:1.12.0-beta01
 androidx.compose.material:material-ripple:1.12.0-beta01
+androidx.compose.material:material:1.11.4
 androidx.compose.remote:remote-core:1.0.0-alpha14
 androidx.compose.remote:remote-creation-android:1.0.0-alpha14
 androidx.compose.remote:remote-creation-core:1.0.0-alpha14
@@ -314,6 +316,8 @@ io.github.farimarwat:krossmap-android:1.3
 io.github.farimarwat:krossmap:1.3
 io.github.kevinnzou:compose-webview-multiplatform-android:2.0.3
 io.github.kevinnzou:compose-webview-multiplatform:2.0.3
+io.github.onseok:peekaboo-image-picker-android:0.5.2
+io.github.onseok:peekaboo-image-picker:0.5.2
 io.insert-koin:koin-android:4.2.2
 io.insert-koin:koin-androidx-workmanager:4.2.2
 io.insert-koin:koin-compose-android:4.2.2
@@ -378,6 +382,7 @@ org.jetbrains.compose.material:material-icons-core:1.7.3
 org.jetbrains.compose.material:material-icons-extended:1.7.3
 org.jetbrains.compose.material:material-ripple-android:1.12.0-beta01
 org.jetbrains.compose.material:material-ripple:1.12.0-beta01
+org.jetbrains.compose.material:material:1.6.2
 org.jetbrains.compose.runtime:runtime-android:1.12.0-beta01
 org.jetbrains.compose.runtime:runtime-saveable-android:1.12.0-beta01
 org.jetbrains.compose.runtime:runtime-saveable:1.12.0-beta01

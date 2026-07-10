@@ -6,8 +6,10 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.net.Uri
+import androidx.exifinterface.media.ExifInterface
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -33,7 +35,7 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
     override suspend fun runOcr(uri: String): OcrResult {
         return try {
             val source =
-                decodeBitmap(uri)
+                decodeBitmapCorrected(uri)
                     ?: return OcrResult("Could not decode image.", null, 0f, false)
 
             val recogniser = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
@@ -97,6 +99,58 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
             context.contentResolver.openInputStream(parsed)?.use { BitmapFactory.decodeStream(it) }
         }.getOrNull()
             ?: runCatching { parsed.path?.let { BitmapFactory.decodeFile(it) } }.getOrNull()
+    }
+
+    /**
+     * V26 P26.AND.4: [decodeBitmap] plus EXIF orientation correction. A camera/gallery/document-
+     * scan JPEG commonly carries an EXIF orientation tag rather than pre-rotated pixels — OCR
+     * (and any thumbnail reading pixels directly) needs the corrected bitmap, not the raw one.
+     * Peekaboo's gallery picker already bakes this in for its own bytes (V26 P26.AND.1); this is
+     * the one shared decode path every OCR call — camera, gallery, document-scan, files — funnels
+     * through, so fixing it here fixes all of them at once.
+     */
+    private fun decodeBitmapCorrected(uri: String): Bitmap? {
+        val bitmap = decodeBitmap(uri) ?: return null
+        return applyExifOrientation(bitmap, readExifOrientation(uri))
+    }
+
+    private fun readExifOrientation(uri: String): Int {
+        val parsed = Uri.parse(uri)
+        val fromResolver =
+            runCatching {
+                context.contentResolver.openInputStream(parsed)?.use {
+                    ExifInterface(it).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+                }
+            }.getOrNull()
+        return fromResolver
+            ?: runCatching {
+                parsed.path?.let { ExifInterface(it).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) }
+            }.getOrNull()
+            ?: ExifInterface.ORIENTATION_NORMAL
+    }
+
+    private fun applyExifOrientation(
+        bitmap: Bitmap,
+        orientation: Int,
+    ): Bitmap {
+        val matrix = Matrix()
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
+            ExifInterface.ORIENTATION_TRANSPOSE -> {
+                matrix.preScale(-1f, 1f)
+                matrix.postRotate(270f)
+            }
+            ExifInterface.ORIENTATION_TRANSVERSE -> {
+                matrix.preScale(-1f, 1f)
+                matrix.postRotate(90f)
+            }
+            else -> return bitmap
+        }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
     /** True when [detected] sits on a line that also carries an odometer label — a higher-confidence hit. */

@@ -28,6 +28,8 @@ kotlin {
             implementation(libs.camera.camera2)
             implementation(libs.camera.lifecycle)
             implementation(libs.camera.view)
+            // V26 P26.AND.4: EXIF orientation correction ahead of OCR (RealMediaRepository).
+            implementation(libs.androidx.exifinterface)
             implementation(project(":stub"))
         }
     }
