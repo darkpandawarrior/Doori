@@ -31,7 +31,8 @@ val loggingModule =
         single { CardsTxnHistoryRepository() }
         factory { LogMilesSubmitUseCase(get(), get()) }
         viewModel { LogMilesViewModel(get(), get(), get(), get(), get()) }
-        viewModel { ExpenseViewModel(get()) }
+        // P12.3: reviewTracker is optional (getOrNull) — bound in the app/iOS graph, absent in tests.
+        viewModel { ExpenseViewModel(get(), getOrNull()) }
         viewModel { VoucherHistoryViewModel(get(), get()) }
         viewModel { SettlementHistoryViewModel(get()) }
         viewModel { CardsTxnHistoryViewModel(get()) }

@@ -5,6 +5,7 @@ import com.mileway.core.common.UiText
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
+import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
@@ -195,6 +196,9 @@ private fun DraftExpenseEntity.toFormState(): ExpenseFormState =
 
 class ExpenseViewModel(
     private val repository: ExpenseRepository,
+    // PLAN_V24 P12.3: creating an expense is a meaningful engagement signal for the review gate.
+    // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
+    private val reviewTracker: ReviewTracker? = null,
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
     init {
         refresh(ExpenseFilter.ALL, ExpenseSort.DATE, emptySet())
@@ -306,6 +310,7 @@ class ExpenseViewModel(
         val violations = PolicyMockData.violationsForExpenseAmount(amount, category.name)
         viewModelScope.launch {
             if (form.isEditing) repository.update(record) else repository.insert(record)
+            reviewTracker?.recordInteraction()
             // A submitted expense is no longer "in-flight" — clear the draft it was saved from
             // (if any), so relaunching the app doesn't re-offer a resume for an already-submitted form.
             repository.clearDraft()

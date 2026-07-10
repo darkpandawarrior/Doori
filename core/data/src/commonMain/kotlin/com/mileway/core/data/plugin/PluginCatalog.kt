@@ -618,12 +618,31 @@ object PluginCatalog {
             supportChannel("mailSupport", defaultOn = true),
         )
 
+    /**
+     * Review-prompter plugin (P12.3) — gates the engagement-gated auto "Rate Mileway" prompt on Home.
+     * defaultOn=true preserves the existing behavior (the app already auto-prompted when eligible); the
+     * native sheet only shows once the review gate (7-day account age, 5 interactions, 30-day cooldown)
+     * is satisfied, so it never fires in a screenshot test. The manual "Rate Mileway" row in Settings
+     * ignores this gate. ENGAGEMENT-category ⇒ below the Master-page fold.
+     */
+    val reviewPlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "reviewPrompt",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.ENGAGEMENT,
+                titleKey = "plugin_engagement_review_prompt_title",
+                descriptionKey = "plugin_engagement_review_prompt_desc",
+                defaultOn = true,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
             trackingTuningPlugins + abnormalTuningPlugins + experimentalPlugins + syncSettingsPlugins +
             verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins + vehiclePlugins +
-            badgePlugins + supportPlugins
+            badgePlugins + supportPlugins + reviewPlugins
 
     // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
     // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.

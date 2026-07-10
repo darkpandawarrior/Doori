@@ -48,4 +48,16 @@ class ReviewTracker(
         store.save(state.copy(lastPromptMillis = now()))
         return true
     }
+
+    /**
+     * PLAN_V24 P12.3: pure eligibility read for the native "Rate Mileway" sheet (no Play SDK) — the
+     * caller shows its own UI when this is true, then calls [markPrompted]. Separate from [tryPrompt]
+     * (which drives the platform [AppReviewManager]) so the offline demo can present a native sheet.
+     */
+    suspend fun shouldPrompt(): Boolean = ReviewEligibility.isEligible(store.load(), now(), config)
+
+    /** Stamps the last-prompt time so the cooldown starts, after a native prompt was shown. */
+    suspend fun markPrompted() {
+        store.save(store.load().copy(lastPromptMillis = now()))
+    }
 }

@@ -26,15 +26,17 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.platform.FeatureFlags
 import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.components.DotsIndicator
-import com.mileway.core.ui.platform.LocalAppReviewManager
+import com.mileway.core.ui.components.RateAppSheet
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.shared_home_at_a_glance
 import com.mileway.core.ui.resources.shared_home_benefits
@@ -92,13 +94,20 @@ fun HomeScreen(
     val campaigns by campaignRepository.observeAll().collectAsStateWithLifecycle(initialValue = emptyList())
     LaunchedEffect(Unit) { campaignRepository.seedIfEmpty() }
 
-    // V15 RV.4/CF.1: Home is a meaningful engagement signal, record it and prompt for review if eligible
-    // and the in-app-review flag is on.
-    val reviewManager = LocalAppReviewManager.current
+    // V15 RV.4/CF.1 + PLAN_V24 P12.3: Home is a meaningful engagement signal — record first-open +
+    // an interaction. The review prompt is now the native RateAppSheet (no Play SDK), gated by the
+    // reviewPrompt plugin AND the in-app-review flag, and only when the engagement gate is satisfied.
+    val reviewPromptEnabled by campaignPluginRegistry.observe("reviewPrompt").collectAsStateWithLifecycle(initialValue = false)
+    var showReviewSheet by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         reviewTracker.recordFirstOpenIfNeeded()
         reviewTracker.recordInteraction()
-        if (featureFlags.inAppReviewEnabled) reviewTracker.tryPrompt(reviewManager)
+    }
+    LaunchedEffect(reviewPromptEnabled) {
+        if (reviewPromptEnabled && featureFlags.inAppReviewEnabled && reviewTracker.shouldPrompt()) {
+            reviewTracker.markPrompted()
+            showReviewSheet = true
+        }
     }
 
     HomeScreenContent(
@@ -117,6 +126,11 @@ fun HomeScreen(
                 null
             },
     )
+
+    // PLAN_V24 P12.3: the native "Rate Mileway" sheet shown when the engagement gate is satisfied.
+    if (showReviewSheet) {
+        RateAppSheet(onDismiss = { showReviewSheet = false })
+    }
 
     // PLAN_V24 P2.2: one-shot "What's new" sheet, shown once per release after login.
     if (whatsNewState.isVisible) {

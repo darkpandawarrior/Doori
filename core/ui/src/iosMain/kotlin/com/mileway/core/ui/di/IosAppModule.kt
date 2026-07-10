@@ -35,5 +35,11 @@ val iosAppModule: Module =
         single<PushMessaging> { LocalPushMessaging(get()) }
 
         single<DeepLinkHandler> { DefaultDeepLinkHandler() }
-        single { ReviewTracker() }
+        // PLAN_V24 P12.3: NSUserDefaults-backed review counters + the plan's 7-day account-age gate.
+        single {
+            ReviewTracker(
+                store = com.mileway.core.ui.review.IosReviewStateStore(),
+                config = com.mileway.core.platform.ReviewGateConfig(minAccountAgeDays = 7),
+            )
+        }
     }

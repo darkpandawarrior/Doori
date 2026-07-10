@@ -2312,6 +2312,17 @@
     <string name="support_chat_reply_ticket">I can\'t reach a human here, but you can raise a ticket from Support → My tickets, or use Call/Email support.</string>
     <string name="support_chat_reply_thanks">You\'re welcome! Anything else I can help with?</string>
     <string name="support_chat_reply_fallback">I\'m not sure about that yet. Try asking about tracking, expenses, permissions or your account — or raise a ticket.</string>
+    <!-- PLAN_V24 P12.3: review prompter + native rate sheet -->
+    <string name="plugin_engagement_review_prompt_title">Review prompt</string>
+    <string name="plugin_engagement_review_prompt_desc">Ask for a rating on Home once you\'re an engaged user</string>
+    <string name="rate_app_title">Enjoying Mileway?</string>
+    <string name="rate_app_subtitle">Tap a star to rate your experience.</string>
+    <string name="rate_app_submit">Submit</string>
+    <string name="rate_app_dismiss">Not now</string>
+    <string name="rate_app_thanks">Thanks for your feedback!</string>
+    <string name="rate_app_star">Star %1$d</string>
+    <string name="profile_settings_rate">Rate Mileway</string>
+    <string name="profile_settings_rate_desc">Tell us how we\'re doing</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">Incentive programs</string>
     <string name="plugin_engagement_incentives_desc">Show target-based incentive programs and progress</string>

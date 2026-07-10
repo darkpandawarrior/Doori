@@ -60,8 +60,14 @@ import dev.tmapps.konnection.Konnection
 val appModule = module {
     single { DatabaseSeeder(get(), get()) }
 
-    // V15 RV.4: engagement-gated in-app review tracker (in-memory counters for the demo).
-    single { com.mileway.core.platform.ReviewTracker() }
+    // V15 RV.4 / PLAN_V24 P12.3: engagement-gated in-app review tracker. Counters are now
+    // DataStore-backed (survive cold start) and the gate uses the plan's 7-day account-age threshold.
+    single {
+        com.mileway.core.platform.ReviewTracker(
+            store = com.mileway.core.ui.review.DataStoreReviewStateStore(get()),
+            config = com.mileway.core.platform.ReviewGateConfig(minAccountAgeDays = 7),
+        )
+    }
 
     // V15 DL.4: shared deep-link handler (runtime/iOS-bridge links observe its incoming flow).
     single<com.mileway.core.platform.DeepLinkHandler> { com.mileway.core.platform.DefaultDeepLinkHandler() }

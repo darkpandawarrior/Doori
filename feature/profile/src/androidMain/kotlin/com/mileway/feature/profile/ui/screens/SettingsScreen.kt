@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Extension
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.StarRate
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -59,6 +60,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.ui.components.RateAppSheet
 import com.mileway.core.ui.components.dialog.ColorWheelDialog
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
@@ -117,6 +119,8 @@ import com.mileway.core.ui.resources.profile_settings_permission_health
 import com.mileway.core.ui.resources.profile_settings_plugins
 import com.mileway.core.ui.resources.profile_settings_plugins_desc
 import com.mileway.core.ui.resources.profile_settings_preferences
+import com.mileway.core.ui.resources.profile_settings_rate
+import com.mileway.core.ui.resources.profile_settings_rate_desc
 import com.mileway.core.ui.resources.profile_settings_recommended
 import com.mileway.core.ui.resources.profile_settings_reset
 import com.mileway.core.ui.resources.profile_settings_reset_confirm
@@ -179,6 +183,8 @@ fun SettingsScreen(
     var showStylePicker by remember { mutableStateOf(false) }
     var showLanguagePicker by remember { mutableStateOf(false) }
     var showResetConfirm by remember { mutableStateOf(false) }
+    // PLAN_V24 P12.3: manual "Rate Mileway" sheet (ignores the auto-prompt engagement gate).
+    var showRateSheet by remember { mutableStateOf(false) }
     val permSnackbarState = remember { SnackbarHostState() }
     val permScope = rememberCoroutineScope()
 
@@ -526,6 +532,19 @@ fun SettingsScreen(
                 headlineContent = { Text(stringResource(Res.string.profile_settings_app_version)) },
                 supportingContent = { Text(about.appVersion) },
             )
+            // PLAN_V24 P12.3: manual "Rate Mileway" row — always available, bypasses the auto gate.
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.StarRate,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                },
+                headlineContent = { Text(stringResource(Res.string.profile_settings_rate)) },
+                supportingContent = { Text(stringResource(Res.string.profile_settings_rate_desc)) },
+                modifier = Modifier.clickable { showRateSheet = true },
+            )
             Text(
                 text = stringResource(Res.string.profile_settings_demo_build),
                 style = MaterialTheme.typography.bodySmall,
@@ -694,6 +713,10 @@ fun SettingsScreen(
             },
             onDismiss = { showResetConfirm = false },
         )
+    }
+
+    if (showRateSheet) {
+        RateAppSheet(onDismiss = { showRateSheet = false })
     }
 }
 

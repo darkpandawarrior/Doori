@@ -13,6 +13,7 @@ import com.mileway.core.network.api.MilewayNetworkApi
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
 import com.mileway.core.platform.NotificationScheduler
+import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.checkin.RoundTripClassifier
 import com.mileway.feature.tracking.insights.DistanceQualityAnalyzer
@@ -199,6 +200,9 @@ class MileageSubmissionViewModel(
     private val notificationScheduler: NotificationScheduler,
     private val notificationThrottler: SubmissionNotificationThrottler =
         SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }),
+    // PLAN_V24 P12.3: a submitted mileage claim is a meaningful engagement signal for the review gate.
+    // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
+    private val reviewTracker: ReviewTracker? = null,
 ) : BaseViewModel<MileageSubmissionUiState, MileageSubmissionEffect, MileageSubmissionAction>(
         MileageSubmissionUiState(
             form =
@@ -464,6 +468,7 @@ class MileageSubmissionViewModel(
         viewModelScope.launch {
             val transId = response.transId ?: "DEMO-${Clock.System.now().toEpochMilliseconds()}"
             trackRepository.markSubmitted(routeId, transId, response.reimbursableAmount ?: 0.0)
+            reviewTracker?.recordInteraction()
 
             // Wave-3 (parity §3): quality score reused from DistanceQualityAnalyzer against the
             // persisted track's distance buckets — point-level mock/abnormal counts aren't loaded

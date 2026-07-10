@@ -2312,6 +2312,17 @@
     <string name="support_chat_reply_ticket">मैं यहाँ किसी व्यक्ति तक नहीं पहुँच सकता, पर आप Support → मेरे टिकट से टिकट दर्ज कर सकते हैं, या कॉल/ईमेल सहायता का उपयोग करें।</string>
     <string name="support_chat_reply_thanks">आपका स्वागत है! क्या मैं किसी और चीज़ में मदद कर सकता हूँ?</string>
     <string name="support_chat_reply_fallback">मुझे इसके बारे में अभी पक्का पता नहीं है। ट्रैकिंग, ख़र्च, अनुमतियों या अपने खाते के बारे में पूछें — या टिकट दर्ज करें।</string>
+    <!-- PLAN_V24 P12.3: review prompter + native rate sheet -->
+    <string name="plugin_engagement_review_prompt_title">समीक्षा संकेत</string>
+    <string name="plugin_engagement_review_prompt_desc">सक्रिय उपयोगकर्ता बनने पर होम पर रेटिंग के लिए पूछें</string>
+    <string name="rate_app_title">Mileway पसंद आ रहा है?</string>
+    <string name="rate_app_subtitle">अपने अनुभव को रेट करने के लिए किसी तारे पर टैप करें।</string>
+    <string name="rate_app_submit">सबमिट करें</string>
+    <string name="rate_app_dismiss">अभी नहीं</string>
+    <string name="rate_app_thanks">आपकी प्रतिक्रिया के लिए धन्यवाद!</string>
+    <string name="rate_app_star">तारा %1$d</string>
+    <string name="profile_settings_rate">Mileway को रेट करें</string>
+    <string name="profile_settings_rate_desc">बताएँ कि हम कैसा कर रहे हैं</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">प्रोत्साहन कार्यक्रम</string>
     <string name="plugin_engagement_incentives_desc">लक्ष्य-आधारित प्रोत्साहन कार्यक्रम और प्रगति दिखाएँ</string>
