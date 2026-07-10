@@ -76,14 +76,6 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
         }
     }
 
-    override suspend fun applyWatermark(
-        uri: String,
-        text: String,
-    ): String {
-        // Stub: watermarking is out of scope for offline OCR.
-        return "$uri#watermarked"
-    }
-
     override suspend fun upload(item: AttachmentItem): UploadState.Done {
         // Stub: upload is intentionally offline-only in this demo.
         return UploadState.Done("local://${item.id}")

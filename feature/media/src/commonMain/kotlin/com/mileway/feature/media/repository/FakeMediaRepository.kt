@@ -27,15 +27,6 @@ class FakeMediaRepository : MediaRepository {
         )
     }
 
-    override suspend fun applyWatermark(
-        uri: String,
-        text: String,
-    ): String {
-        delay(700)
-        // Mock: pretend we wrote a watermarked copy alongside the original.
-        return "$uri#watermarked"
-    }
-
     override suspend fun upload(item: AttachmentItem): UploadState.Done {
         delay(900)
         // URI is the canonical URL in this offline demo, no server upload needed.

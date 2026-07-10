@@ -92,7 +92,8 @@ class CardKycViewModelTest {
             vm.onAction(CardKycAction.Next)
             advanceUntilIdle()
             assertEquals(3, vm.state.value.step)
-            vm.onAction(CardKycAction.AttachDocument)
+            vm.onAction(CardKycAction.AttachDocument("file:///cache/kyc_doc.jpg"))
+            assertEquals("file:///cache/kyc_doc.jpg", vm.state.value.documentUri)
             vm.onAction(CardKycAction.Next) // -> step 4
             advanceUntilIdle()
             assertEquals(4, vm.state.value.step)

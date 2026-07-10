@@ -1,8 +1,5 @@
 package com.mileway.feature.profile.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +59,10 @@ import com.mileway.core.data.vehicle.GarageVehicle
 import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.data.vehicle.VehicleMakeModelCatalog
 import com.mileway.core.data.vehicle.VehicleServices
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
@@ -308,10 +309,18 @@ private fun AddVehicleSheet(
     var seats by remember { mutableStateOf("2") }
     var photo by remember { mutableStateOf("") }
 
+    // V26 P26.SITE.3: routed through core:media's shared launcher. Gallery-only, matching prior
+    // behavior exactly — CaptureMode.Camera isn't wired in core:media's Android actual yet (same
+    // deviation P26.SITE.1 documented for OdometerCameraScreen).
     val photoLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) photo = uri.toString()
-        }
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Gallery)),
+            onResult = { result ->
+                if (result is MediaCaptureResult.Attachments) {
+                    result.items.firstOrNull()?.let { photo = it.uri }
+                }
+            },
+        )
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
@@ -364,7 +373,7 @@ private fun AddVehicleSheet(
                 color = it
             }, label = { Text(grv("garage_color", "Colour")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedButton(
-                onClick = { photoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                onClick = photoLauncher,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(if (photo.isBlank()) grv("garage_add_photo", "Add photo") else grv("garage_photo_added", "Photo added ✓"))

@@ -276,17 +276,24 @@ fun ProfileScreen(
     val trainingTourOn by badgesRegistry.observe("trainingTour").collectAsStateWithLifecycle(initialValue = false)
     var tourOfferDismissed by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     val avatarScope = rememberCoroutineScope()
+    // V26 P26.SITE.3: routed through core:media's shared launcher instead of a hand-rolled
+    // ActivityResultContracts.PickVisualMedia. Gallery-only, matching prior behavior exactly —
+    // core:media's Android actual doesn't wire CaptureMode.Camera yet (it stays on feature:media's
+    // CameraCaptureScreen by design; same deviation P26.SITE.1 documented for OdometerCameraScreen).
     val avatarPickerLauncher =
-        androidx.activity.compose.rememberLauncherForActivityResult(
-            androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia(),
-        ) { uri ->
-            if (uri != null) {
-                avatarScope.launch {
-                    val path = copyPickedAvatar(context, uri)
-                    if (path != null) sessionRepository.setAvatarPath(path)
+        com.mileway.core.media.rememberMediaCaptureLauncher(
+            config = com.mileway.core.media.model.MediaCaptureConfig(allowedModes = setOf(com.mileway.core.media.model.CaptureMode.Gallery)),
+            onResult = { result ->
+                if (result is com.mileway.core.media.model.MediaCaptureResult.Attachments) {
+                    result.items.firstOrNull()?.let { item ->
+                        avatarScope.launch {
+                            val path = copyPickedAvatar(context, Uri.parse(item.uri))
+                            if (path != null) sessionRepository.setAvatarPath(path)
+                        }
+                    }
                 }
-            }
-        }
+            },
+        )
 
     // P1.3: surfaces the RemoveDemoAccount guard-rejection message (active/last-account block).
     LaunchedEffect(state.preferenceMessage) {
@@ -353,13 +360,7 @@ fun ProfileScreen(
                         role = state.profile.role,
                         gender = state.profile.gender,
                         avatarPath = session.avatarPath,
-                        onEditPhoto = {
-                            avatarPickerLauncher.launch(
-                                androidx.activity.result.PickVisualMediaRequest(
-                                    androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly,
-                                ),
-                            )
-                        },
+                        onEditPhoto = avatarPickerLauncher,
                     )
                 }
 

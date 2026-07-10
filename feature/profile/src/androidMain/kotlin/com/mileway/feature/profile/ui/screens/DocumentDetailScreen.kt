@@ -1,8 +1,5 @@
 package com.mileway.feature.profile.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,6 +47,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.mileway.core.data.verification.DocInfoField
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.verification_back
 import com.mileway.core.ui.resources.verification_detail_add_photo
@@ -77,10 +78,19 @@ fun DocumentDetailScreen(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val doc = uiState.documents.firstOrNull { it.docType == docType }
 
+    // V26 P26.SITE.3: KYC document upload via core:media's shared launcher. CaptureMode.Document
+    // (real GMS document scanner with a file-picker fallback on unavailable devices) instead of
+    // the prior plain gallery pick — a genuinely better fit for a KYC document than a raw photo
+    // picker, and safe here since this screen is Android-only (no iOS actual gap to worry about).
     val picker =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) viewModel.uploadSlot(docType, uri.toString())
-        }
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Document)),
+            onResult = { result ->
+                if (result is MediaCaptureResult.Attachments) {
+                    result.items.firstOrNull()?.let { viewModel.uploadSlot(docType, it.uri) }
+                }
+            },
+        )
 
     // Local edit buffer for info fields, keyed by field key, seeded from the doc.
     val fieldEdits = remember(docType) { mutableStateMapOf<String, String>() }
@@ -161,9 +171,7 @@ fun DocumentDetailScreen(
                                     .size(96.dp)
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                                    .clickable {
-                                        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-                                    },
+                                    .clickable(onClick = picker),
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(Icons.Default.Add, contentDescription = stringResource(Res.string.verification_detail_add_photo))

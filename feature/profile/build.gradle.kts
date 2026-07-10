@@ -22,6 +22,9 @@ kotlin {
             implementation(project(":core:platform"))
             // P6.4: ActiveSessionsRepository seeds from ProfileMockData.sessions() on first run.
             implementation(project(":stub"))
+            // V26 P26.SITE.3: avatar/KYC-doc/self-audit/vehicle-photo pickers route through the
+            // shared core:media launcher instead of hand-rolled ActivityResultContracts.
+            implementation(project(":core:media"))
             // PLAN_V24 P3.3: render the picked profile photo (same loader other feature modules use).
             implementation(libs.coil3.compose)
         }

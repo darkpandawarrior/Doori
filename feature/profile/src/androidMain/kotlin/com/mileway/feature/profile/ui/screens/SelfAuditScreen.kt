@@ -1,8 +1,5 @@
 package com.mileway.feature.profile.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -47,6 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.review.ReviewResult
 import com.mileway.core.data.vehicle.VehicleAudit
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
@@ -145,10 +146,17 @@ private fun ChecklistRow(
     photographed: Boolean,
     onCapture: (String) -> Unit,
 ) {
+    // V26 P26.SITE.3: routed through core:media's shared launcher — same Gallery-only mode as
+    // before (this checklist's current mode).
     val launcher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-            if (uri != null) onCapture(uri.toString())
-        }
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Gallery)),
+            onResult = { result ->
+                if (result is MediaCaptureResult.Attachments) {
+                    result.items.firstOrNull()?.let { onCapture(it.uri) }
+                }
+            },
+        )
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = DesignTokens.Shape.roundedMd,
@@ -166,7 +174,7 @@ private fun ChecklistRow(
             Spacer(Modifier.width(DesignTokens.Spacing.s))
             Text(checklistLabel(item), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
             IconButton(
-                onClick = { launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                onClick = launcher,
             ) {
                 Icon(Icons.Default.AddAPhoto, contentDescription = sav("self_audit_capture", "Capture photo"))
             }

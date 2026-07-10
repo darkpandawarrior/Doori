@@ -26,6 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.cards_done
@@ -155,10 +159,24 @@ private fun KycStepBody(
         }
         3 -> {
             StepHeader(stringResource(Res.string.cards_kyc_doc_title), stringResource(Res.string.cards_kyc_doc_body))
+            // V26 P26.SITE.4: a real picker for the first time (was a tap-only state flip).
+            // CaptureMode.Gallery — this screen is commonMain (Android + iOS both render it), and
+            // Gallery is the one mode core:media's launcher actually implements on both platforms
+            // today; Camera/Document each error on one platform or the other (see
+            // MediaCaptureLauncher.android.kt / .ios.kt).
+            val launchDocumentPicker =
+                rememberMediaCaptureLauncher(
+                    config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Gallery)),
+                    onResult = { result ->
+                        if (result is MediaCaptureResult.Attachments) {
+                            result.items.firstOrNull()?.let { onAction(CardKycAction.AttachDocument(it.uri)) }
+                        }
+                    },
+                )
             AttachRow(
                 attached = state.documentAttached,
                 label = stringResource(Res.string.cards_kyc_attach_document),
-                onAttach = { onAction(CardKycAction.AttachDocument) },
+                onAttach = launchDocumentPicker,
             )
         }
         4 -> {

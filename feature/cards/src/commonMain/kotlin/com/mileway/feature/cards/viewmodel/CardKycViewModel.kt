@@ -20,10 +20,10 @@ private const val KYC_PROCESSING_MILLIS = 2_000L
  * shared [LocalOtpEngine] (purpose CARD_KYC). Per-step [CardKycUiState.isCurrentStepValid] gates
  * "Next"; the final submit shows a simulated processing spinner before success.
  *
- * ponytail: the document/selfie steps are simulated captures (a tap marks the step done) — there
- * is no shared image-picker seam in core:platform/core:ui (only feature-local inline pickers), and
- * a real picker would need a new iosMain source set + expect/actual in feature:cards. Noted in
- * PROGRESS; the upgrade path is the `rememberReceiptAttachmentLauncher` expect/actual shape.
+ * V26 P26.SITE.4: the document step now attaches a real picked uri (via `core:media`'s shared
+ * `rememberMediaCaptureLauncher` in `CardKycScreen`) instead of a tap-only state flip — see
+ * [documentUri]. The selfie step (`AttachSelfie`) stays a simulated capture; this task's scope is
+ * `AttachDocument` only.
  */
 data class CardKycUiState(
     val step: Int = 0,
@@ -34,13 +34,14 @@ data class CardKycUiState(
     val otpError: Boolean = false,
     val otpSentTo: String? = null,
     val demoCode: String? = null,
-    val documentAttached: Boolean = false,
+    val documentUri: String? = null,
     val selfieAttached: Boolean = false,
     val isProcessing: Boolean = false,
     val done: Boolean = false,
 ) {
     val totalSteps: Int get() = 5
     val isLastStep: Boolean get() = step == totalSteps - 1
+    val documentAttached: Boolean get() = documentUri != null
 
     val isCurrentStepValid: Boolean
         get() =
@@ -66,7 +67,7 @@ sealed interface CardKycAction {
 
     data class SetOtp(val value: String) : CardKycAction
 
-    data object AttachDocument : CardKycAction
+    data class AttachDocument(val uri: String) : CardKycAction
 
     data object AttachSelfie : CardKycAction
 }
@@ -86,7 +87,7 @@ class CardKycViewModel(
             is CardKycAction.SetIdNumber -> setState { copy(idNumber = action.value) }
             is CardKycAction.SetPhone -> setState { copy(phoneNumber = action.value) }
             is CardKycAction.SetOtp -> setState { copy(otpCode = action.value.filter { it.isDigit() }.take(6), otpError = false) }
-            CardKycAction.AttachDocument -> setState { copy(documentAttached = true) }
+            is CardKycAction.AttachDocument -> setState { copy(documentUri = action.uri) }
             CardKycAction.AttachSelfie -> setState { copy(selfieAttached = true) }
         }
     }
