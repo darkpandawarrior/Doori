@@ -3004,4 +3004,11 @@
     <string name="core_forms_reset">Reset</string>
     <string name="core_forms_select_field">Select %1$s</string>
     <string name="core_forms_star_cd">Star %1$d</string>
+    <!-- V27 P27.F.5 (EXPERIMENTAL): FormFieldWithSuggestions AI-suggestion chips. -->
+    <string name="core_forms_suggestion_accept">Accept</string>
+    <string name="core_forms_suggestion_accept_all">Accept all high-confidence</string>
+    <string name="core_forms_suggestion_source_ai">AI suggestion</string>
+    <string name="core_forms_suggestion_source_detected">Detected</string>
+    <string name="core_forms_suggestion_dismiss_cd">Dismiss suggestion for %1$s</string>
+    <string name="core_forms_suggestion_undo">Undo</string>
 </resources>

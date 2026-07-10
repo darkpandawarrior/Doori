@@ -60,7 +60,7 @@ private fun fieldError(
     value: FormFieldValue?,
     allValues: Map<FieldId, FormFieldValue>,
 ): UiText? {
-    if (field.required && isBlank(value)) {
+    if (field.required && isFieldValueBlank(value)) {
         return UiText.of("${field.label} is required")
     }
     if (value == null) return null
@@ -199,7 +199,10 @@ private fun defaultValueFor(field: MockFormSchema): FormFieldValue {
     }
 }
 
-private fun isBlank(value: FormFieldValue?): Boolean =
+/** Whether [value] counts as "empty" for a field of its type — reused by [validationErrors]'s
+ * required check and by `core.forms.suggestions.fieldSuggestions` (V27 P27.F.5) to only surface an
+ * AI suggestion chip on a field the user hasn't already filled in. */
+fun isFieldValueBlank(value: FormFieldValue?): Boolean =
     when (value) {
         null -> true
         is FormFieldValue.Text -> value.value.isBlank()

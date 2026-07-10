@@ -30,6 +30,10 @@ kotlin {
             // V27 P27.F.2: FILE_PDF field wiring — rememberMediaCaptureLauncher for the attachment
             // control.
             implementation(project(":core:media"))
+            // V27 P27.F.5 (EXPERIMENTAL): FormFieldWithSuggestions consumes DocumentAnalysis.
+            implementation(project(":core:ai"))
+            // Debounce for FormFieldWithSuggestions' suggestion recompute (LaunchedEffect + delay).
+            implementation(libs.kotlinx.coroutines.core)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

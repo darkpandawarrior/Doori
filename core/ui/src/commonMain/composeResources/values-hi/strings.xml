@@ -3000,4 +3000,11 @@
     <string name="core_forms_reset">रीसेट करें</string>
     <string name="core_forms_select_field">%1$s चुनें</string>
     <string name="core_forms_star_cd">तारा %1$d</string>
+    <!-- V27 P27.F.5 (EXPERIMENTAL): FormFieldWithSuggestions AI-suggestion chips. -->
+    <string name="core_forms_suggestion_accept">स्वीकार करें</string>
+    <string name="core_forms_suggestion_accept_all">सभी उच्च-विश्वसनीयता वाले स्वीकार करें</string>
+    <string name="core_forms_suggestion_source_ai">AI सुझाव</string>
+    <string name="core_forms_suggestion_source_detected">पहचाना गया</string>
+    <string name="core_forms_suggestion_dismiss_cd">%1$s के लिए सुझाव खारिज करें</string>
+    <string name="core_forms_suggestion_undo">पूर्ववत करें</string>
 </resources>
