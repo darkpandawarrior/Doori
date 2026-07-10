@@ -1,8 +1,5 @@
 package com.mileway.feature.tracking.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,7 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.display.OdometerReadingSource
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.ocr.rememberOdometerOcrService
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_odometer_cd_pick_gallery
@@ -65,18 +66,26 @@ fun OdometerCameraScreen(
     // (image-enhancement variants + voting) on Android, carrying forward the retired
     // feature:media GalleryOdometerProcessor's multi-pass-verification idea.
     val ocrService = rememberOdometerOcrService()
+    // V26 P26.SITE.1: routed through core:media's unified launcher (CaptureMode.Gallery) instead
+    // of a hand-rolled PickVisualMedia contract — the odometer confirm/discrepancy/rejection UX
+    // (P26.CONV) and the multi-pass gallery OCR pipeline are unchanged, only the picker itself
+    // moved. enableOcr stays false: the generic OcrReviewSheet isn't this screen's odometer UX,
+    // ocrService.analyzeGalleryImage below already is.
     val galleryLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { picked ->
-            if (picked != null) {
-                val uriStr = picked.toString()
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Gallery)),
+            onResult = { result ->
+                val uriStr =
+                    (result as? MediaCaptureResult.Attachments)?.items?.firstOrNull()?.uri
+                        ?: return@rememberMediaCaptureLauncher
                 capturedUri = uriStr
                 captureTimeMs = System.currentTimeMillis()
                 scope.launch {
                     galleryReading = ocrService.analyzeGalleryImage(uriStr).reading
                     showConfirmSheet = true
                 }
-            }
-        }
+            },
+        )
 
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -117,11 +126,7 @@ fun OdometerCameraScreen(
             // D.2b: pick an existing odometer photo from the gallery instead of capturing.
             if (capturedUri == null) {
                 IconButton(
-                    onClick = {
-                        galleryLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                        )
-                    },
+                    onClick = galleryLauncher,
                     modifier =
                         Modifier
                             .align(Alignment.TopEnd)
