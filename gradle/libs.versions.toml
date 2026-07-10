@@ -170,8 +170,10 @@ camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cam
 camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 camera-view = { module = "androidx.camera:camera-view", version.ref = "camerax" }
 
-# V26 P26.AND: gallery picker, Android actual (KMP artifact; iOS actual is P26.IOS.1's job)
+# V26 P26.AND / P26.IOS.1: gallery picker (KMP artifact, Android + iOS actuals)
 peekaboo-image-picker = { module = "io.github.onseok:peekaboo-image-picker", version.ref = "peekaboo" }
+# V26 P26.IOS.1: PeekabooCamera for the iOS CaptureMode.Camera actual (KMP artifact, iOS-only use)
+peekaboo-ui = { module = "io.github.onseok:peekaboo-ui", version.ref = "peekaboo" }
 # V26 P26.AND.4: EXIF orientation correction before OCR (Android-only)
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "exifinterface" }
 

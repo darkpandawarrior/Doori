@@ -26,5 +26,15 @@ kotlin {
             implementation(libs.peekaboo.image.picker)
             implementation(libs.mlkit.document.scanner)
         }
+        // V26 P26.IOS.1: Peekaboo gallery picker + PeekabooCamera (camera preview composable).
+        // ui/foundation are needed directly here for the Dialog+Modifier.fillMaxSize() host that
+        // presents PeekabooCamera (see MediaCaptureLauncher.ios.kt) — iOS-only use, Android's
+        // CaptureMode.Camera stays on feature:media's own CameraCaptureScreen.
+        iosMain.dependencies {
+            implementation(libs.peekaboo.image.picker)
+            implementation(libs.peekaboo.ui)
+            implementation(libs.ui)
+            implementation(libs.foundation)
+        }
     }
 }
