@@ -40,6 +40,8 @@ import com.mileway.feature.profile.ui.screens.RewardsScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
+import com.mileway.feature.profile.ui.screens.SupportChatScreen
+import com.mileway.feature.profile.ui.screens.SupportHubScreen
 import com.mileway.feature.profile.ui.screens.VehicleGarageScreen
 import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 
@@ -48,6 +50,8 @@ object ProfileRoutes {
     const val DETAILS = "profile_details"
     const val PREFERENCES = "preferences"
     const val SETTINGS = "profile_settings"
+    const val SUPPORT_HUB = "profile/support"
+    const val SUPPORT_CHAT = "profile/support/chat"
     const val HELP = "profile_help"
     const val MY_TICKETS = "profile/help/my_tickets"
     const val NOTIFICATIONS = "profile/notifications"
@@ -116,7 +120,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenPreferences = { navController.navigate(ProfileRoutes.PREFERENCES) },
             onOpenNotifications = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
             onOpenSettings = { navController.navigate(ProfileRoutes.SETTINGS) },
-            onOpenAboutSupport = { navController.navigate(ProfileRoutes.HELP) },
+            onOpenAboutSupport = { navController.navigate(ProfileRoutes.SUPPORT_HUB) },
             onOpenAdvance = { navController.navigate(ProfileRoutes.ADVANCE_HISTORY) },
             onOpenCards = onOpenCards,
             onOpenInsights = { navController.navigate(ProfileRoutes.ANALYTICS_HOME) },
@@ -277,6 +281,17 @@ fun NavGraphBuilder.profileGraph(
         PluginManagerScreen(
             onBack = { navController.popBackStack() },
         )
+    }
+    composable(ProfileRoutes.SUPPORT_HUB) {
+        SupportHubScreen(
+            onBack = { navController.popBackStack() },
+            onOpenFaq = { navController.navigate(ProfileRoutes.HELP) },
+            onOpenTickets = { navController.navigate(ProfileRoutes.MY_TICKETS) },
+            onOpenChat = { navController.navigate(ProfileRoutes.SUPPORT_CHAT) },
+        )
+    }
+    composable(ProfileRoutes.SUPPORT_CHAT) {
+        SupportChatScreen(onBack = { navController.popBackStack() })
     }
     composable(ProfileRoutes.HELP) {
         HelpScreen(

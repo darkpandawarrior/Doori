@@ -602,12 +602,28 @@ object PluginCatalog {
             ),
         )
 
+    /**
+     * Support-channel plugins (P12.2) — one per channel of the unified Support hub, so a persona can
+     * expose a different support mix (the reference app's per-tenant faq/ticket/chat/call/mail split).
+     * FAQ, tickets, call and mail default ON (the always-available baseline the bare Help entry had);
+     * chat defaults OFF (the Consumer super-app persona turns it on). All ENGAGEMENT-category so they
+     * sit below the Master Plugin page fold, leaving that golden unchanged.
+     */
+    val supportPlugins: List<PluginDescriptor> =
+        listOf(
+            supportChannel("faqSupport", defaultOn = true),
+            supportChannel("ticketSupport", defaultOn = true),
+            supportChannel("chatSupport", defaultOn = false),
+            supportChannel("callSupport", defaultOn = true),
+            supportChannel("mailSupport", defaultOn = true),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
             trackingTuningPlugins + abnormalTuningPlugins + experimentalPlugins + syncSettingsPlugins +
             verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins + vehiclePlugins +
-            badgePlugins
+            badgePlugins + supportPlugins
 
     // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
     // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.
@@ -656,6 +672,21 @@ object PluginCatalog {
             descriptionKey = "plugin_${id}_desc",
             defaultOn = false,
             experimental = true,
+        )
+
+    // PLAN_V24 P12.2: support-channel CAPABILITY builder. ENGAGEMENT category; title/description keys
+    // derived from the id (plugin_<id>_title / _desc).
+    private fun supportChannel(
+        id: String,
+        defaultOn: Boolean,
+    ): PluginDescriptor =
+        PluginDescriptor(
+            id = id,
+            kind = PluginKind.CAPABILITY,
+            category = PluginCategory.ENGAGEMENT,
+            titleKey = "plugin_${id}_title",
+            descriptionKey = "plugin_${id}_desc",
+            defaultOn = defaultOn,
         )
 
     private fun onboardingFlag(

@@ -104,6 +104,8 @@ object SuperProfilePersonas {
                     "ecometerEnabled" to true,
                     "mfaRequired" to false,
                     "verificationCentreEnabled" to false,
+                    // P12.2: the consumer super-app exposes the in-app support chat channel.
+                    "chatSupport" to true,
                 ),
         )
 
