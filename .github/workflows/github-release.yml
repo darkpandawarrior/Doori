@@ -47,18 +47,26 @@ jobs:
         with: { java-version: '21', distribution: 'temurin' }
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-      # Both debug and release (noGms/F-Droid flavor). Release is unsigned unless a keystore secret is
-      # materialized (F-Droid builds are unsigned + signed downstream) — fine for tracking/Obtainium.
+      # Builds every flavor+buildType the repo variable RELEASE_BUILD_CMD lists (Mileway: gms + noGms,
+      # debug + release — so testers can grab the exact variant they need). Release is unsigned unless a
+      # keystore secret is materialized — fine for tracking/Obtainium; debug variants install directly.
       - name: Build artifacts
         run: |
           set -uo pipefail
           # Build command is repo-specific: set repo variable RELEASE_BUILD_CMD (Settings → Variables).
-          # Mileway uses "assembleNoGmsDebug assembleNoGmsRelease"; a repo with no flavors uses
-          # "assembleDebug assembleRelease". Falls back to debug-only if the full build fails (unsigned release).
+          # Mileway: "assembleGmsDebug assembleGmsRelease assembleNoGmsDebug assembleNoGmsRelease";
+          # a repo with no flavors uses "assembleDebug assembleRelease".
+          # Falls back to the first task only if the full build fails (e.g. unsigned release).
           cmd="${RELEASE_BUILD_CMD:-assembleDebug assembleRelease}"
           ./gradlew $cmd || ./gradlew ${cmd%% *} || true
           mkdir -p dist
-          find . -path '*/outputs/apk/*' -name '*.apk' -exec cp {} dist/ \; || true
+          tag="${GITHUB_REF_NAME}"
+          # Attach APKs under meaningful names: Mileway-<tag>-<flavor>-<buildType>.apk
+          # (source name is app-<flavor>-<buildType>.apk; strip the "app-" prefix). Skip test APKs.
+          while IFS= read -r apk; do
+            variant="$(basename "$apk" .apk)"; variant="${variant#app-}"
+            cp "$apk" "dist/Mileway-${tag}-${variant}.apk"
+          done < <(find . -path '*/outputs/apk/*' -name 'app-*.apk' -not -name '*androidTest*')
         env:
           RELEASE_BUILD_CMD: ${{ vars.RELEASE_BUILD_CMD }}
       # Visual artifacts + golden diff vs previous release (screenshots/GIFs "tagged against release").
