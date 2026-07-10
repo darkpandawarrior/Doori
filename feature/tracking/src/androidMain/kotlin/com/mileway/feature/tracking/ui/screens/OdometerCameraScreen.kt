@@ -27,11 +27,15 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.display.OdometerReadingSource
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_odometer_cd_pick_gallery
 import com.mileway.feature.media.ocr.GalleryOdometerProcessor
 import com.mileway.feature.media.repository.RealMediaRepository
 import com.mileway.feature.media.ui.camera.CameraCaptureScreen
 import com.mileway.feature.tracking.ui.sheets.OdometerReadingConfirmSheet
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Full-screen odometer capture flow. Shows the live camera with the odometer alignment
@@ -106,7 +110,7 @@ fun OdometerCameraScreen(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(Res.string.tracking_cd_back),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
@@ -127,7 +131,7 @@ fun OdometerCameraScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.PhotoLibrary,
-                        contentDescription = "Pick from gallery",
+                        contentDescription = stringResource(Res.string.tracking_odometer_cd_pick_gallery),
                         tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }

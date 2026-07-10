@@ -34,10 +34,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.tracking_action_close
+import com.mileway.core.ui.resources.tracking_action_retake
+import com.mileway.core.ui.resources.tracking_capture_cd_photo
+import com.mileway.core.ui.resources.tracking_capture_detected_confidence
+import com.mileway.core.ui.resources.tracking_capture_reading_odometer
+import com.mileway.core.ui.resources.tracking_capture_use_reading
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.media.model.OcrResult
 import com.mileway.feature.media.repository.MediaRepository
 import com.mileway.feature.media.ui.camera.CameraCaptureScreen
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 enum class CaptureMode { ODOMETER, PLAIN }
@@ -85,7 +93,7 @@ fun CameraCaptureSheet(
                     CapturedPreview(uri) {
                         CircularProgressIndicator()
                         Spacer(Modifier.height(DesignTokens.Spacing.m))
-                        Text("Reading odometer…", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(Res.string.tracking_capture_reading_odometer), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 else -> {
@@ -97,7 +105,7 @@ fun CameraCaptureSheet(
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            "Detected reading · ${(result.confidence * 100).toInt()}% confidence",
+                            stringResource(Res.string.tracking_capture_detected_confidence, (result.confidence * 100).toInt()),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -109,14 +117,14 @@ fun CameraCaptureSheet(
                                     capturedUri = null
                                     ocr = null
                                 },
-                            ) { Text("Retake") }
+                            ) { Text(stringResource(Res.string.tracking_action_retake)) }
                             Button(
                                 shape = DesignTokens.Shape.button,
                                 onClick = {
                                     onOdometerReading(result.detectedOdometer.orEmpty())
                                     onDismiss()
                                 },
-                            ) { Text("Use reading") }
+                            ) { Text(stringResource(Res.string.tracking_capture_use_reading)) }
                         }
                     }
                 }
@@ -127,7 +135,7 @@ fun CameraCaptureSheet(
                 onClick = onDismiss,
                 modifier = Modifier.statusBarsPadding().padding(DesignTokens.Spacing.s),
             ) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+                Icon(Icons.Default.Close, contentDescription = stringResource(Res.string.tracking_action_close))
             }
         }
     }
@@ -146,7 +154,7 @@ private fun CapturedPreview(
     ) {
         AsyncImage(
             model = uri,
-            contentDescription = "Captured photo",
+            contentDescription = stringResource(Res.string.tracking_capture_cd_photo),
             contentScale = ContentScale.Crop,
             modifier =
                 Modifier

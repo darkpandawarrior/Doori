@@ -71,6 +71,7 @@ import com.mileway.core.ui.resources.tracking_cd_expand
 import com.mileway.core.ui.resources.tracking_detail_amount
 import com.mileway.core.ui.resources.tracking_insights_distance
 import com.mileway.core.ui.resources.tracking_insights_duration
+import com.mileway.core.ui.resources.tracking_route_line
 import com.mileway.core.ui.resources.tracking_saved_empty_journeys_hint
 import com.mileway.core.ui.resources.tracking_saved_empty_journeys_none
 import com.mileway.core.ui.resources.tracking_saved_empty_journeys_query
@@ -98,8 +99,11 @@ import com.mileway.core.ui.resources.tracking_saved_stat_reimbursed
 import com.mileway.core.ui.resources.tracking_saved_stat_trips
 import com.mileway.core.ui.resources.tracking_saved_subtitle
 import com.mileway.core.ui.resources.tracking_saved_title
+import com.mileway.core.ui.resources.tracking_saved_week_summary
 import com.mileway.core.ui.resources.tracking_status_saved
 import com.mileway.core.ui.resources.tracking_status_submitted
+import com.mileway.core.ui.resources.tracking_unknown_place
+import com.mileway.core.ui.resources.tracking_voucher_created_snackbar
 import com.mileway.core.ui.resources.tracking_voucher_summary_total
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
@@ -129,6 +133,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFilter
 import com.mileway.feature.tracking.viewmodel.SubmissionItem
 import com.mileway.feature.tracking.viewmodel.SubmissionSource
 import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
+import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
@@ -161,7 +166,7 @@ fun SavedTracksScreen(
     // Pure-demo voucher acknowledgement: snackbar + confetti, then consume the one-shot flag.
     LaunchedEffect(uiState.voucherCreatedAck) {
         if (uiState.voucherCreatedAck) {
-            snackbarHostState.showSnackbar("Voucher created")
+            snackbarHostState.showSnackbar(getString(Res.string.tracking_voucher_created_snackbar))
             viewModel.onAction(SavedTracksAction.VoucherAckConsumed)
         }
     }
@@ -598,7 +603,7 @@ private fun JourneyRouteLine(
             modifier = Modifier.size(DesignTokens.IconSize.inline),
         )
         Text(
-            text = "${shortPlace(from)} → ${shortPlace(to)}",
+            text = stringResource(Res.string.tracking_route_line, shortPlace(from), shortPlace(to)),
             style = MaterialTheme.typography.bodySmall,
             color = MilewayColors.neutral,
             maxLines = 1,
@@ -608,7 +613,8 @@ private fun JourneyRouteLine(
 }
 
 /** Trim a resolved "<locality>, Pune" label to just the locality for the compact route line. */
-private fun shortPlace(name: String?): String = name?.substringBefore(",")?.trim() ?: "Unknown"
+@Composable
+private fun shortPlace(name: String?): String = name?.substringBefore(",")?.trim() ?: stringResource(Res.string.tracking_unknown_place)
 
 @Composable
 private fun Metric(
@@ -844,7 +850,7 @@ private fun SubmittedInsightsCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "This week: ${thisWeek.size} submissions • ₹${weekTotal.formatDecimal(0)}",
+                    text = stringResource(Res.string.tracking_saved_week_summary, thisWeek.size, weekTotal.formatDecimal(0)),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,

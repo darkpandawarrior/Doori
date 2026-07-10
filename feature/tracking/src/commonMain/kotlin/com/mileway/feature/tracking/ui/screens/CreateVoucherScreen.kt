@@ -59,6 +59,9 @@ import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
+import com.mileway.core.ui.resources.tracking_plural_expenses_selected
+import com.mileway.core.ui.resources.tracking_saved_journey_default
+import com.mileway.core.ui.resources.tracking_submission_selected_count
 import com.mileway.core.ui.resources.tracking_voucher_back_to_detail
 import com.mileway.core.ui.resources.tracking_voucher_category_fuel
 import com.mileway.core.ui.resources.tracking_voucher_category_label
@@ -103,6 +106,7 @@ import com.mileway.feature.tracking.viewmodel.VoucherDeclaration
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -276,7 +280,12 @@ private fun ExpenseRow(
     onToggle: () -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text(expense.name ?: "Journey ${expense.token.take(6)}") },
+        headlineContent = {
+            Text(
+                expense.name
+                    ?: "${stringResource(Res.string.tracking_saved_journey_default)} ${expense.token.take(6)}",
+            )
+        },
         supportingContent = {
             Text(
                 run {
@@ -379,7 +388,11 @@ private fun StepVoucherDetails(
                     )
                 }
                 Text(
-                    "${uiState.selectedTokens.size} expense${if (uiState.selectedTokens.size != 1) "s" else ""}",
+                    pluralStringResource(
+                        Res.plurals.tracking_plural_expenses_selected,
+                        uiState.selectedTokens.size,
+                        uiState.selectedTokens.size,
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
@@ -432,7 +445,10 @@ private fun StepConfirmation(
                 SummaryRow(stringResource(Res.string.tracking_voucher_summary_title), uiState.title)
                 SummaryRow(stringResource(Res.string.tracking_voucher_summary_category), uiState.category.localizedLabel())
                 SummaryRow(stringResource(Res.string.tracking_voucher_summary_total), "₹${viewModel.totalAmount.formatDecimal(2)}")
-                SummaryRow(stringResource(Res.string.tracking_voucher_summary_expenses), "${uiState.selectedTokens.size} selected")
+                SummaryRow(
+                    stringResource(Res.string.tracking_voucher_summary_expenses),
+                    stringResource(Res.string.tracking_submission_selected_count, uiState.selectedTokens.size),
+                )
                 if (uiState.notes.isNotBlank()) SummaryRow(stringResource(Res.string.tracking_voucher_summary_notes), uiState.notes)
             }
         }

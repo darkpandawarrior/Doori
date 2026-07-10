@@ -55,9 +55,11 @@ import com.mileway.core.ui.resources.tracking_live_points
 import com.mileway.core.ui.resources.tracking_live_recent_events
 import com.mileway.core.ui.resources.tracking_live_sync_status
 import com.mileway.core.ui.resources.tracking_live_system_health
+import com.mileway.core.ui.resources.tracking_speed_kmh
 import com.mileway.core.ui.resources.tracking_stat_distance
 import com.mileway.core.ui.resources.tracking_stat_duration
 import com.mileway.core.ui.resources.tracking_stat_speed
+import com.mileway.core.ui.resources.tracking_unit_km
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
@@ -106,7 +108,7 @@ fun LiveTrackingOverviewCard(
             ) {
                 LiveMetric(
                     label = stringResource(Res.string.tracking_stat_distance),
-                    value = "${(trackData.distance / 1000.0).formatDecimal(2)} km",
+                    value = "${(trackData.distance / 1000.0).formatDecimal(2)} ${stringResource(Res.string.tracking_unit_km)}",
                     icon = Icons.Default.GpsFixed,
                     color = Color(0xFF80DEEA),
                 )
@@ -118,7 +120,7 @@ fun LiveTrackingOverviewCard(
                 )
                 LiveMetric(
                     label = stringResource(Res.string.tracking_stat_speed),
-                    value = "${(trackData.speed * 3.6).formatDecimal(1)} km/h",
+                    value = stringResource(Res.string.tracking_speed_kmh, (trackData.speed * 3.6).formatDecimal(1)),
                     icon = Icons.Default.Speed,
                     color = Color(0xFF69F0AE),
                 )

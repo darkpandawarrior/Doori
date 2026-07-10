@@ -74,6 +74,8 @@ import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.ConfettiBurst
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_insights_distance
+import com.mileway.core.ui.resources.tracking_plural_issues_found
+import com.mileway.core.ui.resources.tracking_plural_policy_issues_found
 import com.mileway.core.ui.resources.tracking_success_add_to_claim
 import com.mileway.core.ui.resources.tracking_success_cd_badge
 import com.mileway.core.ui.resources.tracking_success_cd_view_expense
@@ -84,9 +86,11 @@ import com.mileway.core.ui.resources.tracking_success_track_new
 import com.mileway.core.ui.resources.tracking_success_txn_id
 import com.mileway.core.ui.resources.tracking_success_view_expense
 import com.mileway.core.ui.resources.tracking_success_voucher
+import com.mileway.core.ui.resources.tracking_unit_km
 import com.mileway.core.ui.resources.tracking_voucher_create_button
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.round
 
@@ -517,7 +521,7 @@ private fun PolicyIssueChip(violationCount: Int) {
         )
         Spacer(modifier = Modifier.width(6.dp))
         Text(
-            text = "$violationCount ${if (violationCount == 1) "Policy Issue" else "Policy Issues"} Found",
+            text = pluralStringResource(Res.plurals.tracking_plural_policy_issues_found, violationCount, violationCount),
             style = MaterialTheme.typography.labelMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onErrorContainer,
@@ -589,7 +593,7 @@ private fun DistanceCard(distanceKm: Double) {
                 )
                 Spacer(modifier = Modifier.width(DesignTokens.Spacing.xs))
                 Text(
-                    text = "km",
+                    text = stringResource(Res.string.tracking_unit_km),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
@@ -794,7 +798,7 @@ private fun PolicyIssuesCard(
                         color = MaterialTheme.colorScheme.error,
                     )
                     Text(
-                        text = "$violationCount ${if (violationCount == 1) "issue" else "issues"} found",
+                        text = pluralStringResource(Res.plurals.tracking_plural_issues_found, violationCount, violationCount),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f),
                     )
