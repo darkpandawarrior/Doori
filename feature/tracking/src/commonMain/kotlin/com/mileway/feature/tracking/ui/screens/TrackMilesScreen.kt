@@ -181,6 +181,9 @@ fun TrackMilesScreen(
     val pluginRegistry = koinInject<com.mileway.core.data.plugin.PluginRegistry>()
     val emergencyModeEnabled by pluginRegistry.observe("driverEmergencyModeEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
+    // PLAN_V24 P11.3: the head-home destination panel, gated by destinationMode (default off).
+    val destinationModeEnabled by pluginRegistry.observe("destinationMode")
+        .collectAsStateWithLifecycle(initialValue = false)
     var showSos by remember { mutableStateOf(false) }
 
     // Once tracking is active, skip past any onboarding tier already granted (e.g. from a previous
@@ -318,6 +321,11 @@ fun TrackMilesScreen(
                 // Weekly summary pill, shown only when idle, below the hero card.
                 if (!isActive && uiState.weekSummaryText.isNotEmpty()) {
                     WeeklySummaryPill(text = uiState.weekSummaryText)
+                }
+
+                // PLAN_V24 P11.3: head-home destination panel — idle only, gated by destinationMode.
+                if (!isActive && destinationModeEnabled) {
+                    com.mileway.feature.tracking.ui.components.DestinationModePanel()
                 }
 
                 // Live system-status chips while active; a calm "All systems OK" banner otherwise.

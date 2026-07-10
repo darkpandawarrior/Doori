@@ -23,6 +23,7 @@ import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingStatePublisher
 import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
+import com.mileway.feature.tracking.viewmodel.DestinationModeViewModel
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
@@ -95,6 +96,8 @@ val trackingModule =
         viewModelOf(::SavedTracksViewModel)
         viewModelOf(::SyncStatusViewModel)
         viewModelOf(::MultiSessionRestoreViewModel)
+        // PLAN_V24 P11.3: the head-home destination panel VM (all deps bound in coreDataModule).
+        viewModelOf(::DestinationModeViewModel)
         viewModel {
             TrackMilesViewModel(
                 configManager = get(),
@@ -120,6 +123,8 @@ val trackingModule =
                 vehicleRateRepo = getOrNull(),
                 // P11.2: garage active-vehicle default; getOrNull() keeps omitting graphs building.
                 garageRepo = getOrNull(),
+                // P11.3: head-home destination tag at trip start; getOrNull() keeps omitting graphs building.
+                destinationModeRepo = getOrNull(),
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

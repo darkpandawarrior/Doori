@@ -225,6 +225,16 @@ object PluginCatalog {
                 descriptionKey = "plugin_reverse_geocode_remote_desc",
                 defaultOn = false,
             ),
+            // PLAN_V24 P11.3: the "Head home" destination panel on the tracking screen. defaultOn=false
+            // keeps the tracking golden byte-identical; only the Gig Driver persona turns it on.
+            PluginDescriptor(
+                id = "destinationMode",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.TRACKING,
+                titleKey = "plugin_tracking_destination_mode_title",
+                descriptionKey = "plugin_tracking_destination_mode_desc",
+                defaultOn = false,
+            ),
         )
 
     /**

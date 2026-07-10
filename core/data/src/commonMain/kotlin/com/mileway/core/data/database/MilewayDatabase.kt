@@ -10,6 +10,7 @@ import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.CouponDao
 import com.mileway.core.data.dao.DelegationDao
 import com.mileway.core.data.dao.DeletionRequestDao
+import com.mileway.core.data.dao.DestinationModeDao
 import com.mileway.core.data.dao.DocumentDao
 import com.mileway.core.data.dao.DraftExpenseDao
 import com.mileway.core.data.dao.EmergencyContactDao
@@ -44,6 +45,7 @@ import com.mileway.core.data.model.db.ConnectedAccountEntity
 import com.mileway.core.data.model.db.CouponEntity
 import com.mileway.core.data.model.db.DelegationEntity
 import com.mileway.core.data.model.db.DeletionRequestEntity
+import com.mileway.core.data.model.db.DestinationModeEntity
 import com.mileway.core.data.model.db.DocumentEntity
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.data.model.db.EmergencyContactEntity
@@ -104,8 +106,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         DeletionRequestEntity::class,
         PaymentWalletEntity::class,
         VehicleEntity::class,
+        DestinationModeEntity::class,
     ],
-    version = 32,
+    version = 33,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -171,6 +174,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun deletionRequestDao(): DeletionRequestDao
 
     abstract fun paymentWalletDao(): PaymentWalletDao
+
+    abstract fun destinationModeDao(): DestinationModeDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

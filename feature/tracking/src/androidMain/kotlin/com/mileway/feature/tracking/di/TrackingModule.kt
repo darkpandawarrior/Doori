@@ -24,6 +24,7 @@ import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
 import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
+import com.mileway.feature.tracking.viewmodel.DestinationModeViewModel
 import com.mileway.feature.tracking.viewmodel.ExportViewModel
 import com.mileway.feature.tracking.viewmodel.HardwareEventsViewModel
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
@@ -103,6 +104,8 @@ val trackingModule =
         viewModelOf(::SavedTracksViewModel)
         viewModelOf(::SyncStatusViewModel)
         viewModelOf(::MultiSessionRestoreViewModel)
+        // PLAN_V24 P11.3: the head-home destination panel VM (all deps bound in coreDataModule).
+        viewModelOf(::DestinationModeViewModel)
         // Explicit definition (not viewModelOf): LocationNameResolver is bound in platformModule,
         // which some graphs (e.g. the screenshot harness) omit. getOrNull() lets the VM fall back to
         // its own OfflineLocationNameResolver default instead of failing instance creation.
@@ -133,6 +136,8 @@ val trackingModule =
                 vehicleRateRepo = getOrNull(),
                 // P11.2: garage active-vehicle default; getOrNull() keeps omitting graphs building.
                 garageRepo = getOrNull(),
+                // P11.3: head-home destination tag at trip start; getOrNull() keeps omitting graphs building.
+                destinationModeRepo = getOrNull(),
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

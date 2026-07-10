@@ -70,6 +70,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().paymentWalletDao() }
         single { get<MilewayDatabase>().pluginOverrideDao() }
         single { get<MilewayDatabase>().savedPlaceDao() }
+        single { get<MilewayDatabase>().destinationModeDao() }
         single { get<MilewayDatabase>().emergencyContactDao() }
         // PLAN_V24 P3.5: shared by the profile management screen and the tracking SOS sheet.
         single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
@@ -107,6 +108,8 @@ val coreDataModule =
         single { com.mileway.core.data.vehicle.VehicleRateRepository(get()) }
         // PLAN_V24 P11.2: the multi-vehicle garage store (shared by profile UI + tracking default).
         single { com.mileway.core.data.vehicle.GarageRepository(get()) }
+        // PLAN_V24 P11.3: the per-account head-home destination store (tracking panel + trip tag).
+        single { com.mileway.core.data.location.DestinationModeRepository(get()) }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }

@@ -139,6 +139,9 @@ data class SavedTrack(
     // voucher, so it can't fund a second one (mirrors a common server-side remaining-voucher-count
     // check). Null means "unclaimed, still eligible".
     val claimedByVoucherNumber: String? = null,
+    // P11.3: the head-home destination this trip was auto-classified toward, stamped at trip start
+    // when destination mode was active (null = not headed anywhere in particular).
+    val destinationTag: String? = null,
 ) {
     init {
         require(routeId.isNotBlank()) { "RouteId cannot be blank" }

@@ -5,6 +5,31 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 32 → 33 (PLAN_V24 P11.3): the head-home destination store + an auto-classify tag on
+ * trips. Additive — a fresh per-account `destination_mode` table plus a nullable `destinationTag`
+ * column on `saved_tracks` (existing rows default null). No backend.
+ */
+val MIGRATION_32_33 =
+    object : Migration(32, 33) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `destination_mode` (
+                    `accountId`          TEXT    NOT NULL PRIMARY KEY,
+                    `placeId`            TEXT,
+                    `address`            TEXT,
+                    `lat`                REAL,
+                    `lng`                REAL,
+                    `expiresAt`          INTEGER,
+                    `selectedRegionsCsv` TEXT    NOT NULL
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL("ALTER TABLE `saved_tracks` ADD COLUMN `destinationTag` TEXT")
+        }
+    }
+
+/**
  * Migration 31 → 32 (PLAN_V24 P11.2): the multi-vehicle garage table. Additive — a fresh table, no
  * change to the existing single-row `vehicle_details` store. The seed re-populates on a fresh install.
  */

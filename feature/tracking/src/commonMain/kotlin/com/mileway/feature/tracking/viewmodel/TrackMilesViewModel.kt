@@ -3,6 +3,8 @@ package com.mileway.feature.tracking.viewmodel
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.dao.MockAccountDao
+import com.mileway.core.data.location.DESTINATION_GUEST_KEY
+import com.mileway.core.data.location.DestinationModeRepository
 import com.mileway.core.data.model.db.EventAudience
 import com.mileway.core.data.model.db.EventType
 import com.mileway.core.data.model.db.HardwareEvent
@@ -227,6 +229,10 @@ class TrackMilesViewModel(
     // vehicle chosen in the garage is pre-selected for a new trip). Null in JVM tests/graphs that
     // omit it — the default stays the first vehicle in the list.
     private val garageRepo: GarageRepository? = null,
+    // PLAN_V24 P11.3: head-home destination store. When a destination is active at trip start, the
+    // starting trip is auto-classified toward it (SavedTrack.destinationTag). Null in graphs that
+    // omit core:data — trips simply carry no destination tag then.
+    private val destinationModeRepo: DestinationModeRepository? = null,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -624,6 +630,12 @@ class TrackMilesViewModel(
             val session = sessionSource.sessionState.first()
             val stampIdentity =
                 effectiveSignedInIdentity(null, session, delegationSource.delegationState.first())
+            // P11.3: if a head-home destination is active for this account, auto-classify the trip
+            // toward it by stamping the destination address as the trip's destinationTag.
+            val destinationTag =
+                destinationModeRepo?.activeTag(
+                    activeAccountSource.activeAccountId.first() ?: DESTINATION_GUEST_KEY,
+                )
             val track =
                 SavedTrack(
                     routeId = routeId,
@@ -639,6 +651,7 @@ class TrackMilesViewModel(
                     startedByEmployeeCode = stampIdentity.employeeCode ?: "EMP001",
                     startedByAccountEmail = stampIdentity.accountEmail.orEmpty(),
                     startedByTenant = stampIdentity.tenant,
+                    destinationTag = destinationTag,
                 )
             trackRepo.insert(track)
             setState {
