@@ -846,129 +846,119 @@ private fun AccountTileGrid(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
     ) {
-        TileRow(
-            left =
-                accountTile(
-                    "acc_details",
-                    stringResource(Res.string.profile_home_details),
-                    stringResource(Res.string.profile_home_tile_details_subtitle),
-                    Icons.Default.Person,
-                    blue,
-                    onOpenDetails,
-                ),
-            right =
-                accountTile(
-                    "acc_notifications",
-                    stringResource(Res.string.profile_home_tile_notifications_title),
-                    stringResource(Res.string.profile_home_tile_notifications_subtitle),
-                    Icons.Default.Notifications,
-                    red,
-                    onOpenNotifications,
-                    badgeCount = notificationBadge,
-                ),
-        )
-        TileRow(
-            left =
-                accountTile(
-                    "acc_settings",
-                    stringResource(Res.string.profile_home_tile_settings_title),
-                    stringResource(Res.string.profile_home_tile_settings_subtitle),
-                    Icons.Default.Settings,
-                    green,
-                    onOpenSettings,
-                ),
-            right =
-                accountTile(
-                    "acc_preferences",
-                    stringResource(Res.string.profile_home_tile_preferences_title),
-                    stringResource(Res.string.profile_home_tile_preferences_subtitle),
-                    Icons.Default.Tune,
-                    orange,
-                    onOpenPreferences,
-                ),
-        )
-        TileRow(
-            left =
-                accountTile(
-                    "acc_sessions",
-                    stringResource(Res.string.profile_home_tile_sessions_title),
-                    stringResource(Res.string.profile_home_tile_sessions_subtitle),
-                    Icons.Default.Devices,
-                    purple,
-                    onOpenSessions,
-                ),
-            right =
-                accountTile(
-                    "acc_about",
-                    stringResource(Res.string.profile_home_tile_about_title),
-                    stringResource(Res.string.profile_home_tile_about_subtitle),
-                    Icons.AutoMirrored.Filled.HelpOutline,
-                    violet,
-                    onOpenAboutSupport,
-                ),
-        )
-        TileRow(
-            left =
-                accountTile(
-                    "acc_advance",
-                    stringResource(Res.string.profile_home_tile_advance_title),
-                    stringResource(Res.string.profile_home_tile_advance_subtitle),
-                    Icons.Default.MonetizationOn,
-                    teal,
-                    onOpenAdvance,
-                ),
-            right =
-                accountTile(
-                    "acc_cards",
-                    stringResource(Res.string.profile_home_tile_cards_title),
-                    stringResource(Res.string.profile_home_tile_cards_subtitle),
-                    Icons.Default.CreditCard,
-                    indigo,
-                    onOpenCards,
-                ),
-        )
-        TileRow(
-            left =
-                accountTile(
-                    "acc_delegation",
-                    stringResource(Res.string.profile_home_tile_delegation_title),
-                    stringResource(Res.string.profile_home_tile_delegation_subtitle),
-                    Icons.Default.SupervisorAccount,
-                    cyan,
-                    onOpenDelegation,
-                ),
-            right =
-                accountTile(
-                    "acc_insights",
-                    stringResource(Res.string.profile_home_tile_insights_title),
-                    stringResource(Res.string.profile_home_tile_insights_subtitle),
-                    Icons.Default.History,
-                    Color(0xFF6D28D9),
-                    action = {},
-                ),
-        )
-        TileRow(
-            left =
-                accountTile(
-                    "acc_demo",
-                    stringResource(Res.string.profile_home_tile_demo_title),
-                    stringResource(Res.string.profile_home_tile_demo_subtitle),
-                    Icons.Default.BugReport,
-                    darkTeal,
-                    onOpenDemoSettings,
-                ),
-            right =
-                accountTile(
-                    "acc_qr",
-                    stringResource(Res.string.profile_home_tile_qr_title),
-                    stringResource(Res.string.profile_home_tile_qr_subtitle),
-                    Icons.Default.QrCode2,
-                    Color(0xFF0F4C81),
-                    onOpenQr,
-                ),
-        )
+        // PLAN_V24 P14.1: always-on hub destinations, built as tiles up front so they can be
+        // slotted into the grouped sections below alongside the plugin-gated ones.
+        val detailsTile =
+            accountTile(
+                "acc_details",
+                stringResource(Res.string.profile_home_details),
+                stringResource(Res.string.profile_home_tile_details_subtitle),
+                Icons.Default.Person,
+                blue,
+                onOpenDetails,
+            )
+        val notificationsTile =
+            accountTile(
+                "acc_notifications",
+                stringResource(Res.string.profile_home_tile_notifications_title),
+                stringResource(Res.string.profile_home_tile_notifications_subtitle),
+                Icons.Default.Notifications,
+                red,
+                onOpenNotifications,
+                badgeCount = notificationBadge,
+            )
+        val settingsTile =
+            accountTile(
+                "acc_settings",
+                stringResource(Res.string.profile_home_tile_settings_title),
+                stringResource(Res.string.profile_home_tile_settings_subtitle),
+                Icons.Default.Settings,
+                green,
+                onOpenSettings,
+            )
+        val preferencesTile =
+            accountTile(
+                "acc_preferences",
+                stringResource(Res.string.profile_home_tile_preferences_title),
+                stringResource(Res.string.profile_home_tile_preferences_subtitle),
+                Icons.Default.Tune,
+                orange,
+                onOpenPreferences,
+            )
+        val sessionsTile =
+            accountTile(
+                "acc_sessions",
+                stringResource(Res.string.profile_home_tile_sessions_title),
+                stringResource(Res.string.profile_home_tile_sessions_subtitle),
+                Icons.Default.Devices,
+                purple,
+                onOpenSessions,
+            )
+        val aboutTile =
+            accountTile(
+                "acc_about",
+                stringResource(Res.string.profile_home_tile_about_title),
+                stringResource(Res.string.profile_home_tile_about_subtitle),
+                Icons.AutoMirrored.Filled.HelpOutline,
+                violet,
+                onOpenAboutSupport,
+            )
+        val advanceTile =
+            accountTile(
+                "acc_advance",
+                stringResource(Res.string.profile_home_tile_advance_title),
+                stringResource(Res.string.profile_home_tile_advance_subtitle),
+                Icons.Default.MonetizationOn,
+                teal,
+                onOpenAdvance,
+            )
+        val cardsTile =
+            accountTile(
+                "acc_cards",
+                stringResource(Res.string.profile_home_tile_cards_title),
+                stringResource(Res.string.profile_home_tile_cards_subtitle),
+                Icons.Default.CreditCard,
+                indigo,
+                onOpenCards,
+            )
+        val delegationTile =
+            accountTile(
+                "acc_delegation",
+                stringResource(Res.string.profile_home_tile_delegation_title),
+                stringResource(Res.string.profile_home_tile_delegation_subtitle),
+                Icons.Default.SupervisorAccount,
+                cyan,
+                onOpenDelegation,
+            )
+        val insightsTile =
+            accountTile(
+                "acc_insights",
+                stringResource(Res.string.profile_home_tile_insights_title),
+                stringResource(Res.string.profile_home_tile_insights_subtitle),
+                Icons.Default.History,
+                Color(0xFF6D28D9),
+                action = {},
+            )
+        val demoTile =
+            accountTile(
+                "acc_demo",
+                stringResource(Res.string.profile_home_tile_demo_title),
+                stringResource(Res.string.profile_home_tile_demo_subtitle),
+                Icons.Default.BugReport,
+                darkTeal,
+                onOpenDemoSettings,
+            )
+        val qrTile =
+            accountTile(
+                "acc_qr",
+                stringResource(Res.string.profile_home_tile_qr_title),
+                stringResource(Res.string.profile_home_tile_qr_subtitle),
+                Icons.Default.QrCode2,
+                Color(0xFF0F4C81),
+                onOpenQr,
+            )
         // PLAN_V24 P3.4/P3.5: independently plugin-gated tiles, paired into one row when both on.
         val savedPlacesTile =
             if (savedPlacesEnabled) {
@@ -1165,17 +1155,50 @@ private fun AccountTileGrid(
             } else {
                 null
             }
-        // Lay the enabled depth tiles out two-per-row, in declaration order.
-        val depthTiles =
-            listOfNotNull(
-                savedPlacesTile, emergencyTile, verificationTile, referralTile, couponsTile, rewardsTile,
-                campaignsTile, clubTile, subscriptionsTile, incentivesTile, managerViewTile, garageTile,
-                ecometerTile, favouritesTile, offersTile,
+        // PLAN_V24 P14.1: group the ~25 hub destinations into labelled sections. A section renders
+        // only when it has at least one enabled tile (empty groups disappear), so each persona
+        // preset — which flips a different set of the plugin-gated tiles on — yields a visibly
+        // different hub. Section titles fall back to English literals until P14.2 localizes them.
+        val sections =
+            listOf(
+                pdel("profile_home_section_identity", "Identity & verification") to
+                    listOfNotNull(detailsTile, verificationTile, qrTile),
+                pdel("profile_home_section_vehicles", "Vehicles & tracking") to
+                    listOfNotNull(garageTile, ecometerTile, favouritesTile, savedPlacesTile, managerViewTile),
+                pdel("profile_home_section_growth", "Growth & rewards") to
+                    listOfNotNull(referralTile, rewardsTile, incentivesTile, couponsTile, campaignsTile, offersTile),
+                pdel("profile_home_section_membership", "Membership & plans") to
+                    listOfNotNull(clubTile, subscriptionsTile),
+                pdel("profile_home_section_payments", "Payments") to
+                    listOfNotNull(advanceTile, cardsTile),
+                pdel("profile_home_section_security", "Security & sessions") to
+                    listOfNotNull(sessionsTile, delegationTile, emergencyTile),
+                pdel("profile_home_section_support", "Support & about") to
+                    listOfNotNull(aboutTile, notificationsTile, settingsTile, preferencesTile, insightsTile, demoTile),
             )
-        depthTiles.chunked(2).forEach { pair ->
-            TileRow(left = pair[0], right = pair.getOrNull(1))
+        sections.forEach { (title, tiles) ->
+            if (tiles.isNotEmpty()) {
+                SectionHeader(title)
+                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                    tiles.chunked(2).forEach { pair ->
+                        TileRow(left = pair[0], right = pair.getOrNull(1))
+                    }
+                }
+            }
         }
     }
+}
+
+/** PLAN_V24 P14.1: a small caps-y label heading each grouped section of the account hub. */
+@Composable
+private fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = DesignTokens.Spacing.s),
+    )
 }
 
 @Composable
