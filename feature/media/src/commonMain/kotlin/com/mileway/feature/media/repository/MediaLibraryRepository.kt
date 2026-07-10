@@ -2,8 +2,8 @@ package com.mileway.feature.media.repository
 
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
+import com.mileway.core.media.model.UploadState
 import com.mileway.feature.media.model.AttachmentItem
-import com.mileway.feature.media.model.UploadState
 import kotlinx.coroutines.flow.Flow
 
 class MediaLibraryRepository(private val dao: MediaLibraryDao) {

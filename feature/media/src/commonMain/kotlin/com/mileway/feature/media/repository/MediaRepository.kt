@@ -1,8 +1,8 @@
 package com.mileway.feature.media.repository
 
+import com.mileway.core.media.model.UploadState
 import com.mileway.feature.media.model.AttachmentItem
 import com.mileway.feature.media.model.OcrResult
-import com.mileway.feature.media.model.UploadState
 
 /**
  * Abstraction over the media-processing backend (OCR, watermarking, upload).

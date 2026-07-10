@@ -15,6 +15,10 @@ kotlin {
             implementation(project(":core:common"))
             implementation(project(":core:data"))
             implementation(project(":core:ui"))
+            // api: AttachmentItem/OcrResult/UploadState/AttachmentSource are re-exported below via
+            // typealias, so consumers of feature:media (e.g. feature:tracking) need core:media's
+            // real classes on their compile classpath too (V25 P25.A1.1).
+            api(project(":core:media"))
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.play.services)

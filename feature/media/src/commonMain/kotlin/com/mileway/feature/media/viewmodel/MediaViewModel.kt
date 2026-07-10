@@ -1,11 +1,11 @@
 package com.mileway.feature.media.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.media.model.UploadState
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.media.model.AttachmentItem
 import com.mileway.feature.media.model.AttachmentSource
 import com.mileway.feature.media.model.FlashMode
-import com.mileway.feature.media.model.UploadState
 import com.mileway.feature.media.repository.MediaLibraryRepository
 import com.mileway.feature.media.repository.MediaRepository
 import kotlinx.coroutines.flow.StateFlow

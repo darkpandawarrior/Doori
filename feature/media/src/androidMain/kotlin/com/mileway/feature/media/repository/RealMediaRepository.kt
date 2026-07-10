@@ -11,9 +11,9 @@ import android.net.Uri
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import com.mileway.core.media.model.UploadState
 import com.mileway.feature.media.model.AttachmentItem
 import com.mileway.feature.media.model.OcrResult
-import com.mileway.feature.media.model.UploadState
 import com.mileway.feature.media.ocr.OdometerOcrAggregator
 import com.mileway.feature.media.ocr.OdometerOcrParser
 import kotlinx.coroutines.tasks.await
