@@ -3029,4 +3029,8 @@
     <string name="core_forms_suggestion_source_detected">पहचाना गया</string>
     <string name="core_forms_suggestion_dismiss_cd">%1$s के लिए सुझाव खारिज करें</string>
     <string name="core_forms_suggestion_undo">पूर्ववत करें</string>
+    <!-- V27 P27.E.1/E.3: expense 2-step wizard chrome + the policy-violation ModalBottomSheet. -->
+    <string name="logging_expense_step_of_2">चरण %1$d/2</string>
+    <string name="logging_policy_sheet_submit_anyway">फिर भी सबमिट करें</string>
+    <string name="logging_policy_sheet_review">विवरण देखें</string>
 </resources>

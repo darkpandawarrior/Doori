@@ -78,9 +78,8 @@ import com.mileway.feature.events.ui.screens.CreateEventScreen
 import com.mileway.feature.events.ui.screens.EventsHistoryScreen
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
-import com.mileway.feature.logging.ui.screens.ExpenseDetailsInputScreen
-import com.mileway.feature.logging.ui.screens.ExpenseEntryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseHistoryScreen
+import com.mileway.feature.logging.ui.screens.ExpenseScreen
 import com.mileway.feature.logging.ui.screens.LogMilesHistoryScreen
 import com.mileway.feature.logging.ui.screens.LogMilesScreen
 import com.mileway.feature.logging.ui.screens.LogMilesStep2Screen
@@ -817,11 +816,15 @@ class ScreenshotGalleryTest {
         capture("spends_home_screen")
     }
 
+    // V27 P27.E.1: the old 2-route entry(category)/details(amount+submit) pair is now one
+    // in-place 2-step ExpenseScreen wizard (ExpenseFormState.step drives which step renders).
+    // Golden filenames kept as-is (expense_entry_screen / expense_details_input_screen) — same
+    // wizard, same instance, step 2 reached here by driving the same UI a real user would.
     @Test
     fun expenseEntryScreen() {
         composeRule.setContent {
             MilewayTheme {
-                ExpenseEntryScreen(onBack = {}, onCategorySelected = {})
+                ExpenseScreen(onBack = {}, onSubmitted = {})
             }
         }
         capture("expense_entry_screen")
@@ -831,9 +834,11 @@ class ScreenshotGalleryTest {
     fun expenseDetailsInputScreen() {
         composeRule.setContent {
             MilewayTheme {
-                ExpenseDetailsInputScreen(onBack = {}, onSubmitted = {})
+                ExpenseScreen(onBack = {}, onSubmitted = {})
             }
         }
+        composeRule.onNodeWithText("Food").performClick()
+        composeRule.onNodeWithText("Next").performClick()
         capture("expense_details_input_screen")
     }
 

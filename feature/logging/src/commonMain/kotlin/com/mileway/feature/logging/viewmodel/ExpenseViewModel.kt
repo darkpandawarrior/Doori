@@ -4,12 +4,16 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
+import com.mileway.core.forms.FieldId
+import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.validationErrors
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
+import com.mileway.feature.logging.catalog.ExpenseCustomFormCatalog
 import com.mileway.feature.logging.import.ExpenseCsvImporter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
@@ -76,6 +80,13 @@ data class ExpenseFormState(
     val sourceContext: ExpenseSourceContext = ExpenseSourceContext.None,
     /** P27.E.4: Scanner-context prefill of the OCR-detected date; null uses submit-time `now()`. */
     val dateMs: Long? = null,
+    /**
+     * V27 P27.E.1: step-2's custom-form field values, keyed to whatever
+     * [ExpenseCustomFormCatalog.schemaFor] returns for [category] — rendered through `core:forms`'
+     * shared `FormRenderer`, the same [FieldId]/[FormFieldValue] shape every other dynamic form in
+     * the app uses (see `LogMilesStep2Screen`'s `AdditionalDetailsCard`).
+     */
+    val formValues: Map<FieldId, FormFieldValue> = emptyMap(),
     val errors: Map<String, UiText> = emptyMap(),
 )
 
@@ -112,6 +123,19 @@ sealed interface ExpenseAction {
 
     data class SelectCategory(val category: ExpenseCategory) : ExpenseAction
 
+    /**
+     * V27 P27.E.1: advances the in-place wizard from step 1 to step 2, gated on
+     * [com.mileway.feature.logging.validation.ExpenseFormValidator.validateStep1] — a no-op
+     * (surfaces the inline category error) when step 1 isn't valid yet.
+     */
+    data object AdvanceStep : ExpenseAction
+
+    /** V27 P27.E.1: retreats the in-place wizard from step 2 to step 1 (does not clear step-2 fields). */
+    data object RetreatStep : ExpenseAction
+
+    /** V27 P27.E.1: sets one custom-form field's value, rendered via `core:forms`' `FormRenderer`. */
+    data class SetFormValue(val key: FieldId, val value: FormFieldValue) : ExpenseAction
+
     data class SetAmount(val text: String) : ExpenseAction
 
     /** P27.E.15: sets the currency the amount is entered in (defaults to INR). */
@@ -128,6 +152,14 @@ sealed interface ExpenseAction {
     data class SetOfficeCode(val code: String?) : ExpenseAction
 
     data object SubmitExpense : ExpenseAction
+
+    /**
+     * V27 P27.E.3: the second validation channel — confirms submission after
+     * [ExpenseEffect.ShowPolicySheet] was shown for a tiered-policy outcome the user has now
+     * acknowledged. Per-field errors already passed (that's why the sheet was reachable); this
+     * bypasses only the policy-outcome gate itself.
+     */
+    data object ConfirmSubmitDespitePolicy : ExpenseAction
 
     data object ResetForm : ExpenseAction
 
@@ -208,6 +240,14 @@ sealed interface ExpenseEffect {
     data class NavigateToSuccess(val id: String) : ExpenseEffect
 
     data object NavigateBack : ExpenseEffect
+
+    /**
+     * V27 P27.E.3: the tiered-policy outcome for the current submit attempt requires
+     * acknowledgement — shown as a `ModalBottomSheet` (mirrors DiCE's `PolicyViolationBottomSheet`),
+     * distinct from the inline per-field errors the form already renders. [ExpenseAction
+     * .ConfirmSubmitDespitePolicy] proceeds; dismissing the sheet returns to the form unchanged.
+     */
+    data class ShowPolicySheet(val violations: List<PolicyViolation>) : ExpenseEffect
 }
 
 /** Local, offline round-trip between [ExpenseFormState] and its persisted Room shape (P1.5). */
@@ -261,7 +301,12 @@ class ExpenseViewModel(
             is ExpenseAction.SetCategories ->
                 refresh(currentState.listState.activeFilter(), currentState.listState.activeSort(), action.categories)
             is ExpenseAction.SelectCategory ->
-                setState { copy(form = form.copy(category = action.category, step = 2)) }
+                // V27 P27.E.1: category selection alone no longer jumps to step 2 — the wizard's
+                // "Next" (AdvanceStep) does that, gated on validateStep1.
+                setState { copy(form = form.copy(category = action.category)) }
+            ExpenseAction.AdvanceStep -> advanceStep()
+            ExpenseAction.RetreatStep -> setState { copy(form = form.copy(step = 1)) }
+            is ExpenseAction.SetFormValue -> setState { copy(form = form.copy(formValues = form.formValues + (action.key to action.value))) }
             is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
             is ExpenseAction.SetCurrency -> setState { copy(form = form.copy(currencyCode = action.code)) }
             is ExpenseAction.SetMerchant -> setState { copy(form = form.copy(merchantName = action.name)) }
@@ -269,6 +314,7 @@ class ExpenseViewModel(
             is ExpenseAction.SetReceiptImage -> setState { copy(form = form.copy(receiptImagePath = action.path)) }
             is ExpenseAction.SetOfficeCode -> setState { copy(form = form.copy(officeCode = action.code)) }
             ExpenseAction.SubmitExpense -> submitExpense()
+            ExpenseAction.ConfirmSubmitDespitePolicy -> performSubmit()
             ExpenseAction.ResetForm ->
                 setState {
                     copy(
@@ -325,14 +371,49 @@ class ExpenseViewModel(
         setState { copy(listState = ScreenState.Content(ExpenseListData(records, filter, sort, categories))) }
     }
 
-    private fun submitExpense() {
+    /** V27 P27.E.1: step-1 -> step-2 transition, gated on [ExpenseFormValidator.validateStep1]. */
+    private fun advanceStep() {
         val form = currentState.form
-        val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == form.category }
-        val errors = ExpenseFormValidator.validate(form, catalogDef)
+        val errors = ExpenseFormValidator.validateStep1(form)
         if (errors.isNotEmpty()) {
             setState { copy(form = form.copy(errors = errors)) }
             return
         }
+        setState { copy(form = form.copy(step = 2, errors = emptyMap())) }
+    }
+
+    /**
+     * Validates every field (step-1 category, step-2 fields, the per-category custom form) then,
+     * if the tiered policy engine flags the amount, hands off to [ExpenseEffect.ShowPolicySheet]
+     * (V27 P27.E.3's second validation channel) instead of submitting immediately — the sheet's
+     * "Submit Anyway" dispatches [ExpenseAction.ConfirmSubmitDespitePolicy] -> [performSubmit].
+     * A SUCCESS outcome submits straight through, unchanged from before P27.E.3.
+     */
+    private fun submitExpense() {
+        val form = currentState.form
+        val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == form.category }
+        val fieldErrors = ExpenseFormValidator.validate(form, catalogDef)
+        val customFormErrors = validationErrors(ExpenseCustomFormCatalog.schemaFor(catalogDef), form.formValues)
+        val errors = fieldErrors + customFormErrors
+        if (errors.isNotEmpty()) {
+            setState { copy(form = form.copy(errors = errors)) }
+            return
+        }
+        val amount = form.amountText.toDoubleOrNull() ?: 0.0
+        val category = form.category ?: ExpenseCategory.OTHER
+        val outcome = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
+        val blocksOnPolicy =
+            outcome == SubmissionStatus.POLICY_VIOLATION || outcome == SubmissionStatus.NEEDS_APPROVAL || outcome == SubmissionStatus.HARD_STOP
+        if (blocksOnPolicy) {
+            emitEffect(ExpenseEffect.ShowPolicySheet(PolicyMockData.violationsForExpenseAmount(amount, category.name)))
+            return
+        }
+        performSubmit()
+    }
+
+    /** The actual insert/update + navigate-to-success, unconditional once field + policy gates have passed. */
+    private fun performSubmit() {
+        val form = currentState.form
         val amount = form.amountText.toDoubleOrNull() ?: 0.0
         val category = form.category ?: ExpenseCategory.OTHER
         // P1.8: editing an existing record keeps its id (resubmit), instead of minting a new one.

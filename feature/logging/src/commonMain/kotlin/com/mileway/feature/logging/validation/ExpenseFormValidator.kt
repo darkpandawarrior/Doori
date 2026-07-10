@@ -65,6 +65,15 @@ object ExpenseFormValidator {
     }
 
     /**
+     * V27 P27.E.1: step-1 gate for the 2-step wizard — only a category is actually required to
+     * advance to step 2 (merchant/amount/office are step-2 fields, still enforced by [validate] on
+     * final submit). Kept as its own function rather than reusing [validate] wholesale so step-1's
+     * "Next" button doesn't demand step-2 fields the user hasn't reached yet.
+     */
+    fun validateStep1(form: ExpenseFormState): Map<String, UiText> =
+        if (form.category == null) mapOf(FIELD_CATEGORY to UiText.of("Select a category")) else emptyMap()
+
+    /**
      * P27.E.4: DiCE's `editableTypesForCard` — when an expense is opened against a card transaction,
      * merchant and category are pinned to the actual transaction and rendered read-only once
      * E-STRUCT wires this into the screen; amount stays a normal editable field, capped (not

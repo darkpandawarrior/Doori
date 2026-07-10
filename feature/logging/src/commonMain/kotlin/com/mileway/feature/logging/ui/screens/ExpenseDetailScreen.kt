@@ -167,15 +167,14 @@ fun ExpenseDetailScreen(
                     }
                 }
 
-                // P1.8: edit entry point — loads this record into the form, then navigates into
-                // the same details-input flow used for a fresh expense.
+                // P1.8: edit entry point — navigates into the merged expense wizard carrying an
+                // ExpenseSourceContext.Edit(id) (V27 P27.E.1: the wizard's own ViewModel loads the
+                // record via openWithContext, same as every other linked-entry context — this
+                // screen's own ViewModel no longer needs to dispatch OpenEdit itself).
                 // P1.9: for a REJECTED expense this is the resubmit path, so it's labeled
                 // "Resubmit"; other statuses keep the plain "Edit Expense" affordance.
                 OutlinedButton(
-                    onClick = {
-                        viewModel.onAction(ExpenseAction.OpenEdit(expense.id))
-                        onEdit(expense.id)
-                    },
+                    onClick = { onEdit(expense.id) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = DesignTokens.Shape.button,
                 ) {

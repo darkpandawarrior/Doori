@@ -510,6 +510,10 @@ dependencies {
     testImplementation(libs.androidx.test.ext.junit)
     testImplementation(libs.compose.ui.test.junit4)
     testImplementation(project(":core:platform"))
+    // V27 P27.E.1: ExpenseViewModelTest dispatches ExpenseAction.SetFormValue with a real
+    // core:forms FormFieldValue (feature:logging depends on core:forms as `implementation`, not
+    // `api`, so it isn't on :app's test classpath transitively).
+    testImplementation(project(":core:forms"))
     testImplementation(libs.room.testing)
     // G11: Glance render test (host-side, runs in the JVM gate via Robolectric).
     testImplementation(libs.glance.appwidget.testing)

@@ -21,7 +21,13 @@ import kotlin.coroutines.resume
  * treats as "nothing to contribute" rather than a crash.
  */
 class MlKitTextRecognizer(private val context: Context) : TextRecognizer {
-    private val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    // ponytail: lazy, not eager — this class is constructed unconditionally at Compose
+    // composition time by every rememberMediaCaptureLauncher call (core:media), whether or not
+    // OCR is ever used. TextRecognition.getClient() touches MlKitContext.getInstance(), which
+    // isn't initialized in every host (e.g. Robolectric screenshot tests) — deferring construction
+    // to the first real recognize() call means a composable that merely mounts the launcher never
+    // pays that cost or that crash risk.
+    private val recognizer by lazy { TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS) }
 
     override suspend fun recognize(image: DocumentImageRef): String {
         val bitmap = decodeBitmap(image) ?: return ""

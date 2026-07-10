@@ -9,9 +9,8 @@ import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
-import com.mileway.feature.logging.ui.screens.ExpenseDetailsInputScreen
-import com.mileway.feature.logging.ui.screens.ExpenseEntryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseHistoryScreen
+import com.mileway.feature.logging.ui.screens.ExpenseScreen
 import com.mileway.feature.logging.ui.screens.ExpenseSuccessScreen
 import com.mileway.feature.logging.ui.screens.LogMilesHistoryScreen
 import com.mileway.feature.logging.ui.screens.LogMilesScreen
@@ -65,9 +64,6 @@ object LoggingRoutes {
         "expense/entry?$CTX_ARG_TYPE={$CTX_ARG_TYPE}&$CTX_ARG_ID1={$CTX_ARG_ID1}&$CTX_ARG_ID2={$CTX_ARG_ID2}" +
             "&$CTX_ARG_LABEL={$CTX_ARG_LABEL}&$CTX_ARG_AMOUNT={$CTX_ARG_AMOUNT}"
 
-    /** Add Expense Step 2, amount, merchant, notes + submit. */
-    const val EXPENSE_DETAILS = "expense/details"
-
     /** Add Expense success screen. */
     const val EXPENSE_SUCCESS = "expense/success"
 
@@ -92,9 +88,10 @@ object LoggingRoutes {
      * lets feature:tracking/cards/profile CTAs hand an [ExpenseSourceContext] to the expense flow
      * through a plain route string, so every feature still meets feature:logging only at :app's
      * composition root (never a direct feature→feature dependency; see CLAUDE.md's module-
-     * boundary rule). Only the P27.E.5/7/8 variants (Trip/Card/Advance) are encoded richly; every
-     * other variant (including the default [ExpenseSourceContext.Regular]) falls back to the bare
-     * "no context" entry — identical to the pre-existing plain "Add Expense" tap. Reverse of
+     * boundary rule). The P27.E.5/7/8 variants (Trip/Card/Advance) plus, since P27.E.1 merged the
+     * old edit-details route into this single one, [ExpenseSourceContext.Edit] are encoded richly;
+     * every other variant (including the default [ExpenseSourceContext.Regular]) falls back to the
+     * bare "no context" entry — identical to the pre-existing plain "Add Expense" tap. Reverse of
      * [decodeExpenseSourceContext].
      */
     fun expenseEntryRoute(context: ExpenseSourceContext = ExpenseSourceContext.Regular): String {
@@ -125,6 +122,13 @@ object LoggingRoutes {
                 label = context.advanceLabel.orEmpty()
                 amount = ""
             }
+            is ExpenseSourceContext.Edit -> {
+                type = "edit"
+                id1 = context.expenseId
+                id2 = ""
+                label = ""
+                amount = ""
+            }
             else -> return "expense/entry"
         }
         return "expense/entry?$CTX_ARG_TYPE=$type&$CTX_ARG_ID1=${encodeRouteArg(id1)}&$CTX_ARG_ID2=${encodeRouteArg(id2)}" +
@@ -135,8 +139,11 @@ object LoggingRoutes {
 /**
  * Reverse of [LoggingRoutes.expenseEntryRoute]: rebuilds the [ExpenseSourceContext] the
  * expense-entry route arrived with. A blank/unrecognized [ctxType] (the plain "Add Expense" tap,
- * or any variant this task didn't wire — Event/Message/Scanner/Edit/TripAdvance) resolves to
- * [ExpenseSourceContext.None], identical to the pre-P27.E.5/7/8 fresh-ViewModel default.
+ * or any variant this task didn't wire — Event/Message/Scanner/TripAdvance) resolves to
+ * [ExpenseSourceContext.None], identical to the pre-P27.E.5/7/8 fresh-ViewModel default. P27.E.1
+ * adds "edit": the merged wizard's edit/resubmit entry point, replacing the old separate
+ * edit-details route — [com.mileway.feature.logging.viewmodel.ExpenseViewModel.openWithContext]
+ * already delegates [ExpenseSourceContext.Edit] to its existing load-by-id path.
  */
 internal fun decodeExpenseSourceContext(
     ctxType: String,
@@ -153,6 +160,7 @@ internal fun decodeExpenseSourceContext(
         "trip" -> ExpenseSourceContext.Trip(id1, label)
         "card" -> ExpenseSourceContext.Card(id1, id2, label, amount)
         "advance" -> ExpenseSourceContext.Advance(id1, label)
+        "edit" -> ExpenseSourceContext.Edit(id1)
         else -> ExpenseSourceContext.None
     }
 }
@@ -321,26 +329,12 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
                 ctxAmount = a?.read { getStringOrNull("ctxAmount") }.orEmpty(),
             )
         LaunchedEffect(entry) { viewModel.onAction(ExpenseAction.OpenWithContext(context)) }
-        ExpenseEntryScreen(
+        // V27 P27.E.1: the old 2-route entry(category)/details(amount+submit) pair is now one
+        // in-place 2-step wizard — ExpenseFormState.step drives which step renders, no nav
+        // transition between them. EXPENSE_SUCCESS stays its own destination (unchanged).
+        ExpenseScreen(
             onBack = { navController.popBackStack() },
-            onCategorySelected = { navController.navigate(LoggingRoutes.EXPENSE_DETAILS) },
-            viewModel = viewModel,
-        )
-    }
-
-    composable(LoggingRoutes.EXPENSE_DETAILS) {
-        val expenseEntry = rememberExpenseEntry(navController)
-        val viewModel =
-            koinViewModel<com.mileway.feature.logging.viewmodel.ExpenseViewModel>(
-                viewModelStoreOwner = expenseEntry,
-            )
-        ExpenseDetailsInputScreen(
-            onBack = { navController.popBackStack() },
-            onSubmitted = {
-                navController.navigate(LoggingRoutes.EXPENSE_SUCCESS) {
-                    popUpTo(LoggingRoutes.EXPENSE_DETAILS) { inclusive = true }
-                }
-            },
+            onSubmitted = { navController.navigate(LoggingRoutes.EXPENSE_SUCCESS) },
             viewModel = viewModel,
         )
     }
@@ -381,11 +375,10 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
         ExpenseDetailScreen(
             expenseId = id,
             onBack = { navController.popBackStack() },
-            // P1.8: OpenEdit is dispatched on this route's own ExpenseViewModel instance, so the
-            // edit destination shares that same instance (looked up below by this exact route,
-            // the same pattern rememberExpenseEntry uses for EXPENSE_ENTRY) to see the
-            // pre-filled form, instead of getting a fresh one from EXPENSE_ENTRY's store.
-            onEdit = { navController.navigate(LoggingRoutes.EXPENSE_DETAILS) },
+            // V27 P27.E.1: navigates into the merged wizard carrying an Edit context — its own
+            // freshly-scoped ExpenseViewModel loads the record via openWithContext (same seam
+            // E-LINK's Trip/Card/Advance CTAs already use), landing straight on step 2.
+            onEdit = { editId -> navController.navigate(LoggingRoutes.expenseEntryRoute(ExpenseSourceContext.Edit(editId))) },
         )
     }
 
@@ -420,15 +413,15 @@ private fun rememberLogMilesEntry(navController: NavHostController) =
     } ?: navController.currentBackStackEntry!!
 
 /**
- * Resolves the [LoggingRoutes.EXPENSE_ENTRY] back-stack entry so the details and success
- * screens share the same ExpenseViewModel as the entry screen. P1.8: when the details screen was
- * reached via the edit/resubmit path instead (no [LoggingRoutes.EXPENSE_ENTRY] on the stack),
- * falls back to the [LoggingRoutes.EXPENSE_DETAIL] entry that dispatched `OpenEdit`, so the
- * pre-filled form is visible here rather than a fresh ViewModel instance.
+ * Resolves the [LoggingRoutes.EXPENSE_ENTRY] back-stack entry so [EXPENSE_SUCCESS] shares the same
+ * ExpenseViewModel as the wizard (submit dispatches from that entry's instance; onSubmitted only
+ * pushes SUCCESS on top of it, never pops it — see the EXPENSE_ENTRY composable). V27 P27.E.1
+ * merged the old separate edit-details route into EXPENSE_ENTRY itself (an Edit context now flows
+ * through the same [LoggingRoutes.expenseEntryRoute] seam as Trip/Card/Advance), so the previous
+ * edit-only fallback to [LoggingRoutes.EXPENSE_DETAIL] is no longer reachable and was dropped.
  */
 @androidx.compose.runtime.Composable
 private fun rememberExpenseEntry(navController: NavHostController) =
     androidx.compose.runtime.remember(navController.currentBackStackEntry) {
         runCatching { navController.getBackStackEntry(LoggingRoutes.EXPENSE_ENTRY) }.getOrNull()
-            ?: runCatching { navController.getBackStackEntry(LoggingRoutes.EXPENSE_DETAIL) }.getOrNull()
     } ?: navController.currentBackStackEntry!!

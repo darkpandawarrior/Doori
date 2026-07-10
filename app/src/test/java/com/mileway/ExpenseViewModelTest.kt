@@ -67,12 +67,52 @@ class ExpenseViewModelTest {
         assertEquals(amounts.sortedDescending(), amounts)
     }
 
+    // ── V27 P27.E.1: the 2-step wizard's step state + AdvanceStep/RetreatStep gate ─────
+
     @Test
-    fun `SelectCategory advances the form to step two`() {
+    fun `SelectCategory sets the category but stays on step one`() {
         val vm = viewModel()
         vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.entries.first()))
-        assertEquals(2, vm.state.value.form.step)
+        assertEquals(1, vm.state.value.form.step)
         assertEquals(ExpenseCategory.entries.first(), vm.state.value.form.category)
+    }
+
+    @Test
+    fun `AdvanceStep without a category sets a category error and stays on step one`() {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.AdvanceStep)
+        assertEquals(1, vm.state.value.form.step)
+        assertTrue(vm.state.value.form.errors.containsKey(ExpenseFormValidator.FIELD_CATEGORY))
+    }
+
+    @Test
+    fun `AdvanceStep after SelectCategory moves to step two`() {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+        vm.onAction(ExpenseAction.AdvanceStep)
+        assertEquals(2, vm.state.value.form.step)
+        assertTrue(vm.state.value.form.errors.isEmpty())
+    }
+
+    @Test
+    fun `RetreatStep moves step two back to step one without clearing fields`() {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+        vm.onAction(ExpenseAction.AdvanceStep)
+        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+        vm.onAction(ExpenseAction.RetreatStep)
+        assertEquals(1, vm.state.value.form.step)
+        assertEquals("Cafe Coffee Day", vm.state.value.form.merchantName)
+    }
+
+    @Test
+    fun `SetFormValue records a custom-form field value`() {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SetFormValue("gstInvoiceNumber", com.mileway.core.forms.FormFieldValue.Text("GST-123")))
+        assertEquals(
+            com.mileway.core.forms.FormFieldValue.Text("GST-123"),
+            vm.state.value.form.formValues["gstInvoiceNumber"],
+        )
     }
 
     @Test
@@ -214,6 +254,49 @@ class ExpenseViewModelTest {
         val inserted = repository.getById(vm.state.value.lastSubmittedId)
         assertNotNull(inserted)
         assertEquals(null, inserted.officeCode)
+    }
+
+    // ── V27 P27.E.1: step-2 custom form (ExpenseCustomFormCatalog, requiresGst categories) ──
+
+    @Test
+    fun `SubmitExpense on a GST-required category without the custom form fields sets a custom-form error`() {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.ACCOMMODATION)) // requiresGst = true
+        vm.onAction(ExpenseAction.SetMerchant("Taj Hotel"))
+        vm.onAction(ExpenseAction.SetAmount("2000.0"))
+        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+        vm.onAction(ExpenseAction.SubmitExpense)
+        assertEquals("", vm.state.value.lastSubmittedId)
+        assertTrue(vm.state.value.form.errors.containsKey("gstInvoiceNumber"))
+    }
+
+    @Test
+    fun `SubmitExpense on a GST-required category with the custom form filled in submits`() = runTest {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.ACCOMMODATION))
+        vm.onAction(ExpenseAction.SetMerchant("Taj Hotel"))
+        vm.onAction(ExpenseAction.SetAmount("2000.0"))
+        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+        vm.onAction(ExpenseAction.SetFormValue("gstInvoiceNumber", com.mileway.core.forms.FormFieldValue.Text("GST-INV-1")))
+        vm.onAction(ExpenseAction.SetFormValue("gstDeclaration", com.mileway.core.forms.FormFieldValue.Declaration(true)))
+        vm.effect.test {
+            vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+        }
+        assertTrue(vm.state.value.lastSubmittedId.isNotEmpty())
+    }
+
+    @Test
+    fun `SubmitExpense on a category with no requiresGst flag never demands the custom form`() = runTest {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+        vm.onAction(ExpenseAction.SetAmount("249.50"))
+        vm.effect.test {
+            vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+        }
+        assertTrue(vm.state.value.form.errors.isEmpty())
     }
 
     @Test
@@ -375,8 +458,13 @@ class ExpenseViewModelTest {
         assertTrue(vm.state.value.lastSubmissionViolations.isEmpty())
     }
 
+    // V27 P27.E.3: a tiered-policy-blocking outcome no longer submits straight through — the
+    // first SubmitExpense emits ShowPolicySheet and leaves lastSubmissionStatus untouched;
+    // ConfirmSubmitDespitePolicy (the sheet's "Submit Anyway") is what actually performs the
+    // submit and updates state, mirroring the ModalBottomSheet flow the real screen drives.
+
     @Test
-    fun `SubmitExpense between 5000 and 10000 resolves to POLICY_VIOLATION with a violation`() = runTest {
+    fun `SubmitExpense between 5000 and 10000 shows the policy sheet with a violation`() = runTest {
         val vm = viewModel()
         vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
         vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
@@ -384,21 +472,43 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SetOfficeCode("1345"))
         vm.effect.test {
             vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+            val effect = awaitItem()
+            assertTrue(effect is ExpenseEffect.ShowPolicySheet)
+            assertEquals(1, (effect as ExpenseEffect.ShowPolicySheet).violations.size)
+        }
+        assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus) // untouched until confirmed
+    }
+
+    @Test
+    fun `ConfirmSubmitDespitePolicy after a POLICY_VIOLATION sheet performs the submit`() = runTest {
+        val vm = viewModel()
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+        vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
+        vm.onAction(ExpenseAction.SetAmount("7500.0"))
+        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+        vm.effect.test {
+            vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
+            assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
         }
         assertEquals(SubmissionStatus.POLICY_VIOLATION, vm.state.value.lastSubmissionStatus)
         assertEquals(1, vm.state.value.lastSubmissionViolations.size)
     }
 
     @Test
-    fun `SubmitExpense between 10000 and 25000 resolves to NEEDS_APPROVAL with no violations`() = runTest {
+    fun `SubmitExpense between 10000 and 25000 resolves to NEEDS_APPROVAL once confirmed`() = runTest {
+        // TRAVEL (not ACCOMMODATION/OFFICE_SUPPLIES) so this doesn't also need the requiresGst
+        // custom form filled in — that gate is covered separately below.
         val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.ACCOMMODATION))
-        vm.onAction(ExpenseAction.SetMerchant("Taj Hotel"))
+        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+        vm.onAction(ExpenseAction.SetMerchant("Taj Travels"))
         vm.onAction(ExpenseAction.SetAmount("15000.0"))
         vm.onAction(ExpenseAction.SetOfficeCode("1345"))
         vm.effect.test {
             vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
             awaitItem()
         }
         assertEquals(SubmissionStatus.NEEDS_APPROVAL, vm.state.value.lastSubmissionStatus)
@@ -406,7 +516,7 @@ class ExpenseViewModelTest {
     }
 
     @Test
-    fun `SubmitExpense above 25000 resolves to HARD_STOP with a hardstop violation`() = runTest {
+    fun `SubmitExpense above 25000 resolves to HARD_STOP once confirmed`() = runTest {
         val vm = viewModel()
         vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
         vm.onAction(ExpenseAction.SetMerchant("IndiGo Airlines"))
@@ -414,6 +524,8 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SetOfficeCode("1345"))
         vm.effect.test {
             vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
             awaitItem()
         }
         assertEquals(SubmissionStatus.HARD_STOP, vm.state.value.lastSubmissionStatus)
@@ -429,6 +541,8 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SetOfficeCode("1345"))
         vm.effect.test {
             vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
             awaitItem()
         }
         vm.onAction(ExpenseAction.ResetForm)
@@ -472,10 +586,14 @@ class ExpenseViewModelTest {
             val before = repository.getAll().size
 
             vm.onAction(ExpenseAction.OpenEdit("EXP-007"))
+            // EXP-007 is FOOD; 5200 falls in FOOD's POLICY_VIOLATION range (5000-9999.99) so this
+            // resubmit also exercises the V27 P27.E.3 policy-sheet gate before landing on Success.
             vm.onAction(ExpenseAction.SetAmount("5200.0"))
             vm.onAction(ExpenseAction.SetNote("Resubmitted with updated receipt"))
             vm.effect.test {
                 vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+                vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
                 val effect = awaitItem()
                 assertTrue(effect is ExpenseEffect.NavigateToSuccess)
                 assertEquals("EXP-007", (effect as ExpenseEffect.NavigateToSuccess).id)

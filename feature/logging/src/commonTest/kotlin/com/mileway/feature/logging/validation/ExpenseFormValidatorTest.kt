@@ -200,6 +200,20 @@ class ExpenseFormValidatorTest {
         assertTrue(errors.isEmpty())
     }
 
+    // ── V27 P27.E.1: step-1 gate (only category is required to advance the wizard) ────
+
+    @Test
+    fun `validateStep1 with no category produces a category error`() {
+        val errors = ExpenseFormValidator.validateStep1(ExpenseFormState())
+        assertEquals(setOf(ExpenseFormValidator.FIELD_CATEGORY), errors.keys)
+    }
+
+    @Test
+    fun `validateStep1 with a category and no other fields has no errors`() {
+        val errors = ExpenseFormValidator.validateStep1(ExpenseFormState(category = ExpenseCategory.FOOD))
+        assertTrue(errors.isEmpty())
+    }
+
     @Test
     fun `lockedFieldKeys locks merchant and category only for the Card context`() {
         assertEquals(

@@ -3033,4 +3033,8 @@
     <string name="core_forms_suggestion_source_detected">Detected</string>
     <string name="core_forms_suggestion_dismiss_cd">Dismiss suggestion for %1$s</string>
     <string name="core_forms_suggestion_undo">Undo</string>
+    <!-- V27 P27.E.1/E.3: expense 2-step wizard chrome + the policy-violation ModalBottomSheet. -->
+    <string name="logging_expense_step_of_2">Step %1$d of 2</string>
+    <string name="logging_policy_sheet_submit_anyway">Submit Anyway</string>
+    <string name="logging_policy_sheet_review">Review Details</string>
 </resources>

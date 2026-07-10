@@ -77,6 +77,12 @@ class ExpenseEntryRouteCodecTest {
     }
 
     @Test
+    fun `Edit round-trips through the route string`() {
+        val ctx = ExpenseSourceContext.Edit(expenseId = "EXP-007")
+        assertEquals(ctx, decode(LoggingRoutes.expenseEntryRoute(ctx)))
+    }
+
+    @Test
     fun `a variant this task did not wire falls back to a bare entry`() {
         val route = LoggingRoutes.expenseEntryRoute(ExpenseSourceContext.Event("evt-1", "Annual Summit"))
         assertEquals("expense/entry", route)
