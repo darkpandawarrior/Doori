@@ -1,8 +1,6 @@
 <div align="center">
 
-<img src="docs/brand/mileway-icon.png" width="120" alt="Mileway app icon" />
-
-# Mileway
+<img src="docs/assets/banner.svg" alt="Mileway — offline-first mileage, travel and expense tracking" width="700"/>
 
 ### Offline-first mileage, travel and expense tracking, built in Kotlin and Compose Multiplatform.
 

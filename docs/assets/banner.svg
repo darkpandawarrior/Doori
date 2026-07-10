@@ -1,0 +1,33 @@
+<svg width="900" height="170" viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mileway — offline-first mileage, travel and expense tracking">
+  <defs>
+    <linearGradient id="mw-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#FF453A"/>
+    </linearGradient>
+  </defs>
+
+  <text x="450" y="80" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" fill="url(#mw-grad)">
+    Mileway
+    <animate attributeName="opacity" values="0;1" dur="0.9s" begin="0s" fill="freeze"/>
+  </text>
+
+  <!-- animated route trace: a dashed road continuously scrolling, like a live GPS track -->
+  <path d="M 50 122 Q 110 105 170 122 T 290 122 T 410 122 T 530 122 T 650 122 T 770 122"
+        fill="none" stroke="url(#mw-grad)" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="14 10" opacity="0.85">
+    <animate attributeName="stroke-dashoffset" from="0" to="-240" dur="3s" repeatCount="indefinite"/>
+  </path>
+
+  <!-- a location pin traveling along the route -->
+  <g>
+    <animateMotion dur="4s" repeatCount="indefinite"
+      path="M 50 122 Q 110 105 170 122 T 290 122 T 410 122 T 530 122 T 650 122 T 770 122"/>
+    <path d="M 0 -14 C 7 -14 12 -9 12 -2 C 12 7 0 18 0 18 C 0 18 -12 7 -12 -2 C -12 -9 -7 -14 0 -14 Z"
+          fill="#FF453A" stroke="#FFC15E" stroke-width="1.5"/>
+    <circle cx="0" cy="-2" r="4" fill="#0B0806"/>
+  </g>
+
+  <text x="450" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15" letter-spacing="3" fill="#94a3b8">
+    OFFLINE-FIRST MILEAGE &amp; EXPENSE TRACKING
+  </text>
+</svg>
