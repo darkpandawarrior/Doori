@@ -2257,6 +2257,22 @@
     <string name="mysub_status_active">सक्रिय</string>
     <string name="mysub_status_expired">समाप्त</string>
     <string name="mysub_status_cancelled">रद्द</string>
+    <!-- PLAN_V24 P12.1: badges & compliments -->
+    <string name="plugin_engagement_badges_title">बैज और तारीफ़ें</string>
+    <string name="plugin_engagement_badges_desc">अपनी प्रोफ़ाइल पर अर्जित यात्रा उपलब्धियाँ और तारीफ़ें दिखाएँ</string>
+    <string name="plugin_engagement_show_rating_title">रेटिंग चिप</string>
+    <string name="plugin_engagement_show_rating_desc">प्रोफ़ाइल बैज अनुभाग पर अपनी कुल रेटिंग दिखाएँ</string>
+    <string name="profile_badges_title">उपलब्धियाँ</string>
+    <string name="profile_badges_subtitle">आपकी यात्राओं से अर्जित मील के पत्थर</string>
+    <string name="profile_badges_compliments">तारीफ़ें</string>
+    <string name="badge_first_trip">पहली यात्रा</string>
+    <string name="badge_ten_trips">10 यात्राएँ</string>
+    <string name="badge_hundred_km">100 किमी</string>
+    <string name="badge_week_streak">7-दिन की लय</string>
+    <string name="compliment_clean_ride">साफ़ सवारी</string>
+    <string name="compliment_on_time">समय पर</string>
+    <string name="compliment_safe_driving">सुरक्षित ड्राइविंग</string>
+    <string name="compliment_great_navigation">बढ़िया नेविगेशन</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">प्रोत्साहन कार्यक्रम</string>
     <string name="plugin_engagement_incentives_desc">लक्ष्य-आधारित प्रोत्साहन कार्यक्रम और प्रगति दिखाएँ</string>

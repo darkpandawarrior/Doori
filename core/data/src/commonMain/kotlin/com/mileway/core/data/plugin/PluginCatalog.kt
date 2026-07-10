@@ -576,11 +576,38 @@ object PluginCatalog {
             ),
         )
 
+    /**
+     * Engagement/trust plugins (P12). [badgesEnabled] gates the whole earned-badges + compliments
+     * section on the profile hub; [showRating] gates just the aggregate rating chip inside it. Both
+     * default OFF so the baseline hub golden stays byte-identical; the Gig Driver persona turns them
+     * on (Driver-shaped rating + achievements layout).
+     */
+    val badgePlugins: List<PluginDescriptor> =
+        listOf(
+            PluginDescriptor(
+                id = "badgesEnabled",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.ENGAGEMENT,
+                titleKey = "plugin_engagement_badges_title",
+                descriptionKey = "plugin_engagement_badges_desc",
+                defaultOn = false,
+            ),
+            PluginDescriptor(
+                id = "showRating",
+                kind = PluginKind.CAPABILITY,
+                category = PluginCategory.ENGAGEMENT,
+                titleKey = "plugin_engagement_show_rating_title",
+                descriptionKey = "plugin_engagement_show_rating_desc",
+                defaultOn = false,
+            ),
+        )
+
     /** Every registered descriptor across all categories. */
     val all: List<PluginDescriptor> =
         coreModulePlugins + authPlugins + onboardingPlugins + profilePlugins + trackingPlugins +
             trackingTuningPlugins + abnormalTuningPlugins + experimentalPlugins + syncSettingsPlugins +
-            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins + vehiclePlugins
+            verificationPlugins + growthPlugins + membershipPlugins + incentivePlugins + vehiclePlugins +
+            badgePlugins
 
     // PLAN_V24 P10.3: VALUE-plugin builders for the fine-tuning key set. Title/description keys are
     // derived from the id (plugin_<id>_title / _desc) so a new knob needs only its strings entry.

@@ -2257,6 +2257,22 @@
     <string name="mysub_status_active">Active</string>
     <string name="mysub_status_expired">Expired</string>
     <string name="mysub_status_cancelled">Cancelled</string>
+    <!-- PLAN_V24 P12.1: badges & compliments -->
+    <string name="plugin_engagement_badges_title">Badges &amp; compliments</string>
+    <string name="plugin_engagement_badges_desc">Show earned trip milestones and compliments on your profile</string>
+    <string name="plugin_engagement_show_rating_title">Rating chip</string>
+    <string name="plugin_engagement_show_rating_desc">Show your aggregate rating on the profile badges section</string>
+    <string name="profile_badges_title">Achievements</string>
+    <string name="profile_badges_subtitle">Milestones you\'ve earned from your trips</string>
+    <string name="profile_badges_compliments">Compliments</string>
+    <string name="badge_first_trip">First trip</string>
+    <string name="badge_ten_trips">10 trips</string>
+    <string name="badge_hundred_km">100 km</string>
+    <string name="badge_week_streak">7-day streak</string>
+    <string name="compliment_clean_ride">Clean ride</string>
+    <string name="compliment_on_time">On time</string>
+    <string name="compliment_safe_driving">Safe driving</string>
+    <string name="compliment_great_navigation">Great navigation</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">Incentive programs</string>
     <string name="plugin_engagement_incentives_desc">Show target-based incentive programs and progress</string>

@@ -253,6 +253,12 @@ fun ProfileScreen(
         initialValue = com.mileway.core.data.session.DelegationState(),
     )
     val delegationScope = rememberCoroutineScope()
+    // PLAN_V24 P12.1: the earned-badges + compliments hub section. Gated at the item level so the
+    // disabled hub keeps its golden byte-identical (no empty spaced-by item slot); the Gig Driver
+    // persona flips both flags on.
+    val badgesRegistry = org.koin.compose.koinInject<com.mileway.core.data.plugin.PluginRegistry>()
+    val badgesEnabled by badgesRegistry.observe("badgesEnabled").collectAsStateWithLifecycle(initialValue = false)
+    val showRatingChip by badgesRegistry.observe("showRating").collectAsStateWithLifecycle(initialValue = false)
     val avatarScope = rememberCoroutineScope()
     val avatarPickerLauncher =
         androidx.activity.compose.rememberLauncherForActivityResult(
@@ -418,6 +424,15 @@ fun ProfileScreen(
                         onOpenEcometer = onOpenEcometer,
                         modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
                     )
+                }
+
+                if (badgesEnabled) {
+                    item {
+                        BadgesSection(
+                            showRating = showRatingChip,
+                            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
+                        )
+                    }
                 }
 
                 item {

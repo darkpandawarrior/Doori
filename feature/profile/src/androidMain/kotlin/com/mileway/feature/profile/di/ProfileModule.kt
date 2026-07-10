@@ -21,6 +21,7 @@ import com.mileway.feature.profile.repository.WalletRepository
 import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
+import com.mileway.feature.profile.viewmodel.BadgesViewModel
 import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
 import com.mileway.feature.profile.viewmodel.CorporateVerificationViewModel
@@ -100,6 +101,8 @@ val profileModule =
         viewModelOf(::VehicleGarageViewModel)
         // PLAN_V24 P11.4: Ecometer dashboard — EcometerRepository (core:data) over real completed trips.
         viewModelOf(::EcoDashboardViewModel)
+        // PLAN_V24 P12.1: profile-hub badge board — BadgeRepository (core:data) over real completed trips.
+        viewModelOf(::BadgesViewModel)
         viewModelOf(::ActiveSessionsViewModel)
         viewModelOf(::NotificationViewModel)
         viewModelOf(::ConnectedAccountsViewModel)

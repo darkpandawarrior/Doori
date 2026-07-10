@@ -112,6 +112,8 @@ val coreDataModule =
         single { com.mileway.core.data.location.DestinationModeRepository(get()) }
         // PLAN_V24 P11.4: the Ecometer aggregation source (real completed-trip distances × factors).
         single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
+        // PLAN_V24 P12.1: the badge board — earned milestones from real completed trips + seeded compliments.
+        single { com.mileway.core.data.engagement.BadgeRepository(get()) }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }

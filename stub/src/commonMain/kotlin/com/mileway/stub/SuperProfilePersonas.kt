@@ -131,6 +131,7 @@ object SuperProfilePersonas {
                     "selfAudit" to true,
                     "signature" to true,
                     "showRating" to true,
+                    "badgesEnabled" to true,
                     "ecometerEnabled" to true,
                     "clubEnabled" to false,
                     "campaignMarketingEnabled" to false,
