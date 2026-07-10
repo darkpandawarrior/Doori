@@ -29,6 +29,9 @@ kotlin {
             // V26 P26.CONV: the sole odometer OCR pipeline (OdometerOcrService/OdometerReconciler)
             // now lives in core:media so it's reachable without a feature-to-feature dependency.
             implementation(project(":core:media"))
+            // V27 P27.F.6: TrackSubmissionScreen's "Additional Details" form routes through the
+            // shared core:forms FormRenderer/validationErrors instead of a hand-rolled duplicate.
+            implementation(project(":core:forms"))
             // P-E.1: Coil3 is multiplatform; moved from androidMain so submission components can live in commonMain.
             implementation(libs.coil3.compose)
             // V21 §3 Wave 4: NetworkLogViewModel's API tester takes an optional HttpClient.

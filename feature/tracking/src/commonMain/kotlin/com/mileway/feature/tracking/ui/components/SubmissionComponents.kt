@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
@@ -39,24 +38,14 @@ import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,10 +54,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.forms.FieldId
+import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.MockFormSchema
+import com.mileway.core.forms.ui.FormRenderer
 import com.mileway.core.ui.components.CollapsibleSectionCard
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.resources.Res
@@ -87,7 +79,6 @@ import com.mileway.core.ui.resources.tracking_submit_cd_capture
 import com.mileway.core.ui.resources.tracking_submit_cd_edit
 import com.mileway.core.ui.resources.tracking_submit_cd_remove
 import com.mileway.core.ui.resources.tracking_submit_continue_ready
-import com.mileway.core.ui.resources.tracking_submit_field_select
 import com.mileway.core.ui.resources.tracking_submit_journey_summary
 import com.mileway.core.ui.resources.tracking_submit_location_details
 import com.mileway.core.ui.resources.tracking_submit_manual
@@ -120,37 +111,10 @@ import org.jetbrains.compose.resources.stringResource
 // Stateless building blocks for the mileage submission ("Review and submit journey") screen.
 // UDF: data arrives through parameters, interactions surface through callbacks.
 // None own a ViewModel; each piece is independently previewable and testable.
-// Custom-form field model is shared by AdditionalDetailsForm.
-
-/** Input control rendered for a [FormField]. */
-enum class FormFieldType {
-    /** Free-text single-line input rendered as an [OutlinedTextField]. */
-    TEXT,
-
-    /** A fixed set of [FormField.options] rendered as an [ExposedDropdownMenuBox]. */
-    DROPDOWN,
-}
-
-/**
- * One dynamic custom-form field on the submission screen.
- *
- * @param id Stable identifier used to route value changes back to the caller.
- * @param label Human-readable label shown above the control.
- * @param type Which input control to render, see [FormFieldType].
- * @param value Current value (the source of truth lives in the caller).
- * @param required When true, a red asterisk is appended to the label.
- * @param options Choices for [FormFieldType.DROPDOWN]; ignored for text fields.
- * @param errorText Validation message shown in error color beneath the control, or null when valid.
- */
-data class FormField(
-    val id: String,
-    val label: String,
-    val type: FormFieldType,
-    val value: String,
-    val required: Boolean,
-    val options: List<String> = emptyList(),
-    val errorText: String? = null,
-)
+// V27 P27.F.6: the "Additional Details" custom-form fields render through core:forms'
+// FormRenderer/validationErrors (see AdditionalDetailsForm below) instead of a hand-rolled
+// FormField/FormFieldType model — MileageSubmissionViewModel.SubmissionFormUi.formSchema/
+// formValues map its own SubmissionField list into MockFormSchema/FormFieldValue.
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. Checklist header, "Review and submit journey"
@@ -650,133 +614,31 @@ private fun formatKm(value: Double): String {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Collapsible "Additional Details (N)" section that renders the policy's dynamic custom-form
- * fields. [FormFieldType.TEXT] fields render as [OutlinedTextField]s and [FormFieldType.DROPDOWN]
- * fields render as an [ExposedDropdownMenuBox]. Required fields show a red asterisk and any
- * [FormField.errorText] is shown beneath the control in the error color.
+ * Collapsible "Additional Details (N)" section wrapping core:forms' [FormRenderer] (V27 P27.F.6) —
+ * this screen's only job is the collapsible-card chrome; field rendering, visibility and
+ * validation (the "required" asterisk + error text) all come from the one shared
+ * `core:forms.validationErrors()` path, not a hand-rolled duplicate.
  *
- * @param fields The custom-form fields to render. The header count reflects [fields].size.
- * @param onValueChange Invoked with (fieldId, newValue) whenever a control's value changes.
+ * @param schema The custom-form fields to render, from [com.mileway.feature.tracking.viewmodel
+ *   .SubmissionFormUi.formSchema]. The header count reflects [schema].size.
+ * @param values Current field values, from [com.mileway.feature.tracking.viewmodel
+ *   .SubmissionFormUi.formValues].
+ * @param onValueChange Invoked with (fieldKey, newValue) whenever a control's value changes.
  */
 @Composable
 fun AdditionalDetailsForm(
-    fields: List<FormField>,
-    onValueChange: (String, String) -> Unit,
+    schema: List<MockFormSchema>,
+    values: Map<FieldId, FormFieldValue>,
+    onValueChange: (FieldId, FormFieldValue) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     CollapsibleSectionCard(
-        title = stringResource(Res.string.tracking_submit_additional_details, fields.size),
+        title = stringResource(Res.string.tracking_submit_additional_details, schema.size),
         modifier = modifier,
         initiallyExpanded = true,
         subtitle = stringResource(Res.string.tracking_submit_additional_details_subtitle),
     ) {
-        fields.forEach { field ->
-            when (field.type) {
-                FormFieldType.TEXT -> FormTextField(field = field, onValueChange = onValueChange)
-                FormFieldType.DROPDOWN -> FormDropdownField(field = field, onValueChange = onValueChange)
-            }
-        }
-    }
-}
-
-/** Composes a label with a red asterisk appended when [required]. */
-@Composable
-private fun FieldLabel(
-    label: String,
-    required: Boolean,
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        if (required) {
-            Text(
-                text = "*",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.error,
-            )
-        }
-    }
-}
-
-/** Error helper text rendered in the error color, or nothing when [errorText] is null. */
-@Composable
-private fun FieldError(errorText: String?) {
-    if (errorText != null) {
-        Text(
-            text = errorText,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error,
-            modifier = Modifier.padding(top = DesignTokens.Spacing.xs),
-        )
-    }
-}
-
-/** A free-text custom-form field. */
-@Composable
-private fun FormTextField(
-    field: FormField,
-    onValueChange: (String, String) -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        FieldLabel(label = field.label, required = field.required)
-        Spacer(Modifier.height(DesignTokens.Spacing.xs))
-        OutlinedTextField(
-            value = field.value,
-            onValueChange = { onValueChange(field.id, it) },
-            placeholder = { Text(field.label) },
-            isError = field.errorText != null,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        FieldError(field.errorText)
-    }
-}
-
-/** A single-select dropdown custom-form field backed by [FormField.options]. */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FormDropdownField(
-    field: FormField,
-    onValueChange: (String, String) -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        FieldLabel(label = field.label, required = field.required)
-        Spacer(Modifier.height(DesignTokens.Spacing.xs))
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-        ) {
-            OutlinedTextField(
-                value = field.value,
-                onValueChange = {},
-                readOnly = true,
-                placeholder = { Text(stringResource(Res.string.tracking_submit_field_select, field.label)) },
-                isError = field.errorText != null,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-            )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-            ) {
-                field.options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            onValueChange(field.id, option)
-                            expanded = false
-                        },
-                    )
-                }
-            }
-        }
-        FieldError(field.errorText)
+        FormRenderer(schema = schema, values = values, onValueChange = onValueChange)
     }
 }
 

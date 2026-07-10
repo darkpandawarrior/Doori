@@ -368,4 +368,95 @@ class FormLogicTest {
 
         assertEquals(FormFieldType.entries.size, defaultFormValues(schema).size)
     }
+
+    // ---- validationErrors: FILE_PDF attachment field (P27.F.2) ----
+
+    private fun attachmentField(
+        key: String = "receipt",
+        required: Boolean = false,
+    ) = MockFormSchema(id = key, fieldKey = key, label = key.replaceFirstChar { it.uppercase() }, type = FormFieldType.FILE_PDF, required = required)
+
+    @Test
+    fun required_attachment_field_with_no_files_produces_error() {
+        val schema = listOf(attachmentField(required = true))
+
+        assertTrue("receipt" in validationErrors(schema, mapOf("receipt" to FormFieldValue.FileRef(emptyList()))))
+        assertTrue("receipt" in validationErrors(schema, emptyMap()))
+    }
+
+    @Test
+    fun required_attachment_field_with_a_file_has_no_error() {
+        val schema = listOf(attachmentField(required = true))
+        val values = mapOf("receipt" to FormFieldValue.FileRef(listOf("file:///receipt.jpg")))
+
+        assertTrue(validationErrors(schema, values).isEmpty())
+    }
+
+    @Test
+    fun single_purpose_attachment_field_is_independent_of_a_general_receipts_bucket() {
+        // Two distinct FILE_PDF fields (a schema-defined single-purpose "toll receipt" plus a
+        // general receipts bucket) validate independently by fieldKey — filling one never
+        // satisfies the other's required-check.
+        val schema = listOf(attachmentField("tollReceipt", required = true), attachmentField("receipts", required = false))
+        val values = mapOf("receipts" to FormFieldValue.FileRef(listOf("file:///a.jpg", "file:///b.jpg")))
+
+        val errors = validationErrors(schema, values)
+
+        assertTrue("tollReceipt" in errors)
+        assertTrue("receipts" !in errors)
+    }
+
+    // ---- validationErrors: the real field sets consolidated forms render (P27.F.6) ----
+    // TrackSubmissionScreen's "Additional Details" fields (MileageSubmissionViewModel.SubmissionField)
+    // and LogMilesStep2Screen's "Additional Details" card fields, mapped 1:1 into MockFormSchema —
+    // locks in the single validationErrors() path both consolidated screens now render through.
+
+    private val trackingAdditionalDetailsSchema =
+        listOf(
+            MockFormSchema(id = "purpose", fieldKey = "purpose", label = "Purpose of travel", type = FormFieldType.TEXT, required = true),
+            MockFormSchema(
+                id = "gender",
+                fieldKey = "gender",
+                label = "Gender",
+                type = FormFieldType.SELECT,
+                required = true,
+                options = listOf("Male", "Female", "Others"),
+            ),
+        )
+
+    @Test
+    fun tracking_additional_details_blank_required_fields_produce_errors() {
+        val errors = validationErrors(trackingAdditionalDetailsSchema, emptyMap())
+
+        assertTrue("purpose" in errors)
+        assertTrue("gender" in errors)
+    }
+
+    @Test
+    fun tracking_additional_details_filled_required_fields_have_no_errors() {
+        val values = mapOf("purpose" to FormFieldValue.Text("Client visit"), "gender" to FormFieldValue.Select("Male"))
+
+        assertTrue(validationErrors(trackingAdditionalDetailsSchema, values).isEmpty())
+    }
+
+    private val logMilesStep2Schema =
+        listOf(
+            MockFormSchema(id = "invoiceDate", fieldKey = "invoiceDate", label = "Invoice date", type = FormFieldType.DATE, required = true),
+            MockFormSchema(id = "note", fieldKey = "note", label = "Note", type = FormFieldType.TEXTAREA, required = false),
+        )
+
+    @Test
+    fun log_miles_step2_missing_invoice_date_produces_error_but_optional_note_does_not() {
+        val errors = validationErrors(logMilesStep2Schema, mapOf("note" to FormFieldValue.Text("")))
+
+        assertTrue("invoiceDate" in errors)
+        assertTrue("note" !in errors)
+    }
+
+    @Test
+    fun log_miles_step2_with_invoice_date_has_no_error() {
+        val values = mapOf("invoiceDate" to FormFieldValue.Date("2026-07-10"), "note" to FormFieldValue.Text(""))
+
+        assertTrue(validationErrors(logMilesStep2Schema, values).isEmpty())
+    }
 }

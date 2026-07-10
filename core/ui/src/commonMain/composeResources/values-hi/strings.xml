@@ -371,10 +371,6 @@
     <string name="logging_additional_details_subtitle">सबमिट करने से पहले आवश्यक व्यय फ़ील्ड</string>
     <string name="logging_collapse_cd">संक्षिप्त करें</string>
     <string name="logging_expand_cd">विस्तृत करें</string>
-    <string name="logging_invoice_date_required_label">इनवॉइस तारीख *</string>
-    <string name="logging_invoice_date">इनवॉइस तारीख</string>
-    <string name="logging_invoice_date_required_error">इनवॉइस तारीख आवश्यक है</string>
-    <string name="logging_log_miles_note_label">माइल्स लॉग</string>
     <string name="logging_tagged_employees">टैग किए गए कर्मचारी</string>
     <string name="logging_tagged_employees_subtitle">इस यात्रा से जुड़े साथियों को जोड़ें</string>
     <string name="logging_tap_to_add_employees">कर्मचारी जोड़ने के लिए टैप करें</string>
@@ -384,7 +380,6 @@
     <string name="logging_add_receipt">रसीद जोड़ें</string>
     <string name="logging_attachments_added">%1$d जोड़े गए · और जोड़ें</string>
     <string name="logging_use_camera_or_gallery">कैमरा या गैलरी उपयोग करें</string>
-    <string name="logging_invoice_date_picker_title">इनवॉइस तारीख</string>
     <string name="logging_back">वापस</string>
     <string name="logging_back_cd">वापस</string>
     <string name="logging_submit_review_hint">इस माइलेज व्यय को सबमिट करने से पहले भरे गए विवरण की समीक्षा करें।</string>
@@ -871,7 +866,6 @@
     <string name="tracking_status_saved">सहेजा गया</string>
     <string name="tracking_status_submitted">सबमिट किया गया</string>
     <string name="tracking_submission_entity">इकाई</string>
-    <string name="tracking_submission_field_required">%1$s आवश्यक है</string>
     <string name="tracking_submission_info">सबमिट करने से पहले यात्रा विवरण और आवश्यक फ़ील्ड की समीक्षा करें।</string>
     <string name="tracking_submission_loading_address">पता लोड हो रहा है…</string>
     <string name="tracking_submission_office">ऑफ़िस</string>
@@ -1157,7 +1151,6 @@
     <string name="tracking_submit_confirm_prompt">क्या आप अपनी ट्रैक माइल्स यात्रा व्यय जमा करने के लिए भेजना चाहते हैं?</string>
     <string name="tracking_submit_confirm_title">ट्रैक माइल्स जमा करें</string>
     <string name="tracking_submit_continue_ready">तैयार होने पर आप जारी रख सकते हैं।</string>
-    <string name="tracking_submit_field_select">%1$s चुनें</string>
     <string name="tracking_submit_journey_summary">यात्रा सारांश</string>
     <string name="tracking_submit_location_details">स्थान विवरण</string>
     <string name="tracking_submit_manual">मैन्युअल</string>
@@ -3002,7 +2995,8 @@
     <!-- V27 P27.F.1-4: core:forms FormRenderer, the shared 16-field-type dynamic form renderer. -->
     <string name="core_forms_amount_details">राशि विवरण</string>
     <string name="core_forms_attach_file">फ़ाइल संलग्न करें</string>
-    <string name="core_forms_attach_file_hint">अनुलग्नक जल्द आ रहे हैं</string>
+    <string name="core_forms_attach_file_hint">अभी तक कोई अनुलग्नक नहीं</string>
+    <string name="core_forms_remove_attachment_cd">%1$s हटाएं</string>
     <string name="core_forms_reset">रीसेट करें</string>
     <string name="core_forms_select_field">%1$s चुनें</string>
     <string name="core_forms_star_cd">तारा %1$d</string>

@@ -25,11 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mileway.core.data.util.DateUtils
+import com.mileway.core.forms.FormFieldValue
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_submission_entity
-import com.mileway.core.ui.resources.tracking_submission_field_required
 import com.mileway.core.ui.resources.tracking_submission_info
 import com.mileway.core.ui.resources.tracking_submission_loading_address
 import com.mileway.core.ui.resources.tracking_submission_office
@@ -42,8 +42,6 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.tracking.ui.components.AdditionalDetailsForm
 import com.mileway.feature.tracking.ui.components.AttachmentsSection
-import com.mileway.feature.tracking.ui.components.FormField
-import com.mileway.feature.tracking.ui.components.FormFieldType
 import com.mileway.feature.tracking.ui.components.JourneySummaryCard
 import com.mileway.feature.tracking.ui.components.LocationDetailsCard
 import com.mileway.feature.tracking.ui.components.MileageDraftBottomBar
@@ -62,7 +60,6 @@ import com.mileway.feature.tracking.ui.sheets.SmartDistanceSheet
 import com.mileway.feature.tracking.ui.sheets.SubmitConfirmSheet
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
-import com.mileway.feature.tracking.viewmodel.SubmissionFieldType
 import com.mileway.feature.tracking.viewmodel.SubmissionSheet
 import com.mileway.feature.tracking.viewmodel.SubmissionUiState
 import org.jetbrains.compose.resources.stringResource
@@ -243,29 +240,17 @@ fun TrackSubmissionScreen(
                 }
 
                 // ── Forms section ────────────────────────────────────────────────
+                // V27 P27.F.6: schema/values/validation all come from SubmissionFormUi.formSchema/
+                // formValues (backed by core:forms' validationErrors()) — the one source of truth,
+                // no more re-deriving "is this required field blank" here too.
                 item {
                     AdditionalDetailsForm(
-                        fields =
-                            form.fields.map { f ->
-                                FormField(
-                                    id = f.id,
-                                    label = f.label,
-                                    type = if (f.type == SubmissionFieldType.DROPDOWN) FormFieldType.DROPDOWN else FormFieldType.TEXT,
-                                    value = form.values[f.id].orEmpty(),
-                                    required = f.required,
-                                    options = f.options,
-                                    errorText =
-                                        if (f.required && form.values[f.id].isNullOrBlank()) {
-                                            stringResource(
-                                                Res.string.tracking_submission_field_required,
-                                                f.label,
-                                            )
-                                        } else {
-                                            null
-                                        },
-                                )
-                            },
-                        onValueChange = { id, value -> viewModel.onAction(MileageSubmissionAction.SetFormValue(id, value)) },
+                        schema = form.formSchema,
+                        values = form.formValues,
+                        onValueChange = { id, value ->
+                            val stringValue = if (value is FormFieldValue.Select) value.value.orEmpty() else (value as? FormFieldValue.Text)?.value.orEmpty()
+                            viewModel.onAction(MileageSubmissionAction.SetFormValue(id, stringValue))
+                        },
                     )
                 }
 

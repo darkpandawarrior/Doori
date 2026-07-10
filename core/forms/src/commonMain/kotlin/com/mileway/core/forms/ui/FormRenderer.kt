@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
@@ -53,6 +56,10 @@ import com.mileway.core.forms.RelationType
 import com.mileway.core.forms.computedFields
 import com.mileway.core.forms.validationErrors
 import com.mileway.core.forms.visibleFields
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
 import com.mileway.core.ui.components.pickers.WheelTimePickerDialog
 import com.mileway.core.ui.components.sheet.SearchablePickerSheet
@@ -60,6 +67,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_forms_amount_details
 import com.mileway.core.ui.resources.core_forms_attach_file
 import com.mileway.core.ui.resources.core_forms_attach_file_hint
+import com.mileway.core.ui.resources.core_forms_remove_attachment_cd
 import com.mileway.core.ui.resources.core_forms_reset
 import com.mileway.core.ui.resources.core_forms_select_field
 import com.mileway.core.ui.resources.core_forms_star_cd
@@ -90,7 +98,13 @@ private val CURRENCY_CODES = listOf("INR", "USD", "EUR", "GBP")
  * - CITY_AIRPORT/IRN/MASTER/EMPLOYEE_DEPARTMENT (enterprise, catalog-backed) -> a tap row opening
  *   [SearchablePickerSheet] over [MockFormCatalog.masterData], single- or multi-select depending on
  *   whether the current value is a [FormFieldValue.Select] or [FormFieldValue.MultiSelect].
- * - FILE_PDF -> a disabled placeholder button; P27.F.2 wires this to `core:media`.
+ * - FILE_PDF -> an "Attach file" button wired through `core:media`'s `rememberMediaCaptureLauncher`
+ *   (P27.F.2): [CaptureMode.Gallery] only, the one mode with a real actual on both Android and iOS
+ *   (see [AttachmentControl]'s KDoc). Attached items append into the field's [FormFieldValue.FileRef]
+ *   paths and each carries its own remove action; the same required-check every other field type
+ *   gets applies here too (an empty [FormFieldValue.FileRef] is "blank", see `FormLogic.isBlank`).
+ *   A schema-defined single-purpose attachment (e.g. "Toll receipt") is just its own FILE_PDF
+ *   field/fieldKey, independent of any general receipts-bucket field elsewhere in the schema.
  *
  * Only [visibleFields] render (reactive: recomposes as [values] changes), and
  * [MockFormSchema.editable] == false disables the control. GST/autoFill fields ([computedFields])
@@ -157,7 +171,7 @@ private fun FormFieldRow(
             FormFieldType.DECLARATION -> DeclarationControl(field, value as? FormFieldValue.Declaration, enabled, onValueChange)
             FormFieldType.CITY_AIRPORT, FormFieldType.IRN, FormFieldType.EMPLOYEE_DEPARTMENT, FormFieldType.MASTER ->
                 EnterpriseControl(field, value, enabled, onValueChange)
-            FormFieldType.FILE_PDF -> FilePlaceholderControl(value as? FormFieldValue.FileRef)
+            FormFieldType.FILE_PDF -> AttachmentControl(value as? FormFieldValue.FileRef, enabled, onValueChange)
         }
         if (error != null) FieldError(error)
     }
@@ -473,22 +487,94 @@ private fun EnterpriseControl(
     }
 }
 
-/** Disabled placeholder button; P27.F.2 wires this to `core:media`'s attachment picker. */
+/**
+ * "Attach file" button + a wrap-row of currently attached items, each removable (P27.F.2).
+ *
+ * ponytail: [CaptureMode.Gallery] only — the one `core:media` capture mode with a real actual on
+ * both Android and iOS (`ReceiptAttachmentLauncher` in feature:logging uses the same mode for the
+ * same reason). Camera needs `feature:media`'s full-screen `CameraCaptureScreen`, which core:forms
+ * can't reach without a feature dependency; Files/Document both throw "not wired" on iOS today
+ * (see `MediaCaptureLauncher.ios.kt`). Add a per-field capture-mode config to [MockFormSchema] if a
+ * schema ever needs Camera/Files/Document specifically.
+ */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FilePlaceholderControl(value: FormFieldValue.FileRef?) {
+private fun AttachmentControl(
+    value: FormFieldValue.FileRef?,
+    enabled: Boolean,
+    onValueChange: (FormFieldValue) -> Unit,
+) {
+    val paths = value?.paths.orEmpty()
+    val launchPicker =
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Gallery), multiple = true, maxCount = 5),
+            onResult = { result ->
+                if (result is MediaCaptureResult.Attachments) {
+                    onValueChange(FormFieldValue.FileRef(paths + result.items.map { it.uri }))
+                }
+            },
+        )
     Column {
-        OutlinedButton(onClick = {}, enabled = false, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = launchPicker, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
             Icon(Icons.Filled.AttachFile, contentDescription = null, modifier = Modifier.size(DesignTokens.IconSize.inline))
             Spacer(Modifier.size(DesignTokens.Spacing.xs))
             Text(stringResource(Res.string.core_forms_attach_file))
         }
-        val count = value?.paths?.size ?: 0
-        Text(
-            if (count > 0) "${stringResource(Res.string.core_forms_attach_file_hint)} ($count)" else stringResource(Res.string.core_forms_attach_file_hint),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = DesignTokens.Spacing.xs),
-        )
+        if (paths.isEmpty()) {
+            Text(
+                stringResource(Res.string.core_forms_attach_file_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = DesignTokens.Spacing.xs),
+            )
+        } else {
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                modifier = Modifier.padding(top = DesignTokens.Spacing.s),
+            ) {
+                paths.forEach { path ->
+                    AttachmentChip(
+                        path = path,
+                        enabled = enabled,
+                        onRemove = { onValueChange(FormFieldValue.FileRef(paths - path)) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** One removable chip for [AttachmentControl] naming the attachment by its last path segment. */
+@Composable
+private fun AttachmentChip(
+    path: String,
+    enabled: Boolean,
+    onRemove: () -> Unit,
+) {
+    val name = path.substringAfterLast('/')
+    Surface(shape = DesignTokens.Shape.chip, color = MaterialTheme.colorScheme.surfaceVariant) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.padding(
+                    start = DesignTokens.Spacing.m,
+                    end = DesignTokens.Spacing.xs,
+                    top = DesignTokens.Spacing.xs,
+                    bottom = DesignTokens.Spacing.xs,
+                ),
+        ) {
+            Text(name.take(24), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (enabled) {
+                IconButton(onClick = onRemove, modifier = Modifier.size(DesignTokens.IconSize.navigation)) {
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = stringResource(Res.string.core_forms_remove_attachment_cd, name),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
     }
 }
 

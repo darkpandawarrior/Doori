@@ -27,6 +27,9 @@ kotlin {
             // DesignTokens, the shared string table (Res.string.*), SearchablePickerSheet,
             // WheelDatePickerDialog/WheelTimePickerDialog, PreviewLightDark/PreviewSurface.
             implementation(project(":core:ui"))
+            // V27 P27.F.2: FILE_PDF field wiring — rememberMediaCaptureLauncher for the attachment
+            // control.
+            implementation(project(":core:media"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -25,6 +25,9 @@ kotlin {
             // V26 P26.CONV: OdometerCaptureSheet runs real OCR on the attached photo via the one
             // shared odometer OCR pipeline instead of manual-only entry.
             implementation(project(":core:media"))
+            // V27 P27.F.6: LogMilesStep2Screen's "Additional Details" card routes through the
+            // shared core:forms FormRenderer/validationErrors instead of a hand-rolled duplicate.
+            implementation(project(":core:forms"))
             implementation(project(":feature:tracking"))
             // P1.6: reuses PolicyMockData's tiered policy engine for expense-amount validation.
             implementation(project(":stub"))

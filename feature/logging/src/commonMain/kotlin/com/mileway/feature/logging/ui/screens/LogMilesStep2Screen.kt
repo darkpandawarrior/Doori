@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -48,8 +47,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.network.LogMilesService
-import com.mileway.core.data.util.DateUtils
-import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
+import com.mileway.core.forms.FormFieldType
+import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.MockFormSchema
+import com.mileway.core.forms.ui.FormRenderer
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_add_receipt
@@ -66,11 +67,6 @@ import com.mileway.core.ui.resources.logging_complete_required_fields
 import com.mileway.core.ui.resources.logging_cost_center_optional
 import com.mileway.core.ui.resources.logging_expand_cd
 import com.mileway.core.ui.resources.logging_expense_details_header
-import com.mileway.core.ui.resources.logging_invoice_date
-import com.mileway.core.ui.resources.logging_invoice_date_picker_title
-import com.mileway.core.ui.resources.logging_invoice_date_required_error
-import com.mileway.core.ui.resources.logging_invoice_date_required_label
-import com.mileway.core.ui.resources.logging_log_miles_note_label
 import com.mileway.core.ui.resources.logging_log_miles_subtitle
 import com.mileway.core.ui.resources.logging_log_miles_title
 import com.mileway.core.ui.resources.logging_purpose_of_travel
@@ -100,8 +96,25 @@ import com.mileway.feature.logging.ui.model.SubmittedVoucherSamples
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.tracking.ui.components.SubmissionTabChips
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
+
+// V27 P27.F.6: the "Additional Details" tab's two real fields, mapped to core:forms' schema shape
+// so AdditionalDetailsCard below can render + validate them through the one shared FormRenderer.
+private val INVOICE_DATE_FIELD =
+    MockFormSchema(id = "invoiceDate", fieldKey = "invoiceDate", label = "Invoice date", type = FormFieldType.DATE, required = true, rank = 0)
+private val LOG_MILES_NOTE_FIELD = MockFormSchema(id = "note", fieldKey = "note", label = "Note", type = FormFieldType.TEXTAREA, rank = 1)
+private val STEP2_ADDITIONAL_DETAILS_SCHEMA = listOf(INVOICE_DATE_FIELD, LOG_MILES_NOTE_FIELD)
+
+private fun millisToIsoDate(millis: Long): String = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+
+private fun isoDateToMillis(iso: String?): Long? =
+    iso?.let { runCatching { LocalDate.parse(it).atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds() }.getOrNull() }
 
 /**
  * Step 2 of the Log Miles flow: expense details and submission.
@@ -127,7 +140,6 @@ fun LogMilesStep2Screen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    var showInvoiceDatePicker by remember { mutableStateOf(false) }
     var showEmployeesDialog by remember { mutableStateOf(false) }
     var additionalExpanded by remember { mutableStateOf(true) }
     val tabStops = stringResource(Res.string.logging_tab_stops)
@@ -281,12 +293,15 @@ fun LogMilesStep2Screen(
             }
 
             // ── Additional Details tab ────────────────────────────────────────────
+            // V27 P27.F.6: AdditionalDetailsCard is now a thin collapsible-card adapter around
+            // core:forms' FormRenderer — field rendering + the invoice-date-required validation
+            // come from the one shared validationErrors() path, not a hand-rolled duplicate.
             if (selectedStep2Tab == tabAdditionalDetails) {
                 AdditionalDetailsCard(
                     expanded = additionalExpanded,
                     onToggle = { additionalExpanded = !additionalExpanded },
-                    invoiceDateText = uiState.invoiceDateMillis?.let { DateUtils.epochToDisplayDate(it) },
-                    onPickInvoiceDate = { showInvoiceDatePicker = true },
+                    invoiceDateMillis = uiState.invoiceDateMillis,
+                    onInvoiceDateChange = { viewModel.onAction(LogMilesAction.SetInvoiceDate(it)) },
                     note = uiState.logMilesNote,
                     onNoteChange = { viewModel.onAction(LogMilesAction.SetLogMilesNote(it)) },
                 )
@@ -307,18 +322,7 @@ fun LogMilesStep2Screen(
     }
 
     // ── Overlays ───────────────────────────────────────────────────────────────
-
-    if (showInvoiceDatePicker) {
-        WheelDatePickerDialog(
-            initialDateMillis = uiState.invoiceDateMillis,
-            title = stringResource(Res.string.logging_invoice_date_picker_title),
-            onConfirm = {
-                viewModel.onAction(LogMilesAction.SetInvoiceDate(it))
-                showInvoiceDatePicker = false
-            },
-            onDismiss = { showInvoiceDatePicker = false },
-        )
-    }
+    // Invoice-date picking is now internal to core:forms' DateControl (see AdditionalDetailsCard).
 
     if (showEmployeesDialog) {
         TaggedEmployeesDialog(
@@ -473,12 +477,19 @@ private fun ExpenseDetailsSection(
     }
 }
 
+/**
+ * "Additional Details" collapsible card — V27 P27.F.6 keeps the icon/title/subtitle/expand-collapse
+ * chrome as this screen's own thin adapter, and routes the two actual form fields (invoice date,
+ * note) through core:forms' [FormRenderer]: field rendering, the required asterisk and the
+ * invoice-date-required error text all come from the one shared `validationErrors()` path, not a
+ * hand-rolled duplicate.
+ */
 @Composable
 private fun AdditionalDetailsCard(
     expanded: Boolean,
     onToggle: () -> Unit,
-    invoiceDateText: String?,
-    onPickInvoiceDate: () -> Unit,
+    invoiceDateMillis: Long?,
+    onInvoiceDateChange: (Long?) -> Unit,
     note: String,
     onNoteChange: (String) -> Unit,
 ) {
@@ -531,79 +542,19 @@ private fun AdditionalDetailsCard(
             if (expanded) {
                 Spacer(Modifier.size(DesignTokens.Spacing.l))
 
-                Text(
-                    stringResource(Res.string.logging_invoice_date_required_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.error,
-                )
-                Spacer(Modifier.size(DesignTokens.Spacing.s))
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = DesignTokens.Shape.roundedMd,
-                    color = MaterialTheme.colorScheme.surface,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
-                    onClick = onPickInvoiceDate,
-                ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(DesignTokens.Spacing.l),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Filled.CalendarMonth,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(DesignTokens.IconSize.navigation),
-                            )
-                            Spacer(Modifier.size(DesignTokens.Spacing.m))
-                            Text(
-                                invoiceDateText ?: stringResource(Res.string.logging_invoice_date),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color =
-                                    if (invoiceDateText == null) {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurface
-                                    },
-                            )
+                FormRenderer(
+                    schema = STEP2_ADDITIONAL_DETAILS_SCHEMA,
+                    values =
+                        mapOf(
+                            INVOICE_DATE_FIELD.fieldKey to FormFieldValue.Date(invoiceDateMillis?.let(::millisToIsoDate)),
+                            LOG_MILES_NOTE_FIELD.fieldKey to FormFieldValue.Text(note),
+                        ),
+                    onValueChange = { key, value ->
+                        when (key) {
+                            INVOICE_DATE_FIELD.fieldKey -> onInvoiceDateChange((value as? FormFieldValue.Date)?.isoValue?.let(::isoDateToMillis))
+                            LOG_MILES_NOTE_FIELD.fieldKey -> onNoteChange((value as? FormFieldValue.Text)?.value.orEmpty())
                         }
-                        Icon(
-                            Icons.Filled.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                if (invoiceDateText == null) {
-                    Spacer(Modifier.size(DesignTokens.Spacing.xs))
-                    Text(
-                        stringResource(Res.string.logging_invoice_date_required_error),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-
-                Spacer(Modifier.size(DesignTokens.Spacing.l))
-
-                Text(
-                    stringResource(Res.string.logging_log_miles_note_label),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(Modifier.size(DesignTokens.Spacing.s))
-                OutlinedTextField(
-                    value = note,
-                    onValueChange = onNoteChange,
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(stringResource(Res.string.logging_log_miles_note_label)) },
-                    minLines = 2,
-                    shape = DesignTokens.Shape.roundedMd,
+                    },
                 )
             }
         }

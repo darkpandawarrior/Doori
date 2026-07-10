@@ -909,10 +909,6 @@
     <string name="logging_additional_details_subtitle">Required expense fields before submission</string>
     <string name="logging_collapse_cd">Collapse</string>
     <string name="logging_expand_cd">Expand</string>
-    <string name="logging_invoice_date_required_label">Invoice date *</string>
-    <string name="logging_invoice_date">Invoice date</string>
-    <string name="logging_invoice_date_required_error">Invoice date is required</string>
-    <string name="logging_log_miles_note_label">log miles</string>
     <string name="logging_tagged_employees">Tagged Employees</string>
     <string name="logging_tagged_employees_subtitle">Add teammates linked to this journey</string>
     <string name="logging_tap_to_add_employees">Tap to add employees</string>
@@ -922,7 +918,6 @@
     <string name="logging_add_receipt">Add Receipt</string>
     <string name="logging_attachments_added">%1$d added · Add more</string>
     <string name="logging_use_camera_or_gallery">Use camera or gallery</string>
-    <string name="logging_invoice_date_picker_title">Invoice Date</string>
     <string name="logging_back">Back</string>
     <string name="logging_back_cd">Back</string>
     <string name="logging_submit_review_hint">Review the filled details before you submit this mileage expense.</string>
@@ -1409,7 +1404,6 @@
     <string name="tracking_status_saved">Saved</string>
     <string name="tracking_status_submitted">Submitted</string>
     <string name="tracking_submission_entity">Entity</string>
-    <string name="tracking_submission_field_required">%1$s is required</string>
     <string name="tracking_submission_info">Review journey details and required fields before submitting.</string>
     <string name="tracking_submission_loading_address">Loading address…</string>
     <string name="tracking_submission_office">Office</string>
@@ -1695,7 +1689,6 @@
     <string name="tracking_submit_confirm_prompt">Do you wish to submit your track miles journey for expense submission?</string>
     <string name="tracking_submit_confirm_title">Submit Track Miles</string>
     <string name="tracking_submit_continue_ready">You can continue when ready.</string>
-    <string name="tracking_submit_field_select">Select %1$s</string>
     <string name="tracking_submit_journey_summary">Journey Summary</string>
     <string name="tracking_submit_location_details">Location Details</string>
     <string name="tracking_submit_manual">Manual</string>
@@ -3005,7 +2998,9 @@
     <!-- V27 P27.F.1-4: core:forms FormRenderer, the shared 16-field-type dynamic form renderer. -->
     <string name="core_forms_amount_details">Amount Details</string>
     <string name="core_forms_attach_file">Attach file</string>
-    <string name="core_forms_attach_file_hint">Attachments coming soon</string>
+    <!-- P27.F.2: shown when a FILE_PDF field has no attachments yet. -->
+    <string name="core_forms_attach_file_hint">No attachments yet</string>
+    <string name="core_forms_remove_attachment_cd">Remove %1$s</string>
     <string name="core_forms_reset">Reset</string>
     <string name="core_forms_select_field">Select %1$s</string>
     <string name="core_forms_star_cd">Star %1$d</string>

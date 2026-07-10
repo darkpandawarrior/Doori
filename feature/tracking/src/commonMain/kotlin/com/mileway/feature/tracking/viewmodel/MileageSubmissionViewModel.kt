@@ -9,6 +9,11 @@ import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.model.network.SubmissionStatus
 import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
+import com.mileway.core.forms.FieldId
+import com.mileway.core.forms.FormFieldType
+import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.MockFormSchema
+import com.mileway.core.forms.validationErrors
 import com.mileway.core.network.api.MilewayNetworkApi
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
@@ -36,13 +41,17 @@ sealed class SubmissionUiState {
     data class Error(val message: String) : SubmissionUiState()
 }
 
-/** A required custom-form field rendered in the "Additional Details" section. */
-enum class SubmissionFieldType { TEXT, DROPDOWN }
-
+/**
+ * A custom-form field rendered in the "Additional Details" section — [type] is [core:forms
+ * FormFieldType][FormFieldType] directly (only [FormFieldType.TEXT]/[FormFieldType.SELECT] are
+ * used today) so [SubmissionFormUi.formSchema]/[SubmissionFormUi.formValues] can map straight into
+ * `core:forms`' [MockFormSchema]/[FormFieldValue] with no parallel enum to keep in sync (V27
+ * P27.F.6 — the screen renders this section through the shared `FormRenderer`, one validation path).
+ */
 data class SubmissionField(
     val id: String,
     val label: String,
-    val type: SubmissionFieldType,
+    val type: FormFieldType,
     val required: Boolean = true,
     val options: List<String> = emptyList(),
 )
@@ -93,13 +102,25 @@ data class SubmissionFormUi(
 
     private val odometerFallbackActive: Boolean get() = config.calculateExpenseViaOdometer && odometerNotWorking
 
+    /** [fields] mapped to `core:forms`' schema shape — the single input [FormRenderer] renders. */
+    val formSchema: List<MockFormSchema>
+        get() = fields.map { f -> MockFormSchema(id = f.id, fieldKey = f.id, label = f.label, type = f.type, required = f.required, options = f.options) }
+
+    /** [values] mapped to `core:forms`' value shape, keyed the same way as [formSchema]. */
+    val formValues: Map<FieldId, FormFieldValue>
+        get() =
+            fields.associate { f ->
+                f.id to if (f.type == FormFieldType.SELECT) FormFieldValue.Select(values[f.id]) else FormFieldValue.Text(values[f.id].orEmpty())
+            }
+
     val remainingRequirements: List<String>
         get() =
             buildList {
                 if (officeRequired && selectedOffice == null) add("Office selection")
                 if (officeRequired && selectedEntity == null) add("Entity selection")
-                val missingFields = fields.count { it.required && values[it.id].isNullOrBlank() }
-                if (missingFields > 0) add("Complete required fields")
+                // V27 P27.F.6: the one validationErrors() source — no more separately re-deriving
+                // "is this required field blank" in TrackSubmissionScreen (the two-sources bug).
+                if (validationErrors(formSchema, formValues).isNotEmpty()) add("Complete required fields")
                 if (config.isOdometerMandatory && !odometerCaptured && !odometerFallbackActive) add("Odometer reading")
             }
 
@@ -212,11 +233,11 @@ class MileageSubmissionViewModel(
                     officeRequired = false,
                     fields =
                         listOf(
-                            SubmissionField("purpose", "Purpose of travel", SubmissionFieldType.TEXT),
+                            SubmissionField("purpose", "Purpose of travel", FormFieldType.TEXT),
                             SubmissionField(
                                 "gender",
                                 "Gender",
-                                SubmissionFieldType.DROPDOWN,
+                                FormFieldType.SELECT,
                                 options = listOf("Male", "Female", "Others"),
                             ),
                         ),
