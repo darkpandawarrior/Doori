@@ -5,6 +5,48 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 41 → 42 (PLAN_V28 P28.2): the persistent clarification-room tables —
+ * `clarification_rooms` (one row per approval's thread, ACTIVE/CLOSED lifecycle) and
+ * `clarification_messages` (FK-cascaded to its room, deleted with it). Replaces the hardcoded seed
+ * thread that reset every time [com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen]
+ * reopened — a room is now created lazily on first open and both it and its messages persist
+ * across app restarts from then on.
+ */
+val MIGRATION_41_42 =
+    object : Migration(41, 42) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `clarification_rooms` (
+                    `roomId`          TEXT    NOT NULL PRIMARY KEY,
+                    `approvalId`      TEXT    NOT NULL,
+                    `status`          TEXT    NOT NULL,
+                    `participantsCsv` TEXT    NOT NULL,
+                    `createdAtMs`     INTEGER NOT NULL,
+                    `updatedAtMs`     INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `clarification_messages` (
+                    `id`              TEXT    NOT NULL PRIMARY KEY,
+                    `roomId`          TEXT    NOT NULL,
+                    `senderId`        TEXT    NOT NULL,
+                    `isFromRequester` INTEGER NOT NULL,
+                    `text`            TEXT    NOT NULL,
+                    `timestampMs`     INTEGER NOT NULL,
+                    FOREIGN KEY(`roomId`) REFERENCES `clarification_rooms`(`roomId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_clarification_messages_roomId` ON `clarification_messages` (`roomId`)",
+            )
+        }
+    }
+
+/**
  * Migration 40 → 41 (PLAN_V27 P27.E.15): additive `currencyCode` column on `draft_expenses` —
  * [com.mileway.core.data.model.db.DraftExpenseEntity] mirrors
  * [com.mileway.feature.logging.viewmodel.ExpenseFormState]'s fields 1:1, so once the form gains a

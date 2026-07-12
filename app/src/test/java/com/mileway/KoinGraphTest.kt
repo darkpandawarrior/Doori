@@ -33,6 +33,7 @@ import com.mileway.feature.agent.di.agentModule
 import com.mileway.feature.agent.viewmodel.AgentViewModel
 import com.mileway.feature.approvals.di.approvalsModule
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import com.mileway.feature.approvals.viewmodel.ClarificationHistoryViewModel
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
@@ -169,6 +170,10 @@ class KoinGraphTest : KoinTest {
         // CoreDataModule isn't loaded here, so provide the DAO fake + the repository).
         single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
         single { com.mileway.core.data.campaign.CampaignRepository(get()) }
+        // PLAN_V28 P28.2: ApprovalsViewModel.openDetail / ClarificationHistoryViewModel.init both
+        // eagerly combine/collect ClarificationRepository Flows — approvalsModule itself binds the
+        // real ClarificationRepository(get<ClarificationDao>()), so only the DAO fake is needed here.
+        single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
         // PLAN_V24 P6.2: SubscriptionViewModel seeds via SubscriptionRepository (core:data) in init.
         single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
         single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
@@ -362,6 +367,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
+        assertNotNull(get<ClarificationHistoryViewModel>())
         assertNotNull(get<PayablesViewModel>())
         assertNotNull(get<AgentViewModel>())
         assertNotNull(get<CreatePaymentViewModel>())

@@ -1,5 +1,6 @@
 package com.mileway.feature.approvals.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.mileway.core.common.UiText
 import com.mileway.core.data.ledger.ApprovalTransitions
 import com.mileway.core.ui.mvi.BaseViewModel
@@ -10,7 +11,14 @@ import com.mileway.core.ui.resources.approvals_toast_request_rejected
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ClarificationMessage
+import com.mileway.feature.approvals.model.ClarificationRoom
+import com.mileway.feature.approvals.model.ClarificationRoomStatus
+import com.mileway.feature.approvals.repository.APPROVER_SENDER_ID
 import com.mileway.feature.approvals.repository.ApprovalsRepository
+import com.mileway.feature.approvals.repository.ClarificationRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 import com.mileway.core.data.ledger.ApprovalStatus as FsmStatus
 
 enum class ApprovalTabFilter { ALL, PENDING, APPROVED, REJECTED }
@@ -33,6 +41,13 @@ sealed interface ApprovalsAction {
     data class UpdateDraftMessage(val text: String) : ApprovalsAction
 
     data object SendClarification : ApprovalsAction
+
+    /** P28.3: opens the "close this room?" confirmation gate. */
+    data object RequestCloseRoom : ApprovalsAction
+
+    data object ConfirmCloseRoom : ApprovalsAction
+
+    data object DismissCloseRoomConfirmation : ApprovalsAction
 }
 
 sealed interface ApprovalsEffect {
@@ -45,10 +60,12 @@ sealed interface ApprovalsEffect {
 
 data class ApprovalDetailState(
     val item: ApprovalItem,
+    val room: ClarificationRoom? = null,
     val thread: List<ClarificationMessage> = emptyList(),
     val draftMessage: String = "",
     val localStatus: ApprovalStatus? = null,
     val showClarificationSheet: Boolean = false,
+    val showCloseRoomConfirmation: Boolean = false,
 )
 
 data class ApprovalsUiState(
@@ -65,11 +82,16 @@ private fun ApprovalStatus.toFsmStatus(): FsmStatus =
         ApprovalStatus.REJECTED -> FsmStatus.REJECTED
     }
 
-class ApprovalsViewModel :
-    BaseViewModel<ApprovalsUiState, ApprovalsEffect, ApprovalsAction>(ApprovalsUiState()) {
+class ApprovalsViewModel(
+    private val clarificationRepository: ClarificationRepository,
+) : BaseViewModel<ApprovalsUiState, ApprovalsEffect, ApprovalsAction>(ApprovalsUiState()) {
     // ponytail: in-flight id guard debounces a double-tapped approve/reject/pay; cleared once the
     // resolve completes (synchronous today — this local mock data has no suspend/network hop).
     private val inFlightIds = mutableSetOf<String>()
+
+    // P28.2: cancelled + relaunched on every OpenDetail so a stale room's Flow collection never
+    // leaks into the next-opened approval's detail state.
+    private var clarificationJob: Job? = null
 
     override fun onAction(action: ApprovalsAction) {
         when (action) {
@@ -85,22 +107,30 @@ class ApprovalsViewModel :
             ApprovalsAction.CloseClarificationSheet -> updateDetail { copy(showClarificationSheet = false) }
             is ApprovalsAction.UpdateDraftMessage -> updateDetail { copy(draftMessage = action.text) }
             ApprovalsAction.SendClarification -> sendClarification()
+            ApprovalsAction.RequestCloseRoom -> updateDetail { copy(showCloseRoomConfirmation = true) }
+            ApprovalsAction.DismissCloseRoomConfirmation -> updateDetail { copy(showCloseRoomConfirmation = false) }
+            ApprovalsAction.ConfirmCloseRoom -> confirmCloseRoom()
         }
     }
 
     private fun openDetail(id: String) {
         val item = ApprovalsRepository.getById(id) ?: return
-        setState {
-            copy(
-                detailState =
-                    ScreenState.Content(
-                        ApprovalDetailState(
-                            item = item,
-                            thread = ApprovalsRepository.clarificationThread(id),
-                        ),
-                    ),
-            )
-        }
+        setState { copy(detailState = ScreenState.Content(ApprovalDetailState(item = item))) }
+
+        clarificationJob?.cancel()
+        clarificationJob =
+            viewModelScope.launch {
+                // P28.2: creates the room (seeded) on first open only; every later open reads the
+                // same persisted room — this is what fixes the reset-to-seed-every-open bug.
+                val room = clarificationRepository.getOrCreateRoom(id, participants = listOf(item.requesterName, APPROVER_SENDER_ID))
+                combine(
+                    clarificationRepository.observeRoom(id),
+                    clarificationRepository.observeMessages(room.roomId),
+                ) { observedRoom, messages -> (observedRoom ?: room) to messages }
+                    .collect { (roomState, messages) ->
+                        updateDetail { copy(room = roomState, thread = messages) }
+                    }
+            }
     }
 
     private fun currentDetail(): ApprovalDetailState? = (currentState.detailState as? ScreenState.Content)?.data
@@ -140,25 +170,22 @@ class ApprovalsViewModel :
 
     private fun sendClarification() {
         val detail = currentDetail() ?: return
+        val room = detail.room ?: return
+        if (room.status == ClarificationRoomStatus.CLOSED) return
         val text = detail.draftMessage.trim()
         if (text.isBlank()) return
-        val newMsg =
-            ClarificationMessage(
-                text,
-                isFromRequester = false,
-                timestampMs = kotlin.time.Clock.System.now().toEpochMilliseconds(),
-            )
-        setState {
-            copy(
-                detailState =
-                    ScreenState.Content(
-                        detail.copy(
-                            thread = detail.thread + newMsg,
-                            draftMessage = "",
-                            showClarificationSheet = false,
-                        ),
-                    ),
-            )
+        // Clear the draft + dismiss the sheet locally; the sent message itself arrives back
+        // through the live observeMessages() collection started in openDetail().
+        updateDetail { copy(draftMessage = "", showClarificationSheet = false) }
+        viewModelScope.launch {
+            clarificationRepository.sendMessage(room.roomId, senderId = APPROVER_SENDER_ID, isFromRequester = false, text = text)
         }
+    }
+
+    private fun confirmCloseRoom() {
+        val detail = currentDetail() ?: return
+        val room = detail.room ?: return
+        updateDetail { copy(showCloseRoomConfirmation = false) }
+        viewModelScope.launch { clarificationRepository.closeRoom(room.roomId) }
     }
 }

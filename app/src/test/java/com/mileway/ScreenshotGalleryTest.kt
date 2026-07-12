@@ -333,6 +333,11 @@ class ScreenshotGalleryTest {
             single<com.mileway.core.data.dao.RewardCardDao> { FakeRewardCardDao() }
             single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
             single { com.mileway.core.data.campaign.CampaignRepository(get()) }
+            // PLAN_V28 P28.2: ApprovalDetailsScreen's ApprovalsViewModel.openDetail eagerly
+            // combine/collects ClarificationRepository Flows during Compose render — approvalsModule
+            // itself binds the real ClarificationRepository(get<ClarificationDao>()), so only the
+            // DAO fake is needed here (a relaxed mockk would hand back a null-backed Flow and crash).
+            single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
             single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
             single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
             single<com.mileway.core.data.dao.DeletionRequestDao> { FakeDeletionRequestDao() }

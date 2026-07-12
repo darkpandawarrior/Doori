@@ -150,6 +150,16 @@
     <string name="approvals_seek_clarification">स्पष्टीकरण माँगें</string>
     <string name="approvals_message_placeholder">संदेश लिखें…</string>
     <string name="approvals_cd_send">भेजें</string>
+    <string name="approvals_cd_close_room">रूम बंद करें</string>
+    <string name="approvals_clarification_closed_banner">यह स्पष्टीकरण रूम बंद है। बातचीत संदर्भ के लिए सुरक्षित है।</string>
+    <string name="approvals_close_room_title">इस रूम को बंद करें?</string>
+    <string name="approvals_close_room_description">आप नए संदेश नहीं भेज पाएंगे, लेकिन बातचीत दिखाई देती रहेगी।</string>
+    <string name="approvals_close_room_confirm">रूम बंद करें</string>
+    <string name="approvals_clarification_history_title">स्पष्टीकरण</string>
+    <string name="approvals_clarification_history_empty">अभी तक कोई स्पष्टीकरण थ्रेड नहीं है</string>
+    <string name="approvals_room_status_active">सक्रिय</string>
+    <string name="approvals_room_status_closed">बंद</string>
+    <string name="approvals_cd_clarification_history">स्पष्टीकरण इतिहास</string>
     <string name="cards_tab_cards">कार्ड</string>
     <string name="cards_tab_requests">अनुरोध</string>
     <string name="cards_home_subtitle">वर्चुअल कार्ड और अनुरोध</string>

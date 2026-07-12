@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.HourglassBottom
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -51,13 +52,19 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
+import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.timeline.TimelineStep
 import com.mileway.core.ui.components.timeline.TransactionTimeline
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_action_approve
+import com.mileway.core.ui.resources.approvals_action_cancel
 import com.mileway.core.ui.resources.approvals_action_clarify
 import com.mileway.core.ui.resources.approvals_action_reject
+import com.mileway.core.ui.resources.approvals_close_room_confirm
+import com.mileway.core.ui.resources.approvals_close_room_description
+import com.mileway.core.ui.resources.approvals_close_room_title
 import com.mileway.core.ui.resources.approvals_field_amount
 import com.mileway.core.ui.resources.approvals_field_status
 import com.mileway.core.ui.resources.approvals_field_summary
@@ -318,11 +325,26 @@ fun ApprovalDetailsScreen(
 
     if (detail.showClarificationSheet) {
         SeekClarificationSheet(
+            room = detail.room,
             thread = detail.thread,
             draftMessage = detail.draftMessage,
             onDraftChange = { viewModel.onAction(ApprovalsAction.UpdateDraftMessage(it)) },
             onSend = { viewModel.onAction(ApprovalsAction.SendClarification) },
+            onRequestCloseRoom = { viewModel.onAction(ApprovalsAction.RequestCloseRoom) },
             onDismiss = { viewModel.onAction(ApprovalsAction.CloseClarificationSheet) },
+        )
+    }
+
+    if (detail.showCloseRoomConfirmation) {
+        ActionConfirmationBottomSheet(
+            title = stringResource(Res.string.approvals_close_room_title),
+            description = stringResource(Res.string.approvals_close_room_description),
+            confirmLabel = stringResource(Res.string.approvals_close_room_confirm),
+            dismissLabel = stringResource(Res.string.approvals_action_cancel),
+            icon = Icons.Filled.Lock,
+            tone = ActionConfirmationToneType.Warning,
+            onConfirm = { viewModel.onAction(ApprovalsAction.ConfirmCloseRoom) },
+            onDismiss = { viewModel.onAction(ApprovalsAction.DismissCloseRoomConfirmation) },
         )
     }
 }

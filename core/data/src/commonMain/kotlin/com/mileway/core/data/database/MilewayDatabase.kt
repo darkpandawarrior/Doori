@@ -7,6 +7,7 @@ import androidx.room.RoomDatabaseConstructor
 import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.BannerDismissalDao
 import com.mileway.core.data.dao.CampaignDao
+import com.mileway.core.data.dao.ClarificationDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.CouponDao
 import com.mileway.core.data.dao.DelegationDao
@@ -48,6 +49,8 @@ import com.mileway.core.data.model.db.AgentConversationEntity
 import com.mileway.core.data.model.db.AgentMessageEntity
 import com.mileway.core.data.model.db.BannerDismissedEntity
 import com.mileway.core.data.model.db.CampaignEntity
+import com.mileway.core.data.model.db.ClarificationMessageEntity
+import com.mileway.core.data.model.db.ClarificationRoomEntity
 import com.mileway.core.data.model.db.ConnectedAccountEntity
 import com.mileway.core.data.model.db.CouponEntity
 import com.mileway.core.data.model.db.DelegationEntity
@@ -125,8 +128,10 @@ import com.mileway.core.data.model.db.VoucherEntity
         TourProgressEntity::class,
         BannerDismissedEntity::class,
         PopupAckEntity::class,
+        ClarificationRoomEntity::class,
+        ClarificationMessageEntity::class,
     ],
-    version = 41,
+    version = 42,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -206,6 +211,8 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun bannerDismissalDao(): BannerDismissalDao
 
     abstract fun popupAckDao(): PopupAckDao
+
+    abstract fun clarificationDao(): ClarificationDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")

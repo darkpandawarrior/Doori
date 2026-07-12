@@ -11,11 +11,13 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -33,23 +35,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_cd_close_room
 import com.mileway.core.ui.resources.approvals_cd_send
+import com.mileway.core.ui.resources.approvals_clarification_closed_banner
 import com.mileway.core.ui.resources.approvals_message_placeholder
 import com.mileway.core.ui.resources.approvals_seek_clarification
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ClarificationMessage
+import com.mileway.feature.approvals.model.ClarificationRoom
+import com.mileway.feature.approvals.model.ClarificationRoomStatus
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeekClarificationSheet(
+    room: ClarificationRoom?,
     thread: List<ClarificationMessage>,
     draftMessage: String,
     onDraftChange: (String) -> Unit,
     onSend: () -> Unit,
+    onRequestCloseRoom: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val isClosed = room?.status == ClarificationRoomStatus.CLOSED
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -63,12 +73,21 @@ fun SeekClarificationSheet(
                     .imePadding()
                     .padding(horizontal = 16.dp),
         ) {
-            Text(
-                text = stringResource(Res.string.approvals_seek_clarification),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 12.dp),
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(Res.string.approvals_seek_clarification),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f).padding(bottom = 12.dp),
+                )
+                // P28.3: only offered while ACTIVE — a closed room is read-only history, not
+                // something you close a second time.
+                if (!isClosed && room != null) {
+                    IconButton(onClick = onRequestCloseRoom) {
+                        Icon(Icons.Filled.Lock, contentDescription = stringResource(Res.string.approvals_cd_close_room))
+                    }
+                }
+            }
             HorizontalDivider()
             Spacer(Modifier.height(8.dp))
 
@@ -79,7 +98,7 @@ fun SeekClarificationSheet(
                         .height(240.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(thread, key = { it.timestampMs }) { msg ->
+                items(thread, key = { it.id }) { msg ->
                     ChatBubble(message = msg)
                 }
             }
@@ -88,34 +107,49 @@ fun SeekClarificationSheet(
             HorizontalDivider()
             Spacer(Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedTextField(
-                    value = draftMessage,
-                    onValueChange = onDraftChange,
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(Res.string.approvals_message_placeholder)) },
-                    singleLine = true,
-                    shape = DesignTokens.Shape.button,
-                )
-                IconButton(
-                    onClick = onSend,
-                    enabled = draftMessage.isNotBlank(),
-                    modifier = Modifier.size(48.dp),
+            if (isClosed) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Send,
-                        contentDescription = stringResource(Res.string.approvals_cd_send),
-                        tint =
-                            if (draftMessage.isNotBlank()) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
+                    Icon(Icons.Filled.Lock, contentDescription = null, tint = MilewayColors.warning, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(Res.string.approvals_clarification_closed_banner),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MilewayColors.warning,
                     )
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    OutlinedTextField(
+                        value = draftMessage,
+                        onValueChange = onDraftChange,
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text(stringResource(Res.string.approvals_message_placeholder)) },
+                        singleLine = true,
+                        shape = DesignTokens.Shape.button,
+                    )
+                    IconButton(
+                        onClick = onSend,
+                        enabled = draftMessage.isNotBlank(),
+                        modifier = Modifier.size(48.dp),
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Send,
+                            contentDescription = stringResource(Res.string.approvals_cd_send),
+                            tint =
+                                if (draftMessage.isNotBlank()) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
+                        )
+                    }
                 }
             }
             Spacer(Modifier.height(8.dp))

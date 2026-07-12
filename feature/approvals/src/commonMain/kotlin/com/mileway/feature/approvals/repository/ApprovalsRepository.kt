@@ -5,7 +5,6 @@ package com.mileway.feature.approvals.repository
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
-import com.mileway.feature.approvals.model.ClarificationMessage
 
 private val BASE_MS = 1_781_654_400_000L
 private val H = 3_600_000L
@@ -47,16 +46,6 @@ object ApprovalsRepository {
         )
 
     fun getById(id: String): ApprovalItem? = all.firstOrNull { it.id == id }
-
-    fun clarificationThread(id: String): List<ClarificationMessage> =
-        listOf(
-            ClarificationMessage("Hi, could you clarify the purpose of this claim?", isFromRequester = false, timestampMs = BASE_MS - 3 * H),
-            ClarificationMessage(
-                "Sure! This was for a client visit to Whitefield office. I have the meeting invite if needed.",
-                isFromRequester = true,
-                timestampMs = BASE_MS - 2 * H,
-            ),
-        )
 
     val teamItems: List<ApprovalItem> =
         listOf(

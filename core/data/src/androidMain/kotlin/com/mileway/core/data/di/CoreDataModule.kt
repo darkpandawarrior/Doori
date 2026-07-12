@@ -85,6 +85,7 @@ val coreDataModule =
         single { get<MilewayDatabase>().popupAckDao() }
         // PLAN_V24 P13.3: the per-account persisted forced-popup acknowledgement store (coordinator).
         single { com.mileway.core.data.popup.PopupAckRepository(get(), get()) }
+        single { get<MilewayDatabase>().clarificationDao() }
         single { get<MilewayDatabase>().emergencyContactDao() }
         // PLAN_V24 P3.5: shared by the profile management screen and the tracking SOS sheet.
         single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }

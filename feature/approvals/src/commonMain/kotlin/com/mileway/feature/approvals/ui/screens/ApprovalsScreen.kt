@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirplanemodeActive
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.Close
@@ -78,6 +79,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_action_cancel
 import com.mileway.core.ui.resources.approvals_approve_all
 import com.mileway.core.ui.resources.approvals_bulk_action_illustrative
+import com.mileway.core.ui.resources.approvals_cd_clarification_history
 import com.mileway.core.ui.resources.approvals_cd_filter
 import com.mileway.core.ui.resources.approvals_empty_no_items
 import com.mileway.core.ui.resources.approvals_plural_days_ago
@@ -117,6 +119,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ApprovalsScreen(
     onOpenDetail: (String) -> Unit,
+    /** P28.2: top-level entry point into [ClarificationHistoryScreen] (independent of any one approval). */
+    onOpenClarificationHistory: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ApprovalsViewModel = koinViewModel(),
 ) {
@@ -153,6 +157,7 @@ fun ApprovalsScreen(
                     selectionMode = false
                     selectedIds.value = emptySet()
                 },
+                onOpenClarificationHistory = onOpenClarificationHistory,
             )
         },
         bottomBar = {
@@ -303,6 +308,7 @@ private fun ApprovalsGradientHeader(
     pendingCount: Int,
     selectionMode: Boolean,
     onCancelSelection: () -> Unit,
+    onOpenClarificationHistory: () -> Unit,
 ) {
     val gradient =
         Brush.horizontalGradient(
@@ -398,6 +404,9 @@ private fun ApprovalsGradientHeader(
                                 )
                             }
                             Spacer(Modifier.width(8.dp))
+                        }
+                        IconButton(onClick = onOpenClarificationHistory) {
+                            Icon(Icons.Default.Chat, contentDescription = stringResource(Res.string.approvals_cd_clarification_history), tint = Color.White)
                         }
                         IconButton(onClick = {}) {
                             Icon(Icons.Default.FilterList, contentDescription = stringResource(Res.string.approvals_cd_filter), tint = Color.White)

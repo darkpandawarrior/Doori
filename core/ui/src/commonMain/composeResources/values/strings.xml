@@ -169,6 +169,16 @@
     <string name="approvals_seek_clarification">Seek Clarification</string>
     <string name="approvals_message_placeholder">Type a message…</string>
     <string name="approvals_cd_send">Send</string>
+    <string name="approvals_cd_close_room">Close room</string>
+    <string name="approvals_clarification_closed_banner">This clarification room is closed. History is kept for reference.</string>
+    <string name="approvals_close_room_title">Close this room?</string>
+    <string name="approvals_close_room_description">You won\'t be able to send new messages, but the conversation stays visible.</string>
+    <string name="approvals_close_room_confirm">Close Room</string>
+    <string name="approvals_clarification_history_title">Clarifications</string>
+    <string name="approvals_clarification_history_empty">No clarification threads yet</string>
+    <string name="approvals_room_status_active">Active</string>
+    <string name="approvals_room_status_closed">Closed</string>
+    <string name="approvals_cd_clarification_history">Clarification history</string>
     <string name="cards_tab_cards">Cards</string>
     <string name="cards_tab_requests">Requests</string>
     <string name="cards_home_subtitle">Virtual cards &amp; requests</string>

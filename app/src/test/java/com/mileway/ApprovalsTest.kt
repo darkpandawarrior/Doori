@@ -91,13 +91,6 @@ class ApprovalsTest {
     }
 
     @Test
-    fun `clarificationThread returns non-empty thread`() {
-        val thread = ApprovalsRepository.clarificationThread("A001")
-        assertTrue(thread.isNotEmpty())
-        assertTrue(thread.all { it.text.isNotBlank() })
-    }
-
-    @Test
     fun `all items have positive amounts`() {
         ApprovalsRepository.all.forEach { item ->
             assertTrue(item.amountRupees > 0.0, "Item ${item.id} has non-positive amount")
