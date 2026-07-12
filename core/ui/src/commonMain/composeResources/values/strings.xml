@@ -182,6 +182,9 @@
     <string name="approvals_filter_saved">Saved</string>
     <string name="approvals_meta_saved">Saved</string>
     <string name="approvals_meta_pinned">Pinned</string>
+    <string name="approvals_cd_attach">Attach file</string>
+    <string name="approvals_cd_remove_attachment">Remove attachment</string>
+    <string name="approvals_attachment_label">Attachment</string>
     <string name="approvals_tab_history_active">Active</string>
     <string name="approvals_tab_history_closed">Closed</string>
     <string name="approvals_tab_history_saved">Saved</string>

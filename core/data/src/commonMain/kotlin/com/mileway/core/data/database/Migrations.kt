@@ -5,6 +5,22 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 43 → 44 (PLAN_V28 P28.6): three additive columns on `clarification_messages` —
+ * `senderName`/`senderRole` (display header in the chat bubble) and `attachmentUrl` (a picked
+ * core:media attachment's local URI, folding in the deferred V26 P-STR.1 attach surface). All
+ * nullable; existing rows read back as "no display name/role/attachment", the correct state for
+ * every message sent before this column existed.
+ */
+val MIGRATION_43_44 =
+    object : Migration(43, 44) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `clarification_messages` ADD COLUMN `senderName` TEXT")
+            connection.execSQL("ALTER TABLE `clarification_messages` ADD COLUMN `senderRole` TEXT")
+            connection.execSQL("ALTER TABLE `clarification_messages` ADD COLUMN `attachmentUrl` TEXT")
+        }
+    }
+
+/**
  * Migration 42 → 43 (PLAN_V28 P28.4): `clarification_room_meta` — local-only per-room triage state
  * (isSaved/isPinned/tags/note/reminder) layered on top of `clarification_rooms`, FK-cascaded so
  * deleting a room drops its meta row too. No row for a room means all-defaults (not saved, not

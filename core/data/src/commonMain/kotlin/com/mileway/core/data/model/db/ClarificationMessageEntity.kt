@@ -25,4 +25,9 @@ data class ClarificationMessageEntity(
     val isFromRequester: Boolean,
     val text: String,
     val timestampMs: Long,
+    // PLAN_V28 P28.6: display name/role for the chat bubble header + a picked attachment's local
+    // URI (core:media's AttachmentItem.uri — no new attachment model). All nullable/additive.
+    val senderName: String? = null,
+    val senderRole: String? = null,
+    val attachmentUrl: String? = null,
 )

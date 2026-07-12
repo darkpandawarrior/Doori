@@ -133,7 +133,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         ClarificationMessageEntity::class,
         ClarificationRoomMetaEntity::class,
     ],
-    version = 43,
+    version = 44,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)

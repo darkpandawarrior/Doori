@@ -41,6 +41,9 @@ sealed interface ApprovalsAction {
 
     data class UpdateDraftMessage(val text: String) : ApprovalsAction
 
+    /** P28.6: a picked core:media attachment's local URI for the in-flight draft, or null to clear it. */
+    data class UpdateDraftAttachment(val url: String?) : ApprovalsAction
+
     data object SendClarification : ApprovalsAction
 
     /** P28.3: opens the "close this room?" confirmation gate. */
@@ -73,6 +76,8 @@ data class ApprovalDetailState(
     val thread: List<ClarificationMessage> = emptyList(),
     val roomMeta: ClarificationRoomMeta? = null,
     val draftMessage: String = "",
+    /** P28.6: a picked core:media attachment's local URI, cleared once the draft is sent. */
+    val draftAttachmentUrl: String? = null,
     val localStatus: ApprovalStatus? = null,
     val showClarificationSheet: Boolean = false,
     val showCloseRoomConfirmation: Boolean = false,
@@ -128,6 +133,7 @@ class ApprovalsViewModel(
             ApprovalsAction.OpenClarificationSheet -> updateDetail { copy(showClarificationSheet = true) }
             ApprovalsAction.CloseClarificationSheet -> updateDetail { copy(showClarificationSheet = false) }
             is ApprovalsAction.UpdateDraftMessage -> updateDetail { copy(draftMessage = action.text) }
+            is ApprovalsAction.UpdateDraftAttachment -> updateDetail { copy(draftAttachmentUrl = action.url) }
             ApprovalsAction.SendClarification -> sendClarification()
             ApprovalsAction.RequestCloseRoom -> updateDetail { copy(showCloseRoomConfirmation = true) }
             ApprovalsAction.DismissCloseRoomConfirmation -> updateDetail { copy(showCloseRoomConfirmation = false) }
@@ -207,12 +213,21 @@ class ApprovalsViewModel(
         val room = detail.room ?: return
         if (room.status == ClarificationRoomStatus.CLOSED) return
         val text = detail.draftMessage.trim()
-        if (text.isBlank()) return
+        val attachmentUrl = detail.draftAttachmentUrl
+        if (text.isBlank() && attachmentUrl == null) return
         // Clear the draft + dismiss the sheet locally; the sent message itself arrives back
         // through the live observeMessages() collection started in openDetail().
-        updateDetail { copy(draftMessage = "", showClarificationSheet = false) }
+        updateDetail { copy(draftMessage = "", draftAttachmentUrl = null, showClarificationSheet = false) }
         viewModelScope.launch {
-            clarificationRepository.sendMessage(room.roomId, senderId = APPROVER_SENDER_ID, isFromRequester = false, text = text)
+            clarificationRepository.sendMessage(
+                room.roomId,
+                senderId = APPROVER_SENDER_ID,
+                isFromRequester = false,
+                text = text,
+                senderName = "You",
+                senderRole = "Approver",
+                attachmentUrl = attachmentUrl,
+            )
         }
     }
 

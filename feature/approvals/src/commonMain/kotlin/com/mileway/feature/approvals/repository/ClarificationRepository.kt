@@ -41,6 +41,10 @@ interface ClarificationRepository {
         senderId: String,
         isFromRequester: Boolean,
         text: String,
+        // PLAN_V28 P28.6: optional display header + a picked core:media attachment's local URI.
+        senderName: String? = null,
+        senderRole: String? = null,
+        attachmentUrl: String? = null,
     )
 
     /** ACTIVE → CLOSED (P28.3). Idempotent; closing an already-closed room is a no-op. */
@@ -103,7 +107,8 @@ class RoomClarificationRepository(
                 updatedAtMs = now,
             )
         dao.upsertRoom(entity)
-        seedMessages(entity.roomId, now).forEach { dao.insertMessage(it) }
+        val requesterName = participants.firstOrNull { it != APPROVER_SENDER_ID } ?: REQUESTER_SENDER_ID
+        seedMessages(entity.roomId, now, requesterName).forEach { dao.insertMessage(it) }
         return entity.toDomain()
     }
 
@@ -113,6 +118,9 @@ class RoomClarificationRepository(
         senderId: String,
         isFromRequester: Boolean,
         text: String,
+        senderName: String?,
+        senderRole: String?,
+        attachmentUrl: String?,
     ) {
         val now = nowMs()
         dao.insertMessage(
@@ -123,6 +131,9 @@ class RoomClarificationRepository(
                 isFromRequester = isFromRequester,
                 text = text,
                 timestampMs = now,
+                senderName = senderName,
+                senderRole = senderRole,
+                attachmentUrl = attachmentUrl,
             ),
         )
         // ponytail: no status check here — sending into a CLOSED room shouldn't silently reopen
@@ -183,6 +194,7 @@ class RoomClarificationRepository(
     private fun seedMessages(
         roomId: String,
         now: Long,
+        requesterName: String,
     ): List<ClarificationMessageEntity> =
         listOf(
             ClarificationMessageEntity(
@@ -192,6 +204,8 @@ class RoomClarificationRepository(
                 isFromRequester = false,
                 text = "Hi, could you clarify the purpose of this claim?",
                 timestampMs = now - 2 * 3_600_000L,
+                senderName = "You",
+                senderRole = "Approver",
             ),
             ClarificationMessageEntity(
                 id = "${roomId}_seed_2",
@@ -200,6 +214,8 @@ class RoomClarificationRepository(
                 isFromRequester = true,
                 text = "Sure! This was for a client visit to Whitefield office. I have the meeting invite if needed.",
                 timestampMs = now - 3_600_000L,
+                senderName = requesterName,
+                senderRole = "Requester",
             ),
         )
 
@@ -221,6 +237,9 @@ class RoomClarificationRepository(
             text = text,
             isFromRequester = isFromRequester,
             timestampMs = timestampMs,
+            senderName = senderName,
+            senderRole = senderRole,
+            attachmentUrl = attachmentUrl,
         )
 
     private fun ClarificationRoomMetaEntity.toDomain(roomId: String) =

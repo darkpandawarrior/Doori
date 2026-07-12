@@ -16,6 +16,11 @@ kotlin {
             implementation(project(":core:common"))
             implementation(project(":core:data"))
             implementation(project(":core:ui"))
+            // PLAN_V28 P28.6/V26 P-STR.1: SeekClarificationSheet's attach button reuses core:media's
+            // AttachmentItem/rememberMediaCaptureLauncher — no new attachment model.
+            implementation(project(":core:media"))
+            // Date separators in SeekClarificationSheet (V28 P28.6) — same lib core:data/core:ui already use.
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -53,8 +53,23 @@ class FakeClarificationRepository : ClarificationRepository {
         senderId: String,
         isFromRequester: Boolean,
         text: String,
+        senderName: String?,
+        senderRole: String?,
+        attachmentUrl: String?,
     ) {
-        val next = (messages.value[roomId].orEmpty()) + ClarificationMessage(Uuid.random().toString(), roomId, senderId, text, isFromRequester, 0L)
+        val message =
+            ClarificationMessage(
+                id = Uuid.random().toString(),
+                roomId = roomId,
+                senderId = senderId,
+                text = text,
+                isFromRequester = isFromRequester,
+                timestampMs = 0L,
+                senderName = senderName,
+                senderRole = senderRole,
+                attachmentUrl = attachmentUrl,
+            )
+        val next = (messages.value[roomId].orEmpty()) + message
         messages.value = messages.value + (roomId to next)
     }
 

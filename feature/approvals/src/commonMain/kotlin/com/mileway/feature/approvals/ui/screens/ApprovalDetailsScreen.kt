@@ -335,6 +335,8 @@ fun ApprovalDetailsScreen(
             onToggleSaved = { viewModel.onAction(ApprovalsAction.ToggleRoomSaved) },
             onTogglePinned = { viewModel.onAction(ApprovalsAction.ToggleRoomPinned) },
             onDismiss = { viewModel.onAction(ApprovalsAction.CloseClarificationSheet) },
+            draftAttachmentUrl = detail.draftAttachmentUrl,
+            onDraftAttachmentChange = { viewModel.onAction(ApprovalsAction.UpdateDraftAttachment(it)) },
         )
     }
 

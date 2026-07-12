@@ -39,7 +39,15 @@ data class ClarificationMessage(
     val text: String,
     val isFromRequester: Boolean,
     val timestampMs: Long,
+    // PLAN_V28 P28.6: display header + a picked core:media attachment's local URI (folds in the
+    // deferred V26 P-STR.1 attach surface). All optional.
+    val senderName: String? = null,
+    val senderRole: String? = null,
+    val attachmentUrl: String? = null,
 )
+
+/** PLAN_V28 P28.6: computed-locally message-delivery indicator — never persisted (see `ChatBubble`). */
+enum class DeliveryState { SENT, DELIVERED, SEEN }
 
 /** PLAN_V28 P28.4: local-only per-room triage state — see `ClarificationRoomMetaEntity`. */
 data class ClarificationRoomMeta(

@@ -163,6 +163,9 @@
     <string name="approvals_filter_saved">सहेजे गए</string>
     <string name="approvals_meta_saved">सहेजा गया</string>
     <string name="approvals_meta_pinned">पिन किया गया</string>
+    <string name="approvals_cd_attach">फ़ाइल संलग्न करें</string>
+    <string name="approvals_cd_remove_attachment">अटैचमेंट हटाएं</string>
+    <string name="approvals_attachment_label">अटैचमेंट</string>
     <string name="approvals_tab_history_active">सक्रिय</string>
     <string name="approvals_tab_history_closed">बंद</string>
     <string name="approvals_tab_history_saved">सहेजे गए</string>
