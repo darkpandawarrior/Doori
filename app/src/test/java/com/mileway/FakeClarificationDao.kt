@@ -3,6 +3,7 @@ package com.mileway
 import com.mileway.core.data.dao.ClarificationDao
 import com.mileway.core.data.model.db.ClarificationMessageEntity
 import com.mileway.core.data.model.db.ClarificationRoomEntity
+import com.mileway.core.data.model.db.ClarificationRoomMetaEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.map
 class FakeClarificationDao : ClarificationDao {
     private val rooms = MutableStateFlow<Map<String, ClarificationRoomEntity>>(emptyMap())
     private val messages = MutableStateFlow<Map<String, ClarificationMessageEntity>>(emptyMap())
+    private val meta = MutableStateFlow<Map<String, ClarificationRoomMetaEntity>>(emptyMap())
 
     override fun observeRoomByApproval(approvalId: String): Flow<ClarificationRoomEntity?> =
         rooms.map { it.values.firstOrNull { r -> r.approvalId == approvalId } }
@@ -50,4 +52,22 @@ class FakeClarificationDao : ClarificationDao {
     override suspend fun insertMessage(message: ClarificationMessageEntity) {
         messages.value = messages.value + (message.id to message)
     }
+
+    override fun observeMeta(roomId: String): Flow<ClarificationRoomMetaEntity?> = meta.map { it[roomId] }
+
+    override fun observeAllMeta(): Flow<List<ClarificationRoomMetaEntity>> = meta.map { it.values.toList() }
+
+    override suspend fun upsertMeta(meta: ClarificationRoomMetaEntity) {
+        this.meta.value = this.meta.value + (meta.roomId to meta)
+    }
+
+    override fun observeActiveRoomCount(): Flow<Int> = rooms.map { it.values.count { r -> r.status == "ACTIVE" } }
+
+    override fun observeUnreadRoomCount(): Flow<Int> =
+        kotlinx.coroutines.flow.combine(rooms, messages) { roomMap, messageMap ->
+            roomMap.values.count { r ->
+                r.status == "ACTIVE" &&
+                    messageMap.values.filter { m -> m.roomId == r.roomId }.maxByOrNull { m -> m.timestampMs }?.isFromRequester == true
+            }
+        }
 }

@@ -12,6 +12,7 @@ import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ClarificationMessage
 import com.mileway.feature.approvals.model.ClarificationRoom
+import com.mileway.feature.approvals.model.ClarificationRoomMeta
 import com.mileway.feature.approvals.model.ClarificationRoomStatus
 import com.mileway.feature.approvals.repository.APPROVER_SENDER_ID
 import com.mileway.feature.approvals.repository.ApprovalsRepository
@@ -48,6 +49,14 @@ sealed interface ApprovalsAction {
     data object ConfirmCloseRoom : ApprovalsAction
 
     data object DismissCloseRoomConfirmation : ApprovalsAction
+
+    /** P28.4: toggles the current room's save/pin flag from the detail sheet's meta-chip row. */
+    data object ToggleRoomSaved : ApprovalsAction
+
+    data object ToggleRoomPinned : ApprovalsAction
+
+    /** P28.4: the approvals list's SAVED filter chip — shows only approvals with a saved room. */
+    data object ToggleSavedFilter : ApprovalsAction
 }
 
 sealed interface ApprovalsEffect {
@@ -62,6 +71,7 @@ data class ApprovalDetailState(
     val item: ApprovalItem,
     val room: ClarificationRoom? = null,
     val thread: List<ClarificationMessage> = emptyList(),
+    val roomMeta: ClarificationRoomMeta? = null,
     val draftMessage: String = "",
     val localStatus: ApprovalStatus? = null,
     val showClarificationSheet: Boolean = false,
@@ -72,6 +82,9 @@ data class ApprovalsUiState(
     val listState: ScreenState<List<ApprovalItem>> = ScreenState.Content(ApprovalsRepository.all),
     val detailState: ScreenState<ApprovalDetailState> = ScreenState.Empty,
     val activeTab: ApprovalTabFilter = ApprovalTabFilter.ALL,
+    /** P28.4: approvalIds whose room is saved — drives the SAVED filter chip. */
+    val savedApprovalIds: Set<String> = emptySet(),
+    val savedFilterOn: Boolean = false,
 )
 
 /** Maps the UI-local [ApprovalStatus] onto the pure FSM's [FsmStatus] for [ApprovalTransitions] checks. */
@@ -93,6 +106,15 @@ class ApprovalsViewModel(
     // leaks into the next-opened approval's detail state.
     private var clarificationJob: Job? = null
 
+    init {
+        // P28.4: keeps the SAVED filter chip's candidate set live as rooms get saved/unsaved.
+        viewModelScope.launch {
+            clarificationRepository.observeSavedApprovalIds().collect { ids ->
+                setState { copy(savedApprovalIds = ids) }
+            }
+        }
+    }
+
     override fun onAction(action: ApprovalsAction) {
         when (action) {
             ApprovalsAction.Refresh ->
@@ -110,6 +132,9 @@ class ApprovalsViewModel(
             ApprovalsAction.RequestCloseRoom -> updateDetail { copy(showCloseRoomConfirmation = true) }
             ApprovalsAction.DismissCloseRoomConfirmation -> updateDetail { copy(showCloseRoomConfirmation = false) }
             ApprovalsAction.ConfirmCloseRoom -> confirmCloseRoom()
+            ApprovalsAction.ToggleRoomSaved -> toggleRoomMeta { room, meta -> clarificationRepository.setSaved(room.roomId, !meta.isSaved) }
+            ApprovalsAction.ToggleRoomPinned -> toggleRoomMeta { room, meta -> clarificationRepository.setPinned(room.roomId, !meta.isPinned) }
+            ApprovalsAction.ToggleSavedFilter -> setState { copy(savedFilterOn = !savedFilterOn) }
         }
     }
 
@@ -126,11 +151,20 @@ class ApprovalsViewModel(
                 combine(
                     clarificationRepository.observeRoom(id),
                     clarificationRepository.observeMessages(room.roomId),
-                ) { observedRoom, messages -> (observedRoom ?: room) to messages }
-                    .collect { (roomState, messages) ->
-                        updateDetail { copy(room = roomState, thread = messages) }
+                    clarificationRepository.observeMeta(room.roomId),
+                ) { observedRoom, messages, meta -> Triple(observedRoom ?: room, messages, meta) }
+                    .collect { (roomState, messages, meta) ->
+                        updateDetail { copy(room = roomState, thread = messages, roomMeta = meta) }
                     }
             }
+    }
+
+    /** P28.4: shared guard for the two meta toggles — both need a live room to act on. */
+    private fun toggleRoomMeta(update: suspend (ClarificationRoom, ClarificationRoomMeta) -> Unit) {
+        val detail = currentDetail() ?: return
+        val room = detail.room ?: return
+        val meta = detail.roomMeta ?: ClarificationRoomMeta(room.roomId)
+        viewModelScope.launch { update(room, meta) }
     }
 
     private fun currentDetail(): ApprovalDetailState? = (currentState.detailState as? ScreenState.Content)?.data

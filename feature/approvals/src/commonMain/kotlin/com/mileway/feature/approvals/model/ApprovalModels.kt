@@ -40,3 +40,19 @@ data class ClarificationMessage(
     val isFromRequester: Boolean,
     val timestampMs: Long,
 )
+
+/** PLAN_V28 P28.4: local-only per-room triage state — see `ClarificationRoomMetaEntity`. */
+data class ClarificationRoomMeta(
+    val roomId: String,
+    val isSaved: Boolean = false,
+    val isPinned: Boolean = false,
+    val tags: List<String> = emptyList(),
+    val note: String = "",
+    val reminderAtMs: Long? = null,
+)
+
+/** PLAN_V28 P28.4: room-summary aggregation that backs the approvals nav-hub badge. */
+data class ClarificationRoomSummary(
+    val activeRooms: Int = 0,
+    val totalUnread: Int = 0,
+)

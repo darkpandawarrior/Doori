@@ -3,6 +3,8 @@ package com.mileway.feature.approvals.ui.sheets
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,8 +19,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,15 +46,18 @@ import com.mileway.core.ui.resources.approvals_cd_close_room
 import com.mileway.core.ui.resources.approvals_cd_send
 import com.mileway.core.ui.resources.approvals_clarification_closed_banner
 import com.mileway.core.ui.resources.approvals_message_placeholder
+import com.mileway.core.ui.resources.approvals_meta_pinned
+import com.mileway.core.ui.resources.approvals_meta_saved
 import com.mileway.core.ui.resources.approvals_seek_clarification
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.approvals.model.ClarificationMessage
 import com.mileway.feature.approvals.model.ClarificationRoom
+import com.mileway.feature.approvals.model.ClarificationRoomMeta
 import com.mileway.feature.approvals.model.ClarificationRoomStatus
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SeekClarificationSheet(
     room: ClarificationRoom?,
@@ -57,6 +67,10 @@ fun SeekClarificationSheet(
     onSend: () -> Unit,
     onRequestCloseRoom: () -> Unit,
     onDismiss: () -> Unit,
+    /** P28.4: null while the meta row hasn't loaded yet — chips still render, just unchecked. */
+    meta: ClarificationRoomMeta? = null,
+    onToggleSaved: () -> Unit = {},
+    onTogglePinned: () -> Unit = {},
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val isClosed = room?.status == ClarificationRoomStatus.CLOSED
@@ -85,6 +99,40 @@ fun SeekClarificationSheet(
                 if (!isClosed && room != null) {
                     IconButton(onClick = onRequestCloseRoom) {
                         Icon(Icons.Filled.Lock, contentDescription = stringResource(Res.string.approvals_cd_close_room))
+                    }
+                }
+            }
+            if (room != null) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    FilterChip(
+                        selected = meta?.isSaved == true,
+                        onClick = onToggleSaved,
+                        label = { Text(stringResource(Res.string.approvals_meta_saved)) },
+                        leadingIcon = {
+                            Icon(
+                                if (meta?.isSaved == true) Icons.Filled.Bookmark else Icons.Filled.BookmarkBorder,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        },
+                    )
+                    FilterChip(
+                        selected = meta?.isPinned == true,
+                        onClick = onTogglePinned,
+                        label = { Text(stringResource(Res.string.approvals_meta_pinned)) },
+                        leadingIcon = {
+                            Icon(
+                                if (meta?.isPinned == true) Icons.Filled.PushPin else Icons.Outlined.PushPin,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        },
+                    )
+                    meta?.tags.orEmpty().forEach { tag ->
+                        FilterChip(selected = false, onClick = {}, label = { Text(tag) })
                     }
                 }
             }

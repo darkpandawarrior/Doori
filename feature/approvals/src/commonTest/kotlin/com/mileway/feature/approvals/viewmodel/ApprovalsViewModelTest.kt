@@ -96,4 +96,21 @@ class ApprovalsViewModelTest {
             // Guarded in the ViewModel: a CLOSED room's SendClarification is a no-op.
             assertTrue(vm.state.value.detailState.dataOrNull?.thread.isNullOrEmpty())
         }
+
+    @Test
+    fun `toggling saved flips the room's meta and feeds the SAVED filter's candidate set`() =
+        runTest {
+            val vm = newViewModel()
+            vm.onAction(ApprovalsAction.OpenDetail("A001"))
+            advanceUntilIdle()
+
+            assertTrue(vm.state.value.detailState.dataOrNull?.roomMeta?.isSaved != true)
+            assertTrue("A001" !in vm.state.value.savedApprovalIds)
+
+            vm.onAction(ApprovalsAction.ToggleRoomSaved)
+            advanceUntilIdle()
+
+            assertTrue(vm.state.value.detailState.dataOrNull?.roomMeta?.isSaved == true)
+            assertTrue("A001" in vm.state.value.savedApprovalIds)
+        }
 }

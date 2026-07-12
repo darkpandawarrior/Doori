@@ -327,10 +327,13 @@ fun ApprovalDetailsScreen(
         SeekClarificationSheet(
             room = detail.room,
             thread = detail.thread,
+            meta = detail.roomMeta,
             draftMessage = detail.draftMessage,
             onDraftChange = { viewModel.onAction(ApprovalsAction.UpdateDraftMessage(it)) },
             onSend = { viewModel.onAction(ApprovalsAction.SendClarification) },
             onRequestCloseRoom = { viewModel.onAction(ApprovalsAction.RequestCloseRoom) },
+            onToggleSaved = { viewModel.onAction(ApprovalsAction.ToggleRoomSaved) },
+            onTogglePinned = { viewModel.onAction(ApprovalsAction.ToggleRoomPinned) },
             onDismiss = { viewModel.onAction(ApprovalsAction.CloseClarificationSheet) },
         )
     }

@@ -160,6 +160,16 @@
     <string name="approvals_room_status_active">सक्रिय</string>
     <string name="approvals_room_status_closed">बंद</string>
     <string name="approvals_cd_clarification_history">स्पष्टीकरण इतिहास</string>
+    <string name="approvals_filter_saved">सहेजे गए</string>
+    <string name="approvals_meta_saved">सहेजा गया</string>
+    <string name="approvals_meta_pinned">पिन किया गया</string>
+    <string name="approvals_tab_history_active">सक्रिय</string>
+    <string name="approvals_tab_history_closed">बंद</string>
+    <string name="approvals_tab_history_saved">सहेजे गए</string>
+    <string name="approvals_date_range_all">सभी</string>
+    <string name="approvals_date_range_today">आज</string>
+    <string name="approvals_date_range_week">इस सप्ताह</string>
+    <string name="approvals_date_range_month">इस महीने</string>
     <string name="cards_tab_cards">कार्ड</string>
     <string name="cards_tab_requests">अनुरोध</string>
     <string name="cards_home_subtitle">वर्चुअल कार्ड और अनुरोध</string>

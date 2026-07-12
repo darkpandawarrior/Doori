@@ -51,6 +51,7 @@ import com.mileway.core.data.model.db.BannerDismissedEntity
 import com.mileway.core.data.model.db.CampaignEntity
 import com.mileway.core.data.model.db.ClarificationMessageEntity
 import com.mileway.core.data.model.db.ClarificationRoomEntity
+import com.mileway.core.data.model.db.ClarificationRoomMetaEntity
 import com.mileway.core.data.model.db.ConnectedAccountEntity
 import com.mileway.core.data.model.db.CouponEntity
 import com.mileway.core.data.model.db.DelegationEntity
@@ -130,8 +131,9 @@ import com.mileway.core.data.model.db.VoucherEntity
         PopupAckEntity::class,
         ClarificationRoomEntity::class,
         ClarificationMessageEntity::class,
+        ClarificationRoomMetaEntity::class,
     ],
-    version = 42,
+    version = 43,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)

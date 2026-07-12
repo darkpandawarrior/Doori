@@ -91,6 +91,8 @@ import com.mileway.core.ui.components.bottombar.BubbleNavItem
 import com.mileway.core.ui.components.bottombar.CollapsedBottomPuck
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
+import com.mileway.feature.approvals.model.ClarificationRoomSummary
+import com.mileway.feature.approvals.repository.ClarificationRepository
 import com.mileway.feature.approvals.ui.navigation.ApprovalsRoutes
 import com.mileway.feature.approvals.ui.navigation.approvalsGraph
 import com.mileway.feature.cards.ui.navigation.CardRoutes
@@ -167,6 +169,10 @@ fun MilewayAppRoot(
         val delegation by delegationSource.delegationState.collectAsStateWithLifecycle(DelegationState())
         val delegationScope = rememberCoroutineScope()
 
+        // PLAN_V28 P28.4: clarification room-summary badge on the Approvals nav tab.
+        val clarificationRepository = koinInject<ClarificationRepository>()
+        val roomSummary by clarificationRepository.observeRoomSummary().collectAsStateWithLifecycle(ClarificationRoomSummary())
+
         // Navigate to a deep-linked graph immediately after the nav graph is ready.
         androidx.compose.runtime.LaunchedEffect(deepLinkRoute) {
             if (deepLinkRoute != null) {
@@ -178,7 +184,7 @@ fun MilewayAppRoot(
             }
         }
 
-        val tabs = remember {
+        val tabs = remember(roomSummary.totalUnread) {
             listOf(
                 TabSpec(
                     AppGraph.TRAVEL,
@@ -202,7 +208,12 @@ fun MilewayAppRoot(
                 ),
                 TabSpec(
                     AppGraph.APPROVALS,
-                    BubbleNavItem("Approvals", Icons.Filled.PersonAdd, Icons.Outlined.PersonAdd)
+                    BubbleNavItem(
+                        "Approvals",
+                        Icons.Filled.PersonAdd,
+                        Icons.Outlined.PersonAdd,
+                        badgeCount = roomSummary.totalUnread.takeIf { it > 0 },
+                    )
                 ),
                 TabSpec(
                     AppGraph.PROFILE,

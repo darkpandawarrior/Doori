@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AirplanemodeActive
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Checklist
@@ -41,6 +42,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -82,6 +84,7 @@ import com.mileway.core.ui.resources.approvals_bulk_action_illustrative
 import com.mileway.core.ui.resources.approvals_cd_clarification_history
 import com.mileway.core.ui.resources.approvals_cd_filter
 import com.mileway.core.ui.resources.approvals_empty_no_items
+import com.mileway.core.ui.resources.approvals_filter_saved
 import com.mileway.core.ui.resources.approvals_plural_days_ago
 import com.mileway.core.ui.resources.approvals_plural_hours_ago
 import com.mileway.core.ui.resources.approvals_policy_violation
@@ -225,14 +228,26 @@ fun ApprovalsScreen(
                 }
             }
             when (selectedTab) {
-                0 ->
+                0 -> {
+                    // P28.4: SAVED filters the pending list down to approvals whose clarification
+                    // room is currently saved (empty when nothing's saved yet — chip stays visible).
+                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                        FilterChip(
+                            selected = ui.savedFilterOn,
+                            onClick = { viewModel.onAction(ApprovalsAction.ToggleSavedFilter) },
+                            label = { Text(stringResource(Res.string.approvals_filter_saved)) },
+                            leadingIcon = { Icon(Icons.Filled.Bookmark, contentDescription = null, modifier = Modifier.size(16.dp)) },
+                        )
+                    }
                     ScreenStateContent(
                         state = ui.listState,
                         modifier = Modifier.fillMaxSize(),
                         onRetry = { viewModel.onAction(ApprovalsAction.Refresh) },
                     ) { loaded ->
+                        val pending = loaded.filter { it.status == ApprovalStatus.PENDING }
+                        val visible = if (ui.savedFilterOn) pending.filter { it.id in ui.savedApprovalIds } else pending
                         ApprovalListTab(
-                            items = loaded.filter { it.status == ApprovalStatus.PENDING },
+                            items = visible,
                             onOpenDetail = onOpenDetail,
                             selectionMode = selectionMode,
                             selectedIds = selectedIds.value,
@@ -243,6 +258,7 @@ fun ApprovalsScreen(
                             onToggleSelect = { id -> selectedIds.value = if (id in selectedIds.value) selectedIds.value - id else selectedIds.value + id },
                         )
                     }
+                }
                 1 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.teamItems,

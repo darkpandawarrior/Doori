@@ -53,4 +53,39 @@ class ClarificationHistoryViewModelTest {
 
             assertEquals(emptyList(), vm.state.value.rooms.dataOrNull)
         }
+
+    @Test
+    fun `tab selection filters by status, and SAVED filters by the saved flag across statuses`() =
+        runTest {
+            val repo = FakeClarificationRepository()
+            val active = repo.getOrCreateRoom("A001", participants = listOf("Priya Sharma", "approver"))
+            val closed = repo.getOrCreateRoom("A002", participants = listOf("Rahul Mehra", "approver"))
+            repo.closeRoom(closed.roomId)
+            repo.setSaved(active.roomId, true)
+
+            val vm = ClarificationHistoryViewModel(repo)
+            advanceUntilIdle()
+
+            assertEquals(listOf("A001"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+
+            vm.onAction(ClarificationHistoryAction.SelectTab(ClarificationHistoryTab.CLOSED))
+            assertEquals(listOf("A002"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+
+            vm.onAction(ClarificationHistoryAction.SelectTab(ClarificationHistoryTab.SAVED))
+            assertEquals(listOf("A001"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+        }
+
+    @Test
+    fun `search filters by requester name`() =
+        runTest {
+            val repo = FakeClarificationRepository()
+            repo.getOrCreateRoom("A001", participants = listOf("Priya Sharma", "approver"))
+            repo.getOrCreateRoom("A002", participants = listOf("Rahul Mehra", "approver"))
+
+            val vm = ClarificationHistoryViewModel(repo)
+            advanceUntilIdle()
+            vm.onAction(ClarificationHistoryAction.SetQuery("Priya"))
+
+            assertEquals(listOf("A001"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+        }
 }

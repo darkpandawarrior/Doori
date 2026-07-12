@@ -5,6 +5,31 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 42 → 43 (PLAN_V28 P28.4): `clarification_room_meta` — local-only per-room triage state
+ * (isSaved/isPinned/tags/note/reminder) layered on top of `clarification_rooms`, FK-cascaded so
+ * deleting a room drops its meta row too. No row for a room means all-defaults (not saved, not
+ * pinned, no tags/note/reminder) — rows are created lazily on first toggle/edit.
+ */
+val MIGRATION_42_43 =
+    object : Migration(42, 43) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `clarification_room_meta` (
+                    `roomId`       TEXT    NOT NULL PRIMARY KEY,
+                    `isSaved`      INTEGER NOT NULL DEFAULT 0,
+                    `isPinned`     INTEGER NOT NULL DEFAULT 0,
+                    `tagsCsv`      TEXT    NOT NULL DEFAULT '',
+                    `note`         TEXT    NOT NULL DEFAULT '',
+                    `reminderAtMs` INTEGER,
+                    FOREIGN KEY(`roomId`) REFERENCES `clarification_rooms`(`roomId`) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 41 → 42 (PLAN_V28 P28.2): the persistent clarification-room tables —
  * `clarification_rooms` (one row per approval's thread, ACTIVE/CLOSED lifecycle) and
  * `clarification_messages` (FK-cascaded to its room, deleted with it). Replaces the hardcoded seed

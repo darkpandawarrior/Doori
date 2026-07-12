@@ -179,6 +179,16 @@
     <string name="approvals_room_status_active">Active</string>
     <string name="approvals_room_status_closed">Closed</string>
     <string name="approvals_cd_clarification_history">Clarification history</string>
+    <string name="approvals_filter_saved">Saved</string>
+    <string name="approvals_meta_saved">Saved</string>
+    <string name="approvals_meta_pinned">Pinned</string>
+    <string name="approvals_tab_history_active">Active</string>
+    <string name="approvals_tab_history_closed">Closed</string>
+    <string name="approvals_tab_history_saved">Saved</string>
+    <string name="approvals_date_range_all">All</string>
+    <string name="approvals_date_range_today">Today</string>
+    <string name="approvals_date_range_week">This week</string>
+    <string name="approvals_date_range_month">This month</string>
     <string name="cards_tab_cards">Cards</string>
     <string name="cards_tab_requests">Requests</string>
     <string name="cards_home_subtitle">Virtual cards &amp; requests</string>
