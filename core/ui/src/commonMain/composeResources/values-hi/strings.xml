@@ -107,6 +107,9 @@
     <string name="events_link_confirm">%1$s जोड़ें</string>
     <string name="events_no_linked_expenses">अभी तक कोई खर्च जुड़ा नहीं है</string>
     <string name="events_no_expenses_to_link">जोड़ने के लिए कोई खर्च उपलब्ध नहीं है</string>
+    <string name="events_cd_edit_event">इवेंट संपादित करें</string>
+    <string name="events_cd_delete_event">इवेंट हटाएं</string>
+    <string name="events_cd_choose_category">श्रेणी चुनें</string>
     <string name="events_toast_deleted">इवेंट हटाया गया</string>
     <!-- payments -->
     <string name="payments_create_title">भुगतान / अनुरोध</string>
@@ -207,6 +210,10 @@
     <string name="approvals_tab_history_active">सक्रिय</string>
     <string name="approvals_tab_history_closed">बंद</string>
     <string name="approvals_tab_history_saved">सहेजे गए</string>
+    <string name="approvals_clarification_history_subtitle">हर अनुमोदन में अनुरोधकर्ता थ्रेड</string>
+    <string name="approvals_cd_delivery_sent">भेजा गया</string>
+    <string name="approvals_cd_delivery_delivered">डिलीवर हुआ</string>
+    <string name="approvals_cd_delivery_seen">देखा गया</string>
     <string name="approvals_date_range_all">सभी</string>
     <string name="approvals_date_range_today">आज</string>
     <string name="approvals_date_range_week">इस सप्ताह</string>

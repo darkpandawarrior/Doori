@@ -61,6 +61,9 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_attachment_label
 import com.mileway.core.ui.resources.approvals_cd_attach
 import com.mileway.core.ui.resources.approvals_cd_close_room
+import com.mileway.core.ui.resources.approvals_cd_delivery_delivered
+import com.mileway.core.ui.resources.approvals_cd_delivery_seen
+import com.mileway.core.ui.resources.approvals_cd_delivery_sent
 import com.mileway.core.ui.resources.approvals_cd_remove_attachment
 import com.mileway.core.ui.resources.approvals_cd_send
 import com.mileway.core.ui.resources.approvals_clarification_closed_banner
@@ -297,7 +300,7 @@ private fun buildChatRows(thread: List<ClarificationMessage>): List<ChatRow> {
 private fun DateSeparator(label: String) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         Surface(
-            shape = RoundedCornerShape(8.dp),
+            shape = DesignTokens.Shape.button,
             color = MaterialTheme.colorScheme.surfaceVariant,
         ) {
             Text(
@@ -386,11 +389,12 @@ private fun DeliveryIndicator() {
         delay(SEEN_AFTER_MS)
         state = DeliveryState.SEEN
     }
-    val (icon, tint) =
+    val (icon, tint, cd) =
         when (state) {
-            DeliveryState.SENT -> Icons.Filled.Done to MaterialTheme.colorScheme.onSurfaceVariant
-            DeliveryState.DELIVERED -> Icons.Filled.DoneAll to MaterialTheme.colorScheme.onSurfaceVariant
-            DeliveryState.SEEN -> Icons.Filled.DoneAll to MaterialTheme.colorScheme.primary
+            DeliveryState.SENT -> Triple(Icons.Filled.Done, MaterialTheme.colorScheme.onSurfaceVariant, stringResource(Res.string.approvals_cd_delivery_sent))
+            DeliveryState.DELIVERED ->
+                Triple(Icons.Filled.DoneAll, MaterialTheme.colorScheme.onSurfaceVariant, stringResource(Res.string.approvals_cd_delivery_delivered))
+            DeliveryState.SEEN -> Triple(Icons.Filled.DoneAll, MaterialTheme.colorScheme.primary, stringResource(Res.string.approvals_cd_delivery_seen))
         }
-    Icon(icon, contentDescription = state.name, tint = tint, modifier = Modifier.padding(top = 2.dp, end = 4.dp).size(14.dp))
+    Icon(icon, contentDescription = cd, tint = tint, modifier = Modifier.padding(top = 2.dp, end = 4.dp).size(14.dp))
 }

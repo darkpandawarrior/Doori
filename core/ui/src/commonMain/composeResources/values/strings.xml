@@ -127,6 +127,9 @@
     <string name="events_link_confirm">Link %1$s</string>
     <string name="events_no_linked_expenses">No linked expenses yet</string>
     <string name="events_no_expenses_to_link">No expenses available to link</string>
+    <string name="events_cd_edit_event">Edit event</string>
+    <string name="events_cd_delete_event">Delete event</string>
+    <string name="events_cd_choose_category">Choose category</string>
     <string name="events_toast_deleted">Event deleted</string>
     <string name="payments_create_title">Pay / Request</string>
     <string name="payments_section_mode">Mode</string>
@@ -226,6 +229,10 @@
     <string name="approvals_tab_history_active">Active</string>
     <string name="approvals_tab_history_closed">Closed</string>
     <string name="approvals_tab_history_saved">Saved</string>
+    <string name="approvals_clarification_history_subtitle">Requester threads across every approval</string>
+    <string name="approvals_cd_delivery_sent">Sent</string>
+    <string name="approvals_cd_delivery_delivered">Delivered</string>
+    <string name="approvals_cd_delivery_seen">Seen</string>
     <string name="approvals_date_range_all">All</string>
     <string name="approvals_date_range_today">Today</string>
     <string name="approvals_date_range_week">This week</string>

@@ -219,7 +219,7 @@ private fun AttachRow(
             )
         }
     } else {
-        OutlinedButton(onClick = onAttach, modifier = Modifier.fillMaxWidth()) { Text(label) }
+        OutlinedButton(onClick = onAttach, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) { Text(label) }
     }
 }
 
@@ -244,6 +244,6 @@ private fun KycSuccess(onDone: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = DesignTokens.Spacing.s, bottom = DesignTokens.Spacing.xl),
         )
-        Button(onClick = onDone, modifier = Modifier.fillMaxWidth()) { Text(stringResource(Res.string.cards_done)) }
+        Button(onClick = onDone, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.cards_done)) }
     }
 }

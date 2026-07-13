@@ -19,12 +19,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.scaffold.HistoryListScaffold
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_clarification_history_empty
+import com.mileway.core.ui.resources.approvals_clarification_history_subtitle
 import com.mileway.core.ui.resources.approvals_clarification_history_title
 import com.mileway.core.ui.resources.approvals_date_range_all
 import com.mileway.core.ui.resources.approvals_date_range_month
@@ -88,6 +90,7 @@ fun ClarificationHistoryScreen(
 
     HistoryListScaffold(
         title = stringResource(Res.string.approvals_clarification_history_title),
+        subtitle = stringResource(Res.string.approvals_clarification_history_subtitle),
         titleIcon = Icons.Filled.Chat,
         onBack = onBack,
         state = ui.rooms,
@@ -135,6 +138,7 @@ private fun ClarificationRoomCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             val isActive = item.room.status == ClarificationRoomStatus.ACTIVE

@@ -131,12 +131,12 @@ fun CreatePaymentScreen(
             title = { Text(stringResource(Res.string.payments_invoice_duplicate_title)) },
             text = { Text(stringResource(Res.string.payments_invoice_duplicate_message, prompt.reason)) },
             confirmButton = {
-                Button(onClick = { viewModel.onAction(CreatePaymentAction.ConfirmDuplicateAttach) }) {
+                Button(onClick = { viewModel.onAction(CreatePaymentAction.ConfirmDuplicateAttach) }, shape = DesignTokens.Shape.button) {
                     Text(stringResource(Res.string.payments_invoice_attach_confirm))
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { viewModel.onAction(CreatePaymentAction.CancelDuplicateAttach) }) {
+                OutlinedButton(onClick = { viewModel.onAction(CreatePaymentAction.CancelDuplicateAttach) }, shape = DesignTokens.Shape.button) {
                     Text(stringResource(Res.string.action_cancel))
                 }
             },

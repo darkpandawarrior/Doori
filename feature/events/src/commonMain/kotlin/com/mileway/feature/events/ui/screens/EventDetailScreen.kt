@@ -63,6 +63,9 @@ import com.mileway.core.ui.resources.events_action_create_expense
 import com.mileway.core.ui.resources.events_action_delete_confirm
 import com.mileway.core.ui.resources.events_action_link_expenses
 import com.mileway.core.ui.resources.events_action_reject
+import com.mileway.core.ui.resources.events_cd_choose_category
+import com.mileway.core.ui.resources.events_cd_delete_event
+import com.mileway.core.ui.resources.events_cd_edit_event
 import com.mileway.core.ui.resources.events_delete_description
 import com.mileway.core.ui.resources.events_delete_title
 import com.mileway.core.ui.resources.events_detail_actual_amount
@@ -79,6 +82,7 @@ import com.mileway.core.ui.resources.events_link_sheet_title
 import com.mileway.core.ui.resources.events_no_expenses_to_link
 import com.mileway.core.ui.resources.events_no_linked_expenses
 import com.mileway.core.ui.resources.events_toast_deleted
+import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.events.model.EventCategory
@@ -137,11 +141,11 @@ fun EventDetailScreen(
         actions = {
             if (event != null) {
                 IconButton(onClick = { viewModel.onAction(EventDetailAction.OpenEdit) }) {
-                    Icon(Icons.Filled.Edit, contentDescription = null)
+                    Icon(Icons.Filled.Edit, contentDescription = stringResource(Res.string.events_cd_edit_event))
                 }
                 if (event.isDeletable) {
                     IconButton(onClick = { viewModel.onAction(EventDetailAction.RequestDelete) }) {
-                        Icon(Icons.Filled.Delete, contentDescription = null)
+                        Icon(Icons.Filled.Delete, contentDescription = stringResource(Res.string.events_cd_delete_event))
                     }
                 }
             }
@@ -192,6 +196,7 @@ private fun EventDetailContent(
         Button(
             onClick = { viewModel.onAction(EventDetailAction.LogExpense) },
             modifier = Modifier.fillMaxWidth(),
+            shape = DesignTokens.Shape.button,
         ) {
             Icon(Icons.Filled.Add, contentDescription = null)
             Text(stringResource(Res.string.events_action_create_expense), modifier = Modifier.padding(start = 8.dp))
@@ -279,11 +284,11 @@ private fun ApprovalActions(
 ) {
     if (event.status != EventStatus.PENDING_APPROVAL) return
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = { viewModel.onAction(EventDetailAction.Approve) }, modifier = Modifier.weight(1f)) {
+        Button(onClick = { viewModel.onAction(EventDetailAction.Approve) }, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) {
             Icon(Icons.Filled.Check, contentDescription = null)
             Text(stringResource(Res.string.events_action_approve), modifier = Modifier.padding(start = 8.dp))
         }
-        OutlinedButton(onClick = { viewModel.onAction(EventDetailAction.Reject) }, modifier = Modifier.weight(1f)) {
+        OutlinedButton(onClick = { viewModel.onAction(EventDetailAction.Reject) }, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) {
             Icon(Icons.Filled.Close, contentDescription = null)
             Text(stringResource(Res.string.events_action_reject), modifier = Modifier.padding(start = 8.dp))
         }
@@ -346,7 +351,7 @@ private fun EventEditSheet(
                 label = { Text(stringResource(Res.string.events_field_category)) },
                 trailingIcon = {
                     IconButton(onClick = { showCategorySheet = true }) {
-                        Icon(Icons.Filled.Category, contentDescription = null)
+                        Icon(Icons.Filled.Category, contentDescription = stringResource(Res.string.events_cd_choose_category))
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -359,7 +364,7 @@ private fun EventEditSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Button(onClick = { viewModel.onAction(EventDetailAction.SaveEdit) }) {
+                Button(onClick = { viewModel.onAction(EventDetailAction.SaveEdit) }, shape = DesignTokens.Shape.button) {
                     Text(stringResource(Res.string.action_save))
                 }
             }
@@ -414,6 +419,7 @@ private fun LinkExpensesSheet(
                     onClick = { viewModel.onAction(EventDetailAction.ConfirmLink) },
                     enabled = ui.selectedToLink.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    shape = DesignTokens.Shape.button,
                 ) {
                     Text(stringResource(Res.string.events_link_confirm, ui.selectedToLink.size))
                 }
