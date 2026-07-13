@@ -24,6 +24,7 @@ import com.mileway.feature.profile.search.AdvanceSearchProvider
 import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
+import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
 import com.mileway.feature.profile.viewmodel.BadgesViewModel
 import com.mileway.feature.profile.viewmodel.ChangePasswordViewModel
 import com.mileway.feature.profile.viewmodel.ConnectedAccountsViewModel
@@ -169,4 +170,6 @@ val profileModule =
         viewModelOf(::IncentiveViewModel)
         // PLAN_V24 P7.1: account-deletion lifecycle (DeletionRequestRepository + persona wipe + sign-out).
         viewModelOf(::AccountDeletionViewModel)
+        // PLAN_V29 P29.AN.1: analytics state layer (date-range/filters/drilldown/trend/export/leaderboard).
+        viewModelOf(::AnalyticsViewModel)
     }

@@ -3,11 +3,34 @@ package com.mileway.stub
 private const val BASE_MS = 1_781_654_400_000L
 private const val DAY_MS = 86_400_000L
 
-data class DailySpend(val dateMs: Long, val amountRupees: Double, val dayLabel: String)
+data class DailySpend(
+    val dateMs: Long,
+    val amountRupees: Double,
+    val dayLabel: String,
+    val transactionCount: Int = 1,
+)
 
-data class RecentActivityItem(val title: String, val subtitle: String, val amountRupees: Double, val dateMs: Long, val category: String)
+data class RecentActivityItem(
+    val title: String,
+    val subtitle: String,
+    val amountRupees: Double,
+    val dateMs: Long,
+    val category: String,
+    val status: String = "Approved",
+    val paymentMethod: String = "Card",
+)
 
 data class MerchantTotal(val name: String, val amountRupees: Double)
+
+data class MerchantTransaction(
+    val id: String,
+    val merchantName: String,
+    val dateMs: Long,
+    val amountRupees: Double,
+    val status: String,
+)
+
+data class TeamMember(val name: String, val amountRupees: Double, val claimCount: Int, val topCategory: String)
 
 private val DAY_LABELS = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
@@ -20,6 +43,11 @@ private val RAW_AMOUNTS =
         5900.0, 3600.0,
     )
 
+// PLAN_V29 P29.AN.6: baseline for period-over-period comparison — a distinct 30-day window
+// immediately preceding `dailySeries`, ~12% lower on average, so "vs previous period" is a real
+// diff against stored data rather than a hardcoded percentage string.
+private val PRIOR_RAW_AMOUNTS = RAW_AMOUNTS.map { it * 0.88 }
+
 object AnalyticsMockData {
     val dailySeries: List<DailySpend> =
         RAW_AMOUNTS.mapIndexed { i, amount ->
@@ -27,6 +55,19 @@ object AnalyticsMockData {
                 dateMs = BASE_MS + (i * DAY_MS),
                 amountRupees = amount,
                 dayLabel = DAY_LABELS[i % 7],
+                transactionCount = 1 + (i % 4),
+            )
+        }
+
+    // Same length/day-alignment as dailySeries, ending the day before it starts — used only as the
+    // "previous period" baseline for whatever window length is currently selected.
+    val priorPeriodSeries: List<DailySpend> =
+        PRIOR_RAW_AMOUNTS.mapIndexed { i, amount ->
+            DailySpend(
+                dateMs = BASE_MS - (RAW_AMOUNTS.size - i) * DAY_MS,
+                amountRupees = amount,
+                dayLabel = DAY_LABELS[i % 7],
+                transactionCount = 1 + (i % 4),
             )
         }
 
@@ -46,6 +87,11 @@ object AnalyticsMockData {
     val violationCount: Int = 3
     val hardStopCount: Int = 1
 
+    // PLAN_V29 P29.AN.9: backs the "SLA Breach Risk" insight card with a real threshold check
+    // instead of a hardcoded "3 claims" string.
+    val pendingApprovalDays: List<Int> = listOf(2, 6, 7, 1)
+    val slaBreachThresholdDays: Int = 5
+
     val topMerchants: List<MerchantTotal> =
         listOf(
             MerchantTotal("TechVision Pvt Ltd", 25000.0),
@@ -57,11 +103,11 @@ object AnalyticsMockData {
 
     val recentActivity: List<RecentActivityItem> =
         listOf(
-            RecentActivityItem("Trip to Client Site", "Mileage · 47 km", 1410.0, BASE_MS + 29 * DAY_MS, "Mileage"),
-            RecentActivityItem("Team Dinner", "Expense · Food", 3200.0, BASE_MS + 28 * DAY_MS, "Expense"),
-            RecentActivityItem("Flight PNQ-BOM", "Travel", 5500.0, BASE_MS + 27 * DAY_MS, "Travel"),
-            RecentActivityItem("Office Supplies", "Expense · Office", 900.0, BASE_MS + 26 * DAY_MS, "Expense"),
-            RecentActivityItem("Client Visit", "Mileage · 32 km", 960.0, BASE_MS + 25 * DAY_MS, "Mileage"),
+            RecentActivityItem("Trip to Client Site", "Mileage · 47 km", 1410.0, BASE_MS + 29 * DAY_MS, "Mileage", "Approved", "Card"),
+            RecentActivityItem("Team Dinner", "Expense · Food", 3200.0, BASE_MS + 28 * DAY_MS, "Expense", "Pending", "UPI"),
+            RecentActivityItem("Flight PNQ-BOM", "Travel", 5500.0, BASE_MS + 27 * DAY_MS, "Travel", "Approved", "Card"),
+            RecentActivityItem("Office Supplies", "Expense · Office", 900.0, BASE_MS + 26 * DAY_MS, "Expense", "Rejected", "Cash"),
+            RecentActivityItem("Client Visit", "Mileage · 32 km", 960.0, BASE_MS + 25 * DAY_MS, "Mileage", "Approved", "UPI"),
         )
 
     val quickInsights: List<String> =
@@ -70,6 +116,17 @@ object AnalyticsMockData {
             "3 trips pending approval",
             "₹24,700 on expenses",
             "87% policy compliant",
+        )
+
+    // PLAN_V29 P29.AN.8: team leaderboard rows — moved out of the screen (was UI-local) so the
+    // ViewModel can sort/search/aggregate against it.
+    val teamMembers: List<TeamMember> =
+        listOf(
+            TeamMember("Aisha Khan", 15_600.0, 8, "Travel"),
+            TeamMember("Priya Sharma", 12_400.0, 6, "Expense"),
+            TeamMember("Neha Patel", 9_800.0, 5, "Mileage"),
+            TeamMember("Rahul Mehra", 8_900.0, 4, "Expense"),
+            TeamMember("Vikram Nair", 6_200.0, 3, "Advance"),
         )
 
     fun seriesForCategory(category: String): List<DailySpend> {
@@ -111,4 +168,25 @@ object AnalyticsMockData {
                 )
             else -> topMerchants
         }
+
+    // PLAN_V29 P29.AN.4: itemized transactions backing the merchant drill-down list + client-side
+    // search. Deterministic split of the merchant's total across a handful of dated line items.
+    fun transactionsForMerchant(
+        category: String,
+        merchantName: String,
+    ): List<MerchantTransaction> {
+        val merchant = merchantsForCategory(category).find { it.name == merchantName } ?: return emptyList()
+        val statuses = listOf("Approved", "Approved", "Pending", "Approved", "Rejected", "Approved")
+        val count = 3 + (merchantName.length % 4)
+        val perTxn = merchant.amountRupees / count
+        return (0 until count).map { i ->
+            MerchantTransaction(
+                id = "${merchantName.take(3).uppercase()}-${1000 + i}",
+                merchantName = merchantName,
+                dateMs = BASE_MS + (29 - i * 3).coerceAtLeast(0) * DAY_MS,
+                amountRupees = perTxn * (0.8 + 0.1 * (i % 3)),
+                status = statuses[i % statuses.size],
+            )
+        }
+    }
 }

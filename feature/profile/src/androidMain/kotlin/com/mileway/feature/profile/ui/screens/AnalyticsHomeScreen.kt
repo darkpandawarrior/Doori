@@ -30,16 +30,24 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -60,6 +68,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_analytics_ai_insights_period
 import com.mileway.core.ui.resources.profile_analytics_back
@@ -80,25 +89,34 @@ import com.mileway.core.ui.resources.profile_analytics_title
 import com.mileway.core.ui.resources.profile_analytics_total
 import com.mileway.core.ui.resources.profile_analytics_total_spend
 import com.mileway.core.ui.resources.profile_analytics_violations
-import com.mileway.core.ui.resources.profile_analytics_vs_last_week
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
-import com.mileway.stub.AnalyticsMockData
+import com.mileway.feature.profile.analytics.AnalyticsMetric
+import com.mileway.feature.profile.analytics.DateRangePreset
+import com.mileway.feature.profile.analytics.InsightCard
+import com.mileway.feature.profile.analytics.InsightType
+import com.mileway.feature.profile.analytics.LeaderboardSort
+import com.mileway.feature.profile.viewmodel.AnalyticsAction
+import com.mileway.feature.profile.viewmodel.AnalyticsUiState
+import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
 import com.mileway.stub.RecentActivityItem
+import com.mileway.stub.TeamMember
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalLayoutApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AnalyticsHomeScreen(
     onBack: () -> Unit,
     onOpenDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: AnalyticsViewModel = koinViewModel(),
 ) {
-    val data = AnalyticsMockData
+    val state by viewModel.state.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableIntStateOf(0) }
 
     Scaffold(
@@ -141,7 +159,7 @@ fun AnalyticsHomeScreen(
                     }
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
-                            "₹${data.totalSpend.toLong()}",
+                            "₹${state.totalSpend.toLong()}",
                             style = MaterialTheme.typography.titleMedium.dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -177,10 +195,72 @@ fun AnalyticsHomeScreen(
             }
 
             when (selectedTab) {
-                0 -> MySpendTab(data, onOpenDetail)
-                1 -> TeamTab()
-                2 -> InsightsTab()
+                0 -> MySpendTab(state, viewModel, onOpenDetail)
+                1 -> TeamTab(state, viewModel)
+                2 -> InsightsTab(state)
             }
+        }
+    }
+}
+
+@Composable
+private fun DateRangeChips(
+    selected: DateRangePreset,
+    onSelect: (DateRangePreset) -> Unit,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+        listOf(DateRangePreset.LAST_7 to "7D", DateRangePreset.LAST_30 to "30D", DateRangePreset.LAST_90 to "90D").forEach { (preset, label) ->
+            FilterChip(
+                selected = selected == preset,
+                onClick = { onSelect(preset) },
+                label = { Text(label) },
+                colors =
+                    FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun FilterChipsRow(
+    state: AnalyticsUiState,
+    viewModel: AnalyticsViewModel,
+) {
+    val categories = listOf("Mileage", "Expense", "Travel", "Advance")
+    val statuses = listOf("Approved", "Pending", "Rejected")
+    val paymentMethods = listOf("Card", "Cash", "UPI")
+
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s), verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+        categories.forEach { category ->
+            FilterChip(
+                selected = category in state.selectedCategories,
+                onClick = { viewModel.onAction(AnalyticsAction.CategoryToggled(category)) },
+                label = { Text(category) },
+            )
+        }
+        statuses.forEach { status ->
+            FilterChip(
+                selected = status in state.selectedStatuses,
+                onClick = { viewModel.onAction(AnalyticsAction.StatusToggled(status)) },
+                label = { Text(status) },
+            )
+        }
+        paymentMethods.forEach { method ->
+            FilterChip(
+                selected = method in state.selectedPaymentMethods,
+                onClick = { viewModel.onAction(AnalyticsAction.PaymentMethodToggled(method)) },
+                label = { Text(method) },
+            )
+        }
+        if (state.selectedCategories.isNotEmpty() || state.selectedStatuses.isNotEmpty() || state.selectedPaymentMethods.isNotEmpty()) {
+            FilterChip(
+                selected = false,
+                onClick = { viewModel.onAction(AnalyticsAction.ClearFilters) },
+                label = { Text("Clear") },
+            )
         }
     }
 }
@@ -188,7 +268,8 @@ fun AnalyticsHomeScreen(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MySpendTab(
-    data: AnalyticsMockData,
+    state: AnalyticsUiState,
+    viewModel: AnalyticsViewModel,
     onOpenDetail: (String) -> Unit,
 ) {
     LazyColumn(
@@ -203,20 +284,23 @@ private fun MySpendTab(
             ),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
     ) {
-        item { SpendingOverviewCard(data) }
-        item { CategoryBreakdownCard(data, onOpenDetail) }
-        item { PolicyHealthCard(data) }
+        item { DateRangeChips(state.dateRangePreset, { viewModel.onAction(AnalyticsAction.DateRangeChanged(it)) }) }
+        item { SpendingOverviewCard(state, viewModel) }
+        item { CategoryBreakdownCard(state, onOpenDetail) }
+        item { PolicyHealthCard(state) }
         item {
             Text(stringResource(Res.string.profile_analytics_recent_activity), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(DesignTokens.Spacing.s))
+            FilterChipsRow(state, viewModel)
         }
-        items(data.recentActivity) { item ->
+        items(state.filteredActivity) { item ->
             RecentActivityRow(item)
         }
         item {
             Text(stringResource(Res.string.profile_analytics_quick_insights), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s), verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                data.quickInsights.forEach { insight ->
+                com.mileway.stub.AnalyticsMockData.quickInsights.forEach { insight ->
                     Surface(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         shape = DesignTokens.Shape.chip,
@@ -235,21 +319,13 @@ private fun MySpendTab(
     }
 }
 
-private data class TeamMember(val name: String, val amountRupees: Double, val claimCount: Int, val topCategory: String)
-
-private val TEAM_MEMBERS =
-    listOf(
-        TeamMember("Aisha Khan", 15_600.0, 8, "Travel"),
-        TeamMember("Priya Sharma", 12_400.0, 6, "Expense"),
-        TeamMember("Neha Patel", 9_800.0, 5, "Mileage"),
-        TeamMember("Rahul Mehra", 8_900.0, 4, "Expense"),
-        TeamMember("Vikram Nair", 6_200.0, 3, "Advance"),
-    )
-
-private val TEAM_TOTAL = TEAM_MEMBERS.sumOf { it.amountRupees }
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TeamTab() {
+private fun TeamTab(
+    state: AnalyticsUiState,
+    viewModel: AnalyticsViewModel,
+) {
+    val teamTotal = state.leaderboard.sumOf { it.amountRupees }
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
@@ -277,7 +353,7 @@ private fun TeamTab() {
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                "₹${TEAM_TOTAL.toLong()}",
+                                "₹${teamTotal.toLong()}",
                                 style = MaterialTheme.typography.titleMedium.dataStyle(),
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary,
@@ -294,6 +370,30 @@ private fun TeamTab() {
         }
 
         item {
+            OutlinedTextField(
+                value = state.leaderboardQuery,
+                onValueChange = { viewModel.onAction(AnalyticsAction.LeaderboardQueryChanged(it)) },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Search team members") },
+                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+                singleLine = true,
+            )
+        }
+
+        item {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val options = listOf(LeaderboardSort.HIGHEST_SPEND to "Spend", LeaderboardSort.MOST_CLAIMS to "Claims", LeaderboardSort.ALPHABETICAL to "A-Z")
+                options.forEachIndexed { index, (sort, label) ->
+                    SegmentedButton(
+                        selected = state.leaderboardSort == sort,
+                        onClick = { viewModel.onAction(AnalyticsAction.LeaderboardSortChanged(sort)) },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    ) { Text(label) }
+                }
+            }
+        }
+
+        item {
             Text(stringResource(Res.string.profile_analytics_member_breakdown), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
         }
 
@@ -304,9 +404,9 @@ private fun TeamTab() {
                 elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
             ) {
                 Column {
-                    TEAM_MEMBERS.forEachIndexed { index, member ->
-                        TeamMemberRow(member = member, teamTotal = TEAM_TOTAL)
-                        if (index < TEAM_MEMBERS.lastIndex) {
+                    state.leaderboard.forEachIndexed { index, member ->
+                        TeamMemberRow(member = member, teamTotal = teamTotal)
+                        if (index < state.leaderboard.lastIndex) {
                             HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
                         }
                     }
@@ -321,7 +421,7 @@ private fun TeamMemberRow(
     member: TeamMember,
     teamTotal: Double,
 ) {
-    val fraction = (member.amountRupees / teamTotal).toFloat()
+    val fraction = (if (teamTotal > 0) member.amountRupees / teamTotal else 0.0).toFloat()
     val categoryColor =
         when (member.topCategory) {
             "Travel" -> MilewayColors.premium
@@ -359,30 +459,8 @@ private fun TeamMemberRow(
     }
 }
 
-private data class InsightCard(
-    val id: String,
-    val title: String,
-    val body: String,
-    val type: InsightType,
-)
-
-private enum class InsightType { ANOMALY, BREACH_RISK, PATTERN, SAVINGS }
-
-private val AI_INSIGHTS =
-    listOf(
-        InsightCard("I001", "Unusual Travel Spend", "Aisha Khan's travel spend is 2.3× above the team average this month.", InsightType.ANOMALY),
-        InsightCard("I002", "SLA Breach Risk", "3 claims have been pending approval for over 5 days: expected SLA breach by Friday.", InsightType.BREACH_RISK),
-        InsightCard("I003", "Submission Pattern", "Mileage submissions spike every Monday. Consider scheduling batch review reminders.", InsightType.PATTERN),
-        InsightCard(
-            "I004",
-            "Savings Identified",
-            "Policy-compliant hotel selections saved ₹4,200 this quarter compared to category average.",
-            InsightType.SAVINGS,
-        ),
-    )
-
 @Composable
-private fun InsightsTab() {
+private fun InsightsTab(state: AnalyticsUiState) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
@@ -402,7 +480,7 @@ private fun InsightsTab() {
                 )
             }
         }
-        items(AI_INSIGHTS) { insight ->
+        items(state.insights) { insight ->
             AiInsightCard(insight = insight)
         }
         item { Spacer(Modifier.height(DesignTokens.Spacing.l)) }
@@ -442,9 +520,14 @@ private fun AiInsightCard(insight: InsightCard) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SpendingOverviewCard(data: AnalyticsMockData) {
+private fun SpendingOverviewCard(
+    state: AnalyticsUiState,
+    viewModel: AnalyticsViewModel,
+) {
     val primaryColor = MaterialTheme.colorScheme.primary
+    val peakColor = MaterialTheme.colorScheme.tertiary
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = DesignTokens.Shape.roundedMd,
@@ -461,20 +544,33 @@ private fun SpendingOverviewCard(data: AnalyticsMockData) {
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Surface(color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f), shape = DesignTokens.Shape.button) {
+                val delta = state.periodDelta
+                val deltaColor = if (delta.isIncrease) DesignTokens.StatusColors.warning else DesignTokens.StatusColors.success
+                Surface(color = deltaColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
                     Text(
-                        stringResource(Res.string.profile_analytics_vs_last_week),
+                        "${if (delta.isIncrease) "+" else ""}${"%.1f".format(delta.percentChange)}% vs prev period",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = deltaColor,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
                     )
                 }
             }
+            Spacer(Modifier.height(DesignTokens.Spacing.s))
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                val options = listOf(AnalyticsMetric.AMOUNT to "Amount", AnalyticsMetric.COUNT to "Count")
+                options.forEachIndexed { index, (metric, label) ->
+                    SegmentedButton(
+                        selected = state.metric == metric,
+                        onClick = { viewModel.onAction(AnalyticsAction.MetricChanged(metric)) },
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                    ) { Text(label) }
+                }
+            }
             Spacer(Modifier.height(DesignTokens.Spacing.m))
 
-            // Bar chart
-            val series = data.weeklySeries
-            val maxAmount = series.maxOf { it.amountRupees }
+            val series = state.windowedSeries.ifEmpty { com.mileway.stub.AnalyticsMockData.weeklySeries }
+            val values = series.map { if (state.metric == AnalyticsMetric.AMOUNT) it.amountRupees else it.transactionCount.toDouble() }
+            val maxAmount = values.maxOrNull()?.takeIf { it > 0 } ?: 1.0
             androidx.compose.foundation.Canvas(
                 modifier = Modifier.fillMaxWidth().height(100.dp),
             ) {
@@ -486,11 +582,13 @@ private fun SpendingOverviewCard(data: AnalyticsMockData) {
                 val leftPad = (totalWidth - totalBlock * barCount + gap) / 2
 
                 series.forEachIndexed { i, day ->
-                    val barHeight = (day.amountRupees / maxAmount).toFloat() * size.height * 0.85f
+                    val value = values[i]
+                    val barHeight = (value / maxAmount).toFloat() * size.height * 0.85f
                     val x = leftPad + i * totalBlock
                     val y = size.height - barHeight
+                    val isPeak = day.dateMs == state.peakDay?.dateMs
                     drawRoundRect(
-                        color = primaryColor,
+                        color = if (isPeak) peakColor else primaryColor,
                         topLeft = Offset(x, y),
                         size = Size(barWidth, barHeight),
                         cornerRadius = CornerRadius(6f, 6f),
@@ -510,7 +608,7 @@ private fun SpendingOverviewCard(data: AnalyticsMockData) {
 
 @Composable
 private fun CategoryBreakdownCard(
-    data: AnalyticsMockData,
+    state: AnalyticsUiState,
     onOpenDetail: (String) -> Unit,
 ) {
     val categoryColors =
@@ -530,12 +628,12 @@ private fun CategoryBreakdownCard(
             Text(stringResource(Res.string.profile_analytics_category_breakdown), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.m))
 
-            val total = data.categoryTotals.values.sum()
+            val total = state.categoryTotals.values.sum()
             // Horizontal stacked bar
             Row(
                 modifier = Modifier.fillMaxWidth().height(16.dp).clip(DesignTokens.Shape.button),
             ) {
-                data.categoryTotals.entries.forEach { (category, amount) ->
+                state.categoryTotals.entries.forEach { (category, amount) ->
                     val fraction = (amount / total).toFloat()
                     val color = categoryColors[category] ?: MaterialTheme.colorScheme.primary
                     Box(modifier = Modifier.fillMaxSize().weight(fraction).background(color))
@@ -543,7 +641,7 @@ private fun CategoryBreakdownCard(
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.m))
-            data.categoryTotals.entries.forEach { (category, amount) ->
+            state.categoryTotals.entries.forEach { (category, amount) ->
                 val color = categoryColors[category] ?: MaterialTheme.colorScheme.primary
                 Row(
                     modifier = Modifier.fillMaxWidth().clickable { onOpenDetail(category) }.padding(vertical = DesignTokens.Spacing.xs),
@@ -560,7 +658,7 @@ private fun CategoryBreakdownCard(
 }
 
 @Composable
-private fun PolicyHealthCard(data: AnalyticsMockData) {
+private fun PolicyHealthCard(state: AnalyticsUiState) {
     val primaryColor = MaterialTheme.colorScheme.primary
     val surfaceVariantColor = MaterialTheme.colorScheme.surfaceVariant
 
@@ -577,7 +675,7 @@ private fun PolicyHealthCard(data: AnalyticsMockData) {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.size(80.dp)) {
                 androidx.compose.foundation.Canvas(modifier = Modifier.size(80.dp)) {
                     val strokeWidth = 8.dp.toPx()
-                    val sweep = 360f * (data.compliancePercent / 100f)
+                    val sweep = 360f * (com.mileway.stub.AnalyticsMockData.compliancePercent / 100f)
                     drawArc(
                         color = surfaceVariantColor,
                         startAngle = -90f,
@@ -594,7 +692,7 @@ private fun PolicyHealthCard(data: AnalyticsMockData) {
                     )
                 }
                 Text(
-                    "${data.compliancePercent}%",
+                    "${com.mileway.stub.AnalyticsMockData.compliancePercent}%",
                     style = MaterialTheme.typography.labelLarge.dataStyle(),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -607,12 +705,12 @@ private fun PolicyHealthCard(data: AnalyticsMockData) {
                 Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
                     PolicyStat(
                         label = stringResource(Res.string.profile_analytics_violations),
-                        value = "${data.violationCount}",
+                        value = "${com.mileway.stub.AnalyticsMockData.violationCount}",
                         color = DesignTokens.StatusColors.warning,
                     )
                     PolicyStat(
                         label = stringResource(Res.string.profile_analytics_hard_stops),
-                        value = "${data.hardStopCount}",
+                        value = "${com.mileway.stub.AnalyticsMockData.hardStopCount}",
                         color = DesignTokens.StatusColors.error,
                     )
                 }
@@ -658,7 +756,7 @@ private fun RecentActivityRow(item: RecentActivityItem) {
                 "${item.subtitle} · ${Instant.fromEpochMilliseconds(item.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
                         ldt ->
                     "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]}"
-                }}",
+                }} · ${item.status}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
