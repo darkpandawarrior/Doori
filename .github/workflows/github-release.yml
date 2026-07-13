@@ -92,7 +92,8 @@ jobs:
           set -uo pipefail
           tag="${GITHUB_REF_NAME}"
           # nice title from the CHANGELOG header if present, else the tag
-          title="$(grep -m1 "^## \[${tag}\]" CHANGELOG.md 2>/dev/null | sed -E 's/^## \[[^]]*\][[:space:]]*(—[[:space:]]*)?//')"
+          # `|| true` so a missing CHANGELOG header never aborts the step under `bash -e` (falls back to the tag)
+          title="$(grep -m1 "^## \[${tag}\]" CHANGELOG.md 2>/dev/null | sed -E 's/^## \[[^]]*\][[:space:]]*(—[[:space:]]*)?//' || true)"
           [ -n "$title" ] && title="${tag} — ${title}" || title="$tag"
           # idempotent: create if absent, else update notes (so a manual pre-create or a re-run never fails)
           if gh release view "$tag" >/dev/null 2>&1; then

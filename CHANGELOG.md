@@ -10,6 +10,47 @@ revertable phases. This file is the browsable "what happened when" — each entr
 
 The format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
+## [v0.25.0] — On-Device Intelligence & Feature Parity 🧠
+
+> The V25→V32 series: a 3-module foundation (`core:media` · `core:ai` · `core:forms`) that lands an
+> **on-device document-intelligence pipeline** — OCR field-fill, document-type classification and
+> duplicate detection combined into one result — then builds full feature-parity depth on top of it.
+> Everything stays offline/on-device: real where the platform supports it (ML Kit GenAI on Android,
+> Apple Foundation Models on iOS), degrading gracefully everywhere else.
+
+### ✨ Highlights
+- **On-device document intelligence** — a unified `core:ai` pipeline (ML Kit GenAI + text-recognition +
+  heuristics on Android; Apple Foundation Models + Vision on iOS via a Swift bridge) auto-fills a
+  captured receipt's merchant / amount / date, classifies the document, and flags duplicates — one
+  result, degrading to text + heuristics on devices without on-device AI.
+- **On-device AI assistant** — the in-app assistant now runs a real on-device LLM (ML Kit GenAI /
+  Foundation Models), falling back to the offline retrieval engine when unavailable.
+- **Unified media capture** — every capture surface (7 legacy call sites) converges on one launcher:
+  camera / gallery / files / PDF / document-scanner / QR-barcode, watermarking, and shared OCR sheets.
+
+### 🧾 Expenses & forms
+- Full **16-type dynamic form engine** with GST auto-calc, conditional visibility, and EXPERIMENTAL
+  AI field-suggestions; the two hand-rolled forms are unified onto one renderer (a duplicate-validation
+  bug removed in the process).
+- **2-step add-expense wizard** with entry-context linking (trip / card / advance / event / scanner),
+  concurrent semaphore-bounded bulk-submit, voucher drill-down, and multi-currency.
+
+### 🗂️ Transactions & approvals
+- Shared `TransactionDetailScaffold` across approvals / expense / purchase-request detail screens.
+- **Persistent clarification rooms** — lifecycle, per-room metadata, history tabs, and rich chat with
+  attachments; plus comments, audit/violation flags, and per-item action gating.
+
+### 📊 Feature depth
+- Master search (5 live providers + a Koin-collision fix), analytics state layer (filters / trend /
+  real CSV export / leaderboard), event detail + workflow, cards KYC / QR / dispute / limits, and
+  config-gated home depth.
+
+### 🧭 Shell, platform & housekeeping
+- Fixed a shell-nav bug (the bubble bar was silently hidden on 3 of 6 top-level tabs).
+- Shake-to-report, storage-management screen, deterministic Wear screenshots.
+- Room schema **v39 → v47** (all explicit migrations); dependency modernization (navgraph, Roborazzi,
+  materialKolor, AGP, KSP, Gradle).
+
 ## [v0.24.0] — Super Profile 🧑‍🚀
 
 > The largest single milestone: a full **super-profile** build-out where one account renders as a
