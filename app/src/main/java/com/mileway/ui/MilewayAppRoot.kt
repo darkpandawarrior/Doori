@@ -90,6 +90,7 @@ import com.mileway.core.ui.components.bottombar.BubbleBottomBar
 import com.mileway.core.ui.toast.AppToastHost
 import com.mileway.core.ui.components.bottombar.BubbleNavItem
 import com.mileway.core.ui.components.bottombar.CollapsedBottomPuck
+import com.mileway.core.ui.state.ShellBottomBarState
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.feature.approvals.model.ClarificationRoomSummary
@@ -235,17 +236,26 @@ fun MilewayAppRoot(
         // The floating bubble bar shows only on top-level tab destinations; detail and
         // flow screens (tracking, submission, settings, …) own the full screen, matching
         // the source app, where those flows render without the bottom nav.
+        //
+        // currentDestination.route is always the *leaf* composable route (never the parent
+        // NavGraph's own route), so this set must list each tab's actual start-destination
+        // route — not the graph route from AppGraph. Using AppGraph.HOME/TRAVEL/APPROVALS
+        // here never matched the leaf destinations ("home_screen"/TravelRoutes.HOME/
+        // ApprovalsRoutes.HOME), which hid the bubble bar on those three tabs (V32 SN fix).
         val topLevelRoutes = remember {
             setOf(
-                AppGraph.HOME,
+                "home_screen",
                 LoggingRoutes.HOME,
                 ProfileRoutes.HOME,
-                AppGraph.TRAVEL,
+                TravelRoutes.HOME,
                 PayablesRoutes.HOME,
-                AppGraph.APPROVALS,
+                ApprovalsRoutes.HOME,
             )
         }
         val onTopLevelDestination = currentDestination?.route in topLevelRoutes
+        // V32 SN: a top-level screen (e.g. Approvals' bulk-selection bar) can show its own
+        // pinned bottom bar; suppress the floating bubble bar while that's up so they don't stack.
+        val contextualBarActive by ShellBottomBarState.contextualBarActive.collectAsStateWithLifecycle()
 
         BackHandler(enabled = isBottomBarCollapsed) {
             isBottomBarCollapsed = false
@@ -269,7 +279,7 @@ fun MilewayAppRoot(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
             bottomBar = {
                 AnimatedVisibility(
-                    visible = onTopLevelDestination && !isBottomBarCollapsed,
+                    visible = onTopLevelDestination && !isBottomBarCollapsed && !contextualBarActive,
                     enter = fadeIn(
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioLowBouncy,

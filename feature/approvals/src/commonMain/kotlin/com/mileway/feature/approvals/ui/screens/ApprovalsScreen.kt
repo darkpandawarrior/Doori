@@ -56,6 +56,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -100,6 +101,7 @@ import com.mileway.core.ui.resources.approvals_tab_to_approve
 import com.mileway.core.ui.resources.approvals_time_just_now
 import com.mileway.core.ui.resources.approvals_title
 import com.mileway.core.ui.resources.approvals_title_select_items
+import com.mileway.core.ui.state.ShellBottomBarState
 import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
@@ -143,6 +145,16 @@ fun ApprovalsScreen(
                 ApprovalsEffect.NavigateBack -> Unit
             }
         }
+    }
+
+    // V32 SN: the bulk-selection bar below is a second pinned bottom bar on this top-level tab.
+    // Tell the shell to hide the floating bubble bar while it's showing, and always clear the
+    // flag on dispose so leaving the screen mid-selection doesn't leave the bubble bar hidden.
+    LaunchedEffect(selectionMode, selectedTab) {
+        ShellBottomBarState.setContextualBarActive(selectionMode && selectedTab == 0)
+    }
+    DisposableEffect(Unit) {
+        onDispose { ShellBottomBarState.setContextualBarActive(false) }
     }
 
     val items = ui.listState.dataOrNull ?: emptyList()
