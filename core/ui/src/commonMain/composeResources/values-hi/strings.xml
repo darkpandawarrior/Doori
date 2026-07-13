@@ -1348,6 +1348,17 @@
     <string name="shared_home_recent">हाल ही में</string>
     <string name="shared_home_check_in_in">अंदर</string>
     <string name="shared_home_check_in_out">बाहर</string>
+    <string name="shared_home_qa_add_expense">व्यय जोड़ें</string>
+    <string name="shared_home_qa_create_voucher">वाउचर बनाएं</string>
+    <string name="shared_home_qa_ask_advance">अग्रिम राशि मांगें</string>
+    <string name="shared_home_qa_add_invoice">चालान जोड़ें</string>
+    <string name="shared_home_carousel_mileage_subtitle">अपनी यात्रा की गई दूरी के लिए ईंधन प्रतिपूर्ति प्राप्त करें</string>
+    <string name="shared_home_carousel_nav_title">ग्राहक नेविगेशन</string>
+    <string name="shared_home_carousel_nav_subtitle">अपने अगले ग्राहक स्थान तक नेविगेट करें</string>
+    <string name="shared_home_carousel_reportees_title">रिपोर्टीज़ ट्रैक करें</string>
+    <string name="shared_home_carousel_reportees_subtitle">टीम विश्लेषण और फील्ड गतिविधि देखें</string>
+    <string name="shared_home_carousel_checkin_title">सेंटर चेक-इन</string>
+    <string name="shared_home_carousel_checkin_subtitle">अपने पास के किसी सेंटर पर चेक इन करें</string>
     <string name="core_update_available_title">अपडेट उपलब्ध</string>
     <string name="core_update_available_message">Mileway का नया संस्करण नवीनतम सुधारों के साथ उपलब्ध है।</string>
     <string name="core_update_action">अपडेट करें</string>

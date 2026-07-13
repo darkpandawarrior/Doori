@@ -22,6 +22,13 @@ fun Double.formatDecimal(places: Int): String {
     return (if (negative && (intPart != 0L || fracPart.any { it != '0' })) "-" else "") + "$intPart.$fracPart"
 }
 
+/** Whole-number thousands-comma grouping, no `String.format` (e.g. 12345.6 -> "12,345"). */
+fun Double.formatGrouped(): String {
+    val whole = this.roundToLong()
+    val grouped = abs(whole).toString().reversed().chunked(3).joinToString(",").reversed()
+    return if (whole < 0) "-$grouped" else grouped
+}
+
 /** 24-hour time, e.g. (9, 5) -> "09:05". */
 fun formatTime24h(
     hour: Int,

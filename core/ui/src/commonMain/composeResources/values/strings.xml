@@ -1888,6 +1888,17 @@
     <string name="shared_home_recent">Recent</string>
     <string name="shared_home_check_in_in">IN</string>
     <string name="shared_home_check_in_out">OUT</string>
+    <string name="shared_home_qa_add_expense">Add Expense</string>
+    <string name="shared_home_qa_create_voucher">Create Voucher</string>
+    <string name="shared_home_qa_ask_advance">Ask Advance</string>
+    <string name="shared_home_qa_add_invoice">Add Invoice</string>
+    <string name="shared_home_carousel_mileage_subtitle">Get reimbursed for fuel by your miles travelled</string>
+    <string name="shared_home_carousel_nav_title">Customer Navigation</string>
+    <string name="shared_home_carousel_nav_subtitle">Navigate to your next customer location</string>
+    <string name="shared_home_carousel_reportees_title">Track Reportees</string>
+    <string name="shared_home_carousel_reportees_subtitle">View team analytics and field activity</string>
+    <string name="shared_home_carousel_checkin_title">Center Check-In</string>
+    <string name="shared_home_carousel_checkin_subtitle">Check in at a center near you</string>
     <string name="core_update_available_title">Update available</string>
     <string name="core_update_available_message">A new version of Mileway is available with the latest improvements.</string>
     <string name="core_update_action">Update</string>

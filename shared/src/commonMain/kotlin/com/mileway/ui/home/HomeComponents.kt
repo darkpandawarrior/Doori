@@ -599,12 +599,19 @@ fun quickActions(
     onAskAdvance: () -> Unit,
     onAddInvoice: () -> Unit,
     onIllustrative: () -> Unit,
+    // L10N follow-up: called from `remember`-free composable context (see HomeScreen), so the
+    // caller resolves stringResource() and passes the labels in; English literals are the default
+    // so callers/tests that don't care about localisation (e.g. HomeQuickActionsTest) still work.
+    addExpenseLabel: String = "Add Expense",
+    createVoucherLabel: String = "Create Voucher",
+    askAdvanceLabel: String = "Ask Advance",
+    addInvoiceLabel: String = "Add Invoice",
 ): List<QuickAction> =
     listOf(
-        QuickAction("Add Expense", Icons.AutoMirrored.Filled.NoteAdd, onAddExpense),
-        QuickAction("Create Voucher", Icons.Filled.CreditCard, onIllustrative),
-        QuickAction("Ask Advance", Icons.Filled.RequestQuote, onAskAdvance),
-        QuickAction("Add Invoice", Icons.Filled.AttachFile, onAddInvoice),
+        QuickAction(addExpenseLabel, Icons.AutoMirrored.Filled.NoteAdd, onAddExpense),
+        QuickAction(createVoucherLabel, Icons.Filled.CreditCard, onIllustrative),
+        QuickAction(askAdvanceLabel, Icons.Filled.RequestQuote, onAskAdvance),
+        QuickAction(addInvoiceLabel, Icons.Filled.AttachFile, onAddInvoice),
     )
 
 // =============================================================================
@@ -628,35 +635,46 @@ data class FeatureCarouselCard(
 fun featureCarouselCards(
     onStartTracking: () -> Unit,
     onIllustrative: () -> Unit,
+    // L10N follow-up: called inside `remember { }` in FeatureCarousel, so it can't call
+    // stringResource() itself — the caller resolves the strings in composable scope first and
+    // passes them in. English literals default so non-UI/test call sites keep working unchanged.
+    mileageTitle: String = "Mileage",
+    mileageSubtitle: String = "Get reimbursed for fuel by your miles travelled",
+    navTitle: String = "Customer Navigation",
+    navSubtitle: String = "Navigate to your next customer location",
+    reporteesTitle: String = "Track Reportees",
+    reporteesSubtitle: String = "View team analytics and field activity",
+    checkinTitle: String = "Center Check-In",
+    checkinSubtitle: String = "Check in at a center near you",
 ): List<FeatureCarouselCard> =
     listOf(
         FeatureCarouselCard(
-            title = "Mileage",
-            subtitle = "Get reimbursed for fuel by your miles travelled",
+            title = mileageTitle,
+            subtitle = mileageSubtitle,
             accent = DesignTokens.StatusColors.success,
             icon = Icons.Filled.DirectionsCar,
             primary = true,
             onAction = onStartTracking,
         ),
         FeatureCarouselCard(
-            title = "Customer Navigation",
-            subtitle = "Navigate to your next customer location",
+            title = navTitle,
+            subtitle = navSubtitle,
             accent = DesignTokens.StatusColors.info,
             icon = Icons.Filled.Navigation,
             primary = false,
             onAction = onIllustrative,
         ),
         FeatureCarouselCard(
-            title = "Track Reportees",
-            subtitle = "View team analytics and field activity",
+            title = reporteesTitle,
+            subtitle = reporteesSubtitle,
             accent = DesignTokens.StatusColors.success,
             icon = Icons.Filled.Group,
             primary = false,
             onAction = onIllustrative,
         ),
         FeatureCarouselCard(
-            title = "Center Check-In",
-            subtitle = "Check in at a center near you",
+            title = checkinTitle,
+            subtitle = checkinSubtitle,
             accent = DesignTokens.StatusColors.warning,
             icon = Icons.Filled.Storefront,
             primary = false,

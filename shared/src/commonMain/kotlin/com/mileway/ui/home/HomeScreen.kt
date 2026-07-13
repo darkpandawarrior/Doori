@@ -50,6 +50,18 @@ import com.mileway.core.ui.resources.popup_signature_confirm
 import com.mileway.core.ui.resources.popup_signature_later
 import com.mileway.core.ui.resources.popup_signature_title
 import com.mileway.core.ui.resources.shared_home_at_a_glance
+import com.mileway.core.ui.resources.shared_home_carousel_checkin_subtitle
+import com.mileway.core.ui.resources.shared_home_carousel_checkin_title
+import com.mileway.core.ui.resources.shared_home_carousel_mileage_subtitle
+import com.mileway.core.ui.resources.shared_home_carousel_nav_subtitle
+import com.mileway.core.ui.resources.shared_home_carousel_nav_title
+import com.mileway.core.ui.resources.shared_home_carousel_reportees_subtitle
+import com.mileway.core.ui.resources.shared_home_carousel_reportees_title
+import com.mileway.core.ui.resources.shared_home_mileage
+import com.mileway.core.ui.resources.shared_home_qa_add_expense
+import com.mileway.core.ui.resources.shared_home_qa_add_invoice
+import com.mileway.core.ui.resources.shared_home_qa_ask_advance
+import com.mileway.core.ui.resources.shared_home_qa_create_voucher
 import com.mileway.core.ui.resources.shared_home_quick_actions
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.launch
@@ -374,6 +386,10 @@ fun HomeScreenContent(
                                 onAskAdvance = onAskAdvance,
                                 onAddInvoice = onAddInvoice,
                                 onIllustrative = onOpenAccount,
+                                addExpenseLabel = stringResource(Res.string.shared_home_qa_add_expense),
+                                createVoucherLabel = stringResource(Res.string.shared_home_qa_create_voucher),
+                                askAdvanceLabel = stringResource(Res.string.shared_home_qa_ask_advance),
+                                addInvoiceLabel = stringResource(Res.string.shared_home_qa_add_invoice),
                             ),
                     )
                 }
@@ -466,9 +482,39 @@ private fun FeatureCarousel(
     onStartTracking: () -> Unit,
     onIllustrative: () -> Unit,
 ) {
+    val mileageTitle = stringResource(Res.string.shared_home_mileage)
+    val mileageSubtitle = stringResource(Res.string.shared_home_carousel_mileage_subtitle)
+    val navTitle = stringResource(Res.string.shared_home_carousel_nav_title)
+    val navSubtitle = stringResource(Res.string.shared_home_carousel_nav_subtitle)
+    val reporteesTitle = stringResource(Res.string.shared_home_carousel_reportees_title)
+    val reporteesSubtitle = stringResource(Res.string.shared_home_carousel_reportees_subtitle)
+    val checkinTitle = stringResource(Res.string.shared_home_carousel_checkin_title)
+    val checkinSubtitle = stringResource(Res.string.shared_home_carousel_checkin_subtitle)
     val cards =
-        remember(onStartTracking, onIllustrative) {
-            featureCarouselCards(onStartTracking = onStartTracking, onIllustrative = onIllustrative)
+        remember(
+            onStartTracking,
+            onIllustrative,
+            mileageTitle,
+            mileageSubtitle,
+            navTitle,
+            navSubtitle,
+            reporteesTitle,
+            reporteesSubtitle,
+            checkinTitle,
+            checkinSubtitle,
+        ) {
+            featureCarouselCards(
+                onStartTracking = onStartTracking,
+                onIllustrative = onIllustrative,
+                mileageTitle = mileageTitle,
+                mileageSubtitle = mileageSubtitle,
+                navTitle = navTitle,
+                navSubtitle = navSubtitle,
+                reporteesTitle = reporteesTitle,
+                reporteesSubtitle = reporteesSubtitle,
+                checkinTitle = checkinTitle,
+                checkinSubtitle = checkinSubtitle,
+            )
         }
     val pagerState = rememberPagerState(pageCount = { cards.size })
 

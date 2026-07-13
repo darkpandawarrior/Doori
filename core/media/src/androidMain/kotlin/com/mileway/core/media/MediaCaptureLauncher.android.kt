@@ -309,9 +309,15 @@ actual fun rememberMediaCaptureLauncher(
                 CaptureMode.CloudLibrary,
                 ->
                     error(
-                        "rememberMediaCaptureLauncher: $mode is not wired through this launcher yet " +
-                            "(Camera uses feature:media's CameraCaptureScreen directly; " +
-                            "Odometer/CloudLibrary land in V26 P-CONV/P-LIB).",
+                        "rememberMediaCaptureLauncher: $mode is not wired through this launcher — " +
+                            "this is a deliberate module-boundary seam, not a gap. Camera (and " +
+                            "Odometer, via CameraCaptureScreen's isOdometerMode overlay) is a full-screen " +
+                            "flow that only exists in feature:media " +
+                            "(feature/media/src/androidMain/.../camera/CameraCaptureScreen.kt); " +
+                            "core:media sits below feature modules and must not depend on one, so this " +
+                            "launcher can't call it directly. Navigate to feature:media's " +
+                            "CameraCaptureScreen from the feature module instead of calling this " +
+                            "launcher for $mode. CloudLibrary remains genuinely unscheduled (V26 P-LIB).",
                     )
             }
         }

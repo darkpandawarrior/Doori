@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.common.formatDecimal
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_analytics_ai_insights_period
 import com.mileway.core.ui.resources.profile_analytics_back
@@ -548,7 +549,7 @@ private fun SpendingOverviewCard(
                 val deltaColor = if (delta.isIncrease) DesignTokens.StatusColors.warning else DesignTokens.StatusColors.success
                 Surface(color = deltaColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
                     Text(
-                        "${if (delta.isIncrease) "+" else ""}${"%.1f".format(delta.percentChange)}% vs prev period",
+                        "${if (delta.isIncrease) "+" else ""}${delta.percentChange.formatDecimal(1)}% vs prev period",
                         style = MaterialTheme.typography.labelSmall,
                         color = deltaColor,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),

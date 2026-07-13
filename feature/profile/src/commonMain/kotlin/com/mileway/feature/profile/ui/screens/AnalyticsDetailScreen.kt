@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.common.formatGrouped
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_analytics_back
@@ -257,7 +258,7 @@ fun AnalyticsDetailScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
-                                Text("₹%,.0f".format(merchant.amountRupees), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                Text("₹${merchant.amountRupees.formatGrouped()}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -316,7 +317,7 @@ private fun MerchantDrilldownCard(
                         Text(txn.id, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                         FilterChip(selected = false, onClick = {}, label = { Text(txn.status) }, enabled = false)
                     }
-                    Text("₹%,.0f".format(txn.amountRupees), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                    Text("₹${txn.amountRupees.formatGrouped()}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                 }
             }
             if (transactions.isEmpty()) {
