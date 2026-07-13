@@ -6,6 +6,7 @@ import com.mileway.feature.events.search.EventsSearchProvider
 import com.mileway.feature.events.viewmodel.CreateEventViewModel
 import com.mileway.feature.events.viewmodel.EventsHistoryViewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val eventsModule =
@@ -14,5 +15,7 @@ val eventsModule =
         viewModelOf(::CreateEventViewModel)
         viewModelOf(::EventsHistoryViewModel)
         // EV: events contribution to master search (getAll<SearchProvider>() picks it up).
-        single<SearchProvider> { EventsSearchProvider(get()) }
+        // PLAN_V29 P29.S.1: named qualifier so this doesn't silently override another module's
+        // SearchProvider binding — see TrackingSearchProvider's doc for the full why.
+        single<SearchProvider>(named("events")) { EventsSearchProvider(get()) }
     }

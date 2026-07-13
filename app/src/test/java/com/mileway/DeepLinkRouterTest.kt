@@ -19,6 +19,8 @@ class DeepLinkRouterTest {
         assertEquals(DeepLinkTarget.LogExpense, DeepLinkRouter.resolve("mileway://log/expense"))
         assertEquals(DeepLinkTarget.Profile, DeepLinkRouter.resolve("mileway://profile"))
         assertEquals(DeepLinkTarget.ProfileSettings, DeepLinkRouter.resolve("mileway://profile/settings"))
+        assertEquals(DeepLinkTarget.Approvals, DeepLinkRouter.resolve("mileway://approvals"))
+        assertEquals(DeepLinkTarget.Payables, DeepLinkRouter.resolve("mileway://payables"))
     }
 
     @Test

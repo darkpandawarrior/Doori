@@ -5,6 +5,19 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 45 → 46 (PLAN_V29 P29.S.6): additive `deeplink` column on `notifications` — lets the
+ * Notification Centre's `onClick` route somewhere real instead of doing nothing. Existing rows
+ * default to empty string (resolves to [com.mileway.core.common.deeplink.DeepLinkTarget.Unknown], a
+ * safe no-op tap) until reseeded.
+ */
+val MIGRATION_45_46 =
+    object : Migration(45, 46) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("ALTER TABLE `notifications` ADD COLUMN `deeplink` TEXT NOT NULL DEFAULT ''")
+        }
+    }
+
+/**
  * Migration 44 → 45 (PLAN_V28 P28.7): additive `approval_comments` table — a sibling to
  * `clarification_rooms`/`clarification_messages`, not a child of them (no FK — `approvalId` is a
  * plain in-memory `ApprovalItem.id`, not a Room-backed table). A permanent, non-interactive comment

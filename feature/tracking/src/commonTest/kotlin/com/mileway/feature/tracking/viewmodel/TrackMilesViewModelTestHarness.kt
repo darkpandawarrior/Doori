@@ -158,7 +158,9 @@ internal open class FakeNetworkApi(
 
 // ── SavedTrackDao fake (minimal in-memory) ─────────────────────────────────────
 
-private class FakeSavedTrackDao(seed: List<SavedTrack> = emptyList()) : SavedTrackDao {
+// `internal` (not `private`) so PLAN_V29 P29.S.1's MileageSearchProviderTest can reuse it instead
+// of duplicating another full SavedTrackDao fake.
+internal class FakeSavedTrackDao(seed: List<SavedTrack> = emptyList()) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
     // SmartDistance commit without updating these test fakes; no-op override so this test source
     // set compiles (pre-existing breakage, incidental to P10.1).

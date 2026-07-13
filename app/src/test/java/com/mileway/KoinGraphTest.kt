@@ -21,6 +21,7 @@ import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.TripAttachmentDao
 import com.mileway.core.data.dao.VehicleDetailsDao
+import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.CurrentTrackDataSource
@@ -97,6 +98,7 @@ import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Builds the FULL production Koin graph (every module the Application installs) and
@@ -131,6 +133,10 @@ class KoinGraphTest : KoinTest {
             mockk(relaxed = true)
         }
         single<TripAttachmentDao> { mockk(relaxed = true) }
+        // PLAN_V29 P29.S.1: named-qualifier fix means getAll<SearchProvider>() now actually
+        // constructs every provider (previously only the last-registered one ever resolved) —
+        // ExpensesSearchProvider's VoucherHistoryRepository needs this to build.
+        single<VoucherDao> { mockk(relaxed = true) }
         single<DraftExpenseDao> { mockk(relaxed = true) }
         single<MediaLibraryDao> { mockk(relaxed = true) }
         single<AgentDao> { FakeAgentDao() }
@@ -389,6 +395,16 @@ class KoinGraphTest : KoinTest {
     fun `master-search aggregator resolves every registered SearchProvider`() {
         // getAll<SearchProvider>() must find the bound providers; the repo is what the VM depends on.
         assertNotNull(get<com.mileway.core.data.search.MasterSearchRepository>())
+    }
+
+    @Test
+    fun `PLAN_V29 P29_S_1 the 5 previously-dead SearchEntityType providers are all bound`() {
+        val availableTypes = get<com.mileway.core.data.search.MasterSearchRepository>().availableTypes
+        assertTrue(com.mileway.core.data.search.SearchEntityType.MILEAGE in availableTypes)
+        assertTrue(com.mileway.core.data.search.SearchEntityType.CHECKIN in availableTypes)
+        assertTrue(com.mileway.core.data.search.SearchEntityType.APPROVAL in availableTypes)
+        assertTrue(com.mileway.core.data.search.SearchEntityType.CLARIFICATION in availableTypes)
+        assertTrue(com.mileway.core.data.search.SearchEntityType.ADVANCE in availableTypes)
     }
 
     @Test

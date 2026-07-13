@@ -7,7 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -93,6 +95,24 @@ class NotificationViewModelTest {
 
             assertEquals(0, vm.state.value.unreadCount)
             assertTrue(vm.state.value.notifications.none { it.isUnread })
+        }
+
+    @Test
+    fun `open marks the entry read and emits its deeplink`() =
+        runTest {
+            val vm = newViewModel()
+            advanceUntilIdle()
+            val target = vm.state.value.notifications.first { it.isUnread }
+            assertTrue(target.deeplink.isNotBlank(), "every seeded notification carries a real deeplink now")
+
+            val effects = mutableListOf<NotificationEffect>()
+            val job = launch { effects += vm.effect.first() }
+            vm.open(target)
+            advanceUntilIdle()
+            job.join()
+
+            assertEquals(NotificationEffect.OpenDeepLink(target.deeplink), effects.single())
+            assertEquals(false, vm.state.value.notifications.first { it.id == target.id }.isUnread)
         }
 }
 

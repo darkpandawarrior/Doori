@@ -19,6 +19,12 @@ sealed interface DeepLinkTarget {
 
     data object ProfileSettings : DeepLinkTarget
 
+    // PLAN_V29 P29.S.6: Notification Centre's "Approval Required"/"Payables Update" cards need a
+    // real section to land on instead of doing nothing on tap.
+    data object Approvals : DeepLinkTarget
+
+    data object Payables : DeepLinkTarget
+
     data class Referral(val code: String?) : DeepLinkTarget
 
     /** Unrecognised link; callers typically ignore it or fall back to Home. */
@@ -55,6 +61,8 @@ object DeepLinkRouter {
             segments == listOf("log", "expense") -> DeepLinkTarget.LogExpense
             segments == listOf("profile") -> DeepLinkTarget.Profile
             segments == listOf("profile", "settings") -> DeepLinkTarget.ProfileSettings
+            segments == listOf("approvals") -> DeepLinkTarget.Approvals
+            segments == listOf("payables") -> DeepLinkTarget.Payables
             segments.firstOrNull() == "referral" -> DeepLinkTarget.Referral(parsed.query["code"])
             else -> DeepLinkTarget.Unknown(uri)
         }

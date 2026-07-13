@@ -1,5 +1,6 @@
 package com.mileway.feature.tracking.di
 
+import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
 import com.mileway.feature.tracking.debug.NetworkLogViewModel
@@ -15,6 +16,7 @@ import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
+import com.mileway.feature.tracking.search.TrackingSearchProvider
 import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
@@ -36,6 +38,7 @@ import com.mileway.feature.tracking.viewmodel.TrackingSuccessViewModel
 import com.mileway.feature.tracking.watch.WatchFacade
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import kotlin.time.Clock
 
@@ -71,6 +74,9 @@ val trackingModule =
         single { HardwareEventRepository(get()) }
         single { TripAttachmentRepository(get()) }
         single { VoucherRepository(get()) }
+        // PLAN_V29 P29.S.1: tracking's contribution to master search (F0.5 registry) — the two of
+        // the 5 previously-dead SearchEntityType providers this module owns (Mileage/Check-in).
+        single<SearchProvider>(named("tracking")) { TrackingSearchProvider(get(), get()) }
         single { SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }) }
         // Wave 4 §2.3: local-only sync-status engine over the location outbox — see class doc.
         single {

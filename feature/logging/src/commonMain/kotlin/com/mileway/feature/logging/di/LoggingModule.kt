@@ -18,6 +18,7 @@ import com.mileway.feature.logging.viewmodel.SettlementHistoryViewModel
 import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
 import com.mileway.feature.logging.viewmodel.VoucherHistoryViewModel
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val loggingModule =
@@ -48,7 +49,9 @@ val loggingModule =
             )
         }
         // SP.4: Spends contribution to master search (F0.5 registry).
-        single<SearchProvider> {
+        // PLAN_V29 P29.S.1: named qualifier so this doesn't silently override another module's
+        // SearchProvider binding — see TrackingSearchProvider's doc for the full why.
+        single<SearchProvider>(named("logging")) {
             com.mileway.feature.logging.search.ExpensesSearchProvider(get(), get(), get(), get())
         }
     }

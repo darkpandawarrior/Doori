@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,12 +24,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.data.search.AppAction
 import com.mileway.core.data.search.SearchEntityType
 import com.mileway.core.data.search.SearchResult
 import com.mileway.core.data.search.displayLabel
@@ -64,6 +69,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun MasterSearchRoute(
     onBack: () -> Unit,
     onOpenResult: (SearchResult) -> Unit,
+    onOpenAction: (AppAction) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: MasterSearchViewModel = koinViewModel(),
 ) {
@@ -73,6 +79,7 @@ fun MasterSearchRoute(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is MasterSearchEffect.OpenResult -> onOpenResult(effect.result)
+                is MasterSearchEffect.OpenAction -> onOpenAction(effect.action)
             }
         }
     }
@@ -84,8 +91,13 @@ fun MasterSearchRoute(
         onQueryChange = { viewModel.onAction(MasterSearchAction.SetQuery(it)) },
         onSelectScope = { viewModel.onAction(MasterSearchAction.SelectScope(it)) },
         onToggleType = { viewModel.onAction(MasterSearchAction.ToggleType(it)) },
+        onToggleStatus = { viewModel.onAction(MasterSearchAction.ToggleStatus(it)) },
+        onSelectDateRange = { viewModel.onAction(MasterSearchAction.SelectDateRange(it)) },
+        onDismissDetectionHint = { viewModel.onAction(MasterSearchAction.DismissDetectionHint) },
         onClearFilters = { viewModel.onAction(MasterSearchAction.ClearFilters) },
+        onRetryFailed = { viewModel.onAction(MasterSearchAction.Refresh) },
         onResultClick = viewModel::openResult,
+        onQuickActionClick = viewModel::openAction,
         modifier = modifier,
     )
 }
@@ -105,6 +117,11 @@ fun MasterSearchContent(
     onToggleType: (SearchEntityType) -> Unit,
     onClearFilters: () -> Unit,
     onResultClick: (SearchResult) -> Unit,
+    onToggleStatus: (String) -> Unit = {},
+    onSelectDateRange: (DateRangePreset) -> Unit = {},
+    onDismissDetectionHint: () -> Unit = {},
+    onRetryFailed: () -> Unit = {},
+    onQuickActionClick: (AppAction) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -166,6 +183,80 @@ fun MasterSearchContent(
                 }
             }
 
+            // PLAN_V29 P29.S.3: date-range preset chips — always visible, unlike status chips which
+            // only appear once a search has actually surfaced statuses to filter by.
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                DateRangePreset.entries.forEach { preset ->
+                    FilterChip(
+                        selected = state.dateRangePreset == preset,
+                        onClick = { onSelectDateRange(preset) },
+                        label = { Text(preset.labelKey) },
+                    )
+                }
+            }
+
+            if (state.availableStatuses.isNotEmpty()) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    state.availableStatuses.forEach { status ->
+                        FilterChip(
+                            selected = status in state.activeStatuses,
+                            onClick = { onToggleStatus(status) },
+                            label = { Text(status) },
+                        )
+                    }
+                }
+            }
+
+            // PLAN_V29 P29.S.2: dismissible id-pattern detection hint.
+            if (state.showDetectionHint) {
+                Surface(
+                    onClick = onDismissDetectionHint,
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "Searching as " + state.detectedTypes.joinToString(", ") { it.displayLabel },
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                        Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.core_cd_clear), modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
+
+            // PLAN_V29 P29.S.5: command-palette quick actions, distinct from data-record results.
+            if (state.quickActions.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(state.quickActions, key = { it.id }) { action ->
+                        OutlinedButton(onClick = { onQuickActionClick(action) }) {
+                            Text(action.label)
+                        }
+                    }
+                }
+            }
+
             ScreenStateContent(
                 state = state.results,
                 modifier = Modifier.fillMaxSize(),
@@ -176,12 +267,18 @@ fun MasterSearchContent(
                             title = stringResource(Res.string.shared_search_empty_title),
                             subtitle = stringResource(Res.string.shared_search_empty_subtitle),
                         )
-                    groups.isEmpty() ->
+                    groups.isEmpty() && state.failedTypes.isEmpty() ->
                         DefaultEmptyState(
                             title = stringResource(Res.string.shared_search_no_matches_title),
                             subtitle = stringResource(Res.string.shared_search_no_matches_subtitle, state.query.trim()),
                         )
-                    else -> ResultList(groups = groups, onResultClick = onResultClick)
+                    else ->
+                        ResultList(
+                            groups = groups,
+                            failedTypes = state.failedTypes,
+                            onResultClick = onResultClick,
+                            onRetryFailed = onRetryFailed,
+                        )
                 }
             }
         }
@@ -192,6 +289,8 @@ fun MasterSearchContent(
 private fun ResultList(
     groups: List<SearchResultGroup>,
     onResultClick: (SearchResult) -> Unit,
+    failedTypes: Set<SearchEntityType> = emptySet(),
+    onRetryFailed: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -206,6 +305,30 @@ private fun ResultList(
                 ResultRow(result = result, onClick = { onResultClick(result) })
             }
         }
+        // PLAN_V29 P29.S.4: a group whose provider threw gets its own retry row instead of being
+        // indistinguishable from "genuinely no results".
+        items(failedTypes.toList(), key = { "failed_$it" }) { type ->
+            FailedGroupRow(type = type, onRetry = onRetryFailed)
+        }
+    }
+}
+
+@Composable
+private fun FailedGroupRow(
+    type: SearchEntityType,
+    onRetry: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            "Couldn't load ${type.displayLabel}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+        TextButton(onClick = onRetry) { Text("Retry") }
     }
 }
 

@@ -53,8 +53,10 @@ class CheckInHistoryQueryTest {
 }
 
 // ── Minimal fake (only the check-in query matters for this test) ────────────
+// `internal` (not `private`) so PLAN_V29 P29.S.1's CheckInSearchProviderTest can reuse it instead
+// of duplicating another full LocationDao fake.
 
-private class FakeCheckInLocationDao : LocationDao {
+internal class FakeCheckInLocationDao : LocationDao {
     val rows = mutableListOf<LocationData>()
 
     override fun getAllCheckInPoints(): Flow<List<LocationData>> {

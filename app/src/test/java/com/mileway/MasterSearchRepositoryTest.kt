@@ -13,7 +13,8 @@ import kotlin.test.assertTrue
 
 /**
  * F0.5: the master-search aggregator: fan-out, de-duplication by (type,id), ordering (exact > recency >
- * title), min-length gating, type-filtered provider skipping, and per-provider failure isolation.
+ * title), min-length gating, type-filtered provider skipping, and per-provider failure isolation
+ * (PLAN_V29 P29.S.4's [com.mileway.core.data.search.SearchOutcome.failedTypes]).
  */
 class MasterSearchRepositoryTest {
 
@@ -49,8 +50,8 @@ class MasterSearchRepositoryTest {
     @Test
     fun `short queries never hit a provider`() = runTest {
         val repo = MasterSearchRepository(listOf(FakeProvider(setOf(SearchEntityType.TRIP), listOf(result(SearchEntityType.TRIP, "1", "Goa trip")))))
-        assertTrue(repo.search("g").isEmpty())
-        assertTrue(repo.search("  ").isEmpty())
+        assertTrue(repo.search("g").results.isEmpty())
+        assertTrue(repo.search("  ").results.isEmpty())
     }
 
     @Test
@@ -62,7 +63,7 @@ class MasterSearchRepositoryTest {
                     FakeProvider(setOf(SearchEntityType.QR), listOf(result(SearchEntityType.QR, "p1", "Goa payment"))),
                 ),
             )
-        val hits = repo.search("goa")
+        val hits = repo.search("goa").results
         assertEquals(2, hits.size)
         assertTrue(hits.any { it.type == SearchEntityType.TRIP })
         assertTrue(hits.any { it.type == SearchEntityType.QR })
@@ -78,7 +79,7 @@ class MasterSearchRepositoryTest {
                     FakeProvider(setOf(SearchEntityType.EVENT), listOf(shared)),
                 ),
             )
-        assertEquals(1, repo.search("summit").size)
+        assertEquals(1, repo.search("summit").results.size)
     }
 
     @Test
@@ -96,7 +97,7 @@ class MasterSearchRepositoryTest {
                     ),
                 ),
             )
-        val hits = repo.search("goa")
+        val hits = repo.search("goa").results
         assertEquals("exact", hits[0].id, "exact title match should sort first")
         assertEquals("new", hits[1].id, "newer of the partial matches comes before the older one")
         assertEquals("old", hits[2].id)
@@ -108,7 +109,7 @@ class MasterSearchRepositoryTest {
         val qrProvider = FakeProvider(setOf(SearchEntityType.QR), listOf(result(SearchEntityType.QR, "p1", "Goa pay")))
         val repo = MasterSearchRepository(listOf(tripProvider, qrProvider))
 
-        val hits = repo.search("goa", filters = SearchFilters(types = setOf(SearchEntityType.TRIP)))
+        val hits = repo.search("goa", filters = SearchFilters(types = setOf(SearchEntityType.TRIP))).results
         assertEquals(1, hits.size)
         assertEquals(SearchEntityType.TRIP, hits.single().type)
     }
@@ -122,9 +123,28 @@ class MasterSearchRepositoryTest {
                     FakeProvider(setOf(SearchEntityType.TRIP), listOf(result(SearchEntityType.TRIP, "t1", "Goa trip"))),
                 ),
             )
-        val hits = repo.search("goa")
-        assertEquals(1, hits.size)
-        assertEquals(SearchEntityType.TRIP, hits.single().type)
+        val outcome = repo.search("goa")
+        assertEquals(1, outcome.results.size)
+        assertEquals(SearchEntityType.TRIP, outcome.results.single().type)
+    }
+
+    @Test
+    fun `a failing provider's types surface in failedTypes for a retry affordance`() = runTest {
+        val repo =
+            MasterSearchRepository(
+                listOf(
+                    FakeProvider(setOf(SearchEntityType.QR), emptyList(), throwOnSearch = true),
+                    FakeProvider(setOf(SearchEntityType.TRIP), listOf(result(SearchEntityType.TRIP, "t1", "Goa trip"))),
+                ),
+            )
+        val outcome = repo.search("goa")
+        assertEquals(setOf(SearchEntityType.QR), outcome.failedTypes)
+    }
+
+    @Test
+    fun `a healthy search reports no failed types`() = runTest {
+        val repo = MasterSearchRepository(listOf(FakeProvider(setOf(SearchEntityType.TRIP), listOf(result(SearchEntityType.TRIP, "t1", "Goa trip")))))
+        assertTrue(repo.search("goa").failedTypes.isEmpty())
     }
 
     @Test

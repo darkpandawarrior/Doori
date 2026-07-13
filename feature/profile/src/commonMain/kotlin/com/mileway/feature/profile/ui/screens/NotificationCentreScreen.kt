@@ -37,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,6 +62,7 @@ import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.feature.profile.data.NotifType
 import com.mileway.feature.profile.data.NotificationRecord
+import com.mileway.feature.profile.viewmodel.NotificationEffect
 import com.mileway.feature.profile.viewmodel.NotificationViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -105,10 +107,19 @@ private val FILTER_LABELS = listOf("ALL", "UNREAD", "APPROVALS", "SYSTEM")
 @Composable
 fun NotificationCentreScreen(
     onBack: () -> Unit,
+    onOpenDeepLink: (String) -> Unit = {},
     viewModel: NotificationViewModel = koinViewModel(),
 ) {
     var selectedFilter by remember { mutableStateOf("ALL") }
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is NotificationEffect.OpenDeepLink -> onOpenDeepLink(effect.deeplink)
+            }
+        }
+    }
 
     val filtered =
         when (selectedFilter) {
@@ -171,7 +182,7 @@ fun NotificationCentreScreen(
                 items(filtered, key = { it.id }) { notif ->
                     NotificationCard(
                         notif = notif,
-                        onToggleRead = { viewModel.setUnread(notif.id, !notif.isUnread) },
+                        onClick = { viewModel.open(notif) },
                     )
                 }
             }
@@ -182,13 +193,13 @@ fun NotificationCentreScreen(
 @Composable
 private fun NotificationCard(
     notif: NotificationRecord,
-    onToggleRead: () -> Unit,
+    onClick: () -> Unit,
 ) {
     Card(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onToggleRead),
+                .clickable(onClick = onClick),
         shape = DesignTokens.Shape.roundedMd,
         colors =
             CardDefaults.cardColors(

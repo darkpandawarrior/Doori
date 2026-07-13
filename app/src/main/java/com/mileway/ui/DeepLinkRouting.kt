@@ -1,5 +1,7 @@
 package com.mileway.ui
 
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import com.mileway.core.common.deeplink.DeepLinkTarget
 import com.mileway.feature.logging.ui.navigation.LoggingRoutes
 import com.mileway.feature.profile.ui.navigation.ProfileRoutes
@@ -24,7 +26,24 @@ fun DeepLinkTarget.toAppRoute(): String? =
         DeepLinkTarget.LogExpense -> LoggingRoutes.EXPENSE_HISTORY
         DeepLinkTarget.Profile -> AppGraph.PROFILE
         DeepLinkTarget.ProfileSettings -> ProfileRoutes.SETTINGS
+        DeepLinkTarget.Approvals -> AppGraph.APPROVALS
+        DeepLinkTarget.Payables -> AppGraph.PAYABLES
         // Referral redemption lives in Profile (RF.4); deep-link lands there.
         is DeepLinkTarget.Referral -> AppGraph.PROFILE
         is DeepLinkTarget.Unknown -> null
     }
+
+/**
+ * PLAN_V29 P29.S.1/S.5/S.6: the shared "best-effort resolve-and-navigate" tap handler — a tapped
+ * search result, a tapped quick action, and a tapped notification card all reduce to the same
+ * "route if resolvable, otherwise no-op" shape. A `null` [route] (an unresolved type/deeplink) is
+ * silently ignored, matching the section-graph precedent already documented on [toAppRoute].
+ */
+fun NavHostController.navigateToSectionRoute(route: String?) {
+    if (route == null) return
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}

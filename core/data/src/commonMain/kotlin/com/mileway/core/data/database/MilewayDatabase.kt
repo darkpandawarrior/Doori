@@ -136,7 +136,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         ClarificationRoomMetaEntity::class,
         ApprovalCommentEntity::class,
     ],
-    version = 45,
+    version = 46,
     exportSchema = false,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)

@@ -15,6 +15,7 @@ import com.mileway.feature.travel.viewmodel.CreateVisaViewModel
 import com.mileway.feature.travel.viewmodel.TravelViewModel
 import com.mileway.feature.travel.viewmodel.TripHistoryViewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val travelModule =
@@ -34,5 +35,7 @@ val travelModule =
         viewModelOf(::TripHistoryViewModel)
         viewModelOf(::BookingHistoryViewModel)
         // TR.9: travel contribution to master search (getAll<SearchProvider>() picks it up).
-        single<SearchProvider> { TravelSearchProvider(get()) }
+        // PLAN_V29 P29.S.1: named qualifier so this doesn't silently override another module's
+        // SearchProvider binding — see TrackingSearchProvider's doc for the full why.
+        single<SearchProvider>(named("travel")) { TravelSearchProvider(get()) }
     }

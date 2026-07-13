@@ -13,6 +13,7 @@ import com.mileway.feature.payables.viewmodel.CreateParkingViewModel
 import com.mileway.feature.payables.viewmodel.PayablesHistoryViewModel
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val payablesModule =
@@ -27,7 +28,9 @@ val payablesModule =
         // PB.4: unified payables history (Invoice/PR/GIN/ParkInOut/ASN), also the PB.5 search source.
         single { PayablesHistoryRepository() }
         // PB.5: payables contribution to master search (getAll<SearchProvider>() picks it up).
-        single<SearchProvider> { PayablesSearchProvider(get()) }
+        // PLAN_V29 P29.S.1: named qualifier so this doesn't silently override another module's
+        // SearchProvider binding — see TrackingSearchProvider's doc for the full why.
+        single<SearchProvider>(named("payables")) { PayablesSearchProvider(get()) }
         viewModel { PayablesViewModel(get()) }
         viewModel { CreateInvoiceViewModel(get()) }
         viewModel { CreateGinViewModel(get()) }

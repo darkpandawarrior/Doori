@@ -20,4 +20,7 @@ data class NotificationEntity(
     val isUnread: Boolean,
     val type: String,
     val createdAtMs: Long,
+    // PLAN_V29 P29.S.6: where tapping this card navigates (DeepLinkRouter-resolvable). Existing rows
+    // default to "" (resolves to Unknown, a safe no-op tap) via MIGRATION_45_46.
+    val deeplink: String = "",
 )

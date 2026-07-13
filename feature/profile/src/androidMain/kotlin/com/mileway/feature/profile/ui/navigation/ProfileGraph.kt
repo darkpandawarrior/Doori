@@ -127,6 +127,9 @@ fun NavGraphBuilder.profileGraph(
     onStartTripForAdvance: (advanceId: String, tripId: String) -> Unit = { _, _ -> },
     onLogExpenseFromAdvance: (ExpenseSourceContext) -> Unit = {},
     onSignedOut: () -> Unit = {},
+    // PLAN_V29 P29.S.6: Notification Centre card taps route through the app-level DeepLinkRouter
+    // (feature modules never depend on :app or each other — see CLAUDE.md's module-boundary rule).
+    onOpenDeepLink: (String) -> Unit = {},
 ) {
     composable(ProfileRoutes.HOME) {
         ProfileScreen(
@@ -347,6 +350,7 @@ fun NavGraphBuilder.profileGraph(
     composable(ProfileRoutes.NOTIFICATIONS) {
         NotificationCentreScreen(
             onBack = { navController.popBackStack() },
+            onOpenDeepLink = onOpenDeepLink,
         )
     }
     composable(ProfileRoutes.ADVANCE_HISTORY) {

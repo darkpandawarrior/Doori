@@ -50,6 +50,7 @@ class NotificationRepository(private val dao: NotificationDao, private val clock
             relativeTime = relativeTime,
             isUnread = isUnread,
             type = NotifType.valueOf(type),
+            deeplink = deeplink,
         )
 
     private fun NotificationRecord.toEntity(createdAtMs: Long): NotificationEntity =
@@ -61,5 +62,6 @@ class NotificationRepository(private val dao: NotificationDao, private val clock
             isUnread = isUnread,
             type = type.name,
             createdAtMs = createdAtMs,
+            deeplink = deeplink,
         )
 }

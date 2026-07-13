@@ -20,6 +20,8 @@ class DeepLinkRoutingTest {
         assertEquals(AppGraph.TRACK, route("mileway://track"))
         assertEquals(AppGraph.LOG, route("mileway://log"))
         assertEquals(AppGraph.PROFILE, route("mileway://profile"))
+        assertEquals(AppGraph.APPROVALS, route("mileway://approvals"))
+        assertEquals(AppGraph.PAYABLES, route("mileway://payables"))
     }
 
     @Test

@@ -5,6 +5,18 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
 /**
+ * PLAN_V29 P29.S.4: [MasterSearchRepository.search]'s result — [failedTypes] is every entity type
+ * a *relevant* provider threw for, so the UI can render a per-group "Couldn't load — Retry" row
+ * instead of the previous silent empty-list-on-exception (indistinguishable from a real empty
+ * result). A provider serving multiple types (e.g. `ExpensesSearchProvider`) reports ALL of its
+ * types as failed — the UI can't know which of its types the exception happened partway through.
+ */
+data class SearchOutcome(
+    val results: List<SearchResult>,
+    val failedTypes: Set<SearchEntityType> = emptySet(),
+)
+
+/**
  * F0.5: the master-search aggregator. Holds every feature's [SearchProvider] (resolved by the app graph via
  * Koin's `getAll<SearchProvider>()`, so features never depend on this class) and fans a single query out to
  * all of them concurrently, then merges, de-duplicates and orders the combined result set.
@@ -25,33 +37,36 @@ class MasterSearchRepository(
 
     /**
      * Run [query] across every provider that can still contribute under [filters] and [scope], then merge.
-     * Returns an empty list for blank / too-short queries without touching any provider.
+     * Returns an empty outcome for blank / too-short queries without touching any provider.
      */
     suspend fun search(
         query: String,
         scope: SearchScope = SearchScope.VIEW_ALL,
         filters: SearchFilters = SearchFilters(),
-    ): List<SearchResult> {
+    ): SearchOutcome {
         val trimmed = query.trim()
-        if (trimmed.length < MIN_QUERY_LENGTH) return emptyList()
+        if (trimmed.length < MIN_QUERY_LENGTH) return SearchOutcome(emptyList())
 
         val relevant =
             providers.filter { provider ->
                 filters.types.isEmpty() || provider.types.any { it in filters.types }
             }
-        if (relevant.isEmpty()) return emptyList()
+        if (relevant.isEmpty()) return SearchOutcome(emptyList())
 
-        val merged =
+        val outcomes =
             coroutineScope {
                 relevant
-                    .map { provider -> async { runCatching { provider.search(trimmed, scope, filters) }.getOrDefault(emptyList()) } }
+                    .map { provider -> async { provider to runCatching { provider.search(trimmed, scope, filters) } } }
                     .awaitAll()
-                    .flatten()
             }
 
-        return merged
-            .distinctBy { it.type to it.id }
-            .sortedWith(resultOrder(trimmed))
+        val failedTypes = outcomes.filter { (_, result) -> result.isFailure }.flatMapTo(linkedSetOf()) { (provider, _) -> provider.types }
+        val merged = outcomes.flatMap { (_, result) -> result.getOrDefault(emptyList()) }
+
+        return SearchOutcome(
+            results = merged.distinctBy { it.type to it.id }.sortedWith(resultOrder(trimmed)),
+            failedTypes = failedTypes,
+        )
     }
 
     private fun resultOrder(query: String): Comparator<SearchResult> =

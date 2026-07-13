@@ -20,12 +20,13 @@ fun SearchResult.toSectionRoute(): String? =
         SearchEntityType.ASN,
         SearchEntityType.GIN,
         -> AppGraph.PAYABLES
-        SearchEntityType.APPROVAL -> AppGraph.APPROVALS
+        SearchEntityType.APPROVAL, SearchEntityType.CLARIFICATION -> AppGraph.APPROVALS
         SearchEntityType.CARD_TXN -> AppGraph.CARDS
         SearchEntityType.CHECKIN -> AppGraph.TRACK
+        // PLAN_V29 P29.S.1: Advance now has a real provider — routes to Profile (where the advance
+        // history/request screens live), matching its QuickActionRegistry deeplink.
+        SearchEntityType.ADVANCE -> AppGraph.PROFILE
         SearchEntityType.SETTLEMENT,
-        SearchEntityType.ADVANCE,
         SearchEntityType.PARKING,
-        SearchEntityType.CLARIFICATION,
         -> null
     }

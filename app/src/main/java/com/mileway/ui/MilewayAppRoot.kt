@@ -56,6 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.mileway.core.common.deeplink.DeepLinkRouter
 import com.mileway.core.data.banner.Banner
 import com.mileway.core.data.banner.BannerAssembler
 import com.mileway.core.data.banner.BannerDismissalRepository
@@ -345,6 +346,9 @@ fun MilewayAppRoot(
                             // P27.E.8: "Log expense against this advance" CTA.
                             onLogExpenseFromAdvance = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
                             onSignedOut = onSignedOut,
+                            // P29.S.6: Notification Centre card taps — same best-effort resolve-and-navigate
+                            // as master search's onOpenResult; unresolvable links are a safe no-op.
+                            onOpenDeepLink = { link -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(link).toAppRoute()) },
                         )
                     }
                     // Corporate cards feature module (replaces the old profile card screens).
@@ -395,16 +399,10 @@ fun MilewayAppRoot(
                     composable(AppRoutes.SEARCH) {
                         MasterSearchRoute(
                             onBack = { navController.popBackStack() },
-                            onOpenResult = { result ->
-                                val route = result.toSectionRoute()
-                                if (route != null) {
-                                    navController.navigate(route) {
-                                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                            },
+                            onOpenResult = { result -> navController.navigateToSectionRoute(result.toSectionRoute()) },
+                            // P29.S.5: quick-action tap — same best-effort DeepLinkRouter resolve as a
+                            // tapped result; QuickActionRegistry deeplinks not yet resolvable are ignored.
+                            onOpenAction = { action -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(action.deeplink).toAppRoute()) },
                         )
                     }
 

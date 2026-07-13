@@ -1,5 +1,6 @@
 package com.mileway.feature.profile.di
 
+import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.profile.repository.ActiveSessionsRepository
 import com.mileway.feature.profile.repository.AdvanceRepository
 import com.mileway.feature.profile.repository.ConnectedAccountsRepository
@@ -19,6 +20,7 @@ import com.mileway.feature.profile.repository.SupportTicketRepository
 import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
 import com.mileway.feature.profile.repository.WalletRepository
+import com.mileway.feature.profile.search.AdvanceSearchProvider
 import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
@@ -59,6 +61,7 @@ import com.mileway.feature.profile.viewmodel.VehicleGarageViewModel
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val profileModule =
@@ -95,6 +98,9 @@ val profileModule =
         single { CouponsRepository(get()) }
         // PLAN_V24 P5.3: scratch-card rewards Room-backed repository.
         single { RewardsRepository(get()) }
+        // PLAN_V29 P29.S.1: profile's contribution to master search — the last of the 5
+        // previously-dead SearchEntityType providers (Advance).
+        single<SearchProvider>(named("profile")) { AdvanceSearchProvider(get()) }
         viewModelOf(::ProfileViewModel)
         viewModel { AdvanceViewModel(get()) }
         viewModelOf(::DemoSettingsViewModel)

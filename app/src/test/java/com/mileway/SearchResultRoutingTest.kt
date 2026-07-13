@@ -36,4 +36,13 @@ class SearchResultRoutingTest {
         assertNull(resultOf(SearchEntityType.SETTLEMENT).toSectionRoute())
         assertNull(resultOf(SearchEntityType.PARKING).toSectionRoute())
     }
+
+    @Test
+    fun `the 5 newly-bound providers all route somewhere real`() {
+        assertEquals(AppGraph.LOG, resultOf(SearchEntityType.MILEAGE).toSectionRoute())
+        assertEquals(AppGraph.TRACK, resultOf(SearchEntityType.CHECKIN).toSectionRoute())
+        assertEquals(AppGraph.APPROVALS, resultOf(SearchEntityType.APPROVAL).toSectionRoute())
+        assertEquals(AppGraph.APPROVALS, resultOf(SearchEntityType.CLARIFICATION).toSectionRoute())
+        assertEquals(AppGraph.PROFILE, resultOf(SearchEntityType.ADVANCE).toSectionRoute())
+    }
 }
