@@ -21,19 +21,24 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.HourglassBottom
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,10 +63,13 @@ import com.mileway.core.ui.components.timeline.TimelineStep
 import com.mileway.core.ui.components.timeline.TransactionTimeline
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_ack_violation
 import com.mileway.core.ui.resources.approvals_action_approve
 import com.mileway.core.ui.resources.approvals_action_cancel
 import com.mileway.core.ui.resources.approvals_action_clarify
+import com.mileway.core.ui.resources.approvals_action_edit_distance
 import com.mileway.core.ui.resources.approvals_action_reject
+import com.mileway.core.ui.resources.approvals_action_withdraw
 import com.mileway.core.ui.resources.approvals_close_room_confirm
 import com.mileway.core.ui.resources.approvals_close_room_description
 import com.mileway.core.ui.resources.approvals_close_room_title
@@ -85,15 +93,27 @@ import com.mileway.core.ui.resources.approvals_type_mileage
 import com.mileway.core.ui.resources.approvals_type_travel
 import com.mileway.core.ui.resources.approvals_you_approved
 import com.mileway.core.ui.resources.approvals_you_rejected
+import com.mileway.core.ui.resources.audit_flag_flagged
+import com.mileway.core.ui.resources.audit_flag_merchant_verified
+import com.mileway.core.ui.resources.audit_flag_receipt_verified
+import com.mileway.core.ui.resources.audit_flag_rejected_reason
+import com.mileway.core.ui.resources.audit_flag_violations
+import com.mileway.core.ui.resources.detail_section_comments_empty
+import com.mileway.core.ui.resources.detail_section_comments_placeholder
+import com.mileway.core.ui.resources.detail_section_comments_post
 import com.mileway.core.ui.resources.shared_status_submitted
 import com.mileway.core.ui.resources.shared_status_under_review
 import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.feature.approvals.model.ApprovalComment
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
+import com.mileway.feature.approvals.model.AuditFlags
+import com.mileway.feature.approvals.model.toAuditFlags
+import com.mileway.feature.approvals.model.toDetailActionFlags
 import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
@@ -132,6 +152,8 @@ fun ApprovalDetailsScreen(
 
     val effectiveStatus = detail.localStatus ?: item.status
     val isResolved = effectiveStatus != ApprovalStatus.PENDING
+    val actionFlags = remember(item, effectiveStatus) { item.toDetailActionFlags(effectiveStatus) }
+    val auditFlags = remember(item) { item.toAuditFlags() }
 
     // ponytail: which tab is showing is pure UI navigation state, not ViewModel-worthy (see the
     // same note on ExpenseDetailScreen / PurchaseRequestDetailsScreen).
@@ -141,7 +163,7 @@ fun ApprovalDetailsScreen(
         TransactionDetailScaffold(
             title = typeLabel(item.type),
             subtitle = stringResource(Res.string.approvals_subtitle_approval_request),
-            tabs = listOf(DetailSection.Details, DetailSection.Timeline),
+            tabs = listOf(DetailSection.Details, DetailSection.Timeline, DetailSection.Comments, DetailSection.Audit),
             selectedTab = selectedSection,
             onSelectTab = { selectedSection = it },
             onBack = onBack,
@@ -159,6 +181,14 @@ fun ApprovalDetailsScreen(
             ) {
                 when (section) {
                     DetailSection.Timeline -> TransactionTimeline(steps = buildApprovalTimelineSteps(item, effectiveStatus))
+                    DetailSection.Comments ->
+                        CommentsSection(
+                            comments = detail.comments,
+                            draft = detail.commentDraft,
+                            onDraftChange = { viewModel.onAction(ApprovalsAction.UpdateCommentDraft(it)) },
+                            onPost = { viewModel.onAction(ApprovalsAction.PostComment) },
+                        )
+                    DetailSection.Audit -> AuditSection(auditFlags)
                     else -> {
                         // Requester info card
                         Card(
@@ -275,6 +305,9 @@ fun ApprovalDetailsScreen(
 
         // Pinned CTA bar — floats over the scaffold (topbar + tabs + content) regardless of
         // which tab is selected, since Approve/Reject/Clarify act on the approval as a whole.
+        // P28.9: "own" requests (canWithdraw) get Withdraw/Edit-Distance instead of the
+        // approver's Approve/Reject; a flagged request (requiresAck) gates Approve/Reject behind
+        // the acknowledgement checkbox.
         if (!isResolved) {
             Column(
                 modifier =
@@ -288,35 +321,72 @@ fun ApprovalDetailsScreen(
             ) {
                 HorizontalDivider()
                 Spacer(Modifier.height(4.dp))
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(
-                        onClick = { viewModel.onAction(ApprovalsAction.OpenClarificationSheet) },
-                        modifier = Modifier.weight(1f),
-                        shape = DesignTokens.Shape.button,
-                    ) {
-                        Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(Res.string.approvals_action_clarify))
+                if (actionFlags.requiresAck) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = detail.acknowledged,
+                            onCheckedChange = { viewModel.onAction(ApprovalsAction.ToggleAcknowledged) },
+                        )
+                        Text(stringResource(Res.string.approvals_ack_violation), style = MaterialTheme.typography.bodySmall)
                     }
-                    Button(
-                        onClick = { viewModel.onAction(ApprovalsAction.Reject) },
-                        modifier = Modifier.weight(1f),
-                        shape = DesignTokens.Shape.button,
-                        colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.danger),
-                    ) {
-                        Icon(Icons.Default.Cancel, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(Res.string.approvals_action_reject))
+                }
+                if (actionFlags.canWithdraw) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        if (actionFlags.canEditDistance) {
+                            OutlinedButton(
+                                onClick = { viewModel.onAction(ApprovalsAction.RequestEditDistance) },
+                                modifier = Modifier.weight(1f),
+                                shape = DesignTokens.Shape.button,
+                            ) {
+                                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                                Spacer(Modifier.width(8.dp))
+                                Text(stringResource(Res.string.approvals_action_edit_distance))
+                            }
+                        }
+                        Button(
+                            onClick = { viewModel.onAction(ApprovalsAction.Withdraw) },
+                            modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
+                            colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.danger),
+                        ) {
+                            Icon(Icons.Default.Cancel, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.approvals_action_withdraw))
+                        }
                     }
-                    Button(
-                        onClick = { viewModel.onAction(ApprovalsAction.Approve) },
-                        modifier = Modifier.weight(1f),
-                        shape = DesignTokens.Shape.button,
-                        colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.success),
-                    ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(Res.string.approvals_action_approve))
+                } else {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = { viewModel.onAction(ApprovalsAction.OpenClarificationSheet) },
+                            modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
+                        ) {
+                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.approvals_action_clarify))
+                        }
+                        Button(
+                            onClick = { viewModel.onAction(ApprovalsAction.Reject) },
+                            enabled = !actionFlags.requiresAck || detail.acknowledged,
+                            modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
+                            colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.danger),
+                        ) {
+                            Icon(Icons.Default.Cancel, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.approvals_action_reject))
+                        }
+                        Button(
+                            onClick = { viewModel.onAction(ApprovalsAction.Approve) },
+                            enabled = !actionFlags.requiresAck || detail.acknowledged,
+                            modifier = Modifier.weight(1f),
+                            shape = DesignTokens.Shape.button,
+                            colors = ButtonDefaults.buttonColors(containerColor = MilewayColors.success),
+                        ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(8.dp))
+                            Text(stringResource(Res.string.approvals_action_approve))
+                        }
                     }
                 }
             }
@@ -399,6 +469,66 @@ private fun buildApprovalTimelineSteps(
                 )
         }
     return listOf(submitted, underReview, terminal)
+}
+
+/** P28.7: the permanent comments tab — a plain list + composer, no lifecycle unlike the clarification chat. */
+@Composable
+private fun CommentsSection(
+    comments: List<ApprovalComment>,
+    draft: String,
+    onDraftChange: (String) -> Unit,
+    onPost: () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (comments.isEmpty()) {
+            Text(
+                stringResource(Res.string.detail_section_comments_empty),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            comments.forEach { comment ->
+                Card(shape = DesignTokens.Shape.button, elevation = CardDefaults.cardElevation(1.dp)) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            "${comment.authorName} · ${comment.designation}",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(comment.message, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(
+                value = draft,
+                onValueChange = onDraftChange,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(stringResource(Res.string.detail_section_comments_placeholder)) },
+            )
+            IconButton(onClick = onPost, enabled = draft.isNotBlank()) {
+                Icon(Icons.Default.Send, contentDescription = stringResource(Res.string.detail_section_comments_post))
+            }
+        }
+    }
+}
+
+/** P28.8: renders the mock/derived [AuditFlags] as a simple field list. */
+@Composable
+private fun AuditSection(flags: AuditFlags) {
+    Card(shape = DesignTokens.Shape.button, elevation = CardDefaults.cardElevation(2.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            DetailRow(label = stringResource(Res.string.audit_flag_receipt_verified), value = flags.receiptVerified.toString())
+            DetailRow(label = stringResource(Res.string.audit_flag_merchant_verified), value = flags.merchantVerified.toString())
+            DetailRow(label = stringResource(Res.string.audit_flag_flagged), value = flags.flagged.toString())
+            if (flags.violations.isNotEmpty()) {
+                DetailRow(label = stringResource(Res.string.audit_flag_violations), value = flags.violations.joinToString())
+            }
+            flags.rejectedReason?.let { DetailRow(label = stringResource(Res.string.audit_flag_rejected_reason), value = it) }
+        }
+    }
 }
 
 @Composable

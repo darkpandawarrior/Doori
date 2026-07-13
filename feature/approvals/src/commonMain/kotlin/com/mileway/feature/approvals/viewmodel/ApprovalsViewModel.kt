@@ -6,8 +6,11 @@ import com.mileway.core.data.ledger.ApprovalTransitions
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_toast_edit_distance_unavailable
 import com.mileway.core.ui.resources.approvals_toast_request_approved
 import com.mileway.core.ui.resources.approvals_toast_request_rejected
+import com.mileway.core.ui.resources.approvals_toast_request_withdrawn
+import com.mileway.feature.approvals.model.ApprovalComment
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ClarificationMessage
@@ -15,6 +18,7 @@ import com.mileway.feature.approvals.model.ClarificationRoom
 import com.mileway.feature.approvals.model.ClarificationRoomMeta
 import com.mileway.feature.approvals.model.ClarificationRoomStatus
 import com.mileway.feature.approvals.repository.APPROVER_SENDER_ID
+import com.mileway.feature.approvals.repository.ApprovalCommentRepository
 import com.mileway.feature.approvals.repository.ApprovalsRepository
 import com.mileway.feature.approvals.repository.ClarificationRepository
 import kotlinx.coroutines.Job
@@ -34,6 +38,12 @@ sealed interface ApprovalsAction {
     data object Approve : ApprovalsAction
 
     data object Reject : ApprovalsAction
+
+    /** P28.9: withdraws the current (own, still-PENDING) request — gated by `DetailActionFlags.canWithdraw`. */
+    data object Withdraw : ApprovalsAction
+
+    /** P28.9: MILEAGE-only, gated by `DetailActionFlags.canEditDistance` — no in-approvals edit flow exists yet. */
+    data object RequestEditDistance : ApprovalsAction
 
     data object OpenClarificationSheet : ApprovalsAction
 
@@ -60,6 +70,14 @@ sealed interface ApprovalsAction {
 
     /** P28.4: the approvals list's SAVED filter chip — shows only approvals with a saved room. */
     data object ToggleSavedFilter : ApprovalsAction
+
+    /** P28.7: the permanent comments tab's composer draft + post action. */
+    data class UpdateCommentDraft(val text: String) : ApprovalsAction
+
+    data object PostComment : ApprovalsAction
+
+    /** P28.9: toggles the acknowledgement checkbox gating Approve/Reject when `requiresAck` is true. */
+    data object ToggleAcknowledged : ApprovalsAction
 }
 
 sealed interface ApprovalsEffect {
@@ -81,6 +99,11 @@ data class ApprovalDetailState(
     val localStatus: ApprovalStatus? = null,
     val showClarificationSheet: Boolean = false,
     val showCloseRoomConfirmation: Boolean = false,
+    // P28.7: the permanent comments tab.
+    val comments: List<ApprovalComment> = emptyList(),
+    val commentDraft: String = "",
+    // P28.9: local acknowledgement of a flagged violation — gates Approve/Reject when `requiresAck`.
+    val acknowledged: Boolean = false,
 )
 
 data class ApprovalsUiState(
@@ -102,6 +125,7 @@ private fun ApprovalStatus.toFsmStatus(): FsmStatus =
 
 class ApprovalsViewModel(
     private val clarificationRepository: ClarificationRepository,
+    private val commentRepository: ApprovalCommentRepository,
 ) : BaseViewModel<ApprovalsUiState, ApprovalsEffect, ApprovalsAction>(ApprovalsUiState()) {
     // ponytail: in-flight id guard debounces a double-tapped approve/reject/pay; cleared once the
     // resolve completes (synchronous today — this local mock data has no suspend/network hop).
@@ -110,6 +134,9 @@ class ApprovalsViewModel(
     // P28.2: cancelled + relaunched on every OpenDetail so a stale room's Flow collection never
     // leaks into the next-opened approval's detail state.
     private var clarificationJob: Job? = null
+
+    // P28.7: same relaunch-per-OpenDetail guard as clarificationJob, for the comments Flow.
+    private var commentsJob: Job? = null
 
     init {
         // P28.4: keeps the SAVED filter chip's candidate set live as rooms get saved/unsaved.
@@ -130,6 +157,10 @@ class ApprovalsViewModel(
                 resolve(ApprovalStatus.APPROVED, UiText.Res(Res.string.approvals_toast_request_approved.key))
             ApprovalsAction.Reject ->
                 resolve(ApprovalStatus.REJECTED, UiText.Res(Res.string.approvals_toast_request_rejected.key))
+            ApprovalsAction.Withdraw ->
+                resolve(ApprovalStatus.REJECTED, UiText.Res(Res.string.approvals_toast_request_withdrawn.key))
+            ApprovalsAction.RequestEditDistance ->
+                emitEffect(ApprovalsEffect.ShowToast(UiText.Res(Res.string.approvals_toast_edit_distance_unavailable.key)))
             ApprovalsAction.OpenClarificationSheet -> updateDetail { copy(showClarificationSheet = true) }
             ApprovalsAction.CloseClarificationSheet -> updateDetail { copy(showClarificationSheet = false) }
             is ApprovalsAction.UpdateDraftMessage -> updateDetail { copy(draftMessage = action.text) }
@@ -141,6 +172,9 @@ class ApprovalsViewModel(
             ApprovalsAction.ToggleRoomSaved -> toggleRoomMeta { room, meta -> clarificationRepository.setSaved(room.roomId, !meta.isSaved) }
             ApprovalsAction.ToggleRoomPinned -> toggleRoomMeta { room, meta -> clarificationRepository.setPinned(room.roomId, !meta.isPinned) }
             ApprovalsAction.ToggleSavedFilter -> setState { copy(savedFilterOn = !savedFilterOn) }
+            is ApprovalsAction.UpdateCommentDraft -> updateDetail { copy(commentDraft = action.text) }
+            ApprovalsAction.PostComment -> postComment()
+            ApprovalsAction.ToggleAcknowledged -> updateDetail { copy(acknowledged = !acknowledged) }
         }
     }
 
@@ -163,6 +197,22 @@ class ApprovalsViewModel(
                         updateDetail { copy(room = roomState, thread = messages, roomMeta = meta) }
                     }
             }
+
+        commentsJob?.cancel()
+        commentsJob =
+            viewModelScope.launch {
+                commentRepository.observeComments(id).collect { comments -> updateDetail { copy(comments = comments) } }
+            }
+    }
+
+    private fun postComment() {
+        val detail = currentDetail() ?: return
+        val text = detail.commentDraft.trim()
+        if (text.isBlank()) return
+        updateDetail { copy(commentDraft = "") }
+        viewModelScope.launch {
+            commentRepository.addComment(detail.item.id, authorName = "You", designation = "Approver", message = text)
+        }
     }
 
     /** P28.4: shared guard for the two meta toggles — both need a live room to act on. */

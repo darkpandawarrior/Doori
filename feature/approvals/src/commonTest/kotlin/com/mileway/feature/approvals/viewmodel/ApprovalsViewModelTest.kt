@@ -2,6 +2,7 @@ package com.mileway.feature.approvals.viewmodel
 
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.feature.approvals.model.ClarificationRoomStatus
+import com.mileway.feature.approvals.repository.FakeApprovalCommentRepository
 import com.mileway.feature.approvals.repository.FakeClarificationRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -35,7 +36,7 @@ class ApprovalsViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun newViewModel(repo: FakeClarificationRepository = FakeClarificationRepository()) = ApprovalsViewModel(repo)
+    private fun newViewModel(repo: FakeClarificationRepository = FakeClarificationRepository()) = ApprovalsViewModel(repo, FakeApprovalCommentRepository())
 
     @Test
     fun `opening a detail twice reuses the same persisted room instead of reseeding`() =

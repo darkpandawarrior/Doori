@@ -338,6 +338,9 @@ class ScreenshotGalleryTest {
             // itself binds the real ClarificationRepository(get<ClarificationDao>()), so only the
             // DAO fake is needed here (a relaxed mockk would hand back a null-backed Flow and crash).
             single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
+            // PLAN_V28 P28.7: same eager-collect trap as ClarificationDao above, for
+            // ApprovalCommentRepository's observeComments(...).
+            single<com.mileway.core.data.dao.ApprovalCommentDao> { FakeApprovalCommentDao() }
             single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
             single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
             single<com.mileway.core.data.dao.DeletionRequestDao> { FakeDeletionRequestDao() }

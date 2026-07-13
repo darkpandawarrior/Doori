@@ -5,6 +5,34 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 44 → 45 (PLAN_V28 P28.7): additive `approval_comments` table — a sibling to
+ * `clarification_rooms`/`clarification_messages`, not a child of them (no FK — `approvalId` is a
+ * plain in-memory `ApprovalItem.id`, not a Room-backed table). A permanent, non-interactive comment
+ * thread distinct from the private, closable clarification chat. Empty on first run; a row is
+ * appended per posted comment, never edited or deleted.
+ */
+val MIGRATION_44_45 =
+    object : Migration(44, 45) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `approval_comments` (
+                    `id`          TEXT    NOT NULL PRIMARY KEY,
+                    `approvalId`  TEXT    NOT NULL,
+                    `authorName`  TEXT    NOT NULL,
+                    `designation` TEXT    NOT NULL,
+                    `message`     TEXT    NOT NULL,
+                    `timestampMs` INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            connection.execSQL(
+                "CREATE INDEX IF NOT EXISTS `index_approval_comments_approvalId` ON `approval_comments` (`approvalId`)",
+            )
+        }
+    }
+
+/**
  * Migration 43 → 44 (PLAN_V28 P28.6): three additive columns on `clarification_messages` —
  * `senderName`/`senderRole` (display header in the chat bubble) and `attachmentUrl` (a picked
  * core:media attachment's local URI, folding in the deferred V26 P-STR.1 attach surface). All

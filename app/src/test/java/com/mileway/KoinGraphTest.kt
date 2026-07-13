@@ -174,6 +174,10 @@ class KoinGraphTest : KoinTest {
         // eagerly combine/collect ClarificationRepository Flows — approvalsModule itself binds the
         // real ClarificationRepository(get<ClarificationDao>()), so only the DAO fake is needed here.
         single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
+        // PLAN_V28 P28.7: ApprovalsViewModel.openDetail also eagerly collects
+        // ApprovalCommentRepository — approvalsModule binds the real
+        // RoomApprovalCommentRepository(get<ApprovalCommentDao>()), so only the DAO fake is needed here.
+        single<com.mileway.core.data.dao.ApprovalCommentDao> { FakeApprovalCommentDao() }
         // PLAN_V24 P6.2: SubscriptionViewModel seeds via SubscriptionRepository (core:data) in init.
         single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
         single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }

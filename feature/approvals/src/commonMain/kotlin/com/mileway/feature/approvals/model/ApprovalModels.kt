@@ -1,5 +1,7 @@
 package com.mileway.feature.approvals.model
 
+import com.mileway.core.ai.model.DocumentAnalysis
+
 enum class ApprovalType { MILEAGE, EXPENSE, TRAVEL, ADVANCE }
 
 enum class ApprovalStatus { PENDING, APPROVED, REJECTED }
@@ -64,3 +66,77 @@ data class ClarificationRoomSummary(
     val activeRooms: Int = 0,
     val totalUnread: Int = 0,
 )
+
+/**
+ * PLAN_V28 P28.7: one row in an approval's permanent, non-interactive comment thread — distinct
+ * from [ClarificationMessage]'s private, closable back-and-forth chat. Comments are an append-only
+ * audit trail (no edit/delete), backed by a sibling `approval_comments` Room table.
+ */
+data class ApprovalComment(
+    val id: String,
+    val approvalId: String,
+    val authorName: String,
+    val designation: String,
+    val message: String,
+    val timestampMs: Long,
+)
+
+/**
+ * PLAN_V28 P28.8: a structured, multi-flag audit report distinct from [ApprovalItem.policyViolation]'s
+ * single boolean — mock-populated (no OCR/merchant-verification backend exists yet, see PLAN_V28
+ * §2 out-of-scope), but [receiptVerified] reads from a real [DocumentAnalysis] when the approval's
+ * receipt was actually scanned via core:ai's DocumentIntelligence.
+ */
+data class AuditFlags(
+    val receiptVerified: Boolean,
+    val merchantVerified: Boolean,
+    val flagged: Boolean,
+    val violations: List<String>,
+    val rejectedReason: String?,
+)
+
+/** Mock heuristic: ADVANCE requests have no receipt to verify, everything else "has one" and it reads clean. */
+private fun mockReceiptVerified(item: ApprovalItem): Boolean = item.type != ApprovalType.ADVANCE
+
+/**
+ * Derives [AuditFlags] for [item]. Pass [receiptAnalysis] when core:ai actually scanned this
+ * approval's receipt (e.g. via the media capture flow) — its [DocumentAnalysis.overallConfidence]
+ * then backs [AuditFlags.receiptVerified] instead of the mock heuristic. No caller wires a real
+ * scan into approvals yet, so every current call site passes `null`.
+ */
+fun ApprovalItem.toAuditFlags(receiptAnalysis: DocumentAnalysis? = null): AuditFlags {
+    val receiptVerified = receiptAnalysis?.let { it.overallConfidence >= 0.7f } ?: mockReceiptVerified(this)
+    val violations =
+        buildList {
+            if (policyViolation) add("Amount exceeds the policy limit for ${type.name.lowercase()} claims")
+        }
+    return AuditFlags(
+        receiptVerified = receiptVerified,
+        merchantVerified = !policyViolation,
+        flagged = policyViolation,
+        violations = violations,
+        rejectedReason = if (status == ApprovalStatus.REJECTED) "Rejected by approver" else null,
+    )
+}
+
+/**
+ * PLAN_V28 P28.9: per-item gating for the detail scaffold's action bar — derived purely from
+ * [ApprovalType]/state (never from a legacy insight-key string, see PLAN_V28 §2 out-of-scope).
+ * [effectiveStatus] lets a caller pass a locally-resolved status (e.g. a just-tapped
+ * Approve/Reject) instead of [ApprovalItem.status].
+ */
+data class DetailActionFlags(
+    val canWithdraw: Boolean,
+    val canEditDistance: Boolean,
+    val requiresAck: Boolean,
+)
+
+fun ApprovalItem.toDetailActionFlags(effectiveStatus: ApprovalStatus = status): DetailActionFlags {
+    val isOwnRequest = requesterName == "Me"
+    val isPending = effectiveStatus == ApprovalStatus.PENDING
+    return DetailActionFlags(
+        canWithdraw = isOwnRequest && isPending,
+        canEditDistance = isOwnRequest && isPending && type == ApprovalType.MILEAGE,
+        requiresAck = policyViolation && isPending,
+    )
+}
