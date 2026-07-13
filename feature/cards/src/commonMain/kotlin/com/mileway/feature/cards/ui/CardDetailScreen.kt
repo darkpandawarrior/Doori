@@ -126,11 +126,25 @@ fun CardDetailScreen(
     // P27.E.7: default no-op keeps every existing call site (including the screenshot gallery)
     // unchanged; the app shell's cardsGraph supplies the real navigation.
     onClaimTransaction: (ExpenseSourceContext) -> Unit = {},
+    // P29.C.1: default no-op preserves old call sites; CardsNavigation supplies real navigation
+    // to the KYC wizard. Replaces the old toast-only "resend" stub.
+    onStartKyc: () -> Unit = {},
+    // P29.C.1: set true for exactly one recomposition after CardKycScreen reports completion
+    // (via CardsNavigation's savedStateHandle result) — flips isKycPending, then the caller
+    // acknowledges via [onKycAcknowledged] so it doesn't re-fire.
+    kycJustVerified: Boolean = false,
+    onKycAcknowledged: () -> Unit = {},
     viewModel: CardDetailViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(cardId) { viewModel.onAction(CardDetailAction.Load(cardId)) }
+    LaunchedEffect(kycJustVerified) {
+        if (kycJustVerified) {
+            viewModel.onAction(CardDetailAction.KycVerified)
+            onKycAcknowledged()
+        }
+    }
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -141,7 +155,7 @@ fun CardDetailScreen(
         }
     }
 
-    CardDetailContent(state, viewModel::onAction, onBack)
+    CardDetailContent(state, viewModel::onAction, onBack, onStartKyc)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,6 +164,7 @@ internal fun CardDetailContent(
     state: CardDetailUiState,
     onAction: (CardDetailAction) -> Unit,
     onBack: () -> Unit,
+    onStartKyc: () -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -175,7 +190,7 @@ internal fun CardDetailContent(
             ) {
                 CardFace(card)
                 BalanceHeader(card)
-                if (card.isKycPending) KycPendingBanner(onResend = { onAction(CardDetailAction.ResendKyc) })
+                if (card.isKycPending) KycPendingBanner(onResend = onStartKyc)
                 CardControls(card, onAction)
                 HorizontalDivider()
                 Text(stringResource(Res.string.cards_transactions), style = MaterialTheme.typography.titleMedium)

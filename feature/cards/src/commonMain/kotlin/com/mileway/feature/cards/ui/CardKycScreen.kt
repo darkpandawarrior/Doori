@@ -69,20 +69,23 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun CardKycScreen(
-    onDone: () -> Unit,
+    // P29.C.1: `completed` distinguishes "finished the wizard" (Success screen's Done button)
+    // from "backed out early" — only the former should flip the card's isKycPending back in
+    // CardsNavigation/CardDetailViewModel.
+    onDone: (completed: Boolean) -> Unit,
     viewModel: CardKycViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     if (state.done) {
-        KycSuccess(onDone)
+        KycSuccess(onDone = { onDone(true) })
         return
     }
 
     FormSubmissionScaffold(
         title = stringResource(Res.string.cards_kyc_title),
         subtitle = stringResource(Res.string.cards_kyc_step, state.step + 1, state.totalSteps),
-        onBack = { if (state.step > 0) viewModel.onAction(CardKycAction.Back) else onDone() },
+        onBack = { if (state.step > 0) viewModel.onAction(CardKycAction.Back) else onDone(false) },
         onSubmit = { viewModel.onAction(CardKycAction.Next) },
         submitLabel = stringResource(if (state.isLastStep) Res.string.cards_submit else Res.string.cards_next),
         canSubmit = state.isCurrentStepValid && !state.isProcessing,

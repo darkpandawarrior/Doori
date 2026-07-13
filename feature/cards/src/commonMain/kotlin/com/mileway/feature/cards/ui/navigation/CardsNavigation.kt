@@ -1,5 +1,7 @@
 package com.mileway.feature.cards.ui.navigation
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -11,6 +13,9 @@ import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardKycScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
 import com.mileway.feature.cards.ui.CardsHomeScreen
+
+/** Key CardKycScreen's completion result is stashed under on the DETAIL entry's savedStateHandle. */
+private const val KYC_VERIFIED_KEY = "kyc_verified"
 
 /** Q.6: cards feature routes + nav graph (the home is the nested graph's start destination). */
 object CardRoutes {
@@ -42,17 +47,30 @@ fun NavGraphBuilder.cardsGraph(
         CardRequestScreen(onDone = { navController.popBackStack() })
     }
     composable(CardRoutes.KYC) {
-        CardKycScreen(onDone = { navController.popBackStack() })
+        CardKycScreen(
+            onDone = { completed ->
+                // P29.C.1: stash the result on the DETAIL entry (not this one, which is about to
+                // be popped) — the standard Navigation-Compose "pass a result back" pattern.
+                if (completed) {
+                    navController.previousBackStackEntry?.savedStateHandle?.set(KYC_VERIFIED_KEY, true)
+                }
+                navController.popBackStack()
+            },
+        )
     }
     composable(
         route = CardRoutes.DETAIL,
         arguments = listOf(navArgument("cardId") { type = NavType.StringType }),
     ) { entry ->
         val cardId = entry.arguments?.read { getStringOrNull("cardId") }?.toLongOrNull() ?: 0L
+        val kycJustVerified by entry.savedStateHandle.getStateFlow(KYC_VERIFIED_KEY, false).collectAsState()
         CardDetailScreen(
             cardId = cardId,
             onBack = { navController.popBackStack() },
             onClaimTransaction = onClaimTransaction,
+            onStartKyc = { navController.navigate(CardRoutes.KYC) },
+            kycJustVerified = kycJustVerified,
+            onKycAcknowledged = { entry.savedStateHandle[KYC_VERIFIED_KEY] = false },
         )
     }
 }

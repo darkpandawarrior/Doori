@@ -1,5 +1,10 @@
 package com.mileway.feature.payments.repository
 
+import com.mileway.core.ai.DuplicateDetector
+import com.mileway.core.ai.model.DedupCandidate
+import com.mileway.core.ai.model.DocField
+import com.mileway.core.ai.model.DuplicateVerdict
+import com.mileway.core.ai.model.ExtractedValue
 import com.mileway.feature.payments.model.PaymentDirection
 import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
@@ -32,6 +37,17 @@ class PaymentsRepository(private val clock: Clock = Clock.System) {
     private val submitted = mutableListOf<PaymentDraft>()
     private var counter = 0
 
+    // P29.C.7: local invoice-duplicate heuristic (core:ai's DuplicateDetector — same class the
+    // receipt-scan pipeline uses; default 5-minute window, i.e. "attached the same invoice image
+    // twice in the same session" rather than a long-term dupe). Seeded with one already-attached
+    // invoice, one minute ago, so the Possible/Confirmed branches are actually reachable in a demo
+    // or test, not just theoretical.
+    private val duplicateDetector = DuplicateDetector()
+    private val attachedInvoices =
+        mutableListOf(
+            DedupCandidate(ref = "PAY-5003", merchant = "amazon", total = "2499.0", timestampMillis = clock.now().toEpochMilliseconds() - 60_000L),
+        )
+
     fun submit(draft: PaymentDraft): PaymentResult {
         submitted += draft
         val id = "PAY-${4100 + submitted.size}"
@@ -43,6 +59,27 @@ class PaymentsRepository(private val clock: Clock = Clock.System) {
     }
 
     fun count(): Int = submitted.size
+
+    /** Checks a picked invoice's OCR fields against previously-attached invoices, no network lookup. */
+    fun checkInvoiceDuplicate(
+        fields: Map<DocField, ExtractedValue>,
+        timestampMillis: Long,
+    ): DuplicateVerdict = duplicateDetector.check(fields, timestampMillis, attachedInvoices)
+
+    /** Records a cleared attachment so later attaches can be checked against it too. */
+    fun recordInvoiceAttachment(
+        paymentId: String,
+        fields: Map<DocField, ExtractedValue>,
+        timestampMillis: Long,
+    ) {
+        attachedInvoices +=
+            DedupCandidate(
+                ref = paymentId,
+                merchant = fields[DocField.MERCHANT]?.value,
+                total = fields[DocField.TOTAL]?.value,
+                timestampMillis = timestampMillis,
+            )
+    }
 
     private fun all(): List<PaymentRecord> {
         val now = clock.now().toEpochMilliseconds()

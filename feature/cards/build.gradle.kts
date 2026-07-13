@@ -7,6 +7,8 @@ kotlin {
         namespace = "com.mileway.feature.cards"
         compileSdk = 37
         minSdk = 30
+        // P29.C.1: run commonTest (CardDetailViewModel KYC-completion test) on the JVM host.
+        withHostTest {}
     }
 
     sourceSets {
@@ -20,6 +22,10 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(project(":stub"))
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

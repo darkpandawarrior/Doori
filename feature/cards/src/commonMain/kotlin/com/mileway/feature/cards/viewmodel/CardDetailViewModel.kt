@@ -50,7 +50,12 @@ sealed interface CardDetailAction {
 
     data class IssuePhysicalCard(val address: CardShippingAddress) : CardDetailAction
 
-    data object ResendKyc : CardDetailAction
+    /**
+     * P29.C.1: fired when [com.mileway.feature.cards.viewmodel.CardKycViewModel]'s wizard
+     * finishes (replaces the old toast-only `ResendKyc` stub — `KycPendingBanner`'s button now
+     * navigates straight to the real wizard instead of dispatching a ViewModel action).
+     */
+    data object KycVerified : CardDetailAction
 }
 
 sealed interface CardDetailEffect {
@@ -85,8 +90,27 @@ class CardDetailViewModel(
             CardDetailAction.OpenPhysicalCard -> setState { copy(showPhysicalCardDialog = true) }
             CardDetailAction.DismissPhysicalCard -> setState { copy(showPhysicalCardDialog = false) }
             is CardDetailAction.IssuePhysicalCard -> issuePhysicalCard()
-            CardDetailAction.ResendKyc -> emitEffect(CardDetailEffect.ShowToast(UiText.Static("Kyc link posted successfully")))
+            CardDetailAction.KycVerified -> kycVerified()
         }
+    }
+
+    /**
+     * P29.C.1: the wizard (`CardKycScreen`) reports completion back through nav (see
+     * `CardsNavigation`'s savedStateHandle result). Flips [CardModel.isKycPending] the same way
+     * [toggleFreeze]/[toggleBlock] mutate the locally-held card — this feature has no Room-backed
+     * persistence, so every control here is a session-scoped mutation of the loaded card, not a
+     * durable write (consistent with the rest of this ViewModel).
+     */
+    private fun kycVerified() {
+        val current = (currentState.card as? ScreenState.Content)?.data ?: return
+        if (!current.isKycPending) return
+        mutateCard {
+            it.copy(
+                isKycPending = false,
+                status = if (it.status == CardStatus.KYC_PENDING) CardStatus.ACTIVE else it.status,
+            )
+        }
+        emitEffect(CardDetailEffect.ShowToast(UiText.Static("KYC verified successfully")))
     }
 
     private fun load(cardId: Long) {

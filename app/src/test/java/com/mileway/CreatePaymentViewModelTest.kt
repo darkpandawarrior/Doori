@@ -42,8 +42,11 @@ class CreatePaymentViewModelTest {
         assertTrue(vm.state.value.canSubmit)
     }
 
+    // P29.C.6: `Submit` now drives a real IDLE->SUBMITTING->POLLING->SUCCESS/FAILED state machine
+    // (each stage a genuine delay()) instead of one flat synchronous result; `PaymentResult.Pending`
+    // resolves into a SUCCESS after one extra polling round rather than surfacing its own effect.
     @Test
-    fun `submits rotate through completed, pending and failed`() = runTest {
+    fun `submits rotate through completed (twice, one via the pending-polling path) then failed`() = runTest {
         val vm = viewModel()
         vm.onAction(CreatePaymentAction.SetCounterparty("chai@stall"))
         vm.onAction(CreatePaymentAction.SetAmount("60"))
@@ -52,7 +55,7 @@ class CreatePaymentViewModelTest {
             vm.onAction(CreatePaymentAction.Submit)
             assertTrue(awaitItem() is CreatePaymentEffect.Completed)
             vm.onAction(CreatePaymentAction.Submit)
-            assertTrue(awaitItem() is CreatePaymentEffect.Pending)
+            assertTrue(awaitItem() is CreatePaymentEffect.Completed) // resolved via the Pending/polling path
             vm.onAction(CreatePaymentAction.Submit)
             assertTrue(awaitItem() is CreatePaymentEffect.Failed)
         }
