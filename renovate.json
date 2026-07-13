@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "ignoreUnstable": false,
+  "respectLatest": false,
+  "gradle": { "enabled": true },
+  "packageRules": [
+    {
+      "description": "kmp-toolkit-family tracks bleeding edge incl. alpha/beta/milestone",
+      "matchDatasources": ["maven"],
+      "ignoreUnstable": false
+    }
+  ]
+}
