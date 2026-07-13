@@ -2,6 +2,8 @@ package com.mileway.feature.agent.di
 
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.analytics.IosAgentAnalyticsStore
+import com.mileway.feature.agent.engine.llm.FoundationModelsLlmGateway
+import com.mileway.feature.agent.engine.llm.LlmGateway
 import com.mileway.feature.agent.voice.IosSpeechToText
 import com.mileway.feature.agent.voice.IosTextToSpeech
 import com.mileway.feature.agent.voice.SpeechToText
@@ -14,4 +16,6 @@ actual val agentPlatformModule: Module =
         single<SpeechToText> { IosSpeechToText() }
         single<TextToSpeech> { IosTextToSpeech() }
         single<AgentAnalyticsStore> { IosAgentAnalyticsStore() }
+        // EXPERIMENTAL — Apple Foundation Models, see FoundationModelsLlmGateway.
+        single<LlmGateway> { FoundationModelsLlmGateway() }
     }

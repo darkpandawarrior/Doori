@@ -21,6 +21,9 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.datastore.preferences)
+            // LlmGateway actual: ML Kit GenAI Prompt API (Gemini Nano), same engine core:ai's
+            // MlKitGenAiAnalyzer uses for document extraction. EXPERIMENTAL — see MlKitLlmGateway.
+            implementation(libs.mlkit.genai.prompt)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

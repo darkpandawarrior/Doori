@@ -17,6 +17,8 @@ class LlmAssistantEngineTest {
     @Test
     fun `streams tokens from gateway and finalises with Done`() = runTest {
         val fakeGateway = object : LlmGateway {
+            override fun isAvailable(): Boolean = true
+
             override fun stream(prompt: String): Flow<String> = flowOf("Hello", " world")
         }
         val engine = LlmAssistantEngine(fakeGateway)
