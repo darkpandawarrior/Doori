@@ -88,6 +88,9 @@ sit under the same [portfolio](https://cv-siddharth.vercel.app/).
 - 🔥 **Ember theme, four platforms from one KMP core.** A warm amber/red dark theme (replacing an
   earlier phosphor-green look) skins Android/iOS phone, Wear OS, watchOS and Compose Desktop — all
   from the same `commonMain` architecture.
+- 📄 **On-device document intelligence.** A capture-to-form pipeline combines on-device AI, text
+  recognition and heuristics — OCR field-fill, doc-type classification and duplicate detection — on
+  device where the platform supports it, degrading gracefully everywhere else.
 
 ## Screenshots
 
@@ -240,15 +243,17 @@ Every feature is fully interactive on mocked, offline data.
 | Area | What's inside |
 |---|---|
 | **Tracking** | Live GPS trip tracking on a foreground service (jitter suppression, spike detection, four-bucket accounting, device-tier-adaptive sampling, config-driven abnormal detection); geofenced check-in with manual fallback; saved tracks (journey/submission tabs); trip insights; hardware-events log; multi-frame odometer OCR with typed start/end snapshots; multi-session restore of interrupted trips; a success screen with a policy-driven reimbursement amount; GPX / CSV / KML / GeoJSON **import &amp; export** plus Excel export. |
-| **Logging &amp; Expenses** | Step-by-step manual trip logging backed by a durable Room submit-outbox (survives kill/relaunch); expense entry → detail → success chain; a shared policy rate engine for mileage reimbursement. |
+| **Logging &amp; Expenses** | Step-by-step manual trip logging backed by a durable Room submit-outbox (survives kill/relaunch); a 2-step add-expense wizard with entry-context linking (trip / card / advance / event / scanner), concurrent bulk submit and multi-currency; a shared policy rate engine for mileage reimbursement. |
 | **Travel** | Travel hub, active-trip card (flight / train), upcoming bookings, plus trip &amp; booking history surfaces. |
-| **Approvals &amp; Payables** | Approval queue with policy-violation badges and seek-clarification sheet; payables hub, multi-step create-PR / invoice flows and history surfaces. |
-| **Payments, Events &amp; Cards** | QR pay / request + history; event creation + history; card home / detail / request (KYC-lite). |
+| **Approvals &amp; Payables** | Approval queue with policy-violation badges; persistent clarification rooms with lifecycle/metadata/history and rich chat + attachments, shared across every transaction type via a common detail scaffold with comments, audit trail and action flags; payables hub, multi-step create-PR / invoice flows and history surfaces. |
+| **Payments, Events &amp; Cards** | QR pay / request + history; event creation, history and rich event detail; card home / detail / request with KYC, QR, dispute and limits flows. |
 | **Profile &amp; Account (super-profile, V24)** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, MaterialKolor theme engine; **plus V24 depth:** verification centre + corporate-email/OTP verification, growth surfaces (referral, coupons, scratch rewards, campaigns), membership (Mileway Club, subscription plans, incentive programs), account-deletion lifecycle, enriched active-sessions, **act-on-behalf session delegation** with an app-wide "Acting as" banner, external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle + QR), and a manager/reportee tracking view. |
 | **Customization / personas (V24)** | A single **plugin registry** is the composition mechanism — every feature (tile, capability, tunable value) gates through it, resolved by layering FORCED &gt; USER &gt; PRESET &gt; DEFAULT. A **Master Plugin page** toggles any of them live with source chips; **persona presets** (Corporate Commuter, Super-App Consumer, Gig Driver, Minimal Guest) reshape the whole app — different hubs, auth flows, tracking behavior and tunable knobs — from one account. Tracking settings (accuracy/interval/displacement floors, force-GPS, sync toggles) are registry-backed and persisted, driving the live location engine. |
 | **Local dev &amp; infra** | A local analytics sink with a kill switch, a Ktor network-log + API-tester debug console, and a server-driven tracking config loaded from local JSON — all offline, no backend. |
-| **Media** | CameraX capture (flash, pinch-zoom, tap-focus), on-device odometer OCR, attachment grid. |
-| **Master search** | A registry-based search that fans a query across every feature module. |
+| **Media &amp; document intelligence** | Unified capture (camera/gallery, CameraX flash/pinch-zoom/tap-focus, VNDocumentCamera scanner on iOS) behind one contract used by every call site; on-device document-intelligence pipeline — OCR field-fill, doc-type classification and duplicate detection, combining on-device AI, text recognition and heuristics and degrading gracefully where a model isn't available; QR / barcode scanning; real watermark burn-in; attachment grid. |
+| **Dynamic forms** | A 16-field-type form engine driving expense/claim entry — validation, conditional visibility, GST auto-calc, and AI field suggestions from the document-intelligence pipeline. |
+| **Master search** | A registry-based search that fans a query across five providers spanning every feature module. |
+| **Analytics** | Filterable, trend-aware Canvas dashboards with export and a leaderboard view. |
 
 ## Architecture
 
@@ -334,6 +339,9 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | `:core:security` | Device-integrity (root) detection, encryption-ready storage |
 | `:core:maps` · `-krossmap` · `-maplibre` | Map-surface contract + flavor-specific implementations |
 | `:core:common` | Shared utilities / primitives |
+| `:core:media` | Unified capture contract (camera/gallery) + launcher, watermarking, odometer OCR orchestration |
+| `:core:ai` | On-device document-intelligence pipeline — OCR field-fill, doc-type classification, duplicate detection, degrading gracefully without a model |
+| `:core:forms` | Dynamic form engine — 16 field types, validation, conditional visibility, GST auto-calc |
 | `:feature:*` | tracking · logging · media · profile · approvals · payables · travel · agent · cards · payments · events |
 | `:stub` | Deterministic mock data for every repository (no backend) |
 | `:wear` | Wear OS app — dashboard, trip list/detail, tile, complication, ongoing activity, phone sync |
@@ -355,7 +363,10 @@ Mileway/
 │   ├── platform/             # expect/actual platform services
 │   ├── security/             # root detection, encryption-ready storage
 │   ├── maps/ maps-krossmap/ maps-maplibre/   # map-surface contract + impls
-│   └── common/               # shared utilities
+│   ├── common/                # shared utilities
+│   ├── media/                 # unified capture contract + launcher, watermarking, OCR orchestration
+│   ├── ai/                    # on-device document-intelligence pipeline
+│   └── forms/                 # dynamic form engine (16 field types, validation, GST)
 ├── feature/                  # tracking · logging · media · profile · approvals
 │                             # payables · travel · agent · cards · payments · events
 ├── stub/                     # deterministic mock data for every repository
@@ -383,6 +394,8 @@ Mileway/
 | Concurrency | Coroutines + Flow (no LiveData); `kotlinx-datetime` **0.8.0** in commonMain |
 | Maps | osmdroid / MapLibre (`noGms`, offline MBTiles) · KrossMap (`gms`) |
 | Charts | Canvas-only (no MPAndroidChart / Vico) |
+| Capture | Peekaboo (KMP camera/gallery) |
+| On-device AI | ML Kit GenAI (Gemini Nano) + text recognition + barcode scanning (Android), Vision (iOS) |
 | Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.67.0** screenshots |
 | Quality | detekt **2.0.0-alpha.5**, ktlint, Kover, dependency-guard |
 | SDK | compileSdk **37**, minSdk **30**, JDK 21 |
