@@ -46,7 +46,7 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **28-module** clean architecture (11 feature · 9 core), Room schema **v39**, **149** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **31-module** clean architecture (11 feature · 12 core), Room schema **v47**, **149** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why Mileway
