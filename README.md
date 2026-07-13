@@ -91,6 +91,10 @@ sit under the same [portfolio](https://cv-siddharth.vercel.app/).
 - 📄 **On-device document intelligence.** A capture-to-form pipeline combines on-device AI, text
   recognition and heuristics — OCR field-fill, doc-type classification and duplicate detection — on
   device where the platform supports it, degrading gracefully everywhere else.
+- 🤖 **On-device LLM assistant.** The expense chat runs against a real on-device model behind a
+  shared `LlmGateway` — ML Kit GenAI on Android, Apple Foundation Models on iOS via a Swift bridge
+  (`xcodebuild`-gated, not device-verified) — degrading to the offline retrieval engine wherever no
+  model is available. Not a stub response generator.
 
 ## Screenshots
 
@@ -152,7 +156,9 @@ The Mileway Club benefits, subscription plans, the active subscription and incen
 ### AI assistant
 
 The on-device assistant: an expense chat, saved conversation history and the built-in question
-analytics.
+analytics. Backed by a shared `LlmGateway` — ML Kit GenAI on Android, Apple Foundation Models on
+iOS (Swift-bridge, `xcodebuild`-gated, not yet device-verified) — degrading to the offline
+retrieval engine wherever a model isn't available.
 
 ![Assistant chat, conversation history and chat analytics](docs/gifs/ai_assistant.gif)
 
@@ -386,17 +392,19 @@ Mileway/
 |---|---|
 | Language | Kotlin **2.4.20-Beta1** |
 | UI | Compose Multiplatform **1.12.0-beta01**, Material 3 |
-| Build | AGP **9.4.0-alpha03**, Gradle Kotlin DSL, convention plugins, version catalog |
+| Build | AGP **9.4.0-alpha04**, Gradle **9.7.0-milestone-3**, KSP **2.3.10**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
 | Database | Room **2.8.4** (KMP, bundled SQLite) |
 | Settings / session | AndroidX DataStore |
 | Networking | Ktor **3.5.1** (OkHttp + Darwin engines), mocked with no live backend |
 | Concurrency | Coroutines + Flow (no LiveData); `kotlinx-datetime` **0.8.0** in commonMain |
+| Navigation | compose-nav-graph-annotations **0.2.1** |
 | Maps | osmdroid / MapLibre (`noGms`, offline MBTiles) · KrossMap (`gms`) |
 | Charts | Canvas-only (no MPAndroidChart / Vico) |
+| Theming | MaterialKolor **5.0.0** |
 | Capture | Peekaboo (KMP camera/gallery) |
-| On-device AI | ML Kit GenAI (Gemini Nano) + text recognition + barcode scanning (Android), Vision (iOS) |
-| Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.67.0** screenshots |
+| On-device AI | ML Kit GenAI (Android) / Apple Foundation Models (iOS, Swift-bridge) behind a shared `LlmGateway`, text recognition + barcode scanning, degrading to an offline heuristic engine where a model isn't available |
+| Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.68.0** screenshots |
 | Quality | detekt **2.0.0-alpha.5**, ktlint, Kover, dependency-guard |
 | SDK | compileSdk **37**, minSdk **30**, JDK 21 |
 
@@ -509,6 +517,10 @@ roadmap reflects direction rather than commitments.
       voice I/O (STT/TTS); feedback, export and real-usage popular-question ranking; full
       `commonMain` + iOS parity. (A dedicated Popular/Unanswered analytics screen and persisted
       unanswered-question submission are still open — tracked as backlog.)
+- [x] **On-device LLM backing (post-V25).** `LlmGateway` swaps the assistant onto a real on-device
+      model — ML Kit GenAI on Android, Apple Foundation Models on iOS (Swift bridge,
+      `xcodebuild`-gated, not yet device-verified) — degrading to the offline retrieval engine
+      wherever no model is available.
 - [x] Matrix / terminal design-language pass across the whole UI (theme tokens, topbar, screenshots)
 - [x] Renamed the project and package from MileTracker(Demo) to Mileway end-to-end
 - [x] **Multi-account depth (V22).** Room-backed multi-persona account store with a real
