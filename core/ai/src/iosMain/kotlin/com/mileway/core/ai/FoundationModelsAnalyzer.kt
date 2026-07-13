@@ -1,9 +1,5 @@
 package com.mileway.core.ai
 
-import com.mileway.core.ai.model.AiExtraction
-import com.mileway.core.ai.model.DocPrompt
-import com.mileway.core.ai.model.DocumentImageRef
-
 // ponytail: EXPERIMENTAL — Apple FoundationModels (LanguageModelSession/@Generable/
 // SystemLanguageModel, iOS 18.1+/26) is NOT reachable from Kotlin/Native cinterop on this
 // toolchain (Kotlin 2.4.20-Beta1 / Kotlin-Native prebuilt 2.4.20-Beta1 & 2.3.21): there is no
@@ -14,19 +10,16 @@ import com.mileway.core.ai.model.DocumentImageRef
 // ([VisionTextRecognizer]) or `platform.VisionKit.*` (`MediaCaptureLauncher.ios.kt`'s document
 // scanner), which both ARE present. FoundationModels is new enough (and its Swift-macro-driven
 // `@Generable` guided output has no Objective-C-compatible surface at all) that def-file
-// generation hasn't caught up. A real actual needs a small Swift-side bridge framework exposing
-// a plain ObjC-compatible API Kotlin/Native can cinterop against — revisit once Kotlin/Native's
-// platform libs pick up FoundationModels, or once a hand-rolled Swift bridge target exists in
-// this repo's iOS app shell.
+// generation hasn't caught up. Kotlin/Native still exports plain Kotlin interfaces TO Swift as
+// ObjC protocols though (see `core:media`'s `DocumentAiAnalyzer` usage) — so the real actual is a
+// Swift class conforming to [DocumentAiAnalyzer], injected at app-startup into
+// [FoundationModelsBridge]. See `iosApp/iosApp/ai/FoundationModelsDocumentAnalyzer.swift`.
 //
-// Until then this stub keeps reporting unavailable, so DocumentIntelligence exercises its
-// degrade path (TEXT_RECOGNITION + HEURISTIC_CLASSIFIER only) on every iOS device today,
-// including hardware that genuinely has Apple Intelligence.
-class FoundationModelsAnalyzer : DocumentAiAnalyzer {
-    override fun isAvailable(): Boolean = false
-
-    override suspend fun extract(
-        image: DocumentImageRef,
-        prompt: DocPrompt,
-    ): AiExtraction? = null
+// Until the Swift app registers a bridge, [FoundationModelsBridge]'s seam degrades to
+// unavailable, so DocumentIntelligence exercises its degrade path (TEXT_RECOGNITION +
+// HEURISTIC_CLASSIFIER only) — same behavior this stub always had.
+object FoundationModelsBridge {
+    val seam = InjectableDocumentAiAnalyzer()
 }
+
+class FoundationModelsAnalyzer : DocumentAiAnalyzer by FoundationModelsBridge.seam

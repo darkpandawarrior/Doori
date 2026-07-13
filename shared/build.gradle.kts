@@ -18,6 +18,9 @@ plugins {
  *  - feature:tracking → MilwayViewController (IosTrackingEntry), IosBgTaskDispatcher
  *  - feature:agent    → iosAgentModule (IosAgentEntry)
  *  - feature:logging  → IosIntentEntry (iOS App Intents start/stop/log-expense bridge)
+ *  - core:ai          → DocumentAiAnalyzer, FoundationModelsBridge, AiExtraction/DocPrompt models
+ *    (V26 AI: lets Swift conform to DocumentAiAnalyzer and register a Foundation Models bridge —
+ *    see `iosApp/iosApp/ai/FoundationModelsDocumentAnalyzer.swift`)
  */
 kotlin {
     android {
@@ -36,6 +39,7 @@ kotlin {
             export(project(":feature:tracking"))
             export(project(":feature:agent"))
             export(project(":feature:logging"))
+            export(project(":core:ai"))
         }
     }
 
@@ -71,6 +75,7 @@ kotlin {
             api(project(":feature:tracking"))
             api(project(":feature:agent"))
             api(project(":feature:logging"))
+            api(project(":core:ai"))
 
             // Remaining feature deps — the hoisted app-shell (home/nav/auth/search) composes every
             // feature at the composition root, so this module depends on all of them (as :app did).
