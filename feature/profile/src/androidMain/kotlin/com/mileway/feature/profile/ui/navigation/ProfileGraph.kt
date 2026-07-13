@@ -44,6 +44,7 @@ import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SelfAuditScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
+import com.mileway.feature.profile.ui.screens.StorageManagementScreen
 import com.mileway.feature.profile.ui.screens.SupportChatScreen
 import com.mileway.feature.profile.ui.screens.SupportHubScreen
 import com.mileway.feature.profile.ui.screens.TrainingTourScreen
@@ -95,6 +96,7 @@ object ProfileRoutes {
     const val FAVOURITES = "profile/favourites"
     const val OFFERS_HUB = "profile/offers"
     const val TRAINING_TOUR = "profile/tour"
+    const val STORAGE_MANAGEMENT = "profile/storage"
 
     fun selfAuditRoute(vehicleId: String) = "profile/garage/$vehicleId/audit"
 
@@ -301,7 +303,11 @@ fun NavGraphBuilder.profileGraph(
             onBack = { navController.popBackStack() },
             onOpenNotificationCenter = { navController.navigate(ProfileRoutes.NOTIFICATIONS) },
             onOpenConnectedAccounts = { navController.navigate(ProfileRoutes.CONNECTED_ACCOUNTS) },
+            onOpenStorageManagement = { navController.navigate(ProfileRoutes.STORAGE_MANAGEMENT) },
         )
+    }
+    composable(ProfileRoutes.STORAGE_MANAGEMENT) {
+        StorageManagementScreen(onBack = { navController.popBackStack() })
     }
     composable(ProfileRoutes.CONNECTED_ACCOUNTS) {
         ConnectedAccountsScreen(

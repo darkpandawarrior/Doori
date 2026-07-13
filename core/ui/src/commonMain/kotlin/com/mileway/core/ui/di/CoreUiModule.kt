@@ -1,9 +1,11 @@
 package com.mileway.core.ui.di
 
 import com.mileway.core.ui.home.HomePluginConfigController
+import com.mileway.core.ui.support.BugReportViewModel
 import com.mileway.core.ui.theme.LocaleController
 import com.mileway.core.ui.theme.ThemeController
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 /**
@@ -24,4 +26,6 @@ val coreUiModule =
         single { LocaleController() }
         // P25.A5.3: Home-section visibility flags; V29 P29.H.1 gates HomeViewModel on this.
         single { HomePluginConfigController(prefs = get()) }
+        // P31.MISC.1: shake-to-report quick-actions sheet.
+        viewModelOf(::BugReportViewModel)
     }

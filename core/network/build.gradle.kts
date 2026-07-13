@@ -8,6 +8,10 @@ kotlin {
         namespace = "com.mileway.core.network"
         compileSdk = 37
         minSdk = 30
+        // V31 Z.5a: run commonTest on the JVM host so NetworkLogStore/NetworkLogEntry tests count
+        // toward the ./gradlew testAndroidHostTest quality-gate aggregate (AGP KMP library plugin
+        // disables host tests by default).
+        withHostTest {}
     }
 
     sourceSets {
@@ -25,6 +29,9 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
+        }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
     }
 }

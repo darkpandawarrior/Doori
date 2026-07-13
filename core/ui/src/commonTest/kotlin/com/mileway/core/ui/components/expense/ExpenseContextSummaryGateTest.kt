@@ -4,6 +4,7 @@ import com.mileway.core.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.ScannerPrefill
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue

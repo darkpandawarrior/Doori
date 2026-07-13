@@ -54,7 +54,11 @@ class WearScreenshotGalleryTest {
             WearMilewayTheme {
                 AppScaffold {
                     val listState = rememberScalingLazyListState()
-                    ScreenScaffold(scrollState = listState) {
+                    // Z.5c: ScreenScaffold's default timeText renders the real wall-clock time, so
+                    // the golden drifted by a few pixels on every re-record depending on when the
+                    // test ran. Suppress it here (production still shows the live clock) — a fixed
+                    // empty header is the deterministic choice for a golden image.
+                    ScreenScaffold(scrollState = listState, timeText = {}) {
                         WearDashboard(
                             uiState =
                                 WearRootUiState(
@@ -80,7 +84,8 @@ class WearScreenshotGalleryTest {
             WearMilewayTheme {
                 AppScaffold {
                     val listState = rememberScalingLazyListState()
-                    ScreenScaffold(scrollState = listState) {
+                    // Z.5c: see wearDashboard()'s comment — fixed empty timeText for determinism.
+                    ScreenScaffold(scrollState = listState, timeText = {}) {
                         TripListScreen(
                             trips = mockTrips(),
                             listState = listState,

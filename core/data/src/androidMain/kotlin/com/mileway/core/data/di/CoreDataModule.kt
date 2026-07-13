@@ -87,6 +87,9 @@ val coreDataModule =
         single { com.mileway.core.data.popup.PopupAckRepository(get(), get()) }
         single { get<MilewayDatabase>().clarificationDao() }
         single { get<MilewayDatabase>().approvalCommentDao() }
+        single { get<MilewayDatabase>().bugReportDao() }
+        // P31.MISC.1: shake-to-report capture store (local only, no backend).
+        single { com.mileway.core.data.support.BugReportRepository(get()) }
         single { get<MilewayDatabase>().emergencyContactDao() }
         // PLAN_V24 P3.5: shared by the profile management screen and the tracking SOS sheet.
         single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }

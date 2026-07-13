@@ -90,6 +90,7 @@ fun PreferencesScreen(
     onBack: () -> Unit,
     onOpenNotificationCenter: () -> Unit = {},
     onOpenConnectedAccounts: () -> Unit = {},
+    onOpenStorageManagement: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = org.koin.compose.koinInject(),
 ) {
@@ -242,6 +243,16 @@ fun PreferencesScreen(
                     icon = Icons.Default.Storage,
                     status = ProfileItemStatus.COMPLETE,
                     action = { showStorageSheet = true },
+                ),
+                // P31.MISC.2: the full tiered storage-management screen (Safe/Caution/Danger clearers),
+                // alongside the quick cache-only sheet above.
+                ProfileGridItem(
+                    id = "storage_management",
+                    title = "Manage storage",
+                    subtitle = "Clear cache, preferences, or local data",
+                    icon = Icons.Default.Storage,
+                    status = ProfileItemStatus.COMPLETE,
+                    action = onOpenStorageManagement,
                 ),
             ) +
                 // PLAN_V24 P1.5: change-password entry, only when the plugin is on (Corporate persona).

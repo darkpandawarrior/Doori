@@ -15,6 +15,9 @@ kotlin {
         namespace = "com.mileway.core.ui"
         compileSdk = 37
         minSdk = 30
+        // V31 Z.5a: run commonTest on the JVM host so it counts toward the quality-gate's
+        // ./gradlew testAndroidHostTest aggregate (AGP KMP library plugin disables host tests by default).
+        withHostTest {}
     }
 
     // The `Mileway` iOS framework is produced by the `:shared` umbrella module (which exports both
@@ -36,6 +39,8 @@ kotlin {
 
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            // P31.MISC.1: koinViewModel() for BugReportViewModel (ShakeReportHost/BugReportSheet).
+            implementation(libs.koin.compose.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.datastore.preferences.core)
             implementation(libs.materialkolor)

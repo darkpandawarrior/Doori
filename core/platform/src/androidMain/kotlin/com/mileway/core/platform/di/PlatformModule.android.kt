@@ -15,6 +15,7 @@ import com.mileway.core.platform.LocationTracker
 import com.mileway.core.platform.MotionSensorProvider
 import com.mileway.core.platform.NotificationScheduler
 import com.mileway.core.platform.OfflineLocationNameResolver
+import com.mileway.core.platform.ShakeGestureDetector
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.UrlOpener
@@ -52,6 +53,8 @@ actual fun platformModule(): Module =
         single<Haptics> { AndroidHaptics(androidContext()) }
         // O: cross-platform motion sensors (accelerometer + gyroscope).
         single<MotionSensorProvider> { AndroidMotionSensorProvider(androidContext()) }
+        // P31.MISC.1: shake-to-report, layered on the same accelerometer stream as motion state.
+        single { ShakeGestureDetector(get()) }
         // P-D.2: live presence surface (updates ongoing notification from each snapshot).
         single<TrackingPresenceController> { AndroidTrackingPresenceController(androidContext()) }
     }

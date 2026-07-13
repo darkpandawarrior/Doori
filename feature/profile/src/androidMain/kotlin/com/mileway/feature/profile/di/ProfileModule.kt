@@ -52,6 +52,7 @@ import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.SelfAuditViewModel
 import com.mileway.feature.profile.viewmodel.SignatureViewModel
+import com.mileway.feature.profile.viewmodel.StorageManagementViewModel
 import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
@@ -133,6 +134,8 @@ val profileModule =
         viewModelOf(::ConnectedAccountsViewModel)
         // P6.6: Preferences' Storage tile/sheet (real cache-size readout + clear-cache action).
         viewModelOf(::StorageViewModel)
+        // P31.MISC.2: the full tiered storage-management screen (Safe/Caution/Danger clearers).
+        viewModelOf(::StorageManagementViewModel)
         // P10.2: now takes PluginRegistry (persisted sync defaults) + CurrentTrackDataSource
         // (current-journey override) — both are Koin singles, so viewModelOf resolves them too, but
         // spelled out for clarity alongside the new constructor shape.

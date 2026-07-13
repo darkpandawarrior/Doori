@@ -91,6 +91,7 @@ import com.mileway.core.ui.toast.AppToastHost
 import com.mileway.core.ui.components.bottombar.BubbleNavItem
 import com.mileway.core.ui.components.bottombar.CollapsedBottomPuck
 import com.mileway.core.ui.state.ShellBottomBarState
+import com.mileway.core.ui.support.ShakeReportHost
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.feature.approvals.model.ClarificationRoomSummary
@@ -435,6 +436,10 @@ fun MilewayAppRoot(
                     onDelegateEnd = { delegationScope.launch { delegationSource.endDelegation() } },
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
+
+                // P31.MISC.1: shake-to-report — no visible UI until the device is shaken, then pops
+                // the quick-actions sheet open on top of whatever screen is showing.
+                ShakeReportHost(screen = backStackEntry?.destination?.route ?: "unknown")
 
                 // Global AI assistant FAB — hidden while agent chat is open.
                 val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()

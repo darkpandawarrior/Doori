@@ -2,6 +2,7 @@ package com.mileway
 
 import android.content.Context
 import com.mileway.core.data.settings.StorageRepository
+import com.mileway.core.data.settings.StorageTier
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Rule
@@ -28,14 +29,22 @@ class StorageRepositoryTest {
 
     private lateinit var cacheDir: File
     private lateinit var dbDir: File
+    private lateinit var filesDir: File
 
     private fun repository(): StorageRepository {
         cacheDir = tmp.newFolder("cache")
         dbDir = tmp.newFolder("databases")
+        filesDir = tmp.newFolder("files")
         val context =
             mockk<Context> {
                 every { cacheDir } returns this@StorageRepositoryTest.cacheDir
+                every { filesDir } returns this@StorageRepositoryTest.filesDir
                 every { getDatabasePath(any()) } answers { File(dbDir, firstArg()) }
+                every { deleteDatabase(any()) } answers {
+                    dbDir.listFiles { file -> file.name.startsWith(firstArg<String>()) }
+                        ?.forEach { it.delete() }
+                    true
+                }
             }
         return StorageRepository(context)
     }
@@ -69,5 +78,38 @@ class StorageRepositoryTest {
         File(cacheDir, "demo.tmp").writeBytes(ByteArray(1_024))
 
         assertEquals(repository.databaseBytes() + repository.cacheBytes(), repository.totalBytes())
+    }
+
+    @Test
+    fun `storageAreas reports cache as Safe, preferences as Caution, database as Danger`() {
+        val repository = repository()
+        val areas = repository.storageAreas().associateBy { it.id }
+
+        assertEquals(StorageTier.SAFE, areas.getValue(StorageRepository.AREA_CACHE).tier)
+        assertEquals(StorageTier.CAUTION, areas.getValue(StorageRepository.AREA_PREFERENCES).tier)
+        assertEquals(StorageTier.DANGER, areas.getValue(StorageRepository.AREA_DATABASE).tier)
+    }
+
+    @Test
+    fun `clearArea AREA_PREFERENCES empties the datastore directory`() {
+        val repository = repository()
+        val datastoreDir = File(filesDir, "datastore").also { it.mkdirs() }
+        File(datastoreDir, "session.preferences_pb").writeBytes(ByteArray(512))
+        assertTrue(repository.preferencesBytes() > 0L)
+
+        repository.clearArea(StorageRepository.AREA_PREFERENCES)
+
+        assertEquals(0L, repository.preferencesBytes())
+    }
+
+    @Test
+    fun `clearArea AREA_DATABASE deletes the database file`() {
+        val repository = repository()
+        File(dbDir, "mileway.db").writeBytes(ByteArray(1_024))
+        assertTrue(repository.databaseBytes() > 0L)
+
+        repository.clearArea(StorageRepository.AREA_DATABASE)
+
+        assertEquals(0L, repository.databaseBytes())
     }
 }

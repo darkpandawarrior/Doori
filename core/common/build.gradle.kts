@@ -8,6 +8,9 @@ kotlin {
         namespace = "com.mileway.core.common"
         compileSdk = 37
         minSdk = 30
+        // V31 Z.5a: run commonTest on the JVM host so it counts toward the quality-gate's
+        // ./gradlew testAndroidHostTest aggregate (AGP KMP library plugin disables host tests by default).
+        withHostTest {}
     }
 
     sourceSets {

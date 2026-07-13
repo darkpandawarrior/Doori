@@ -5,6 +5,29 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 46 → 47 (PLAN_V31 P31.MISC.1): additive `bug_reports` table — the shake-to-report
+ * capture store. Saved locally only, no backend (see CLAUDE.md "The backend"); empty on first run,
+ * a row is appended per submitted report, never edited.
+ */
+val MIGRATION_46_47 =
+    object : Migration(46, 47) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `bug_reports` (
+                    `id`          TEXT    NOT NULL PRIMARY KEY,
+                    `title`       TEXT    NOT NULL,
+                    `description` TEXT    NOT NULL,
+                    `screen`      TEXT    NOT NULL,
+                    `timestampMs` INTEGER NOT NULL,
+                    `appVersion`  TEXT    NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
+/**
  * Migration 45 → 46 (PLAN_V29 P29.S.6): additive `deeplink` column on `notifications` — lets the
  * Notification Centre's `onClick` route somewhere real instead of doing nothing. Existing rows
  * default to empty string (resolves to [com.mileway.core.common.deeplink.DeepLinkTarget.Unknown], a
