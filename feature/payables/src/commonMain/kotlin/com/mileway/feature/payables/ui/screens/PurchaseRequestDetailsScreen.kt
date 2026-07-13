@@ -58,6 +58,7 @@ import com.mileway.core.ui.resources.payables_detail_office_location
 import com.mileway.core.ui.resources.payables_detail_po_number
 import com.mileway.core.ui.resources.payables_detail_total_amount
 import com.mileway.core.ui.resources.payables_download_pdf
+import com.mileway.core.ui.resources.payables_line_gst_percent
 import com.mileway.core.ui.resources.payables_line_items
 import com.mileway.core.ui.resources.payables_po_not_found
 import com.mileway.core.ui.resources.payables_po_status_approved
@@ -286,7 +287,11 @@ private fun PoLineItemsCard(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(item.description, style = MaterialTheme.typography.bodySmall)
-                        Text("GST ${item.gstPercent}%", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(Res.string.payables_line_gst_percent, item.gstPercent),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                     Text("${item.qty}", style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.size(DesignTokens.Spacing.l))

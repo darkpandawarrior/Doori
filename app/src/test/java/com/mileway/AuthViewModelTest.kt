@@ -49,12 +49,11 @@ class AuthViewModelTest {
             assertIs<MilewayAuthState.Loading>(step1)
             assertEquals(1, step1.step)
             assertEquals(3, step1.totalSteps)
-            assertTrue(step1.label.isNotBlank())
 
             val step2 = awaitItem()
             assertIs<MilewayAuthState.Loading>(step2)
             assertEquals(2, step2.step)
-            assertTrue(step2.label != step1.label)
+            assertTrue(step2.labelRes != step1.labelRes)
 
             val step3 = awaitItem()
             assertIs<MilewayAuthState.Loading>(step3)

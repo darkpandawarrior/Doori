@@ -68,6 +68,8 @@ import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_cd_clear
+import com.mileway.core.ui.resources.tracking_hw_export_csv
+import com.mileway.core.ui.resources.tracking_hw_export_json
 import com.mileway.core.ui.resources.tracking_hw_export_prompt
 import com.mileway.core.ui.resources.tracking_hw_export_title
 import com.mileway.core.ui.resources.tracking_hw_no_events
@@ -130,7 +132,7 @@ fun HardwareEventsLogScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.button,
-            ) { Text("CSV") }
+            ) { Text(stringResource(Res.string.tracking_hw_export_csv)) }
             OutlinedButton(
                 onClick = {
                     showExportDialog = false
@@ -146,7 +148,7 @@ fun HardwareEventsLogScreen(
                 },
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.button,
-            ) { Text("JSON") }
+            ) { Text(stringResource(Res.string.tracking_hw_export_json)) }
         }
     }
 

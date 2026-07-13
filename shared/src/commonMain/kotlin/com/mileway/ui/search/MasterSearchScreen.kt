@@ -49,10 +49,12 @@ import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.resources.core_cd_clear
 import com.mileway.core.ui.resources.shared_search_empty_subtitle
 import com.mileway.core.ui.resources.shared_search_empty_title
+import com.mileway.core.ui.resources.shared_search_load_error
 import com.mileway.core.ui.resources.shared_search_no_matches_subtitle
 import com.mileway.core.ui.resources.shared_search_no_matches_title
 import com.mileway.core.ui.resources.shared_search_placeholder
@@ -324,11 +326,11 @@ private fun FailedGroupRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            "Couldn't load ${type.displayLabel}",
+            stringResource(Res.string.shared_search_load_error, type.displayLabel),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
         )
-        TextButton(onClick = onRetry) { Text("Retry") }
+        TextButton(onClick = onRetry) { Text(stringResource(Res.string.action_retry)) }
     }
 }
 

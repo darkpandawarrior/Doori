@@ -3124,4 +3124,23 @@
     <string name="logging_expense_step_of_2">चरण %1$d/2</string>
     <string name="logging_policy_sheet_submit_anyway">फिर भी सबमिट करें</string>
     <string name="logging_policy_sheet_review">विवरण देखें</string>
+    <!-- V31 P31.L10N: L10N sweep backfill — remaining literals found in shared/tracking/events/payables. -->
+    <string name="shared_signin_step_validating">क्रेडेंशियल सत्यापित हो रहे हैं…</string>
+    <string name="shared_signin_step_preparing">स्थानीय सत्र तैयार हो रहा है…</string>
+    <string name="shared_signin_step_done">पूर्ण</string>
+    <string name="shared_welcome_disclosure_location_title">स्थान</string>
+    <string name="shared_welcome_disclosure_location_reason">आपके ट्रिप का मार्ग रिकॉर्ड करने के लिए</string>
+    <string name="shared_welcome_disclosure_notifications_title">सूचनाएं</string>
+    <string name="shared_welcome_disclosure_notifications_reason">ट्रैकिंग स्थिति दिखाने के लिए</string>
+    <string name="shared_onboarding_slide1_title">हर मील ट्रैक करें</string>
+    <string name="shared_onboarding_slide1_caption">एक ट्रिप शुरू करें और Mileway आपका मार्ग, दूरी और अवधि अपने आप रिकॉर्ड करता है।</string>
+    <string name="shared_onboarding_slide2_title">पूरी तरह ऑफलाइन काम करता है</string>
+    <string name="shared_onboarding_slide2_caption">सिग्नल न हो तो भी कोई समस्या नहीं। ट्रिप आपके डिवाइस पर सेव होती हैं और जब चाहें तैयार मिलती हैं।</string>
+    <string name="shared_onboarding_slide3_title">आपका डेटा वहीं रहता है</string>
+    <string name="shared_onboarding_slide3_caption">सब कुछ आपके फोन पर स्थानीय रूप से रहता है: कहीं भी माइलेज कैप्चर करें, कुछ भी सिंक नहीं होता।</string>
+    <string name="shared_search_load_error">%1$s लोड नहीं हो सका</string>
+    <string name="tracking_hw_export_csv">CSV</string>
+    <string name="tracking_hw_export_json">JSON</string>
+    <string name="events_detail_capacity_actual">क्षमता %1$d · वास्तविक %2$d</string>
+    <string name="payables_line_gst_percent">जीएसटी %1$d%%</string>
 </resources>

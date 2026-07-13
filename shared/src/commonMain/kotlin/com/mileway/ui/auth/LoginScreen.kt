@@ -105,9 +105,16 @@ import com.mileway.core.ui.resources.shared_login_duplicate_create_new
 import com.mileway.core.ui.resources.shared_login_duplicate_subtitle
 import com.mileway.core.ui.resources.shared_login_duplicate_title
 import com.mileway.core.ui.resources.shared_login_tagline
+import com.mileway.core.ui.resources.shared_onboarding_slide1_caption
+import com.mileway.core.ui.resources.shared_onboarding_slide1_title
+import com.mileway.core.ui.resources.shared_onboarding_slide2_caption
+import com.mileway.core.ui.resources.shared_onboarding_slide2_title
+import com.mileway.core.ui.resources.shared_onboarding_slide3_caption
+import com.mileway.core.ui.resources.shared_onboarding_slide3_title
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -129,8 +136,8 @@ private const val POST_SUCCESS_PAUSE_MS = 250L
  */
 private data class OnboardingSlide(
     val icon: ImageVector,
-    val title: String,
-    val caption: String,
+    val titleRes: StringResource,
+    val captionRes: StringResource,
 )
 
 /** The three onboarding slides cycled by the welcome pager. */
@@ -138,18 +145,18 @@ private val ONBOARDING_SLIDES =
     listOf(
         OnboardingSlide(
             icon = Icons.Filled.Explore,
-            title = "Track every mile",
-            caption = "Start a trip and Mileway records your route, distance, and duration automatically.",
+            titleRes = Res.string.shared_onboarding_slide1_title,
+            captionRes = Res.string.shared_onboarding_slide1_caption,
         ),
         OnboardingSlide(
             icon = Icons.Filled.CloudOff,
-            title = "Works fully offline",
-            caption = "No signal, no problem. Trips are saved on your device and are ready whenever you are.",
+            titleRes = Res.string.shared_onboarding_slide2_title,
+            captionRes = Res.string.shared_onboarding_slide2_caption,
         ),
         OnboardingSlide(
             icon = Icons.Filled.LocationOn,
-            title = "Your data stays put",
-            caption = "Everything lives locally on your phone: capture mileage anywhere, sync nothing.",
+            titleRes = Res.string.shared_onboarding_slide3_title,
+            captionRes = Res.string.shared_onboarding_slide3_caption,
         ),
     )
 
@@ -470,7 +477,7 @@ private fun SignInProgressOverlay(state: MilewayAuthState) {
                 val stepNumber = index + 1
                 val completed = isComplete || stepNumber < activeStep
                 val active = !isComplete && stepNumber == activeStep
-                SignInStepRow(label = step.label, completed = completed, active = active)
+                SignInStepRow(label = stringResource(step.labelRes), completed = completed, active = active)
                 if (stepNumber != SIGN_IN_STEPS.size) {
                     Spacer(Modifier.height(DesignTokens.Spacing.s))
                 }
@@ -801,6 +808,8 @@ private fun OnboardingSlideContent(
     slide: OnboardingSlide,
     onTap: () -> Unit,
 ) {
+    val title = stringResource(slide.titleRes)
+    val caption = stringResource(slide.captionRes)
     Column(
         modifier =
             Modifier
@@ -811,7 +820,7 @@ private fun OnboardingSlideContent(
                     indication = null,
                     onClick = onTap,
                 )
-                .semantics { contentDescription = "${slide.title}. ${slide.caption}" },
+                .semantics { contentDescription = "$title. $caption" },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(
@@ -832,7 +841,7 @@ private fun OnboardingSlideContent(
         Spacer(Modifier.height(DesignTokens.Spacing.l))
 
         Text(
-            text = slide.title,
+            text = title,
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -842,7 +851,7 @@ private fun OnboardingSlideContent(
         Spacer(Modifier.height(DesignTokens.Spacing.s))
 
         Text(
-            text = slide.caption,
+            text = caption,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

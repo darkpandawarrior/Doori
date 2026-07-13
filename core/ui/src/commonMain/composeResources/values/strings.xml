@@ -3129,4 +3129,23 @@
     <string name="logging_expense_step_of_2">Step %1$d of 2</string>
     <string name="logging_policy_sheet_submit_anyway">Submit Anyway</string>
     <string name="logging_policy_sheet_review">Review Details</string>
+    <!-- V31 P31.L10N: L10N sweep backfill — remaining literals found in shared/tracking/events/payables. -->
+    <string name="shared_signin_step_validating">Validating credentials…</string>
+    <string name="shared_signin_step_preparing">Preparing local session…</string>
+    <string name="shared_signin_step_done">Done</string>
+    <string name="shared_welcome_disclosure_location_title">Location</string>
+    <string name="shared_welcome_disclosure_location_reason">to record your trip route</string>
+    <string name="shared_welcome_disclosure_notifications_title">Notifications</string>
+    <string name="shared_welcome_disclosure_notifications_reason">to show tracking status</string>
+    <string name="shared_onboarding_slide1_title">Track every mile</string>
+    <string name="shared_onboarding_slide1_caption">Start a trip and Mileway records your route, distance, and duration automatically.</string>
+    <string name="shared_onboarding_slide2_title">Works fully offline</string>
+    <string name="shared_onboarding_slide2_caption">No signal, no problem. Trips are saved on your device and are ready whenever you are.</string>
+    <string name="shared_onboarding_slide3_title">Your data stays put</string>
+    <string name="shared_onboarding_slide3_caption">Everything lives locally on your phone: capture mileage anywhere, sync nothing.</string>
+    <string name="shared_search_load_error">Couldn\'t load %1$s</string>
+    <string name="tracking_hw_export_csv">CSV</string>
+    <string name="tracking_hw_export_json">JSON</string>
+    <string name="events_detail_capacity_actual">Capacity %1$d · Actual %2$d</string>
+    <string name="payables_line_gst_percent">GST %1$d%%</string>
 </resources>

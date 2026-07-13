@@ -7,6 +7,10 @@ import com.mileway.core.data.otp.OtpDelivery
 import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.network.model.DemoAccount
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.shared_signin_step_done
+import com.mileway.core.ui.resources.shared_signin_step_preparing
+import com.mileway.core.ui.resources.shared_signin_step_validating
 import com.mileway.feature.profile.repository.MockAccountRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -16,17 +20,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.StringResource
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 /**
  * One named step in the staged sign-in sequence, e.g. "Validating credentials…".
  *
- * @property label copy shown next to the step's checklist row.
+ * @property labelRes localizable copy shown next to the step's checklist row.
  * @property durationMs how long this step stays active before advancing to the next one.
  */
 data class AuthSignInStep(
-    val label: String,
+    val labelRes: StringResource,
     val durationMs: Long,
 )
 
@@ -38,9 +43,9 @@ data class AuthSignInStep(
  */
 internal val SIGN_IN_STEPS =
     listOf(
-        AuthSignInStep(label = "Validating credentials…", durationMs = 350L),
-        AuthSignInStep(label = "Preparing local session…", durationMs = 350L),
-        AuthSignInStep(label = "Done", durationMs = 200L),
+        AuthSignInStep(labelRes = Res.string.shared_signin_step_validating, durationMs = 350L),
+        AuthSignInStep(labelRes = Res.string.shared_signin_step_preparing, durationMs = 350L),
+        AuthSignInStep(labelRes = Res.string.shared_signin_step_done, durationMs = 200L),
     )
 
 /**
@@ -60,7 +65,7 @@ sealed interface MilewayAuthState {
     data class Loading(
         val step: Int,
         val totalSteps: Int,
-        val label: String,
+        val labelRes: StringResource,
     ) : MilewayAuthState
 
     data object Success : MilewayAuthState
@@ -157,7 +162,7 @@ class AuthViewModel(
                         MilewayAuthState.Loading(
                             step = index + 1,
                             totalSteps = SIGN_IN_STEPS.size,
-                            label = step.label,
+                            labelRes = step.labelRes,
                         )
                     delay(step.durationMs)
                 }

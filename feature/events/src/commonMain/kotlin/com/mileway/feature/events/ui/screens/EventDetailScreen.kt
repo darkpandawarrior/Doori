@@ -67,6 +67,7 @@ import com.mileway.core.ui.resources.events_delete_description
 import com.mileway.core.ui.resources.events_delete_title
 import com.mileway.core.ui.resources.events_detail_actual_amount
 import com.mileway.core.ui.resources.events_detail_budgeted_amount
+import com.mileway.core.ui.resources.events_detail_capacity_actual
 import com.mileway.core.ui.resources.events_detail_per_head
 import com.mileway.core.ui.resources.events_detail_section_linked_expenses
 import com.mileway.core.ui.resources.events_detail_section_summary
@@ -210,7 +211,10 @@ private fun SummarySection(event: EventRecord) {
 
         // P29.E.2: capacity vs actual-attendance + variance chip.
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("Capacity ${event.capacity} · Actual ${event.actualAttendance}", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(Res.string.events_detail_capacity_actual, event.capacity, event.actualAttendance),
+                style = MaterialTheme.typography.bodyMedium,
+            )
             AttendanceVarianceChip(event.capacity, event.actualAttendance)
         }
 

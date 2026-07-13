@@ -34,27 +34,32 @@ import com.mileway.core.ui.resources.action_continue
 import com.mileway.core.ui.resources.action_not_now
 import com.mileway.core.ui.resources.shared_welcome_disclaimer_body
 import com.mileway.core.ui.resources.shared_welcome_disclaimer_title
+import com.mileway.core.ui.resources.shared_welcome_disclosure_location_reason
+import com.mileway.core.ui.resources.shared_welcome_disclosure_location_title
+import com.mileway.core.ui.resources.shared_welcome_disclosure_notifications_reason
+import com.mileway.core.ui.resources.shared_welcome_disclosure_notifications_title
 import com.mileway.core.ui.theme.DesignTokens
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 /** One disclosed permission row: icon, title, and the reason Mileway is asking for it. */
 private data class PermissionDisclosure(
     val icon: ImageVector,
-    val title: String,
-    val reason: String,
+    val titleRes: StringResource,
+    val reasonRes: StringResource,
 )
 
 private val DISCLOSURES =
     listOf(
         PermissionDisclosure(
             icon = Icons.Filled.LocationOn,
-            title = "Location",
-            reason = "to record your trip route",
+            titleRes = Res.string.shared_welcome_disclosure_location_title,
+            reasonRes = Res.string.shared_welcome_disclosure_location_reason,
         ),
         PermissionDisclosure(
             icon = Icons.Filled.Notifications,
-            title = "Notifications",
-            reason = "to show tracking status",
+            titleRes = Res.string.shared_welcome_disclosure_notifications_title,
+            reasonRes = Res.string.shared_welcome_disclosure_notifications_reason,
         ),
     )
 
@@ -146,12 +151,12 @@ private fun PermissionRow(disclosure: PermissionDisclosure) {
         Spacer(Modifier.width(DesignTokens.Spacing.m))
         Column {
             Text(
-                text = disclosure.title,
+                text = stringResource(disclosure.titleRes),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
-                text = disclosure.reason,
+                text = stringResource(disclosure.reasonRes),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
