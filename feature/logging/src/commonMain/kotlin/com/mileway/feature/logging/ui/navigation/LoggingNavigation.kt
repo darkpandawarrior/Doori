@@ -122,6 +122,13 @@ object LoggingRoutes {
                 label = context.advanceLabel.orEmpty()
                 amount = ""
             }
+            is ExpenseSourceContext.Event -> {
+                type = "event"
+                id1 = context.eventId
+                id2 = ""
+                label = context.eventLabel.orEmpty()
+                amount = ""
+            }
             is ExpenseSourceContext.Edit -> {
                 type = "edit"
                 id1 = context.expenseId
@@ -139,7 +146,7 @@ object LoggingRoutes {
 /**
  * Reverse of [LoggingRoutes.expenseEntryRoute]: rebuilds the [ExpenseSourceContext] the
  * expense-entry route arrived with. A blank/unrecognized [ctxType] (the plain "Add Expense" tap,
- * or any variant this task didn't wire — Event/Message/Scanner/TripAdvance) resolves to
+ * or any variant this task didn't wire — Message/Scanner/TripAdvance) resolves to
  * [ExpenseSourceContext.None], identical to the pre-P27.E.5/7/8 fresh-ViewModel default. P27.E.1
  * adds "edit": the merged wizard's edit/resubmit entry point, replacing the old separate
  * edit-details route — [com.mileway.feature.logging.viewmodel.ExpenseViewModel.openWithContext]
@@ -160,6 +167,7 @@ internal fun decodeExpenseSourceContext(
         "trip" -> ExpenseSourceContext.Trip(id1, label)
         "card" -> ExpenseSourceContext.Card(id1, id2, label, amount)
         "advance" -> ExpenseSourceContext.Advance(id1, label)
+        "event" -> ExpenseSourceContext.Event(id1, label)
         "edit" -> ExpenseSourceContext.Edit(id1)
         else -> ExpenseSourceContext.None
     }

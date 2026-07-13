@@ -79,6 +79,7 @@
     <string name="events_history_title">इवेंट</string>
     <string name="events_tab_all">सभी</string>
     <string name="events_status_draft">ड्राफ़्ट</string>
+    <string name="events_status_pending_approval">अनुमोदन लंबित</string>
     <string name="events_status_published">प्रकाशित</string>
     <string name="events_status_cancelled">रद्द</string>
     <string name="events_status_completed">पूर्ण</string>
@@ -88,6 +89,25 @@
     <string name="events_attendees_count">%1$s उपस्थित</string>
     <string name="events_create_subtitle">इवेंट विवरण और कार्यक्रम</string>
     <string name="events_history_subtitle">आपके इवेंट और RSVP</string>
+    <string name="events_detail_section_summary">सारांश</string>
+    <string name="events_detail_section_linked_expenses">जुड़े हुए खर्च</string>
+    <string name="events_detail_budgeted_amount">बजट %1$s</string>
+    <string name="events_detail_actual_amount">वास्तविक %1$s</string>
+    <string name="events_detail_per_head">%1$s / व्यक्ति</string>
+    <string name="events_action_approve">स्वीकृत करें</string>
+    <string name="events_action_reject">अस्वीकार करें</string>
+    <string name="events_action_delete_confirm">हटाएं</string>
+    <string name="events_action_create_expense">खर्च बनाएँ</string>
+    <string name="events_action_link_expenses">खर्च जोड़ें</string>
+    <string name="events_delete_title">इवेंट हटाएं?</string>
+    <string name="events_delete_description">यह %1$s को स्थायी रूप से हटा देगा। इसे पूर्ववत नहीं किया जा सकता।</string>
+    <string name="events_edit_sheet_title">इवेंट संपादित करें</string>
+    <string name="events_edit_budget_field">बजट राशि</string>
+    <string name="events_link_sheet_title">खर्च जोड़ें</string>
+    <string name="events_link_confirm">%1$s जोड़ें</string>
+    <string name="events_no_linked_expenses">अभी तक कोई खर्च जुड़ा नहीं है</string>
+    <string name="events_no_expenses_to_link">जोड़ने के लिए कोई खर्च उपलब्ध नहीं है</string>
+    <string name="events_toast_deleted">इवेंट हटाया गया</string>
     <!-- payments -->
     <string name="payments_create_title">भुगतान / अनुरोध</string>
     <string name="payments_section_mode">मोड</string>

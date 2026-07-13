@@ -29,6 +29,7 @@ import com.mileway.core.ui.resources.events_search_placeholder
 import com.mileway.core.ui.resources.events_status_cancelled
 import com.mileway.core.ui.resources.events_status_completed
 import com.mileway.core.ui.resources.events_status_draft
+import com.mileway.core.ui.resources.events_status_pending_approval
 import com.mileway.core.ui.resources.events_status_published
 import com.mileway.core.ui.resources.events_tab_all
 import com.mileway.feature.events.model.EventRecord
@@ -43,6 +44,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun EventsHistoryScreen(
     onBack: () -> Unit,
+    onOpenEvent: (String) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: EventsHistoryViewModel = koinViewModel(),
 ) {
@@ -67,13 +69,16 @@ fun EventsHistoryScreen(
         emptySubtitle = stringResource(Res.string.events_empty_subtitle),
         itemKey = { it.id },
     ) { event ->
-        EventCard(event)
+        EventCard(event, onClick = { onOpenEvent(event.id) })
     }
 }
 
 @Composable
-private fun EventCard(event: EventRecord) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+private fun EventCard(
+    event: EventRecord,
+    onClick: () -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -83,7 +88,7 @@ private fun EventCard(event: EventRecord) {
                 StatusChip(label = event.status.localizedLabel(), tone = toneFor(event.status))
             }
             Text(
-                "${event.venue} · ${event.category}",
+                "${event.venue} · ${event.category.label}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = 4.dp),
@@ -98,9 +103,10 @@ private fun EventCard(event: EventRecord) {
     }
 }
 
-private fun toneFor(status: EventStatus): StatusTone =
+internal fun toneFor(status: EventStatus): StatusTone =
     when (status) {
         EventStatus.DRAFT -> StatusTone.Neutral
+        EventStatus.PENDING_APPROVAL -> StatusTone.Warning
         EventStatus.PUBLISHED -> StatusTone.Success
         EventStatus.CANCELLED -> StatusTone.Error
         EventStatus.COMPLETED -> StatusTone.Info
@@ -108,9 +114,10 @@ private fun toneFor(status: EventStatus): StatusTone =
 
 /** Localized display label for an event status; the enum's `label` stays canonical for search. */
 @Composable
-private fun EventStatus.localizedLabel(): String =
+internal fun EventStatus.localizedLabel(): String =
     when (this) {
         EventStatus.DRAFT -> stringResource(Res.string.events_status_draft)
+        EventStatus.PENDING_APPROVAL -> stringResource(Res.string.events_status_pending_approval)
         EventStatus.PUBLISHED -> stringResource(Res.string.events_status_published)
         EventStatus.CANCELLED -> stringResource(Res.string.events_status_cancelled)
         EventStatus.COMPLETED -> stringResource(Res.string.events_status_completed)

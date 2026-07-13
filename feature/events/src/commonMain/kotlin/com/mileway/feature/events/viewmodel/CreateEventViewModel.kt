@@ -1,6 +1,7 @@
 package com.mileway.feature.events.viewmodel
 
 import com.mileway.core.ui.mvi.BaseViewModel
+import com.mileway.feature.events.model.EventCategory
 import com.mileway.feature.events.repository.EventDraft
 import com.mileway.feature.events.repository.EventResult
 import com.mileway.feature.events.repository.EventsRepository
@@ -10,7 +11,7 @@ data class CreateEventUiState(
     val venue: String = "",
     val date: String = "",
     val capacityText: String = "",
-    val category: String = "",
+    val category: EventCategory = EventCategory.OTHER,
     val isSubmitting: Boolean = false,
     val lastResult: EventResult? = null,
 ) {
@@ -30,7 +31,7 @@ sealed interface CreateEventAction {
 
     data class SetCapacity(val value: String) : CreateEventAction
 
-    data class SetCategory(val value: String) : CreateEventAction
+    data class SetCategory(val value: EventCategory) : CreateEventAction
 
     data object Submit : CreateEventAction
 }
@@ -69,7 +70,7 @@ class CreateEventViewModel(
                     venue = s.venue.trim(),
                     date = s.date.trim(),
                     capacity = s.capacity ?: 0,
-                    category = s.category.trim(),
+                    category = s.category,
                 ),
             )
         setState { copy(isSubmitting = false, lastResult = result) }

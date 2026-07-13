@@ -369,7 +369,10 @@ fun MilewayAppRoot(
                         paymentsGraph(navController)
                     }
                     navigation(startDestination = EventsRoutes.HOME, route = AppGraph.EVENTS) {
-                        eventsGraph(navController)
+                        eventsGraph(
+                            navController = navController,
+                            onLogExpense = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                        )
                     }
                     navigation(startDestination = ApprovalsRoutes.HOME, route = AppGraph.APPROVALS) {
                         approvalsGraph(navController)
