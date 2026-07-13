@@ -47,6 +47,8 @@ import com.mileway.core.ui.resources.cards_back
 import com.mileway.core.ui.resources.cards_confirm_card_type
 import com.mileway.core.ui.resources.cards_confirm_reason
 import com.mileway.core.ui.resources.cards_confirm_scheme
+import com.mileway.core.ui.resources.cards_default_daily_limit
+import com.mileway.core.ui.resources.cards_default_single_limit
 import com.mileway.core.ui.resources.cards_done
 import com.mileway.core.ui.resources.cards_next
 import com.mileway.core.ui.resources.cards_request_a_card
@@ -219,6 +221,13 @@ private fun ConfirmStep(
             Text(stringResource(Res.string.cards_confirm_card_type, type?.name ?: "-"), style = MaterialTheme.typography.bodyMedium)
             Text(stringResource(Res.string.cards_confirm_scheme, type?.scheme ?: "-"), style = MaterialTheme.typography.bodySmall)
             Text(stringResource(Res.string.cards_confirm_reason, state.reason), style = MaterialTheme.typography.bodySmall)
+            // P29.C.3: per-type limit defaults, surfaced at request time instead of only after issuance.
+            type?.defaultSingleTransactionLimit?.let {
+                Text(stringResource(Res.string.cards_default_single_limit, it.toInt()), style = MaterialTheme.typography.bodySmall)
+            }
+            type?.defaultDailyLimit?.let {
+                Text(stringResource(Res.string.cards_default_daily_limit, it.toInt()), style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
     Row(verticalAlignment = Alignment.CenterVertically) {

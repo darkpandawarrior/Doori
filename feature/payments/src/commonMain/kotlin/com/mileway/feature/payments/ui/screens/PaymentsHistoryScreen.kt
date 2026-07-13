@@ -27,7 +27,9 @@ import com.mileway.core.ui.resources.payments_empty_title
 import com.mileway.core.ui.resources.payments_history_subtitle
 import com.mileway.core.ui.resources.payments_history_title
 import com.mileway.core.ui.resources.payments_search_placeholder
+import com.mileway.core.ui.resources.payments_status_active
 import com.mileway.core.ui.resources.payments_status_completed
+import com.mileway.core.ui.resources.payments_status_expired
 import com.mileway.core.ui.resources.payments_status_failed
 import com.mileway.core.ui.resources.payments_status_pending
 import com.mileway.core.ui.resources.payments_tab_all
@@ -108,8 +110,10 @@ private fun PaymentCard(payment: PaymentRecord) {
 private fun toneFor(status: PaymentStatus): StatusTone =
     when (status) {
         PaymentStatus.PENDING -> StatusTone.Warning
+        PaymentStatus.ACTIVE -> StatusTone.Warning
         PaymentStatus.COMPLETED -> StatusTone.Success
         PaymentStatus.FAILED -> StatusTone.Error
+        PaymentStatus.EXPIRED -> StatusTone.Error
     }
 
 /** Localized display label for a payment status; the enum's `label` stays canonical for search. */
@@ -117,8 +121,10 @@ private fun toneFor(status: PaymentStatus): StatusTone =
 internal fun PaymentStatus.localizedLabel(): String =
     when (this) {
         PaymentStatus.PENDING -> stringResource(Res.string.payments_status_pending)
+        PaymentStatus.ACTIVE -> stringResource(Res.string.payments_status_active)
         PaymentStatus.COMPLETED -> stringResource(Res.string.payments_status_completed)
         PaymentStatus.FAILED -> stringResource(Res.string.payments_status_failed)
+        PaymentStatus.EXPIRED -> stringResource(Res.string.payments_status_expired)
     }
 
 /** Localized display label for a payment direction; the enum's `label` stays canonical for search. */

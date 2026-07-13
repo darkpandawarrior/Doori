@@ -6,11 +6,18 @@ enum class PaymentDirection(val label: String) {
     REQUEST("Request"),
 }
 
-/** Lifecycle status of a UPI/QR payment (PM). */
+/**
+ * Lifecycle status of a UPI/QR payment (PM). [ACTIVE]/[EXPIRED] are P29.C.8's QR *advance/request*
+ * lifecycle (a [PaymentDirection.REQUEST] is ACTIVE until it's paid — COMPLETED — or its validity
+ * window elapses unpaid — EXPIRED, see [PaymentRecord.effectiveStatus]). [PENDING] stays for PAY's
+ * still-settling case.
+ */
 enum class PaymentStatus(val label: String) {
     PENDING("Pending"),
+    ACTIVE("Active"),
     COMPLETED("Completed"),
     FAILED("Failed"),
+    EXPIRED("Expired"),
 }
 
 /** One row in the payments history (PM), a mocked UPI/QR pay or request. */
@@ -28,7 +35,18 @@ data class PaymentRecord(
     // managed to read off the picked image (invoice number/amount/date), keyed by DocField.name.
     val attachmentUrl: String? = null,
     val invoiceOcrPrefill: Map<String, String> = emptyMap(),
-)
+    // P29.C.8: only set for ACTIVE `REQUEST` records — the validity window after which an unpaid
+    // request is treated as EXPIRED. See [effectiveStatus].
+    val expiresAtMillis: Long? = null,
+) {
+    /** P29.C.8: ACTIVE requests past [expiresAtMillis] read as EXPIRED without mutating the stored row. */
+    fun effectiveStatus(nowMillis: Long): PaymentStatus =
+        if (status == PaymentStatus.ACTIVE && expiresAtMillis != null && nowMillis >= expiresAtMillis) {
+            PaymentStatus.EXPIRED
+        } else {
+            status
+        }
+}
 
 /**
  * P29.C.6: the reference app's IDLE/SUBMITTING/POLLING/SUCCESS/FAILED transaction lifecycle,

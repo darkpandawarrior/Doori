@@ -15,6 +15,19 @@ enum class CardRequestStatus { IN_PROGRESS, APPROVED, REJECTED }
 
 enum class ApprovalStepStatus { PENDING, APPROVED, REJECTED }
 
+/** P29.C.3: single-transaction vs daily card spending limits, parameterized instead of hard-coded fields. */
+enum class LimitKind { SINGLE_TRANSACTION, DAILY }
+
+/** P29.C.2: reference-app dispute reasons (kept as a flat list — no enum, matches how the web renders these as a picker). */
+val CARD_DISPUTE_REASONS =
+    listOf(
+        "Duplicate charge",
+        "Transaction not recognized",
+        "Incorrect amount",
+        "Suspected fraud",
+        "Other",
+    )
+
 data class MccGroupModel(
     val id: Long,
     val name: String,
@@ -36,7 +49,27 @@ data class ApprovalMatrixModel(
     val name: String,
     val description: String = "",
     val thresholdRules: List<ThresholdRuleModel> = emptyList(),
-)
+) {
+    /**
+     * P29.C.4: pick the tier whose bounds contain [amount] (falling back to the last/highest
+     * tier for amounts above every declared upper bound) and turn its plain step-name list into
+     * an ordered [ApprovalStepModel] timeline. The first step is always the one currently acted
+     * on (APPROVED, since a request only reaches a card once step 1 clears); the rest are PENDING.
+     */
+    fun stepsFor(amount: Double): List<ApprovalStepModel> {
+        val rule =
+            thresholdRules.firstOrNull { amount >= it.lowerBound && (it.upperBound == null || amount < it.upperBound) }
+                ?: thresholdRules.lastOrNull()
+        return rule?.approvalSteps.orEmpty().mapIndexed { index, title ->
+            ApprovalStepModel(
+                id = index.toLong(),
+                title = title,
+                status = if (index == 0) ApprovalStepStatus.APPROVED else ApprovalStepStatus.PENDING,
+                order = index,
+            )
+        }
+    }
+}
 
 data class CardTypeModel(
     val id: Long,
@@ -97,6 +130,16 @@ data class CardTransactionModel(
     val description: String? = null,
     val location: String? = null,
     val requiresApproval: Boolean = false,
+    // P29.C.2: reason picked in the dispute sheet once this transaction flips to REJECTED.
+    val disputeReason: String? = null,
+)
+
+/** P29.C.5: one row in a card's local lifecycle/audit log (freeze/block/limit/KYC actions). */
+data class CardAuditEntry(
+    val id: Long,
+    val timestampMillis: Long,
+    val action: String,
+    val detail: String = "",
 )
 
 data class ApprovalStepModel(

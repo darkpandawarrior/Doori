@@ -36,12 +36,17 @@ data class CreatePaymentUiState(
     val attachmentUrl: String? = null,
     val invoiceOcrPrefill: Map<String, String> = emptyMap(),
     val duplicatePrompt: DuplicateVerdict.Possible? = null,
+    // P29.C.8: REQUEST (QR advance/request) submissions are gated on this declaration checkbox;
+    // PAY isn't (mirrors the reference app's declaration only applying to money-in requests).
+    val declarationAccepted: Boolean = false,
 ) {
     val amount: Double? get() = amountText.toDoubleOrNull()
 
-    /** Submit is gated on a counterparty (UPI id / payee) and a positive amount (PM validation). */
+    val requiresDeclaration: Boolean get() = direction == PaymentDirection.REQUEST
+
+    /** Submit is gated on a counterparty (UPI id / payee), a positive amount, and — for REQUEST — the declaration checkbox. */
     val canSubmit: Boolean
-        get() = counterparty.isNotBlank() && (amount ?: 0.0) > 0.0
+        get() = counterparty.isNotBlank() && (amount ?: 0.0) > 0.0 && (!requiresDeclaration || declarationAccepted)
 
     val requiresPin: Boolean get() = (amount ?: 0.0) >= PIN_REQUIRED_AMOUNT
 
@@ -57,6 +62,8 @@ sealed interface CreatePaymentAction {
     data class SetAmount(val value: String) : CreatePaymentAction
 
     data class SetNote(val value: String) : CreatePaymentAction
+
+    data class SetDeclarationAccepted(val value: Boolean) : CreatePaymentAction
 
     data object Submit : CreatePaymentAction
 
@@ -112,6 +119,7 @@ class CreatePaymentViewModel(
             is CreatePaymentAction.SetCounterparty -> setState { copy(counterparty = action.value) }
             is CreatePaymentAction.SetAmount -> setState { copy(amountText = action.value) }
             is CreatePaymentAction.SetNote -> setState { copy(note = action.value) }
+            is CreatePaymentAction.SetDeclarationAccepted -> setState { copy(declarationAccepted = action.value) }
             CreatePaymentAction.Submit -> attemptSubmit()
             is CreatePaymentAction.SetPinDigits ->
                 setState { copy(pinText = action.value.filter { it.isDigit() }.take(PIN_LENGTH), pinError = false) }

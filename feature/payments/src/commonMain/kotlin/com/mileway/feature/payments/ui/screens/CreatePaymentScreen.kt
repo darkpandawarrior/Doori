@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -51,6 +52,7 @@ import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.payments_attach_invoice
 import com.mileway.core.ui.resources.payments_create_subtitle
 import com.mileway.core.ui.resources.payments_create_title
+import com.mileway.core.ui.resources.payments_declaration
 import com.mileway.core.ui.resources.payments_field_amount
 import com.mileway.core.ui.resources.payments_field_counterparty
 import com.mileway.core.ui.resources.payments_field_note
@@ -191,6 +193,20 @@ private fun PaymentFormScreen(
                     KeyboardType.Decimal,
                 ) { onAction(CreatePaymentAction.SetAmount(it)) }
                 Field(stringResource(Res.string.payments_field_note), ui.note) { onAction(CreatePaymentAction.SetNote(it)) }
+            }
+            // P29.C.8: QR advance/request declaration gate — REQUEST only, mirrors the reference
+            // app's "confirm this is a genuine ask" checkbox before a collect-request goes out.
+            if (ui.requiresDeclaration) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Checkbox(
+                        checked = ui.declarationAccepted,
+                        onCheckedChange = { onAction(CreatePaymentAction.SetDeclarationAccepted(it)) },
+                    )
+                    Text(stringResource(Res.string.payments_declaration), style = MaterialTheme.typography.bodySmall)
+                }
             }
         }
     }

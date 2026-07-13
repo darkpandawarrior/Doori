@@ -123,6 +123,9 @@
     <string name="payments_direction_pay">भुगतान करें</string>
     <string name="payments_direction_request">अनुरोध करें</string>
     <string name="payments_status_pending">लंबित</string>
+    <string name="payments_status_active">सक्रिय</string>
+    <string name="payments_status_expired">समाप्त</string>
+    <string name="payments_declaration">मैं घोषणा करता/करती हूं कि यह अनुरोध वास्तविक व्यावसायिक या व्यक्तिगत कारण के लिए है।</string>
     <string name="payments_status_completed">पूर्ण</string>
     <string name="payments_status_failed">विफल</string>
     <string name="payments_search_placeholder">भुगतान खोजें…</string>
@@ -286,6 +289,22 @@
     <string name="cards_status_pending">लंबित</string>
     <string name="cards_card_holder">कार्ड धारक</string>
     <string name="cards_valid_thru">वैध तिथि</string>
+    <string name="cards_tab_transactions">लेनदेन</string>
+    <string name="cards_tab_history">इतिहास</string>
+    <string name="cards_history_empty">अभी तक कोई कार्ड गतिविधि नहीं है।</string>
+    <string name="cards_approval_workflow">अनुमोदन प्रक्रिया</string>
+    <string name="cards_dispute">विवाद</string>
+    <string name="cards_dispute_transaction">लेनदेन विवाद</string>
+    <string name="cards_dispute_message">इस लेनदेन पर विवाद करने का कारण चुनें।</string>
+    <string name="cards_dispute_submit">विवाद सबमिट करें</string>
+    <string name="cards_set_single_limit">एकल-लेनदेन सीमा निर्धारित करें</string>
+    <string name="cards_single_limit_message">प्रति लेनदेन अनुमत अधिकतम राशि दर्ज करें।</string>
+    <string name="cards_single_limit_label">एकल-लेनदेन सीमा</string>
+    <string name="cards_set_daily_limit">दैनिक सीमा निर्धारित करें</string>
+    <string name="cards_daily_limit_message">प्रति दिन अनुमत अधिकतम राशि दर्ज करें।</string>
+    <string name="cards_daily_limit_label">दैनिक सीमा</string>
+    <string name="cards_default_single_limit">डिफ़ॉल्ट एकल-लेनदेन सीमा: %1$s</string>
+    <string name="cards_default_daily_limit">डिफ़ॉल्ट दैनिक सीमा: %1$s</string>
 
     <!-- L10n sweep profile (hi, partial) -->
     <string name="profile_sessions_title">सक्रिय सत्र</string>

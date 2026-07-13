@@ -6,6 +6,8 @@ import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
+import com.mileway.feature.payments.model.PaymentDirection
+import com.mileway.feature.payments.model.PaymentStatus
 import com.mileway.feature.payments.model.PaymentTransactionStatus
 import com.mileway.feature.payments.repository.PaymentsRepository
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +25,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 
 /**
  * P29.C.6/C.7: the IDLE/SUBMITTING/POLLING/SUCCESS/FAILED state machine, the PIN gate, and the
@@ -161,4 +164,44 @@ class CreatePaymentViewModelTest {
             assertNull(vm.state.value.duplicatePrompt)
             assertNull(vm.state.value.attachmentUrl)
         }
+
+    // P29.C.8: the declaration gate only applies to REQUEST (a QR "collect" ask), not PAY.
+    @Test
+    fun `REQUEST cannot submit until the declaration checkbox is accepted`() =
+        runTest {
+            val vm = newViewModel()
+            vm.onAction(CreatePaymentAction.SetDirection(PaymentDirection.REQUEST))
+            fillForm(vm)
+
+            assertFalse(vm.state.value.canSubmit)
+
+            vm.onAction(CreatePaymentAction.SetDeclarationAccepted(true))
+
+            assertTrue(vm.state.value.canSubmit)
+        }
+
+    @Test
+    fun `PAY direction never requires the declaration checkbox`() =
+        runTest {
+            val vm = newViewModel()
+            fillForm(vm)
+            assertFalse(vm.state.value.requiresDeclaration)
+            assertTrue(vm.state.value.canSubmit)
+        }
+
+    // P29.C.8: QR advance/request lifecycle — ACTIVE flips to EXPIRED once its validity window
+    // has elapsed unpaid, purely by re-reading (no mutation of the stored seed row).
+    @Test
+    fun `an ACTIVE request past its validity window reads as EXPIRED`() {
+        val clock = Clock.System
+        val repository = PaymentsRepository(clock)
+
+        val expired = repository.payments(PaymentStatus.EXPIRED)
+        assertTrue(expired.isNotEmpty())
+        assertTrue(expired.all { it.direction == PaymentDirection.REQUEST })
+
+        val active = repository.payments(PaymentStatus.ACTIVE)
+        assertTrue(active.isNotEmpty())
+        assertTrue(active.all { it.expiresAtMillis != null && it.expiresAtMillis!! > clock.now().toEpochMilliseconds() })
+    }
 }

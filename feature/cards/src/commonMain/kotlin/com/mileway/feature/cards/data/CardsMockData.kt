@@ -1,5 +1,6 @@
 package com.mileway.feature.cards.data
 
+import com.mileway.feature.cards.model.ApprovalMatrixModel
 import com.mileway.feature.cards.model.ApprovalStepModel
 import com.mileway.feature.cards.model.ApprovalStepStatus
 import com.mileway.feature.cards.model.CardModel
@@ -9,6 +10,7 @@ import com.mileway.feature.cards.model.CardStatus
 import com.mileway.feature.cards.model.CardTransactionModel
 import com.mileway.feature.cards.model.CardTxnClaimStatus
 import com.mileway.feature.cards.model.CardTypeModel
+import com.mileway.feature.cards.model.ThresholdRuleModel
 import kotlin.time.Clock
 
 /**
@@ -24,6 +26,8 @@ interface CardsMockDataProvider {
     fun cardById(id: Long): CardModel?
 
     fun cardTypes(): List<CardTypeModel>
+
+    fun cardTypeById(id: Long): CardTypeModel? = cardTypes().firstOrNull { it.id == id }
 
     fun transactions(cardId: Long): List<CardTransactionModel>
 
@@ -117,13 +121,56 @@ internal class CardsMockData(private val s: CardsStrings) : CardsMockDataProvide
 
     override fun cardById(id: Long): CardModel? = cards.firstOrNull { it.id == id }
 
+    // P29.C.4: threshold tiers reuse the same Manager/Finance step labels `requests()` already
+    // renders, so no new localized strings are needed for the approval-timeline card.
+    private val approvalMatrix =
+        ApprovalMatrixModel(
+            id = 1L,
+            name = "Standard corporate card approval",
+            thresholdRules =
+                listOf(
+                    ThresholdRuleModel(1L, lowerBound = 0.0, upperBound = 2000.0, approvalSteps = listOf(s.stepManager)),
+                    ThresholdRuleModel(2L, lowerBound = 2000.0, upperBound = null, approvalSteps = listOf(s.stepManager, s.stepFinance)),
+                ),
+        )
+
     override fun cardTypes(): List<CardTypeModel> =
         listOf(
-            CardTypeModel(1L, s.typeTravel, s.typeTravelDesc, "VISA", isDefault = true, defaultMonthlyLimit = 10000.0),
-            CardTypeModel(2L, s.typeFuel, s.typeFuelDesc, "VISA", defaultMonthlyLimit = 2000.0),
-            CardTypeModel(3L, s.typeProcurement, s.typeProcurementDesc, "MASTERCARD", defaultMonthlyLimit = 5000.0),
-            CardTypeModel(4L, s.typeCorporate, s.typeCorporateDesc, "VISA", isAiSuggested = true, defaultMonthlyLimit = 3000.0),
-            CardTypeModel(5L, s.typeIt, s.typeItDesc, "MASTERCARD", isAiSuggested = true, defaultMonthlyLimit = 1500.0),
+            CardTypeModel(
+                1L, s.typeTravel, s.typeTravelDesc, "VISA", isDefault = true,
+                defaultMonthlyLimit = 10000.0, defaultSingleTransactionLimit = 2000.0, defaultDailyLimit = 4000.0,
+                approvalMatrix = approvalMatrix,
+            ),
+            CardTypeModel(
+                2L,
+                s.typeFuel,
+                s.typeFuelDesc,
+                "VISA",
+                defaultMonthlyLimit = 2000.0,
+                defaultSingleTransactionLimit = 500.0,
+                defaultDailyLimit = 1000.0,
+                approvalMatrix = approvalMatrix,
+            ),
+            CardTypeModel(
+                3L,
+                s.typeProcurement,
+                s.typeProcurementDesc,
+                "MASTERCARD",
+                defaultMonthlyLimit = 5000.0,
+                defaultSingleTransactionLimit = 1500.0,
+                defaultDailyLimit = 3000.0,
+                approvalMatrix = approvalMatrix,
+            ),
+            CardTypeModel(
+                4L, s.typeCorporate, s.typeCorporateDesc, "VISA", isAiSuggested = true,
+                defaultMonthlyLimit = 3000.0, defaultSingleTransactionLimit = 1000.0, defaultDailyLimit = 2000.0,
+                approvalMatrix = approvalMatrix,
+            ),
+            CardTypeModel(
+                5L, s.typeIt, s.typeItDesc, "MASTERCARD", isAiSuggested = true,
+                defaultMonthlyLimit = 1500.0, defaultSingleTransactionLimit = 500.0, defaultDailyLimit = 1000.0,
+                approvalMatrix = approvalMatrix,
+            ),
         )
 
     override fun transactions(cardId: Long): List<CardTransactionModel> {

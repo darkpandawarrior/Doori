@@ -81,15 +81,22 @@ class PaymentsRepository(private val clock: Clock = Clock.System) {
             )
     }
 
+    // P29.C.8: QR advance/request validity window — an ACTIVE request unpaid past this many days
+    // reads as EXPIRED (computed, see [PaymentRecord.effectiveStatus]).
+    private val requestValidityDays = 7L
+
     private fun all(): List<PaymentRecord> {
         val now = clock.now().toEpochMilliseconds()
         val spec =
             listOf(
                 Spec(PaymentDirection.PAY, "chai@stall", 60.0, PaymentStatus.COMPLETED, "Morning chai", 0L),
                 Spec(PaymentDirection.PAY, "ola@upi", 340.0, PaymentStatus.COMPLETED, "Airport cab", 1L),
-                Spec(PaymentDirection.REQUEST, "rahul@okhdfc", 1200.0, PaymentStatus.PENDING, "Team lunch split", 2L),
+                Spec(PaymentDirection.REQUEST, "rahul@okhdfc", 1200.0, PaymentStatus.ACTIVE, "Team lunch split", 2L),
                 Spec(PaymentDirection.PAY, "amazon@apl", 2499.0, PaymentStatus.FAILED, "Office supplies", 4L),
                 Spec(PaymentDirection.REQUEST, "priya@okaxis", 800.0, PaymentStatus.COMPLETED, "Cab share", 9L),
+                // Requested 12 days ago with a 7-day window — already past its validity window,
+                // so `effectiveStatus` reads it as EXPIRED without anything mutating the row.
+                Spec(PaymentDirection.REQUEST, "sana@okicici", 450.0, PaymentStatus.ACTIVE, "Stationery split", 12L),
             )
         return spec.mapIndexed { index, sp ->
             PaymentRecord(
@@ -100,13 +107,19 @@ class PaymentsRepository(private val clock: Clock = Clock.System) {
                 status = sp.status,
                 note = sp.note,
                 dateMillis = now - sp.daysAgo * dayMs,
+                expiresAtMillis = if (sp.status == PaymentStatus.ACTIVE) (now - sp.daysAgo * dayMs) + requestValidityDays * dayMs else null,
             )
         }
     }
 
-    /** All payments, or just those in [status] when non-null, newest first. */
-    fun payments(status: PaymentStatus? = null): List<PaymentRecord> =
-        all().filter { status == null || it.status == status }.sortedByDescending { it.dateMillis }
+    /** All payments, or just those in [status] when non-null (matched against the *effective*, expiry-aware status), newest first. */
+    fun payments(status: PaymentStatus? = null): List<PaymentRecord> {
+        val now = clock.now().toEpochMilliseconds()
+        return all()
+            .map { it.copy(status = it.effectiveStatus(now)) }
+            .filter { status == null || it.status == status }
+            .sortedByDescending { it.dateMillis }
+    }
 
     private data class Spec(
         val direction: PaymentDirection,

@@ -7,11 +7,18 @@ import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.asContent
 import com.mileway.feature.cards.data.CardsMockDataProvider
 import com.mileway.feature.cards.data.CardsMockDataProviderFactory
+import com.mileway.feature.cards.model.ApprovalStepModel
+import com.mileway.feature.cards.model.CardAuditEntry
 import com.mileway.feature.cards.model.CardModel
 import com.mileway.feature.cards.model.CardShippingAddress
 import com.mileway.feature.cards.model.CardStatus
 import com.mileway.feature.cards.model.CardTransactionModel
 import com.mileway.feature.cards.model.CardTxnClaimStatus
+import com.mileway.feature.cards.model.LimitKind
+import kotlin.time.Clock
+
+/** P29.C.5: Transactions or the local lifecycle/audit log — a second tab on card detail. */
+enum class CardDetailTab { TRANSACTIONS, HISTORY }
 
 /** Q.3 / Q+.1 / Q+.3, card detail: claim-status transaction tabs + card controls. */
 data class CardDetailUiState(
@@ -21,6 +28,15 @@ data class CardDetailUiState(
     val selectedTransaction: CardTransactionModel? = null,
     val showMonthlyLimitDialog: Boolean = false,
     val showPhysicalCardDialog: Boolean = false,
+    // P29.C.2: transaction pending a dispute-reason pick (sheet target).
+    val disputingTransactionId: Long? = null,
+    // P29.C.3: which single-txn/daily limit sheet is open, if any.
+    val limitSheetKind: LimitKind? = null,
+    // P29.C.4: derived from the card type's ApprovalMatrixModel against this card's limit.
+    val approvalSteps: List<ApprovalStepModel> = emptyList(),
+    // P29.C.5.
+    val detailTab: CardDetailTab = CardDetailTab.TRANSACTIONS,
+    val auditLog: List<CardAuditEntry> = emptyList(),
 )
 
 sealed interface CardDetailAction {
@@ -50,6 +66,20 @@ sealed interface CardDetailAction {
 
     data class IssuePhysicalCard(val address: CardShippingAddress) : CardDetailAction
 
+    data class SelectDetailTab(val tab: CardDetailTab) : CardDetailAction
+
+    data class OpenLimitSheet(val kind: LimitKind) : CardDetailAction
+
+    data object DismissLimitSheet : CardDetailAction
+
+    data class SetLimit(val kind: LimitKind, val value: Double) : CardDetailAction
+
+    data class OpenDispute(val transactionId: Long) : CardDetailAction
+
+    data object DismissDispute : CardDetailAction
+
+    data class SubmitDispute(val reason: String) : CardDetailAction
+
     /**
      * P29.C.1: fired when [com.mileway.feature.cards.viewmodel.CardKycViewModel]'s wizard
      * finishes (replaces the old toast-only `ResendKyc` stub — `KycPendingBanner`'s button now
@@ -71,8 +101,10 @@ sealed interface CardDetailEffect {
 
 class CardDetailViewModel(
     private val provider: CardsMockDataProvider = CardsMockDataProviderFactory.provider(),
+    private val clock: Clock = Clock.System,
 ) : BaseViewModel<CardDetailUiState, CardDetailEffect, CardDetailAction>(CardDetailUiState()) {
     private var allTransactions: List<CardTransactionModel> = emptyList()
+    private var auditIdCounter = 0L
 
     override fun onAction(action: CardDetailAction) {
         when (action) {
@@ -90,8 +122,24 @@ class CardDetailViewModel(
             CardDetailAction.OpenPhysicalCard -> setState { copy(showPhysicalCardDialog = true) }
             CardDetailAction.DismissPhysicalCard -> setState { copy(showPhysicalCardDialog = false) }
             is CardDetailAction.IssuePhysicalCard -> issuePhysicalCard()
+            is CardDetailAction.SelectDetailTab -> setState { copy(detailTab = action.tab) }
+            is CardDetailAction.OpenLimitSheet -> setState { copy(limitSheetKind = action.kind) }
+            CardDetailAction.DismissLimitSheet -> setState { copy(limitSheetKind = null) }
+            is CardDetailAction.SetLimit -> setLimit(action.kind, action.value)
+            is CardDetailAction.OpenDispute -> setState { copy(disputingTransactionId = action.transactionId) }
+            CardDetailAction.DismissDispute -> setState { copy(disputingTransactionId = null) }
+            is CardDetailAction.SubmitDispute -> submitDispute(action.reason)
             CardDetailAction.KycVerified -> kycVerified()
         }
+    }
+
+    /** P29.C.5: appends one row to the session-scoped local audit log. */
+    private fun logAudit(
+        action: String,
+        detail: String = "",
+    ) {
+        val entry = CardAuditEntry(id = auditIdCounter++, timestampMillis = clock.now().toEpochMilliseconds(), action = action, detail = detail)
+        setState { copy(auditLog = auditLog + entry) }
     }
 
     /**
@@ -111,15 +159,19 @@ class CardDetailViewModel(
             )
         }
         emitEffect(CardDetailEffect.ShowToast(UiText.Static("KYC verified successfully")))
+        logAudit("KYC verified")
     }
 
     private fun load(cardId: Long) {
         val card = provider.cardById(cardId)
         allTransactions = provider.transactions(cardId)
+        // P29.C.4: the tier is picked off this card's own limit, not a hardcoded amount.
+        val steps = card?.let { provider.cardTypeById(it.cardTypeId)?.approvalMatrix?.stepsFor(it.limit) }.orEmpty()
         setState {
             copy(
                 card = card?.asContent() ?: ScreenState.Error(UiText.Static("Card not found")),
                 transactions = filtered(claimTab),
+                approvalSteps = steps,
             )
         }
     }
@@ -131,6 +183,7 @@ class CardDetailViewModel(
                 if (it.id == transactionId) it.copy(claimStatus = CardTxnClaimStatus.CLAIMED) else it
             }
         setState { copy(transactions = filtered(claimTab), selectedTransaction = null) }
+        logAudit("Transaction claimed", txn.merchantName)
         // P27.E.7: real nav to the expense-entry flow, pre-filled/locked from this transaction —
         // replaces the old toast-only stub.
         emitEffect(
@@ -160,6 +213,7 @@ class CardDetailViewModel(
         val blocked = current.status == CardStatus.BLOCKED
         mutateCard { it.copy(status = if (blocked) CardStatus.ACTIVE else CardStatus.BLOCKED) }
         emitEffect(CardDetailEffect.ShowToast(UiText.Static("Card status updated")))
+        logAudit(if (blocked) "Card unblocked" else "Card blocked")
     }
 
     private fun toggleFreeze() {
@@ -172,17 +226,49 @@ class CardDetailViewModel(
             )
         }
         emitEffect(CardDetailEffect.ShowToast(UiText.Static(if (frozen) "Card unfrozen" else "Card frozen")))
+        logAudit(if (frozen) "Card unfrozen" else "Card frozen")
     }
 
     private fun setMonthlyLimit(limit: Double) {
         mutateCard { it.copy(monthlyLimit = limit, limit = limit) }
         setState { copy(showMonthlyLimitDialog = false) }
         emitEffect(CardDetailEffect.ShowToast(UiText.Static("Limit set successfully")))
+        logAudit("Monthly limit updated", limit.toString())
+    }
+
+    /** P29.C.3: single-transaction/daily limits, parameterized by [LimitKind] instead of a second hardcoded field-per-kind. */
+    private fun setLimit(
+        kind: LimitKind,
+        value: Double,
+    ) {
+        mutateCard {
+            when (kind) {
+                LimitKind.SINGLE_TRANSACTION -> it.copy(singleTransactionLimit = value)
+                LimitKind.DAILY -> it.copy(dailyTransactionLimit = value)
+            }
+        }
+        setState { copy(limitSheetKind = null) }
+        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Limit set successfully")))
+        logAudit("${kind.name.lowercase().replace('_', ' ')} limit updated", value.toString())
+    }
+
+    /** P29.C.2: flips the transaction to REJECTED with the picked reason attached. */
+    private fun submitDispute(reason: String) {
+        val transactionId = currentState.disputingTransactionId ?: return
+        val txn = allTransactions.find { it.id == transactionId } ?: return
+        allTransactions =
+            allTransactions.map {
+                if (it.id == transactionId) it.copy(claimStatus = CardTxnClaimStatus.REJECTED, disputeReason = reason) else it
+            }
+        setState { copy(transactions = filtered(claimTab), disputingTransactionId = null, selectedTransaction = null) }
+        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Dispute submitted")))
+        logAudit("Transaction disputed", "${txn.merchantName}: $reason")
     }
 
     private fun issuePhysicalCard() {
         mutateCard { it.copy(status = CardStatus.PHYSICAL_ISSUED, cardFormat = com.mileway.feature.cards.model.CardFormat.PHYSICAL) }
         setState { copy(showPhysicalCardDialog = false) }
         emitEffect(CardDetailEffect.ShowToast(UiText.Static("Physical Card Request Sent Successfully")))
+        logAudit("Physical card requested")
     }
 }
