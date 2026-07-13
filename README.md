@@ -104,84 +104,38 @@ sit under the same [portfolio](https://cv-siddharth.vercel.app/).
 > (`scripts/build-flow-gifs.sh`), so the showcase is everything *moving in synergy*, not a wall of
 > stills. Regenerate the frames with `./gradlew :app:screenshotTestNoGmsDebug`.
 
-### Super-profile & personas
+<details>
+<summary><b>📱 Phone — 11 animated end-to-end journeys</b> &nbsp;(click to expand)</summary>
+<br/>
 
-The V24 headline: one account hub that reshapes itself. Profile → identity details → the live
-**Plugin manager** (every feature toggled on/off per persona) → preferences → settings — the same
-app becoming a different app.
+<table>
+<tr>
+<td width="50%" valign="top"><b>Super-profile &amp; personas</b><br/><sub>One account hub that reshapes itself — the Plugin manager toggles every feature per persona, so the same app becomes a different app.</sub><br/><br/><img src="docs/gifs/super_profile_personas.gif" alt="Account hub, profile details, plugin manager, preferences and settings in sequence"/></td>
+<td width="50%" valign="top"><b>Track a trip</b><br/><sub>The core happy path: ready-to-start → setup guide → recording → success summary → submission.</sub><br/><br/><img src="docs/gifs/track_a_trip.gif" alt="Track Miles idle through recording to the success and submission screens"/></td>
+</tr>
+<tr>
+<td valign="top"><b>Delegation — acting as a manager</b><br/><sub>Assign approver authority, then switch into the manager view to track the whole team's journeys.</sub><br/><br/><img src="docs/gifs/delegation_manager.gif" alt="Delegation assignment into the manager reportees tracking view"/></td>
+<td valign="top"><b>Log &amp; expense</b><br/><sub>Manual entry: log miles across two steps, then capture an expense with category, policy and receipt.</sub><br/><br/><img src="docs/gifs/log_and_expense.gif" alt="Log-miles two-step, expense entry, details input and expense detail"/></td>
+</tr>
+<tr>
+<td valign="top"><b>Approvals &amp; payables</b><br/><sub>The approver side: pending queue with policy badges, a flagged detail, payables and purchase requests.</sub><br/><br/><img src="docs/gifs/approvals_payables.gif" alt="Approvals queue, a violation detail, payables hub and purchase-request create/detail"/></td>
+<td valign="top"><b>Verification &amp; growth</b><br/><sub>Identity verification centre, referral hub, coupons, scratch-card rewards and the campaign marketing hub.</sub><br/><br/><img src="docs/gifs/verification_growth.gif" alt="Verification centre, referral hub, coupons, rewards and marketing hub"/></td>
+</tr>
+<tr>
+<td valign="top"><b>Membership &amp; subscription</b><br/><sub>Mileway Club benefits, subscription plans, the active subscription and incentive programs.</sub><br/><br/><img src="docs/gifs/membership.gif" alt="Club benefits, subscription plans, my subscription and incentive programs"/></td>
+<td valign="top"><b>AI assistant</b><br/><sub>On-device expense chat, saved history and question analytics behind a shared <code>LlmGateway</code>.</sub><br/><br/><img src="docs/gifs/ai_assistant.gif" alt="Assistant chat, conversation history and chat analytics"/></td>
+</tr>
+<tr>
+<td valign="top"><b>Onboarding &amp; auth</b><br/><sub>First run: splash → login → signup onboarding → set a PIN → unlock.</sub><br/><br/><img src="docs/gifs/onboarding_auth.gif" alt="Splash, login, signup onboarding, set-PIN and check-PIN"/></td>
+<td valign="top"><b>Wallet &amp; payout</b><br/><sub>Connected accounts (per-integration connect/disconnect) and the QR scan-to-pay identity screen.</sub><br/><br/><img src="docs/gifs/wallet_payout.gif" alt="Connected accounts and QR pay/identity"/></td>
+</tr>
+<tr>
+<td valign="top"><b>Account &amp; sessions</b><br/><sub>Active-device sessions with per-device revoke, the account-deletion lifecycle, saved places and emergency contacts.</sub><br/><br/><img src="docs/gifs/account_sessions.gif" alt="Active sessions, account deletion, saved places and emergency contacts"/></td>
+<td valign="top"></td>
+</tr>
+</table>
 
-![Account hub, profile details, plugin manager, preferences and settings in sequence](docs/gifs/super_profile_personas.gif)
-
-### Track a trip
-
-The core happy path, end to end: ready-to-start → setup guide → recording → success summary →
-submission for reimbursement.
-
-![Track Miles idle through recording to the success and submission screens](docs/gifs/track_a_trip.gif)
-
-### Delegation — acting as a manager
-
-Assign approver authority, then switch into the manager view to track the whole team's journeys —
-the "act on behalf" flow.
-
-![Delegation assignment into the manager reportees tracking view](docs/gifs/delegation_manager.gif)
-
-### Log & expense
-
-Manual entry when the tracker was off: log miles across two steps, then capture an expense with its
-category, policy details and receipt.
-
-![Log-miles two-step, expense entry, details input and expense detail](docs/gifs/log_and_expense.gif)
-
-### Approvals & payables
-
-The approver side: a pending queue with policy-violation badges, a flagged approval detail, the
-payables hub, and creating and reviewing a purchase request.
-
-![Approvals queue, a violation detail, payables hub and purchase-request create/detail](docs/gifs/approvals_payables.gif)
-
-### Verification & growth
-
-Identity verification centre, the referral hub, coupons, scratch-card rewards and the campaign
-marketing hub — the engagement surface.
-
-![Verification centre, referral hub, coupons, rewards and marketing hub](docs/gifs/verification_growth.gif)
-
-### Membership & subscription
-
-The Mileway Club benefits, subscription plans, the active subscription and incentive programs.
-
-![Club benefits, subscription plans, my subscription and incentive programs](docs/gifs/membership.gif)
-
-### AI assistant
-
-The on-device assistant: an expense chat, saved conversation history and the built-in question
-analytics. Backed by a shared `LlmGateway` — ML Kit GenAI on Android, Apple Foundation Models on
-iOS (Swift-bridge, `xcodebuild`-gated, not yet device-verified) — degrading to the offline
-retrieval engine wherever a model isn't available.
-
-![Assistant chat, conversation history and chat analytics](docs/gifs/ai_assistant.gif)
-
-### Onboarding & auth
-
-First run: splash → login → signup onboarding → set a PIN → unlock.
-
-![Splash, login, signup onboarding, set-PIN and check-PIN](docs/gifs/onboarding_auth.gif)
-
-### Wallet & payout
-
-Connected accounts (per-integration connect/disconnect) and the QR scan-to-pay identity screen.
-The external-wallet-link and payout sections are feature-gated and hidden in these standalone
-captures.
-
-![Connected accounts and QR pay/identity](docs/gifs/wallet_payout.gif)
-
-### Account & sessions
-
-Active-device sessions with per-device revoke, the account-deletion lifecycle, saved places and
-emergency contacts.
-
-![Active sessions, account deletion, saved places and emergency contacts](docs/gifs/account_sessions.gif)
+</details>
 
 <sub>The full still catalogue — every screen plus component matrices (status cards, booking cards,
 PO cards, success-state variants, theme pickers) rendered from <code>@Preview</code> composables by
@@ -190,7 +144,9 @@ PO cards, success-state variants, theme pickers) rendered from <code>@Preview</c
 <code>ScreenshotGalleryTest</code> (phone) / <code>WearScreenshotGalleryTest</code> (watch) / a JVM
 `desktopTest` (desktop).</sub>
 
-### Beyond the phone
+<details>
+<summary><b>⌚ Beyond the phone</b> — Wear OS · watchOS · Live Activity · Widgets · Compose Desktop &nbsp;(click to expand)</summary>
+<br/>
 
 One shared Kotlin Multiplatform core, rendered on every target — all host-side with Roborazzi /
 SwiftUI `ImageRenderer`, no watch, launcher or windowing system required.
@@ -241,6 +197,8 @@ watch — rendered host-side with Compose Multiplatform's `runDesktopComposeUiTe
 | &nbsp; |
 |:---:|
 | ![Compose Desktop dashboard window with today/week stats and a recent-trips list](docs/screenshots/desktop_dashboard.png) |
+
+</details>
 
 ## Features
 
@@ -547,7 +505,7 @@ roadmap reflects direction rather than commitments.
       logging; offline sync scaffolding (local-data flagging + multi-session restore); and local-only
       dev infra — an analytics sink with kill switch, a Ktor network-log/API-tester console, and a
       server-driven tracking config loaded from local JSON. All offline/mock, no backend.
-- [x] **Super-profile &amp; plugin-composition platform (V24, in progress).** A single **plugin
+- [x] **Super-profile &amp; plugin-composition platform (V24).** A single **plugin
       registry** as the app's composition mechanism (TILE / CAPABILITY / VALUE plugins resolved by
       layering FORCED &gt; USER &gt; PRESET &gt; DEFAULT), a live Master Plugin page with source chips, and
       four **persona presets** that reshape the whole app from one account. On top of it: auth depth
@@ -559,8 +517,20 @@ roadmap reflects direction rather than commitments.
       external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle +
       QR), and registry-backed **tracking-settings persistence** (accuracy/interval/displacement
       floors, force-GPS, mileage-sync toggles) wired into the live location engine, plus a
-      manager/reportee tracking view. (Remaining V24: vehicle garage &amp; rates, destination mode,
-      ecometer, engagement/trust depth, unified banner system, and hub reorganization.)
+      manager/reportee tracking view, a vehicle garage &amp; rates, destination mode, an ecometer, an
+      engagement/trust hub, a unified priority banner system, and a reorganized super-profile hub.
+- [x] **On-device intelligence &amp; feature-parity series (V25→V32).** Three new foundation modules —
+      `core:media` (unified capture), `core:ai` (document intelligence) and `core:forms` (dynamic
+      forms) — under an on-device OCR pipeline that combines ML Kit GenAI / text-recognition /
+      heuristics on Android and Foundation Models / Vision on iOS (field-fill + doc-type + duplicate
+      detection, degrading gracefully). On top: one capture launcher (camera / gallery / files / PDF /
+      document-scanner / QR-barcode + watermark) that all seven legacy call sites converge on; a
+      16-type dynamic form engine with GST auto-calc and AI field-suggestions; a 2-step add-expense
+      wizard with entry-context linking, concurrent bulk-submit and multi-currency; a shared
+      transaction-detail scaffold with persistent clarification rooms (lifecycle, metadata, history,
+      rich chat + attachments), comments and audit flags; feature depth across search, analytics,
+      events, cards and home; a shell-nav fix, shake-to-report and a storage-management screen; and
+      Room schema **v39 → v47** across explicit migrations.
 
 **Exploring**
 
