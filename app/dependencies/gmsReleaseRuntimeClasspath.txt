@@ -214,8 +214,8 @@ com.github.ajalt.colormath:colormath-jvm:3.6.1
 com.github.ajalt.colormath:colormath:3.6.1
 com.github.skydoves:colorpicker-compose-android:1.2.0
 com.github.skydoves:colorpicker-compose:1.2.0
-com.github.skydoves:compose-nav-graph-annotations-android:0.1.2
-com.github.skydoves:compose-nav-graph-annotations:0.1.2
+com.github.skydoves:compose-nav-graph-annotations-android:0.2.1
+com.github.skydoves:compose-nav-graph-annotations:0.2.1
 com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.android.datatransport:transport-api:3.2.0
 com.google.android.datatransport:transport-backend-cct:3.3.0
@@ -286,10 +286,10 @@ com.google.mlkit:text-recognition-bundled-common:17.0.0
 com.google.mlkit:text-recognition:16.0.1
 com.google.mlkit:vision-common:17.3.0
 com.google.mlkit:vision-interfaces:16.3.0
-com.materialkolor:material-color-utilities-android:5.0.0-alpha07
-com.materialkolor:material-color-utilities:5.0.0-alpha07
-com.materialkolor:material-kolor-android:5.0.0-alpha07
-com.materialkolor:material-kolor:5.0.0-alpha07
+com.materialkolor:material-color-utilities-android:5.0.0
+com.materialkolor:material-color-utilities:5.0.0
+com.materialkolor:material-kolor-android:5.0.0
+com.materialkolor:material-kolor:5.0.0
 com.mikepenz:multiplatform-markdown-renderer-android:0.43.0
 com.mikepenz:multiplatform-markdown-renderer-m3-android:0.43.0
 com.mikepenz:multiplatform-markdown-renderer-m3:0.43.0
@@ -298,8 +298,8 @@ com.squareup.okio:okio-jvm:3.17.0
 com.squareup.okio:okio:3.17.0
 dev.brewkits:kmpworkmanager-android:3.0.1
 dev.brewkits:kmpworkmanager:3.0.1
-dev.drewhamilton.poko:poko-annotations-jvm:0.21.2
-dev.drewhamilton.poko:poko-annotations:0.21.2
+dev.drewhamilton.poko:poko-annotations-jvm:0.23.1
+dev.drewhamilton.poko:poko-annotations:0.23.1
 dev.tmapps:konnection-android:1.4.5
 dev.tmapps:konnection:1.4.5
 io.coil-kt.coil3:coil-android:3.5.0
