@@ -86,6 +86,12 @@ fun HomeScreen(
     onOpenAccount: () -> Unit,
     onOpenSearch: () -> Unit = onOpenAccount,
     onOpenAgent: (() -> Unit)? = null,
+    // V29 P29.H.2: "Add Invoice" now opens a real entry point (payables invoice creation).
+    onAddInvoice: () -> Unit = onOpenAccount,
+    // V29 P29.H.2: "Ask Advance" is config-aware — the QR flow when
+    // [com.mileway.core.ui.home.HomePluginConfig.useQrForAdvance] is on, the classic form otherwise.
+    onAskAdvanceQr: () -> Unit = onOpenAccount,
+    onAskAdvanceClassic: () -> Unit = onOpenAccount,
     viewModel: HomeViewModel = koinViewModel(),
     firstLoginBannerViewModel: FirstLoginBannerViewModel = koinViewModel(),
     whatsNewViewModel: WhatsNewViewModel = koinViewModel(),
@@ -157,6 +163,14 @@ fun HomeScreen(
         onOpenAccount = { viewModel.onOpenAccount(onOpenAccount) },
         onOpenSearch = onOpenSearch,
         onOpenAgent = onOpenAgent,
+        onAddInvoice = { viewModel.onOpenAccount(onAddInvoice) },
+        onAskAdvance = {
+            if (state.pluginConfig.useQrForAdvance) {
+                viewModel.onOpenAccount(onAskAdvanceQr)
+            } else {
+                viewModel.onOpenAccount(onAskAdvanceClassic)
+            }
+        },
         welcomeBanner = welcomeBannerState,
         onWelcomeBannerShown = firstLoginBannerViewModel::onBannerShown,
         homeBanners = homeBanners,
@@ -271,6 +285,11 @@ fun HomeScreenContent(
     onOpenAccount: () -> Unit,
     onOpenSearch: () -> Unit = onOpenAccount,
     onOpenAgent: (() -> Unit)? = null,
+    // V29 P29.H.2: real "Add Invoice" entry point + pre-resolved "Ask Advance" target (the caller
+    // already picked QR vs classic per [HomeUiState.pluginConfig]). Both default to [onOpenAccount]
+    // so every existing stateless caller (previews, the screenshot gallery) keeps compiling.
+    onAddInvoice: () -> Unit = onOpenAccount,
+    onAskAdvance: () -> Unit = onOpenAccount,
     welcomeBanner: FirstLoginBannerUiState = FirstLoginBannerUiState(),
     onWelcomeBannerShown: () -> Unit = {},
     // PLAN_V24 P13.2: typed carousel rows; null falls back to the seeded state.marketingItems (baseline).
@@ -318,6 +337,7 @@ fun HomeScreenContent(
                 onNotifications = onOpenAccount,
                 onOpenAgent = onOpenAgent,
                 currentPin = state.currentPin,
+                avatarPath = state.avatarPath,
             )
 
             // 2. Animated banner strip (rotating 4000ms; replaces static ActionRequired card).
@@ -351,6 +371,8 @@ fun HomeScreenContent(
                         actions =
                             quickActions(
                                 onAddExpense = onAddExpense,
+                                onAskAdvance = onAskAdvance,
+                                onAddInvoice = onAddInvoice,
                                 onIllustrative = onOpenAccount,
                             ),
                     )
@@ -358,13 +380,18 @@ fun HomeScreenContent(
 
                 // 4. Mileage card — promoted directly under Quick Actions so the primary
                 //    "Track Journey" / "Log Miles" affordances are above the fold (Bug 5).
-                HomeMileageCard(
-                    onTrackJourney = onStartTracking,
-                    onLogMiles = onAddExpense,
-                )
+                // P29.H.1: gated on HomePluginConfig.showTrackMiles (defaults true — golden-stable).
+                if (state.pluginConfig.showTrackMiles) {
+                    HomeMileageCard(
+                        onTrackJourney = onStartTracking,
+                        onLogMiles = onAddExpense,
+                    )
+                }
 
-                // 5. My Cards carousel (Phase O).
-                MyCardsSection(onSnackbar = paymentsSnackbar)
+                // 5. My Cards carousel (Phase O). P29.H.1: gated on showMyCards.
+                if (state.pluginConfig.showMyCards) {
+                    MyCardsSection(onSnackbar = paymentsSnackbar)
+                }
 
                 // 6. At A Glance 2×2 grid — each cell now routes to a distinct destination (Bug 5).
                 Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
@@ -376,10 +403,16 @@ fun HomeScreenContent(
                         onPendingApprovals = onOpenAccount,
                         onNotifications = onOpenAccount,
                     )
+                    // P29.H.3: manager-only team-approvals summary.
+                    if (state.isManager) {
+                        ApprovalBreakdownCard(breakdown = state.approvalBreakdown, onOpenApprovals = onOpenAccount)
+                    }
                 }
 
-                // 7. HomeCheckInCard — check-in button + recent list.
-                HomeCheckInCard(onCheckIn = onOpenAccount)
+                // 7. HomeCheckInCard — check-in button + recent list. P29.H.1: gated on showCheckIn.
+                if (state.pluginConfig.showCheckIn) {
+                    HomeCheckInCard(onCheckIn = onOpenAccount)
+                }
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
@@ -405,14 +438,17 @@ fun HomeScreenContent(
             // 8. PLAN_V24 P13.2: the ONE auto-advancing home banner carousel (supersedes the P5.4
             // marketing strip). Fed by plugin-gated typed sources in the stateful HomeScreen; falls
             // back to the seeded state.marketingItems here (keeps the stateless golden byte-identical).
-            BannerCarousel(
-                items =
-                    homeBanners ?: state.marketingItems.mapIndexed { index, item ->
-                        HomeBanner(id = "seed_$index", title = item.title, subtitle = item.subtitle, style = item.badge)
-                    },
-                onBannerClick = onBannerClick,
-                onImpression = onBannerImpression,
-            )
+            // P29.H.1: the whole carousel is additionally gated on showMarketingStrip.
+            if (state.pluginConfig.showMarketingStrip) {
+                BannerCarousel(
+                    items =
+                        homeBanners ?: state.marketingItems.mapIndexed { index, item ->
+                            HomeBanner(id = "seed_$index", title = item.title, subtitle = item.subtitle, style = item.badge)
+                        },
+                    onBannerClick = onBannerClick,
+                    onImpression = onBannerImpression,
+                )
+            }
 
             Spacer(Modifier.height(BottomBarClearance))
         }

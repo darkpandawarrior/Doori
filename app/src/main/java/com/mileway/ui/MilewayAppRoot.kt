@@ -317,6 +317,11 @@ fun MilewayAppRoot(
                                     AssistantFabSessionState.onChatOpen()
                                     navController.navigate(AppRoutes.AGENT_CHAT)
                                 },
+                                // P29.H.2: "Add Invoice" quick action opens the real Payables create flow.
+                                onAddInvoice = { navController.navigate(PayablesRoutes.CREATE) { popUpTo(AppGraph.PAYABLES) } },
+                                // P29.H.2: "Ask Advance" — config-aware QR vs classic form, both real Profile-tab flows.
+                                onAskAdvanceQr = { navController.navigate(ProfileRoutes.QR_HOME) { popUpTo(AppGraph.PROFILE) } },
+                                onAskAdvanceClassic = { navController.navigate(ProfileRoutes.ASK_ADVANCE) { popUpTo(AppGraph.PROFILE) } },
                             )
                         }
                     }

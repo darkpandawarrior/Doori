@@ -36,6 +36,17 @@ class DeepLinkRouterTest {
     }
 
     @Test
+    fun `parameterized detail links carry the id`() {
+        assertEquals(DeepLinkTarget.TrackDetail("R42"), DeepLinkRouter.resolve("mileway://track/detail/R42"))
+        assertEquals(DeepLinkTarget.ApprovalDetail("A001"), DeepLinkRouter.resolve("mileway://approvals/detail/A001"))
+        assertEquals(DeepLinkTarget.PayablesDetail("INV-1"), DeepLinkRouter.resolve("mileway://payables/detail/INV-1"))
+        assertEquals(
+            DeepLinkTarget.ApprovalDetail("A001"),
+            DeepLinkRouter.resolve("https://mileway.example.com/approvals/detail/A001"),
+        )
+    }
+
+    @Test
     fun `referral parses the code query param`() {
         val target = DeepLinkRouter.resolve("mileway://referral?code=ABC123")
         assertEquals(DeepLinkTarget.Referral("ABC123"), target)

@@ -25,6 +25,14 @@ sealed interface DeepLinkTarget {
 
     data object Payables : DeepLinkTarget
 
+    // V29 P29.H.5: parameterized detail targets — the section-level links above land on a list;
+    // these land directly on one record's existing `{id}`-routed detail screen.
+    data class TrackDetail(val routeId: String) : DeepLinkTarget
+
+    data class ApprovalDetail(val id: String) : DeepLinkTarget
+
+    data class PayablesDetail(val id: String) : DeepLinkTarget
+
     data class Referral(val code: String?) : DeepLinkTarget
 
     /** Unrecognised link; callers typically ignore it or fall back to Home. */
@@ -63,6 +71,9 @@ object DeepLinkRouter {
             segments == listOf("profile", "settings") -> DeepLinkTarget.ProfileSettings
             segments == listOf("approvals") -> DeepLinkTarget.Approvals
             segments == listOf("payables") -> DeepLinkTarget.Payables
+            segments.size == 3 && segments[0] == "track" && segments[1] == "detail" -> DeepLinkTarget.TrackDetail(segments[2])
+            segments.size == 3 && segments[0] == "approvals" && segments[1] == "detail" -> DeepLinkTarget.ApprovalDetail(segments[2])
+            segments.size == 3 && segments[0] == "payables" && segments[1] == "detail" -> DeepLinkTarget.PayablesDetail(segments[2])
             segments.firstOrNull() == "referral" -> DeepLinkTarget.Referral(parsed.query["code"])
             else -> DeepLinkTarget.Unknown(uri)
         }

@@ -1,7 +1,9 @@
 package com.mileway
 
 import com.mileway.core.common.deeplink.DeepLinkRouter
+import com.mileway.feature.approvals.ui.navigation.ApprovalsRoutes
 import com.mileway.feature.logging.ui.navigation.LoggingRoutes
+import com.mileway.feature.payables.ui.navigation.PayablesRoutes
 import com.mileway.feature.profile.ui.navigation.ProfileRoutes
 import com.mileway.feature.tracking.ui.navigation.TrackingRoutes
 import com.mileway.ui.AppGraph
@@ -29,6 +31,13 @@ class DeepLinkRoutingTest {
         assertEquals(TrackingRoutes.CHECK_IN_HISTORY, route("mileway://track/checkin"))
         assertEquals(LoggingRoutes.EXPENSE_HISTORY, route("mileway://log/expense"))
         assertEquals(ProfileRoutes.SETTINGS, route("mileway://profile/settings"))
+    }
+
+    @Test
+    fun `parameterized detail links map to the existing id-routed detail screen`() {
+        assertEquals(TrackingRoutes.detail("R42"), route("mileway://track/detail/R42"))
+        assertEquals(ApprovalsRoutes.detail("A001"), route("mileway://approvals/detail/A001"))
+        assertEquals(PayablesRoutes.detailRoute("INV-1"), route("mileway://payables/detail/INV-1"))
     }
 
     @Test

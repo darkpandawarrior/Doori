@@ -56,6 +56,8 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.lifecycle.viewmodel)
+            // V29 P29.H.6: header avatar image (falls back to the terminal glyph when unset).
+            implementation(libs.coil3.compose)
 
             // Core + stub deps the hoisted app-shell (home/nav/auth/search) uses directly.
             implementation(project(":core:common"))

@@ -25,6 +25,9 @@ data class HomePluginConfig(
     val showMyCards: Boolean = true,
     val showCheckIn: Boolean = true,
     val showMarketingStrip: Boolean = true,
+    // V29 P29.H.2: Quick Actions config-aware swap — false keeps "Ask Advance" on the classic
+    // form (today's behaviour, golden-stable); true routes it to the QR advance flow instead.
+    val useQrForAdvance: Boolean = false,
 )
 
 private object HomePluginConfigKeys {
@@ -32,6 +35,7 @@ private object HomePluginConfigKeys {
     val SHOW_MY_CARDS = booleanPreferencesKey("home_show_my_cards")
     val SHOW_CHECK_IN = booleanPreferencesKey("home_show_check_in")
     val SHOW_MARKETING_STRIP = booleanPreferencesKey("home_show_marketing_strip")
+    val USE_QR_FOR_ADVANCE = booleanPreferencesKey("home_use_qr_for_advance")
 }
 
 /**
@@ -63,6 +67,7 @@ class HomePluginConfigController(
                         showMyCards = snap[HomePluginConfigKeys.SHOW_MY_CARDS] ?: true,
                         showCheckIn = snap[HomePluginConfigKeys.SHOW_CHECK_IN] ?: true,
                         showMarketingStrip = snap[HomePluginConfigKeys.SHOW_MARKETING_STRIP] ?: true,
+                        useQrForAdvance = snap[HomePluginConfigKeys.USE_QR_FOR_ADVANCE] ?: false,
                     )
             }
         }
@@ -88,5 +93,6 @@ class HomePluginConfigController(
         this[HomePluginConfigKeys.SHOW_MY_CARDS] = value.showMyCards
         this[HomePluginConfigKeys.SHOW_CHECK_IN] = value.showCheckIn
         this[HomePluginConfigKeys.SHOW_MARKETING_STRIP] = value.showMarketingStrip
+        this[HomePluginConfigKeys.USE_QR_FOR_ADVANCE] = value.useQrForAdvance
     }
 }

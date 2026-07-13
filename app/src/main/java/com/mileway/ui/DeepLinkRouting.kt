@@ -3,7 +3,9 @@ package com.mileway.ui
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import com.mileway.core.common.deeplink.DeepLinkTarget
+import com.mileway.feature.approvals.ui.navigation.ApprovalsRoutes
 import com.mileway.feature.logging.ui.navigation.LoggingRoutes
+import com.mileway.feature.payables.ui.navigation.PayablesRoutes
 import com.mileway.feature.profile.ui.navigation.ProfileRoutes
 import com.mileway.feature.tracking.ui.navigation.TrackingRoutes
 
@@ -28,6 +30,10 @@ fun DeepLinkTarget.toAppRoute(): String? =
         DeepLinkTarget.ProfileSettings -> ProfileRoutes.SETTINGS
         DeepLinkTarget.Approvals -> AppGraph.APPROVALS
         DeepLinkTarget.Payables -> AppGraph.PAYABLES
+        // P29.H.5: parameterized detail targets land directly on one record's detail screen.
+        is DeepLinkTarget.TrackDetail -> TrackingRoutes.detail(routeId)
+        is DeepLinkTarget.ApprovalDetail -> ApprovalsRoutes.detail(id)
+        is DeepLinkTarget.PayablesDetail -> PayablesRoutes.detailRoute(id)
         // Referral redemption lives in Profile (RF.4); deep-link lands there.
         is DeepLinkTarget.Referral -> AppGraph.PROFILE
         is DeepLinkTarget.Unknown -> null

@@ -12,6 +12,17 @@ class HomePluginConfigTest {
         assertTrue(config.showMyCards)
         assertTrue(config.showCheckIn)
         assertTrue(config.showMarketingStrip)
+        // V29 P29.H.2: off by default — "Ask Advance" stays on the classic form until flipped.
+        assertEquals(false, config.useQrForAdvance)
+    }
+
+    @Test
+    fun `useQrForAdvance toggles independently of the section flags`() {
+        val controller = HomePluginConfigController(prefs = null)
+
+        controller.update { it.copy(useQrForAdvance = true) }
+
+        assertEquals(HomePluginConfig(useQrForAdvance = true), controller.config.value)
     }
 
     @Test

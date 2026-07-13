@@ -80,6 +80,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.home.HomePluginConfigController
 import com.mileway.core.ui.theme.DesignTokens
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -93,6 +94,7 @@ fun DebugMenuScreen(
     onOpenShowcase: (() -> Unit)? = null,
     viewModel: DebugMenuComposeViewModel = koinViewModel(),
     configProvider: ConfigProvider = koinInject(),
+    homePluginConfigController: HomePluginConfigController = koinInject(),
     heapUsedMb: Long = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024 * 1024),
     heapTotalMb: Long = Runtime.getRuntime().totalMemory() / (1024 * 1024),
 ) {
@@ -242,6 +244,14 @@ fun DebugMenuScreen(
                             }
                         }
                     }
+                }
+            }
+
+            // V29 P29.H.1: flip Home's HomePluginConfig section flags live — the debug affordance
+            // the plan calls for, alongside the Feature Flags section above.
+            if (searchQuery.isEmpty()) {
+                item {
+                    HomeSectionsCard(controller = homePluginConfigController)
                 }
             }
 
@@ -614,6 +624,44 @@ private fun ProfilePresetsCard(
                     }
                 }
             }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Home Sections card (V29 P29.H.1) — flip HomePluginConfig flags live
+// ---------------------------------------------------------------------------
+
+@Composable
+private fun HomeSectionsCard(controller: HomePluginConfigController) {
+    val config by controller.config.collectAsStateWithLifecycle()
+    DebugSectionCard(title = "Home Sections", icon = Icons.Default.Widgets) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            DebugToggleRow(
+                title = "Track Miles card",
+                checked = config.showTrackMiles,
+                onCheckedChange = { controller.update { it.copy(showTrackMiles = !it.showTrackMiles) } },
+            )
+            DebugToggleRow(
+                title = "My Cards carousel",
+                checked = config.showMyCards,
+                onCheckedChange = { controller.update { it.copy(showMyCards = !it.showMyCards) } },
+            )
+            DebugToggleRow(
+                title = "Check-In card",
+                checked = config.showCheckIn,
+                onCheckedChange = { controller.update { it.copy(showCheckIn = !it.showCheckIn) } },
+            )
+            DebugToggleRow(
+                title = "Marketing/benefits strip",
+                checked = config.showMarketingStrip,
+                onCheckedChange = { controller.update { it.copy(showMarketingStrip = !it.showMarketingStrip) } },
+            )
+            DebugToggleRow(
+                title = "Ask Advance routes via QR",
+                checked = config.useQrForAdvance,
+                onCheckedChange = { controller.update { it.copy(useQrForAdvance = !it.useQrForAdvance) } },
+            )
         }
     }
 }

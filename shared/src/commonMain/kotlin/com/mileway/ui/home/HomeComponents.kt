@@ -183,6 +183,9 @@ fun HomeProfileHeader(
     onNotifications: () -> Unit,
     onOpenAgent: (() -> Unit)? = null,
     currentPin: LocationPin? = DemoHomeLocationPin,
+    // V29 P29.H.6: local profile-photo path (Profile tab's avatar picker). `null` keeps the
+    // terminal `>_` glyph — the fallback state, never a broken-image placeholder.
+    avatarPath: String? = null,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -224,7 +227,8 @@ fun HomeProfileHeader(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            // Terminal avatar — thin phosphor border, `>_` label inside
+            // Terminal avatar — thin phosphor border; a picked profile photo fills it, otherwise
+            // the `>_` glyph is the fallback state (never a broken-image placeholder).
             Box(
                 modifier =
                     Modifier
@@ -234,18 +238,28 @@ fun HomeProfileHeader(
                             color = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(6.dp),
                         )
+                        .clip(RoundedCornerShape(6.dp))
                         .background(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                             RoundedCornerShape(6.dp),
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = ">_",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                if (avatarPath != null) {
+                    coil3.compose.AsyncImage(
+                        model = avatarPath,
+                        contentDescription = null,
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                } else {
+                    Text(
+                        text = ">_",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
 
             Column(modifier = Modifier.weight(1f)) {
@@ -574,19 +588,23 @@ private fun QuickActionTile(
 }
 
 /**
- * Builds the four canonical quick actions. Only "Add Expense" is wired to a real entry
- * point ([onAddExpense], which the integrator maps to log-miles); the rest are illustrative
- * no-ops in this offline demo.
+ * Builds the four canonical quick actions. V29 P29.H.2: "Add Expense" and "Add Invoice" are real
+ * entry points, and "Ask Advance" is config-aware — [onAskAdvance] is pre-resolved by the caller
+ * (QR advance flow vs the classic form, per [com.mileway.core.ui.home.HomePluginConfig
+ * .useQrForAdvance]) so this function stays free of plugin-config concerns. "Create Voucher"
+ * remains illustrative — no local voucher-creation surface exists yet.
  */
 fun quickActions(
     onAddExpense: () -> Unit,
+    onAskAdvance: () -> Unit,
+    onAddInvoice: () -> Unit,
     onIllustrative: () -> Unit,
 ): List<QuickAction> =
     listOf(
         QuickAction("Add Expense", Icons.AutoMirrored.Filled.NoteAdd, onAddExpense),
         QuickAction("Create Voucher", Icons.Filled.CreditCard, onIllustrative),
-        QuickAction("Ask Advance", Icons.Filled.RequestQuote, onIllustrative),
-        QuickAction("Add Invoice", Icons.Filled.AttachFile, onIllustrative),
+        QuickAction("Ask Advance", Icons.Filled.RequestQuote, onAskAdvance),
+        QuickAction("Add Invoice", Icons.Filled.AttachFile, onAddInvoice),
     )
 
 // =============================================================================
@@ -1131,6 +1149,67 @@ fun AtAGlanceGrid(
             GlanceCell(cells[2], Modifier.weight(1f))
             GlanceCell(cells[3], Modifier.weight(1f))
         }
+    }
+}
+
+/**
+ * V29 P29.H.3: manager-only "who's waiting on me" summary — pending/approved/rejected counts,
+ * shown only when [HomeUiState.isManager] gates it on. Tapping opens the Approvals surface.
+ */
+@Composable
+fun ApprovalBreakdownCard(
+    breakdown: ApprovalBreakdown,
+    onOpenApprovals: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        onClick = onOpenApprovals,
+        modifier = modifier.fillMaxWidth(),
+        shape = DesignTokens.Shape.roundedMd,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = DesignTokens.Elevation.card,
+        shadowElevation = DesignTokens.Elevation.card,
+    ) {
+        Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.FactCheck,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(DesignTokens.IconSize.badge),
+                )
+                Text(
+                    text = "Team Approvals",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Spacer(Modifier.height(DesignTokens.Spacing.m))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                BreakdownStat(breakdown.pending, "Pending", MilewayColors.warning)
+                BreakdownStat(breakdown.approved, "Approved", MilewayColors.success)
+                BreakdownStat(breakdown.rejected, "Rejected", MilewayColors.danger)
+            }
+        }
+    }
+}
+
+@Composable
+private fun BreakdownStat(
+    count: Int,
+    label: String,
+    color: Color,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(count.toString(), style = MaterialTheme.typography.titleLarge.dataStyle(), fontWeight = FontWeight.Bold, color = color)
+        Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
 
