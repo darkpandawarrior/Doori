@@ -2,6 +2,7 @@ package com.mileway.core.media
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -14,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
@@ -40,6 +43,7 @@ import com.mileway.core.ui.components.sheet.OcrResultHost
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -73,8 +77,9 @@ private val PDF_MIME_TYPES = arrayOf("application/pdf")
  * several modes is a P-SITE call-site concern, not this launcher's.
  *
  * [CaptureMode.Camera] stays on `feature:media`'s existing `CameraCaptureScreen` (a full-screen
- * preview, not a single-shot launcher) and Odometer/QRCode/Barcode/CloudLibrary are V26
- * P-CONV/P-QR/P-LIB — all four throw a clear "not yet wired" error rather than silently no-op.
+ * preview, not a single-shot launcher); Odometer/CloudLibrary are V26 P-CONV/P-LIB — both throw a
+ * clear "not yet wired" error rather than silently no-op. [CaptureMode.QRCode]/[CaptureMode.Barcode]
+ * are real as of V26 P26.AND.5 — see [scanBarcode].
  *
  * V26 P26.SHEET: every branch that produces attachments routes through [deliverAttachments]
  * below instead of calling `onResult` directly — the one place [MediaCaptureConfig.enableOcr] is
@@ -185,6 +190,24 @@ actual fun rememberMediaCaptureLauncher(
             deliverAttachments(uris.map { it.toAttachment(context) })
         }
 
+    // QRCode/Barcode (V26 P26.AND.5): capture a still image via the same Peekaboo picker as
+    // Gallery, decode it with ML Kit's on-device BarcodeScanning, deliver the first hit as
+    // QrPayload directly (no OCR/watermark pass — those are attachment-flow concerns).
+    // ponytail: image-then-decode, not a live viewfinder scanner — CaptureMode.Camera itself
+    // isn't wired through this launcher either (feature:media owns the live preview screen);
+    // upgrade to a live scan when that seam moves into core:media.
+    val qrLauncher =
+        rememberImagePickerLauncher(
+            selectionMode = SelectionMode.Single,
+            scope = scope,
+        ) { byteArrays ->
+            val bytes = byteArrays.firstOrNull() ?: return@rememberImagePickerLauncher
+            scope.launch {
+                val value = runCatching { scanBarcode(bytes) }.getOrNull()
+                if (value != null) onResult(MediaCaptureResult.QrPayload(value))
+            }
+        }
+
     // Document: GMS scanner with a same-shape file-picker fallback wired on failure — the actual
     // fix for the "silently no-ops when the scanner is unavailable" bug this task calls out.
     val documentFallbackLauncher =
@@ -279,19 +302,32 @@ actual fun rememberMediaCaptureLauncher(
                     }
                 }
 
+                CaptureMode.QRCode, CaptureMode.Barcode -> qrLauncher.launch()
+
                 CaptureMode.Camera,
                 CaptureMode.Odometer,
-                CaptureMode.QRCode,
-                CaptureMode.Barcode,
                 CaptureMode.CloudLibrary,
                 ->
                     error(
                         "rememberMediaCaptureLauncher: $mode is not wired through this launcher yet " +
                             "(Camera uses feature:media's CameraCaptureScreen directly; " +
-                            "Odometer/QRCode/Barcode/CloudLibrary land in V26 P-CONV/P-QR/P-LIB).",
+                            "Odometer/CloudLibrary land in V26 P-CONV/P-LIB).",
                     )
             }
         }
+    }
+}
+
+/** Decodes the first QR/barcode found in [bytes] via ML Kit, or null if none is detected. */
+private suspend fun scanBarcode(bytes: ByteArray): String? {
+    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+    val scanner = BarcodeScanning.getClient()
+    return try {
+        val barcodes = scanner.process(InputImage.fromBitmap(bitmap, 0)).await()
+        barcodes.firstNotNullOfOrNull { it.rawValue ?: it.displayValue }
+    } finally {
+        scanner.close()
+        bitmap.recycle()
     }
 }
 

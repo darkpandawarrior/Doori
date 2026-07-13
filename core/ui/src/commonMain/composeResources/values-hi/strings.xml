@@ -2024,6 +2024,7 @@
     <string name="media_select_source_title">एक अटैचमेंट स्रोत चुनें</string>
     <string name="media_captured_count">कैप्चर किया गया (%1$d)</string>
     <string name="media_illustrative_snackbar">%1$s इस डेमो में केवल उदाहरणात्मक है</string>
+    <string name="media_qr_scanned_snackbar">स्कैन किया गया: %1$s</string>
     <string name="media_cd_attachment_index">अटैचमेंट %1$s</string>
     <string name="media_cd_ocr_verified">OCR सत्यापित</string>
     <string name="media_cd_ocr_reading">OCR रीडिंग</string>

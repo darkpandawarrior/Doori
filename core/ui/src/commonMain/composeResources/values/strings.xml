@@ -2029,6 +2029,7 @@
     <string name="media_select_source_title">Select an attachment source</string>
     <string name="media_captured_count">Captured (%1$d)</string>
     <string name="media_illustrative_snackbar">%1$s is illustrative in this demo</string>
+    <string name="media_qr_scanned_snackbar">Scanned: %1$s</string>
     <string name="media_cd_attachment_index">Attachment %1$s</string>
     <string name="media_cd_ocr_verified">OCR verified</string>
     <string name="media_cd_ocr_reading">OCR reading</string>

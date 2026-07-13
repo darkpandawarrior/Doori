@@ -30,6 +30,10 @@ import platform.Foundation.NSUUID
 import platform.Foundation.create
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.writeToFile
+import platform.UIKit.UIImage
+import platform.Vision.VNBarcodeObservation
+import platform.Vision.VNDetectBarcodesRequest
+import platform.Vision.VNImageRequestHandler
 
 /**
  * iOS actual (V26 P26.IOS.1): real capture launcher for [CaptureMode.Gallery] (Peekaboo image
@@ -43,10 +47,11 @@ import platform.Foundation.writeToFile
  * of whatever the caller is rendering, independent of where in the tree this `remember*` call
  * sits — the same `Dialog` idiom `core:ui`'s `ZoomImageViewer`/`ColorWheelDialog` already use).
  *
- * Files/Pdf/Document/Odometer/QRCode/Barcode/CloudLibrary are out of scope for this task
- * (VisionKit document scanner, iOS file picker, QR/barcode, the unified odometer pipeline,
- * cloud-library browsing) — each throws a clear "not yet wired" error, the same shape Android's
- * own out-of-scope modes use.
+ * [CaptureMode.QRCode]/[CaptureMode.Barcode] are real as of V26 P26.IOS.3 — see [scanBarcode]
+ * (Vision's `VNDetectBarcodesRequest`, same image-then-decode shape as the Android actual).
+ * Files/Pdf/Document/Odometer/CloudLibrary are out of scope for this task (VisionKit document
+ * scanner, iOS file picker, the unified odometer pipeline, cloud-library browsing) — each throws
+ * a clear "not yet wired" error, the same shape Android's own out-of-scope modes use.
  *
  * ponytail: `config.enableOcr`/[onOcrAnalysis] aren't wired here yet — `core:ai`'s
  * `DocumentAiAnalyzer` has a real iOS actual (`FoundationModelsAnalyzer`), but threading it
@@ -84,6 +89,20 @@ actual fun rememberMediaCaptureLauncher(
             onResult(MediaCaptureResult.Attachments(listOf(captured.toCacheFileAttachment(AttachmentSource.CAMERA))))
         }
 
+    // QRCode/Barcode (V26 P26.IOS.3): same image-then-decode shape as the Android actual — pick a
+    // still image via Peekaboo, decode it with Vision's VNDetectBarcodesRequest.
+    // ponytail: not a live viewfinder scanner, same ceiling as the Android actual (see its
+    // scanBarcode doc) — upgrade both together if a live scan is ever needed.
+    val qrLauncher =
+        rememberImagePickerLauncher(
+            selectionMode = SelectionMode.Single,
+            scope = scope,
+        ) { byteArrays ->
+            val bytes = byteArrays.firstOrNull() ?: return@rememberImagePickerLauncher
+            val value = scanBarcode(bytes)
+            if (value != null) onResult(MediaCaptureResult.QrPayload(value))
+        }
+
     if (showCamera) {
         Dialog(onDismissRequest = { showCamera = false }) {
             PeekabooCamera(state = cameraState, modifier = Modifier.fillMaxSize())
@@ -95,26 +114,44 @@ actual fun rememberMediaCaptureLauncher(
             when (mode) {
                 CaptureMode.Gallery -> galleryLauncher.launch()
                 CaptureMode.Camera -> showCamera = true
+                CaptureMode.QRCode, CaptureMode.Barcode -> qrLauncher.launch()
 
                 CaptureMode.Files,
                 CaptureMode.Pdf,
                 CaptureMode.Document,
                 CaptureMode.Odometer,
-                CaptureMode.QRCode,
-                CaptureMode.Barcode,
                 CaptureMode.CloudLibrary,
                 ->
-                    // ponytail: V26 P-IOS.2/P-QR follow-up — VisionKit document scanner, iOS file
-                    // picker, QR/barcode, the odometer pipeline, cloud-library browsing. This task
-                    // is camera+gallery only.
+                    // ponytail: V26 P-IOS.2 follow-up — VisionKit document scanner, iOS file
+                    // picker, the odometer pipeline, cloud-library browsing. This task is
+                    // camera+gallery+QR/barcode only.
                     error(
                         "rememberMediaCaptureLauncher: $mode is not wired on iOS yet " +
-                            "(V26 P-IOS.2/P-QR follow-up).",
+                            "(V26 P-IOS.2 follow-up).",
                     )
             }
         }
     }
 }
+
+/** Decodes the first QR/barcode found in [bytes] via Vision, or null if none is detected. */
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+private fun scanBarcode(bytes: ByteArray): String? =
+    runCatching {
+        if (bytes.isEmpty()) return@runCatching null
+        val data =
+            bytes.usePinned { pinned -> NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong()) }
+        val cgImage = UIImage(data = data).CGImage ?: return@runCatching null
+
+        val request = VNDetectBarcodesRequest(completionHandler = null)
+        val handler = VNImageRequestHandler(cGImage = cgImage, options = emptyMap<Any?, Any?>())
+        handler.performRequests(listOf(request), error = null)
+
+        request.results
+            .orEmpty()
+            .filterIsInstance<VNBarcodeObservation>()
+            .firstNotNullOfOrNull { it.payloadStringValue }
+    }.getOrNull()
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun ByteArray.toCacheFileAttachment(source: AttachmentSource): AttachmentItem {

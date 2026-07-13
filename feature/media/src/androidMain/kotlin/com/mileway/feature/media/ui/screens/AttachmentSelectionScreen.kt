@@ -64,6 +64,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.mileway.core.media.model.CaptureMode
+import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
+import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_back
@@ -80,6 +84,7 @@ import com.mileway.core.ui.resources.media_cd_theme_color
 import com.mileway.core.ui.resources.media_illustrative_snackbar
 import com.mileway.core.ui.resources.media_ocr_label
 import com.mileway.core.ui.resources.media_ocr_verified_label
+import com.mileway.core.ui.resources.media_qr_scanned_snackbar
 import com.mileway.core.ui.resources.media_select_source_title
 import com.mileway.core.ui.resources.media_source_barcode
 import com.mileway.core.ui.resources.media_source_camera
@@ -149,12 +154,38 @@ fun AttachmentSelectionScreen(
         }
 
     val illustrativeSnackbarTemplate = stringResource(Res.string.media_illustrative_snackbar)
+    val qrScannedTemplate = stringResource(Res.string.media_qr_scanned_snackbar)
 
     fun showIllustrative(label: String) {
         scope.launch {
             snackbarHostState.showSnackbar(String.format(illustrativeSnackbarTemplate, label))
         }
     }
+
+    // V26 P26.AND.5: real ML Kit-backed QR/barcode capture, routed through core:media's shared
+    // launcher (same seam ReceiptAttachmentLauncher uses) — no dedicated screen to hold the
+    // scanned value yet, so it surfaces via snackbar like every other illustrative tile did, but
+    // it's now a real decode instead of a stub message. The launcher only calls onResult on a
+    // successful decode (see MediaCaptureLauncher.android.kt's scanBarcode) — a silent no-op on a
+    // miss, same as every other picker cancel/failure path in this launcher.
+    val qrLauncher =
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.QRCode)),
+            onResult = { result ->
+                (result as? MediaCaptureResult.QrPayload)?.let {
+                    scope.launch { snackbarHostState.showSnackbar(String.format(qrScannedTemplate, it.value)) }
+                }
+            },
+        )
+    val barcodeLauncher =
+        rememberMediaCaptureLauncher(
+            config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Barcode)),
+            onResult = { result ->
+                (result as? MediaCaptureResult.QrPayload)?.let {
+                    scope.launch { snackbarHostState.showSnackbar(String.format(qrScannedTemplate, it.value)) }
+                }
+            },
+        )
 
     // The nine source tiles, in reading order across the 3-column grid.
     val sources =
@@ -283,6 +314,8 @@ fun AttachmentSelectionScreen(
                                 launchDocumentScan()
                             }
                             SourceKey.CLOUD -> onNavigateToLibrary()
+                            SourceKey.QR -> qrLauncher()
+                            SourceKey.BARCODE -> barcodeLauncher()
                             else -> showIllustrative(spec.label)
                         }
                     },

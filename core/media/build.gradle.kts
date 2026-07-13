@@ -41,6 +41,8 @@ kotlin {
             implementation(libs.mlkit.document.scanner)
             // V26 P26.CONV: MlKitGalleryMultiPassRecognizer's real multi-pass gallery-image OCR.
             implementation(libs.mlkit.text.recognition)
+            // V26 P26.AND.5: real QR/Barcode capture (CaptureMode.QRCode/Barcode).
+            implementation(libs.mlkit.barcode.scanning)
             implementation(libs.kotlinx.coroutines.play.services)
             // V26 P26.WM.1: burnWatermark's actual has no Compose scope to pull LocalContext.current
             // from, so it resolves the app's Context via Koin's global accessor (KoinPlatform.getKoin())
