@@ -25,15 +25,23 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import platform.Foundation.NSData
 import platform.Foundation.NSDate
+import platform.Foundation.NSError
 import platform.Foundation.NSTemporaryDirectory
 import platform.Foundation.NSUUID
 import platform.Foundation.create
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.writeToFile
+import platform.UIKit.UIApplication
 import platform.UIKit.UIImage
+import platform.UIKit.UIImageJPEGRepresentation
+import platform.UIKit.UIViewController
 import platform.Vision.VNBarcodeObservation
 import platform.Vision.VNDetectBarcodesRequest
 import platform.Vision.VNImageRequestHandler
+import platform.VisionKit.VNDocumentCameraScan
+import platform.VisionKit.VNDocumentCameraViewController
+import platform.VisionKit.VNDocumentCameraViewControllerDelegateProtocol
+import platform.darwin.NSObject
 
 /**
  * iOS actual (V26 P26.IOS.1): real capture launcher for [CaptureMode.Gallery] (Peekaboo image
@@ -49,9 +57,17 @@ import platform.Vision.VNImageRequestHandler
  *
  * [CaptureMode.QRCode]/[CaptureMode.Barcode] are real as of V26 P26.IOS.3 — see [scanBarcode]
  * (Vision's `VNDetectBarcodesRequest`, same image-then-decode shape as the Android actual).
- * Files/Pdf/Document/Odometer/CloudLibrary are out of scope for this task (VisionKit document
- * scanner, iOS file picker, the unified odometer pipeline, cloud-library browsing) — each throws
- * a clear "not yet wired" error, the same shape Android's own out-of-scope modes use.
+ * [CaptureMode.Document] is real as of V26 P26.IOS.2: `VNDocumentCameraViewController`
+ * (VisionKit) presented from the front-most view controller (same "no Compose-provided
+ * `UIViewController` needed" trick `IosShareSheet`/`ExpenseCsvImportLauncher.ios.kt`'s
+ * `UIDocumentPickerViewController` already use), scanned pages read back via
+ * `VNDocumentCameraScan.imageOfPageAtIndex` and JPEG-encoded into cache-file attachments —
+ * see [DocumentScanDelegate]. This finally closes the gap `core:platform`'s `IosDocumentScanner`
+ * doc comment named (headless service objects have no presentation context; the Compose UI layer
+ * does).
+ * Files/Pdf/Odometer/CloudLibrary are still out of scope for this task (iOS file picker, the
+ * unified odometer pipeline, cloud-library browsing) — each throws a clear "not yet wired" error,
+ * the same shape Android's own out-of-scope modes use.
  *
  * ponytail: `config.enableOcr`/[onOcrAnalysis] aren't wired here yet — `core:ai`'s
  * `DocumentAiAnalyzer` has a real iOS actual (`FoundationModelsAnalyzer`), but threading it
@@ -103,6 +119,14 @@ actual fun rememberMediaCaptureLauncher(
             if (value != null) onResult(MediaCaptureResult.QrPayload(value))
         }
 
+    val documentScanDelegate =
+        remember {
+            DocumentScanDelegate { pages ->
+                val items = pages.map { it.toCacheFileAttachment(AttachmentSource.FILES) }
+                if (items.isNotEmpty()) onResult(MediaCaptureResult.Attachments(items))
+            }
+        }
+
     if (showCamera) {
         Dialog(onDismissRequest = { showCamera = false }) {
             PeekabooCamera(state = cameraState, modifier = Modifier.fillMaxSize())
@@ -116,15 +140,19 @@ actual fun rememberMediaCaptureLauncher(
                 CaptureMode.Camera -> showCamera = true
                 CaptureMode.QRCode, CaptureMode.Barcode -> qrLauncher.launch()
 
+                CaptureMode.Document -> {
+                    val scanner = VNDocumentCameraViewController()
+                    scanner.delegate = documentScanDelegate
+                    topViewController()?.presentViewController(scanner, animated = true, completion = null)
+                }
+
                 CaptureMode.Files,
                 CaptureMode.Pdf,
-                CaptureMode.Document,
                 CaptureMode.Odometer,
                 CaptureMode.CloudLibrary,
                 ->
-                    // ponytail: V26 P-IOS.2 follow-up — VisionKit document scanner, iOS file
-                    // picker, the odometer pipeline, cloud-library browsing. This task is
-                    // camera+gallery+QR/barcode only.
+                    // ponytail: V26 P-IOS.2 follow-up — iOS file picker, the unified odometer
+                    // pipeline, cloud-library browsing. Document scanning is real now (see above).
                     error(
                         "rememberMediaCaptureLauncher: $mode is not wired on iOS yet " +
                             "(V26 P-IOS.2 follow-up).",
@@ -152,6 +180,57 @@ private fun scanBarcode(bytes: ByteArray): String? =
             .filterIsInstance<VNBarcodeObservation>()
             .firstNotNullOfOrNull { it.payloadStringValue }
     }.getOrNull()
+
+/**
+ * [VNDocumentCameraViewControllerDelegateProtocol] adapter: dismisses the scanner on every
+ * outcome (finish/cancel/fail — VisionKit never dismisses itself) and, on a successful scan,
+ * reads each page back as JPEG bytes via `imageOfPageAtIndex` before handing them to [onScanned].
+ * Cancel and failure both report zero pages, same "no result" contract as the Android actual's
+ * scanner-unavailable fallback.
+ */
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
+private class DocumentScanDelegate(
+    private val onScanned: (List<ByteArray>) -> Unit,
+) : NSObject(), VNDocumentCameraViewControllerDelegateProtocol {
+    override fun documentCameraViewController(
+        controller: VNDocumentCameraViewController,
+        didFinishWithScan: VNDocumentCameraScan,
+    ) {
+        controller.dismissViewControllerAnimated(true, completion = null)
+        val pages =
+            (0 until didFinishWithScan.pageCount.toInt()).mapNotNull { index ->
+                val image = didFinishWithScan.imageOfPageAtIndex(index.toULong())
+                UIImageJPEGRepresentation(image, 0.9)?.toByteArray()
+            }
+        onScanned(pages)
+    }
+
+    override fun documentCameraViewControllerDidCancel(controller: VNDocumentCameraViewController) {
+        controller.dismissViewControllerAnimated(true, completion = null)
+    }
+
+    override fun documentCameraViewController(
+        controller: VNDocumentCameraViewController,
+        didFailWithError: NSError,
+    ) {
+        controller.dismissViewControllerAnimated(true, completion = null)
+    }
+}
+
+private fun topViewController(): UIViewController? {
+    var top = UIApplication.sharedApplication.keyWindow?.rootViewController
+    while (top?.presentedViewController != null) top = top.presentedViewController
+    return top
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun NSData.toByteArray(): ByteArray {
+    val size = length.toInt()
+    if (size == 0) return ByteArray(0)
+    val out = ByteArray(size)
+    out.usePinned { pinned -> platform.posix.memcpy(pinned.addressOf(0), bytes, length) }
+    return out
+}
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun ByteArray.toCacheFileAttachment(source: AttachmentSource): AttachmentItem {
