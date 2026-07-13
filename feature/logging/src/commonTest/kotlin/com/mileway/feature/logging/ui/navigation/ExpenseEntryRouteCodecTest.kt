@@ -83,9 +83,8 @@ class ExpenseEntryRouteCodecTest {
     }
 
     @Test
-    fun `a variant this task did not wire falls back to a bare entry`() {
-        val route = LoggingRoutes.expenseEntryRoute(ExpenseSourceContext.Event("evt-1", "Annual Summit"))
-        assertEquals("expense/entry", route)
-        assertEquals(ExpenseSourceContext.None, decode(route))
+    fun `Event round-trips through the route string`() {
+        val ctx = ExpenseSourceContext.Event(eventId = "evt-1", eventLabel = "Annual Summit")
+        assertEquals(ctx, decode(LoggingRoutes.expenseEntryRoute(ctx)))
     }
 }

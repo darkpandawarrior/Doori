@@ -15,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -79,6 +80,7 @@ class CreatePaymentViewModelTest {
             fillForm(vm, amount = "100")
 
             vm.onAction(CreatePaymentAction.Submit)
+            runCurrent()
             assertEquals(PaymentTransactionStatus.SUBMITTING, vm.state.value.transactionStatus)
 
             advanceUntilIdle()

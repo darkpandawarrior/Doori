@@ -32,6 +32,7 @@ class TrackingSearchProviderTest {
             startTime = 1_700_000_000_000L,
             endTime = 1_700_003_600_000L,
             distance = 12_000.0,
+            duration = 3_600_000L,
         )
 
     private fun point(

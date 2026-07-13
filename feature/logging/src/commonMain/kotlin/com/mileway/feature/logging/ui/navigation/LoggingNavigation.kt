@@ -89,8 +89,9 @@ object LoggingRoutes {
      * through a plain route string, so every feature still meets feature:logging only at :app's
      * composition root (never a direct feature→feature dependency; see CLAUDE.md's module-
      * boundary rule). The P27.E.5/7/8 variants (Trip/Card/Advance) plus, since P27.E.1 merged the
-     * old edit-details route into this single one, [ExpenseSourceContext.Edit] are encoded richly;
-     * every other variant (including the default [ExpenseSourceContext.Regular]) falls back to the
+     * old edit-details route into this single one, [ExpenseSourceContext.Edit] and
+     * [ExpenseSourceContext.Event] are encoded richly; every other variant (including the default
+     * [ExpenseSourceContext.Regular]) falls back to the
      * bare "no context" entry — identical to the pre-existing plain "Add Expense" tap. Reverse of
      * [decodeExpenseSourceContext].
      */
