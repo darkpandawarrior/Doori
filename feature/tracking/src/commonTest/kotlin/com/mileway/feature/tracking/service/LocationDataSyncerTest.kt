@@ -2,10 +2,10 @@ package com.mileway.feature.tracking.service
 
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.model.db.LocationData
-import com.mileway.core.data.outbox.DraftEntry
-import com.mileway.core.data.outbox.DraftStatus
 import com.mileway.core.data.outbox.LocationBatch
 import com.mileway.core.data.outbox.LocationBatchOutbox
+import com.siddharth.kmp.offlineoutbox.DraftEntry
+import com.siddharth.kmp.offlineoutbox.DraftStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf

@@ -1,5 +1,6 @@
 package com.mileway.core.data.outbox
 
+import com.siddharth.kmp.offlineoutbox.SubmitOutbox
 import kotlinx.serialization.Serializable
 
 // Wave-4 §2.3: durable payload for the location-sync outbox. Carries only point ids (refs into

@@ -33,6 +33,7 @@ includeBuild("external/kmp-toolkit") {
     dependencySubstitution {
         substitute(module("com.siddharth.kmp:location")).using(project(":location"))
         substitute(module("com.siddharth.kmp:common")).using(project(":common"))
+        substitute(module("com.siddharth.kmp:offline-outbox")).using(project(":offline-outbox"))
     }
 }
 

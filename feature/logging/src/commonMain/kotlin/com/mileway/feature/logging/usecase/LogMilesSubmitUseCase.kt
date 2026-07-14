@@ -2,8 +2,8 @@ package com.mileway.feature.logging.usecase
 
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
-import com.mileway.core.data.outbox.SubmitOutbox
 import com.mileway.core.network.api.MilewayNetworkApi
+import com.siddharth.kmp.offlineoutbox.SubmitOutbox
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

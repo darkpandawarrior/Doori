@@ -129,7 +129,7 @@ class KoinGraphTest : KoinTest {
         // Wave 3: LogMilesViewModel.init now also collectLatest's observeAllRoutes(); same
         // relaxed-mockk-null-Flow trap as LogMilesDraftDao above.
         single<LogMilesFrequentRouteDao> { FakeLogMilesFrequentRouteDao() }
-        single<com.mileway.core.data.outbox.SubmitOutbox<com.mileway.core.data.model.network.LogMilesSubmitRequestV2>> {
+        single<com.siddharth.kmp.offlineoutbox.SubmitOutbox<com.mileway.core.data.model.network.LogMilesSubmitRequestV2>> {
             mockk(relaxed = true)
         }
         single<TripAttachmentDao> { mockk(relaxed = true) }

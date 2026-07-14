@@ -5,6 +5,20 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 47 → 48 (offline-outbox extraction): `submit_drafts` moved to its own database owned by
+ * the `com.siddharth.kmp:offline-outbox` toolkit module (RoomSubmitOutbox/RoomChangeBus went with it
+ * — see [com.mileway.core.data.di.coreDataModule]). Drop the now-orphaned table from MilewayDatabase;
+ * any in-flight drafts are re-created fresh in the new outbox.db on next enqueue (mock/local data
+ * only, no backend to reconcile against — see CLAUDE.md "The backend").
+ */
+val MIGRATION_47_48 =
+    object : Migration(47, 48) {
+        override fun migrate(connection: SQLiteConnection) {
+            connection.execSQL("DROP TABLE IF EXISTS `submit_drafts`")
+        }
+    }
+
+/**
  * Migration 46 → 47 (PLAN_V31 P31.MISC.1): additive `bug_reports` table — the shake-to-report
  * capture store. Saved locally only, no backend (see CLAUDE.md "The backend"); empty on first run,
  * a row is appended per submitted report, never edited.

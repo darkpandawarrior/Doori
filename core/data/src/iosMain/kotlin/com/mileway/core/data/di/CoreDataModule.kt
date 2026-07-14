@@ -10,8 +10,6 @@ import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
 import com.mileway.core.data.otp.LocalOtpEngine
 import com.mileway.core.data.outbox.LocationBatch
 import com.mileway.core.data.outbox.LocationBatchOutbox
-import com.mileway.core.data.outbox.RoomSubmitOutbox
-import com.mileway.core.data.outbox.SubmitOutbox
 import com.mileway.core.data.outbox.TripDraft
 import com.mileway.core.data.plugin.EmptyPersonaPresetProvider
 import com.mileway.core.data.plugin.PersonaPresetProvider
@@ -42,6 +40,10 @@ import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.data.settings.RegistryAbnormalDetectionSource
 import com.mileway.core.data.watch.SnapshotCache
 import com.mileway.core.data.watch.SnapshotCacheStore
+import com.siddharth.kmp.offlineoutbox.OutboxDatabase
+import com.siddharth.kmp.offlineoutbox.RoomSubmitOutbox
+import com.siddharth.kmp.offlineoutbox.SubmitOutbox
+import com.siddharth.kmp.offlineoutbox.buildOutboxDatabase
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
@@ -55,7 +57,10 @@ val coreDataModule =
         single { get<MilewayDatabase>().logMilesFrequentRouteDao() }
         single { get<MilewayDatabase>().tripAttachmentDao() }
         single { get<MilewayDatabase>().mediaLibraryDao() }
-        single { get<MilewayDatabase>().submitDraftDao() }
+        // Own separate Room DB (a library can't splice into MilewayDatabase's own @Database) — see
+        // com.siddharth.kmp.offlineoutbox.OutboxDatabase.
+        single<OutboxDatabase> { buildOutboxDatabase() }
+        single { get<OutboxDatabase>().submitDraftDao() }
         single { get<MilewayDatabase>().agentDao() }
         single { get<MilewayDatabase>().draftExpenseDao() }
         single { get<MilewayDatabase>().voucherDao() }

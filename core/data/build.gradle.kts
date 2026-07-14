@@ -26,6 +26,9 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
+            // Durable outbox + change-bus, extracted to kmp-toolkit (own separate Room DB — see
+            // OutboxDatabase in the toolkit module; RoomSubmitOutbox/RoomChangeBus no longer live here).
+            api("com.siddharth.kmp:offline-outbox:1.0.0")
         }
         androidMain.dependencies {
             implementation(libs.sqlite.bundled)
