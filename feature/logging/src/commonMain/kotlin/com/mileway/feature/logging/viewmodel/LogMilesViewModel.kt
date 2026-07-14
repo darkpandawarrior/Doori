@@ -1,7 +1,7 @@
 package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.network.ApprovedVehicle
@@ -553,7 +553,7 @@ class LogMilesViewModel(
                 )
             }.onFailure { e ->
                 setState { copy(isSubmitting = false) }
-                emitEffect(LogMilesEffect.ShowError(UiText.Static(e.message ?: "Submission failed")))
+                emitEffect(LogMilesEffect.ShowError(UiText.Dynamic(e.message ?: "Submission failed")))
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.forms.FieldId

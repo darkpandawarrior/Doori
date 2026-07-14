@@ -1,6 +1,6 @@
 package com.mileway.feature.tracking.insights
 
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack

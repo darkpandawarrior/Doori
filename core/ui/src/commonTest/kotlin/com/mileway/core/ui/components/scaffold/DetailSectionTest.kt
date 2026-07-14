@@ -1,6 +1,6 @@
 package com.mileway.core.ui.components.scaffold
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

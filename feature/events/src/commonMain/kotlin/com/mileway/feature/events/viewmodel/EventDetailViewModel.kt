@@ -1,6 +1,6 @@
 package com.mileway.feature.events.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
@@ -99,7 +99,7 @@ class EventDetailViewModel(
     private fun load() {
         val record = repository.get(currentState.eventId)
         setState {
-            copy(event = record?.let { ScreenState.Content(it) } ?: ScreenState.Error(UiText.Static("Event not found")))
+            copy(event = record?.let { ScreenState.Content(it) } ?: ScreenState.Error(UiText.Dynamic("Event not found")))
         }
     }
 

@@ -1,6 +1,6 @@
 package com.mileway.core.ui.mvi
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 
 /** Sealed state for any screen that loads data. Drives the UI without boolean soup. */
 sealed interface ScreenState<out T> {
@@ -44,4 +44,4 @@ fun <T> ScreenState<T>.contentOrElse(default: T): T = dataOrNull ?: default
 /** Convenience constructors. */
 fun <T> T.asContent(isStale: Boolean = false): ScreenState<T> = ScreenState.Content(this, isStale)
 
-fun errorState(message: String): ScreenState<Nothing> = ScreenState.Error(UiText.Static(message))
+fun errorState(message: String): ScreenState<Nothing> = ScreenState.Error(UiText.Dynamic(message))

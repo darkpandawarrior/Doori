@@ -53,7 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar

@@ -61,7 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_saved_cd_filters

@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.network.ApprovedVehicle
 import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.ui.components.sheet.SearchablePickerSheet

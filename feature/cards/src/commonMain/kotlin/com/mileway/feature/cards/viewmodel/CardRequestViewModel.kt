@@ -1,6 +1,6 @@
 package com.mileway.feature.cards.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.cards.data.CardsMockDataProvider
 import com.mileway.feature.cards.data.CardsMockDataProviderFactory
@@ -68,6 +68,6 @@ class CardRequestViewModel(
     private fun submit() {
         if (!currentState.agreeToPolicies || currentState.selectedCardTypeId == null) return
         setState { copy(isSubmitting = false, submittedRequestId = 203L) }
-        emitEffect(CardRequestEffect.ShowToast(UiText.Static("Card request submitted")))
+        emitEffect(CardRequestEffect.ShowToast(UiText.Dynamic("Card request submitted")))
     }
 }

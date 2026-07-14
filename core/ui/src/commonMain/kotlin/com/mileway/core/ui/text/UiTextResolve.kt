@@ -1,7 +1,7 @@
 package com.mileway.core.ui.text
 
 import androidx.compose.runtime.Composable
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import org.jetbrains.compose.resources.getString
@@ -16,11 +16,12 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun UiText.text(): String =
     when (this) {
-        is UiText.Static -> value
+        is UiText.Dynamic -> value
         is UiText.Res ->
             Res.allStringResources[key]
                 ?.let { stringResource(it, *args.toTypedArray()) }
                 ?: key
+        UiText.Empty -> ""
     }
 
 /**
@@ -29,9 +30,10 @@ fun UiText.text(): String =
  */
 suspend fun UiText.getText(): String =
     when (this) {
-        is UiText.Static -> value
+        is UiText.Dynamic -> value
         is UiText.Res ->
             Res.allStringResources[key]
                 ?.let { getString(it, *args.toTypedArray()) }
                 ?: key
+        UiText.Empty -> ""
     }

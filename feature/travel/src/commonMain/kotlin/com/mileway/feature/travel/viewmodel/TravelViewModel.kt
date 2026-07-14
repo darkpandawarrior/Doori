@@ -1,6 +1,6 @@
 package com.mileway.feature.travel.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.travel.repository.TravelRepository
@@ -16,9 +16,9 @@ class TravelViewModel(
         when (action) {
             TravelAction.Refresh -> load()
             TravelAction.ViewBoardingPass ->
-                emitEffect(TravelEffect.ShowMessage(UiText.Static("Boarding pass not available in demo")))
+                emitEffect(TravelEffect.ShowMessage(UiText.Dynamic("Boarding pass not available in demo")))
             TravelAction.BookFlight, TravelAction.BookTrain ->
-                emitEffect(TravelEffect.ShowMessage(UiText.Static("Booking is illustrative.")))
+                emitEffect(TravelEffect.ShowMessage(UiText.Dynamic("Booking is illustrative.")))
         }
     }
 

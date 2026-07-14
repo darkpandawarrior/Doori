@@ -1,6 +1,6 @@
 package com.mileway.feature.profile.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
@@ -203,7 +203,7 @@ class AdvanceViewModel(
                     },
             )
         }
-        emitEffect(AdvanceEffect.ShowToast(UiText.Static("Card ${cardId.takeLast(4)} status updated")))
+        emitEffect(AdvanceEffect.ShowToast(UiText.Dynamic("Card ${cardId.takeLast(4)} status updated")))
     }
 
     fun getCardById(id: String) = repository.getCardById(id)

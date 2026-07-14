@@ -1,6 +1,6 @@
 package com.mileway.core.forms
 
-import com.mileway.core.common.asString
+import com.siddharth.kmp.common.asString
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

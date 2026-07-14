@@ -55,7 +55,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mileway.core.common.asString
+import com.siddharth.kmp.common.asString
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.resources.Res

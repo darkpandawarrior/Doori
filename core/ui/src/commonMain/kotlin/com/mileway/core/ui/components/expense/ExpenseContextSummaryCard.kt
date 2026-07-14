@@ -12,8 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.mileway.core.common.UiText
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.expense_context_advance_title

@@ -42,8 +42,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mileway.core.common.asString
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.asString
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.timeline.TimelineStep

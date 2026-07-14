@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mileway.core.common.UiText
-import com.mileway.core.common.asString
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.common.asString
 import com.mileway.core.ui.components.UnifiedListShimmer
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_error
@@ -56,7 +56,7 @@ fun <T> ScreenStateContent(
             is ScreenState.Empty -> empty()
             is ScreenState.NoNetwork ->
                 DefaultErrorState(
-                    UiText.Static("You're offline. Check your connection and try again."),
+                    UiText.Dynamic("You're offline. Check your connection and try again."),
                     onRetry,
                     icon = Icons.Outlined.CloudOff,
                 )

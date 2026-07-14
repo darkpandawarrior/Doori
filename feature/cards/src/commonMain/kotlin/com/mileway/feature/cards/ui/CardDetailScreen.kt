@@ -62,7 +62,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mileway.core.common.asString
+import com.siddharth.kmp.common.asString
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.components.sheet.DetailInfoBottomSheet
 import com.mileway.core.ui.components.sheet.DetailInfoCard

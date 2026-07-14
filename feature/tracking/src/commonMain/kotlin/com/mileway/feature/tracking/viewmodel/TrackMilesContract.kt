@@ -1,6 +1,6 @@
 package com.mileway.feature.tracking.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.network.ApprovedVehicle
 
 /**

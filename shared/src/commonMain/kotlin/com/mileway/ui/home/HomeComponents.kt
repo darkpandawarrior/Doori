@@ -90,7 +90,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.banner.HomeBanner
 import com.mileway.core.ui.components.AutoSizeGreeting
 import com.mileway.core.ui.components.CountBadge

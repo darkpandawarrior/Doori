@@ -1,6 +1,6 @@
 package com.mileway.feature.cards.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
@@ -158,7 +158,7 @@ class CardDetailViewModel(
                 status = if (it.status == CardStatus.KYC_PENDING) CardStatus.ACTIVE else it.status,
             )
         }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("KYC verified successfully")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic("KYC verified successfully")))
         logAudit("KYC verified")
     }
 
@@ -169,7 +169,7 @@ class CardDetailViewModel(
         val steps = card?.let { provider.cardTypeById(it.cardTypeId)?.approvalMatrix?.stepsFor(it.limit) }.orEmpty()
         setState {
             copy(
-                card = card?.asContent() ?: ScreenState.Error(UiText.Static("Card not found")),
+                card = card?.asContent() ?: ScreenState.Error(UiText.Dynamic("Card not found")),
                 transactions = filtered(claimTab),
                 approvalSteps = steps,
             )
@@ -212,7 +212,7 @@ class CardDetailViewModel(
         val current = (currentState.card as? ScreenState.Content)?.data ?: return
         val blocked = current.status == CardStatus.BLOCKED
         mutateCard { it.copy(status = if (blocked) CardStatus.ACTIVE else CardStatus.BLOCKED) }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Card status updated")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic("Card status updated")))
         logAudit(if (blocked) "Card unblocked" else "Card blocked")
     }
 
@@ -225,14 +225,14 @@ class CardDetailViewModel(
                 status = if (frozen) CardStatus.ACTIVE else CardStatus.FROZEN,
             )
         }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static(if (frozen) "Card unfrozen" else "Card frozen")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic(if (frozen) "Card unfrozen" else "Card frozen")))
         logAudit(if (frozen) "Card unfrozen" else "Card frozen")
     }
 
     private fun setMonthlyLimit(limit: Double) {
         mutateCard { it.copy(monthlyLimit = limit, limit = limit) }
         setState { copy(showMonthlyLimitDialog = false) }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Limit set successfully")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic("Limit set successfully")))
         logAudit("Monthly limit updated", limit.toString())
     }
 
@@ -248,7 +248,7 @@ class CardDetailViewModel(
             }
         }
         setState { copy(limitSheetKind = null) }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Limit set successfully")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic("Limit set successfully")))
         logAudit("${kind.name.lowercase().replace('_', ' ')} limit updated", value.toString())
     }
 
@@ -261,14 +261,14 @@ class CardDetailViewModel(
                 if (it.id == transactionId) it.copy(claimStatus = CardTxnClaimStatus.REJECTED, disputeReason = reason) else it
             }
         setState { copy(transactions = filtered(claimTab), disputingTransactionId = null, selectedTransaction = null) }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Dispute submitted")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic("Dispute submitted")))
         logAudit("Transaction disputed", "${txn.merchantName}: $reason")
     }
 
     private fun issuePhysicalCard() {
         mutateCard { it.copy(status = CardStatus.PHYSICAL_ISSUED, cardFormat = com.mileway.feature.cards.model.CardFormat.PHYSICAL) }
         setState { copy(showPhysicalCardDialog = false) }
-        emitEffect(CardDetailEffect.ShowToast(UiText.Static("Physical Card Request Sent Successfully")))
+        emitEffect(CardDetailEffect.ShowToast(UiText.Dynamic("Physical Card Request Sent Successfully")))
         logAudit("Physical card requested")
     }
 }

@@ -1,7 +1,7 @@
 package com.mileway
 
 import app.cash.turbine.test
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.contentOrElse
@@ -36,7 +36,7 @@ class MviInfraTest {
     @Test
     fun `map passes through non-content branches`() {
         assertEquals(ScreenState.Loading, ScreenState.Loading.map { _: Nothing -> 1 })
-        val err = ScreenState.Error(UiText.Static("boom"))
+        val err = ScreenState.Error(UiText.Dynamic("boom"))
         assertEquals(err, err.map { _: Nothing -> 1 })
     }
 

@@ -19,6 +19,9 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             // Napier: KMP logging usable from commonMain (android.util.Log cannot go here).
             api(libs.napier)
+            // Shared UiText + Formatters (kmp-toolkit monorepo) — api so the ~21 core:common
+            // consumers get them transitively.
+            api("com.siddharth.kmp:common:1.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

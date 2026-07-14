@@ -71,8 +71,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.mileway.core.common.asString
-import com.mileway.core.common.formatDecimal
+import com.siddharth.kmp.common.asString
+import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.forms.ui.FormRenderer
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.PolicyViolation

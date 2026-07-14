@@ -1,6 +1,6 @@
 package com.mileway.feature.payables.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.payables.model.Invoice
@@ -110,7 +110,7 @@ class PayablesViewModel(
             PayablesAction.SubmitPo -> submitPo()
             PayablesAction.ResetForm -> setState { copy(form = CreatePoFormState(), lastSubmittedId = "") }
             is PayablesAction.OpenDetail -> openDetail(action.id)
-            is PayablesAction.ShowMessage -> emitEffect(PayablesEffect.ShowToast(UiText.Static(action.message)))
+            is PayablesAction.ShowMessage -> emitEffect(PayablesEffect.ShowToast(UiText.Dynamic(action.message)))
         }
     }
 

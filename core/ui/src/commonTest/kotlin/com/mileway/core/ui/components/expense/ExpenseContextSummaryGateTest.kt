@@ -1,6 +1,6 @@
 package com.mileway.core.ui.components.expense
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.ScannerPrefill
 import kotlin.test.Test

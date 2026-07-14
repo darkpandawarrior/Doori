@@ -1,6 +1,6 @@
 package com.mileway.core.forms
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import kotlin.math.round
 
 private val COMPARISON_RELATIONS =

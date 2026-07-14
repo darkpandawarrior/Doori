@@ -1,6 +1,6 @@
 package com.mileway.feature.travel.viewmodel
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.travel.model.BookingRecord
 

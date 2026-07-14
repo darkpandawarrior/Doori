@@ -32,6 +32,7 @@ rootProject.name = "Mileway"
 includeBuild("external/kmp-toolkit") {
     dependencySubstitution {
         substitute(module("com.siddharth.kmp:location")).using(project(":location"))
+        substitute(module("com.siddharth.kmp:common")).using(project(":common"))
     }
 }
 

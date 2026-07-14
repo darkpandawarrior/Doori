@@ -1,7 +1,7 @@
 package com.mileway.feature.approvals.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.ledger.ApprovalTransitions
 import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState

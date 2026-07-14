@@ -1,6 +1,6 @@
 package com.mileway.feature.logging.validation
 
-import com.mileway.core.common.UiText
+import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.logging.model.ExpenseCategoryDef
 import com.mileway.feature.logging.viewmodel.ExpenseFormState
