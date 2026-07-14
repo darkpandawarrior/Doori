@@ -36,6 +36,9 @@ kotlin {
             implementation(libs.coil3.compose)
             // V21 §3 Wave 4: NetworkLogViewModel's API tester takes an optional HttpClient.
             implementation(libs.ktor.client.core)
+            // kmp-toolkit adoption: pure GPS-math (KalmanSmoother, PathSimplifier, DynamicIntervalCalculator,
+            // TrackingQualityScorer) extracted to the monorepo's :location leaf.
+            implementation("com.siddharth.kmp:location:1.0.0")
         }
         androidMain.dependencies {
             // api() so dependents (feature:logging, :app) can resolve Material theme parent

@@ -29,6 +29,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "Mileway"
 
+includeBuild("external/kmp-toolkit") {
+    dependencySubstitution {
+        substitute(module("com.siddharth.kmp:location")).using(project(":location"))
+    }
+}
+
 include(":app")
 include(":shared")
 include(":sharedWatch")

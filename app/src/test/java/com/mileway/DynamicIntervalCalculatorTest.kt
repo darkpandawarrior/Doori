@@ -1,7 +1,7 @@
 package com.mileway
 
-import com.mileway.feature.tracking.service.location.DynamicIntervalCalculator
-import com.mileway.feature.tracking.service.location.IntervalInputs
+import com.siddharth.kmp.location.DynamicIntervalCalculator
+import com.siddharth.kmp.location.IntervalInputs
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

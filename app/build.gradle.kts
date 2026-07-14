@@ -514,6 +514,10 @@ dependencies {
     // core:forms FormFieldValue (feature:logging depends on core:forms as `implementation`, not
     // `api`, so it isn't on :app's test classpath transitively).
     testImplementation(project(":core:forms"))
+    // kmp-toolkit adoption: TrackingQualityScorerTest/DynamicIntervalCalculatorTest reach into
+    // feature:tracking's classes directly; feature:tracking depends on this as `implementation`,
+    // not `api`, so it isn't on :app's test classpath transitively.
+    testImplementation("com.siddharth.kmp:location:1.0.0")
     testImplementation(libs.room.testing)
     // G11: Glance render test (host-side, runs in the JVM gate via Robolectric).
     testImplementation(libs.glance.appwidget.testing)

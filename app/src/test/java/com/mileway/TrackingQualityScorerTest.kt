@@ -1,7 +1,7 @@
 package com.mileway
 
-import com.mileway.feature.tracking.service.location.QualityInputs
-import com.mileway.feature.tracking.service.location.TrackingQualityScorer
+import com.siddharth.kmp.location.QualityInputs
+import com.siddharth.kmp.location.TrackingQualityScorer
 import org.junit.Test
 import kotlin.test.assertEquals
 

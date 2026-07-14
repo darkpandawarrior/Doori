@@ -1,6 +1,6 @@
 package com.mileway.feature.tracking.service.location
 
-import com.mileway.core.data.util.KalmanSmoother
+import com.siddharth.kmp.location.KalmanSmoother
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

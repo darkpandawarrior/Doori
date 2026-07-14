@@ -3,9 +3,9 @@
 package com.mileway.feature.tracking.service.location
 
 import com.mileway.core.data.model.db.LocationData
-import com.mileway.core.data.util.KalmanSmoother
 import com.mileway.feature.tracking.manager.AbnormalDetectionConfig
 import com.mileway.feature.tracking.service.LocationTrackingConstants
+import com.siddharth.kmp.location.KalmanSmoother
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos

@@ -29,7 +29,7 @@ interface LocationSource {
 
     /**
      * Request a new location-update cadence (C.2a). The service recomputes this per fix via
-     * [DynamicIntervalCalculator]: faster movement shortens it, low battery / power-saver / long
+     * [com.siddharth.kmp.location.DynamicIntervalCalculator]: faster movement shortens it, low battery / power-saver / long
      * sessions stretch it. Default no-op for sources with a fixed cadence (e.g. the simulator).
      */
     fun updateInterval(intervalMs: Long) = Unit

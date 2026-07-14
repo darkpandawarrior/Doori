@@ -30,7 +30,7 @@ object DeviceTierManager {
             else -> DeviceTier.HIGH
         }
 
-    /** Multiplies into [com.mileway.feature.tracking.service.location.DynamicIntervalCalculator]'s interval. */
+    /** Multiplies into [com.siddharth.kmp.location.DynamicIntervalCalculator]'s interval. */
     fun intervalMultiplier(tier: DeviceTier): Double =
         when (tier) {
             DeviceTier.LOW -> LOW_INTERVAL_MULTIPLIER
