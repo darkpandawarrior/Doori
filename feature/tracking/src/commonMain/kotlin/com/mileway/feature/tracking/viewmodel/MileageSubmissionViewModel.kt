@@ -9,11 +9,13 @@ import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.model.network.SubmissionStatus
 import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
+import com.mileway.core.data.outbox.TripDraft
 import com.mileway.core.forms.FieldId
 import com.mileway.core.forms.FormFieldType
 import com.mileway.core.forms.FormFieldValue
 import com.mileway.core.forms.MockFormSchema
 import com.mileway.core.forms.validationErrors
+import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.api.MilewayNetworkApi
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
@@ -23,8 +25,10 @@ import com.mileway.feature.tracking.manager.TrackingConfigManager
 import com.mileway.feature.tracking.repository.OfflinePlacesRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
+import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.SubmissionNotificationMapper
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
+import com.mileway.feature.tracking.service.SubmitOutcome
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.mvi.BaseViewModel
@@ -35,6 +39,10 @@ sealed class SubmissionUiState {
     object Idle : SubmissionUiState()
 
     object Submitting : SubmissionUiState()
+
+    // PLAN_V33 A5: submitted while offline — durably queued, will drain automatically once the
+    // connectivity offline->online edge fires (or the next time this trip is submitted while online).
+    object Queued : SubmissionUiState()
 
     data class Success(val response: ExpenseSubmissionResponse) : SubmissionUiState()
 
@@ -224,6 +232,10 @@ class MileageSubmissionViewModel(
     // PLAN_V24 P12.3: a submitted mileage claim is a meaningful engagement signal for the review gate.
     // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
     private val reviewTracker: ReviewTracker? = null,
+    // PLAN_V33 A5: durable submit outbox — nullable-defaulted for the same reason as reviewTracker
+    // above (direct-construction tests keep working unchanged); when absent, submit() falls back to
+    // calling the network directly (the pre-A5 behavior) instead of silently dropping the request.
+    private val milesSyncer: MilesSubmitSyncer? = null,
 ) : BaseViewModel<MileageSubmissionUiState, MileageSubmissionEffect, MileageSubmissionAction>(
         MileageSubmissionUiState(
             form =
@@ -435,43 +447,67 @@ class MileageSubmissionViewModel(
             if (odometerFallbackActive) {
                 trackRepository.markOdometerNotWorking(routeId)
             }
-            runCatching {
-                api.submitMiles(
-                    SubmitMilesRequestK(
-                        token = routeId,
-                        vehicleType = vehicleKey,
-                        // P6.1: distance always sourced from the already-computed GPS distanceKm
-                        // param here; when the odometer fallback is active this is the rate
-                        // source (rather than an odometer-reading delta), tagged for audit below.
-                        distance = distanceKm,
-                        startTime = startTime,
-                        endTime = endTime,
-                        submissionTime = Clock.System.now().toEpochMilliseconds(),
-                        odometerNotWorking = odometerFallbackActive,
-                        notes = if (odometerFallbackActive) ODOMETER_NOT_WORKING_REMARK else null,
-                        // P6.2: auto-detected in loadTrackInfo() from start/end coords + tracked distance.
-                        roundTrip = currentState.form.roundTrip,
-                    ),
+            val request =
+                SubmitMilesRequestK(
+                    token = routeId,
+                    vehicleType = vehicleKey,
+                    // P6.1: distance always sourced from the already-computed GPS distanceKm
+                    // param here; when the odometer fallback is active this is the rate
+                    // source (rather than an odometer-reading delta), tagged for audit below.
+                    distance = distanceKm,
+                    startTime = startTime,
+                    endTime = endTime,
+                    submissionTime = Clock.System.now().toEpochMilliseconds(),
+                    odometerNotWorking = odometerFallbackActive,
+                    notes = if (odometerFallbackActive) ODOMETER_NOT_WORKING_REMARK else null,
+                    // P6.2: auto-detected in loadTrackInfo() from start/end coords + tracked distance.
+                    roundTrip = currentState.form.roundTrip,
                 )
-            }.onSuccess { response ->
-                setState { copy(lastResponse = response) }
-                val needsResolution =
-                    response.submissionStatus == SubmissionStatus.POLICY_VIOLATION ||
-                        response.submissionStatus == SubmissionStatus.HARD_STOP
-                if (needsResolution && response.violations.isNotEmpty()) {
-                    pendingFinalize = PendingFinalize(routeId, response)
-                    setState {
-                        copy(
-                            form = form.copy(violations = response.violations, sheet = SubmissionSheet.POLICY_VIOLATION),
-                            submissionState = SubmissionUiState.Idle,
-                        )
-                    }
-                } else {
-                    finalize(routeId, response)
-                }
-            }.onFailure { e ->
-                setState { copy(submissionState = SubmissionUiState.Error(e.message ?: "Submission failed")) }
+
+            val syncer = milesSyncer
+            if (syncer == null) {
+                // No durable outbox wired (e.g. a direct-construction test) — pre-A5 behavior.
+                runCatching { api.submitMiles(request) }
+                    .onSuccess { response -> handleSubmitResponse(routeId, response) }
+                    .onFailure { e -> setState { copy(submissionState = SubmissionUiState.Error(e.message ?: "Submission failed")) } }
+                return@launch
             }
+
+            // PLAN_V33 A5: durable submit — enqueue before the network call so the request survives
+            // process death between here and the response, mirroring A4's location outbox.
+            syncer.enqueue(TripDraft(routeId, request))
+            if (NetworkMonitor.isConnected()) {
+                when (val outcome = syncer.drain(routeId)) {
+                    is SubmitOutcome.Success -> handleSubmitResponse(routeId, outcome.response)
+                    SubmitOutcome.RetryableFailure, SubmitOutcome.PermanentFailure, SubmitOutcome.NotQueued ->
+                        setState { copy(submissionState = SubmissionUiState.Error("Submission failed")) }
+                }
+            } else {
+                // Queued durably — SyncStatusViewModel's connectivity-edge trigger (or the next
+                // online submit for this route) drains it; see MilesSubmitSyncer's reconciliation doc.
+                setState { copy(submissionState = SubmissionUiState.Queued) }
+            }
+        }
+    }
+
+    private fun handleSubmitResponse(
+        routeId: String,
+        response: ExpenseSubmissionResponse,
+    ) {
+        setState { copy(lastResponse = response) }
+        val needsResolution =
+            response.submissionStatus == SubmissionStatus.POLICY_VIOLATION ||
+                response.submissionStatus == SubmissionStatus.HARD_STOP
+        if (needsResolution && response.violations.isNotEmpty()) {
+            pendingFinalize = PendingFinalize(routeId, response)
+            setState {
+                copy(
+                    form = form.copy(violations = response.violations, sheet = SubmissionSheet.POLICY_VIOLATION),
+                    submissionState = SubmissionUiState.Idle,
+                )
+            }
+        } else {
+            finalize(routeId, response)
         }
     }
 

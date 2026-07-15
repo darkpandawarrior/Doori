@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.network.NetworkMonitor
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.service.LocationDataSyncer
+import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.RelativeTimeFormatter
 import com.mileway.feature.tracking.service.SyncStatus
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,6 +22,8 @@ import kotlin.time.Clock
 class SyncStatusViewModel(
     private val syncer: LocationDataSyncer,
     private val currentTrackRepo: CurrentTrackRepository,
+    // PLAN_V33 A5: same connectivity/foreground triggers now also drain durably-queued submissions.
+    private val milesSyncer: MilesSubmitSyncer,
 ) : ViewModel() {
     val chipText: StateFlow<String?> =
         syncer.syncStatus
@@ -65,5 +68,7 @@ class SyncStatusViewModel(
     private suspend fun drainCurrentTrack() {
         val token = currentTrackRepo.getCurrentTrackDataRawAsync().getOrNull()?.token
         if (!token.isNullOrEmpty()) syncer.drain(token)
+        // PLAN_V33 A5: the same trigger drains any durably-queued trip submissions too.
+        milesSyncer.drain()
     }
 }

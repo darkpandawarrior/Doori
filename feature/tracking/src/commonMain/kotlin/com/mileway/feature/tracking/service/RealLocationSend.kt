@@ -14,7 +14,8 @@ import kotlinx.coroutines.CancellationException
 // submit / payload too large / precondition failed / gone) — everything else (5xx, IO errors,
 // timeouts, and any other 4xx) is treated as retryable so a transient failure never silently drops
 // data; the next drain() call retries the same batch from the same offset.
-private val PERMANENT_HTTP_STATUSES =
+// internal (not private): PLAN_V33 A5's realMilesSubmitSend shares this exact policy.
+internal val PERMANENT_HTTP_STATUSES =
     setOf(HttpStatusCode.Conflict, HttpStatusCode.PayloadTooLarge, HttpStatusCode.PreconditionFailed, HttpStatusCode.NotFound)
 
 /**

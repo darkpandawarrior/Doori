@@ -20,10 +20,12 @@ import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
 import com.mileway.feature.tracking.search.TrackingSearchProvider
 import com.mileway.feature.tracking.service.LocationDataSyncer
+import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
 import com.mileway.feature.tracking.service.realLocationSend
+import com.mileway.feature.tracking.service.realMilesSubmitSend
 import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
 import com.mileway.feature.tracking.viewmodel.DestinationModeViewModel
@@ -83,6 +85,16 @@ val trackingModule =
                 outbox = get(),
                 now = { Clock.System.now().toEpochMilliseconds() },
                 send = realLocationSend(api = get(), locationDao = get()),
+            )
+        }
+        // PLAN_V33 A5: durable trip *submission* — mirrors the LocationDataSyncer wiring above but
+        // drains the submit outbox (SubmitOutbox<TripDraft>, bound in CoreDataModule) instead.
+        single {
+            MilesSubmitSyncer(
+                outbox = get(),
+                trackRepository = get(),
+                now = { Clock.System.now().toEpochMilliseconds() },
+                send = realMilesSubmitSend(api = get()),
             )
         }
         single { LocationTrackingController(androidContext()) }
