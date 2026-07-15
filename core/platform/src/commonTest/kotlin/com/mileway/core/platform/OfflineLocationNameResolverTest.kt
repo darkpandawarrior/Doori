@@ -1,5 +1,6 @@
 package com.mileway.core.platform
 
+import com.siddharth.kmp.appshell.PlaceName
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

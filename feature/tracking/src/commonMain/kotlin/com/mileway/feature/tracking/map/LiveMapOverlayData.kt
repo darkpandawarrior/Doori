@@ -1,6 +1,6 @@
 package com.mileway.feature.tracking.map
 
-import com.mileway.core.platform.PlaceName
+import com.siddharth.kmp.appshell.PlaceName
 
 /**
  * Pure helpers behind the live-map address chip and heading indicator (Wave 3 live-map polish).

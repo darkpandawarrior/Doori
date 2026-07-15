@@ -1,7 +1,7 @@
 package com.mileway.core.ui.review
 
-import com.mileway.core.platform.ReviewState
-import com.mileway.core.platform.ReviewStateStore
+import com.siddharth.kmp.appshell.ReviewState
+import com.siddharth.kmp.appshell.ReviewStateStore
 import platform.Foundation.NSUserDefaults
 
 /**

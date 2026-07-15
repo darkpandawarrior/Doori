@@ -2,8 +2,6 @@ package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.location.SavedLocationsSource
-import com.mileway.core.platform.LocationNameResolver
-import com.mileway.core.platform.LocationTracker
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.feature.logging.ui.model.CityCatalog
 import com.mileway.feature.logging.ui.model.LocationEntry
@@ -11,6 +9,8 @@ import com.mileway.feature.logging.ui.model.PoiCategory
 import com.mileway.feature.logging.ui.model.SavedPlaceUi
 import com.mileway.feature.logging.ui.model.toLocationEntry
 import com.mileway.feature.logging.ui.model.toSavedPlace
+import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

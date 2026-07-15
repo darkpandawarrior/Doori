@@ -1,5 +1,7 @@
 package com.mileway.core.platform
 
+import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.PlaceName
 import kotlin.math.PI
 import kotlin.math.cos
 

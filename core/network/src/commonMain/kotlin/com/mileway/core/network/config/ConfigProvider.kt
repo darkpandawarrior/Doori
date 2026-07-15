@@ -5,7 +5,7 @@ import com.mileway.core.data.model.state.TrackMilesPluginConfig
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.VendorCenter
-import com.mileway.core.platform.UpdateConfig
+import com.siddharth.kmp.appshell.UpdateConfig
 
 interface ConfigProvider {
     fun getTrackMilesConfig(): TrackMilesPluginConfig

@@ -63,9 +63,9 @@ val appModule = module {
     // V15 RV.4 / PLAN_V24 P12.3: engagement-gated in-app review tracker. Counters are now
     // DataStore-backed (survive cold start) and the gate uses the plan's 7-day account-age threshold.
     single {
-        com.mileway.core.platform.ReviewTracker(
+        com.siddharth.kmp.appshell.ReviewTracker(
             store = com.mileway.core.ui.review.DataStoreReviewStateStore(get()),
-            config = com.mileway.core.platform.ReviewGateConfig(minAccountAgeDays = 7),
+            config = com.siddharth.kmp.appshell.ReviewGateConfig(minAccountAgeDays = 7),
         )
     }
 
@@ -73,8 +73,8 @@ val appModule = module {
     single<com.mileway.core.platform.DeepLinkHandler> { com.mileway.core.platform.DefaultDeepLinkHandler() }
 
     // V15 FCM.1/FCM.2: shared push token store (FCM service writes onNewToken here) + offline messaging.
-    single<com.mileway.core.platform.PushTokenStore> { com.mileway.core.platform.InMemoryPushTokenStore() }
-    single<com.mileway.core.platform.PushMessaging> { com.mileway.core.platform.LocalPushMessaging(get()) }
+    single<com.siddharth.kmp.appshell.PushTokenStore> { com.siddharth.kmp.appshell.InMemoryPushTokenStore() }
+    single<com.siddharth.kmp.appshell.PushMessaging> { com.siddharth.kmp.appshell.LocalPushMessaging(get()) }
 
     // V15 RF: shared referral store + base manager. The flavor module binds ReferralManager (gms wraps this
     // with Install Referrer capture; noGms uses it directly).

@@ -1,11 +1,11 @@
 package com.mileway.feature.tracking.manager
 
 import com.mileway.core.data.model.display.TrackingState
-import com.mileway.core.platform.LocationTracker
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.service.SystemRecoveryDetector
 import com.mileway.feature.tracking.service.TrackingSnapshot
 import com.mileway.feature.tracking.service.TrackingStatePublisher
+import com.siddharth.kmp.appshell.LocationTracker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

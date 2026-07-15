@@ -10,10 +10,12 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * CF.2/CF.4: the telemetry kill switch — [LoggingAnalyticsHelper.setEnabled] and
- * [NapierCrashReporter.setEnabled] must drop every call while disabled and resume passing them
- * through once re-enabled. A recording [Antilog] stands in for the real Napier backend so the
- * assertions don't depend on log output formatting.
+ * CF.4: the telemetry kill switch — [NapierCrashReporter.setEnabled] must drop every call while
+ * disabled and resume passing them through once re-enabled. A recording [Antilog] stands in for the
+ * real Napier backend so the assertions don't depend on log output formatting.
+ *
+ * The [LoggingAnalyticsHelper] half of this kill-switch test moved with it to
+ * `com.siddharth.kmp.appshell.LoggingAnalyticsHelperTest` (:app-shell) — that class no longer lives here.
  */
 class TelemetryKillSwitchTest {
     private class RecordingAntilog : Antilog() {
@@ -39,39 +41,6 @@ class TelemetryKillSwitchTest {
     @AfterTest
     fun tearDown() {
         Napier.takeLogarithm()
-    }
-
-    @Test
-    fun disabled_analytics_sink_drops_events() {
-        val sink = LoggingAnalyticsHelper()
-        sink.setEnabled(false)
-
-        sink.log(AnalyticsEvent("trip_started"))
-        sink.setUserProperty("plan", "pro")
-
-        assertTrue(recorder.messages.isEmpty())
-    }
-
-    @Test
-    fun enabled_analytics_sink_passes_events_through() {
-        val sink = LoggingAnalyticsHelper()
-
-        sink.log(AnalyticsEvent("trip_started"))
-
-        assertEquals(1, recorder.messages.size)
-        assertTrue(recorder.messages.single().contains("trip_started"))
-    }
-
-    @Test
-    fun re_enabling_the_analytics_sink_resumes_delivery() {
-        val sink = LoggingAnalyticsHelper()
-        sink.setEnabled(false)
-        sink.log(AnalyticsEvent("dropped"))
-        sink.setEnabled(true)
-        sink.log(AnalyticsEvent("delivered"))
-
-        assertEquals(1, recorder.messages.size)
-        assertTrue(recorder.messages.single().contains("delivered"))
     }
 
     @Test

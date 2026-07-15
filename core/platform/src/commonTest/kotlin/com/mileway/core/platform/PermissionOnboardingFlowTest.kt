@@ -1,5 +1,8 @@
 package com.mileway.core.platform
 
+import com.siddharth.kmp.appshell.AppPermission
+import com.siddharth.kmp.appshell.PermissionResult
+import com.siddharth.kmp.appshell.PermissionsProvider
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

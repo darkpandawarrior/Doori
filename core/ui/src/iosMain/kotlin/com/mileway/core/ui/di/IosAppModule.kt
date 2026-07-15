@@ -1,18 +1,18 @@
 package com.mileway.core.ui.di
 
-import com.mileway.core.platform.AnalyticsHelper
 import com.mileway.core.platform.DeepLinkHandler
 import com.mileway.core.platform.DefaultDeepLinkHandler
-import com.mileway.core.platform.InMemoryPushTokenStore
 import com.mileway.core.platform.InMemoryReferralStore
-import com.mileway.core.platform.LocalPushMessaging
 import com.mileway.core.platform.LocalReferralManager
-import com.mileway.core.platform.LoggingAnalyticsHelper
-import com.mileway.core.platform.PushMessaging
-import com.mileway.core.platform.PushTokenStore
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ReferralStore
-import com.mileway.core.platform.ReviewTracker
+import com.siddharth.kmp.appshell.AnalyticsHelper
+import com.siddharth.kmp.appshell.InMemoryPushTokenStore
+import com.siddharth.kmp.appshell.LocalPushMessaging
+import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
+import com.siddharth.kmp.appshell.PushMessaging
+import com.siddharth.kmp.appshell.PushTokenStore
+import com.siddharth.kmp.appshell.ReviewTracker
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -39,7 +39,7 @@ val iosAppModule: Module =
         single {
             ReviewTracker(
                 store = com.mileway.core.ui.review.IosReviewStateStore(),
-                config = com.mileway.core.platform.ReviewGateConfig(minAccountAgeDays = 7),
+                config = com.siddharth.kmp.appshell.ReviewGateConfig(minAccountAgeDays = 7),
             )
         }
     }

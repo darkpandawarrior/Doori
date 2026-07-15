@@ -30,7 +30,6 @@ import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.SessionState
 import com.mileway.core.network.config.ConfigProvider
-import com.mileway.core.platform.AnalyticsEvent
 import com.mileway.core.ui.platform.LocalAnalyticsHelper
 import com.mileway.core.ui.platform.LocalManagerProvider
 import com.mileway.core.ui.platform.MaintenanceGate
@@ -51,6 +50,7 @@ import com.mileway.ui.auth.SetPinScreen
 import com.mileway.ui.auth.SignupOnboardingScreen
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.toAppRoute
+import com.siddharth.kmp.appshell.AnalyticsEvent
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 

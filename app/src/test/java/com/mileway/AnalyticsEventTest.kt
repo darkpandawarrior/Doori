@@ -1,6 +1,6 @@
 package com.mileway
 
-import com.mileway.core.platform.AnalyticsEvent
+import com.siddharth.kmp.appshell.AnalyticsEvent
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

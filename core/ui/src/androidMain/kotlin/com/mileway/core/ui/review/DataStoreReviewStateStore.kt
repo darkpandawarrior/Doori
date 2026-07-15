@@ -5,8 +5,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.mileway.core.platform.ReviewState
-import com.mileway.core.platform.ReviewStateStore
+import com.siddharth.kmp.appshell.ReviewState
+import com.siddharth.kmp.appshell.ReviewStateStore
 import kotlinx.coroutines.flow.firstOrNull
 
 private val Context.reviewDataStore by preferencesDataStore(name = "review_state")

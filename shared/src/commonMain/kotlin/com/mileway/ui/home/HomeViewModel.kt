@@ -5,8 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.session.SessionSource
 import com.mileway.core.network.model.EmployeeProfile
-import com.mileway.core.platform.LocationNameResolver
-import com.mileway.core.platform.LocationTracker
 import com.mileway.core.ui.components.LocationPin
 import com.mileway.core.ui.home.HomePluginConfig
 import com.mileway.core.ui.home.HomePluginConfigController
@@ -18,6 +16,8 @@ import com.mileway.stub.AtAGlanceCounts
 import com.mileway.stub.HomeMockData
 import com.mileway.stub.MarketingCarouselItem
 import com.mileway.stub.ProfileMockData
+import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.LocationTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

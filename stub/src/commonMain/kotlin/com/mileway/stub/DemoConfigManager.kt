@@ -5,8 +5,8 @@ import com.mileway.core.data.model.state.LogMilesPluginConfig
 import com.mileway.core.data.model.state.ProfileConfig
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
 import com.mileway.core.network.config.ConfigProvider
-import com.mileway.core.platform.UpdateConfig
-import com.mileway.core.platform.UpdateMode
+import com.siddharth.kmp.appshell.UpdateConfig
+import com.siddharth.kmp.appshell.UpdateMode
 import com.siddharth.kmp.result.DataError
 import com.siddharth.kmp.result.Result
 import kotlinx.coroutines.flow.MutableStateFlow

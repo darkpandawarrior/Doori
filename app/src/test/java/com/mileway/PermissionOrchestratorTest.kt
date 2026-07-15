@@ -1,9 +1,9 @@
 package com.mileway
 
-import com.mileway.core.platform.AppPermission
-import com.mileway.core.platform.PermissionOrchestrator
-import com.mileway.core.platform.PermissionResult
-import com.mileway.core.platform.PermissionsProvider
+import com.siddharth.kmp.appshell.AppPermission
+import com.siddharth.kmp.appshell.PermissionOrchestrator
+import com.siddharth.kmp.appshell.PermissionResult
+import com.siddharth.kmp.appshell.PermissionsProvider
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals

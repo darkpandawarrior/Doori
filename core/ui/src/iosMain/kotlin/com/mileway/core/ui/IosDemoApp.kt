@@ -38,13 +38,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.mileway.core.platform.LocationNameResolver
-import com.mileway.core.platform.LocationTracker
 import com.mileway.core.ui.components.CurrentLocationPinMap
 import com.mileway.core.ui.components.LocationPin
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.tracking.CompassGauge
 import com.mileway.core.ui.components.tracking.GaugeSignal
+import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.LocationTracker
 import org.koin.mp.KoinPlatform
 
 @Composable

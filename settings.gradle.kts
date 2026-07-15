@@ -36,6 +36,7 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:offline-outbox")).using(project(":offline-outbox"))
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:result")).using(project(":result"))
+        substitute(module("com.siddharth.kmp:app-shell")).using(project(":app-shell"))
     }
 }
 

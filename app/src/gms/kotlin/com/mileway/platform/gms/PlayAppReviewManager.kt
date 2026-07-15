@@ -6,8 +6,8 @@ import android.net.Uri
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.mileway.core.platform.AppReviewManager
-import com.mileway.core.platform.AppReviewManagerFactory
+import com.siddharth.kmp.appshell.AppReviewManager
+import com.siddharth.kmp.appshell.AppReviewManagerFactory
 
 /**
  * Play in-app review (gms flavor only). [promptForReview] runs Play's request→launch flow; if the store

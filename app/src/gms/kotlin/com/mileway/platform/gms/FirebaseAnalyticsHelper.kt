@@ -3,8 +3,8 @@ package com.mileway.platform.gms
 import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
-import com.mileway.core.platform.AnalyticsEvent
-import com.mileway.core.platform.AnalyticsHelper
+import com.siddharth.kmp.appshell.AnalyticsEvent
+import com.siddharth.kmp.appshell.AnalyticsHelper
 
 /**
  * CF.3: gms analytics impl backed by Firebase Analytics. Events are already self-clamped by

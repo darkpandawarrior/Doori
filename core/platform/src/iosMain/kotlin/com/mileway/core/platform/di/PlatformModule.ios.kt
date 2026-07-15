@@ -1,33 +1,43 @@
 package com.mileway.core.platform.di
 
-import com.mileway.core.platform.IosAppReviewManager
-import com.mileway.core.platform.IosAppUpdateManager
 import com.mileway.core.platform.IosBiometricAuthenticator
-import com.mileway.core.platform.IosDocumentScanner
-import com.mileway.core.platform.IosLocationTracker
-import com.mileway.core.platform.IosNotificationScheduler
-import com.mileway.core.platform.IosPermissionsProvider
 import com.mileway.core.platform.IosTrackingPresenceController
+import com.mileway.core.platform.NapierCrashReporter
+import com.mileway.core.platform.OfflineLocationNameResolver
+import com.siddharth.kmp.appshell.AppReviewManager
+import com.siddharth.kmp.appshell.AppUpdateManager
+import com.siddharth.kmp.appshell.DocumentScanner
+import com.siddharth.kmp.appshell.IosAppReviewManager
+import com.siddharth.kmp.appshell.IosAppUpdateManager
+import com.siddharth.kmp.appshell.IosDocumentScanner
+import com.siddharth.kmp.appshell.IosLocationTracker
+import com.siddharth.kmp.appshell.IosNotificationScheduler
+import com.siddharth.kmp.appshell.IosPermissionsProvider
+import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.LocationTracker
+import com.siddharth.kmp.appshell.NotificationScheduler
+import com.siddharth.kmp.appshell.PermissionsProvider
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual fun platformModule(): Module =
     module {
-        single<com.mileway.core.platform.LocationTracker> { IosLocationTracker() }
+        single<LocationTracker> { IosLocationTracker() }
         // Reverse geocoding → place names. Offline-first demo binds the deterministic offline
-        // resolver (no network); IosLocationNameResolver(CLGeocoder) is the device-backed path.
-        single<com.mileway.core.platform.LocationNameResolver> {
-            com.mileway.core.platform.OfflineLocationNameResolver()
+        // resolver (no network); com.siddharth.kmp.appshell.IosLocationNameResolver(CLGeocoder) is
+        // the device-backed path.
+        single<LocationNameResolver> {
+            OfflineLocationNameResolver()
         }
-        single<com.mileway.core.platform.DocumentScanner> { IosDocumentScanner() }
-        single<com.mileway.core.platform.NotificationScheduler> { IosNotificationScheduler() }
+        single<DocumentScanner> { IosDocumentScanner() }
+        single<NotificationScheduler> { IosNotificationScheduler() }
         single<com.mileway.core.platform.BiometricAuthenticator> { IosBiometricAuthenticator() }
-        single<com.mileway.core.platform.PermissionsProvider> { IosPermissionsProvider() }
+        single<PermissionsProvider> { IosPermissionsProvider() }
         // V15 UP.3: iOS in-app update (iTunes Lookup API). Picked up by LocalManagerProvider when iOS
         // Koin is started; falls back to no-op until then.
-        single<com.mileway.core.platform.AppUpdateManager> { IosAppUpdateManager() }
+        single<AppUpdateManager> { IosAppUpdateManager() }
         // V15 RV.3: iOS in-app review (SKStoreReviewController window-scene variant).
-        single<com.mileway.core.platform.AppReviewManager> { IosAppReviewManager() }
+        single<AppReviewManager> { IosAppReviewManager() }
         // SH.1: iOS share via UIActivityViewController (LocalManagerProvider resolves it via Koin).
         single<com.mileway.core.platform.ShareSheet> { com.mileway.core.platform.IosShareSheet() }
         single<com.mileway.core.platform.UrlOpener> { com.mileway.core.platform.IosUrlOpener() }
@@ -43,5 +53,5 @@ actual fun platformModule(): Module =
         single<com.mileway.core.platform.TrackingPresenceController> { IosTrackingPresenceController() }
         // CF.4: local crash reporter (Napier-backed, no real crash SDK, no network). AnalyticsHelper
         // is already bound in iosAppModule (core/ui) — not duplicated here.
-        single<com.mileway.core.platform.CrashReporter> { com.mileway.core.platform.NapierCrashReporter() }
+        single<com.mileway.core.platform.CrashReporter> { NapierCrashReporter() }
     }

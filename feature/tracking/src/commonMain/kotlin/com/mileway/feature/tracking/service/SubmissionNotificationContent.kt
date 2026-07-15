@@ -29,7 +29,7 @@ data class FixIssueAction(
     val deepLink: String = TrackingNotificationMapper.TRACK_DEEP_LINK,
 )
 
-/** Pure notification payload; posting through [com.mileway.core.platform.NotificationScheduler] is the caller's job. */
+/** Pure notification payload; posting through [com.siddharth.kmp.appshell.NotificationScheduler] is the caller's job. */
 data class SubmissionNotificationContent(
     val title: String,
     val body: String,

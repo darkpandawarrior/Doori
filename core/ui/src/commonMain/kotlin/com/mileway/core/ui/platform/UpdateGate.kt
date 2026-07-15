@@ -22,9 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.mileway.core.platform.UpdateAvailability
-import com.mileway.core.platform.UpdateConfig
-import com.mileway.core.platform.UpdateMode
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.resources.Res
@@ -35,12 +32,15 @@ import com.mileway.core.ui.resources.core_update_later
 import com.mileway.core.ui.resources.core_update_now
 import com.mileway.core.ui.resources.core_update_required_message
 import com.mileway.core.ui.resources.core_update_required_title
+import com.siddharth.kmp.appshell.UpdateAvailability
+import com.siddharth.kmp.appshell.UpdateConfig
+import com.siddharth.kmp.appshell.UpdateMode
 import org.jetbrains.compose.resources.stringResource
 
 /**
  * UP.4: shared in-app update gate (commonMain, used by both platforms).
  *
- * On first composition it asks [com.mileway.core.platform.AppUpdateManager] (from
+ * On first composition it asks [com.siddharth.kmp.appshell.AppUpdateManager] (from
  * [LocalAppUpdateManager]) whether an update is available, then:
  * - FORCED  → replaces [content] with a full-screen blocking wall ("Update required").
  * - FLEXIBLE → shows [content] with a dismissible dialog over it.

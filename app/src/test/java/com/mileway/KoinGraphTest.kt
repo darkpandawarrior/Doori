@@ -79,11 +79,11 @@ import com.mileway.ui.auth.pinModule
 import com.mileway.ui.auth.AuthViewModel
 import com.mileway.ui.auth.PinViewModel
 import com.mileway.ui.search.MasterSearchViewModel
-import com.mileway.core.platform.NotificationScheduler
-import com.mileway.core.platform.PermissionsProvider
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.UrlOpener
 import com.mileway.stub.di.stubModule
+import com.siddharth.kmp.appshell.NotificationScheduler
+import com.siddharth.kmp.appshell.PermissionsProvider
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -2,12 +2,12 @@ package com.mileway.core.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.mileway.core.platform.AnalyticsHelper
-import com.mileway.core.platform.AppReviewManager
-import com.mileway.core.platform.AppUpdateManager
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
+import com.siddharth.kmp.appshell.AnalyticsHelper
+import com.siddharth.kmp.appshell.AppReviewManager
+import com.siddharth.kmp.appshell.AppUpdateManager
 import org.koin.mp.KoinPlatform
 
 /**

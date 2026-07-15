@@ -1,8 +1,8 @@
 package com.mileway
 
-import com.mileway.core.platform.ReviewEligibility
-import com.mileway.core.platform.ReviewGateConfig
-import com.mileway.core.platform.ReviewState
+import com.siddharth.kmp.appshell.ReviewEligibility
+import com.siddharth.kmp.appshell.ReviewGateConfig
+import com.siddharth.kmp.appshell.ReviewState
 import org.junit.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

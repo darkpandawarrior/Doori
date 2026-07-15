@@ -1,8 +1,8 @@
 package com.mileway
 
-import com.mileway.core.platform.UpdateConfig
-import com.mileway.core.platform.UpdateMode
 import com.mileway.stub.DemoConfigManager
+import com.siddharth.kmp.appshell.UpdateConfig
+import com.siddharth.kmp.appshell.UpdateMode
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertEquals

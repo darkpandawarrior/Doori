@@ -3,8 +3,7 @@ package com.mileway.feature.tracking.di
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
-import com.mileway.core.platform.AndroidNotificationScheduler
-import com.mileway.core.platform.NotificationScheduler
+import com.mileway.core.platform.NotificationChannels
 import com.mileway.feature.tracking.debug.DebugMenuComposeViewModel
 import com.mileway.feature.tracking.debug.NetworkLogViewModel
 import com.mileway.feature.tracking.insights.RouteAnalyzer
@@ -41,6 +40,8 @@ import com.mileway.feature.tracking.viewmodel.TrackInsightsViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackingSuccessViewModel
 import com.mileway.feature.tracking.watch.WatchFacade
+import com.siddharth.kmp.appshell.AndroidNotificationScheduler
+import com.siddharth.kmp.appshell.NotificationScheduler
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -81,7 +82,12 @@ val trackingModule =
         }
         single { LocationTrackingController(androidContext()) }
         single<TrackingController> { get<LocationTrackingController>() }
-        single<NotificationScheduler> { AndroidNotificationScheduler(androidContext()) }
+        // Same channel as PlatformModule.android.kt's binding (NotificationChannels.GENERAL) — this
+        // module's copy wins Koin's last-registration-wins override, so it must match, not diverge to
+        // :app-shell's own default channel id.
+        single<NotificationScheduler> {
+            AndroidNotificationScheduler(androidContext(), channelId = NotificationChannels.GENERAL, channelName = "General")
+        }
 
         // C.2b/C.3: live tracking telemetry shared from the foreground service to the ViewModel.
         single { com.mileway.feature.tracking.service.TrackingStatePublisher() }

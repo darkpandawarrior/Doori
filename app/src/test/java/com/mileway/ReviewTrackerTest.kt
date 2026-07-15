@@ -1,10 +1,10 @@
 package com.mileway
 
-import com.mileway.core.platform.AppReviewManager
-import com.mileway.core.platform.InMemoryReviewStateStore
-import com.mileway.core.platform.ReviewGateConfig
-import com.mileway.core.platform.ReviewState
-import com.mileway.core.platform.ReviewTracker
+import com.siddharth.kmp.appshell.AppReviewManager
+import com.siddharth.kmp.appshell.InMemoryReviewStateStore
+import com.siddharth.kmp.appshell.ReviewGateConfig
+import com.siddharth.kmp.appshell.ReviewState
+import com.siddharth.kmp.appshell.ReviewTracker
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals

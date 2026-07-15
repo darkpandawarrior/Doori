@@ -6,12 +6,12 @@ import android.content.ContextWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import com.mileway.core.platform.AnalyticsHelper
-import com.mileway.core.platform.AppReviewManagerFactory
-import com.mileway.core.platform.AppUpdateManagerFactory
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
+import com.siddharth.kmp.appshell.AnalyticsHelper
+import com.siddharth.kmp.appshell.AppReviewManagerFactory
+import com.siddharth.kmp.appshell.AppUpdateManagerFactory
 import org.koin.mp.KoinPlatform
 
 /**

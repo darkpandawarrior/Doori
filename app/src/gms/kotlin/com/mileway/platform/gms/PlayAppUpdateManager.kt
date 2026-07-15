@@ -11,13 +11,13 @@ import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.InstallStatus
-import com.google.android.play.core.ktx.requestAppUpdateInfo
-import com.mileway.core.platform.AppUpdateManager
-import com.mileway.core.platform.AppUpdateManagerFactory
-import com.mileway.core.platform.UpdateAvailability
-import com.mileway.core.platform.UpdateConfig
-import com.mileway.core.platform.UpdateMode
 import com.google.android.play.core.install.model.UpdateAvailability as PlayUpdateAvailability
+import com.google.android.play.core.ktx.requestAppUpdateInfo
+import com.siddharth.kmp.appshell.AppUpdateManager
+import com.siddharth.kmp.appshell.AppUpdateManagerFactory
+import com.siddharth.kmp.appshell.UpdateAvailability
+import com.siddharth.kmp.appshell.UpdateConfig
+import com.siddharth.kmp.appshell.UpdateMode
 
 /**
  * Play-Core in-app update (gms flavor only). Wraps Play's [PlayAppUpdateManagerFactory] delegate.

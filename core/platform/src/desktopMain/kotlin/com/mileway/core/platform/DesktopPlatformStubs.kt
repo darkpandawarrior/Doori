@@ -10,29 +10,11 @@ import kotlinx.coroutines.flow.asSharedFlow
  * these are deliberate no-ops (mirrors how [OfflineLocationNameResolver] is already the offline demo
  * binding on Android/iOS) — kept minimal to the subset `platformModule()` actually binds
  * (see `PlatformModule.android.kt`), not the full interface surface.
+ *
+ * LocationTracker / NotificationScheduler have no desktop-specific stub here — :app-shell's own
+ * NoOpLocationTracker / NoOpNotificationScheduler are already exactly this (never-emit / no-op), bound
+ * directly in PlatformModule.desktop.kt instead of redeclaring them.
  */
-class DesktopLocationTracker : LocationTracker {
-    override val updates = MutableSharedFlow<GeoPoint>().asSharedFlow()
-
-    override suspend fun current(): GeoPoint? = null
-
-    override fun start() = Unit
-
-    override fun stop() = Unit
-}
-
-class DesktopNotificationScheduler : NotificationScheduler {
-    override suspend fun ensurePermission(): Boolean = false
-
-    override fun notify(
-        id: Int,
-        title: String,
-        body: String,
-    ) = Unit
-
-    override fun cancel(id: Int) = Unit
-}
-
 class DesktopShareSheet : ShareSheet {
     override fun share(
         text: String,

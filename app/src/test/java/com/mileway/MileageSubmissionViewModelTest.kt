@@ -19,9 +19,9 @@ import com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
 import com.mileway.feature.tracking.viewmodel.SubmissionSheet
 import com.mileway.feature.tracking.viewmodel.SubmissionUiState
-import com.mileway.core.platform.NotificationScheduler
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.FakeTrackingNetworkApi
+import com.siddharth.kmp.appshell.NotificationScheduler
 import io.mockk.mockk
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest

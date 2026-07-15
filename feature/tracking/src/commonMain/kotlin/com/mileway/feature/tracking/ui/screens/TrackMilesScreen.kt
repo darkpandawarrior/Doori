@@ -51,10 +51,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
-import com.mileway.core.platform.AppPermission
 import com.mileway.core.platform.OemBatteryHints
 import com.mileway.core.platform.PermissionOnboardingFlow
-import com.mileway.core.platform.PermissionsProvider
 import com.mileway.core.platform.currentDeviceManufacturer
 import com.mileway.core.ui.components.topbar.TrackingStatus
 import com.mileway.core.ui.components.topbar.TrackingTopBar
@@ -134,6 +132,8 @@ import com.mileway.feature.tracking.viewmodel.TrackMilesUiState
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackSheet
 import com.mileway.feature.tracking.viewmodel.TrackSignal
+import com.siddharth.kmp.appshell.AppPermission
+import com.siddharth.kmp.appshell.PermissionsProvider
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource

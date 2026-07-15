@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.banner.HomeBanner
 import com.mileway.core.platform.FeatureFlags
-import com.mileway.core.platform.ReviewTracker
 import com.mileway.core.ui.components.DotsIndicator
 import com.mileway.core.ui.components.RateAppSheet
 import com.mileway.core.ui.components.WhatsNewAnimatedButton
@@ -64,6 +63,7 @@ import com.mileway.core.ui.resources.shared_home_qa_ask_advance
 import com.mileway.core.ui.resources.shared_home_qa_create_voucher
 import com.mileway.core.ui.resources.shared_home_quick_actions
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.appshell.ReviewTracker
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -189,7 +189,7 @@ fun HomeScreen(
         onBannerClick = { banner -> if (banner.deepLink != null) viewModel.onOpenAccount(onOpenAccount) },
         onBannerImpression = { banner, dwellMs ->
             analytics.log(
-                com.mileway.core.platform.AnalyticsEvent(
+                com.siddharth.kmp.appshell.AnalyticsEvent(
                     type = "home_banner_impression",
                     params = mapOf("id" to banner.id, "dwell_ms" to dwellMs.toString()),
                 ),

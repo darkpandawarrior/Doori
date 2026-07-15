@@ -1,8 +1,8 @@
 package com.mileway
 
 import app.cash.turbine.test
-import com.mileway.core.platform.InMemoryPushTokenStore
-import com.mileway.core.platform.LocalPushMessaging
+import com.siddharth.kmp.appshell.InMemoryPushTokenStore
+import com.siddharth.kmp.appshell.LocalPushMessaging
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import kotlin.test.assertEquals

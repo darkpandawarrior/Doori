@@ -3,12 +3,12 @@ package com.mileway.core.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.mileway.core.platform.AnalyticsHelper
-import com.mileway.core.platform.AppReviewManager
-import com.mileway.core.platform.AppUpdateManager
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
+import com.siddharth.kmp.appshell.AnalyticsHelper
+import com.siddharth.kmp.appshell.AppReviewManager
+import com.siddharth.kmp.appshell.AppUpdateManager
 
 /*
  * Compose access layer for the V15 platform managers (PF.3, mirrors openMF LocalManagerProviders).

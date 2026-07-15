@@ -15,26 +15,20 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // api, not implementation: PlatformBindings (this module's public facade) exposes
+            // app-shell types (LocationTracker, NotificationScheduler, AppUpdateManager, …) directly
+            // as public field types, so every consumer of core:platform needs them on its classpath too.
+            api("com.siddharth.kmp:app-shell:1.0.0")
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
-            // CF.2: LoggingAnalyticsHelper logs events via Napier (noGms/iOS analytics impl).
+            // CF.4: NapierCrashReporter logs breadcrumbs/exceptions via Napier (noGms/iOS crash impl).
             implementation(libs.napier)
         }
         androidMain.dependencies {
             implementation(libs.koin.android)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.core.ktx)
-            // LocationTracker (Android): fused location + Task.await()
-            implementation(libs.play.services.location)
-            implementation(libs.kotlinx.coroutines.play.services)
-            // BackgroundScheduler (Android): WorkManager
-            implementation(libs.workmanager.runtime)
-        }
-        iosMain.dependencies {
-            // V15 UP.3: IosAppUpdateManager queries the public iTunes Lookup API (no backend).
-            implementation(libs.ktor.client.core)
-            implementation(libs.ktor.client.darwin)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

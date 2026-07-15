@@ -1,8 +1,8 @@
 package com.mileway
 
 import android.content.Context
-import com.mileway.core.platform.NotificationScheduler
 import com.mileway.core.platform.di.platformModule
+import com.siddharth.kmp.appshell.NotificationScheduler
 import io.mockk.mockk
 import org.junit.After
 import org.junit.Before

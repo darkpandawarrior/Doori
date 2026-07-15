@@ -124,8 +124,6 @@ import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.state.UiState
 import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
-import com.mileway.core.platform.AppPermission
-import com.mileway.core.platform.PermissionsProvider
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_unit_kmh
 import com.mileway.core.ui.resources.tracking_action_close
@@ -216,6 +214,8 @@ import com.mileway.feature.tracking.map.LiveMapOverlayData
 import com.mileway.feature.tracking.map.MapRouteBuilder
 import com.mileway.feature.tracking.viewmodel.LiveTrackAction
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
+import com.siddharth.kmp.appshell.AppPermission
+import com.siddharth.kmp.appshell.PermissionsProvider
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

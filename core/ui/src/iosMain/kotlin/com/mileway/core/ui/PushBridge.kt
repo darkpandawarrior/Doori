@@ -1,9 +1,9 @@
 package com.mileway.core.ui
 
-import com.mileway.core.platform.InMemoryPushTokenStore
-import com.mileway.core.platform.LocalPushMessaging
-import com.mileway.core.platform.PushMessaging
-import com.mileway.core.platform.PushTokenStore
+import com.siddharth.kmp.appshell.InMemoryPushTokenStore
+import com.siddharth.kmp.appshell.LocalPushMessaging
+import com.siddharth.kmp.appshell.PushMessaging
+import com.siddharth.kmp.appshell.PushTokenStore
 
 /**
  * FCM.4: Swift → KMP push bridge, exported in the Mileway framework.
