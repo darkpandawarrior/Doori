@@ -28,5 +28,8 @@ fun connectDatabase() {
         user = System.getenv("JDBC_USER") ?: "sa",
         password = System.getenv("JDBC_PASSWORD") ?: "",
     )
-    transaction { SchemaUtils.create(ServerPingTable) }
+    transaction {
+        SchemaUtils.create(ServerPingTable, VehiclesTable, TripsTable, LocationPointsTable, EventsTable)
+    }
+    seedVehicles()
 }
