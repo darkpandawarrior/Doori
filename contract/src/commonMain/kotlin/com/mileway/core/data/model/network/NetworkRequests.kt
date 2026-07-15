@@ -201,6 +201,13 @@ data class CheckInDetailsResponseV2(
     @SerialName("id") val id: Long = 0,
     @SerialName("name") val name: String = "",
     @SerialName("radius") val radius: Double = 0.0,
+    // PLAN_V33 B4: additive, nullable-default — closes the reference parity gap noted in
+    // PLAN_V33.1 ("CheckInDetailsResponseV2 missing lat/lng/title/type/des").
+    @SerialName("lat") val lat: Double? = null,
+    @SerialName("lng") val lng: Double? = null,
+    @SerialName("title") val title: String? = null,
+    @SerialName("type") val type: String? = null,
+    @SerialName("des") val des: String? = null,
 )
 
 @Serializable
@@ -247,6 +254,11 @@ data class AllTaggedExpenseResponse(
 @Serializable
 data class SuccessResponseV2(
     @SerialName("status") val status: String = "SUCCESS",
+    // PLAN_V33 B4: additive, nullable-default — lets check-in/reset submit routes return the
+    // created row's id (PLAN_V33.1: "SuccessResponseV2 missing id/tripId/permissionId").
+    @SerialName("id") val id: Long? = null,
+    @SerialName("tripId") val tripId: String? = null,
+    @SerialName("permissionId") val permissionId: Long? = null,
 )
 
 @Serializable

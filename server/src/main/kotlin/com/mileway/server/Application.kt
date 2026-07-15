@@ -64,6 +64,8 @@ fun Application.module() {
         get("/api/pricing") { call.respond(ApprovedVehiclePricingResponse(data = loadRateTable().rates)) }
         post("/api/miles/submit") { call.respond(submitMiles(call.receive())) }
         locationEventRoutes()
+        milesExtraRoutes()
+        checkInRoutes()
     }
 }
 
@@ -113,8 +115,11 @@ private fun submitMiles(request: SubmitMilesRequestK): ExpenseSubmissionResponse
     )
 }
 
-/** Builds the live [PolicyRateTable] from [VehiclesTable] so server and client use the same rates. */
-private fun loadRateTable(): PolicyRateTable =
+/**
+ * Builds the live [PolicyRateTable] from [VehiclesTable] so server and client use the same rates.
+ * Internal (not private) — PLAN_V33 B4's `/api/miles/log` route reuses this same rate math.
+ */
+internal fun loadRateTable(): PolicyRateTable =
     transaction {
         PolicyRateTable(
             rates = VehiclesTable.selectAll().associate { it[VehiclesTable.vehicleKey] to it[VehiclesTable.ratePerKm] },

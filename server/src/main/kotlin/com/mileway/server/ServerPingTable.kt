@@ -33,7 +33,20 @@ fun connectDatabase() {
         password = System.getenv("JDBC_PASSWORD") ?: "",
     )
     transaction {
-        SchemaUtils.create(ServerPingTable, VehiclesTable, TripsTable, LocationPointsTable, EventsTable)
+        SchemaUtils.create(
+            ServerPingTable,
+            VehiclesTable,
+            TripsTable,
+            LocationPointsTable,
+            EventsTable,
+            CheckInsTable,
+            GeoTypesTable,
+            LogMilesServicesTable,
+            TaggedExpensesTable,
+        )
     }
     seedVehicles()
+    seedGeoTypes()
+    seedLogMilesServices()
+    seedTaggedExpenses()
 }
