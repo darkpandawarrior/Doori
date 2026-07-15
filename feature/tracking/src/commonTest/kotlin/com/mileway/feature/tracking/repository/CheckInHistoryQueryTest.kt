@@ -127,6 +127,8 @@ internal class FakeCheckInLocationDao : LocationDao {
         offset: Int,
     ): List<LocationData> = emptyList()
 
+    override suspend fun getLocationsByIds(ids: List<Long>): List<LocationData> = emptyList()
+
     override suspend fun markLocationsAsSynced(locationIds: List<Long>) {}
 
     override suspend fun deleteOlderThan(timestamp: Long): Int = 0

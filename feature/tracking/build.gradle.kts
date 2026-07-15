@@ -53,6 +53,12 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            // PLAN_V33 A4: RealLocationSendTest drives real Ktor exceptions (ClientRequestException/
+            // ServerResponseException) through a MockEngine, matching KtorMilewayNetworkApiTest's
+            // convention in core:network, instead of hand-constructing them (their constructors
+            // eagerly read `response.call.request`, which needs a real HttpClientCall).
+            implementation(libs.ktor.client.mock)
+            implementation("com.siddharth.kmp:network:1.0.0")
         }
     }
 }

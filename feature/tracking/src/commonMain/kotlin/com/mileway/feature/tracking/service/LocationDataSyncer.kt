@@ -41,50 +41,66 @@ class LocationDataSyncer(
 
     private var lastDrainAtMs: Long = Long.MIN_VALUE / 2
 
+    // PLAN_V33 A4 (RN lesson): the reference app had a bug where an in-flight `isSyncing` flag got
+    // stuck `true` forever if a drain call threw partway through, or if two calls overlapped (now
+    // 3 triggers can call drain: init, connectivity edge, ON_START). The try/finally below always
+    // clears this even on an unexpected exception; the early-return skips a second overlapping
+    // drain outright instead of letting them race on the same outbox rows.
+    // ponytail: plain Boolean, not a Mutex — every current caller runs on the same ViewModel/main
+    // dispatcher, so there's no real concurrent-write race; upgrade if a background-thread caller
+    // is ever added.
+    private var isDraining = false
+
     /**
      * Drains up to [MAX_BATCHES_PER_DRAIN] batches of up to [MAX_POINTS_PER_CALL] unsynced points
      * for [token]. Returns immediately (no-op) if called again inside [MIN_SYNC_GAP_MS] of the last
-     * drain — callers can poll freely without violating the min-gap policy.
+     * drain, or if a drain is already in flight — callers can poll freely without violating the
+     * min-gap policy or racing an overlapping drain.
      */
     suspend fun drain(token: String) {
         val nowMs = now()
         if (nowMs - lastDrainAtMs < MIN_SYNC_GAP_MS) return
+        if (isDraining) return
+        isDraining = true
+        try {
+            _syncStatus.value = SyncStatus.Syncing
+            var batchesSent = 0
+            var offset = 0
+            while (batchesSent < MAX_BATCHES_PER_DRAIN) {
+                val page = locationDao.getUnsyncedLocationsByTokenPaged(token, limit = MAX_POINTS_PER_CALL, offset = offset)
+                if (page.isEmpty()) break
 
-        _syncStatus.value = SyncStatus.Syncing
-        var batchesSent = 0
-        var offset = 0
-        while (batchesSent < MAX_BATCHES_PER_DRAIN) {
-            val page = locationDao.getUnsyncedLocationsByTokenPaged(token, limit = MAX_POINTS_PER_CALL, offset = offset)
-            if (page.isEmpty()) break
+                val batch = LocationBatch(token = token, pointIds = page.map { it.id })
+                val uniqueKey = "$token:${batch.pointIds.first()}:${batch.pointIds.last()}"
+                outbox.enqueue(formKey = FORM_KEY, uniqueKey = uniqueKey, payload = batch)
 
-            val batch = LocationBatch(token = token, pointIds = page.map { it.id })
-            val uniqueKey = "$token:${batch.pointIds.first()}:${batch.pointIds.last()}"
-            outbox.enqueue(formKey = FORM_KEY, uniqueKey = uniqueKey, payload = batch)
-
-            when (send(batch)) {
-                SendOutcome.SUCCESS -> {
-                    locationDao.markLocationsAsSynced(batch.pointIds)
-                    outbox.markSubmitted(FORM_KEY, uniqueKey)
+                when (send(batch)) {
+                    SendOutcome.SUCCESS -> {
+                        locationDao.markLocationsAsSynced(batch.pointIds)
+                        outbox.markSubmitted(FORM_KEY, uniqueKey)
+                    }
+                    SendOutcome.PERMANENT_FAILURE -> {
+                        // Reference-app policy: 409/5xx-equivalent means the batch will never succeed —
+                        // drop it for good. Points stay "unsynced" in storage but skipped by offsetting
+                        // past them, so the drain loop still makes progress instead of re-fetching them.
+                        outbox.markFailed(FORM_KEY, uniqueKey, error = "permanent")
+                        offset += page.size
+                    }
+                    SendOutcome.RETRYABLE_FAILURE -> {
+                        // Leave in place for the next drain call to retry from the same offset.
+                        outbox.markFailed(FORM_KEY, uniqueKey, error = "retryable")
+                        break
+                    }
                 }
-                SendOutcome.PERMANENT_FAILURE -> {
-                    // Reference-app policy: 409/5xx-equivalent means the batch will never succeed —
-                    // drop it for good. Points stay "unsynced" in storage but skipped by offsetting
-                    // past them, so the drain loop still makes progress instead of re-fetching them.
-                    outbox.markFailed(FORM_KEY, uniqueKey, error = "permanent")
-                    offset += page.size
-                }
-                SendOutcome.RETRYABLE_FAILURE -> {
-                    // Leave in place for the next drain call to retry from the same offset.
-                    outbox.markFailed(FORM_KEY, uniqueKey, error = "retryable")
-                    break
-                }
+                batchesSent++
             }
-            batchesSent++
-        }
 
-        lastDrainAtMs = nowMs
-        val backlog = locationDao.getUnuploadedLocationCount()
-        _syncStatus.value = SyncStatus.Synced(lastSyncedAtMs = nowMs, backlogCount = backlog)
+            lastDrainAtMs = nowMs
+            val backlog = locationDao.getUnuploadedLocationCount()
+            _syncStatus.value = SyncStatus.Synced(lastSyncedAtMs = nowMs, backlogCount = backlog)
+        } finally {
+            isDraining = false
+        }
     }
 
     companion object {

@@ -23,6 +23,7 @@ import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingStatePublisher
+import com.mileway.feature.tracking.service.realLocationSend
 import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
 import com.mileway.feature.tracking.viewmodel.DestinationModeViewModel
@@ -78,12 +79,16 @@ val trackingModule =
         // the 5 previously-dead SearchEntityType providers this module owns (Mileage/Check-in).
         single<SearchProvider>(named("tracking")) { TrackingSearchProvider(get(), get()) }
         single { SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }) }
-        // Wave 4 §2.3: local-only sync-status engine over the location outbox — see class doc.
+        // Wave 4 §2.3 / PLAN_V33 A4: local sync-status engine over the location outbox — mirrors
+        // the Android trackingModule's real-send wiring (see RealLocationSend doc). No MilewayNetworkApi
+        // binding exists on iOS yet (same as VehiclePricingRepository/MileageSubmissionViewModel
+        // above); wiring one is out of scope here — this only changes behavior once it lands.
         single {
             LocationDataSyncer(
                 locationDao = get(),
                 outbox = get(),
                 now = { Clock.System.now().toEpochMilliseconds() },
+                send = realLocationSend(api = get(), locationDao = get()),
             )
         }
 

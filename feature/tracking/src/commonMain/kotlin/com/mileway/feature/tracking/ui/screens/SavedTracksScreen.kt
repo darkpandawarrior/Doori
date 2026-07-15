@@ -43,6 +43,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,6 +58,9 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.platform.OfflineLocationNameResolver
@@ -162,6 +166,18 @@ fun SavedTracksScreen(
     val uiState by viewModel.state.collectAsState()
     val syncChipText by syncStatusViewModel.chipText.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // PLAN_V33 A4 (RN lesson): flush the outbox on ON_START so returning to this screen (or
+    // foregrounding the app while on it) doesn't wait for the next periodic tick.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == Lifecycle.Event.ON_START) syncStatusViewModel.onForeground()
+            }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
 
     // Pure-demo voucher acknowledgement: snackbar + confetti, then consume the one-shot flag.
     LaunchedEffect(uiState.voucherCreatedAck) {

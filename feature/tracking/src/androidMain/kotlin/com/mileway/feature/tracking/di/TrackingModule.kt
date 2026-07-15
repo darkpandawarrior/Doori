@@ -23,6 +23,7 @@ import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
+import com.mileway.feature.tracking.service.realLocationSend
 import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
 import com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel
 import com.mileway.feature.tracking.viewmodel.DestinationModeViewModel
@@ -72,12 +73,16 @@ val trackingModule =
         // the 5 previously-dead SearchEntityType providers this module owns (Mileage/Check-in).
         single<SearchProvider>(named("tracking")) { TrackingSearchProvider(get(), get()) }
         single { SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }) }
-        // Wave 4 §2.3: local-only sync-status engine over the location outbox — see class doc.
+        // Wave 4 §2.3 / PLAN_V33 A4: local sync-status engine over the location outbox — `send` is
+        // now the real Ktor-backed send (see RealLocationSend doc); with the default `:stub`
+        // MilewayNetworkApi binding this still resolves to SUCCESS every time, so demo-mode sync
+        // behavior is unchanged until NetworkBackendFlags.useRealBackend is flipped on.
         single {
             LocationDataSyncer(
                 locationDao = get(),
                 outbox = get(),
                 now = { Clock.System.now().toEpochMilliseconds() },
+                send = realLocationSend(api = get(), locationDao = get()),
             )
         }
         single { LocationTrackingController(androidContext()) }

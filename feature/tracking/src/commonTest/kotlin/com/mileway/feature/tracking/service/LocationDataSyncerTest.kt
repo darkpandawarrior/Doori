@@ -94,6 +94,35 @@ class LocationDataSyncerTest {
         }
 
     @Test
+    fun `an exception from send resets the in-flight flag instead of getting stuck`() =
+        runTest {
+            // PLAN_V33 A4 (RN lesson): the reference app's `isSyncing` flag got stuck true forever
+            // after an unexpected failure. drain()'s try/finally must clear it even when `send`
+            // throws instead of returning a SendOutcome.
+            val dao = FakeSyncLocationDao(unsynced = (1..3L).map { point(it) })
+            val outbox = FakeLocationBatchOutbox()
+            var clock = 0L
+            var shouldThrow = true
+            val syncer =
+                LocationDataSyncer(
+                    dao,
+                    outbox,
+                    now = { clock },
+                    send = { if (shouldThrow) throw RuntimeException("simulated crash") else SendOutcome.SUCCESS },
+                )
+
+            runCatching { syncer.drain("t") }
+            clock += LocationDataSyncer.MIN_SYNC_GAP_MS
+            shouldThrow = false
+            syncer.drain("t")
+
+            assertTrue(
+                dao.markedSynced.isNotEmpty(),
+                "the second drain must actually run and mark points synced, not be blocked by a stuck in-flight flag",
+            )
+        }
+
+    @Test
     fun `syncStatus transitions Idle to Syncing to Synced with the resulting backlog`() =
         runTest {
             val dao = FakeSyncLocationDao(unsynced = (1..3L).map { point(it) })
@@ -177,6 +206,8 @@ private class FakeSyncLocationDao(unsynced: List<LocationData>) : LocationDao {
         limit: Int,
         offset: Int,
     ): List<LocationData> = unsynced.drop(offset).take(limit)
+
+    override suspend fun getLocationsByIds(ids: List<Long>): List<LocationData> = unsynced.filter { it.id in ids }
 
     override suspend fun markLocationsAsSynced(locationIds: List<Long>) {
         markedSynced.addAll(locationIds)

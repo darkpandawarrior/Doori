@@ -100,6 +100,11 @@ interface LocationDao {
         offset: Int,
     ): List<LocationData>
 
+    // PLAN_V33 A4: real send needs the full rows back (lat/lng/speed/etc.) for a LocationBatch's
+    // point ids — the outbox only ever carried the ids, never the row payload (see LocationBatch).
+    @Query("SELECT * FROM locations WHERE id IN (:ids)")
+    suspend fun getLocationsByIds(ids: List<Long>): List<LocationData>
+
     @Query("UPDATE locations SET uploaded = 1 WHERE id IN (:locationIds)")
     suspend fun markLocationsAsSynced(locationIds: List<Long>)
 
