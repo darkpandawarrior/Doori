@@ -1,5 +1,11 @@
 package com.mileway.core.data.model.network
 
+// PLAN_V33 A1: the wire DTOs below moved to :contract, keeping their original package name so
+// every existing `import com.mileway.core.data.model.network.*` still resolves unchanged (core:data
+// re-exports via `api(project(":contract"))`). `LogMilesService` — a client-side domain mapping
+// built from `LogMilesServiceDto`, not itself a wire DTO — stayed behind in core:data (see that
+// module's own `model/network/NetworkModels.kt`).
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -74,7 +80,7 @@ data class VoucherInfo(
 // These types are re-exported under `com.mileway.core.network.model` (see
 // core:network model/PolicyModels.kt). They are defined here because
 // ExpenseSubmissionResponse embeds them and the module graph points
-// core:network -> core:data.
+// core:network -> core:data -> :contract.
 
 /** Overall outcome of a mileage submission as evaluated by the policy engine. */
 @Serializable
@@ -219,13 +225,3 @@ data class UserProfile(
     @SerialName("tenant") val tenant: String = "",
     @SerialName("currency") val currency: String = "INR",
 )
-
-// ── Domain models ─────────────────────────────────────────────────────────────
-
-data class LogMilesService(
-    val id: Long,
-    val name: String,
-    val glCode: String,
-) {
-    fun getDisplayString(): String = "$name ($glCode)"
-}

@@ -1,8 +1,10 @@
 package com.mileway.core.network.model
 
 // Policy / submission-outcome models for the network API surface.
-// Concrete types are declared in core:data; this file re-exports them under the network model
-// package so API consumers can import policy types without depending on core:data directly.
+// Concrete types physically live in :contract (PLAN_V33 A1), under the `com.mileway.core.data.
+// model.network` package for zero-import-diff — core:data re-exports them via
+// `api(project(":contract"))`. This file re-exports them again under the network model package so
+// API consumers can import policy types without depending on core:data directly.
 
 /** Overall outcome of a mileage submission: SUCCESS, NEEDS_APPROVAL, REIMBURSABLE_ADJUSTED, POLICY_VIOLATION or HARD_STOP. */
 typealias SubmissionStatus = com.mileway.core.data.model.network.SubmissionStatus

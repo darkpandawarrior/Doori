@@ -1,5 +1,10 @@
 package com.mileway.core.data.model.network
 
+// PLAN_V33 A1: physically lives in :contract now (shared client+server wire DTOs, kotlinx only —
+// no android.*/java.*/Room/Ktor deps), but keeps its original package name so every existing
+// `import com.mileway.core.data.model.network.*` across the repo still resolves unchanged.
+// core:data re-exports it via `api(project(":contract"))` — zero import edits, smallest green diff.
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

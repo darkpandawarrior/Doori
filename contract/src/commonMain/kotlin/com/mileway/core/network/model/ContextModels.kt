@@ -1,5 +1,9 @@
 package com.mileway.core.network.model
 
+// PLAN_V33 A1: this file (and its VendorModels/ProfileModels/OfficeEntityModels siblings) moved
+// here from core:network verbatim, same package — core:network re-exports via
+// `api(project(":contract"))`, so nothing importing `com.mileway.core.network.model.*` changed.
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

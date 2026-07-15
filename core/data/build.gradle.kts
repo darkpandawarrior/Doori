@@ -29,6 +29,11 @@ kotlin {
             // Durable outbox + change-bus, extracted to kmp-toolkit (own separate Room DB — see
             // OutboxDatabase in the toolkit module; RoomSubmitOutbox/RoomChangeBus no longer live here).
             api("com.siddharth.kmp:offline-outbox:1.0.0")
+            // PLAN_V33 A1: network wire DTOs physically live in :contract now (shared with the
+            // future :server Ktor module) but kept their `com.mileway.core.data.model.network`
+            // package name — `api` (not `implementation`) so every module that already depends on
+            // core:data keeps resolving them with zero import edits.
+            api(project(":contract"))
         }
         androidMain.dependencies {
             implementation(libs.sqlite.bundled)

@@ -26,6 +26,11 @@ kotlin {
             implementation(project(":core:data"))
             // V15 PF.5: ConfigProvider exposes UpdateConfig (defined in core:platform).
             implementation(project(":core:platform"))
+            // PLAN_V33 A1: ContextModels/VendorModels/ProfileModels/OfficeEntityModels physically
+            // moved to :contract but kept their `com.mileway.core.network.model` package name —
+            // `api` so every module that already depends on core:network keeps resolving them.
+            // (core:data already re-exports :contract too, transitively, via the line above.)
+            api(project(":contract"))
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
