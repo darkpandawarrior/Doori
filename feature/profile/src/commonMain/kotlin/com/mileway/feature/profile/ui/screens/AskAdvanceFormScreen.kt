@@ -50,7 +50,6 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_advance_amount_label
@@ -92,6 +91,7 @@ import com.mileway.feature.profile.model.AdvanceType
 import com.mileway.feature.profile.model.CorporateCard
 import com.mileway.feature.profile.viewmodel.AdvanceAction
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

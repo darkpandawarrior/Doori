@@ -25,13 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.previews.PreviewLightDark
 import com.mileway.core.ui.previews.PreviewMatrix
 import com.mileway.core.ui.previews.PreviewSurface
 import com.mileway.feature.payables.model.PoLineItem
 import com.mileway.feature.payables.model.PoStatus
 import com.mileway.feature.payables.model.PurchaseOrder
+import com.siddharth.kmp.common.formatDecimal
 
 // ---------------------------------------------------------------------------
 // Phase 9.1, Payables feature preview matrix.

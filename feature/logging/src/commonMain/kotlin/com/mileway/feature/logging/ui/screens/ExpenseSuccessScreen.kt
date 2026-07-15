@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_add_another_expense
@@ -42,6 +41,7 @@ import com.mileway.core.ui.resources.logging_view_expense_history
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

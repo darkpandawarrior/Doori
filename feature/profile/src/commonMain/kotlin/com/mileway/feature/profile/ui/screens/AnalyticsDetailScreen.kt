@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.siddharth.kmp.common.formatGrouped
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_analytics_back
@@ -65,6 +64,7 @@ import com.mileway.feature.profile.analytics.AnalyticsMetric
 import com.mileway.feature.profile.viewmodel.AnalyticsAction
 import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
 import com.mileway.stub.MerchantTransaction
+import com.siddharth.kmp.common.formatGrouped
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

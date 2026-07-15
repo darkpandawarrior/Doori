@@ -54,7 +54,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
@@ -118,6 +117,7 @@ import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

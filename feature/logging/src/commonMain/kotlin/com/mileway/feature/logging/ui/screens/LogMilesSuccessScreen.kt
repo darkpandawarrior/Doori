@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_log_another
 import com.mileway.core.ui.resources.logging_miles_logged_body
@@ -36,6 +35,7 @@ import com.mileway.core.ui.resources.logging_transaction_id
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

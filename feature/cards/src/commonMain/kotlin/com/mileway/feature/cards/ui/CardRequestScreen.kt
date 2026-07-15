@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.siddharth.kmp.common.asString
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.cards_agree_policies
@@ -66,6 +65,7 @@ import com.mileway.feature.cards.viewmodel.CardRequestAction
 import com.mileway.feature.cards.viewmodel.CardRequestEffect
 import com.mileway.feature.cards.viewmodel.CardRequestUiState
 import com.mileway.feature.cards.viewmodel.CardRequestViewModel
+import com.siddharth.kmp.common.asString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

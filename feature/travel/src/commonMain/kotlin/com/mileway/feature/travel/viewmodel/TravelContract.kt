@@ -1,8 +1,8 @@
 package com.mileway.feature.travel.viewmodel
 
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.travel.model.BookingRecord
+import com.siddharth.kmp.common.UiText
 
 /** Assembled travel-home payload: active trip, upcoming bookings, and total travel spend. */
 data class TravelData(

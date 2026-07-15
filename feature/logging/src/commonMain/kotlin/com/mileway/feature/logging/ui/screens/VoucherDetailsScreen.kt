@@ -29,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.db.VoucherEntity
 import com.mileway.core.ui.components.StatusChip
@@ -52,6 +51,7 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.viewmodel.VoucherDetailsAction
 import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.network.ApprovedVehicle
 import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.ui.components.sheet.SearchablePickerSheet
@@ -38,6 +37,7 @@ import com.mileway.core.ui.resources.logging_choose_vehicle_type
 import com.mileway.core.ui.resources.logging_search_vehicles_placeholder
 import com.mileway.core.ui.resources.logging_vehicle_fallback
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 
 /**

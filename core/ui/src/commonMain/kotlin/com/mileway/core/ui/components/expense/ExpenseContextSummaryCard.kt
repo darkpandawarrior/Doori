@@ -12,8 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import com.siddharth.kmp.common.UiText
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.expense_context_advance_title
@@ -40,6 +38,8 @@ import com.mileway.core.ui.resources.expense_context_trip_advance_title
 import com.mileway.core.ui.resources.expense_context_trip_title
 import com.mileway.core.ui.text.text
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.common.formatDecimal
 
 /**
  * P25.A5.2: does this [ExpenseSourceContext] have anything worth summarizing? `None` (no context

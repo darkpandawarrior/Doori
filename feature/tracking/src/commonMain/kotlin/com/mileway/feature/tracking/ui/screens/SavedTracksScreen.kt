@@ -57,7 +57,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.platform.OfflineLocationNameResolver
@@ -133,6 +132,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFilter
 import com.mileway.feature.tracking.viewmodel.SubmissionItem
 import com.mileway.feature.tracking.viewmodel.SubmissionSource
 import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel

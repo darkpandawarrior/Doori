@@ -34,7 +34,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_add_location
 import com.mileway.core.ui.resources.logging_add_stop_here
@@ -57,6 +56,7 @@ import com.mileway.core.ui.resources.logging_travelled_locations_subtitle
 import com.mileway.core.ui.resources.logging_verify
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.logging.ui.model.LocationStop
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 
 /**

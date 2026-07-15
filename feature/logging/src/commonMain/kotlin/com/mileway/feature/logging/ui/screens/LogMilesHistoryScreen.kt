@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.resources.Res
@@ -65,6 +64,7 @@ import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesDraftUi
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel

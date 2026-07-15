@@ -43,7 +43,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.timeline.TimelineStep
@@ -77,6 +76,7 @@ import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

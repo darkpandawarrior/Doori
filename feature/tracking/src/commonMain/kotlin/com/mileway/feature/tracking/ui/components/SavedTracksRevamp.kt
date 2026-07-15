@@ -61,7 +61,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_saved_cd_filters
@@ -90,6 +89,7 @@ import com.mileway.core.ui.resources.tracking_submission_voucher_not_created
 import com.mileway.core.ui.resources.tracking_track_miles_label
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.dataStyle
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 
 // Stateless building blocks for the revamped Saved Tracks screen.

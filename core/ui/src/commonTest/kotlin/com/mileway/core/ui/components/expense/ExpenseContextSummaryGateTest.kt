@@ -1,8 +1,8 @@
 package com.mileway.core.ui.components.expense
 
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.ScannerPrefill
+import com.siddharth.kmp.common.UiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

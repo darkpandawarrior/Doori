@@ -90,7 +90,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.banner.HomeBanner
 import com.mileway.core.ui.components.AutoSizeGreeting
 import com.mileway.core.ui.components.CountBadge
@@ -146,6 +145,7 @@ import com.mileway.feature.agent.ui.components.ChatIndicatorMode
 import com.mileway.stub.ActionRequiredBanner
 import com.mileway.stub.AtAGlanceCounts
 import com.mileway.stub.MarketingCarouselItem
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource

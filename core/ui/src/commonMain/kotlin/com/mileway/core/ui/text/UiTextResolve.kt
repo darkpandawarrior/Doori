@@ -1,9 +1,9 @@
 package com.mileway.core.ui.text
 
 import androidx.compose.runtime.Composable
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
+import com.siddharth.kmp.common.UiText
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 

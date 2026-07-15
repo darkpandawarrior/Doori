@@ -69,7 +69,6 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_analytics_ai_insights_period
 import com.mileway.core.ui.resources.profile_analytics_back
@@ -103,6 +102,7 @@ import com.mileway.feature.profile.viewmodel.AnalyticsUiState
 import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
 import com.mileway.stub.RecentActivityItem
 import com.mileway.stub.TeamMember
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

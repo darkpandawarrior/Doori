@@ -74,7 +74,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
@@ -112,6 +111,7 @@ import com.mileway.feature.approvals.repository.ApprovalsRepository
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone

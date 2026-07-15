@@ -42,8 +42,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.asString
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.timeline.TimelineStep
@@ -82,6 +80,8 @@ import com.mileway.feature.payables.model.PurchaseOrder
 import com.mileway.feature.payables.viewmodel.PayablesAction
 import com.mileway.feature.payables.viewmodel.PayablesEffect
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
+import com.siddharth.kmp.common.asString
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

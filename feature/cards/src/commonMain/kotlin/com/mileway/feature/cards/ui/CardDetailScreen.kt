@@ -62,7 +62,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.siddharth.kmp.common.asString
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.components.sheet.DetailInfoBottomSheet
 import com.mileway.core.ui.components.sheet.DetailInfoCard
@@ -139,6 +138,7 @@ import com.mileway.feature.cards.viewmodel.CardDetailEffect
 import com.mileway.feature.cards.viewmodel.CardDetailTab
 import com.mileway.feature.cards.viewmodel.CardDetailUiState
 import com.mileway.feature.cards.viewmodel.CardDetailViewModel
+import com.siddharth.kmp.common.asString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

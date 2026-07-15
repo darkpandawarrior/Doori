@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.security.RootDetector
-import com.siddharth.kmp.security.BiometricGuard
 import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.previews.PreviewSurface
@@ -79,6 +78,7 @@ import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
 import com.mileway.feature.profile.viewmodel.DemoSettingsAction
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
+import com.siddharth.kmp.security.BiometricGuard
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

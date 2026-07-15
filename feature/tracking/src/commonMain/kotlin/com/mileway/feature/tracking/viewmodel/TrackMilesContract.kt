@@ -1,7 +1,7 @@
 package com.mileway.feature.tracking.viewmodel
 
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.network.ApprovedVehicle
+import com.siddharth.kmp.common.UiText
 
 /**
  * MVI contract for the Track Miles flow (A.5a). Lives in commonMain; the ViewModel that handles

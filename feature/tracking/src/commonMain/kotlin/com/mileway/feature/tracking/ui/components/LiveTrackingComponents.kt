@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.db.CurrentTrackData
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_badge_active
@@ -63,6 +62,7 @@ import com.mileway.core.ui.resources.tracking_unit_km
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 

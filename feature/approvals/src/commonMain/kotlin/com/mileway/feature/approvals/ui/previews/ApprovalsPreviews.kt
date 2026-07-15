@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.previews.PreviewLightDark
 import com.mileway.core.ui.previews.PreviewMatrix
 import com.mileway.core.ui.previews.PreviewSurface
@@ -24,6 +23,7 @@ import com.mileway.core.ui.previews.SampleData
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
+import com.siddharth.kmp.common.formatDecimal
 
 // ---------------------------------------------------------------------------
 // Phase 9.1, Approvals feature preview matrix.

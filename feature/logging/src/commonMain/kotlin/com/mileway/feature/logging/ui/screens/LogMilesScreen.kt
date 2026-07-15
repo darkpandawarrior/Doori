@@ -46,7 +46,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.pad2
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.settings.DemoSettings
 import com.mileway.core.data.settings.DemoSettingsRepository
@@ -96,6 +95,7 @@ import com.mileway.feature.logging.viewmodel.SearchLocationAction
 import com.mileway.feature.logging.viewmodel.SearchLocationEffect
 import com.mileway.feature.logging.viewmodel.SearchLocationViewModel
 import com.mileway.feature.tracking.ui.components.StaticPolylineThumbnail
+import com.siddharth.kmp.common.pad2
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel

@@ -39,7 +39,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_open_in_maps
 import com.mileway.core.ui.resources.tracking_vehicle_picker_title
@@ -48,6 +47,7 @@ import com.mileway.core.ui.resources.tracking_vendor_not_defined
 import com.mileway.core.ui.resources.tracking_vendor_picker_title
 import com.mileway.core.ui.resources.tracking_vendor_search_placeholder
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 
 /** A selectable vehicle with its per-km reimbursement rate. */

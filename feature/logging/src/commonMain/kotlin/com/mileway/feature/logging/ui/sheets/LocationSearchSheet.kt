@@ -52,7 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_clear_all
 import com.mileway.core.ui.resources.logging_clear_cd
@@ -80,6 +79,7 @@ import com.mileway.feature.logging.ui.model.LocationEntry
 import com.mileway.feature.logging.ui.model.PoiCategory
 import com.mileway.feature.logging.ui.model.SavedPlaceUi
 import com.mileway.feature.logging.ui.model.haversineKm
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 
 /** Callbacks the [LocationSearchSheet] routes to the ViewModel — grouped to keep the arg list flat. */

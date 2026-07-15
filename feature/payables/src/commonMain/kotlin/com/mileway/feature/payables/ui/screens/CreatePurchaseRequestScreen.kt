@@ -55,7 +55,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.payables_back
@@ -84,6 +83,7 @@ import com.mileway.feature.payables.model.NewLineItemDraft
 import com.mileway.feature.payables.viewmodel.PayablesAction
 import com.mileway.feature.payables.viewmodel.PayablesEffect
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
+import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 

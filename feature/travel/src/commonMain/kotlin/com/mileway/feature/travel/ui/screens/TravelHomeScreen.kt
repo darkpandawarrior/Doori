@@ -55,7 +55,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.siddharth.kmp.common.asString
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.resources.Res
@@ -99,6 +98,7 @@ import com.mileway.feature.travel.model.TransportMode
 import com.mileway.feature.travel.viewmodel.TravelAction
 import com.mileway.feature.travel.viewmodel.TravelEffect
 import com.mileway.feature.travel.viewmodel.TravelViewModel
+import com.siddharth.kmp.common.asString
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource

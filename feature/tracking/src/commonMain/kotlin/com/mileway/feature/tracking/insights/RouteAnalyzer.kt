@@ -1,9 +1,9 @@
 package com.mileway.feature.tracking.insights
 
-import com.siddharth.kmp.common.formatDecimal
 import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
+import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone

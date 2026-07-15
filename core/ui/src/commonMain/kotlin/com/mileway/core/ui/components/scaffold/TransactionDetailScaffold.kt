@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_back
 import com.mileway.core.ui.resources.detail_section_attachments
@@ -37,6 +36,7 @@ import com.mileway.core.ui.resources.detail_section_details
 import com.mileway.core.ui.resources.detail_section_timeline
 import com.mileway.core.ui.text.text
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.common.UiText
 import org.jetbrains.compose.resources.stringResource
 
 /**

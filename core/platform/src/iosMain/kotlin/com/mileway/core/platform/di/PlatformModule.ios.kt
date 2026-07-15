@@ -2,7 +2,6 @@ package com.mileway.core.platform.di
 
 import com.mileway.core.platform.IosBiometricAuthenticator
 import com.mileway.core.platform.IosTrackingPresenceController
-import com.siddharth.kmp.common.NapierCrashReporter
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.siddharth.kmp.appshell.AppReviewManager
 import com.siddharth.kmp.appshell.AppUpdateManager
@@ -17,6 +16,7 @@ import com.siddharth.kmp.appshell.LocationNameResolver
 import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.PermissionsProvider
+import com.siddharth.kmp.common.NapierCrashReporter
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
