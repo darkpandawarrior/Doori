@@ -366,7 +366,10 @@ class MileageSubmissionViewModelTest {
         assertNotNull(request)
         assertEquals(12.5, request.distance, 1e-9)
         assertTrue(request.odometerNotWorking)
-        assertEquals("ODOMETER_NOT_WORKING", request.notes)
+        // PLAN_V33 C5: the audit marker moved from `notes` to `violationRemarks` (parity with the
+        // reference builder) — notes is no longer used for this.
+        assertEquals("ODOMETER_NOT_WORKING", request.violationRemarks)
+        assertNull(request.notes)
         assertTrue(vm.state.value.submissionState is SubmissionUiState.Success)
     }
 

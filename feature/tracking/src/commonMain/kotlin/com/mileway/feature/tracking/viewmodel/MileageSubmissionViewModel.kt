@@ -7,7 +7,6 @@ import com.mileway.core.data.model.display.OdometerReadingSource
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.model.network.SubmissionStatus
-import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
 import com.mileway.core.data.outbox.TripDraft
 import com.mileway.core.forms.FieldId
@@ -22,6 +21,7 @@ import com.mileway.core.network.model.Office
 import com.mileway.feature.tracking.checkin.RoundTripClassifier
 import com.mileway.feature.tracking.insights.DistanceQualityAnalyzer
 import com.mileway.feature.tracking.manager.TrackingConfigManager
+import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.OfflinePlacesRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
@@ -29,6 +29,7 @@ import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.SubmissionNotificationMapper
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
 import com.mileway.feature.tracking.service.SubmitOutcome
+import com.mileway.feature.tracking.submission.SubmitMilesRequestBuilder
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.mvi.BaseViewModel
@@ -236,6 +237,10 @@ class MileageSubmissionViewModel(
     // above (direct-construction tests keep working unchanged); when absent, submit() falls back to
     // calling the network directly (the pre-A5 behavior) instead of silently dropping the request.
     private val milesSyncer: MilesSubmitSyncer? = null,
+    // PLAN_V33 C5: source for the trip's GPS trail (used to fill SubmitMilesRequestK.origin/
+    // destination) — nullable-defaulted for the same reason as the params above (direct-
+    // construction tests keep working unchanged; Koin supplies the real singleton).
+    private val locationRepository: LocationRepository? = null,
 ) : BaseViewModel<MileageSubmissionUiState, MileageSubmissionEffect, MileageSubmissionAction>(
         MileageSubmissionUiState(
             form =
@@ -447,21 +452,26 @@ class MileageSubmissionViewModel(
             if (odometerFallbackActive) {
                 trackRepository.markOdometerNotWorking(routeId)
             }
+            // PLAN_V33 C5: trip/office/entity/tripV2 id resolution + the GPS first/last point come
+            // from the persisted trip row and its location trail — both optional lookups (a fresh
+            // draft may have neither yet), the builder tolerates either being absent/empty.
+            val track = trackRepository.getByRouteId(routeId)
+            val routePoints = locationRepository?.getForToken(routeId) ?: emptyList()
             val request =
-                SubmitMilesRequestK(
-                    token = routeId,
-                    vehicleType = vehicleKey,
+                SubmitMilesRequestBuilder.build(
+                    routeId = routeId,
+                    vehicleKey = vehicleKey,
                     // P6.1: distance always sourced from the already-computed GPS distanceKm
                     // param here; when the odometer fallback is active this is the rate
-                    // source (rather than an odometer-reading delta), tagged for audit below.
-                    distance = distanceKm,
+                    // source (rather than an odometer-reading delta), tagged for audit in the
+                    // builder (violationRemarks/milesAmountByOdometer/odometer readings).
+                    distanceKm = distanceKm,
                     startTime = startTime,
                     endTime = endTime,
                     submissionTime = Clock.System.now().toEpochMilliseconds(),
-                    odometerNotWorking = odometerFallbackActive,
-                    notes = if (odometerFallbackActive) ODOMETER_NOT_WORKING_REMARK else null,
-                    // P6.2: auto-detected in loadTrackInfo() from start/end coords + tracked distance.
-                    roundTrip = currentState.form.roundTrip,
+                    form = currentState.form,
+                    track = track,
+                    routePoints = routePoints,
                 )
 
             val syncer = milesSyncer
@@ -587,11 +597,5 @@ class MileageSubmissionViewModel(
                 typedSource = capture.source,
             )
         }
-    }
-
-    companion object {
-        // P6.1: audit-trail marker recorded on the submission request when distance is sourced
-        // from GPS instead of an odometer-reading delta, because the odometer wasn't usable.
-        const val ODOMETER_NOT_WORKING_REMARK = "ODOMETER_NOT_WORKING"
     }
 }
