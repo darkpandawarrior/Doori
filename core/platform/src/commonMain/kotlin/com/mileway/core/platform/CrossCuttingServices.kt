@@ -72,18 +72,5 @@ interface AppShortcuts {
     fun setDynamicShortcuts(shortcuts: List<AppShortcut>)
 }
 
-// ─────────────────────────── Crash reporting ───────────────────────────
-
-/** Crash + non-fatal reporting. gms: Firebase Crashlytics; noGms + iOS: no-op. */
-interface CrashReporter {
-    fun log(message: String)
-
-    fun recordException(throwable: Throwable)
-
-    fun setCustomKey(
-        key: String,
-        value: String,
-    )
-
-    fun setEnabled(enabled: Boolean)
-}
+// CrashReporter moved to kmp-toolkit :common (com.siddharth.kmp.common.CrashReporter) — consumed
+// family-wide (Backlog #21/#26). NapierCrashReporter default + kill switch live there too.

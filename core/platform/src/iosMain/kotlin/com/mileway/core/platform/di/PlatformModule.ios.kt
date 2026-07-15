@@ -2,7 +2,7 @@ package com.mileway.core.platform.di
 
 import com.mileway.core.platform.IosBiometricAuthenticator
 import com.mileway.core.platform.IosTrackingPresenceController
-import com.mileway.core.platform.NapierCrashReporter
+import com.siddharth.kmp.common.NapierCrashReporter
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.siddharth.kmp.appshell.AppReviewManager
 import com.siddharth.kmp.appshell.AppUpdateManager
@@ -53,5 +53,5 @@ actual fun platformModule(): Module =
         single<com.mileway.core.platform.TrackingPresenceController> { IosTrackingPresenceController() }
         // CF.4: local crash reporter (Napier-backed, no real crash SDK, no network). AnalyticsHelper
         // is already bound in iosAppModule (core/ui) — not duplicated here.
-        single<com.mileway.core.platform.CrashReporter> { NapierCrashReporter() }
+        single<com.siddharth.kmp.common.CrashReporter> { NapierCrashReporter() }
     }

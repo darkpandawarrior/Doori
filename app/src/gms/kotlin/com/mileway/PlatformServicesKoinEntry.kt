@@ -1,7 +1,7 @@
 package com.mileway
 
 import com.mileway.core.data.watch.WatchSyncBridge
-import com.mileway.core.platform.CrashReporter
+import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.ReferralManager
 import com.mileway.platform.gms.AndroidInstallReferrerManager
 import com.mileway.platform.gms.FirebaseAnalyticsHelper

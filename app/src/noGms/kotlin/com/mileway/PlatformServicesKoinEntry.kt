@@ -2,9 +2,9 @@ package com.mileway
 
 import com.mileway.core.data.watch.NoopWatchSyncBridge
 import com.mileway.core.data.watch.WatchSyncBridge
-import com.mileway.core.platform.CrashReporter
+import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.LocalReferralManager
-import com.mileway.core.platform.NapierCrashReporter
+import com.siddharth.kmp.common.NapierCrashReporter
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
 import com.siddharth.kmp.appshell.AnalyticsHelper

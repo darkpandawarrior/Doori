@@ -1,5 +1,6 @@
 package com.mileway.core.platform
 
+import com.siddharth.kmp.common.NapierCrashReporter
 import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.LogLevel
 import io.github.aakira.napier.Napier

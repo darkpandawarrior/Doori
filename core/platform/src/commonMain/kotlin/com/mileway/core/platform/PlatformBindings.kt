@@ -16,6 +16,7 @@ import com.siddharth.kmp.appshell.NoOpPushMessaging
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.PermissionsProvider
 import com.siddharth.kmp.appshell.PushMessaging
+import com.siddharth.kmp.common.CrashReporter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -84,14 +85,17 @@ private object NoOpAppShortcuts : AppShortcuts {
 }
 
 private object NoOpCrashReporter : CrashReporter {
-    override fun log(message: String) = Unit
+    override fun log(breadcrumb: String) = Unit
 
-    override fun recordException(throwable: Throwable) = Unit
+    override fun recordException(
+        throwable: Throwable,
+        message: String?,
+    ) = Unit
 
     override fun setCustomKey(
         key: String,
         value: String,
     ) = Unit
 
-    override fun setEnabled(enabled: Boolean) = Unit
+    override fun setUserId(id: String?) = Unit
 }

@@ -19,6 +19,8 @@ kotlin {
             // app-shell types (LocationTracker, NotificationScheduler, AppUpdateManager, …) directly
             // as public field types, so every consumer of core:platform needs them on its classpath too.
             api("com.siddharth.kmp:app-shell:1.0.0")
+            // api: PlatformBindings.crashReporter exposes :common's CrashReporter (Backlog #21/#26).
+            api("com.siddharth.kmp:common:1.0.0")
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)

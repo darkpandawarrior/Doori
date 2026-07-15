@@ -45,7 +45,7 @@ import com.mileway.core.data.session.PinHashSource
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
-import com.mileway.core.platform.CrashReporter
+import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.ReferralData
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
