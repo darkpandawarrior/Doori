@@ -4,11 +4,11 @@ import com.mileway.core.data.model.network.UserConfigResponseV2
 import com.mileway.core.data.model.state.LogMilesPluginConfig
 import com.mileway.core.data.model.state.ProfileConfig
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
-import com.mileway.core.data.result.NetworkError
-import com.mileway.core.data.result.NetworkResult
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.platform.UpdateConfig
 import com.mileway.core.platform.UpdateMode
+import com.siddharth.kmp.result.DataError
+import com.siddharth.kmp.result.Result
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,8 +30,8 @@ class DemoConfigManager(
         ),
     private val killSwitch: Boolean = false,
 ) : ConfigProvider {
-    val configState: StateFlow<NetworkResult<UserConfigResponseV2, NetworkError>> =
-        MutableStateFlow(NetworkResult.Success(DemoMockData.userConfig()))
+    val configState: StateFlow<Result<UserConfigResponseV2, DataError.Network>> =
+        MutableStateFlow(Result.Success(DemoMockData.userConfig()))
 
     fun getConfig(): UserConfigResponseV2 = DemoMockData.userConfig()
 

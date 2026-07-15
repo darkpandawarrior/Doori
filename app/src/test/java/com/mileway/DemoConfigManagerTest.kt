@@ -59,8 +59,8 @@ class DemoConfigManagerTest {
     fun `configState emits Success immediately`() {
         val state = manager.configState.value
         assertNotNull(state)
-        assertTrue(state is com.mileway.core.data.result.NetworkResult.Success)
-        val data = (state as com.mileway.core.data.result.NetworkResult.Success).data
+        assertTrue(state is com.siddharth.kmp.result.Result.Success)
+        val data = (state as com.siddharth.kmp.result.Result.Success).data
         assertTrue(data.miles)
         assertTrue(data.logMiles)
     }
