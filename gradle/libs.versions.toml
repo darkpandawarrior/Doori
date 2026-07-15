@@ -259,6 +259,8 @@ maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version.r
 # Ktor (multiplatform networking + Logging plugin; replaces WormaCeptor)
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+# PLAN_V33 A3: MockEngine for KtorMilewayNetworkApi's commonTest — no real :server needed to test it.
+ktor-client-mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor" }
 # PLAN_V33 B1: :server is a plain kotlin("jvm") module (not KMP), so it depends on the platform-specific
 # "-jvm" artifact ids directly rather than the multiplatform umbrella modules above.
 ktor-server-core-jvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }

@@ -24,6 +24,11 @@ kotlin {
             // Typed Result<D, DataError.Network> for DemoConfigManager.configState — api so
             // consumers of :stub (e.g. :app tests) see it transitively.
             api("com.siddharth.kmp:result:1.0.0")
+            // PLAN_V33 A3: StubModule's NetworkBackendFlags branch builds a real HttpClient
+            // (createHttpClient) when the flag is flipped. ktor-client-core is `implementation`
+            // (not `api`) inside the toolkit module, so the HttpClient type needs declaring here too.
+            implementation("com.siddharth.kmp:network:1.0.0")
+            implementation(libs.ktor.client.core)
         }
         androidMain.dependencies {
             implementation(libs.koin.android)

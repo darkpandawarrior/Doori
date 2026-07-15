@@ -31,12 +31,18 @@ kotlin {
             // `api` so every module that already depends on core:network keeps resolving them.
             // (core:data already re-exports :contract too, transitively, via the line above.)
             api(project(":contract"))
+            // PLAN_V33 A3: KtorMilewayNetworkApi's HttpClient/BaseUrlProvider (createHttpClient +
+            // the platform OkHttp/Darwin/CIO engine live in the toolkit module, not duplicated here).
+            implementation("com.siddharth.kmp:network:1.0.0")
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
+            // PLAN_V33 A3: MockEngine backing KtorMilewayNetworkApiTest — no real :server needed.
+            implementation(libs.ktor.client.mock)
         }
     }
 }

@@ -40,12 +40,23 @@ kotlin {
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.datastore.preferences)
             implementation(libs.koin.android)
+            // PLAN_V33 A3: DataStoreBaseUrlProvider implements the toolkit's BaseUrlProvider fun
+            // interface — androidMain/iosMain only (not commonMain: the toolkit :network module
+            // publishes no watchOS variant, and core:data's watchosArm64/etc. targets would fail to
+            // resolve it if this were a commonMain dependency).
+            implementation("com.siddharth.kmp:network:1.0.0")
         }
         // appleMain is the applyDefaultHierarchyTemplate() intermediate source set shared by
         // iosMain + watchosMain — actuals needed on both platforms (e.g. epochMillis(),
         // buildMilewayDatabase()) live here so watchos targets resolve them too (P3.2).
         appleMain.dependencies {
             implementation(libs.sqlite.bundled)
+        }
+        iosMain.dependencies {
+            // PLAN_V33 A3: see the androidMain comment above — iosMain (not appleMain), since
+            // watchosMain shares appleMain's dependency block and the toolkit module has no
+            // watchOS target.
+            implementation("com.siddharth.kmp:network:1.0.0")
         }
         val desktopMain by getting {
             dependencies {

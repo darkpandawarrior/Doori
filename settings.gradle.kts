@@ -34,6 +34,8 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:location")).using(project(":location"))
         substitute(module("com.siddharth.kmp:common")).using(project(":common"))
         substitute(module("com.siddharth.kmp:offline-outbox")).using(project(":offline-outbox"))
+        // PLAN_V33 A3: KtorMilewayNetworkApi's HttpClientFactory (BaseUrlProvider/createHttpClient).
+        substitute(module("com.siddharth.kmp:network")).using(project(":network"))
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:result")).using(project(":result"))
         substitute(module("com.siddharth.kmp:app-shell")).using(project(":app-shell"))
