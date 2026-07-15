@@ -277,6 +277,7 @@ com.google.maps.android:maps-compose-utils:5.0.4
 com.google.maps.android:maps-compose:5.0.4
 com.google.maps.android:maps-ktx:5.0.0
 com.google.maps.android:maps-utils-ktx:5.0.0
+com.google.mediapipe:tasks-genai:0.10.35
 com.google.mlkit:barcode-scanning-common:17.0.0
 com.google.mlkit:barcode-scanning:17.3.0
 com.google.mlkit:common:18.11.0
@@ -286,6 +287,7 @@ com.google.mlkit:text-recognition-bundled-common:17.0.0
 com.google.mlkit:text-recognition:16.0.1
 com.google.mlkit:vision-common:17.3.0
 com.google.mlkit:vision-interfaces:16.3.0
+com.google.protobuf:protobuf-javalite:4.26.1
 com.materialkolor:material-color-utilities-android:5.0.0
 com.materialkolor:material-color-utilities:5.0.0
 com.materialkolor:material-kolor-android:5.0.0
@@ -294,6 +296,8 @@ com.mikepenz:multiplatform-markdown-renderer-android:0.43.0
 com.mikepenz:multiplatform-markdown-renderer-m3-android:0.43.0
 com.mikepenz:multiplatform-markdown-renderer-m3:0.43.0
 com.mikepenz:multiplatform-markdown-renderer:0.43.0
+com.squareup.okhttp3:okhttp-android:5.3.2
+com.squareup.okhttp3:okhttp:5.3.2
 com.squareup.okio:okio-jvm:3.17.0
 com.squareup.okio:okio:3.17.0
 dev.brewkits:kmpworkmanager-android:3.0.1
@@ -335,6 +339,8 @@ io.insert-koin:koin-core-viewmodel:4.2.2
 io.insert-koin:koin-core:4.2.2
 io.ktor:ktor-client-core-jvm:3.5.1
 io.ktor:ktor-client-core:3.5.1
+io.ktor:ktor-client-okhttp-jvm:3.5.1
+io.ktor:ktor-client-okhttp:3.5.1
 io.ktor:ktor-events-jvm:3.5.1
 io.ktor:ktor-events:3.5.1
 io.ktor:ktor-http-cio-jvm:3.5.1
