@@ -11,6 +11,7 @@ import com.mileway.core.ui.di.iosAppModule
 import com.mileway.core.ui.platform.LocalManagerProvider
 import com.mileway.feature.agent.iosAgentModule
 import com.mileway.feature.tracking.di.trackingModule
+import com.mileway.stub.di.stubModule
 import platform.UIKit.UIViewController
 
 /**
@@ -23,7 +24,7 @@ import platform.UIKit.UIViewController
  */
 fun MilwayAppViewController(): UIViewController {
     AppLog.init()
-    initKoin(modules = listOf(coreDataModule, coreUiModule, iosAppModule, trackingModule, iosAgentModule))
+    initKoin(modules = listOf(coreDataModule, coreUiModule, iosAppModule, stubModule, trackingModule, iosAgentModule))
     return ComposeUIViewController {
         LocalManagerProvider {
             AppHost { IosDemoApp() }

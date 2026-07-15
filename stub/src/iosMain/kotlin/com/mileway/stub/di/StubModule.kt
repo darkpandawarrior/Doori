@@ -9,12 +9,19 @@ import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.FakeTrackingNetworkApi
 import com.mileway.stub.StubPersonaPresetProvider
 import com.siddharth.kmp.network.createHttpClient
-import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-// NetworkBackendFlags moved to commonMain (stub/commonMain/di/NetworkBackendFlags.kt) so the iOS
-// stubModule counterpart gates on the same flag/object instead of duplicating it per platform.
-
+/**
+ * PLAN_V33 C3 (iOS pass): iOS counterpart of the Android `stubModule` — same bindings (ConfigProvider,
+ * MilewayNetworkApi behind [NetworkBackendFlags.useRealBackend], PersonaPresetProvider), just swapping
+ * [DataStoreBaseUrlProvider]'s constructor (no `androidContext()` on iOS; its no-arg iOS actual writes
+ * to the app's temp directory instead of a Context-scoped DataStore).
+ *
+ * Before this, iOS had no [MilewayNetworkApi] binding at all — `get<MilewayNetworkApi>()` inside
+ * `trackingModule` (VehiclePricingRepository, MileageSubmissionViewModel, realLocationSend/
+ * realMilesSubmitSend) and `get<ConfigProvider>()` (TrackingConfigManager) would have thrown the
+ * moment either was actually resolved.
+ */
 val stubModule =
     module {
         single { DemoConfigManager() }
@@ -28,7 +35,7 @@ val stubModule =
                             // handling lands with B-auth/A-auth.
                             onUnauthorized = { },
                         ),
-                    baseUrlProvider = DataStoreBaseUrlProvider(androidContext()),
+                    baseUrlProvider = DataStoreBaseUrlProvider(),
                 )
             } else {
                 FakeTrackingNetworkApi()

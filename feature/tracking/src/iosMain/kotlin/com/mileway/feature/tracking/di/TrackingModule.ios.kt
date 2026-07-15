@@ -65,6 +65,9 @@ val trackingModule =
                 locationTracker = get(),
                 statePublisher = get(),
                 trackRepository = get(),
+                // PLAN_V33 C3/iOS pass: real distance accumulation persists accepted points the same
+                // way the Android LocationTrackingService does (via LocationBatcher -> LocationRepository).
+                locationRepository = get(),
             )
         }
 
@@ -88,9 +91,10 @@ val trackingModule =
         single<SearchProvider>(named("tracking")) { TrackingSearchProvider(get(), get()) }
         single { SubmissionNotificationThrottler(now = { Clock.System.now().toEpochMilliseconds() }) }
         // Wave 4 §2.3 / PLAN_V33 A4: local sync-status engine over the location outbox — mirrors
-        // the Android trackingModule's real-send wiring (see RealLocationSend doc). No MilewayNetworkApi
-        // binding exists on iOS yet (same as VehiclePricingRepository/MileageSubmissionViewModel
-        // above); wiring one is out of scope here — this only changes behavior once it lands.
+        // the Android trackingModule's real-send wiring (see RealLocationSend doc). PLAN_V33 C3:
+        // MilewayNetworkApi now resolves via stubModule.ios (must be included by the composition
+        // root — see shared/iosMain's MilewayAppViewController/SharedViewController); this stays a
+        // no-op FakeTrackingNetworkApi until NetworkBackendFlags.useRealBackend flips.
         single {
             LocationDataSyncer(
                 locationDao = get(),
@@ -100,8 +104,7 @@ val trackingModule =
             )
         }
         // PLAN_V33 A5: durable trip *submission* — mirrors the LocationDataSyncer wiring above.
-        // Same caveat as that binding: no real MilewayNetworkApi exists on iOS yet, this only
-        // changes behavior once one is wired.
+        // Same caveat as that binding: no-op until NetworkBackendFlags.useRealBackend is flipped.
         single {
             MilesSubmitSyncer(
                 outbox = get(),
