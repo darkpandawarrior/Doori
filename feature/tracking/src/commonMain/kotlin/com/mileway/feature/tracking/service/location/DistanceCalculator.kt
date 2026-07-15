@@ -1,6 +1,7 @@
 package com.mileway.feature.tracking.service.location
 
 import com.mileway.core.data.model.db.LocationData
+import com.mileway.core.data.util.haversineMeters
 
 /**
  * P-A.2: Authoritative finalize-time distance recompute over persisted DB points.

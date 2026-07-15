@@ -58,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.db.EventType
 import com.mileway.core.data.model.db.HardwareEvent
+import com.mileway.core.data.util.haversineMeters
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.ui.components.SectionCard
@@ -82,11 +83,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
-import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 /**
  * Full-screen geo check-in flow. Shows demo location, a type picker, nearby vendor chips,
@@ -445,19 +441,4 @@ fun GeoCheckInScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.xl))
         }
     }
-}
-
-private fun haversineMeters(
-    lat1: Double,
-    lon1: Double,
-    lat2: Double,
-    lon2: Double,
-): Double {
-    val R = 6_371_000.0
-    val dLat = (lat2 - lat1) * PI / 180
-    val dLon = (lon2 - lon1) * PI / 180
-    val a =
-        sin(dLat / 2).let { it * it } +
-            cos(lat1 * PI / 180) * cos(lat2 * PI / 180) * sin(dLon / 2).let { it * it }
-    return R * 2 * atan2(sqrt(a), sqrt(1 - a))
 }

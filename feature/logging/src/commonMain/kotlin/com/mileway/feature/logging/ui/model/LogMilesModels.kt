@@ -1,11 +1,7 @@
 package com.mileway.feature.logging.ui.model
 
+import com.mileway.core.data.util.haversineMeters
 import kotlinx.serialization.Serializable
-import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 /** Category for a POI, drives the icon shown in the search result row. */
 @Serializable
@@ -109,23 +105,17 @@ object CityCatalog {
 /**
  * Great-circle (haversine) distance in kilometres between two coordinates.
  * Used as the default "Calculated" distance before the user verifies/overrides it.
+ *
+ * Delegates to the canonical [com.mileway.core.data.util.haversineMeters] (metres) and converts
+ * — this function's return unit is kilometres, kept as-is since callers ([totalRouteKm],
+ * [com.mileway.feature.logging.ui.sheets.LocationSearchSheet]) already expect km.
  */
 fun haversineKm(
     lat1: Double,
     lng1: Double,
     lat2: Double,
     lng2: Double,
-): Double {
-    val earthRadiusKm = 6371.0
-    val dLat = (lat2 - lat1) * PI / 180.0
-    val dLng = (lng2 - lng1) * PI / 180.0
-    val a =
-        sin(dLat / 2) * sin(dLat / 2) +
-            cos(lat1 * PI / 180.0) * cos(lat2 * PI / 180.0) *
-            sin(dLng / 2) * sin(dLng / 2)
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    return earthRadiusKm * c
-}
+): Double = haversineMeters(lat1, lng1, lat2, lng2) / 1_000.0
 
 /**
  * Total great-circle distance across an ordered list of stops (sum of consecutive

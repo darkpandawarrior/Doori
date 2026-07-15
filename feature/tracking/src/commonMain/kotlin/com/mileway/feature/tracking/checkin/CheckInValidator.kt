@@ -1,11 +1,6 @@
 package com.mileway.feature.tracking.checkin
 
-import kotlin.math.PI
-import kotlin.math.asin
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import com.mileway.core.data.util.haversineMeters as coreHaversineMeters
 
 /**
  * Pure-Kotlin (no Android imports) Haversine-based check-in validator.
@@ -16,8 +11,6 @@ import kotlin.math.sqrt
  * All validation is done locally; no network calls are made.
  */
 object CheckInValidator {
-    private const val EARTH_RADIUS_METERS = 6_371_000.0
-
     /**
      * Describes a named check-in location (e.g. supply center, job site).
      *
@@ -102,21 +95,16 @@ object CheckInValidator {
 
     /**
      * Haversine formula, returns the great-circle distance in metres between two
-     * geographic coordinates.
+     * geographic coordinates. Delegates to the canonical [com.mileway.core.data.util.haversineMeters]
+     * — kept as a member here since callers (this object's own [validate], [RoundTripClassifier],
+     * and existing tests) already reference it as `CheckInValidator.haversineMeters`.
      */
     fun haversineMeters(
         lat1: Double,
         lng1: Double,
         lat2: Double,
         lng2: Double,
-    ): Double {
-        val dLat = (lat2 - lat1) * PI / 180.0
-        val dLng = (lng2 - lng1) * PI / 180.0
-        val a =
-            sin(dLat / 2).pow(2) +
-                cos(lat1 * PI / 180.0) * cos(lat2 * PI / 180.0) * sin(dLng / 2).pow(2)
-        return EARTH_RADIUS_METERS * 2 * asin(sqrt(a))
-    }
+    ): Double = coreHaversineMeters(lat1, lng1, lat2, lng2)
 
     /**
      * Builds the human-readable radius warning shown on the override sheet.

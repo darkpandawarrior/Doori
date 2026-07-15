@@ -1,6 +1,7 @@
 package com.mileway.feature.tracking.service.location
 
 import com.mileway.core.data.model.db.LocationData
+import com.mileway.core.data.util.haversineMeters
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

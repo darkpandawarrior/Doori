@@ -1,13 +1,8 @@
 package com.mileway.core.data.util
 
-import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.pow
 import kotlin.math.roundToInt
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 object CommonUtils {
     fun formatDistance(distanceKm: Double): String = "${distanceKm.fmt1d()} km"
@@ -39,22 +34,6 @@ object CommonUtils {
     ): Double {
         val factor = 10.0.pow(decimalPlaces)
         return (value * factor).roundToInt() / factor
-    }
-
-    fun getDistanceFromLatLonInKm(
-        lat1: Double,
-        lon1: Double,
-        lat2: Double,
-        lon2: Double,
-    ): Double {
-        val earthRadiusKm = 6371.0
-        val dLat = (lat2 - lat1) * PI / 180.0
-        val dLon = (lon2 - lon1) * PI / 180.0
-        val a =
-            sin(dLat / 2).pow(2) +
-                cos(lat1 * PI / 180.0) * cos(lat2 * PI / 180.0) * sin(dLon / 2).pow(2)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        return earthRadiusKm * c
     }
 
     fun formatDistanceMeters(meters: Double): String = if (meters < 1000) "${meters.roundToInt()}m" else "${(meters / 1000.0).fmt1d()} km"

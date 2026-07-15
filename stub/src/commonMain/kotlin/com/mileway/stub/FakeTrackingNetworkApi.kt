@@ -31,6 +31,7 @@ import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.core.data.model.network.SubmittedCheckInResponseV2
 import com.mileway.core.data.model.network.SuccessResponseV2
 import com.mileway.core.data.model.network.TrackMileageStatusResponse
+import com.mileway.core.data.util.haversineMeters
 import com.mileway.core.network.api.MilewayNetworkApi
 
 class FakeTrackingNetworkApi : MilewayNetworkApi {
@@ -138,19 +139,14 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         end: Long,
     ): AllTaggedExpenseResponse = AllTaggedExpenseResponse()
 
+    /**
+     * Kilometres wrapper over the canonical [com.mileway.core.data.util.haversineMeters] —
+     * kept as km since [distance] returns [DistanceResponseV2] in kilometres.
+     */
     private fun haversineKm(
         lat1: Double,
         lon1: Double,
         lat2: Double,
         lon2: Double,
-    ): Double {
-        val earthRadiusKm = 6371.0
-        val dLat = (lat2 - lat1) * kotlin.math.PI / 180.0
-        val dLon = (lon2 - lon1) * kotlin.math.PI / 180.0
-        val a =
-            kotlin.math.sin(dLat / 2).let { it * it } +
-                kotlin.math.cos(lat1 * kotlin.math.PI / 180.0) * kotlin.math.cos(lat2 * kotlin.math.PI / 180.0) *
-                kotlin.math.sin(dLon / 2).let { it * it }
-        return earthRadiusKm * 2 * kotlin.math.atan2(kotlin.math.sqrt(a), kotlin.math.sqrt(1 - a))
-    }
+    ): Double = haversineMeters(lat1, lon1, lat2, lon2) / 1_000.0
 }

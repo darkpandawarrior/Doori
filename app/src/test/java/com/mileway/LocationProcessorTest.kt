@@ -1,10 +1,10 @@
 package com.mileway
 
+import com.mileway.core.data.util.haversineMeters
 import com.mileway.feature.tracking.manager.AbnormalDetectionConfig
 import com.mileway.feature.tracking.service.location.GpsFix
 import com.mileway.feature.tracking.service.location.LocationProcessor
 import com.mileway.feature.tracking.service.location.TrackStats
-import com.mileway.feature.tracking.service.location.haversineMeters
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

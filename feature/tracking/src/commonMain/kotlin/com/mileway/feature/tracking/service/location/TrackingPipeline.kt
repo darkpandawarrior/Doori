@@ -3,15 +3,11 @@
 package com.mileway.feature.tracking.service.location
 
 import com.mileway.core.data.model.db.LocationData
+import com.mileway.core.data.util.haversineMeters
 import com.mileway.feature.tracking.manager.AbnormalDetectionConfig
 import com.mileway.feature.tracking.service.LocationTrackingConstants
 import com.siddharth.kmp.location.KalmanSmoother
-import kotlin.math.PI
-import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.max
-import kotlin.math.sin
-import kotlin.math.sqrt
 
 /**
  * Platform-independent GPS fix. Sources convert their native location into this so the
@@ -350,21 +346,4 @@ class LocationProcessor(
             dtSec <= abnormalConfig.gap6hSec -> impliedSpeed > abnormalConfig.gapTier6hMps
             else -> displacement > abnormalConfig.gapMaxDistanceM
         }
-}
-
-/** Great-circle distance in metres between two lat/lng points. */
-fun haversineMeters(
-    lat1: Double,
-    lng1: Double,
-    lat2: Double,
-    lng2: Double,
-): Double {
-    val earthRadiusM = 6_371_000.0
-    val dLat = (lat2 - lat1) * PI / 180.0
-    val dLng = (lng2 - lng1) * PI / 180.0
-    val a =
-        sin(dLat / 2) * sin(dLat / 2) +
-            cos(lat1 * PI / 180.0) * cos(lat2 * PI / 180.0) *
-            sin(dLng / 2) * sin(dLng / 2)
-    return earthRadiusM * (2 * atan2(sqrt(a), sqrt(1 - a)))
 }
