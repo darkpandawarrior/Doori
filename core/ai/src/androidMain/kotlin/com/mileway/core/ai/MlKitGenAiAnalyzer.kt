@@ -1,17 +1,7 @@
 package com.mileway.core.ai
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
-import com.google.mlkit.genai.common.FeatureStatus
-import com.google.mlkit.genai.prompt.GenerateContentRequest
-import com.google.mlkit.genai.prompt.Generation
-import com.google.mlkit.genai.prompt.GenerativeModel
-import com.google.mlkit.genai.prompt.ImagePart
-import com.google.mlkit.genai.prompt.TextPart
-import com.google.mlkit.genai.prompt.generateContentRequest
 import com.mileway.core.ai.model.AiExtraction
 import com.mileway.core.ai.model.AnalyzerSource
 import com.mileway.core.ai.model.DocField
@@ -19,22 +9,22 @@ import com.mileway.core.ai.model.DocPrompt
 import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentImageRef
 import com.mileway.core.ai.model.ExtractedValue
+import com.siddharth.kmp.ai.LlmPart
+import com.siddharth.kmp.ai.MlKitGenAiOnDeviceLlm
+import com.siddharth.kmp.ai.OnDeviceLlm
+import java.io.File
 
-// ponytail: EXPERIMENTAL — com.google.mlkit:genai-prompt:1.0.0-beta2 (ML Kit GenAI Prompt API,
-// Gemini Nano). Compile-verified only, NOT device-verified: no Gemini Nano-class hardware (Pixel
-// 8+/AICore-eligible, locked bootloader) is available in this environment. Revisit device
-// behavior — response JSON quality, checkStatus() transition timing — when such a device exists.
-//
-// [isAvailable] is a cheap, synchronous device-tier floor (matches the API's own minSdk 26) — NOT
-// the authoritative runtime check, since ML Kit's own `checkStatus()` is suspend and this
-// interface method isn't. The real gate lives in [extract]: it only runs inference when the
-// feature is already AVAILABLE (model resident). DOWNLOADABLE/DOWNLOADING/UNAVAILABLE all decline
-// rather than trigger a multi-hundred-MB on-demand download mid-scan — there's no download-progress
-// UX yet, so pre-warming stays out of scope for this task.
-class MlKitGenAiAnalyzer(private val context: Context) : DocumentAiAnalyzer {
-    private val model: GenerativeModel by lazy { Generation.getClient() }
-
-    override fun isAvailable(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+// ponytail: EXPERIMENTAL — delegates the ML Kit GenAI Prompt API call (Gemini Nano) to
+// kmp-toolkit's :ai OnDeviceLlm seam (MlKitGenAiOnDeviceLlm) instead of re-deriving
+// Generation.getClient()/FeatureStatus/GenerateContentRequest here (#11 consume) — this module
+// now only owns document-scan prompt building + JSON-field parsing, not the model-client
+// plumbing. Compile-verified only, NOT device-verified: no Gemini-Nano-class hardware (Pixel
+// 8+/AICore-eligible, locked bootloader) is available in this environment.
+class MlKitGenAiAnalyzer(
+    private val context: Context,
+    private val llm: OnDeviceLlm = MlKitGenAiOnDeviceLlm(context),
+) : DocumentAiAnalyzer {
+    override fun isAvailable(): Boolean = llm.isAvailable()
 
     override suspend fun extract(
         image: DocumentImageRef,
@@ -48,15 +38,9 @@ class MlKitGenAiAnalyzer(private val context: Context) : DocumentAiAnalyzer {
         image: DocumentImageRef,
         prompt: DocPrompt,
     ): AiExtraction? {
-        if (model.checkStatus() != FeatureStatus.AVAILABLE) return null
-        val bitmap = decodeBitmap(image) ?: return null
-        val text =
-            try {
-                val request = buildRequest(bitmap, prompt)
-                model.generateContent(request).candidates.firstOrNull()?.text
-            } finally {
-                bitmap.recycle()
-            }
+        val bytes = readImageBytes(image) ?: return null
+        val parts = listOf(LlmPart.Image(bytes), LlmPart.Text("${prompt.instruction}\n\n${prompt.schemaHint}"))
+        val text = llm.generate(parts)
         if (text.isNullOrBlank()) return null
         return AiExtraction(
             docType = parseDocType(text),
@@ -66,21 +50,12 @@ class MlKitGenAiAnalyzer(private val context: Context) : DocumentAiAnalyzer {
         )
     }
 
-    private fun buildRequest(
-        bitmap: Bitmap,
-        prompt: DocPrompt,
-    ): GenerateContentRequest =
-        generateContentRequest(
-            ImagePart(bitmap),
-            TextPart("${prompt.instruction}\n\n${prompt.schemaHint}"),
-        ) {}
-
-    private fun decodeBitmap(uri: String): Bitmap? {
+    private fun readImageBytes(uri: String): ByteArray? {
         val parsed = Uri.parse(uri)
         return runCatching {
-            context.contentResolver.openInputStream(parsed)?.use { BitmapFactory.decodeStream(it) }
+            context.contentResolver.openInputStream(parsed)?.use { it.readBytes() }
         }.getOrNull()
-            ?: runCatching { parsed.path?.let { BitmapFactory.decodeFile(it) } }.getOrNull()
+            ?: runCatching { parsed.path?.let { File(it).readBytes() } }.getOrNull()
     }
 
     // ponytail: flat "key": "value" regex scrape of the model's JSON text — no kotlinx.serialization

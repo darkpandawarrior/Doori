@@ -22,9 +22,10 @@ kotlin {
         androidMain.dependencies {
             // TextRecognizer actual: ML Kit on-device Latin text recognition.
             implementation(libs.mlkit.text.recognition)
-            // DocumentAiAnalyzer actual: ML Kit GenAI Prompt API (Gemini Nano). EXPERIMENTAL —
-            // see MlKitGenAiAnalyzer.
-            implementation(libs.mlkit.genai.prompt)
+            // DocumentAiAnalyzer actual delegates the model call to kmp-toolkit's :ai OnDeviceLlm
+            // seam (MlKitGenAiOnDeviceLlm) — this module owns prompt building + JSON parsing only,
+            // not the ML Kit GenAI client itself. See MlKitGenAiAnalyzer.
+            implementation("com.siddharth.kmp:ai:1.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
