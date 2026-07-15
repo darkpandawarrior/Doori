@@ -410,7 +410,7 @@ fun TrackMilesScreen(
                         step = uiState.journeyStep,
                         vehicleName = uiState.selectedVehicle?.vehicleName,
                         vehicleRatePerKm = uiState.selectedVehicle?.vehiclePricing,
-                        startOdometer = uiState.startOdometer,
+                        startOdometer = uiState.odometer.startReading,
                         draftEnabled = uiState.draftEnabled,
                         requiresOdometer = uiState.config.isOdometerMandatory,
                     ),

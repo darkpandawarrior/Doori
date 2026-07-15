@@ -23,6 +23,10 @@ sealed interface TrackMilesAction {
 
     data object CaptureStartOdometer : TrackMilesAction
 
+    // C4: end-of-trip odometer capture, mirroring CaptureStartOdometer. Full capture UI (camera/OCR)
+    // is a later task; the handler stores a deterministic mock reading like its start counterpart.
+    data object CaptureEndOdometer : TrackMilesAction
+
     data class ToggleDraft(val enabled: Boolean) : TrackMilesAction
 
     data object OpenVendorPicker : TrackMilesAction

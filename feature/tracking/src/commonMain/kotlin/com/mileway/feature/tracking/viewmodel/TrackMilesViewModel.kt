@@ -97,6 +97,92 @@ data class StrangerSessionConfig(
     val ownerLabel: String,
 )
 
+/**
+ * C4: the full tracking journey's state machine, modeled explicitly rather than inferred ad hoc
+ * from `phase`/`selectedVehicle`/`activeSheet` at each call site. Broader than [JourneyGuideStep]
+ * (which only drives the journey-guide sheet's 3-checkpoint visual stepper) — this covers every
+ * checkpoint from permission grant through post-trip submission. See
+ * [TrackMilesUiState.journeyProgress] for the derivation.
+ */
+enum class JourneyStep {
+    /** Runtime location/notification permissions are not yet satisfied. */
+    PERMISSIONS,
+
+    /** No vehicle is selected yet. */
+    VEHICLE,
+
+    /** A vehicle is selected but the (mandatory) start odometer hasn't been captured. */
+    START_ODOMETER,
+
+    /** All prerequisites are met; tracking can begin. */
+    READY_TO_START,
+
+    /** A trip is live (tracking or paused). */
+    TRACKING,
+
+    /** The trip has stopped and is ready to be reviewed/submitted. */
+    READY_TO_SUBMIT,
+}
+
+/**
+ * C4: the single hero-CTA action for a given [TrackMilesUiState], so the screen reads one value
+ * instead of re-deriving it from `phase` + `activeSheet` + `selectedVehicle` inline. See
+ * [TrackMilesUiState.primaryAction].
+ */
+sealed interface TrackMilesPrimaryAction {
+    data object ResolvePermissions : TrackMilesPrimaryAction
+
+    data object SelectVehicle : TrackMilesPrimaryAction
+
+    data object CaptureStartOdometer : TrackMilesPrimaryAction
+
+    data object CaptureEndOdometer : TrackMilesPrimaryAction
+
+    data object StartTracking : TrackMilesPrimaryAction
+
+    data object PauseTracking : TrackMilesPrimaryAction
+
+    data object ResumeTracking : TrackMilesPrimaryAction
+
+    data object StopTracking : TrackMilesPrimaryAction
+
+    data object SubmitTrack : TrackMilesPrimaryAction
+}
+
+/**
+ * C4: richer odometer-capture state, additive alongside the bare `Int?` reading the journey-guide
+ * sheet has always used (see [TrackMilesUiState.odometer]). Carries both start and end readings so
+ * [JourneyStep.READY_TO_SUBMIT] and [TrackMilesPrimaryAction.CaptureEndOdometer] have real state to
+ * key off, plus the reconciliation fields ([computedDistance], [validationError]) that a future
+ * end-odometer capture screen will surface.
+ */
+data class OdometerState(
+    val startReading: Int? = null,
+    val endReading: Int? = null,
+    val startPhotoUrl: String? = null,
+    val endPhotoUrl: String? = null,
+    val startLabel: String? = null,
+    val endLabel: String? = null,
+    val startTimeMs: Long? = null,
+    val endTimeMs: Long? = null,
+) {
+    /** Distance implied by the two odometer readings, or `null` until both are captured. */
+    val computedDistance: Int?
+        get() {
+            val start = startReading ?: return null
+            val end = endReading ?: return null
+            return (end - start).takeIf { it >= 0 }
+        }
+
+    /** Non-null when the two readings can't be reconciled (end before start). */
+    val validationError: String?
+        get() {
+            val start = startReading ?: return null
+            val end = endReading ?: return null
+            return if (end < start) "End odometer reading is before the start reading" else null
+        }
+}
+
 @Stable
 data class TrackMilesUiState(
     val phase: TrackMilesPhase = TrackMilesPhase.IDLE,
@@ -146,7 +232,15 @@ data class TrackMilesUiState(
     val activeStrangerSession: StrangerSessionConfig? = null,
     val vehicleQuery: String = "",
     val vendorQuery: String = "",
-    val startOdometer: Int? = null,
+    // C4: replaces the previous bare `startOdometer: Int?` with the richer OdometerState (start +
+    // end readings, photo/label metadata, computed distance/validation) — see OdometerState.
+    val odometer: OdometerState = OdometerState(),
+    // C4: runtime-permission gating lives at the screen level today (PermissionOnboardingFlow in
+    // TrackMilesScreen runs BEFORE any action reaches this ViewModel — see requestStartTracking()
+    // there), so the VM has no real signal to flip this. Defaulted true so journeyProgress/
+    // primaryAction behave exactly as before for every existing caller; wiring a real signal in is
+    // a later task.
+    val permissionsSatisfied: Boolean = true,
     val draftEnabled: Boolean = false,
     val pauseSelectedReason: String? = null,
     val pauseCustomReason: String = "",
@@ -170,6 +264,46 @@ data class TrackMilesUiState(
      */
     val journeyStep: JourneyGuideStep
         get() = if (selectedVehicle == null) JourneyGuideStep.VEHICLE else JourneyGuideStep.TRACKING
+
+    /**
+     * C4: the full-flow [JourneyStep], superseding [journeyStep]'s 3-checkpoint model with the
+     * complete permissions→vehicle→odometer→ready→tracking→submit machine. Named distinctly from
+     * [journeyStep] (rather than replacing it) because an existing test
+     * (`app/src/test/.../TrackMilesViewModelTest.journeyStep is VM-owned...`) asserts the exact
+     * `journeyStep`/[JourneyGuideStep] pairing — that mapping still holds unchanged.
+     */
+    val journeyProgress: JourneyStep
+        get() =
+            when {
+                phase == TrackMilesPhase.TRACKING || phase == TrackMilesPhase.PAUSED -> JourneyStep.TRACKING
+                phase == TrackMilesPhase.STOPPED || phase == TrackMilesPhase.SUBMITTED -> JourneyStep.READY_TO_SUBMIT
+                !permissionsSatisfied -> JourneyStep.PERMISSIONS
+                selectedVehicle == null -> JourneyStep.VEHICLE
+                config.isOdometerMandatory && odometer.startReading == null -> JourneyStep.START_ODOMETER
+                else -> JourneyStep.READY_TO_START
+            }
+
+    /**
+     * C4: the single hero-CTA the screen should show for the current state, so it reads one value
+     * instead of inferring from `phase` + `activeSheet` + `selectedVehicle` inline (see the current
+     * `onHero` branch in TrackMilesScreen, which duplicates this same `isActive` logic ad hoc).
+     * Mirrors [journeyProgress]'s prerequisite ladder; [TrackMilesPrimaryAction.PauseTracking] /
+     * [TrackMilesPrimaryAction.ResumeTracking] are modeled for completeness (the pause/resume
+     * button is a separate, already-explicit toggle in the screen) even though this particular
+     * derivation picks [TrackMilesPrimaryAction.StopTracking] while active, matching the FAB's
+     * actual current behavior.
+     */
+    val primaryAction: TrackMilesPrimaryAction
+        get() =
+            when {
+                phase == TrackMilesPhase.TRACKING || phase == TrackMilesPhase.PAUSED -> TrackMilesPrimaryAction.StopTracking
+                phase == TrackMilesPhase.STOPPED && odometer.endReading == null -> TrackMilesPrimaryAction.CaptureEndOdometer
+                phase == TrackMilesPhase.STOPPED || phase == TrackMilesPhase.SUBMITTED -> TrackMilesPrimaryAction.SubmitTrack
+                !permissionsSatisfied -> TrackMilesPrimaryAction.ResolvePermissions
+                selectedVehicle == null -> TrackMilesPrimaryAction.SelectVehicle
+                config.isOdometerMandatory && odometer.startReading == null -> TrackMilesPrimaryAction.CaptureStartOdometer
+                else -> TrackMilesPrimaryAction.StartTracking
+            }
 }
 
 /** P3.3: default [SessionSource] for JVM tests (and Koin graphs) that omit a real one — always signed-out. */
@@ -265,6 +399,7 @@ class TrackMilesViewModel(
             is TrackMilesAction.PickVehicle -> pickVehicle(action.key)
             is TrackMilesAction.SelectVehicle -> selectVehicle(action.vehicle)
             TrackMilesAction.CaptureStartOdometer -> captureStartOdometer()
+            TrackMilesAction.CaptureEndOdometer -> captureEndOdometer()
             is TrackMilesAction.ToggleDraft -> toggleDraft(action.enabled)
             TrackMilesAction.OpenVendorPicker -> openVendorPicker()
             is TrackMilesAction.SetVendorQuery -> setVendorQuery(action.query)
@@ -425,7 +560,22 @@ class TrackMilesViewModel(
     fun captureStartOdometer() {
         // Deterministic mock reading so the checklist completes without a camera round-trip.
         val reading = 45_000 + (currentState.vehicles.size * 57)
-        setState { copy(startOdometer = reading) }
+        setState {
+            copy(odometer = odometer.copy(startReading = reading, startTimeMs = Clock.System.now().toEpochMilliseconds()))
+        }
+    }
+
+    /**
+     * C4: end-of-trip odometer capture, mirroring [captureStartOdometer]'s deterministic mock
+     * reading. Ties the reading to the accumulated GPS distance so [OdometerState.computedDistance]
+     * comes out sane; a real camera/OCR capture UI is a later task.
+     */
+    fun captureEndOdometer() {
+        val start = currentState.odometer.startReading ?: 45_000
+        val reading = start + currentState.distanceKm.roundToLong().toInt()
+        setState {
+            copy(odometer = odometer.copy(endReading = reading, endTimeMs = Clock.System.now().toEpochMilliseconds()))
+        }
     }
 
     fun toggleDraft(enabled: Boolean) = setState { copy(draftEnabled = enabled) }
