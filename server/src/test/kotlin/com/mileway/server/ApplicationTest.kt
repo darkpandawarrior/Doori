@@ -1,7 +1,13 @@
 package com.mileway.server
 
 import com.mileway.core.data.model.network.ApprovedVehiclePricingResponse
+import com.mileway.core.data.model.network.BulkEventRequestV2
+import com.mileway.core.data.model.network.BulkLocationRequestV2
+import com.mileway.core.data.model.network.EventPayloadV2
+import com.mileway.core.data.model.network.EventResponseV2
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
+import com.mileway.core.data.model.network.LocationPayloadV2
+import com.mileway.core.data.model.network.LocationResponseV2
 import com.mileway.core.data.model.network.PolicyApprovedVehiclesResponse
 import com.mileway.core.data.model.network.SubmitMilesRequestK
 import io.ktor.client.request.get
@@ -116,5 +122,133 @@ class ApplicationTest {
             assertEquals(160.0, body.amount)
             assertEquals(10.0, body.distance)
             assertTrue(body.transId!!.isNotBlank())
+        }
+
+    // ── PLAN_V33 B3: location/event upload — idempotent dedup by opId ────────────
+
+    @Test
+    fun locationBatchInsertThenGetReturnsTheRows() =
+        testApplication {
+            application { module() }
+
+            val token = "tok-loc-range"
+            val batch =
+                BulkLocationRequestV2(
+                    data =
+                        listOf(
+                            LocationPayloadV2(lat = 1.0, lng = 2.0, token = token, date = 1_000L),
+                            LocationPayloadV2(lat = 1.1, lng = 2.1, token = token, date = 2_000L),
+                        ),
+                )
+            val postResponse =
+                client.post("/api/location/batch") {
+                    contentType(ContentType.Application.Json)
+                    setBody(serverJson.encodeToString(batch))
+                }
+            assertEquals(HttpStatusCode.OK, postResponse.status)
+
+            val getResponse = client.get("/api/location?token=$token&start=0&end=9999")
+            assertEquals(HttpStatusCode.OK, getResponse.status)
+            val body = serverJson.decodeFromString<LocationResponseV2>(getResponse.bodyAsText())
+            assertEquals(2, body.data.size)
+            assertEquals(1_000L, body.data.first().date)
+        }
+
+    @Test
+    fun locationBatchIsIdempotentWhenReplayedWithTheSameOpId() =
+        testApplication {
+            application { module() }
+
+            val token = "tok-loc-idempotent"
+            val batch =
+                BulkLocationRequestV2(
+                    data = listOf(LocationPayloadV2(lat = 5.0, lng = 6.0, token = token, date = 500L, opId = "op-fixed-1")),
+                )
+
+            repeat(2) {
+                val response =
+                    client.post("/api/location/batch") {
+                        contentType(ContentType.Application.Json)
+                        setBody(serverJson.encodeToString(batch))
+                    }
+                assertEquals(HttpStatusCode.OK, response.status)
+            }
+
+            val getResponse = client.get("/api/location?token=$token&start=0&end=9999")
+            val body = serverJson.decodeFromString<LocationResponseV2>(getResponse.bodyAsText())
+            // One row survives the double-POST replay — insertIgnore no-ops the second insert
+            // because op-fixed-1 already exists under the LocationPointsTable.opId unique index.
+            assertEquals(1, body.data.size)
+        }
+
+    @Test
+    fun locationRowsWithNullOpIdAlwaysInsert() =
+        testApplication {
+            application { module() }
+
+            val token = "tok-loc-null-opid"
+            val batch =
+                BulkLocationRequestV2(
+                    data =
+                        listOf(
+                            LocationPayloadV2(lat = 7.0, lng = 8.0, token = token, date = 700L, opId = null),
+                            LocationPayloadV2(lat = 7.1, lng = 8.1, token = token, date = 710L, opId = null),
+                        ),
+                )
+            client.post("/api/location/batch") {
+                contentType(ContentType.Application.Json)
+                setBody(serverJson.encodeToString(batch))
+            }
+
+            val getResponse = client.get("/api/location?token=$token&start=0&end=9999")
+            val body = serverJson.decodeFromString<LocationResponseV2>(getResponse.bodyAsText())
+            assertEquals(2, body.data.size)
+        }
+
+    @Test
+    fun eventsBatchInsertThenGetReturnsTheRows() =
+        testApplication {
+            application { module() }
+
+            val token = "tok-evt-range"
+            val batch =
+                BulkEventRequestV2(
+                    data = listOf(EventPayloadV2(token = token, event = "TRIP_START", time = 100L)),
+                )
+            client.post("/api/events/batch") {
+                contentType(ContentType.Application.Json)
+                setBody(serverJson.encodeToString(batch))
+            }
+
+            val getResponse = client.get("/api/events?token=$token&start=0&end=9999")
+            assertEquals(HttpStatusCode.OK, getResponse.status)
+            val body = serverJson.decodeFromString<EventResponseV2>(getResponse.bodyAsText())
+            assertEquals(1, body.data.size)
+            assertEquals("TRIP_START", body.data.first().event)
+        }
+
+    @Test
+    fun eventsBatchIsIdempotentWhenReplayedWithTheSameOpId() =
+        testApplication {
+            application { module() }
+
+            val token = "tok-evt-idempotent"
+            val batch =
+                BulkEventRequestV2(
+                    data = listOf(EventPayloadV2(token = token, event = "TRIP_STOP", time = 200L, opId = "op-fixed-evt-1")),
+                )
+
+            repeat(2) {
+                val response =
+                    client.post("/api/events/batch") {
+                        contentType(ContentType.Application.Json)
+                        setBody(serverJson.encodeToString(batch))
+                    }
+                assertEquals(HttpStatusCode.OK, response.status)
+            }
+
+            val getResponse = client.get("/api/events?token=$token&start=0&end=9999")
+            val body = serverJson.decodeFromString<EventResponseV2>(getResponse.bodyAsText())
+            assertEquals(1, body.data.size)
         }
 }

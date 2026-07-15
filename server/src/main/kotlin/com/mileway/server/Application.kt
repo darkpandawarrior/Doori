@@ -63,6 +63,7 @@ fun Application.module() {
         get("/api/vehicles") { call.respond(vehiclesResponse()) }
         get("/api/pricing") { call.respond(ApprovedVehiclePricingResponse(data = loadRateTable().rates)) }
         post("/api/miles/submit") { call.respond(submitMiles(call.receive())) }
+        locationEventRoutes()
     }
 }
 

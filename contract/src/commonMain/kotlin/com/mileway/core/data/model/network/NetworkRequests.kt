@@ -137,6 +137,10 @@ data class LocationPayloadV2(
     @SerialName("displacement") val displacement: Double = 0.0,
     @SerialName("accuracy") val accuracy: Float = 0f,
     @SerialName("provider") val provider: String? = null,
+    // PLAN_V33 B3: client-generated idempotency key — the outbox replay-safe dedup key the server
+    // enforces via a UNIQUE index + insertIgnore. Nullable/defaulted so existing callers/tests
+    // (and V1 payloads, which never had this concept) are unaffected.
+    @SerialName("opId") val opId: String? = null,
 )
 
 @Serializable
@@ -159,6 +163,8 @@ data class EventPayloadV2(
     @SerialName("lat") val lat: Double? = null,
     @SerialName("lng") val lng: Double? = null,
     @SerialName("metadata") val metadata: String? = null,
+    // PLAN_V33 B3: same idempotency key as LocationPayloadV2.opId — see that field's doc.
+    @SerialName("opId") val opId: String? = null,
 )
 
 @Serializable

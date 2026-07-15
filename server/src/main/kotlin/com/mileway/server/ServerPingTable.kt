@@ -23,7 +23,11 @@ object ServerPingTable : Table("server_ping") {
  */
 fun connectDatabase() {
     Database.connect(
-        url = System.getenv("JDBC_URL") ?: "jdbc:h2:mem:mileway;DB_CLOSE_DELAY=-1",
+        // PLAN_V33 B3: MODE=MySQL is required for Exposed's insertIgnore on H2 (the dialect throws
+        // UnsupportedByDialectException without it — see LocationEventRoutes.kt's dedup insert).
+        // A real deploy points JDBC_URL at Postgres (see docker-compose.yml), which supports
+        // ON CONFLICT DO NOTHING natively and never hits this default.
+        url = System.getenv("JDBC_URL") ?: "jdbc:h2:mem:mileway;MODE=MySQL;DB_CLOSE_DELAY=-1",
         driver = System.getenv("JDBC_DRIVER") ?: "org.h2.Driver",
         user = System.getenv("JDBC_USER") ?: "sa",
         password = System.getenv("JDBC_PASSWORD") ?: "",

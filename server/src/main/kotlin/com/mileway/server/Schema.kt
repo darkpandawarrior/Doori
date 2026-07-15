@@ -41,6 +41,10 @@ object LocationPointsTable : Table("location_points") {
     val isMock = bool("is_mock").default(false)
     val isAbnormal = bool("is_abnormal").default(false)
     val provider = varchar("provider", 32).nullable()
+
+    // PLAN_V33 B3: client-generated idempotency key. Nullable (rows without one always insert) but
+    // unique when present, so `insertIgnore` makes a replayed POST of the same opId a no-op.
+    val opId = varchar("op_id", 64).nullable().uniqueIndex()
     override val primaryKey = PrimaryKey(id)
 }
 
@@ -52,6 +56,7 @@ object EventsTable : Table("events") {
     val time = long("time")
     val lat = double("lat").nullable()
     val lng = double("lng").nullable()
+    val opId = varchar("op_id", 64).nullable().uniqueIndex()
     override val primaryKey = PrimaryKey(id)
 }
 
