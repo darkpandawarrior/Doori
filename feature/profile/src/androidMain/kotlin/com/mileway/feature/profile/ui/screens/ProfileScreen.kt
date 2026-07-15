@@ -91,7 +91,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.network.model.DemoAccount
 import com.mileway.core.platform.ReferralManager
-import com.mileway.core.security.BiometricGuard
+import com.siddharth.kmp.security.BiometricGuard
 import com.mileway.core.ui.components.GridProfileTile
 import com.mileway.core.ui.components.ProfileGridItem
 import com.mileway.core.ui.components.ProfileItemStatus

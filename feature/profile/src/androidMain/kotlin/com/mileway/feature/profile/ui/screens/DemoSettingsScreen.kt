@@ -36,8 +36,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mileway.core.security.BiometricGuard
 import com.mileway.core.security.RootDetector
+import com.siddharth.kmp.security.BiometricGuard
 import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.previews.PreviewSurface

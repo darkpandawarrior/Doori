@@ -30,6 +30,8 @@ kotlin {
         }
         androidMain.dependencies {
             implementation("androidx.appcompat:appcompat:1.7.1")
+            // BiometricGuard (BiometricPrompt helper) now lives in the toolkit :security module.
+            implementation("com.siddharth.kmp:security:1.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

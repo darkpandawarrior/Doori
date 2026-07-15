@@ -14,7 +14,6 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.core.ktx)
-            implementation(libs.biometric)
             implementation(libs.kotlinx.coroutines.android)
         }
         commonTest.dependencies {

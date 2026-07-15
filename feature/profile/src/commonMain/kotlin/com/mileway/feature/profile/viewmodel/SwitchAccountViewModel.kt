@@ -39,7 +39,7 @@ data class SwitchAccountUiState(
  * and checks entries against [PinHashSource] (falling back to [DEFAULT_SWITCH_ACCOUNT_PIN] for a
  * persona that has never had a PIN set — matching [MockAccountRepository][com.mileway.feature.profile.repository.MockAccountRepository]'s
  * seeded demo personas, which ship with no PIN of their own). Biometric gating
- * ([BiometricGuard][com.mileway.core.security.BiometricGuard]) is orchestrated by the Android-only
+ * ([BiometricGuard][com.siddharth.kmp.security.BiometricGuard]) is orchestrated by the Android-only
  * `ProfileScreen`/`ProfileViewModel` layer instead of here, since `BiometricPrompt` needs a
  * `FragmentActivity` this `commonMain` class can't reference.
  */
