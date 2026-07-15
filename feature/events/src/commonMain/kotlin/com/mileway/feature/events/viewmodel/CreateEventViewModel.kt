@@ -1,10 +1,10 @@
 package com.mileway.feature.events.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.events.model.EventCategory
 import com.mileway.feature.events.repository.EventDraft
 import com.mileway.feature.events.repository.EventResult
 import com.mileway.feature.events.repository.EventsRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 
 data class CreateEventUiState(
     val title: String = "",

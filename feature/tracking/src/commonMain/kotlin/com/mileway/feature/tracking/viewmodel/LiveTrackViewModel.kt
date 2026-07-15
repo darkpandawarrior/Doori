@@ -4,9 +4,9 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.db.CurrentTrackData
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.state.UiState
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.repository.LocationRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

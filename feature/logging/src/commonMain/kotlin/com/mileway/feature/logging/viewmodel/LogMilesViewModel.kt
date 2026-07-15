@@ -1,7 +1,6 @@
 package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerPurpose
 import com.mileway.core.data.model.network.ApprovedVehicle
@@ -13,7 +12,6 @@ import com.mileway.core.data.model.network.SubmissionStatus
 import com.mileway.core.data.model.validator.OdometerError
 import com.mileway.core.data.model.validator.OdometerValidation
 import com.mileway.core.data.model.validator.OdometerValidator
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.logging.repository.LogMilesDraftRepository
 import com.mileway.feature.logging.repository.LogMilesDraftRepository.Companion.toDraftEntity
 import com.mileway.feature.logging.repository.LogMilesFrequentRoute
@@ -26,6 +24,8 @@ import com.mileway.feature.logging.ui.model.SubmittedVoucherSamples
 import com.mileway.feature.logging.ui.model.totalRouteKm
 import com.mileway.feature.logging.usecase.LogMilesSubmitUseCase
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 

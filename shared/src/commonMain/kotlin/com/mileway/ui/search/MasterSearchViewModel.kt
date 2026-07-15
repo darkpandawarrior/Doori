@@ -9,8 +9,8 @@ import com.mileway.core.data.search.SearchEntityType
 import com.mileway.core.data.search.SearchFilters
 import com.mileway.core.data.search.SearchResult
 import com.mileway.core.data.search.SearchScope
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.debounce

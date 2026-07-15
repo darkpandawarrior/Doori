@@ -1,10 +1,10 @@
 package com.mileway.feature.cards.viewmodel
 
-import com.siddharth.kmp.common.UiText
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.cards.data.CardsMockDataProvider
 import com.mileway.feature.cards.data.CardsMockDataProviderFactory
 import com.mileway.feature.cards.model.CardTypeModel
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** Q.3: multi-step "request a card" flow (select type → reason → confirm → success). */
 data class CardRequestUiState(

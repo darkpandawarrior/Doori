@@ -2,13 +2,13 @@ package com.mileway.feature.tracking.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.platform.ShareSheet
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.export.TrackExportContent
 import com.mileway.feature.tracking.repository.HardwareEventRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.ui.components.ExportFormat
 import com.mileway.feature.tracking.ui.components.LocationDataFilter
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.launch
 
 data class ExportUiState(

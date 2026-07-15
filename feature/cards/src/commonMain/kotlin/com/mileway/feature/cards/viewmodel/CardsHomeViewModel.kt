@@ -1,12 +1,12 @@
 package com.mileway.feature.cards.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.asContent
 import com.mileway.feature.cards.data.CardsMockDataProvider
 import com.mileway.feature.cards.data.CardsMockDataProviderFactory
 import com.mileway.feature.cards.model.CardModel
 import com.mileway.feature.cards.model.CardRequestModel
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** Q.3: Cards home (tabs: cards / requests). */
 data class CardsHomeUiState(

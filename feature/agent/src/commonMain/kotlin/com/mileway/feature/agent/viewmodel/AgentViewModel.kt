@@ -2,7 +2,6 @@ package com.mileway.feature.agent.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.platform.ShareSheet
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.engine.AssistantChunk
 import com.mileway.feature.agent.engine.AssistantEngine
@@ -13,6 +12,7 @@ import com.mileway.feature.agent.voice.SpeechEvent
 import com.mileway.feature.agent.voice.SpeechToText
 import com.mileway.feature.agent.voice.TextToSpeech
 import com.mileway.feature.agent.voice.stripMarkdownForTts
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

@@ -2,7 +2,7 @@ package com.mileway
 
 import app.cash.turbine.test
 import com.siddharth.kmp.common.UiText
-import com.mileway.core.ui.mvi.BaseViewModel
+import com.siddharth.kmp.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.contentOrElse
 import com.mileway.core.ui.mvi.dataOrNull

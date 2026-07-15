@@ -6,10 +6,10 @@ import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.TripAttachmentEntity
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.model.display.toDisplayData
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

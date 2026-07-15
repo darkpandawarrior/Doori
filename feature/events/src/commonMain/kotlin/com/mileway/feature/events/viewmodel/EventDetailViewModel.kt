@@ -1,14 +1,14 @@
 package com.mileway.feature.events.viewmodel
 
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.events.model.EventCategory
 import com.mileway.feature.events.model.EventRecord
 import com.mileway.feature.events.model.EventStatus
 import com.mileway.feature.events.model.LinkedExpense
 import com.mileway.feature.events.repository.EventsRepository
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 
 data class EventDetailUiState(
     val eventId: String = "",

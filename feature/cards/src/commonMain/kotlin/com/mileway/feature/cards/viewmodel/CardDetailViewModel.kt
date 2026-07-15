@@ -1,8 +1,6 @@
 package com.mileway.feature.cards.viewmodel
 
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.asContent
 import com.mileway.feature.cards.data.CardsMockDataProvider
@@ -15,6 +13,8 @@ import com.mileway.feature.cards.model.CardStatus
 import com.mileway.feature.cards.model.CardTransactionModel
 import com.mileway.feature.cards.model.CardTxnClaimStatus
 import com.mileway.feature.cards.model.LimitKind
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlin.time.Clock
 
 /** P29.C.5: Transactions or the local lifecycle/audit log — a second tab on card detail. */

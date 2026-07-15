@@ -3,7 +3,6 @@ package com.mileway.feature.tracking.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.insights.ActivityResult
 import com.mileway.feature.tracking.insights.DistanceQualityResult
 import com.mileway.feature.tracking.insights.QualityResult
@@ -13,6 +12,7 @@ import com.mileway.feature.tracking.insights.SystemImpactResult
 import com.mileway.feature.tracking.repository.HardwareEventRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import kotlin.math.max

@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.otp.LocalOtpEngine
 import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.core.data.otp.OtpVerifyResult
-import com.mileway.core.ui.mvi.BaseViewModel
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

@@ -1,10 +1,10 @@
 package com.mileway.feature.logging.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.repository.CardExpenseTxn
 import com.mileway.feature.logging.repository.CardTxnStatus
 import com.mileway.feature.logging.repository.CardsTxnHistoryRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** SP.3: cards-txn-history tabs (first tab is "All"). */
 val CARDS_TXN_HISTORY_TABS: List<CardTxnStatus?> = listOf(null) + CardTxnStatus.entries

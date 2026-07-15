@@ -1,10 +1,10 @@
 package com.mileway.feature.payables.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.payables.repository.ParkMode
 import com.mileway.feature.payables.repository.ParkingDraft
 import com.mileway.feature.payables.repository.ParkingRepository
 import com.mileway.feature.payables.repository.PayablesSubmissionResult
+import com.siddharth.kmp.mvi.BaseViewModel
 
 data class CreateParkingUiState(
     val mode: ParkMode = ParkMode.IN,

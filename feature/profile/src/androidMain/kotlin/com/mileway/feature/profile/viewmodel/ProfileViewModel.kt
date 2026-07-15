@@ -6,7 +6,6 @@ import com.mileway.core.data.session.MockAccountSessionCoordinator
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.isSessionFresh
 import com.mileway.core.data.settings.DemoSettingsRepository
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.theme.AccentPalette
 import com.mileway.core.ui.theme.AppLanguage
 import com.mileway.core.ui.theme.ExperimentalFlags
@@ -16,6 +15,7 @@ import com.mileway.feature.profile.model.AccountAnalyticsSnapshot
 import com.mileway.feature.profile.model.NotificationChannels
 import com.mileway.feature.profile.model.ProfileUiState
 import com.mileway.feature.profile.repository.ProfileRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

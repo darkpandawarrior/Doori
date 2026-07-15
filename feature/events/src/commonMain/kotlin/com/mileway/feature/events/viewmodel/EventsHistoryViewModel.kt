@@ -1,10 +1,10 @@
 package com.mileway.feature.events.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.events.model.EventRecord
 import com.mileway.feature.events.model.EventStatus
 import com.mileway.feature.events.repository.EventsRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** EV: events-history status tabs (the first tab is "All"). */
 val EVENTS_HISTORY_TABS: List<EventStatus?> = listOf(null) + EventStatus.entries

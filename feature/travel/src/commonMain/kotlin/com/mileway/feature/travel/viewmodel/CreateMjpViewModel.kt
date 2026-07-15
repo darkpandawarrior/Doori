@@ -1,10 +1,10 @@
 package com.mileway.feature.travel.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.travel.repository.MjpDraft
 import com.mileway.feature.travel.repository.MjpLeg
 import com.mileway.feature.travel.repository.TravelCreateRepository
 import com.mileway.feature.travel.repository.TravelSubmissionResult
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** A single editable leg row in the MJP form (TR.6). */
 data class MjpLegInput(

@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.stateIn
 
 /**
  * P2.4: the Wear app's single-activity ViewModel (biciradar pattern — one `ViewModel` per
- * `ComponentActivity`, no MVI [com.mileway.core.ui.mvi.BaseViewModel] here since `core:ui` is the
+ * `ComponentActivity`, no MVI [com.siddharth.kmp.mvi.BaseViewModel] here since `core:ui` is the
  * phone/iOS Compose Multiplatform theming module `:wear` must never depend on — see
  * [WearAppGraph]'s doc comment). Collects [WatchFacade.observeSnapshot] and maps it through
  * [WearPresentation] into [WearRootUiState] for [WearRootScreen].

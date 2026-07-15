@@ -1,8 +1,6 @@
 package com.mileway.feature.profile.viewmodel
 
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.model.ExpenseSourceContext
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.profile.model.AdvanceMode
 import com.mileway.feature.profile.model.AdvanceRecord
@@ -11,6 +9,8 @@ import com.mileway.feature.profile.model.AdvanceType
 import com.mileway.feature.profile.model.CardStatus
 import com.mileway.feature.profile.model.CorporateCard
 import com.mileway.feature.profile.repository.AdvanceRepository
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 

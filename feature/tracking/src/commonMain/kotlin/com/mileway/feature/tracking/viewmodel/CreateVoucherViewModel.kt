@@ -3,10 +3,10 @@ package com.mileway.feature.tracking.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.display.TrackDisplayData
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.VoucherRecord
 import com.mileway.feature.tracking.repository.VoucherRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone

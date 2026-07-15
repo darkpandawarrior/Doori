@@ -1,10 +1,10 @@
 package com.mileway.feature.travel.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.travel.model.TravelReqStatus
 import com.mileway.feature.travel.model.TripRecord
 import com.mileway.feature.travel.repository.TravelHistoryRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** TR.8: trip-history status tabs (the first tab is "All"). */
 val TRIP_HISTORY_TABS: List<TravelReqStatus?> = listOf(null) + TravelReqStatus.entries

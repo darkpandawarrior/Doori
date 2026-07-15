@@ -2,11 +2,11 @@ package com.mileway.feature.media.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.library.MediaLibraryEntry
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.media.model.MediaLibraryFilter
 import com.mileway.feature.media.model.MediaLibrarySort
 import com.mileway.feature.media.model.applyLibraryFilterAndSort
 import com.mileway.feature.media.repository.MediaLibraryRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch

@@ -7,9 +7,9 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.mileway.core.data.model.db.LocationData
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.paging.LocationPagingSource
 import com.mileway.feature.tracking.repository.LocationRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

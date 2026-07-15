@@ -1,9 +1,9 @@
 package com.mileway.feature.payables.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.payables.repository.InvoiceDraft
 import com.mileway.feature.payables.repository.InvoiceRepository
 import com.mileway.feature.payables.repository.InvoiceSubmissionResult
+import com.siddharth.kmp.mvi.BaseViewModel
 
 data class CreateInvoiceUiState(
     val invoiceNumber: String = "",

@@ -1,9 +1,9 @@
 package com.mileway.feature.payables.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.payables.repository.GinDraft
 import com.mileway.feature.payables.repository.GinRepository
 import com.mileway.feature.payables.repository.PayablesSubmissionResult
+import com.siddharth.kmp.mvi.BaseViewModel
 
 data class CreateGinUiState(
     val ginNumber: String = "",

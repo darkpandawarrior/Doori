@@ -1,11 +1,11 @@
 package com.mileway.feature.payables.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.payables.model.PayablesDoc
 import com.mileway.feature.payables.model.PayablesDocStatus
 import com.mileway.feature.payables.model.PayablesDocType
 import com.mileway.feature.payables.repository.PayablesHistoryRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** PB.4: payables-history type tabs (the first tab is "All"). */
 val PAYABLES_HISTORY_TABS: List<PayablesDocType?> = listOf(null) + PayablesDocType.entries

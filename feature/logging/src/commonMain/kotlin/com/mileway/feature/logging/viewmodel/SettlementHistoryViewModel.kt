@@ -1,10 +1,10 @@
 package com.mileway.feature.logging.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.repository.SettlementHistoryRepository
 import com.mileway.feature.logging.repository.SettlementRecord
 import com.mileway.feature.logging.repository.SettlementStatus
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** SP.2: settlement-history tabs (first tab is "All"). */
 val SETTLEMENT_HISTORY_TABS: List<SettlementStatus?> = listOf(null) + SettlementStatus.entries

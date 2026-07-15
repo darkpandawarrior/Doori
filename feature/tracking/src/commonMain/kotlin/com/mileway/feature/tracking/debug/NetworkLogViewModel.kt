@@ -3,7 +3,7 @@ package com.mileway.feature.tracking.debug
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.network.netlog.NetworkLogEntry
 import com.mileway.core.network.netlog.NetworkLogStore
-import com.mileway.core.ui.mvi.BaseViewModel
+import com.siddharth.kmp.mvi.BaseViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody

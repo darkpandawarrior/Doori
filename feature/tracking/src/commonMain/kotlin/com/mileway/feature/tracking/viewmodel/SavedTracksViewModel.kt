@@ -4,8 +4,8 @@ import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.session.ActiveAccountSource
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.SavedTrackRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest

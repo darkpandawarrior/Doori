@@ -3,7 +3,7 @@ package com.mileway.feature.profile.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.settings.DemoSettings
 import com.mileway.core.data.settings.DemoSettingsRepository
-import com.mileway.core.ui.mvi.BaseViewModel
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 

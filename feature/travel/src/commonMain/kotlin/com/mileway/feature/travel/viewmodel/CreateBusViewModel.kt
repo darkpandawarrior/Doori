@@ -1,9 +1,9 @@
 package com.mileway.feature.travel.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.travel.repository.BusDraft
 import com.mileway.feature.travel.repository.TravelCreateRepository
 import com.mileway.feature.travel.repository.TravelSubmissionResult
+import com.siddharth.kmp.mvi.BaseViewModel
 
 data class CreateBusUiState(
     val fromCity: String = "",

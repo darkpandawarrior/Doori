@@ -1,9 +1,7 @@
 package com.mileway.feature.approvals.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.siddharth.kmp.common.UiText
 import com.mileway.core.data.ledger.ApprovalTransitions
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_toast_edit_distance_unavailable
@@ -21,6 +19,8 @@ import com.mileway.feature.approvals.repository.APPROVER_SENDER_ID
 import com.mileway.feature.approvals.repository.ApprovalCommentRepository
 import com.mileway.feature.approvals.repository.ApprovalsRepository
 import com.mileway.feature.approvals.repository.ClarificationRepository
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch

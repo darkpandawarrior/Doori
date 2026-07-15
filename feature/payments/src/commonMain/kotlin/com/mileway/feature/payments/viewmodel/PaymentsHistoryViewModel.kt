@@ -1,10 +1,10 @@
 package com.mileway.feature.payments.viewmodel
 
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
 import com.mileway.feature.payments.repository.PaymentsRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 
 /** PM: payments-history status tabs (the first tab is "All"). */
 val PAYMENTS_HISTORY_TABS: List<PaymentStatus?> = listOf(null) + PaymentStatus.entries

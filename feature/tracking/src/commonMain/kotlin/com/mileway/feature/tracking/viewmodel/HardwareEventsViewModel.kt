@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.db.EventAudience
 import com.mileway.core.data.model.db.EventType
 import com.mileway.core.data.model.db.HardwareEvent
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.HardwareEventRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 

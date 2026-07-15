@@ -34,6 +34,7 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:location")).using(project(":location"))
         substitute(module("com.siddharth.kmp:common")).using(project(":common"))
         substitute(module("com.siddharth.kmp:offline-outbox")).using(project(":offline-outbox"))
+        substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
     }
 }
 

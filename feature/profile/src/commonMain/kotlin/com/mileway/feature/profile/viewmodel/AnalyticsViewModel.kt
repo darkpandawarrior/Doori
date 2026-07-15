@@ -2,7 +2,6 @@ package com.mileway.feature.profile.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.platform.ShareSheet
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.profile.analytics.AnalyticsAggregator
 import com.mileway.feature.profile.analytics.AnalyticsMetric
 import com.mileway.feature.profile.analytics.DateRangePreset
@@ -15,6 +14,7 @@ import com.mileway.stub.MerchantTotal
 import com.mileway.stub.MerchantTransaction
 import com.mileway.stub.RecentActivityItem
 import com.mileway.stub.TeamMember
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.launch
 
 /**

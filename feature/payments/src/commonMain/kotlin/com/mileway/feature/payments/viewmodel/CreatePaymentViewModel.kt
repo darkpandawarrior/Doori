@@ -3,12 +3,12 @@ package com.mileway.feature.payments.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.ai.model.DuplicateVerdict
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.payments.model.PaymentDirection
 import com.mileway.feature.payments.model.PaymentTransactionStatus
 import com.mileway.feature.payments.repository.PaymentDraft
 import com.mileway.feature.payments.repository.PaymentResult
 import com.mileway.feature.payments.repository.PaymentsRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Clock

@@ -6,10 +6,10 @@ import com.mileway.core.data.ledger.PolicyRateEngine
 import com.mileway.core.data.ledger.PolicyRateTable
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.VoucherCategory
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRecord
 import com.mileway.feature.tracking.repository.VoucherRepository
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 

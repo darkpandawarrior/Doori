@@ -3,8 +3,8 @@ package com.mileway.feature.logging.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.model.db.VoucherEntity
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.launch
 
 data class VoucherDetailsUiState(

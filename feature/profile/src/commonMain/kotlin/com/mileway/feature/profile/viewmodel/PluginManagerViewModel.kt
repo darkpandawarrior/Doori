@@ -6,7 +6,7 @@ import com.mileway.core.data.plugin.PersonaSummary
 import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.plugin.PluginValue
 import com.mileway.core.data.plugin.ResolvedPlugin
-import com.mileway.core.ui.mvi.BaseViewModel
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 

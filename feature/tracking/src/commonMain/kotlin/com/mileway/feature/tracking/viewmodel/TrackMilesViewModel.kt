@@ -28,7 +28,6 @@ import com.mileway.core.data.vehicle.reimbursableAmount
 import com.mileway.core.platform.LocationNameResolver
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.PlaceName
-import com.mileway.core.ui.mvi.BaseViewModel
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.mileway.feature.tracking.manager.TrackingConfigManager
 import com.mileway.feature.tracking.manager.TrackingController
@@ -42,6 +41,7 @@ import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingStatePublisher
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideStep
+import com.siddharth.kmp.mvi.BaseViewModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.StateFlow
