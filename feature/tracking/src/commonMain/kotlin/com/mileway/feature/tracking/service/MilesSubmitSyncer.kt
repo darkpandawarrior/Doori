@@ -7,7 +7,9 @@ import com.mileway.core.data.outbox.TripDraftOutbox
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.siddharth.kmp.offlineoutbox.DraftStatus
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlin.math.abs
 
 /** Outcome of one submit attempt — mirrors [SendOutcome], but SUCCESS carries the server response
@@ -49,6 +51,13 @@ class MilesSubmitSyncer(
     // current caller (ViewModel submit, SyncStatusViewModel's connectivity trigger) runs on the same
     // main/viewModelScope dispatcher, so a plain Boolean is enough; upgrade if that changes.
     private var isDraining = false
+
+    /** PLAN_V33 A6: outstanding (not yet submitted) trip drafts — feeds SyncStatusViewModel's
+     * unified backlog count alongside [LocationDataSyncer.backlogCount]. */
+    val backlogCount: Flow<Int> =
+        outbox.drafts(FORM_KEY).map { drafts ->
+            drafts.count { it.status == DraftStatus.PENDING || it.status == DraftStatus.RETRYING }
+        }
 
     suspend fun enqueue(draft: TripDraft) {
         outbox.enqueue(FORM_KEY, draft.routeId, draft)

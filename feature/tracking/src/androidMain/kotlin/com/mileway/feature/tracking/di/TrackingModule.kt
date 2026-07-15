@@ -1,6 +1,7 @@
 package com.mileway.feature.tracking.di
 
 import com.mileway.core.data.search.SearchProvider
+import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
 import com.mileway.core.platform.NotificationChannels
@@ -16,6 +17,8 @@ import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.LogMilesSubmissionRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
+import com.mileway.feature.tracking.repository.VehiclePricingCache
+import com.mileway.feature.tracking.repository.VehiclePricingCacheStore
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
 import com.mileway.feature.tracking.search.TrackingSearchProvider
@@ -65,7 +68,10 @@ val trackingModule =
         single { NetworkLogStore() }
         single { SavedTrackRepository(get()) }
         single { LocationRepository(get()) }
-        single { VehiclePricingRepository(get()) }
+        // PLAN_V33 A6: offline read-cache backing vehiclesState().
+        single { VehiclePricingCacheStore(androidContext()) }
+        single<VehiclePricingCache> { get<VehiclePricingCacheStore>() }
+        single { VehiclePricingRepository(api = get(), cache = get(), isOnline = NetworkMonitor::isConnectedNow) }
         single { LogMilesSubmissionRepository(get()) }
         single { CurrentTrackRepository(get()) }
         single { HardwareEventRepository(get()) }

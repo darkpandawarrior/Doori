@@ -25,6 +25,7 @@ import com.mileway.core.data.vehicle.GarageRepository
 import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.data.vehicle.VehicleRateRepository
 import com.mileway.core.data.vehicle.reimbursableAmount
+import com.mileway.core.network.ReadState
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.mileway.feature.tracking.manager.TrackingConfigManager
@@ -645,26 +646,36 @@ class TrackMilesViewModel(
             .launchIn(viewModelScope)
     }
 
+    /**
+     * PLAN_V33 A6: cache-then-refresh — [VehiclePricingRepository.vehiclesState] emits the
+     * last-cached vehicle list immediately (so this screen renders offline), then a fresh list
+     * once a network refresh completes.
+     */
     private fun loadVehicles() {
-        viewModelScope.launch {
-            runCatching { vehicleRepo.getVehicles(trackMiles = true) }
-                .onSuccess { loaded ->
-                    // P11.1: overlay per-km policy rates gated by the active persona. When rates are
-                    // off for this persona, pricing is null (no ₹/km chip, no reimbursable amount).
-                    val vehicles =
-                        vehicleRateRepo?.let { repo ->
-                            val enabled = repo.ratesEnabled()
-                            loaded.map { v ->
-                                v.copy(vehiclePricing = if (enabled) VehicleCatalog.rateFor(v.vehicleKey.orEmpty()) else null)
-                            }
-                        } ?: loaded
-                    // P11.2: default to the garage's active vehicle type when one is set.
-                    val activeKey = garageRepo?.getActive()?.vehicleTypeKey
-                    val default = vehicles.firstOrNull { it.vehicleKey == activeKey } ?: vehicles.firstOrNull()
-                    setState { copy(vehicles = vehicles, selectedVehicle = default) }
+        vehicleRepo.vehiclesState(trackMiles = true)
+            .onEach { readState ->
+                when (readState) {
+                    is ReadState.Content -> {
+                        // P11.1: overlay per-km policy rates gated by the active persona. When rates
+                        // are off for this persona, pricing is null (no ₹/km chip, no reimbursable amount).
+                        val loaded = readState.data
+                        val vehicles =
+                            vehicleRateRepo?.let { repo ->
+                                val enabled = repo.ratesEnabled()
+                                loaded.map { v ->
+                                    v.copy(vehiclePricing = if (enabled) VehicleCatalog.rateFor(v.vehicleKey.orEmpty()) else null)
+                                }
+                            } ?: loaded
+                        // P11.2: default to the garage's active vehicle type when one is set.
+                        val activeKey = garageRepo?.getActive()?.vehicleTypeKey
+                        val default = vehicles.firstOrNull { it.vehicleKey == activeKey } ?: vehicles.firstOrNull()
+                        setState { copy(vehicles = vehicles, selectedVehicle = default) }
+                    }
+                    ReadState.Loading -> Unit
+                    is ReadState.Error -> Napier.w("Failed to load vehicles: ${readState.message}", tag = "TrackMilesVM")
                 }
-                .onFailure { Napier.w("Failed to load vehicles", it, tag = "TrackMilesVM") }
-        }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun restoreActiveTrack() {

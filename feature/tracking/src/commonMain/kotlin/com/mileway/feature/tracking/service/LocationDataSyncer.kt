@@ -3,9 +3,12 @@ package com.mileway.feature.tracking.service
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.outbox.LocationBatch
 import com.mileway.core.data.outbox.LocationBatchOutbox
+import com.siddharth.kmp.offlineoutbox.DraftStatus
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 
 /** Wave-4 §2.3: drains the location outbox into the (stubbed) sync target. Idle / syncing / result. */
 sealed interface SyncStatus {
@@ -38,6 +41,13 @@ class LocationDataSyncer(
 ) {
     private val _syncStatus = MutableStateFlow<SyncStatus>(SyncStatus.Idle)
     val syncStatus: StateFlow<SyncStatus> = _syncStatus.asStateFlow()
+
+    /** PLAN_V33 A6: outstanding (not yet submitted) location batches — feeds SyncStatusViewModel's
+     * unified backlog count alongside [com.mileway.feature.tracking.service.MilesSubmitSyncer.backlogCount]. */
+    val backlogCount: Flow<Int> =
+        outbox.drafts(FORM_KEY).map { drafts ->
+            drafts.count { it.status == DraftStatus.PENDING || it.status == DraftStatus.RETRYING }
+        }
 
     private var lastDrainAtMs: Long = Long.MIN_VALUE / 2
 

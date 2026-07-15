@@ -8,12 +8,13 @@ import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.RelativeTimeFormatter
 import com.mileway.feature.tracking.service.SyncStatus
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -25,21 +26,28 @@ class SyncStatusViewModel(
     // PLAN_V33 A5: same connectivity/foreground triggers now also drain durably-queued submissions.
     private val milesSyncer: MilesSubmitSyncer,
 ) : ViewModel() {
+    // PLAN_V33 A6: the chip's backlog now counts BOTH outboxes — the location-sync outbox and the
+    // trip-submission outbox — instead of just the location DAO's unsynced-point count that
+    // SyncStatus.Synced.backlogCount carried before. Idle/Syncing/Synced shape is unchanged; only
+    // what backs the "N pending" number changes.
+    private val combinedBacklog: Flow<Int> =
+        combine(syncer.backlogCount, milesSyncer.backlogCount) { locationBacklog, submitBacklog ->
+            locationBacklog + submitBacklog
+        }
+
     val chipText: StateFlow<String?> =
-        syncer.syncStatus
-            .map { status ->
-                when (status) {
-                    is SyncStatus.Idle -> null
-                    is SyncStatus.Syncing -> "Syncing…"
-                    is SyncStatus.Synced -> {
-                        val nowMs = Clock.System.now().toEpochMilliseconds()
-                        val relative = RelativeTimeFormatter.format(status.lastSyncedAtMs, nowMs)
-                        val backlogSuffix = if (status.backlogCount > 0) " · ${status.backlogCount} pending" else ""
-                        "Last synced $relative$backlogSuffix"
-                    }
+        combine(syncer.syncStatus, combinedBacklog) { status, backlog ->
+            when (status) {
+                is SyncStatus.Idle -> null
+                is SyncStatus.Syncing -> "Syncing…"
+                is SyncStatus.Synced -> {
+                    val nowMs = Clock.System.now().toEpochMilliseconds()
+                    val relative = RelativeTimeFormatter.format(status.lastSyncedAtMs, nowMs)
+                    val backlogSuffix = if (backlog > 0) " · $backlog pending" else ""
+                    "Last synced $relative$backlogSuffix"
                 }
             }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     init {
         viewModelScope.launch { drainCurrentTrack() }

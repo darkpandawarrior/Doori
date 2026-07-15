@@ -8,6 +8,7 @@ import com.siddharth.kmp.offlineoutbox.DraftEntry
 import com.siddharth.kmp.offlineoutbox.DraftStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
@@ -120,6 +121,18 @@ class LocationDataSyncerTest {
                 dao.markedSynced.isNotEmpty(),
                 "the second drain must actually run and mark points synced, not be blocked by a stuck in-flight flag",
             )
+        }
+
+    @Test
+    fun `backlogCount reflects only PENDING and RETRYING outbox entries, not SUBMITTED`() =
+        runTest {
+            val outbox = FakeLocationBatchOutbox()
+            outbox.enqueue(LocationDataSyncer.FORM_KEY, "a", LocationBatch(token = "t", pointIds = listOf(1L)))
+            outbox.enqueue(LocationDataSyncer.FORM_KEY, "b", LocationBatch(token = "t", pointIds = listOf(2L)))
+            outbox.markSubmitted(LocationDataSyncer.FORM_KEY, "b")
+            val syncer = LocationDataSyncer(FakeSyncLocationDao(emptyList()), outbox, now = { 0L })
+
+            assertEquals(1, syncer.backlogCount.first())
         }
 
     @Test

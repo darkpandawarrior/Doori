@@ -13,6 +13,7 @@ import com.siddharth.kmp.offlineoutbox.DraftEntry
 import com.siddharth.kmp.offlineoutbox.DraftStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
@@ -125,6 +126,18 @@ class MilesSubmitSyncerTest {
             assertEquals(DraftStatus.SUBMITTED, outbox.statusFor("route-a"))
             assertEquals(DraftStatus.SUBMITTED, outbox.statusFor("route-b"))
             assertEquals(2, dao.completed.size)
+        }
+
+    @Test
+    fun `backlogCount reflects only PENDING and RETRYING drafts, not SUBMITTED`() =
+        runTest {
+            val outbox = FakeTripDraftOutbox()
+            val syncer = MilesSubmitSyncer(outbox, SavedTrackRepository(FakeMilesSubmitDao()), now = { 0L })
+            outbox.enqueue(MilesSubmitSyncer.FORM_KEY, "route-a", draft("route-a"))
+            outbox.enqueue(MilesSubmitSyncer.FORM_KEY, "route-b", draft("route-b"))
+            outbox.markSubmitted(MilesSubmitSyncer.FORM_KEY, "route-b")
+
+            assertEquals(1, syncer.backlogCount.first())
         }
 
     @Test

@@ -43,6 +43,9 @@ kotlin {
         androidMain.dependencies {
             // api() so dependents (feature:logging, :app) can resolve Material theme parent
             api(libs.material)
+            // PLAN_V33 A6: VehiclePricingCacheStore's DataStore-blob cache (mirrors core/data's
+            // SnapshotCacheStore idiom).
+            implementation(libs.datastore.preferences)
             implementation(libs.koin.androidx.workmanager)
             implementation(libs.kotlinx.coroutines.play.services)
             implementation(libs.play.services.location)
