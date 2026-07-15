@@ -1,7 +1,9 @@
 package com.mileway.core.platform.di
 
 import com.mileway.core.platform.AppShortcuts
+import com.mileway.core.platform.BatteryStatusReader
 import com.mileway.core.platform.DesktopAppShortcuts
+import com.mileway.core.platform.DesktopBatteryStatusReader
 import com.mileway.core.platform.DesktopHaptics
 import com.mileway.core.platform.DesktopMotionSensorProvider
 import com.mileway.core.platform.DesktopShareSheet
@@ -48,4 +50,6 @@ actual fun platformModule(): Module =
         // CF.2/CF.4: local telemetry (Napier-backed, no real analytics/crash SDK, no network).
         single<AnalyticsHelper> { LoggingAnalyticsHelper() }
         single<CrashReporter> { NapierCrashReporter() }
+        // PLAN_V33 C6: battery preflight gate before a trip can start (always unknown -> Ok here).
+        single<BatteryStatusReader> { DesktopBatteryStatusReader() }
     }

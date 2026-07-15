@@ -1,12 +1,14 @@
 package com.mileway.core.platform.di
 
 import com.mileway.core.platform.AndroidAppShortcuts
+import com.mileway.core.platform.AndroidBatteryStatusReader
 import com.mileway.core.platform.AndroidHaptics
 import com.mileway.core.platform.AndroidMotionSensorProvider
 import com.mileway.core.platform.AndroidShareSheet
 import com.mileway.core.platform.AndroidTrackingPresenceController
 import com.mileway.core.platform.AndroidUrlOpener
 import com.mileway.core.platform.AppShortcuts
+import com.mileway.core.platform.BatteryStatusReader
 import com.mileway.core.platform.Haptics
 import com.mileway.core.platform.MotionSensorProvider
 import com.mileway.core.platform.NotificationChannels
@@ -65,4 +67,6 @@ actual fun platformModule(): Module =
         single { ShakeGestureDetector(get()) }
         // P-D.2: live presence surface (updates ongoing notification from each snapshot).
         single<TrackingPresenceController> { AndroidTrackingPresenceController(androidContext()) }
+        // PLAN_V33 C6: battery preflight gate before a trip can start.
+        single<BatteryStatusReader> { AndroidBatteryStatusReader(androidContext()) }
     }

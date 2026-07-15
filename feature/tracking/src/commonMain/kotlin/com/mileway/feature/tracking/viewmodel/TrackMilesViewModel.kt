@@ -26,8 +26,12 @@ import com.mileway.core.data.vehicle.VehicleCatalog
 import com.mileway.core.data.vehicle.VehicleRateRepository
 import com.mileway.core.data.vehicle.reimbursableAmount
 import com.mileway.core.network.ReadState
+import com.mileway.core.platform.BatteryStatus
+import com.mileway.core.platform.BatteryStatusReader
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
+import com.mileway.feature.tracking.manager.PreflightChecks
+import com.mileway.feature.tracking.manager.StartCheckResult
 import com.mileway.feature.tracking.manager.TrackingConfigManager
 import com.mileway.feature.tracking.manager.TrackingController
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
@@ -42,6 +46,7 @@ import com.mileway.feature.tracking.service.TrackingStatePublisher
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideStep
 import com.siddharth.kmp.appshell.LocationNameResolver
 import com.siddharth.kmp.appshell.PlaceName
+import com.siddharth.kmp.common.UiText
 import com.siddharth.kmp.mvi.BaseViewModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Job
@@ -319,6 +324,15 @@ object NoActiveAccountSource : ActiveAccountSource {
     override suspend fun setActiveAccountId(accountId: String) = Unit
 }
 
+/**
+ * PLAN_V33 C6: default [BatteryStatusReader] for JVM tests (and Koin graphs) that omit a real one —
+ * an unknown level, which [PreflightChecks.evaluateStartPreflight] always resolves to
+ * [StartCheckResult.Ok] (never spuriously blocks a test/unsupported platform).
+ */
+object UnknownBatteryStatusReader : BatteryStatusReader {
+    override fun current() = BatteryStatus(levelPercent = null, isCharging = false)
+}
+
 class TrackMilesViewModel(
     private val configManager: TrackingConfigManager,
     private val vehicleRepo: VehiclePricingRepository,
@@ -368,6 +382,15 @@ class TrackMilesViewModel(
     // starting trip is auto-classified toward it (SavedTrack.destinationTag). Null in graphs that
     // omit core:data — trips simply carry no destination tag then.
     private val destinationModeRepo: DestinationModeRepository? = null,
+    // PLAN_V33 C6: battery preflight gate before a trip can start. Defaulted to unknown (which
+    // PreflightChecks always resolves to Ok) so JVM tests/graphs that omit core:platform's
+    // BatteryStatusReader binding behave exactly as before; Koin injects the real per-platform
+    // reader in production.
+    private val batteryStatusReader: BatteryStatusReader = UnknownBatteryStatusReader,
+    // Debug escape hatch for the battery gate (e.g. testing on a device pinned at low battery).
+    // Off by default; no settings-store plumbing exists for this yet, so a plain constructor
+    // default is the whole feature — flip it at the call site when needed.
+    private val preflightBypassEnabled: Boolean = false,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -773,9 +796,31 @@ class TrackMilesViewModel(
         setState { copy(selectedVehicle = vehicle) }
     }
 
+    /**
+     * PLAN_V33 C6: battery preflight — [StartCheckResult.Blocked] refuses the start outright
+     * (surfaced as a toast; `phase` stays [TrackMilesPhase.IDLE], which the screen already reads as
+     * "not started"), [StartCheckResult.Warn] surfaces a toast but still proceeds. Returns whether
+     * the caller should continue starting.
+     */
+    private fun runStartPreflight(): Boolean {
+        if (preflightBypassEnabled) return true
+        return when (val check = PreflightChecks.evaluateStartPreflight(batteryStatusReader.current())) {
+            is StartCheckResult.Blocked -> {
+                emitEffect(TrackMilesEffect.ShowToast(UiText.Dynamic(check.reason)))
+                false
+            }
+            is StartCheckResult.Warn -> {
+                emitEffect(TrackMilesEffect.ShowToast(UiText.Dynamic(check.reason)))
+                true
+            }
+            StartCheckResult.Ok -> true
+        }
+    }
+
     @OptIn(ExperimentalUuidApi::class)
     fun startTracking() {
         val vehicle = currentState.selectedVehicle ?: return
+        if (!runStartPreflight()) return
         val routeId = Uuid.random().toString()
         val now = Clock.System.now().toEpochMilliseconds()
         val dt =

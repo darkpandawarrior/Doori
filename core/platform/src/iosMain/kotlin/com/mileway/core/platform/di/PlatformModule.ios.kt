@@ -54,4 +54,6 @@ actual fun platformModule(): Module =
         // CF.4: local crash reporter (Napier-backed, no real crash SDK, no network). AnalyticsHelper
         // is already bound in iosAppModule (core/ui) — not duplicated here.
         single<com.siddharth.kmp.common.CrashReporter> { NapierCrashReporter() }
+        // PLAN_V33 C6: battery preflight gate before a trip can start.
+        single<com.mileway.core.platform.BatteryStatusReader> { com.mileway.core.platform.IosBatteryStatusReader() }
     }
