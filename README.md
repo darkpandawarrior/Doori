@@ -17,7 +17,7 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 
 **[Highlights](#highlights)** · **[Screenshots](#screenshots)** · **[Features](#features)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
 
-**Portfolio:** [cv-siddharth.vercel.app](https://cv-siddharth.vercel.app/) &nbsp;·&nbsp; **Sibling project:** [PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab) &nbsp;·&nbsp; **Shared build logic:** [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)
+**Portfolio:** [cv-siddharth.vercel.app](https://cv-siddharth.vercel.app/) &nbsp;·&nbsp; **Sibling project:** [PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab) &nbsp;·&nbsp; **Shared libraries:** [kmp-toolkit](https://github.com/darkpandawarrior/kmp-toolkit) &nbsp;·&nbsp; **Shared build logic:** [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)
 
 </div>
 
@@ -63,9 +63,16 @@ Play Store and F-Droid.
 Mileway doesn't stand alone. Its Gradle convention plugins live in a separate, reusable repo —
 [**kmp-build-logic**](https://github.com/darkpandawarrior/kmp-build-logic), pulled in as a Gradle
 `includeBuild` — so the AGP/Kotlin/Compose/test setup isn't copy-pasted per project but shared across
-my KMP work. Its sibling, [**PaymentsLab**](https://github.com/darkpandawarrior/PaymentsLab), goes
-deep on the payments/UPI slice the same way this repo goes deep on location and offline-first. Both
-sit under the same [portfolio](https://cv-siddharth.vercel.app/).
+my KMP work. Its shared *libraries* increasingly come from the same place too:
+[**kmp-toolkit**](https://github.com/darkpandawarrior/kmp-toolkit), a 36-module MIT Kotlin
+Multiplatform toolkit vendored here as a git submodule. Mileway consumes **eight** of its modules —
+`:mvi-core`, `:result`, `:common`, `:location`, `:offline-outbox`, `:security`, `:app-shell` and the
+on-device `:ai` seam (multimodal + streaming) — rather than hand-rolling them, the "extract the
+reusable core the moment a second app needs it, then consume it" philosophy in practice: Mileway is
+both the flagship *and* a consumer. Its sibling,
+[**PaymentsLab**](https://github.com/darkpandawarrior/PaymentsLab), goes deep on the payments/UPI
+slice the same way this repo goes deep on location and offline-first. All three sit under the same
+[portfolio](https://cv-siddharth.vercel.app/).
 
 ## Highlights
 
