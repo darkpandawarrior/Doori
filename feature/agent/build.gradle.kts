@@ -21,9 +21,10 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.datastore.preferences)
-            // LlmGateway actual: ML Kit GenAI Prompt API (Gemini Nano), same engine core:ai's
-            // MlKitGenAiAnalyzer uses for document extraction. EXPERIMENTAL — see MlKitLlmGateway.
-            implementation(libs.mlkit.genai.prompt)
+            // LlmGateway actual: kmp-toolkit's :ai OnDeviceLlm seam (MlKitGenAiOnDeviceLlm), same
+            // engine core:ai's MlKitGenAiAnalyzer uses for document extraction. EXPERIMENTAL —
+            // see MlKitLlmGateway. Same coordinate core:ai/build.gradle.kts already uses.
+            implementation("com.siddharth.kmp:ai:1.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

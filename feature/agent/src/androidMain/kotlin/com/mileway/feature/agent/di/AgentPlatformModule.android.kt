@@ -18,5 +18,5 @@ actual val agentPlatformModule: Module =
         single<TextToSpeech> { AndroidTextToSpeech(androidContext()) }
         single<AgentAnalyticsStore> { DataStoreAgentAnalyticsStore(androidContext()) }
         // EXPERIMENTAL — ML Kit GenAI Prompt API (Gemini Nano), see MlKitLlmGateway.
-        single<LlmGateway> { MlKitLlmGateway() }
+        single<LlmGateway> { MlKitLlmGateway(androidContext()) }
     }
