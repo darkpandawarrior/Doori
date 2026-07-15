@@ -6,11 +6,16 @@ plugins {
     // ponytail: the task brief assumed `shared.kmp.pure` (external/kmp-build-logic), but that
     // convention deliberately has no android target (see its kdoc — "no Android or Compose
     // dependency"); applying it here would break core:data's Android compile classpath resolution
-    // against this module (no matching variant). `shared.kmp.library`'s own kdoc calls out exactly
-    // this future need ("shared DTOs/contracts consumed by a JVM backend, add jvm() yourself") —
-    // that plain jvm() target is Lane B's job (:server, B1), skipped here since nothing consumes it
-    // yet (YAGNI). Picked `mileway.kmp.library.watchos` + `mileway.kmp.desktop` instead: an
-    // already-proven combo (core:data uses the exact same pair) rather than a novel, untested one.
+    // against this module (no matching variant). `shared.kmp.library`'s own kdoc calls out a plain
+    // `jvm()` target as the future seam for a JVM backend — but adding one alongside the existing
+    // `jvm("desktop")` (from mileway.kmp.desktop) hits Kotlin 2.4's "only one target per platform
+    // type" restriction ("Declaring multiple Kotlin Targets of the same type is not supported").
+    // Lane B, B1 (:server) instead consumes this module's existing `jvm("desktop")` target
+    // directly via `api(project(":contract"))` — Gradle attribute-matches a plain kotlin("jvm")
+    // consumer to it with no ambiguity, since it's the only jvm-platform-type variant published
+    // here. No bare `jvm()` was added. Picked `mileway.kmp.library.watchos` + `mileway.kmp.desktop`
+    // instead of `shared.kmp.pure`: an already-proven combo (core:data uses the exact same pair)
+    // rather than a novel, untested one.
     id("mileway.kmp.library.watchos")
     id("mileway.kmp.desktop")
     alias(libs.plugins.kotlinSerialization)

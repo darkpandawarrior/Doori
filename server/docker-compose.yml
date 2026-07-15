@@ -1,0 +1,18 @@
+# PLAN_V33 B1: local Postgres for a real (non-H2) run of :server. Tests never need this — they
+# run against the H2 in-memory default (see Database.kt). No secrets/URLs are baked in here beyond
+# throwaway local-dev defaults; point JDBC_URL/JDBC_USER/JDBC_PASSWORD at this container's values
+# when running the server with `docker compose up` + `./gradlew :server:run`.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mileway}
+      POSTGRES_USER: ${POSTGRES_USER:-mileway}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mileway}
+    ports:
+      - "5432:5432"
+    volumes:
+      - mileway-postgres-data:/var/lib/postgresql/data
+
+volumes:
+  mileway-postgres-data:

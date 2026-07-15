@@ -44,6 +44,7 @@ includeBuild("external/kmp-toolkit") {
 
 include(":app")
 include(":contract")
+include(":server")
 include(":shared")
 include(":sharedWatch")
 include(":core:ui")
