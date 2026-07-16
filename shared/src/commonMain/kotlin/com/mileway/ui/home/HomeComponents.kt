@@ -157,6 +157,12 @@ import org.jetbrains.compose.resources.stringResource
 /** Height of the gradient header content below the status bar inset. */
 private val HeaderContentHeight = 96.dp
 
+/**
+ * How far the body sheet's rounded top overlaps the header art. The header paints this much
+ * extra gradient below its content; HomeScreenContent offsets the sheet up by the same amount.
+ */
+internal val SheetOverlap = 16.dp
+
 /** Diameter of the leading avatar circle in the header. */
 private val AvatarSize = 44.dp
 
@@ -196,11 +202,13 @@ fun HomeProfileHeader(
     ) {
         // Terminal world-map backdrop — pure Canvas dots from an embedded land mask (no raster
         // asset), so it renders on device *and* in host-side Roborazzi screenshots (which can't
-        // rasterize PNGs), and pins the user's current location.
+        // rasterize PNGs), and pins the user's current location. Tinted onPrimary (not white) so
+        // the watermark stays a single low-contrast hue against the primary gradient — the same
+        // treatment that keeps the fixed-contrast header text legible on ANY theme's primary.
         CurrentLocationPinMap(
             modifier = Modifier.matchParentSize(),
             pin = currentPin,
-            dotColor = Color.White,
+            dotColor = MaterialTheme.colorScheme.onPrimary,
             dotAlpha = 0.24f,
             pinColor = MaterialTheme.colorScheme.error,
         )
@@ -217,13 +225,20 @@ fun HomeProfileHeader(
             drawRect(brush = sheenBrush)
         }
 
+        // Header content is FIXED-CONTRAST against the primary gradient: everything below uses
+        // onPrimary (never primary — primary-on-primary made the greeting unreadable on themes
+        // whose top-bar gradient is built from a saturated primary, e.g. the amber map header).
+        val headerContent = MaterialTheme.colorScheme.onPrimary
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
                     .height(HeaderContentHeight)
-                    .padding(horizontal = DesignTokens.Spacing.l),
+                    .padding(horizontal = DesignTokens.Spacing.l)
+                    // Extra painted band below the content so the body sheet's rounded top
+                    // corners overlap header art instead of a hard edge (see HomeScreenContent).
+                    .padding(bottom = SheetOverlap),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
@@ -235,12 +250,12 @@ fun HomeProfileHeader(
                         .size(AvatarSize)
                         .border(
                             width = 1.dp,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = headerContent,
                             shape = RoundedCornerShape(6.dp),
                         )
                         .clip(RoundedCornerShape(6.dp))
                         .background(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                            headerContent.copy(alpha = 0.12f),
                             RoundedCornerShape(6.dp),
                         ),
                 contentAlignment = Alignment.Center,
@@ -257,7 +272,7 @@ fun HomeProfileHeader(
                         text = ">_",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = headerContent,
                     )
                 }
             }
@@ -266,12 +281,12 @@ fun HomeProfileHeader(
                 AutoSizeGreeting(
                     greeting = stringResource(Res.string.shared_home_greeting),
                     name = name,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = headerContent,
                 )
                 Text(
                     text = stringResource(Res.string.shared_home_greeting_subtitle),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f),
+                    color = headerContent.copy(alpha = 0.85f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -311,7 +326,7 @@ fun HomeProfileHeader(
     }
 }
 
-/** Round translucent icon button used in the gradient header. */
+/** Round translucent icon button used in the gradient header (onPrimary = fixed contrast). */
 @Composable
 private fun HeaderIconButton(
     icon: ImageVector,
@@ -321,12 +336,12 @@ private fun HeaderIconButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = Color.White.copy(alpha = 0.18f),
+        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.18f),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.onPrimary,
             modifier =
                 Modifier
                     .padding(9.dp)

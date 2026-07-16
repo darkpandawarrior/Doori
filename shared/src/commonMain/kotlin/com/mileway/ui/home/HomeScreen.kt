@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -341,7 +342,8 @@ fun HomeScreenContent(
                     .fillMaxSize()
                     .verticalScroll(scrollState),
         ) {
-            // 1. Gradient header (draws behind the status bar; owns the top inset).
+            // 1. Gradient header (draws behind the status bar; owns the top inset). It paints
+            //    [SheetOverlap] extra gradient below its content so the sheet below can cap it.
             HomeProfileHeader(
                 name = state.greetingName,
                 notificationCount = state.notificationCount,
@@ -352,121 +354,135 @@ fun HomeScreenContent(
                 avatarPath = state.avatarPath,
             )
 
-            // 2. Animated banner strip (rotating 4000ms; replaces static ActionRequired card).
-            AnimatedBannerStrip(isTrackingActive = false)
-
-            Column(
-                modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sectionSpacing),
+            // Body "sheet": squared-rounded top corners overlapping the header art (offset by
+            // SheetOverlap), the reference-blueprint header→sheet structure in Mileway's own
+            // 12dp design language. Everything scrollable below lives inside it.
+            androidx.compose.material3.Surface(
+                shape = DesignTokens.Shape.sheetSquared,
+                color = MaterialTheme.colorScheme.background,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .offset(y = -SheetOverlap),
             ) {
-                Spacer(Modifier.height(DesignTokens.Spacing.l))
+                Column {
+                    // 2. Animated banner strip (rotating 4000ms; replaces static ActionRequired card).
+                    AnimatedBannerStrip(isTrackingActive = false)
 
-                // 2b. One-time post-sign-in welcome banner (PLAN_V22 P7.1) — shows once, then
-                //     the flag is cleared and it never reappears until the next fresh sign-in.
-                if (welcomeBanner.isVisible) {
-                    WelcomeBanner(
-                        displayName = welcomeBanner.displayName,
-                        officeName = welcomeBanner.officeName,
-                        onDismiss = onWelcomeBannerShown,
-                    )
-                }
+                    Column(
+                        modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sectionSpacing),
+                    ) {
+                        Spacer(Modifier.height(DesignTokens.Spacing.l))
 
-                // 2c. PLAN_V24 P12.4: animated "What's new" entry (only in the stateful HomeScreen).
-                onOpenWhatsNew?.let { open ->
-                    WhatsNewAnimatedButton(hasUnseen = whatsNewUnseen, onClick = open)
-                }
+                        // 2b. One-time post-sign-in welcome banner (PLAN_V22 P7.1) — shows once, then
+                        //     the flag is cleared and it never reappears until the next fresh sign-in.
+                        if (welcomeBanner.isVisible) {
+                            WelcomeBanner(
+                                displayName = welcomeBanner.displayName,
+                                officeName = welcomeBanner.officeName,
+                                onDismiss = onWelcomeBannerShown,
+                            )
+                        }
 
-                // 3. Quick Actions.
-                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                    HomeSectionHeader(title = stringResource(Res.string.shared_home_quick_actions), leadingIcon = Icons.Filled.Bolt)
-                    QuickActionsRow(
-                        actions =
-                            quickActions(
-                                onAddExpense = onAddExpense,
-                                onAskAdvance = onAskAdvance,
-                                onAddInvoice = onAddInvoice,
-                                onIllustrative = onOpenAccount,
-                                addExpenseLabel = stringResource(Res.string.shared_home_qa_add_expense),
-                                createVoucherLabel = stringResource(Res.string.shared_home_qa_create_voucher),
-                                askAdvanceLabel = stringResource(Res.string.shared_home_qa_ask_advance),
-                                addInvoiceLabel = stringResource(Res.string.shared_home_qa_add_invoice),
-                            ),
-                    )
-                }
+                        // 2c. PLAN_V24 P12.4: animated "What's new" entry (only in the stateful HomeScreen).
+                        onOpenWhatsNew?.let { open ->
+                            WhatsNewAnimatedButton(hasUnseen = whatsNewUnseen, onClick = open)
+                        }
 
-                // 4. Mileage card — promoted directly under Quick Actions so the primary
-                //    "Track Journey" / "Log Miles" affordances are above the fold (Bug 5).
-                // P29.H.1: gated on HomePluginConfig.showTrackMiles (defaults true — golden-stable).
-                if (state.pluginConfig.showTrackMiles) {
-                    HomeMileageCard(
-                        onTrackJourney = onStartTracking,
-                        onLogMiles = onAddExpense,
-                    )
-                }
+                        // 3. Quick Actions.
+                        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                            HomeSectionHeader(title = stringResource(Res.string.shared_home_quick_actions), leadingIcon = Icons.Filled.Bolt)
+                            QuickActionsRow(
+                                actions =
+                                    quickActions(
+                                        onAddExpense = onAddExpense,
+                                        onAskAdvance = onAskAdvance,
+                                        onAddInvoice = onAddInvoice,
+                                        onIllustrative = onOpenAccount,
+                                        addExpenseLabel = stringResource(Res.string.shared_home_qa_add_expense),
+                                        createVoucherLabel = stringResource(Res.string.shared_home_qa_create_voucher),
+                                        askAdvanceLabel = stringResource(Res.string.shared_home_qa_ask_advance),
+                                        addInvoiceLabel = stringResource(Res.string.shared_home_qa_add_invoice),
+                                    ),
+                            )
+                        }
 
-                // 5. My Cards carousel (Phase O). P29.H.1: gated on showMyCards.
-                if (state.pluginConfig.showMyCards) {
-                    MyCardsSection(onSnackbar = paymentsSnackbar)
-                }
+                        // 4. Mileage card — promoted directly under Quick Actions so the primary
+                        //    "Track Journey" / "Log Miles" affordances are above the fold (Bug 5).
+                        // P29.H.1: gated on HomePluginConfig.showTrackMiles (defaults true — golden-stable).
+                        if (state.pluginConfig.showTrackMiles) {
+                            HomeMileageCard(
+                                onTrackJourney = onStartTracking,
+                                onLogMiles = onAddExpense,
+                            )
+                        }
 
-                // 6. At A Glance 2×2 grid — each cell now routes to a distinct destination (Bug 5).
-                Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                    HomeSectionHeader(title = stringResource(Res.string.shared_home_at_a_glance), leadingIcon = Icons.Filled.Insights)
-                    AtAGlanceGrid(
-                        counts = state.atAGlance,
-                        onPendingExpenses = onAddExpense,
-                        onUpcomingTrips = onOpenAccount,
-                        onPendingApprovals = onOpenAccount,
-                        onNotifications = onOpenAccount,
-                    )
-                    // P29.H.3: manager-only team-approvals summary.
-                    if (state.isManager) {
-                        ApprovalBreakdownCard(breakdown = state.approvalBreakdown, onOpenApprovals = onOpenAccount)
+                        // 5. My Cards carousel (Phase O). P29.H.1: gated on showMyCards.
+                        if (state.pluginConfig.showMyCards) {
+                            MyCardsSection(onSnackbar = paymentsSnackbar)
+                        }
+
+                        // 6. At A Glance 2×2 grid — each cell now routes to a distinct destination (Bug 5).
+                        Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
+                            HomeSectionHeader(title = stringResource(Res.string.shared_home_at_a_glance), leadingIcon = Icons.Filled.Insights)
+                            AtAGlanceGrid(
+                                counts = state.atAGlance,
+                                onPendingExpenses = onAddExpense,
+                                onUpcomingTrips = onOpenAccount,
+                                onPendingApprovals = onOpenAccount,
+                                onNotifications = onOpenAccount,
+                            )
+                            // P29.H.3: manager-only team-approvals summary.
+                            if (state.isManager) {
+                                ApprovalBreakdownCard(breakdown = state.approvalBreakdown, onOpenApprovals = onOpenAccount)
+                            }
+                        }
+
+                        // 7. HomeCheckInCard — check-in button + recent list. P29.H.1: gated on showCheckIn.
+                        if (state.pluginConfig.showCheckIn) {
+                            HomeCheckInCard(onCheckIn = onOpenAccount)
+                        }
                     }
+
+                    Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
+
+                    // 6. Feature / mileage carousel (full-bleed horizontal pager).
+                    FeatureCarousel(
+                        onStartTracking = onStartTracking,
+                        onIllustrative = onOpenAccount,
+                    )
+
+                    Column(
+                        modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sectionSpacing),
+                    ) {
+                        Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
+
+                        // 7. Recent Activity feed (Phase O).
+                        RecentActivitySection(onSnackbar = illustrativeSnackbar)
+                    }
+
+                    Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
+
+                    // 8. PLAN_V24 P13.2: the ONE auto-advancing home banner carousel (supersedes the P5.4
+                    // marketing strip). Fed by plugin-gated typed sources in the stateful HomeScreen; falls
+                    // back to the seeded state.marketingItems here (keeps the stateless golden byte-identical).
+                    // P29.H.1: the whole carousel is additionally gated on showMarketingStrip.
+                    if (state.pluginConfig.showMarketingStrip) {
+                        BannerCarousel(
+                            items =
+                                homeBanners ?: state.marketingItems.mapIndexed { index, item ->
+                                    HomeBanner(id = "seed_$index", title = item.title, subtitle = item.subtitle, style = item.badge)
+                                },
+                            onBannerClick = onBannerClick,
+                            onImpression = onBannerImpression,
+                        )
+                    }
+
+                    Spacer(Modifier.height(BottomBarClearance))
                 }
-
-                // 7. HomeCheckInCard — check-in button + recent list. P29.H.1: gated on showCheckIn.
-                if (state.pluginConfig.showCheckIn) {
-                    HomeCheckInCard(onCheckIn = onOpenAccount)
-                }
             }
-
-            Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
-
-            // 6. Feature / mileage carousel (full-bleed horizontal pager).
-            FeatureCarousel(
-                onStartTracking = onStartTracking,
-                onIllustrative = onOpenAccount,
-            )
-
-            Column(
-                modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.sectionSpacing),
-            ) {
-                Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
-
-                // 7. Recent Activity feed (Phase O).
-                RecentActivitySection(onSnackbar = illustrativeSnackbar)
-            }
-
-            Spacer(Modifier.height(DesignTokens.Spacing.sectionSpacing))
-
-            // 8. PLAN_V24 P13.2: the ONE auto-advancing home banner carousel (supersedes the P5.4
-            // marketing strip). Fed by plugin-gated typed sources in the stateful HomeScreen; falls
-            // back to the seeded state.marketingItems here (keeps the stateless golden byte-identical).
-            // P29.H.1: the whole carousel is additionally gated on showMarketingStrip.
-            if (state.pluginConfig.showMarketingStrip) {
-                BannerCarousel(
-                    items =
-                        homeBanners ?: state.marketingItems.mapIndexed { index, item ->
-                            HomeBanner(id = "seed_$index", title = item.title, subtitle = item.subtitle, style = item.badge)
-                        },
-                    onBannerClick = onBannerClick,
-                    onImpression = onBannerImpression,
-                )
-            }
-
-            Spacer(Modifier.height(BottomBarClearance))
         }
 
         SnackbarHost(snackbarState, modifier = androidx.compose.ui.Modifier.align(androidx.compose.ui.Alignment.BottomCenter))
