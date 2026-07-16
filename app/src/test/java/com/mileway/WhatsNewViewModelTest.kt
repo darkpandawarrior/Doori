@@ -2,9 +2,11 @@ package com.mileway
 
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.SessionState
+import com.mileway.feature.whatsnew.data.WhatsNewEngagementRecorder
 import com.mileway.feature.whatsnew.data.WhatsNewRepository
 import com.mileway.feature.whatsnew.model.WhatsNewEntry
 import com.mileway.ui.home.WhatsNewViewModel
+import com.siddharth.kmp.offlineoutbox.OpOutbox
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -41,6 +43,10 @@ class WhatsNewViewModelTest {
                 ),
         )
 
+    // PLAN_V36 P7: a relaxed OpOutbox mock is enough here — these tests exercise badge/seen
+    // logic, not engagement capture (see feature:whatsnew's WhatsNewEngagementRecorderTest for that).
+    private val engagementRecorder = WhatsNewEngagementRecorder(mockk<OpOutbox>(relaxed = true))
+
     private fun repo(lastSeen: Int): SessionRepository =
         mockk(relaxed = true) {
             every { sessionState } returns MutableStateFlow(SessionState(whatsNewLastSeenVersion = lastSeen))
@@ -49,7 +55,7 @@ class WhatsNewViewModelTest {
     @Test
     fun `visible when last-seen version is behind the current release`() =
         runTest {
-            val vm = WhatsNewViewModel(repo(lastSeen = 0), whatsNewRepository)
+            val vm = WhatsNewViewModel(repo(lastSeen = 0), whatsNewRepository, engagementRecorder)
             advanceUntilIdle()
             assertTrue(vm.uiState.value.isVisible)
             assertTrue(vm.uiState.value.entries.isNotEmpty())
@@ -58,7 +64,7 @@ class WhatsNewViewModelTest {
     @Test
     fun `hidden once the current version has been seen`() =
         runTest {
-            val vm = WhatsNewViewModel(repo(lastSeen = whatsNewRepository.currentVersion), whatsNewRepository)
+            val vm = WhatsNewViewModel(repo(lastSeen = whatsNewRepository.currentVersion), whatsNewRepository, engagementRecorder)
             advanceUntilIdle()
             assertFalse(vm.uiState.value.isVisible)
         }
@@ -67,7 +73,7 @@ class WhatsNewViewModelTest {
     fun `acknowledge advances the stored version`() =
         runTest {
             val session = repo(lastSeen = 0)
-            val vm = WhatsNewViewModel(session, whatsNewRepository)
+            val vm = WhatsNewViewModel(session, whatsNewRepository, engagementRecorder)
             vm.acknowledge()
             advanceUntilIdle()
             coVerify { session.markWhatsNewSeen(whatsNewRepository.currentVersion) }

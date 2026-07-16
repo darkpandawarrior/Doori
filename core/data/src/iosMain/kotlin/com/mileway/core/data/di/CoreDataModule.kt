@@ -40,7 +40,9 @@ import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.data.settings.RegistryAbnormalDetectionSource
 import com.mileway.core.data.watch.SnapshotCache
 import com.mileway.core.data.watch.SnapshotCacheStore
+import com.siddharth.kmp.offlineoutbox.OpOutbox
 import com.siddharth.kmp.offlineoutbox.OutboxDatabase
+import com.siddharth.kmp.offlineoutbox.RoomOpOutbox
 import com.siddharth.kmp.offlineoutbox.RoomSubmitOutbox
 import com.siddharth.kmp.offlineoutbox.SubmitOutbox
 import com.siddharth.kmp.offlineoutbox.buildOutboxDatabase
@@ -61,6 +63,9 @@ val coreDataModule =
         // com.siddharth.kmp.offlineoutbox.OutboxDatabase.
         single<OutboxDatabase> { buildOutboxDatabase() }
         single { get<OutboxDatabase>().submitDraftDao() }
+        single { get<OutboxDatabase>().opOutboxDao() }
+        // PLAN_V36 P7 (spec §8): same binding as Android's CoreDataModule — see its comment.
+        single<OpOutbox> { RoomOpOutbox(get()) }
         single { get<MilewayDatabase>().agentDao() }
         single { get<MilewayDatabase>().draftExpenseDao() }
         single { get<MilewayDatabase>().voucherDao() }

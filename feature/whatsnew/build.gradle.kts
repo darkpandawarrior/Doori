@@ -33,6 +33,9 @@ kotlin {
             // PLAN_V36 P3: hero image on the list card (empty for every catalog entry until P5's
             // media pipeline lands, but the card must compile against a real AsyncImage now).
             implementation(libs.coil3.compose)
+            // PLAN_V36 P7: engagement-event payloads (JsonObject only — no @Serializable classes,
+            // so the kotlin.plugin.serialization compiler plugin isn't needed here).
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

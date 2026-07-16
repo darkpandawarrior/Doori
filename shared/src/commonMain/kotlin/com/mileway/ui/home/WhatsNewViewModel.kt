@@ -3,6 +3,7 @@ package com.mileway.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.session.SessionRepository
+import com.mileway.feature.whatsnew.data.WhatsNewEngagementRecorder
 import com.mileway.feature.whatsnew.data.WhatsNewRepository
 import com.mileway.feature.whatsnew.model.WhatsNewEntry
 import kotlinx.coroutines.flow.SharingStarted
@@ -36,6 +37,7 @@ data class WhatsNewUiState(
 class WhatsNewViewModel(
     private val sessionRepository: SessionRepository,
     private val whatsNewRepository: WhatsNewRepository,
+    private val engagementRecorder: WhatsNewEngagementRecorder,
 ) : ViewModel() {
     val uiState: StateFlow<WhatsNewUiState> =
         sessionRepository.sessionState
@@ -50,6 +52,11 @@ class WhatsNewViewModel(
     /** Called once the sheet has been acknowledged — advances the stored version. */
     fun acknowledge() {
         viewModelScope.launch { sessionRepository.markWhatsNewSeen(whatsNewRepository.currentVersion) }
+    }
+
+    /** PLAN_V36 P7 (spec §5.4/§8): the home banner (fed by [uiState.entries]'s latest entry) was tapped. */
+    fun recordBannerOpen(entryId: String) {
+        viewModelScope.launch { engagementRecorder.record(WhatsNewEngagementRecorder.TYPE_BANNER_OPEN, entryId) }
     }
 }
 

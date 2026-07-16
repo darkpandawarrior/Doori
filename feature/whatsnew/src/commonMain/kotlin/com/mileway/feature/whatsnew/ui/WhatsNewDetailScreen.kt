@@ -88,9 +88,17 @@ fun WhatsNewDetailScreen(
         state = state,
         onBack = onBack,
         onSelectMedia = viewModel::selectMedia,
-        onShare = { entry -> shareSheet.share(text = buildShareText(entry), subject = entry.title) },
+        onShare = { entry ->
+            // PLAN_V36 P7: engagement capture is VM-owned (testable); the platform Share sheet
+            // call stays here since LocalShareSheet is a CompositionLocal, not Koin-injectable.
+            viewModel.recordShared()
+            shareSheet.share(text = buildShareText(entry), subject = entry.title)
+        },
         onOpenLink = urlOpener::open,
-        onContact = { email, subject -> urlOpener.open(mailtoUri(email, subject)) },
+        onContact = { email, subject ->
+            viewModel.recordContact()
+            urlOpener.open(mailtoUri(email, subject))
+        },
         sharedTransitionScope = sharedTransitionScope,
         animatedContentScope = animatedContentScope,
     )

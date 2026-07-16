@@ -63,6 +63,7 @@ import com.mileway.core.ui.resources.shared_home_qa_add_invoice
 import com.mileway.core.ui.resources.shared_home_qa_ask_advance
 import com.mileway.core.ui.resources.shared_home_qa_create_voucher
 import com.mileway.core.ui.resources.shared_home_quick_actions
+import com.mileway.core.ui.resources.whatsnew_list_title
 import com.mileway.core.ui.theme.DesignTokens
 import com.siddharth.kmp.appshell.ReviewTracker
 import kotlinx.coroutines.launch
@@ -140,6 +141,11 @@ fun HomeScreen(
     val offersBannerTitle = stringResource(Res.string.home_banner_offers_title)
     val offersBannerSubtitle = stringResource(Res.string.home_banner_offers_subtitle)
     val offersBannerBadge = stringResource(Res.string.home_banner_offers_badge)
+    // PLAN_V36 P7 (spec §5.4): the home entry point into What's New (parity with the reference's
+    // rotating banner) — the digest sheet's carousel already auto-advances across banners, so no
+    // separate rotation mechanism is needed. Ungated: first-party content, not a promo.
+    val whatsNewBannerTitle = stringResource(Res.string.whatsnew_list_title)
+    val latestWhatsNewEntry = whatsNewState.entries.firstOrNull()
     val homeBanners =
         buildList {
             state.marketingItems.forEachIndexed { index, item ->
@@ -155,6 +161,17 @@ fun HomeScreen(
             }
             if (offersHubEnabled) {
                 add(HomeBanner(id = "offers", title = offersBannerTitle, subtitle = offersBannerSubtitle, style = offersBannerBadge, deepLink = "account"))
+            }
+            latestWhatsNewEntry?.let { entry ->
+                add(
+                    HomeBanner(
+                        id = "whatsnew_${entry.id}",
+                        title = whatsNewBannerTitle,
+                        subtitle = entry.title,
+                        style = "NEW",
+                        deepLink = "whatsnew",
+                    ),
+                )
             }
         }
 
@@ -198,7 +215,18 @@ fun HomeScreen(
         welcomeBanner = welcomeBannerState,
         onWelcomeBannerShown = firstLoginBannerViewModel::onBannerShown,
         homeBanners = homeBanners,
-        onBannerClick = { banner -> if (banner.deepLink != null) viewModel.onOpenAccount(onOpenAccount) },
+        // PLAN_V36 P7: the "whatsnew" deepLink is the one non-account-tab destination in this
+        // carousel — routed to the full list (same target as the sheet's "See all updates"),
+        // with a banner-tap engagement event fired first.
+        onBannerClick = { banner ->
+            when {
+                banner.deepLink == "whatsnew" -> {
+                    latestWhatsNewEntry?.let { whatsNewViewModel.recordBannerOpen(it.id) }
+                    onSeeAllWhatsNew()
+                }
+                banner.deepLink != null -> viewModel.onOpenAccount(onOpenAccount)
+            }
+        },
         onBannerImpression = { banner, dwellMs ->
             analytics.log(
                 com.siddharth.kmp.appshell.AnalyticsEvent(

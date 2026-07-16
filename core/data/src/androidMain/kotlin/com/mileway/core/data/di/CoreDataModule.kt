@@ -42,7 +42,9 @@ import com.mileway.core.data.settings.StorageRepository
 import com.mileway.core.data.watch.PhoneSnapshotSync
 import com.mileway.core.data.watch.SnapshotCache
 import com.mileway.core.data.watch.SnapshotCacheStore
+import com.siddharth.kmp.offlineoutbox.OpOutbox
 import com.siddharth.kmp.offlineoutbox.OutboxDatabase
+import com.siddharth.kmp.offlineoutbox.RoomOpOutbox
 import com.siddharth.kmp.offlineoutbox.RoomSubmitOutbox
 import com.siddharth.kmp.offlineoutbox.SubmitOutbox
 import com.siddharth.kmp.offlineoutbox.buildOutboxDatabase
@@ -65,6 +67,11 @@ val coreDataModule =
         // com.siddharth.kmp.offlineoutbox.OutboxDatabase.
         single<OutboxDatabase> { buildOutboxDatabase(androidContext()) }
         single { get<OutboxDatabase>().submitDraftDao() }
+        single { get<OutboxDatabase>().opOutboxDao() }
+        // PLAN_V36 P7 (spec §8): the FIFO operation-log outbox — first consumer is
+        // WhatsNewEngagementRecorder (feature:whatsnew); generic to any future local-first
+        // analytics/event capture. No replay trigger wired yet — the backend phase owns that.
+        single<OpOutbox> { RoomOpOutbox(get()) }
         single { get<MilewayDatabase>().agentDao() }
         single { get<MilewayDatabase>().draftExpenseDao() }
         single { get<MilewayDatabase>().voucherDao() }
