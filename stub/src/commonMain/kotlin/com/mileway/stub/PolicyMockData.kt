@@ -81,13 +81,13 @@ object PolicyMockData {
     /** Business entities the demo workspace can bill against, with mixed currencies. */
     fun businessEntities(): List<BusinessEntity> =
         listOf(
-            BusinessEntity(name = "Mileway India Pvt Ltd", country = "India", currencySymbol = "₹"),
-            BusinessEntity(name = "Mileway USA Inc", country = "United States", currencySymbol = "$"),
-            BusinessEntity(name = "Mileway UK Ltd", country = "United Kingdom", currencySymbol = "£"),
-            BusinessEntity(name = "Mileway Europe GmbH", country = "Germany", currencySymbol = "€"),
-            BusinessEntity(name = "Mileway Japan KK", country = "Japan", currencySymbol = "¥"),
-            BusinessEntity(name = "Mileway Singapore Pte Ltd", country = "Singapore", currencySymbol = "S$"),
-            BusinessEntity(name = "Mileway Middle East FZE", country = "United Arab Emirates", currencySymbol = "AED"),
+            BusinessEntity(id = 1, name = "Mileway India Pvt Ltd", country = "India", currencySymbol = "₹"),
+            BusinessEntity(id = 2, name = "Mileway USA Inc", country = "United States", currencySymbol = "$"),
+            BusinessEntity(id = 3, name = "Mileway UK Ltd", country = "United Kingdom", currencySymbol = "£"),
+            BusinessEntity(id = 4, name = "Mileway Europe GmbH", country = "Germany", currencySymbol = "€"),
+            BusinessEntity(id = 5, name = "Mileway Japan KK", country = "Japan", currencySymbol = "¥"),
+            BusinessEntity(id = 6, name = "Mileway Singapore Pte Ltd", country = "Singapore", currencySymbol = "S$"),
+            BusinessEntity(id = 7, name = "Mileway Middle East FZE", country = "United Arab Emirates", currencySymbol = "AED"),
         )
 
     // ── Outcome rotation ──────────────────────────────────────────────────────

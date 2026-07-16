@@ -75,6 +75,14 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
     // Room column stops being dead.
     suspend fun markOdometerNotWorking(routeId: String): Int = dao.markOdometerNotWorking(routeId)
 
+    // PLAN_V33 gap-fix: persists the office/entity picked on the submission screen (C5 flagged
+    // these Room columns as always-null since nothing ever wrote them).
+    suspend fun setOfficeAndEntity(
+        routeId: String,
+        officeId: Long?,
+        entityId: Long?,
+    ): Int = dao.setOfficeAndEntity(routeId, officeId, entityId)
+
     // Wave-2 SmartDistanceAnalysis: persists the user-approved final distance once reductions are applied.
     suspend fun updateSmartDistanceFinal(
         routeId: String,

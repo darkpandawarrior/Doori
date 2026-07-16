@@ -452,6 +452,19 @@ class MileageSubmissionViewModel(
             if (odometerFallbackActive) {
                 trackRepository.markOdometerNotWorking(routeId)
             }
+            // PLAN_V33 gap-fix (flagged by C5): persist the office/entity picked on this screen so
+            // SubmitMilesRequestBuilder's track?.officeId/entityId reads stop always seeing null.
+            // Office.code is a numeric string (see PolicyMockData); BusinessEntity carries its own
+            // id (added alongside this fix — it had none before).
+            val selectedOffice = currentState.form.selectedOffice
+            val selectedEntity = currentState.form.selectedEntity
+            if (selectedOffice != null || selectedEntity != null) {
+                trackRepository.setOfficeAndEntity(
+                    routeId = routeId,
+                    officeId = selectedOffice?.code?.toLongOrNull(),
+                    entityId = selectedEntity?.id,
+                )
+            }
             // PLAN_V33 C5: trip/office/entity/tripV2 id resolution + the GPS first/last point come
             // from the persisted trip row and its location trail — both optional lookups (a fresh
             // draft may have neither yet), the builder tolerates either being absent/empty.

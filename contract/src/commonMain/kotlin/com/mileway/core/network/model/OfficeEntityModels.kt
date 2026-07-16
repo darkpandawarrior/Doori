@@ -15,6 +15,7 @@ data class Office(
 /** A business entity (legal company) that owns vouchers and transactions. */
 @Serializable
 data class BusinessEntity(
+    @SerialName("id") val id: Long? = null,
     @SerialName("name") val name: String = "",
     @SerialName("country") val country: String = "",
     @SerialName("currencySymbol") val currencySymbol: String = "",

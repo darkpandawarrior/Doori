@@ -240,4 +240,13 @@ interface SavedTrackDao {
     // from GPS distance rather than an odometer-reading delta, at submission time.
     @Query("UPDATE saved_tracks SET odometerNotWorking = 1 WHERE routeId = :routeId")
     suspend fun markOdometerNotWorking(routeId: String): Int
+
+    // PLAN_V33 gap-fix: persists the office/entity the user picked on the submission screen, so
+    // SubmitMilesRequestBuilder (which reads officeId/entityId off this row) stops always seeing null.
+    @Query("UPDATE saved_tracks SET officeId = :officeId, entityId = :entityId WHERE routeId = :routeId")
+    suspend fun setOfficeAndEntity(
+        routeId: String,
+        officeId: Long?,
+        entityId: Long?,
+    ): Int
 }
