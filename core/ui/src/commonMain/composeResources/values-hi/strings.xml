@@ -907,7 +907,7 @@
     <string name="tracking_route_points_load_error">पॉइंट लोड नहीं हो सके</string>
     <string name="tracking_route_points_subtitle">इस ट्रिप के लिए कच्चे जीपीएस निर्देशांक</string>
     <string name="tracking_route_points_title">रूट पॉइंट</string>
-    <string name="tracking_saved_empty_journeys_hint">अपनी पहली ट्रिप रिकॉर्ड करने के लिए \'यात्रा शुरू करें\' टैप करें</string>
+    <string name="tracking_saved_empty_journeys_hint">अपनी पहली ट्रिप रिकॉर्ड करने के लिए 'यात्रा शुरू करें' टैप करें</string>
     <string name="tracking_saved_empty_journeys_none">कोई सहेजी गई यात्रा नहीं</string>
     <string name="tracking_saved_empty_journeys_query">कोई मेल खाती यात्रा नहीं</string>
     <string name="tracking_saved_empty_search_hint">कोई अन्य खोज शब्द आज़माएँ</string>

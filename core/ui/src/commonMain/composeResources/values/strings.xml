@@ -1,7 +1,7 @@
 <resources>
     <!-- App -->
     <string name="app_name">Mileway</string>
-    <string name="app_tagline">Let\'s manage your spends!</string>
+    <string name="app_tagline">Let's manage your spends!</string>
 
     <!-- Common actions -->
     <string name="action_cancel">Cancel</string>
@@ -36,7 +36,7 @@
     <string name="settings_language">Language</string>
 
     <!-- Location pin -->
-    <string name="location_you_are_here">You\'re here</string>
+    <string name="location_you_are_here">You're here</string>
 
     <!-- Travel -->
     <string name="travel_book_flight">Book Flight</string>
@@ -120,7 +120,7 @@
     <string name="events_action_create_expense">Create expense</string>
     <string name="events_action_link_expenses">Link expenses</string>
     <string name="events_delete_title">Delete event?</string>
-    <string name="events_delete_description">This removes %1$s permanently. This can\'t be undone.</string>
+    <string name="events_delete_description">This removes %1$s permanently. This can't be undone.</string>
     <string name="events_edit_sheet_title">Edit event</string>
     <string name="events_edit_budget_field">Budgeted amount</string>
     <string name="events_link_sheet_title">Link expenses</string>
@@ -213,7 +213,7 @@
     <string name="approvals_cd_close_room">Close room</string>
     <string name="approvals_clarification_closed_banner">This clarification room is closed. History is kept for reference.</string>
     <string name="approvals_close_room_title">Close this room?</string>
-    <string name="approvals_close_room_description">You won\'t be able to send new messages, but the conversation stays visible.</string>
+    <string name="approvals_close_room_description">You won't be able to send new messages, but the conversation stays visible.</string>
     <string name="approvals_close_room_confirm">Close Room</string>
     <string name="approvals_clarification_history_title">Clarifications</string>
     <string name="approvals_clarification_history_empty">No clarification threads yet</string>
@@ -267,8 +267,8 @@
     <string name="cards_kyc_selfie_body">A clear photo of your face for identity matching.</string>
     <string name="cards_kyc_capture_selfie">Capture selfie</string>
     <string name="cards_kyc_success_title">KYC submitted</string>
-    <string name="cards_kyc_success_body">We\'ll verify your details and update your card status shortly.</string>
-    <string name="cards_request_intro">Request a corporate card. You\'ll pick a card type, give a reason, and confirm. Approvals route through your manager and finance.</string>
+    <string name="cards_kyc_success_body">We'll verify your details and update your card status shortly.</string>
+    <string name="cards_request_intro">Request a corporate card. You'll pick a card type, give a reason, and confirm. Approvals route through your manager and finance.</string>
     <string name="cards_ai_suggested">AI suggested</string>
     <string name="cards_request_reason_label">Why do you need this card?</string>
     <string name="cards_confirm_card_type">Card type: %1$s</string>
@@ -281,7 +281,7 @@
     <string name="cards_detail_subtitle">Transactions &amp; controls</string>
     <string name="cards_transactions">Transactions</string>
     <string name="cards_available_balance">Available Balance</string>
-    <string name="cards_kyc_pending_message">KYC is pending for your account. We\'ve emailed you a KYC link; tap below to resend it.</string>
+    <string name="cards_kyc_pending_message">KYC is pending for your account. We've emailed you a KYC link; tap below to resend it.</string>
     <string name="cards_send_kyc_link">Send KYC Link</string>
     <string name="cards_block">Block</string>
     <string name="cards_unblock">Unblock</string>
@@ -435,7 +435,7 @@
     <string name="payables_timeline_pending">Pending Decision</string>
     <string name="payables_success_title">Purchase Request Submitted!</string>
     <string name="payables_success_po_number">PO Number: %1$s</string>
-    <string name="payables_success_message">Your request has been sent to the procurement team for review. You\'ll be notified once it\'s approved.</string>
+    <string name="payables_success_message">Your request has been sent to the procurement team for review. You'll be notified once it's approved.</string>
     <string name="payables_success_create_another">Create Another Request</string>
     <string name="payables_success_back">Back to Payables</string>
 
@@ -673,13 +673,13 @@
     <string name="profile_delegation_subtitle">Manage who acts on your behalf</string>
     <string name="profile_delegation_add_cd">Add delegation</string>
     <string name="profile_delegation_my_title">My Delegations</string>
-    <string name="profile_delegation_my_subtitle">People you\'ve authorised to act for you</string>
+    <string name="profile_delegation_my_subtitle">People you've authorised to act for you</string>
     <string name="profile_delegation_to_me_title">Delegated To Me</string>
-    <string name="profile_delegation_to_me_subtitle">You\'re covering for these people</string>
+    <string name="profile_delegation_to_me_subtitle">You're covering for these people</string>
     <string name="profile_delegation_none_incoming">No active incoming delegations</string>
     <string name="profile_delegation_add_new">Add New Delegation</string>
     <string name="profile_delegation_revoke_title">Revoke Delegation</string>
-    <string name="profile_delegation_revoke_desc">Remove %1$s\'s access? This cannot be undone.</string>
+    <string name="profile_delegation_revoke_desc">Remove %1$s's access? This cannot be undone.</string>
     <string name="profile_delegation_revoke">Revoke</string>
     <string name="profile_delegation_add_title">Add Delegation</string>
     <string name="profile_delegation_delegate_to">Delegate To</string>
@@ -875,14 +875,14 @@
     <string name="profile_accounts_last_login">Last login</string>
     <string name="profile_accounts_created">Created</string>
     <string name="profile_accounts_close">Close</string>
-    <string name="profile_switch_title">Confirm it\'s you</string>
+    <string name="profile_switch_title">Confirm it's you</string>
     <string name="profile_switch_subtitle">Enter your PIN to switch to %1$s</string>
     <string name="profile_switch_locked">Locked — dismiss and reopen to try again</string>
     <string name="profile_switch_confirm">Confirm</string>
     <string name="profile_switch_cancel">Cancel</string>
-    <string name="profile_reconfirm_title">Re-confirm it\'s you</string>
+    <string name="profile_reconfirm_title">Re-confirm it's you</string>
     <string name="profile_reconfirm_body">Your session has been idle a while. Just a soft check-in — no need to sign in again.</string>
-    <string name="profile_reconfirm_confirm">It\'s me</string>
+    <string name="profile_reconfirm_confirm">It's me</string>
     <string name="profile_paused_title">Trip in progress — paused</string>
     <string name="profile_paused_body">The running trip for the previous persona was paused and saved. Switch back to that persona any time to resume it.</string>
     <string name="profile_paused_confirm">Got it</string>
@@ -1038,7 +1038,7 @@
     <string name="logging_done">Done</string>
     <string name="logging_violations_fallback">This submission has policy violations.</string>
     <string name="logging_amount_adjusted_title">Amount Adjusted</string>
-    <string name="logging_amount_adjusted_body">Your claimed distance exceeds the daily reimbursable limit. The amount below has been adjusted to what\'s payable under policy.</string>
+    <string name="logging_amount_adjusted_body">Your claimed distance exceeds the daily reimbursable limit. The amount below has been adjusted to what's payable under policy.</string>
     <string name="logging_claimed">Claimed</string>
     <string name="logging_reimbursable">Reimbursable</string>
     <string name="logging_accept_resubmit">Accept &amp; Resubmit</string>
@@ -1291,13 +1291,13 @@
     <string name="tracking_insights_title">Track Insights</string>
     <string name="tracking_live_subtitle">Journey in progress</string>
     <string name="tracking_live_title">Live Tracking</string>
-    <string name="tracking_load_more_error">Couldn\'t load more</string>
+    <string name="tracking_load_more_error">Couldn't load more</string>
     <string name="tracking_manual_checkin_current_location">Current Location</string>
     <string name="tracking_manual_checkin_datetime_label">Date &amp; Time</string>
     <string name="tracking_manual_checkin_details">Check-in Details</string>
     <string name="tracking_manual_checkin_now">Now</string>
     <string name="tracking_manual_checkin_reason_label">Reason / Notes</string>
-    <string name="tracking_manual_checkin_reason_placeholder">What\'s the reason for this check-in?</string>
+    <string name="tracking_manual_checkin_reason_placeholder">What's the reason for this check-in?</string>
     <string name="tracking_manual_checkin_submit">Submit Check-In</string>
     <string name="tracking_manual_checkin_subtitle">Enter your location manually</string>
     <string name="tracking_manual_checkin_title">Manual Check-In</string>
@@ -1443,10 +1443,10 @@
     <string name="tracking_route_points_count">Route Points (%1$d)</string>
     <string name="tracking_route_points_empty_subtitle">This journey has no recorded location fixes.</string>
     <string name="tracking_route_points_empty_title">No GPS points</string>
-    <string name="tracking_route_points_load_error">Couldn\'t load points</string>
+    <string name="tracking_route_points_load_error">Couldn't load points</string>
     <string name="tracking_route_points_subtitle">Raw GPS coordinates for this trip</string>
     <string name="tracking_route_points_title">Route Points</string>
-    <string name="tracking_saved_empty_journeys_hint">Tap \'Start Journey\' to record your first trip</string>
+    <string name="tracking_saved_empty_journeys_hint">Tap 'Start Journey' to record your first trip</string>
     <string name="tracking_saved_empty_journeys_none">No saved journeys</string>
     <string name="tracking_saved_empty_journeys_query">No matching journeys</string>
     <string name="tracking_saved_empty_search_hint">Try a different search term</string>
@@ -1489,7 +1489,7 @@
     <string name="tracking_settings_update_interval">Update interval</string>
     <string name="tracking_settings_upload_background">Upload in background</string>
     <string name="tracking_settings_upload_background_desc">Sync tracking data when app is in background</string>
-    <string name="tracking_setup_all_set">All set! You\'re ready to track.</string>
+    <string name="tracking_setup_all_set">All set! You're ready to track.</string>
     <string name="tracking_setup_subtitle">Configure the app for accurate tracking</string>
     <string name="tracking_setup_title">Setup Guide</string>
     <string name="tracking_status_saved">Saved</string>
@@ -1837,7 +1837,7 @@
     <string name="shared_login_tagline">Mileage tracking, offline-first</string>
     <string name="shared_login_cd_choose_persona">Choose demo persona</string>
     <string name="shared_login_demo_mode_title">Demo mode</string>
-    <string name="shared_login_demo_mode_subtitle">Choose which persona you\'re signing in as.</string>
+    <string name="shared_login_demo_mode_subtitle">Choose which persona you're signing in as.</string>
     <string name="shared_auth_email_error">Enter your email to continue</string>
     <string name="shared_auth_password_placeholder">Any password works</string>
     <string name="shared_auth_hide_password">Hide password</string>
@@ -1853,13 +1853,13 @@
     <string name="shared_home_at_a_glance">At A Glance</string>
     <string name="shared_home_benefits">Benefits</string>
     <string name="shared_home_greeting">Hello,</string>
-    <string name="shared_home_greeting_subtitle">Let\'s manage your spends!</string>
+    <string name="shared_home_greeting_subtitle">Let's manage your spends!</string>
     <string name="shared_home_cd_notifications">Notifications</string>
     <string name="shared_home_action_required">Action Required</string>
     <string name="shared_home_take_action">Take Action</string>
     <string name="shared_home_welcome">Welcome!</string>
     <string name="shared_home_welcome_named">Welcome, %1$s!</string>
-    <string name="shared_home_signed_in_at">You\'re signed in at %1$s.</string>
+    <string name="shared_home_signed_in_at">You're signed in at %1$s.</string>
     <string name="shared_home_cd_dismiss_welcome">Dismiss welcome banner</string>
     <string name="shared_home_start">Start</string>
     <string name="shared_home_my_cards">My Cards</string>
@@ -1913,7 +1913,7 @@
     <string name="core_referral_title">Refer a friend</string>
     <string name="core_referral_code_label">Your referral code</string>
     <string name="core_referral_share">Share invite</string>
-    <string name="core_referral_enter_code">Enter a friend\'s code</string>
+    <string name="core_referral_enter_code">Enter a friend's code</string>
     <string name="core_referral_redeem">Redeem</string>
     <string name="core_action_exit">Exit</string>
     <string name="core_action_select">Select</string>
@@ -1927,9 +1927,9 @@
     <string name="core_action_done">Done</string>
     <string name="core_remarks_placeholder">Enter remarks</string>
     <string name="core_remarks_required">Remarks are required for this action</string>
-    <string name="core_odometer_discrepancy_title">Readings don\'t match</string>
+    <string name="core_odometer_discrepancy_title">Readings don't match</string>
     <string name="core_odometer_discrepancy_body">The typed, device-OCR and AI readings disagree. Accept the best guess or retake the photo.</string>
-    <string name="core_odometer_rejection_title">Couldn\'t read the odometer</string>
+    <string name="core_odometer_rejection_title">Couldn't read the odometer</string>
     <string name="core_odometer_action_accept_typed">Use typed value</string>
     <string name="core_odometer_source_user">Typed</string>
     <string name="core_odometer_source_device">Device OCR</string>
@@ -2052,8 +2052,8 @@
     <string name="media_ocr_confirmation_duplicate_confirmed_title">Duplicate detected</string>
     <string name="media_ocr_confirmation_duplicate_body">Looks similar to a previous entry (%1$s): %2$s</string>
     <string name="media_ocr_confirmation_duplicate_confirmed_body">This matches an existing entry (%1$s).</string>
-    <string name="media_ocr_confirmation_not_receipt_title">Doesn\'t look like a receipt</string>
-    <string name="media_ocr_confirmation_not_receipt_body">We couldn\'t confidently read this as a receipt. Continue anyway or retake the photo.</string>
+    <string name="media_ocr_confirmation_not_receipt_title">Doesn't look like a receipt</string>
+    <string name="media_ocr_confirmation_not_receipt_body">We couldn't confidently read this as a receipt. Continue anyway or retake the photo.</string>
     <string name="media_action_continue_anyway">Continue anyway</string>
     <string name="media_action_use_data">Use data</string>
     <string name="media_action_ignore">Ignore</string>
@@ -2173,7 +2173,7 @@
     <string name="plugins_apply_persona">Apply persona</string>
     <string name="plugins_reset_all">Reset to persona defaults</string>
     <string name="plugins_persona_dialog_title">Apply %1$s?</string>
-    <string name="plugins_persona_dialog_desc">Applies this persona\'s plugin mix to the current account.</string>
+    <string name="plugins_persona_dialog_desc">Applies this persona's plugin mix to the current account.</string>
     <string name="plugins_persona_keep">Keep my changes</string>
     <string name="plugins_persona_clear">Clear my changes first</string>
     <string name="plugins_restart_banner">%1$d change(s) need a restart to apply</string>
@@ -2266,7 +2266,7 @@
     <string name="profile_change_password_submit">Update password</string>
     <string name="profile_change_password_err_current">Current password is incorrect</string>
     <string name="profile_change_password_err_short">Use at least 8 characters</string>
-    <string name="profile_change_password_err_mismatch">Passwords don\'t match</string>
+    <string name="profile_change_password_err_mismatch">Passwords don't match</string>
     <string name="profile_change_password_strength_weak">Weak</string>
     <string name="profile_change_password_strength_fair">Fair</string>
     <string name="profile_change_password_strength_strong">Strong</string>
@@ -2290,7 +2290,7 @@
     <string name="onboarding_skip">Skip for now</string>
     <string name="onboarding_optional">(optional)</string>
     <string name="plugin_onboarding_signuponboardingenabled_title">Signup onboarding form</string>
-    <string name="plugin_onboarding_signuponboardingenabled_desc">Show a details form after a new persona\'s first login</string>
+    <string name="plugin_onboarding_signuponboardingenabled_desc">Show a details form after a new persona's first login</string>
     <string name="plugin_onboarding_signuplastnameoptional_title">Last name optional</string>
     <string name="plugin_onboarding_signuplastnameoptional_desc">Allow signup without a last name</string>
     <string name="plugin_onboarding_signupemailoptional_title">Email optional</string>
@@ -2305,7 +2305,7 @@
     <string name="plugin_onboarding_showskiponboarding_desc">Show a Skip button on the signup form</string>
 
     <!-- PLAN_V24 P2.2: what's-new sheet -->
-    <string name="whats_new_title">What\'s new in Mileway</string>
+    <string name="whats_new_title">What's new in Mileway</string>
     <string name="whats_new_got_it">Got it</string>
 
     <!-- PLAN_V24 P3.1: phone change -->
@@ -2386,7 +2386,7 @@
     <string name="plans_confirm_cancel">Cancel</string>
     <string name="mysub_back">Back</string>
     <string name="mysub_title">My subscription</string>
-    <string name="mysub_empty">You don\'t have an active subscription.</string>
+    <string name="mysub_empty">You don't have an active subscription.</string>
     <string name="mysub_see_plans">See plans</string>
     <string name="mysub_started">Started</string>
     <string name="mysub_renews">Renews on</string>
@@ -2400,7 +2400,7 @@
     <string name="mysub_renew_body">This extends your subscription by one more period.</string>
     <string name="mysub_renew_confirm">Renew</string>
     <string name="mysub_cancel_title">Cancel subscription?</string>
-    <string name="mysub_cancel_body">You\'ll keep access until the end of the current period.</string>
+    <string name="mysub_cancel_body">You'll keep access until the end of the current period.</string>
     <string name="mysub_cancel_confirm">Cancel subscription</string>
     <string name="mysub_dialog_dismiss">Not now</string>
     <string name="mysub_status_active">Active</string>
@@ -2412,7 +2412,7 @@
     <string name="plugin_engagement_show_rating_title">Rating chip</string>
     <string name="plugin_engagement_show_rating_desc">Show your aggregate rating on the profile badges section</string>
     <string name="profile_badges_title">Achievements</string>
-    <string name="profile_badges_subtitle">Milestones you\'ve earned from your trips</string>
+    <string name="profile_badges_subtitle">Milestones you've earned from your trips</string>
     <string name="profile_badges_compliments">Compliments</string>
     <string name="badge_first_trip">First trip</string>
     <string name="badge_ten_trips">10 trips</string>
@@ -2434,7 +2434,7 @@
     <string name="plugin_mailSupport_title">Email channel</string>
     <string name="plugin_mailSupport_desc">Show the email-support action in the Support hub</string>
     <string name="support_hub_title">Help &amp; Support</string>
-    <string name="support_hub_subtitle">Choose how you\'d like help</string>
+    <string name="support_hub_subtitle">Choose how you'd like help</string>
     <string name="support_hub_back">Back</string>
     <string name="support_hub_empty">Support channels are turned off for this profile.</string>
     <string name="support_channel_faq_title">FAQ</string>
@@ -2452,18 +2452,18 @@
     <string name="support_chat_input_hint">Type your question…</string>
     <string name="support_chat_send">Send</string>
     <string name="support_chat_disclaimer">Automated replies. For anything else, raise a ticket.</string>
-    <string name="support_chat_greeting_bot">Hi! I\'m the Mileway assistant. Ask me about tracking, expenses, permissions or your account.</string>
+    <string name="support_chat_greeting_bot">Hi! I'm the Mileway assistant. Ask me about tracking, expenses, permissions or your account.</string>
     <string name="support_chat_reply_greeting">Hello! How can I help you today?</string>
     <string name="support_chat_reply_tracking">For tracking: open the Track tab and tap Start Journey. Keep Location set to Fine with background access on for the best accuracy.</string>
     <string name="support_chat_reply_expense">To claim an expense, open a completed journey and tap Submit, then fill in the submission form and submit your claim.</string>
     <string name="support_chat_reply_account">For account help, open Profile → tap your name to switch accounts, or Settings for password and preferences.</string>
     <string name="support_chat_reply_permissions">Mileway needs Location (Fine + Background) for tracking, and Notifications on Android 13+. Turn off Battery Optimisation for reliable tracking.</string>
-    <string name="support_chat_reply_ticket">I can\'t reach a human here, but you can raise a ticket from Support → My tickets, or use Call/Email support.</string>
-    <string name="support_chat_reply_thanks">You\'re welcome! Anything else I can help with?</string>
-    <string name="support_chat_reply_fallback">I\'m not sure about that yet. Try asking about tracking, expenses, permissions or your account — or raise a ticket.</string>
+    <string name="support_chat_reply_ticket">I can't reach a human here, but you can raise a ticket from Support → My tickets, or use Call/Email support.</string>
+    <string name="support_chat_reply_thanks">You're welcome! Anything else I can help with?</string>
+    <string name="support_chat_reply_fallback">I'm not sure about that yet. Try asking about tracking, expenses, permissions or your account — or raise a ticket.</string>
     <!-- PLAN_V24 P12.3: review prompter + native rate sheet -->
     <string name="plugin_engagement_review_prompt_title">Review prompt</string>
-    <string name="plugin_engagement_review_prompt_desc">Ask for a rating on Home once you\'re an engaged user</string>
+    <string name="plugin_engagement_review_prompt_desc">Ask for a rating on Home once you're an engaged user</string>
     <string name="rate_app_title">Enjoying Mileway?</string>
     <string name="rate_app_subtitle">Tap a star to rate your experience.</string>
     <string name="rate_app_submit">Submit</string>
@@ -2471,10 +2471,10 @@
     <string name="rate_app_thanks">Thanks for your feedback!</string>
     <string name="rate_app_star">Star %1$d</string>
     <string name="profile_settings_rate">Rate Mileway</string>
-    <string name="profile_settings_rate_desc">Tell us how we\'re doing</string>
+    <string name="profile_settings_rate_desc">Tell us how we're doing</string>
     <!-- PLAN_V24 P12.4: what's-new animated indicator -->
-    <string name="whats_new_button">What\'s new</string>
-    <string name="whats_new_indicator_desc">See what\'s new in Mileway</string>
+    <string name="whats_new_button">What's new</string>
+    <string name="whats_new_indicator_desc">See what's new in Mileway</string>
     <string name="profile_settings_whats_new_desc">See the latest features</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">Incentive programs</string>
@@ -2500,8 +2500,8 @@
     <string name="profile_settings_delete_account_desc">Request permanent deletion of this profile</string>
     <string name="delete_back">Back</string>
     <string name="delete_title">Delete account</string>
-    <string name="delete_warning_title">This can\'t be undone</string>
-    <string name="delete_warning_body">Deleting your account removes this profile\'s data from the device and signs you out.</string>
+    <string name="delete_warning_title">This can't be undone</string>
+    <string name="delete_warning_body">Deleting your account removes this profile's data from the device and signs you out.</string>
     <string name="delete_reason_label">Reason (optional)</string>
     <string name="delete_confirm_label">Type DELETE to confirm</string>
     <string name="delete_submit">Request account deletion</string>
@@ -2560,7 +2560,7 @@
     <string name="coupons_active">Active offers</string>
     <string name="coupons_inactive">Expired &amp; used</string>
     <string name="coupons_result_success">Coupon applied successfully!</string>
-    <string name="coupons_result_invalid">That code isn\'t valid.</string>
+    <string name="coupons_result_invalid">That code isn't valid.</string>
     <string name="coupons_result_expired">This code has expired.</string>
     <string name="coupons_result_used">This code has already been used.</string>
     <string name="coupons_status_active">Active</string>
@@ -2603,15 +2603,15 @@
     <string name="eco_trips">Green trips</string>
     <string name="eco_empty">Track a trip to see your impact.</string>
     <string name="eco_back">Back</string>
-    <string name="profile_home_tile_campaigns_title">What\'s New</string>
+    <string name="profile_home_tile_campaigns_title">What's New</string>
     <string name="profile_home_tile_campaigns_subtitle">Campaigns &amp; offers</string>
-    <string name="marketing_title">What\'s New</string>
+    <string name="marketing_title">What's New</string>
     <string name="marketing_subtitle">Campaigns and announcements</string>
     <string name="marketing_back">Back</string>
     <string name="marketing_empty">No campaigns right now — check back soon.</string>
     <string name="marketing_mobile_exclusive">Mobile exclusive</string>
     <string name="marketing_get_in_touch">Get in touch</string>
-    <string name="marketing_interest_captured">Thanks — we\'ll reach out to you.</string>
+    <string name="marketing_interest_captured">Thanks — we'll reach out to you.</string>
     <string name="marketing_contact">Contact: %1$s</string>
     <!-- PLAN_V24 P4.4: corporate email verification -->
     <string name="plugin_corporate_verify_title">Corporate email verification</string>
@@ -2750,7 +2750,7 @@
     <string name="plugin_sync_interval_desc">How often trips auto-sync when a connection is available</string>
     <!-- PLAN_V24 P10.6: manager/reportee tracking view -->
     <string name="plugin_tracking_manager_view_title">Reportee tracking view</string>
-    <string name="plugin_tracking_manager_view_desc">Let managers see their reportees\' trips and mileage summaries</string>
+    <string name="plugin_tracking_manager_view_desc">Let managers see their reportees' trips and mileage summaries</string>
     <!-- PLAN_V24 P10.5: bubble / overlay / reverse-geocode toggles -->
     <string name="plugin_show_tracking_bubble_title">Floating tracking bubble</string>
     <string name="plugin_show_tracking_bubble_desc">Show a draggable bubble over other apps while a trip is tracking</string>
@@ -2771,7 +2771,7 @@
     <string name="plugin_tracking_favourites_title">Favourite routes</string>
     <string name="plugin_tracking_favourites_desc">Pin completed trips as named favourite routes with a quick-start classification</string>
     <string name="tracking_dest_title">Head home</string>
-    <string name="tracking_dest_subtitle">Pick where you\'re heading — trips are classified toward it</string>
+    <string name="tracking_dest_subtitle">Pick where you're heading — trips are classified toward it</string>
     <string name="tracking_dest_pick">Pick a destination</string>
     <string name="tracking_dest_no_places">Add a saved place first to head home</string>
     <string name="tracking_dest_heading_to">Heading to %1$s</string>
@@ -2806,7 +2806,7 @@
     <string name="approvals_toast_request_approved">Request approved</string>
     <string name="approvals_toast_request_rejected">Request rejected</string>
     <string name="approvals_toast_request_withdrawn">Request withdrawn</string>
-    <string name="approvals_toast_edit_distance_unavailable">Distance editing isn\'t available from Approvals — open the trip in Logging.</string>
+    <string name="approvals_toast_edit_distance_unavailable">Distance editing isn't available from Approvals — open the trip in Logging.</string>
     <string name="approvals_action_withdraw">Withdraw</string>
     <string name="approvals_action_edit_distance">Edit Distance</string>
     <string name="approvals_ack_violation">I acknowledge this flagged violation</string>
@@ -2854,7 +2854,7 @@
     <string name="profile_permission_notifications">Notifications</string>
     <string name="profile_permission_activity_recognition">Activity Recognition</string>
     <string name="profile_permission_bluetooth">Bluetooth</string>
-    <string name="profile_home_biometric_confirm_title">Confirm it\'s you</string>
+    <string name="profile_home_biometric_confirm_title">Confirm it's you</string>
     <string name="profile_home_biometric_switching_subtitle">Switching persona</string>
     <string name="profile_home_referral_share_subject">Join me on Mileway</string>
     <string name="tracking_action_retake">Retake</string>
@@ -3060,9 +3060,9 @@
     <string name="tour_step_classify_title">Classify it</string>
     <string name="tour_step_classify_body">Mark the trip as business or personal so it lands in the right report.</string>
     <string name="tour_step_submit_title">Submit</string>
-    <string name="tour_step_submit_body">Send the trip for reimbursement. That\'s the whole loop.</string>
-    <string name="tour_step_complete_title">You\'re all set</string>
-    <string name="tour_step_complete_body">Tour complete — you\'ve earned the Tour complete badge. Happy tracking!</string>
+    <string name="tour_step_submit_body">Send the trip for reimbursement. That's the whole loop.</string>
+    <string name="tour_step_complete_title">You're all set</string>
+    <string name="tour_step_complete_body">Tour complete — you've earned the Tour complete badge. Happy tracking!</string>
     <string name="tour_offer_title">Take a quick tour</string>
     <string name="tour_offer_body">See how to track, classify and submit a trip.</string>
     <string name="tour_offer_start">Start tour</string>
@@ -3094,7 +3094,7 @@
     <string name="home_banner_offers_badge">OFFER</string>
     <!-- PLAN_V24 P13.3: forced-popup coordinator (signature re-sign one-shot). -->
     <string name="popup_signature_title">Agreement update</string>
-    <string name="popup_signature_body">We\'ve updated the terms. Please re-sign to continue using Mileway.</string>
+    <string name="popup_signature_body">We've updated the terms. Please re-sign to continue using Mileway.</string>
     <string name="popup_signature_confirm">Re-sign now</string>
     <string name="popup_signature_later">Later</string>
     <!-- PLAN_V25 P25.A5.1: TransactionDetailScaffold's shared DetailSection tab labels. -->
@@ -3162,7 +3162,7 @@
     <string name="shared_onboarding_slide2_caption">No signal, no problem. Trips are saved on your device and are ready whenever you are.</string>
     <string name="shared_onboarding_slide3_title">Your data stays put</string>
     <string name="shared_onboarding_slide3_caption">Everything lives locally on your phone: capture mileage anywhere, sync nothing.</string>
-    <string name="shared_search_load_error">Couldn\'t load %1$s</string>
+    <string name="shared_search_load_error">Couldn't load %1$s</string>
     <string name="tracking_hw_export_csv">CSV</string>
     <string name="tracking_hw_export_json">JSON</string>
     <string name="events_detail_capacity_actual">Capacity %1$d · Actual %2$d</string>
