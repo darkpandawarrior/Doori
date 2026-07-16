@@ -366,6 +366,10 @@ fun HomeScreenContent(
         androidx.compose.material3.Surface(
             shape = DesignTokens.Shape.sheetSquared,
             color = MaterialTheme.colorScheme.background,
+            // Depth cue at the sheet edge: content clipping at the top boundary must read as
+            // "sliding under a raised surface", not as a rendering cut — the shadow projects
+            // onto the header band above the rounded corners.
+            shadowElevation = 12.dp,
             modifier =
                 Modifier
                     .fillMaxSize()
