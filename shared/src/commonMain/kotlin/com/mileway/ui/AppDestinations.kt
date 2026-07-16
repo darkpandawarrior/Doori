@@ -38,6 +38,9 @@ object AppGraph {
 
     /** Events (create + history) graph, reached from Home quick actions / master search. */
     const val EVENTS = "events_graph"
+
+    /** PLAN_V36 P3: What's New list/detail graph, reached from the digest sheet and Settings. */
+    const val WHATS_NEW = "whatsnew_graph"
 }
 
 /**

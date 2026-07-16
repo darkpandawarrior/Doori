@@ -163,6 +163,8 @@ fun SettingsScreen(
     onOpenDebugMenu: () -> Unit = {},
     onOpenPlugins: () -> Unit = {},
     onOpenAccountDeletion: () -> Unit = {},
+    // PLAN_V36 P3: opens the full What's New list (hoisted — see [profileGraph]'s note).
+    onOpenWhatsNew: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     localeController: LocaleController = koinInject(),
 ) {
@@ -557,9 +559,9 @@ fun SettingsScreen(
                 supportingContent = { Text(stringResource(Res.string.profile_settings_rate_desc)) },
                 modifier = Modifier.clickable { showRateSheet = true },
             )
-            // PLAN_V24 P12.4: compact "What's new" indicator. ponytail: tapping acknowledges the
-            // changelog (stops the pulse app-wide) — the full sheet lives on Home, which owns the
-            // WhatsNewViewModel; Settings only surfaces + dismisses the release badge.
+            // PLAN_V24 P12.4 / PLAN_V36 P3: compact "What's new" indicator — tapping acknowledges
+            // the changelog (stops the pulse app-wide) AND opens the full list (the digest sheet
+            // lives on Home; this is the second entry point spec §7 calls for).
             ListItem(
                 headlineContent = {
                     CompactWhatsNewButton(
@@ -568,6 +570,7 @@ fun SettingsScreen(
                             whatsNewScope.launch {
                                 sessionRepository.markWhatsNewSeen(whatsNewVersionProvider.currentVersion)
                             }
+                            onOpenWhatsNew()
                         },
                     )
                 },

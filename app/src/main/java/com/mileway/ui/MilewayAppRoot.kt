@@ -123,6 +123,8 @@ import com.mileway.feature.profile.ui.navigation.profileGraph
 import com.mileway.feature.tracking.debug.DebugMenuScreen
 import com.mileway.feature.tracking.ui.navigation.TrackingRoutes
 import com.mileway.feature.tracking.ui.navigation.trackingGraph
+import com.mileway.feature.whatsnew.ui.navigation.WhatsNewRoutes
+import com.mileway.feature.whatsnew.ui.navigation.whatsNewGraph
 import com.mileway.ui.home.HomeScreen
 import com.mileway.ui.search.MasterSearchRoute
 import com.mileway.ui.search.toSectionRoute
@@ -338,6 +340,9 @@ fun MilewayAppRoot(
                                 onAskAdvanceClassic = { navController.navigate(AdvancesRoutes.ASK_ADVANCE) { popUpTo(AppGraph.ADVANCES) } },
                                 // PLAN_V35: home "My Cards" section header → the advances wallet hub.
                                 onOpenAdvances = { navController.navigate(AppGraph.ADVANCES) },
+                                // PLAN_V36 P3: the digest sheet's row taps / "See all updates" footer.
+                                onOpenWhatsNewEntry = { entryId -> navController.navigate(WhatsNewRoutes.detail(entryId)) },
+                                onSeeAllWhatsNew = { navController.navigate(AppGraph.WHATS_NEW) },
                             )
                         }
                     }
@@ -370,6 +375,8 @@ fun MilewayAppRoot(
                             // P29.S.6: Notification Centre card taps — same best-effort resolve-and-navigate
                             // as master search's onOpenResult; unresolvable links are a safe no-op.
                             onOpenDeepLink = { link -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(link).toAppRoute()) },
+                            // PLAN_V36 P3: Settings' "What's new" row.
+                            onOpenWhatsNew = { navController.navigate(AppGraph.WHATS_NEW) },
                         )
                     }
                     // Corporate cards feature module (replaces the old profile card screens).
@@ -390,6 +397,11 @@ fun MilewayAppRoot(
                             onTrackMiles = { navController.navigate(AppGraph.TRACK) },
                             onScanQr = { navController.navigate(PaymentsRoutes.HOME) { popUpTo(AppGraph.PAYMENTS) } },
                         )
+                    }
+                    // PLAN_V36 P3: What's New list/detail — reached from the digest sheet and
+                    // Settings, never a bottom-nav tab (full-screen, same as cardsGraph).
+                    navigation(startDestination = WhatsNewRoutes.LIST, route = AppGraph.WHATS_NEW) {
+                        whatsNewGraph(navController = navController)
                     }
                     navigation(startDestination = TravelRoutes.HOME, route = AppGraph.TRAVEL) {
                         travelGraph(navController)

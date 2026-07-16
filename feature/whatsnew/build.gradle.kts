@@ -19,6 +19,9 @@ kotlin {
             // consumes without a feature-to-feature dependency.
             implementation(project(":core:data"))
             implementation(project(":core:platform"))
+            // PLAN_V36 P3: hero image on the list card (empty for every catalog entry until P5's
+            // media pipeline lands, but the card must compile against a real AsyncImage now).
+            implementation(libs.coil3.compose)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

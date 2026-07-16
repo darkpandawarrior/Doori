@@ -107,6 +107,11 @@ fun HomeScreen(
     onAskAdvanceClassic: () -> Unit = onOpenAccount,
     // PLAN_V35: opens the :feature:advances wallet hub (home card sections + section headers).
     onOpenAdvances: () -> Unit = onOpenAccount,
+    // PLAN_V36 P3: the digest sheet's row taps / "See all updates" footer — hoisted so
+    // :shared never depends on :app's NavController directly (same pattern as every other
+    // cross-graph callback here).
+    onOpenWhatsNewEntry: (String) -> Unit = {},
+    onSeeAllWhatsNew: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel(),
     firstLoginBannerViewModel: FirstLoginBannerViewModel = koinViewModel(),
     whatsNewViewModel: WhatsNewViewModel = koinViewModel(),
@@ -289,7 +294,16 @@ fun HomeScreen(
                 whatsNewViewModel.acknowledge()
                 showWhatsNewManually = false
             },
-            // PLAN_V36 P3 wires these to the list/detail screens; no-op until that phase lands.
+            onOpenEntry = { entryId ->
+                whatsNewViewModel.acknowledge()
+                showWhatsNewManually = false
+                onOpenWhatsNewEntry(entryId)
+            },
+            onSeeAll = {
+                whatsNewViewModel.acknowledge()
+                showWhatsNewManually = false
+                onSeeAllWhatsNew()
+            },
         )
     }
 }

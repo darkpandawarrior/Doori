@@ -2312,6 +2312,15 @@
     <!-- PLAN_V36 P2: footer link from the digest sheet to the full What's New list -->
     <string name="whats_new_see_all">See all updates</string>
 
+    <!-- PLAN_V36 P3: full What's New list screen -->
+    <string name="whatsnew_list_title">What's New</string>
+    <string name="whatsnew_list_subtitle_count">%1$d updates</string>
+    <string name="whatsnew_list_subtitle_empty">No updates yet</string>
+    <string name="whatsnew_empty_title">You're all caught up</string>
+    <string name="whatsnew_empty_subtitle">Check back later for new features and improvements.</string>
+    <string name="whatsnew_new_badge">NEW</string>
+    <string name="whatsnew_released_on">Released %1$s</string>
+
     <!-- PLAN_V24 P3.1: phone change -->
     <string name="plugin_profile_phone_change_title">Change phone number</string>
     <string name="plugin_profile_phone_change_desc">Let users change their phone with OTP re-verify</string>

@@ -132,6 +132,9 @@ fun NavGraphBuilder.profileGraph(
     // PLAN_V29 P29.S.6: Notification Centre card taps route through the app-level DeepLinkRouter
     // (feature modules never depend on :app or each other — see CLAUDE.md's module-boundary rule).
     onOpenDeepLink: (String) -> Unit = {},
+    // PLAN_V36 P3: Settings' "What's new" row now opens the full list (feature:profile can't
+    // depend on feature:whatsnew directly — same cross-feature-boundary reason as [onOpenCards]).
+    onOpenWhatsNew: () -> Unit = {},
 ) {
     composable(ProfileRoutes.HOME) {
         ProfileScreen(
@@ -320,6 +323,7 @@ fun NavGraphBuilder.profileGraph(
             onOpenDebugMenu = onOpenDebugMenu,
             onOpenPlugins = { navController.navigate(ProfileRoutes.PLUGINS) },
             onOpenAccountDeletion = { navController.navigate(ProfileRoutes.ACCOUNT_DELETION) },
+            onOpenWhatsNew = onOpenWhatsNew,
         )
     }
     composable(ProfileRoutes.PLUGINS) {
