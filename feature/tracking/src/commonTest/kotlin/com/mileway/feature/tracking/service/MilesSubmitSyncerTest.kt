@@ -347,4 +347,10 @@ private class FakeMilesSubmitDao : SavedTrackDao {
     ): Int = 0
 
     override suspend fun markOdometerNotWorking(routeId: String): Int = 0
+
+    override suspend fun setOfficeAndEntity(
+        routeId: String,
+        officeId: Long?,
+        entityId: Long?,
+    ): Int = 0
 }
