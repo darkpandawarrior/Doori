@@ -1,5 +1,6 @@
 package com.mileway.shared
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
 import com.mileway.core.common.AppLog
 import com.mileway.core.data.di.coreDataModule
@@ -8,6 +9,7 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.di.initKoin
 import com.mileway.core.ui.di.iosAppModule
 import com.mileway.core.ui.platform.LocalManagerProvider
+import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.tracking.di.trackingModule
@@ -19,6 +21,7 @@ import com.mileway.ui.home.homeModule
 import org.koin.mp.KoinPlatform
 import platform.Foundation.NSNotificationCenter
 import platform.Foundation.NSOperationQueue
+import platform.UIKit.UIAccessibilityIsReduceMotionEnabled
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIViewController
 
@@ -56,8 +59,13 @@ fun MilewayAppViewController(): UIViewController {
         queue = NSOperationQueue.mainQueue,
     ) { _ -> appSyncTrigger.onAppForeground() }
     return ComposeUIViewController {
-        LocalManagerProvider {
-            AppHost { MilewayApp() }
+        // PLAN_V36 P6: one-shot read of the OS-level "Reduce Motion" accessibility toggle,
+        // mirroring the Android root's Settings.Global.ANIMATOR_DURATION_SCALE read — see
+        // LocalReducedMotion's KDoc for why this isn't observed live.
+        CompositionLocalProvider(LocalReducedMotion provides UIAccessibilityIsReduceMotionEnabled()) {
+            LocalManagerProvider {
+                AppHost { MilewayApp() }
+            }
         }
     }
 }

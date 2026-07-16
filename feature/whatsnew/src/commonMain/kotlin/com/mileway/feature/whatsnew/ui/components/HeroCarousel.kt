@@ -40,8 +40,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.whatsnew_cd_next_media
 import com.mileway.core.ui.resources.whatsnew_cd_previous_media
@@ -60,18 +65,29 @@ private val ThumbnailSize = 64.dp
 private const val AUTO_ADVANCE_MS = 4_500L
 
 /**
+ * PLAN_V36 P6 (spec §6.3) — pure gate for [HeroCarousel]'s auto-advance loop, pulled out of the
+ * `LaunchedEffect` so it's directly unit-testable without a Compose test harness.
+ */
+internal fun shouldAutoAdvance(
+    reducedMotion: Boolean,
+    isZoomed: Boolean,
+    isScrollInProgress: Boolean,
+): Boolean = !reducedMotion && !isZoomed && !isScrollInProgress
+
+/**
  * PLAN_V36 P4 — spec §5.2's hero carousel: a [HorizontalPager] of [ZoomableMedia] pages. When
  * there's more than one [WhatsNewMedia] item it also renders chevron overlays, a dot indicator, a
  * 64dp thumbnail strip (selected = primary border) and a "Step X of N" chip, and auto-advances
- * every 4.5s — paused while the current page is zoomed or the pager itself is being dragged.
- *
- * Reduced-motion (killing the auto-advance) is V36.P6 (`LocalReducedMotion` doesn't exist yet).
- * The caller (`WhatsNewDetailScreen`) already skips this composable entirely when media is empty.
+ * every 4.5s — paused while the current page is zoomed, the pager itself is being dragged, or
+ * (PLAN_V36 P6) [LocalReducedMotion] is on, in which case the auto-advance loop never starts at
+ * all. The caller (`WhatsNewDetailScreen`) already skips this composable entirely when media is
+ * empty.
  */
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HeroCarousel(
     media: List<WhatsNewMedia>,
+    title: String,
     modifier: Modifier = Modifier,
     onPageChanged: (Int) -> Unit = {},
 ) {
@@ -79,27 +95,56 @@ fun HeroCarousel(
     val scope = rememberCoroutineScope()
     var isZoomed by remember { mutableStateOf(false) }
     val multiMedia = media.size > 1
+    val reducedMotion = LocalReducedMotion.current
+    val previousLabel = stringResource(Res.string.whatsnew_cd_previous_media)
+    val nextLabel = stringResource(Res.string.whatsnew_cd_next_media)
 
     LaunchedEffect(pagerState.currentPage) { onPageChanged(pagerState.currentPage) }
 
-    if (multiMedia) {
+    if (multiMedia && !reducedMotion) {
         LaunchedEffect(pagerState) {
             while (true) {
                 delay(AUTO_ADVANCE_MS)
-                if (!isZoomed && !pagerState.isScrollInProgress) {
+                if (shouldAutoAdvance(reducedMotion, isZoomed, pagerState.isScrollInProgress)) {
                     pagerState.animateScrollToPage((pagerState.currentPage + 1) % media.size)
                 }
             }
         }
     }
 
-    Column(modifier = modifier) {
+    Column(
+        modifier =
+            modifier.let {
+                // PLAN_V36 P6 (spec §6.4): TalkBack next/previous-step actions — the pager's own
+                // swipe gesture is otherwise the only way to change pages. Horizontal-scroll
+                // semantics for the pager itself come for free from HorizontalPager.
+                if (!multiMedia) {
+                    it
+                } else {
+                    it.semantics {
+                        customActions =
+                            listOf(
+                                CustomAccessibilityAction(previousLabel) {
+                                    scope.launch {
+                                        pagerState.animateScrollToPage((pagerState.currentPage - 1 + media.size) % media.size)
+                                    }
+                                    true
+                                },
+                                CustomAccessibilityAction(nextLabel) {
+                                    scope.launch { pagerState.animateScrollToPage((pagerState.currentPage + 1) % media.size) }
+                                    true
+                                },
+                            )
+                    }
+                }
+            },
+    ) {
         Box {
             HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(HeroHeight)) { page ->
                 val item = media[page]
                 ZoomableMedia(
                     model = WhatsNewRes.getUri(item.path),
-                    contentDescription = item.caption,
+                    contentDescription = whatsNewMediaContentDescription(item.caption, title, page, media.size),
                     resetKey = page,
                     onZoomChanged = { zoomed -> if (page == pagerState.currentPage) isZoomed = zoomed },
                     modifier =
@@ -114,7 +159,7 @@ fun HeroCarousel(
             if (multiMedia) {
                 ChevronOverlayButton(
                     icon = Icons.Filled.ChevronLeft,
-                    contentDescription = stringResource(Res.string.whatsnew_cd_previous_media),
+                    contentDescription = previousLabel,
                     onClick = {
                         scope.launch {
                             pagerState.animateScrollToPage((pagerState.currentPage - 1 + media.size) % media.size)
@@ -124,7 +169,7 @@ fun HeroCarousel(
                 )
                 ChevronOverlayButton(
                     icon = Icons.Filled.ChevronRight,
-                    contentDescription = stringResource(Res.string.whatsnew_cd_next_media),
+                    contentDescription = nextLabel,
                     onClick = { scope.launch { pagerState.animateScrollToPage((pagerState.currentPage + 1) % media.size) } },
                     modifier = Modifier.align(Alignment.CenterEnd).padding(DesignTokens.Spacing.s),
                 )
@@ -241,6 +286,8 @@ private fun ThumbnailButton(
             Modifier
                 .size(ThumbnailSize)
                 .clip(DesignTokens.Shape.roundedSm)
+                // PLAN_V36 P6 (spec §6.4): TalkBack announces the currently-selected thumbnail.
+                .semantics { this.selected = selected }
                 .border(2.dp, borderColor, DesignTokens.Shape.roundedSm)
                 .clickable(onClick = onClick),
     )

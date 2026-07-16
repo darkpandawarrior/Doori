@@ -2,6 +2,7 @@ package com.mileway
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,6 +12,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,6 +35,7 @@ import com.mileway.core.data.session.SessionState
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.ui.platform.LocalAnalyticsHelper
 import com.mileway.core.ui.platform.LocalManagerProvider
+import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.core.ui.platform.MaintenanceGate
 import com.mileway.core.ui.platform.UpdateGate
 import com.mileway.core.ui.platform.isUnderMaintenance
@@ -234,101 +238,112 @@ private fun AppEntry(
         nextStageForSession(session, stage, mfaRequired)?.let { stage = it }
     }
 
+    // PLAN_V36 P6: one-shot read of the system "remove animations" developer/accessibility
+    // setting, seeded here (not observed live — see LocalReducedMotion's KDoc) so every screen
+    // under it can read LocalReducedMotion.current with no expect/actual at the call site.
+    val context = LocalContext.current
+    val reducedMotion =
+        remember(context) {
+            Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+        }
+
     // PF.4: seed the Activity-scoped platform managers (in-app update / review / share / …) so any
     // shared screen can read them via `LocalAppReviewManager.current` with no expect/actual at the call site.
-    LocalManagerProvider {
-        // CF.2: one representative event showing the AnalyticsSink wiring end to end — fires once
-        // per stage transition into the app shell (LocalAnalyticsHelper resolves to a real Koin
-        // binding here, the shared no-op default otherwise, e.g. previews).
-        val analyticsHelper = LocalAnalyticsHelper.current
-        LaunchedEffect(stage) {
-            if (stage == AppStage.APP) analyticsHelper.log(AnalyticsEvent("app_session_start"))
-        }
-        MilewayTheme(
-            darkTheme = override ?: systemDark,
-            milewayTheme = milewayTheme,
-            palette = palette,
-            customSeedHex = customSeedHex,
-            useSystemColors = useSystemColors,
-            paletteStyle = paletteStyle,
-        ) {
-            MaintenanceGate(underMaintenance = underMaintenance) {
-                // P7.6: the update gate now wraps every stage (splash/login/PIN/app), not just APP,
-                // so a forced/flexible update blocks the login screen itself, matching MaintenanceGate's
-                // existing scope — only AppStage.APP's inner behavior is unchanged.
-                UpdateGate(config = updateConfig) {
-                    // Android runtime-permission bridge, passed into the (now shared) LoginScreen so the
-                    // welcome-disclaimer "Continue" still triggers the real system permission dialog.
-                    val permissionsController = rememberPermissionsController(onResult = {})
-                    AnimatedContent(
-                        targetState = stage,
-                        transitionSpec = { fadeIn() togetherWith fadeOut() },
-                        label = "appStage",
-                    ) { current ->
-                        when (current) {
-                            AppStage.SPLASH -> SplashScreen(onFinished = { stage = AppStage.LOGIN })
-                            AppStage.LOGIN ->
-                                LoginScreen(
-                                    // A.1: persist how the user signed in BEFORE entering the app, so the
-                                    // session (guest or credentials) survives recreation and deep links.
-                                    // P7.4: land on the PIN gate next, not the app shell directly — every
-                                    // sign-in (fresh or guest) passes through SetPinScreen/CheckPinScreen.
-                                    onSignInWithCredentials = { email ->
-                                        sessionScope.launch { sessionRepository.signInWithCredentials(email) }
-                                        // P1.3: credentials sign-in may owe an MFA step before the PIN gate.
-                                        stage = if (mfaRequired) AppStage.MFA else AppStage.PIN
-                                    },
-                                    onContinueAsGuest = {
-                                        sessionScope.launch { sessionRepository.continueAsGuest() }
-                                        // Guests never do MFA (continueAsGuest marks mfaDone).
-                                        stage = AppStage.PIN
-                                    },
-                                    onRequestPermissions = { permissionsController.request() },
-                                    // P7.5: show WelcomeDisclaimerSheet once per install, persisted so
-                                    // it never replays after this first shown-and-dismissed session.
-                                    hasShownWelcomeDisclaimer = session?.hasShownWelcomeDisclaimer == true,
-                                    onWelcomeDisclaimerShown = {
-                                        sessionScope.launch { sessionRepository.markWelcomeDisclaimerShown() }
-                                    },
-                                    phoneLoginEnabled = phoneLoginEnabled,
-                                    otpViaCallEnabled = otpViaCallEnabled,
-                                )
-                            AppStage.MFA ->
-                                MfaStage(
-                                    target = session?.email ?: DEMO_MFA_TARGET,
-                                    otpViaCallEnabled = otpViaCallEnabled,
-                                    onVerified = {
-                                        sessionScope.launch { sessionRepository.markMfaDone() }
-                                        stage = AppStage.PIN
-                                    },
-                                )
-                            AppStage.PIN ->
-                                PinGateStage(
-                                    hasPin = session?.hasPin == true,
-                                    onPassed = {
-                                        // P2.1: a fresh persona that owes onboarding sees the form before the app.
-                                        stage =
-                                            if (signupOnboardingEnabled && session?.onboardingDone != true) {
-                                                AppStage.ONBOARDING
-                                            } else {
-                                                AppStage.APP
-                                            }
-                                    },
-                                )
-                            AppStage.ONBOARDING ->
-                                SignupOnboardingScreen(
-                                    config = onboardingConfig,
-                                    onComplete = { stage = AppStage.APP },
-                                )
-                            AppStage.APP ->
-                                MilewayAppRoot(
-                                    deepLinkRoute = initialRoute,
-                                    // P2.4: the last persona was just signed out of — jump back to
-                                    // login immediately rather than waiting on the DataStore
-                                    // round-trip below (the LaunchedEffect(session) below is the
-                                    // durable/process-death-safe path; this is the fast path).
-                                    onSignedOut = { stage = AppStage.LOGIN },
-                                )
+    CompositionLocalProvider(LocalReducedMotion provides reducedMotion) {
+        LocalManagerProvider {
+            // CF.2: one representative event showing the AnalyticsSink wiring end to end — fires once
+            // per stage transition into the app shell (LocalAnalyticsHelper resolves to a real Koin
+            // binding here, the shared no-op default otherwise, e.g. previews).
+            val analyticsHelper = LocalAnalyticsHelper.current
+            LaunchedEffect(stage) {
+                if (stage == AppStage.APP) analyticsHelper.log(AnalyticsEvent("app_session_start"))
+            }
+            MilewayTheme(
+                darkTheme = override ?: systemDark,
+                milewayTheme = milewayTheme,
+                palette = palette,
+                customSeedHex = customSeedHex,
+                useSystemColors = useSystemColors,
+                paletteStyle = paletteStyle,
+            ) {
+                MaintenanceGate(underMaintenance = underMaintenance) {
+                    // P7.6: the update gate now wraps every stage (splash/login/PIN/app), not just APP,
+                    // so a forced/flexible update blocks the login screen itself, matching MaintenanceGate's
+                    // existing scope — only AppStage.APP's inner behavior is unchanged.
+                    UpdateGate(config = updateConfig) {
+                        // Android runtime-permission bridge, passed into the (now shared) LoginScreen so the
+                        // welcome-disclaimer "Continue" still triggers the real system permission dialog.
+                        val permissionsController = rememberPermissionsController(onResult = {})
+                        AnimatedContent(
+                            targetState = stage,
+                            transitionSpec = { fadeIn() togetherWith fadeOut() },
+                            label = "appStage",
+                        ) { current ->
+                            when (current) {
+                                AppStage.SPLASH -> SplashScreen(onFinished = { stage = AppStage.LOGIN })
+                                AppStage.LOGIN ->
+                                    LoginScreen(
+                                        // A.1: persist how the user signed in BEFORE entering the app, so the
+                                        // session (guest or credentials) survives recreation and deep links.
+                                        // P7.4: land on the PIN gate next, not the app shell directly — every
+                                        // sign-in (fresh or guest) passes through SetPinScreen/CheckPinScreen.
+                                        onSignInWithCredentials = { email ->
+                                            sessionScope.launch { sessionRepository.signInWithCredentials(email) }
+                                            // P1.3: credentials sign-in may owe an MFA step before the PIN gate.
+                                            stage = if (mfaRequired) AppStage.MFA else AppStage.PIN
+                                        },
+                                        onContinueAsGuest = {
+                                            sessionScope.launch { sessionRepository.continueAsGuest() }
+                                            // Guests never do MFA (continueAsGuest marks mfaDone).
+                                            stage = AppStage.PIN
+                                        },
+                                        onRequestPermissions = { permissionsController.request() },
+                                        // P7.5: show WelcomeDisclaimerSheet once per install, persisted so
+                                        // it never replays after this first shown-and-dismissed session.
+                                        hasShownWelcomeDisclaimer = session?.hasShownWelcomeDisclaimer == true,
+                                        onWelcomeDisclaimerShown = {
+                                            sessionScope.launch { sessionRepository.markWelcomeDisclaimerShown() }
+                                        },
+                                        phoneLoginEnabled = phoneLoginEnabled,
+                                        otpViaCallEnabled = otpViaCallEnabled,
+                                    )
+                                AppStage.MFA ->
+                                    MfaStage(
+                                        target = session?.email ?: DEMO_MFA_TARGET,
+                                        otpViaCallEnabled = otpViaCallEnabled,
+                                        onVerified = {
+                                            sessionScope.launch { sessionRepository.markMfaDone() }
+                                            stage = AppStage.PIN
+                                        },
+                                    )
+                                AppStage.PIN ->
+                                    PinGateStage(
+                                        hasPin = session?.hasPin == true,
+                                        onPassed = {
+                                            // P2.1: a fresh persona that owes onboarding sees the form before the app.
+                                            stage =
+                                                if (signupOnboardingEnabled && session?.onboardingDone != true) {
+                                                    AppStage.ONBOARDING
+                                                } else {
+                                                    AppStage.APP
+                                                }
+                                        },
+                                    )
+                                AppStage.ONBOARDING ->
+                                    SignupOnboardingScreen(
+                                        config = onboardingConfig,
+                                        onComplete = { stage = AppStage.APP },
+                                    )
+                                AppStage.APP ->
+                                    MilewayAppRoot(
+                                        deepLinkRoute = initialRoute,
+                                        // P2.4: the last persona was just signed out of — jump back to
+                                        // login immediately rather than waiting on the DataStore
+                                        // round-trip below (the LaunchedEffect(session) below is the
+                                        // durable/process-death-safe path; this is the fast path).
+                                        onSignedOut = { stage = AppStage.LOGIN },
+                                    )
+                            }
                         }
                     }
                 }

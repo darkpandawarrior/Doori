@@ -1,5 +1,8 @@
 package com.mileway.feature.whatsnew.ui.components
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -38,15 +41,19 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.whatsnew_cd_new_badge
 import com.mileway.core.ui.resources.whatsnew_new_badge
 import com.mileway.core.ui.resources.whatsnew_released_on
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.whatsnew.model.WhatsNewEntry
+import com.mileway.feature.whatsnew.model.WhatsNewMedia
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
@@ -75,12 +82,15 @@ internal val ReleasedDateFormat =
  * catalog entry until V36.P5 ships real media), NEW badge, title+chevron, description, a
  * released-date tag and one tag per [WhatsNewEntry.modules] entry.
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun WhatsNewEntryCard(
     entry: WhatsNewEntry,
     isNew: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedContentScope: AnimatedContentScope? = null,
 ) {
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -113,7 +123,14 @@ fun WhatsNewEntryCard(
                 modifier = Modifier.padding(DesignTokens.Spacing.l),
             ) {
                 if (entry.media.isNotEmpty()) {
-                    WhatsNewHeroImage(path = entry.media.first().path)
+                    WhatsNewHeroImage(
+                        entryId = entry.id,
+                        title = entry.title,
+                        media = entry.media.first(),
+                        totalMedia = entry.media.size,
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedContentScope = animatedContentScope,
+                    )
                 }
 
                 Row(
@@ -126,7 +143,14 @@ fun WhatsNewEntryCard(
                         fontWeight = FontWeight.Bold,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.weight(1f),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .whatsNewSharedBounds(
+                                    key = whatsNewTitleSharedKey(entry.id),
+                                    sharedTransitionScope = sharedTransitionScope,
+                                    animatedContentScope = animatedContentScope,
+                                ),
                     )
                     Icon(
                         Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -165,13 +189,27 @@ fun WhatsNewEntryCard(
 }
 
 /** Hero image (first media item only — a carousel is the detail screen's job, V36.P4). */
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun WhatsNewHeroImage(path: String) {
-    Box {
+private fun WhatsNewHeroImage(
+    entryId: String,
+    title: String,
+    media: WhatsNewMedia,
+    totalMedia: Int,
+    sharedTransitionScope: SharedTransitionScope?,
+    animatedContentScope: AnimatedContentScope?,
+) {
+    Box(
+        modifier =
+            Modifier.whatsNewSharedBounds(
+                key = whatsNewHeroSharedKey(entryId),
+                sharedTransitionScope = sharedTransitionScope,
+                animatedContentScope = animatedContentScope,
+            ),
+    ) {
         AsyncImage(
-            model = WhatsNewRes.getUri(path),
-            contentDescription = null,
+            model = WhatsNewRes.getUri(media.path),
+            contentDescription = whatsNewMediaContentDescription(media.caption, title, index = 0, total = totalMedia),
             contentScale = ContentScale.Fit,
             modifier =
                 Modifier
@@ -200,8 +238,11 @@ private fun WhatsNewHeroImage(path: String) {
 @Composable
 private fun NewBadge(modifier: Modifier = Modifier) {
     val label = stringResource(Res.string.whatsnew_new_badge)
+    val description = stringResource(Res.string.whatsnew_cd_new_badge)
     Surface(
-        modifier = modifier,
+        // PLAN_V36 P6 (spec §6.4): clearAndSetSemantics so TalkBack announces the full
+        // "unread update" meaning instead of just the visible "NEW" glyph.
+        modifier = modifier.clearAndSetSemantics { contentDescription = description },
         shape = DesignTokens.Shape.chip,
         color = MaterialTheme.colorScheme.error,
     ) {

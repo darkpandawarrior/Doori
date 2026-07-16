@@ -2,6 +2,8 @@ package com.mileway.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -143,7 +145,7 @@ private data class TabSpec(
  * (drag horizontally to select, throw up for the assistant action, drag down to collapse
  * into a corner puck whose long-press wheel selects tabs).
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun MilewayAppRoot(
     deepLinkRoute: String? = null,
@@ -315,146 +317,157 @@ fun MilewayAppRoot(
             // innerPadding is deliberately NOT applied: content draws full-bleed behind the
             // floating bar; top-level screens add their own bottom content padding instead.
             Box(modifier = Modifier.fillMaxSize()) {
-                NavHost(
-                    navController = navController,
-                    startDestination = AppGraph.HOME,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    // Centre tab: the Home screen. Its mileage card opens the tracking flow.
-                    navigation(startDestination = "home_screen", route = AppGraph.HOME) {
-                        composable("home_screen") {
-                            HomeScreen(
-                                onStartTracking = { navController.navigate(AppGraph.TRACK) },
-                                onAddExpense = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
-                                onOpenAccount = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.PROFILE }) },
-                                onOpenSearch = { navController.navigate(AppRoutes.SEARCH) },
-                                onOpenAgent = {
-                                    AssistantFabSessionState.onChatOpen()
-                                    navController.navigate(AppRoutes.AGENT_CHAT)
-                                },
-                                // P29.H.2: "Add Invoice" quick action opens the real Payables create flow.
-                                onAddInvoice = { navController.navigate(PayablesRoutes.CREATE) { popUpTo(AppGraph.PAYABLES) } },
-                                // P29.H.2 → PLAN_V35: "Ask Advance" — config-aware QR vs classic, now the real
-                                // :feature:advances wallet flows (supersedes the Profile-tab stubs).
-                                onAskAdvanceQr = { navController.navigate(AdvancesRoutes.QR_REQUEST) { popUpTo(AppGraph.ADVANCES) } },
-                                onAskAdvanceClassic = { navController.navigate(AdvancesRoutes.ASK_ADVANCE) { popUpTo(AppGraph.ADVANCES) } },
-                                // PLAN_V35: home "My Cards" section header → the advances wallet hub.
-                                onOpenAdvances = { navController.navigate(AppGraph.ADVANCES) },
-                                // PLAN_V36 P3: the digest sheet's row taps / "See all updates" footer.
-                                onOpenWhatsNewEntry = { entryId -> navController.navigate(WhatsNewRoutes.detail(entryId)) },
-                                onSeeAllWhatsNew = { navController.navigate(AppGraph.WHATS_NEW) },
+                // PLAN_V36 P6 (spec §6.1): SharedTransitionLayout wraps the whole NavHost so the
+                // whatsnew list-card hero+title can morph into the detail hero+headline across a real
+                // NavHost transition. Every other destination ignores sharedBounds entirely, so this is a
+                // no-op ancestor for them (SharedTransitionLayout behaves like a passthrough Box for
+                // children that never call Modifier.sharedBounds/sharedElement).
+                SharedTransitionLayout(modifier = Modifier.fillMaxSize()) {
+                    val whatsNewSharedTransitionScope = this
+                    NavHost(
+                        navController = navController,
+                        startDestination = AppGraph.HOME,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        // Centre tab: the Home screen. Its mileage card opens the tracking flow.
+                        navigation(startDestination = "home_screen", route = AppGraph.HOME) {
+                            composable("home_screen") {
+                                HomeScreen(
+                                    onStartTracking = { navController.navigate(AppGraph.TRACK) },
+                                    onAddExpense = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
+                                    onOpenAccount = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.PROFILE }) },
+                                    onOpenSearch = { navController.navigate(AppRoutes.SEARCH) },
+                                    onOpenAgent = {
+                                        AssistantFabSessionState.onChatOpen()
+                                        navController.navigate(AppRoutes.AGENT_CHAT)
+                                    },
+                                    // P29.H.2: "Add Invoice" quick action opens the real Payables create flow.
+                                    onAddInvoice = { navController.navigate(PayablesRoutes.CREATE) { popUpTo(AppGraph.PAYABLES) } },
+                                    // P29.H.2 → PLAN_V35: "Ask Advance" — config-aware QR vs classic, now the real
+                                    // :feature:advances wallet flows (supersedes the Profile-tab stubs).
+                                    onAskAdvanceQr = { navController.navigate(AdvancesRoutes.QR_REQUEST) { popUpTo(AppGraph.ADVANCES) } },
+                                    onAskAdvanceClassic = { navController.navigate(AdvancesRoutes.ASK_ADVANCE) { popUpTo(AppGraph.ADVANCES) } },
+                                    // PLAN_V35: home "My Cards" section header → the advances wallet hub.
+                                    onOpenAdvances = { navController.navigate(AppGraph.ADVANCES) },
+                                    // PLAN_V36 P3: the digest sheet's row taps / "See all updates" footer.
+                                    onOpenWhatsNewEntry = { entryId -> navController.navigate(WhatsNewRoutes.detail(entryId)) },
+                                    onSeeAllWhatsNew = { navController.navigate(AppGraph.WHATS_NEW) },
+                                )
+                            }
+                        }
+                        navigation(startDestination = TrackingRoutes.SAVED_TRACKS, route = AppGraph.TRACK) {
+                            trackingGraph(
+                                navController = navController,
+                                // P27.E.5: trip-completion "Add Expense" CTA.
+                                onAddExpense = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
                             )
                         }
-                    }
-                    navigation(startDestination = TrackingRoutes.SAVED_TRACKS, route = AppGraph.TRACK) {
-                        trackingGraph(
-                            navController = navController,
-                            // P27.E.5: trip-completion "Add Expense" CTA.
-                            onAddExpense = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
-                        )
-                    }
-                    navigation(startDestination = LoggingRoutes.HOME, route = AppGraph.LOG) {
-                        loggingGraph(navController)
-                    }
-                    navigation(startDestination = MediaRoutes.SELECTION, route = AppGraph.MEDIA) {
-                        mediaGraph(navController)
-                    }
-                    navigation(startDestination = ProfileRoutes.HOME, route = AppGraph.PROFILE) {
-                        profileGraph(
-                            navController = navController,
-                            onOpenDebugMenu = { navController.navigate(AppRoutes.DEBUG_MENU) },
-                            onOpenCards = { navController.navigate(AppGraph.CARDS) },
-                            onStartTripForAdvance = { _, tripId ->
-                                navController.navigate(TrackingRoutes.liveTrack(tripId)) {
-                                    popUpTo(AppGraph.TRACK)
-                                }
-                            },
-                            // P27.E.8: "Log expense against this advance" CTA.
-                            onLogExpenseFromAdvance = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
-                            onSignedOut = onSignedOut,
-                            // P29.S.6: Notification Centre card taps — same best-effort resolve-and-navigate
-                            // as master search's onOpenResult; unresolvable links are a safe no-op.
-                            onOpenDeepLink = { link -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(link).toAppRoute()) },
-                            // PLAN_V36 P3: Settings' "What's new" row.
-                            onOpenWhatsNew = { navController.navigate(AppGraph.WHATS_NEW) },
-                        )
-                    }
-                    // Corporate cards feature module (replaces the old profile card screens).
-                    navigation(startDestination = CardRoutes.HOME, route = AppGraph.CARDS) {
-                        cardsGraph(
-                            navController = navController,
-                            // P27.E.7: claim-transaction CTA (replaces the old toast-only stub).
-                            onClaimTransaction = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
-                        )
-                    }
-                    // PLAN_V35: advance wallets (petty cash + QR cards). Cross-feature actions are
-                    // supplied here so feature:advances stays isolated (same seam as cardsGraph).
-                    navigation(startDestination = AdvancesRoutes.HOME, route = AppGraph.ADVANCES) {
-                        advancesGraph(
-                            navController = navController,
-                            onAddExpense = { navController.navigate(LoggingRoutes.HOME) { popUpTo(AppGraph.LOG) } },
-                            onLogMiles = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
-                            onTrackMiles = { navController.navigate(AppGraph.TRACK) },
-                            onScanQr = { navController.navigate(PaymentsRoutes.HOME) { popUpTo(AppGraph.PAYMENTS) } },
-                        )
-                    }
-                    // PLAN_V36 P3: What's New list/detail — reached from the digest sheet and
-                    // Settings, never a bottom-nav tab (full-screen, same as cardsGraph).
-                    navigation(startDestination = WhatsNewRoutes.LIST, route = AppGraph.WHATS_NEW) {
-                        whatsNewGraph(navController = navController)
-                    }
-                    navigation(startDestination = TravelRoutes.HOME, route = AppGraph.TRAVEL) {
-                        travelGraph(navController)
-                    }
-                    navigation(startDestination = PayablesRoutes.HOME, route = AppGraph.PAYABLES) {
-                        payablesGraph(navController)
-                    }
-                    navigation(startDestination = PaymentsRoutes.HOME, route = AppGraph.PAYMENTS) {
-                        paymentsGraph(navController)
-                    }
-                    navigation(startDestination = EventsRoutes.HOME, route = AppGraph.EVENTS) {
-                        eventsGraph(
-                            navController = navController,
-                            onLogExpense = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
-                        )
-                    }
-                    navigation(startDestination = ApprovalsRoutes.HOME, route = AppGraph.APPROVALS) {
-                        approvalsGraph(navController)
-                    }
-                    // Global debug destination, outside bottom-nav graphs so it renders
-                    // full-screen without the bottom bar.
-                    composable(AppRoutes.DEBUG_MENU) {
-                        val ctx = androidx.compose.ui.platform.LocalContext.current
-                        DebugMenuScreen(
-                            onBack = { navController.popBackStack() },
-                            onOpenHttpInspector = com.mileway.debug.WormaCeptorHelper.getLaunchIntent(ctx)
-                                ?.let { intent -> { ctx.startActivity(intent) } },
-                            onOpenNetworkLog = { navController.navigate(AppRoutes.NETWORK_LOG) },
-                            onOpenShowcase = com.mileway.debug.ShowcaseLauncher.getLaunchIntent(ctx)
-                                ?.let { intent -> { ctx.startActivity(intent) } },
-                        )
-                    }
-                    // V21 §3 Wave 4: local network log screen, reached from the debug menu.
-                    composable(AppRoutes.NETWORK_LOG) {
-                        com.mileway.feature.tracking.debug.NetworkLogScreen(
-                            onBack = { navController.popBackStack() },
-                        )
-                    }
-                    // Global master-search destination, full-screen, outside bottom-nav graphs. A tapped
-                    // result routes to the section graph that owns the entity (best-effort; some types have
-                    // no destination yet and are ignored).
-                    composable(AppRoutes.SEARCH) {
-                        MasterSearchRoute(
-                            onBack = { navController.popBackStack() },
-                            onOpenResult = { result -> navController.navigateToSectionRoute(result.toSectionRoute()) },
-                            // P29.S.5: quick-action tap — same best-effort DeepLinkRouter resolve as a
-                            // tapped result; QuickActionRegistry deeplinks not yet resolvable are ignored.
-                            onOpenAction = { action -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(action.deeplink).toAppRoute()) },
-                        )
-                    }
+                        navigation(startDestination = LoggingRoutes.HOME, route = AppGraph.LOG) {
+                            loggingGraph(navController)
+                        }
+                        navigation(startDestination = MediaRoutes.SELECTION, route = AppGraph.MEDIA) {
+                            mediaGraph(navController)
+                        }
+                        navigation(startDestination = ProfileRoutes.HOME, route = AppGraph.PROFILE) {
+                            profileGraph(
+                                navController = navController,
+                                onOpenDebugMenu = { navController.navigate(AppRoutes.DEBUG_MENU) },
+                                onOpenCards = { navController.navigate(AppGraph.CARDS) },
+                                onStartTripForAdvance = { _, tripId ->
+                                    navController.navigate(TrackingRoutes.liveTrack(tripId)) {
+                                        popUpTo(AppGraph.TRACK)
+                                    }
+                                },
+                                // P27.E.8: "Log expense against this advance" CTA.
+                                onLogExpenseFromAdvance = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                                onSignedOut = onSignedOut,
+                                // P29.S.6: Notification Centre card taps — same best-effort resolve-and-navigate
+                                // as master search's onOpenResult; unresolvable links are a safe no-op.
+                                onOpenDeepLink = { link -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(link).toAppRoute()) },
+                                // PLAN_V36 P3: Settings' "What's new" row.
+                                onOpenWhatsNew = { navController.navigate(AppGraph.WHATS_NEW) },
+                            )
+                        }
+                        // Corporate cards feature module (replaces the old profile card screens).
+                        navigation(startDestination = CardRoutes.HOME, route = AppGraph.CARDS) {
+                            cardsGraph(
+                                navController = navController,
+                                // P27.E.7: claim-transaction CTA (replaces the old toast-only stub).
+                                onClaimTransaction = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                            )
+                        }
+                        // PLAN_V35: advance wallets (petty cash + QR cards). Cross-feature actions are
+                        // supplied here so feature:advances stays isolated (same seam as cardsGraph).
+                        navigation(startDestination = AdvancesRoutes.HOME, route = AppGraph.ADVANCES) {
+                            advancesGraph(
+                                navController = navController,
+                                onAddExpense = { navController.navigate(LoggingRoutes.HOME) { popUpTo(AppGraph.LOG) } },
+                                onLogMiles = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
+                                onTrackMiles = { navController.navigate(AppGraph.TRACK) },
+                                onScanQr = { navController.navigate(PaymentsRoutes.HOME) { popUpTo(AppGraph.PAYMENTS) } },
+                            )
+                        }
+                        // PLAN_V36 P3: What's New list/detail — reached from the digest sheet and
+                        // Settings, never a bottom-nav tab (full-screen, same as cardsGraph).
+                        navigation(startDestination = WhatsNewRoutes.LIST, route = AppGraph.WHATS_NEW) {
+                            whatsNewGraph(
+                                navController = navController,
+                                sharedTransitionScope = whatsNewSharedTransitionScope,
+                            )
+                        }
+                        navigation(startDestination = TravelRoutes.HOME, route = AppGraph.TRAVEL) {
+                            travelGraph(navController)
+                        }
+                        navigation(startDestination = PayablesRoutes.HOME, route = AppGraph.PAYABLES) {
+                            payablesGraph(navController)
+                        }
+                        navigation(startDestination = PaymentsRoutes.HOME, route = AppGraph.PAYMENTS) {
+                            paymentsGraph(navController)
+                        }
+                        navigation(startDestination = EventsRoutes.HOME, route = AppGraph.EVENTS) {
+                            eventsGraph(
+                                navController = navController,
+                                onLogExpense = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                            )
+                        }
+                        navigation(startDestination = ApprovalsRoutes.HOME, route = AppGraph.APPROVALS) {
+                            approvalsGraph(navController)
+                        }
+                        // Global debug destination, outside bottom-nav graphs so it renders
+                        // full-screen without the bottom bar.
+                        composable(AppRoutes.DEBUG_MENU) {
+                            val ctx = androidx.compose.ui.platform.LocalContext.current
+                            DebugMenuScreen(
+                                onBack = { navController.popBackStack() },
+                                onOpenHttpInspector = com.mileway.debug.WormaCeptorHelper.getLaunchIntent(ctx)
+                                    ?.let { intent -> { ctx.startActivity(intent) } },
+                                onOpenNetworkLog = { navController.navigate(AppRoutes.NETWORK_LOG) },
+                                onOpenShowcase = com.mileway.debug.ShowcaseLauncher.getLaunchIntent(ctx)
+                                    ?.let { intent -> { ctx.startActivity(intent) } },
+                            )
+                        }
+                        // V21 §3 Wave 4: local network log screen, reached from the debug menu.
+                        composable(AppRoutes.NETWORK_LOG) {
+                            com.mileway.feature.tracking.debug.NetworkLogScreen(
+                                onBack = { navController.popBackStack() },
+                            )
+                        }
+                        // Global master-search destination, full-screen, outside bottom-nav graphs. A tapped
+                        // result routes to the section graph that owns the entity (best-effort; some types have
+                        // no destination yet and are ignored).
+                        composable(AppRoutes.SEARCH) {
+                            MasterSearchRoute(
+                                onBack = { navController.popBackStack() },
+                                onOpenResult = { result -> navController.navigateToSectionRoute(result.toSectionRoute()) },
+                                // P29.S.5: quick-action tap — same best-effort DeepLinkRouter resolve as a
+                                // tapped result; QuickActionRegistry deeplinks not yet resolvable are ignored.
+                                onOpenAction = { action -> navController.navigateToSectionRoute(DeepLinkRouter.resolve(action.deeplink).toAppRoute()) },
+                            )
+                        }
 
-                    // Full-screen AI Agent, entered via FAB throw-up gesture.
-                    agentGraph(navController)
+                        // Full-screen AI Agent, entered via FAB throw-up gesture.
+                        agentGraph(navController)
+                    }
                 }
 
                 // PLAN_V24 P13.1: the priority banner stack, pinned to the top and visible on every

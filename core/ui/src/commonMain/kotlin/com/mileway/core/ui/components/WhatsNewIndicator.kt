@@ -28,6 +28,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.whats_new_button
 import com.mileway.core.ui.resources.whats_new_indicator_desc
@@ -82,6 +83,14 @@ private fun PulsingDot(
     size: androidx.compose.ui.unit.Dp = 10.dp,
     color: Color = MaterialTheme.colorScheme.error,
 ) {
+    // PLAN_V36 P6 (spec §6.3): reduced-motion swaps the infinite pulse for a static dot at its
+    // resting (unscaled, fully-opaque) values — still visible, just not animating forever.
+    if (LocalReducedMotion.current) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
+            Surface(shape = CircleShape, color = color, modifier = Modifier.size(size)) {}
+        }
+        return
+    }
     val transition = rememberInfiniteTransition(label = "whatsNewPulse")
     val scale by transition.animateFloat(
         initialValue = 1f,

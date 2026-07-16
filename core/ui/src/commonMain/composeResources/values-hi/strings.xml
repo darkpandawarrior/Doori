@@ -2331,6 +2331,13 @@
     <string name="whatsnew_cd_next_media">Next</string>
     <string name="whatsnew_cd_thumbnail">Screenshot %1$d</string>
 
+    <!-- PLAN_V36 P6: modernity layer a11y (spec §6.4) -->
+    <string name="whatsnew_cd_new_badge">Unread update</string>
+    <string name="whatsnew_cd_media_screenshot">%1$s screenshot</string>
+    <string name="whatsnew_cd_media_step">%1$s screenshot, step %2$d of %3$d</string>
+    <string name="whatsnew_two_pane_placeholder_title">Select an update</string>
+    <string name="whatsnew_two_pane_placeholder_subtitle">Choose an item from the list to see its details.</string>
+
     <!-- PLAN_V24 P3.1: phone change -->
     <string name="plugin_profile_phone_change_title">फ़ोन नंबर बदलें</string>
     <string name="plugin_profile_phone_change_desc">उपयोगकर्ताओं को OTP सत्यापन के साथ फ़ोन बदलने दें</string>

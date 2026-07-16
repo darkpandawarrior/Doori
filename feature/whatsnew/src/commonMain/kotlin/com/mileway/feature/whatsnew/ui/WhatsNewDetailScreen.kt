@@ -1,5 +1,8 @@
 package com.mileway.feature.whatsnew.ui
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +51,9 @@ import com.mileway.feature.whatsnew.ui.components.ContactSection
 import com.mileway.feature.whatsnew.ui.components.HeroCarousel
 import com.mileway.feature.whatsnew.ui.components.ReleasedDateFormat
 import com.mileway.feature.whatsnew.ui.components.ReleasedDateTag
+import com.mileway.feature.whatsnew.ui.components.whatsNewHeroSharedKey
+import com.mileway.feature.whatsnew.ui.components.whatsNewSharedBounds
+import com.mileway.feature.whatsnew.ui.components.whatsNewTitleSharedKey
 import com.mileway.feature.whatsnew.viewmodel.WhatsNewDetailUiState
 import com.mileway.feature.whatsnew.viewmodel.WhatsNewDetailViewModel
 import kotlinx.datetime.format
@@ -60,12 +66,19 @@ import org.koin.core.parameter.parametersOf
  * PLAN_V36 P4 — spec §5.2, full parity: pinned header ("Feature details", subtitle = step count
  * or release date, Share action) → hero carousel → RELEASED chip → title/description → optional
  * "Learn more" link → optional contact section. Replaces the P3 placeholder.
+ *
+ * [sharedTransitionScope]/[animatedContentScope] are `null` by default for the same reason as
+ * `WhatsNewListScreen`'s — only real NavHost navigation into this destination (not the two-pane
+ * scaffold's inline render) supplies them; see `whatsNewSharedBounds`'s KDoc.
  */
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun WhatsNewDetailScreen(
     entryId: String,
     onBack: () -> Unit,
     viewModel: WhatsNewDetailViewModel = koinViewModel { parametersOf(entryId) },
+    sharedTransitionScope: SharedTransitionScope? = null,
+    animatedContentScope: AnimatedContentScope? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val shareSheet = LocalShareSheet.current
@@ -78,9 +91,12 @@ fun WhatsNewDetailScreen(
         onShare = { entry -> shareSheet.share(text = buildShareText(entry), subject = entry.title) },
         onOpenLink = urlOpener::open,
         onContact = { email, subject -> urlOpener.open(mailtoUri(email, subject)) },
+        sharedTransitionScope = sharedTransitionScope,
+        animatedContentScope = animatedContentScope,
     )
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun WhatsNewDetailContent(
     state: WhatsNewDetailUiState,
@@ -89,6 +105,8 @@ private fun WhatsNewDetailContent(
     onShare: (WhatsNewEntry) -> Unit,
     onOpenLink: (String) -> Unit,
     onContact: (email: String, subject: String) -> Unit,
+    sharedTransitionScope: SharedTransitionScope?,
+    animatedContentScope: AnimatedContentScope?,
 ) {
     val entry = state.entry
     Column(modifier = Modifier.fillMaxSize()) {
@@ -112,12 +130,19 @@ private fun WhatsNewDetailContent(
             ) {
                 if (entry.media.isNotEmpty()) {
                     Surface(
+                        modifier =
+                            Modifier.whatsNewSharedBounds(
+                                key = whatsNewHeroSharedKey(entry.id),
+                                sharedTransitionScope = sharedTransitionScope,
+                                animatedContentScope = animatedContentScope,
+                            ),
                         shape = DesignTokens.Shape.carouselCard,
                         color = MaterialTheme.colorScheme.surface,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     ) {
                         HeroCarousel(
                             media = entry.media,
+                            title = entry.title,
                             onPageChanged = onSelectMedia,
                             modifier = Modifier.padding(DesignTokens.Spacing.s),
                         )
@@ -126,7 +151,17 @@ private fun WhatsNewDetailContent(
 
                 ReleasedDateTag(entry.releasedOn)
 
-                Text(text = entry.title, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    text = entry.title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier =
+                        Modifier.whatsNewSharedBounds(
+                            key = whatsNewTitleSharedKey(entry.id),
+                            sharedTransitionScope = sharedTransitionScope,
+                            animatedContentScope = animatedContentScope,
+                        ),
+                )
 
                 Text(text = entry.description, style = MaterialTheme.typography.bodyLarge)
 
