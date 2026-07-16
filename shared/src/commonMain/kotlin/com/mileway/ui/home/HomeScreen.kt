@@ -284,11 +284,12 @@ fun HomeScreen(
     // from the animated home entry. Dismissing acknowledges the version so the auto-show never replays.
     if (whatsNewState.isVisible || showWhatsNewManually) {
         WhatsNewSheet(
-            items = whatsNewState.items,
+            entries = whatsNewState.entries,
             onDismiss = {
                 whatsNewViewModel.acknowledge()
                 showWhatsNewManually = false
             },
+            // PLAN_V36 P3 wires these to the list/detail screens; no-op until that phase lands.
         )
     }
 }

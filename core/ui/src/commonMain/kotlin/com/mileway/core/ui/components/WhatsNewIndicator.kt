@@ -103,8 +103,3 @@ private fun PulsingDot(
         ) {}
     }
 }
-
-/** The current changelog version (single source of truth, shared by Home + Settings). */
-object WhatsNewVersion {
-    const val CURRENT: Int = 24
-}

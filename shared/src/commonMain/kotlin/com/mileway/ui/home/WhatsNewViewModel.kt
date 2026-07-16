@@ -3,7 +3,8 @@ package com.mileway.ui.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.session.SessionRepository
-import com.mileway.core.ui.components.WhatsNewVersion
+import com.mileway.feature.whatsnew.data.WhatsNewRepository
+import com.mileway.feature.whatsnew.model.WhatsNewEntry
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -13,57 +14,42 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 /*
- * PLAN_V24 P2.2 — "What's new" content, version-keyed (per the reference app's what's-new
- * acknowledgement). ponytail: the static list lives here as UI data rather than in
- * :stub — shared doesn't depend on :stub and this is a small in-app changelog, not backend mock.
+ * PLAN_V24 P2.2 / PLAN_V36 P2 — "What's new" digest, now driven by :feature:whatsnew's bundled
+ * catalog (WhatsNewRepository) instead of the static in-file WHATS_NEW_ENTRIES list it replaces.
+ * The badge/seen comparand is [WhatsNewRepository.currentVersion] — authors bump it by adding a
+ * catalog entry, not by hand-editing a constant here.
  */
 
-/**
- * The current changelog version. Single source of truth is [WhatsNewVersion.CURRENT] (core:ui) so the
- * P12.4 indicator on Home + Settings agrees with this ViewModel. Bumped when [WHATS_NEW_ENTRIES] grows.
- */
-const val CURRENT_WHATS_NEW_VERSION: Int = WhatsNewVersion.CURRENT
-
-/** One "what's new" line. */
-data class WhatsNewItem(
-    val title: String,
-    val description: String,
-)
-
-/** Static changelog for the current version. */
-val WHATS_NEW_ENTRIES: List<WhatsNewItem> =
-    listOf(
-        WhatsNewItem("Phone sign-in", "Sign in with your phone number and a one-time code."),
-        WhatsNewItem("Two-factor & security", "Optional MFA plus a stronger PIN lockout keep your account safe."),
-        WhatsNewItem("Your plugins", "Turn any feature on or off from Settings → Plugins."),
-    )
+/** How many entries the digest sheet shows (the full catalog lives on the P3 list screen). */
+private const val SHEET_DIGEST_SIZE = 3
 
 data class WhatsNewUiState(
     val isVisible: Boolean = false,
-    val items: List<WhatsNewItem> = emptyList(),
+    val entries: List<WhatsNewEntry> = emptyList(),
 )
 
 /**
  * PLAN_V24 P2.2 — shows the "What's new in Mileway" sheet once after login when the persisted
- * last-seen version is behind [CURRENT_WHATS_NEW_VERSION]. Acknowledging advances the stored
- * version so it never replays for this release.
+ * last-seen version is behind [WhatsNewRepository.currentVersion]. Acknowledging advances the
+ * stored version so it never replays for this release.
  */
 class WhatsNewViewModel(
     private val sessionRepository: SessionRepository,
+    private val whatsNewRepository: WhatsNewRepository,
 ) : ViewModel() {
     val uiState: StateFlow<WhatsNewUiState> =
         sessionRepository.sessionState
             .map { session ->
                 WhatsNewUiState(
-                    isVisible = session.whatsNewLastSeenVersion < CURRENT_WHATS_NEW_VERSION,
-                    items = WHATS_NEW_ENTRIES,
+                    isVisible = session.whatsNewLastSeenVersion < whatsNewRepository.currentVersion,
+                    entries = whatsNewRepository.entries().take(SHEET_DIGEST_SIZE),
                 )
             }
             .stateIn(viewModelScope, SharingStarted.Eagerly, WhatsNewUiState())
 
     /** Called once the sheet has been acknowledged — advances the stored version. */
     fun acknowledge() {
-        viewModelScope.launch { sessionRepository.markWhatsNewSeen(CURRENT_WHATS_NEW_VERSION) }
+        viewModelScope.launch { sessionRepository.markWhatsNewSeen(whatsNewRepository.currentVersion) }
     }
 }
 

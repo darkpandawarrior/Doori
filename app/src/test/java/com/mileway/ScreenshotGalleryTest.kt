@@ -169,7 +169,7 @@ import com.mileway.ui.auth.OnboardingFormConfig
 import com.mileway.ui.auth.SignupOnboardingScreen
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.auth.authModule
-import com.mileway.ui.home.WHATS_NEW_ENTRIES
+import com.mileway.feature.whatsnew.data.WhatsNewCatalog
 import com.mileway.ui.home.WhatsNewSheet
 import com.mileway.ui.home.HomeScreenContent
 import com.mileway.ui.home.HomeUiState
@@ -1802,7 +1802,7 @@ class ScreenshotGalleryTest {
     fun whatsNewSheet() {
         composeRule.setContent {
             MilewayTheme {
-                WhatsNewSheet(items = WHATS_NEW_ENTRIES, onDismiss = {})
+                WhatsNewSheet(entries = WhatsNewCatalog.entries, onDismiss = {})
             }
         }
         capture("whats_new_sheet")

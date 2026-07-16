@@ -60,9 +60,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.data.whatsnew.WhatsNewVersionProvider
 import com.mileway.core.ui.components.CompactWhatsNewButton
 import com.mileway.core.ui.components.RateAppSheet
-import com.mileway.core.ui.components.WhatsNewVersion
 import com.mileway.core.ui.components.dialog.ColorWheelDialog
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
@@ -193,6 +193,9 @@ fun SettingsScreen(
     val session by sessionRepository.sessionState.collectAsStateWithLifecycle(
         initialValue = com.mileway.core.data.session.SessionState(),
     )
+    // PLAN_V36 P2: the badge comparand now comes from :feature:whatsnew's repository via this
+    // core:data contract — Settings never depends on the feature module directly.
+    val whatsNewVersionProvider = koinInject<WhatsNewVersionProvider>()
     val whatsNewScope = rememberCoroutineScope()
     val permSnackbarState = remember { SnackbarHostState() }
     val permScope = rememberCoroutineScope()
@@ -560,9 +563,11 @@ fun SettingsScreen(
             ListItem(
                 headlineContent = {
                     CompactWhatsNewButton(
-                        hasUnseen = session.whatsNewLastSeenVersion < WhatsNewVersion.CURRENT,
+                        hasUnseen = session.whatsNewLastSeenVersion < whatsNewVersionProvider.currentVersion,
                         onClick = {
-                            whatsNewScope.launch { sessionRepository.markWhatsNewSeen(WhatsNewVersion.CURRENT) }
+                            whatsNewScope.launch {
+                                sessionRepository.markWhatsNewSeen(whatsNewVersionProvider.currentVersion)
+                            }
                         },
                     )
                 },

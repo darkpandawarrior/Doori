@@ -69,6 +69,8 @@ kotlin {
             implementation(project(":core:network"))
             implementation(project(":core:platform"))
             implementation(project(":stub"))
+            // PLAN_V36 P2: WhatsNewViewModel (sheet/badge) reads through WhatsNewRepository.
+            implementation(project(":feature:whatsnew"))
 
             // api(...) is required for export(...) above to surface these modules' public API in the framework.
             api(project(":core:ui"))

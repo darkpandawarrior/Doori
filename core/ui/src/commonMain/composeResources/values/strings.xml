@@ -2309,6 +2309,8 @@
     <!-- PLAN_V24 P2.2: what's-new sheet -->
     <string name="whats_new_title">What's new in Mileway</string>
     <string name="whats_new_got_it">Got it</string>
+    <!-- PLAN_V36 P2: footer link from the digest sheet to the full What's New list -->
+    <string name="whats_new_see_all">See all updates</string>
 
     <!-- PLAN_V24 P3.1: phone change -->
     <string name="plugin_profile_phone_change_title">Change phone number</string>
