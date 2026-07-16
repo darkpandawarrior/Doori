@@ -61,6 +61,16 @@ jobs:
       - name: Record screenshots (regenerate baselines in the CI environment)
         run: ./scripts/run-jvm-tests.sh recordRoborazziNoGmsDebug
 
+      # recordRoborazziNoGmsDebug excludes com.mileway.Screenshot*Test (app/build.gradle.kts's
+      # screenshotTestFilter — isolated into its own forked JVM, Z.5b) — that gallery was never
+      # gated by CI at all, which is how ScreenshotGalleryTest's Konnection/TripDraftOutbox crashes
+      # went unnoticed. This step is the actual gate: a real crash/error here fails the job before
+      # the baseline-refresh PR step below runs. ScreenshotGalleryTest force-records its own PNGs
+      # into docs/screenshots (see its class doc), so any change it makes is picked up by the
+      # existing "git add docs/screenshots" step next.
+      - name: Run screenshot gallery + catalog tests (crash/regression gate)
+        run: ./scripts/run-jvm-tests.sh :app:screenshotTestNoGmsDebug
+
       # main: baselines drifted. main is protected by the "Quality Gate required" ruleset, so the bot
       # can't push straight to it — open a refresh PR instead (idempotent branch name per source SHA;
       # re-runs force-push the same branch and reuse the open PR). The PR runs the normal gates.

@@ -174,6 +174,7 @@ import com.mileway.ui.home.WhatsNewSheet
 import com.mileway.ui.home.HomeScreenContent
 import com.mileway.ui.home.HomeUiState
 import com.mileway.ui.home.homeModule
+import dev.tmapps.konnection.Konnection
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -225,6 +226,14 @@ class ScreenshotGalleryTest {
             val repoRoot = if (moduleDir.name == "app") moduleDir.parentFile else moduleDir
             File(repoRoot, "docs/screenshots").also { it.mkdirs() }
         }
+
+        // PLAN_V33 A6 LANDMINE (.ralph/PROGRESS.md): TrackingModule wires VehiclePricingRepository's
+        // isOnline to NetworkMonitor::isConnectedNow, which reads Konnection.instance. MilewayApplication
+        // .onCreate() calls Konnection.createInstance(this) to set it up; this test's bare Application
+        // skips that (same gap as the ComposeResourcesTestFixture install below), so any screen that
+        // resolves VehiclePricingRepository throws "KonnectionConfig is not initialized". Guarded so the
+        // real createInstance() (which registers a ConnectivityManager callback) runs exactly once.
+        private var konnectionInitialized = false
 
         // Pre-seeded SavedTrackDao shared by SavedTracks / TrackDetail / TrackInsights /
         // MileageSubmission / CreateVoucher VMs. FakeSavedTrackDao is a public top-level
@@ -297,6 +306,12 @@ class ScreenshotGalleryTest {
             single<MediaLibraryDao> { mediaLibraryDao }
             single<AgentDao> { FakeAgentDao() }
             single<MockAccountDao> { FakeMockAccountDao() }
+            // PLAN_V33 A5/A6 LANDMINE: SyncStatusViewModel.init() eagerly calls MilesSubmitSyncer.drain(),
+            // which does `outbox.drafts(FORM_KEY).first()`. TripDraftOutbox (SubmitOutbox<TripDraft>) is
+            // normally bound in the excluded CoreDataModule; without a binding here it falls through to
+            // whatever relaxed mockk<SubmitOutbox<*>> is in scope, whose Flow-returning drafts() never
+            // emits — .first() then throws NoSuchElementException. Deterministic fake keeps that resolving.
+            single<com.mileway.core.data.outbox.TripDraftOutbox> { FakeTripDraftOutbox() }
             // P6.2: PersonalDetailsViewModel collects both of these in init(); a relaxed mockk
             // would return a null-backed Flow and crash the collector (memory: screenshot Koin
             // needs deterministic fakes, same reason FakeVoucherDao exists above).
@@ -466,6 +481,15 @@ class ScreenshotGalleryTest {
         //    scrolls into view resolves instead of throwing NoDefinitionFound.
         // Listed LAST in modules(...) so Koin's last-definition-wins override picks them.
         private val fakeOverrides = module {
+            // PLAN_V33 A6 LANDMINE: trackingModule's real binding is VehiclePricingCacheStore(androidContext()),
+            // a DataStore-Preferences store — it needs a working Context.filesDir, but this harness's Koin
+            // androidContext() is a fully relaxed mockk (no real files dir), so DataStore throws a
+            // NullPointerException the first time TrackMilesViewModel.loadVehicles() reads the cache.
+            // InMemoryVehiclePricingCache is VehiclePricingRepository's own gallery/test-safe default; override
+            // TrackingModule's real store with it here rather than touching production DI.
+            single<com.mileway.feature.tracking.repository.VehiclePricingCache> {
+                com.mileway.feature.tracking.repository.InMemoryVehiclePricingCache()
+            }
             single<NotificationScheduler> { mockk(relaxed = true) }
             // CheckPinScreen koinInjects this (biometric-unlock affordance); the real impl is bound by
             // the excluded platformModule. Relaxed mockk → isAvailable()=false, so the screen renders
@@ -547,6 +571,10 @@ class ScreenshotGalleryTest {
         org.jetbrains.compose.resources.setResourceReaderAndroidContext(
             ApplicationProvider.getApplicationContext(),
         )
+        if (!konnectionInitialized) {
+            Konnection.createInstance(ApplicationProvider.getApplicationContext())
+            konnectionInitialized = true
+        }
     }
 
     // ── Tracking ───────────────────────────────────────────────────────────────
