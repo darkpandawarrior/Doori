@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.mileway.sync</string>
+		<string>com.mileway.maintenance</string>
+		<string>com.mileway.autodiscard</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -12,11 +20,6 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
-	<key>CFBundleVersion</key>
-	<string>1</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<!-- DL.3: custom URL scheme (mileway://). Universal Links use the Associated Domains entitlement. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -30,36 +33,29 @@
 			</array>
 		</dict>
 	</array>
-	<!-- Usage strings required by platform features used in this app -->
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Mileway uses your location to track mileage during trips.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Mileway uses background location to auto-start trip tracking.</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSCameraUsageDescription</key>
 	<string>Mileway uses the camera to capture odometer readings.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Mileway reads photos to attach receipts to expense entries.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Mileway uses Face ID to protect sensitive account data.</string>
-	<key>BGTaskSchedulerPermittedIdentifiers</key>
-	<array>
-		<string>com.mileway.sync</string>
-		<!-- P-F.2: 90-day purge of stale location rows (BGProcessingTask, weekly) -->
-		<string>com.mileway.maintenance</string>
-		<!-- P-F.2: auto-discard check when a journey runs past the daily cutoff (BGAppRefreshTask) -->
-		<string>com.mileway.autodiscard</string>
-	</array>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Mileway uses background location to auto-start trip tracking.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Mileway uses your location to track mileage during trips.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Mileway reads photos to attach receipts to expense entries.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
 		<string>processing</string>
 		<string>location</string>
-		<!-- FCM.4: APNs/FCM background delivery -->
 		<string>remote-notification</string>
 	</array>
-	<!-- P6.4: required for ActivityKit's Activity.request to succeed. -->
-	<key>NSSupportsLiveActivities</key>
-	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations~iphone</key>
