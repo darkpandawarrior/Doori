@@ -8,6 +8,7 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.di.initKoin
 import com.mileway.core.ui.di.iosAppModule
 import com.mileway.core.ui.platform.LocalManagerProvider
+import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.service.AppSyncTrigger
@@ -39,6 +40,7 @@ fun MilewayAppViewController(): UIViewController {
                 // get<MilewayNetworkApi>()/get<ConfigProvider>() calls resolve from here.
                 stubModule,
                 homeModule,
+                advancesModule,
                 trackingModule,
                 loggingModule,
                 travelModule,

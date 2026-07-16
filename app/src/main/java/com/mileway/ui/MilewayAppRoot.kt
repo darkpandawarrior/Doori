@@ -98,6 +98,8 @@ import com.mileway.feature.approvals.model.ClarificationRoomSummary
 import com.mileway.feature.approvals.repository.ClarificationRepository
 import com.mileway.feature.approvals.ui.navigation.ApprovalsRoutes
 import com.mileway.feature.approvals.ui.navigation.approvalsGraph
+import com.mileway.feature.advances.ui.navigation.AdvancesRoutes
+import com.mileway.feature.advances.ui.navigation.advancesGraph
 import com.mileway.feature.cards.ui.navigation.CardRoutes
 import com.mileway.feature.cards.ui.navigation.cardsGraph
 import com.mileway.feature.payables.ui.navigation.PayablesRoutes
@@ -330,9 +332,12 @@ fun MilewayAppRoot(
                                 },
                                 // P29.H.2: "Add Invoice" quick action opens the real Payables create flow.
                                 onAddInvoice = { navController.navigate(PayablesRoutes.CREATE) { popUpTo(AppGraph.PAYABLES) } },
-                                // P29.H.2: "Ask Advance" — config-aware QR vs classic form, both real Profile-tab flows.
-                                onAskAdvanceQr = { navController.navigate(ProfileRoutes.QR_HOME) { popUpTo(AppGraph.PROFILE) } },
-                                onAskAdvanceClassic = { navController.navigate(ProfileRoutes.ASK_ADVANCE) { popUpTo(AppGraph.PROFILE) } },
+                                // P29.H.2 → PLAN_V35: "Ask Advance" — config-aware QR vs classic, now the real
+                                // :feature:advances wallet flows (supersedes the Profile-tab stubs).
+                                onAskAdvanceQr = { navController.navigate(AdvancesRoutes.QR_REQUEST) { popUpTo(AppGraph.ADVANCES) } },
+                                onAskAdvanceClassic = { navController.navigate(AdvancesRoutes.ASK_ADVANCE) { popUpTo(AppGraph.ADVANCES) } },
+                                // PLAN_V35: home "My Cards" section header → the advances wallet hub.
+                                onOpenAdvances = { navController.navigate(AppGraph.ADVANCES) },
                             )
                         }
                     }
@@ -373,6 +378,17 @@ fun MilewayAppRoot(
                             navController = navController,
                             // P27.E.7: claim-transaction CTA (replaces the old toast-only stub).
                             onClaimTransaction = { ctx -> navController.navigate(LoggingRoutes.expenseEntryRoute(ctx)) },
+                        )
+                    }
+                    // PLAN_V35: advance wallets (petty cash + QR cards). Cross-feature actions are
+                    // supplied here so feature:advances stays isolated (same seam as cardsGraph).
+                    navigation(startDestination = AdvancesRoutes.HOME, route = AppGraph.ADVANCES) {
+                        advancesGraph(
+                            navController = navController,
+                            onAddExpense = { navController.navigate(LoggingRoutes.HOME) { popUpTo(AppGraph.LOG) } },
+                            onLogMiles = { navigateToTab(tabs.indexOfFirst { it.graphRoute == AppGraph.LOG }) },
+                            onTrackMiles = { navController.navigate(AppGraph.TRACK) },
+                            onScanQr = { navController.navigate(PaymentsRoutes.HOME) { popUpTo(AppGraph.PAYMENTS) } },
                         )
                     }
                     navigation(startDestination = TravelRoutes.HOME, route = AppGraph.TRAVEL) {

@@ -12,6 +12,7 @@ import coil3.gif.GifDecoder
 import coil3.svg.SvgDecoder
 import com.mileway.core.data.di.coreDataModule
 import com.mileway.core.ui.di.coreUiModule
+import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.di.agentModule
 import com.mileway.feature.approvals.di.approvalsModule
 import com.mileway.feature.payables.di.payablesModule
@@ -167,6 +168,7 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
                 coreDataModule,
                 coreUiModule,
                 stubModule,
+                advancesModule,
                 trackingModule,
                 kmpWorkerModule(workerFactory = MilewayWorkerFactory()),
                 loggingModule,

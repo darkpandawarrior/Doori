@@ -411,6 +411,7 @@ dependencies {
     implementation(project(":feature:payables"))
     implementation(project(":feature:travel"))
     implementation(project(":feature:agent"))
+    implementation(project(":feature:advances"))
     implementation(project(":feature:cards"))
     implementation(project(":feature:payments"))
     implementation(project(":feature:events"))

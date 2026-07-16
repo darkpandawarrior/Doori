@@ -33,6 +33,9 @@ object AppGraph {
     /** Payments (QR/UPI pay-request-history) graph, reached from Home quick actions / master search. */
     const val PAYMENTS = "payments_graph"
 
+    /** PLAN_V35: advance wallets (petty cash + QR cards) graph — Home card sections + Ask Advance. */
+    const val ADVANCES = "advances_graph"
+
     /** Events (create + history) graph, reached from Home quick actions / master search. */
     const val EVENTS = "events_graph"
 }

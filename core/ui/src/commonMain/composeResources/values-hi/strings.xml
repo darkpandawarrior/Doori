@@ -1324,6 +1324,8 @@
     <string name="shared_home_cd_dismiss_welcome">स्वागत बैनर खारिज करें</string>
     <string name="shared_home_start">शुरू करें</string>
     <string name="shared_home_my_cards">मेरे कार्ड</string>
+    <string name="shared_home_advance_cards">एडवांस कार्ड</string>
+    <string name="shared_home_qr_cards">QR कार्ड</string>
     <string name="shared_home_request_card">कार्ड का अनुरोध करें</string>
     <string name="shared_home_balance">शेष राशि</string>
     <string name="shared_home_pay">भुगतान करें</string>

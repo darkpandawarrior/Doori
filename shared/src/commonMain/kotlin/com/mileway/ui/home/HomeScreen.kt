@@ -105,6 +105,8 @@ fun HomeScreen(
     // [com.mileway.core.ui.home.HomePluginConfig.useQrForAdvance] is on, the classic form otherwise.
     onAskAdvanceQr: () -> Unit = onOpenAccount,
     onAskAdvanceClassic: () -> Unit = onOpenAccount,
+    // PLAN_V35: opens the :feature:advances wallet hub (home card sections + section headers).
+    onOpenAdvances: () -> Unit = onOpenAccount,
     viewModel: HomeViewModel = koinViewModel(),
     firstLoginBannerViewModel: FirstLoginBannerViewModel = koinViewModel(),
     whatsNewViewModel: WhatsNewViewModel = koinViewModel(),
@@ -184,6 +186,10 @@ fun HomeScreen(
                 viewModel.onOpenAccount(onAskAdvanceClassic)
             }
         },
+        showWalletSections = true,
+        onOpenAdvances = { viewModel.onOpenAccount(onOpenAdvances) },
+        onRequestAdvance = { viewModel.onOpenAccount(onAskAdvanceClassic) },
+        onRequestQrCard = { viewModel.onOpenAccount(onAskAdvanceQr) },
         welcomeBanner = welcomeBannerState,
         onWelcomeBannerShown = firstLoginBannerViewModel::onBannerShown,
         homeBanners = homeBanners,
@@ -317,6 +323,12 @@ fun HomeScreenContent(
     onOpenWhatsNew: (() -> Unit)? = null,
     // PLAN_V35 P2: pull-to-refresh; null (gallery/preview default) renders without the refresh box.
     onRefresh: (() -> Unit)? = null,
+    // PLAN_V35: advance-wallet sections. showWalletSections=false keeps the stateless gallery
+    // render Koin-free (the sections koinInject their repositories).
+    showWalletSections: Boolean = false,
+    onOpenAdvances: () -> Unit = onOpenAccount,
+    onRequestAdvance: () -> Unit = onOpenAccount,
+    onRequestQrCard: () -> Unit = onOpenAccount,
 ) {
     // Clear the one-shot flag right after the banner is actually composed once — not on every
     // recomposition of the Home tab, so it never reappears on scroll/rotation before sign-out.
@@ -435,7 +447,21 @@ fun HomeScreenContent(
                         )
                     }
 
-                    // 5. My Cards carousel (Phase O). P29.H.1: gated on showMyCards.
+                    // 5. Wallet sections (PLAN_V35): real petty-advance + QR-card carousels off
+                    //    :feature:advances, then the corporate MyCards carousel. Reference order:
+                    //    Advance Cards → QR Cards → Corporate Cards.
+                    if (showWalletSections && state.pluginConfig.showAdvanceCards) {
+                        AdvanceCardsHomeSection(
+                            onOpenAdvances = onOpenAdvances,
+                            onRequestAdvance = onRequestAdvance,
+                        )
+                    }
+                    if (showWalletSections && state.pluginConfig.showQrCards) {
+                        QrCardsHomeSection(
+                            onOpenAdvances = onOpenAdvances,
+                            onRequestQrCard = onRequestQrCard,
+                        )
+                    }
                     if (state.pluginConfig.showMyCards) {
                         MyCardsSection(onSnackbar = paymentsSnackbar)
                     }

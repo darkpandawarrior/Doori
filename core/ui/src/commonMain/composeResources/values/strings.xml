@@ -1863,6 +1863,8 @@
     <string name="shared_home_cd_dismiss_welcome">Dismiss welcome banner</string>
     <string name="shared_home_start">Start</string>
     <string name="shared_home_my_cards">My Cards</string>
+    <string name="shared_home_advance_cards">Advance Cards</string>
+    <string name="shared_home_qr_cards">QR Cards</string>
     <string name="shared_home_request_card">Request Card</string>
     <string name="shared_home_balance">Balance</string>
     <string name="shared_home_pay">Pay</string>

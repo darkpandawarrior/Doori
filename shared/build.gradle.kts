@@ -79,6 +79,7 @@ kotlin {
 
             // Remaining feature deps — the hoisted app-shell (home/nav/auth/search) composes every
             // feature at the composition root, so this module depends on all of them (as :app did).
+            api(project(":feature:advances"))
             api(project(":feature:cards"))
             api(project(":feature:events"))
             api(project(":feature:payments"))
