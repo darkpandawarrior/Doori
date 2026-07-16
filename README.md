@@ -4,16 +4,17 @@
 
 ### Offline-first mileage, travel and expense tracking, built in Kotlin and Compose Multiplatform.
 
-A standalone, fully offline app. It puts the location-engineering, offline-first and
+A standalone, offline-first app. It puts the location-engineering, offline-first and
 multi-module architecture I care about into one place you can actually run.
-Every screen draws from deterministic mock data, so there are zero backend calls.
+Every screen still runs on deterministic mock data by default — a real Kotlin/Ktor backend now
+exists too, sharing `:contract` DTOs with the client, off by default behind a flag.
 
 [![CI](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml)
 [![Quality](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop-3DDC84)
-![Offline](https://img.shields.io/badge/network-zero%20backend-success)
+![Backend](https://img.shields.io/badge/backend-Kotlin%2FKtor%20(opt--in)-success)
 
 **[Highlights](#highlights)** · **[Screenshots](#screenshots)** · **[Features](#features)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
 
@@ -46,14 +47,17 @@ Every screen draws from deterministic mock data, so there are zero backend calls
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **31-module** clean architecture (11 feature · 12 core), Room schema **v48**, **149** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **33-module** clean architecture (11 feature · 12 core), Room schema **v48**, **155** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why Mileway
 
-Mileway is a self-contained, offline-first mileage tracker. The whole thing runs in airplane mode:
-you track trips, log expenses, route approvals, and the data is still there after a restart. No
-tracked code reaches for the network.
+Mileway is a self-contained, offline-first mileage tracker. The whole thing still runs in airplane
+mode: you track trips, log expenses, route approvals, and the data is there after a restart, reads
+come from Room, and writes queue in a durable offline outbox. A real Kotlin/Ktor backend now exists
+alongside it (`:server` + a shared `:contract` module) as an opt-in addon, not a replacement — it's
+off by default (`NetworkBackendFlags.useRealBackend = false`), so the demo behavior above is
+unchanged unless the flag is flipped.
 
 I also use it as a reference for how I build Android and KMP apps. That means Compose Multiplatform,
 a multi-module clean architecture, MVI-style unidirectional state, Koin for
@@ -80,8 +84,14 @@ slice the same way this repo goes deep on location and offline-first. All three 
   with spike detection, four-bucket distance accounting, IMU fusion, device-tier-adaptive sampling
   and config-driven detection thresholds — and a deterministic recompute that re-derives history
   from persisted points when the math changes.
-- 📴 **Genuinely offline.** No backend URLs, no API keys, no network calls in tracked code. It runs in
-  airplane mode and keeps its state in Room and DataStore.
+- 📴 **Offline-first, backend optional.** Room + DataStore stay the base data source for every
+  screen; writes queue in a durable offline outbox and flush once online. It still runs fully in
+  airplane mode either way.
+- 🔗 **Kotlin/Ktor backend, opt-in (V33).** A real `:server` module (Ktor + Exposed) speaks the same
+  `:contract` DTOs as the client, with idempotent location/event ingestion (`opId` dedup against a
+  unique DB index) and the identical `PolicyRateEngine` computing reimbursement amounts on both
+  sides. Off by default behind `NetworkBackendFlags.useRealBackend` — flipping it swaps the data
+  source, not the domain logic.
 - 🧩 **Multi-module clean architecture.** Feature modules never touch each other. They meet only at the
   `:app` composition root, wired through Koin.
 - 🌍 **Kotlin Multiplatform — iOS live (V19).** All feature screens run on Android *and* iOS from
@@ -229,7 +239,8 @@ Every feature is fully interactive on mocked, offline data.
 | **Payments, Events &amp; Cards** | QR pay / request + history; event creation, history and rich event detail; card home / detail / request with KYC, QR, dispute and limits flows. |
 | **Profile &amp; Account (super-profile, V24)** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, MaterialKolor theme engine; **plus V24 depth:** verification centre + corporate-email/OTP verification, growth surfaces (referral, coupons, scratch rewards, campaigns), membership (Mileway Club, subscription plans, incentive programs), account-deletion lifecycle, enriched active-sessions, **act-on-behalf session delegation** with an app-wide "Acting as" banner, external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle + QR), and a manager/reportee tracking view. |
 | **Customization / personas (V24)** | A single **plugin registry** is the composition mechanism — every feature (tile, capability, tunable value) gates through it, resolved by layering FORCED &gt; USER &gt; PRESET &gt; DEFAULT. A **Master Plugin page** toggles any of them live with source chips; **persona presets** (Corporate Commuter, Super-App Consumer, Gig Driver, Minimal Guest) reshape the whole app — different hubs, auth flows, tracking behavior and tunable knobs — from one account. Tracking settings (accuracy/interval/displacement floors, force-GPS, sync toggles) are registry-backed and persisted, driving the live location engine. |
-| **Local dev &amp; infra** | A local analytics sink with a kill switch, a Ktor network-log + API-tester debug console, and a server-driven tracking config loaded from local JSON — all offline, no backend. |
+| **Backend &amp; sync (V33, opt-in)** | A Kotlin/Ktor `:server` module (Netty + Exposed, H2 by default) sharing `:contract` DTOs with the client; idempotent location/event ingestion (`opId` dedup on a unique index) and a `PolicyRateEngine` shared verbatim between server and client; a `JourneyValidator`/`DistanceValidator` validation layer; writes queue through a durable offline outbox and flush once online. Off by default (`NetworkBackendFlags.useRealBackend = false`) — the on-device `:stub` path is unchanged. |
+| **Local dev &amp; infra** | A local analytics sink with a kill switch, a Ktor network-log + API-tester debug console, and a server-driven tracking config loaded from local JSON — all offline by default. |
 | **Media &amp; document intelligence** | Unified capture (camera/gallery, CameraX flash/pinch-zoom/tap-focus, VNDocumentCamera scanner on iOS) behind one contract used by every call site; on-device document-intelligence pipeline — OCR field-fill, doc-type classification and duplicate detection, combining on-device AI, text recognition and heuristics and degrading gracefully where a model isn't available; QR / barcode scanning; real watermark burn-in; attachment grid. |
 | **Dynamic forms** | A 16-field-type form engine driving expense/claim entry — validation, conditional visibility, GST auto-calc, and AI field suggestions from the document-intelligence pipeline. |
 | **Master search** | A registry-based search that fans a query across five providers spanning every feature module. |
@@ -267,6 +278,8 @@ graph TD
     WEAR[":wear · Wear OS app"]
     SWATCH[":sharedWatch · headless watchOS framework"]
     WIDGET[":widget · Glance home-screen widget"]
+    CONTRACT[":contract · shared DTOs + PolicyRateEngine"]
+    SERVER[":server · Ktor + Exposed backend (opt-in)"]
 
     APP --> Features
     APP --> STUB
@@ -276,6 +289,8 @@ graph TD
     Features --> Core
     STUB --> DATA
     STUB --> NET
+    NET --> CONTRACT
+    SERVER --> CONTRACT
 ```
 
 **Key patterns**
@@ -290,6 +305,11 @@ graph TD
 - **Shared scaffolds.** `FormSubmissionScaffold` and `HistoryListScaffold` standardise the create and
   history flows that travel, payables, payments and events all reuse.
 - **Navigation.** Type-safe JetBrains Compose Navigation, with per-feature graphs assembled at `:app`.
+- **Opt-in backend, shared contract.** `:server` and the client both depend on `:contract` for
+  request/response DTOs and the `PolicyRateEngine`, so the wire format and the reimbursement math
+  can't drift between them. `NetworkBackendFlags.useRealBackend` (default `false`) is the single
+  switch between `:stub`'s mock data and the real Ktor calls; writes queue through a durable offline
+  outbox either way.
 
 ### Engineering decisions
 
@@ -299,7 +319,7 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | Decision | Why | What it cost / trade-off |
 |---|---|---|
 | **`commonMain`-first KMP, platform tech behind `expect`/`actual`** | Business logic, state and UI written once and *proven* to compile for Android, iOS, Wear, watchOS and Desktop — not "Android code we might port later." The `expect`/`actual` seam is the discipline that keeps `android.*`/`java.*` from leaking into shared code. | You write to the intersection of platforms. Anything platform-bound (FusedLocation, CameraX, ML Kit, BiometricPrompt, WorkManager, the foreground service) needs a declared interface + an actual per target, which is more ceremony than a plain Android call. |
-| **Offline-first on deterministic mock data, backend deferred** | Keeps the whole app runnable and reviewable with no keys, no network, no flaky fixtures — every screenshot and test is reproducible on the JVM. It's also honest: backend isn't a proven skill here *yet*, so it's sequenced, not faked. | No real sync conflicts, latency or auth to design against today. Mitigated by keeping every repository one implementation-swap away from a live data source (repositories already look network-shaped), so wiring a real API later isn't a rewrite. |
+| **Offline-first as the base layer, real backend as an opt-in addon** | Room + DataStore stay the source of truth for every screen and the whole screenshot/test suite stays reproducible on the JVM with no live dependency — that was never going to change. What *did* change: a real Kotlin/Ktor `:server` now exists, sharing `:contract` DTOs with the client so the wire format can't drift, with the identical `PolicyRateEngine` computing reimbursement amounts on both sides. It's off by default (`NetworkBackendFlags.useRealBackend = false`), which is what "repositories already look network-shaped" was building toward — wiring the real API turned out to be a flag flip plus routes, not a rewrite. | The flag being off by default means most day-to-day usage still exercises mock data, not the live path; idempotent sync (`opId` dedup) and the offline-outbox flush are covered by dedicated Ktor/JVM tests rather than the full screenshot suite. Auth is explicitly deferred (every server call today is unauthenticated) — tracked as its own follow-up phase, not silently skipped. |
 | **Location engine: four-bucket accounting + deterministic recompute** | GPS is dirty. Rather than throw away suspect fixes, every point is kept and classified into `original` / `cleaned` / `abnormal` / `mock` buckets, all persisted. Distance can then be *recomputed from the stored points*, so a later math fix re-derives history instead of stranding already-tracked trips on old numbers. | More storage and a more complex write path than "sum the deltas as they arrive." The payoff is auditability and forward-fixable math — the thing that actually matters when a user disputes a distance. |
 | **MVI + single immutable state per screen** | One `StateFlow<State>` per screen, collected with `collectAsStateWithLifecycle`, wrapped in a shared `ScreenState` that models loading/empty/error/content uniformly. Renders are a pure function of state; there's no half-updated UI to reason about. | More boilerplate than mutable view state, and every field change means a fresh copy of the state object. Accepted because it makes recomposition predictable and screens trivial to screenshot-test. |
 | **`SearchProvider` registry instead of a central search index** | Each feature binds its own `SearchProvider` into Koin; the master-search aggregator resolves `getAll<SearchProvider>()` and fans out. Adding a searchable feature is a one-line Koin binding — no edit to a shared switch statement, no feature-to-feature dependency. | Search is only as good as each provider, and cross-feature ranking is naive (per-provider, then merged). Fine for the scale here; the decoupling is worth more than global relevance tuning. |
@@ -322,8 +342,10 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | `:core:media` | Unified capture contract (camera/gallery) + launcher, watermarking, odometer OCR orchestration |
 | `:core:ai` | On-device document-intelligence pipeline — OCR field-fill, doc-type classification, duplicate detection, degrading gracefully without a model |
 | `:core:forms` | Dynamic form engine — 16 field types, validation, conditional visibility, GST auto-calc |
+| `:contract` | Shared request/response DTOs and `PolicyRateEngine`, depended on by both `:server` and the client (`:core:network`) so the wire format and reimbursement math can't drift between them |
+| `:server` | Kotlin/Ktor backend (Netty + Exposed, H2 by default) — miles/location/event ingestion with idempotent `opId` dedup; opt-in, off by default in the client |
 | `:feature:*` | tracking · logging · media · profile · approvals · payables · travel · agent · cards · payments · events |
-| `:stub` | Deterministic mock data for every repository (no backend) |
+| `:stub` | Deterministic mock data for every repository; the default data source while `NetworkBackendFlags.useRealBackend` is off |
 | `:wear` | Wear OS app — dashboard, trip list/detail, tile, complication, ongoing activity, phone sync |
 | `:sharedWatch` | Headless KMP static framework (no Compose) consumed by the native SwiftUI watchOS app |
 | `:shared` | iOS umbrella framework — re-exports `core:ui`, `feature:tracking`, `feature:agent` and `feature:logging` as the single `Mileway.framework` Xcode links against |
@@ -347,6 +369,8 @@ Mileway/
 │   ├── media/                 # unified capture contract + launcher, watermarking, OCR orchestration
 │   ├── ai/                    # on-device document-intelligence pipeline
 │   └── forms/                 # dynamic form engine (16 field types, validation, GST)
+├── contract/                 # shared DTOs + PolicyRateEngine (client + server)
+├── server/                   # Kotlin/Ktor backend (Netty + Exposed) — opt-in, off by default
 ├── feature/                  # tracking · logging · media · profile · approvals
 │                             # payables · travel · agent · cards · payments · events
 ├── stub/                     # deterministic mock data for every repository
@@ -370,7 +394,7 @@ Mileway/
 | DI | Koin **4.2.2** (multiplatform) |
 | Database | Room **2.8.4** (KMP, bundled SQLite) |
 | Settings / session | AndroidX DataStore |
-| Networking | Ktor **3.5.1** (OkHttp + Darwin engines), mocked with no live backend |
+| Networking | Ktor **3.5.1** client (OkHttp + Darwin engines) + Ktor server (Netty + Exposed, H2 by default) — the real backend is opt-in behind `NetworkBackendFlags.useRealBackend` (default `false`); `:stub` is the default data source |
 | Concurrency | Coroutines + Flow (no LiveData); `kotlinx-datetime` **0.8.0** in commonMain |
 | Navigation | compose-nav-graph-annotations **0.2.1** |
 | Maps | osmdroid / MapLibre (`noGms`, offline MBTiles) · KrossMap (`gms`) |
@@ -458,6 +482,10 @@ hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per i
   component-preview matrices on the JVM (`ScreenshotGalleryTest` and `ScreenshotCatalogTest`, all
   in `docs/screenshots/`). They're deterministic and diff cleanly in PRs.
 - **Static analysis.** detekt and ktlint across every module, with Kover for coverage.
+- **Backend tests (`:server`, opt-in path).** `./gradlew :server:test` covers idempotent `opId`
+  dedup, the shared `PolicyRateEngine`, and route behavior against an in-memory H2 database — a
+  plain `kotlin("jvm")` module, not part of the KMP/Android build. Not yet wired into
+  `ci.yml`/`testNoGmsDebugUnitTest`, so run it explicitly when touching `:server` or `:contract`.
 - **CI.** `.github/workflows/ci.yml` runs `assembleGmsDebug` and `testNoGmsDebugUnitTest` on every push
   and PR. Separate `quality`, `release` and `publish-fdroid` workflows handle the gates and distribution.
 - **Distribution.** Beyond Play/F-Droid/Indus (`release.yml`, `publish-fdroid.yml`, `indus-deploy.yml`):
@@ -474,7 +502,7 @@ roadmap reflects direction rather than commitments.
 
 **Shipped**
 
-- [x] Offline-first app on deterministic mock data (zero backend calls)
+- [x] Offline-first app on deterministic mock data (no backend calls by default; see V33 below)
 - [x] Multi-module clean architecture with Koin DI
 - [x] Compose Multiplatform UI; `commonMain` core compiles for Android + iOS
 - [x] `gms` / `noGms` flavor split + FOSS dependency-prefix guard
@@ -547,6 +575,17 @@ roadmap reflects direction rather than commitments.
       rich chat + attachments), comments and audit flags; feature depth across search, analytics,
       events, cards and home; a shell-nav fix, shake-to-report and a storage-management screen; and
       Room schema **v39 → v47** across explicit migrations.
+- [x] **Kotlin/Ktor backend, opt-in (V33).** A real `:server` module (Ktor + Exposed, H2 by default)
+      alongside a shared `:contract` module for request/response DTOs and the `PolicyRateEngine`, so
+      server and client can't drift on wire format or reimbursement math; idempotent location/event
+      ingestion (`opId` dedup against a unique DB index); a `JourneyValidator`/`DistanceValidator`
+      validation layer; writes queued through a durable offline outbox and flushed once online.
+      Off by default behind `NetworkBackendFlags.useRealBackend` — offline-first (Room + DataStore,
+      `:stub`) stays the base, the backend is an addon, not a replacement. Auth is explicitly
+      deferred to a follow-up phase (every server call today is unauthenticated).
+- [x] **iOS launch-crash fix (V33).** `CADisableMinimumFrameDurationOnPhone` added to `Info.plist`
+      (a Compose Multiplatform `PlistSanityCheck` requirement) — the iOS app builds
+      (`xcodebuild`-green) and launches correctly on device.
 
 **Exploring**
 
@@ -556,6 +595,12 @@ roadmap reflects direction rather than commitments.
 - [ ] Expand Roborazzi catalog to remaining edge-case states
 - [ ] watchOS live device verification, AppFunctions ADB invocation, Siri phrase invocation — all
       compile/build-verified here, pending real-device/simulator-runtime confirmation
+- [ ] Live iOS-**simulator** app-content rendering — currently blocked by an upstream Compose
+      Multiplatform/Skiko ↔ Xcode 26 / iOS 26 simulator Metal issue (works on physical devices); the
+      shared CMP UI is represented in this README by the Android catalog and the Compose Desktop
+      gallery instead. iOS itself is `xcodebuild`-green and device-verified for launch.
+- [ ] `:server` auth (every route today is a bare, unauthenticated call — deferred to its own phase,
+      not skipped silently); the remaining PLAN_V33.1 routes beyond miles/location/events
 
 ## iOS, Wear OS and watchOS
 
