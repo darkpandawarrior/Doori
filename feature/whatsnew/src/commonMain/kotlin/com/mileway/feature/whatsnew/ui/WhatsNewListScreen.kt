@@ -88,9 +88,12 @@ fun WhatsNewListScreen(
     )
 }
 
+// PLAN_V36 P8: internal (not private) so `ui/previews/WhatsNewPreviews.kt` can render it directly
+// against inline fake state — the "no DI, no ViewModel, no Koin" preview convention (see
+// TrackingPreviews.kt) needs a state-driven entry point, and this is already exactly that.
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun WhatsNewListContent(
+internal fun WhatsNewListContent(
     state: WhatsNewListUiState,
     onBack: () -> Unit,
     onOpenEntry: (String) -> Unit,

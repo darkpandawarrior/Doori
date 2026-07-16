@@ -104,9 +104,10 @@ fun WhatsNewDetailScreen(
     )
 }
 
+// PLAN_V36 P8: internal (not private) — same reasoning as WhatsNewListContent's, see that KDoc.
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-private fun WhatsNewDetailContent(
+internal fun WhatsNewDetailContent(
     state: WhatsNewDetailUiState,
     onBack: () -> Unit,
     onSelectMedia: (Int) -> Unit,

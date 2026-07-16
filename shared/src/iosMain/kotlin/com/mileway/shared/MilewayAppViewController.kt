@@ -15,6 +15,7 @@ import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.service.AppSyncTrigger
 import com.mileway.feature.travel.di.travelModule
+import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
 import com.mileway.shared.ui.MilewayApp
 import com.mileway.stub.di.stubModule
 import com.mileway.ui.home.homeModule
@@ -47,6 +48,9 @@ fun MilewayAppViewController(): UIViewController {
                 trackingModule,
                 loggingModule,
                 travelModule,
+                // PLAN_V36 P8: the List/Detail screens MilewayApp now overlays need their repository
+                // + ViewModels resolvable — Android gets this from MilewayApplication's module list.
+                whatsNewFeatureModule,
             ),
     )
     // PLAN_V34 P1: app-scoped outbox flush — connectivity edges for the process lifetime plus a

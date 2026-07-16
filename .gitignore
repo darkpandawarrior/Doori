@@ -41,3 +41,6 @@ AGENTS.md
 # versioned-release skill: local dry-run previews
 .release/preview/
 .release/scrublist.txt
+
+# PLAN_V36 P8: scripts/whatsnew-draft.sh output — human-curated before landing, never committed
+whatsnew-draft/

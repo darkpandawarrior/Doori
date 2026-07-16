@@ -5,6 +5,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.ui.previews.PreviewHeroTrackingCardActive
 import com.mileway.core.ui.previews.PreviewHeroTrackingCardActiveIon
@@ -37,8 +39,13 @@ import com.mileway.feature.travel.ui.previews.PreviewBookingCardActiveFlight
 import com.mileway.feature.travel.ui.previews.PreviewBookingCardCompletedFlight
 import com.mileway.feature.travel.ui.previews.PreviewBookingCardUpcomingTrain
 import com.mileway.feature.travel.ui.previews.PreviewBookingListMatrix
+import com.mileway.feature.whatsnew.ui.previews.PreviewWhatsNewDetailCarousel
+import com.mileway.feature.whatsnew.ui.previews.PreviewWhatsNewDetailSingleMedia
+import com.mileway.feature.whatsnew.ui.previews.PreviewWhatsNewListEmpty
+import com.mileway.feature.whatsnew.ui.previews.PreviewWhatsNewListPopulated
 import com.mileway.ui.search.PreviewMasterSearchEmpty
 import com.mileway.ui.search.PreviewMasterSearchResults
+import kotlinx.coroutines.Dispatchers
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -84,6 +91,22 @@ class ScreenshotCatalogTest {
         ComposeResourcesTestFixture.install()
         org.jetbrains.compose.resources.setResourceReaderAndroidContext(
             ApplicationProvider.getApplicationContext(),
+        )
+    }
+
+    // PLAN_V36 P8: feature:whatsnew's WhatsNewEntryCard/HeroCarousel are the first catalog entries
+    // to render a real AsyncImage. Coil3's default ImageLoader fetches/decodes on Dispatchers.IO,
+    // a real thread pool Robolectric's compose-idle check doesn't track — a subsequent
+    // verifyRoborazziGmsDebug run flaked to a blank hero image (raced the decode against capture;
+    // see app/build/outputs/roborazzi/whatsnew_list_screen_compare.png from that run). Unconfined
+    // runs fetch+decode inline on the calling thread instead of hopping to a background one, so
+    // it's always finished before this test's composeRule is considered idle.
+    @Before
+    fun installDeterministicImageLoader() {
+        SingletonImageLoader.setUnsafe(
+            ImageLoader.Builder(ApplicationProvider.getApplicationContext())
+                .coroutineContext(Dispatchers.Unconfined)
+                .build(),
         )
     }
 
@@ -212,6 +235,32 @@ class ScreenshotCatalogTest {
     fun travel_bookingList_matrix() {
         composeRule.setContent { PreviewBookingListMatrix() }
         capture("travel_bookingList_matrix")
+    }
+
+    // ── feature:whatsnew ────────────────────────────────────────────────────
+
+    @Test
+    fun whatsnew_list_screen() {
+        composeRule.setContent { PreviewWhatsNewListPopulated() }
+        capture("whatsnew_list_screen")
+    }
+
+    @Test
+    fun whatsnew_list_empty() {
+        composeRule.setContent { PreviewWhatsNewListEmpty() }
+        capture("whatsnew_list_empty")
+    }
+
+    @Test
+    fun whatsnew_detail_screen() {
+        composeRule.setContent { PreviewWhatsNewDetailSingleMedia() }
+        capture("whatsnew_detail_screen")
+    }
+
+    @Test
+    fun whatsnew_detail_carousel() {
+        composeRule.setContent { PreviewWhatsNewDetailCarousel() }
+        capture("whatsnew_detail_carousel")
     }
 
     // ── app:master-search ────────────────────────────────────────────────────
