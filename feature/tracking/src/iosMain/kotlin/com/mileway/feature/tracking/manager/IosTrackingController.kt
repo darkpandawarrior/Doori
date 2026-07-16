@@ -16,8 +16,10 @@ import com.siddharth.kmp.location.QualityInputs
 import com.siddharth.kmp.location.TrackingQualityScorer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
@@ -34,10 +36,14 @@ import kotlin.time.Clock
  * the persisted points ([DistanceCalculator.computeCleanedDistance]) and finalizes the
  * [com.mileway.core.data.model.db.SavedTrack] row, mirroring the Android service's `stopAndFinalize`.
  *
- * `GeoPoint` (kmp-toolkit `:app-shell`) exposes lat/lng/accuracy/timestamp only — no speed, course,
- * or altitude — so [GpsFix.speedMps] stays 0 for every fix on iOS. Distance/point-count are exact
- * (they come from Haversine over real displacement); `avgSpeedMps`/`maxSpeedMps` stay 0 until
- * `GeoPoint` gains a speed field (kmp-toolkit change, out of scope here — see PROGRESS.md).
+ * `GeoPoint` (kmp-toolkit `:app-shell`) carries speed/course/altitude straight from `CLLocation`, so
+ * [GpsFix.speedMps]/[GpsFix.bearingDeg]/[GpsFix.altitudeM] are real per-fix values on iOS (see
+ * [toGpsFix]) — `avgSpeedMps`/`maxSpeedMps` in the published snapshot are no longer stuck at 0.
+ *
+ * A staleness watchdog ([startWatchdog]) re-invokes [LocationTracker.start] if no fix has arrived
+ * within [STALE_FIX_TIMEOUT_MS] while tracking is active and unpaused — mirrors the RN lesson that a
+ * background location callback can silently die without the OS surfacing an error. It runs only
+ * between [start]/[resume] and [pause]/[stop] (see those methods).
  *
  * iOS-specific details (Info.plist `location` bg mode, NSLocationAlwaysUsageDescription, background
  * session limits) are documented in .ralph/PROGRESS.md.
@@ -68,8 +74,28 @@ class IosTrackingController(
     // markSystemRelaunch() before start() if it detects a launchOptions[locationKey].
     private var pendingSystemRelaunch = false
 
+    // Staleness watchdog: last time a GeoPoint arrived, and the coroutine Job checking it.
+    private var lastFixAtMs: Long = 0L
+    private var watchdogJob: Job? = null
+
     fun markSystemRelaunch() {
         pendingSystemRelaunch = true
+    }
+
+    /** (Re)starts the staleness watchdog on [scope]; cancels any previous instance first. */
+    private fun startWatchdog(scope: CoroutineScope) {
+        watchdogJob?.cancel()
+        watchdogJob =
+            scope.launch {
+                while (true) {
+                    delay(WATCHDOG_CHECK_INTERVAL_MS)
+                    if (!isPaused && nowMs() - lastFixAtMs > STALE_FIX_TIMEOUT_MS) {
+                        // Self-heal: the OS may have silently stopped delivering fixes (backgrounded
+                        // app, killed location daemon, etc.) without CoreLocation raising an error.
+                        locationTracker.start()
+                    }
+                }
+            }
     }
 
     override fun start(token: String) {
@@ -85,7 +111,9 @@ class IosTrackingController(
 
         val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scope = sessionScope
+        lastFixAtMs = startTime
         locationTracker.start()
+        startWatchdog(sessionScope)
         statePublisher.update {
             TrackingSnapshot(state = TrackingState.LIVE_TRACKING, token = token)
         }
@@ -98,6 +126,7 @@ class IosTrackingController(
 
         sessionScope.launch {
             locationTracker.updates.collect { point ->
+                lastFixAtMs = nowMs()
                 val proc = processor ?: return@collect
                 val result = proc.process(point.toGpsFix(), isPaused) ?: return@collect // jitter-suppressed
                 locationBatcher?.add(result.location.copy(token = token))
@@ -133,6 +162,8 @@ class IosTrackingController(
         if (activeToken != token) return
         isPaused = true
         everPaused = true
+        watchdogJob?.cancel()
+        watchdogJob = null
         locationTracker.stop()
         // Data-loss guardrail (mirrors the Android service): flush buffered points now rather than
         // waiting for the next full-batch/30s trigger, since pause can precede backgrounding.
@@ -145,7 +176,9 @@ class IosTrackingController(
         isPaused = false
         // P-A.3: reset Kalman on resume so stale pre-pause filter state doesn't distort the new segment.
         processor?.resetKalman()
+        lastFixAtMs = nowMs()
         locationTracker.start()
+        scope?.let { startWatchdog(it) }
         statePublisher.update { it.copy(state = TrackingState.LIVE_TRACKING) }
     }
 
@@ -160,6 +193,7 @@ class IosTrackingController(
         val wasEverPaused = everPaused
         scope?.cancel()
         scope = null
+        watchdogJob = null
         locationTracker.stop()
         statePublisher.update { TrackingSnapshot(state = TrackingState.COMPLETED) }
 
@@ -202,19 +236,27 @@ class IosTrackingController(
     }
 }
 
+// How often the watchdog checks for a stale fix, and how long without a fix counts as stale.
+// 90s is ~20-45x the typical CoreLocation update cadence — comfortably past normal jitter/backoff,
+// short enough that a genuinely dead tracker gets restarted well before a trip is ruined.
+private const val WATCHDOG_CHECK_INTERVAL_MS = 15_000L
+private const val STALE_FIX_TIMEOUT_MS = 90_000L
+
 private fun nowMs(): Long = Clock.System.now().toEpochMilliseconds()
 
 /**
- * `GeoPoint` (kmp-toolkit) carries lat/lng/accuracy/timestamp only — no speed/course/altitude (see
- * the class doc). [GpsFix.speedMps]/[GpsFix.bearingDeg]/[GpsFix.altitudeM] stay at their 0 defaults;
- * distance accumulation is displacement-driven (Haversine between consecutive fixes) so it is
- * unaffected, but the processor's speed accumulator (fed by [GpsFix.speedMps]) never advances.
+ * `GeoPoint` (kmp-toolkit) now carries real speed/course/altitude from `CLLocation` (negative
+ * speed/course means "invalid" per CoreLocation's convention — guarded here to the [GpsFix] 0
+ * defaults rather than propagating a negative speed/bearing into the distance/quality pipeline).
  */
 private fun GeoPoint.toGpsFix(): GpsFix =
     GpsFix(
         lat = latitude,
         lng = longitude,
         timeMs = timestampMillis,
+        speedMps = if (speedMetersPerSecond < 0f) 0f else speedMetersPerSecond,
         accuracyM = accuracyMeters,
+        bearingDeg = if (courseDegrees < 0.0) 0f else courseDegrees.toFloat(),
+        altitudeM = altitudeMeters,
         provider = "ios",
     )

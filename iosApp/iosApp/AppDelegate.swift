@@ -26,6 +26,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         // P4.5: activate the WatchConnectivity session so a paired watch gets the latest
         // snapshot via applicationContext as soon as one is available.
         PhoneWatchSyncBridge.shared.activate()
+        // P-C.2: CoreLocation relaunched a terminated app because significant-change monitoring
+        // saw movement (see IosLocationTracker.startMonitoringSignificantLocationChanges) — mark
+        // the pending relaunch and resume the active track, if any.
+        if launchOptions?[.location] != nil {
+            TrackingRelaunchBridge.shared.onSystemRelaunch()
+        }
         // Register BGTaskScheduler handlers (P-F.1/P-F.3).
         // The identifier strings must match BGTaskSchedulerPermittedIdentifiers in Info.plist.
         // IosBgTaskDispatcher (feature:tracking/iosMain) maps the identifier to the matching
