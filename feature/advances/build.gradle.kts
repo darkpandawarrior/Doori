@@ -12,8 +12,13 @@ kotlin {
     }
 
     sourceSets {
-        // PLAN_V35.P3 is domain+data only (no screens yet — that's P4), so no :core:ui/:core:common
-        // dependency until a composable actually needs one.
+        // PLAN_V35.P4: screens/ViewModels land here, so :core:ui (DesignTokens, scaffolds,
+        // resources) and :core:common (UiText) are now real dependencies.
+        commonMain.dependencies {
+            implementation(project(":core:common"))
+            implementation(project(":core:ui"))
+            implementation(libs.kotlinx.datetime)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
