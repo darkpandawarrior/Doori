@@ -4,7 +4,8 @@ name: Screenshots
 #
 # Why this exists: pixel-exact baselines only match the environment they were recorded in. Recording them
 # by hand on a laptop guarantees they drift from CI's Linux renderer (font antialiasing), which is what kept
-# reding the old "verify" job. Instead, CI records the baselines *itself* and commits them back, so:
+# reding the old "verify" job. Instead, CI records the baselines *itself* and proposes them back
+# (as a PR, since main requires the Quality Gate check), so:
 #   - a NEW screen automatically gets a baseline the first time it runs here,
 #   - a CHANGED screen self-heals (the new rendering is captured),
 #   - CI never fails for rendering reasons unrelated to code.
@@ -26,7 +27,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write   # allows the bot to commit refreshed baselines back to main
+  contents: write        # allows the bot to push a refresh branch
+  pull-requests: write   # allows the bot to open the baseline-refresh PR
 
 jobs:
   record:
@@ -59,19 +61,29 @@ jobs:
       - name: Record screenshots (regenerate baselines in the CI environment)
         run: ./scripts/run-jvm-tests.sh recordRoborazziNoGmsDebug
 
-      # main: commit any new/changed baselines straight back. The [skip ci] tag stops the push from
-      # re-triggering this (or any) workflow, so there is no loop.
-      - name: Commit refreshed baselines
+      # main: baselines drifted. main is protected by the "Quality Gate required" ruleset, so the bot
+      # can't push straight to it — open a refresh PR instead (idempotent branch name per source SHA;
+      # re-runs force-push the same branch and reuse the open PR). The PR runs the normal gates.
+      - name: Open baseline-refresh PR
         if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/screenshots
           if git diff --cached --quiet; then
             echo "Baselines already up to date — nothing to commit."
-          else
-            git commit -m "chore(screenshots): refresh baselines [skip ci]"
-            git push
+            exit 0
+          fi
+          branch="bot/refresh-screenshot-baselines-${GITHUB_SHA::7}"
+          git checkout -b "$branch"
+          git commit -m "chore(screenshots): refresh baselines for ${GITHUB_SHA::7}"
+          git push --force origin "$branch"
+          if ! gh pr list --head "$branch" --state open --json number --jq '.[0].number' | grep -q .; then
+            gh pr create --base main --head "$branch" \
+              --title "chore(screenshots): refresh baselines for ${GITHUB_SHA::7}" \
+              --body "Automated Roborazzi baseline refresh — screens changed on main and CI re-recorded them. Review the PNG diffs and merge."
           fi
 
       # PR: don't mutate the branch; surface the freshly rendered screenshots for human review.
