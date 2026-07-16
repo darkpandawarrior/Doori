@@ -51,7 +51,9 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.whatsnew.model.WhatsNewMedia
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import com.mileway.feature.whatsnew.resources.Res as WhatsNewRes
 
 private val HeroHeight = 280.dp
 private val ThumbnailSize = 64.dp
@@ -66,6 +68,7 @@ private const val AUTO_ADVANCE_MS = 4_500L
  * Reduced-motion (killing the auto-advance) is V36.P6 (`LocalReducedMotion` doesn't exist yet).
  * The caller (`WhatsNewDetailScreen`) already skips this composable entirely when media is empty.
  */
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HeroCarousel(
     media: List<WhatsNewMedia>,
@@ -95,7 +98,7 @@ fun HeroCarousel(
             HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth().height(HeroHeight)) { page ->
                 val item = media[page]
                 ZoomableMedia(
-                    model = item.path,
+                    model = WhatsNewRes.getUri(item.path),
                     contentDescription = item.caption,
                     resetKey = page,
                     onZoomChanged = { zoomed -> if (page == pagerState.currentPage) isZoomed = zoomed },
@@ -221,6 +224,7 @@ private fun PageDots(
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun ThumbnailButton(
     item: WhatsNewMedia,
@@ -230,7 +234,7 @@ private fun ThumbnailButton(
 ) {
     val borderColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
     AsyncImage(
-        model = item.path,
+        model = WhatsNewRes.getUri(item.path),
         contentDescription = item.caption ?: stringResource(Res.string.whatsnew_cd_thumbnail, index + 1),
         contentScale = ContentScale.Crop,
         modifier =

@@ -51,7 +51,9 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.char
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import com.mileway.feature.whatsnew.resources.Res as WhatsNewRes
 
 private const val PRESSED_SCALE = 0.96f
 private val HeroHeightMin = 180.dp
@@ -163,14 +165,12 @@ fun WhatsNewEntryCard(
 }
 
 /** Hero image (first media item only — a carousel is the detail screen's job, V36.P4). */
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 private fun WhatsNewHeroImage(path: String) {
     Box {
         AsyncImage(
-            // ponytail: raw compose-resource path — resolved through Res.getUri once V36.P5 wires
-            // feature:whatsnew's composeResources/files into the module (catalog media is empty
-            // until then, so this path never actually renders yet).
-            model = path,
+            model = WhatsNewRes.getUri(path),
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier =

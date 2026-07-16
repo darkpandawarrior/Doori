@@ -395,9 +395,11 @@ dependencies {
     implementation(project(":shared"))
     implementation(project(":core:common"))
     implementation(project(":core:ui"))
-    // Only core:ui ships composeResources content today. Add one line per module here if/when
+    // One line per module that ships composeResources content. Add another here if/when
     // core:maps, core:maps-maplibre, or :shared start shipping their own composeResources/.
     add("composeAndroidAssets", project(mapOf("path" to ":core:ui", "configuration" to "composeAndroidAssetsElements")))
+    // PLAN_V36 P5: feature:whatsnew's bundled screenshots (files/whatsnew/<entryId>/…).
+    add("composeAndroidAssets", project(mapOf("path" to ":feature:whatsnew", "configuration" to "composeAndroidAssetsElements")))
     implementation(project(":core:data"))
     implementation(project(":core:network"))
     implementation(project(":core:security"))
