@@ -205,17 +205,22 @@ fun HomeProfileHeader(
         // rasterize PNGs), and pins the user's current location. Tinted onPrimary (not white) so
         // the watermark stays a single low-contrast hue against the primary gradient — the same
         // treatment that keeps the fixed-contrast header text legible on ANY theme's primary.
+        // statusBarsPadding: the map (and crucially its TAPPABLE location pin + callout) must
+        // never render inside the status-bar inset — taps there land on the system bar, and the
+        // clock/icons would collide with the art. The gradient alone paints the inset strip.
         CurrentLocationPinMap(
-            modifier = Modifier.matchParentSize(),
+            modifier = Modifier.matchParentSize().statusBarsPadding(),
             pin = currentPin,
             dotColor = MaterialTheme.colorScheme.onPrimary,
             dotAlpha = 0.24f,
             pinColor = MaterialTheme.colorScheme.error,
         )
-        // Terminal scanline overlay
-        ScanlineOverlay(lineAlpha = 0.04f)
+        // Terminal scanline overlay + sheen: matchParentSize, NOT fillMaxSize — under the pinned
+        // header's finite constraints a fillMaxSize child would balloon the header to full screen
+        // (it was harmless only while the header lived inside a scroll column's infinite height).
+        ScanlineOverlay(modifier = Modifier.matchParentSize(), lineAlpha = 0.04f)
         // Subtle diagonal sheen
-        Canvas(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+        Canvas(modifier = Modifier.matchParentSize().statusBarsPadding()) {
             val sheenBrush =
                 Brush.linearGradient(
                     colors = listOf(Color.White.copy(alpha = 0.04f), Color.Transparent),
@@ -697,8 +702,11 @@ fun featureCarouselCards(
         ),
     )
 
-/** Fixed height for the feature carousel pages. */
-val FeatureCarouselCardHeight = 150.dp
+/**
+ * Fixed height for the feature carousel pages. Must fit the full stack — 40dp badge + title +
+ * 2-line subtitle + the "Start ›" pill + 16dp paddings — 150dp clipped the pill on device.
+ */
+val FeatureCarouselCardHeight = 192.dp
 
 /**
  * A single feature carousel page: tinted illustrative panel, title + subtitle, and either a
