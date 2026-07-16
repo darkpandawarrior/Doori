@@ -59,7 +59,7 @@ import org.koin.dsl.module
 import dev.tmapps.konnection.Konnection
 
 val appModule = module {
-    single { DatabaseSeeder(get(), get()) }
+    single { DatabaseSeeder(get(), get(), get()) }
 
     // V15 RV.4 / PLAN_V24 P12.3: engagement-gated in-app review tracker. Counters are now
     // DataStore-backed (survive cold start) and the gate uses the plan's 7-day account-age threshold.
@@ -193,6 +193,7 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
         )
         appScope.launch {
             get<DatabaseSeeder>().seedIfEmpty()
+            get<DatabaseSeeder>().seedVehiclesIfEmpty()
             scheduleWeeklyMaintenance()
             seedAppShortcuts()
         }

@@ -1,5 +1,7 @@
 package com.mileway
 
+import com.mileway.feature.tracking.repository.VehiclePricingCache
+import com.mileway.feature.tracking.repository.VehiclePricingSnapshot
 import com.mileway.seeder.DatabaseSeeder
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -7,6 +9,7 @@ import io.mockk.mockk
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.model.db.SavedTrack
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -18,13 +21,15 @@ class DatabaseSeederTest {
 
     private lateinit var trackDao: SavedTrackDao
     private lateinit var locationDao: LocationDao
+    private lateinit var vehicleCache: VehiclePricingCache
     private lateinit var seeder: DatabaseSeeder
 
     @Before
     fun setUp() {
         trackDao = mockk(relaxed = true)
         locationDao = mockk(relaxed = true)
-        seeder = DatabaseSeeder(trackDao, locationDao)
+        vehicleCache = mockk(relaxed = true)
+        seeder = DatabaseSeeder(trackDao, locationDao, vehicleCache)
     }
 
     @Test
@@ -57,5 +62,19 @@ class DatabaseSeederTest {
         seeder.seedIfEmpty()
         val uniqueIds = inserted.map { it.routeId }.toSet()
         assert(uniqueIds.size == 5) { "Expected 5 unique routeIds, got $uniqueIds" }
+    }
+
+    @Test
+    fun `seeds demo vehicles when cache is cold`() = runTest {
+        coEvery { vehicleCache.snapshot } returns flowOf(null)
+        seeder.seedVehiclesIfEmpty()
+        coVerify(exactly = 1) { vehicleCache.write(match { it.vehicles.isNotEmpty() }) }
+    }
+
+    @Test
+    fun `does not overwrite an already-cached vehicle snapshot`() = runTest {
+        coEvery { vehicleCache.snapshot } returns flowOf(VehiclePricingSnapshot(vehicles = emptyList()))
+        seeder.seedVehiclesIfEmpty()
+        coVerify(exactly = 0) { vehicleCache.write(any()) }
     }
 }

@@ -4,10 +4,15 @@ import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
+import com.mileway.feature.tracking.repository.VehiclePricingCache
+import com.mileway.feature.tracking.repository.VehiclePricingSnapshot
+import com.mileway.stub.DemoMockData
+import kotlinx.coroutines.flow.first
 
 class DatabaseSeeder(
     private val trackDao: SavedTrackDao,
-    private val locationDao: LocationDao
+    private val locationDao: LocationDao,
+    private val vehicleCache: VehiclePricingCache,
 ) {
     suspend fun seedIfEmpty() {
         if (trackDao.count() > 0L) return
@@ -15,6 +20,19 @@ class DatabaseSeeder(
             trackDao.insertSavedTrack(track)
             demoLocations(track).forEach { locationDao.insertLocation(it) }
         }
+    }
+
+    /**
+     * Bug found PLAN_V34 P1 E2E (2026-07-16): [VehiclePricingRepository][com.mileway.feature.tracking.repository.VehiclePricingRepository]
+     * emits [Error][com.mileway.core.network.ReadState.Error] when offline with a cold cache (real
+     * backend never fetched yet, or a fresh install that starts offline) — TrackMilesViewModel then
+     * never selects a vehicle, so JourneyStep can never leave VEHICLE and START silently no-ops.
+     * Seed the same demo vehicles :stub serves so the cache is never cold (real==stub parity,
+     * PLAN_V33 B6) — a later online refresh overwrites this with live data as normal.
+     */
+    suspend fun seedVehiclesIfEmpty() {
+        if (vehicleCache.snapshot.first() != null) return
+        vehicleCache.write(VehiclePricingSnapshot(vehicles = DemoMockData.vehicles().vehicles))
     }
 
     private fun now() = System.currentTimeMillis()
