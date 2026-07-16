@@ -11,6 +11,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
+import io.ktor.server.auth.authenticate
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -56,16 +57,23 @@ fun Application.module() {
     connectDatabase()
 
     install(ContentNegotiation) { json(serverJson) }
+    configureAuth()
 
     routing {
         get("/health") { call.respond(healthResponse()) }
-        post("/api/echo") { call.respond(call.receive<SubmitMilesRequestK>()) }
-        get("/api/vehicles") { call.respond(vehiclesResponse()) }
-        get("/api/pricing") { call.respond(ApprovedVehiclePricingResponse(data = loadRateTable().rates)) }
-        post("/api/miles/submit") { call.respond(submitMiles(call.receive())) }
-        locationEventRoutes()
-        milesExtraRoutes()
-        checkInRoutes()
+        authRoutes()
+        // PLAN_V34 P2/B2: every other /api/* route needs a bearer token — the routes underneath
+        // never took a token dependency (PLAN_V33.1's AUTH-DEFERRED), so this single wrapper is the
+        // whole restructure.
+        authenticate("jwt") {
+            post("/api/echo") { call.respond(call.receive<SubmitMilesRequestK>()) }
+            get("/api/vehicles") { call.respond(vehiclesResponse()) }
+            get("/api/pricing") { call.respond(ApprovedVehiclePricingResponse(data = loadRateTable().rates)) }
+            post("/api/miles/submit") { call.respond(submitMiles(call.receive())) }
+            locationEventRoutes()
+            milesExtraRoutes()
+            checkInRoutes()
+        }
     }
 }
 

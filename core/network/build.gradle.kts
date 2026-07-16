@@ -34,6 +34,12 @@ kotlin {
             // PLAN_V33 A3: KtorMilewayNetworkApi's HttpClient/BaseUrlProvider (createHttpClient +
             // the platform OkHttp/Darwin/CIO engine live in the toolkit module, not duplicated here).
             implementation("com.siddharth.kmp:network:1.0.0")
+            // PLAN_V34 P2/A6: AuthTokenStore wraps the toolkit's encrypted Settings (refresh token).
+            implementation("com.siddharth.kmp:settings:1.0.0")
+            // PLAN_V34 P2/A6: Ktor's bearer{} Auth provider drives the 401 -> refresh -> retry-once
+            // flow (withBearerAuth) — the multiplatform artifact, KtorMilewayNetworkApi itself is
+            // built once per platform target from this same commonMain source set.
+            implementation(libs.ktor.client.auth)
         }
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
@@ -43,6 +49,8 @@ kotlin {
             implementation(libs.kotlinx.coroutines.test)
             // PLAN_V33 A3: MockEngine backing KtorMilewayNetworkApiTest — no real :server needed.
             implementation(libs.ktor.client.mock)
+            // PLAN_V34 P2/A6: MapSettings — the official in-memory Settings fake for AuthTokenStoreTest.
+            implementation("com.russhwolf:multiplatform-settings-test:1.3.0")
         }
     }
 }

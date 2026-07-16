@@ -4,6 +4,7 @@ import com.mileway.core.data.model.network.AllTypesResponseV2
 import com.mileway.core.data.model.network.CheckInDetailsResponseV2
 import com.mileway.core.data.model.network.CheckInRequestV2
 import com.mileway.core.data.model.network.SuccessResponseV2
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -19,15 +20,17 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/** PLAN_V33 B4: check-in submit + seeded geo_types. */
+/** PLAN_V33 B4: check-in submit + seeded geo_types. PLAN_V34 P2/B2: every route below needs a bearer token now. */
 class CheckInRoutesTest {
     @Test
     fun checkInSubmitReturnsANonNullId() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
             val response =
                 client.post("/api/checkin") {
+                    bearerAuth(token)
                     contentType(ContentType.Application.Json)
                     setBody(serverJson.encodeToString(CheckInRequestV2(lat = 18.52, lng = 73.86, typeId = 1L)))
                 }
@@ -41,8 +44,9 @@ class CheckInRoutesTest {
     fun geoTypesReturnsTheSeededCheckInLocations() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
-            val response = client.get("/api/checkin/types")
+            val response = client.get("/api/checkin/types") { bearerAuth(token) }
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = serverJson.decodeFromString<AllTypesResponseV2>(response.bodyAsText())
@@ -57,12 +61,15 @@ class CheckInRoutesTest {
     fun geoTypeByIdReturnsThatSingleSeededRow() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
             val allTypes =
-                serverJson.decodeFromString<AllTypesResponseV2>(client.get("/api/checkin/types").bodyAsText())
+                serverJson.decodeFromString<AllTypesResponseV2>(
+                    client.get("/api/checkin/types") { bearerAuth(token) }.bodyAsText(),
+                )
             val firstId = allTypes.types.first().id
 
-            val response = client.get("/api/checkin/types/$firstId")
+            val response = client.get("/api/checkin/types/$firstId") { bearerAuth(token) }
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = serverJson.decodeFromString<CheckInDetailsResponseV2>(response.bodyAsText())

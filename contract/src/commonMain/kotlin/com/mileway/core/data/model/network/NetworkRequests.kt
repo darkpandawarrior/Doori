@@ -312,3 +312,26 @@ data class LogMilesResponseV2(
     @SerialName("limit") val limit: Double? = null,
     @SerialName("limitPeriod") val limitPeriod: String? = null,
 )
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+
+// PLAN_V34 P2/A2: no reference-app blueprint for these — a minimal login/refresh shape shared
+// byte-identically by :server (issues them) and the client (:core:network's AuthApi, A6).
+
+@Serializable
+data class AuthRequest(
+    @SerialName("email") val email: String,
+    @SerialName("password") val password: String,
+)
+
+@Serializable
+data class AuthResponse(
+    @SerialName("accessToken") val accessToken: String,
+    @SerialName("refreshToken") val refreshToken: String,
+    @SerialName("expiresInSeconds") val expiresInSeconds: Long,
+)
+
+@Serializable
+data class RefreshRequest(
+    @SerialName("refreshToken") val refreshToken: String,
+)

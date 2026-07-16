@@ -32,6 +32,9 @@ dependencies {
     implementation(libs.ktor.server.netty.jvm)
     implementation(libs.ktor.server.content.negotiation.jvm)
     implementation(libs.ktor.serialization.kotlinx.json.jvm)
+    // PLAN_V34 P2/B2: authenticate("jwt") route guard + login/refresh JWT issuance.
+    implementation(libs.ktor.server.auth.jvm)
+    implementation(libs.ktor.server.auth.jwt.jvm)
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)

@@ -1,6 +1,7 @@
 package com.mileway.server
 
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -46,6 +47,23 @@ object LocationPointsTable : Table("location_points") {
     // unique when present, so `insertIgnore` makes a replayed POST of the same opId a no-op.
     val opId = varchar("op_id", 64).nullable().uniqueIndex()
     override val primaryKey = PrimaryKey(id)
+}
+
+// PLAN_V34 P2/B2: the single seeded demo login + its rotating refresh tokens. `refresh_tokens` rows
+// are single-use — POST /api/auth/refresh (AuthRoutes.kt's `consumeRefreshToken`) deletes the
+// presented row and inserts a fresh one on every successful refresh, so a stolen-and-replayed
+// refresh token fails the second time it's used.
+object UsersTable : Table("users") {
+    val email = varchar("email", 128)
+    val passwordHash = varchar("password_hash", 64)
+    override val primaryKey = PrimaryKey(email)
+}
+
+object RefreshTokensTable : Table("refresh_tokens") {
+    val token = varchar("token", 64)
+    val email = varchar("email", 128)
+    val expiresAt = long("expires_at")
+    override val primaryKey = PrimaryKey(token)
 }
 
 object EventsTable : Table("events") {
@@ -231,6 +249,21 @@ fun seedTaggedExpenses() {
                     it[submittedAt] = row.submittedAt
                     it[pending] = row.pending
                 }
+            }
+        }
+    }
+}
+
+/**
+ * Inserts the one seeded demo login once — email/password constants (hashed, never stored
+ * plaintext) live in AuthRoutes.kt (DEMO_EMAIL/DEMO_PASSWORD/sha256).
+ */
+fun seedDemoUser() {
+    transaction {
+        if (UsersTable.selectAll().where { UsersTable.email eq DEMO_EMAIL }.count() == 0L) {
+            UsersTable.insert {
+                it[email] = DEMO_EMAIL
+                it[passwordHash] = sha256(DEMO_PASSWORD)
             }
         }
     }

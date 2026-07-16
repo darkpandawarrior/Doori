@@ -4,11 +4,15 @@ import com.mileway.core.data.network.DataStoreBaseUrlProvider
 import com.mileway.core.data.plugin.PersonaPresetProvider
 import com.mileway.core.network.api.MilewayNetworkApi
 import com.mileway.core.network.api.impl.KtorMilewayNetworkApi
+import com.mileway.core.network.auth.AuthApi
+import com.mileway.core.network.auth.AuthTokenStore
+import com.mileway.core.network.auth.withBearerAuth
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.FakeTrackingNetworkApi
 import com.mileway.stub.StubPersonaPresetProvider
 import com.siddharth.kmp.network.createHttpClient
+import com.siddharth.kmp.settings.SecureSettingsFactory
 import org.koin.dsl.module
 
 /**
@@ -26,16 +30,23 @@ val stubModule =
     module {
         single { DemoConfigManager() }
         single<ConfigProvider> { get<DemoConfigManager>() }
+        single { DataStoreBaseUrlProvider() }
+        // PLAN_V34 P2/A6: refresh token in the toolkit's encrypted Settings (Keychain on iOS);
+        // AuthApi is the login()/refresh()/logout() seam built on a bare (non-bearer) client.
+        single { AuthTokenStore(SecureSettingsFactory().create()) }
+        single { AuthApi(createHttpClient(), get<DataStoreBaseUrlProvider>(), get()) }
         single<MilewayNetworkApi> {
             if (NetworkBackendFlags.useRealBackend) {
+                val tokenStore = get<AuthTokenStore>()
                 KtorMilewayNetworkApi(
                     client =
                         createHttpClient(
-                            // AUTH-DEFERRED: no session to clear yet — TokenProvider/real 401
-                            // handling lands with B-auth/A-auth.
-                            onUnauthorized = { },
-                        ),
-                    baseUrlProvider = DataStoreBaseUrlProvider(),
+                            // A real 401 on a non-auth route now means "refresh already failed" (the
+                            // withBearerAuth-wrapped client tried refresh+retry first) — clear the
+                            // session so the app's own sign-out flow picks it up.
+                            onUnauthorized = { tokenStore.clear() },
+                        ).withBearerAuth(tokenStore, get()),
+                    baseUrlProvider = get<DataStoreBaseUrlProvider>(),
                 )
             } else {
                 FakeTrackingNetworkApi()

@@ -29,6 +29,9 @@ kotlin {
             // (not `api`) inside the toolkit module, so the HttpClient type needs declaring here too.
             implementation("com.siddharth.kmp:network:1.0.0")
             implementation(libs.ktor.client.core)
+            // PLAN_V34 P2/A6: StubModule constructs AuthTokenStore's SecureSettingsFactory directly
+            // (androidMain needs a Context, iosMain doesn't — same expect/actual split as network).
+            implementation("com.siddharth.kmp:settings:1.0.0")
         }
         androidMain.dependencies {
             implementation(libs.koin.android)

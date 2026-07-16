@@ -48,11 +48,12 @@ import io.ktor.http.contentType
  * `false`, so `FakeTrackingNetworkApi` stays the actual default and nothing changes unless the flag
  * is flipped.
  *
- * AUTH-DEFERRED (PLAN_V33.1): every call below is a bare, unauthenticated fetch/post — no
- * `Authorization` header is attached anywhere. `TokenProvider` (see kmp-toolkit's
- * `HttpClientFactory.kt`) slots in later, once B-auth/A-auth land, as a per-request header this
- * class attaches before `get`/`post` — the seam is the [client]'s call sites below, not a
- * constructor parameter, since `createHttpClient` itself has no token hook today.
+ * PLAN_V34 P2/A6: auth is wired now, but NOT inside this class — [client] is expected to already be
+ * an authenticated client (`createHttpClient(...).withBearerAuth(tokenStore, authApi)`, see
+ * `core.network.auth.BearerAuth`), so every `get`/`post` call below picks up the
+ * `Authorization: Bearer` header and the 401 -> refresh -> retry-once flow for free. This class's
+ * own call sites stay bare on purpose — the DI construction site (`:stub`'s `StubModule`) is the
+ * only place that decides whether [client] is authenticated.
  *
  * Routes that already exist on `:server` (B1-B3): vehicles, pricing, miles/submit, location(/batch),
  * events(/batch), and the location/events GET range reads. Every other method below targets its

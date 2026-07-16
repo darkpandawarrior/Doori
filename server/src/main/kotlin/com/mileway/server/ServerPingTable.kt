@@ -43,10 +43,13 @@ fun connectDatabase() {
             GeoTypesTable,
             LogMilesServicesTable,
             TaggedExpensesTable,
+            UsersTable,
+            RefreshTokensTable,
         )
     }
     seedVehicles()
     seedGeoTypes()
     seedLogMilesServices()
     seedTaggedExpenses()
+    seedDemoUser()
 }

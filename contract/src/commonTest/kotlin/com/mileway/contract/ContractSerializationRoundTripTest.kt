@@ -1,8 +1,11 @@
 package com.mileway.contract
 
+import com.mileway.core.data.model.network.AuthRequest
+import com.mileway.core.data.model.network.AuthResponse
 import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.PolicyViolation
+import com.mileway.core.data.model.network.RefreshRequest
 import com.mileway.core.data.model.network.SubmissionStatus
 import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.core.data.model.network.TransactionRef
@@ -68,6 +71,38 @@ class ContractSerializationRoundTripTest {
 
         val encoded = json.encodeToString(original)
         val decoded = json.decodeFromString<ExpenseSubmissionResponse>(encoded)
+
+        assertEquals(original, decoded)
+    }
+
+    // ── PLAN_V34 P2/A2: auth DTOs ──────────────────────────────────────────────
+
+    @Test
+    fun authRequest_roundTrips() {
+        val original = AuthRequest(email = "demo@mileway.app", password = "mileway-demo-2026")
+
+        val encoded = json.encodeToString(original)
+        val decoded = json.decodeFromString<AuthRequest>(encoded)
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun authResponse_roundTrips() {
+        val original = AuthResponse(accessToken = "access-123", refreshToken = "refresh-456", expiresInSeconds = 900L)
+
+        val encoded = json.encodeToString(original)
+        val decoded = json.decodeFromString<AuthResponse>(encoded)
+
+        assertEquals(original, decoded)
+    }
+
+    @Test
+    fun refreshRequest_roundTrips() {
+        val original = RefreshRequest(refreshToken = "refresh-456")
+
+        val encoded = json.encodeToString(original)
+        val decoded = json.decodeFromString<RefreshRequest>(encoded)
 
         assertEquals(original, decoded)
     }

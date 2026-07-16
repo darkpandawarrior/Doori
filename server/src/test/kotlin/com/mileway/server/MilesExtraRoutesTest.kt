@@ -7,6 +7,7 @@ import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
 import com.mileway.core.data.model.network.PostMileageEventRequestK
 import com.mileway.core.data.model.network.TrackMileageStatusResponse
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -22,15 +23,17 @@ import kotlin.test.assertEquals
 
 private const val KM_TOLERANCE = 0.05
 
-/** PLAN_V33 B4: logmiles submit, distance, and track-status routes. */
+/** PLAN_V33 B4: logmiles submit, distance, and track-status routes. PLAN_V34 P2/B2: every route below needs a bearer token now. */
 class MilesExtraRoutesTest {
     @Test
     fun logMilesSubmitComputesReimbursementFromThePolicyRateEngine() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
             val response =
                 client.post("/api/miles/log") {
+                    bearerAuth(token)
                     contentType(ContentType.Application.Json)
                     setBody(serverJson.encodeToString(LogMilesSubmitRequestV2(vehicleType = "twoWheeler", distance = 5.0)))
                 }
@@ -46,12 +49,14 @@ class MilesExtraRoutesTest {
     fun distanceReturnsTheCorrectKmForAKnownCoordinatePair() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
             // One degree of longitude at the equator is ~111.19 km great-circle distance.
             val request = DistanceRequestV2(coords = listOf(CoordsV2(lat = 0.0, lng = 0.0), CoordsV2(lat = 0.0, lng = 1.0)))
 
             val response =
                 client.post("/api/distance") {
+                    bearerAuth(token)
                     contentType(ContentType.Application.Json)
                     setBody(serverJson.encodeToString(request))
                 }
@@ -66,8 +71,9 @@ class MilesExtraRoutesTest {
     fun statusReturnsActiveForATokenWithNoHistory() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
-            val response = client.get("/api/miles/status?token=tok-status-unknown")
+            val response = client.get("/api/miles/status?token=tok-status-unknown") { bearerAuth(token) }
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = serverJson.decodeFromString<TrackMileageStatusResponse>(response.bodyAsText())
@@ -79,14 +85,16 @@ class MilesExtraRoutesTest {
     fun statusReflectsTheMostRecentDiscardEvent() =
         testApplication {
             application { module() }
+            val token = client.demoLoginToken()
 
-            val token = "tok-status-discarded"
+            val trackingToken = "tok-status-discarded"
             client.post("/api/miles/discard") {
+                bearerAuth(token)
                 contentType(ContentType.Application.Json)
-                setBody(serverJson.encodeToString(PostMileageEventRequestK(token = token, timestamp = 1_000L)))
+                setBody(serverJson.encodeToString(PostMileageEventRequestK(token = trackingToken, timestamp = 1_000L)))
             }
 
-            val response = client.get("/api/miles/status?token=$token")
+            val response = client.get("/api/miles/status?token=$trackingToken") { bearerAuth(token) }
 
             assertEquals(HttpStatusCode.OK, response.status)
             val body = serverJson.decodeFromString<TrackMileageStatusResponse>(response.bodyAsText())
