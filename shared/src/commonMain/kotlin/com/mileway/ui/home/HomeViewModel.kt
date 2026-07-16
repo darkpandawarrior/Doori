@@ -83,6 +83,9 @@ data class HomeUiState(
     val isManager: Boolean = false,
     val approvalBreakdown: ApprovalBreakdown = ApprovalBreakdown(),
     val avatarPath: String? = null,
+    // PLAN_V35 P2: pull-to-refresh. Local data re-snapshots instantly; the flag exists so the
+    // refresh indicator has honest state once any home section loads from a real source.
+    val isRefreshing: Boolean = false,
 )
 
 /**
@@ -145,6 +148,36 @@ class HomeViewModel(
             .map { it.avatarPath }
             .onEach { path -> _uiState.update { it.copy(avatarPath = path) } }
             .launchIn(viewModelScope)
+    }
+
+    /**
+     * PLAN_V35 P2: pull-to-refresh — re-snapshots the mock providers and re-resolves the location
+     * pin. Instant for local data; the isRefreshing flag makes the indicator behave correctly
+     * once real-backend sections are wired.
+     */
+    fun refreshHome() {
+        if (_uiState.value.isRefreshing) return
+        _uiState.update { it.copy(isRefreshing = true) }
+        viewModelScope.launch {
+            val fresh = buildInitialState()
+            val fix = locationTracker.current()
+            val pin =
+                fix?.let {
+                    val place = locationNameResolver.resolve(it.latitude, it.longitude)
+                    LocationPin(it.latitude, it.longitude, place.name, place.coordinates)
+                }
+            _uiState.update { current ->
+                fresh.copy(
+                    // Live-collected fields keep their current values; their flows keep updating them.
+                    notificationCount = current.notificationCount,
+                    pluginConfig = current.pluginConfig,
+                    isManager = current.isManager,
+                    avatarPath = current.avatarPath,
+                    currentPin = pin ?: current.currentPin,
+                    isRefreshing = false,
+                )
+            }
+        }
     }
 
     /**

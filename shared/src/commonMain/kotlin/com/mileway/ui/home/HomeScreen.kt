@@ -200,6 +200,8 @@ fun HomeScreen(
         // the changelog. Nullable in HomeScreenContent so the stateless gallery render omits it.
         whatsNewUnseen = whatsNewState.isVisible,
         onOpenWhatsNew = { showWhatsNewManually = true },
+        // PLAN_V35 P2: pull-to-refresh (blueprint parity) — re-snapshots providers + location pin.
+        onRefresh = viewModel::refreshHome,
     )
 
     // PLAN_V24 P12.3: the native "Rate Mileway" sheet shown when the engagement gate is satisfied.
@@ -313,6 +315,8 @@ fun HomeScreenContent(
     // stateless preview/gallery render) hides it entirely, keeping the home golden byte-identical.
     whatsNewUnseen: Boolean = false,
     onOpenWhatsNew: (() -> Unit)? = null,
+    // PLAN_V35 P2: pull-to-refresh; null (gallery/preview default) renders without the refresh box.
+    onRefresh: (() -> Unit)? = null,
 ) {
     // Clear the one-shot flag right after the banner is actually composed once — not on every
     // recomposition of the Home tab, so it never reappears on scroll/rotation before sign-out.
@@ -367,11 +371,13 @@ fun HomeScreenContent(
                     .fillMaxSize()
                     .padding(top = headerTop),
         ) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState),
+            // PLAN_V35 P2: blueprint-parity pull-to-refresh around the scrollable sheet body.
+            // The gallery/preview path (onRefresh == null) renders the plain column, keeping the
+            // home golden free of the indicator overlay.
+            RefreshableColumn(
+                isRefreshing = state.isRefreshing,
+                onRefresh = onRefresh,
+                scrollState = scrollState,
             ) {
                 // 2. Animated banner strip (rotating 4000ms; replaces static ActionRequired card).
                 AnimatedBannerStrip(isTrackingActive = false)
@@ -492,6 +498,39 @@ fun HomeScreenContent(
         }
 
         SnackbarHost(snackbarState, modifier = androidx.compose.ui.Modifier.align(androidx.compose.ui.Alignment.BottomCenter))
+    }
+}
+
+/**
+ * PLAN_V35 P2: the sheet body — a vertically scrolling column, wrapped in a material3
+ * [androidx.compose.material3.pulltorefresh.PullToRefreshBox] when [onRefresh] is provided.
+ * Null keeps previews/goldens indicator-free and behavior-identical to the plain column.
+ */
+@Composable
+private fun RefreshableColumn(
+    isRefreshing: Boolean,
+    onRefresh: (() -> Unit)?,
+    scrollState: androidx.compose.foundation.ScrollState,
+    content: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit,
+) {
+    val column: @Composable () -> Unit = {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState),
+            content = content,
+        )
+    }
+    if (onRefresh == null) {
+        column()
+    } else {
+        androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+        ) {
+            column()
+        }
     }
 }
 
