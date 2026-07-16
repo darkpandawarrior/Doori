@@ -22,6 +22,7 @@ import com.mileway.feature.tracking.repository.VehiclePricingCacheStore
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
 import com.mileway.feature.tracking.search.TrackingSearchProvider
+import com.mileway.feature.tracking.service.AppSyncTrigger
 import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
@@ -48,6 +49,9 @@ import com.mileway.feature.tracking.viewmodel.TrackingSuccessViewModel
 import com.mileway.feature.tracking.watch.WatchFacade
 import com.siddharth.kmp.appshell.AndroidNotificationScheduler
 import com.siddharth.kmp.appshell.NotificationScheduler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -101,6 +105,18 @@ val trackingModule =
                 trackRepository = get(),
                 now = { Clock.System.now().toEpochMilliseconds() },
                 send = realMilesSubmitSend(api = get()),
+            )
+        }
+        // PLAN_V34 P1: app-scoped flush triggers (connectivity edge + app-foreground) — see class
+        // doc for why these exist beyond SyncStatusViewModel's screen-scoped copies. Main-dispatcher
+        // scope preserves LocationDataSyncer's single-dispatcher isDraining assumption.
+        single {
+            AppSyncTrigger(
+                syncer = get(),
+                milesSyncer = get(),
+                currentTrackRepo = get(),
+                isConnectedFlow = NetworkMonitor.isConnectedFlow,
+                scope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
             )
         }
         single { LocationTrackingController(androidContext()) }

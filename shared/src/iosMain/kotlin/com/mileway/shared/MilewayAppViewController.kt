@@ -10,10 +10,15 @@ import com.mileway.core.ui.di.iosAppModule
 import com.mileway.core.ui.platform.LocalManagerProvider
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.tracking.di.trackingModule
+import com.mileway.feature.tracking.service.AppSyncTrigger
 import com.mileway.feature.travel.di.travelModule
 import com.mileway.shared.ui.MilewayApp
 import com.mileway.stub.di.stubModule
 import com.mileway.ui.home.homeModule
+import org.koin.mp.KoinPlatform
+import platform.Foundation.NSNotificationCenter
+import platform.Foundation.NSOperationQueue
+import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIViewController
 
 /**
@@ -39,6 +44,15 @@ fun MilewayAppViewController(): UIViewController {
                 travelModule,
             ),
     )
+    // PLAN_V34 P1: app-scoped outbox flush — connectivity edges for the process lifetime plus a
+    // drain on every return to the foreground, mirroring Android's MilewayApplication hook.
+    val appSyncTrigger = KoinPlatform.getKoin().get<AppSyncTrigger>()
+    appSyncTrigger.start()
+    NSNotificationCenter.defaultCenter.addObserverForName(
+        name = UIApplicationDidBecomeActiveNotification,
+        `object` = null,
+        queue = NSOperationQueue.mainQueue,
+    ) { _ -> appSyncTrigger.onAppForeground() }
     return ComposeUIViewController {
         LocalManagerProvider {
             AppHost { MilewayApp() }

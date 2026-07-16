@@ -1,15 +1,9 @@
 package com.mileway.feature.tracking.service
 
-import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.outbox.LocationBatch
-import com.mileway.core.data.outbox.LocationBatchOutbox
-import com.siddharth.kmp.offlineoutbox.DraftEntry
 import com.siddharth.kmp.offlineoutbox.DraftStatus
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -149,126 +143,4 @@ class LocationDataSyncerTest {
             assertEquals(42L, finalStatus.lastSyncedAtMs)
             assertEquals(0, finalStatus.backlogCount)
         }
-}
-
-private class FakeSyncLocationDao(unsynced: List<LocationData>) : LocationDao {
-    val unsynced = unsynced.toMutableList()
-    val markedSynced = mutableListOf<Long>()
-
-    override fun getLocationsByToken(token: String): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override suspend fun getLocationsByTokenOnce(token: String): List<LocationData> = emptyList()
-
-    override suspend fun getLocationsByTokenPaged(
-        token: String,
-        limit: Int,
-        offset: Int,
-    ): List<LocationData> = emptyList()
-
-    override suspend fun countLocationsByToken(token: String): Int = 0
-
-    override fun getAllLocations(): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override fun getLocationsByUploadStatus(uploaded: Boolean): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override fun getLocationsByActivity(activity: String): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override fun getLocationsByDateRange(
-        startDate: Long,
-        endDate: Long,
-    ): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override fun getCheckInLocationsByToken(token: String): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override fun getAllCheckInPoints(): Flow<List<LocationData>> = flowOf(emptyList())
-
-    override suspend fun insertLocation(location: LocationData) {}
-
-    override suspend fun insertLocations(locations: List<LocationData>) {}
-
-    override suspend fun updateLocation(location: LocationData) {}
-
-    override suspend fun updateUploadStatus(
-        id: Long,
-        uploaded: Boolean,
-    ) {}
-
-    override suspend fun updateUploadStatusByToken(
-        token: String,
-        uploaded: Boolean,
-    ) {}
-
-    override suspend fun deleteLocation(location: LocationData) {}
-
-    override suspend fun deleteLocationById(id: Long) {}
-
-    override suspend fun deleteLocationsByToken(token: String) {}
-
-    override suspend fun deleteUploadedLocations(uploadedValue: Boolean) {}
-
-    override suspend fun deleteAllLocations() {}
-
-    override suspend fun getLocationCount(): Int = unsynced.size
-
-    override suspend fun getUnuploadedLocationCount(uploadedValue: Boolean): Int = unsynced.size
-
-    override suspend fun getUnsyncedLocationsByToken(token: String): List<LocationData> = unsynced.toList()
-
-    override suspend fun getUnsyncedLocationsByTokenPaged(
-        token: String,
-        limit: Int,
-        offset: Int,
-    ): List<LocationData> = unsynced.drop(offset).take(limit)
-
-    override suspend fun getLocationsByIds(ids: List<Long>): List<LocationData> = unsynced.filter { it.id in ids }
-
-    override suspend fun markLocationsAsSynced(locationIds: List<Long>) {
-        markedSynced.addAll(locationIds)
-        unsynced.removeAll { it.id in locationIds }
-    }
-
-    override suspend fun deleteOlderThan(timestamp: Long): Int = 0
-
-    override suspend fun getFirstUnsyncedLocationByToken(token: String): LocationData? = unsynced.firstOrNull()
-
-    override suspend fun getLastLocationByToken(token: String): LocationData? = unsynced.lastOrNull()
-}
-
-/** In-memory [LocationBatchOutbox] — mirrors FakeSubmitOutbox in LogMilesSubmitUseCaseTest. */
-private class FakeLocationBatchOutbox : LocationBatchOutbox {
-    private val entries = MutableStateFlow<Map<String, DraftEntry<LocationBatch>>>(emptyMap())
-
-    val enqueued: List<LocationBatch> get() = entries.value.values.map { it.payload }
-
-    fun statusFor(batch: LocationBatch): DraftStatus = entries.value.values.first { it.payload == batch }.status
-
-    override fun drafts(formKey: String): Flow<List<DraftEntry<LocationBatch>>> = entries.map { it.values.filter { e -> e.formKey == formKey } }
-
-    override suspend fun enqueue(
-        formKey: String,
-        uniqueKey: String,
-        payload: LocationBatch,
-    ) {
-        entries.value = entries.value + (uniqueKey to DraftEntry(formKey, uniqueKey, payload, DraftStatus.PENDING, null, 0L, 0L))
-    }
-
-    override suspend fun markSubmitted(
-        formKey: String,
-        uniqueKey: String,
-    ) {
-        entries.value = entries.value + (uniqueKey to entries.value.getValue(uniqueKey).copy(status = DraftStatus.SUBMITTED))
-    }
-
-    override suspend fun markFailed(
-        formKey: String,
-        uniqueKey: String,
-        error: String,
-    ) {
-        entries.value =
-            entries.value + (uniqueKey to entries.value.getValue(uniqueKey).copy(status = DraftStatus.FAILED, errorMessage = error))
-    }
-
-    override suspend fun clear(formKey: String) {
-        entries.value = entries.value.filterValues { it.formKey != formKey }
-    }
 }

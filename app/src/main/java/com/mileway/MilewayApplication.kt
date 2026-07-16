@@ -34,6 +34,7 @@ import com.mileway.ui.home.homeModule
 import com.mileway.debug.WormaCeptorHelper
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.di.stubModule
+import com.mileway.feature.tracking.service.AppSyncTrigger
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.worker.AutoDiscardTask
@@ -204,6 +205,32 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
             if (outcome is SessionReconciliationPolicy.Outcome.DiscardStale) source.clearSession()
             get<ReconciliationResultHolder>().post(outcome)
         }
+        // PLAN_V34 P1: app-scoped outbox flush — connectivity edges for the whole process lifetime
+        // plus a drain on every background→foreground transition (0→1 started-activity edge), so
+        // offline-tracked points sync without the user ever visiting the Saved Tracks screen.
+        val appSyncTrigger = get<AppSyncTrigger>()
+        appSyncTrigger.start()
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            private var startedCount = 0
+
+            override fun onActivityStarted(activity: android.app.Activity) {
+                if (startedCount++ == 0) appSyncTrigger.onAppForeground()
+            }
+
+            override fun onActivityStopped(activity: android.app.Activity) {
+                startedCount--
+            }
+
+            override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle?) = Unit
+
+            override fun onActivityResumed(activity: android.app.Activity) = Unit
+
+            override fun onActivityPaused(activity: android.app.Activity) = Unit
+
+            override fun onActivitySaveInstanceState(activity: android.app.Activity, outState: android.os.Bundle) = Unit
+
+            override fun onActivityDestroyed(activity: android.app.Activity) = Unit
+        })
     }
 
     /** SH.3: publish home-screen quick actions that deep-link into the main flows. */

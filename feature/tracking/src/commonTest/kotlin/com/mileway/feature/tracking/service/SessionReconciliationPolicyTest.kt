@@ -4,10 +4,8 @@ import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.model.db.CurrentTrackData
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.TrackMetrics
-import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -125,52 +123,6 @@ class SessionReconciliationPolicyTest {
 }
 
 // ── Fakes ─────────────────────────────────────────────────────────────────────
-
-private class FakeCurrentTrackSource(private val initial: CurrentTrackData) : CurrentTrackDataSource {
-    override val currentTrackFlow: Flow<CurrentTrackData> = MutableStateFlow(initial)
-
-    override suspend fun saveSession(data: CurrentTrackData) {}
-
-    override suspend fun updateDistance(
-        token: String,
-        distanceMeters: Double,
-        speed: Double,
-        avgSpeed: Double,
-    ) {}
-
-    override suspend fun updateLocationCount(
-        token: String,
-        total: Long,
-        unsynced: Long,
-    ) {}
-
-    override suspend fun markPaused(
-        token: String,
-        lat: Double,
-        lng: Double,
-    ) {}
-
-    override suspend fun markResumed(token: String) {}
-
-    override suspend fun markStopped(
-        token: String,
-        endLat: Double,
-        endLng: Double,
-    ) {}
-
-    override suspend fun clearSession() {}
-
-    // P10.2: sync-settings current-journey override (no-op fake).
-    override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
-        MutableStateFlow(null)
-
-    override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) {}
-
-    override suspend fun updateLastHardwareEvent(
-        token: String,
-        eventText: String,
-    ) {}
-}
 
 private class FakeReconcileDao(private val track: SavedTrack?) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
