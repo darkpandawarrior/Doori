@@ -179,11 +179,19 @@ data class BulkEventRequestV2(
 
 @Serializable
 data class LocationResponseV2(
+    // PLAN_V33.1: reference GET /v2/location envelope — status code + row count wrapping `data`.
+    // Nullable/defaulted so existing callers/tests are unaffected.
+    @SerialName("status") val status: Int? = null,
+    @SerialName("count") val count: Int? = null,
     @SerialName("data") val data: List<LocationPayloadV2> = emptyList(),
 )
 
 @Serializable
 data class EventResponseV2(
+    // PLAN_V33.1: reference GET /v2/location.event envelope — status code + row count wrapping
+    // `data`. Nullable/defaulted so existing callers/tests are unaffected.
+    @SerialName("status") val status: Int? = null,
+    @SerialName("count") val count: Int? = null,
     @SerialName("data") val data: List<EventPayloadV2> = emptyList(),
 )
 

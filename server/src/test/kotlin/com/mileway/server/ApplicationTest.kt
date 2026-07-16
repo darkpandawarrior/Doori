@@ -152,6 +152,9 @@ class ApplicationTest {
             val body = serverJson.decodeFromString<LocationResponseV2>(getResponse.bodyAsText())
             assertEquals(2, body.data.size)
             assertEquals(1_000L, body.data.first().date)
+            // PLAN_V33.1: GET response envelope — status/count wrap the row list.
+            assertEquals(200, body.status)
+            assertEquals(2, body.count)
         }
 
     @Test
@@ -225,6 +228,9 @@ class ApplicationTest {
             val body = serverJson.decodeFromString<EventResponseV2>(getResponse.bodyAsText())
             assertEquals(1, body.data.size)
             assertEquals("TRIP_START", body.data.first().event)
+            // PLAN_V33.1: GET response envelope — status/count wrap the row list.
+            assertEquals(200, body.status)
+            assertEquals(1, body.count)
         }
 
     @Test

@@ -122,33 +122,31 @@ private fun rangeParams(call: ApplicationCall): Triple<String, Long, Long> =
 private fun locationResponse(call: ApplicationCall): LocationResponseV2 {
     val (token, start, end) = rangeParams(call)
     return transaction {
-        LocationResponseV2(
-            data =
-                LocationPointsTable.selectAll()
-                    .where {
-                        (LocationPointsTable.token eq token) and
-                            (LocationPointsTable.date greaterEq start) and
-                            (LocationPointsTable.date lessEq end)
-                    }
-                    .orderBy(LocationPointsTable.date to SortOrder.ASC)
-                    .map(::locationRowToPayload),
-        )
+        val rows =
+            LocationPointsTable.selectAll()
+                .where {
+                    (LocationPointsTable.token eq token) and
+                        (LocationPointsTable.date greaterEq start) and
+                        (LocationPointsTable.date lessEq end)
+                }
+                .orderBy(LocationPointsTable.date to SortOrder.ASC)
+                .map(::locationRowToPayload)
+        LocationResponseV2(status = 200, count = rows.size, data = rows)
     }
 }
 
 private fun eventResponse(call: ApplicationCall): EventResponseV2 {
     val (token, start, end) = rangeParams(call)
     return transaction {
-        EventResponseV2(
-            data =
-                EventsTable.selectAll()
-                    .where {
-                        (EventsTable.token eq token) and
-                            (EventsTable.time greaterEq start) and
-                            (EventsTable.time lessEq end)
-                    }
-                    .orderBy(EventsTable.time to SortOrder.ASC)
-                    .map(::eventRowToPayload),
-        )
+        val rows =
+            EventsTable.selectAll()
+                .where {
+                    (EventsTable.token eq token) and
+                        (EventsTable.time greaterEq start) and
+                        (EventsTable.time lessEq end)
+                }
+                .orderBy(EventsTable.time to SortOrder.ASC)
+                .map(::eventRowToPayload)
+        EventResponseV2(status = 200, count = rows.size, data = rows)
     }
 }
