@@ -88,7 +88,7 @@ class LauncherActivity : ComponentActivity() {
         applySecurityFlags()
         enableEdgeToEdge()
         val permissionsProvider = getKoin().get<com.siddharth.kmp.appshell.PermissionsProvider>()
-        (permissionsProvider as? com.mileway.core.platform.AndroidPermissionsProvider)?.requestBridge = { permissions ->
+        (permissionsProvider as? com.siddharth.kmp.appshell.AndroidPermissionsProvider)?.requestBridge = { permissions ->
             val deferred = kotlinx.coroutines.CompletableDeferred<Map<String, Boolean>>()
             pendingGrants?.cancel()
             pendingGrants = deferred
@@ -102,7 +102,7 @@ class LauncherActivity : ComponentActivity() {
         // Drop the bridge so a destroyed activity can't be resumed into; the provider degrades
         // to grant-state checks until the next activity re-registers.
         val provider = getKoin().get<com.siddharth.kmp.appshell.PermissionsProvider>()
-        (provider as? com.mileway.core.platform.AndroidPermissionsProvider)?.requestBridge = null
+        (provider as? com.siddharth.kmp.appshell.AndroidPermissionsProvider)?.requestBridge = null
         pendingGrants?.cancel()
         super.onDestroy()
     }
