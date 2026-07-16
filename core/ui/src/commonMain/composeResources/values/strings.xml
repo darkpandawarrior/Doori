@@ -2321,6 +2321,21 @@
     <string name="whatsnew_new_badge">NEW</string>
     <string name="whatsnew_released_on">Released %1$s</string>
 
+    <!-- PLAN_V36 P4: detail screen (hero carousel + full parity content) -->
+    <string name="whatsnew_detail_title">Feature details</string>
+    <string name="whatsnew_detail_step">Step %1$d of %2$d</string>
+    <string name="whatsnew_detail_not_found_title">Update not found</string>
+    <string name="whatsnew_detail_not_found_subtitle">This update could not be located.</string>
+    <string name="whatsnew_detail_learn_more">Learn more</string>
+    <string name="whatsnew_detail_contact_title">Need help?</string>
+    <string name="whatsnew_detail_contact_body">Got a question about this feature? We're happy to help.</string>
+    <string name="whatsnew_detail_contact_button">Get in touch</string>
+    <string name="whatsnew_detail_contact_email">or email %1$s</string>
+    <string name="whatsnew_cd_share">Share</string>
+    <string name="whatsnew_cd_previous_media">Previous</string>
+    <string name="whatsnew_cd_next_media">Next</string>
+    <string name="whatsnew_cd_thumbnail">Screenshot %1$d</string>
+
     <!-- PLAN_V24 P3.1: phone change -->
     <string name="plugin_profile_phone_change_title">Change phone number</string>
     <string name="plugin_profile_phone_change_desc">Let users change their phone with OTP re-verify</string>

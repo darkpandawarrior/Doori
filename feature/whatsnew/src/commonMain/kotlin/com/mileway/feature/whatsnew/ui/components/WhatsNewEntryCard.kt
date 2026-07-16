@@ -57,7 +57,8 @@ private const val PRESSED_SCALE = 0.96f
 private val HeroHeightMin = 180.dp
 private val HeroHeightMax = 280.dp
 
-private val ReleasedDateFormat =
+/** Also reused by `WhatsNewDetailScreen`'s header subtitle (release-date fallback, spec §5.2). */
+internal val ReleasedDateFormat =
     LocalDate.Format {
         dayOfMonth()
         char(' ')
@@ -224,8 +225,9 @@ private fun WhatsNewTag(text: String) {
     )
 }
 
+/** Reused directly by `WhatsNewDetailScreen`'s "RELEASED <date>" chip (spec §5.2) — same visual language. */
 @Composable
-private fun ReleasedDateTag(releasedOn: LocalDate) {
+internal fun ReleasedDateTag(releasedOn: LocalDate) {
     val text = stringResource(Res.string.whatsnew_released_on, releasedOn.format(ReleasedDateFormat))
     SuggestionChip(
         onClick = {},
