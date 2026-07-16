@@ -35,6 +35,7 @@
 		A3F43490EFC69660B4A256F6 /* MileageWidgetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */; };
 		A6AF7E1739D67A1FD72D4230 /* WatchSyncBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEBA1AB6F890243A9E36D3 /* WatchSyncBridge.swift */; };
 		A6CD3395B1BB92B7F8D0634D /* TrackingCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F34BC1FDAB97CDFA655DE9 /* TrackingCommand.swift */; };
+		A96059D251DAB2594DCE7AAC /* FoundationModelsTextGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC328ACACE79E0E71D0689E6 /* FoundationModelsTextGenerator.swift */; };
 		AA1B336911BB62E4CFA06154 /* MilewaySyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5F14FEDB21C9BE211272AC /* MilewaySyncModels.swift */; };
 		AA86FB5A54A6C0E55CA41F5B /* WatchDashboardModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10514A614A98E936225446FF /* WatchDashboardModel.swift */; };
 		AFFD8539385EE5FFD217E414 /* WatchScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20226E5F540295E956E8E1E4 /* WatchScreenshotTests.swift */; };
@@ -51,6 +52,7 @@
 		CF45D18033CCEFC0D3C7FEF7 /* MileageWidgetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */; };
 		D014EB3265EFB044E73ED5DE /* TrackingCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F34BC1FDAB97CDFA655DE9 /* TrackingCommand.swift */; };
 		D54F4BA844397BADF61AF62C /* MileageWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10DC23AA5359B7EEFBCE845 /* MileageWidgetViews.swift */; };
+		DA01D905DB0FED1AD83C9CBB /* FoundationModelsDocumentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2506A9F19178CC659A98FD76 /* FoundationModelsDocumentAnalyzer.swift */; };
 		DD9B2C9173853904C906EA39 /* WidgetScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36E654E021EEDAEFFF8C18E /* WidgetScreenshotTests.swift */; };
 		E82D6DC17587EE84C1C4BA23 /* TrackingCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5799AB75B7FF6FB8CCFB1188 /* TrackingCommandTests.swift */; };
 		EAE1D6389E84F0334C77120E /* TrackingLiveActivityViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96FF685CF6C97FE908CE8B02 /* TrackingLiveActivityViews.swift */; };
@@ -125,6 +127,7 @@
 		10514A614A98E936225446FF /* WatchDashboardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDashboardModel.swift; sourceTree = "<group>"; };
 		1802090AD53C4FB238ECC676 /* MilewayWidgetsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MilewayWidgetsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		20226E5F540295E956E8E1E4 /* WatchScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchScreenshotTests.swift; sourceTree = "<group>"; };
+		2506A9F19178CC659A98FD76 /* FoundationModelsDocumentAnalyzer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FoundationModelsDocumentAnalyzer.swift; sourceTree = "<group>"; };
 		2C9CF7CDBA68159CCA3F6452 /* WatchTrackingCommandSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTrackingCommandSender.swift; sourceTree = "<group>"; };
 		3408BF1238111660C52B82AD /* MilewayWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MilewayWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		342B5DD88093B5E69642D26E /* MilewayActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilewayActivityAttributes.swift; sourceTree = "<group>"; };
@@ -150,6 +153,7 @@
 		A5F2BE2FA2205E347BC2C5F3 /* MilewayShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MilewayShortcuts.swift; sourceTree = "<group>"; };
 		B1EA19A896C975FD3795D223 /* WatchTripListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchTripListView.swift; sourceTree = "<group>"; };
 		B793F8131E4F61634C2845A1 /* WatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchApp.swift; sourceTree = "<group>"; };
+		BC328ACACE79E0E71D0689E6 /* FoundationModelsTextGenerator.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FoundationModelsTextGenerator.swift; sourceTree = "<group>"; };
 		C5D997782651414A5BD00A79 /* WatchDashboardModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDashboardModelTests.swift; sourceTree = "<group>"; };
 		CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D10DC23AA5359B7EEFBCE845 /* MileageWidgetViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageWidgetViews.swift; sourceTree = "<group>"; };
@@ -193,6 +197,7 @@
 				452F9BFCAD19BEA4E64088D3 /* PhoneWatchSyncBridge.swift */,
 				725FADE80ADD26488304CA75 /* TrackingLiveActivityController.swift */,
 				AA2DB2B9640079E9C5BB0DF6 /* intents */,
+				9150D4F04049376A648BC953 /* ai */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -230,6 +235,16 @@
 				96FF685CF6C97FE908CE8B02 /* TrackingLiveActivityViews.swift */,
 			);
 			path = MilewayWidgets;
+			sourceTree = "<group>";
+		};
+		9150D4F04049376A648BC953 /* ai */ = {
+			isa = PBXGroup;
+			children = (
+				2506A9F19178CC659A98FD76 /* FoundationModelsDocumentAnalyzer.swift */,
+				BC328ACACE79E0E71D0689E6 /* FoundationModelsTextGenerator.swift */,
+			);
+			name = ai;
+			path = ai;
 			sourceTree = "<group>";
 		};
 		94C98B8B3A2BFC1966447269 /* Products */ = {
@@ -305,8 +320,6 @@
 			dependencies = (
 			);
 			name = MilewayWatch;
-			packageProductDependencies = (
-			);
 			productName = MilewayWatch;
 			productReference = 3408BF1238111660C52B82AD /* MilewayWatch.app */;
 			productType = "com.apple.product-type.application";
@@ -323,8 +336,6 @@
 				70343B676ECAAE5B1C96BBFB /* PBXTargetDependency */,
 			);
 			name = MilewayWatchTests;
-			packageProductDependencies = (
-			);
 			productName = MilewayWatchTests;
 			productReference = 4ED225531C5A6AE1EE053CA3 /* MilewayWatchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -340,8 +351,6 @@
 			dependencies = (
 			);
 			name = MilewayWidgets;
-			packageProductDependencies = (
-			);
 			productName = MilewayWidgets;
 			productReference = 927CAB2C06ADE37DB9C92138 /* MilewayWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -365,8 +374,6 @@
 				DAE22E75C049A8308D214CC1 /* PBXTargetDependency */,
 			);
 			name = iosApp;
-			packageProductDependencies = (
-			);
 			productName = iosApp;
 			productReference = 86038AE1032E284E79B32AD6 /* iosApp.app */;
 			productType = "com.apple.product-type.application";
@@ -382,8 +389,6 @@
 			dependencies = (
 			);
 			name = MilewayWidgetsTests;
-			packageProductDependencies = (
-			);
 			productName = MilewayWidgetsTests;
 			productReference = 1802090AD53C4FB238ECC676 /* MilewayWidgetsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -514,6 +519,8 @@
 				D014EB3265EFB044E73ED5DE /* TrackingCommand.swift in Sources */,
 				50C24907291FBA199B04B12B /* TrackingLiveActivityController.swift in Sources */,
 				307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */,
+				DA01D905DB0FED1AD83C9CBB /* FoundationModelsDocumentAnalyzer.swift in Sources */,
+				A96059D251DAB2594DCE7AAC /* FoundationModelsTextGenerator.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -600,7 +607,10 @@
 		00DCC71E775108B35120BD2B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "arm64 arm64_32";
+				ARCHS = (
+					arm64,
+					arm64_32,
+				);
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -627,7 +637,10 @@
 		0F5EC5F049AD06BA761748B7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "arm64 arm64_32";
+				ARCHS = (
+					arm64,
+					arm64_32,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -717,7 +730,10 @@
 		129DA2BBFFDA1B1EBA5A2F05 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "arm64 arm64_32";
+				ARCHS = (
+					arm64,
+					arm64_32,
+				);
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -959,7 +975,10 @@
 		EA1F87AB0EEB3DBF538BCF2A /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "arm64 arm64_32";
+				ARCHS = (
+					arm64,
+					arm64_32,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;

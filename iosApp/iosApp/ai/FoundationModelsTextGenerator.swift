@@ -23,12 +23,12 @@ import Mileway
 /// plumbing.
 final class FoundationModelsTextGenerator: NSObject, TextGenerator {
     func isAvailable() -> Bool {
-        guard #available(iOS 18.1, *) else { return false }
+        guard #available(iOS 26.0, *) else { return false }
         return SystemLanguageModel.default.availability == .available
     }
 
     func generate(prompt: String, completionHandler: @escaping (String?, Error?) -> Void) {
-        guard #available(iOS 18.1, *), isAvailable() else {
+        guard #available(iOS 26.0, *), isAvailable() else {
             completionHandler(nil, nil)
             return
         }

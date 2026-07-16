@@ -10,7 +10,7 @@
 // `Kotlinx_coroutines_coreFlowCollector` conformance) exports as a completion-handler method, not
 // `async` — implement that shape and bridge to `async/await` internally with a `Task`.
 //
-// Verify with (once Xcode + iOS 18.1 SDK are available):
+// Verify with (once Xcode + iOS 26.0 SDK are available):
 //   xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp \
 //     -destination 'generic/platform=iOS Simulator' build
 
@@ -21,7 +21,7 @@ import Mileway
 /// `@Generable` guided-output shape mirroring `core:ai`'s `AiExtraction`/`DocField` — one flat
 /// struct covering every `DocField` since a `DocPrompt.schemaHint` picks which subset actually
 /// matters per `DocType` (unset fields stay nil).
-@available(iOS 18.1, *)
+@available(iOS 26.0, *)
 @Generable
 struct GeneratedDocExtraction {
     @Guide(description: "One of: RECEIPT, INVOICE, ODOMETER, TRAVEL_TICKET, ID_DOCUMENT, OTHER")
@@ -45,12 +45,12 @@ struct GeneratedDocExtraction {
 }
 
 /// EXPERIMENTAL — see file header. Availability-gates on `SystemLanguageModel.default.availability`
-/// so pre-iOS-18.1 devices and iOS 18.1+ devices without Apple Intelligence enabled both degrade to
+/// so pre-iOS-26.0 devices and iOS 26.0+ devices without Apple Intelligence enabled both degrade to
 /// `DocumentIntelligence`'s TEXT_RECOGNITION + HEURISTIC_CLASSIFIER path, same as before this file
 /// existed.
 final class FoundationModelsDocumentAnalyzer: NSObject, DocumentAiAnalyzer {
     func isAvailable() -> Bool {
-        guard #available(iOS 18.1, *) else { return false }
+        guard #available(iOS 26.0, *) else { return false }
         return SystemLanguageModel.default.availability == .available
     }
 
@@ -59,7 +59,7 @@ final class FoundationModelsDocumentAnalyzer: NSObject, DocumentAiAnalyzer {
         prompt: DocPrompt,
         completionHandler: @escaping (AiExtraction?, Error?) -> Void
     ) {
-        guard #available(iOS 18.1, *), isAvailable() else {
+        guard #available(iOS 26.0, *), isAvailable() else {
             completionHandler(nil, nil)
             return
         }
@@ -69,7 +69,7 @@ final class FoundationModelsDocumentAnalyzer: NSObject, DocumentAiAnalyzer {
         }
     }
 
-    @available(iOS 18.1, *)
+    @available(iOS 26.0, *)
     private static func runExtraction(imagePath: String, prompt: DocPrompt) async -> AiExtraction? {
         // `extract` never throws (per DocumentAiAnalyzer's contract) — every failure path below
         // degrades to nil instead of propagating.
@@ -85,7 +85,7 @@ final class FoundationModelsDocumentAnalyzer: NSObject, DocumentAiAnalyzer {
         }
     }
 
-    @available(iOS 18.1, *)
+    @available(iOS 26.0, *)
     private static func toAiExtraction(_ generated: GeneratedDocExtraction, prompt: DocPrompt) -> AiExtraction {
         var fields: [DocField: ExtractedValue] = [:]
         func put(_ field: DocField, _ value: String?) {
