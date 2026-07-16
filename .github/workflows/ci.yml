@@ -70,6 +70,11 @@ jobs:
       - name: Run KMP commonTest (host)
         run: ./gradlew testAndroidHostTest
 
+      # :server is a plain kotlin("jvm") Ktor module — neither variant task above touches it.
+      # Covers route behavior, opId dedup, and PolicyRateEngine against in-memory H2.
+      - name: Run backend server tests
+        run: ./gradlew :server:test
+
       - name: Dependency guard check
         run: ./gradlew dependencyGuard
 

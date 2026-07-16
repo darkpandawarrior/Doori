@@ -482,11 +482,12 @@ hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per i
   component-preview matrices on the JVM (`ScreenshotGalleryTest` and `ScreenshotCatalogTest`, all
   in `docs/screenshots/`). They're deterministic and diff cleanly in PRs.
 - **Static analysis.** detekt and ktlint across every module, with Kover for coverage.
-- **Backend tests (`:server`, opt-in path).** `./gradlew :server:test` covers idempotent `opId`
+- **Backend tests (`:server`).** `./gradlew :server:test` covers idempotent `opId`
   dedup, the shared `PolicyRateEngine`, and route behavior against an in-memory H2 database — a
-  plain `kotlin("jvm")` module, not part of the KMP/Android build. Not yet wired into
-  `ci.yml`/`testNoGmsDebugUnitTest`, so run it explicitly when touching `:server` or `:contract`.
-- **CI.** `.github/workflows/ci.yml` runs `assembleGmsDebug` and `testNoGmsDebugUnitTest` on every push
+  plain `kotlin("jvm")` module, not part of the KMP/Android build. Runs in `ci.yml` on every push
+  and PR (it's outside `testNoGmsDebugUnitTest`, so it has its own step).
+- **CI.** `.github/workflows/ci.yml` runs `assembleGmsDebug`, `testNoGmsDebugUnitTest`,
+  `testAndroidHostTest` and `:server:test` on every push
   and PR. Separate `quality`, `release` and `publish-fdroid` workflows handle the gates and distribution.
 - **Distribution.** Beyond Play/F-Droid/Indus (`release.yml`, `publish-fdroid.yml`, `indus-deploy.yml`):
   `amazon-appstore-deploy.yml`, `huawei-appgallery-deploy.yml`, `samsung-galaxy-store-deploy.yml`, and
