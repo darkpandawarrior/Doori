@@ -415,6 +415,7 @@ dependencies {
     implementation(project(":feature:cards"))
     implementation(project(":feature:payments"))
     implementation(project(":feature:events"))
+    implementation(project(":feature:whatsnew"))
     implementation(project(":stub"))
     // G11: include the Glance widget so its receiver merges into the app (the widget is offered on the home screen).
     implementation(project(":widget"))

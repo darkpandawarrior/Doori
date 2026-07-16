@@ -23,6 +23,7 @@ import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.profile.di.profileModule
+import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
@@ -183,6 +184,7 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
                 eventsModule,
                 homeModule,
                 firstLoginBannerModule,
+                whatsNewFeatureModule,
                 whatsNewModule,
                 authModule,
                 pinModule,
