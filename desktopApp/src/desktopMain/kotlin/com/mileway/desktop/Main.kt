@@ -17,6 +17,7 @@ import com.mileway.core.data.model.display.SurfaceSnapshot
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.ui.AppHost
 import com.mileway.core.ui.components.SectionCard
+import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.di.initKoin
 import com.mileway.core.ui.theme.DesignTokens
 import kotlin.time.Clock
@@ -31,7 +32,10 @@ import kotlin.time.ExperimentalTime
  */
 @OptIn(ExperimentalTime::class)
 fun main() {
-    initKoin(modules = emptyList())
+    // coreUiModule provides LocaleController/ThemeController, which AppHost reads on every
+    // screen (pre-existing gap: every other platform entry point already passes it, see
+    // e.g. shared/src/iosMain/MilewayAppViewController.kt).
+    initKoin(modules = listOf(coreUiModule))
     val nowEpochMs = Clock.System.now().toEpochMilliseconds()
     val snapshot = mockSnapshot(nowEpochMs)
     val trips = mockTripRows(nowEpochMs)

@@ -4,6 +4,8 @@ import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runDesktopComposeUiTest
 import com.mileway.core.ui.AppHost
+import com.mileway.core.ui.di.coreUiModule
+import com.mileway.core.ui.di.initKoin
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.test.Ignore
@@ -23,6 +25,7 @@ class DesktopDashboardScreenshotTest {
     fun captureDesktopDashboard() =
         runDesktopComposeUiTest(width = 900, height = 700) {
             val nowEpochMs = 10 * 86_400_000L // fixed instant, deterministic
+            initKoin(modules = listOf(coreUiModule)) // AppLocaleEnvironment reads LocaleController from Koin.
             setContent {
                 AppHost {
                     DashboardScreenForScreenshot(mockSnapshot(nowEpochMs), mockTripRows(nowEpochMs))
@@ -34,7 +37,8 @@ class DesktopDashboardScreenshotTest {
         }
 }
 
-private fun repoRoot(): File {
+// internal (not private): shared with DesktopScreenshotGalleryTest (showcase/T.2).
+internal fun repoRoot(): File {
     val moduleDir = File(System.getProperty("user.dir") ?: ".")
     return if (moduleDir.name == "desktopApp") moduleDir.parentFile else moduleDir
 }

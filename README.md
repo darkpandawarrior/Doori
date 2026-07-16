@@ -198,12 +198,21 @@ interactive App-Intent Start/Stop button on iOS.
 
 #### Compose Desktop
 
-A thin Compose Desktop window over the same shared `core:{data,ui}` dashboard model as the phone and
-watch — rendered host-side with Compose Multiplatform's `runDesktopComposeUiTest`.
+A curated gallery of the app's signature surfaces, all real Compose Desktop windows over the shared
+`core:ui` component library and `core:data` models — no mockups, no Android/iOS emulator: every
+image below is host-rendered JVM-side with Compose Multiplatform's `runDesktopComposeUiTest`.
 
-| &nbsp; |
+| Dashboard | Live tracking | Trip history |
+|:---:|:---:|:---:|
+| ![Compose Desktop dashboard window with today/week stats and a recent-trips list](docs/screenshots/desktop_dashboard.png) | ![Compose Desktop live-tracking screen with a compass gauge, journey stats and start/pause/stop controls](docs/screenshots/desktop_tracking.png) | ![Compose Desktop trip history list with tabs and per-trip distance/duration](docs/screenshots/desktop_trip_history.png) |
+
+| Trip detail | Log expense | Approvals |
+|:---:|:---:|:---:|
+| ![Compose Desktop trip detail screen with a status timeline (submitted / under review / approved)](docs/screenshots/desktop_trip_detail.png) | ![Compose Desktop log-expense form linked to a trip, with amount and category](docs/screenshots/desktop_log_expense.png) | ![Compose Desktop approvals queue with pending/approved/rejected tabs](docs/screenshots/desktop_approvals.png) |
+
+| Profile |
 |:---:|
-| ![Compose Desktop dashboard window with today/week stats and a recent-trips list](docs/screenshots/desktop_dashboard.png) |
+| ![Compose Desktop profile screen with a completion banner and an account tile grid](docs/screenshots/desktop_profile.png) |
 
 </details>
 

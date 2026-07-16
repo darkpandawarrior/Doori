@@ -31,6 +31,10 @@ kotlin {
                 }
                 implementation(compose.desktop.currentOs)
                 implementation(libs.material3)
+                // showcase/T.2: gallery screens build QuickAction/TimelineStep/ProfileGridItem mock
+                // data with ImageVector icons directly — core:ui pulls this in as `implementation`
+                // (not `api`), so it isn't visible on this module's compile classpath transitively.
+                implementation(libs.material.icons.extended)
                 implementation(libs.koin.core)
                 implementation(libs.kotlinx.coroutines.core)
             }
