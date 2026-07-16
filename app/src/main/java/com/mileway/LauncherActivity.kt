@@ -52,6 +52,7 @@ import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.toAppRoute
 import com.siddharth.kmp.appshell.AnalyticsEvent
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.getKoin
 import org.koin.compose.koinInject
 
 /**
@@ -72,11 +73,38 @@ private enum class AppStage { SPLASH, LOGIN, MFA, PIN, ONBOARDING, APP }
  */
 class LauncherActivity : ComponentActivity() {
 
+    // PLAN_V35: ActivityResult bridge for the KMP PermissionsProvider — the shared tracking
+    // screens request runtime permissions through it. One in-flight request at a time (the
+    // system dialog is modal anyway).
+    private var pendingGrants: kotlinx.coroutines.CompletableDeferred<Map<String, Boolean>>? = null
+    private val permissionLauncher =
+        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+            pendingGrants?.complete(grants)
+            pendingGrants = null
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         applySecurityFlags()
         enableEdgeToEdge()
+        val permissionsProvider = getKoin().get<com.siddharth.kmp.appshell.PermissionsProvider>()
+        (permissionsProvider as? com.mileway.core.platform.AndroidPermissionsProvider)?.requestBridge = { permissions ->
+            val deferred = kotlinx.coroutines.CompletableDeferred<Map<String, Boolean>>()
+            pendingGrants?.cancel()
+            pendingGrants = deferred
+            permissionLauncher.launch(permissions)
+            deferred.await()
+        }
         setContent { AppLocaleEnvironment { AppEntry(initialRoute = intent.deepLinkRoute()) } }
+    }
+
+    override fun onDestroy() {
+        // Drop the bridge so a destroyed activity can't be resumed into; the provider degrades
+        // to grant-state checks until the next activity re-registers.
+        val provider = getKoin().get<com.siddharth.kmp.appshell.PermissionsProvider>()
+        (provider as? com.mileway.core.platform.AndroidPermissionsProvider)?.requestBridge = null
+        pendingGrants?.cancel()
+        super.onDestroy()
     }
 
     /**

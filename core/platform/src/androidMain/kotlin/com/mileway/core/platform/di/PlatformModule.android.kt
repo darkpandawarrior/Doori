@@ -4,6 +4,7 @@ import com.mileway.core.platform.AndroidAppShortcuts
 import com.mileway.core.platform.AndroidBatteryStatusReader
 import com.mileway.core.platform.AndroidHaptics
 import com.mileway.core.platform.AndroidMotionSensorProvider
+import com.mileway.core.platform.AndroidPermissionsProvider
 import com.mileway.core.platform.AndroidShareSheet
 import com.mileway.core.platform.AndroidTrackingPresenceController
 import com.mileway.core.platform.AndroidUrlOpener
@@ -22,6 +23,7 @@ import com.siddharth.kmp.appshell.AndroidNotificationScheduler
 import com.siddharth.kmp.appshell.LocationNameResolver
 import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.appshell.NotificationScheduler
+import com.siddharth.kmp.appshell.PermissionsProvider
 import kotlinx.coroutines.flow.StateFlow
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -41,6 +43,10 @@ actual fun platformModule(): Module =
         // single's own first `get()` — force it up front instead.
         single(createdAtStart = true) { NotificationChannels.ensureChannels(androidContext()) }
         single<LocationTracker> { AndroidLocationTracker(androidContext()) }
+        // PLAN_V35: was deferred at 2.2d and never landed — TrackMilesScreen/MapScreen inject
+        // this and CRASHED the live-tracking flow on Android. LauncherActivity wires the
+        // ActivityResult request bridge at startup.
+        single<PermissionsProvider> { AndroidPermissionsProvider(androidContext()) }
         // Reverse geocoding → place names. The offline-first demo binds the deterministic offline
         // resolver (no network) so live tracking shows real-looking Pune waypoint names; the
         // device-backed AndroidLocationNameResolver(Geocoder) remains the production path.
