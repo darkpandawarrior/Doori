@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -209,9 +210,9 @@ fun HomeProfileHeader(
         // the watermark stays a single low-contrast hue against the primary gradient — the same
         // treatment that keeps the fixed-contrast header text legible on ANY theme's primary.
         // Full-bleed: the dot texture must run edge-to-edge INCLUDING behind the status bar, or the
-        // inset strip reads as a solid disconnected band above the map. Decorative here
-        // (interactive = false) — no tap callout to clip in this ~96dp header; topSafe keeps the
-        // static ping below the status bar so it never sits under the clock.
+        // inset strip reads as a solid disconnected band above the map. The pin stays interactive
+        // (tap → "you are here" callout); topSafe keeps its ping below the status bar so it never
+        // sits under the clock.
         val statusBarPx = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toFloat() }
         CurrentLocationPinMap(
             modifier = Modifier.matchParentSize(),
@@ -219,7 +220,6 @@ fun HomeProfileHeader(
             dotColor = MaterialTheme.colorScheme.onPrimary,
             dotAlpha = 0.24f,
             pinColor = MaterialTheme.colorScheme.error,
-            interactive = false,
             topSafePx = statusBarPx,
         )
         // Terminal scanline overlay + sheen: matchParentSize, NOT fillMaxSize — under the pinned
@@ -241,98 +241,112 @@ fun HomeProfileHeader(
         // onPrimary (never primary — primary-on-primary made the greeting unreadable on themes
         // whose top-bar gradient is built from a saturated primary, e.g. the amber map header).
         val headerContent = MaterialTheme.colorScheme.onPrimary
-        Row(
+        val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()
+        Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .height(HeaderContentHeight)
                     .padding(horizontal = DesignTokens.Spacing.l)
                     // Extra painted band below the content so the body sheet's rounded top
                     // corners overlap header art instead of a hard edge (see HomeScreenContent).
-                    .padding(bottom = SheetOverlap),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+                    // The Ask-Mileway bar needs extra room so it doesn't butt against the sheet.
+                    .padding(bottom = SheetOverlap + if (fabMode == AssistantEntryMode.TOPBAR) DesignTokens.Spacing.m else 0.dp),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
-            // Terminal avatar — thin phosphor border; a picked profile photo fills it, otherwise
-            // the `>_` glyph is the fallback state (never a broken-image placeholder).
-            Box(
-                modifier =
-                    Modifier
-                        .size(AvatarSize)
-                        .border(
-                            width = 1.dp,
-                            color = headerContent,
-                            shape = RoundedCornerShape(6.dp),
-                        )
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(
-                            headerContent.copy(alpha = 0.12f),
-                            RoundedCornerShape(6.dp),
-                        ),
-                contentAlignment = Alignment.Center,
+            // Greeting row: avatar + name/subtitle take the flex space; the actions are
+            // fixed-width icons. The assistant entry lives in its own full-width bar below (the
+            // TOPBAR block) so it never competes with the greeting for width — the name and
+            // subtitle can't be squeezed/truncated regardless of how long the name is.
+            Row(
+                modifier = Modifier.fillMaxWidth().height(HeaderContentHeight),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                if (avatarPath != null) {
-                    coil3.compose.AsyncImage(
-                        model = avatarPath,
-                        contentDescription = null,
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    Text(
-                        text = ">_",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
+                // Terminal avatar — thin phosphor border; a picked profile photo fills it, otherwise
+                // the `>_` glyph is the fallback state (never a broken-image placeholder).
+                Box(
+                    modifier =
+                        Modifier
+                            .size(AvatarSize)
+                            .border(
+                                width = 1.dp,
+                                color = headerContent,
+                                shape = RoundedCornerShape(6.dp),
+                            )
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(
+                                headerContent.copy(alpha = 0.12f),
+                                RoundedCornerShape(6.dp),
+                            ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (avatarPath != null) {
+                        coil3.compose.AsyncImage(
+                            model = avatarPath,
+                            contentDescription = null,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
+                        )
+                    } else {
+                        Text(
+                            text = ">_",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = headerContent,
+                        )
+                    }
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    AutoSizeGreeting(
+                        greeting = stringResource(Res.string.shared_home_greeting),
+                        name = name,
                         color = headerContent,
                     )
+                    Text(
+                        text = stringResource(Res.string.shared_home_greeting_subtitle),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = headerContent.copy(alpha = 0.85f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                HeaderIconButton(
+                    icon = Icons.Filled.Search,
+                    contentDescription = stringResource(Res.string.core_cd_search),
+                    onClick = onSearch,
+                )
+
+                // Notification bell with red count badge anchored at the top-end.
+                Box {
+                    HeaderIconButton(
+                        icon = Icons.Filled.Notifications,
+                        contentDescription = stringResource(Res.string.shared_home_cd_notifications),
+                        onClick = onNotifications,
+                    )
+                    if (notificationCount > 0) {
+                        CountBadge(
+                            count = notificationCount,
+                            modifier = Modifier.align(Alignment.TopEnd),
+                            backgroundColor = DesignTokens.StatusColors.error,
+                            textColor = Color.White,
+                        )
+                    }
                 }
             }
 
-            Column(modifier = Modifier.weight(1f)) {
-                AutoSizeGreeting(
-                    greeting = stringResource(Res.string.shared_home_greeting),
-                    name = name,
-                    color = headerContent,
-                )
-                Text(
-                    text = stringResource(Res.string.shared_home_greeting_subtitle),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = headerContent.copy(alpha = 0.85f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            val fabMode by AssistantFabSessionState.mode.collectAsStateWithLifecycle()
+            // Full-width "Ask Mileway" entry — shown only when the assistant FAB was dismissed to
+            // the top bar. Full width so the label is prominent and never squeezed against the
+            // greeting or the action icons (the truncation this replaces).
             if (fabMode == AssistantEntryMode.TOPBAR && onOpenAgent != null) {
                 ChatAgentIndicator(
                     mode = ChatIndicatorMode.FULL,
                     onClick = onOpenAgent,
+                    // Taller than the default pill so a full-width entry bar isn't cramped.
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 )
-            }
-
-            HeaderIconButton(
-                icon = Icons.Filled.Search,
-                contentDescription = stringResource(Res.string.core_cd_search),
-                onClick = onSearch,
-            )
-
-            // Notification bell with red count badge anchored at the top-end.
-            Box {
-                HeaderIconButton(
-                    icon = Icons.Filled.Notifications,
-                    contentDescription = stringResource(Res.string.shared_home_cd_notifications),
-                    onClick = onNotifications,
-                )
-                if (notificationCount > 0) {
-                    CountBadge(
-                        count = notificationCount,
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        backgroundColor = DesignTokens.StatusColors.error,
-                        textColor = Color.White,
-                    )
-                }
             }
         }
     }
