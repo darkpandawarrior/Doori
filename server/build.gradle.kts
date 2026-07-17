@@ -28,10 +28,14 @@ application {
 // BuildConfig field since this is a plain JVM app, not an Android module.
 apply(from = rootProject.file("gradle/versioning.gradle.kts"))
 
+// Read at project scope: inside the tasks.register { } lambda, `extra[...]` resolves against the
+// task, not the project.
+val milewayFingerprint = extra["mileway.fingerprint"] as String
+
 val generateVersionResource =
     tasks.register("generateVersionResource") {
         val outputDir = layout.buildDirectory.dir("generated/resources/version")
-        val fingerprint = extra["mileway.fingerprint"] as String
+        val fingerprint = milewayFingerprint
         outputs.dir(outputDir)
         doLast {
             outputDir.get().asFile.apply { mkdirs() }

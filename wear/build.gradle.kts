@@ -9,7 +9,11 @@ plugins {
 
 // Wave-2 §A: same computed MARKETING/BUILDCODE as :app (gradle/versioning.gradle.kts) — a watch
 // build ships alongside a phone build under the same release tag, so they carry the same versions.
+// Read at project scope: inside the android { } DSL, `extra[...]` resolves against the DSL receiver.
 apply(from = rootProject.file("gradle/versioning.gradle.kts"))
+val milewayBuildCode = extra["mileway.buildCode"] as Int
+val milewayMarketing = extra["mileway.marketing"] as String
+val milewayFingerprint = extra["mileway.fingerprint"] as String
 
 android {
     namespace = "com.mileway.wear"
@@ -17,9 +21,9 @@ android {
         applicationId = "com.mileway.wear"
         minSdk = 30
         targetSdk = 36
-        versionCode = extra["mileway.buildCode"] as Int
-        versionName = extra["mileway.marketing"] as String
-        buildConfigField("String", "FINGERPRINT", "\"${extra["mileway.fingerprint"]}\"")
+        versionCode = milewayBuildCode
+        versionName = milewayMarketing
+        buildConfigField("String", "FINGERPRINT", "\"$milewayFingerprint\"")
     }
 
     buildFeatures {

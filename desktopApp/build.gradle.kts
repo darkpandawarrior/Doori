@@ -14,9 +14,15 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
-// Wave-2 §A: same computed MARKETING as :app/:wear (gradle/versioning.gradle.kts) — the native
-// installer's version string, not hand-typed.
+// Wave-2 §A: native-installer version, computed by gradle/versioning.gradle.kts. NOT MARKETING —
+// Compose Desktop validates packageVersion at configure time as MAJOR.MINOR.BUILD with MAJOR ≤ 255,
+// and MARKETING's MAJOR is the year (>255). desktopPackageVersion (MILESTONE.0.commitCount) is the
+// desktop-legal form; see that file's ponytail comment.
 apply(from = rootProject.file("gradle/versioning.gradle.kts"))
+
+// Read once at project scope — inside the compose.desktop { } DSL, `extra[...]` would resolve
+// against the DSL receiver, not the project's extra.
+val desktopPackageVersion = extra["mileway.desktopPackageVersion"] as String
 
 kotlin {
     jvm("desktop")
@@ -61,7 +67,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Deb, TargetFormat.Msi)
             packageName = "Mileway"
-            packageVersion = extra["mileway.marketing"] as String
+            packageVersion = desktopPackageVersion
         }
     }
 }

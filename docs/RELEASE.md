@@ -15,7 +15,8 @@ live `git rev-list --count HEAD` + today's date — never hand-typed, never writ
 | Value | Format | Used for |
 |---|---|---|
 | **FINGERPRINT** | `YYYY.0M.0W.<MILESTONE>.<commitCount>` (e.g. `2026.07.29.36.724`) | git tag (`v<FINGERPRINT>`), GitHub release title, `BuildConfig.FINGERPRINT` (Android)/`MilewayFingerprint` (iOS Info.plist)/`/version` (server), debug `versionNameSuffix` |
-| **MARKETING** | `YYYY.M.<MILESTONE>` (e.g. `2026.7.36`), ≤3 integer components (iOS `CFBundleShortVersionString` hard limit) | Android release `versionName`, iOS `CFBundleShortVersionString`, `:desktopApp` installer `packageVersion` |
+| **MARKETING** | `YYYY.M.<MILESTONE>` (e.g. `2026.7.36`), ≤3 integer components (iOS `CFBundleShortVersionString` hard limit) | Android release `versionName`, iOS `CFBundleShortVersionString` |
+| **desktopPackageVersion** | `<MILESTONE>.0.<commitCount>` (e.g. `36.0.724`) | `:desktopApp` native installer `packageVersion` only — Compose Desktop rejects MARKETING (MAJOR=year>255) at configure time |
 | **BUILDCODE** | `VERSION_CODE_BASE(1) + commitCount` (monotonic, < 2.1e9) | Android `versionCode`, iOS `CFBundleVersion` |
 
 ```bash
@@ -109,4 +110,6 @@ App/Universal-Links: replace the SHA-256 in `docs/deeplinks/assetlinks.json` and
 `:server` bakes FINGERPRINT into a `version.properties` resource at build time
 (`generateVersionResource` in `server/build.gradle.kts`) and exposes it at `GET /version`
 alongside the existing `GET /health`. `:desktopApp`'s native installer `packageVersion` is
-MARKETING (same value Android uses), not a separate hand-typed string.
+desktopPackageVersion (`MILESTONE.0.commitCount`), not a separate hand-typed string — MARKETING
+can't be used here because Compose Desktop validates the installer version as `MAJOR.MINOR.BUILD`
+with `MAJOR ≤ 255` at configure time, and MARKETING's MAJOR is the year.

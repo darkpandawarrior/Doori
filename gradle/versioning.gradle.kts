@@ -32,3 +32,9 @@ extra["mileway.fingerprint"] =
     )
 extra["mileway.marketing"] = "${milewayToday.year}.${milewayToday.monthValue}.$mileawayMilestone"
 extra["mileway.buildCode"] = milewayVersionCodeBase + milewayCommitCount
+
+// ponytail: Compose Desktop validates the native-installer packageVersion at CONFIGURE time as
+// MAJOR.MINOR.BUILD with MAJOR ≤ 255 — MARKETING (YYYY.M.MILESTONE, MAJOR=year>255) throws and
+// fails ALL Mileway CI (Gradle configures every project). This desktop-only value keeps the
+// milestone visible while staying legal: valid until MILESTONE>255 or commitCount>65535, years out.
+extra["mileway.desktopPackageVersion"] = "$mileawayMilestone.0.$milewayCommitCount"
