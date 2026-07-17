@@ -20,18 +20,24 @@ jobs:
         with:
           fetch-depth: 0          # full history for the changelog range
           submodules: recursive   # convention plugins live in the external/kmp-build-logic submodule
-      # Repo-generic: the repo's own version-source-of-truth file (VERSION here) must already say what
-      # the tag says before a single line gets built. Prevents "tagged v0.26.0, published a 0.25.0-
-      # stamped APK" silent drift. If a repo derives its tag FROM the file (`v$(cat VERSION)`) this is a
-      # harmless always-true safety net; if a repo can drift (tag bumped, VERSION forgotten) it catches it.
-      - name: Verify tag matches VERSION file
+      # Wave-2 §A: tag must equal v<FINGERPRINT> (YYYY.0M.0W.MILESTONE.commitCount) at the tagged
+      # commit — FINGERPRINT is computed (MILESTONE file + live git commit count + date), never
+      # hand-typed, so this step recomputes it via the same Gradle helper the build itself uses
+      # (app/build.gradle.kts printFingerprint) instead of re-deriving the date/week formula in bash.
+      # Prevents "tagged a stale fingerprint, published a differently-stamped APK" silent drift.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with: { java-version: '21', distribution: 'temurin' }
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+      - name: Verify tag matches computed FINGERPRINT
         run: |
           set -uo pipefail
           tag="${GITHUB_REF_NAME}"
           expected="${tag#v}"
-          actual="$(tr -d '[:space:]' < VERSION 2>/dev/null || true)"
+          actual="$(./gradlew -q :app:printFingerprint)"
           if [ "$actual" != "$expected" ]; then
-            echo "::error::Release tag $tag does not match VERSION file ($actual). Run scripts/bump_version.sh, commit VERSION+BUILD_NUMBER, then re-tag so the built artifacts are stamped $expected."
+            echo "::error::Release tag $tag does not match the FINGERPRINT computed at this commit ($actual). Bump MILESTONE (scripts/bump_version.sh --milestone), commit it, then tag v$actual so the built artifacts are stamped correctly."
             exit 1
           fi
       - name: Assemble release notes
@@ -58,11 +64,7 @@ jobs:
           echo "prev=$prev" >> "$GITHUB_OUTPUT"
         env:
           RELEASE_SCRUBLIST_B64: ${{ secrets.RELEASE_SCRUBLIST_B64 }}
-      - name: Set up JDK 21
-        uses: actions/setup-java@v5
-        with: { java-version: '21', distribution: 'temurin' }
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+      # JDK/Gradle already set up above (needed early for the FINGERPRINT check).
       # Builds every flavor+buildType the repo variable RELEASE_BUILD_CMD lists (Mileway: gms + noGms,
       # debug + release — so testers can grab the exact variant they need). Release is signed with the
       # real keystore when a secret is materialized, else falls back to the debug key (still an
@@ -207,15 +209,24 @@ jobs:
         # The shared KMP framework link is wired into this Xcode project as a Run Script build phase
         # (see iosApp/iosApp.xcodeproj), so this one xcodebuild invocation builds :shared for iOS too —
         # no separate Gradle step needed. CODE_SIGNING_ALLOWED=NO keeps this runnable with no secrets.
+        #
+        # Wave-2 §A: MARKETING_VERSION/CURRENT_PROJECT_VERSION/MILEWAY_FINGERPRINT are passed as
+        # xcodebuild command-line build-setting overrides (no pbxproj edit needed — Info.plist
+        # already references $(MARKETING_VERSION) etc, see iosApp/iosApp/Info.plist) so this
+        # archive is stamped with the same computed values as the Android build in this same job.
         if: steps.detect.outputs.found == 'true' && steps.scheme.outputs.scheme != ''
         id: archive
         run: |
           set -uo pipefail
           chmod +x ./gradlew
           mkdir -p build dist
+          marketing="$(./gradlew -q :app:printMarketing)"
+          fingerprint="$(./gradlew -q :app:printFingerprint)"
+          build_code=$(( 1 + $(git rev-list --count HEAD) ))
           if xcodebuild -project "${{ steps.detect.outputs.project }}" -scheme "${{ steps.scheme.outputs.scheme }}" \
               -configuration Release -sdk iphoneos -archivePath build/Mileway.xcarchive archive \
               CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+              MARKETING_VERSION="$marketing" CURRENT_PROJECT_VERSION="$build_code" MILEWAY_FINGERPRINT="$fingerprint" \
               2>&1 | tee build/xcodebuild-archive.log; then
             echo "archived=true" >> "$GITHUB_OUTPUT"
           else

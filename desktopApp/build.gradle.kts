@@ -14,6 +14,10 @@ plugins {
     alias(libs.plugins.composeCompiler)
 }
 
+// Wave-2 §A: same computed MARKETING as :app/:wear (gradle/versioning.gradle.kts) — the native
+// installer's version string, not hand-typed.
+apply(from = rootProject.file("gradle/versioning.gradle.kts"))
+
 kotlin {
     jvm("desktop")
 
@@ -57,7 +61,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Deb, TargetFormat.Msi)
             packageName = "Mileway"
-            packageVersion = "1.0.0"
+            packageVersion = extra["mileway.marketing"] as String
         }
     }
 }

@@ -48,6 +48,21 @@ class ApplicationTest {
         }
 
     @Test
+    fun versionReturnsAFingerprint() =
+        testApplication {
+            application { module() }
+
+            val response = client.get("/version")
+
+            assertEquals(HttpStatusCode.OK, response.status)
+            val body = serverJson.decodeFromString<VersionResponse>(response.bodyAsText())
+            // "unknown" is the readFingerprint() fallback when the generated version.properties
+            // resource isn't on the test classpath (see server/build.gradle.kts) — both that and a
+            // real computed FINGERPRINT are acceptable here; an empty string is not.
+            assertTrue(body.fingerprint.isNotBlank())
+        }
+
+    @Test
     fun echoRoundTripsSubmitMilesRequestK() =
         testApplication {
             application { module() }

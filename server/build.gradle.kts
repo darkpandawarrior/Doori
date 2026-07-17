@@ -23,6 +23,29 @@ application {
     mainClass.set("com.mileway.server.ApplicationKt")
 }
 
+// Wave-2 §A: stamp FINGERPRINT into a runtime resource so /version can report it — same computed
+// value as :app/:wear (gradle/versioning.gradle.kts), just packaged as a resource instead of a
+// BuildConfig field since this is a plain JVM app, not an Android module.
+apply(from = rootProject.file("gradle/versioning.gradle.kts"))
+
+val generateVersionResource =
+    tasks.register("generateVersionResource") {
+        val outputDir = layout.buildDirectory.dir("generated/resources/version")
+        val fingerprint = extra["mileway.fingerprint"] as String
+        outputs.dir(outputDir)
+        doLast {
+            outputDir.get().asFile.apply { mkdirs() }
+                .resolve("version.properties")
+                .writeText("fingerprint=$fingerprint\n")
+        }
+    }
+
+sourceSets {
+    main {
+        resources.srcDir(generateVersionResource)
+    }
+}
+
 dependencies {
     api(project(":contract"))
 

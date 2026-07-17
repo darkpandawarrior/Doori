@@ -7,14 +7,23 @@ plugins {
     alias(libs.plugins.roborazzi)
 }
 
+// Wave-2 §A: same computed MARKETING/BUILDCODE as :app (gradle/versioning.gradle.kts) — a watch
+// build ships alongside a phone build under the same release tag, so they carry the same versions.
+apply(from = rootProject.file("gradle/versioning.gradle.kts"))
+
 android {
     namespace = "com.mileway.wear"
     defaultConfig {
         applicationId = "com.mileway.wear"
         minSdk = 30
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = extra["mileway.buildCode"] as Int
+        versionName = extra["mileway.marketing"] as String
+        buildConfigField("String", "FINGERPRINT", "\"${extra["mileway.fingerprint"]}\"")
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     // P2.1: mirror :app's maps-flavor split so the Wear app builds the same FOSS/proprietary story

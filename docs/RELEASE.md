@@ -4,14 +4,32 @@ How to ship Mileway to Play (gms), the App Store / TestFlight (iOS), and F-Droid
 credential below is an **env-activated placeholder**. The build degrades to a no-op when a key is absent, so
 nothing here is required to build or run the demo.
 
-## 1. Versioning (single source)
+## 1. Versioning (three-tier, computed)
 
-`VERSION` (semver) and `BUILD_NUMBER` at the repo root are the only place versions change.
-`versionCode = 1 (VERSION_CODE_BASE) + BUILD_NUMBER`; `versionName = VERSION`.
+Three repo-root files are the source of truth: `VERSION` + `BUILD_NUMBER` (legacy semver +
+monotonic counter, kept for continuity, no longer drive Gradle) and `MILESTONE` (an integer —
+bump this to cut a release). Every build derives three computed values from `MILESTONE` + the
+live `git rev-list --count HEAD` + today's date — never hand-typed, never written to a file
+(`gradle/versioning.gradle.kts`, applied by `:app`, `:wear`, `:server`, `:desktopApp`):
+
+| Value | Format | Used for |
+|---|---|---|
+| **FINGERPRINT** | `YYYY.0M.0W.<MILESTONE>.<commitCount>` (e.g. `2026.07.29.36.724`) | git tag (`v<FINGERPRINT>`), GitHub release title, `BuildConfig.FINGERPRINT` (Android)/`MilewayFingerprint` (iOS Info.plist)/`/version` (server), debug `versionNameSuffix` |
+| **MARKETING** | `YYYY.M.<MILESTONE>` (e.g. `2026.7.36`), ≤3 integer components (iOS `CFBundleShortVersionString` hard limit) | Android release `versionName`, iOS `CFBundleShortVersionString`, `:desktopApp` installer `packageVersion` |
+| **BUILDCODE** | `VERSION_CODE_BASE(1) + commitCount` (monotonic, < 2.1e9) | Android `versionCode`, iOS `CFBundleVersion` |
 
 ```bash
-scripts/bump_version.sh --patch   # or --minor / --major   → bumps VERSION + BUILD_NUMBER
+scripts/bump_version.sh --milestone   # MILESTONE += 1 — the actual release-cut step
+scripts/bump_version.sh --commit      # print the current computed FINGERPRINT/MARKETING/BUILDCODE, writes nothing
+scripts/bump_version.sh --patch       # legacy VERSION/BUILD_NUMBER bump (kept for continuity only)
 ```
+
+**Cutting a release:** bump `MILESTONE`, commit it, tag `v<FINGERPRINT>` (use `./gradlew -q
+:app:printFingerprint` to get the exact value for the commit you're tagging), push the tag. The
+[`github-release.yml`](../.github/workflows/github-release.yml) workflow verifies the tag matches
+the FINGERPRINT computed at that commit (refuses to publish otherwise), builds every flavor +
+build type, and attaches the debug/release APKs (+ an unsigned iOS archive, gated on `iosApp/`
+existing) to a GitHub Release.
 
 ## 2. Android: Play Store (fastlane, gms flavor)
 
@@ -75,5 +93,20 @@ Materialized from base64 env in CI (the `Materialize … secrets` steps); never 
 | `FIREBASE_APP_ID` | Firebase App Distribution | env |
 | `CRASHLYTICS_UPLOAD=true` | enable Crashlytics mapping upload on gms release | env (off by default) |
 
+`KEYSTORE_B64`/`KEYSTORE_PASSWORD`/`KEY_ALIAS`/`KEY_PASSWORD` is the **canonical** signing-secret
+naming — every deploy workflow (`amazon-appstore-deploy.yml`, `aptoide-deploy.yml`,
+`huawei-appgallery-deploy.yml`, `indus-deploy.yml`, `samsung-galaxy-store-deploy.yml`,
+`publish-fdroid.yml`, `release.yml`) already uses this one set consistently — there is no
+`ANDROID_KEYSTORE_*` variant to unify away in this repo. All six store-deploy workflows already
+build the **release** variant (`assembleGmsRelease` / `bundleGmsRelease` / `assembleNoGmsRelease`
+for F-Droid), never debug.
+
 App/Universal-Links: replace the SHA-256 in `docs/deeplinks/assetlinks.json` and the TeamID in
 `docs/deeplinks/apple-app-site-association`, then host them at the verified domain's `/.well-known/`.
+
+## 7. Server / desktop build-info
+
+`:server` bakes FINGERPRINT into a `version.properties` resource at build time
+(`generateVersionResource` in `server/build.gradle.kts`) and exposes it at `GET /version`
+alongside the existing `GET /health`. `:desktopApp`'s native installer `packageVersion` is
+MARKETING (same value Android uses), not a separate hand-typed string.

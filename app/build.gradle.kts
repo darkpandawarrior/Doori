@@ -83,19 +83,22 @@ val keystoreProperties =
 val hasReleaseSigning =
     keystorePropertiesFile.exists() || System.getenv("RELEASE_STORE_FILE") != null
 
-// FLA.1: single-source versioning. The repo-root VERSION + BUILD_NUMBER files (bumped by
-// scripts/bump_version.sh) are the only place versions change. versionCode = base + BUILD_NUMBER.
-val versionCodeBase = 1
+// FLA.1 → Wave-2 §A: three-tier versioning (FINGERPRINT/MARKETING/BUILDCODE), computed by
+// gradle/versioning.gradle.kts from repo-root MILESTONE + git commit count (bumped via
+// scripts/bump_version.sh --milestone). readVersionName()/readBuildNumber() are kept as the
+// existing call-site names but now return the computed MARKETING/BUILDCODE — see docs/RELEASE.md.
+apply(from = rootProject.file("gradle/versioning.gradle.kts"))
 
-fun readVersionName(): String {
-    val file = rootProject.file("VERSION")
-    return if (file.exists()) file.readText().trim().ifEmpty { "1.0.0" } else "1.0.0"
-}
+fun readVersionName(): String = extra["mileway.marketing"] as String
 
-fun readBuildNumber(): Int {
-    val file = rootProject.file("BUILD_NUMBER")
-    return if (file.exists()) file.readText().trim().toIntOrNull() ?: 0 else 0
-}
+fun readBuildNumber(): Int = extra["mileway.buildCode"] as Int
+
+fun readFingerprint(): String = extra["mileway.fingerprint"] as String
+
+// CI (github-release.yml) shells out to these instead of re-deriving the date/week formula in
+// bash — one source of truth for what a tag/release title should be.
+tasks.register("printFingerprint") { doLast { println(readFingerprint()) } }
+tasks.register("printMarketing") { doLast { println(readVersionName()) } }
 
 // FLFD.1: F-Droid reproducible build flag (`./gradlew assembleNoGmsRelease -Pfdroid`). Disables R8/resource
 // shrinking (not bit-for-bit reproducible across machines). F-Droid only builds the noGms release.
@@ -108,10 +111,11 @@ android {
         applicationId = "com.mileway"
         minSdk = 30
         targetSdk = 36
-        // FLA.1: single-source versioning. VERSION (semver) + BUILD_NUMBER files at the repo root are the
-        // ONE place versions change (via scripts/bump_version.sh). versionCode = VERSION_CODE_BASE + BUILD_NUMBER.
-        versionCode = versionCodeBase + readBuildNumber()
+        // Wave-2 §A: versionCode = BUILDCODE (already VERSION_CODE_BASE + commitCount, see
+        // gradle/versioning.gradle.kts); versionName = MARKETING (YYYY.M.MILESTONE).
+        versionCode = readBuildNumber()
         versionName = readVersionName()
+        buildConfigField("String", "FINGERPRINT", "\"${readFingerprint()}\"")
         // G9: instrumented tests (androidTest / Gradle Managed Devices).
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Default placeholder; override in gms flavor with your real key or via local.properties.
@@ -167,6 +171,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Wave-2 §A: debug versionName carries the full FINGERPRINT (date+milestone+commit),
+            // so two debug installs from different commits are never confused for the same build.
+            versionNameSuffix = "-${readFingerprint()}"
+        }
         release {
             // FLFD.1: off for reproducible F-Droid builds (-Pfdroid); on for Play/CI release.
             isMinifyEnabled = !fdroidBuild

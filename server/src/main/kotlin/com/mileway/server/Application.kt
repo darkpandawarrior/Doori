@@ -45,7 +45,23 @@ data class HealthResponse(
     val dbOk: Boolean = true,
 )
 
+@Serializable
+data class VersionResponse(
+    val fingerprint: String,
+)
+
 private const val DEFAULT_PORT = 8080
+
+/**
+ * Wave-2 §A: FINGERPRINT (YYYY.0M.0W.MILESTONE.commitCount), baked into the jar at build time by
+ * `generateVersionResource` (server/build.gradle.kts) from the same computed value :app/:wear use.
+ * "unknown" is a local `./gradlew run` from source without that generated resource on the
+ * classpath, not a production condition — the packaged distribution always has it.
+ */
+private fun readFingerprint(): String =
+    object {}.javaClass.getResourceAsStream("/version.properties")?.use { stream ->
+        java.util.Properties().apply { load(stream) }.getProperty("fingerprint")
+    } ?: "unknown"
 
 fun main() {
     embeddedServer(Netty, port = envPort(), module = Application::module).start(wait = true)
@@ -61,6 +77,7 @@ fun Application.module() {
 
     routing {
         get("/health") { call.respond(healthResponse()) }
+        get("/version") { call.respond(VersionResponse(fingerprint = readFingerprint())) }
         authRoutes()
         // PLAN_V34 P2/B2: every other /api/* route needs a bearer token — the routes underneath
         // never took a token dependency (PLAN_V33.1's AUTH-DEFERRED), so this single wrapper is the
