@@ -99,7 +99,15 @@ fun HeroCarousel(
     val previousLabel = stringResource(Res.string.whatsnew_cd_previous_media)
     val nextLabel = stringResource(Res.string.whatsnew_cd_next_media)
 
-    LaunchedEffect(pagerState.currentPage) { onPageChanged(pagerState.currentPage) }
+    LaunchedEffect(pagerState.currentPage) {
+        // V36 review fix: re-sync the carousel-level zoom flag on every page change, not just via
+        // the per-page onZoomChanged below. Navigating off a zoomed page via chevron/thumbnail
+        // (rather than dragging out of zoom) used to leave isZoomed stuck true forever, permanently
+        // killing auto-advance. ZoomableMedia resets its own zoom on page change via resetKey — this
+        // just keeps the carousel's flag in sync with that.
+        isZoomed = false
+        onPageChanged(pagerState.currentPage)
+    }
 
     if (multiMedia && !reducedMotion) {
         LaunchedEffect(pagerState) {

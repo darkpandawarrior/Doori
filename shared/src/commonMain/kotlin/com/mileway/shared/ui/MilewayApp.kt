@@ -48,15 +48,17 @@ private data class ShellTab(val label: StringResource, val icon: ImageVector)
  * PLAN_V36 P8 (spec §10) — What's New's overlay state for the reduced iOS shell, which has no
  * Navigation-3 host (that graph is Android-only, see `whatsNewGraph`'s KDoc). A simple `remember`
  * (not `rememberSaveable`) — same choice this file already makes for `tab`/`showLanguage`, process
- * death just re-lands on the tab scaffold. List/Detail's own header back arrows are the only back
- * affordance needed: list back → [WhatsNewScreenState.None], detail back → [WhatsNewScreenState.List].
+ * death just re-lands on the tab scaffold. List's header back arrow always → [WhatsNewScreenState.None].
+ * Detail's back is origin-aware ([Detail.cameFromList]): opened from the List row → back lands on
+ * List; opened directly from Home's digest sheet/banner → back lands on [WhatsNewScreenState.None]
+ * (Home), never on a List screen the user never opened — mirrors Android's NavHost backstack pop.
  */
 private sealed interface WhatsNewScreenState {
     data object None : WhatsNewScreenState
 
     data object List : WhatsNewScreenState
 
-    data class Detail(val entryId: String) : WhatsNewScreenState
+    data class Detail(val entryId: String, val cameFromList: Boolean) : WhatsNewScreenState
 }
 
 private val shellTabs =
@@ -117,7 +119,9 @@ fun MilewayApp() {
                             onStartTracking = { tab = 1 },
                             onAddExpense = { tab = 2 },
                             onOpenAccount = {},
-                            onOpenWhatsNewEntry = { entryId -> whatsNewScreen = WhatsNewScreenState.Detail(entryId) },
+                            onOpenWhatsNewEntry = { entryId ->
+                                whatsNewScreen = WhatsNewScreenState.Detail(entryId, cameFromList = false)
+                            },
                             onSeeAllWhatsNew = { whatsNewScreen = WhatsNewScreenState.List },
                         )
                     1 ->
@@ -147,12 +151,17 @@ fun MilewayApp() {
             WhatsNewScreenState.List ->
                 WhatsNewListScreen(
                     onBack = { whatsNewScreen = WhatsNewScreenState.None },
-                    onOpenEntry = { entryId -> whatsNewScreen = WhatsNewScreenState.Detail(entryId) },
+                    onOpenEntry = { entryId ->
+                        whatsNewScreen = WhatsNewScreenState.Detail(entryId, cameFromList = true)
+                    },
                 )
             is WhatsNewScreenState.Detail ->
                 WhatsNewDetailScreen(
                     entryId = screen.entryId,
-                    onBack = { whatsNewScreen = WhatsNewScreenState.List },
+                    onBack = {
+                        whatsNewScreen =
+                            if (screen.cameFromList) WhatsNewScreenState.List else WhatsNewScreenState.None
+                    },
                 )
         }
     }

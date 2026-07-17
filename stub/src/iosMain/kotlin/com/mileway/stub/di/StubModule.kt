@@ -8,6 +8,7 @@ import com.mileway.core.network.auth.AuthApi
 import com.mileway.core.network.auth.AuthTokenStore
 import com.mileway.core.network.auth.withBearerAuth
 import com.mileway.core.network.config.ConfigProvider
+import com.mileway.core.platform.FeatureFlags
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.FakeTrackingNetworkApi
 import com.mileway.stub.StubPersonaPresetProvider
@@ -30,6 +31,10 @@ val stubModule =
     module {
         single { DemoConfigManager() }
         single<ConfigProvider> { get<DemoConfigManager>() }
+        // V36 review fix: HomeScreen's koinInject<FeatureFlags>() default had no iOS binding at
+        // all (only Android's app-level `appModule` constructs it) — would have thrown the moment
+        // HomeScreen resolved it. Mirrors that same construction (ConfigProvider.getFeatureFlags()).
+        single { FeatureFlags(get<ConfigProvider>().getFeatureFlags()) }
         single { DataStoreBaseUrlProvider() }
         // PLAN_V34 P2/A6: refresh token in the toolkit's encrypted Settings (Keychain on iOS);
         // AuthApi is the login()/refresh()/logout() seam built on a bare (non-bearer) client.
