@@ -38,6 +38,7 @@ import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.RoutePointsViewModel
 import com.mileway.feature.tracking.viewmodel.SavedTracksViewModel
+import com.mileway.feature.tracking.viewmodel.SosViewModel
 import com.mileway.feature.tracking.viewmodel.SyncStatusViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
@@ -185,6 +186,11 @@ val trackingModule =
         viewModelOf(::CheckInHistoryViewModel)
         viewModelOf(::LiveTrackViewModel)
         viewModelOf(::CreateVoucherViewModel)
+        // TrackMilesScreen's SosBottomSheet (shown inline when driverEmergencyModeEnabled is on,
+        // no navigation involved) needs this — mirrors Android TrackingModule's explicit binding
+        // (not viewModelOf, so SosViewModel's Clock default is honored). EmergencyContactsRepository
+        // + NotificationDao both resolve from coreDataModule's iOS graph.
+        viewModel { SosViewModel(get(), get()) }
         // No HttpClient wired yet (app is offline/:stub) — getOrNull() keeps the tester graceful.
         viewModel { NetworkLogViewModel(store = get(), httpClient = getOrNull()) }
         viewModel { params ->
