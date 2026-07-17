@@ -467,6 +467,13 @@ dependencies {
     "gmsImplementation"(libs.mlkit.barcode.scanning)
     "noGmsImplementation"(libs.zxing.core)
 
+    // PLAN_V37 Phase 1: activity recognition, selected by flavor (was unconditionally in
+    // feature/tracking's shared androidMain as GmsActivityRecognizer — see its new home,
+    // app/src/gms/kotlin/com/mileway/GmsActivityRecognizer.kt, for why). play-services-location
+    // itself stays a feature/tracking androidMain dependency (also used by FusedLocationSource,
+    // out of scope here) — this is just the app-level classpath for the moved gms-only class.
+    "gmsImplementation"(libs.play.services.location)
+
     // V15 platform services, Play-Core update + review, gms flavor ONLY (proprietary).
     // noGms gets no-op impls; the VerifyDependencyPrefixes guard (FLFD.2) keeps these out of FOSS.
     "gmsImplementation"(libs.play.app.update)

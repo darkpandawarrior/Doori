@@ -4,6 +4,7 @@ import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
 import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.ReferralManager
+import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.mileway.platform.gms.AndroidInstallReferrerManager
 import com.mileway.platform.gms.FirebaseAnalyticsHelper
 import com.mileway.platform.gms.FirebaseCrashReporter
@@ -40,4 +41,7 @@ fun platformServicesKoinModule(): Module =
         single<WatchSyncBridge> { WearDataLayerWatchSyncBridge(androidContext()) }
         // FLFD.2 fix: real ML Kit barcode decoding, gms flavor ONLY (see BarcodeDecoder.kt).
         single<BarcodeDecoder> { MlKitBarcodeDecoder() }
+        // PLAN_V37 Phase 1: real Play Services ActivityRecognition, gms flavor ONLY — moved out of
+        // feature/tracking's shared androidMain (see GmsActivityRecognizer.kt kdoc).
+        single<ActivityRecognizer> { GmsActivityRecognizer(androidContext()) }
     }

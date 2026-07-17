@@ -1,4 +1,4 @@
-package com.mileway.feature.tracking.service.location
+package com.mileway
 
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
@@ -8,17 +8,27 @@ import android.content.IntentFilter
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionResult
+import com.mileway.feature.tracking.service.location.ActivityRecognizer
+import com.mileway.feature.tracking.service.location.ActivityTypeMapper
+import com.mileway.feature.tracking.service.location.RecognizedActivity
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
- * O.2: Play Services [ActivityRecognition]-backed [ActivityRecognizer]. While collected, it registers a
- * receiver for periodic activity updates and emits the most-probable activity (mapped via
- * [ActivityTypeMapper]). Requesting updates and (un)registering are wrapped in runCatching, so on a device
- * without Play Services it just never emits — the IMU MotionState fusion (O.1/O.3) remains the offline
- * stillness source. Requires the ACTIVITY_RECOGNITION runtime permission to actually deliver.
+ * gms flavor [ActivityRecognizer]: Play Services `ActivityRecognition`-backed. Moved here from
+ * feature/tracking's shared androidMain (see PLAN_V37 Phase 1) — it was importing
+ * `com.google.android.gms.location.ActivityRecognition` unconditionally, leaking a Play Services
+ * dependency into the noGms/F-Droid classpath. Same per-flavor split as [MlKitBarcodeDecoder] /
+ * [ZxingBarcodeDecoder]: bound in `PlatformServicesKoinEntry.kt`, gms → this, noGms →
+ * `HeuristicActivityRecognizer` (`app/src/noGms`).
+ *
+ * While collected, it registers a receiver for periodic activity updates and emits the
+ * most-probable activity (mapped via [ActivityTypeMapper]). Requesting updates and (un)registering
+ * are wrapped in runCatching, so on a device without Play Services it just never emits — the IMU
+ * MotionState fusion remains the offline stillness source. Requires the ACTIVITY_RECOGNITION
+ * runtime permission to actually deliver.
  */
 class GmsActivityRecognizer(private val context: Context) : ActivityRecognizer {
     override val activity: Flow<RecognizedActivity> =

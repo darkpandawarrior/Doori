@@ -38,7 +38,6 @@ import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.mileway.feature.tracking.service.location.FusedLocationSource
-import com.mileway.feature.tracking.service.location.GmsActivityRecognizer
 import com.mileway.feature.tracking.service.location.GpsFix
 import com.mileway.feature.tracking.service.location.LocationProcessor
 import com.mileway.feature.tracking.service.location.LocationSource
@@ -163,9 +162,12 @@ class LocationTrackingService : Service() {
     // O.3: running gravity estimate for the per-fix IMU stillness check (sensor fusion).
     private var motionGravity = Vector3(0f, 0f, 0f)
 
-    // O.2: Play Services activity recognition, fused into stillness alongside the IMU. Latest value cached
-    // so the per-fix path reads it cheaply; the stream stops when [scope] is cancelled in onDestroy.
-    private val activityRecognizer: ActivityRecognizer by lazy { GmsActivityRecognizer(this) }
+    // O.2: activity recognition, fused into stillness alongside the IMU. Latest value cached so the
+    // per-fix path reads it cheaply; the stream stops when [scope] is cancelled in onDestroy.
+    // PLAN_V37 Phase 1: Koin-bound (gms -> GmsActivityRecognizer, noGms -> HeuristicActivityRecognizer,
+    // both in :app's flavor source sets) instead of constructed inline — this class no longer imports
+    // GmsActivityRecognizer/Play Services directly.
+    private val activityRecognizer: ActivityRecognizer by inject()
 
     @Volatile
     private var recognizedActivity: RecognizedActivity = RecognizedActivity.UNKNOWN
