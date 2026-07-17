@@ -1,6 +1,7 @@
 package com.mileway
 
 import com.mileway.core.data.watch.WatchSyncBridge
+import com.mileway.core.media.BarcodeDecoder
 import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.ReferralManager
 import com.mileway.platform.gms.AndroidInstallReferrerManager
@@ -37,4 +38,6 @@ fun platformServicesKoinModule(): Module =
         // P2.9: real Data Layer WatchSyncBridge (PhoneSnapshotSync, the observe+push loop, is
         // bound once in coreDataModule since it's flavor-agnostic — see its doc comment).
         single<WatchSyncBridge> { WearDataLayerWatchSyncBridge(androidContext()) }
+        // FLFD.2 fix: real ML Kit barcode decoding, gms flavor ONLY (see BarcodeDecoder.kt).
+        single<BarcodeDecoder> { MlKitBarcodeDecoder() }
     }

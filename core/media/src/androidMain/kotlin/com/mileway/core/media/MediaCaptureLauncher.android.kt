@@ -2,7 +2,6 @@ package com.mileway.core.media
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -15,8 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
@@ -43,7 +40,7 @@ import com.mileway.core.ui.components.sheet.OcrResultHost
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+import org.koin.mp.KoinPlatform
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
@@ -191,8 +188,9 @@ actual fun rememberMediaCaptureLauncher(
         }
 
     // QRCode/Barcode (V26 P26.AND.5): capture a still image via the same Peekaboo picker as
-    // Gallery, decode it with ML Kit's on-device BarcodeScanning, deliver the first hit as
-    // QrPayload directly (no OCR/watermark pass — those are attachment-flow concerns).
+    // Gallery, decode it with the flavor-bound BarcodeDecoder (ML Kit on gms, ZXing on noGms —
+    // see BarcodeDecoder.kt), deliver the first hit as QrPayload directly (no OCR/watermark pass
+    // — those are attachment-flow concerns).
     // ponytail: image-then-decode, not a live viewfinder scanner — CaptureMode.Camera itself
     // isn't wired through this launcher either (feature:media owns the live preview screen);
     // upgrade to a live scan when that seam moves into core:media.
@@ -324,18 +322,15 @@ actual fun rememberMediaCaptureLauncher(
     }
 }
 
-/** Decodes the first QR/barcode found in [bytes] via ML Kit, or null if none is detected. */
-private suspend fun scanBarcode(bytes: ByteArray): String? {
-    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
-    val scanner = BarcodeScanning.getClient()
-    return try {
-        val barcodes = scanner.process(InputImage.fromBitmap(bitmap, 0)).await()
-        barcodes.firstNotNullOfOrNull { it.rawValue ?: it.displayValue }
-    } finally {
-        scanner.close()
-        bitmap.recycle()
-    }
-}
+/**
+ * Decodes the first QR/barcode found in [bytes], or null if none is detected.
+ *
+ * Delegates to the flavor-bound [BarcodeDecoder] (ML Kit on gms, ZXing on noGms — see that
+ * interface's kdoc) instead of calling ML Kit directly, so this shared androidMain never carries
+ * a Play Services dependency. Resolved via Koin, same pattern `burnWatermark` uses for a
+ * framework-instantiated composable with no DI scope to inject from.
+ */
+private suspend fun scanBarcode(bytes: ByteArray): String? = KoinPlatform.getKoin().getOrNull<BarcodeDecoder>()?.decode(bytes)
 
 private fun launchFilePicker(
     config: MediaCaptureConfig,

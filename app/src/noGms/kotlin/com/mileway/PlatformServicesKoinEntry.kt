@@ -2,6 +2,7 @@ package com.mileway
 
 import com.mileway.core.data.watch.NoopWatchSyncBridge
 import com.mileway.core.data.watch.WatchSyncBridge
+import com.mileway.core.media.BarcodeDecoder
 import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.LocalReferralManager
 import com.siddharth.kmp.common.NapierCrashReporter
@@ -34,4 +35,6 @@ fun platformServicesKoinModule(): Module =
         // P2.9: no Data Layer transport on F-Droid/FOSS → NoopWatchSyncBridge (no PhoneSnapshotPublisher
         // binding here either — there is nothing to push through on this flavor).
         single<WatchSyncBridge> { NoopWatchSyncBridge() }
+        // FLFD.2 fix: FOSS ZXing barcode decoding (Apache-2.0, no Play Services) on F-Droid.
+        single<BarcodeDecoder> { ZxingBarcodeDecoder() }
     }

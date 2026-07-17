@@ -452,6 +452,12 @@ dependencies {
     "gmsImplementation"(project(":core:maps-krossmap"))
     "noGmsImplementation"(project(":core:maps-maplibre"))
 
+    // Barcode/QR decoder, selected by flavor (FLFD.2 fix: was unconditionally in core:media's
+    // androidMain, leaking play-services-mlkit-barcode-scanning into noGmsReleaseRuntimeClasspath).
+    // core:media's BarcodeDecoder interface is bound to one of these in PlatformServicesKoinEntry.kt.
+    "gmsImplementation"(libs.mlkit.barcode.scanning)
+    "noGmsImplementation"(libs.zxing.core)
+
     // V15 platform services, Play-Core update + review, gms flavor ONLY (proprietary).
     // noGms gets no-op impls; the VerifyDependencyPrefixes guard (FLFD.2) keeps these out of FOSS.
     "gmsImplementation"(libs.play.app.update)

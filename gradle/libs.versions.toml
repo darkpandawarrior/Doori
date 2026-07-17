@@ -33,6 +33,9 @@ mlkit-document-scanner = "16.0.0"
 mlkit-text-recognition = "16.0.1"
 mlkit-barcode-scanning = "17.3.0"
 mlkit-genai-prompt = "1.0.0-beta2"
+# noGms-only: FOSS (Apache-2.0) barcode/QR decoder, replaces ML Kit's Play-Services-backed
+# barcode-scanning on the F-Droid flavor (FLFD.2, see app/src/{gms,noGms}/.../PlatformServicesKoinEntry.kt).
+zxing-core = "3.5.3"
 play-services-location = "21.4.0"
 play-services-wearable = "20.0.1"
 coil = "2.7.0"
@@ -168,7 +171,10 @@ install-referrer = { module = "com.android.installreferrer:installreferrer", ver
 mlkit-document-scanner = { module = "com.google.android.gms:play-services-mlkit-document-scanner", version.ref = "mlkit-document-scanner" }
 mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkit-text-recognition" }
 # V26 P26.AND.5: real QR/barcode capture (hand-rolled ML Kit, not a third-party QR lib per the plan's spike).
+# gms flavor only — see zxing-core below for the noGms/F-Droid equivalent (FLFD.2).
 mlkit-barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "mlkit-barcode-scanning" }
+# noGms flavor only: FOSS ZXing decoder (Apache-2.0), no Play Services dependency.
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 # EXPERIMENTAL (V26 P26.AI.1): ML Kit GenAI Prompt API, Gemini Nano on-device, gated by AICore/device
 # support. Compile-verified only — see MlKitGenAiAnalyzer.
 mlkit-genai-prompt = { module = "com.google.mlkit:genai-prompt", version.ref = "mlkit-genai-prompt" }
