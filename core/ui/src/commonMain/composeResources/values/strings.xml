@@ -469,7 +469,7 @@
     <string name="profile_settings_map_provider_desc">OpenStreetMap (fixed: single provider build)</string>
     <string name="profile_settings_experimental">Experimental</string>
     <string name="profile_settings_battery_aware">Battery-aware tracking</string>
-    <string name="profile_settings_battery_aware_desc">Reduce GPS polling below 15%% battery (real effect)</string>
+    <string name="profile_settings_battery_aware_desc">Reduce GPS polling below 15% battery (real effect)</string>
     <string name="profile_settings_low_end">Low-end device tuning</string>
     <string name="profile_settings_low_end_desc">Fewer UI animations (cosmetic in demo)</string>
     <string name="profile_settings_aggressive_gps">Aggressive GPS filter</string>
@@ -540,7 +540,7 @@
     <string name="profile_analytics_exporting_report">Exporting %1$s report…</string>
     <string name="profile_analytics_thirty_day_trend">30-Day Trend</string>
     <string name="profile_analytics_top_merchants">Top Merchants / Routes</string>
-    <string name="profile_analytics_pct_of_top_spend">%1$s%% of top spend</string>
+    <string name="profile_analytics_pct_of_top_spend">%1$s% of top spend</string>
     <string name="profile_demo_title">Demo Settings</string>
     <string name="profile_demo_subtitle">Interactive feature toggles</string>
     <string name="profile_demo_back">Back</string>
@@ -1370,7 +1370,7 @@
     <string name="tracking_preview_account_binding">Account Binding</string>
     <string name="tracking_preview_actual_points">Actual points</string>
     <string name="tracking_preview_clean_distance">Clean distance</string>
-    <string name="tracking_preview_completeness_pct">%1$d%% completeness</string>
+    <string name="tracking_preview_completeness_pct">%1$d% completeness</string>
     <string name="tracking_preview_context">Context</string>
     <string name="tracking_preview_created_at">Created at</string>
     <string name="tracking_preview_data_completeness">Data Completeness</string>
@@ -2022,7 +2022,7 @@
     <string name="media_add_more_label">Add More</string>
     <string name="media_ocr_result_title">OCR result</string>
     <string name="media_ocr_detected_odometer">Detected odometer</string>
-    <string name="media_ocr_confidence">Confidence %1$d%%</string>
+    <string name="media_ocr_confidence">Confidence %1$d%</string>
     <string name="media_ocr_watermarked">Watermarked</string>
     <string name="media_action_edit">Edit</string>
     <string name="media_action_confirm">Confirm</string>
@@ -2894,7 +2894,7 @@
     <string name="profile_home_referral_share_subject">Join me on Mileway</string>
     <string name="tracking_action_retake">Retake</string>
     <string name="tracking_capture_cd_photo">Captured photo</string>
-    <string name="tracking_capture_detected_confidence">Detected reading · %1$d%% confidence</string>
+    <string name="tracking_capture_detected_confidence">Detected reading · %1$d% confidence</string>
     <string name="tracking_capture_reading_odometer">Reading odometer…</string>
     <string name="tracking_capture_use_reading">Use reading</string>
     <string name="tracking_checkin_check_in_anyway">Check In Anyway (Override)</string>
@@ -2946,7 +2946,7 @@
     <string name="tracking_qa_map">Map</string>
     <string name="tracking_qa_saved">Saved Journeys</string>
     <string name="tracking_qa_settings">Settings</string>
-    <string name="tracking_quality_pct">Quality %1$d%%</string>
+    <string name="tracking_quality_pct">Quality %1$d%</string>
     <string name="tracking_route_line">%1$s → %2$s</string>
     <string name="tracking_saved_week_summary">This week: %1$d submissions • ₹%2$s</string>
     <string name="tracking_speed_kmh">%1$s km/h</string>
@@ -3201,7 +3201,7 @@
     <string name="tracking_hw_export_csv">CSV</string>
     <string name="tracking_hw_export_json">JSON</string>
     <string name="events_detail_capacity_actual">Capacity %1$d · Actual %2$d</string>
-    <string name="payables_line_gst_percent">GST %1$d%%</string>
+    <string name="payables_line_gst_percent">GST %1$d%</string>
     <!-- PLAN_V35.P4: feature/advances (petty-advance + QR card wallets) -->
     <string name="advances_home_title">Advances</string>
     <string name="advances_home_subtitle">Petty advances &amp; QR cards</string>
@@ -3216,7 +3216,7 @@
     <string name="advances_health_low_balance">Low Balance</string>
     <string name="advances_health_critical">Critical</string>
     <string name="advances_balance_format">Balance ₹%1$s / ₹%2$s</string>
-    <string name="advances_percent_remaining">%1$d%% remaining</string>
+    <string name="advances_percent_remaining">%1$d% remaining</string>
     <string name="advances_qr_valid_till">Valid till %1$s</string>
     <string name="advances_qr_available_balance_format">Available Balance ₹%1$s / ₹%2$s</string>
     <string name="advances_cd_scan_qr">Scan QR</string>

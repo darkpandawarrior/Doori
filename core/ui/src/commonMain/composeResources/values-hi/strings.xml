@@ -831,7 +831,7 @@
     <string name="tracking_preview_account_binding">खाता बाइंडिंग</string>
     <string name="tracking_preview_actual_points">वास्तविक पॉइंट</string>
     <string name="tracking_preview_clean_distance">स्वच्छ दूरी</string>
-    <string name="tracking_preview_completeness_pct">%1$d%% पूर्णता</string>
+    <string name="tracking_preview_completeness_pct">%1$d% पूर्णता</string>
     <string name="tracking_preview_context">संदर्भ</string>
     <string name="tracking_preview_created_at">बनाया गया</string>
     <string name="tracking_preview_data_completeness">डेटा पूर्णता</string>
@@ -1600,7 +1600,7 @@
     <string name="profile_settings_map_provider_desc">OpenStreetMap (निश्चित: एकल प्रदाता बिल्ड)</string>
     <string name="profile_settings_experimental">प्रायोगिक</string>
     <string name="profile_settings_battery_aware">बैटरी-सचेत ट्रैकिंग</string>
-    <string name="profile_settings_battery_aware_desc">15%% बैटरी से कम पर GPS पोलिंग कम करें (वास्तविक प्रभाव)</string>
+    <string name="profile_settings_battery_aware_desc">15% बैटरी से कम पर GPS पोलिंग कम करें (वास्तविक प्रभाव)</string>
     <string name="profile_settings_low_end">लो-एंड डिवाइस ट्यूनिंग</string>
     <string name="profile_settings_low_end_desc">कम UI एनिमेशन (डेमो में कॉस्मेटिक)</string>
     <string name="profile_settings_aggressive_gps">आक्रामक GPS फ़िल्टर</string>
@@ -1671,7 +1671,7 @@
     <string name="profile_analytics_exporting_report">%1$s रिपोर्ट निर्यात हो रही है…</string>
     <string name="profile_analytics_thirty_day_trend">30-दिवसीय रुझान</string>
     <string name="profile_analytics_top_merchants">शीर्ष व्यापारी / मार्ग</string>
-    <string name="profile_analytics_pct_of_top_spend">शीर्ष खर्च का %1$s%%</string>
+    <string name="profile_analytics_pct_of_top_spend">शीर्ष खर्च का %1$s%</string>
     <string name="profile_demo_title">डेमो सेटिंग्स</string>
     <string name="profile_demo_subtitle">इंटरैक्टिव फ़ीचर टॉगल</string>
     <string name="profile_demo_back">वापस</string>
@@ -2017,7 +2017,7 @@
     <string name="media_add_more_label">और जोड़ें</string>
     <string name="media_ocr_result_title">OCR परिणाम</string>
     <string name="media_ocr_detected_odometer">पहचाना गया ओडोमीटर</string>
-    <string name="media_ocr_confidence">विश्वास %1$d%%</string>
+    <string name="media_ocr_confidence">विश्वास %1$d%</string>
     <string name="media_ocr_watermarked">वॉटरमार्क किया गया</string>
     <string name="media_action_edit">संपादित करें</string>
     <string name="media_action_confirm">पुष्टि करें</string>
@@ -2890,7 +2890,7 @@
     <string name="profile_home_referral_share_subject">Mileway पर मेरे साथ जुड़ें</string>
     <string name="tracking_action_retake">फिर से लें</string>
     <string name="tracking_capture_cd_photo">कैप्चर की गई फ़ोटो</string>
-    <string name="tracking_capture_detected_confidence">पहचानी गई रीडिंग · %1$d%% विश्वास</string>
+    <string name="tracking_capture_detected_confidence">पहचानी गई रीडिंग · %1$d% विश्वास</string>
     <string name="tracking_capture_reading_odometer">ओडोमीटर पढ़ा जा रहा है…</string>
     <string name="tracking_capture_use_reading">रीडिंग का उपयोग करें</string>
     <string name="tracking_checkin_check_in_anyway">फिर भी चेक इन करें (ओवरराइड)</string>
@@ -2942,7 +2942,7 @@
     <string name="tracking_qa_map">मानचित्र</string>
     <string name="tracking_qa_saved">सहेजी गई यात्राएँ</string>
     <string name="tracking_qa_settings">सेटिंग्स</string>
-    <string name="tracking_quality_pct">गुणवत्ता %1$d%%</string>
+    <string name="tracking_quality_pct">गुणवत्ता %1$d%</string>
     <string name="tracking_route_line">%1$s → %2$s</string>
     <string name="tracking_saved_week_summary">इस सप्ताह: %1$d सबमिशन • ₹%2$s</string>
     <string name="tracking_speed_kmh">%1$s किमी/घं</string>
@@ -3196,7 +3196,7 @@
     <string name="tracking_hw_export_csv">CSV</string>
     <string name="tracking_hw_export_json">JSON</string>
     <string name="events_detail_capacity_actual">क्षमता %1$d · वास्तविक %2$d</string>
-    <string name="payables_line_gst_percent">जीएसटी %1$d%%</string>
+    <string name="payables_line_gst_percent">जीएसटी %1$d%</string>
     <!-- PLAN_V35.P4: feature/advances (petty-advance + QR card wallets) -->
     <string name="advances_home_title">एडवांस</string>
     <string name="advances_home_subtitle">पेटी एडवांस और क्यूआर कार्ड</string>
@@ -3211,7 +3211,7 @@
     <string name="advances_health_low_balance">कम बैलेंस</string>
     <string name="advances_health_critical">गंभीर</string>
     <string name="advances_balance_format">बैलेंस ₹%1$s / ₹%2$s</string>
-    <string name="advances_percent_remaining">%1$d%% शेष</string>
+    <string name="advances_percent_remaining">%1$d% शेष</string>
     <string name="advances_qr_valid_till">%1$s तक मान्य</string>
     <string name="advances_qr_available_balance_format">उपलब्ध बैलेंस ₹%1$s / ₹%2$s</string>
     <string name="advances_cd_scan_qr">क्यूआर स्कैन करें</string>
