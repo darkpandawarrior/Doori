@@ -12,7 +12,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 [![CI](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml)
 [![Quality](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
-![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
+![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--beta02-4285F4?logo=jetpackcompose&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop-3DDC84)
 ![Backend](https://img.shields.io/badge/backend-Kotlin%2FKtor%20(opt--in)-success)
 
@@ -343,8 +343,8 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | `:core:ai` | On-device document-intelligence pipeline — OCR field-fill, doc-type classification, duplicate detection, degrading gracefully without a model |
 | `:core:forms` | Dynamic form engine — 16 field types, validation, conditional visibility, GST auto-calc |
 | `:contract` | Shared request/response DTOs and `PolicyRateEngine`, depended on by both `:server` and the client (`:core:network`) so the wire format and reimbursement math can't drift between them |
-| `:server` | Kotlin/Ktor backend (Netty + Exposed, H2 by default) — miles/location/event ingestion with idempotent `opId` dedup; opt-in, off by default in the client |
-| `:feature:*` | tracking · logging · media · profile · approvals · payables · travel · agent · cards · payments · events |
+| `:server` | Kotlin/Ktor backend (Netty + Exposed, H2 by default) — miles/location/event ingestion with idempotent `opId` dedup, plus JWT auth (`/api/auth/login` + `/refresh`) guarding every other route; opt-in, off by default in the client |
+| `:feature:*` | tracking · logging · media · profile · approvals · payables · travel · agent · cards · advances (petty-cash + QR wallets) · payments · events |
 | `:stub` | Deterministic mock data for every repository; the default data source while `NetworkBackendFlags.useRealBackend` is off |
 | `:wear` | Wear OS app — dashboard, trip list/detail, tile, complication, ongoing activity, phone sync |
 | `:sharedWatch` | Headless KMP static framework (no Compose) consumed by the native SwiftUI watchOS app |
@@ -389,7 +389,7 @@ Mileway/
 | Layer | Technology |
 |---|---|
 | Language | Kotlin **2.4.20-Beta1** |
-| UI | Compose Multiplatform **1.12.0-beta01**, Material 3 |
+| UI | Compose Multiplatform **1.12.0-beta02**, Material 3 |
 | Build | AGP **9.4.0-alpha04**, Gradle **9.7.0-milestone-3**, KSP **2.3.10**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
 | Database | Room **2.8.4** (KMP, bundled SQLite) |
@@ -408,9 +408,20 @@ Mileway/
 
 ## Getting started
 
+**Prerequisites:** JDK 21+ (CI builds on 25), the Android SDK (API 35), and — for iOS/watchOS
+targets — a Mac with Xcode 16+. Point Gradle at your SDK via `local.properties`
+(`sdk.dir=/path/to/Android/sdk`) or the `ANDROID_HOME` env var.
+
+**Clone with submodules.** The Gradle convention plugins ([kmp-build-logic]) and the shared
+libraries ([kmp-toolkit]) live under `external/` as git submodules, pulled into the build with
+`includeBuild`. A plain clone leaves them empty and the build fails with *"Included build
+'external/kmp-build-logic' does not exist"* — so recurse:
+
 ```bash
-git clone https://github.com/darkpandawarrior/Mileway.git
+git clone --recurse-submodules https://github.com/darkpandawarrior/Mileway.git
 cd Mileway
+# already cloned without --recurse-submodules? pull them in:
+git submodule update --init --recursive
 
 # Assemble the offline-safe default build
 ./gradlew assembleNoGmsDebug
@@ -419,7 +430,12 @@ cd Mileway
 adb install app/build/outputs/apk/noGms/debug/app-noGms-debug.apk
 ```
 
-No network connection is required. The data is all mock and persists locally through Room and DataStore.
+No network connection is required. The data is all mock and persists locally through Room and
+DataStore. A real Kotlin/Ktor backend ships too but is **off by default** — see
+[Build flavors](#build-flavors) and the `:server` notes below to opt in.
+
+[kmp-build-logic]: https://github.com/darkpandawarrior/kmp-build-logic
+[kmp-toolkit]: https://github.com/darkpandawarrior/kmp-toolkit
 
 > **Offline check:** enable airplane mode, track a trip, kill and relaunch the app, and confirm the
 > record persisted.
@@ -434,12 +450,23 @@ No network connection is required. The data is all mock and persists locally thr
 ./gradlew assembleNoGmsRelease        # reproducible FOSS release (F-Droid)
 
 # Tests & screenshots (noGms only; gms crashes Robolectric)
-./gradlew testNoGmsDebugUnitTest      # JVM unit tests (88 test classes, no emulator)
+./gradlew testNoGmsDebugUnitTest      # JVM unit tests (300+ test classes, no emulator)
 ./gradlew recordRoborazziNoGmsDebug   # (re)record screenshot baselines → docs/screenshots/
 
 # Quality
 ./gradlew ktlintCheck detekt          # style + static analysis
 ./gradlew :app:koverXmlReport         # coverage report
+
+# Backend (opt-in — off by default)
+./gradlew :server:run                 # start the Ktor server on :8080 (H2 in-memory)
+./gradlew :server:test                # server route / auth / opId-dedup tests
+# then set NetworkBackendFlags.useRealBackend = true and point BaseUrlProvider at the server
+# (Android emulator: http://10.0.2.2:8080). Auth: POST /api/auth/login with the seeded demo user.
+
+# Other targets
+./gradlew :desktopApp:assemble        # Compose Desktop
+./gradlew :wear:assembleNoGmsDebug    # Wear OS
+./gradlew :shared:compileKotlinIosSimulatorArm64  # iOS (compile check; run via Xcode/iosApp)
 ```
 
 </details>
@@ -476,7 +503,7 @@ hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per i
 
 ## Testing and quality
 
-- **JVM unit tests.** 88 test classes covering ViewModels, repositories and feature logic with MockK
+- **JVM unit tests.** 300+ test classes covering ViewModels, repositories and feature logic with MockK
   and Turbine, run on the `noGms` flavor with no emulator.
 - **Screenshot tests.** Roborazzi renders every screen across all feature modules plus the
   component-preview matrices on the JVM (`ScreenshotGalleryTest` and `ScreenshotCatalogTest`, all
