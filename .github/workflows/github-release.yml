@@ -1,4 +1,4 @@
-# github-release.yml — tag-triggered GitHub Release (changelog + debug/release artifacts).
+# github-release.yml — tag-triggered GitHub Release (changelog + debug/release artifacts + iOS IPA).
 # Template shipped by the versioned-release skill. Copy to .github/workflows/github-release.yml per repo.
 # Distinct from release.yml (that one is STORE distribution via fastlane, manual, inert). This one
 # creates the GitHub Release + attaches build artifacts on every `v*` tag push.
@@ -20,6 +20,20 @@ jobs:
         with:
           fetch-depth: 0          # full history for the changelog range
           submodules: recursive   # convention plugins live in the external/kmp-build-logic submodule
+      # Repo-generic: the repo's own version-source-of-truth file (VERSION here) must already say what
+      # the tag says before a single line gets built. Prevents "tagged v0.26.0, published a 0.25.0-
+      # stamped APK" silent drift. If a repo derives its tag FROM the file (`v$(cat VERSION)`) this is a
+      # harmless always-true safety net; if a repo can drift (tag bumped, VERSION forgotten) it catches it.
+      - name: Verify tag matches VERSION file
+        run: |
+          set -uo pipefail
+          tag="${GITHUB_REF_NAME}"
+          expected="${tag#v}"
+          actual="$(tr -d '[:space:]' < VERSION 2>/dev/null || true)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Release tag $tag does not match VERSION file ($actual). Run scripts/bump_version.sh, commit VERSION+BUILD_NUMBER, then re-tag so the built artifacts are stamped $expected."
+            exit 1
+          fi
       - name: Assemble release notes
         id: cl
         run: |
@@ -50,25 +64,48 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
       # Builds every flavor+buildType the repo variable RELEASE_BUILD_CMD lists (Mileway: gms + noGms,
-      # debug + release — so testers can grab the exact variant they need). Release is unsigned unless a
-      # keystore secret is materialized — fine for tracking/Obtainium; debug variants install directly.
+      # debug + release — so testers can grab the exact variant they need). Release is signed with the
+      # real keystore when a secret is materialized, else falls back to the debug key (still an
+      # installable APK, not a raw unsigned blob — see app/build.gradle.kts hasReleaseSigning). Some
+      # projects' release build genuinely emits `-unsigned` in the output filename; the find/copy below
+      # matches that too.
       - name: Build artifacts
         run: |
           set -uo pipefail
           # Build command is repo-specific: set repo variable RELEASE_BUILD_CMD (Settings → Variables).
           # Mileway: "assembleGmsDebug assembleGmsRelease assembleNoGmsDebug assembleNoGmsRelease";
           # a repo with no flavors uses "assembleDebug assembleRelease".
-          # Falls back to the first task only if the full build fails (e.g. unsigned release).
           cmd="${RELEASE_BUILD_CMD:-assembleDebug assembleRelease}"
-          ./gradlew $cmd || ./gradlew ${cmd%% *} || true
+          # --continue: one variant failing (e.g. a lint/dependency-guard gate that only applies to one
+          # flavor) must not discard artifacts the other requested tasks already produced. There is no
+          # fallback to a single debug-only task on failure anymore — that used to silently mask every
+          # release task failing and ship debug APKs under a release tag while reporting success.
+          build_rc=0
+          ./gradlew $cmd --continue || build_rc=$?
+
           mkdir -p dist
           tag="${GITHUB_REF_NAME}"
           # Attach APKs under meaningful names: Mileway-<tag>-<flavor>-<buildType>.apk
-          # (source name is app-<flavor>-<buildType>.apk; strip the "app-" prefix). Skip test APKs.
+          # (source name is app-<flavor>-<buildType>[-unsigned].apk; strip the "app-" prefix). Skip test
+          # APKs. The `app-*.apk` wildcard already matches the `-unsigned` suffix an unsigned release
+          # build emits, so no separate pattern is needed.
           while IFS= read -r apk; do
             variant="$(basename "$apk" .apk)"; variant="${variant#app-}"
             cp "$apk" "dist/Mileway-${tag}-${variant}.apk"
           done < <(find . -path '*/outputs/apk/*' -name 'app-*.apk' -not -name '*androidTest*')
+
+          echo "::group::Artifacts collected"; ls -la dist/ 2>/dev/null || true; echo "::endgroup::"
+
+          # A release was requested (a version tag was pushed) — never let this job end with only debug
+          # APKs, or nothing at all, while still reporting green. Fail loudly instead.
+          release_count="$(find dist -maxdepth 1 -name '*-release*.apk' 2>/dev/null | wc -l | tr -d ' ')"
+          if [ "$release_count" -eq 0 ]; then
+            echo "::error::No release APK was produced (gradle exit $build_rc for '$cmd'). Refusing to publish a debug-only release — check the Gradle log above for the release-variant failure (signing/minify/lint/dependency-guard)."
+            exit 1
+          fi
+          if [ "$build_rc" -ne 0 ]; then
+            echo "::warning::Gradle build for '$cmd' exited $build_rc — at least one requested variant failed to build. Attaching the $release_count release APK(s) and any debug APK(s) that DID build; check the log above for which task(s) failed."
+          fi
         env:
           RELEASE_BUILD_CMD: ${{ vars.RELEASE_BUILD_CMD }}
       # Visual artifacts + golden diff vs previous release (screenshots/GIFs "tagged against release").
@@ -112,3 +149,104 @@ jobs:
       # README chores are handled by the existing readme.yml (auto-refreshes fact-spans on main push,
       # commits as github-actions[bot]). A release tag doesn't push to main, so if a release should also
       # refresh README, dispatch it: `gh workflow run readme.yml` — kept separate so release ≠ README churn.
+
+  # Best-effort iOS artifact, gated on the Android release job succeeding (so it uploads to a release
+  # that's guaranteed to exist) and on this repo actually having an iOS app (repo-generic: a repo with
+  # no iosApp/ just no-ops this job green, nothing to configure).
+  #
+  # IMPORTANT — signing: CI has no Apple distribution certificate or provisioning profile, so this can
+  # only produce an UNSIGNED archive. We zip the unsigned .app into a Payload/ dir as an ".ipa"-shaped
+  # artifact for inspection/manual re-signing — it will NOT install via TestFlight/App Store/ad-hoc as-is.
+  # A real signed, installable IPA needs the repo owner to add signing secrets (e.g. a base64 .p12 cert +
+  # mobileprovision, or fastlane match credentials — see release.yml's `ios` job for the pattern already
+  # used for the manual TestFlight/App Store rungs) and a codesign/export step wired to them.
+  ios-ipa:
+    name: iOS IPA (unsigned)
+    needs: release
+    if: ${{ !cancelled() && needs.release.result == 'success' }}
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Detect iOS app
+        id: detect
+        run: |
+          set -uo pipefail
+          proj="$(ls -d iosApp/*.xcodeproj 2>/dev/null | head -1)"
+          if [ -n "$proj" ]; then
+            echo "project=$proj" >> "$GITHUB_OUTPUT"
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::No iosApp/*.xcodeproj in this repo — skipping the iOS artifact (no-op)."
+          fi
+      - name: Set up JDK 21
+        if: steps.detect.outputs.found == 'true'
+        uses: actions/setup-java@v5
+        with: { java-version: '21', distribution: 'temurin' }
+      - name: Set up Gradle
+        if: steps.detect.outputs.found == 'true'
+        uses: gradle/actions/setup-gradle@v6
+      - name: Pick scheme
+        if: steps.detect.outputs.found == 'true'
+        id: scheme
+        run: |
+          set -uo pipefail
+          # Override with the IOS_SCHEME repo variable if a repo has multiple app schemes and needs a
+          # specific one. Default: first scheme that isn't a *Tests scheme (Mileway: "iosApp").
+          scheme="${IOS_SCHEME:-}"
+          if [ -z "$scheme" ]; then
+            scheme="$(xcodebuild -list -project "${{ steps.detect.outputs.project }}" 2>/dev/null \
+              | awk '/Schemes:/{f=1;next} f && NF && $0 !~ /Tests$/{print; exit}' | xargs)"
+          fi
+          echo "scheme=$scheme" >> "$GITHUB_OUTPUT"
+        env:
+          IOS_SCHEME: ${{ vars.IOS_SCHEME }}
+      - name: Archive (unsigned)
+        # The shared KMP framework link is wired into this Xcode project as a Run Script build phase
+        # (see iosApp/iosApp.xcodeproj), so this one xcodebuild invocation builds :shared for iOS too —
+        # no separate Gradle step needed. CODE_SIGNING_ALLOWED=NO keeps this runnable with no secrets.
+        if: steps.detect.outputs.found == 'true' && steps.scheme.outputs.scheme != ''
+        id: archive
+        run: |
+          set -uo pipefail
+          chmod +x ./gradlew
+          mkdir -p build dist
+          if xcodebuild -project "${{ steps.detect.outputs.project }}" -scheme "${{ steps.scheme.outputs.scheme }}" \
+              -configuration Release -sdk iphoneos -archivePath build/Mileway.xcarchive archive \
+              CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+              2>&1 | tee build/xcodebuild-archive.log; then
+            echo "archived=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "archived=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::xcodebuild archive failed (unsigned) — see the 'Archive (unsigned)' step log. No iOS artifact will be attached this release."
+          fi
+      - name: Package unsigned .ipa-shaped artifact
+        if: steps.detect.outputs.found == 'true' && steps.archive.outputs.archived == 'true'
+        run: |
+          set -uo pipefail
+          app="$(find build/Mileway.xcarchive/Products/Applications -maxdepth 1 -name '*.app' 2>/dev/null | head -1)"
+          if [ -z "$app" ]; then
+            echo "::warning::Archive succeeded but produced no .app bundle under Products/Applications; nothing to package."
+            exit 0
+          fi
+          tag="${GITHUB_REF_NAME}"
+          mkdir -p dist/Payload
+          cp -R "$app" dist/Payload/
+          ( cd dist && zip -qr "Mileway-${tag}-ios-unsigned.ipa" Payload )
+          rm -rf dist/Payload
+          ls -la "dist/Mileway-${tag}-ios-unsigned.ipa"
+      - name: Upload iOS artifact to release
+        if: steps.detect.outputs.found == 'true' && steps.archive.outputs.archived == 'true'
+        run: |
+          set -uo pipefail
+          shopt -s nullglob
+          files=(dist/*.ipa)
+          if [ ${#files[@]} -gt 0 ]; then
+            gh release upload "${GITHUB_REF_NAME}" "${files[@]}" --clobber
+          else
+            echo "no iOS artifact to attach"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
