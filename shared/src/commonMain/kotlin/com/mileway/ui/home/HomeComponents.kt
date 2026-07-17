@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -81,6 +83,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -205,15 +208,19 @@ fun HomeProfileHeader(
         // rasterize PNGs), and pins the user's current location. Tinted onPrimary (not white) so
         // the watermark stays a single low-contrast hue against the primary gradient — the same
         // treatment that keeps the fixed-contrast header text legible on ANY theme's primary.
-        // statusBarsPadding: the map (and crucially its TAPPABLE location pin + callout) must
-        // never render inside the status-bar inset — taps there land on the system bar, and the
-        // clock/icons would collide with the art. The gradient alone paints the inset strip.
+        // Full-bleed: the dot texture must run edge-to-edge INCLUDING behind the status bar, or the
+        // inset strip reads as a solid disconnected band above the map. Decorative here
+        // (interactive = false) — no tap callout to clip in this ~96dp header; topSafe keeps the
+        // static ping below the status bar so it never sits under the clock.
+        val statusBarPx = with(LocalDensity.current) { WindowInsets.statusBars.getTop(this).toFloat() }
         CurrentLocationPinMap(
-            modifier = Modifier.matchParentSize().statusBarsPadding(),
+            modifier = Modifier.matchParentSize(),
             pin = currentPin,
             dotColor = MaterialTheme.colorScheme.onPrimary,
             dotAlpha = 0.24f,
             pinColor = MaterialTheme.colorScheme.error,
+            interactive = false,
+            topSafePx = statusBarPx,
         )
         // Terminal scanline overlay + sheen: matchParentSize, NOT fillMaxSize — under the pinned
         // header's finite constraints a fillMaxSize child would balloon the header to full screen

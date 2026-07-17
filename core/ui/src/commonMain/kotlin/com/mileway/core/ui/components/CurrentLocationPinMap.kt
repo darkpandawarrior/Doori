@@ -72,6 +72,14 @@ fun CurrentLocationPinMap(
     dotColor: Color = Color.White,
     dotAlpha: Float = 0.20f,
     pinColor: Color = Color(0xFFFF5252),
+    // Decorative-only surfaces (the short home header) pass false: the map + a static ping still
+    // render, but there's no tap hotspot and no "you are here" callout — the callout is 176dp wide
+    // and pops 14dp below the pin, which clips in a ~96dp header. The full interactive pin belongs
+    // on a real map screen with room.
+    interactive: Boolean = true,
+    // Keeps the pin core within the visible content band, clear of a top inset (status bar) the
+    // caller has already reserved with padding on its content. 0 = no clamp (full-map surfaces).
+    topSafePx: Float = 0f,
 ) {
     BoxWithConstraints(modifier) {
         WorldMapBackdrop(
@@ -85,7 +93,9 @@ fun CurrentLocationPinMap(
         val density = LocalDensity.current
         val wPx = with(density) { maxWidth.toPx() }
         val hPx = with(density) { maxHeight.toPx() }
-        val center = worldMapOffset(pin.latitude, pin.longitude, wPx, hPx)
+        val rawCenter = worldMapOffset(pin.latitude, pin.longitude, wPx, hPx)
+        // Clamp the marker down out of the reserved top inset so it never sits under the clock.
+        val center = rawCenter.copy(y = rawCenter.y.coerceAtLeast(topSafePx + 12f))
 
         var open by remember(pin) { mutableStateOf(false) }
 
@@ -108,6 +118,9 @@ fun CurrentLocationPinMap(
             drawCircle(pinColor, coreR, center) // core
             drawCircle(Color.White, coreR * 0.42f, center) // highlight
         }
+
+        // Decorative surfaces stop here — static ping only, no tap target, no callout.
+        if (!interactive) return@BoxWithConstraints
 
         // Tap hotspot over the pin (invisible, no ripple).
         val hotspot = 44.dp
