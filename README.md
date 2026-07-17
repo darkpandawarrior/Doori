@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="Mileway — offline-first mileage, travel and expense tracking" width="700"/>
+<img src="docs/assets/banner.gif" alt="Mileway — offline-first mileage, travel and expense tracking" width="700"/>
 
 ### Offline-first mileage, travel and expense tracking, built in Kotlin and Compose Multiplatform.
 
@@ -12,7 +12,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 [![CI](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml)
 [![Quality](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--Beta1-7F52FF?logo=kotlin&logoColor=white)
-![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--beta02-4285F4?logo=jetpackcompose&logoColor=white)
+![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--beta01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop-3DDC84)
 ![Backend](https://img.shields.io/badge/backend-Kotlin%2FKtor%20(opt--in)-success)
 
@@ -389,7 +389,7 @@ Mileway/
 | Layer | Technology |
 |---|---|
 | Language | Kotlin **2.4.20-Beta1** |
-| UI | Compose Multiplatform **1.12.0-beta02**, Material 3 |
+| UI | Compose Multiplatform **1.12.0-beta01**, Material 3 |
 | Build | AGP **9.4.0-alpha04**, Gradle **9.7.0-milestone-3**, KSP **2.3.10**, Gradle Kotlin DSL, convention plugins, version catalog |
 | DI | Koin **4.2.2** (multiplatform) |
 | Database | Room **2.8.4** (KMP, bundled SQLite) |

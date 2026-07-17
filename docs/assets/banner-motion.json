@@ -1,0 +1,24 @@
+{
+  "width": 900,
+  "fps": 24,
+  "duration": 4.5,
+  "colors": 192,
+  "dither": "none",
+  "clip_to_base_alpha": true,
+  "reveals": [
+    {
+      "id": "mw-route",
+      "axis": "x",
+      "start": 0.3,
+      "end": 1.6,
+      "exit": {"start": 3.6, "end": 4.4}
+    }
+  ],
+  "layers": [
+    {
+      "id": "mw-pin",
+      "enter": {"start": 1.5, "end": 2.1, "from": [40, 0]},
+      "exit": {"start": 3.6, "end": 4.3, "to": [0, -6]}
+    }
+  ]
+}
