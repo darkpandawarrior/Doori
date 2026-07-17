@@ -1,17 +1,22 @@
 name: README auto-refresh
 
-# Regenerates the <!-- AUTOGEN:x --> fact spans in README.md from settings.gradle.kts,
-# the Room DB file, and docs/screenshots, then commits any drift. Auto-commit (not
-# fail-the-build) so a stale count never needs a human. [skip ci] keeps it loop-safe;
-# the committer is github-actions[bot], so the no-AI-attribution guard passes.
+# Verifies the <!-- AUTOGEN:x --> fact spans in README.md are current — regenerated from
+# settings.gradle.kts, the Room DB file, and docs/screenshots by scripts/gen-readme.sh.
+#
+# Why verify instead of auto-commit: main is protected by the "Quality Gate required" ruleset,
+# so a bot's GITHUB_TOKEN can't push a refresh straight to main (the old push-to-main job failed
+# on every main push). Instead this runs on the PR that changes a source file and fails if the
+# fact spans drifted, so the author regenerates them in the same PR (where they *can* push):
+#     ./scripts/gen-readme.sh && git add README.md && git commit
 on:
-  push:
+  pull_request:
     branches: [ main ]
     paths:
       - 'settings.gradle.kts'
       - 'docs/screenshots/**'
       - 'core/data/**/MilewayDatabase.kt'
       - 'scripts/gen-readme.sh'
+      - 'README.md'
   workflow_dispatch:
 
 concurrency:
@@ -19,25 +24,20 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  refresh:
+  verify:
+    name: README fact spans current
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Regenerate README fact spans
+      - name: Verify README fact spans are current
         run: |
           chmod +x ./scripts/gen-readme.sh
           ./scripts/gen-readme.sh
-      - name: Commit if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          if git diff --cached --quiet; then
-            echo "README already current."
-          else
-            git commit -m "chore(readme): auto-refresh fact spans [skip ci]"
-            git push
+          if ! git diff --exit-code -- README.md; then
+            echo "::error::README fact spans are stale. Run ./scripts/gen-readme.sh and commit README.md in this PR."
+            exit 1
           fi
+          echo "README fact spans are current."
