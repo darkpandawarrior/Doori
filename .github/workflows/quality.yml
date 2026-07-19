@@ -51,13 +51,18 @@ jobs:
       - name: Code style (ktlint)
         run: ./gradlew ktlintCheck
 
+      # Each check below is independent (style, static analysis, tests, coverage, deps) —
+      # !cancelled() lets a step still run after an earlier one fails, so a lint failure
+      # doesn't hide whether tests/coverage/deps also broke (fail-complete signal).
       - name: Static analysis (detekt)
+        if: ${{ !cancelled() }}
         run: ./gradlew detekt
 
       # noGms is the JVM unit-test target: the gms flavor pulls Google Play Services
       # maps, whose native libs SIGSEGV a shared Robolectric fork (exit 2). noGms
       # (MapLibre) has no Play Services native deps; map surfaces are faked in tests.
       - name: Unit tests
+        if: ${{ !cancelled() }}
         run: ./scripts/run-jvm-tests.sh testNoGmsDebugUnitTest
 
       # KMP modules (feature:tracking, core:platform, core:security) name their JVM unit-test
@@ -65,14 +70,17 @@ jobs:
       # This runs the commonMain engine/policy/mapper suites once on the host (both platforms
       # share the same code; iOS runs the same suite via iosSimulatorArm64Test).
       - name: KMP commonTest (host)
+        if: ${{ !cancelled() }}
         run: ./gradlew testAndroidHostTest
 
       # Coverage measured + verified on the noGms variant (JVM-safe). The floor
       # (minBound 30% line) fails the build on regression, see app/build.gradle.kts.
       - name: Coverage report + floor
+        if: ${{ !cancelled() }}
         run: ./gradlew :app:koverXmlReportNoGmsDebugCoverage :app:koverVerifyNoGmsDebugCoverage
 
       - name: Dependency guard
+        if: ${{ !cancelled() }}
         run: ./gradlew dependencyGuard
 
       - name: Upload kover coverage
