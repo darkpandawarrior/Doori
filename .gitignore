@@ -44,3 +44,6 @@ AGENTS.md
 
 # PLAN_V36 P8: scripts/whatsnew-draft.sh output — human-curated before landing, never committed
 whatsnew-draft/
+
+# Local git worktree checkouts (main repo or submodules) — machine-local, never committed
+.worktrees/
