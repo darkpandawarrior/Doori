@@ -47,7 +47,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance** — **45-module** clean architecture: **35 local** (13 feature · 12 core) + **10 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **159** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance** — **46-module** clean architecture: **36 local** (13 feature · 12 core) + **10 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **159** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why Mileway

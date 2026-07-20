@@ -17,13 +17,38 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    // PREFER_SETTINGS (was FAIL_ON_PROJECT_REPOS): the Kotlin/Wasm toolchain adds Node/Yarn/Binaryen
+    // distribution repos at project level for :app-web-preview's wasmJs target; FAIL would reject
+    // them. Same rationale + ivy blocks as external/kmp-toolkit/settings.gradle.kts.
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
         // Storytale runtime artifacts (org.jetbrains.compose.storytale) resolve from JetBrains Space.
         maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+        // Node.js / Yarn / Binaryen distributions for the Kotlin/Wasm toolchain (wasmJs browser()).
+        ivy {
+            name = "Node.js Distributions"
+            url = uri("https://nodejs.org/dist")
+            patternLayout { artifact("v[revision]/[artifact](-v[revision]-[classifier]).[ext]") }
+            metadataSources { artifact() }
+            content { includeModule("org.nodejs", "node") }
+        }
+        ivy {
+            name = "Yarn Distributions"
+            url = uri("https://github.com/yarnpkg/yarn/releases/download")
+            patternLayout { artifact("v[revision]/[artifact](-v[revision]).[ext]") }
+            metadataSources { artifact() }
+            content { includeModule("com.yarnpkg", "yarn") }
+        }
+        ivy {
+            name = "Binaryen Distributions"
+            url = uri("https://github.com/WebAssembly/binaryen/releases/download")
+            patternLayout { artifact("version_[revision]/[artifact]-version_[revision]-[classifier].[ext]") }
+            metadataSources { artifact() }
+            content { includeModule("com.github.webassembly", "binaryen") }
+        }
     }
 }
 
@@ -81,3 +106,4 @@ include(":wear")
 include(":baselineprofile")
 include(":widget")
 include(":desktopApp")
+include(":app-web-preview")

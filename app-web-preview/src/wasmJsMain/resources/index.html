@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0D1117">
+    <meta name="description" content="Mileway — offline-first mileage, travel and expense tracker. Interactive web preview.">
+    <title>Mileway — Web Preview</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background: #0D1117;
+            overflow: hidden;
+        }
+        #compose-root { position: fixed; inset: 0; }
+        /* Decoy for the portfolio's LiveEmbed paint-detection (polls #ComposeTarget's width/height
+           attributes): CMP 1.12's ComposeViewport renders its real canvas inside a shadow root, so
+           this mirror is the only reachable signal. CSS size 0 + pointer-events none — it never
+           renders or intercepts input; only its width/height ATTRIBUTES are set once Compose paints. */
+        #ComposeTarget { position: fixed; width: 0; height: 0; pointer-events: none; }
+        #loader {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0D1117;
+            color: #00E676;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 1rem;
+            letter-spacing: 0.08em;
+            z-index: 9999;
+            transition: opacity 0.4s ease;
+        }
+        #loader.hidden { opacity: 0; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="compose-root"></div>
+    <canvas id="ComposeTarget"></canvas>
+    <div id="loader">booting mileway&hellip;</div>
+    <script src="app-web-preview.js"></script>
+    <script>
+        // Compose mounts into #compose-root (NOT body — ComposeViewport clears its container's
+        // children, which would delete the loader and decoy). Its real canvas lives in a shadow
+        // root, so poll for it; once it paints, mirror its size onto the decoy's attributes (the
+        // portfolio's LiveEmbed reveal signal) and hide the loader.
+        const decoy = document.getElementById('ComposeTarget');
+        const loader = document.getElementById('loader');
+        const root = document.getElementById('compose-root');
+        const poll = setInterval(() => {
+            // The shadow host is some nested div; scan for it. CMP 1.12 renders into an offscreen-
+            // transferred canvas whose width/clientWidth/getBoundingClientRect can all read 0 even
+            // while it paints full-size — so the canvas simply EXISTING in the shadow root is the
+            // "Compose has mounted and is painting" signal. Report the real viewport size to the
+            // parent's LiveEmbed (it only checks width > 300 || height > 150), then reveal.
+            let canvas = null;
+            document.querySelectorAll('#compose-root div').forEach((d) => {
+                const c = d.shadowRoot && d.shadowRoot.querySelector('canvas');
+                if (c) canvas = c;
+            });
+            if (canvas) {
+                // #compose-root is fixed/inset:0, so its rect is the layout viewport (window.inner*
+                // and the shadow canvas's own metrics can read 0 in some embedders). Fall back to a
+                // fixed non-zero size so the parent's reveal threshold (>300 / >150) always trips.
+                const vp = root.getBoundingClientRect();
+                decoy.width = Math.round(vp.width) || 1280;
+                decoy.height = Math.round(vp.height) || 720;
+                loader.classList.add('hidden');
+                clearInterval(poll);
+            }
+        }, 200);
+        setTimeout(() => { loader.classList.add('hidden'); clearInterval(poll); }, 20000);
+    </script>
+</body>
+</html>
