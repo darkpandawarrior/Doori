@@ -35,11 +35,12 @@ updates:
       - dependency-name: "com.android.application"
       - dependency-name: "com.android.library"
       - dependency-name: "com.android.kotlin.multiplatform.library"
-      # ktlint 14 is a deliberately deferred migration, not a routine bump: it reformats ~179
-      # files and adds non-auto-fixable rules across 37 source sets for no functional gain.
-      # Unignore when that migration is actually scheduled.
+      # ktlint >=13 is a deliberately deferred migration, not a routine bump. Bound is >=13, not
+      # >=14: 13.1.0 was measured on 2026-07-27 and churns 108 files / ~950 lines, and ktlintFormat
+      # itself FAILS on :core:data (non-auto-fixable rules) — same shape as 14.x, which reformats
+      # ~179 files. Zero functional gain either way. Unignore when that migration is scheduled.
       - dependency-name: "org.jlleitschuh.gradle.ktlint"
-        versions: [">=14"]
+        versions: [">=13"]
       # NOTE: kotlin/ksp/compose-multiplatform are ALSO pinned in the submodule catalogs, but they
       # are deliberately NOT ignored — divergence there is tolerated in practice (compose-multiplatform
       # already differs between Mileway and the toolkit, and a Kotlin 2.4.20-Beta2 bump was verified
