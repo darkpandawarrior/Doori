@@ -11,8 +11,11 @@ import com.mileway.feature.logging.ui.navigation.loggingGraph
 import com.mileway.feature.tracking.ui.navigation.trackingGraph
 
 // Cross-feature wiring lives HERE only, features never import each other.
-// Each feature exposes NavGraphBuilder.xGraph(nav, callbacks) and this file
-// hands them lambdas that reference AppKey destinations.
+// Each feature exposes NavGraphBuilder.xGraph(navController, callbacks) and this
+// file assembles them into one NavHost keyed by plain string routes (the feature
+// modules' own TrackingRoutes/ApprovalsRoutes/... constants) — NOT the typed
+// AppKey/NavKey destinations declared next door in AppKey.kt.
+// Currently unreferenced: LauncherActivity composes AppEntry, not AppNavigation.
 
 @Composable
 fun AppNavigation(navController: NavHostController = rememberNavController()) {

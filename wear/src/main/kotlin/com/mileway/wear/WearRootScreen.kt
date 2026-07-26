@@ -63,6 +63,11 @@ fun WearRootScreen(viewModel: WearViewModel = koinViewModel()) {
     }
     WearMilewayTheme {
         AppScaffold {
+            // Rotary (crown/bezel) scrolling needs no wiring here or in `WearTripScreens.kt`:
+            // foundation's ScalingLazyColumn applies `requestFocusOnHierarchyActive()` +
+            // `rotaryScrollable(...)` itself, defaulting `rotaryScrollableBehavior` to
+            // `RotaryScrollableDefaults.behavior(state)` off this shared [listState]. Adding a
+            // second `Modifier.rotaryScrollable` would stack a competing focus target — don't.
             val listState = rememberScalingLazyListState()
             ScreenScaffold(scrollState = listState) {
                 when (uiState.screen) {

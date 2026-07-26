@@ -4,8 +4,12 @@ import android.content.Context
 import com.mileway.core.data.di.coreDataModule
 import com.mileway.core.platform.di.platformModule
 import com.mileway.feature.tracking.di.trackingModule
+import com.mileway.feature.tracking.service.location.ActivityRecognizer
+import com.mileway.feature.tracking.service.location.RecognizedActivity
 import com.mileway.stub.di.stubModule
 import com.mileway.wear.gms.watchSyncKoinModule
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -16,13 +20,34 @@ import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
 
 /**
+ * `:wear`'s own [ActivityRecognizer]: a single UNKNOWN emission, never updated.
+ *
+ * `trackingModule` is shared with the phone, and `LocationTrackingService` resolves an
+ * [ActivityRecognizer] from Koin — but the two real bindings live in `:app`'s flavor source sets
+ * (Play Services on gms, the placeholder classifier on noGms), neither of which is on the watch's
+ * classpath, and `:wear` must not depend on `:app`. Without a binding here the watch graph is
+ * incomplete: the first watch-side caller that starts the tracking service gets
+ * `NoDefinitionFound` at runtime rather than a compile error.
+ *
+ * ponytail: intentionally not a classifier — the IMU MotionState fusion (`core:platform`) is the
+ * real signal on the watch too. If Wear ever needs coarse activity, bind a gms-flavor
+ * `ActivityRecognition`-backed impl under `wear/src/gms` (where play-services is already
+ * available), not here.
+ */
+private class WearActivityRecognizer : ActivityRecognizer {
+    override val activity: Flow<RecognizedActivity> = flowOf(RecognizedActivity.UNKNOWN)
+}
+
+/**
  * P2.4: `:wear`'s own module for its Compose screens' ViewModels — kept separate from
  * `trackingModule` (which is shared with the phone/iOS graph and knows nothing about Wear-specific
- * presentation types like [com.mileway.wear.WearViewModel]).
+ * presentation types like [com.mileway.wear.WearViewModel]) — plus the watch-side bindings for
+ * contracts `trackingModule` consumes but does not itself provide (see [WearActivityRecognizer]).
  */
 private val wearModule =
     module {
         viewModelOf(::WearViewModel)
+        single<ActivityRecognizer> { WearActivityRecognizer() }
     }
 
 /**
