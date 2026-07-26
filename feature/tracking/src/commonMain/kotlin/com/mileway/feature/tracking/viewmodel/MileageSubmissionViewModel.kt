@@ -2,12 +2,15 @@ package com.mileway.feature.tracking.viewmodel
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.model.db.CurrentTrackData
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerReadingSource
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.model.network.SubmissionStatus
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
+import com.mileway.core.data.model.validator.JourneySeverity
+import com.mileway.core.data.model.validator.JourneyValidator
 import com.mileway.core.data.outbox.TripDraft
 import com.mileway.core.forms.FieldId
 import com.mileway.core.forms.FormFieldType
@@ -21,6 +24,7 @@ import com.mileway.core.network.model.Office
 import com.mileway.feature.tracking.checkin.RoundTripClassifier
 import com.mileway.feature.tracking.insights.DistanceQualityAnalyzer
 import com.mileway.feature.tracking.manager.TrackingConfigManager
+import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.OfflinePlacesRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
@@ -241,6 +245,11 @@ class MileageSubmissionViewModel(
     // destination) — nullable-defaulted for the same reason as the params above (direct-
     // construction tests keep working unchanged; Koin supplies the real singleton).
     private val locationRepository: LocationRepository? = null,
+    // Wires JourneyValidator.validateBeforeSubmission's live-session input — nullable-defaulted
+    // for the same reason as the params above (direct-construction tests keep working unchanged;
+    // Koin already registers CurrentTrackRepository as a single for the other tracking VMs, so no
+    // DI-module change is needed for it to resolve here too).
+    private val currentTrackRepository: CurrentTrackRepository? = null,
 ) : BaseViewModel<MileageSubmissionUiState, MileageSubmissionEffect, MileageSubmissionAction>(
         MileageSubmissionUiState(
             form =
@@ -448,6 +457,34 @@ class MileageSubmissionViewModel(
         setState { copy(form = form.copy(sheet = SubmissionSheet.NONE), submissionState = SubmissionUiState.Submitting) }
         val odometerFallbackActive = currentState.form.config.calculateExpenseViaOdometer && currentState.form.odometerNotWorking
         viewModelScope.launch {
+            // Gate on JourneyValidator before any side effect below runs — only ERROR-severity
+            // findings block; WARNING/INFO are advisory and never reach this branch since
+            // hasBlockers() only looks at ERROR severity.
+            val track = trackRepository.getByRouteId(routeId)
+            // The live DataStore session is GLOBAL — it describes whatever trip is being tracked right
+            // now, which is usually NOT the trip being submitted here (submitting an older saved track,
+            // or submitting after an account switch cleared the session, both leave it empty). Feeding
+            // that mismatched session straight to the validator makes `token.isBlank()` fire and hard-
+            // blocks a perfectly valid submission with "Invalid or missing journey token".
+            // So: only trust the live session when it is actually about THIS trip; otherwise derive the
+            // session from the persisted row, which is what the cross-check is supposed to compare against.
+            val liveSession =
+                currentTrackRepository
+                    ?.getCurrentTrackDataRawAsync()
+                    ?.getOrNull()
+                    ?.takeIf { it.token == routeId }
+                    ?: CurrentTrackData(
+                        token = routeId,
+                        distance = track?.distance ?: 0.0,
+                        lastSyncedTime = track?.lastSyncedTime ?: 0L,
+                    )
+            val validation = JourneyValidator.validateBeforeSubmission(liveSession, track)
+            if (validation.hasBlockers()) {
+                val blocker = validation.errors.first { it.severity == JourneySeverity.ERROR }
+                setState { copy(submissionState = SubmissionUiState.Error(blocker.message)) }
+                return@launch
+            }
+
             persistPendingAttachments(routeId)
             if (odometerFallbackActive) {
                 trackRepository.markOdometerNotWorking(routeId)
@@ -466,9 +503,9 @@ class MileageSubmissionViewModel(
                 )
             }
             // PLAN_V33 C5: trip/office/entity/tripV2 id resolution + the GPS first/last point come
-            // from the persisted trip row and its location trail — both optional lookups (a fresh
-            // draft may have neither yet), the builder tolerates either being absent/empty.
-            val track = trackRepository.getByRouteId(routeId)
+            // from the persisted trip row (fetched above, for validation) and its location trail —
+            // both optional lookups (a fresh draft may have neither yet), the builder tolerates
+            // either being absent/empty.
             val routePoints = locationRepository?.getForToken(routeId) ?: emptyList()
             val request =
                 SubmitMilesRequestBuilder.build(

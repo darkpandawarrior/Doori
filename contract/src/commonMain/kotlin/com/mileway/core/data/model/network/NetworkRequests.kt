@@ -227,6 +227,17 @@ data class SubmittedCheckInResponseV2(
 data class CheckInItem(
     @SerialName("id") val id: Long = 0,
     @SerialName("time") val time: Long = 0,
+    // PLAN_V33.1: additive, nullable-default — closes the reference parity gap noted in
+    // "SubmittedCheckInResponseV2 is a stub (needs distance/type/forms/lat/lng/vendorData)".
+    // `lat`/`lng`/`type` are backed by CheckInsTable/GeoTypesTable columns and populated by the
+    // server; `distance`/`forms`/`vendorData` have no backing column yet (see CheckInRoutes.kt) and
+    // stay null until that storage exists.
+    @SerialName("lat") val lat: Double? = null,
+    @SerialName("lng") val lng: Double? = null,
+    @SerialName("type") val type: String? = null,
+    @SerialName("distance") val distance: Double? = null,
+    @SerialName("forms") val forms: Map<Long, String>? = null,
+    @SerialName("vendorData") val vendorData: String? = null,
 )
 
 @Serializable

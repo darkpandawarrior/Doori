@@ -21,6 +21,11 @@ import kotlinx.coroutines.launch
  * [SyncStatusViewModel]'s own triggers stay — `drain()`'s min-gap + isDraining guards make the
  * overlap a no-op. The injected [scope] MUST be main-dispatcher-bound: [LocationDataSyncer]'s
  * isDraining guard is a plain Boolean that assumes all callers share one dispatcher.
+ *
+ * [eventSyncer] is optional (defaults to `null`, in which case journey-event drains are skipped)
+ * so existing DI call sites keep compiling unchanged until they're updated to pass a real
+ * [HardwareEventSyncer] — see that class's doc and [realHardwareEventSend] for the wiring this
+ * still needs at the DI layer.
  */
 class AppSyncTrigger(
     private val syncer: LocationDataSyncer,
@@ -28,6 +33,7 @@ class AppSyncTrigger(
     private val currentTrackRepo: CurrentTrackRepository,
     private val isConnectedFlow: Flow<Boolean>,
     private val scope: CoroutineScope,
+    private val eventSyncer: HardwareEventSyncer? = null,
 ) {
     /** Call once at app startup (after DI is up). Collects connectivity edges until [scope] dies. */
     fun start() {
@@ -47,7 +53,10 @@ class AppSyncTrigger(
 
     private suspend fun drainAll() {
         val token = currentTrackRepo.getCurrentTrackDataRawAsync().getOrNull()?.token
-        if (!token.isNullOrEmpty()) syncer.drain(token)
+        if (!token.isNullOrEmpty()) {
+            syncer.drain(token)
+            eventSyncer?.drain(token)
+        }
         milesSyncer.drain()
     }
 }

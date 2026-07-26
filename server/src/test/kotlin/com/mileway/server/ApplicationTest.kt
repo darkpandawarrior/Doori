@@ -4,9 +4,11 @@ import com.mileway.core.data.model.network.ApprovedVehiclePricingResponse
 import com.mileway.core.data.model.network.BulkEventRequestV2
 import com.mileway.core.data.model.network.BulkLocationRequestV2
 import com.mileway.core.data.model.network.EventPayloadV2
+import com.mileway.core.data.model.network.EventRequestV2
 import com.mileway.core.data.model.network.EventResponseV2
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.LocationPayloadV2
+import com.mileway.core.data.model.network.LocationRequestV2
 import com.mileway.core.data.model.network.LocationResponseV2
 import com.mileway.core.data.model.network.PolicyApprovedVehiclesResponse
 import com.mileway.core.data.model.network.SubmitMilesRequestK
@@ -360,6 +362,57 @@ class ApplicationTest {
             val getResponse = client.get("/api/events?token=$requestToken&start=0&end=9999") { bearerAuth(token) }
             val body = serverJson.decodeFromString<EventResponseV2>(getResponse.bodyAsText())
             assertEquals(1, body.data.size)
+        }
+
+    // ── single-row (non-batch) insert paths ───────────────────────────────────
+
+    @Test
+    fun locationSingleInsertThenGetReturnsTheRow() =
+        testApplication {
+            application { module() }
+            val token = client.demoLoginToken()
+
+            val requestToken = "tok-loc-single"
+            val postResponse =
+                client.post("/api/location") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        serverJson.encodeToString(
+                            LocationRequestV2(data = LocationPayloadV2(lat = 9.0, lng = 10.0, token = requestToken, date = 900L)),
+                        ),
+                    )
+                }
+            assertEquals(HttpStatusCode.OK, postResponse.status)
+
+            val getResponse = client.get("/api/location?token=$requestToken&start=0&end=9999") { bearerAuth(token) }
+            val body = serverJson.decodeFromString<LocationResponseV2>(getResponse.bodyAsText())
+            assertEquals(1, body.data.size)
+            assertEquals(9.0, body.data.single().lat)
+            assertEquals(900L, body.data.single().date)
+        }
+
+    @Test
+    fun eventsSingleInsertThenGetReturnsTheRow() =
+        testApplication {
+            application { module() }
+            val token = client.demoLoginToken()
+
+            val requestToken = "tok-evt-single"
+            val postResponse =
+                client.post("/api/events") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        serverJson.encodeToString(EventRequestV2(data = EventPayloadV2(token = requestToken, event = "TRIP_END", time = 300L))),
+                    )
+                }
+            assertEquals(HttpStatusCode.OK, postResponse.status)
+
+            val getResponse = client.get("/api/events?token=$requestToken&start=0&end=9999") { bearerAuth(token) }
+            val body = serverJson.decodeFromString<EventResponseV2>(getResponse.bodyAsText())
+            assertEquals(1, body.data.size)
+            assertEquals("TRIP_END", body.data.single().event)
         }
 }
 

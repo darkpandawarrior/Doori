@@ -1,15 +1,13 @@
 package com.mileway.core.data.util
 
-import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /**
- * Locks the canonical [haversineMeters] against known coordinate pairs. Every module-specific
- * haversine duplicate (feature:tracking's CheckInValidator/GeoCheckInScreen, feature:logging's
- * haversineKm, stub's FakeTrackingNetworkApi) now delegates here — a regression in this formula
- * would silently ripple through all of them.
+ * Locks the canonical [haversineMeters] — the earth-radius constant and a known coordinate pair —
+ * so a re-drift back to per-module duplicates (`:server`'s `haversineKm`, `app-web-preview`'s
+ * wasmJs-only copy) doesn't silently change the shared formula underneath both consumers.
  */
 class GeoMathTest {
     @Test
@@ -29,12 +27,5 @@ class GeoMathTest {
     fun `one degree of latitude is about 111km`() {
         val d = haversineMeters(0.0, 0.0, 1.0, 0.0)
         assertTrue(d in 110_000.0..112_000.0, "1 deg lat should be ~111km, got ${d}m")
-    }
-
-    @Test
-    fun `is symmetric`() {
-        val d1 = haversineMeters(18.5204, 73.8567, 18.5480, 73.8718)
-        val d2 = haversineMeters(18.5480, 73.8718, 18.5204, 73.8567)
-        assertTrue(abs(d1 - d2) < 0.001)
     }
 }

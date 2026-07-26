@@ -16,6 +16,7 @@ import com.mileway.core.data.model.network.MapResponse
 import com.mileway.core.data.model.network.PostMileageEventRequestK
 import com.mileway.core.data.model.network.SuccessResponseV2
 import com.mileway.core.data.model.network.TrackMileageStatusResponse
+import com.mileway.core.data.util.haversineMeters
 import io.ktor.server.application.call
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
@@ -27,12 +28,6 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
-import kotlin.math.sqrt
-
-private const val EARTH_RADIUS_KM = 6371.0
 
 // ponytail: no policy-configured log-miles cap exists yet (no config table) — a fixed 50km/month
 // fixture stands in. Upgrade to a real per-tenant limit once log-miles policy config lands.
@@ -151,18 +146,13 @@ private fun distanceResponse(request: DistanceRequestV2): DistanceResponseV2 {
     return DistanceResponseV2(distance = totalKm, unit = "km")
 }
 
-/** Great-circle distance in km between two [CoordsV2] points. */
+private const val METRES_PER_KM = 1_000.0
+
+/** Great-circle distance in km between two [CoordsV2] points, via the shared `:contract` formula. */
 private fun haversineKm(
     a: CoordsV2,
     b: CoordsV2,
-): Double {
-    val lat1 = Math.toRadians(a.lat ?: 0.0)
-    val lat2 = Math.toRadians(b.lat ?: 0.0)
-    val dLat = Math.toRadians((b.lat ?: 0.0) - (a.lat ?: 0.0))
-    val dLng = Math.toRadians((b.lng ?: 0.0) - (a.lng ?: 0.0))
-    val h = sin(dLat / 2) * sin(dLat / 2) + cos(lat1) * cos(lat2) * sin(dLng / 2) * sin(dLng / 2)
-    return 2 * EARTH_RADIUS_KM * atan2(sqrt(h), sqrt(1 - h))
-}
+): Double = haversineMeters(a.lat ?: 0.0, a.lng ?: 0.0, b.lat ?: 0.0, b.lng ?: 0.0) / METRES_PER_KM
 
 // ponytail: no geocoder is wired up — returns the input coordinates plus a placeholder address
 // string. Swap for a real reverse-geocoding call (or an offline tile-based lookup) when one

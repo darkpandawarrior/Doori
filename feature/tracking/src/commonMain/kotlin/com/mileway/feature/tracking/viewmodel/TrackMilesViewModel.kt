@@ -44,7 +44,10 @@ import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingStatePublisher
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideStep
+import com.siddharth.kmp.appshell.AppPermission
 import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.PermissionResult
+import com.siddharth.kmp.appshell.PermissionsProvider
 import com.siddharth.kmp.appshell.PlaceName
 import com.siddharth.kmp.common.UiText
 import com.siddharth.kmp.mvi.BaseViewModel
@@ -241,11 +244,11 @@ data class TrackMilesUiState(
     // C4: replaces the previous bare `startOdometer: Int?` with the richer OdometerState (start +
     // end readings, photo/label metadata, computed distance/validation) — see OdometerState.
     val odometer: OdometerState = OdometerState(),
-    // C4: runtime-permission gating lives at the screen level today (PermissionOnboardingFlow in
-    // TrackMilesScreen runs BEFORE any action reaches this ViewModel — see requestStartTracking()
-    // there), so the VM has no real signal to flip this. Defaulted true so journeyProgress/
-    // primaryAction behave exactly as before for every existing caller; wiring a real signal in is
-    // a later task.
+    // C4: the actual runtime-permission GATE still lives at the screen level (PermissionOnboardingFlow
+    // in TrackMilesScreen runs BEFORE any action reaches this ViewModel — see requestStartTracking()
+    // there); this field only mirrors the live PermissionsProvider state (see
+    // TrackMilesViewModel.refreshPermissionsSatisfied) so journeyProgress/primaryAction stay honest
+    // instead of hardcoded true.
     val permissionsSatisfied: Boolean = true,
     val draftEnabled: Boolean = false,
     val pauseSelectedReason: String? = null,
@@ -333,6 +336,17 @@ object UnknownBatteryStatusReader : BatteryStatusReader {
     override fun current() = BatteryStatus(levelPercent = null, isCharging = false)
 }
 
+/**
+ * C4: default [PermissionsProvider] for JVM tests (and Koin graphs) that omit a real one — reports
+ * every permission granted, so [TrackMilesUiState.permissionsSatisfied] behaves exactly as it did
+ * when hardcoded `true`.
+ */
+object AlwaysGrantedPermissionsProvider : PermissionsProvider {
+    override suspend fun isGranted(permission: AppPermission) = true
+
+    override suspend fun request(permission: AppPermission) = PermissionResult.Granted
+}
+
 class TrackMilesViewModel(
     private val configManager: TrackingConfigManager,
     private val vehicleRepo: VehiclePricingRepository,
@@ -391,6 +405,12 @@ class TrackMilesViewModel(
     // Off by default; no settings-store plumbing exists for this yet, so a plain constructor
     // default is the whole feature — flip it at the call site when needed.
     private val preflightBypassEnabled: Boolean = false,
+    // C4: real signal for TrackMilesUiState.permissionsSatisfied (see refreshPermissionsSatisfied).
+    // The screen still owns the actual permission-request GATE via its own PermissionOnboardingFlow;
+    // this only keeps the derived journeyProgress/primaryAction honest. Defaulted to always-granted
+    // so JVM tests/graphs that omit the app-shell PermissionsProvider binding behave exactly as
+    // before; Koin injects the real per-platform provider in production.
+    private val permissionsProvider: PermissionsProvider = AlwaysGrantedPermissionsProvider,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
@@ -411,6 +431,22 @@ class TrackMilesViewModel(
         restoreActiveTrack()
         loadWeekSummary()
         observeReconciliationResult()
+        refreshPermissionsSatisfied()
+    }
+
+    /**
+     * C4: reads the required tier's live grant state off the shared [PermissionsProvider] seam (the
+     * same one [com.mileway.core.platform.PermissionOnboardingFlow] at the screen level checks), so
+     * [TrackMilesUiState.permissionsSatisfied] — and therefore [TrackMilesUiState.journeyProgress] /
+     * [TrackMilesUiState.primaryAction] — reflect reality instead of a hardcoded `true`. Rechecked in
+     * [requestStartTracking] too, since that's the other moment permission state can have changed
+     * (e.g. the user granted it from system settings and came back).
+     */
+    private fun refreshPermissionsSatisfied() {
+        viewModelScope.launch {
+            val granted = permissionsProvider.isGranted(AppPermission.LOCATION)
+            setState { copy(permissionsSatisfied = granted) }
+        }
     }
 
     /** Routes screen intents to the handlers below (handlers stay public for unit tests). */
@@ -606,6 +642,7 @@ class TrackMilesViewModel(
 
     /** "Start Tracking" pressed in the guide: show consent if configured, else start now. */
     fun requestStartTracking() {
+        refreshPermissionsSatisfied()
         val disclaimer = configManager.getJourneyDisclaimer()
         if (!disclaimer.isNullOrBlank()) {
             setState { copy(activeSheet = TrackSheet.CONSENT) }

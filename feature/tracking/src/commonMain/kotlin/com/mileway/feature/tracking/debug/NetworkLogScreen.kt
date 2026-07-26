@@ -27,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -109,6 +110,8 @@ private fun NetworkLogList(
         contentPadding = PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
+        item { BackendSwitchCard(uiState = uiState, onAction = onAction) }
+
         item { ApiTesterCard(uiState = uiState, onAction = onAction) }
 
         if (uiState.entries.isEmpty()) {
@@ -216,6 +219,67 @@ private fun DetailSection(
         Text(title, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(DesignTokens.Spacing.xs))
         Text(body, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+/**
+ * Dev-only switch for `NetworkBackendFlags.useRealBackend` (the Ktor backend seam had no way to be
+ * switched on at runtime — see NetworkBackendFlags doc) plus the base URL `KtorMilewayNetworkApi`
+ * talks to. `MilewayNetworkApi` is a lazy Koin `single` resolved once per process, so flipping the
+ * switch takes effect on the next app restart (or immediately if nothing has resolved
+ * `MilewayNetworkApi` yet this run) — matches every other restart-required option in this debug menu.
+ */
+@Composable
+private fun BackendSwitchCard(
+    uiState: NetworkLogUiState,
+    onAction: (NetworkLogAction) -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.roundedMd) {
+        Column(
+            modifier = Modifier.padding(DesignTokens.Spacing.l),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+        ) {
+            Text("Backend", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("Use real backend (Ktor)", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = "Restart required to take effect",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(
+                    checked = uiState.useRealBackend,
+                    onCheckedChange = { onAction(NetworkLogAction.UseRealBackendChanged(it)) },
+                )
+            }
+            OutlinedTextField(
+                value = uiState.baseUrlInput,
+                onValueChange = { onAction(NetworkLogAction.BaseUrlChanged(it)) },
+                label = { Text("Base URL") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Button(
+                shape = DesignTokens.Shape.button,
+                onClick = { onAction(NetworkLogAction.SaveBaseUrl) },
+                enabled = uiState.baseUrlInput.isNotBlank(),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("Save base URL")
+            }
+            if (uiState.baseUrlSaved) {
+                Text(
+                    text = "Saved for this session",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
     }
 }
 

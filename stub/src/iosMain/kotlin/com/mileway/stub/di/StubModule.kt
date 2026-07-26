@@ -3,6 +3,7 @@ package com.mileway.stub.di
 import com.mileway.core.data.network.DataStoreBaseUrlProvider
 import com.mileway.core.data.plugin.PersonaPresetProvider
 import com.mileway.core.network.api.MilewayNetworkApi
+import com.mileway.core.network.api.NetworkBackendFlags
 import com.mileway.core.network.api.impl.KtorMilewayNetworkApi
 import com.mileway.core.network.auth.AuthApi
 import com.mileway.core.network.auth.AuthTokenStore

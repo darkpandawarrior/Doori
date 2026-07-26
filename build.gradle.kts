@@ -106,21 +106,29 @@ tasks.register("fullCheck") {
         // (native Skia + forkEvery restart boundaries crash the JVM); they run in their own isolated
         // single fork here so they still gate but never destabilise the main unit-test fork.
         ":app:screenshotTestNoGmsDebug",
-        // KMP modules name their JVM unit-test task `testAndroidHostTest`, not the variant-specific
-        // `testNoGmsDebugUnitTest`, so the :app aggregate above never ran them. The unqualified task
-        // name doesn't resolve at the root project (Z.5a) — a broken core:data commonTest compile
-        // went undetected until the V23 merge as a result. Depend on every module that declares this
-        // task explicitly so a compile break in any of them fails the gate.
-        ":core:data:testAndroidHostTest",
-        ":core:platform:testAndroidHostTest",
-        ":core:security:testAndroidHostTest",
-        ":feature:agent:testAndroidHostTest",
-        ":feature:logging:testAndroidHostTest",
-        ":feature:profile:testAndroidHostTest",
-        ":feature:tracking:testAndroidHostTest",
         ":app:koverXmlReportNoGmsDebugCoverage",
         ":app:koverVerifyNoGmsDebugCoverage",
     )
+}
+
+// KMP modules name their JVM unit-test task `testAndroidHostTest` (opt-in per module via the
+// android target's `withHostTest {}` — AGP's KMP library plugin doesn't register the task
+// otherwise), not the variant-specific `testNoGmsDebugUnitTest` used by :app, so the aggregate
+// above never runs them and the unqualified task name doesn't resolve at the root project (Z.5a).
+// This used to be a hardcoded list of 7 module paths here, which silently drifted from the real set
+// as more KMP modules picked up `withHostTest {}` — :contract, :core:network and :stub (three
+// wire-critical modules) were missing, so the local gate was quietly weaker than CI. Derive it
+// instead: once every subproject is configured, wire in every subproject that actually registers a
+// `testAndroidHostTest` task, so a new commonTest module is picked up automatically and the list
+// can't drift again. `gradle.projectsEvaluated` still runs at configuration time (before the task
+// graph is built/cached), and `dependsOn(Task)` on a cross-project task is the standard
+// config-cache-safe way to wire this in — no `Project` reference is captured for execution.
+gradle.projectsEvaluated {
+    tasks.named("fullCheck") {
+        subprojects.forEach { sub ->
+            sub.tasks.findByName("testAndroidHostTest")?.let { dependsOn(it) }
+        }
+    }
 }
 
 tasks.register("composeMetrics") {

@@ -375,6 +375,9 @@ class MileageSubmissionViewModelTest {
 
     // ── P6.2: round-trip auto-detection ────────────────────────────────────────
 
+    /** 2026-01-01T00:00:00Z — any plausible past instant; only "> 0 and not in the future" matters. */
+    private val fixtureStartTimeMs = 1_767_225_600_000L
+
     private fun track(
         routeId: String,
         startLat: Double,
@@ -387,11 +390,14 @@ class MileageSubmissionViewModelTest {
         startLatitude = startLat, startLongitude = startLng,
         endLatitude = endLat, endLongitude = endLng,
         pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = 0L, endTime = -1L,
+        // Realistic times, not 0L: submit() now runs JourneyValidator, whose INVALID_TIME_RANGE check
+        // is ERROR-severity for startTime <= 0 and would block these fixtures before they reach the
+        // fake API. endTime stays -1L (the "not finalised" sentinel these round-trip tests rely on).
+        startTime = fixtureStartTimeMs, endTime = -1L,
         distance = 0.0, duration = 0L,
         selectedVehicleType = "fourWheelerPetrol",
         vehiclePricing = 10.0,
-        createdAt = 0L, startedAtTimestamp = 0L,
+        createdAt = fixtureStartTimeMs, startedAtTimestamp = fixtureStartTimeMs,
         startedByEmployeeCode = "EMP001",
     )
 
