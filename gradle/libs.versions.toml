@@ -75,7 +75,7 @@ navgraph = "0.2.1"
 # Phase 12, Code quality
 detekt = "2.0.0-alpha.5"
 kover = "0.9.9"
-ktlint-plugin = "12.2.0"
+ktlint-plugin = "14.2.0"
 # Build health + dependency locking
 dependency-guard = "0.5.0"
 gradle-doctor = "0.12.1"
