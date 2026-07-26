@@ -5,6 +5,7 @@ import com.mileway.core.data.model.display.SurfaceSnapshot
 import com.mileway.core.data.model.display.SurfaceSnapshotProducer
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.model.display.toDisplayData
+import kotlinx.datetime.TimeZone
 
 /**
  * D.2: hardcoded mock trips for the desktop dashboard — Option b is a thin app with no
@@ -43,12 +44,23 @@ private fun mockTrack(
     createdAt = endTime,
 )
 
-/** The dashboard's [SurfaceSnapshot], folded from [mockCompletedTracks] via the shared producer. */
-fun mockSnapshot(nowEpochMs: Long): SurfaceSnapshot =
+/**
+ * The dashboard's [SurfaceSnapshot], folded from [mockCompletedTracks] via the shared producer.
+ *
+ * [timeZone] is injectable purely so tests can pin it. The producer buckets "today" by local calendar
+ * day, so with the default system zone the same fixed [nowEpochMs] yields a different `todayTrips`
+ * depending on where the machine is — which is how `DashboardMockDataTest` passed in IST and failed on
+ * a UTC CI runner the first time this task was wired into the gate.
+ */
+fun mockSnapshot(
+    nowEpochMs: Long,
+    timeZone: TimeZone = TimeZone.currentSystemDefault(),
+): SurfaceSnapshot =
     SurfaceSnapshotProducer.produce(
         completedTracks = mockCompletedTracks(nowEpochMs),
         isTracking = false,
         nowEpochMs = nowEpochMs,
+        timeZone = timeZone,
     )
 
 /** Trip-list rows for the dashboard, newest first. */

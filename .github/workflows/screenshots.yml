@@ -73,7 +73,23 @@ jobs:
 
       # main: baselines drifted. main is protected by the "Quality Gate required" ruleset, so the bot
       # can't push straight to it — open a refresh PR instead (idempotent branch name per source SHA;
-      # re-runs force-push the same branch and reuse the open PR). The PR runs the normal gates.
+      # re-runs force-push the same branch and reuse the open PR).
+      #
+      # KNOWN FRICTION — these PRs need a human click before they can merge.
+      # A PR opened with ${{ github.token }} does get `pull_request` workflow runs, but GitHub parks
+      # every one of them at `action_required` (the workflow-approval gate that exists to stop
+      # Actions from recursively triggering Actions). Until someone approves, the PR's
+      # statusCheckRollup is empty, so it can't satisfy the "Quality Gate required on main" ruleset
+      # and it sits BLOCKED. That is how 7 of these branches accumulated.
+      #   Approve from the PR's Checks tab, or:
+      #     gh api -X POST repos/$GITHUB_REPOSITORY/actions/runs/<run-id>/approve
+      # Verified 2026-07-26: branch -b21f02a has 5 pull_request runs, all `action_required`;
+      # branch -7032123 has the same 5 runs `success` (they were approved) and its PR merged.
+      #
+      # To remove the friction entirely, the PR must be created by a non-Actions identity — a
+      # fine-grained PAT or a GitHub App token in place of ${{ github.token }} below. A push
+      # trigger on the bot branch does NOT work: that push is itself GITHUB_TOKEN-generated and
+      # fires nothing (no bot branch has ever had a push-event run).
       - name: Open baseline-refresh PR
         if: github.event_name == 'push'
         env:
