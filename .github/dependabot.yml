@@ -24,15 +24,26 @@ updates:
       # Gradle's AgpVersionCompatibilityRule hard-fails configuration if they disagree
       # ("Using multiple versions of the Android Gradle plugin ... is not allowed").
       # Dependabot only scans this `directory: "/"`, so any AGP bump it opens updates one
-      # catalog, leaves the other two behind, and dies at configuration time — PR #56 was
-      # closed for exactly that. AGP is therefore bumped BY HAND across all three catalogs.
+      # catalog, leaves the other two behind, and dies at configuration time — PRs #56 and #66
+      # were both closed for exactly that. AGP is bumped BY HAND across all three catalogs.
+      #
+      # Dependabot reports version-catalog [plugins] entries under their BARE PLUGIN ID, not as
+      # `<id>:<id>.gradle.plugin` markers — the marker form was tried first (#62) and did not
+      # match, which is how #66 slipped through 26 minutes after that ignore landed. All four
+      # coordinates it names must be listed or the grouped PR is still created.
       - dependency-name: "com.android.tools.build:gradle"
-      # Plugin markers for the AGP plugin ids used in the catalogs (com.android.application,
-      # com.android.library, com.android.kotlin.multiplatform.library) — Dependabot resolves a
-      # `[plugins]` entry as `<id>:<id>.gradle.plugin`, a different coordinate from the one
-      # above, so it needs its own ignore. Deliberately NOT a blanket `com.android.*`: that
-      # would also silence the real com.android.installreferrer dependency.
-      - dependency-name: "com.android.*:*.gradle.plugin"
+      - dependency-name: "com.android.application"
+      - dependency-name: "com.android.library"
+      - dependency-name: "com.android.kotlin.multiplatform.library"
+      # ktlint 14 is a deliberately deferred migration, not a routine bump: it reformats ~179
+      # files and adds non-auto-fixable rules across 37 source sets for no functional gain.
+      # Unignore when that migration is actually scheduled.
+      - dependency-name: "org.jlleitschuh.gradle.ktlint"
+        versions: [">=14"]
+      # NOTE: kotlin/ksp/compose-multiplatform are ALSO pinned in the submodule catalogs, but they
+      # are deliberately NOT ignored — divergence there is tolerated in practice (compose-multiplatform
+      # already differs between Mileway and the toolkit, and a Kotlin 2.4.20-Beta2 bump was verified
+      # to build green against Beta1 submodules). Only AGP has a hard compatibility rule.
 
   - package-ecosystem: "github-actions"
     directory: "/"
