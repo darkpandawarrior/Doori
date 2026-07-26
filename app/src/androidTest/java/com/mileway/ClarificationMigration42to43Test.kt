@@ -60,8 +60,13 @@ class ClarificationMigration42to43Test {
                     "VALUES ('room_A001','A001','ACTIVE','Priya Sharma,approver',1000,1000)",
             )
             connection.execSQL(
+                // `note` is NOT NULL DEFAULT '' in MIGRATION_42_43, matching
+                // ClarificationRoomMetaEntity.note (`String`, not `String?`) — so it takes '' here,
+                // not NULL. `reminderAtMs` IS nullable (Long?), so NULL is correct for that one.
+                // This test inserted NULL for both and had never actually run: the noGms androidTest
+                // classpath failed to resolve, so the whole instrumented suite was silently skipped.
                 "INSERT INTO `clarification_room_meta` (`roomId`,`isSaved`,`isPinned`,`tagsCsv`,`note`,`reminderAtMs`) " +
-                    "VALUES ('room_A001',1,0,'urgent,client',NULL,NULL)",
+                    "VALUES ('room_A001',1,0,'urgent,client','',NULL)",
             )
 
             var metaCount = 0

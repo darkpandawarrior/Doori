@@ -405,6 +405,19 @@ dependencyGuard {
 }
 
 dependencies {
+    // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
+    // runtime classpath resolved (Gradle reports those as `{strictly X}` and labels them "from lock
+    // file", which is misleading — there is no lock file in this repo). The app runtime landed on
+    // concurrent-futures 1.1.0 while androidx.test.ext:junit:1.3.0 requires 1.2.0 — irreconcilable,
+    // so :app:noGmsDebugAndroidTestRuntimeClasspath failed to RESOLVE at all and every instrumented
+    // test silently never ran, including the 7 Room migration tests. The GMD job hid it behind
+    // `continue-on-error: true` and reported success. Raising the main runtime to 1.2.0 makes the
+    // strict pin agree with what the test libraries need.
+    constraints {
+        implementation("androidx.concurrent:concurrent-futures:1.2.0")
+        implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+    }
+
     // Shared app-shell (home dashboard now lives here; nav/auth/search follow). :shared re-exports
     // core:ui + all features, so the Android host renders the same MilewayApp() as iOS.
     implementation(project(":shared"))
