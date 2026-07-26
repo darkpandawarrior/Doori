@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_action_cancel
 import com.mileway.core.ui.resources.approvals_approve_all
@@ -665,7 +666,12 @@ private fun PreviewApprovalCardApproved() {
 
 @Composable
 private fun timeAgo(ms: Long): String {
-    val diff = kotlin.time.Clock.System.now().toEpochMilliseconds() - ms
+    // LocalNowMs, not Clock.System.now(): against fixed demo timestamps this text drifts with
+    // wall-clock time ("5 hours ago" -> "6 hours ago" -> "1 day ago"), which changes the rendered
+    // width and therefore the screenshot bytes. That is what made this screen's baseline re-record on
+    // nearly every CI run. See LocalNowMs's doc.
+    val nowMs = LocalNowMs.current
+    val diff = nowMs() - ms
     val hours = (diff / 3_600_000).toInt()
     return when {
         hours < 1 -> stringResource(Res.string.approvals_time_just_now)

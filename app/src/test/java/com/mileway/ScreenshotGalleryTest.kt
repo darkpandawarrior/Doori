@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TravelExplore
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -16,11 +17,6 @@ import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.DelegationDao
 import com.mileway.core.data.dao.DraftExpenseDao
 import com.mileway.core.data.dao.HardwareEventDao
-import com.mileway.core.data.settings.AgentSessionStore
-import com.mileway.feature.agent.analytics.AgentAnalyticsStore
-import com.mileway.feature.agent.engine.AssistantEngine
-import com.mileway.feature.agent.voice.SpeechToText
-import com.mileway.feature.agent.voice.TextToSpeech
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.LogMilesDraftDao
 import com.mileway.core.data.dao.LogMilesFrequentRouteDao
@@ -43,22 +39,19 @@ import com.mileway.core.data.session.CurrentTrackDataStore
 import com.mileway.core.data.session.MockAccountSessionCoordinator
 import com.mileway.core.data.session.PinHashSource
 import com.mileway.core.data.session.SessionRepository
+import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
-import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.ReferralData
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.ui.di.coreUiModule
+import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.theme.MilewayTheme
+import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.di.agentModule
-import com.siddharth.kmp.appshell.AnalyticsHelper
-import com.siddharth.kmp.appshell.AppReviewManagerFactory
-import com.siddharth.kmp.appshell.AppUpdateManagerFactory
-import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
-import com.siddharth.kmp.appshell.NotificationScheduler
-import com.siddharth.kmp.appshell.PermissionsProvider
+import com.mileway.feature.agent.engine.AssistantEngine
 import com.mileway.feature.agent.ui.components.AssistantFab
 import com.mileway.feature.agent.ui.components.ChatAgentIndicator
 import com.mileway.feature.agent.ui.components.ChatIndicatorMode
@@ -66,6 +59,8 @@ import com.mileway.feature.agent.ui.components.VoiceWaveformOverlay
 import com.mileway.feature.agent.ui.components.WaveformState
 import com.mileway.feature.agent.ui.screens.AgentChatScreen
 import com.mileway.feature.agent.ui.screens.AgentHistoryScreen
+import com.mileway.feature.agent.voice.SpeechToText
+import com.mileway.feature.agent.voice.TextToSpeech
 import com.mileway.feature.approvals.di.approvalsModule
 import com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen
 import com.mileway.feature.approvals.ui.screens.ApprovalsScreen
@@ -102,39 +97,39 @@ import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.ui.screens.CreatePaymentScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
 import com.mileway.feature.profile.di.profileModule
+import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
+import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
 import com.mileway.feature.profile.ui.screens.AdvanceHistoryScreen
 import com.mileway.feature.profile.ui.screens.AnalyticsDetailScreen
 import com.mileway.feature.profile.ui.screens.AnalyticsHomeScreen
 import com.mileway.feature.profile.ui.screens.AskAdvanceFormScreen
-import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
-import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
 import com.mileway.feature.profile.ui.screens.ClubBenefitsScreen
 import com.mileway.feature.profile.ui.screens.ConnectedAccountsScreen
 import com.mileway.feature.profile.ui.screens.CouponsScreen
 import com.mileway.feature.profile.ui.screens.DelegationScreen
+import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
 import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
+import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.IncentiveProgramsScreen
 import com.mileway.feature.profile.ui.screens.ManagerReporteesScreen
 import com.mileway.feature.profile.ui.screens.MarketingHubScreen
 import com.mileway.feature.profile.ui.screens.MySubscriptionScreen
+import com.mileway.feature.profile.ui.screens.MyTicketsScreen
+import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
 import com.mileway.feature.profile.ui.screens.OrgChartScreen
 import com.mileway.feature.profile.ui.screens.PlansScreen
 import com.mileway.feature.profile.ui.screens.PluginManagerScreen
-import com.mileway.feature.profile.ui.screens.ReferralHubScreen
-import com.mileway.feature.profile.ui.screens.RewardsScreen
-import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
-import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
-import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
-import com.mileway.feature.profile.ui.screens.HelpScreen
-import com.mileway.feature.profile.ui.screens.MyTicketsScreen
-import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
 import com.mileway.feature.profile.ui.screens.PreferencesScreen
 import com.mileway.feature.profile.ui.screens.ProfileDetailsScreen
 import com.mileway.feature.profile.ui.screens.ProfileScreen
 import com.mileway.feature.profile.ui.screens.QrHomeScreen
+import com.mileway.feature.profile.ui.screens.ReferralHubScreen
+import com.mileway.feature.profile.ui.screens.RewardsScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
+import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
+import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 import com.mileway.feature.tracking.debug.DebugMenuScreen
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.ui.screens.CheckInHistoryItem
@@ -161,6 +156,8 @@ import com.mileway.feature.travel.ui.screens.CreateMjpScreen
 import com.mileway.feature.travel.ui.screens.CreateTripScreen
 import com.mileway.feature.travel.ui.screens.TravelHomeScreen
 import com.mileway.feature.travel.ui.screens.TripHistoryScreen
+import com.mileway.feature.whatsnew.data.WhatsNewCatalog
+import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
 import com.mileway.stub.di.stubModule
 import com.mileway.ui.AssistantHomeSheet
 import com.mileway.ui.ShellPlaceholderScreen
@@ -169,15 +166,21 @@ import com.mileway.ui.auth.OnboardingFormConfig
 import com.mileway.ui.auth.SignupOnboardingScreen
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.auth.authModule
-import com.mileway.feature.whatsnew.data.WhatsNewCatalog
-import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
-import com.mileway.ui.home.WhatsNewSheet
 import com.mileway.ui.home.HomeScreenContent
 import com.mileway.ui.home.HomeUiState
+import com.mileway.ui.home.WhatsNewSheet
 import com.mileway.ui.home.homeModule
+import com.siddharth.kmp.appshell.AnalyticsHelper
+import com.siddharth.kmp.appshell.AppReviewManagerFactory
+import com.siddharth.kmp.appshell.AppUpdateManagerFactory
+import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
+import com.siddharth.kmp.appshell.NotificationScheduler
+import com.siddharth.kmp.appshell.PermissionsProvider
+import com.siddharth.kmp.common.CrashReporter
 import dev.tmapps.konnection.Konnection
 import io.mockk.every
 import io.mockk.mockk
+import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -191,7 +194,6 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 // ---------------------------------------------------------------------------
 // Full Roborazzi screen gallery for the docs/ screenshot catalogue.
@@ -220,6 +222,13 @@ import java.io.File
 @Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-mdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotGalleryTest {
+    /**
+     * Fixed "now" for screens that render relative timestamps. 2026-01-01T12:00:00Z — midday so a
+     * "hours ago" value can't cross a day boundary, and pinned so the rendered text (and therefore
+     * the PNG bytes) can't drift with the wall clock.
+     */
+    private val screenshotNowMs = 1_767_268_800_000L
+
 
     companion object {
         private val screenshotsDir: File by lazy {
@@ -1055,8 +1064,14 @@ class ScreenshotGalleryTest {
     @Test
     fun approvalsScreenPendingTab() {
         composeRule.setContent {
-            MilewayTheme {
-                ApprovalsScreen(onOpenDetail = {})
+            // Pin "now". This screen renders relative timestamps ("5 hours ago") against fixed demo
+            // data, so on the real clock the text — and therefore the PNG's byte size — drifted with
+            // wall-clock time. That is why this baseline re-recorded on nearly every CI run and kept
+            // the screenshot bot opening fresh refresh PRs. See LocalNowMs's doc.
+            CompositionLocalProvider(LocalNowMs provides { screenshotNowMs }) {
+                MilewayTheme {
+                    ApprovalsScreen(onOpenDetail = {})
+                }
             }
         }
         capture("approvals_screen_pending_tab")
