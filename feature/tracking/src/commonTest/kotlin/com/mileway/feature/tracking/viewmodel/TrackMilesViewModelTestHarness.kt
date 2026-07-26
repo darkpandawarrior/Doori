@@ -341,7 +341,9 @@ internal class FakeSavedTrackDao(seed: List<SavedTrack> = emptyList()) : SavedTr
 
 // ── LocationDao fake ─────────────────────────────────────────────────────────
 
-private class FakeLocationDao : LocationDao {
+// internal, not private: reused by CheckInViewModelTest. Declaring a second same-named fake in
+// this package is a redeclaration clash — that is what broke an earlier attempt at that test.
+internal class FakeLocationDao : LocationDao {
     override fun getLocationsByToken(token: String): Flow<List<LocationData>> = flowOf(emptyList())
 
     override suspend fun getLocationsByTokenOnce(token: String): List<LocationData> = emptyList()
@@ -420,7 +422,7 @@ private class FakeLocationDao : LocationDao {
 
 // ── CurrentTrackDataSource fake ───────────────────────────────────────────────
 
-private object FakeCurrentTrackDataSource : CurrentTrackDataSource {
+internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
     private val _flow = MutableStateFlow(CurrentTrackData(token = ""))
     override val currentTrackFlow: Flow<CurrentTrackData> = _flow
 
