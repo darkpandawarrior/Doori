@@ -290,6 +290,38 @@ class TrackMilesViewModelTest {
         assertNull(state.currentRouteId)
     }
 
+    // ── C4: permissionsSatisfied wiring (real PermissionsProvider, not hardcoded true) ───────
+
+    @Test
+    fun `permissionsSatisfied is false and journeyProgress is PERMISSIONS when the provider reports ungranted`() {
+        val vm = TrackMilesViewModelTestHarness.build(permissionsProvider = FakePermissionsProvider(granted = false))
+
+        val state = vm.uiState.value
+        assertEquals(false, state.permissionsSatisfied)
+        assertEquals(JourneyStep.PERMISSIONS, state.journeyProgress)
+        assertEquals(TrackMilesPrimaryAction.ResolvePermissions, state.primaryAction)
+    }
+
+    @Test
+    fun `permissionsSatisfied is true when the provider reports the required permission granted`() {
+        val vm = TrackMilesViewModelTestHarness.build(permissionsProvider = FakePermissionsProvider(granted = true))
+
+        assertEquals(true, vm.uiState.value.permissionsSatisfied)
+    }
+
+    @Test
+    fun `requestStartTracking rechecks permissionsSatisfied against the live provider`() {
+        val provider = FakePermissionsProvider(granted = false)
+        val vm = TrackMilesViewModelTestHarness.build(permissionsProvider = provider)
+        assertEquals(false, vm.uiState.value.permissionsSatisfied)
+
+        // Simulates the user granting the permission out-of-band (e.g. system settings) and the
+        // screen re-attempting to start tracking, which should refresh the VM's stale snapshot.
+        provider.granted = true
+        vm.requestStartTracking()
+        assertEquals(true, vm.uiState.value.permissionsSatisfied)
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private fun mockAccount(

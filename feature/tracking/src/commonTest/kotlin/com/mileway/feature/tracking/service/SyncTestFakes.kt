@@ -1,8 +1,12 @@
 package com.mileway.feature.tracking.service
 
+import com.mileway.core.data.dao.HardwareEventDao
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.model.db.CurrentTrackData
+import com.mileway.core.data.model.db.EventAudience
+import com.mileway.core.data.model.db.EventType
+import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.TrackMetrics
@@ -382,4 +386,109 @@ internal class FakeCurrentTrackSource(private val initial: CurrentTrackData) : C
         token: String,
         eventText: String,
     ) {}
+}
+
+/** In-memory [HardwareEventDao] fake for [HardwareEventSyncer]/[realHardwareEventSend] tests. */
+internal class FakeUnsyncedHardwareEventDao(unsynced: List<HardwareEvent>) : HardwareEventDao {
+    val unsynced = unsynced.toMutableList()
+    val markedSynced = mutableListOf<Long>()
+
+    override suspend fun insert(event: HardwareEvent): Long = 0L
+
+    override suspend fun insertAll(events: List<HardwareEvent>): List<Long> = emptyList()
+
+    override suspend fun insertEvents(events: List<HardwareEvent>) {}
+
+    override suspend fun getEventsByToken(token: String): List<HardwareEvent> = emptyList()
+
+    override fun observeEventsByToken(token: String): Flow<List<HardwareEvent>> = flowOf(emptyList())
+
+    override suspend fun getEventsByTokenAndTypes(
+        token: String,
+        types: List<EventType>,
+    ): List<HardwareEvent> = emptyList()
+
+    override suspend fun getEventsByTokenAndAudience(
+        token: String,
+        audiences: List<EventAudience>,
+    ): List<HardwareEvent> = emptyList()
+
+    override suspend fun getEventsWithLocationByToken(token: String): List<HardwareEvent> = emptyList()
+
+    override suspend fun getEventsByTokenAndTimeRange(
+        token: String,
+        startTime: Long,
+        endTime: Long,
+    ): List<HardwareEvent> = emptyList()
+
+    override suspend fun getEventCountByToken(token: String): Int = 0
+
+    override suspend fun getEventCountByTokenAndType(
+        token: String,
+        eventType: EventType,
+    ): Int = 0
+
+    override suspend fun deleteEventsOlderThan(cutoffTime: Long): Int = 0
+
+    override suspend fun deleteEventsByToken(token: String): Int = 0
+
+    override suspend fun deleteByToken(token: String) {}
+
+    override suspend fun getUnsyncedEvents(limit: Int): List<HardwareEvent> = unsynced.toList()
+
+    override suspend fun getUnsyncedEventsByToken(token: String): List<HardwareEvent> = unsynced.filter { it.token == token }
+
+    override suspend fun markEventsAsUploaded(ids: List<Long>): Int {
+        markedSynced.addAll(ids)
+        unsynced.removeAll { it.id in ids }
+        return ids.size
+    }
+
+    override suspend fun markEventsAsSynced(eventIds: List<Long>) {
+        markedSynced.addAll(eventIds)
+        unsynced.removeAll { it.id in eventIds }
+    }
+
+    override suspend fun getRecentEvents(limit: Int): List<HardwareEvent> = emptyList()
+
+    override suspend fun getDistinctEventTypesByToken(token: String): List<EventType> = emptyList()
+}
+
+/** In-memory [HardwareEventBatchOutbox] — mirrors [FakeLocationBatchOutbox]. */
+internal class FakeHardwareEventBatchOutbox : HardwareEventBatchOutbox {
+    private val entries = MutableStateFlow<Map<String, DraftEntry<HardwareEventBatch>>>(emptyMap())
+
+    val enqueued: List<HardwareEventBatch> get() = entries.value.values.map { it.payload }
+
+    fun statusFor(batch: HardwareEventBatch): DraftStatus = entries.value.values.first { it.payload == batch }.status
+
+    override fun drafts(formKey: String): Flow<List<DraftEntry<HardwareEventBatch>>> = entries.map { it.values.filter { e -> e.formKey == formKey } }
+
+    override suspend fun enqueue(
+        formKey: String,
+        uniqueKey: String,
+        payload: HardwareEventBatch,
+    ) {
+        entries.value = entries.value + (uniqueKey to DraftEntry(formKey, uniqueKey, payload, DraftStatus.PENDING, null, 0L, 0L))
+    }
+
+    override suspend fun markSubmitted(
+        formKey: String,
+        uniqueKey: String,
+    ) {
+        entries.value = entries.value + (uniqueKey to entries.value.getValue(uniqueKey).copy(status = DraftStatus.SUBMITTED))
+    }
+
+    override suspend fun markFailed(
+        formKey: String,
+        uniqueKey: String,
+        error: String,
+    ) {
+        entries.value =
+            entries.value + (uniqueKey to entries.value.getValue(uniqueKey).copy(status = DraftStatus.FAILED, errorMessage = error))
+    }
+
+    override suspend fun clear(formKey: String) {
+        entries.value = entries.value.filterValues { it.formKey != formKey }
+    }
 }

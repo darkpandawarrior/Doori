@@ -660,6 +660,9 @@ class LocationTrackingService : Service() {
         statePublisher.update { it.copy(state = TrackingState.COMPLETED, lastEvent = EventType.TRACKING_STOPPED) }
         if (token != null && proc != null) {
             val stats = proc.stats()
+            // P-C.2: TrackStats doesn't carry spikeDistanceM (hard-teleport-gate distance), but
+            // the processor already accumulates it — read it directly so it can be persisted.
+            val spikeDistanceM = proc.spikeDistanceM
             val endTime = System.currentTimeMillis()
             scope.launch(dbDispatcher) {
                 // Data-loss guardrail: flush any buffered points before reading DB truth below —
@@ -689,21 +692,50 @@ class LocationTrackingService : Service() {
                 )
                 // Persist the full advanced distance breakdown into the rich schema fields.
                 savedTrackDao.getSavedTrackById(token)?.let { t ->
-                    savedTrackDao.updateSavedTrack(
+                    val finalized =
                         t.copy(
                             duration = endTime - startTime,
                             originalDistance = stats.originalDistanceM,
                             cleanedDistance = finalCleanedDistanceM,
                             abnormalDistance = stats.abnormalDistanceM,
                             mockDistance = stats.mockDistanceM,
+                            spikeDistance = spikeDistanceM,
                             smartDistanceFinal = finalCleanedDistanceM,
                             totalLocationPoints = finalTotalPoints,
                             avgSpeed = stats.avgSpeedMps,
                             maxSpeed = stats.maxSpeedMps,
                             wasMockLocationUsed = stats.mockDistanceM > 0.0,
                             wasEverPaused = t.wasEverPaused,
-                        ),
-                    )
+                        )
+                    savedTrackDao.updateSavedTrack(finalized)
+                    // P-C.2: cross-check the bucket accounting against the invariant, don't silently
+                    // swallow a mismatch — surface it so it's visible in logs/Crashlytics.
+                    //
+                    // `cleaned` here is the IN-MEMORY bucket (stats.cleanedDistanceM), deliberately NOT
+                    // the persisted `finalized.cleanedDistance`. Those are two different quantities:
+                    // the persisted one is recomputed above from surviving DB points, which bridges the
+                    // straight-line gap left by every dropped abnormal/mock/paused point, so it does not
+                    // equal `total - (mock + abnormal)` and never will. Validating it against a 0.1 m
+                    // tolerance would fire on essentially every real trip — noise, not signal. The
+                    // invariant is about the accounting buckets, so validate those.
+                    val validation =
+                        com.mileway.feature.tracking.service.location.DistanceValidator.validate(
+                            com.mileway.feature.tracking.service.location.DistanceValidator.DistanceMetrics(
+                                total = stats.originalDistanceM,
+                                cleaned = stats.cleanedDistanceM,
+                                mock = stats.mockDistanceM,
+                                abnormal = stats.abnormalDistanceM,
+                                spike = spikeDistanceM,
+                                odometer = finalized.odometerDistance.takeIf { it > 0.0 },
+                            ),
+                        )
+                    if (!validation.isValid) {
+                        Napier.w(
+                            "DistanceValidator violation for track $token: " +
+                                validation.errors.joinToString { it.message },
+                            tag = "LocationTrackingService",
+                        )
+                    }
                 }
                 logEventSuspend(token, EventType.TRACKING_STOPPED, "Tracking Stopped")
                 clearSessionTracking()

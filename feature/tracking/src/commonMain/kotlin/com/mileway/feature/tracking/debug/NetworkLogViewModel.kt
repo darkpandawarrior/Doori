@@ -1,6 +1,7 @@
 package com.mileway.feature.tracking.debug
 
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.network.api.NetworkBackendFlags
 import com.mileway.core.network.netlog.NetworkLogEntry
 import com.mileway.core.network.netlog.NetworkLogStore
 import com.siddharth.kmp.mvi.BaseViewModel
@@ -22,6 +23,13 @@ data class NetworkLogUiState(
     val testerBody: String = "",
     val testerResult: String? = null,
     val testerRunning: Boolean = false,
+    // Dev-only backend switch: NetworkBackendFlags.useRealBackend was assigned nowhere at
+    // runtime before this (see NetworkBackendFlags doc). MilewayNetworkApi is a lazy Koin
+    // `single` resolved once per process, so flipping this mid-session only takes effect on the
+    // next app restart (or immediately if nothing has resolved MilewayNetworkApi yet this run).
+    val useRealBackend: Boolean = NetworkBackendFlags.useRealBackend,
+    val baseUrlInput: String = NetworkBackendFlags.baseUrlOverride.orEmpty(),
+    val baseUrlSaved: Boolean = false,
 )
 
 sealed interface NetworkLogAction {
@@ -36,6 +44,12 @@ sealed interface NetworkLogAction {
     data class TesterBodyChanged(val body: String) : NetworkLogAction
 
     data object TesterSend : NetworkLogAction
+
+    data class UseRealBackendChanged(val enabled: Boolean) : NetworkLogAction
+
+    data class BaseUrlChanged(val url: String) : NetworkLogAction
+
+    data object SaveBaseUrl : NetworkLogAction
 }
 
 /**
@@ -59,6 +73,22 @@ class NetworkLogViewModel(
             is NetworkLogAction.TesterUrlChanged -> setState { copy(testerUrl = action.url) }
             is NetworkLogAction.TesterBodyChanged -> setState { copy(testerBody = action.body) }
             is NetworkLogAction.TesterSend -> send()
+            is NetworkLogAction.UseRealBackendChanged -> {
+                NetworkBackendFlags.useRealBackend = action.enabled
+                setState { copy(useRealBackend = action.enabled) }
+            }
+            is NetworkLogAction.BaseUrlChanged -> setState { copy(baseUrlInput = action.url, baseUrlSaved = false) }
+            is NetworkLogAction.SaveBaseUrl -> saveBaseUrl()
+        }
+    }
+
+    private fun saveBaseUrl() {
+        val url = currentState.baseUrlInput.trim()
+        NetworkBackendFlags.baseUrlOverride = url.ifBlank { null }
+        viewModelScope.launch {
+            // Best-effort: no-op until a platform DI module wires this (see NetworkBackendFlags doc).
+            NetworkBackendFlags.onBaseUrlSubmitted?.invoke(url)
+            setState { copy(baseUrlSaved = true) }
         }
     }
 

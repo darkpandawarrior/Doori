@@ -9,10 +9,11 @@ import kotlin.math.sqrt
 /**
  * Canonical great-circle (haversine) distance in metres between two lat/lng points.
  *
- * This is the single source of truth for straight-line distance across Mileway's modules —
- * `core:data` sits below every feature module that needs it (tracking, logging, stub), so this
- * is the shared home rather than duplicating the formula per module. Callers that need
- * kilometres should divide the result, not reimplement the formula.
+ * This is the single source of truth for straight-line distance across Mileway's modules — it
+ * lives in `:contract` (below both `:core:data` and `:server`, which each depend on it via `api`)
+ * so both the client-side and server-side distance math share one formula instead of
+ * re-implementing it per module. Callers that need kilometres should divide the result, not
+ * reimplement the formula.
  */
 fun haversineMeters(
     lat1: Double,
