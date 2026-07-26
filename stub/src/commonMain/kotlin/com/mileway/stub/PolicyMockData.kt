@@ -31,7 +31,13 @@ import kotlin.math.roundToLong
  * by the policy engine, so no voucher or transaction is created for them.
  */
 object PolicyMockData {
-    /** Reimbursement rate per km, matches [DemoMockData.submissionResponse]. */
+    /**
+     * Flat demo rate for the voucher/transaction fields below. Deliberately vehicle-independent and
+     * therefore NOT the same number [DemoMockData.submissionResponse] produces for anything other than
+     * `fourWheelerPetrol` — that path now runs the real `PolicyRateEngine` so it matches `:server`.
+     * These voucher/transaction fields are demo-only garnish the server never emits, so there is nothing
+     * for them to be identical to; they are not part of the stub/server parity contract.
+     */
     const val RATE_PER_KM = 10.0
 
     /** Daily reimbursable distance ceiling enforced by the demo policy. */

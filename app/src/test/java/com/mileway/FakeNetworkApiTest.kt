@@ -5,6 +5,7 @@ import com.mileway.core.data.model.network.DistanceRequestV2
 import com.mileway.core.data.model.network.LogMilesSubmitRequestV2
 import com.mileway.core.data.model.network.PostMileageEventRequestK
 import com.mileway.core.data.model.network.SubmitMilesRequestK
+import com.mileway.stub.DemoMockData
 import com.mileway.stub.FakeTrackingNetworkApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -40,14 +41,18 @@ class FakeNetworkApiTest {
 
     @Test
     fun `submitMiles returns success status`() = runTest {
-        val result = api.submitMiles(SubmitMilesRequestK(token = "test-token", distance = 5.0))
+        val result = api.submitMiles(
+            SubmitMilesRequestK(token = "test-token", distance = 5.0, vehicleType = DemoMockData.DEMO_VEHICLE_KEY),
+        )
         assertEquals(1, result.status)
         assertTrue((result.reimbursableAmount ?: 0.0) > 0.0)
     }
 
     @Test
     fun `logMiles reimbursable amount equals distance times rate`() = runTest {
-        val result = api.logMiles(LogMilesSubmitRequestV2(distance = 12.4))
+        val result = api.logMiles(
+            LogMilesSubmitRequestV2(vehicleType = DemoMockData.DEMO_VEHICLE_KEY, distance = 12.4),
+        )
         assertEquals(12.4, result.distance, 0.001)
         assertEquals(12.4 * 10.0, result.reimbursableAmount ?: 0.0, 0.01)
     }

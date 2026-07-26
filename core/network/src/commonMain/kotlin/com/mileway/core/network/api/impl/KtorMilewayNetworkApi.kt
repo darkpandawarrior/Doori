@@ -55,10 +55,10 @@ import io.ktor.http.contentType
  * own call sites stay bare on purpose — the DI construction site (`:stub`'s `StubModule`) is the
  * only place that decides whether [client] is authenticated.
  *
- * Routes that already exist on `:server` (B1-B3): vehicles, pricing, miles/submit, location(/batch),
- * events(/batch), and the location/events GET range reads. Every other method below targets its
- * intended `/api/...` path per PLAN_V33.1's route list — a real HTTP call, not a stub — and is
- * marked "route pending B4" since the server doesn't serve it yet (it 404s until B4 lands).
+ * Every method below is a real HTTP call against a route `:server` actually serves — B4 closed the
+ * last gaps (miles event/discard/status/reset/log(/limit), log-miles services/routes, distance, map,
+ * the checkin family and the tagged/pending expense reads), so there are no placeholder paths left
+ * in this class.
  */
 class KtorMilewayNetworkApi(
     private val client: HttpClient,
@@ -71,7 +71,6 @@ class KtorMilewayNetworkApi(
 
     override suspend fun pricing(): ApprovedVehiclePricingResponse = client.get(url("/api/pricing")).body()
 
-    // route pending B4
     override suspend fun submitMilesEvent(request: PostMileageEventRequestK) {
         client.post(url("/api/miles/event")) {
             contentType(ContentType.Application.Json)
@@ -79,28 +78,23 @@ class KtorMilewayNetworkApi(
         }
     }
 
-    // route pending B4
     override suspend fun logMilesLimit(request: LogMilesRequestV2): LogMilesResponseV2 =
         client.post(url("/api/miles/log/limit")) {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
 
-    // route pending B4 (path named in PLAN_V33.1's route list)
     override suspend fun logMiles(request: LogMilesSubmitRequestV2): ExpenseSubmissionResponse =
         client.post(url("/api/miles/log")) {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
 
-    // route pending B4
     override suspend fun fetchLogMilesServices(isInsideTrip: Boolean): LogMilesServicesResponse =
         client.get(url("/api/log-miles/services")) { parameter("insideTrip", isInsideTrip) }.body()
 
-    // route pending B4
     override suspend fun logMilesRoutes(): LogMilesRoutesResponse = client.get(url("/api/log-miles/routes")).body()
 
-    // route pending B4
     override suspend fun discardMiles(request: PostMileageEventRequestK) {
         client.post(url("/api/miles/discard")) {
             contentType(ContentType.Application.Json)
@@ -108,7 +102,6 @@ class KtorMilewayNetworkApi(
         }
     }
 
-    // route pending B4
     override suspend fun distance(request: DistanceRequestV2): DistanceResponseV2 =
         client.post(url("/api/distance")) {
             contentType(ContentType.Application.Json)
@@ -121,7 +114,6 @@ class KtorMilewayNetworkApi(
             setBody(request)
         }.body()
 
-    // route pending B4 (path named in PLAN_V33.1's route list)
     override suspend fun getTrackMileageStatus(trackingToken: String): TrackMileageStatusResponse =
         client.get(url("/api/miles/status")) { parameter("token", trackingToken) }.body()
 
@@ -206,7 +198,6 @@ class KtorMilewayNetworkApi(
             parameter("end", endTime)
         }.body()
 
-    // route pending B4
     override suspend fun fetchMap(
         lat: String,
         lng: String,
@@ -216,24 +207,19 @@ class KtorMilewayNetworkApi(
             parameter("lng", lng)
         }.body()
 
-    // route pending B4
     override suspend fun geoTypeById(typeId: Long): CheckInDetailsResponseV2 = client.get(url("/api/checkin/types/$typeId")).body()
 
-    // route pending B4
     override suspend fun submittedCheckins(token: String): SubmittedCheckInResponseV2 =
         client.get(url("/api/checkin/submitted")) { parameter("token", token) }.body()
 
-    // route pending B4 (path named in PLAN_V33.1's route list)
     override suspend fun geoTypes(): AllTypesResponseV2 = client.get(url("/api/checkin/types")).body()
 
-    // route pending B4
     override suspend fun updateCenterLocation(request: CheckInRequestV2): SuccessResponseV2 =
         client.post(url("/api/checkin/center")) {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
 
-    // route pending B4
     override suspend fun resetMilesLocation(
         contactId: Long,
         request: EmptyRequest,
@@ -243,14 +229,12 @@ class KtorMilewayNetworkApi(
             setBody(request)
         }.body()
 
-    // route pending B4 (path named in PLAN_V33.1's route list)
     override suspend fun submitCheckIn(request: CheckInRequestV2): SuccessResponseV2 =
         client.post(url("/api/checkin")) {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body()
 
-    // route pending B4 (path named in PLAN_V33.1's route list)
     override suspend fun allTaggedExpenses(
         start: Long,
         end: Long,
@@ -260,7 +244,6 @@ class KtorMilewayNetworkApi(
             parameter("end", end)
         }.body()
 
-    // route pending B4 (path named in PLAN_V33.1's route list)
     override suspend fun pendingTaggedExpenses(
         start: Long,
         end: Long,

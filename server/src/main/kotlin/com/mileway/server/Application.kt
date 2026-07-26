@@ -22,7 +22,8 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.insertIgnore
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
@@ -115,29 +116,71 @@ private fun vehiclesResponse(): PolicyApprovedVehiclesResponse {
 
 /** Persists the trip and computes the reimbursement via the shared [PolicyRateEngine]. */
 private fun submitMiles(request: SubmitMilesRequestK): ExpenseSubmissionResponse {
-    val vehicleKey = request.vehicleType ?: "NONE"
-    val result = PolicyRateEngine(loadRateTable()).reimbursement(vehicleKey, request.distance)
-
-    transaction {
-        TripsTable.insert {
-            it[token] = request.token ?: ""
-            it[TripsTable.vehicleKey] = vehicleKey
-            it[distanceKm] = request.distance
-            it[originalDistanceKm] = request.originalDistance
-            it[startTime] = request.startTime
-            it[endTime] = request.endTime
-            it[status] = "SUBMITTED"
-        }
-    }
+    val stored = persistTrip(request)
+    val result = PolicyRateEngine(loadRateTable()).reimbursement(stored.vehicleKey, stored.distanceKm)
 
     return ExpenseSubmissionResponse(
         status = 1,
         reimbursableAmount = result.cappedAmount.toDouble(),
         amount = result.cappedAmount.toDouble(),
-        distance = request.distance,
-        transId = submitTransId(request, vehicleKey),
+        distance = stored.distanceKm,
+        transId = submitTransId(stored),
         message = "Journey submitted successfully",
     )
+}
+
+/** The trip row a submit resolved to — a freshly inserted one, or the one a replayed opId already stored. */
+private data class StoredTrip(
+    val token: String,
+    val vehicleKey: String,
+    val distanceKm: Double,
+)
+
+/**
+ * The client-supplied idempotency key for a submit. The offline outbox replays the *same*
+ * [SubmitMilesRequestK] after a lost response (feature/tracking's `MilesSubmitSyncer`), and
+ * `SubmitMilesRequestBuilder` puts the trip's routeId in `token` — one trip, one stable key — so
+ * that is what dedups until [SubmitMilesRequestK] carries an explicit `opId` of its own. A blank
+ * token yields null, which (like `location_points`/`events`) always inserts.
+ */
+private fun submitOpId(request: SubmitMilesRequestK): String? = request.token?.takeIf { it.isNotBlank() }
+
+/**
+ * `insertIgnore` against the UNIQUE `trips.op_id` (Schema.kt) — the same dedup shape as
+ * [locationEventRoutes] — then reads the stored row back, so a replay returns the *already-stored*
+ * trip rather than re-pricing whatever the retry happened to carry.
+ */
+private fun persistTrip(request: SubmitMilesRequestK): StoredTrip {
+    val requested =
+        StoredTrip(
+            token = request.token ?: "",
+            vehicleKey = request.vehicleType ?: "NONE",
+            distanceKm = request.distance,
+        )
+    val key = submitOpId(request)
+    return transaction {
+        TripsTable.insertIgnore {
+            it[token] = requested.token
+            it[vehicleKey] = requested.vehicleKey
+            it[distanceKm] = requested.distanceKm
+            it[originalDistanceKm] = request.originalDistance
+            it[startTime] = request.startTime
+            it[endTime] = request.endTime
+            it[status] = "SUBMITTED"
+            it[opId] = key
+        }
+        if (key == null) {
+            requested
+        } else {
+            TripsTable.selectAll().where { TripsTable.opId eq key }.first().let { row ->
+                StoredTrip(
+                    token = row[TripsTable.token],
+                    vehicleKey = row[TripsTable.vehicleKey],
+                    distanceKm = row[TripsTable.distanceKm],
+                )
+            }
+        }
+    }
 }
 
 /**
@@ -153,10 +196,8 @@ internal fun loadRateTable(): PolicyRateTable =
 
 /**
  * Deterministic transaction id — no Math.random/Date (non-deterministic, and Date isn't available
- * on this dispatcher-free JVM target); derived entirely from request fields so retries of the same
- * submission produce the same id.
+ * on this dispatcher-free JVM target); derived entirely from the *stored* trip so retries of the
+ * same submission produce the same id. A blank token normalises to `anon` so the id reads
+ * `TXN-anon-…` rather than `TXN--…`.
  */
-private fun submitTransId(
-    request: SubmitMilesRequestK,
-    vehicleKey: String,
-): String = "TXN-${request.token ?: "anon"}-$vehicleKey-${request.distance}"
+private fun submitTransId(trip: StoredTrip): String = "TXN-${trip.token.ifBlank { "anon" }}-${trip.vehicleKey}-${trip.distanceKm}"
