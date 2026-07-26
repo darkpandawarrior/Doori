@@ -1,6 +1,9 @@
 package com.mileway.feature.tracking.service
 
 import com.mileway.core.data.model.db.CurrentTrackData
+import com.mileway.core.data.model.db.EventAudience
+import com.mileway.core.data.model.db.EventType
+import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
@@ -28,9 +31,13 @@ class AppSyncTriggerTest {
     // coroutines-test version doesn't advance backgroundScope jobs from advanceUntilIdle).
     private fun TestScope.triggerScope(): CoroutineScope = CoroutineScope(coroutineContext + Job())
 
+    private fun event(id: Long) =
+        HardwareEvent(id = id, token = "t", eventType = EventType.TRACKING_STARTED, event = "Tracking Started", audience = EventAudience.USER)
+
     private fun harness(
         scope: CoroutineScope,
         connectivity: MutableStateFlow<Boolean>,
+        eventSyncer: HardwareEventSyncer? = null,
     ): Pair<AppSyncTrigger, FakeLocationBatchOutbox> {
         val outbox = FakeLocationBatchOutbox()
         val syncer =
@@ -52,6 +59,7 @@ class AppSyncTriggerTest {
                 currentTrackRepo = CurrentTrackRepository(FakeCurrentTrackSource(CurrentTrackData(token = "t"))),
                 isConnectedFlow = connectivity,
                 scope = scope,
+                eventSyncer = eventSyncer,
             )
         return trigger to outbox
     }
@@ -98,6 +106,34 @@ class AppSyncTriggerTest {
             advanceUntilIdle()
 
             assertTrue(outbox.enqueued.isNotEmpty(), "offline→online edge should have drained the pending points")
+            scope.cancel()
+        }
+
+    @Test
+    fun `onAppForeground also drains the event outbox when an eventSyncer is wired`() =
+        runTest {
+            val scope = triggerScope()
+            val eventOutbox = FakeHardwareEventBatchOutbox()
+            val eventSyncer = HardwareEventSyncer(FakeUnsyncedHardwareEventDao(listOf(event(1))), eventOutbox)
+            val (trigger, _) = harness(scope, MutableStateFlow(true), eventSyncer = eventSyncer)
+
+            trigger.onAppForeground()
+            advanceUntilIdle()
+
+            assertTrue(eventOutbox.enqueued.isNotEmpty(), "foreground trigger should also have drained the pending journey events")
+            scope.cancel()
+        }
+
+    @Test
+    fun `onAppForeground with no eventSyncer wired is unaffected (default null is a no-op)`() =
+        runTest {
+            val scope = triggerScope()
+            val (trigger, outbox) = harness(scope, MutableStateFlow(true))
+
+            trigger.onAppForeground()
+            advanceUntilIdle()
+
+            assertTrue(outbox.enqueued.isNotEmpty(), "location drain must still work when eventSyncer is left at its default")
             scope.cancel()
         }
 }

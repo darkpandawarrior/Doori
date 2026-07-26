@@ -73,6 +73,12 @@ val trackingModule =
                 // PLAN_V33 C3/iOS pass: real distance accumulation persists accepted points the same
                 // way the Android LocationTrackingService does (via LocationBatcher -> LocationRepository).
                 locationRepository = get(),
+                // Gap-fix: live distance/CurrentTrackData persistence + user-tunable knobs — mirrors
+                // the Android LocationTrackingService's DI (see IosTrackingController's class doc).
+                currentTrackRepository = get(),
+                configManager = get(),
+                pluginRegistry = get(),
+                demoSettings = get(),
             )
         }
 

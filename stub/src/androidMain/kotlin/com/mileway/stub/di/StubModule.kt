@@ -3,6 +3,7 @@ package com.mileway.stub.di
 import com.mileway.core.data.network.DataStoreBaseUrlProvider
 import com.mileway.core.data.plugin.PersonaPresetProvider
 import com.mileway.core.network.api.MilewayNetworkApi
+import com.mileway.core.network.api.NetworkBackendFlags
 import com.mileway.core.network.api.impl.KtorMilewayNetworkApi
 import com.mileway.core.network.auth.AuthApi
 import com.mileway.core.network.auth.AuthTokenStore
@@ -16,7 +17,7 @@ import com.siddharth.kmp.settings.SecureSettingsFactory
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-// NetworkBackendFlags moved to commonMain (stub/commonMain/di/NetworkBackendFlags.kt) so the iOS
+// NetworkBackendFlags lives in :core:network (core/network/.../api/NetworkBackendFlags.kt) so the iOS
 // stubModule counterpart gates on the same flag/object instead of duplicating it per platform.
 
 val stubModule =

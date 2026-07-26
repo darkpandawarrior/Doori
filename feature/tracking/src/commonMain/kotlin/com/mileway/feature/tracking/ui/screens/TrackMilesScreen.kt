@@ -125,9 +125,11 @@ import com.mileway.feature.tracking.ui.sheets.VendorPickerSheet
 import com.mileway.feature.tracking.viewmodel.CheckInAction
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
 import com.mileway.feature.tracking.viewmodel.HeroGaugeMode
+import com.mileway.feature.tracking.viewmodel.JourneyStep
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesAction
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
+import com.mileway.feature.tracking.viewmodel.TrackMilesPrimaryAction
 import com.mileway.feature.tracking.viewmodel.TrackMilesUiState
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackSheet
@@ -173,7 +175,9 @@ fun TrackMilesScreen(
     val onboardingState by onboardingFlow.state.collectAsState()
     val oemHint = remember { currentDeviceManufacturer()?.let(OemBatteryHints::hintFor) }
     val scope = rememberCoroutineScope()
-    val isActive = uiState.phase == TrackMilesPhase.TRACKING || uiState.phase == TrackMilesPhase.PAUSED
+    // C4: single source of truth — derived from the VM-owned journeyProgress state machine instead
+    // of re-deriving `phase == TRACKING || phase == PAUSED` inline (the two could otherwise drift).
+    val isActive = uiState.journeyProgress == JourneyStep.TRACKING
     val isPaused = uiState.phase == TrackMilesPhase.PAUSED
     var statsExpanded by remember { mutableStateOf(true) }
 
@@ -364,14 +368,35 @@ fun TrackMilesScreen(
                 isPaused = isPaused,
                 actions = quickActions(),
                 onHero = {
-                    if (isActive) {
-                        viewModel.onAction(TrackMilesAction.StopTracking)
-                    } else {
-                        // A.3: the hero FAB is the single primary action. Tapping START goes
-                        // straight to permission → (consent if configured) → tracking, with no
-                        // mandatory Journey Guide coach-mark in the way. Setup (vehicle / odometer)
-                        // stays available via the optional "Journey Guide →" link below.
-                        requestStartTracking()
+                    // C4: single source of truth — dispatches off the VM-owned primaryAction ladder
+                    // instead of re-deriving the CTA from `isActive` inline (the two could otherwise
+                    // drift). A.3: the hero FAB is the single primary action; tapping it while any
+                    // pre-tracking step is outstanding goes straight through permission → (consent if
+                    // configured) → tracking, with no mandatory Journey Guide coach-mark in the way —
+                    // setup (vehicle / odometer) stays available via the optional "Journey Guide →"
+                    // link below.
+                    when (uiState.primaryAction) {
+                        TrackMilesPrimaryAction.ResolvePermissions,
+                        TrackMilesPrimaryAction.SelectVehicle,
+                        TrackMilesPrimaryAction.CaptureStartOdometer,
+                        TrackMilesPrimaryAction.StartTracking,
+                        -> requestStartTracking()
+                        // primaryAction never actually yields Pause/Resume (the ladder always picks
+                        // StopTracking while a trip is TRACKING/PAUSED) — grouped here so the hero FAB
+                        // still stops the trip if it ever did, matching the FAB's real behavior; the
+                        // dedicated pause/resume side-FAB (onPauseResume below) is unaffected.
+                        TrackMilesPrimaryAction.StopTracking,
+                        TrackMilesPrimaryAction.PauseTracking,
+                        TrackMilesPrimaryAction.ResumeTracking,
+                        -> viewModel.onAction(TrackMilesAction.StopTracking)
+                        TrackMilesPrimaryAction.CaptureEndOdometer -> viewModel.onAction(TrackMilesAction.CaptureEndOdometer)
+                        // STOPPED/SUBMITTED normally hand off to the submission flow via the onStop
+                        // LaunchedEffect above — but that effect is keyed on `phase`, so navigating
+                        // BACK from the submission screen leaves phase == STOPPED without re-firing
+                        // it (and it is skipped entirely when currentRouteId == null). Falling through
+                        // to Unit there would strand the user on a dead FAB, which is what the old
+                        // inline `if (isActive) … else requestStartTracking()` avoided. Keep that.
+                        TrackMilesPrimaryAction.SubmitTrack -> requestStartTracking()
                     }
                 },
                 onPauseResume = {

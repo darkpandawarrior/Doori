@@ -85,11 +85,24 @@ private fun geoTypeRowToResponse(row: ResultRow) =
 
 private fun submittedCheckIns(): SubmittedCheckInResponseV2 =
     transaction {
+        // ponytail: no join — a plain id->name lookup map is enough for one small reference table,
+        // and skips guessing at this Exposed version's Join DSL for a one-off query.
+        val typeNamesById = GeoTypesTable.selectAll().associate { it[GeoTypesTable.id] to it[GeoTypesTable.name] }
         SubmittedCheckInResponseV2(
             checkIns =
                 CheckInsTable.selectAll()
                     .orderBy(CheckInsTable.time to SortOrder.DESC)
-                    .map { CheckInItem(id = it[CheckInsTable.id], time = it[CheckInsTable.time]) },
+                    .map { row ->
+                        CheckInItem(
+                            id = row[CheckInsTable.id],
+                            time = row[CheckInsTable.time],
+                            lat = row[CheckInsTable.lat],
+                            lng = row[CheckInsTable.lng],
+                            type = row[CheckInsTable.typeId]?.let { typeNamesById[it] },
+                            // distance/forms/vendorData: no backing column on CheckInsTable yet —
+                            // left null (see CheckInItem's doc comment in NetworkRequests.kt).
+                        )
+                    },
         )
     }
 

@@ -522,6 +522,7 @@ internal object TrackMilesViewModelTestHarness {
         sessionSource: com.mileway.core.data.session.SessionSource = NoSessionSource,
         activeAccountSource: com.mileway.core.data.session.ActiveAccountSource = FakeActiveAccountSource(),
         mockAccounts: List<MockAccountEntity> = emptyList(),
+        permissionsProvider: com.siddharth.kmp.appshell.PermissionsProvider = AlwaysGrantedPermissionsProvider,
     ): TrackMilesViewModel =
         TrackMilesViewModel(
             configManager = TrackingConfigManager(FakeConfigProvider),
@@ -534,7 +535,17 @@ internal object TrackMilesViewModelTestHarness {
             sessionSource = sessionSource,
             activeAccountSource = activeAccountSource,
             mockAccountDao = FakeMockAccountDao(mockAccounts),
+            permissionsProvider = permissionsProvider,
         )
+}
+
+// ── PermissionsProvider fake (C4: permissionsSatisfied wiring) ───────────────
+
+internal class FakePermissionsProvider(var granted: Boolean) : com.siddharth.kmp.appshell.PermissionsProvider {
+    override suspend fun isGranted(permission: com.siddharth.kmp.appshell.AppPermission) = granted
+
+    override suspend fun request(permission: com.siddharth.kmp.appshell.AppPermission) =
+        if (granted) com.siddharth.kmp.appshell.PermissionResult.Granted else com.siddharth.kmp.appshell.PermissionResult.Denied
 }
 
 private object NoOpTrackingController : TrackingController {

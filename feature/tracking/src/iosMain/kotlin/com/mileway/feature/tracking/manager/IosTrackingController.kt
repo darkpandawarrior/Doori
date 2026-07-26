@@ -1,9 +1,16 @@
 package com.mileway.feature.tracking.manager
 
+import com.mileway.core.data.model.db.CurrentTrackData
+import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.display.TrackingState
+import com.mileway.core.data.plugin.PluginRegistry
+import com.mileway.core.data.plugin.PluginValue
+import com.mileway.core.data.settings.DemoSettingsRepository
+import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.service.LocationBatcher
+import com.mileway.feature.tracking.service.LocationTrackingConstants
 import com.mileway.feature.tracking.service.SystemRecoveryDetector
 import com.mileway.feature.tracking.service.TrackingSnapshot
 import com.mileway.feature.tracking.service.TrackingStatePublisher
@@ -21,6 +28,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.concurrent.Volatile
 import kotlin.time.Clock
 
 /**
@@ -53,6 +61,13 @@ class IosTrackingController(
     private val statePublisher: TrackingStatePublisher,
     private val trackRepository: SavedTrackRepository? = null,
     private val locationRepository: LocationRepository? = null,
+    // Gap-fix (see class doc): mirrors the Android service's currentTrackRepository/pluginRegistry/
+    // demoSettings/configManager injection so CurrentTrackData and the user-tunable knobs below are
+    // no longer iOS-only dead wiring.
+    private val currentTrackRepository: CurrentTrackRepository? = null,
+    private val configManager: TrackingConfigManager? = null,
+    private val pluginRegistry: PluginRegistry? = null,
+    private val demoSettings: DemoSettingsRepository? = null,
 ) : TrackingController {
     private var activeToken: String? = null
 
@@ -63,8 +78,48 @@ class IosTrackingController(
     // stop() call that tears down the fix-collection scope above.
     private val controllerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
+    // P10.1/Wave-2 parity: hot-reloaded Track Miles knobs + AbnormalDetectionConfig, mirrored from
+    // PluginRegistry/DemoSettingsRepository/TrackingConfigManager exactly like the Android service's
+    // onCreate collectors (see LocationTrackingService). Read at the next start() — fixed for the
+    // running trip, same rule as Android.
+    @Volatile
+    private var enableKalman: Boolean = false
+
+    @Volatile
+    private var maxAccuracyM: Double = LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M
+
+    @Volatile
+    private var minDisplacementFloorM: Double = 0.0
+
+    @Volatile
+    private var abnormalDetectionConfig: AbnormalDetectionConfig = AbnormalDetectionConfig.DEFAULT
+
+    init {
+        // controllerScope (not the per-session `scope`) so these keep hot-reloading across trips —
+        // this class is a Koin single, constructed once for the app's lifetime.
+        demoSettings?.let { ds -> controllerScope.launch { ds.settings.collect { enableKalman = it.enableKalman } } }
+        pluginRegistry?.let { pr ->
+            controllerScope.launch {
+                pr.observeValue("track_min_accuracy_m").collect {
+                    maxAccuracyM =
+                        ((it as? PluginValue.IntVal)?.value ?: LocationTrackingConstants.MAX_ACCURACY_THRESHOLD_M.toInt()).toDouble()
+                }
+            }
+            controllerScope.launch {
+                pr.observeValue("track_min_displacement_m").collect {
+                    minDisplacementFloorM = ((it as? PluginValue.IntVal)?.value ?: 0).toDouble()
+                }
+            }
+        }
+        configManager?.let { cm -> controllerScope.launch { cm.abnormalDetectionConfig.collect { abnormalDetectionConfig = it } } }
+    }
+
     private var processor: LocationProcessor? = null
     private var locationBatcher: LocationBatcher? = null
+
+    // Gap-fix: the saved_tracks row fetched once per trip so the per-fix loop can write live
+    // distance/duration without a DB read on every fix (see start()/the fix-collection loop).
+    private var liveTrack: SavedTrack? = null
     private var startTime: Long = 0L
     private var isPaused: Boolean = false
     private var everPaused: Boolean = false
@@ -106,8 +161,15 @@ class IosTrackingController(
         startTime = nowMs()
         isPaused = false
         everPaused = false
-        processor = LocationProcessor()
+        processor =
+            LocationProcessor(
+                enableKalman = enableKalman,
+                maxAccuracyThreshold = maxAccuracyM,
+                minDisplacementFloorM = minDisplacementFloorM,
+                abnormalConfig = abnormalDetectionConfig,
+            )
         locationBatcher = locationRepository?.let { LocationBatcher(it, now = ::nowMs) }
+        liveTrack = null
 
         val sessionScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         scope = sessionScope
@@ -125,12 +187,40 @@ class IosTrackingController(
         }
 
         sessionScope.launch {
+            // Gap-fix: cache the saved_tracks row for the per-fix live-distance write below, and mark
+            // CurrentTrackData tracking (mirrors the Android service's persistSession) — this is what
+            // makes TrackingRelaunchBridge's isTracking gate reachable and feeds the session-derived
+            // UI (LiveTrackViewModel/WatchFacade). Sequenced before collect() so the first fixes below
+            // don't race a still-null liveTrack/un-started CurrentTrackData.
+            trackRepository?.let { repo -> liveTrack = repo.getByRouteId(token) }
+            currentTrackRepository?.let { repo ->
+                val current = repo.getCurrentTrackDataRawAsync().getOrNull() ?: CurrentTrackData.empty()
+                // Zero the stat fields rather than carrying over a previous trip's leftovers under
+                // this new token — the first accepted fix below overwrites them for real within
+                // seconds anyway, so this only avoids a stale flash of the last trip's numbers.
+                repo.startSession(
+                    current.copy(
+                        token = token,
+                        isTracking = true,
+                        isPaused = false,
+                        startTime = startTime,
+                        distance = 0.0,
+                        speed = 0.0,
+                        avgSpeed = 0.0,
+                        maxSpeed = 0.0,
+                        totalLocationPoints = 0L,
+                        startedAtTimestamp = if (current.startedAtTimestamp == 0L) startTime else current.startedAtTimestamp,
+                    ),
+                )
+            }
+
             locationTracker.updates.collect { point ->
                 lastFixAtMs = nowMs()
                 val proc = processor ?: return@collect
                 val result = proc.process(point.toGpsFix(), isPaused) ?: return@collect // jitter-suppressed
                 locationBatcher?.add(result.location.copy(token = token))
                 val stats = proc.stats()
+                val durationMs = nowMs() - startTime
                 val quality =
                     TrackingQualityScorer.score(
                         QualityInputs(
@@ -145,7 +235,7 @@ class IosTrackingController(
                         state = if (isPaused) TrackingState.PAUSED else TrackingState.LIVE_TRACKING,
                         token = token,
                         distanceMeters = stats.cleanedDistanceM,
-                        durationMs = nowMs() - startTime,
+                        durationMs = durationMs,
                         avgSpeedMps = stats.avgSpeedMps,
                         maxSpeedMps = stats.maxSpeedMps,
                         totalPoints = stats.totalPoints,
@@ -154,6 +244,23 @@ class IosTrackingController(
                         isGpsAvailable = true,
                     )
                 }
+                // Gap-fix: live distance into the saved_tracks row — mirrors Android's
+                // savedTrackDao.updateTrackLiveData per-fix cadence (LocationTrackingService:516) so
+                // the hero distance advances during tracking instead of reading 0.00 until stop().
+                liveTrack?.let { t ->
+                    val updated = t.copy(distance = stats.cleanedDistanceM, duration = durationMs)
+                    liveTrack = updated
+                    trackRepository?.update(updated)
+                }
+                // Gap-fix: mirrors persistSession's per-fix CurrentTrackData write (same cadence).
+                currentTrackRepository?.updateBatchedDistanceAndPoints(
+                    token = token,
+                    distanceMeters = stats.cleanedDistanceM,
+                    speed = result.location.speed.toDouble(),
+                    avgSpeed = stats.avgSpeedMps,
+                    totalPoints = stats.totalPoints.toLong(),
+                    unsyncedPoints = stats.totalPoints.toLong(),
+                )
             }
         }
     }
@@ -229,10 +336,19 @@ class IosTrackingController(
                         ),
                     )
                 }
+                // Gap-fix: mirrors clearSessionTracking — flips isTracking off so LiveTrackViewModel
+                // and TrackingRelaunchBridge stop treating this token as a live session.
+                currentTrackRepository?.let { ctRepo ->
+                    val current = ctRepo.getCurrentTrackDataRawAsync().getOrNull()
+                    if (current != null) {
+                        ctRepo.startSession(current.copy(isTracking = false, isPaused = false, endTime = endTime))
+                    }
+                }
             }
         }
         processor = null
         locationBatcher = null
+        liveTrack = null
     }
 }
 

@@ -1,5 +1,6 @@
 package com.mileway.feature.tracking.service.location
 
+import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.feature.tracking.service.location.DistanceValidator.DistanceMetrics
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -92,5 +93,49 @@ class DistanceValidatorTest {
     fun `floating point tolerance does not false-positive`() {
         val result = DistanceValidator.validate(metrics(total = 1000.0, cleaned = 900.00000001, mock = 50.0, abnormal = 50.0))
         assertEquals(0, result.errors.size)
+    }
+
+    @Test
+    fun `the bucket set a finalized SavedTrack carries satisfies the invariant`() {
+        // P-C.2: mirrors the SHAPE of what LocationTrackingService.stopAndFinalize() persists,
+        // including spikeDistance, which used to be dropped on the floor by both platforms.
+        //
+        // Honest scope: this locks the INVARIANT over a realistic bucket set. It does NOT prove the
+        // service actually persists spikeDistance — that write lives in androidMain and would need a
+        // Robolectric service test to cover. Deleting the `spikeDistance = spikeDistanceM` line in
+        // LocationTrackingService would not fail this test. That gap is real and untested.
+        val finalized =
+            SavedTrack(
+                routeId = "trip-1",
+                name = "Trip",
+                startLatitude = 0.0,
+                startLongitude = 0.0,
+                endLatitude = 0.0,
+                endLongitude = 0.0,
+                pausedLatitude = 0.0,
+                pausedLongitude = 0.0,
+                startTime = 0L,
+                endTime = 1_000L,
+                distance = 900.0,
+                duration = 1_000L,
+                originalDistance = 1_000.0,
+                cleanedDistance = 900.0,
+                mockDistance = 50.0,
+                abnormalDistance = 50.0,
+                spikeDistance = 200.0,
+            )
+
+        val result =
+            DistanceValidator.validate(
+                metrics(
+                    total = finalized.originalDistance,
+                    cleaned = finalized.cleanedDistance,
+                    mock = finalized.mockDistance,
+                    abnormal = finalized.abnormalDistance,
+                    spike = finalized.spikeDistance,
+                ),
+            )
+
+        assertTrue(result.isValid)
     }
 }
