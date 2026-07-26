@@ -97,8 +97,14 @@ fun readFingerprint(): String = extra["mileway.fingerprint"] as String
 
 // CI (github-release.yml) shells out to these instead of re-deriving the date/week formula in
 // bash — one source of truth for what a tag/release title should be.
-tasks.register("printFingerprint") { doLast { println(readFingerprint()) } }
-tasks.register("printMarketing") { doLast { println(readVersionName()) } }
+tasks.register("printFingerprint") {
+    val fingerprint = readFingerprint()
+    doLast { println(fingerprint) }
+}
+tasks.register("printMarketing") {
+    val marketing = readVersionName()
+    doLast { println(marketing) }
+}
 
 // FLFD.1: F-Droid reproducible build flag (`./gradlew assembleNoGmsRelease -Pfdroid`). Disables R8/resource
 // shrinking (not bit-for-bit reproducible across machines). F-Droid only builds the noGms release.
