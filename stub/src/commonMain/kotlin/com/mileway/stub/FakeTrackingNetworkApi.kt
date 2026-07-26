@@ -37,7 +37,9 @@ import com.mileway.core.network.api.MilewayNetworkApi
 class FakeTrackingNetworkApi : MilewayNetworkApi {
     override suspend fun vehicles(trackMiles: Boolean): PolicyApprovedVehiclesResponse = DemoMockData.vehicles(trackMiles)
 
-    override suspend fun pricing(): ApprovedVehiclePricingResponse = ApprovedVehiclePricingResponse()
+    /** Same rate table the server's `/api/pricing` serves — see [DemoMockData.rateTable]. */
+    override suspend fun pricing(): ApprovedVehiclePricingResponse =
+        ApprovedVehiclePricingResponse(data = DemoMockData.rateTable.rates)
 
     override suspend fun submitMilesEvent(request: PostMileageEventRequestK) { /* no-op */ }
 
@@ -45,7 +47,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
 
     override suspend fun logMiles(request: LogMilesSubmitRequestV2): ExpenseSubmissionResponse =
         PolicyMockData.enrich(
-            base = DemoMockData.submissionResponse(request.distance),
+            base = DemoMockData.submissionResponse(request.distance, vehicleKeyOf(request.vehicleType)),
             distanceKm = request.distance,
             token = request.vehicleType,
         )
@@ -73,7 +75,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
 
     override suspend fun submitMiles(request: SubmitMilesRequestK): ExpenseSubmissionResponse =
         PolicyMockData.enrich(
-            base = DemoMockData.submissionResponse(request.distance),
+            base = DemoMockData.submissionResponse(request.distance, vehicleKeyOf(request.vehicleType)),
             distanceKm = request.distance,
             token = request.token,
         )
@@ -138,6 +140,13 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         start: Long,
         end: Long,
     ): AllTaggedExpenseResponse = AllTaggedExpenseResponse()
+
+    /**
+     * A missing vehicle type falls back to the same unpriced sentinel the server's submit routes
+     * use (`request.vehicleType ?: "NONE"`), so both sides reimburse zero for it rather than
+     * silently picking a default rate.
+     */
+    private fun vehicleKeyOf(vehicleType: String?): String = vehicleType ?: DemoMockData.UNKNOWN_VEHICLE_KEY
 
     /**
      * Kilometres wrapper over the canonical [com.mileway.core.data.util.haversineMeters] —

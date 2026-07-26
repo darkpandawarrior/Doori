@@ -1,5 +1,7 @@
 package com.mileway.stub
 
+import com.mileway.core.data.ledger.PolicyRateEngine
+import com.mileway.core.data.ledger.PolicyRateTable
 import com.mileway.core.data.model.network.ApprovedVehicle
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.core.data.model.network.LogMilesRoutesResponse
@@ -77,14 +79,47 @@ object DemoMockData {
                 ),
         )
 
-    fun submissionResponse(distanceKm: Double = 8.7): ExpenseSubmissionResponse =
-        ExpenseSubmissionResponse(
+    /**
+     * The demo rate table, built from [vehicles]' own pricing. The server seeds those exact 11
+     * rows into its `vehicles` table and derives `/api/pricing` + its reimbursement math from
+     * them, so `:stub` and `:server` are reading one rate table, not two copies of one.
+     */
+    val rateTable: PolicyRateTable = PolicyRateTable.fromApprovedVehicles(vehicles().vehicles)
+
+    private val rateEngine = PolicyRateEngine(rateTable)
+
+    /**
+     * Vehicle assumed when a request carries no vehicle type of its own. Only demo helpers with
+     * no request behind them use it — the network fake mirrors the server and falls back to
+     * [UNKNOWN_VEHICLE_KEY] (an unpriced key) instead.
+     */
+    const val DEMO_VEHICLE_KEY = "fourWheelerPetrol"
+
+    /** Same "no vehicle type on the request" sentinel the server's submit routes use. */
+    const val UNKNOWN_VEHICLE_KEY = "NONE"
+
+    /**
+     * Money comes from the shared [PolicyRateEngine] over [rateTable] — byte-identical to what the
+     * server's `/api/miles/submit` computes for the same (vehicle, distance).
+     *
+     * The `DEMO-TXN-` id prefix is deliberately *not* the server's `TXN-`: a demo-backend response
+     * should stay identifiable as demo. Only the money and the rate table have to match — don't
+     * "fix" the prefix.
+     */
+    fun submissionResponse(
+        distanceKm: Double = 8.7,
+        vehicleKey: String = DEMO_VEHICLE_KEY,
+    ): ExpenseSubmissionResponse {
+        val amount = rateEngine.reimbursement(vehicleKey, distanceKm).cappedAmount.toDouble()
+        return ExpenseSubmissionResponse(
             status = 1,
-            reimbursableAmount = (distanceKm * 10.0),
+            reimbursableAmount = amount,
+            amount = amount,
             distance = distanceKm,
             message = "Journey submitted successfully",
             transId = "DEMO-TXN-${1000 + (distanceKm * 100).toInt() % 9000}",
         )
+    }
 
     fun trackMileageStatus(): TrackMileageStatusResponse = TrackMileageStatusResponse(statusCode = 200, description = "Active")
 

@@ -8,6 +8,7 @@ import android.hardware.SensorManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * Android motion sensors (O) via SensorManager, accelerometer + gyroscope merged into one [MotionReading]
@@ -25,12 +26,23 @@ class AndroidMotionSensorProvider(context: Context) : MotionSensorProvider, Sens
     @Volatile
     private var last = MotionReading()
 
+    /**
+     * Outstanding [start] calls. This provider is a Koin `single` with more than one consumer, so the
+     * listener registration is reference-counted: an unconditional `unregisterListener` in [stop] would
+     * tear the stream out from under whoever else is still collecting (concretely: stopping tracking
+     * would have killed [ShakeGestureDetector]'s app-wide shake-to-report).
+     */
+    private val activeStarts = AtomicInteger(0)
+
     override fun start() {
+        if (activeStarts.getAndIncrement() != 0) return
         accelerometer?.let { sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
         gyroscope?.let { sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
     }
 
     override fun stop() {
+        // Clamp at 0 so a stray unpaired stop() can't drive the count negative and wedge the next start().
+        if (activeStarts.updateAndGet { if (it > 0) it - 1 else 0 } > 0) return
         sensorManager?.unregisterListener(this)
         last = MotionReading()
     }

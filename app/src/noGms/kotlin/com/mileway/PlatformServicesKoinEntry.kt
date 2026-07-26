@@ -38,7 +38,8 @@ fun platformServicesKoinModule(): Module =
         single<WatchSyncBridge> { NoopWatchSyncBridge() }
         // FLFD.2 fix: FOSS ZXing barcode decoding (Apache-2.0, no Play Services) on F-Droid.
         single<BarcodeDecoder> { ZxingBarcodeDecoder() }
-        // PLAN_V37 Phase 1: no Play Services on this flavor — see HeuristicActivityRecognizer.kt
-        // kdoc for what this placeholder does and doesn't cover.
-        single<ActivityRecognizer> { HeuristicActivityRecognizer() }
+        // PLAN_V37 Phase 1: no Play Services on this flavor — the IMU accelerometer fusion in
+        // core:platform is the signal instead. See HeuristicActivityRecognizer.kt kdoc for the
+        // still-vs-not-still ceiling that buys.
+        single<ActivityRecognizer> { HeuristicActivityRecognizer(get()) }
     }

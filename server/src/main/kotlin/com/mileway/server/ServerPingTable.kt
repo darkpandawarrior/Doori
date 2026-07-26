@@ -33,7 +33,13 @@ fun connectDatabase() {
         password = System.getenv("JDBC_PASSWORD") ?: "",
     )
     transaction {
-        SchemaUtils.create(
+        // createMissingTablesAndColumns, not create: `create` only ever adds MISSING TABLES, it never
+        // ALTERs an existing one. A dev H2 is fresh per JVM so the difference is invisible there, but a
+        // Postgres that was deployed before trips.op_id existed (PLAN_V33 B3 idempotency) would keep a
+        // trips table with no op_id column and fail every POST /api/miles/submit on an unknown column.
+        // There is no migration tooling in :server; this is the substitute, and it is why any new column
+        // must stay nullable / defaulted.
+        SchemaUtils.createMissingTablesAndColumns(
             ServerPingTable,
             VehiclesTable,
             TripsTable,

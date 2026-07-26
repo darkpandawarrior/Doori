@@ -10,6 +10,7 @@ import com.mileway.core.data.model.network.LocationPayloadV2
 import com.mileway.core.data.model.network.LocationResponseV2
 import com.mileway.core.data.model.network.PolicyApprovedVehiclesResponse
 import com.mileway.core.data.model.network.SubmitMilesRequestK
+import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -21,6 +22,9 @@ import io.ktor.http.contentType
 import io.ktor.server.testing.testApplication
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -147,6 +151,71 @@ class ApplicationTest {
             assertEquals(160.0, body.amount)
             assertEquals(10.0, body.distance)
             assertTrue(body.transId!!.isNotBlank())
+        }
+
+    @Test
+    fun submitIsIdempotentWhenTheOutboxReplaysTheSameTrip() =
+        testApplication {
+            application { module() }
+            val token = client.demoLoginToken()
+
+            val request =
+                SubmitMilesRequestK(
+                    token = "tok-submit-replay",
+                    vehicleType = "twoWheeler",
+                    distance = 10.0,
+                )
+
+            val bodies = List(2) { client.submitMiles(token, request) }
+
+            // A response lost after the server committed makes MilesSubmitSyncer resend the same
+            // draft — one trips row must survive, or the trip is reimbursed twice.
+            assertEquals(1, tripRowCount("tok-submit-replay"))
+            assertEquals(bodies[0].transId, bodies[1].transId)
+            assertEquals(bodies[0].reimbursableAmount, bodies[1].reimbursableAmount)
+        }
+
+    @Test
+    fun submitReplayReturnsTheStoredTripNotTheReplayedPayload() =
+        testApplication {
+            application { module() }
+            val token = client.demoLoginToken()
+
+            val first =
+                client.submitMiles(
+                    token,
+                    SubmitMilesRequestK(token = "tok-submit-stored", vehicleType = "twoWheeler", distance = 10.0),
+                )
+            // Same trip (same opId), different distance — the stored row wins, so the second caller
+            // can't re-price an already-persisted submission.
+            val replay =
+                client.submitMiles(
+                    token,
+                    SubmitMilesRequestK(token = "tok-submit-stored", vehicleType = "twoWheeler", distance = 99.0),
+                )
+
+            assertEquals(1, tripRowCount("tok-submit-stored"))
+            assertEquals(10.0, replay.distance)
+            assertEquals(160.0, replay.reimbursableAmount)
+            assertEquals(first.transId, replay.transId)
+        }
+
+    @Test
+    fun submitWithoutATokenAlwaysInserts() =
+        testApplication {
+            application { module() }
+            val token = client.demoLoginToken()
+
+            // No token means no idempotency key — like a null opId on location_points/events, every
+            // POST inserts (there is nothing stable to dedup on).
+            // Count the delta, not the total: H2 runs as `jdbc:h2:mem:mileway;DB_CLOSE_DELAY=-1`, one
+            // database for the whole test JVM, so a blank-token submit in any other test class would
+            // otherwise leak into this assertion.
+            val before = tripRowCount("")
+            val request = SubmitMilesRequestK(token = null, vehicleType = "twoWheeler", distance = 4.0)
+            repeat(2) { client.submitMiles(token, request) }
+
+            assertEquals(2, tripRowCount("") - before)
         }
 
     // ── PLAN_V33 B3: location/event upload — idempotent dedup by opId ────────────
@@ -293,3 +362,21 @@ class ApplicationTest {
             assertEquals(1, body.data.size)
         }
 }
+
+/** POSTs one submit and decodes the response — the submit tests above differ only in the payload. */
+private suspend fun HttpClient.submitMiles(
+    authToken: String,
+    request: SubmitMilesRequestK,
+): ExpenseSubmissionResponse {
+    val response =
+        post("/api/miles/submit") {
+            bearerAuth(authToken)
+            contentType(ContentType.Application.Json)
+            setBody(serverJson.encodeToString(request))
+        }
+    assertEquals(HttpStatusCode.OK, response.status)
+    return serverJson.decodeFromString(response.bodyAsText())
+}
+
+/** There is no GET for trips, so the dedup assertions read the table straight off the test H2 instance. */
+private fun tripRowCount(requestToken: String): Int = transaction { TripsTable.selectAll().where { TripsTable.token eq requestToken }.count().toInt() }

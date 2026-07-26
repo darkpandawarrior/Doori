@@ -106,7 +106,18 @@ interface MotionSensorProvider {
     val motionState: Flow<MotionState>
         get() = readings.toMotionState()
 
+    /**
+     * Begin delivering [readings]. **Reference-counted.** This provider is bound as a Koin `single` and
+     * shared by independent consumers — the tracking flavor's activity recognition and
+     * [ShakeGestureDetector]'s app-wide shake-to-report both read the same stream — so an implementation
+     * must only touch the hardware on the first [start] and count the rest. Pair every [start] with
+     * exactly one [stop].
+     */
     fun start()
 
+    /**
+     * Release one [start]. The sensor is only unregistered once the last outstanding [start] is released;
+     * an unconditional teardown here would silently kill every *other* consumer's stream.
+     */
     fun stop()
 }

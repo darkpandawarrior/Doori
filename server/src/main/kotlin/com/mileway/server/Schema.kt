@@ -28,6 +28,12 @@ object TripsTable : Table("trips") {
     val startTime = long("start_time").nullable()
     val endTime = long("end_time").nullable()
     val status = varchar("status", 32)
+
+    // Same idempotency key as `location_points`/`events` below: unique when present, NULL always
+    // inserts, so `insertIgnore` makes a replayed POST /api/miles/submit a no-op instead of a
+    // second trips row (a double reimbursement). Width matches `token`, which is what
+    // Application.kt's `submitOpId` derives it from until SubmitMilesRequestK carries its own.
+    val opId = varchar("op_id", 128).nullable().uniqueIndex()
     override val primaryKey = PrimaryKey(id)
 }
 
