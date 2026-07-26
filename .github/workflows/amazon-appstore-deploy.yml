@@ -70,4 +70,6 @@ jobs:
           clientId: ${{ secrets.AMAZON_APPSTORE_CLIENT_ID }}
           clientSecret: ${{ secrets.AMAZON_APPSTORE_CLIENT_SECRET }}
           appId: ${{ secrets.AMAZON_APPSTORE_APP_ID }}
-          apkFile: app/build/outputs/apk/gms/release/app-gms-release.apk
+          # Input is `releaseFile`, not `apkFile` — verified against the action's own action.yml.
+          # The wrong key was silently harmless only because the step is secret-gated and never ran.
+          releaseFile: app/build/outputs/apk/gms/release/app-gms-release.apk

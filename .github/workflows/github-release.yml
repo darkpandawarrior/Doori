@@ -32,7 +32,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
       - name: Verify tag matches computed FINGERPRINT
         run: |
-          set -uo pipefail
+          # set -e is deliberate. This step previously ran under `set -uo pipefail` with `|| true` on
+          # every gh call, so a failed `gh release create` (rate limit, auth, oversized notes body)
+          # left the job GREEN with no release object and no assets — the exact "reports success
+          # while doing nothing" failure this repo has been digging out. Failures must surface.
+          set -euo pipefail
           tag="${GITHUB_REF_NAME}"
           expected="${tag#v}"
           actual="$(./gradlew -q :app:printFingerprint)"
@@ -138,14 +142,29 @@ jobs:
           [ -n "$title" ] && title="${tag} — ${title}" || title="$tag"
           # idempotent: create if absent, else update notes (so a manual pre-create or a re-run never fails)
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release edit "$tag" --title "$title" --notes-file CHANGELOG_BODY.md || true
+            gh release edit "$tag" --title "$title" --notes-file CHANGELOG_BODY.md
           else
-            gh release create "$tag" --title "$title" --notes-file CHANGELOG_BODY.md || true
+            gh release create "$tag" --title "$title" --notes-file CHANGELOG_BODY.md
           fi
-          # attach artifacts best-effort — a missing/failed build never fails the release
           shopt -s nullglob
+          # Checksums so a downloaded APK can be verified — publish-fdroid.yml already ships a
+          # .sha256 for its artifact; the primary release had none.
+          ( cd dist && sha256sum ./* > SHA256SUMS.txt ) || true
           files=(dist/*)
-          if [ ${#files[@]} -gt 0 ]; then gh release upload "$tag" "${files[@]}" --clobber || true; else echo "no artifacts to attach"; fi
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error title=No artifacts::dist/ is empty — refusing to publish an assetless release"
+            exit 1
+          fi
+          gh release upload "$tag" "${files[@]}" --clobber
+          # Post-check: prove the assets are actually ON the release. Upload succeeding is not the
+          # same as the release carrying them, and an assetless release is precisely what shipped
+          # before the fingerprint fix.
+          attached="$(gh release view "$tag" --json assets --jq '.assets | length')"
+          if [ "$attached" -lt "${#files[@]}" ]; then
+            echo "::error title=Assets missing::expected ${#files[@]} assets on $tag, found $attached"
+            exit 1
+          fi
+          echo "Release $tag carries $attached assets."
         env:
           GH_TOKEN: ${{ github.token }}
       # README chores are handled by the existing readme.yml (auto-refreshes fact-spans on main push,

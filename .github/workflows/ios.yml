@@ -71,4 +71,7 @@ jobs:
       # unrelated to our code. Compiling validates every iosMain source; the framework binary is produced
       # by the Xcode build (:shared:linkDebugFrameworkIosSimulatorArm64), which needs a Mac + Xcode <= 16.2.
       - name: Compile shared Kotlin for iOS (device + simulator)
-        run: ./gradlew :shared:compileKotlinIosArm64 :shared:compileKotlinIosSimulatorArm64
+        # :sharedWatch is the headless watchOS framework the SwiftUI watch app links against. Until
+        # now NO workflow compiled it, so it could break silently — it rides this macOS job because
+        # Kotlin/Native watchOS targets can't be built on the Linux runners.
+        run: ./gradlew :shared:compileKotlinIosArm64 :shared:compileKotlinIosSimulatorArm64 :sharedWatch:compileKotlinWatchosSimulatorArm64

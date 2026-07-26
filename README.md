@@ -685,7 +685,15 @@ roadmap reflects direction rather than commitments.
   `core:data`, so Wear's `DataClient` push and watchOS's `WatchConnectivity` session drive off the
   identical shared model — no per-platform reimplementation of the sync contract.
 
-**Verification status by surface** (what's gate-verified here vs. pending real hardware):
+**Verification status by surface** (what's verified here vs. pending real hardware).
+
+> **Which of these CI actually gates.** A ✅ below means *verified* — it does not always mean *gated
+> on every PR*. The Quality Gate and CI workflows cover the Android/JVM columns
+> (`assembleNoGmsDebug`, `testNoGmsDebugUnitTest`, Roborazzi, the GMD instrumented suite) and
+> `ios.yml` compiles the shared iOS framework. The **`xcodebuild -scheme MilewayWatch` /
+> `MilewayWidgets` builds and the watchOS screenshot tests are run locally, not by any workflow** —
+> the only `xcodebuild` in CI is the release job's IPA archive, which builds the `iosApp` scheme.
+> `:sharedWatch` and `:app-web-preview` are likewise not compiled by any workflow yet.
 
 | Surface | Build/compile | Automated tests | Live/device verification |
 |---|---|---|---|

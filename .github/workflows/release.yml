@@ -138,15 +138,22 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-      - name: Build reproducible FOSS release (noGms)
-        run: ./gradlew assembleNoGmsRelease -Pfdroid --no-build-cache
+      # This job used to end at `./gradlew assembleNoGmsRelease -Pfdroid`, which built the APK and
+      # threw it away on runner teardown — the checkbox says "Publish", and nothing was ever
+      # published. publish-fdroid.yml is the workflow that actually signs and attaches the APK +
+      # .sha256, so dispatch that rather than duplicating its sign/upload logic here.
+      - name: Dispatch the F-Droid publish workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run publish-fdroid.yml -f tag="${GITHUB_REF_NAME}"
+          echo "Dispatched publish-fdroid.yml for ${GITHUB_REF_NAME}."
 
-  # CIO.3: Wear track. NOTE: :wear is currently a com.android.library, so there is no standalone Wear AAB
-  # to upload yet. This job builds the module; when :wear becomes a standalone Wear *application* module,
-  # switch to `:wear:bundleRelease` and upload the AAB to Play `wear:alpha` with
-  # versionCode = phone versionCode + 1 (avoids collision with the phone track, biciradar pattern).
+  # CIO.3: Wear track. :wear applies `shared.android.application` (wear/build.gradle.kts) and has a
+  # LAUNCHER activity, so it IS a standalone Wear application and does produce an uploadable AAB —
+  # the previous note here claimed it was a com.android.library, which stopped being true when the
+  # module was converted. versionCode = phone versionCode + 1 avoids a collision with the phone track.
   wear:
     if: ${{ inputs.android_rung == 'beta' || inputs.android_rung == 'production' }}
     needs: android
@@ -163,10 +170,5 @@ jobs:
           distribution: 'temurin'
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
-      - name: Build the Wear module
-        run: ./gradlew :wear:assembleRelease
-      # When :wear is an application module, replace the step above with:
-      #   ./gradlew :wear:bundleRelease -PwearVersionCodeOffset=1
-      #   bundle exec fastlane run upload_to_play_store track:"wear:alpha" \
-      #     aab:"wear/build/outputs/bundle/release/wear-release.aab" \
-      #     json_key:"$PLAY_STORE_KEY_FILE_PATH" skip_upload_apk:"true"
+      - name: Build the Wear AAB
+        run: ./gradlew :wear:bundleRelease -PwearVersionCodeOffset=1
