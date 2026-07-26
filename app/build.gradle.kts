@@ -414,8 +414,8 @@ dependencies {
     // `continue-on-error: true` and reported success. Raising the main runtime to 1.2.0 makes the
     // strict pin agree with what the test libraries need.
     constraints {
-        implementation("androidx.concurrent:concurrent-futures:1.2.0")
-        implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+        implementation("androidx.concurrent:concurrent-futures:1.3.0")
+        implementation("androidx.concurrent:concurrent-futures-ktx:1.3.0")
     }
 
     // Shared app-shell (home dashboard now lives here; nav/auth/search follow). :shared re-exports
