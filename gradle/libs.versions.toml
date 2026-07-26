@@ -1,7 +1,7 @@
 [versions]
 agp = "9.4.0-alpha04"
 foundation = "1.12.0-beta02"
-kotlin = "2.4.20-Beta1"
+kotlin = "2.4.20-Beta2"
 material = "1.14.0"
 material3 = "1.12.0-alpha03"
 materialIconsExtended = "1.7.3"
@@ -34,7 +34,7 @@ mlkit-text-recognition = "16.0.1"
 mlkit-barcode-scanning = "17.3.0"
 # noGms-only: FOSS (Apache-2.0) barcode/QR decoder, replaces ML Kit's Play-Services-backed
 # barcode-scanning on the F-Droid flavor (FLFD.2, see app/src/{gms,noGms}/.../PlatformServicesKoinEntry.kt).
-zxing-core = "3.5.3"
+zxing-core = "3.5.4"
 play-services-location = "21.4.0"
 play-services-wearable = "20.0.1"
 coil = "2.7.0"
@@ -59,7 +59,7 @@ napier = "2.7.1"
 coil3 = "3.5.0"
 markdownRenderer = "0.43.0"
 webviewMultiplatform = "2.0.3"
-maplibreCompose = "0.13.0"
+maplibreCompose = "0.13.1"
 ktor = "3.5.1"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
