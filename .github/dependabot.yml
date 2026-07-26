@@ -15,6 +15,24 @@ updates:
         patterns: ["androidx.*"]
       room:
         patterns: ["androidx.room*"]
+    ignore:
+      # AGP must move in LOCKSTEP across three version catalogs that all take part in this
+      # composite build:
+      #   gradle/libs.versions.toml
+      #   external/kmp-toolkit/gradle/libs.versions.toml
+      #   external/kmp-build-logic/gradle/libs.versions.toml
+      # Gradle's AgpVersionCompatibilityRule hard-fails configuration if they disagree
+      # ("Using multiple versions of the Android Gradle plugin ... is not allowed").
+      # Dependabot only scans this `directory: "/"`, so any AGP bump it opens updates one
+      # catalog, leaves the other two behind, and dies at configuration time — PR #56 was
+      # closed for exactly that. AGP is therefore bumped BY HAND across all three catalogs.
+      - dependency-name: "com.android.tools.build:gradle"
+      # Plugin markers for the AGP plugin ids used in the catalogs (com.android.application,
+      # com.android.library, com.android.kotlin.multiplatform.library) — Dependabot resolves a
+      # `[plugins]` entry as `<id>:<id>.gradle.plugin`, a different coordinate from the one
+      # above, so it needs its own ignore. Deliberately NOT a blanket `com.android.*`: that
+      # would also silence the real com.android.installreferrer dependency.
+      - dependency-name: "com.android.*:*.gradle.plugin"
 
   - package-ecosystem: "github-actions"
     directory: "/"
