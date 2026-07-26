@@ -10,9 +10,12 @@ import com.mileway.core.data.dao.HardwareEventDao
  * `uploaded = false`; [HardwareEventDao.getUnsyncedEventsByToken] and
  * [HardwareEventDao.markEventsAsSynced] were sitting unused until this class).
  *
- * [send] is the sync target — a `:stub` no-op function today (see class-level module doc on
- * [realLocationSend]); wire [realHardwareEventSend] the same way [LocationDataSyncer] is wired to
- * [realLocationSend] once the real backend flag is on.
+ * NOT YET DI-REGISTERED — this class and [realHardwareEventSend] are built and unit-tested, but no
+ * `trackingModule` binds them, so journey start/stop/pause/resume telemetry still never leaves the
+ * device. Wiring it needs care: registering a second `SubmitOutbox` type in `trackingModule` collides
+ * with the `SubmitOutbox<TripDraft>` binding at resolution time and breaks `KoinGraphTest` (the app
+ * graph then hands `MilesSubmitSyncer` the wrong outbox). Bind it with an explicit Koin qualifier, and
+ * re-run `KoinGraphTest` — it is the thing that catches this class of mistake.
  *
  * ponytail: unlike [LocationDataSyncer] there's no MAX_BATCHES_PER_DRAIN paging loop — journey
  * lifecycle events are a handful per trip (not a GPS-fix stream), so "every unsynced event for this
