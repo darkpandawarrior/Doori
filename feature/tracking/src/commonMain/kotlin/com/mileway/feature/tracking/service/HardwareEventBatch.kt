@@ -15,3 +15,10 @@ data class HardwareEventBatch(
 )
 
 typealias HardwareEventBatchOutbox = SubmitOutbox<HardwareEventBatch>
+
+/**
+ * Koin qualifier for the [HardwareEventBatchOutbox] binding. Required, not cosmetic: `SubmitOutbox<T>`
+ * resolves by its erased type here, so an unqualified binding shadows `SubmitOutbox<TripDraft>` and
+ * `MilesSubmitSyncer` ends up with the hardware-event outbox instead of the trip-draft one.
+ */
+const val HARDWARE_EVENT_OUTBOX = "hardwareEventOutbox"
