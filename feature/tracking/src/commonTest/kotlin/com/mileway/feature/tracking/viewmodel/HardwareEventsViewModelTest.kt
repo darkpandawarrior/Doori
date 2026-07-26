@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
  * package, and a same-named declaration here is a compile-time redeclaration clash. An earlier
  * attempt at this file hit exactly that and had to be dropped.
  */
-private class EventLogDao(
+internal class EventLogDao(
     private val stored: List<HardwareEvent> = emptyList(),
     private val failOnRead: Boolean = false,
 ) : HardwareEventDao {
