@@ -168,30 +168,57 @@ jobs:
         run: chmod +x ./gradlew
 
       # GMD provisions an AOSP ATD (headless, no Google APIs → the noGms variant), runs the
-      # tracking-lifecycle integration test (TrackingLifecycleTest), and tears the device down.
+      # tracking-lifecycle integration test (TrackingLifecycleTest) plus the Room migration
+      # androidTests, and tears the device down.
       #
       # Emulator boot on shared runners is intrinsically flaky (AvdSnapshotHandler can fail to create the
       # snapshot for GPU/KVM/timing reasons that vary run-to-run — the same code passes on a re-run). So we:
       #   1. force software GPU (headless runners have no display, so 'auto' can fail to start),
       #   2. retry up to 3x to ride out transient boot failures,
-      #   3. continue-on-error so a bad-runner boot failure never reds the pipeline. The test still runs and
-      #      its results upload below; it just doesn't gate on emulator infrastructure.
+      #   3. on a non-zero exit, trust the per-test JUnit XML over the Gradle exit code — same
+      #      approach as scripts/run-jvm-tests.sh. No XML at all means the emulator never got far
+      #      enough to run tests (the boot flake this loop exists for) → retry, and tolerate it after
+      #      3 attempts. XML with a <failure>/<error> means tests genuinely ran and failed — that's a
+      #      real signal (7 of these are Room migration tests) and must gate the build, so no
+      #      continue-on-error at the step level: only the boot case exits 0.
       - name: Run instrumented tests on Gradle Managed Device
-        continue-on-error: true
         run: |
           gpu="-Pandroid.testoptions.manageddevices.emulator.gpu=swiftshader_indirect"
+          # NOTE: GitHub runs this with `bash -e`, so the gradle call MUST sit inside an `if` —
+          # a bare `./gradlew …; code=$?` would abort the whole step on the first non-zero exit and
+          # never reach the XML check below.
           for attempt in 1 2 3; do
             echo "::group::GMD attempt $attempt"
             if ./gradlew pixel6Api34noGmsDebugAndroidTest "$gpu"; then
               echo "::endgroup::"; echo "GMD passed on attempt $attempt"; exit 0
             fi
+            code=$?
             echo "::endgroup::"
-            echo "::warning::GMD attempt $attempt failed (likely emulator boot); cleaning up and retrying"
+
+            # Both known AGP output locations — managed-device results land under
+            # build/outputs/androidTest-results/, but search the reports tree too so a layout change
+            # in a future AGP doesn't silently turn this gate into a no-op.
+            xmls=$(find . \( -path '*/build/outputs/androidTest-results/*' -o -path '*/build/reports/androidTests/*' \) -name '*.xml' 2>/dev/null)
+            if [ -n "$xmls" ]; then
+              real_failures=$(echo "$xmls" | xargs grep -lE '<(failure|error)[ >/]' 2>/dev/null)
+              if [ -n "$real_failures" ]; then
+                echo "::error title=Real instrumented test failures::gradle exited ${code} and found <failure>/<error> in:"
+                echo "$real_failures"
+                exit 1
+              fi
+              echo "GMD attempt $attempt: gradle exited ${code} but no test XML shows a failure; treating as passed"
+              exit 0
+            fi
+
+            echo "::warning::GMD attempt $attempt produced no androidTest XML (likely emulator boot failure); cleaning up and retrying"
             ./gradlew --stop || true
             sleep 15
           done
-          echo "::warning::GMD failed to boot the emulator after 3 attempts — not gating (infra flakiness)"
-          exit 1
+          # Boot flakiness is tolerated, as before. But say so LOUDLY: if this fires every run, the
+          # find paths above are wrong and this gate is silently passing everything — which is the
+          # exact failure mode `continue-on-error: true` had, just better hidden.
+          echo "::warning title=GMD did not gate::No androidTest XML after 3 attempts. Tolerating as emulator-boot flakiness. If you see this repeatedly, verify the result paths in this step — the gate may be inert."
+          exit 0
 
       - name: Upload instrumented test results
         if: always()
