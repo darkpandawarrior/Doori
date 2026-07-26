@@ -98,6 +98,21 @@ class AnalyticsAggregatorTest {
         assertEquals(500.0, AnalyticsAggregator.peakDay(series)?.amountRupees)
     }
 
+    @Test
+    fun `peakDay is null for an empty series`() {
+        assertEquals(null, AnalyticsAggregator.peakDay(emptyList()))
+    }
+
+    // ── windowLength edge cases not reachable through windowedSeries ─────────
+
+    @Test
+    fun `windowLength with an explicit end-before-start custom range falls back to series size`() {
+        val series = List(5) { day(it, 100.0) }
+        val length =
+            AnalyticsAggregator.windowLength(DateRangePreset.CUSTOM, series, customStart = 3 * 86_400_000L, customEnd = 1 * 86_400_000L)
+        assertEquals(5, length)
+    }
+
     // ── filterActivity ───────────────────────────────────────────────────────
 
     private fun activity(
@@ -188,6 +203,12 @@ class AnalyticsAggregatorTest {
         assertTrue(csv.contains("Mon,100.00,1"))
         assertTrue(csv.contains("Tue,200.00,1"))
         merchants.forEach { assertTrue(csv.contains(it.name)) }
+    }
+
+    @Test
+    fun `generateCsv rounds fractional amounts to two decimals rather than truncating`() {
+        val csv = AnalyticsAggregator.generateCsv("Travel", listOf(day(0, 12.345, "Mon")), emptyList())
+        assertTrue(csv.contains("Mon,12.35,1")) // truncation would wrongly yield 12.34
     }
 
     // ── insight derivation ───────────────────────────────────────────────────

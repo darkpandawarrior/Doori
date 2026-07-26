@@ -34,10 +34,20 @@ detekt {
 
 // --------------------------------------------------------------------------
 // Kover: test coverage aggregation from every subproject
+//
+// Previously this only pulled in :app, whose own local coverage floor (see
+// app/build.gradle.kts) already excludes the UI layer — so the badge measured
+// ~2 dozen classes out of ~500 across core/feature modules. Expanded to the
+// modules that actually hold logic worth measuring; :app's own local
+// noGmsDebugCoverage floor is unchanged and still gates separately.
 // --------------------------------------------------------------------------
 dependencies {
-    // Aggregate coverage from :app which has the unit tests + kover applied
     kover(project(":app"))
+    kover(project(":core:data"))
+    kover(project(":core:network"))
+    kover(project(":contract"))
+    kover(project(":feature:tracking"))
+    kover(project(":feature:logging"))
 }
 
 kover {
@@ -45,6 +55,32 @@ kover {
         filters {
             excludes {
                 packages("*.BuildConfig", "*.R")
+                // Same rationale as app/build.gradle.kts: UI is exercised by screenshot tests, not
+                // the assertion-based unit-test floor; excluding it keeps the number about logic
+                // coverage. No-op in modules that don't have these packages.
+                packages(
+                    "*.ui.screens",
+                    "*.ui.components",
+                    "*.ui.sheets",
+                    "*.ui.navigation",
+                    "*.ui.theme",
+                    "*.ui.previews",
+                )
+                classes("*Screen*Kt", "*Preview*", "*ComposableSingletons*")
+            }
+        }
+        total {
+            verify {
+                rule {
+                    // ponytail: placeholder floor. This is the FIRST run of the expanded aggregation
+                    // (:app + core:data + core:network + contract + feature:tracking + feature:logging)
+                    // — nobody has measured the real percentage yet, so this is deliberately set low
+                    // enough to certainly clear rather than guessed. Once a real CI run reports the
+                    // actual number (see the `kover-report` artifact), ratchet this up to a couple of
+                    // points below the measured value, the same way app/build.gradle.kts's 20 tracks
+                    // its own 22.66% measured number.
+                    minBound(5)
+                }
             }
         }
     }
