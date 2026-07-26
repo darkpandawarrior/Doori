@@ -21,6 +21,10 @@ import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRepository
 import com.mileway.feature.tracking.search.TrackingSearchProvider
 import com.mileway.feature.tracking.service.AppSyncTrigger
+import com.mileway.feature.tracking.service.HARDWARE_EVENT_OUTBOX
+import com.mileway.feature.tracking.service.HardwareEventBatch
+import com.mileway.feature.tracking.service.HardwareEventBatchOutbox
+import com.mileway.feature.tracking.service.HardwareEventSyncer
 import com.mileway.feature.tracking.service.LocationDataSyncer
 import com.mileway.feature.tracking.service.MilesSubmitSyncer
 import com.mileway.feature.tracking.service.ReconciliationResultHolder
@@ -28,6 +32,7 @@ import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.service.SubmissionNotificationThrottler
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingStatePublisher
+import com.mileway.feature.tracking.service.realHardwareEventSend
 import com.mileway.feature.tracking.service.realLocationSend
 import com.mileway.feature.tracking.service.realMilesSubmitSend
 import com.mileway.feature.tracking.viewmodel.CheckInHistoryViewModel
@@ -44,6 +49,7 @@ import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesViewModel
 import com.mileway.feature.tracking.viewmodel.TrackingSuccessViewModel
 import com.mileway.feature.tracking.watch.WatchFacade
+import com.siddharth.kmp.offlineoutbox.RoomSubmitOutbox
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -127,10 +133,30 @@ val trackingModule =
 
         // PLAN_V34 P1: app-scoped flush triggers — mirrors the Android trackingModule binding (see
         // AppSyncTrigger doc). Started from MilewayAppViewController after initKoin.
+        // PLAN_V33 A4 (event half): journey lifecycle telemetry. HardwareEventDao's
+        // getUnsyncedEventsByToken/markEventsAsSynced sat unused until this wiring — without it
+        // HardwareEventSyncer is unreachable and start/stop/pause/resume events never leave the
+        // device even with the backend flag on.
+        //
+        // The named() qualifier is load-bearing, not decoration: SubmitOutbox<T>'s bindings resolve
+        // by the erased SubmitOutbox key here, so an unqualified single<HardwareEventBatchOutbox>
+        // shadows CoreDataModule's single<SubmitOutbox<TripDraft>> and MilesSubmitSyncer silently
+        // receives the wrong outbox. KoinGraphTest catches it immediately — run it after touching this.
+        single<HardwareEventBatchOutbox>(named(HARDWARE_EVENT_OUTBOX)) {
+            RoomSubmitOutbox(get(), get(), HardwareEventBatch.serializer())
+        }
+        single {
+            HardwareEventSyncer(
+                hardwareEventDao = get(),
+                outbox = get(named(HARDWARE_EVENT_OUTBOX)),
+                send = realHardwareEventSend(api = get(), hardwareEventDao = get()),
+            )
+        }
         single {
             AppSyncTrigger(
                 syncer = get(),
                 milesSyncer = get(),
+                eventSyncer = get(),
                 currentTrackRepo = get(),
                 isConnectedFlow = NetworkMonitor.isConnectedFlow,
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Main),

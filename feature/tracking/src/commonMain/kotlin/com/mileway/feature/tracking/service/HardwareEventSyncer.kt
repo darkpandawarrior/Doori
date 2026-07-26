@@ -10,12 +10,14 @@ import com.mileway.core.data.dao.HardwareEventDao
  * `uploaded = false`; [HardwareEventDao.getUnsyncedEventsByToken] and
  * [HardwareEventDao.markEventsAsSynced] were sitting unused until this class).
  *
- * NOT YET DI-REGISTERED — this class and [realHardwareEventSend] are built and unit-tested, but no
- * `trackingModule` binds them, so journey start/stop/pause/resume telemetry still never leaves the
- * device. Wiring it needs care: registering a second `SubmitOutbox` type in `trackingModule` collides
- * with the `SubmitOutbox<TripDraft>` binding at resolution time and breaks `KoinGraphTest` (the app
- * graph then hands `MilesSubmitSyncer` the wrong outbox). Bind it with an explicit Koin qualifier, and
- * re-run `KoinGraphTest` — it is the thing that catches this class of mistake.
+ * Bound in both platform `trackingModule`s under the [HARDWARE_EVENT_OUTBOX] qualifier, with [send]
+ * wired to [realHardwareEventSend] — the same shape as [LocationDataSyncer]/[realLocationSend]. The
+ * qualifier is required: `SubmitOutbox<T>` resolves by its erased type here, so an unqualified
+ * binding shadows `SubmitOutbox<TripDraft>` and hands `MilesSubmitSyncer` the wrong outbox.
+ * `KoinGraphTest` catches exactly that — re-run it after touching this wiring.
+ *
+ * With the default `:stub` binding the POST is a no-op that never throws, so nothing leaves the
+ * device until `NetworkBackendFlags.useRealBackend` is flipped — but the graph is now complete.
  *
  * ponytail: unlike [LocationDataSyncer] there's no MAX_BATCHES_PER_DRAIN paging loop — journey
  * lifecycle events are a handful per trip (not a GPS-fix stream), so "every unsynced event for this
