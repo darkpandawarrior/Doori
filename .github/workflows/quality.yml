@@ -61,14 +61,31 @@ jobs:
       # noGms is the JVM unit-test target: the gms flavor pulls Google Play Services
       # maps, whose native libs SIGSEGV a shared Robolectric fork (exit 2). noGms
       # (MapLibre) has no Play Services native deps; map surfaces are faked in tests.
+      #
+      # Two extra JVM-only suites are appended as additional Gradle tasks (run-jvm-tests.sh passes
+      # "$@" straight through after the first task, so they share one Gradle invocation and the same
+      # Robolectric-teardown-flake tolerance). Both previously ran in NO workflow at all. Be honest
+      # about how much they actually cover — it is not much, but it is more than zero, and it means
+      # a compile break in either module now fails the gate:
+      #   :widget:testDebugUnitTest — :widget applies `mileway.android.library` (plain
+      #     com.android.library, no product flavors), so the flavoured `testNoGmsDebugUnitTest`
+      #     aggregate never matched it. NOTE this is a *record* run, not an assertion run:
+      #     WidgetScreenshotTest sets `roborazzi.test.record=true` and writes
+      #     docs/screenshots/widget_glance.png into the checkout, so it can never fail on a pixel
+      #     diff — it only proves the Glance tree composes.
+      #   :desktopApp:desktopTest — :desktopApp is a bare `jvm("desktop")` KMP target, so its test
+      #     task is `desktopTest`. Pure JVM (`runDesktopComposeUiTest`, no Robolectric/emulator), so
+      #     this is ~free — but 7 of its 9 @Tests are @Ignore'd as flaky under headless Skiko, so
+      #     what actually executes is DashboardMockDataTest's 2 assertions.
       - name: Unit tests
         if: ${{ !cancelled() }}
-        run: ./scripts/run-jvm-tests.sh testNoGmsDebugUnitTest
+        run: ./scripts/run-jvm-tests.sh testNoGmsDebugUnitTest :widget:testDebugUnitTest :desktopApp:desktopTest
 
       # KMP modules (feature:tracking, core:platform, core:security) name their JVM unit-test
       # task `testAndroidHostTest`, which the variant-specific aggregate above does not match.
-      # This runs the commonMain engine/policy/mapper suites once on the host (both platforms
-      # share the same code; iOS runs the same suite via iosSimulatorArm64Test).
+      # This runs the commonMain engine/policy/mapper suites once on the host. The iOS targets
+      # compile the same commonMain code but no workflow currently *runs* an iOS test task
+      # (iosSimulatorArm64Test would need a macOS runner) — host execution is the only coverage.
       - name: KMP commonTest (host)
         if: ${{ !cancelled() }}
         run: ./gradlew testAndroidHostTest

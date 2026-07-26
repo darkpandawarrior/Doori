@@ -6,7 +6,12 @@ name: No AI attribution
 # a clone that never enabled the hook.
 
 on:
+  # Scoped to main: a bare `on: push` also fires for every push to a PR branch, so
+  # scan-commit-messages ran twice per PR (once for push, once for pull_request) over the
+  # same commits. The pull_request leg is the one that gates a PR; this leg covers direct
+  # pushes to main.
   push:
+    branches: [ main ]
   pull_request:
 
 concurrency:
