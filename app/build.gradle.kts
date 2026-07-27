@@ -412,10 +412,13 @@ dependencyGuard {
     // means "nothing NEW leaked in", not "this build is GMS-free". Committing the baseline anyway is
     // deliberate: it freezes the leak at its current size and makes any growth a failing diff, which
     // is strictly better than the previous state of no guard at all. Shrink the baseline as the leak
-    // is fixed; do not let it grow. Measured at the time this baseline was committed: 19 of the 427
-    // entries are com.google.android.gms / com.google.mlkit (play-services-base, -basement,
-    // -location, the two mlkit scanners, and their transitives). That count is the number to drive
-    // down — `grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt`.
+    // is fixed; do not let it grow. Measured when this baseline was committed: of 427 entries,
+    // 15 are com.google.android.gms / com.google.mlkit (play-services-base, -basement, -location,
+    // the two mlkit scanners and their transitives) and a further 4 are com.google.firebase
+    // (annotations, components, encoders, encoders-json) pulled in transitively by them — 19
+    // proprietary entries in total. Those are the numbers to drive down:
+    //   grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 15
+    //   grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 19
     configuration("noGmsReleaseRuntimeClasspath")
 }
 
@@ -429,8 +432,8 @@ dependencies {
     // `continue-on-error: true` and reported success. Raising the main runtime to 1.2.0 makes the
     // strict pin agree with what the test libraries need.
     constraints {
-        implementation("androidx.concurrent:concurrent-futures:1.2.0")
-        implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+        implementation("androidx.concurrent:concurrent-futures:1.3.0")
+        implementation("androidx.concurrent:concurrent-futures-ktx:1.3.0")
     }
 
     // Shared app-shell (home dashboard now lives here; nav/auth/search follow). :shared re-exports
