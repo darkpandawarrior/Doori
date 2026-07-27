@@ -71,6 +71,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: ./gradlew :server:test
 
+      # :app-web-preview is the wasmJs shell embedded in the portfolio site — the first thing a
+      # recruiter runs. Nothing compiled it before, and it carries a hand-maintained srcDir allowlist
+      # onto core:ui's theme package, so a rename there breaks it silently.
+      - name: Compile the wasmJs portfolio preview
+        run: ./gradlew :app-web-preview:wasmJsMainClasses
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v7
