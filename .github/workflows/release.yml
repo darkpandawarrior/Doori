@@ -88,6 +88,13 @@ jobs:
         env:
           ROLLOUT: ${{ inputs.production_rollout }}
           FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          # app/build.gradle.kts gates mappingFileUploadEnabled on
+          # System.getenv("CRASHLYTICS_UPLOAD") == "true". A repository VARIABLE is not automatically
+          # exported to the Gradle process — without this line, setting the variable in repo settings
+          # would look configured and do nothing, and every production crash would arrive as an
+          # unsymbolicated stack trace. Unset resolves to "", which is != "true", so the default stays
+          # off and nothing changes until the variable is deliberately created.
+          CRASHLYTICS_UPLOAD: ${{ vars.CRASHLYTICS_UPLOAD }}
 
   ios:
     if: ${{ inputs.ios_rung != 'skip' }}
