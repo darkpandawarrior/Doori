@@ -67,6 +67,23 @@ kover {
                     "*.ui.previews",
                 )
                 classes("*Screen*Kt", "*Preview*", "*ComposableSingletons*")
+                // Belt-and-braces for the point above: catches any @Composable that ends up
+                // outside a *.ui.* package or a *Screen*/*Preview*-named file (e.g. a composable
+                // dropped in a debug/ or root package) so the exclusion doesn't silently miss it.
+                annotatedBy("androidx.compose.runtime.Composable")
+                // core:data, feature:tracking and feature:logging each ship a `di` package of pure
+                // Koin module declarations (`single { FooImpl(get()) }`) — declarative wiring, not
+                // logic; counting it dilutes the number same as counting UI would. No-op in
+                // modules without one (:core:network, :contract).
+                // "*.di", not "*.di.*": Kover matches the pattern against the WHOLE package name, and
+                // nothing follows `di` in com.mileway.core.data.di — so the trailing `.*` matched
+                // nothing and this exclusion was silently inert. Every other entry in this block
+                // already uses the no-trailing-wildcard form.
+                packages("*.di")
+                // Room (core:data) KSP-generates a `<Dao/Database>_Impl` class per @Dao/@Database
+                // in the same package as the source — exercised by Room's own instrumented/
+                // migration tests, not the unit-test floor. No-op in modules without Room.
+                classes("*_Impl")
             }
         }
         total {
@@ -75,10 +92,16 @@ kover {
                     // ponytail: placeholder floor. This is the FIRST run of the expanded aggregation
                     // (:app + core:data + core:network + contract + feature:tracking + feature:logging)
                     // — nobody has measured the real percentage yet, so this is deliberately set low
-                    // enough to certainly clear rather than guessed. Once a real CI run reports the
-                    // actual number (see the `kover-report` artifact), ratchet this up to a couple of
-                    // points below the measured value, the same way app/build.gradle.kts's 20 tracks
-                    // its own 22.66% measured number.
+                    // enough to certainly clear rather than guessed. NOTE: neither `fullCheck` nor
+                    // .github/workflows/quality.yml currently runs this rule — the "Coverage report +
+                    // floor" CI step and the `kover-report` artifact are both scoped to `:app:kover*
+                    // NoGmsDebugCoverage` only, so this `total { verify {} }` rule is unenforced today
+                    // (see task report). To get the real number, run the root's default aggregate
+                    // task — `./gradlew koverXmlReport` (writes build/reports/kover/report.xml) and/or
+                    // `./gradlew koverVerify` — then ratchet this up to a couple of points below the
+                    // measured value, the same way app/build.gradle.kts's 20 tracks its own 22.66%
+                    // measured number. Wiring that task into the gate is out of this task's file scope
+                    // (root `build.gradle.kts`'s `fullCheck` task + quality.yml, not the kover block).
                     minBound(5)
                 }
             }
