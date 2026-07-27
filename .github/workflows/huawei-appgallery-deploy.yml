@@ -64,7 +64,8 @@ jobs:
 
       - name: Upload to Huawei AppGallery
         if: env.HAS_SECRET == 'true'
-        uses: muhamedzeema/appgallery-deply-action@main
+        # Pinned: @main is a mutable branch, so a third party could change what runs here.
+        uses: muhamedzeema/appgallery-deply-action@v1
         with:
           client-id: ${{ secrets.HUAWEI_CLIENT_ID }}
           client-key: ${{ secrets.HUAWEI_CLIENT_KEY }}
