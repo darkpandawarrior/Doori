@@ -1,0 +1,33 @@
+# Docker obeys THIS file, not .gitignore. That distinction matters here: `.ralph/` is gitignored but
+# would still be copied into an image layer by a broad `COPY . .`, and it contains REFERENCE.md —
+# the proprietary reference app's name and local path. CLAUDE.md's guardrail is "no proprietary
+# references, even by accident"; this is the accident it is guarding against.
+#
+# server/Dockerfile currently copies only the built distribution, so nothing here is load-bearing
+# today. It exists so that a future edit reintroducing a broad COPY fails safe.
+
+# Proprietary-reference material and agent working state
+.ralph/
+CLAUDE.md
+AGENTS.md
+
+# Local machine config — sdk.dir points at a host path that is meaningless in a container and would
+# shadow ANDROID_HOME if an SDK were ever added.
+local.properties
+
+# VCS and build output
+.git/
+.github/
+build/
+*/build/
+**/build/
+.gradle/
+*/.gradle/
+
+# Large assets that no runtime image needs
+docs/
+fastlane/
+maestro/
+
+.DS_Store
+*.log

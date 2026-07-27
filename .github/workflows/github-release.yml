@@ -70,9 +70,15 @@ jobs:
           RELEASE_SCRUBLIST_B64: ${{ secrets.RELEASE_SCRUBLIST_B64 }}
       # JDK/Gradle already set up above (needed early for the FINGERPRINT check).
       # Builds every flavor+buildType the repo variable RELEASE_BUILD_CMD lists (Mileway: gms + noGms,
-      # debug + release — so testers can grab the exact variant they need). Release is signed with the
-      # real keystore when a secret is materialized, else falls back to the debug key (still an
-      # installable APK, not a raw unsigned blob — see app/build.gradle.kts hasReleaseSigning). Some
+      # debug + release — so testers can grab the exact variant they need).
+      #
+      # These release APKs are ALWAYS DEBUG-SIGNED. This workflow has no keystore step — grep it for
+      # KEYSTORE_B64 / RELEASE_STORE_FILE and you get nothing — so app/build.gradle.kts's
+      # hasReleaseSigning is always false here and the debug signingConfig is used. (release.yml is
+      # the workflow that materializes the real keystore.) They are installable, but an in-place
+      # upgrade over a Play-installed build will NOT work; do not use them to validate signing
+      # continuity. The comment previously claimed real-keystore signing "when a secret is
+      # materialized", which was never true in this file. Some
       # projects' release build genuinely emits `-unsigned` in the output filename; the find/copy below
       # matches that too.
       - name: Build artifacts
