@@ -17,7 +17,7 @@ import com.mileway.feature.tracking.service.TrackingStatePublisher
 import com.mileway.feature.tracking.service.location.DistanceCalculator
 import com.mileway.feature.tracking.service.location.GpsFix
 import com.mileway.feature.tracking.service.location.LocationProcessor
-import com.siddharth.kmp.appshell.GeoPoint
+import com.mileway.feature.tracking.service.location.toGpsFix
 import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.location.QualityInputs
 import com.siddharth.kmp.location.TrackingQualityScorer
@@ -359,20 +359,3 @@ private const val WATCHDOG_CHECK_INTERVAL_MS = 15_000L
 private const val STALE_FIX_TIMEOUT_MS = 90_000L
 
 private fun nowMs(): Long = Clock.System.now().toEpochMilliseconds()
-
-/**
- * `GeoPoint` (kmp-toolkit) now carries real speed/course/altitude from `CLLocation` (negative
- * speed/course means "invalid" per CoreLocation's convention — guarded here to the [GpsFix] 0
- * defaults rather than propagating a negative speed/bearing into the distance/quality pipeline).
- */
-private fun GeoPoint.toGpsFix(): GpsFix =
-    GpsFix(
-        lat = latitude,
-        lng = longitude,
-        timeMs = timestampMillis,
-        speedMps = if (speedMetersPerSecond < 0f) 0f else speedMetersPerSecond,
-        accuracyM = accuracyMeters,
-        bearingDeg = if (courseDegrees < 0.0) 0f else courseDegrees.toFloat(),
-        altitudeM = altitudeMeters,
-        provider = "ios",
-    )
