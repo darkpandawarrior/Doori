@@ -468,18 +468,23 @@ DataStore. A real Kotlin/Ktor backend ships too but is **off by default** — se
 ./gradlew assembleNoGmsRelease        # reproducible FOSS release (F-Droid)
 
 # Tests & screenshots (noGms only; gms crashes Robolectric)
-./gradlew testNoGmsDebugUnitTest      # JVM unit tests (300+ test classes, no emulator)
+./gradlew testNoGmsDebugUnitTest      # JVM unit tests (370 test classes, no emulator)
 ./gradlew recordRoborazziNoGmsDebug   # (re)record screenshot baselines → docs/screenshots/
 
 # Quality
 ./gradlew ktlintCheck detekt          # style + static analysis
-./gradlew :app:koverXmlReport         # coverage report
+./gradlew :app:koverXmlReportNoGmsDebugCoverage   # coverage report (the name quality.yml uses;
+                                      # bare :app:koverXmlReport is not a real task here)
 
 # Backend (opt-in — off by default)
 ./gradlew :server:run                 # start the Ktor server on :8080 (H2 in-memory)
 ./gradlew :server:test                # server route / auth / opId-dedup tests
 # then set NetworkBackendFlags.useRealBackend = true and point BaseUrlProvider at the server
 # (Android emulator: http://10.0.2.2:8080). Auth: POST /api/auth/login with the seeded demo user.
+# Or run it containerised against real Postgres instead of in-memory H2:
+./gradlew :server:installDist         # the image packages a built distribution, it doesn't compile
+JWT_SECRET=dev-secret docker compose up --build    # server on :8080 + postgres:16
+# JWT_SECRET is required by design — compose aborts rather than silently using the dev default.
 
 # Other targets
 ./gradlew :desktopApp:assemble        # Compose Desktop (single mock-data dashboard window)
@@ -533,25 +538,46 @@ hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per i
 
 ## Testing and quality
 
-- **JVM unit tests.** 300+ test classes covering ViewModels, repositories and feature logic with MockK
-  and Turbine, run on the `noGms` flavor with no emulator.
-- **Screenshot tests.** Roborazzi renders every screen across all feature modules plus the
-  component-preview matrices on the JVM (`ScreenshotGalleryTest` and `ScreenshotCatalogTest`, all
-  in `docs/screenshots/`). They're deterministic and diff cleanly in PRs.
-- **Static analysis.** detekt and ktlint across every module, with Kover for coverage.
-- **Backend tests (`:server`).** `./gradlew :server:test` covers idempotent `opId`
-  dedup, the shared `PolicyRateEngine`, and route behavior against an in-memory H2 database — a
-  plain `kotlin("jvm")` module, not part of the KMP/Android build. Runs in `ci.yml` on every push
-  and PR (it's outside `testNoGmsDebugUnitTest`, so it has its own step).
-- **CI.** `.github/workflows/ci.yml` runs `assembleGmsDebug`, `testNoGmsDebugUnitTest`,
-  `testAndroidHostTest` and `:server:test` on every push
-  and PR. Separate `quality`, `release` and `publish-fdroid` workflows handle the gates and distribution.
-- **Distribution.** Beyond Play/F-Droid/Indus (`release.yml`, `publish-fdroid.yml`, `indus-deploy.yml`):
-  `amazon-appstore-deploy.yml`, `huawei-appgallery-deploy.yml`, `samsung-galaxy-store-deploy.yml`, and
-  `aptoide-deploy.yml` cover the other major Android storefronts, all gated on repo secrets and inert
-  until configured (see each workflow's header comment). GitHub Releases (already published by
-  `release.yml`) also make the app trackable via [Obtainium](https://github.com/ImranR98/Obtainium)
-  with no extra config. **Uptodown** has no public submission API — manual web-form upload only.
+**2,510 `@Test` methods across 370 test classes in 30 modules**, plus 159 host-rendered screenshots.
+Numbers you can reproduce:
+
+```bash
+grep -rho '@Test' --include='*.kt' . | wc -l          # 2510
+ls docs/screenshots/*.png | wc -l                     # 159
+```
+
+| Layer | What runs it | Gates a merge? |
+|---|---|---|
+| JVM unit tests (`testNoGmsDebugUnitTest`) | `quality.yml` | ✅ required check |
+| KMP commonTest on the host (`testAndroidHostTest`) | `quality.yml` | ✅ required check |
+| ktlint · detekt · Kover · dependencyGuard (both flavors) | `quality.yml` | ✅ required check |
+| Backend (`:server:test`) | `ci.yml` → *Build & Test* | ✅ required check |
+| Instrumented / Room migrations (GMD, `pixel6Api34`) | `ci.yml` | ✅ fails on real test failures |
+| Roborazzi screenshots | `screenshots.yml` | records + proposes a diff |
+| iOS · watchOS frameworks | `ios.yml` (macOS runner) | compile-checked |
+| wasmJs portfolio preview | `ci.yml` | compile-checked |
+
+**What is deliberately *not* claimed.** The instrumented suite runs on a Gradle Managed Device and
+tolerates emulator-boot failure (shared runners fail to boot regularly) — but it distinguishes that
+from a real assertion failure by inspecting the JUnit XML, so a genuinely failing test *does* fail the
+job. Roborazzi covers the screens with committed baselines, not literally every screen. There is no
+`iosTest` source set anywhere: Kotlin/Native rejects backtick test names containing `,`/`(`/`)`, which
+the existing commonTest suites use in 39 places, so iOS-only logic is moved down to `commonMain` to be
+testable instead (see `GeoPointMapping.kt`).
+
+**Backend (`:server`).** Idempotent `opId` dedup, the shared `PolicyRateEngine`, and route behaviour
+against in-memory H2 — a plain `kotlin("jvm")` module, outside the KMP/Android build, so it has its
+own CI step.
+
+**Supply-chain guards.** `dependencyGuard` baselines *both* release classpaths, so a transitive
+version bump or a new artifact is a failing diff rather than a surprise. The `noGms` baseline is the
+one that matters for FOSS claims — see [Build flavors](#build-flavors) for what it currently contains.
+
+**Distribution.** Play and F-Droid (`release.yml`, `publish-fdroid.yml`) plus Amazon, Huawei, Samsung,
+Indus and Aptoide workflows. All are gated on repo secrets and inert until configured — see
+[`docs/OWNER_ACTIONS.md`](docs/OWNER_ACTIONS.md). GitHub Releases also make the app trackable via
+[Obtainium](https://github.com/ImranR98/Obtainium) with no extra config. **Uptodown** has no public
+submission API — manual web-form upload only.
 
 ## Roadmap
 
