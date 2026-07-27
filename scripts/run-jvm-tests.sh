@@ -15,15 +15,23 @@ set -uo pipefail
 TASK="${1:?usage: run-jvm-tests.sh <gradle-task> [extra gradle args...]}"
 shift || true
 
+# Marker for freshness. Without it the `find` below matches test-results XML from ANY previous run,
+# so a task that produced NO results this time could still "verify" green against stale XML left in
+# build/ by an earlier green run — a silent pass, which is the exact failure class this wrapper is
+# supposed to prevent.
+marker="$(mktemp)"
+
 ./gradlew "$TASK" "$@"
 code=$?
 [ "$code" -eq 0 ] && exit 0
 
 echo "::warning title=Robolectric teardown flake::'$TASK' exited ${code}; verifying via per-test XML"
 
-xmls=$(find . -path '*/build/test-results/*' -name '*.xml' 2>/dev/null)
+# -newer "$marker": only XML written by THIS invocation counts.
+xmls=$(find . -path '*/build/test-results/*' -name '*.xml' -newer "$marker" 2>/dev/null)
+rm -f "$marker"
 if [ -z "$xmls" ]; then
-  echo "::error title=No test results::'$TASK' produced no test-results XML — tests did not run"
+  echo "::error title=No test results::'$TASK' produced no test-results XML this run — tests did not run"
   exit 1
 fi
 
