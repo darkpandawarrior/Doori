@@ -402,6 +402,21 @@ kover {
 // after any intentional dep change, then commit the updated baseline file.
 dependencyGuard {
     configuration("gmsReleaseRuntimeClasspath")
+    // noGms is this project's own FOSS/F-Droid build, and until now it was the ONE release classpath
+    // with no baseline — so nothing verified what actually ships there.
+    //
+    // Read the committed noGms baseline with your eyes open: it currently CONTAINS play-services and
+    // ML Kit entries. That is the known, tracked leak (feature/tracking's FusedLocationSource imports
+    // com.google.android.gms.location.* unconditionally, and kmp-toolkit's app-shell pulls
+    // play-services-location), NOT a clean FOSS classpath. A green `dependencyGuard` here therefore
+    // means "nothing NEW leaked in", not "this build is GMS-free". Committing the baseline anyway is
+    // deliberate: it freezes the leak at its current size and makes any growth a failing diff, which
+    // is strictly better than the previous state of no guard at all. Shrink the baseline as the leak
+    // is fixed; do not let it grow. Measured at the time this baseline was committed: 19 of the 427
+    // entries are com.google.android.gms / com.google.mlkit (play-services-base, -basement,
+    // -location, the two mlkit scanners, and their transitives). That count is the number to drive
+    // down — `grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt`.
+    configuration("noGmsReleaseRuntimeClasspath")
 }
 
 dependencies {
