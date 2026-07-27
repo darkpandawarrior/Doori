@@ -38,6 +38,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 - [Tech stack](#tech-stack)
 - [Getting started](#getting-started)
 - [Build flavors](#build-flavors)
+- [Owner actions (secrets, store accounts)](docs/OWNER_ACTIONS.md)
 - [Ralph-loop development](#ralph-loop-development)
 - [Testing and quality](#testing-and-quality)
 - [Roadmap](#roadmap)
@@ -336,7 +337,7 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | **Location engine: four-bucket accounting + deterministic recompute** | GPS is dirty. Rather than throw away suspect fixes, every point is kept and classified into `original` / `cleaned` / `abnormal` / `mock` buckets, all persisted. Distance can then be *recomputed from the stored points*, so a later math fix re-derives history instead of stranding already-tracked trips on old numbers. | More storage and a more complex write path than "sum the deltas as they arrive." The payoff is auditability and forward-fixable math — the thing that actually matters when a user disputes a distance. |
 | **MVI + single immutable state per screen** | One `StateFlow<State>` per screen, collected with `collectAsStateWithLifecycle`, wrapped in a shared `ScreenState` that models loading/empty/error/content uniformly. Renders are a pure function of state; there's no half-updated UI to reason about. | More boilerplate than mutable view state, and every field change means a fresh copy of the state object. Accepted because it makes recomposition predictable and screens trivial to screenshot-test. |
 | **`SearchProvider` registry instead of a central search index** | Each feature binds its own `SearchProvider` into Koin; the master-search aggregator resolves `getAll<SearchProvider>()` and fans out. Adding a searchable feature is a one-line Koin binding — no edit to a shared switch statement, no feature-to-feature dependency. | Search is only as good as each provider, and cross-feature ranking is naive (per-provider, then merged). Fine for the scale here; the decoupling is worth more than global relevance tuning. |
-| **One codebase, two distributions (`gms` / `noGms`) with a FOSS purity guard** | The same app ships to Play (Google Maps/Firebase via `gms`) and to F-Droid (MapLibre + offline MBTiles, zero proprietary deps via `noGms`). A dependency-prefix guard *fails the build* the instant a proprietary library reaches the `noGms` classpath — FOSS-clean is enforced, not hoped for. | Every platform integration needs a FOSS fallback (maps being the big one), and CI has to build/verify both flavors. The guard is what makes "it's really FOSS" a checkable claim rather than a README promise. |
+| **One codebase, two distributions (`gms` / `noGms`) with a FOSS purity guard** | The same app ships to Play (Google Maps/Firebase via `gms`) and to F-Droid (MapLibre + offline MBTiles via `noGms`). A dependency-prefix guard fails the build when an unlisted proprietary prefix reaches the `noGms` classpath, and `dependencyGuard` baselines that classpath so any *new* arrival is a failing diff. **Honest status: `noGms` is not GMS-free today.** Its baseline carries 19 proprietary entries — 15 `com.google.android.gms`/`com.google.mlkit` plus 4 transitive `com.google.firebase` — because ML Kit powers OCR and document scanning and is deliberately allowlisted. So the guard means *"nothing new leaked in"*, not *"this build is FOSS"*, and F-Droid submission is blocked until that set reaches zero. | Every platform integration needs a FOSS fallback (maps being the big one), and CI has to build/verify both flavors. The guard is what makes "it's really FOSS" a checkable claim rather than a README promise. |
 | **Shared Gradle logic in a separate `includeBuild` repo** | The convention plugins live in [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic), not inlined here, so AGP/Kotlin/Compose/test config is reused across projects (PaymentsLab too) instead of drifting per-repo. | One more repo to keep in sync, and a composite build to reason about. Worth it the moment a second KMP project exists. |
 | **Autonomous Ralph-loop development with a revert-on-uncommitted guard** | The app is built through versioned `.ralph/PLAN_Vxx.md` phases, each iteration editing → building → committing in one turn. A Stop hook reverts uncommitted tracked edits between turns, which *forces* small, self-contained, individually-revertable commits. | The workflow is unforgiving — a build that fails to commit in-turn is lost. That constraint is the point: it makes every change atomic and the history clean to bisect. |
 
@@ -495,9 +496,21 @@ A `maps` flavor dimension splits the app into a proprietary and a FOSS build:
 | Flavor | Maps | Google / Play / Firebase | Use case |
 |---|---|---|---|
 | `gms` | KrossMap (Google Maps / MapKit) | Firebase + Play services | Play Store build |
-| `noGms` | MapLibre + offline MBTiles (no API key) | none (FOSS-clean) | F-Droid / fully offline |
+| `noGms` | MapLibre + offline MBTiles (no API key) | no Firebase; ML Kit still present (see below) | fully offline; F-Droid pending |
 
-A dependency-prefix guard fails the build if proprietary libraries leak into the `noGms` classpath.
+A dependency-prefix guard fails the build if an *unlisted* proprietary prefix reaches the `noGms`
+classpath, and `dependencyGuard` baselines that classpath so a new arrival shows up as a failing diff.
+
+Both are real, but neither makes the build FOSS today: ML Kit (OCR + document scanning) is explicitly
+allowlisted, and the baseline currently holds **19** proprietary entries. Check it yourself:
+
+```bash
+grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 15
+grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 19
+```
+
+Getting that to zero means replacing ML Kit in the FOSS flavor — see
+[`docs/OWNER_ACTIONS.md`](docs/OWNER_ACTIONS.md) § Tier 6 for the decision that blocks F-Droid.
 
 ## Ralph-loop development
 
