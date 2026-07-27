@@ -4,8 +4,9 @@ Everything in this file needs repo-admin rights, a paid developer account, or a 
 cannot live in the repo. None of it can be automated from a PR, which is why it is written down
 rather than done.
 
-**Nothing here is required for the repo to build, test or release on GitHub.** `main` is green and
-`v2026.07.30.36.742` ships real artifacts without any of it. These items unlock *distribution* and
+**Nothing here is required for the repo to build, test or release on GitHub.** `main` is green and the
+latest tag ships real artifacts without any of it. (Tags read `YYYY.0M.0W.MILESTONE.COMMITCOUNT` —
+the third field is the ISO *week*, not a day, so `v2026.07.30…` is week 30, not July 30th.) These items unlock *distribution* and
 *enforcement*, and each one is independently useful — do them in any order, one sitting at a time.
 
 Each task lists: **why**, **where** (the exact platform and page), **what you get** (the literal
@@ -24,15 +25,18 @@ value to paste), and **how to verify** it worked. Tick them off as you go.
 
 These are pure GitHub settings. Highest value per minute; do these first.
 
-### 0.1 Make `Build & Test` a required status check
-- [ ] **Why:** the branch ruleset currently requires exactly ONE check
-      (`ktlint · detekt · test · kover · dependency-guard`). `Build & Test` is the only job that runs
-      `:server:test`, and nothing in `quality.yml` compiles `:server` at all — so a `:server` compile
-      break or a failing server test can merge to `main` today.
-- [ ] **Where:** GitHub → repo → **Settings** → **Rules** → **Rulesets** → *"Quality Gate required on main"*
-- [ ] **Do:** under **Require status checks to pass**, click **Add checks**, search `Build & Test`,
-      select it. Save.
-- [ ] **Verify:** open any PR — its merge box should now list two required checks, not one.
+### 0.1 Make `Build & Test` a required status check — ✅ **DONE 2026-07-27**
+- **Why it mattered:** the ruleset required exactly ONE check
+  (`ktlint · detekt · test · kover · dependency-guard`). `Build & Test` is the only job that runs
+  `:server:test`, and nothing in `quality.yml` compiles `:server` at all — so a `:server` compile break
+  or a failing server test could merge to `main`.
+- **Now:** ruleset `19036462` requires both contexts, `bypass_actors: []`.
+- **Re-check any time:**
+  ```bash
+  gh api repos/darkpandawarrior/Mileway/rules/branches/main \
+    --jq '.[].parameters.required_status_checks[].context'
+  ```
+  Should print two lines. Kept here as the record of what was changed and why.
 
 ### 0.2 Enable auto-delete of merged branches
 - [ ] **Why:** ~24 remote branches exist; merged ones linger and make `git branch -r` noise.
@@ -83,14 +87,18 @@ done
 
 ### 2.1 Create the `CRASHLYTICS_UPLOAD` repository **variable**
 - [ ] **Why:** `app/build.gradle.kts` gates `mappingFileUploadEnabled` on
-      `System.getenv("CRASHLYTICS_UPLOAD") == "true"`. No workflow sets it, so **every release is
-      built with mapping-file upload OFF** and any production crash arrives as an unreadable
-      obfuscated stack trace.
+      `System.getenv("CRASHLYTICS_UPLOAD") == "true"`. Until you create this variable it resolves to
+      `""`, so **every release is built with mapping-file upload OFF** and any production crash
+      arrives as an unreadable obfuscated stack trace.
 - [ ] **Where:** **Settings** → **Secrets and variables** → **Actions** → **Variables** tab →
       **New repository variable** *(a variable, NOT a secret — it is not sensitive)*
 - [ ] **What you get:** Name `CRASHLYTICS_UPLOAD`, Value `true`
 - [ ] **Note:** this only has an effect once Firebase/Crashlytics secrets exist too
       (`GOOGLE_SERVICES_B64`, see 3.1) — the mapping upload needs a configured Firebase app.
+- [ ] **Already wired for you:** a repository variable is *not* automatically visible to Gradle, so
+      `release.yml`'s Deploy step explicitly maps it (`CRASHLYTICS_UPLOAD: ${{ vars.CRASHLYTICS_UPLOAD }}`).
+      Without that line, creating the variable would look configured and do nothing. Unset resolves to
+      `""`, which is `!= "true"`, so the default stays off until you deliberately create it.
 - [ ] **Verify:** run the Release workflow; the Gradle log should show the Crashlytics
       `uploadCrashlyticsMappingFile…` task executing rather than being skipped.
 
