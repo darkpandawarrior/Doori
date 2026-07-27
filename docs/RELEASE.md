@@ -4,6 +4,12 @@ How to ship Mileway to Play (gms), the App Store / TestFlight (iOS), and F-Droid
 credential below is an **env-activated placeholder**. The build degrades to a no-op when a key is absent, so
 nothing here is required to build or run the demo.
 
+> **Setting those credentials up is a separate, owner-only job** — paid developer accounts, console
+> pages, repo-admin settings. [`docs/OWNER_ACTIONS.md`](OWNER_ACTIONS.md) is the step-by-step
+> checklist: what to create, on which platform, the exact secret name to paste it into, and how to
+> verify each one worked. This file describes the release *process*; that one describes the
+> *prerequisites*.
+
 ## 1. Versioning (three-tier, computed)
 
 Three repo-root files are the source of truth: `VERSION` + `BUILD_NUMBER` (legacy semver +
