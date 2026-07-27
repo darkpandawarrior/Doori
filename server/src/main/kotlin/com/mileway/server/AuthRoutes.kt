@@ -42,8 +42,9 @@ private const val JWT_REALM = "mileway"
 private const val ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000L
 private const val REFRESH_TOKEN_TTL_MS = 30L * 24 * 60 * 60 * 1000L
 
-// ponytail: dev-only fallback secret, clearly marked, never committed as a real secret — a real
-// deploy sets JWT_SECRET (see docker-compose.yml); this default only ever backs the local H2 server.
+// ponytail: dev-only fallback secret, clearly marked, never committed as a real secret — the root
+// docker-compose.yml requires JWT_SECRET (JWT_SECRET:?...) so a real deploy fails loudly instead of
+// silently falling back to this; it only ever backs an unconfigured local/H2 run.
 private const val DEV_JWT_SECRET_DEFAULT = "mileway-dev-secret"
 
 internal val jwtAlgorithm: Algorithm

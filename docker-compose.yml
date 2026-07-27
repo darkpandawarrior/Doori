@@ -1,0 +1,51 @@
+# Full deployable :server stack (Postgres + the containerized Ktor server). This is distinct from
+# server/docker-compose.yml, which only stands up Postgres for a laptop-side `./gradlew :server:run`
+# against a real (non-H2) database — that file is unchanged and still useful for that narrower case.
+#
+# Run from the repo root: `JWT_SECRET=... docker compose up --build`.
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mileway}
+      POSTGRES_USER: ${POSTGRES_USER:-mileway}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mileway}
+    ports:
+      - "5432:5432"
+    volumes:
+      - mileway-postgres-data:/var/lib/postgresql/data
+    # Readiness, not just start-order. Application.module() calls connectDatabase() eagerly on boot
+    # with no retry, so without this the server container races Postgres and exits on a cold `up`.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-mileway} -d $${POSTGRES_DB:-mileway}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Belt to the healthcheck's braces: if the server still loses a race (or Postgres restarts),
+    # let Docker retry rather than leaving a dead container behind a green `up`.
+    restart: on-failure
+    environment:
+      # See ServerPingTable.kt's connectDatabase() for exactly these four env vars; JDBC_DRIVER/
+      # JDBC_USER/JDBC_PASSWORD default to the H2 dev values there, so they're set explicitly here
+      # to point at this compose's Postgres instead.
+      JDBC_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-mileway}
+      JDBC_DRIVER: org.postgresql.Driver
+      JDBC_USER: ${POSTGRES_USER:-mileway}
+      JDBC_PASSWORD: ${POSTGRES_PASSWORD:-mileway}
+      # No dev fallback here (unlike AuthRoutes.kt's DEV_JWT_SECRET_DEFAULT) — a real deploy must
+      # supply its own secret; fail loudly at `docker compose up` rather than silently signing
+      # tokens with the checked-in dev default.
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mileway-postgres-data:
