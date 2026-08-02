@@ -52,7 +52,7 @@ glance = "1.3.0-alpha02"
 konnection = "1.4.5"
 biometric = "1.4.0-alpha07"
 roborazzi = "1.70.0"
-datetimeWheelPicker = "1.3.3"
+datetimeWheelPicker = "1.4.0"
 # V12 KMP storage + security
 napier = "2.7.1"
 # V11 KMP/CMP migration (verified coords in .ralph/kmp-migration-map.md)
