@@ -68,7 +68,7 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5.6.0
         if: steps.move.outputs.changed == 'true'
         with:
           distribution: zulu
