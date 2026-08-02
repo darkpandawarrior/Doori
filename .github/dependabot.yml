@@ -8,6 +8,17 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
+    # These three move together across kmp-toolkit, kmp-build-logic and every consumer app, or the
+    # composite build stops resolving — an included build's plugin versions must agree with the
+    # root's. Dependabot bumps repos independently and cannot honour that, which is how four apps
+    # ended up on four different triples. It also proposed AGP alpha06 here while alpha07 was already
+    # published. kmp-toolkit's toolchain-watch.yml owns these axes; see its .github/toolchain-policy.yml.
+    ignore:
+      - dependency-name: "com.android.tools.build:gradle"
+      - dependency-name: "com.android.application"
+      - dependency-name: "com.android.library"
+      - dependency-name: "org.jetbrains.kotlin*"
+      - dependency-name: "org.jetbrains.compose*"
     groups:
       kotlin:
         patterns: ["org.jetbrains.kotlin*", "org.jetbrains.compose*"]
