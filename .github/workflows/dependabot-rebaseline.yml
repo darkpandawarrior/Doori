@@ -1,0 +1,100 @@
+name: Dependabot dependency-guard baseline
+
+# Re-baselines dependency-guard on open Dependabot PRs — but only after the app actually builds.
+#
+# Why this exists: Dependabot changes dependency versions and cannot re-baseline dependency-guard,
+# so EVERY dependency PR in this repo fails that gate until a human runs
+# `./gradlew :app:dependencyGuardBaseline` by hand. On 2026-08-02 that was three PRs at once, and
+# the failure is indistinguishable at a glance from a real break — which is how a genuine one gets
+# waved through.
+#
+# The order matters more than the automation. It BUILDS FIRST and only baselines if the build
+# passes. A workflow that baselines unconditionally would rubber-stamp a dependency change that
+# breaks compilation, converting a loud failure into a green tick and defeating the entire point of
+# the gate. Re-baselining is recording a change you have verified, not silencing an alarm.
+#
+# Deliberately NOT `pull_request_target`. That would run this repo's Gradle build — including any
+# build-script change a PR carries — with a write-scoped token, which is remote code execution by
+# design. This runs on a schedule and on demand from the default branch instead: the workflow file
+# is always the trusted one from main, and a human still reviews and merges.
+
+on:
+  schedule:
+    - cron: '41 5 * * 2'
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: 'PR number to re-baseline (blank = every open Dependabot PR)'
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: dependabot-rebaseline
+  cancel-in-progress: false
+
+jobs:
+  rebaseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: temurin
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Re-baseline every Dependabot PR whose build passes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ONLY: ${{ inputs.pr }}
+        run: |
+          set -eu
+          if [ -n "${ONLY:-}" ]; then
+            PRS="$ONLY"
+          else
+            PRS=$(gh pr list --author 'app/dependabot' --state open --json number -q '.[].number')
+          fi
+          [ -n "$PRS" ] || { echo "No open Dependabot PRs."; exit 0; }
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          for pr in $PRS; do
+            branch=$(gh pr view "$pr" --json headRefName -q .headRefName)
+            echo "::group::PR #$pr ($branch)"
+            git checkout --quiet -B "rebaseline-$pr" "origin/$branch"
+
+            # Build BEFORE baselining. A failure here means the dependency change is genuinely
+            # broken, so leave the PR red — that is the signal working, not a problem to paper over.
+            if ! ./gradlew :app:assembleGmsDebug --stacktrace; then
+              echo "::warning::#$pr does not build — leaving it red, no baseline written."
+              echo "::endgroup::"
+              continue
+            fi
+
+            ./gradlew :app:dependencyGuardBaseline
+            if git diff --quiet -- app/dependencies; then
+              echo "#$pr: baseline already current."
+            else
+              # Surface whether the artifact SET changed or only versions. A pure version move is
+              # routine; a new or dropped artifact is a supply-chain change a reviewer should see
+              # named in the commit rather than buried in a 34-line diff.
+              added=$(git diff -- app/dependencies | grep -c '^+[a-z]' || true)
+              removed=$(git diff -- app/dependencies | grep -c '^-[a-z]' || true)
+              git add app/dependencies
+              git commit -m "chore: re-baseline dependency-guard
+
+          Automated. The build was verified green before this baseline was written.
+          $added added / $removed removed lines across the release flavours."
+              git push origin "HEAD:$branch"
+              echo "#$pr: baselined ($added/+ $removed/-) and pushed."
+            fi
+            echo "::endgroup::"
+          done
