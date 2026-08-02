@@ -44,11 +44,24 @@ jobs:
             git -C "$m" fetch --quiet origin main
             git -C "$m" checkout --quiet FETCH_HEAD
           done
+          # Sync the three coordinated versions from the toolkit's catalog into ours. Without this
+          # the pins move but our own AGP/Kotlin/Compose do not, leaving this app on a different
+          # triple to the toolkit it just pinned — and a Gradle composite build requires the
+          # included build's plugin versions to agree with the root's, so it would fail to
+          # configure every time. The build step below would catch it, but it could never pass.
+          for key in agp kotlin compose-multiplatform; do
+            want=$(grep -E "^${key} = " external/kmp-toolkit/gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+            have=$(grep -E "^${key} = " gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+            if [ -n "$want" ] && [ "$want" != "$have" ]; then
+              sed -i "s|^${key} = \"${have}\"|${key} = \"${want}\"|" gradle/libs.versions.toml
+              echo "synced $key: $have -> $want"
+            fi
+          done
           TK=$(git -C external/kmp-toolkit rev-parse --short HEAD)
           BL=$(git -C external/kmp-build-logic rev-parse --short HEAD)
           echo "toolkit=$TK" >> "$GITHUB_OUTPUT"
           echo "buildlogic=$BL" >> "$GITHUB_OUTPUT"
-          if git diff --quiet -- external; then
+          if git diff --quiet -- external gradle/libs.versions.toml; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "Pins already current — nothing to do."
           else
@@ -71,7 +84,9 @@ jobs:
         if: steps.move.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          add-paths: external
+          add-paths: |
+            external
+            gradle/libs.versions.toml
           branch: chore/bump-kmp-toolkit
           # Reuse one branch: a fresh PR per toolkit commit would bury the repo in noise.
           # Superseded bumps roll forward into the same PR.
