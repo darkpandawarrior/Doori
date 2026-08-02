@@ -82,7 +82,7 @@ jobs:
 
       - name: Open the pin-bump PR
         if: steps.move.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           add-paths: |
             external
