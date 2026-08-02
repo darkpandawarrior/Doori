@@ -1,0 +1,111 @@
+name: Bump kmp-toolkit
+
+# Opens a pin-bump PR when kmp-toolkit's main moves — but ONLY if this app still builds against it.
+#
+# The naive version of this workflow bumps the pin and opens a PR unconditionally. That is worse
+# than doing nothing: it turns a library change into four broken repos on a schedule. The whole
+# point here is that the build runs BEFORE the PR exists, so a toolkit change that breaks this app
+# produces no PR and a loud failed run instead of a green-looking PR that does not compile.
+#
+# Triggered by a repository_dispatch from kmp-toolkit (see its notify-consumers.yml), on a weekly
+# safety net in case a dispatch is missed, and manually.
+
+on:
+  repository_dispatch:
+    types: [kmp-toolkit-updated]
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: bump-toolkit
+  cancel-in-progress: true
+
+jobs:
+  bump-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Move both submodules to their upstream main
+        id: move
+        run: |
+          set -eu
+          # kmp-toolkit and kmp-build-logic are coupled: the toolkit's convention plugins live in
+          # build-logic, so bumping one without the other reliably fails to configure. Always both.
+          for m in external/kmp-toolkit external/kmp-build-logic; do
+            git -C "$m" fetch --quiet origin main
+            git -C "$m" checkout --quiet FETCH_HEAD
+          done
+          # Sync the three coordinated versions from the toolkit's catalog into ours. Without this
+          # the pins move but our own AGP/Kotlin/Compose do not, leaving this app on a different
+          # triple to the toolkit it just pinned — and a Gradle composite build requires the
+          # included build's plugin versions to agree with the root's, so it would fail to
+          # configure every time. The build step below would catch it, but it could never pass.
+          for key in agp kotlin compose-multiplatform; do
+            want=$(grep -E "^${key} = " external/kmp-toolkit/gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+            have=$(grep -E "^${key} = " gradle/libs.versions.toml | head -1 | cut -d'"' -f2)
+            if [ -n "$want" ] && [ "$want" != "$have" ]; then
+              sed -i "s|^${key} = \"${have}\"|${key} = \"${want}\"|" gradle/libs.versions.toml
+              echo "synced $key: $have -> $want"
+            fi
+          done
+          TK=$(git -C external/kmp-toolkit rev-parse --short HEAD)
+          BL=$(git -C external/kmp-build-logic rev-parse --short HEAD)
+          echo "toolkit=$TK" >> "$GITHUB_OUTPUT"
+          echo "buildlogic=$BL" >> "$GITHUB_OUTPUT"
+          if git diff --quiet -- external gradle/libs.versions.toml; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Pins already current — nothing to do."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-java@v4
+        if: steps.move.outputs.changed == 'true'
+        with:
+          distribution: zulu
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        if: steps.move.outputs.changed == 'true'
+
+      - name: Verify this app still builds against the new pins
+        if: steps.move.outputs.changed == 'true'
+        run: ./gradlew :app:assembleDebug --stacktrace
+
+      - name: Open the pin-bump PR
+        if: steps.move.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: |
+            external
+            gradle/libs.versions.toml
+          branch: chore/bump-kmp-toolkit
+          # Reuse one branch: a fresh PR per toolkit commit would bury the repo in noise.
+          # Superseded bumps roll forward into the same PR.
+          title: "chore: bump kmp-toolkit to ${{ steps.move.outputs.toolkit }}"
+          commit-message: |
+            chore: bump kmp-toolkit to ${{ steps.move.outputs.toolkit }}
+
+            Opened automatically after this app was verified to build against the new pins.
+            kmp-toolkit ${{ steps.move.outputs.toolkit }}, kmp-build-logic ${{ steps.move.outputs.buildlogic }}.
+          body: |
+            Automated pin bump, opened **only because the build passed** against the new commits.
+
+            | submodule | now at |
+            |---|---|
+            | `external/kmp-toolkit` | `${{ steps.move.outputs.toolkit }}` |
+            | `external/kmp-build-logic` | `${{ steps.move.outputs.buildlogic }}` |
+
+            Both move together on purpose — the toolkit's convention plugins live in build-logic, so
+            bumping one alone reliably fails to configure.
+
+            Verified with `:app:assembleDebug`. If a later toolkit commit breaks this app, no PR appears
+            and the workflow run fails instead — the absence of a PR is the signal.
