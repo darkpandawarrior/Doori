@@ -88,7 +88,7 @@ play-app-update = "2.1.0"
 play-review = "2.0.2"
 # V15: Firebase (gms-only): FCM, Analytics, Crashlytics
 google-services = "4.5.0"
-firebase-bom = "34.16.0"
+firebase-bom = "34.17.0"
 firebase-crashlytics-plugin = "3.0.7"
 install-referrer = "2.2"
 kmpworkmanager = "3.1.0"
