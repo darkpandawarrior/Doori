@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-java@v5.6.0
         with: { java-version: '21', distribution: 'temurin' }
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
       - name: Verify tag matches computed FINGERPRINT
         run: |
           # set -e is deliberate. This step previously ran under `set -uo pipefail` with `|| true` on
@@ -214,7 +214,7 @@ jobs:
         with: { java-version: '21', distribution: 'temurin' }
       - name: Set up Gradle
         if: steps.detect.outputs.found == 'true'
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
       - name: Pick scheme
         if: steps.detect.outputs.found == 'true'
         id: scheme

@@ -31,7 +31,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
 
       - name: Build reproducible FOSS release (noGms, no minify)
         run: ./gradlew assembleNoGmsRelease -Pfdroid --no-build-cache

@@ -73,7 +73,7 @@ jobs:
         with:
           distribution: zulu
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: gradle/actions/setup-gradle@v6.2.0
         if: steps.move.outputs.changed == 'true'
 
       - name: Verify this app still builds against the new pins

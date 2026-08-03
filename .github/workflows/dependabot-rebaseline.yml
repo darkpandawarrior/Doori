@@ -48,7 +48,7 @@ jobs:
         with:
           java-version: '25'
           distribution: temurin
-      - uses: gradle/actions/setup-gradle@v6
+      - uses: gradle/actions/setup-gradle@v6.2.0
 
       - name: Re-baseline every Dependabot PR whose build passes
         env:

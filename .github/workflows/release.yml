@@ -45,7 +45,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
       - name: Set up Ruby (fastlane)
         uses: ruby/setup-ruby@v1
         with:
@@ -176,6 +176,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@v6.2.0
       - name: Build the Wear AAB
         run: ./gradlew :wear:bundleRelease -PwearVersionCodeOffset=1
