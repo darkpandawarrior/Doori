@@ -33,17 +33,20 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-          # Push as the PAT when one exists, else fall back to GITHUB_TOKEN. This is the
-          # fallback form on purpose: commits pushed with GITHUB_TOKEN deliberately do NOT
-          # trigger new workflow runs (GitHub's recursion guard), which is why every bump PR
-          # opened by this workflow shows "no checks reported" and has to be closed/reopened
-          # by hand to get CI to run at all.
+          # NOTE: pushing as a PAT here would make bump PRs get CI checks — commits pushed
+          # with GITHUB_TOKEN deliberately do NOT trigger workflow runs (GitHub's recursion
+          # guard), which is why every bump PR opens with "no checks reported" and has to be
+          # closed/reopened by hand.
           #
-          # `secrets.X || github.token` keeps this inert until the secret is set — an unset
-          # secret is an empty string, and hard-wiring it would hand checkout an empty token
-          # and break the job outright. Set it and this starts working with no further edit:
-          #   gh secret set CONSUMER_DISPATCH_TOKEN --repo darkpandawarrior/<repo> < tokenfile
-          token: ${{ secrets.CONSUMER_DISPATCH_TOKEN || github.token }}
+          # This was wired to `secrets.CONSUMER_DISPATCH_TOKEN || github.token` on 2026-08-05 and
+          # REVERTED the same day: the secret was set but not valid for this repo, and checkout
+          # failed with "could not read Username". The `|| github.token` fallback does NOT protect
+          # against that — it guards an UNSET secret (empty string, falsy), while a wrong value is
+          # truthy and wins. A bad paste is the far likelier failure, so the fallback guarded the
+          # wrong thing and turned a cosmetic annoyance into four broken workflows.
+          #
+          # To re-enable: set a PAT with Contents read/write on THIS repo, prove it works, THEN
+          # add `token: ${{ secrets.CONSUMER_DISPATCH_TOKEN }}` here. Verify before merging, not after.
 
       - name: Move both submodules to their upstream main
         id: move
