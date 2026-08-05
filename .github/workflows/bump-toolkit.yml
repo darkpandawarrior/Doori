@@ -33,6 +33,17 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          # Push as the PAT when one exists, else fall back to GITHUB_TOKEN. This is the
+          # fallback form on purpose: commits pushed with GITHUB_TOKEN deliberately do NOT
+          # trigger new workflow runs (GitHub's recursion guard), which is why every bump PR
+          # opened by this workflow shows "no checks reported" and has to be closed/reopened
+          # by hand to get CI to run at all.
+          #
+          # `secrets.X || github.token` keeps this inert until the secret is set — an unset
+          # secret is an empty string, and hard-wiring it would hand checkout an empty token
+          # and break the job outright. Set it and this starts working with no further edit:
+          #   gh secret set CONSUMER_DISPATCH_TOKEN --repo darkpandawarrior/<repo> < tokenfile
+          token: ${{ secrets.CONSUMER_DISPATCH_TOKEN || github.token }}
 
       - name: Move both submodules to their upstream main
         id: move
