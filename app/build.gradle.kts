@@ -632,6 +632,12 @@ afterEvaluate {
             "com.google.firebase",
             "com.google.maps.android",
             "com.android.installreferrer",
+            // Added 2026-08-05. The gms-namespaced ML Kit artifacts
+            // (com.google.android.gms:play-services-mlkit-*) were already caught by the
+            // "com.google.android.gms" prefix above and allowlisted below — but ML Kit also ships
+            // under its OWN bare coordinate, and nothing here matched it. Seven such artifacts sat
+            // in the noGms release classpath completely invisible to this guard.
+            "com.google.mlkit",
         )
     val allowlist =
         setOf(
@@ -644,29 +650,67 @@ afterEvaluate {
             "com.google.android.gms:play-services-mlkit-document-scanner",
             "com.google.android.gms:play-services-mlkit-text-recognition",
             "com.google.android.gms:play-services-mlkit-text-recognition-common",
+            // Bare-coordinate ML Kit, newly VISIBLE to the guard as of 2026-08-05 (see the
+            // "com.google.mlkit" prefix above). Allowlisted, not fixed: freezing the leak at its
+            // current size is deliberate, exactly as the noGms dependencyGuard baseline does — a
+            // green guard here means "nothing NEW leaked in", not "this build is GMS-free".
+            // Removing these is gated on the ML Kit product call (make OCR FOSS, or keep it
+            // allowlisted). Shrink this list as that lands; do not let it grow.
+            // Note genai-common / genai-prompt: on-device GenAI is reaching the F-Droid build too.
+            "com.google.mlkit:common",
+            "com.google.mlkit:genai-common",
+            "com.google.mlkit:genai-prompt",
+            "com.google.mlkit:text-recognition",
+            "com.google.mlkit:text-recognition-bundled-common",
+            "com.google.mlkit:vision-common",
+            "com.google.mlkit:vision-interfaces",
             // Transitive Firebase infra pulled by the play-services libs above (NOT messaging/analytics/crashlytics).
             "com.google.firebase:firebase-annotations",
             "com.google.firebase:firebase-components",
             "com.google.firebase:firebase-encoders",
             "com.google.firebase:firebase-encoders-json",
         )
+    // `rootComponent` is a Provider<ResolvedComponentResult> — the configuration-cache-safe entry
+    // point to the resolved graph. Captured here at CONFIGURATION time and walked at execution
+    // time from the captured root, so nothing resolves a Configuration inside doLast.
+    //
+    // This replaced `configurations.getByName(...).incoming.resolutionResult.allComponents` read
+    // inside doLast, guarded by notCompatibleWithConfigurationCache(). That declaration was not
+    // sufficient: on Gradle 9.7.0-milestone-3 with this repo's composite builds the task died with
+    //   > Could not resolve all dependencies for configuration ':app:noGmsReleaseRuntimeClasspath'
+    //   >   'resolveScriptsForProject' is illegal while in 'Paused' state
+    // Because gradle.properties sets configuration-cache=true AND problems=fail, and this task is
+    // wired into `assembleNoGmsRelease`, the next F-Droid release build would have failed here.
+    // Nothing in routine CI runs `check` or `assembleNoGmsRelease`, so it was latent, not red.
+    val noGmsRootComponent =
+        configurations.getByName("noGmsReleaseRuntimeClasspath").incoming.resolutionResult.rootComponent
     val verifyTask =
         tasks.register("verifyNoGmsDependencyPrefixes") {
             group = "verification"
             description = "Fails if a proprietary dependency leaks into the noGms (F-Droid) release classpath."
-            // Resolves the variant classpath at execution time via the component graph (not artifacts, which
-            // would hit variant-attribute ambiguity for project deps).
-            notCompatibleWithConfigurationCache("Resolves the noGmsReleaseRuntimeClasspath component graph")
+            // Locals, not `this@afterEvaluate` captures: the task action must not reach back into
+            // the Project object graph, or the configuration cache rejects it again.
+            val rootProvider = noGmsRootComponent
+            val forbidden = forbiddenPrefixes
+            val allowed = allowlist
             doLast {
-                val deps =
-                    configurations.getByName("noGmsReleaseRuntimeClasspath")
-                        .incoming.resolutionResult.allComponents
-                        .mapNotNull { it.id as? ModuleComponentIdentifier }
-                        .map { "${it.group}:${it.module}" }
+                // Walk the graph from the captured root. A `visited` set is load-bearing: a
+                // dependency graph is a DAG with shared nodes (and cycles are legal in Gradle's
+                // model), so a naive recursion revisits or hangs.
+                val visited = mutableSetOf<ComponentIdentifier>()
+                val deps = mutableSetOf<String>()
+                fun walk(component: ResolvedComponentResult) {
+                    if (!visited.add(component.id)) return
+                    (component.id as? ModuleComponentIdentifier)?.let { deps += "${it.group}:${it.module}" }
+                    component.dependencies
+                        .filterIsInstance<ResolvedDependencyResult>()
+                        .forEach { walk(it.selected) }
+                }
+                walk(rootProvider.get())
                 val violations =
                     deps
-                        .filter { dep -> forbiddenPrefixes.any { dep.startsWith(it) } && dep !in allowlist }
-                        .distinct()
+                        .filter { dep -> forbidden.any { dep.startsWith(it) } && dep !in allowed }
+                        .sorted()
                 if (violations.isNotEmpty()) {
                     throw GradleException(
                         "noGms (F-Droid) release leaks proprietary dependencies: $violations",

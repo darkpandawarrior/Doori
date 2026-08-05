@@ -96,6 +96,45 @@ trip the new-dependency guardrail. Recommendation: **A**, because it needs no ne
 covers every target, and protects the data that actually matters. Revisit if a VAPT requirement
 ever demands whole-file encryption explicitly.
 
+### RULED 2026-08-05: A stands — but the implementation sketch below is NOT sufficient as written
+
+Adversarially reviewed by nine non-Anthropic models (`openrouter ensemble --tier frontier`,
+$0.067) precisely because this plan was authored by Claude, so Claude agreeing with it proves
+nothing. Every objection was then verified against this repo. Result:
+
+**REFUTED — the loudest objection does not apply here.** Multiple labs led with a "bricking
+scenario": cloud backup restores `mileway.db` to a new device while the non-exportable
+AndroidKeyStore key does not survive, permanently orphaning every encrypted column; plus Keystore
+invalidation when the lock screen or biometric enrolment changes. Checked: `AndroidManifest.xml:42`
+already sets `android:allowBackup="false"`, so the DB never enters Auto Backup, and
+`setUserAuthenticationRequired` is *not* enabled on the vendored `KeystoreCrypto` key, so
+enrolment changes do not invalidate it.
+
+**Note this is NOT an argument for B.** The flaw they described is about *where the key lives*,
+not *what is encrypted* — SQLCipher under a device-bound key has identical exposure. Their
+recommendation to switch options does not follow from their own strongest argument.
+
+**SURVIVED — three amendments required before any code is written:**
+
+1. **iOS backup exclusion is a real, open gap.** `allowBackup` is Android-only. Nothing verified
+   sets `isExcludedFromBackup` on the database file URL for the Apple targets, so the orphaned-key
+   scenario the labs described *is* live on iOS even though Android is covered. Settle this before
+   the first encrypted column ships, not after.
+2. **"Must be idempotent" (step 4) is an aspiration, not a design.** Room migrations run raw SQL
+   and bypass `@TypeConverter`, so a mid-migration process kill leaves a table with mixed
+   plaintext and ciphertext rows — and AES-GCM cannot distinguish "not yet encrypted" from
+   "corrupt", it just throws on the tag check. Detecting per-row state needs an explicit
+   mechanism: a versioned ciphertext envelope (magic prefix + scheme version) so a value can be
+   classified before decryption, or a sidecar progress table. Pick one and write it down.
+3. **Step 5's instrumented test is theater.** Asserting the raw DB file no longer contains a known
+   plaintext string passes even when the scheme is broken. Replace it with tests that assert what
+   actually matters: decrypt-after-restore, behaviour when the key is missing or rotated, and that
+   a partially-migrated database converges on the next launch.
+
+**Also noted, unresolved by design:** step 3's escape hatch — moving a filtered/sorted column to
+deterministic encryption — trades away IND-CPA and exposes passport-style values to frequency
+analysis. That tradeoff must be written down per column, not decided ad hoc during implementation.
+
 ## Implementation sketch (assumes A)
 
 1. Add an `expect fun encryptField(plain: String): String` / `decryptField` seam in
