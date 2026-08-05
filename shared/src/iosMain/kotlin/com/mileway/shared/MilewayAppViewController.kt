@@ -11,7 +11,12 @@ import com.mileway.core.ui.di.iosAppModule
 import com.mileway.core.ui.platform.LocalManagerProvider
 import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.feature.advances.di.advancesModule
+import com.mileway.feature.agent.di.agentModule
+import com.mileway.feature.approvals.di.approvalsModule
+import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.payables.di.payablesModule
+import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.service.AppSyncTrigger
@@ -21,6 +26,8 @@ import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
 import com.mileway.shared.ui.MilewayApp
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.di.stubModule
+import com.mileway.ui.auth.authModule
+import com.mileway.ui.auth.pinModule
 import com.mileway.ui.home.firstLoginBannerModule
 import com.mileway.ui.home.homeModule
 import com.mileway.ui.home.whatsNewModule
@@ -93,6 +100,25 @@ fun MilewayAppViewController(): UIViewController {
                 // PLAN_V36 P8: the List/Detail screens MilewayApp now overlays need their repository
                 // + ViewModels resolvable — Android gets this from MilewayApplication's module list.
                 whatsNewFeatureModule,
+                // iOS Koin parity, 2026-08-05. These eight were registered in MilewayApplication.kt
+                // (Android's composition root) and missing here, so any screen resolving from them
+                // crashed or silently no-op'd on iOS. Verified addable: approvals/events/payables/
+                // payments carry nothing in androidMain but an AndroidManifest.xml, agentModule is
+                // commonMain, and authModule/pinModule live in shared/commonMain.
+                //
+                // Still NOT here, deliberately: cardsModule, profileModule and mediaModule are all
+                // defined in src/androidMain, so they are invisible from iosMain — they need their
+                // definitions hoisted to commonMain (or iOS actuals written) before a line here
+                // would even compile. A directory check is not enough: feature:cards HAS an
+                // iosMain, it just does not define its Koin module there. appModule is Android
+                // app-level and has no iOS counterpart by design.
+                agentModule,
+                approvalsModule,
+                authModule,
+                eventsModule,
+                payablesModule,
+                paymentsModule,
+                pinModule,
                 // V36 review fix: HomeScreen's koinViewModel<WhatsNewViewModel>() and
                 // koinViewModel<FirstLoginBannerViewModel>() defaults (see HomeScreen's parameter
                 // list) were unresolvable on iOS — Android registers both in MilewayApplication's
