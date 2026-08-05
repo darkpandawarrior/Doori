@@ -80,13 +80,34 @@ jobs:
         if: steps.move.outputs.changed == 'true'
         run: ./gradlew :app:assembleDebug --stacktrace
 
+      - name: Re-baseline dependency-guard for the new pins
+        if: steps.move.outputs.changed == 'true'
+        # A toolchain bump routinely shifts transitive coordinates — CMP beta02 -> beta03 moved 56
+        # in EACH of this repo's two baselines on 2026-08-05 — and :app:dependencyGuard then fails
+        # the bump PR's own quality gate. Two of three family bumps hit this and needed a human to
+        # clear it by hand.
+        #
+        # This does NOT weaken the guard. The regenerated baselines land in the PR as a reviewable
+        # diff, which is exactly what the guard is for: make the dependency change visible. What it
+        # removes is a CI failure that a human must fix identically every single time.
+        #
+        # `dependencyGuardBaseline` (not `:app:dependencyGuardBaseline`) regenerates EVERY
+        # configured baseline. That matters here: this repo guards both gmsReleaseRuntimeClasspath
+        # and noGmsReleaseRuntimeClasspath, and rebaselining only the one named in a failure would
+        # leave the FOSS baseline stale — the build F-Droid actually ships.
+        run: ./gradlew dependencyGuardBaseline
+
       - name: Open the pin-bump PR
         if: steps.move.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
+          # app/dependencies is load-bearing: without it the rebaseline above regenerates the
+          # files and create-pull-request silently leaves them out of the commit, so the PR still
+          # fails dependency-guard and the step above achieves nothing.
           add-paths: |
             external
             gradle/libs.versions.toml
+            app/dependencies
           branch: chore/bump-kmp-toolkit
           # Reuse one branch: a fresh PR per toolkit commit would bury the repo in noise.
           # Superseded bumps roll forward into the same PR.
