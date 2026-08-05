@@ -33,6 +33,17 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          # Push as the PAT when one exists, else fall back to GITHUB_TOKEN. This is the
+          # fallback form on purpose: commits pushed with GITHUB_TOKEN deliberately do NOT
+          # trigger new workflow runs (GitHub's recursion guard), which is why every bump PR
+          # opened by this workflow shows "no checks reported" and has to be closed/reopened
+          # by hand to get CI to run at all.
+          #
+          # `secrets.X || github.token` keeps this inert until the secret is set — an unset
+          # secret is an empty string, and hard-wiring it would hand checkout an empty token
+          # and break the job outright. Set it and this starts working with no further edit:
+          #   gh secret set CONSUMER_DISPATCH_TOKEN --repo darkpandawarrior/<repo> < tokenfile
+          token: ${{ secrets.CONSUMER_DISPATCH_TOKEN || github.token }}
 
       - name: Move both submodules to their upstream main
         id: move
@@ -80,13 +91,34 @@ jobs:
         if: steps.move.outputs.changed == 'true'
         run: ./gradlew :app:assembleDebug --stacktrace
 
+      - name: Re-baseline dependency-guard for the new pins
+        if: steps.move.outputs.changed == 'true'
+        # A toolchain bump routinely shifts transitive coordinates — CMP beta02 -> beta03 moved 56
+        # in EACH of this repo's two baselines on 2026-08-05 — and :app:dependencyGuard then fails
+        # the bump PR's own quality gate. Two of three family bumps hit this and needed a human to
+        # clear it by hand.
+        #
+        # This does NOT weaken the guard. The regenerated baselines land in the PR as a reviewable
+        # diff, which is exactly what the guard is for: make the dependency change visible. What it
+        # removes is a CI failure that a human must fix identically every single time.
+        #
+        # `dependencyGuardBaseline` (not `:app:dependencyGuardBaseline`) regenerates EVERY
+        # configured baseline. That matters here: this repo guards both gmsReleaseRuntimeClasspath
+        # and noGmsReleaseRuntimeClasspath, and rebaselining only the one named in a failure would
+        # leave the FOSS baseline stale — the build F-Droid actually ships.
+        run: ./gradlew dependencyGuardBaseline
+
       - name: Open the pin-bump PR
         if: steps.move.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
+          # app/dependencies is load-bearing: without it the rebaseline above regenerates the
+          # files and create-pull-request silently leaves them out of the commit, so the PR still
+          # fails dependency-guard and the step above achieves nothing.
           add-paths: |
             external
             gradle/libs.versions.toml
+            app/dependencies
           branch: chore/bump-kmp-toolkit
           # Reuse one branch: a fresh PR per toolkit commit would bury the repo in noise.
           # Superseded bumps roll forward into the same PR.
