@@ -699,6 +699,7 @@ afterEvaluate {
                 // model), so a naive recursion revisits or hangs.
                 val visited = mutableSetOf<ComponentIdentifier>()
                 val deps = mutableSetOf<String>()
+
                 fun walk(component: ResolvedComponentResult) {
                     if (!visited.add(component.id)) return
                     (component.id as? ModuleComponentIdentifier)?.let { deps += "${it.group}:${it.module}" }
