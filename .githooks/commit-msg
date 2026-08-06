@@ -13,4 +13,28 @@ if grep -qiE "$pattern" "$msg_file"; then
   echo "" >&2
   exit 1
 fi
+
+# Reject commit messages naming the reference app.
+#
+# pre-commit scans `git diff --cached` — staged FILE CONTENT only. It never sees
+# the message, so a body citing the reference app committed cleanly. Four such
+# commits reached public main between 2026-07-07 and 2026-07-11, one carrying
+# concrete internal policy parameters. Messages are as public as the diff.
+#
+# Patterns live in .ralph/leak-patterns.txt (gitignored, local-only) so this
+# tracked script stays free of sensitive strings, exactly like pre-commit.
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+PATTERNS_FILE="$REPO_ROOT/.ralph/leak-patterns.txt"
+if [ -f "$PATTERNS_FILE" ]; then
+  leak_pattern="$(grep -v '^[[:space:]]*#' "$PATTERNS_FILE" | grep -v '^[[:space:]]*$' | paste -sd'|' -)"
+  if [ -n "$leak_pattern" ] && grep -qiE "$leak_pattern" "$msg_file"; then
+    echo "" >&2
+    echo "✗ Commit blocked: the message matches a leak pattern (.ralph/leak-patterns.txt)." >&2
+    echo "  Offending line(s):" >&2
+    grep -niE "$leak_pattern" "$msg_file" | sed 's/^/    /' >&2
+    echo "  Describe the behaviour, not where it came from. The message is public." >&2
+    echo "" >&2
+    exit 1
+  fi
+fi
 exit 0
