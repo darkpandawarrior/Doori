@@ -616,9 +616,41 @@ class TrackMilesViewModel(
         setState { copy(selectedVehicle = vehicle, activeSheet = TrackSheet.JOURNEY_GUIDE, vehicleQuery = "") }
     }
 
-    /** Simulate an odometer capture (the demo has no real OCR in this flow). */
+    /**
+     * Record a REAL start-odometer reading — from the [TrackingRoutes.ODOMETER_CAMERA] OCR flow or
+     * from manual entry.
+     *
+     * Prefer this over [captureStartOdometer]. An odometer reading is evidence on a reimbursement
+     * claim: it is the one number a reviewer can check against a photograph, and it is what a tax
+     * audit asks for. A synthesised value is not a weaker reading, it is a fabricated record, and it
+     * is indistinguishable from a real one once persisted.
+     */
+    fun setStartOdometer(reading: Int) {
+        require(reading >= 0) { "odometer reading cannot be negative: $reading" }
+        setState {
+            copy(odometer = odometer.copy(startReading = reading, startTimeMs = Clock.System.now().toEpochMilliseconds()))
+        }
+    }
+
+    /**
+     * DEMO ONLY — synthesises a start reading so the pre-drive checklist can complete without a
+     * camera round-trip.
+     *
+     * This writes a **fabricated** number into the odometer evidence trail, and it writes it to
+     * `odometer.startReading`, which is NOT the field `MileageSubmissionViewModel` later reads
+     * (`form.simulatedStartOdo`) — so the pre-drive step and the submission step do not even agree
+     * on the value. A real capture path already exists at [TrackingRoutes.ODOMETER_CAMERA].
+     *
+     * Route the pre-drive step to that flow (or to manual entry) and call [setStartOdometer] with
+     * the result, then delete this. Left in place only because removing it today would strand a user
+     * at [JourneyStep.START_ODOMETER] when `isOdometerMandatory` is set, and that state-machine
+     * change is a product decision, not a cleanup.
+     */
+    @Deprecated(
+        "Fabricates odometer evidence. Use setStartOdometer() with a real OCR or manual reading.",
+        ReplaceWith("setStartOdometer(reading)"),
+    )
     fun captureStartOdometer() {
-        // Deterministic mock reading so the checklist completes without a camera round-trip.
         val reading = 45_000 + (currentState.vehicles.size * 57)
         setState {
             copy(odometer = odometer.copy(startReading = reading, startTimeMs = Clock.System.now().toEpochMilliseconds()))
@@ -630,7 +662,26 @@ class TrackMilesViewModel(
      * reading. Ties the reading to the accumulated GPS distance so [OdometerState.computedDistance]
      * comes out sane; a real camera/OCR capture UI is a later task.
      */
+    /**
+     * Record a REAL end-odometer reading. See [setStartOdometer] for why this matters — and note
+     * that end-minus-start is the figure a reviewer will compare against the GPS distance, so a
+     * fabricated end reading makes that cross-check meaningless exactly when it is most useful.
+     */
+    fun setEndOdometer(reading: Int) {
+        require(reading >= 0) { "odometer reading cannot be negative: $reading" }
+        setState {
+            copy(odometer = odometer.copy(endReading = reading, endTimeMs = Clock.System.now().toEpochMilliseconds()))
+        }
+    }
+
+    @Deprecated(
+        "Fabricates odometer evidence, and silently invents a 45_000 start when none was captured. " +
+            "Use setEndOdometer() with a real OCR or manual reading.",
+        ReplaceWith("setEndOdometer(reading)"),
+    )
     fun captureEndOdometer() {
+        // The `?: 45_000` below is the worst part: with no start reading, this manufactures BOTH
+        // ends of the measurement and then derives a distance from them.
         val start = currentState.odometer.startReading ?: 45_000
         val reading = start + currentState.distanceKm.roundToLong().toInt()
         setState {
