@@ -164,7 +164,8 @@ tasks.register("fullCheck") {
         // Z.5b: the @GraphicsMode(NATIVE) Roborazzi screenshot tests are excluded from the task above
         // (native Skia + forkEvery restart boundaries crash the JVM); they run in their own isolated
         // single fork here so they still gate but never destabilise the main unit-test fork.
-        ":app:screenshotTestNoGmsDebug",
+        // Was :app-only, which is how a broken :wear or :widget capture could sit unnoticed.
+        "screenshotTest",
         ":app:koverXmlReportNoGmsDebugCoverage",
         ":app:koverVerifyNoGmsDebugCoverage",
     )
@@ -220,31 +221,28 @@ tasks.register("composeMetrics") {
 //     Compose Desktop needs ImageComposeScene render-to-PNG instead.
 //   - wasm (:app-web-preview) — no test source set; needs a browser harness.
 // ---------------------------------------------------------------------------
-// KNOWN ISSUE — diagnosed, not yet fixed. Read before wiring this into a gate.
+// One task that runs EVERY screenshot harness in the repo.
 //
-// ROOT CAUSE (confirmed from the stack trace, not inferred): MockK self-attaches a ByteBuddy
-// agent. Modern JDKs restrict self-attach, so ByteBuddy falls back to installExternal() —
-// spawning a separate attach process — which loses a race when several Gradle test JVMs run
-// at once and throws "Could not self-attach to current VM using external process". It surfaces
-// as ExceptionInInitializerError at FakeSavedTrackDao.<init>, which is simply the first mockk()
-// touch in the gallery's companion object, so the reported location is misleading.
+//   ./gradlew screenshotTest                              # verify against baselines
+//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
 //
-// Evidence: :app:screenshotTestNoGmsDebug ALONE passes every time, including --rerun-tasks.
-// Aggregated with :wear/:widget it fails roughly 2 runs in 3.
+// The gap this closes: :app, :wear and :widget each had a working Roborazzi suite, on three
+// different task names, with no single command running them. On 2026-08-09 injecting
+// SystemSettingsOpener into TrackMilesScreen broke all 155 :app captures at composition while
+// assembleNoGmsDebug + testNoGmsDebugUnitTest stayed green throughout, because :app's screenshot
+// suite is deliberately forked out of the main one. Two gates existed; only one was watched.
 //
-// RULED OUT: task ordering (mustRunAfter is in place below); parallelism (--no-parallel still
-// reproduces); classpath (the failure is agent attachment, not a missing class); and adding
-// -Djdk.attach.allowAttachSelf=true beside the existing -XX:+EnableDynamicAgentLoading in
-// app/build.gradle.kts, which was tried and did NOT fix it — do not re-try that first.
+// Aggregating them was flaky until the cause was found: MockK self-attaches a ByteBuddy agent,
+// modern JDKs restrict self-attach, so it fell back to spawning an external attach process that
+// lost a race whenever several test JVMs ran at once. app/build.gradle.kts now pre-loads
+// byte-buddy-agent via -javaagent, removing runtime attachment entirely. 5/5 clean runs under
+// --rerun-tasks, against roughly 2-in-3 failures before.
 //
-// LIKELY FIX, untested: add byte-buddy-agent as an explicit -javaagent on the test JVMs so no
-// runtime attachment is attempted at all. That is the standard remedy for MockK on restricted
-// JDKs and removes the racing external process entirely.
-//
-// Deliberately NOT wired into fullCheck until that lands: a gate that flakes is worse than a
-// gate with a known hole, because it trains people to re-run until green. Until then:
-//   ./gradlew :app:screenshotTestNoGmsDebug
-//   ./gradlew :wear:testNoGmsDebugUnitTest :widget:testDebugUnitTest
+// NOT covered here, and deliberately not faked as if it were:
+//   - iOS (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot tests needing Xcode.
+//   - desktop (:desktopApp) — Roborazzi is Robolectric-based/Android-only; Compose Desktop needs
+//     ImageComposeScene render-to-PNG instead.
+//   - wasm (:app-web-preview) — no test source set; needs a browser harness.
 tasks.register("screenshotTest") {
     group = "verification"
     description = "Runs every screenshot harness (app + wear + widget) in one command."

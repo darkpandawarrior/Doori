@@ -110,6 +110,11 @@ tasks.register("printMarketing") {
 // shrinking (not bit-for-bit reproducible across machines). F-Droid only builds the noGms release.
 val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 
+// Resolved as its own configuration so the agent jar has a stable path to hand to -javaagent;
+// it is already on the test runtime classpath transitively via MockK, pinned here to the same
+// version so the two can never drift apart.
+val mockkAgent: Configuration by configurations.creating
+
 android {
     namespace = "com.mileway"
 
@@ -310,6 +315,17 @@ afterEvaluate {
         // AGP fully configures jvmArgs/systemProperties on the unit-test task by afterEvaluate; copy
         // them so Robolectric finds the merged manifest/resources and the JDK21 --add-opens apply here.
         jvmArgs = mainTest.jvmArgs
+        // Pre-load ByteBuddy's agent HERE ONLY. MockK self-attaches at runtime; modern JDKs
+        // restrict that, so it falls back to spawning an external attach process which loses a
+        // race when several Gradle test JVMs run at once — the flake that made `screenshotTest`
+        // fail ~2 runs in 3 while this task alone always passed.
+        //
+        // Scoped to this fork deliberately: applying it to every test task instead breaks the
+        // main suite with "class redefinition failed: attempted to delete a method", because the
+        // pre-loaded agent conflicts with MockK's inline instrumentation across the forkEvery(25)
+        // restarts the block above documents. This task uses forkEvery(1), so it has no such
+        // conflict. Tried the broad version, measured the breakage, narrowed it.
+        jvmArgs("-javaagent:${mockkAgent.singleFile.absolutePath}")
         systemProperties = mainTest.systemProperties
         filter { includeTestsMatching(screenshotTestFilter) }
     }
@@ -423,6 +439,8 @@ dependencyGuard {
 }
 
 dependencies {
+    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.2")
+
     // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
     // runtime classpath resolved (Gradle reports those as `{strictly X}` and labels them "from lock
     // file", which is misleading — there is no lock file in this repo). The app runtime landed on
