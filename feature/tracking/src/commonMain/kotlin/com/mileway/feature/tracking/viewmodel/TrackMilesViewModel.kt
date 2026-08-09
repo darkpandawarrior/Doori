@@ -662,6 +662,7 @@ class TrackMilesViewModel(
      * reading. Ties the reading to the accumulated GPS distance so [OdometerState.computedDistance]
      * comes out sane; a real camera/OCR capture UI is a later task.
      */
+
     /**
      * Record a REAL end-odometer reading. See [setStartOdometer] for why this matters — and note
      * that end-minus-start is the figure a reviewer will compare against the GPS distance, so a

@@ -17,7 +17,7 @@ struct TrackingLockScreenView: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text(state.isPaused ? "Paused" : "Tracking")
+                Text(TrackingActivityCopy.title(isPaused: state.isPaused))
                     .font(.caption2)
                     .foregroundStyle(WidgetMatrixPalette.textMuted)
                 Text(String(format: "%.1f km", state.distanceKm))
@@ -37,7 +37,7 @@ struct TrackingLockScreenView: View {
         .padding()
         // P8.2: one VoiceOver stop for the whole banner — status, distance, elapsed time.
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(state.isPaused ? "Trip paused" : "Trip tracking")
+        .accessibilityLabel(TrackingActivityCopy.title(isPaused: state.isPaused))
         .accessibilityValue(
             "\(String(format: "%.1f kilometers", state.distanceKm)), "
                 + "\(liveActivityElapsed(state.elapsedSeconds)) elapsed"
@@ -63,7 +63,7 @@ struct TrackingDynamicIslandExpandedView: View {
                     .font(.headline.monospacedDigit())
                     .foregroundStyle(WidgetMatrixPalette.text)
             }
-            Text(state.isPaused ? "Paused" : "Tracking trip")
+            Text(TrackingActivityCopy.title(isPaused: state.isPaused))
                 .font(.caption)
                 .foregroundStyle(WidgetMatrixPalette.textMuted)
                 .frame(maxWidth: .infinity, alignment: .leading)

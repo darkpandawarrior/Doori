@@ -27,7 +27,7 @@ import com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen
 import com.mileway.feature.tracking.ui.screens.CreateVoucherScreen
 import com.mileway.feature.tracking.ui.screens.GeoCheckInScreen
 import com.mileway.feature.tracking.ui.screens.HardwareEventsLogScreen
-import com.mileway.feature.tracking.ui.screens.LocationMapScreen
+import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.ManualCheckInScreen
 import com.mileway.feature.tracking.ui.screens.OdometerCameraScreen
 import com.mileway.feature.tracking.ui.screens.RoutePointsScreen
@@ -55,7 +55,6 @@ import org.koin.core.parameter.parametersOf
 object TrackingRoutes {
     const val SAVED_TRACKS = "saved_tracks"
     const val LIVE_TRACK = "live_track/{routeId}"
-    const val LIVE_MAP = "live_map/{routeId}"
     const val DETAIL = "detail/{routeId}"
     const val INSIGHTS = "insights/{routeId}"
     const val HW_EVENTS = "hw_events/{routeId}"
@@ -82,8 +81,6 @@ object TrackingRoutes {
             "&violationCount={violationCount}&violationMsg={violationMsg}"
 
     fun liveTrack(routeId: String) = "live_track/$routeId"
-
-    fun liveMap(routeId: String) = "live_map/$routeId"
 
     fun detail(routeId: String) = "detail/$routeId"
 
@@ -166,7 +163,9 @@ fun NavGraphBuilder.trackingGraph(
                     popUpTo(TrackingRoutes.SAVED_TRACKS)
                 }
             },
-            onOpenMap = { navController.navigate(TrackingRoutes.liveMap(routeId)) },
+            // Was liveMap(): LIVE_MAP and ROUTE_MAP both rendered the same screen, and once
+            // MapScreen's live path moved out there was only one map screen left to route to.
+            onOpenMap = { navController.navigate(TrackingRoutes.routeMap(routeId)) },
             onOpenHwEvents = { navController.navigate(TrackingRoutes.hwEvents(routeId)) },
             onOpenCheckInHistory = { navController.navigate(TrackingRoutes.CHECK_IN_HISTORY) },
             onOpenSettings = { navController.navigate(TrackingRoutes.TRACK_SETTINGS) },
@@ -175,16 +174,9 @@ fun NavGraphBuilder.trackingGraph(
         )
     }
 
-    composable(
-        route = TrackingRoutes.LIVE_MAP,
-        arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
-    ) { backStack ->
-        backStack.arguments?.getString("routeId") ?: return@composable
-        LocationMapScreen(
-            onNavigateBack = { navController.popBackStack() },
-        )
-    }
-
+    // LIVE_MAP removed: it had no navigate() call site anywhere, and once MapScreen's live path
+    // moved out, the only thing left to render under a route named "live_map" was the replay
+    // screen — a name that lies about what it shows is worse than a missing route.
     composable(
         route = TrackingRoutes.DETAIL,
         arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
@@ -239,7 +231,7 @@ fun NavGraphBuilder.trackingGraph(
         arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
     ) { backStack ->
         backStack.arguments?.getString("routeId") ?: return@composable
-        LocationMapScreen(onNavigateBack = { navController.popBackStack() })
+        RouteReplayScreen(onNavigateBack = { navController.popBackStack() })
     }
 
     composable(

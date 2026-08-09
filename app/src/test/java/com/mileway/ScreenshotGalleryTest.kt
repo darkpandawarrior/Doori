@@ -137,7 +137,7 @@ import com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen
 import com.mileway.feature.tracking.ui.screens.CreateVoucherScreen
 import com.mileway.feature.tracking.ui.screens.GeoCheckInScreen
 import com.mileway.feature.tracking.ui.screens.HardwareEventsLogScreen
-import com.mileway.feature.tracking.ui.screens.LocationMapScreen
+import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.ManualCheckInScreen
 import com.mileway.feature.tracking.ui.screens.SavedTracksScreen
 import com.mileway.feature.tracking.ui.screens.SetupGuideScreen
@@ -678,7 +678,7 @@ class ScreenshotGalleryTest {
     fun locationMapScreen() {
         composeRule.setContent {
             MilewayTheme {
-                LocationMapScreen(onNavigateBack = {})
+                RouteReplayScreen(onNavigateBack = {})
             }
         }
         capture("location_map_screen")
