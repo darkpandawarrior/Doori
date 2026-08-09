@@ -41,6 +41,7 @@ actual fun platformModule(): Module =
         // SH.1: iOS share via UIActivityViewController (LocalManagerProvider resolves it via Koin).
         single<com.mileway.core.platform.ShareSheet> { com.mileway.core.platform.IosShareSheet() }
         single<com.mileway.core.platform.UrlOpener> { com.mileway.core.platform.IosUrlOpener() }
+        single<com.mileway.core.platform.SystemSettingsOpener> { com.mileway.core.platform.IosSystemSettingsOpener() }
         // SH.3: app shortcuts contract (iOS impl is a documented no-op, see IosAppShortcuts).
         single<com.mileway.core.platform.AppShortcuts> { com.mileway.core.platform.IosAppShortcuts() }
         // UX.2: haptic feedback via UIFeedbackGenerator.

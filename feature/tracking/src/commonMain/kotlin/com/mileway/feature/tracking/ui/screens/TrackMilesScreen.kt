@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.OemBatteryHints
 import com.mileway.core.platform.PermissionOnboardingFlow
 import com.mileway.core.platform.currentDeviceManufacturer
@@ -128,6 +129,8 @@ import com.mileway.feature.tracking.viewmodel.HeroGaugeMode
 import com.mileway.feature.tracking.viewmodel.JourneyStep
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesAction
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerController
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerSheet
 import com.mileway.feature.tracking.ui.live.LiveDriveActions
 import com.mileway.feature.tracking.ui.live.LiveDriveScreen
 import com.mileway.feature.tracking.ui.live.LiveDriveState
@@ -177,6 +180,11 @@ fun TrackMilesScreen(
     val onboardingFlow = remember(permissionsProvider) { PermissionOnboardingFlow(permissionsProvider) }
     val onboardingState by onboardingFlow.state.collectAsState()
     val oemHint = remember { currentDeviceManufacturer()?.let(OemBatteryHints::hintFor) }
+    val settingsOpener = koinInject<SystemSettingsOpener>()
+    // Keyed to the provider so the primer's own tier walk survives recomposition but is rebuilt if
+    // the provider is ever swapped — it holds request-in-flight state that must not be duplicated.
+    val permissionPrimerController =
+        remember(permissionsProvider) { PermissionPrimerController(permissionsProvider) }
     val scope = rememberCoroutineScope()
     // C4: single source of truth — derived from the VM-owned journeyProgress state machine instead
     // of re-deriving `phase == TRACKING || phase == PAUSED` inline (the two could otherwise drift).
@@ -597,6 +605,20 @@ fun TrackMilesScreen(
                 onSkip = { onboardingFlow.skipCurrent() },
             )
         }
+    }
+
+    // The pre-drive primer: explains before requesting, and — the part the sheet above cannot do —
+    // routes to system settings once a permission is permanently denied, where an in-app re-request
+    // is a no-op on both platforms. Shown only while the required permissions are still outstanding,
+    // so it never competes with the tiered optional-permission sheet above.
+    if (!onboardingState.requiredSatisfied && !isActive) {
+        PermissionPrimerSheet(
+            controller = permissionPrimerController,
+            oemHint = oemHint,
+            onOpenAppSettings = { settingsOpener.openAppSettings() },
+            onOpenBatterySettings = { settingsOpener.openBatteryOptimisationSettings() },
+            onFinished = { scope.launch { onboardingFlow.skipAlreadyGranted() } },
+        )
     }
 
     // ── Check-in sheets (unchanged) ─────────────────────────────────────────────

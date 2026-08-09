@@ -6,6 +6,7 @@ import com.mileway.core.platform.AndroidHaptics
 import com.mileway.core.platform.AndroidMotionSensorProvider
 import com.mileway.core.platform.AndroidShareSheet
 import com.mileway.core.platform.AndroidTrackingPresenceController
+import com.mileway.core.platform.AndroidSystemSettingsOpener
 import com.mileway.core.platform.AndroidUrlOpener
 import com.mileway.core.platform.AppShortcuts
 import com.mileway.core.platform.BatteryStatusReader
@@ -16,6 +17,7 @@ import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ShakeGestureDetector
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.TrackingPresenceController
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.UrlOpener
 import com.siddharth.kmp.appshell.AndroidLocationTracker
 import com.siddharth.kmp.appshell.AndroidNotificationScheduler
@@ -63,6 +65,7 @@ actual fun platformModule(): Module =
         // SH.1: real system-chooser share sheet (LocalManagerProvider resolves it via Koin).
         single<ShareSheet> { AndroidShareSheet(androidContext()) }
         single<UrlOpener> { AndroidUrlOpener(androidContext()) }
+        single<SystemSettingsOpener> { AndroidSystemSettingsOpener(androidContext()) }
         // SH.3: home-screen quick actions → deep links.
         single<AppShortcuts> { AndroidAppShortcuts(androidContext()) }
         // UX.2: haptic feedback.
