@@ -1,5 +1,6 @@
 package com.mileway.core.ui.detail
 
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.mileway.core.ui.components.StatusTone
@@ -38,6 +39,8 @@ sealed interface DetailField {
             val label: UiText,
             val value: UiText,
             val icon: ImageVector? = null,
+            /** Optional status tint for the value/icon — e.g. an over-budget metric rendered in [StatusTone.Danger]. */
+            val tone: StatusTone? = null,
         )
     }
 
@@ -97,6 +100,19 @@ sealed interface DetailField {
         override val id: String,
         override val visible: Boolean = true,
         val content: @Composable () -> Unit,
+    ) : DetailField
+
+    /**
+     * Lazy/paged content escape hatch — like [Slot], but for content whose size can't be bounded
+     * up front (e.g. a route-points list backed by paging) and so must not be built eagerly inside
+     * one Card. [content] emits its own `item`/`items` calls directly into the enclosing
+     * [DetailScreen]'s LazyColumn — it is only valid as a top-level field of a [DetailSectionSpec],
+     * never nested inside an [Expandable] (there is no LazyListScope to emit into there).
+     */
+    data class PagedSlot(
+        override val id: String,
+        override val visible: Boolean = true,
+        val content: LazyListScope.() -> Unit,
     ) : DetailField
 
     /** A collapsible group of nested [fields] — renders via `CollapsibleSectionCard`. */

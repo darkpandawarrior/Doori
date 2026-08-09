@@ -47,7 +47,7 @@ private fun DetailField.applyLabelOverride(config: DetailConfig): DetailField {
         is DetailField.DateField -> copy(label = override)
         is DetailField.AttachmentList -> copy(title = override)
         is DetailField.Expandable -> copy(title = override)
-        is DetailField.MetricGrid, is DetailField.Slot, is DetailField.Divider, is DetailField.ActionRow -> this
+        is DetailField.MetricGrid, is DetailField.Slot, is DetailField.PagedSlot, is DetailField.Divider, is DetailField.ActionRow -> this
     }
 }
 

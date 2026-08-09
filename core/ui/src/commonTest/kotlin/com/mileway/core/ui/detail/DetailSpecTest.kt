@@ -130,4 +130,21 @@ class DetailSpecTest {
         assertEquals(StatusTone.Success, status.tone)
         assertEquals(null, status.label)
     }
+
+    @Test
+    fun `MetricGrid metric tone defaults to null, so an existing caller renders exactly as before`() {
+        val metric = DetailField.MetricGrid.Metric(label = UiText.of("Distance"), value = UiText.of("12.4 km"))
+        assertEquals(null, metric.tone)
+    }
+
+    @Test
+    fun `MetricGrid metric carries an explicit tone through unchanged`() {
+        val metric =
+            DetailField.MetricGrid.Metric(
+                label = UiText.of("Speed"),
+                value = UiText.of("142 km/h"),
+                tone = StatusTone.Danger,
+            )
+        assertEquals(StatusTone.Danger, metric.tone)
+    }
 }
