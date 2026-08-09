@@ -5,6 +5,14 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  # A harness that only runs on demand is a harness that stops running: this is the required
+  # "Quality Gate" check (branch-protection ruleset on main), so it also re-runs nightly against
+  # main with no code change — the only thing that would catch drift a push/PR never triggers
+  # (a stale/broken screenshot baseline, a toolchain update, a flaky-turned-permanent failure).
+  # Off-beat minute, same convention as dependabot-rebaseline.yml's weekly cron.
+  schedule:
+    - cron: '13 2 * * *'
+  workflow_dispatch:   # manual on-demand run from the Actions tab
 
 permissions:
   contents: read
@@ -64,25 +72,38 @@ jobs:
       # noGms is the JVM unit-test target: the gms flavor pulls Google Play Services
       # maps, whose native libs SIGSEGV a shared Robolectric fork (exit 2). noGms
       # (MapLibre) has no Play Services native deps; map surfaces are faked in tests.
-      #
-      # Two extra JVM-only suites are appended as additional Gradle tasks (run-jvm-tests.sh passes
-      # "$@" straight through after the first task, so they share one Gradle invocation and the same
-      # Robolectric-teardown-flake tolerance). Both previously ran in NO workflow at all. Be honest
-      # about how much they actually cover — it is not much, but it is more than zero, and it means
-      # a compile break in either module now fails the gate:
-      #   :widget:testDebugUnitTest — :widget applies `mileway.android.library` (plain
-      #     com.android.library, no product flavors), so the flavoured `testNoGmsDebugUnitTest`
-      #     aggregate never matched it. NOTE this is a *record* run, not an assertion run:
-      #     WidgetScreenshotTest sets `roborazzi.test.record=true` and writes
-      #     docs/screenshots/widget_glance.png into the checkout, so it can never fail on a pixel
-      #     diff — it only proves the Glance tree composes.
-      #   :desktopApp:desktopTest — :desktopApp is a bare `jvm("desktop")` KMP target, so its test
-      #     task is `desktopTest`. Pure JVM (`runDesktopComposeUiTest`, no Robolectric/emulator), so
-      #     this is ~free — but 7 of its 9 @Tests are @Ignore'd as flaky under headless Skiko, so
-      #     what actually executes is DashboardMockDataTest's 2 assertions.
       - name: Unit tests
         if: ${{ !cancelled() }}
-        run: ./scripts/run-jvm-tests.sh testNoGmsDebugUnitTest :widget:testDebugUnitTest :desktopApp:desktopTest
+        run: ./scripts/run-jvm-tests.sh testNoGmsDebugUnitTest
+
+      # THE root-cause fix for this program: assembleNoGmsDebug + testNoGmsDebugUnitTest never ran
+      # a screenshot, on any surface, in any workflow — that is how one composition-breaking
+      # injection killed all 155 :app captures while every watched gate stayed green (2026-08-09).
+      #
+      # `screenshotTest` (root build.gradle.kts) is the single command that runs every screenshot
+      # harness in the repo — :app:screenshotTestNoGmsDebug explicitly, plus :widget:testDebugUnitTest,
+      # :desktopApp:desktopTest and :wear:testNoGmsDebugUnitTest via subproject discovery (any module
+      # whose test sources call captureRoboImage/ImageIO). Calling it here, not those tasks
+      # individually, means a new capture surface is covered the day someone writes it, not the day
+      # someone remembers to add a workflow step — and it replaces (not adds to) the old
+      # `:widget:testDebugUnitTest :desktopApp:desktopTest` calls above, since screenshotTest already
+      # depends on both; running them twice in one job would just cost minutes for a redundant
+      # UP-TO-DATE re-check.
+      #
+      # Verify mode by default (no -Proborazzi.test.record=true), so this genuinely gates: a captured
+      # PNG that no longer matches docs/screenshots/*.png fails the job. Re-recording accepted changes
+      # is a SEPARATE, explicit action — screenshots.yml on push to main, or `-Proborazzi.test.record`
+      # by hand — never silently rewritten by this check. That split is deliberate: a workflow that
+      # auto-commits regenerated baselines on the same run that verifies them could mask a real
+      # regression by rewriting the evidence out from under itself.
+      #
+      # Known, pre-existing, out-of-scope-here gap: :widget's WidgetScreenshotTest hardcodes
+      # `roborazzi.test.record=true` in its own test source, so it always records rather than
+      # verifies (documented in the module, not this workflow) — it still proves the Glance tree
+      # composes, which is strictly more coverage than the zero this task previously had.
+      - name: Screenshot tests (app + wear + widget + desktop)
+        if: ${{ !cancelled() }}
+        run: ./scripts/run-jvm-tests.sh screenshotTest
 
       # KMP modules (feature:tracking, core:platform, core:security) name their JVM unit-test
       # task `testAndroidHostTest`, which the variant-specific aggregate above does not match.
@@ -118,3 +139,56 @@ jobs:
           path: |
             **/build/reports/tests/
             **/build/test-results/
+
+      # Roborazzi writes actual/compare (side-by-side diff) PNGs for every mismatch — the fastest
+      # way to see WHAT changed without pulling the branch locally. roborazzi.properties pins
+      # roborazzi.output.dir to ../docs/screenshots (so recorded baselines land in the tracked
+      # dir), which per Roborazzi's docs also redirects compare/actual output there instead of the
+      # library's build/outputs/roborazzi/ default — covering both paths since that redirection
+      # isn't verified here (no build.gradle.kts access, and running the real task to observe it
+      # would write into docs/screenshots, a file this task doesn't own). ignore means a green run
+      # with nothing to diff doesn't fail this step.
+      - name: Upload screenshot diffs
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: screenshot-diffs
+          path: |
+            docs/screenshots/**/*_compare.png
+            docs/screenshots/**/*_actual.png
+            **/build/outputs/roborazzi/**
+          if-no-files-found: ignore
+
+      # Loud failure, since this job is the required "Quality Gate" ruleset check AND now runs
+      # unattended on a nightly schedule with no PR to surface a red X on. Every failing step above
+      # already emits its own ::error/::warning annotations (ktlint, detekt, run-jvm-tests.sh's
+      # JUnit-XML check, etc.) — this adds one more, high-visibility summary so a failure can never
+      # read as "just some log output to scroll past."
+      #
+      # Notification channel: this repo (and the wider AgentHarness) has no Slack/Discord/webhook
+      # wired into any workflow — grepped every workflow file and the harness docs, found none, so
+      # there is nothing existing to route into. The channel that DOES already exist for free is
+      # GitHub's own failed-workflow-run notification (Settings → Notifications → Actions →
+      # "Only notify for failed workflows", on by default for a run's actor and repo watchers) — no
+      # secret, no new dependency, nothing to configure here. This job summary + the annotations
+      # below are what that email/notification links to, so make them count.
+      - name: Gate failed — summary
+        if: failure()
+        run: |
+          {
+            echo "## :x: Quality Gate failed"
+            echo
+            echo "Trigger: \`${{ github.event_name }}\` on \`${{ github.ref_name }}\` (${{ github.sha }})"
+            echo
+            echo "One or more required steps failed: ktlint, detekt, unit tests, screenshot tests"
+            echo "(app/wear/widget/desktop), KMP commonTest, the coverage floor, or dependency-guard."
+            echo "Scroll up to the first red step for the real error; a **screenshot-diffs** artifact"
+            echo "is attached above if a Roborazzi comparison produced one."
+            if [ "${{ github.event_name }}" = "schedule" ]; then
+              echo
+              echo "**This is the nightly scheduled run — there is no PR attached to it.** main itself"
+              echo "(or a baseline/toolchain it depends on) has drifted. Do not wait for the next push"
+              echo "to notice; investigate this run directly."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::error title=Quality Gate failed::${{ github.event_name }} on ${{ github.ref_name }} — see the job summary and the first failed step above."

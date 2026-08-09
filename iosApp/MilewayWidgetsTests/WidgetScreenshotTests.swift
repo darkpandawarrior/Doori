@@ -1,12 +1,14 @@
 // showcase: renders the iOS WidgetKit widget views to PNGs via ImageRenderer — fixed-layout
 // widget views render cleanly (no ScrollView), so no home-screen placement is needed. Writes to
-// the host repo's docs/screenshots/. Run: xcodebuild test -scheme iosApp -sdk iphonesimulator
-//      -only-testing:MilewayWidgetsTests/WidgetScreenshotTests
+// the host repo's docs/screenshots/. Run: xcodebuild test -scheme MilewayWidgetsTests
+//      -sdk iphonesimulator -only-testing:MilewayWidgetsTests/WidgetScreenshotTests
+// NB: no `@testable import MilewayWidgets` — the MilewayWidgetsTests target compiles the widget
+// view sources directly into itself (app-extension targets can't be linked into a test bundle,
+// see project.yml), so the types below are already in this module.
 
 import SwiftUI
 import WidgetKit
 import XCTest
-@testable import MilewayWidgets
 
 final class WidgetScreenshotTests: XCTestCase {
     // Derived, not hardcoded. This was previously pinned to .../Repos/Mileway/docs/screenshots —

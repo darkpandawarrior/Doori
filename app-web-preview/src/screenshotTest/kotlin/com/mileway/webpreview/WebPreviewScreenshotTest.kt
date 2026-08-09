@@ -1,6 +1,8 @@
 package com.mileway.webpreview
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toAwtImage
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.runDesktopComposeUiTest
 import com.mileway.core.ui.theme.MilewayTheme
@@ -25,6 +27,7 @@ import kotlin.test.Test
  * capture that quietly implied wasm-runtime coverage would be worse than no capture, because it
  * would retire the question without answering it.
  */
+@OptIn(ExperimentalTestApi::class)
 class WebPreviewScreenshotTest {
 
     @Test

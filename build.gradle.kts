@@ -191,6 +191,94 @@ gradle.projectsEvaluated {
     }
 }
 
+// --------------------------------------------------------------------------
+// Screenshot freshness guard (Wave 0.3): stale captures are the visible symptom of "work existed,
+// nothing ran it, nothing alerted" — so staleness must be a red build, not a discovery made months
+// later.
+//
+// Went with a simple max-age over "PNG newer than the newest source file of the module that
+// produces it": docs/screenshots/ is one flat directory with no naming convention that maps 1:1
+// onto a Gradle module path (e.g. is "advance_history_screen.png" owned by :feature:advances or
+// :feature:approvals? "booking_history_screen.png" by :feature:travel? there is no rule, only a
+// guess), so a per-module comparison would be brittle guesswork wearing precision's clothes. Age
+// since last commit needs no such mapping and can't silently miss a module that was never mapped.
+//
+// Uses `git log`, not filesystem mtime: a fresh checkout stamps every file with the checkout time,
+// so mtime is meaningless for staleness the moment CI does a clean clone. Git's
+// last-commit-that-touched-this-path date is the real "when was this last regenerated" signal and
+// survives a checkout.
+//
+// What this catches: a screenshot nobody has re-recorded in screenshotMaxAgeDays even though the
+// harness that produces it still runs clean — the exact silent-rot failure mode from Wave 0.
+// What this does NOT catch: a screenshot re-recorded today against code that is itself wrong
+// (freshness says nothing about correctness), or one module's screenshot going stale while only
+// that module's source changed and others didn't (no per-module mapping, see above — a max-age
+// check is blind to which module a PNG belongs to by design).
+// --------------------------------------------------------------------------
+tasks.register("screenshotFreshnessCheck") {
+    group = "verification"
+    description = "Fails if any docs/screenshots/*.png hasn't been re-recorded in screenshotMaxAgeDays."
+    val maxAgeDays = (project.findProperty("screenshotMaxAgeDays") as String?)?.toIntOrNull() ?: 30
+    val screenshotsDir = layout.projectDirectory.dir("docs/screenshots").asFile
+    val repoRoot = rootDir
+    doLast {
+        val pngs = screenshotsDir.listFiles { f -> f.isFile && f.extension.equals("png", ignoreCase = true) }.orEmpty()
+        val nowSeconds = System.currentTimeMillis() / 1000
+        val maxAgeSeconds = maxAgeDays * 24L * 60 * 60
+        val stale =
+            pngs.mapNotNull { png ->
+                val proc =
+                    ProcessBuilder("git", "log", "-1", "--format=%ct", "--", png.absolutePath)
+                        .directory(repoRoot)
+                        .redirectErrorStream(true)
+                        .start()
+                val commitEpoch = proc.inputStream.bufferedReader().readText().trim().toLongOrNull()
+                proc.waitFor()
+                // No git history for the file (freshly added, not yet committed) -> not stale.
+                val ageSeconds = commitEpoch?.let { nowSeconds - it } ?: return@mapNotNull null
+                if (ageSeconds > maxAgeSeconds) png.name to (ageSeconds / 86400) else null
+            }
+        if (stale.isNotEmpty()) {
+            throw GradleException(
+                buildString {
+                    appendLine("${stale.size} screenshot(s) haven't been re-recorded in $maxAgeDays days:")
+                    stale.sortedByDescending { it.second }.forEach { (name, days) -> appendLine("  $name (${days}d old)") }
+                    appendLine()
+                    appendLine("Re-record with: ./gradlew screenshotTest -Proborazzi.test.record=true")
+                    appendLine("(or pass -PscreenshotMaxAgeDays=N if $maxAgeDays days is intentionally tight for this run)")
+                },
+            )
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// verifyAll (Wave 0.1): THE one task that must be green before anything ships.
+//
+// Superset of `fullCheck`, not a competitor to it: `fullCheck` stays as the faster local
+// quality-loop subset (style + unit/KMP tests + screenshots + coverage — no full assemble, no
+// dependency-guard, no freshness check), useful for a tight local dev cycle. `verifyAll` depends on
+// `fullCheck` and adds exactly the pieces that make it the real release gate: the actual build,
+// the dependency-guard, and the screenshot-freshness check. There is exactly one thing to watch
+// before shipping — this task — and it is a strict superset of the other, not a second independent
+// definition of "done" that can silently drift from it.
+//
+// The absolute-path guard (OutputPathGuardTest) needs no separate wiring here: it is a JUnit test
+// under app/src/test, so testNoGmsDebugUnitTest (pulled in via fullCheck) already runs it. Adding
+// it again as its own dependency would recreate the "two gates, only one watched" bug this whole
+// program exists to kill.
+// --------------------------------------------------------------------------
+tasks.register("verifyAll") {
+    group = "verification"
+    description = "THE release gate: assemble + fullCheck (lint/detekt/unit tests/screenshots/coverage) + freshness + dependency-guard."
+    dependsOn(
+        ":app:assembleNoGmsDebug",
+        "fullCheck",
+        "screenshotFreshnessCheck",
+        ":app:dependencyGuard",
+    )
+}
+
 tasks.register("composeMetrics") {
     description = "Generate Compose compiler stability/recomposition reports for :app (release)."
     dependsOn(":app:assembleGmsRelease")
