@@ -197,3 +197,79 @@ tasks.register("composeMetrics") {
         println("Compose metrics written to: app/build/compose_metrics/")
     }
 }
+
+// ---------------------------------------------------------------------------
+// One task that runs EVERY screenshot harness in the repo.
+//
+// Why this exists: the harnesses were never the problem — :app, :wear and
+// :widget each had a working Roborazzi suite. The problem was that they live on
+// three different task names and no single command ran them together, so a
+// change could turn a gate green while silently breaking a surface nobody ran.
+// That happened on 2026-08-09: injecting SystemSettingsOpener into
+// TrackMilesScreen broke every :app capture at composition, and
+// assembleNoGmsDebug + testNoGmsDebugUnitTest stayed green throughout, because
+// :app:screenshotTestNoGmsDebug is deliberately forked out of the main suite.
+//
+//   ./gradlew screenshotTest                              # verify against baselines
+//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//
+// NOT covered here, and deliberately not faked as if it were:
+//   - iOS  (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot
+//     tests that need Xcode; Gradle cannot run them.
+//   - desktop (:desktopApp) — Roborazzi is Robolectric-based and Android-only;
+//     Compose Desktop needs ImageComposeScene render-to-PNG instead.
+//   - wasm (:app-web-preview) — no test source set; needs a browser harness.
+// ---------------------------------------------------------------------------
+// KNOWN ISSUE, unresolved as of 2026-08-09 — read before wiring this into a gate.
+//
+// Running the harnesses together reproducibly kills :app's screenshot fork with
+// ExceptionInInitializerError at FakeSavedTrackDao.<init> (TrackMilesViewModelTest.kt:368),
+// while :app:screenshotTestNoGmsDebug ALONE passes every time, including under
+// --rerun-tasks. Ruled out so far: task ordering (mustRunAfter is in place below) and
+// parallelism (--no-parallel reproduces it). So it is not the test tasks interleaving —
+// something about :wear/:widget being in the graph changes :app's test classpath or
+// generated resources.
+//
+// Therefore this is deliberately NOT wired into fullCheck yet: a gate that flakes is worse
+// than a gate with a known hole, because it trains people to re-run until green. Until the
+// interaction is understood, run the harnesses separately:
+//   ./gradlew :app:screenshotTestNoGmsDebug
+//   ./gradlew :wear:testNoGmsDebugUnitTest :widget:testDebugUnitTest
+tasks.register("screenshotTest") {
+    group = "verification"
+    description = "Runs every screenshot harness (app + wear + widget) in one command."
+    dependsOn(":app:screenshotTestNoGmsDebug")
+}
+
+gradle.projectsEvaluated {
+    tasks.named("screenshotTest") {
+        // Discovered rather than hardcoded, for the same reason fullCheck discovers
+        // testAndroidHostTest: a hardcoded list is a list that drifts. Any module whose
+        // test sources actually call captureRoboImage gets pulled in automatically, so a
+        // new screenshot suite is covered the day it is written rather than the day
+        // someone remembers this file.
+        subprojects.forEach { sub ->
+            if (sub.path == ":app") return@forEach // already wired to its dedicated forked task
+            val hasCaptures =
+                sub.projectDir.resolve("src/test").walkTopDown()
+                    .filter { it.isFile && it.extension == "kt" }
+                    .any { it.readText().contains("captureRoboImage") }
+            if (!hasCaptures) return@forEach
+            sub.tasks.matching {
+                // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
+                // variant here would make the unified task fail for a reason that has nothing to do
+                // with the screenshots it is meant to guard.
+                it.name.startsWith("test") && it.name.endsWith("UnitTest") &&
+                    // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
+                    !(it.name.contains("Gms") && !it.name.contains("NoGms"))
+            }.forEach { t ->
+                dependsOn(t)
+                // Ordered, not just aggregated. :app's screenshot suite runs @GraphicsMode(NATIVE)
+                // Skia in its own single fork precisely because it is fragile about sharing a build
+                // with other test JVMs — running these concurrently reproducibly kills its class
+                // init. Sequencing costs a few seconds and buys a task that does not flake.
+                t.mustRunAfter(":app:screenshotTestNoGmsDebug")
+            }
+        }
+    }
+}
