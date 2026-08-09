@@ -220,19 +220,29 @@ tasks.register("composeMetrics") {
 //     Compose Desktop needs ImageComposeScene render-to-PNG instead.
 //   - wasm (:app-web-preview) — no test source set; needs a browser harness.
 // ---------------------------------------------------------------------------
-// KNOWN ISSUE, unresolved as of 2026-08-09 — read before wiring this into a gate.
+// KNOWN ISSUE — diagnosed, not yet fixed. Read before wiring this into a gate.
 //
-// Running the harnesses together reproducibly kills :app's screenshot fork with
-// ExceptionInInitializerError at FakeSavedTrackDao.<init> (TrackMilesViewModelTest.kt:368),
-// while :app:screenshotTestNoGmsDebug ALONE passes every time, including under
-// --rerun-tasks. Ruled out so far: task ordering (mustRunAfter is in place below) and
-// parallelism (--no-parallel reproduces it). So it is not the test tasks interleaving —
-// something about :wear/:widget being in the graph changes :app's test classpath or
-// generated resources.
+// ROOT CAUSE (confirmed from the stack trace, not inferred): MockK self-attaches a ByteBuddy
+// agent. Modern JDKs restrict self-attach, so ByteBuddy falls back to installExternal() —
+// spawning a separate attach process — which loses a race when several Gradle test JVMs run
+// at once and throws "Could not self-attach to current VM using external process". It surfaces
+// as ExceptionInInitializerError at FakeSavedTrackDao.<init>, which is simply the first mockk()
+// touch in the gallery's companion object, so the reported location is misleading.
 //
-// Therefore this is deliberately NOT wired into fullCheck yet: a gate that flakes is worse
-// than a gate with a known hole, because it trains people to re-run until green. Until the
-// interaction is understood, run the harnesses separately:
+// Evidence: :app:screenshotTestNoGmsDebug ALONE passes every time, including --rerun-tasks.
+// Aggregated with :wear/:widget it fails roughly 2 runs in 3.
+//
+// RULED OUT: task ordering (mustRunAfter is in place below); parallelism (--no-parallel still
+// reproduces); classpath (the failure is agent attachment, not a missing class); and adding
+// -Djdk.attach.allowAttachSelf=true beside the existing -XX:+EnableDynamicAgentLoading in
+// app/build.gradle.kts, which was tried and did NOT fix it — do not re-try that first.
+//
+// LIKELY FIX, untested: add byte-buddy-agent as an explicit -javaagent on the test JVMs so no
+// runtime attachment is attempted at all. That is the standard remedy for MockK on restricted
+// JDKs and removes the racing external process entirely.
+//
+// Deliberately NOT wired into fullCheck until that lands: a gate that flakes is worse than a
+// gate with a known hole, because it trains people to re-run until green. Until then:
 //   ./gradlew :app:screenshotTestNoGmsDebug
 //   ./gradlew :wear:testNoGmsDebugUnitTest :widget:testDebugUnitTest
 tasks.register("screenshotTest") {
