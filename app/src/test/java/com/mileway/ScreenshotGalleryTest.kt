@@ -11,6 +11,14 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.mileway.core.platform.SystemSettingsOpener
+import com.mileway.core.data.model.display.TrackingSystemFlags
+import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
+import com.mileway.feature.tracking.ui.live.LiveDriveActions
+import com.mileway.feature.tracking.ui.live.LiveDriveScreen
+import com.mileway.feature.tracking.ui.live.LiveDriveState
+import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
+import com.mileway.feature.tracking.viewmodel.TrackSignal
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ConnectedAccountDao
@@ -475,6 +483,10 @@ class ScreenshotGalleryTest {
             // MapSurface; the real flavor surfaces need GMS / MapLibre native, so use a
             // no-op fake on the JVM. mapsKoinModule() is deliberately excluded.
             single<MapSurface> { FakeMapSurface() }
+            // TrackMilesScreen koinInject()s this for the permission primer. platformServices
+            // KoinModule() is deliberately excluded here (it builds GMS/MapLibre against a mock
+            // Context), so bind a no-op the same way MapSurface is faked.
+            single<SystemSettingsOpener> { object : SystemSettingsOpener { override fun openAppSettings() = Unit } }
         }
 
         // Stand-ins for the platform-service graph (platformModule +
@@ -1809,6 +1821,61 @@ class ScreenshotGalleryTest {
             }
         }
         capture("whats_new_sheet")
+    }
+
+    @Test
+    fun liveDriveScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                LiveDriveScreen(
+                    state =
+                        LiveDriveState(
+                            phase = TrackMilesPhase.TRACKING,
+                            distanceKm = 12.42,
+                            elapsedMs = 1_421_000L,
+                            speedKmh = 48.0,
+                            avgSpeedKmh = 31.5,
+                            maxSpeedKmh = 62.0,
+                            pointsCount = 842L,
+                            qualityScore = 94,
+                            batteryPct = 68,
+                            isCharging = false,
+                            unsyncedPoints = 12L,
+                            pauseReason = null,
+                            currentLat = 18.5204,
+                            currentLng = 73.8567,
+                            bearingDegrees = 118f,
+                            signal = TrackSignal.GOOD,
+                            systemFlags = TrackingSystemFlags(),
+                        ),
+                    actions = LiveDriveActions({}, {}, {}, {}),
+                )
+            }
+        }
+        capture("live_drive_screen")
+    }
+
+    @Test
+    fun trackEvidenceScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                TrackEvidenceScreen(
+                    track =
+                        SavedTrack(
+                            routeId = "route-e1", name = "Kothrud to Hinjewadi", isCompleted = true,
+                            startLatitude = 18.5074, startLongitude = 73.8077,
+                            endLatitude = 18.5913, endLongitude = 73.7389,
+                            pausedLatitude = 0.0, pausedLongitude = 0.0,
+                            startTime = 1_767_268_800_000L, endTime = 1_767_272_400_000L,
+                            distance = 14_900.0, duration = 3_600_000L,
+                            selectedVehicleType = "fourWheelerPetrol", vehiclePricing = 10.0,
+                            createdAt = 1_767_268_800_000L, startedAtTimestamp = 1_767_268_800_000L,
+                            startedByEmployeeCode = "EMP001",
+                        ),
+                )
+            }
+        }
+        capture("track_evidence_screen")
     }
 
     private fun capture(name: String) =
