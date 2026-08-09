@@ -148,7 +148,6 @@ import com.mileway.feature.tracking.ui.screens.TrackInsightsScreen
 import com.mileway.feature.tracking.ui.screens.TrackLoadingScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.tracking.ui.screens.TrackSettingsScreen
-import com.mileway.feature.tracking.ui.screens.TrackSubmissionScreen
 import com.mileway.feature.tracking.ui.screens.TrackingSuccessScreen
 import com.mileway.feature.travel.di.travelModule
 import com.mileway.feature.travel.ui.screens.BookingHistoryScreen
@@ -720,23 +719,6 @@ class ScreenshotGalleryTest {
         capture("check_in_history_screen")
     }
 
-    @Test
-    fun trackSubmissionScreen() {
-        composeRule.setContent {
-            MilewayTheme {
-                TrackSubmissionScreen(
-                    routeId = "route-j1",
-                    distanceKm = 12.4,
-                    vehicleKey = "fourWheelerPetrol",
-                    startTime = 1_700_000_000_000L,
-                    endTime = 1_700_003_600_000L,
-                    onSuccess = {},
-                    onBack = {},
-                )
-            }
-        }
-        capture("track_submission_screen")
-    }
 
     @Test
     fun trackingSuccessScreen() {
