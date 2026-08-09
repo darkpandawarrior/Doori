@@ -39,7 +39,7 @@ import com.mileway.feature.tracking.ui.screens.TrackDetailScreen
 import com.mileway.feature.tracking.ui.screens.TrackInsightsScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.tracking.ui.screens.TrackSettingsScreen
-import com.mileway.feature.tracking.ui.screens.TrackSubmissionScreen
+import com.mileway.feature.tracking.ui.review.DriveReviewSheet
 import com.mileway.feature.tracking.ui.screens.TrackingSuccessScreen
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
@@ -310,18 +310,25 @@ fun NavGraphBuilder.trackingGraph(
             }
         }
 
-        TrackSubmissionScreen(
+        // DriveReviewSheet replaces TrackSubmissionScreen AND TrackingSuccessScreen: it carries the
+        // success state internally as its terminal phase, so there is no longer a navigation hop
+        // between "submitting" and "submitted". That hop is what made the old flow four full-screen
+        // transitions; collapsing it is the point of the review sheet.
+        DriveReviewSheet(
             routeId = routeId,
             distanceKm = distKm,
             vehicleKey = args.getString("vehicleKey") ?: "",
             startTime = args.getLong("startTime"),
             endTime = args.getLong("endTime"),
-            onSuccess = { result ->
-                navController.navigate(TrackingRoutes.success(result)) {
-                    popUpTo(TrackingRoutes.SAVED_TRACKS)
+            onTrackNewJourney = {
+                navController.navigate(TrackingRoutes.SAVED_TRACKS) {
+                    popUpTo(TrackingRoutes.SAVED_TRACKS) { inclusive = true }
                 }
             },
-            onBack = { navController.popBackStack() },
+            // Mirrors TrackingSuccessEffect.NavigateToExpenseList — there is still no
+            // per-transaction detail screen, so both land on the voucher/approvals list.
+            onViewExpense = { navController.navigate(TrackingRoutes.CREATE_VOUCHER) },
+            onCreateVoucher = { navController.navigate(TrackingRoutes.CREATE_VOUCHER) },
             onNavigateToOdometerStart = {
                 // G7: prefer an explicit per-trip override, else roll over from the last trip's
                 // end reading, else the cold-start default.
