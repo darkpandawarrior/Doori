@@ -14,7 +14,22 @@ final class WatchScreenshotTests: XCTestCase {
     // that phantom folder and wrote there, so the PNGs never reached the repo and nobody saw a
     // failure. SCREENSHOT_OUT_DIR is set by the test scheme/CI; the fallback is the real path.
     private let outDir = ProcessInfo.processInfo.environment["SCREENSHOT_OUT_DIR"]
-        ?? "/Users/darkpandawarrior/Repos/Android/Mileway/docs/screenshots"
+        ?? Self.repoScreenshotsDir
+
+    /// Derived from this source file's own location at compile time, so it cannot go stale when the
+    /// repo moves — which is exactly what happened before: the path was pinned to
+    /// .../Repos/Mileway/..., died when the repo moved under Repos/Android/, and because the writer
+    /// calls createDirectory(withIntermediateDirectories: true) every run silently CREATED the
+    /// phantom folder and wrote there. No error, no missing file, captures just stopped arriving.
+    private static var repoScreenshotsDir: String {
+        // <repo>/iosApp/<TestTarget>/<ThisFile>.swift -> up 3 -> <repo>
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("docs/screenshots")
+            .path
+    }
 
     @MainActor
     func testCaptureDashboard() throws {
