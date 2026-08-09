@@ -1884,6 +1884,11 @@ class ScreenshotGalleryTest {
         capture("track_evidence_screen")
     }
 
-    private fun capture(name: String) =
-        composeRule.onRoot().captureRoboImage(File(screenshotsDir, "$name.png").absolutePath)
+    // D2 FIX (2026-08-09): this passed File(screenshotsDir, "$name.png").absolutePath — an ABSOLUTE
+    // path computed by walking up to the repo root. Roborazzi's compare/verify pipeline keys off its
+    // own configured roborazzi.output.dir ("../docs/screenshots", set in roborazzi.properties), so an
+    // absolute path handed straight to captureRoboImage bypassed compare entirely and always wrote.
+    // That is why this surface still passed with a deliberately corrupted baseline even after verify
+    // was switched on. A relative name lets roborazzi own the location, and therefore the comparison.
+    private fun capture(name: String) = composeRule.onRoot().captureRoboImage("$name.png")
 }
