@@ -2,6 +2,7 @@ package com.mileway.wear
 
 import com.mileway.core.data.model.display.SurfaceSnapshot
 import com.mileway.core.data.model.display.TrackingState
+import com.mileway.feature.tracking.service.TrackingNotificationMapper
 import com.mileway.feature.tracking.service.TrackingSnapshot
 import com.mileway.feature.tracking.watch.TripSummary
 import org.junit.Assert.assertEquals
@@ -129,33 +130,40 @@ class WearPresentationTest {
         assertEquals("0.0", label)
     }
 
-    // ─── P2.8: toOngoingActivityState (ongoing-activity live/idle + distance) ──────────────────────
+    // ─── P2.8/AMBIENT.1: toOngoingActivityState (ongoing-activity live/idle + shared mapper copy) ──
 
     @Test
-    fun `live tracking maps to an isLive ongoing state with km-converted distance`() {
+    fun `live tracking maps to an isLive ongoing state carrying the shared mapper's ACTIVE copy`() {
         val snapshot = TrackingSnapshot(state = TrackingState.LIVE_TRACKING, distanceMeters = 12_400.0)
 
         val ongoing = WearPresentation.toOngoingActivityState(snapshot)
+        val expected = TrackingNotificationMapper.fromSnapshot(snapshot)
 
         assertTrue(ongoing.isLive)
-        assertEquals(12.4, ongoing.distanceKm, 0.0001)
+        assertEquals(expected.title, ongoing.title)
+        assertEquals(expected.text, ongoing.text)
     }
 
     @Test
-    fun `paused tracking still counts as live for the ongoing activity`() {
+    fun `paused tracking still counts as live and carries the mapper's PAUSED copy`() {
         val snapshot = TrackingSnapshot(state = TrackingState.PAUSED, distanceMeters = 5_000.0)
 
         val ongoing = WearPresentation.toOngoingActivityState(snapshot)
+        val expected = TrackingNotificationMapper.fromSnapshot(snapshot)
 
         assertTrue(ongoing.isLive)
-        assertEquals(5.0, ongoing.distanceKm, 0.0001)
+        assertEquals(expected.title, ongoing.title)
+        assertEquals(expected.text, ongoing.text)
+        assertTrue(ongoing.text.contains("resume"))
     }
 
     @Test
-    fun `ready state maps to a non-live ongoing state`() {
+    fun `ready state maps to a non-live ongoing state and never calls the mapper`() {
         val ongoing = WearPresentation.toOngoingActivityState(TrackingSnapshot(state = TrackingState.READY))
 
         assertFalse(ongoing.isLive)
+        assertEquals("", ongoing.title)
+        assertEquals("", ongoing.text)
     }
 
     @Test
@@ -165,5 +173,49 @@ class WearPresentationTest {
         val ongoing = WearPresentation.toOngoingActivityState(snapshot)
 
         assertFalse(ongoing.isLive)
+    }
+
+    // ─── AMBIENT.1: toTileStatusLabel (tile/complication compact live-state word) ──────────────────
+
+    @Test
+    fun `idle snapshot has no tile status label`() {
+        assertEquals(null, WearPresentation.toTileStatusLabel(SurfaceSnapshot()))
+    }
+
+    @Test
+    fun `tracking snapshot maps to a TRACKING tile status label`() {
+        val label = WearPresentation.toTileStatusLabel(SurfaceSnapshot(isTracking = true))
+
+        assertEquals("TRACKING", label)
+    }
+
+    @Test
+    fun `paused snapshot maps to a PAUSED tile status label`() {
+        val label = WearPresentation.toTileStatusLabel(SurfaceSnapshot(isTracking = true, isPaused = true))
+
+        assertEquals("PAUSED", label)
+    }
+
+    // ─── AMBIENT.1: isStale (frozen-cache detection for the tile/complication) ─────────────────────
+
+    @Test
+    fun `idle snapshot is never stale regardless of age`() {
+        val snapshot = SurfaceSnapshot(isTracking = false, lastUpdatedEpochMs = 0L)
+
+        assertFalse(WearPresentation.isStale(snapshot, nowEpochMs = 999_999_999L))
+    }
+
+    @Test
+    fun `tracking snapshot within the threshold is not stale`() {
+        val snapshot = SurfaceSnapshot(isTracking = true, lastUpdatedEpochMs = 1_000L)
+
+        assertFalse(WearPresentation.isStale(snapshot, nowEpochMs = 1_000L + 60_000L, thresholdMs = 300_000L))
+    }
+
+    @Test
+    fun `tracking snapshot past the threshold is stale`() {
+        val snapshot = SurfaceSnapshot(isTracking = true, lastUpdatedEpochMs = 1_000L)
+
+        assertTrue(WearPresentation.isStale(snapshot, nowEpochMs = 1_000L + 300_001L, thresholdMs = 300_000L))
     }
 }

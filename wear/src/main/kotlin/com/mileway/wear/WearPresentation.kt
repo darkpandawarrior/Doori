@@ -2,6 +2,7 @@ package com.mileway.wear
 
 import com.mileway.core.data.model.display.SurfaceSnapshot
 import com.mileway.core.data.model.display.TrackingState
+import com.mileway.feature.tracking.service.TrackingNotificationMapper
 import com.mileway.feature.tracking.service.TrackingSnapshot
 import com.mileway.feature.tracking.watch.TripSummary
 import kotlin.math.round
@@ -44,17 +45,56 @@ object WearPresentation {
     fun toWeekGoalValueLabel(snapshot: SurfaceSnapshot): String = formatOneDecimal(snapshot.weekDistanceKm)
 
     /**
-     * P2.8: pure mapper from the live [TrackingSnapshot] ([TrackingServiceApi.trackingState][com.mileway.feature.tracking.service.TrackingServiceApi.trackingState])
+     * P2.8/AMBIENT.1: pure mapper from the live [TrackingSnapshot] ([TrackingServiceApi.trackingState][com.mileway.feature.tracking.service.TrackingServiceApi.trackingState])
      * to the ongoing-activity's rendering-ready state — [WearActivity][com.mileway.wear.WearActivity]
      * drives [TrackingOngoingActivity.post]/[TrackingOngoingActivity.cancel] off this, never off the
      * raw [TrackingSnapshot] directly, so the "which states count as live" decision is unit-tested
      * here rather than duplicated at the call site.
+     *
+     * AMBIENT.1: [title]/[text] come straight from [TrackingNotificationMapper.fromSnapshot] — the
+     * same copy the phone's foreground-service notification renders (see
+     * `LocationTrackingService.updateNotification`) — rather than a second, hand-rolled "X km
+     * tracked" string, so the watch's ongoing activity and the phone's notification never drift.
+     * The mapper has no idle/READY branch (it assumes it is only ever called while a session is
+     * live, exactly like the phone's call site), so [isLive] gates the call: an idle/completed
+     * snapshot never reaches the mapper and just clears the notification.
      */
-    fun toOngoingActivityState(snapshot: TrackingSnapshot): OngoingActivityUi =
-        OngoingActivityUi(
-            isLive = snapshot.state == TrackingState.LIVE_TRACKING || snapshot.state == TrackingState.PAUSED,
-            distanceKm = snapshot.distanceMeters / METERS_PER_KM,
-        )
+    fun toOngoingActivityState(snapshot: TrackingSnapshot): OngoingActivityUi {
+        val isLive = snapshot.state == TrackingState.LIVE_TRACKING || snapshot.state == TrackingState.PAUSED
+        if (!isLive) return OngoingActivityUi(isLive = false)
+        val content = TrackingNotificationMapper.fromSnapshot(snapshot)
+        return OngoingActivityUi(isLive = true, title = content.title, text = content.text)
+    }
+
+    /**
+     * AMBIENT.1: the tile's compact live-state word — "TRACKING"/"PAUSED", or `null` when idle (no
+     * active drive, so the tile shows only today's distance, no status line). Reuses the exact
+     * two-word vocabulary [WearRootScreen][com.mileway.wear.WearRootScreen]'s dashboard pill already
+     * shows ("TRACKING"/"IDLE") rather than [TrackingNotificationMapper]'s prose: the tile only has
+     * the cached [SurfaceSnapshot] (P2.6's cache-only, cold-process-safe read), which carries
+     * [SurfaceSnapshot.isPaused] but none of the GPS/permission/policy flags the mapper keys off, so
+     * calling the mapper here would mean fabricating flags the tile doesn't actually know — see
+     * AGENTS.md "report the gap, don't fork the vocabulary."
+     */
+    fun toTileStatusLabel(snapshot: SurfaceSnapshot): String? =
+        when {
+            snapshot.isTracking && snapshot.isPaused -> "PAUSED"
+            snapshot.isTracking -> "TRACKING"
+            else -> null
+        }
+
+    /**
+     * AMBIENT.1: true when a [SurfaceSnapshot] claims to be live but hasn't been refreshed in over
+     * [thresholdMs] — the tile/complication read [SnapshotPublisher.snapshot][com.mileway.core.data.model.display.SnapshotPublisher.snapshot]'s
+     * cached value on every cold process launch, so a snapshot frozen mid-trip (the publishing
+     * process died, or Wear's own DataLayer sync stalled) must be flagged rather than shown as a
+     * confident live distance. Idle snapshots are never "stale" — there's nothing live to go stale.
+     */
+    fun isStale(
+        snapshot: SurfaceSnapshot,
+        nowEpochMs: Long,
+        thresholdMs: Long = STALE_THRESHOLD_MS,
+    ): Boolean = snapshot.isTracking && (nowEpochMs - snapshot.lastUpdatedEpochMs) > thresholdMs
 
     private fun formatOneDecimal(value: Double): String {
         val scaled = round(value * ONE_DECIMAL_SCALE) / ONE_DECIMAL_SCALE
@@ -71,7 +111,11 @@ object WearPresentation {
 
     private const val UNNAMED_TRIP_LABEL = "Trip"
     private const val ONE_DECIMAL_SCALE = 10.0
-    private const val METERS_PER_KM = 1_000.0
+
+    /** AMBIENT.1: how long a cached [SurfaceSnapshot] claiming to be live may go unrefreshed before
+     * [isStale] flags it — generous enough to tolerate a normal GPS-fix gap, tight enough to catch
+     * a genuinely dead publisher/sync well before a user would notice a frozen number on their own. */
+    private const val STALE_THRESHOLD_MS = 5 * 60_000L
 }
 
 /**
@@ -116,11 +160,13 @@ data class TripListItemUi(
 )
 
 /**
- * P2.8: rendering-ready state for the ongoing-activity notification — [isLive] drives whether
- * [WearActivity][com.mileway.wear.WearActivity] should have [TrackingOngoingActivity] posted right
- * now, [distanceKm] is what it should show while live.
+ * P2.8/AMBIENT.1: rendering-ready state for the ongoing-activity notification — [isLive] drives
+ * whether [WearActivity][com.mileway.wear.WearActivity] should have [TrackingOngoingActivity]
+ * posted right now; [title]/[text] are [TrackingNotificationMapper]'s copy for the live snapshot
+ * (empty when not live — the notification is cancelled instead of posted with blank text).
  */
 data class OngoingActivityUi(
     val isLive: Boolean = false,
-    val distanceKm: Double = 0.0,
+    val title: String = "",
+    val text: String = "",
 )
