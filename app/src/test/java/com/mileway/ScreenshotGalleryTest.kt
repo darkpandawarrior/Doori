@@ -540,7 +540,13 @@ class ScreenshotGalleryTest {
             // path (the README gallery), not Roborazzi's tracked output dir, so force
             // record here, matching the project convention. The strict verifyRoborazzi
             // gate covers the deterministic component previews in ScreenshotCatalogTest.
-            System.setProperty("roborazzi.test.record", "true")
+            // D2 FIX (2026-08-09): this line used to be
+            //   System.setProperty("roborazzi.test.record", "true")
+            // which forced RECORD mode unconditionally, so every run overwrote the baseline and a
+            // visual regression was literally unrepresentable — the test rewrote the evidence and
+            // passed. That is why captures went stale and wrong for months with nothing alerting.
+            // Verify is now the default; record only when explicitly asked:
+            //   ./gradlew screenshotTest -Proborazzi.test.record=true
             try { stopKoin() } catch (_: Exception) {}
             startKoin {
                 androidContext(mockk<Context>(relaxed = true))

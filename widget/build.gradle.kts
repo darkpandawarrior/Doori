@@ -2,6 +2,12 @@
 // + Compose compiler + compose=true) so the Glance @Composable content compiles. Consumes the platform-neutral
 // SurfaceSnapshot model/producer from :core:data (the producer already exists; this is the missing consumer).
 plugins {
+    // D2 FIX (2026-08-09): :widget used the Roborazzi LIBRARY without its Gradle PLUGIN, and the
+    // plugin is what translates -Proborazzi.test.* into system properties for the test JVM. Without
+    // it this module could only ever RECORD — it overwrote its baseline every run, so a visual
+    // regression was unrepresentable and the suite passed no matter what changed. Proven before the
+    // fix: corrupting widget_glance.png still gave BUILD SUCCESSFUL.
+    alias(libs.plugins.roborazzi)
     id("mileway.android.library")
 }
 
