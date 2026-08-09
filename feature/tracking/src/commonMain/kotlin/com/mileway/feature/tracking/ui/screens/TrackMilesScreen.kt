@@ -128,6 +128,9 @@ import com.mileway.feature.tracking.viewmodel.HeroGaugeMode
 import com.mileway.feature.tracking.viewmodel.JourneyStep
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesAction
+import com.mileway.feature.tracking.ui.live.LiveDriveActions
+import com.mileway.feature.tracking.ui.live.LiveDriveScreen
+import com.mileway.feature.tracking.ui.live.LiveDriveState
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.viewmodel.TrackMilesPrimaryAction
 import com.mileway.feature.tracking.viewmodel.TrackMilesUiState
@@ -275,6 +278,33 @@ fun TrackMilesScreen(
             )
         },
     ) { padding ->
+        // Once a journey is genuinely live, the map becomes the screen and LiveDriveScreen owns it.
+        //
+        // This is a composition, not a replacement: everything above — the permission gate, vehicle
+        // selection, the odometer step, consent, session-restore and stranger-session sheets, and
+        // every LaunchedEffect — still belongs to this screen and still runs. LiveDriveScreen is
+        // only the live surface and has no pre-drive machinery at all, so routing straight to it
+        // would compile, pass every test, and quietly delete permission gating from the app.
+        if (isActive) {
+            LiveDriveScreen(
+                state = uiState.toLiveDriveState(),
+                actions =
+                    LiveDriveActions(
+                        onPause = { viewModel.pauseTracking() },
+                        onResume = { viewModel.resumeTracking() },
+                        // Already confirmed by the press-and-hold ring, so this commits directly.
+                        onStopConfirmed = { viewModel.stopTracking() },
+                        onFlag = {
+                            checkInViewModel.onAction(
+                                CheckInAction.ValidateAndGeoCheckIn(uiState.currentLat, uiState.currentLng),
+                            )
+                        },
+                    ),
+                modifier = Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
+
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             Column(
                 modifier =
@@ -883,3 +913,41 @@ private fun CurrentLocationPill(
         }
     }
 }
+
+/**
+ * Adapt this screen's state onto [LiveDriveState].
+ *
+ * [LiveDriveScreen] deliberately takes a flat, self-contained state rather than the whole
+ * [TrackMilesUiState], so it has no compile dependency on this screen and stays unit-testable.
+ * That independence costs one mapping function, and this is it.
+ *
+ * Two fields have no upstream source yet and are left at their honest defaults rather than being
+ * faked:
+ *  - `routeCoords`: the live polyline is drawn by the map surface from its own point stream; there
+ *    is no coordinate list on this state to hand over. Passing an empty list draws no *extra*
+ *    overlay, which is correct — passing a partial one would draw a route that disagrees with the
+ *    map underneath it.
+ *  - `isOffline`: no "map tiles unavailable" signal exists upstream. Defaulting to false means the
+ *    offline banner stays closed until something can actually prove the tiles are gone; claiming
+ *    offline while the map renders fine is the worse failure.
+ */
+private fun TrackMilesUiState.toLiveDriveState(): LiveDriveState =
+    LiveDriveState(
+        phase = phase,
+        distanceKm = distanceKm,
+        elapsedMs = liveElapsedMs(this),
+        speedKmh = speedKmh,
+        avgSpeedKmh = avgSpeedKmh,
+        maxSpeedKmh = maxSpeedKmh,
+        pointsCount = totalPoints,
+        qualityScore = qualityScore,
+        batteryPct = batteryPct,
+        isCharging = isCharging,
+        unsyncedPoints = unsyncedPoints,
+        pauseReason = pauseReason,
+        currentLat = currentLat,
+        currentLng = currentLng,
+        bearingDegrees = bearingDegrees,
+        signal = signal,
+        systemFlags = systemFlags,
+    )
