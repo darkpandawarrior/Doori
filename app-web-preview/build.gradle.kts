@@ -25,6 +25,17 @@ kotlin {
         binaries.executable()
     }
 
+    // A JVM target that exists ONLY to screenshot this shell. Every screen here
+    // (Dashboard/Tracking/Expenses) lives in commonMain — plain Compose with no wasm-specific
+    // code; only Main.kt and one theme actual are wasmJs-only. So the same composables render on
+    // the JVM and can be captured with ImageIO, exactly as :desktopApp does.
+    //
+    // Be clear about what this does and does not prove: it covers the shell's UI, and it does NOT
+    // prove the wasm binary runs in a browser. Verifying that needs a real browser harness
+    // (Playwright against the built distribution), which is a separate piece of work. A capture
+    // that silently implied wasm-runtime coverage would be worse than none.
+    jvm("screenshot")
+
     sourceSets {
         commonMain {
             // The real Mileway theme, compiled from core:ui's sources. Allowlist (not the whole
@@ -57,6 +68,14 @@ kotlin {
                 // Real tracking math (Kalman smoothing, path simplification) — the toolkit module
                 // already publishes a wasmJs target, so the demo drive runs the production pipeline.
                 implementation("com.siddharth.kmp:location:1.0.0")
+            }
+        }
+
+        val screenshotTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(compose.desktop.uiTestJUnit4)
+                implementation(compose.desktop.currentOs)
             }
         }
     }

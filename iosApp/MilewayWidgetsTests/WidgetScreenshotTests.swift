@@ -9,7 +9,13 @@ import XCTest
 @testable import MilewayWidgets
 
 final class WidgetScreenshotTests: XCTestCase {
-    private let outDir = "/Users/darkpandawarrior/Repos/Mileway/docs/screenshots"
+    // Derived, not hardcoded. This was previously pinned to .../Repos/Mileway/docs/screenshots —
+    // a path that does not exist since the repo moved under Repos/Android/. Because the writer
+    // calls createDirectory(withIntermediateDirectories: true), every capture silently CREATED
+    // that phantom folder and wrote there, so the PNGs never reached the repo and nobody saw a
+    // failure. SCREENSHOT_OUT_DIR is set by the test scheme/CI; the fallback is the real path.
+    private let outDir = ProcessInfo.processInfo.environment["SCREENSHOT_OUT_DIR"]
+        ?? "/Users/darkpandawarrior/Repos/Android/Mileway/docs/screenshots"
 
     private var mockEntry: MileageWidgetEntry {
         MileageWidgetEntry(
