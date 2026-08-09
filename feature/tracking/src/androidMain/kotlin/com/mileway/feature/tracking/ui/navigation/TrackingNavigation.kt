@@ -39,6 +39,7 @@ import com.mileway.feature.tracking.ui.screens.TrackDetailScreen
 import com.mileway.feature.tracking.ui.screens.TrackInsightsScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.tracking.ui.screens.TrackSettingsScreen
+import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
 import com.mileway.feature.tracking.ui.review.DriveReviewSheet
 import com.mileway.feature.tracking.ui.screens.TrackingSuccessScreen
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
@@ -70,8 +71,11 @@ object TrackingRoutes {
     const val GEO_CHECKIN = "geo_checkin"
     const val MANUAL_CHECKIN = "manual_checkin"
     const val TRACK_DATA_PREVIEW = "track_data_preview/{routeId}"
+    const val EVIDENCE = "evidence/{routeId}"
 
     fun trackDataPreview(routeId: String) = "track_data_preview/$routeId"
+
+    fun evidence(routeId: String) = "evidence/$routeId"
 
     // reimbursement + voucher are computed/persisted by TrackingSuccessViewModel from vehicleKey,
     // so the route no longer carries the mock reimbursable/voucher values as args.
@@ -189,7 +193,11 @@ fun NavGraphBuilder.trackingGraph(
             onOpenMap = { navController.navigate(TrackingRoutes.routeMap(routeId)) },
             onOpenHwEvents = { navController.navigate(TrackingRoutes.hwEvents(routeId)) },
             onOpenRoutePoints = { navController.navigate(TrackingRoutes.routePoints(routeId)) },
-            onOpenDataPreview = { navController.navigate(TrackingRoutes.trackDataPreview(routeId)) },
+            // Data preview now opens the evidence surface. TrackEvidenceScreen is the DetailSpec
+            // that folds insights, hardware events, route points and the raw-data dump into one
+            // auditable record, so this is the entry point that supersedes them — the individual
+            // routes stay reachable until they are retired in their own change.
+            onOpenDataPreview = { navController.navigate(TrackingRoutes.evidence(routeId)) },
         )
     }
 
@@ -199,6 +207,26 @@ fun NavGraphBuilder.trackingGraph(
     ) { backStack ->
         val routeId = backStack.arguments?.getString("routeId") ?: return@composable
         TrackInsightsScreen(routeId = routeId, onBack = { navController.popBackStack() })
+    }
+
+    composable(
+        route = TrackingRoutes.EVIDENCE,
+        arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
+    ) { backStack ->
+        val routeId = backStack.arguments?.getString("routeId") ?: return@composable
+        // Reuses TrackDetailViewModel rather than adding a loader: it already fetches the row and
+        // exposes it as rawTrack, and the evidence surface needs the entity itself, not the
+        // display-mapped view. A second loader would be a second chance to disagree about what
+        // this track is.
+        val viewModel: com.mileway.feature.tracking.viewmodel.TrackDetailViewModel = koinViewModel()
+        LaunchedEffect(routeId) {
+            viewModel.onAction(com.mileway.feature.tracking.viewmodel.TrackDetailAction.Load(routeId))
+        }
+        val state by viewModel.state.collectAsState()
+        // Render nothing until the row is in hand. An evidence screen that renders placeholder
+        // figures — even briefly — is the one surface where that is unacceptable: it exists to be
+        // the defensible record.
+        state.rawTrack?.let { TrackEvidenceScreen(track = it) }
     }
 
     composable(
