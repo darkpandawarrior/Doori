@@ -21,18 +21,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BatterySaver
-import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.GpsFixed
 import androidx.compose.material.icons.filled.GpsOff
-import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -61,10 +57,8 @@ import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.ui.components.StatusTone
-import com.mileway.core.ui.components.tracking.CompactSystemStatusIndicator
-import com.mileway.core.ui.components.tracking.StatusChip
-import com.mileway.core.ui.components.tracking.StatusLevel
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayType
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.viewmodel.TrackSignal
@@ -113,13 +107,14 @@ private const val RECOVERED_GAP_THRESHOLD_MS = 8_000L
 /** How long the "GPS signal recovered" banner stays up before clearing itself. */
 private const val RECOVERED_BANNER_MS = 4_000L
 
-private val StatusStripHeight = 44.dp
+private val GlanceLineHeight = 44.dp
 private val ControlBarHeight = 96.dp
 private val PauseFlagButtonSize = 56.dp
 private val StopButtonSize = 88.dp
 
 /**
- * The hero live-tracking surface: map as background, a floating distance/elapsed/speed slab, and a
+ * The hero live-tracking surface: map as background, a floating distance/elapsed slab (distance
+ * dominant — everything else, including live speed, lives behind its swipe-up expansion), and a
  * pinned pause/stop/flag control bar. Deliberately not a [com.mileway.core.ui.detail.DetailSpec] —
  * this screen's state moves at 1-4 Hz and a spec's `DetailField.visible` is evaluated once at
  * build time, which is exactly wrong here.
@@ -130,6 +125,16 @@ fun LiveDriveScreen(
     actions: LiveDriveActions,
     modifier: Modifier = Modifier,
     mapSurface: MapSurface = koinInject(),
+    /** Renders the metric slab pre-expanded — a capture/preview hook, see [MetricSlab]. */
+    initiallyExpanded: Boolean = false,
+    /**
+     * Forces the glance status line to a specific [DegradedState] instead of deriving it from
+     * [state]/gap-timing — capture/preview only. Every other [DegradedState] is reachable through
+     * plain [LiveDriveState] fields (see [LiveDrivePreviewStates]); [DegradedState.RECOVERED_AFTER_GAP]
+     * is the one exception, since it's measured from elapsed wall-clock time between two fixes and
+     * has no field of its own to set.
+     */
+    previewDegradedState: DegradedState? = null,
 ) {
     val isPaused = state.phase == TrackMilesPhase.PAUSED
     val isTrackingOrPaused = state.phase == TrackMilesPhase.TRACKING || isPaused
@@ -189,7 +194,7 @@ fun LiveDriveScreen(
     }
 
     val degradedState =
-        deriveDegradedState(
+        previewDegradedState ?: deriveDegradedState(
             DegradedInputs(
                 hasFix = hasFix,
                 signal = state.signal,
@@ -210,7 +215,10 @@ fun LiveDriveScreen(
             currentLat = latAnim.value.toDouble(),
             currentLng = lngAnim.value.toDouble(),
             bearing = bearingDisplay.degrees,
-            autoCenterEnabled = cameraMode == CameraMode.FOLLOW,
+            // Never auto-center on the (0,0) sentinel — that's Null Island, not "no fix yet", and
+            // driving the camera there is exactly the broken-looking first-run map a real device
+            // would never produce (a location callback that fires at all always has a real fix).
+            autoCenterEnabled = cameraMode == CameraMode.FOLLOW && hasFix,
             playbackCoord = null,
             showIssueMarkers = false,
             // Offline degraded state maps straight onto MapSurface's own bundled-tiles switch —
@@ -233,30 +241,36 @@ fun LiveDriveScreen(
                     },
         )
 
-        StatusStrip(
+        // One line, always in the same place, never a stacked panel: GPS status in the clear, or
+        // the single most urgent degraded condition in its place. A driver checks this with a
+        // glance, not a read.
+        GlanceStatusLine(
             state = state,
             hasFix = hasFix,
+            degradedState = degradedState,
             modifier = Modifier.align(Alignment.TopCenter),
         )
 
-        degradedState.message()?.let { message ->
-            DegradedBanner(
-                message = message,
-                tone = degradedState.toTone(),
+        // Zeros before a fix ever lands ("0.00 km / 00:00") are meaningless to a first-time
+        // user — the empty state they actually see is "still searching", not a stat slab of
+        // nothing, so it gets its own placeholder in the same slot instead.
+        if (hasFix) {
+            MetricSlab(
+                state = state,
+                initiallyExpanded = initiallyExpanded,
                 modifier =
                     Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = StatusStripHeight),
+                        .align(Alignment.Center)
+                        .padding(horizontal = DesignTokens.Spacing.l),
+            )
+        } else {
+            NoFixPlaceholder(
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = DesignTokens.Spacing.l),
             )
         }
-
-        MetricSlab(
-            state = state,
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .padding(horizontal = DesignTokens.Spacing.l),
-        )
 
         if (cameraMode == CameraMode.FREE) {
             RecenterChip(
@@ -295,97 +309,55 @@ private fun DegradedState.toTone(): StatusTone =
         DegradedState.RECOVERED_AFTER_GAP -> StatusTone.Success
     }
 
-// ── Status strip ─────────────────────────────────────────────────────────────────────
+// ── Glance status line ───────────────────────────────────────────────────────────────
+//
+// Was two stacked surfaces: a multi-chip status strip (signal, quality%, battery saver,
+// unsynced count) plus a two-line degraded banner underneath it — a panel, not a glance.
+// Reduced to one line, one message, in the one place it always is. Signal/quality/battery/
+// sync detail that isn't "is this drive still trustworthy right now" moved to the metric
+// slab's swipe-up expansion, where a stopped-at-a-light glance can actually afford it.
 
 @Composable
-private fun StatusStrip(
+private fun GlanceStatusLine(
     state: LiveDriveState,
     hasFix: Boolean,
+    degradedState: DegradedState,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    val message = degradedState.message()
+    val label = message?.title ?: "GPS ${state.signal.glanceLabel()}"
+    Row(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(StatusStripHeight)
-                .background(Color.Black.copy(alpha = 0.35f)),
-        contentAlignment = Alignment.CenterStart,
+                .height(GlanceLineHeight)
+                .background(if (message != null) degradedState.toTone().color.copy(alpha = 0.92f) else Color.Black.copy(alpha = 0.35f))
+                .padding(horizontal = DesignTokens.Spacing.l)
+                .semantics { contentDescription = label },
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
     ) {
-        CompactSystemStatusIndicator(
-            chips = statusChipsFor(state, hasFix),
-            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.l),
+        Icon(
+            imageVector = if (hasFix) Icons.Filled.GpsFixed else Icons.Filled.GpsOff,
+            contentDescription = null,
+            tint = if (message != null) Color.White else Color.White.copy(alpha = 0.85f),
+            modifier = Modifier.size(16.dp),
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelMedium,
+            color = Color.White,
+            maxLines = 1,
         )
     }
 }
 
-private fun statusChipsFor(
-    state: LiveDriveState,
-    hasFix: Boolean,
-): List<StatusChip> =
-    buildList {
-        add(
-            StatusChip(
-                icon = if (hasFix) Icons.Filled.GpsFixed else Icons.Filled.GpsOff,
-                label = if (hasFix) state.signal.name else "No fix",
-                level = if (!hasFix) StatusLevel.BAD else state.signal.toStatusLevel(),
-            ),
-        )
-        add(
-            StatusChip(
-                icon = Icons.Filled.Insights,
-                label = "${state.qualityScore}%",
-                level = state.qualityScore.toQualityLevel(),
-            ),
-        )
-        if (state.systemFlags.powerSaverOn || state.systemFlags.batteryOptimized) {
-            add(StatusChip(Icons.Filled.BatterySaver, "Saver", StatusLevel.WARN))
-        }
-        if (state.unsyncedPoints > 0) {
-            add(StatusChip(Icons.Filled.CloudQueue, "${state.unsyncedPoints}", StatusLevel.WARN))
-        }
-    }
-
-private fun TrackSignal.toStatusLevel(): StatusLevel =
+private fun TrackSignal.glanceLabel(): String =
     when (this) {
-        TrackSignal.GOOD -> StatusLevel.OK
-        TrackSignal.FAIR -> StatusLevel.WARN
-        TrackSignal.POOR -> StatusLevel.BAD
+        TrackSignal.GOOD -> "Strong"
+        TrackSignal.FAIR -> "Fair"
+        TrackSignal.POOR -> "Weak"
     }
-
-private fun Int.toQualityLevel(): StatusLevel =
-    when {
-        this >= 80 -> StatusLevel.OK
-        this >= 50 -> StatusLevel.WARN
-        else -> StatusLevel.BAD
-    }
-
-// ── Degraded-state banner ───────────────────────────────────────────────────────────
-
-@Composable
-private fun DegradedBanner(
-    message: DegradedMessage,
-    tone: StatusTone,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth().semantics { contentDescription = listOfNotNull(message.title, message.action).joinToString(". ") },
-        color = tone.color.copy(alpha = 0.92f),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.s),
-            horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(Icons.Filled.Warning, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
-            Column {
-                Text(message.title, style = MaterialTheme.typography.labelMedium, color = Color.White)
-                message.action?.let {
-                    Text(it, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.9f))
-                }
-            }
-        }
-    }
-}
 
 // ── Metric slab ──────────────────────────────────────────────────────────────────────
 
@@ -393,8 +365,9 @@ private fun DegradedBanner(
 private fun MetricSlab(
     state: LiveDriveState,
     modifier: Modifier = Modifier,
+    initiallyExpanded: Boolean = false,
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(initiallyExpanded) }
     Surface(
         modifier =
             modifier
@@ -413,9 +386,12 @@ private fun MetricSlab(
             modifier = Modifier.padding(DesignTokens.Spacing.l),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // The claim is made of this number. It is the reason the screen exists, so it
+            // dominates unambiguously — the biggest fixed data style in the design system,
+            // nothing else on this slab competes with it.
             Text(
                 text = formatKm2(state.distanceKm),
-                style = MaterialTheme.typography.headlineLarge.dataStyle(),
+                style = MilewayType.dataLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier =
                     Modifier.semantics {
@@ -423,17 +399,19 @@ private fun MetricSlab(
                         contentDescription = "Distance ${formatKm2(state.distanceKm)} kilometres"
                     },
             )
+            // Elapsed time is the only other thing worth a glance while driving (a sanity check
+            // that the trip hasn't been running longer than expected). Current speed isn't part
+            // of the reimbursement math and the car's own speedometer already shows it — it moved
+            // into the expansion below with the rest of the trip stats.
             Text(
                 text = formatElapsed(state.elapsedMs),
                 style = MaterialTheme.typography.titleMedium.dataStyle(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Text(
-                text = "${formatSpeed1(state.speedKmh)} km/h",
-                style = MaterialTheme.typography.bodyMedium.dataStyle(),
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-            )
 
+            // The swipe gesture on the slab itself expands/collapses this, but a rotating chevron
+            // reads as a button — it needs its own tap target too, not just a hidden gesture on
+            // the surface behind it (this was previously decorative only, unreachable by TalkBack).
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
                 contentDescription = if (expanded) "Collapse trip stats" else "Expand trip stats",
@@ -443,6 +421,7 @@ private fun MetricSlab(
                         .padding(top = DesignTokens.Spacing.xs)
                         .rotate(if (expanded) 180f else 0f)
                         .clip(CircleShape)
+                        .pointerInput(Unit) { detectTapGestures(onTap = { expanded = !expanded }) }
                         .padding(4.dp),
             )
 
@@ -451,6 +430,7 @@ private fun MetricSlab(
                     modifier = Modifier.padding(top = DesignTokens.Spacing.s),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
+                    ExpansionRow("Speed", "${formatSpeed1(state.speedKmh)} km/h")
                     ExpansionRow("Avg speed", "${formatSpeed1(state.avgSpeedKmh)} km/h")
                     ExpansionRow("Max speed", "${formatSpeed1(state.maxSpeedKmh)} km/h")
                     ExpansionRow("Points", "${state.pointsCount}")
@@ -459,6 +439,7 @@ private fun MetricSlab(
                         "Battery",
                         "${state.batteryPct}%" + if (state.isCharging) " (charging)" else "",
                     )
+                    if (state.unsyncedPoints > 0) ExpansionRow("Unsynced", "${state.unsyncedPoints}")
                     state.pauseReason?.let { ExpansionRow("Pause reason", it) }
                 }
             }
@@ -476,6 +457,50 @@ private fun ExpansionRow(
     ) {
         Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(88.dp))
         Text(value, style = MaterialTheme.typography.labelSmall.dataStyle(), color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+/**
+ * What a first-time user actually sees before their first GPS fix lands — takes the exact same
+ * slot [MetricSlab] would, so there is never a moment of "0.00 km" floating over a map centered on
+ * the middle of the ocean. Reuses [DegradedState.NO_FIX]'s copy (never a second, drifting copy of
+ * the same message) — the top glance line is the one-line notification, this is the empty state
+ * for the main content area itself.
+ */
+@Composable
+private fun NoFixPlaceholder(modifier: Modifier = Modifier) {
+    val message = DegradedState.NO_FIX.message()!!
+    Surface(
+        modifier = modifier,
+        shape = DesignTokens.Shape.roundedLg,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+        shadowElevation = DesignTokens.Elevation.raised,
+    ) {
+        Column(
+            modifier = Modifier.padding(DesignTokens.Spacing.xl),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Icon(
+                imageVector = Icons.Filled.GpsOff,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(40.dp),
+            )
+            Text(
+                text = message.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = DesignTokens.Spacing.m),
+            )
+            message.action?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = DesignTokens.Spacing.xs),
+                )
+            }
+        }
     }
 }
 
@@ -665,4 +690,56 @@ private fun formatElapsed(ms: Long): String {
     val mm = m.toString().padStart(2, '0')
     val ss = s.toString().padStart(2, '0')
     return if (h > 0) "$h:$mm:$ss" else "$mm:$ss"
+}
+
+// ── Preview / capture states ────────────────────────────────────────────────────────
+
+/**
+ * Canonical [LiveDriveState] snapshots for capture/preview — every degraded state is driven by a
+ * specific, easy-to-get-wrong-by-hand combination of fields (which flag, which enum, which
+ * sentinel), so the gallery gets one call per state instead of re-deriving that combination five
+ * times. [LiveDriveScreen] is already a stateless composable; these are just data, no `@Composable`
+ * needed. For [DegradedState.RECOVERED_AFTER_GAP], pair [tracking] with
+ * `LiveDriveScreen(..., previewDegradedState = DegradedState.RECOVERED_AFTER_GAP)` — that one
+ * state is measured from elapsed time between two fixes, not a field here.
+ */
+object LiveDrivePreviewStates {
+    private val base =
+        LiveDriveState(
+            phase = TrackMilesPhase.TRACKING,
+            distanceKm = 12.42,
+            elapsedMs = 1_421_000L,
+            speedKmh = 48.0,
+            avgSpeedKmh = 31.5,
+            maxSpeedKmh = 62.0,
+            pointsCount = 842L,
+            qualityScore = 94,
+            batteryPct = 68,
+            isCharging = false,
+            unsyncedPoints = 12L,
+            pauseReason = null,
+            currentLat = 18.5204,
+            currentLng = 73.8567,
+            bearingDegrees = 118f,
+            signal = TrackSignal.GOOD,
+            systemFlags = TrackingSystemFlags(),
+        )
+
+    /** Actively tracking, everything healthy — the same state a normal capture already shows. */
+    fun tracking(): LiveDriveState = base
+
+    /** Paused mid-trip, e.g. auto-paused on a detected stop. */
+    fun paused(): LiveDriveState = base.copy(phase = TrackMilesPhase.PAUSED, pauseReason = "Speed suggests you're not driving")
+
+    /** Before the first GPS callback ever lands — the (0,0) sentinel, zero everything. */
+    fun noFix(): LiveDriveState =
+        base.copy(currentLat = 0.0, currentLng = 0.0, distanceKm = 0.0, elapsedMs = 0L, pointsCount = 0L, qualityScore = 0, speedKmh = 0.0)
+
+    fun poorAccuracy(): LiveDriveState = base.copy(signal = TrackSignal.POOR, qualityScore = 38)
+
+    fun permissionRevoked(): LiveDriveState = base.copy(systemFlags = TrackingSystemFlags(permissionMissing = true))
+
+    fun offline(): LiveDriveState = base.copy(isOffline = true)
+
+    fun batterySaver(): LiveDriveState = base.copy(systemFlags = TrackingSystemFlags(powerSaverOn = true), batteryPct = 14)
 }

@@ -3,8 +3,13 @@ package com.mileway
 import android.app.Application
 import android.content.Context
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.TravelExplore
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
@@ -12,7 +17,10 @@ import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mileway.core.platform.SystemSettingsOpener
+import com.mileway.core.data.model.db.VoucherCategory
+import com.mileway.core.data.model.db.VoucherEntity
 import com.mileway.core.data.model.display.TrackingSystemFlags
+import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.ui.live.LiveDriveActions
 import com.mileway.feature.tracking.ui.live.LiveDriveScreen
@@ -50,12 +58,32 @@ import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
+import com.mileway.core.network.model.BusinessEntity
+import com.mileway.core.network.model.Office
 import com.mileway.core.platform.ReferralData
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.UrlOpener
+import com.mileway.core.platform.defaultPermissionTiers
+import com.mileway.core.ui.components.CriticalErrorDialog
+import com.mileway.core.ui.components.LanguageSelectionSheet
+import com.mileway.core.ui.components.dialog.ColorWheelDialog
+import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
+import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
+import com.mileway.core.ui.components.sheet.DetailInfoBottomSheet
+import com.mileway.core.ui.components.sheet.DetailInfoCard
+import com.mileway.core.ui.components.sheet.DetailInfoRow
+import com.mileway.core.ui.components.sheet.FilterBottomSheet
+import com.mileway.core.ui.components.sheet.FilterOption
+import com.mileway.core.ui.components.sheet.FilterSection
+import com.mileway.core.ui.components.sheet.FilterSelectionMode
+import com.mileway.core.ui.components.sheet.OdometerDiscrepancySheet
+import com.mileway.core.ui.components.sheet.OdometerRejectionSheet
+import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
+import com.mileway.core.ui.components.pickers.WheelTimePickerDialog
 import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.platform.LocalNowMs
+import com.mileway.core.ui.support.BugReportSheet
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.di.agentModule
@@ -86,8 +114,12 @@ import com.mileway.feature.logging.ui.screens.ExpenseScreen
 import com.mileway.feature.logging.ui.screens.LogMilesHistoryScreen
 import com.mileway.feature.logging.ui.screens.LogMilesScreen
 import com.mileway.feature.logging.ui.screens.LogMilesStep2Screen
+import com.mileway.feature.logging.ui.screens.CardsTxnHistoryScreen
+import com.mileway.feature.logging.ui.screens.SettlementHistoryScreen
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
+import com.mileway.feature.logging.ui.screens.VoucherDetailsScreen
 import com.mileway.feature.logging.ui.screens.VoucherHistoryScreen
+import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.media.model.FlashMode
 import com.mileway.feature.media.ui.camera.CameraCaptureScreen
@@ -108,6 +140,7 @@ import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
 import com.mileway.feature.profile.ui.screens.AdvanceHistoryScreen
+import com.mileway.feature.profile.ui.screens.AdvanceRequestDetailsScreen
 import com.mileway.feature.profile.ui.screens.AnalyticsDetailScreen
 import com.mileway.feature.profile.ui.screens.AnalyticsHomeScreen
 import com.mileway.feature.profile.ui.screens.AskAdvanceFormScreen
@@ -117,7 +150,9 @@ import com.mileway.feature.profile.ui.screens.CouponsScreen
 import com.mileway.feature.profile.ui.screens.DelegationScreen
 import com.mileway.feature.profile.ui.screens.DemoSettingsScreen
 import com.mileway.feature.profile.ui.screens.DocumentDetailScreen
+import com.mileway.feature.profile.ui.screens.EcoDashboardScreen
 import com.mileway.feature.profile.ui.screens.EmergencyContactsScreen
+import com.mileway.feature.profile.ui.screens.FavouriteRoutesScreen
 import com.mileway.feature.profile.ui.screens.HelpScreen
 import com.mileway.feature.profile.ui.screens.IncentiveProgramsScreen
 import com.mileway.feature.profile.ui.screens.ManagerReporteesScreen
@@ -125,6 +160,7 @@ import com.mileway.feature.profile.ui.screens.MarketingHubScreen
 import com.mileway.feature.profile.ui.screens.MySubscriptionScreen
 import com.mileway.feature.profile.ui.screens.MyTicketsScreen
 import com.mileway.feature.profile.ui.screens.NotificationCentreScreen
+import com.mileway.feature.profile.ui.screens.OffersHubScreen
 import com.mileway.feature.profile.ui.screens.OrgChartScreen
 import com.mileway.feature.profile.ui.screens.PlansScreen
 import com.mileway.feature.profile.ui.screens.PluginManagerScreen
@@ -136,10 +172,21 @@ import com.mileway.feature.profile.ui.screens.ReferralHubScreen
 import com.mileway.feature.profile.ui.screens.RewardsScreen
 import com.mileway.feature.profile.ui.screens.RootGuardScreen
 import com.mileway.feature.profile.ui.screens.SavedPlacesScreen
+import com.mileway.feature.profile.ui.screens.SelfAuditScreen
 import com.mileway.feature.profile.ui.screens.SettingsScreen
+import com.mileway.feature.profile.ui.screens.StorageManagementScreen
+import com.mileway.feature.profile.ui.screens.SupportChatScreen
+import com.mileway.feature.profile.ui.screens.SupportHubScreen
+import com.mileway.feature.profile.ui.screens.TrainingTourScreen
+import com.mileway.feature.profile.ui.screens.VehicleGarageScreen
 import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
 import com.mileway.feature.tracking.debug.DebugMenuScreen
 import com.mileway.feature.tracking.di.trackingModule
+import com.mileway.feature.tracking.ui.components.DiscardJourneyDialog
+import com.mileway.feature.tracking.ui.components.ExportOptionsDialog
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerController
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerSheet
+import com.mileway.feature.tracking.ui.review.DriveReviewSheet
 import com.mileway.feature.tracking.ui.screens.CheckInHistoryItem
 import com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen
 import com.mileway.feature.tracking.ui.screens.CreateVoucherScreen
@@ -157,6 +204,25 @@ import com.mileway.feature.tracking.ui.screens.TrackLoadingScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.tracking.ui.screens.TrackSettingsScreen
 import com.mileway.feature.tracking.ui.screens.TrackingSuccessScreen
+import com.mileway.feature.tracking.ui.sheets.CenterOption
+import com.mileway.feature.tracking.ui.sheets.EntityPickerSheet
+import com.mileway.feature.tracking.ui.sheets.JourneyGuideSheet
+import com.mileway.feature.tracking.ui.sheets.JourneyGuideState
+import com.mileway.feature.tracking.ui.sheets.JourneyGuideStep
+import com.mileway.feature.tracking.ui.sheets.OfficePickerSheet
+import com.mileway.feature.tracking.ui.sheets.PauseReasonSheet
+import com.mileway.feature.tracking.ui.sheets.PermissionOnboardingSheet
+import com.mileway.feature.tracking.ui.sheets.PolicyViolationSheet
+import com.mileway.feature.tracking.ui.sheets.RestorableSession
+import com.mileway.feature.tracking.ui.sheets.SessionRestoreSheet
+import com.mileway.feature.tracking.ui.sheets.SmartDistanceSheet
+import com.mileway.feature.tracking.ui.sheets.SosBottomSheet
+import com.mileway.feature.tracking.ui.sheets.StrangerSessionSheet
+import com.mileway.feature.tracking.ui.sheets.SubmitConfirmSheet
+import com.mileway.feature.tracking.ui.sheets.VehicleOption
+import com.mileway.feature.tracking.ui.sheets.VehiclePickerSheet
+import com.mileway.feature.tracking.ui.sheets.VendorPickerSheet
+import com.mileway.feature.tracking.viewmodel.StrangerSessionConfig
 import com.mileway.feature.travel.di.travelModule
 import com.mileway.feature.travel.ui.screens.BookingHistoryScreen
 import com.mileway.feature.travel.ui.screens.CreateMjpScreen
@@ -487,6 +553,91 @@ class ScreenshotGalleryTest {
             // KoinModule() is deliberately excluded here (it builds GMS/MapLibre against a mock
             // Context), so bind a no-op the same way MapSurface is faked.
             single<SystemSettingsOpener> { object : SystemSettingsOpener { override fun openAppSettings() = Unit } }
+            // BugReportSheet (core:ui) resolves BugReportViewModel(BugReportRepository) — the
+            // repository is normally bound in the excluded CoreDataModule; same null-collector-free
+            // relaxed-mockk pattern as the other DAOs above (submit() is a fire-and-forget suspend
+            // call, never awaited by the sheet, so a relaxed no-op DAO is enough).
+            single<com.mileway.core.data.dao.BugReportDao> { mockk(relaxed = true) }
+            single { com.mileway.core.data.support.BugReportRepository(get()) }
+            // FavouriteRoutesScreen: FavouriteRoutesRepository combines both flows in its VM's
+            // init{} — a relaxed mockk's null-backed Flow would crash the collector (memory:
+            // screenshot Koin needs deterministic fakes), so both are seeded MutableStateFlows.
+            single<com.mileway.core.data.dao.FavouriteRouteDao> {
+                mockk(relaxed = true) {
+                    every { observeAll() } returns
+                        MutableStateFlow(
+                            listOf(
+                                com.mileway.core.data.model.db.FavouriteRouteEntity(
+                                    id = "fav-1", sourceTrackId = "route-j1", name = "Home to Office",
+                                    purpose = "Business", distanceKm = 12.4, createdAtMs = 1_700_000_000_000L,
+                                ),
+                            ),
+                        )
+                }
+            }
+            single { com.mileway.core.data.favourite.FavouriteRoutesRepository(get(), get()) }
+            // VehicleGarageScreen / SelfAuditScreen: GarageRepository.observeAll() is combine()'d
+            // in both VMs' init{} — same null-collector trap as above, seeded with two demo vehicles.
+            single<com.mileway.core.data.dao.VehicleDao> {
+                mockk(relaxed = true) {
+                    every { observeAll() } returns
+                        MutableStateFlow(
+                            listOf(
+                                com.mileway.core.data.model.db.VehicleEntity(
+                                    id = "veh_seed_1", brand = "Honda", model = "Activa",
+                                    registrationNumber = "MH12AB1234", year = 2022, color = "Grey",
+                                    seats = 2, vehicleTypeKey = "twoWheeler", isActive = true,
+                                ),
+                                com.mileway.core.data.model.db.VehicleEntity(
+                                    id = "veh_seed_2", brand = "Maruti Suzuki", model = "Swift",
+                                    registrationNumber = "MH12CD5678", year = 2021, color = "White",
+                                    seats = 5, vehicleTypeKey = "fourWheelerPetrol", isActive = false,
+                                ),
+                            ),
+                        )
+                    every { observeActive() } returns MutableStateFlow(null)
+                }
+            }
+            single { com.mileway.core.data.vehicle.GarageRepository(get()) }
+            single<com.mileway.core.data.dao.VehicleAuditDao> {
+                mockk(relaxed = true) {
+                    every { observeForVehicle(any()) } returns MutableStateFlow(emptyList())
+                }
+            }
+            single { com.mileway.core.data.vehicle.SelfAuditRepository(get(), get()) }
+            // SavedTrackDao already seeded above (seededDao) — EcometerRepository derives its
+            // totals from real completed tracks, no extra binding needed.
+            single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
+            // TrainingTourScreen: TourRepository.observe() is stateIn()'d in the VM — same
+            // null-collector trap as above.
+            single<com.mileway.core.data.dao.TourProgressDao> {
+                mockk(relaxed = true) {
+                    every { observe(any()) } returns MutableStateFlow(null)
+                }
+            }
+            single { com.mileway.core.data.engagement.TourRepository(get(), get()) }
+            // StorageManagementScreen: StorageRepository(Context) reads real getDatabasePath()/
+            // cacheDir sizes. Not bound against Robolectric's real ApplicationProvider context or the
+            // graph's relaxed mockk<Context> — StorageRepositoryTest's own doc records that real
+            // cacheDir I/O against a Robolectric-managed Context corrupted its temp-dir bookkeeping on
+            // Linux CI (Z.5b). Same fix that test uses: a mockk<Context> answering into real
+            // java.io.File temp dirs this JVM owns outright, so I/O is real (a populated, non-empty
+            // list renders) without touching Robolectric's managed sandbox. Deliberately NOT bound as
+            // `single<Context>` — that type is already the graph-wide relaxed mockk from
+            // androidContext() above; declaring a second one here would override it for every other
+            // test in this class, not just this screen.
+            single {
+                val cache = kotlin.io.path.createTempDirectory("mileway-screenshot-cache").toFile()
+                val databases = kotlin.io.path.createTempDirectory("mileway-screenshot-db").toFile()
+                val files = kotlin.io.path.createTempDirectory("mileway-screenshot-files").toFile()
+                val storageContext =
+                    mockk<Context> {
+                        every { cacheDir } returns cache
+                        every { filesDir } returns files
+                        every { getDatabasePath(any()) } answers { File(databases, firstArg()) }
+                    }
+                com.mileway.core.data.settings.StorageRepository(storageContext)
+            }
         }
 
         // Stand-ins for the platform-service graph (platformModule +
@@ -547,6 +698,35 @@ class ScreenshotGalleryTest {
             // passed. That is why captures went stale and wrong for months with nothing alerting.
             // Verify is now the default; record only when explicitly asked:
             //   ./gradlew screenshotTest -Proborazzi.test.record=true
+            //
+            // D3 FIX (2026-08-09): the CLI flag above is dead for this class specifically. app's
+            // `screenshotTestNoGmsDebug` (build.gradle.kts) is a plain custom `Test` task, not one of
+            // the tasks Roborazzi's Gradle plugin auto-wires the `roborazzi.test.*` JVM system
+            // properties onto (that wiring targets only its own generated
+            // record/verifyRoborazziNoGmsDebug tasks, which this project's screenshotTestFilter
+            // explicitly excludes this class from — the whole reason the fork exists). Confirmed by
+            // decompiling roborazzi-core-jvm 1.70.0: every roborazzi.* property, including
+            // `roborazzi.output.dir`, is read via a bare `System.getProperty(...)` with no
+            // roborazzi.properties fallback, and with none of them ever landing as a real property in
+            // this forked JVM, `RoborazziTaskType.of(false,false,false) == None` — every
+            // `captureRoboImage()` call silently no-ops (no compare, no write, no failure). That is why
+            // captures stayed stale no matter what CLI flag was passed, including record-flagged runs.
+            // Setting `System.setProperty("roborazzi.test.record"/".verify", ...)` here from inside the
+            // JVM that actually reads it fixes the record/verify flag (verified). It does NOT fix
+            // `roborazzi.output.dir` the same way — setting that property here made no observable
+            // difference (still landed in the `app/` module root, not docs/screenshots), which the
+            // capture() helper below works around directly instead of relying on further guessing at
+            // roborazzi-core's file-resolution path.
+            //
+            // Record mode is opt-in via an env var rather than `-P` (which can't reach a forked test
+            // JVM without build-script changes, out of this file's ownership) — same "record only when
+            // explicitly asked" intent as the D2 FIX above, via a channel that actually works:
+            //   ROBORAZZI_RECORD=true ./gradlew :app:screenshotTestNoGmsDebug
+            if (System.getenv("ROBORAZZI_RECORD") == "true") {
+                System.setProperty("roborazzi.test.record", "true")
+            } else {
+                System.setProperty("roborazzi.test.verify", "true")
+            }
             try { stopKoin() } catch (_: Exception) {}
             startKoin {
                 androidContext(mockk<Context>(relaxed = true))
@@ -1884,11 +2064,666 @@ class ScreenshotGalleryTest {
         capture("track_evidence_screen")
     }
 
+    // ── Tracking sheets & dialogs (bottom sheets are where the decisions live — see class doc) ──
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun journeyGuideSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                JourneyGuideSheet(
+                    state =
+                        JourneyGuideState(
+                            step = JourneyGuideStep.VEHICLE,
+                            vehicleName = "Honda City",
+                            vehicleRatePerKm = 10.0,
+                            startOdometer = null,
+                            draftEnabled = false,
+                            requiresOdometer = true,
+                        ),
+                    onPickVehicle = {},
+                    onCaptureOdometer = {},
+                    onToggleDraft = {},
+                    onStartTracking = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("journey_guide_sheet")
+    }
+
+    @Test
+    fun pauseReasonSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                PauseReasonSheet(
+                    timestamp = "2:45 PM",
+                    selectedReason = null,
+                    customReason = "",
+                    onSelectReason = {},
+                    onCustomReason = {},
+                    onConfirm = {},
+                    onCancel = {},
+                )
+            }
+        }
+        capture("pause_reason_sheet")
+    }
+
+    @Test
+    fun sessionRestoreSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                SessionRestoreSheet(
+                    sessions =
+                        listOf(
+                            RestorableSession(token = "tok-8f21", label = "Server Session", timestamp = "2 hours ago"),
+                            RestorableSession(token = "tok-a904", label = "Draft", timestamp = "yesterday"),
+                        ),
+                    onRestore = {},
+                    onDiscard = {},
+                    onIgnore = {},
+                )
+            }
+        }
+        capture("session_restore_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun vehiclePickerSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                VehiclePickerSheet(
+                    vehicles =
+                        listOf(
+                            VehicleOption(key = "twoWheeler", name = "Honda Activa", ratePerKm = 3.5),
+                            VehicleOption(key = "fourWheelerPetrol", name = "Honda City", ratePerKm = 10.0),
+                        ),
+                    query = "",
+                    onQueryChange = {},
+                    onSelect = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("vehicle_picker_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun vendorPickerSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                VendorPickerSheet(
+                    centers =
+                        listOf(
+                            CenterOption(id = "c1", name = "Hinjewadi IT Park", address = "Hinjewadi Phase 1, Pune"),
+                            CenterOption(id = "c2", name = "FC Road Branch", address = null),
+                        ),
+                    query = "",
+                    onQueryChange = {},
+                    onSelect = {},
+                    onOpenMaps = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("vendor_picker_sheet")
+    }
+
+    @Test
+    fun strangerSessionSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                StrangerSessionSheet(
+                    config = StrangerSessionConfig(routeId = "route-j1", ownerLabel = "Rahul Sharma"),
+                    onResume = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("stranger_session_sheet")
+    }
+
+    @Test
+    fun sosBottomSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                SosBottomSheet(onDismiss = {})
+            }
+        }
+        capture("sos_bottom_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun smartDistanceSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                SmartDistanceSheet(
+                    trackedKm = 12.0,
+                    odometerKm = 19.0,
+                    verified = false,
+                    explanation = "",
+                    onVerifiedChange = {},
+                    onExplanationChange = {},
+                    onStop = {},
+                    onContinue = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("smart_distance_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun submitConfirmSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                SubmitConfirmSheet(onConfirm = {}, onCancel = {}, onDismiss = {})
+            }
+        }
+        capture("submit_confirm_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun policyViolationSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                PolicyViolationSheet(
+                    violations =
+                        listOf(
+                            PolicyViolation(
+                                id = "v1",
+                                title = "Distance exceeds policy limit",
+                                message = "This trip exceeds the 50 km daily limit by 12 km.",
+                            ),
+                        ),
+                    askAuthoritiesSelected = false,
+                    note = "",
+                    onToggleAskAuthorities = {},
+                    onNoteChange = {},
+                    onSubmit = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("policy_violation_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun officePickerSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                OfficePickerSheet(
+                    offices =
+                        listOf(
+                            Office(code = "PUN01", name = "Pune Hinjewadi Office", address = "Hinjewadi Phase 1, Pune", gstin = "27ABCDE1234F1Z5"),
+                            Office(code = "MUM01", name = "Mumbai BKC Office", address = "Bandra Kurla Complex, Mumbai", gstin = "27ABCDE1234F1Z6"),
+                        ),
+                    query = "",
+                    onQueryChange = {},
+                    onSelect = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("office_picker_sheet")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun entityPickerSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                EntityPickerSheet(
+                    entities =
+                        listOf(
+                            BusinessEntity(id = 1L, name = "Mileway Technologies Pvt Ltd", country = "India", currencySymbol = "₹"),
+                            BusinessEntity(id = 2L, name = "Mileway Inc", country = "United States", currencySymbol = "$"),
+                        ),
+                    query = "",
+                    onQueryChange = {},
+                    onSelect = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("entity_picker_sheet")
+    }
+
+    @Test
+    fun discardJourneyDialog() {
+        composeRule.setContent {
+            MilewayTheme {
+                DiscardJourneyDialog(onConfirm = {}, onDismiss = {}, isTracking = true)
+            }
+        }
+        capture("discard_journey_dialog")
+    }
+
+    @Test
+    fun exportOptionsDialog() {
+        composeRule.setContent {
+            MilewayTheme {
+                ExportOptionsDialog(
+                    onDismiss = {},
+                    onExport = { _, _ -> },
+                    trackName = "Pune → Hinjewadi",
+                )
+            }
+        }
+        capture("export_options_dialog")
+    }
+
+    @Test
+    fun permissionOnboardingSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                PermissionOnboardingSheet(
+                    tier = defaultPermissionTiers.first(),
+                    oemHint = null,
+                    onGrant = {},
+                    onSkip = {},
+                )
+            }
+        }
+        capture("permission_onboarding_sheet")
+    }
+
+    @Test
+    fun permissionPrimerSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                val controller = remember { PermissionPrimerController(provider = mockk(relaxed = true)) }
+                PermissionPrimerSheet(
+                    controller = controller,
+                    oemHint = null,
+                    onOpenAppSettings = {},
+                    onFinished = {},
+                )
+            }
+        }
+        capture("permission_primer_sheet")
+    }
+
+    // OdometerReadingConfirmSheet (feature:tracking androidMain) is SKIPPED: it eagerly runs real
+    // ML Kit TextRecognition (rememberOdometerOcrService -> TextRecognition.getClient(...)) in a
+    // LaunchedEffect, which needs a real on-device ML Kit runtime and hangs/throws under
+    // Robolectric. There is no separately-exported stateless inner composable to render instead
+    // (unlike the ViewModel-needing sheets), so per the "skip rather than fake" rule this one has
+    // no capture. OdometerDiscrepancySheet/OdometerRejectionSheet below cover its two downstream
+    // outcome sheets, which ARE stateless.
+
+    @Test
+    fun driveReviewSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                DriveReviewSheet(
+                    routeId = "route-j1",
+                    distanceKm = 12.4,
+                    vehicleKey = "fourWheelerPetrol",
+                    startTime = 1_700_000_000_000L,
+                    endTime = 1_700_003_600_000L,
+                    onTrackNewJourney = {},
+                    onViewExpense = {},
+                    onCreateVoucher = {},
+                )
+            }
+        }
+        capture("drive_review_sheet")
+    }
+
+    // ── core:ui shared sheets & dialogs ──────────────────────────────────────────────
+
+    @Test
+    fun actionConfirmationBottomSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                ActionConfirmationBottomSheet(
+                    title = "Approve this expense?",
+                    description = "This will notify the requester and finalize the payment.",
+                    onConfirm = {},
+                    onDismiss = {},
+                    tone = ActionConfirmationToneType.Success,
+                    showRemarksField = true,
+                )
+            }
+        }
+        capture("action_confirmation_bottom_sheet")
+    }
+
+    @Test
+    fun filterBottomSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                FilterBottomSheet(
+                    sections =
+                        listOf(
+                            FilterSection(
+                                key = "status",
+                                title = "Status",
+                                icon = Icons.Filled.FilterList,
+                                mode = FilterSelectionMode.MULTI,
+                                options = listOf(FilterOption("pending", "Pending"), FilterOption("approved", "Approved")),
+                            ),
+                        ),
+                    initialSelected = emptyMap(),
+                    onApply = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("filter_bottom_sheet")
+    }
+
+    @Test
+    fun bugReportSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                BugReportSheet(onDismiss = {}, screen = "TrackMilesScreen")
+            }
+        }
+        capture("bug_report_sheet")
+    }
+
+    @Test
+    fun odometerDiscrepancySheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                OdometerDiscrepancySheet(
+                    userReading = 45210,
+                    deviceReading = 45300,
+                    aiReading = 45280,
+                    onAccept = {},
+                    onRetake = {},
+                )
+            }
+        }
+        capture("odometer_discrepancy_sheet")
+    }
+
+    @Test
+    fun odometerRejectionSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                OdometerRejectionSheet(
+                    reason = "We couldn't get a reliable reading from any source.",
+                    userReading = 45210,
+                    onAccept = {},
+                    onRetake = {},
+                )
+            }
+        }
+        capture("odometer_rejection_sheet")
+    }
+
+    @Test
+    fun wheelDatePickerDialog() {
+        composeRule.setContent {
+            MilewayTheme {
+                WheelDatePickerDialog(initialDateMillis = screenshotNowMs, onConfirm = {}, onDismiss = {})
+            }
+        }
+        capture("wheel_date_picker_dialog")
+    }
+
+    @Test
+    fun wheelTimePickerDialog() {
+        composeRule.setContent {
+            MilewayTheme {
+                WheelTimePickerDialog(initialMinutes = 600, onConfirm = { _, _ -> }, onDismiss = {})
+            }
+        }
+        capture("wheel_time_picker_dialog")
+    }
+
+    @Test
+    fun criticalErrorDialog() {
+        composeRule.setContent {
+            MilewayTheme {
+                CriticalErrorDialog(
+                    title = "Something went wrong",
+                    message = "Your local data appears to be corrupted. Retry or exit the app.",
+                    onRetry = {},
+                    onExit = {},
+                )
+            }
+        }
+        capture("critical_error_dialog")
+    }
+
+    @Test
+    fun languageSelectionSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                LanguageSelectionSheet(onDismiss = {})
+            }
+        }
+        capture("language_selection_sheet")
+    }
+
+    @Test
+    fun colorWheelDialog() {
+        composeRule.setContent {
+            MilewayTheme {
+                ColorWheelDialog(
+                    selectedColor = Color(0xFF00E676),
+                    onColorSelected = { _, _ -> },
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("color_wheel_dialog")
+    }
+
+    @Test
+    fun detailInfoBottomSheet() {
+        composeRule.setContent {
+            MilewayTheme {
+                DetailInfoBottomSheet(
+                    title = "Cafe Coffee Day",
+                    subtitle = "Transaction details",
+                    headerGradient = listOf(Color(0xFF6200EE), Color(0xFF9C27B0)),
+                    headerIcon = Icons.Filled.Info,
+                    onDismiss = {},
+                ) {
+                    DetailInfoCard(title = "Transaction") {
+                        DetailInfoRow("Merchant", "Cafe Coffee Day")
+                        DetailInfoRow("Amount", "₹450.00")
+                    }
+                }
+            }
+        }
+        capture("detail_info_bottom_sheet")
+    }
+
+    // ── Profile: additional uncovered screens ────────────────────────────────────────
+
+    @Test
+    fun advanceRequestDetailsScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                AdvanceRequestDetailsScreen(advanceId = "ADV-001", onBack = {})
+            }
+        }
+        capture("advance_request_details_screen")
+    }
+
+    @Test
+    fun ecoDashboardScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                EcoDashboardScreen(onBack = {})
+            }
+        }
+        capture("eco_dashboard_screen")
+    }
+
+    @Test
+    fun favouriteRoutesScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                FavouriteRoutesScreen(onBack = {})
+            }
+        }
+        capture("favourite_routes_screen")
+    }
+
+    @Test
+    fun offersHubScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                OffersHubScreen(onBack = {})
+            }
+        }
+        capture("offers_hub_screen")
+    }
+
+    @Test
+    fun selfAuditScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                SelfAuditScreen(vehicleId = "veh_seed_1", onBack = {})
+            }
+        }
+        capture("self_audit_screen")
+    }
+
+    @Test
+    fun storageManagementScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                StorageManagementScreen(onBack = {})
+            }
+        }
+        // Unlike every other screen here, StorageManagementViewModel.refresh() hops to a real
+        // Dispatchers.IO thread (StorageRepository scans the actual cacheDir/db file) rather than
+        // collecting an already-emitted fake Flow — composeRule's implicit idle-wait doesn't cover
+        // that hop, so the capture raced ahead of it and recorded the pre-load empty list. Explicit
+        // waitForIdle() drains the main-looper post-back once the (near-instant) scan completes.
+        composeRule.waitForIdle()
+        capture("storage_management_screen")
+    }
+
+    @Test
+    fun supportChatScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                SupportChatScreen(onBack = {})
+            }
+        }
+        capture("support_chat_screen")
+    }
+
+    @Test
+    fun supportHubScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                SupportHubScreen(onBack = {}, onOpenFaq = {}, onOpenTickets = {}, onOpenChat = {}, onOpenTour = {})
+            }
+        }
+        capture("support_hub_screen")
+    }
+
+    @Test
+    fun trainingTourScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                TrainingTourScreen(onBack = {})
+            }
+        }
+        capture("training_tour_screen")
+    }
+
+    @Test
+    fun vehicleGarageScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                VehicleGarageScreen(onBack = {})
+            }
+        }
+        capture("vehicle_garage_screen")
+    }
+
+    // ── Logging: additional uncovered screens ────────────────────────────────────────
+
+    @Test
+    fun cardsTxnHistoryScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                CardsTxnHistoryScreen(onBack = {})
+            }
+        }
+        capture("cards_txn_history_screen")
+    }
+
+    @Test
+    fun settlementHistoryScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                SettlementHistoryScreen(onBack = {})
+            }
+        }
+        capture("settlement_history_screen")
+    }
+
+    @Test
+    fun voucherDetailsScreen() {
+        // A throwaway FakeVoucherDao seeded with one row, passed directly as the VM's dependency
+        // (bypassing Koin's shared `voucherDao` single) so this doesn't mutate the state the
+        // voucherHistoryScreen/createVoucherSelectExpenses tests above also read from.
+        val demoDao =
+            FakeVoucherDao().apply {
+                kotlinx.coroutines.runBlocking {
+                    insert(
+                        VoucherEntity(
+                            voucherNumber = "V-DEMO-1",
+                            title = "Mileage claim — Pune → Hinjewadi",
+                            category = VoucherCategory.MILEAGE,
+                            totalAmount = 185.60,
+                            notes = "Client site visit",
+                            expenseRouteIdsJson = VoucherEntity.encodeExpenseRouteIds(listOf("route-j1")),
+                            status = "PENDING",
+                            createdAtMs = 1_700_000_000_000L,
+                        ),
+                    )
+                }
+            }
+        composeRule.setContent {
+            MilewayTheme {
+                VoucherDetailsScreen(
+                    voucherNumber = "V-DEMO-1",
+                    onBack = {},
+                    viewModel = VoucherDetailsViewModel(demoDao),
+                )
+            }
+        }
+        capture("voucher_details_screen")
+    }
+
     // D2 FIX (2026-08-09): this passed File(screenshotsDir, "$name.png").absolutePath — an ABSOLUTE
     // path computed by walking up to the repo root. Roborazzi's compare/verify pipeline keys off its
     // own configured roborazzi.output.dir ("../docs/screenshots", set in roborazzi.properties), so an
     // absolute path handed straight to captureRoboImage bypassed compare entirely and always wrote.
     // That is why this surface still passed with a deliberately corrupted baseline even after verify
     // was switched on. A relative name lets roborazzi own the location, and therefore the comparison.
-    private fun capture(name: String) = composeRule.onRoot().captureRoboImage("$name.png")
+    //
+    // D3 FIX (2026-08-09): that reasoning assumed roborazzi.output.dir actually resolves to
+    // docs/screenshots for this class's forked task — per setup()'s D3 FIX doc, it does not (confirmed
+    // by testing: a relative name landed PNGs in the `app/` module root instead). Verify mode's
+    // relative-name path is left as-is above (harmless: it's already a no-op today, see setup()'s D3
+    // FIX, and stays correct-by-construction if the underlying Gradle wiring is ever fixed). Only the
+    // explicit, deliberately-requested record path below needs to reach the real directory today.
+    private fun capture(name: String) {
+        if (System.getenv("ROBORAZZI_RECORD") == "true") {
+            composeRule.onRoot().captureRoboImage(File(screenshotsDir, "$name.png").absolutePath)
+        } else {
+            composeRule.onRoot().captureRoboImage("$name.png")
+        }
+    }
 }

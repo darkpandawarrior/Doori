@@ -125,55 +125,28 @@ fun DriveReviewSheet(
         sheetState = sheetState,
         modifier = modifier,
     ) {
-        when (phase) {
-            DriveReviewPhase.Review, is DriveReviewPhase.Editing ->
-                ReviewContent(
-                    form = form,
-                    distanceKm = distanceKm,
-                    local = local,
-                    onLocalChange = { local = it },
-                    pendingReceipts = ui.pendingReceipts,
-                    onAddAttachment = onAddAttachment,
-                    onRemoveAttachment = { viewModel.onAction(MileageSubmissionAction.RemoveReceipt(it)) },
-                    onNavigateToOdometerStart = onNavigateToOdometerStart,
-                    onNavigateToOdometerEnd = onNavigateToOdometerEnd,
-                    onSetPurpose = { viewModel.onAction(MileageSubmissionAction.SetFormValue("purpose", it)) },
-                    onSetClassification = { viewModel.onAction(MileageSubmissionAction.SetFormValue("classification", it.name)) },
-                    onDismiss = { local = local.dismiss() },
-                    onConfirm = { viewModel.onAction(buildSubmitAction(routeId, distanceKm, vehicleKey, startTime, endTime)) },
-                )
-
-            DriveReviewPhase.Submitting ->
-                Box(Modifier.fillMaxWidth().height(360.dp)) { TrackLoadingScreen() }
-
-            is DriveReviewPhase.Success ->
-                Box(Modifier.fillMaxWidth().heightIn(max = 640.dp)) {
-                    TrackingSuccessScreen(
-                        distanceKm = phase.result.distanceKm,
-                        reimbursableAmount = phase.result.reimbursableAmount,
-                        vehicleName = phase.result.vehicleName,
-                        startTime = phase.result.startTime,
-                        endTime = phase.result.endTime,
-                        transactionId = phase.result.transactionId,
-                        submissionStatus = phase.result.submissionStatus,
-                        violationCount = phase.result.violationCount,
-                        violationMessage = phase.result.violationMessage,
-                        voucherNumber = phase.result.voucherNumber,
-                        voucherAmount = phase.result.voucherAmount,
-                        onTrackNewJourney = onTrackNewJourney,
-                        onViewExpense = { onViewExpense(phase.result) },
-                        onCreateVoucher = onCreateVoucher,
-                        onAddExpense = onAddExpense,
-                    )
-                }
-
-            is DriveReviewPhase.Failed ->
-                FailedContent(
-                    phase = phase,
-                    onRetry = { viewModel.onAction(buildSubmitAction(routeId, distanceKm, vehicleKey, startTime, endTime)) },
-                    onEditDetails = { viewModel.onAction(MileageSubmissionAction.Reset) },
-                )
-        }
+        DriveReviewSheetContent(
+            phase = phase,
+            form = form,
+            distanceKm = distanceKm,
+            local = local,
+            pendingReceipts = ui.pendingReceipts,
+            onLocalChange = { local = it },
+            onAddAttachment = onAddAttachment,
+            onRemoveAttachment = { viewModel.onAction(MileageSubmissionAction.RemoveReceipt(it)) },
+            onNavigateToOdometerStart = onNavigateToOdometerStart,
+            onNavigateToOdometerEnd = onNavigateToOdometerEnd,
+            onSetPurpose = { viewModel.onAction(MileageSubmissionAction.SetFormValue("purpose", it)) },
+            onSetClassification = { viewModel.onAction(MileageSubmissionAction.SetFormValue("classification", it.name)) },
+            onDismiss = { local = local.dismiss() },
+            onConfirm = { viewModel.onAction(buildSubmitAction(routeId, distanceKm, vehicleKey, startTime, endTime)) },
+            onRetry = { viewModel.onAction(buildSubmitAction(routeId, distanceKm, vehicleKey, startTime, endTime)) },
+            onEditDetails = { viewModel.onAction(MileageSubmissionAction.Reset) },
+            onTrackNewJourney = onTrackNewJourney,
+            onViewExpense = onViewExpense,
+            onCreateVoucher = onCreateVoucher,
+            onAddExpense = onAddExpense,
+        )
     }
 
     // A policy violation raised mid-submit must be resolvable without leaving this flow, even
@@ -201,6 +174,123 @@ private fun buildSubmitAction(
     startTime: Long,
     endTime: Long,
 ) = MileageSubmissionAction.Submit(routeId, distanceKm, vehicleKey, startTime, endTime)
+
+/**
+ * Phase → content mapping for [DriveReviewSheet], pulled out as its own stateless composable so it
+ * is callable without [MileageSubmissionViewModel] at all — every parameter here is plain
+ * data/callbacks. [DriveReviewSheet] (the real, VM-backed sheet) and [DriveReviewSheetPreview]
+ * (capture/preview) both feed it; there is exactly one place phase renders to UI, not two drifting
+ * copies. Callbacks default to no-ops so a caller that only wants to *look* at one phase — a
+ * screenshot — doesn't have to wire five callbacks it will never fire.
+ */
+@Composable
+fun DriveReviewSheetContent(
+    phase: DriveReviewPhase,
+    form: SubmissionFormUi,
+    distanceKm: Double,
+    local: DriveReviewLocalState,
+    pendingReceipts: List<String> = emptyList(),
+    onLocalChange: (DriveReviewLocalState) -> Unit = {},
+    onAddAttachment: () -> Unit = {},
+    onRemoveAttachment: (String) -> Unit = {},
+    onNavigateToOdometerStart: () -> Unit = {},
+    onNavigateToOdometerEnd: () -> Unit = {},
+    onSetPurpose: (String) -> Unit = {},
+    onSetClassification: (TripClassification) -> Unit = {},
+    onDismiss: () -> Unit = {},
+    onConfirm: () -> Unit = {},
+    onRetry: () -> Unit = {},
+    onEditDetails: () -> Unit = {},
+    onTrackNewJourney: () -> Unit = {},
+    onViewExpense: (SubmissionResult) -> Unit = {},
+    onCreateVoucher: () -> Unit = {},
+    onAddExpense: () -> Unit = {},
+) {
+    when (phase) {
+        DriveReviewPhase.Review, is DriveReviewPhase.Editing ->
+            ReviewContent(
+                form = form,
+                distanceKm = distanceKm,
+                local = local,
+                onLocalChange = onLocalChange,
+                pendingReceipts = pendingReceipts,
+                onAddAttachment = onAddAttachment,
+                onRemoveAttachment = onRemoveAttachment,
+                onNavigateToOdometerStart = onNavigateToOdometerStart,
+                onNavigateToOdometerEnd = onNavigateToOdometerEnd,
+                onSetPurpose = onSetPurpose,
+                onSetClassification = onSetClassification,
+                onDismiss = onDismiss,
+                onConfirm = onConfirm,
+            )
+
+        DriveReviewPhase.Submitting ->
+            Box(Modifier.fillMaxWidth().height(360.dp)) { TrackLoadingScreen() }
+
+        is DriveReviewPhase.Success ->
+            Box(Modifier.fillMaxWidth().heightIn(max = 640.dp)) {
+                TrackingSuccessScreen(
+                    distanceKm = phase.result.distanceKm,
+                    reimbursableAmount = phase.result.reimbursableAmount,
+                    vehicleName = phase.result.vehicleName,
+                    startTime = phase.result.startTime,
+                    endTime = phase.result.endTime,
+                    transactionId = phase.result.transactionId,
+                    submissionStatus = phase.result.submissionStatus,
+                    violationCount = phase.result.violationCount,
+                    violationMessage = phase.result.violationMessage,
+                    voucherNumber = phase.result.voucherNumber,
+                    voucherAmount = phase.result.voucherAmount,
+                    onTrackNewJourney = onTrackNewJourney,
+                    onViewExpense = { onViewExpense(phase.result) },
+                    onCreateVoucher = onCreateVoucher,
+                    onAddExpense = onAddExpense,
+                )
+            }
+
+        is DriveReviewPhase.Failed ->
+            FailedContent(
+                phase = phase,
+                onRetry = onRetry,
+                onEditDetails = onEditDetails,
+            )
+    }
+}
+
+/**
+ * Stateless, ViewModel-free entry point for capturing [DriveReviewSheet] in a single phase — the
+ * gallery's hook for REVIEW / EDITING / SUBMITTING / SUCCESS / FAILED without wiring
+ * [MileageSubmissionViewModel]. Wraps [DriveReviewSheetContent] in a real [ModalBottomSheet] so a
+ * capture matches what a user actually sees — the same standalone-`ModalBottomSheet`-in-a-
+ * screenshot-test pattern already proven by [WhatsNewSheet][com.mileway.ui.home.WhatsNewSheet].
+ *
+ * For EDITING, pass a [local] whose `editingField` matches `phase`'s field — [ReviewContent] reads
+ * the expanded row from `local.editingField`, not from `phase`, so the two must agree.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DriveReviewSheetPreview(
+    phase: DriveReviewPhase,
+    form: SubmissionFormUi = DriveReviewPreviewData.sampleForm(),
+    distanceKm: Double = DriveReviewPreviewData.DISTANCE_KM,
+    local: DriveReviewLocalState = DriveReviewLocalState(),
+    pendingReceipts: List<String> = emptyList(),
+    modifier: Modifier = Modifier,
+) {
+    ModalBottomSheet(
+        onDismissRequest = {},
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        modifier = modifier,
+    ) {
+        DriveReviewSheetContent(
+            phase = phase,
+            form = form,
+            distanceKm = distanceKm,
+            local = local,
+            pendingReceipts = pendingReceipts,
+        )
+    }
+}
 
 /** Small bottom-anchored pill shown once the sheet has been dismissed — the drive is still saved. */
 @Composable

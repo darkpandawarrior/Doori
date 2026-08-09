@@ -34,7 +34,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -44,9 +46,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mileway.core.ui.resources.Res
@@ -60,6 +64,53 @@ private val TitleExpandedFontSize = 22.sp
 
 /** Title font size when the bar is fully collapsed. */
 private val TitleCollapsedFontSize = 16.sp
+
+/**
+ * Floor for the title's auto-shrink ([ShrinkToFitTitleText]): a long title (e.g. "Notification
+ * Centre" next to a bell [titleIcon] and a wide "Mark all read" action) would otherwise be
+ * ellipsised down to a couple of characters — shrinking the font first keeps far more of it
+ * legible before ellipsis ever kicks in.
+ */
+private val TitleMinFontSize = 13.sp
+
+/**
+ * A single-line title [Text] that shrinks its own font, in 1sp steps down to [minFontSize],
+ * until it fits the width Compose actually gives it. A Material3 [TopAppBar]'s title slot gets
+ * whatever's left after the navigation icon and trailing actions — that width isn't knowable
+ * ahead of render, so a static size guess can't fix a squeeze; reacting to the real measured
+ * layout (`TextLayoutResult.hasVisualOverflow`) can.
+ */
+@Composable
+internal fun ShrinkToFitTitleText(
+    text: String,
+    color: Color,
+    style: TextStyle,
+    fontWeight: FontWeight,
+    maxFontSize: TextUnit,
+    minFontSize: TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    var fontSizeValue by remember(text, maxFontSize) { mutableStateOf(maxFontSize.value) }
+    Text(
+        text = text,
+        modifier = modifier,
+        style = style,
+        fontSize = fontSizeValue.sp,
+        fontWeight = fontWeight,
+        color = color,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        onTextLayout = { result ->
+            // NOT didOverflowWidth: with softWrap=true (the default) + maxLines=1, a too-long
+            // title is reported as exceeding the *line count*, not the width — Compose tries to
+            // wrap first and only ellipsises because a 2nd line isn't allowed.
+            // hasVisualOverflow (didOverflowWidth || didOverflowHeight) covers that case too.
+            if (result.hasVisualOverflow && fontSizeValue > minFontSize.value) {
+                fontSizeValue = (fontSizeValue - 1f).coerceAtLeast(minFontSize.value)
+            }
+        },
+    )
+}
 
 /**
  * A navigation depth-aware top app bar implementing the "deeper = calmer" pattern:
@@ -84,7 +135,10 @@ private val TitleCollapsedFontSize = 16.sp
  * @param titleIcon   optional icon rendered before the title
  * @param titleIconContentDescription content description for [titleIcon]
  * @param animateTitleIcon when true, [titleIcon] pulses (scale 1.0 -> 1.08, 1800ms ease-in-out)
- * @param titleMaxWidth optional cap on the title area width (unconstrained when null)
+ * @param titleMaxWidth optional cap on the title area width (unconstrained when null); the
+ *                    title text itself separately auto-shrinks to fit whatever width it's
+ *                    actually given (see [ShrinkToFitTitleText]), so it never ellipsises down
+ *                    to just a couple of characters
  * @param showSearchAction when true, shows an animated circular search action before [actions]
  * @param onSearchClick callback for the search action
  * @param actionSpacing horizontal space between trailing action icons
@@ -199,15 +253,22 @@ fun DepthAwareTopBar(
                     )
                     Spacer(modifier = Modifier.width(DesignTokens.Spacing.s))
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
+                Column(
+                    // Row measures a non-weighted child with an effectively unbounded width, so
+                    // without `weight` this Column (and the Text inside it) never sees the real
+                    // leftover width once titleIcon/actions have claimed theirs — it just
+                    // overflows the slot and gets silently clipped instead of shrinking or
+                    // ellipsising. `fill = false` keeps a short title from stretching full width.
+                    modifier = Modifier.weight(1f, fill = false),
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    ShrinkToFitTitleText(
                         text = title,
+                        maxFontSize = titleFontSize,
+                        minFontSize = TitleMinFontSize,
                         style = MaterialTheme.typography.titleLarge,
-                        fontSize = titleFontSize,
                         fontWeight = FontWeight.SemiBold,
                         color = titleColor,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     if (subtitle != null) {
                         Text(
@@ -215,6 +276,7 @@ fun DepthAwareTopBar(
                             style = MaterialTheme.typography.bodySmall,
                             color = subtitleColor,
                             maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }

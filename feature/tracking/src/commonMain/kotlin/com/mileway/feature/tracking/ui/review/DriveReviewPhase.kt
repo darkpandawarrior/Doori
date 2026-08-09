@@ -4,6 +4,7 @@ package com.mileway.feature.tracking.ui.review
 
 import com.mileway.core.data.model.network.ExpenseSubmissionResponse
 import com.mileway.feature.tracking.ui.navigation.SubmissionResult
+import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
 import com.mileway.feature.tracking.viewmodel.SubmissionUiState
 
 /** A [DriveReviewSheet] row that supports inline correction from the REVIEW phase. */
@@ -125,3 +126,39 @@ fun ExpenseSubmissionResponse.toSubmissionResult(
         voucherNumber = issuedVoucher?.number,
         voucherAmount = issuedVoucher?.amount ?: 0.0,
     )
+
+/**
+ * Realistic sample data for capture/preview of [DriveReviewSheetContent] — a filled-in form and a
+ * successful result, so REVIEW/EDITING/SUCCESS don't render with every field at its blank default.
+ * Plain data, no `@Composable` needed.
+ */
+object DriveReviewPreviewData {
+    const val DISTANCE_KM = 12.4
+
+    fun sampleForm(): SubmissionFormUi =
+        SubmissionFormUi(
+            vehicleName = "Honda City",
+            vehicleRatePerKm = 12.0,
+            values = mapOf("purpose" to "Client site visit"),
+            simulatedStartOdo = 15_234,
+            simulatedEndOdo = 15_267,
+            startAddress = "Baner, Pune",
+            endAddress = "Hinjawadi, Pune",
+        )
+
+    fun sampleResult(): SubmissionResult =
+        SubmissionResult(
+            distanceKm = DISTANCE_KM,
+            reimbursableAmount = 148.80,
+            vehicleKey = "honda-city",
+            vehicleName = "Honda City",
+            startTime = 1_700_000_000_000L,
+            endTime = 1_700_000_900_000L,
+            transactionId = "TXN-4821",
+            submissionStatus = "SUCCESS",
+            violationCount = 0,
+            violationMessage = null,
+            voucherNumber = null,
+            voucherAmount = 0.0,
+        )
+}
