@@ -16,6 +16,7 @@ import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ShakeGestureDetector
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.TrackingPresenceController
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.UrlOpener
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.LocationNameResolver

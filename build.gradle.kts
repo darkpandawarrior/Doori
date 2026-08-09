@@ -200,7 +200,7 @@ tasks.register("composeMetrics") {
 }
 
 // ---------------------------------------------------------------------------
-// One task that runs EVERY screenshot harness in the repo.
+// One task that runs EVERY screenshot harness in the repo: app + wear + widget + desktop.
 //
 // Why this exists: the harnesses were never the problem — :app, :wear and
 // :widget each had a working Roborazzi suite. The problem was that they live on
@@ -220,6 +220,10 @@ tasks.register("composeMetrics") {
 //   - desktop (:desktopApp) — Roborazzi is Robolectric-based and Android-only;
 //     Compose Desktop needs ImageComposeScene render-to-PNG instead.
 //   - wasm (:app-web-preview) — no test source set; needs a browser harness.
+//
+// Desktop WAS in this list until 2026-08-09, wrongly: :desktopApp already had
+// DesktopScreenshotGalleryTest writing 7 PNGs via ImageIO. It was never uncovered, just never
+// run by anything — which is the same failure this whole task exists to end.
 // ---------------------------------------------------------------------------
 // One task that runs EVERY screenshot harness in the repo.
 //
@@ -240,8 +244,6 @@ tasks.register("composeMetrics") {
 //
 // NOT covered here, and deliberately not faked as if it were:
 //   - iOS (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot tests needing Xcode.
-//   - desktop (:desktopApp) — Roborazzi is Robolectric-based/Android-only; Compose Desktop needs
-//     ImageComposeScene render-to-PNG instead.
 //   - wasm (:app-web-preview) — no test source set; needs a browser harness.
 tasks.register("screenshotTest") {
     group = "verification"
@@ -258,16 +260,24 @@ gradle.projectsEvaluated {
         // someone remembers this file.
         subprojects.forEach { sub ->
             if (sub.path == ":app") return@forEach // already wired to its dedicated forked task
+            // Both layouts: Android modules keep tests in src/test, KMP-JVM modules like
+            // :desktopApp use a custom-named source set (src/desktopTest). Walking the whole
+            // src/ dir covers either without hardcoding which module uses which.
             val hasCaptures =
-                sub.projectDir.resolve("src/test").walkTopDown()
+                sub.projectDir.resolve("src").walkTopDown()
                     .filter { it.isFile && it.extension == "kt" }
-                    .any { it.readText().contains("captureRoboImage") }
+                    // Two capture mechanisms in this repo: Roborazzi on the Android/Wear/widget
+                    // side, and plain ImageIO writes from Compose Desktop's renderComposeScene.
+                    // Match either, so a harness is discovered by what it DOES rather than by
+                    // which library it happens to use.
+                    .any { f -> f.readText().let { it.contains("captureRoboImage") || it.contains("ImageIO") } }
             if (!hasCaptures) return@forEach
             sub.tasks.matching {
+                // :desktopApp's test task is "desktopTest", not "test*UnitTest".
                 // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
                 // variant here would make the unified task fail for a reason that has nothing to do
                 // with the screenshots it is meant to guard.
-                it.name.startsWith("test") && it.name.endsWith("UnitTest") &&
+                (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&
                     // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
                     !(it.name.contains("Gms") && !it.name.contains("NoGms"))
             }.forEach { t ->
