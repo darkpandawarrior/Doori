@@ -33,6 +33,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -94,8 +96,10 @@ import com.mileway.feature.logging.ui.dialog.TaggedEmployeesDialog
 import com.mileway.feature.logging.ui.dialog.ViolationDialog
 import com.mileway.feature.logging.ui.model.SubmittedVoucherSamples
 import com.mileway.feature.logging.viewmodel.LogMilesAction
+import com.mileway.feature.logging.viewmodel.LogMilesEffect
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.tracking.ui.components.SubmissionTabChips
+import com.siddharth.kmp.common.asString
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -139,6 +143,18 @@ fun LogMilesStep2Screen(
     onSubmitted: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Submission failures (e.g. a local write error) previously landed in [LogMilesEffect.ShowError]
+    // with no collector anywhere in this flow — the user saw the submit spinner stop and nothing
+    // else. Route it to a Snackbar naming what failed, same idiom as the rest of the app.
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is LogMilesEffect.ShowError -> snackbarHostState.showSnackbar(effect.message.asString())
+            }
+        }
+    }
 
     var showEmployeesDialog by remember { mutableStateOf(false) }
     var additionalExpanded by remember { mutableStateOf(true) }
@@ -182,6 +198,7 @@ fun LogMilesStep2Screen(
                 onSubmit = { viewModel.onAction(LogMilesAction.Submit) },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
             modifier =

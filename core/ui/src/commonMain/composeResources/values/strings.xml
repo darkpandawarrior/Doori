@@ -617,6 +617,11 @@
     <string name="profile_notifications_unread_count">%1$s unread</string>
     <string name="profile_notifications_back">Back</string>
     <string name="profile_notifications_mark_all_read">Mark all read</string>
+    <string name="profile_notifications_empty_title">No notifications yet</string>
+    <string name="profile_notifications_empty_subtitle">Approvals, policy updates and app news will show up here.</string>
+    <string name="profile_notifications_empty_filtered_title">No matches in this filter</string>
+    <string name="profile_notifications_empty_filtered_subtitle">Nothing here right now. Switch back to All to see everything.</string>
+    <string name="profile_notifications_show_all">Show all</string>
     <string name="profile_advance_request_advance">Request Advance</string>
     <string name="profile_advance_step_of_4">Step %1$s of 4</string>
     <string name="profile_advance_back">Back</string>
@@ -677,6 +682,7 @@
     <string name="profile_delegation_to_me_title">Delegated To Me</string>
     <string name="profile_delegation_to_me_subtitle">You're covering for these people</string>
     <string name="profile_delegation_none_incoming">No active incoming delegations</string>
+    <string name="profile_delegation_none_outgoing">You haven\'t delegated to anyone yet. Tap + to give a team member access.</string>
     <string name="profile_delegation_add_new">Add New Delegation</string>
     <string name="profile_delegation_revoke_title">Revoke Delegation</string>
     <string name="profile_delegation_revoke_desc">Remove %1$s's access? This cannot be undone.</string>
@@ -1912,6 +1918,12 @@
     <string name="core_maintenance_message">Mileway is briefly unavailable or this version is no longer supported. Please update or check back soon.</string>
     <string name="core_error_generic">Something went wrong</string>
     <string name="core_loading">Loading…</string>
+    <string name="core_offline_title">You\'re offline</string>
+    <string name="core_offline_message">Check your connection and try again. Anything already tracked is saved on this device.</string>
+    <string name="core_permission_required_title">Permission needed</string>
+    <string name="core_permission_action_grant">Grant permission</string>
+    <string name="core_permission_action_open_settings">Open settings</string>
+    <string name="core_permission_denied_permanently_hint">You\'ve denied this before, so Android won\'t ask again here — turn it on from Settings.</string>
     <string name="core_referral_title">Refer a friend</string>
     <string name="core_referral_code_label">Your referral code</string>
     <string name="core_referral_share">Share invite</string>

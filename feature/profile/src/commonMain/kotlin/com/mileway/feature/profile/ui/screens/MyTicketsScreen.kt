@@ -27,7 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.profile_help_contact_support
 import com.mileway.core.ui.resources.profile_plural_tickets_submitted
 import com.mileway.core.ui.resources.profile_ticket_status_in_progress
 import com.mileway.core.ui.resources.profile_ticket_status_open
@@ -79,6 +81,7 @@ private fun SupportTicketStatus.label(): String =
 fun MyTicketsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onContactSupport: () -> Unit = {},
     viewModel: SupportTicketViewModel = koinViewModel(),
 ) {
     val uiState by viewModel.state.collectAsState()
@@ -100,16 +103,13 @@ fun MyTicketsScreen(
         },
     ) { padding ->
         if (uiState.tickets.isEmpty()) {
-            Column(
-                modifier = modifier.fillMaxSize().padding(padding).padding(DesignTokens.Spacing.l),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    stringResource(Res.string.profile_tickets_empty),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            DefaultEmptyState(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                icon = Icons.Filled.ConfirmationNumber,
+                title = stringResource(Res.string.profile_tickets_empty),
+                ctaLabel = stringResource(Res.string.profile_help_contact_support),
+                onCta = onContactSupport,
+            )
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),

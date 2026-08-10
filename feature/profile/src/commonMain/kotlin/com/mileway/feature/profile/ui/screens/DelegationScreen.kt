@@ -79,6 +79,7 @@ import com.mileway.core.ui.resources.profile_delegation_expires
 import com.mileway.core.ui.resources.profile_delegation_my_subtitle
 import com.mileway.core.ui.resources.profile_delegation_my_title
 import com.mileway.core.ui.resources.profile_delegation_none_incoming
+import com.mileway.core.ui.resources.profile_delegation_none_outgoing
 import com.mileway.core.ui.resources.profile_delegation_revoke
 import com.mileway.core.ui.resources.profile_delegation_revoke_desc
 import com.mileway.core.ui.resources.profile_delegation_revoke_title
@@ -223,21 +224,31 @@ fun DelegationScreen(
                     )
                 }
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = DesignTokens.Shape.roundedMd,
-                        elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
-                    ) {
-                        Column {
-                            myDelegations.forEachIndexed { index, entry ->
-                                DelegationRow(
-                                    entry = entry,
-                                    isActive = entry.isActive,
-                                    onToggle = { viewModel.setActive(entry.id, !entry.isActive) },
-                                    onRevoke = { revokeTarget = entry },
-                                )
-                                if (index < myDelegations.lastIndex) {
-                                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+                    // EMPTY: no outgoing delegations yet. Previously an empty Card with nothing
+                    // in it — a blank white box that explained nothing.
+                    if (myDelegations.isEmpty()) {
+                        Text(
+                            stringResource(Res.string.profile_delegation_none_outgoing),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = DesignTokens.Shape.roundedMd,
+                            elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.card),
+                        ) {
+                            Column {
+                                myDelegations.forEachIndexed { index, entry ->
+                                    DelegationRow(
+                                        entry = entry,
+                                        isActive = entry.isActive,
+                                        onToggle = { viewModel.setActive(entry.id, !entry.isActive) },
+                                        onRevoke = { revokeTarget = entry },
+                                    )
+                                    if (index < myDelegations.lastIndex) {
+                                        HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+                                    }
                                 }
                             }
                         }

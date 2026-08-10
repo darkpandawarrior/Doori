@@ -355,6 +355,7 @@ fun NavGraphBuilder.profileGraph(
     composable(ProfileRoutes.MY_TICKETS) {
         MyTicketsScreen(
             onBack = { navController.popBackStack() },
+            onContactSupport = { navController.navigate(ProfileRoutes.HELP) },
         )
     }
     composable(ProfileRoutes.NOTIFICATIONS) {

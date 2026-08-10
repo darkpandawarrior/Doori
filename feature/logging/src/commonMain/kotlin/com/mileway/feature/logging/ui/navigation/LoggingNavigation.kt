@@ -373,6 +373,7 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
         ExpenseHistoryScreen(
             onBack = { navController.popBackStack() },
             onOpenDetail = { id -> navController.navigate(LoggingRoutes.expenseDetailRoute(id)) },
+            onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
         )
     }
 

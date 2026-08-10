@@ -706,7 +706,12 @@ class ExpenseViewModel(
      */
     private fun importCsv(text: String) {
         val imported = ExpenseCsvImporter.parse(text).map { it.copy(id = newRowId()) }
-        if (imported.isEmpty()) return
+        if (imported.isEmpty()) {
+            // EMPTY outcome of an explicit user action (picked a file, got zero rows) needs its own
+            // message, not silence — names what's expected so the user can fix the file and retry.
+            emitEffect(ExpenseEffect.ShowToast(UiText.of("No rows found — expects a category,amount,merchant header")))
+            return
+        }
         setState { copy(rows = rows + imported) }
     }
 }

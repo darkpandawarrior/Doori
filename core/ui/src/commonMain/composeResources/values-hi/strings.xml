@@ -1372,6 +1372,12 @@
     <string name="core_maintenance_message">Mileway कुछ समय के लिए अनुपलब्ध है या यह संस्करण अब समर्थित नहीं है। कृपया अपडेट करें या कुछ देर बाद फिर देखें।</string>
     <string name="core_error_generic">कुछ गलत हो गया</string>
     <string name="core_loading">लोड हो रहा है…</string>
+    <string name="core_offline_title">आप ऑफ़लाइन हैं</string>
+    <string name="core_offline_message">अपना कनेक्शन जांचें और पुनः प्रयास करें। अब तक ट्रैक किया गया डेटा इस डिवाइस पर सुरक्षित है।</string>
+    <string name="core_permission_required_title">अनुमति आवश्यक है</string>
+    <string name="core_permission_action_grant">अनुमति दें</string>
+    <string name="core_permission_action_open_settings">सेटिंग्स खोलें</string>
+    <string name="core_permission_denied_permanently_hint">आपने इसे पहले अस्वीकार कर दिया है, इसलिए Android यहां दोबारा नहीं पूछेगा — इसे सेटिंग्स से चालू करें।</string>
     <string name="core_referral_title">किसी मित्र को रेफ़र करें</string>
     <string name="core_referral_code_label">आपका रेफ़रल कोड</string>
     <string name="core_referral_share">निमंत्रण साझा करें</string>
@@ -1748,6 +1754,11 @@
     <string name="profile_notifications_unread_count">%1$s अपठित</string>
     <string name="profile_notifications_back">वापस</string>
     <string name="profile_notifications_mark_all_read">सभी को पढ़ा हुआ चिह्नित करें</string>
+    <string name="profile_notifications_empty_title">अभी तक कोई सूचना नहीं</string>
+    <string name="profile_notifications_empty_subtitle">अनुमोदन, नीति अपडेट और ऐप समाचार यहाँ दिखाई देंगे।</string>
+    <string name="profile_notifications_empty_filtered_title">इस फ़िल्टर में कोई मेल नहीं</string>
+    <string name="profile_notifications_empty_filtered_subtitle">अभी यहाँ कुछ नहीं है। सब कुछ देखने के लिए सभी पर वापस जाएँ।</string>
+    <string name="profile_notifications_show_all">सभी दिखाएं</string>
     <string name="profile_advance_request_advance">अग्रिम का अनुरोध करें</string>
     <string name="profile_advance_step_of_4">चरण %1$s / 4</string>
     <string name="profile_advance_back">वापस</string>
@@ -1808,6 +1819,7 @@
     <string name="profile_delegation_to_me_title">मुझे सौंपे गए</string>
     <string name="profile_delegation_to_me_subtitle">आप इन लोगों की जगह काम कर रहे हैं</string>
     <string name="profile_delegation_none_incoming">कोई सक्रिय आवक प्रतिनिधिमंडल नहीं</string>
+    <string name="profile_delegation_none_outgoing">आपने अभी तक किसी को प्रतिनिधि नहीं बनाया है। टीम सदस्य को एक्सेस देने के लिए + पर टैप करें।</string>
     <string name="profile_delegation_add_new">नया प्रतिनिधिमंडल जोड़ें</string>
     <string name="profile_delegation_revoke_title">प्रतिनिधिमंडल रद्द करें</string>
     <string name="profile_delegation_revoke_desc">%1$s की पहुंच हटाएं? इसे पूर्ववत नहीं किया जा सकता।</string>

@@ -112,6 +112,7 @@ fun GeoCheckInScreen(
     var selectedVendorId by remember { mutableStateOf<String?>(null) }
     var formValues by remember { mutableStateOf(mapOf<String, String>()) }
     var isSubmitting by remember { mutableStateOf(false) }
+    var submitError by remember { mutableStateOf<String?>(null) }
 
     // Sort vendors by Haversine distance from demo location
     val sortedVendors =
@@ -140,22 +141,33 @@ fun GeoCheckInScreen(
         if (!canCheckIn) return
         scope.launch {
             isSubmitting = true
+            submitError = null
             delay(1_200)
             val locationLabel = selectedVendor?.name ?: "Current Location"
-            hardwareEventRepository.insert(
-                HardwareEvent(
-                    token = "checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
-                    eventType = EventType.CHECK_IN,
-                    time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
-                    lat = demoLat,
-                    lng = demoLng,
-                    event = "Geo check-in at $locationLabel ($selectedType)",
-                ),
-            )
+            val result =
+                hardwareEventRepository.insert(
+                    HardwareEvent(
+                        token = "checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
+                        eventType = EventType.CHECK_IN,
+                        time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                        lat = demoLat,
+                        lng = demoLng,
+                        event = "Geo check-in at $locationLabel ($selectedType)",
+                    ),
+                )
             isSubmitting = false
-            snackbarHostState.showSnackbar("Checked in at $locationLabel ✓")
-            delay(600)
-            onBack()
+            // Every submission has a failure path: insert() returns Result rather than throwing —
+            // this is the one place that Result was previously discarded, silently dropping the
+            // check-in on a write failure while still telling the user it succeeded.
+            result.fold(
+                onSuccess = {
+                    submitError = null
+                    snackbarHostState.showSnackbar("Checked in at $locationLabel ✓")
+                    delay(600)
+                    onBack()
+                },
+                onFailure = { e -> submitError = e.message ?: "Couldn't save this check-in. Try again." },
+            )
         }
     }
 
@@ -176,6 +188,16 @@ fun GeoCheckInScreen(
         },
         bottomBar = {
             Column(modifier = Modifier.padding(DesignTokens.Spacing.l)) {
+                // ERROR: names what failed and stays actionable — the button below is the retry,
+                // already re-enabled since isSubmitting was reset before this text can show.
+                submitError?.let { message ->
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = DesignTokens.Spacing.s),
+                    )
+                }
                 if (vendorDistanceM != null && vendorDistanceM > checkInRadius) {
                     SectionCard(modifier = Modifier.fillMaxWidth()) {
                         Row(

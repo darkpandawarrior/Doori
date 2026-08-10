@@ -65,6 +65,7 @@ import com.mileway.core.data.model.db.AttachmentType
 import com.mileway.core.data.model.db.TripAttachmentEntity
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.data.util.DateUtils
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.LoadingScreen
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
@@ -212,7 +213,22 @@ fun TrackDetailScreen(
             return@Scaffold
         }
 
-        val track = uiState.track ?: return@Scaffold
+        // EMPTY/ERROR: track is null once loading finishes for a routeId that resolves to
+        // nothing — deleted between list and detail, a stale deep link, a race with a discard.
+        // Previously this fell straight through the `return@Scaffold` below with nothing
+        // rendered but the top bar: a blank screen with no explanation and no way to tell it
+        // apart from a bug. The top bar's own back arrow remains the way out.
+        val track =
+            uiState.track ?: run {
+                // core/ui strings.xml is outside this module's ownership (feature/tracking only) —
+                // inline text here, same precedent as the snackbar copy elsewhere in this module.
+                EmptyState(
+                    title = "Journey not found",
+                    subtitle = "This journey may have been deleted or is no longer available.",
+                    modifier = Modifier.padding(padding),
+                )
+                return@Scaffold
+            }
         val rawTrack = uiState.rawTrack
         val health = rawTrack?.let { computeHealthLevel(it) }
         val gpsPoints = if (uiState.locations.isNotEmpty()) uiState.locations.size else track.locationCount

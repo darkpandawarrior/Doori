@@ -58,6 +58,7 @@ import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_expense_title
 import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_category
 import com.mileway.core.ui.resources.logging_expense_history
@@ -93,6 +94,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ExpenseHistoryScreen(
     onBack: () -> Unit,
     onOpenDetail: (String) -> Unit,
+    onAddExpense: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ExpenseViewModel = koinViewModel(),
 ) {
@@ -215,9 +217,14 @@ fun ExpenseHistoryScreen(
                 onRetry = { viewModel.onAction(ExpenseAction.Refresh) },
             ) { data ->
                 if (data.records.isEmpty()) {
+                    // A first-time "no expenses" screen that only says data will "appear here"
+                    // leaves the user with no path forward — add the CTA that actually gets them
+                    // to their first record, same affordance as the FAB/tab that reaches this screen.
                     DefaultEmptyState(
                         title = stringResource(Res.string.logging_no_expenses_title),
                         subtitle = stringResource(Res.string.logging_no_expenses_subtitle),
+                        ctaLabel = stringResource(Res.string.logging_add_expense_title),
+                        onCta = onAddExpense,
                     )
                 } else {
                     // Records arrive already sorted from the VM. Keep date-bucket headers only when sorting

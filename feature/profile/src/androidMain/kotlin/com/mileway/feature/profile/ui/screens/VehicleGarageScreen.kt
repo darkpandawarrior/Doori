@@ -63,6 +63,7 @@ import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.rememberMediaCaptureLauncher
+import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
@@ -92,34 +93,46 @@ fun VehicleGarageScreen(
     Scaffold(contentWindowInsets = WindowInsets(0, 0, 0, 0), modifier = modifier) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             GarageHeader(onBack = onBack, verification = state.verification)
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(DesignTokens.Spacing.l),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-            ) {
-                items(state.vehicles, key = { it.id }) { vehicle ->
-                    VehicleCard(
-                        vehicle = vehicle,
-                        availabilityEditorEnabled = state.availabilityEditorEnabled,
-                        selfAuditEnabled = state.selfAuditEnabled,
-                        onSetActive = { viewModel.setActive(vehicle.id) },
-                        onRemove = { viewModel.removeVehicle(vehicle.id) },
-                        onToggleService = { viewModel.toggleService(vehicle.id, it) },
-                        onSetAvailability = { start, end, rate -> viewModel.setAvailability(vehicle.id, start, end, rate) },
-                        onClearAvailability = { viewModel.clearAvailability(vehicle.id) },
-                        onOpenSelfAudit = { onOpenSelfAudit(vehicle.id) },
-                    )
-                }
-                if (state.canAddVehicle) {
-                    item {
-                        OutlinedButton(onClick = { showAddSheet = true }, modifier = Modifier.fillMaxWidth()) {
-                            Icon(Icons.Default.Add, contentDescription = null)
-                            Spacer(Modifier.width(DesignTokens.Spacing.s))
-                            Text(grv("garage_add_vehicle", "Add vehicle"))
+            // EMPTY: never had a vehicle — say what the garage is for and how to add the first
+            // one, rather than a bare list with only a floating "Add vehicle" row.
+            if (state.vehicles.isEmpty()) {
+                DefaultEmptyState(
+                    icon = Icons.Default.DirectionsCar,
+                    title = grv("garage_empty_title", "No vehicles yet"),
+                    subtitle = grv("garage_empty_subtitle", "Add a vehicle to track trips, services and verification for it."),
+                    ctaLabel = grv("garage_add_vehicle", "Add vehicle"),
+                    onCta = { showAddSheet = true },
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(DesignTokens.Spacing.l),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+                ) {
+                    items(state.vehicles, key = { it.id }) { vehicle ->
+                        VehicleCard(
+                            vehicle = vehicle,
+                            availabilityEditorEnabled = state.availabilityEditorEnabled,
+                            selfAuditEnabled = state.selfAuditEnabled,
+                            onSetActive = { viewModel.setActive(vehicle.id) },
+                            onRemove = { viewModel.removeVehicle(vehicle.id) },
+                            onToggleService = { viewModel.toggleService(vehicle.id, it) },
+                            onSetAvailability = { start, end, rate -> viewModel.setAvailability(vehicle.id, start, end, rate) },
+                            onClearAvailability = { viewModel.clearAvailability(vehicle.id) },
+                            onOpenSelfAudit = { onOpenSelfAudit(vehicle.id) },
+                        )
+                    }
+                    if (state.canAddVehicle) {
+                        item {
+                            OutlinedButton(onClick = { showAddSheet = true }, modifier = Modifier.fillMaxWidth()) {
+                                Icon(Icons.Default.Add, contentDescription = null)
+                                Spacer(Modifier.width(DesignTokens.Spacing.s))
+                                Text(grv("garage_add_vehicle", "Add vehicle"))
+                            }
                         }
                     }
+                    item { Spacer(Modifier.navigationBarsPadding()) }
                 }
-                item { Spacer(Modifier.navigationBarsPadding()) }
             }
         }
     }
@@ -350,9 +363,14 @@ private fun AddVehicleSheet(
                 optionLabel = { vehicleTypeLabel(it) },
                 onSelect = { typeKey = it },
             )
-            OutlinedTextField(value = reg, onValueChange = {
-                reg = it.uppercase()
-            }, label = { Text(grv("garage_reg", "Registration number")) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(
+                value = reg,
+                onValueChange = { reg = it.uppercase() },
+                label = { Text(grv("garage_reg", "Registration number")) },
+                placeholder = { Text(grv("garage_reg_placeholder", "e.g. MH12AB1234")) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
                 OutlinedTextField(
                     value = year,
