@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.location_you_are_here
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -71,7 +72,8 @@ fun CurrentLocationPinMap(
     pin: LocationPin?,
     dotColor: Color = Color.White,
     dotAlpha: Float = 0.20f,
-    pinColor: Color = Color(0xFFFF5252),
+    // Position on the map, same lineage as the route polyline — see WorldMapBackdrop.markerColor.
+    pinColor: Color = MilewayRoles.distance,
     // Decorative-only surfaces (the short home header) pass false: the map + a static ping still
     // render, but there's no tap hotspot and no "you are here" callout — the callout is 176dp wide
     // and pops 14dp below the pin, which clips in a ~96dp header. The full interactive pin belongs

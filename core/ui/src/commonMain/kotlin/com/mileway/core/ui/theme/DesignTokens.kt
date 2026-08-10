@@ -184,14 +184,19 @@ object DesignTokens {
      * are theme-aware and stay AA on the light Daybreak surface too. Reach here only from
      * non-composable code (data classes, previews) that genuinely can't read the theme.
      */
+    @Deprecated(
+        "Theme-blind: these are fixed Ember hexes, so a screen reading them renders identically " +
+            "under all ten design directions. Use the Layer-2 roles instead — MilewayRoles.approved / " +
+            "pending / rejected / informational / inactive. See theme/LAYERS.md for the mapping.",
+    )
     object StatusColors {
-        val success = Color(0xFF46C46B) // Muted green (Ember) - approved, active, completed
-        val warning = Color(0xFFF2C14E) // Amber - pending, low balance
-        val error = Color(0xFFF2545B) // Red - rejected, critical, overdue
-        val info = Color(0xFF5BA8F5) // Blue - informational, processing
-        val neutral = Color(0xFF9AA5A0) // Gray - draft, inactive
+        val success = Color(0xFF46C46B) // → MilewayRoles.approved
+        val warning = Color(0xFFF2C14E) // → MilewayRoles.pending
+        val error = Color(0xFFF2545B) // → MilewayRoles.rejected (state) / .destructive (action)
+        val info = Color(0xFF5BA8F5) // → MilewayRoles.informational
+        val neutral = Color(0xFF9AA5A0) // → MilewayRoles.inactive
 
-        /** Badge background color for counts */
+        /** Badge background color for counts. → `MilewayRoles.tint(MilewayRoles.pending)`. */
         val badgeRed = Color(0xFFF2545B)
     }
 

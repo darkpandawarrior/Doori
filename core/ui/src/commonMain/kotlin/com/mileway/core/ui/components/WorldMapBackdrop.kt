@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import com.mileway.core.ui.theme.MilewayRoles
 
 /**
  * A terminal-style world map painted entirely on [Canvas] from an embedded, equirectangular
@@ -91,7 +92,10 @@ internal fun worldMapOffset(
  * @param dotColor colour of the land dots.
  * @param dotAlpha per-dot opacity (kept low so the map stays a background texture).
  * @param markerLatLng optional (latitude, longitude) to pin; null draws no marker.
- * @param markerColor colour of the location pin (should contrast the header behind it).
+ * @param markerColor colour of the location pin (should contrast the header behind it). Defaults
+ *   to [MilewayRoles.distance] — this is a position on the map, the same lineage as the route
+ *   polyline, not a status or an action. It was red before only because red pops on a dark map,
+ *   not because the pin meant anything destructive.
  */
 @Composable
 fun WorldMapBackdrop(
@@ -99,7 +103,7 @@ fun WorldMapBackdrop(
     dotColor: Color = Color.White,
     dotAlpha: Float = 0.20f,
     markerLatLng: Pair<Double, Double>? = null,
-    markerColor: Color = Color(0xFFFF5252),
+    markerColor: Color = MilewayRoles.distance,
 ) {
     val bits = landBits
     Canvas(modifier = modifier) {

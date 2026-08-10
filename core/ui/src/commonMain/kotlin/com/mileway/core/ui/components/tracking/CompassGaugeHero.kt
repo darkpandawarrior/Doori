@@ -49,6 +49,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,6 +79,8 @@ import com.mileway.core.ui.resources.core_analyzing_activity
 import com.mileway.core.ui.resources.core_unit_kmh
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
+import com.mileway.core.ui.theme.rotateHue
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -128,12 +131,14 @@ enum class GaugeSignal {
     POOR,
 }
 
-/** Resolve a [GaugeSignal] to its accent color from the shared status palette. */
+/** Resolve a [GaugeSignal] to its accent color from the Layer-2 role palette. */
+@Composable
+@ReadOnlyComposable
 private fun GaugeSignal.accentColor(): Color =
     when (this) {
-        GaugeSignal.GOOD -> DesignTokens.StatusColors.success
-        GaugeSignal.FAIR -> DesignTokens.StatusColors.warning
-        GaugeSignal.POOR -> DesignTokens.StatusColors.error
+        GaugeSignal.GOOD -> MilewayRoles.approved
+        GaugeSignal.FAIR -> MilewayRoles.pending
+        GaugeSignal.POOR -> MilewayRoles.rejected
     }
 
 /** Activity classifications used by the [ActivityTimeline] gauge. */
@@ -157,14 +162,28 @@ data class ActivitySegment(
     val fraction: Float,
 )
 
-/** Stable display color for an [ActivityType] (independent of theme for legibility). */
-private fun ActivityType.color(): Color =
-    when (this) {
-        ActivityType.WALKING -> Color(0xFF43A047) // green
-        ActivityType.CYCLING -> Color(0xFF1E88E5) // blue
-        ActivityType.DRIVING -> Color(0xFFFFA726) // amber
-        ActivityType.IDLE -> Color(0xFF90A4AE) // blue-grey
+/**
+ * Display color for an [ActivityType] segment.
+ *
+ * Categorical data, not a product state — none of the twelve Layer-2 roles means "walking" or
+ * "cycling" (LAYERS.md's chart-series exception). [IDLE] is a genuine role match (not-yet-started)
+ * so it takes [MilewayRoles.inactive] directly; the three active types are spread off the live
+ * accent by hue rotation — the same tone-preserving primitive [MilewayDomain] already uses for
+ * per-feature identity — so the timeline stays on-theme instead of carrying dead hexes. No shared
+ * hue-rotation-series helper exists in theme/ yet; AnalyticsHomeScreen.kt:617 wants the same thing,
+ * so promote this to one there if a third caller shows up.
+ */
+@Composable
+@ReadOnlyComposable
+private fun ActivityType.color(): Color {
+    val accent = MaterialTheme.colorScheme.primary
+    return when (this) {
+        ActivityType.WALKING -> accent
+        ActivityType.CYCLING -> accent.rotateHue(120.0)
+        ActivityType.DRIVING -> accent.rotateHue(240.0)
+        ActivityType.IDLE -> MilewayRoles.inactive
     }
+}
 
 /** Human-readable label for an [ActivityType]. */
 private fun ActivityType.label(): String =

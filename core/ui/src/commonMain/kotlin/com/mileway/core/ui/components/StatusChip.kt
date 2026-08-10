@@ -9,43 +9,67 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 
 /**
  * The six status tones, a generalisation of cards' `CardStatusBadge`, reused by every
  * status chip / history list across the app.
+ *
+ * [color] is a static, non-composable fallback — same shape as [DesignTokens.StatusColors], and
+ * kept in lock-step with it on purpose, for the callers (several feature-module screens, plus
+ * [com.mileway.core.ui.components.DistanceLedgerBar]'s [com.mileway.core.ui.components.Deduction])
+ * that build a [StatusTone] outside composition and can't reach the theme. Inside a composable,
+ * use [roleColor] instead — it resolves to the real Layer-2 role, so it follows the active design
+ * direction; [color] renders identically under all ten. [StatusChip] itself already does this.
  */
 enum class StatusTone(val color: Color) {
-    // Aligned with Design Language v2 semantic tokens (MilewayColors dark-surface values).
-    Success(Color(0xFF46C46B)),
-    Warning(Color(0xFFF2C14E)),
-    Error(Color(0xFFF2545B)),
-    Info(Color(0xFF5BA8F5)),
-    Neutral(Color(0xFF9AA5A0)),
-    Danger(Color(0xFFF2545B)),
+    // Values delegate to DesignTokens.StatusColors — the single declared home for this static
+    // fallback — rather than repeating the hexes here.
+    Success(DesignTokens.StatusColors.success),
+    Warning(DesignTokens.StatusColors.warning),
+    Error(DesignTokens.StatusColors.error),
+    Info(DesignTokens.StatusColors.info),
+    Neutral(DesignTokens.StatusColors.neutral),
+    Danger(DesignTokens.StatusColors.error),
 }
 
-/** A small tinted status pill: [tone]-coloured label on a 15%-alpha fill. */
+/** This tone's Layer-2 role colour — theme-aware, unlike the static [StatusTone.color]. */
+@Composable
+@ReadOnlyComposable
+fun StatusTone.roleColor(): Color =
+    when (this) {
+        StatusTone.Success -> MilewayRoles.approved
+        StatusTone.Warning -> MilewayRoles.pending
+        StatusTone.Error -> MilewayRoles.rejected
+        StatusTone.Info -> MilewayRoles.informational
+        StatusTone.Neutral -> MilewayRoles.inactive
+        StatusTone.Danger -> MilewayRoles.rejected
+    }
+
+/** A small tinted status pill: [tone]-coloured label on the one sanctioned tint fill. */
 @Composable
 fun StatusChip(
     label: String,
     tone: StatusTone,
     modifier: Modifier = Modifier,
 ) {
+    val role = tone.roleColor()
     Surface(
         modifier = modifier,
-        color = tone.color.copy(alpha = 0.15f),
+        color = MilewayRoles.tint(role),
         shape = DesignTokens.Shape.button,
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = tone.color,
+            color = role,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
         )

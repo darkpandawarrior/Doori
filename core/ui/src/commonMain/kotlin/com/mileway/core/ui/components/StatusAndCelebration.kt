@@ -449,6 +449,12 @@ private fun getNetworkTypeIcon(
 @Composable
 fun ConfettiBurst(
     modifier: Modifier = Modifier,
+    // Genuine LAYERS.md gap, flagged rather than forced: none of the twelve Layer-2 roles means
+    // "celebration confetti", and the individual hues here happen to collide with pending/approved/
+    // policyViolation in the migration map by coincidence of hue, not meaning — routing them through
+    // those roles would tint a success burst partly "rejected"-red. Left as a genuinely-raw,
+    // decorative exception (LAYERS.md's QR/signature-ink category) until the app has a second
+    // celebratory-palette caller worth a real theme/ token for.
     colorPalette: List<Color> =
         listOf(
             Color(0xFFFFC107),

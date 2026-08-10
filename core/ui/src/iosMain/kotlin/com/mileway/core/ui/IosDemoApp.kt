@@ -126,6 +126,8 @@ private fun DemoHeader() {
             Modifier
                 .fillMaxWidth()
                 .background(
+                    // Raw literal is intentional: this is a demo-harness header, not product UI —
+                    // LAYERS.md lists IosDemoApp.kt as a harness allowed to pin a colour on purpose.
                     Brush.verticalGradient(listOf(Color(0xFF1A1A2E), MaterialTheme.colorScheme.primary)),
                 )
                 .padding(horizontal = 24.dp, vertical = 36.dp),

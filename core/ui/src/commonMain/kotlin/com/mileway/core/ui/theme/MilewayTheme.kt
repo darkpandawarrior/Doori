@@ -121,8 +121,21 @@ fun MilewayTheme(
             }
         }
 
+    // Layer 2 (SEMANTIC): the product's meaning vocabulary, derived once from whichever Layer-1
+    // base won above. Provided here and NOT re-derived by MilewayDomainTheme — a domain may tint
+    // the accent, it may never change what "approved" or an amount looks like.
+    val roleColors =
+        remember(milewayTheme, useSystemColors, colorScheme, semanticColors) {
+            if (milewayTheme != null && !useSystemColors && customSeedHex.isBlank()) {
+                milewayTheme.spec.roleColors()
+            } else {
+                derivedRoleColors(colorScheme, semanticColors)
+            }
+        }
+
     CompositionLocalProvider(
         LocalMilewaySemanticColors provides semanticColors,
+        LocalMilewayRoleColors provides roleColors,
         // E.2: app-wide map provider, available to any map host via LocalMapProvider.current.
         LocalMapProvider provides mapProvider,
     ) {

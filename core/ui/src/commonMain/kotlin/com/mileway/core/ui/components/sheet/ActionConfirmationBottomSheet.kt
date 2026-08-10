@@ -48,6 +48,7 @@ import com.mileway.core.ui.resources.core_plural_action_items
 import com.mileway.core.ui.resources.core_remarks_placeholder
 import com.mileway.core.ui.resources.core_remarks_required
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -69,12 +70,16 @@ data class ActionConfirmationTonePalette(
 fun rememberTonePalette(tone: ActionConfirmationToneType): ActionConfirmationTonePalette {
     val scheme = MaterialTheme.colorScheme
     return when (tone) {
-        ActionConfirmationToneType.Success ->
-            ActionConfirmationTonePalette(Icons.Filled.CheckCircle, Color(0xFF12B76A), Color.White, Color(0xFF12B76A))
+        ActionConfirmationToneType.Success -> {
+            val approved = MilewayRoles.approved
+            ActionConfirmationTonePalette(Icons.Filled.CheckCircle, approved, MilewayRoles.onFilled(approved), approved)
+        }
         ActionConfirmationToneType.Danger ->
             ActionConfirmationTonePalette(Icons.Filled.Warning, scheme.error, scheme.onError, scheme.error)
-        ActionConfirmationToneType.Warning ->
-            ActionConfirmationTonePalette(Icons.Filled.Warning, Color(0xFFF59E0B), Color.White, Color(0xFFF59E0B))
+        ActionConfirmationToneType.Warning -> {
+            val pending = MilewayRoles.pending
+            ActionConfirmationTonePalette(Icons.Filled.Warning, pending, MilewayRoles.onFilled(pending), pending)
+        }
         ActionConfirmationToneType.Info ->
             ActionConfirmationTonePalette(Icons.Filled.Info, scheme.primary, scheme.onPrimary, scheme.primary)
     }
@@ -131,7 +136,7 @@ fun ActionConfirmationBottomSheet(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Box(
-                modifier = Modifier.size(64.dp).background(palette.containerColor.copy(alpha = 0.18f), DesignTokens.Shape.button),
+                modifier = Modifier.size(64.dp).background(MilewayRoles.tint(palette.containerColor), DesignTokens.Shape.button),
                 contentAlignment = Alignment.Center,
             ) {
                 Box(
