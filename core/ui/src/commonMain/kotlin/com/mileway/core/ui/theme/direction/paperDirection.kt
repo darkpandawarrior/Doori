@@ -1,0 +1,235 @@
+package com.mileway.core.ui.theme
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+/**
+ * Direction: **Paper**. Light-first — a claim is a document, not a terminal readout. Warm
+ * off-white surfaces, strong dark ink text, colour reserved almost entirely for status; a real
+ * (not inverted) dark counterpart, [PaperNightSpec], covers night driving.
+ *
+ * File ownership: this whole direction lives in this one file. [MilewayThemes.kt] gets exactly
+ * one enum entry ([MilewayThemeVariant.PAPER]) referencing [PaperSpec] below — nothing else
+ * changes there. Declared in the shared `com.mileway.core.ui.theme` package (despite living under
+ * `theme/direction/`, a Kotlin package need not mirror its directory) so that one-line addition
+ * needs no new import either.
+ *
+ * Registering only the light spec as the flagship keeps that MilewayThemes.kt edit to the single
+ * entry the five-way merge needs — see [PaperNightSpec]'s doc for why the dark counterpart isn't
+ * a second enum entry.
+ */
+internal val PaperSpec =
+    MilewaySchemeSpec(
+        canvas = Color(0xFFF7F3EA),
+        surface = Color(0xFFFFFFFF),
+        surfaceCard = Color(0xFFFFFFFF),
+        surfaceRaised = Color(0xFFF1ECDF),
+        surfaceHighest = Color(0xFFE8E1CC),
+        border = Color(0xFFDDD3B8),
+        text = Color(0xFF1F1B14),
+        textMuted = Color(0xFF6E6353),
+        accent = Color(0xFF1E3A5F),
+        accentDim = Color(0xFF14293F),
+        accentGlow = Color(0xFF2E4F7A),
+        onAccent = Color(0xFFFFFFFF),
+        accentContainer = Color(0xFFD9E3EE),
+        onAccentContainer = Color(0xFF0F2338),
+        warning = Color(0xFF8A5A0A),
+        danger = Color(0xFFA3291E),
+        info = Color(0xFF1D5FA8),
+        success = Color(0xFF1B7A43),
+        // A driving screen should never glare, day or night — Paper's depth is a real shadow
+        // (see PaperElevation), not a light-emitting edge like Ember/Matrix/Ion.
+        useGlow = false,
+    )
+
+/**
+ * The night counterpart — hand-tuned separately, not an algorithmic inversion of [PaperSpec]:
+ * darker warm canvas (not neutral black), lightened ink-blue for AA on dark, brighter-but-still-
+ * muted status hues.
+ *
+ * Not registered as a second [MilewayThemeVariant] entry. `MilewayThemeVariant.isLight` is fixed
+ * per entry and `MilewayTheme()` ignores its `darkTheme` param whenever a curated variant is
+ * selected, so a second mode needs a second entry — and the brief caps this direction's
+ * `MilewayThemes.kt` edit at exactly one, since five directions land concurrently. [PaperTheme]
+ * below is the complete, compiling way to render this dark half today (`PaperTheme(darkTheme =
+ * true) { ... }`); promoting it to `PAPER_NIGHT(...)` in the enum is a one-entry follow-up once a
+ * direction is chosen.
+ */
+internal val PaperNightSpec =
+    MilewaySchemeSpec(
+        canvas = Color(0xFF14120E),
+        surface = Color(0xFF1C1912),
+        surfaceCard = Color(0xFF1C1912),
+        surfaceRaised = Color(0xFF241F16),
+        surfaceHighest = Color(0xFF2E271A),
+        border = Color(0xFF3A3324),
+        text = Color(0xFFF1E9D8),
+        textMuted = Color(0xFFAA9F89),
+        accent = Color(0xFF8FB4E0),
+        accentDim = Color(0xFF5F86B4),
+        accentGlow = Color(0xFFAEC9EC),
+        onAccent = Color(0xFF0C1B2C),
+        accentContainer = Color(0xFF223349),
+        onAccentContainer = Color(0xFFCBDEF2),
+        warning = Color(0xFFE0A64B),
+        danger = Color(0xFFE2685C),
+        info = Color(0xFF6FA6DD),
+        success = Color(0xFF5FBE84),
+        useGlow = false,
+    )
+
+/**
+ * The money/value semantic role this direction was asked to name explicitly. Deliberately its
+ * own hue, not borrowed from [MilewaySchemeSpec.success] — a reimbursement figure is a fact to be
+ * verified, not a "good news" checkmark, so the number and a success chip must never share a
+ * colour signal next to each other. A deeper, more muted green than `success` reads as ledger ink
+ * rather than a status badge.
+ */
+data class PaperMoneyColors(
+    val value: Color,
+    val onValue: Color,
+    val valueContainer: Color,
+    val onValueContainer: Color,
+)
+
+internal val PaperMoneyLight =
+    PaperMoneyColors(
+        value = Color(0xFF3B6E4E),
+        onValue = Color(0xFFFFFFFF),
+        valueContainer = Color(0xFFDCEADD),
+        onValueContainer = Color(0xFF163823),
+    )
+
+internal val PaperMoneyDark =
+    PaperMoneyColors(
+        value = Color(0xFF8FC9A0),
+        onValue = Color(0xFF0D2416),
+        valueContainer = Color(0xFF1E3526),
+        onValueContainer = Color(0xFFC8E9D1),
+    )
+
+/** Fallback mirrors [PaperMoneyLight] so a screen that forgets to wrap in [PaperTheme] still reads on-brand. */
+val LocalPaperMoneyColors: ProvidableCompositionLocal<PaperMoneyColors> =
+    staticCompositionLocalOf { PaperMoneyLight }
+
+/** `PaperColors.money`-style accessor, mirroring [MilewayColors]'s ergonomics for this direction's extra role. */
+object PaperColors {
+    val money: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalPaperMoneyColors.current.value
+    val onMoney: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalPaperMoneyColors.current.onValue
+    val moneyContainer: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalPaperMoneyColors.current.valueContainer
+    val onMoneyContainer: Color
+        @Composable @ReadOnlyComposable
+        get() = LocalPaperMoneyColors.current.onValueContainer
+}
+
+/**
+ * Paper's typography scale. The explicit rule this direction fixes:
+ *
+ * - **Serif** ([FontFamily.Serif]) — `headlineLarge/Medium/Small` and `titleLarge` only. Screen
+ *   headers and hero card titles get the document voice.
+ * - **Sans** ([FontFamily.Default]) — everything else that is chrome: `titleMedium/Small`, all
+ *   `body*`, all `label*` (buttons, chips, nav). Small UI text needs legibility, not character.
+ * - **Monospace** — data only, never chrome. Reached exactly the way the rest of the app already
+ *   does: `MaterialTheme.typography.<role>.dataStyle()` or `MilewayType.dataLarge/Medium/Small`
+ *   (both defined once in `Type.kt`, reused here unchanged). Distances, currency amounts,
+ *   odometer/reference IDs, timestamps needing tabular alignment — nothing else.
+ *
+ * Conflating those two (mono for chrome AND data) was the #1 flaw the reference screenshots
+ * called out; this scale makes the conflation impossible; there is no monospace entry below at all.
+ */
+val PaperTypography =
+    Typography(
+        headlineLarge = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 32.sp, letterSpacing = 0.sp),
+        headlineMedium = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 28.sp, letterSpacing = 0.sp),
+        headlineSmall = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 24.sp, letterSpacing = 0.sp),
+        titleLarge = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 22.sp, letterSpacing = 0.sp),
+        titleMedium = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, letterSpacing = 0.15.sp),
+        titleSmall = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, letterSpacing = 0.1.sp),
+        bodyLarge = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.3.sp),
+        bodyMedium = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.2.sp),
+        bodySmall = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.3.sp),
+        labelLarge = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, letterSpacing = 0.2.sp),
+        labelMedium = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 12.sp, letterSpacing = 0.2.sp),
+        labelSmall = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 11.sp, letterSpacing = 0.2.sp),
+    )
+
+/**
+ * Corner language: a crisp index-card radius, tighter than the app-wide 12–16dp squared-rounded
+ * scale in [DesignTokens.Shape] — sharper corners read as a printed sheet rather than a soft app
+ * tile. Buttons still take `DesignTokens.Shape.button` explicitly (that's every theme's contract,
+ * unchanged here); this [Shapes] only governs what Material sources from `MaterialTheme.shapes`
+ * (Card, chips/menus/text fields, dialogs/sheets).
+ */
+private val PaperShapes =
+    Shapes(
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(6.dp),
+        medium = RoundedCornerShape(8.dp),
+        large = RoundedCornerShape(10.dp),
+        extraLarge = RoundedCornerShape(10.dp),
+    )
+
+/**
+ * Elevation as real depth, not glow. Ember/Matrix/Ion raise a surface with a light-emitting edge;
+ * Paper raises it the way a sheet lifts off a desk — a genuine Material shadow. Values stay
+ * modest (a document doesn't float): pair with `CardDefaults.cardElevation(defaultElevation = ...)`.
+ */
+object PaperElevation {
+    val resting = 1.dp
+    val raised = 3.dp
+    val prominent = 6.dp
+}
+
+/**
+ * Full Paper theme root — colour + [PaperTypography] + [PaperShapes] + the [PaperColors] money
+ * role, all in one call. Screens render with `PaperTheme { ... }` the same way they render with
+ * `MilewayTheme { ... }` today; swap [darkTheme] (or follow the system default) to get
+ * [PaperNightSpec]'s counterpart.
+ *
+ * This direction doesn't route through `MilewayTheme()`'s picker: that composable hardcodes
+ * `MilewayTypography`/the app-wide `Shapes` for every curated variant (see MilewayTheme.kt), and
+ * changing that to be per-variant is a shared-file edit five concurrent one-file directions can't
+ * safely make at once. `PaperTheme` is the complete, self-contained way this direction compiles
+ * and renders today; wiring the picker to delegate typography/shapes per variant is a small,
+ * explicit follow-up once a direction is chosen.
+ */
+@Composable
+fun PaperTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    val spec = if (darkTheme) PaperNightSpec else PaperSpec
+    val money = if (darkTheme) PaperMoneyDark else PaperMoneyLight
+    CompositionLocalProvider(
+        LocalMilewaySemanticColors provides spec.semanticColors(),
+        LocalPaperMoneyColors provides money,
+    ) {
+        MaterialTheme(
+            colorScheme = spec.toColorScheme(!darkTheme),
+            typography = PaperTypography,
+            shapes = PaperShapes,
+            content = content,
+        )
+    }
+}

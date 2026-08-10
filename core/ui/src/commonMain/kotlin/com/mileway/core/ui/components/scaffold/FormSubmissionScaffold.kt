@@ -18,13 +18,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -36,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.MilewayPrimaryButton
+import com.mileway.core.ui.components.MilewaySecondaryButton
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_action_save_draft
 import com.mileway.core.ui.resources.core_action_submit
@@ -112,29 +112,29 @@ fun FormSubmissionScaffold(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     if (onSaveDraft != null) {
-                        OutlinedButton(
+                        MilewaySecondaryButton(
+                            text = saveDraftLabel,
                             onClick = onSaveDraft,
                             enabled = !isSubmitting,
                             modifier = Modifier.weight(1f).height(52.dp),
-                            shape = DesignTokens.Shape.button,
-                        ) { Text(saveDraftLabel) }
+                        )
                     }
-                    Button(
+                    MilewayPrimaryButton(
+                        text = submitLabel,
                         onClick = onSubmit,
                         enabled = canSubmit && !isSubmitting,
                         modifier = Modifier.weight(1f).height(52.dp),
-                        shape = DesignTokens.Shape.button,
-                    ) {
-                        submitIcon?.let { icon ->
-                            Icon(
-                                imageVector = icon,
-                                contentDescription = null,
-                                modifier = Modifier.size(DesignTokens.IconSize.actionTile),
-                            )
-                            Spacer(Modifier.width(DesignTokens.Spacing.s))
-                        }
-                        Text(submitLabel, fontWeight = FontWeight.Bold)
-                    }
+                        leadingIcon =
+                            submitIcon?.let { icon ->
+                                {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(DesignTokens.IconSize.actionTile),
+                                    )
+                                }
+                            },
+                    )
                 }
             }
         },

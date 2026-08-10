@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_cd_close
 import com.mileway.core.ui.resources.core_cd_selected
 import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
@@ -27,7 +30,10 @@ import org.jetbrains.compose.resources.stringResource
  * Tier 2 of the three-tier sheet system (see [MilewayActionSheet], [MilewayAlertDialog]): choose
  * one of a list — vehicle, purpose, office, delegate. A single tap both selects AND dismisses; on
  * purpose there is no "Done" button here — a Done button on a single-select list is a second tap
- * that buys nothing. Built on [AppActionSheet] for the shared modal chrome (title + insets); no
+ * that buys nothing. Built on [AppActionSheet] for the shared modal chrome (insets + raised
+ * surface); the header (bold title + close affordance) is rendered here rather than via
+ * [AppActionSheet]'s own `title` slot, matching [MilewayActionSheet]'s tier-1 header exactly
+ * without adding a close button to [AppActionSheet]'s dozen other, unrelated callers. No
  * dismiss-guard needed here since a picker never holds unsaved data of its own.
  *
  * Takes plain data + lambdas only (no ViewModel), so the gallery can render it directly. For a
@@ -43,7 +49,21 @@ fun <T> MilewayPickerSheet(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    AppActionSheet(onDismiss = onDismiss, modifier = modifier, title = title) {
+    AppActionSheet(onDismiss = onDismiss, modifier = modifier) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+            )
+            // Swipe/scrim dismissal alone isn't reliably accessible — same rationale as
+            // MilewayActionSheet's close button, so tier 2 gets the identical affordance.
+            IconButton(onClick = onDismiss, modifier = Modifier.heightIn(min = DesignTokens.IconSize.minTouchTarget)) {
+                Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.core_cd_close))
+            }
+        }
+
         options.forEach { option ->
             val isSelected = option.value == selected
             Row(

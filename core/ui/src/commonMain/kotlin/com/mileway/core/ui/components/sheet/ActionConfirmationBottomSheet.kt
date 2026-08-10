@@ -86,6 +86,12 @@ fun rememberTonePalette(tone: ActionConfirmationToneType): ActionConfirmationTon
  * primary/secondary button pair. Replaces confirmation `AlertDialog`s app-wide.
  *
  * @param onConfirm receives the entered remarks (empty when the remarks field is hidden).
+ * @param confirmMatchesTone Whether the confirm button's fill follows [tone]'s colour (the
+ *   default — a `Danger`-toned confirmation usually means confirming IS the risky choice, e.g.
+ *   "continue past a confirmed duplicate"). Pass `false` when [tone] describes the *situation*
+ *   (a rejected scan, a mismatched reading) but confirming is actually the safe, recommended
+ *   path — otherwise the one legitimate action ends up styled identically to the destructive
+ *   ones elsewhere in the app, and the button language stops meaning anything.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +104,7 @@ fun ActionConfirmationBottomSheet(
     dismissLabel: String = stringResource(Res.string.action_cancel),
     icon: ImageVector = Icons.AutoMirrored.Filled.Help,
     tone: ActionConfirmationToneType = ActionConfirmationToneType.Success,
+    confirmMatchesTone: Boolean = true,
     showRemarksField: Boolean = false,
     isRemarksMandatory: Boolean = false,
     remarksPlaceholder: String = stringResource(Res.string.core_remarks_placeholder),
@@ -190,10 +197,17 @@ fun ActionConfirmationBottomSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.button,
                 colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = palette.primaryColor,
-                        contentColor = palette.onPrimaryColor,
-                    ),
+                    if (confirmMatchesTone) {
+                        ButtonDefaults.buttonColors(
+                            containerColor = palette.primaryColor,
+                            contentColor = palette.onPrimaryColor,
+                        )
+                    } else {
+                        // The header stays tone-coloured (something genuinely needs attention), but
+                        // the confirm action itself is the safe/recommended one — it gets the app's
+                        // ordinary primary colour, not the tone's, so it doesn't read as risky.
+                        ButtonDefaults.buttonColors()
+                    },
             ) {
                 Text(confirmLabel, fontWeight = FontWeight.Bold)
             }
@@ -203,7 +217,9 @@ fun ActionConfirmationBottomSheet(
                 modifier = Modifier.fillMaxWidth().height(52.dp),
                 shape = DesignTokens.Shape.button,
             ) {
-                Text(dismissLabel, fontWeight = FontWeight.Bold)
+                // Medium, not Bold: the confirm button above already carries the visual weight via
+                // its fill — a second bold label here read as "near-equal weight" against it.
+                Text(dismissLabel, fontWeight = FontWeight.Medium)
             }
         }
     }

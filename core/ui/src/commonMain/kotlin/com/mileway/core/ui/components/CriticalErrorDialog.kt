@@ -8,13 +8,11 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_action_exit
-import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -23,6 +21,15 @@ import org.jetbrains.compose.resources.stringResource
  *
  * Deliberately has no scrim-tap/back-press dismiss path: [AlertDialog]'s `onDismissRequest` is a
  * no-op, so the dialog only closes via [onRetry] or [onExit].
+ *
+ * Severity is carried by the [Icons.Filled.Warning] header tint alone. An earlier version washed
+ * the whole dialog in `errorContainer` and set title/body text to `onErrorContainer` — measured
+ * contrast on this theme's dark surfaces was ~4.2:1, under the 4.5:1 AA floor for body text (title
+ * cleared the 3:1 large-text floor, the description didn't). Leaving `containerColor`/text colour
+ * unset falls back to `AlertDialogDefaults`' own `surface`/`onSurface`/`onSurfaceVariant` roles,
+ * which measure >9:1 on every shipped theme. [onRetry] is the recommended, non-destructive action
+ * — it gets [MilewayPrimaryButton], not the error-red tint the old `TextButton` used; red is
+ * reserved for actions that destroy data, and retrying isn't one.
  */
 @Composable
 fun CriticalErrorDialog(
@@ -42,18 +49,13 @@ fun CriticalErrorDialog(
                 tint = MaterialTheme.colorScheme.error,
             )
         },
-        title = { Text(text = title, color = MaterialTheme.colorScheme.onErrorContainer) },
-        text = { Text(text = message, color = MaterialTheme.colorScheme.onErrorContainer) },
-        containerColor = MaterialTheme.colorScheme.errorContainer,
+        title = { Text(text = title) },
+        text = { Text(text = message) },
         confirmButton = {
-            TextButton(onClick = onRetry, shape = DesignTokens.Shape.button) {
-                Text(text = stringResource(Res.string.action_retry), color = MaterialTheme.colorScheme.error)
-            }
+            MilewayPrimaryButton(text = stringResource(Res.string.action_retry), onClick = onRetry)
         },
         dismissButton = {
-            TextButton(onClick = onExit, shape = DesignTokens.Shape.button) {
-                Text(text = stringResource(Res.string.core_action_exit), color = MaterialTheme.colorScheme.onErrorContainer)
-            }
+            MilewayTextButton(text = stringResource(Res.string.core_action_exit), onClick = onExit)
         },
     )
 }

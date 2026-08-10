@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -58,7 +56,7 @@ fun ErrorScreen(
             )
             if (onRetry != null) {
                 Spacer(Modifier.height(16.dp))
-                Button(onClick = onRetry, shape = DesignTokens.Shape.button) { Text(stringResource(Res.string.action_retry)) }
+                MilewayPrimaryButton(text = stringResource(Res.string.action_retry), onClick = onRetry)
             }
         }
     }
@@ -73,6 +71,7 @@ fun StatCard(
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.raised),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(value, style = MaterialTheme.typography.titleMedium)
@@ -107,9 +106,9 @@ fun TwoButtonRow(
     modifier: Modifier = Modifier,
 ) {
     Row(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        OutlinedButton(onClick = onSecondary, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(secondaryText) }
+        MilewaySecondaryButton(text = secondaryText, onClick = onSecondary, modifier = Modifier.weight(1f))
         Spacer(Modifier.width(12.dp))
-        Button(onClick = onPrimary, modifier = Modifier.weight(1f), shape = DesignTokens.Shape.button) { Text(primaryText) }
+        MilewayPrimaryButton(text = primaryText, onClick = onPrimary, modifier = Modifier.weight(1f))
     }
 }
 

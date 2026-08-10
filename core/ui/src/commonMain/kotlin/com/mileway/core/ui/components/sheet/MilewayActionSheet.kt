@@ -90,6 +90,11 @@ fun MilewayActionSheet(
         sheetState = sheetState,
         modifier = modifier,
         dragHandle = { BottomSheetDefaults.DragHandle() },
+        shape = DesignTokens.Shape.sheet,
+        // A raised container, not the base `surface` (M3's ModalBottomSheet default) — the sheet
+        // needs to read as a distinct elevated surface floating over the scrim/screen, not blend
+        // into it. surfaceContainerHigh is the theme's own "raised surface" token (MilewayThemes.kt).
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(
             modifier =
@@ -172,6 +177,11 @@ fun MilewayActionSheet(
             isMandatory = false,
             dismissLabel = discardCancelLabel.ifBlank { null },
             onDismiss = { showDiscardConfirm = false },
+            // Confirming here throws away whatever this sheet was holding (a recorded drive, an
+            // in-progress form) — that's the actual destructive action, so it earns the same red
+            // weight as any other irreversible choice. Without this it read as a generic, washed-out
+            // "error" prompt rather than a deliberate discard decision.
+            isDestructiveConfirm = true,
         )
     }
 }

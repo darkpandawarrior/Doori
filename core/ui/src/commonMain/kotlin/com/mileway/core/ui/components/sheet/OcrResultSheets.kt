@@ -15,12 +15,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.FileCopy
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -37,6 +35,8 @@ import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
+import com.mileway.core.ui.components.MilewayPrimaryButton
+import com.mileway.core.ui.components.MilewaySecondaryButton
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_action_done
 import com.mileway.core.ui.resources.media_action_continue_anyway
@@ -196,16 +196,16 @@ fun OcrReviewSheet(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                OutlinedButton(onClick = onIgnore, shape = DesignTokens.Shape.button, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(Res.string.media_action_ignore))
-                }
-                Button(
-                    onClick = { onUseData(edited.toMap()) },
-                    shape = DesignTokens.Shape.button,
+                MilewaySecondaryButton(
+                    text = stringResource(Res.string.media_action_ignore),
+                    onClick = onIgnore,
                     modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(Res.string.media_action_use_data))
-                }
+                )
+                MilewayPrimaryButton(
+                    text = stringResource(Res.string.media_action_use_data),
+                    onClick = { onUseData(edited.toMap()) },
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
@@ -244,9 +244,11 @@ fun OcrBatchResultsSheet(
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.l))
-            Button(onClick = onDone, shape = DesignTokens.Shape.button, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(Res.string.core_action_done))
-            }
+            MilewayPrimaryButton(
+                text = stringResource(Res.string.core_action_done),
+                onClick = onDone,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }

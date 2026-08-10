@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -53,6 +54,11 @@ private val MilewayShapes =
  *
  * @param milewayTheme the curated theme to apply; `null` falls back to the legacy seed path.
  *   When non-null it also dictates light/dark (Daybreak is light), so [darkTheme] is ignored.
+ * @param typography the type scale to apply. Defaults to the house [MilewayTypography]; a
+ *   direction with its own type scale (see `core/ui/theme/direction/`) passes its own here rather
+ *   than this file dispatching per-variant, so directions stay additive and merge-safe.
+ * @param shapes the corner/shape language to apply. Defaults to the house shape scheme, same
+ *   override pattern as [typography].
  */
 @Composable
 fun MilewayTheme(
@@ -63,6 +69,16 @@ fun MilewayTheme(
     useSystemColors: Boolean = ThemeDefaults.USE_SYSTEM_COLORS,
     paletteStyle: String = ThemeDefaults.PALETTE_STYLE,
     mapProvider: MapProvider = ThemeDefaults.MAP_PROVIDER,
+    // Derived from the variant, not fixed app-wide. Five design directions were built with their own
+    // type scales — and the #1 finding from a vision review of 217 real screenshots was that
+    // monospace on CHROME (not data) is what makes the app read as a terminal rather than a finance
+    // product. If typography stayed pinned here, picking a direction would swap colours only and the
+    // single most important difference between them would be invisible.
+    //
+    // Still an explicit parameter: an caller that passes one wins, which is how the screenshot
+    // harness renders a specific scale on demand.
+    typography: Typography = typographyFor(milewayTheme),
+    shapes: Shapes = MilewayShapes,
     content: @Composable () -> Unit,
 ) {
     val isDark = milewayTheme?.isLight?.not() ?: darkTheme
@@ -112,8 +128,8 @@ fun MilewayTheme(
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = MilewayTypography,
-            shapes = MilewayShapes,
+            typography = typography,
+            shapes = shapes,
             content = content,
         )
     }
@@ -136,3 +152,24 @@ private fun derivedSemanticColors(
         surfaceHighest = scheme.surfaceContainerHighest,
         useGlow = isDark,
     )
+
+
+/**
+ * The type scale a design direction ships with.
+ *
+ * Directions that do not define one fall back to the house scale, so adding a variant never forces
+ * a typography decision it has no opinion about.
+ */
+// NOTE: the five direction files disagree on package — three declared
+// `package com.mileway.core.ui.theme` (so their symbols are unqualified here) and two used the
+// `.direction` subpackage. Left as-is rather than renamed: five concurrent agents each made a
+// defensible call, and unifying the package is a mechanical follow-up that should happen in one
+// commit rather than being half-done here.
+private fun typographyFor(variant: MilewayThemeVariant?): Typography = when (variant) {
+    MilewayThemeVariant.LEDGER -> LedgerTypography
+    MilewayThemeVariant.SIGNAL -> SignalTypography
+    MilewayThemeVariant.PAPER -> PaperTypography
+    MilewayThemeVariant.INSTRUMENT -> com.mileway.core.ui.theme.direction.InstrumentTypography
+    MilewayThemeVariant.REFINED_EMBER -> com.mileway.core.ui.theme.direction.RefinedEmberTypography
+    else -> MilewayTypography
+}

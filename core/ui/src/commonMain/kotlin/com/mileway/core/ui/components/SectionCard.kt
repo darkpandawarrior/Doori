@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_action_hide
@@ -46,14 +47,20 @@ import org.jetbrains.compose.resources.stringResource
  * Header row: optional leading icon in a tinted rounded container, title + optional
  * subtitle, and an optional trailing action slot. The card body is rendered below
  * the header via [content].
+ *
+ * Defaults to `colorScheme.surfaceContainer` (the theme's own raised-card tone, distinct from the
+ * screen's `surface` background) with real elevation, rather than `surface` at zero elevation — a
+ * card drawn in the exact colour of its background with no shadow doesn't read as a card at all,
+ * just a margin change. Every caller still overrides [containerColor] freely for a special case.
  */
 @Composable
 fun SectionCard(
     title: String = "",
     modifier: Modifier = Modifier,
     titleColor: Color = MaterialTheme.colorScheme.primary,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     shape: Shape = DesignTokens.Shape.roundedSm,
+    elevation: Dp = DesignTokens.Elevation.card,
     subtitle: String? = null,
     subtitleColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     contentPadding: PaddingValues = PaddingValues(DesignTokens.Spacing.l),
@@ -66,6 +73,8 @@ fun SectionCard(
     Surface(
         shape = shape,
         color = containerColor,
+        tonalElevation = elevation,
+        shadowElevation = elevation,
         modifier = modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(contentPadding)) {

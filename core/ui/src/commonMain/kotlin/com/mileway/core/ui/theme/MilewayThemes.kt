@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import com.mileway.core.ui.theme.direction.RefinedEmberSpec
 
 /**
  * Design Language v2 — the five curated, hand-tuned theme schemes.
@@ -83,6 +84,21 @@ enum class MilewayThemeVariant(
         seedHex = "#2BB86C",
         spec = DaybreakSpec,
     ),
+
+    /** Automotive/cockpit HMI — high-contrast, glanceable numerals for the live-drive surface. */
+    INSTRUMENT(id = "INSTRUMENT", label = "Instrument", description = "Automotive cockpit HMI — high-contrast, glanceable numerals for reading at a glance while driving.", isLight = false, seedHex = "#2F8FFF", spec = com.mileway.core.ui.theme.direction.InstrumentSpec),
+
+    /** Signal: dark foundation, saturated semantic accents (money/motion/warning), bold type. */
+    SIGNAL(id = "SIGNAL", label = "Signal", description = "Alive and confident: dark foundation, saturated semantic colour, bold numerals.", isLight = false, seedHex = "#5B6EFF", spec = SignalSpec),
+
+    /** Financial instrument (light): proportional sans chrome, mono only for money/distance/time. */
+    LEDGER(id = "LEDGER", label = "Ledger", description = "Financial instrument. Restrained navy accent, proportional sans chrome, mono only for money/distance/time.", isLight = true, seedHex = "#1E3A5F", spec = LedgerSpec),
+
+    /** Light-first document aesthetic: warm off-white surfaces, ink-navy accent, mono for data only. */
+    PAPER(id = "PAPER", label = "Paper", description = "Warm off-white document surfaces, ink-navy accent, monospace reserved for the number.", isLight = true, seedHex = "#1E3A5F", spec = PaperSpec),
+
+    /** Refined Ember: same warm-dark amber identity as Ember, every review-flagged defect fixed. */
+    REFINED_EMBER(id = "REFINED_EMBER", label = "Refined Ember", description = "The Ember identity, properly executed: real tonal depth, AA contrast, disciplined accent use.", isLight = false, seedHex = "#F5A623", spec = RefinedEmberSpec),
     ;
 
     /** The fully hand-tuned Material 3 [ColorScheme] for this theme. */
