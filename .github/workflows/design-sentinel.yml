@@ -1,0 +1,44 @@
+# The scheduled watcher. Every failure this repo suffered in Aug 2026 was the same shape: work
+# existed, nothing ran it, nothing alerted. A check that only runs on demand is a check that stops
+# running, so this is on a schedule as well as on PR.
+name: design-sentinel
+
+on:
+  schedule:
+    - cron: '17 3 * * *'      # nightly, offset off the hour to avoid runner contention
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read              # never write: a workflow that rewrites baselines destroys the evidence
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+
+      # Re-record first, so the sentinel compares CURRENT rendering against the accepted baseline
+      # rather than against whatever happens to be committed. Recording needs the env var: a -P
+      # property cannot reach the forked test JVM, and without it captureRoboImage silently no-ops.
+      - name: Re-record captures
+        run: ROBORAZZI_RECORD=true ./gradlew screenshotTest --no-daemon
+
+      # Structural checks only in CI: no API key, no spend. The vision critique is a local/manual
+      # step. Failing here means blank captures or a removed capture — unambiguous regressions.
+      - name: Design sentinel
+        run: node scripts/design-sentinel.mjs --no-ai
+
+      - name: Report
+        if: always()
+        run: cat docs/screenshots/SENTINEL_REPORT.md >> $GITHUB_STEP_SUMMARY
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: sentinel-drift
+          path: |
+            docs/screenshots/SENTINEL_REPORT.md
+            docs/screenshots/*.png
