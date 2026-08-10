@@ -27,6 +27,9 @@ data class AskAdvanceUiState(
     val errors: List<PettyRequestError> = emptyList(),
     val isSubmitting: Boolean = false,
     val submittedPermissionId: Long? = null,
+    /** ERROR: set when the repository write fails, so the form can tell the user instead of
+     * silently resetting to idle (see [submit]'s comment for the bug this replaces). */
+    val submitError: String? = null,
 ) {
     val isSuccess: Boolean get() = (submittedPermissionId ?: 0L) > 0L
 }
@@ -83,7 +86,7 @@ class AskAdvanceViewModel(
                 dateRangeEndMs = s.dateRangeEndMs,
                 declarationAccepted = s.declarationAccepted,
             )
-        setState { copy(errors = errors) }
+        setState { copy(errors = errors, submitError = null) }
         if (errors.isNotEmpty()) return
 
         setState { copy(isSubmitting = true) }
@@ -98,12 +101,15 @@ class AskAdvanceViewModel(
                     endMs = s.dateRangeEndMs,
                     declarationAccepted = s.declarationAccepted,
                 )
-            setState {
-                copy(
-                    isSubmitting = false,
-                    submittedPermissionId = result.getOrNull()?.permissionId,
-                )
-            }
+            // ERROR: submitPettyRequest returns Result<SubmittedRequest> — it is fail-safe.
+            // Previously only `result.getOrNull()` was read, so a repository failure silently
+            // reset the form to idle with no explanation. Same fix as QrRequestViewModel.submit().
+            result.fold(
+                onSuccess = { req -> setState { copy(isSubmitting = false, submittedPermissionId = req.permissionId, submitError = null) } },
+                onFailure = { e ->
+                    setState { copy(isSubmitting = false, submitError = e.message ?: "Could not submit the request. Try again.") }
+                },
+            )
         }
     }
 }

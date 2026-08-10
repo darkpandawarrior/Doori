@@ -81,6 +81,18 @@ data class LogMilesUiState(
     // ── Step 2: expense details ───────────────────────────────────────────────
     val invoiceDateMillis: Long? = null,
     val logMilesNote: String = "",
+    /**
+     * "Purpose of travel" / "Cost Center" on Step 2's expense-details tab. Previously these two
+     * [androidx.compose.material3.OutlinedTextField]s lived only in the screen's own
+     * `remember { mutableStateOf("") }` — never read by anything, so whatever the user typed was
+     * silently discarded on submit and lost on any navigation away from Step 2. Same shape as the
+     * check-in data-loss bug from the tracking pass: a field that looks like it saves and doesn't.
+     * Folded into [toSubmitRequest]'s `notes` (there's no dedicated wire field for either on
+     * [com.mileway.core.data.model.network.LogMilesSubmitRequestV2] — adding one is a `:contract`
+     * change, out of this module's ownership).
+     */
+    val purposeOfTravel: String = "",
+    val costCenter: String = "",
     val taggedEmployees: List<String> = emptyList(),
     val attachmentCount: Int = 0,
     // ── Submission ────────────────────────────────────────────────────────────
@@ -161,13 +173,31 @@ fun LogMilesUiState.toSubmitRequest(
         origin = stops.firstOrNull()?.entry?.let { CoordsV2(it.lat, it.lng, it.name) },
         destination = stops.lastOrNull()?.entry?.let { CoordsV2(it.lat, it.lng, it.name) },
         employees = taggedEmployees,
-        notes = logMilesNote.ifBlank { null },
+        notes = composeNotes(purposeOfTravel, costCenter, logMilesNote),
         serviceId = selectedService?.id,
         invoiceDate = invoiceDateMillis,
         odometerDistance = odometerEnd?.reading?.let { end -> odometerStart?.reading?.let { start -> end - start } },
         force = force.takeIf { it },
         violationRemarks = violationRemarks?.ifBlank { null },
     )
+
+/**
+ * Folds purpose-of-travel and cost-center into the one `notes` field the wire request actually
+ * has, labeled so they're still identifiable on the far side — the alternative was dropping
+ * whatever the user typed into those two fields on every submit (see [LogMilesUiState.purposeOfTravel]).
+ * Blank parts are omitted; all three blank still maps to `null`, same as the pre-existing
+ * note-only behavior this replaces.
+ */
+private fun composeNotes(
+    purposeOfTravel: String,
+    costCenter: String,
+    note: String,
+): String? =
+    listOfNotNull(
+        purposeOfTravel.trim().takeIf { it.isNotEmpty() }?.let { "Purpose: $it" },
+        costCenter.trim().takeIf { it.isNotEmpty() }?.let { "Cost center: $it" },
+        note.trim().takeIf { it.isNotEmpty() },
+    ).joinToString("\n").ifBlank { null }
 
 /**
  * Whether [response] needs the severity-branched [com.mileway.feature.logging.ui.dialog
@@ -223,6 +253,10 @@ sealed interface LogMilesAction {
     data class SetInvoiceDate(val millis: Long?) : LogMilesAction
 
     data class SetLogMilesNote(val text: String) : LogMilesAction
+
+    data class SetPurposeOfTravel(val text: String) : LogMilesAction
+
+    data class SetCostCenter(val text: String) : LogMilesAction
 
     data class SetTaggedEmployees(val names: List<String>) : LogMilesAction
 
@@ -355,6 +389,8 @@ class LogMilesViewModel(
             is LogMilesAction.CaptureOdometerReading -> captureOdometerReading(action.result)
             is LogMilesAction.SetInvoiceDate -> setState { copy(invoiceDateMillis = action.millis) }
             is LogMilesAction.SetLogMilesNote -> setState { copy(logMilesNote = action.text) }
+            is LogMilesAction.SetPurposeOfTravel -> setState { copy(purposeOfTravel = action.text) }
+            is LogMilesAction.SetCostCenter -> setState { copy(costCenter = action.text) }
             is LogMilesAction.SetTaggedEmployees -> setState { copy(taggedEmployees = action.names) }
             LogMilesAction.AddAttachment -> setState { copy(attachmentCount = attachmentCount + 1) }
             LogMilesAction.SaveDraft -> saveDraft()

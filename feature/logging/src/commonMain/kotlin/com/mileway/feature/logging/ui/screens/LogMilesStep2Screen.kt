@@ -67,11 +67,13 @@ import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_collapse_cd
 import com.mileway.core.ui.resources.logging_complete_required_fields
 import com.mileway.core.ui.resources.logging_cost_center_optional
+import com.mileway.core.ui.resources.logging_cost_center_placeholder
 import com.mileway.core.ui.resources.logging_expand_cd
 import com.mileway.core.ui.resources.logging_expense_details_header
 import com.mileway.core.ui.resources.logging_log_miles_subtitle
 import com.mileway.core.ui.resources.logging_log_miles_title
 import com.mileway.core.ui.resources.logging_purpose_of_travel
+import com.mileway.core.ui.resources.logging_purpose_of_travel_placeholder
 import com.mileway.core.ui.resources.logging_ready_to_submit
 import com.mileway.core.ui.resources.logging_remaining
 import com.mileway.core.ui.resources.logging_select_a_service
@@ -163,8 +165,6 @@ fun LogMilesStep2Screen(
     val tabAdditionalDetails = stringResource(Res.string.logging_tab_additional_details)
     val tabAttachments = stringResource(Res.string.logging_tab_attachments)
     var selectedStep2Tab by remember { mutableStateOf(tabStops) }
-    var purposeText by remember { mutableStateOf("") }
-    var costCenter by remember { mutableStateOf("") }
 
     // When a non-violation success result lands, advance to the success route once.
     val hasCleanResult = uiState.submissionResult != null && !uiState.showViolationDialog
@@ -302,10 +302,13 @@ fun LogMilesStep2Screen(
                     services = uiState.services,
                     selectedService = uiState.selectedService,
                     onServiceSelect = { viewModel.onAction(LogMilesAction.SelectService(it)) },
-                    purposeText = purposeText,
-                    onPurposeChange = { purposeText = it },
-                    costCenter = costCenter,
-                    onCostCenterChange = { costCenter = it },
+                    // Previously local `remember` state, read by nothing — every keystroke here was
+                    // silently discarded on submit (see LogMilesUiState.purposeOfTravel). Now routed
+                    // through the shared ViewModel like every other Step 2 field.
+                    purposeText = uiState.purposeOfTravel,
+                    onPurposeChange = { viewModel.onAction(LogMilesAction.SetPurposeOfTravel(it)) },
+                    costCenter = uiState.costCenter,
+                    onCostCenterChange = { viewModel.onAction(LogMilesAction.SetCostCenter(it)) },
                 )
             }
 
@@ -476,6 +479,7 @@ private fun ExpenseDetailsSection(
                 value = purposeText,
                 onValueChange = onPurposeChange,
                 label = { Text(stringResource(Res.string.logging_purpose_of_travel)) },
+                placeholder = { Text(stringResource(Res.string.logging_purpose_of_travel_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
                 singleLine = true,
@@ -486,6 +490,7 @@ private fun ExpenseDetailsSection(
                 value = costCenter,
                 onValueChange = onCostCenterChange,
                 label = { Text(stringResource(Res.string.logging_cost_center_optional)) },
+                placeholder = { Text(stringResource(Res.string.logging_cost_center_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
                 singleLine = true,

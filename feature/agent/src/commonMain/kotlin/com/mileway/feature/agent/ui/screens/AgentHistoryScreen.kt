@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.agent_history_subtitle
@@ -67,21 +68,31 @@ fun AgentHistoryScreen(
             )
         },
     ) { padding ->
-        LazyColumn(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding),
-        ) {
-            items(uiState.history) { conversation ->
-                ConversationRow(
-                    conversation = conversation,
-                    onClick = {
-                        viewModel.onAction(AgentAction.LoadConversation(conversation))
-                        onConversationSelected(conversation)
-                    },
-                )
-                HorizontalDivider(modifier = Modifier.padding(start = 72.dp))
+        // EMPTY: a new user (or one who's cleared history) previously got a bare scrollable area
+        // under the top bar — no items, no message, indistinguishable from a loading bug.
+        if (uiState.history.isEmpty()) {
+            EmptyState(
+                title = "No conversations yet",
+                subtitle = "Go back and start a chat with the assistant — it'll show up here.",
+                modifier = Modifier.fillMaxSize().padding(padding),
+            )
+        } else {
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+            ) {
+                items(uiState.history) { conversation ->
+                    ConversationRow(
+                        conversation = conversation,
+                        onClick = {
+                            viewModel.onAction(AgentAction.LoadConversation(conversation))
+                            onConversationSelected(conversation)
+                        },
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(start = 72.dp))
+                }
             }
         }
     }

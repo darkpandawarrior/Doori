@@ -6,6 +6,7 @@ import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.repository.VoucherHistoryRepository
 import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.tracking.repository.VoucherRepository
+import com.siddharth.kmp.common.UiText
 import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -31,7 +32,15 @@ sealed interface VoucherHistoryAction {
     data class Withdraw(val voucherNumber: String) : VoucherHistoryAction
 }
 
-sealed interface VoucherHistoryEffect
+sealed interface VoucherHistoryEffect {
+    /**
+     * A withdraw attempt threw (e.g. a local DB I/O error) rather than completing. Previously this
+     * ran fire-and-forget in [viewModelScope] with nothing collecting a failure — an exception here
+     * would either crash silently or leave the voucher looking withdrawn when it wasn't. Named the
+     * same way the check-in/log-miles/expense submit flows already surface a local-write failure.
+     */
+    data class ShowError(val message: UiText) : VoucherHistoryEffect
+}
 
 /**
  * SP.1/P3.1: reducer for the voucher history surface. Collects the shared, Room-backed
@@ -62,7 +71,10 @@ class VoucherHistoryViewModel(
                 reload()
             }
             is VoucherHistoryAction.Withdraw -> {
-                viewModelScope.launch { voucherRepository.withdraw(action.voucherNumber) }
+                viewModelScope.launch {
+                    runCatching { voucherRepository.withdraw(action.voucherNumber) }
+                        .onFailure { emitEffect(VoucherHistoryEffect.ShowError(UiText.of("Couldn't withdraw this voucher — try again"))) }
+                }
             }
         }
     }

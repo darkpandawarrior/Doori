@@ -2,18 +2,27 @@ package com.mileway
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.mileway.core.platform.SystemSettingsOpener
@@ -251,6 +260,7 @@ import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.PermissionsProvider
 import com.siddharth.kmp.common.CrashReporter
 import dev.tmapps.konnection.Konnection
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import java.io.File
@@ -836,6 +846,26 @@ class ScreenshotGalleryTest {
         capture("track_detail_screen")
     }
 
+    // ROUND 2: "Journey not found" — an unseeded routeId (deleted record, stale deep link) drives
+    // TrackDetailViewModel.state.rawTrack to null after load finishes, which TrackDetailScreen now
+    // renders as an explicit EmptyState instead of a blank body under a live top bar.
+    @Test
+    fun trackDetailScreenNotFound() {
+        composeRule.setContent {
+            MilewayTheme {
+                TrackDetailScreen(
+                    routeId = "route-does-not-exist",
+                    onBack = {},
+                    onOpenInsights = {},
+                    onOpenMap = {},
+                    onOpenHwEvents = {},
+                    onOpenDataPreview = {},
+                )
+            }
+        }
+        capture("track_detail_screen_not_found")
+    }
+
     @Test
     fun trackInsightsScreen() {
         composeRule.setContent {
@@ -844,6 +874,19 @@ class ScreenshotGalleryTest {
             }
         }
         capture("track_insights_screen")
+    }
+
+    // ROUND 2: error-with-retry. TrackInsightsViewModel.loadInsights sets error="Track not found"
+    // for an unseeded routeId; the screen renders that message with a Retry button that re-issues
+    // the same Load action.
+    @Test
+    fun trackInsightsScreenErrorRetry() {
+        composeRule.setContent {
+            MilewayTheme {
+                TrackInsightsScreen(routeId = "route-does-not-exist", onBack = {})
+            }
+        }
+        capture("track_insights_screen_error_retry")
     }
 
     @Test
@@ -866,6 +909,18 @@ class ScreenshotGalleryTest {
         capture("track_data_preview_overview_tab")
     }
 
+    // ROUND 2: "Journey not found" — same unseeded-routeId condition as trackDetailScreenNotFound,
+    // TrackDataPreviewScreen shares TrackDetailViewModel and renders the identical EmptyState fix.
+    @Test
+    fun trackDataPreviewScreenNotFound() {
+        composeRule.setContent {
+            MilewayTheme {
+                TrackDataPreviewScreen(routeId = "route-does-not-exist", onBack = {})
+            }
+        }
+        capture("track_data_preview_screen_not_found")
+    }
+
     // LiveTrackScreen is intentionally omitted: it needs an active in-progress track
     // session (CurrentTrackDataStore must emit a track with locations); with the offline
     // fakes it renders a "Failed to load" state. track_miles_idle + tracking_success
@@ -881,6 +936,63 @@ class ScreenshotGalleryTest {
         capture("location_map_screen")
     }
 
+    // ROUND 2: ERROR state. CurrentTrackDataStore is a relaxed mockk with no active session
+    // seeded (fakeRoomLayer), so LiveTrackViewModel's combined state naturally lands in
+    // LiveTrackingUiState.Error — RouteReplayScreen now renders that with DefaultErrorState +
+    // retry instead of collapsing it into the same infinite spinner as Loading (tracking-tail fix).
+    // Named explicitly since locationMapScreen above documents the same underlying render today
+    // but under a filename that predates the fix.
+    @Test
+    fun routeReplayErrorState() {
+        composeRule.setContent {
+            MilewayTheme {
+                RouteReplayScreen(onNavigateBack = {})
+            }
+        }
+        capture("route_replay_error_state")
+    }
+
+    // ROUND 2: "Trip not found". TrackEvidenceScreen itself is stateless (takes a non-null
+    // SavedTrack) — the not-found branch lives inline in TrackingNavigation's EVIDENCE route
+    // (androidMain, built on a real NavController), not as a reusable composable. Reproduced here
+    // by driving the same TrackDetailViewModel + DefaultEmptyState the nav route uses, rather than
+    // standing up a full NavHost just for one screenshot.
+    @Test
+    fun trackEvidenceTripNotFoundScreen() {
+        composeRule.setContent {
+            MilewayTheme {
+                val viewModel: com.mileway.feature.tracking.viewmodel.TrackDetailViewModel = koinViewModel()
+                LaunchedEffect(Unit) {
+                    viewModel.onAction(com.mileway.feature.tracking.viewmodel.TrackDetailAction.Load("route-does-not-exist"))
+                }
+                val state by viewModel.state.collectAsState()
+                // The real nav route sits inside a Scaffold that paints the themed background;
+                // reproduced explicitly here since this composable stands alone with no Scaffold
+                // of its own — without it the EmptyState's muted text renders on the test
+                // environment's raw (light) canvas instead of the app's real dark surface.
+                androidx.compose.foundation.layout.Box(
+                    modifier =
+                        androidx.compose.ui.Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background),
+                ) {
+                    when {
+                        state.rawTrack != null -> TrackEvidenceScreen(track = state.rawTrack!!)
+                        state.isLoading -> Unit
+                        else ->
+                            com.mileway.core.ui.mvi.DefaultEmptyState(
+                                title = "Trip not found",
+                                subtitle = "This record may have been deleted.",
+                                ctaLabel = "Go back",
+                                onCta = {},
+                            )
+                    }
+                }
+            }
+        }
+        capture("track_evidence_trip_not_found")
+    }
+
     @Test
     fun geoCheckInScreen() {
         composeRule.setContent {
@@ -891,6 +1003,39 @@ class ScreenshotGalleryTest {
         capture("geo_check_in_screen")
     }
 
+    // ROUND 1 (never captured): submission-error. GeoCheckInScreen owns this submit flow with
+    // local Compose state (no ViewModel), so a broken HardwareEventRepository is passed directly
+    // via the screen's default-koinInject() param — same seam ManualCheckInScreen uses below.
+    // Drives the real form: pick a check-in type, fill its two dynamic fields, submit.
+    @Test
+    fun geoCheckInSubmissionError() {
+        val brokenDao = mockk<HardwareEventDao>(relaxed = true)
+        coEvery { brokenDao.insert(any()) } throws RuntimeException("Couldn't reach local storage")
+        composeRule.setContent {
+            MilewayTheme {
+                GeoCheckInScreen(
+                    onBack = {},
+                    hardwareEventRepository =
+                        com.mileway.feature.tracking.repository.HardwareEventRepository(brokenDao),
+                )
+            }
+        }
+        composeRule.onNodeWithText("Select type").performClick()
+        composeRule.onNodeWithText("Office Check-In").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Desk number").performTextInput("D-1")
+        composeRule.onNodeWithText("Floor").performTextInput("3")
+        // "Check In" is both the top-bar title and the submit button's label; hasClickAction()
+        // is the only thing that tells them apart.
+        composeRule.onNode(hasText("Check In") and hasClickAction()).performClick()
+        // doCheckIn() has a real delay(1_200) before the write — waitForIdle() only drains pending
+        // recomposition/animation work, it does not fast-forward a suspended coroutine's delay().
+        // Advance Robolectric's main-looper clock so that delayed continuation actually resumes.
+        composeRule.mainClock.advanceTimeBy(2_000)
+        composeRule.waitForIdle()
+        capture("geo_check_in_submission_error")
+    }
+
     @Test
     fun manualCheckInScreen() {
         composeRule.setContent {
@@ -899,6 +1044,31 @@ class ScreenshotGalleryTest {
             }
         }
         capture("manual_check_in_screen")
+    }
+
+    // ROUND 1 (never captured): submission-error. Same seam as geoCheckInSubmissionError above —
+    // ManualCheckInScreen has no ViewModel, so a broken HardwareEventRepository is injected via
+    // the screen's default parameter.
+    @Test
+    fun manualCheckInSubmissionError() {
+        val brokenDao = mockk<HardwareEventDao>(relaxed = true)
+        coEvery { brokenDao.insert(any()) } throws RuntimeException("Couldn't reach local storage")
+        composeRule.setContent {
+            MilewayTheme {
+                ManualCheckInScreen(
+                    onBack = {},
+                    hardwareEventRepository =
+                        com.mileway.feature.tracking.repository.HardwareEventRepository(brokenDao),
+                )
+            }
+        }
+        composeRule.onNodeWithText("Reason / Notes").performTextInput("Client meeting ran long")
+        composeRule.onNodeWithText("Submit Check-In").performClick()
+        // submitCheckIn() has a real delay(800) before the write — see the identical comment on
+        // geoCheckInSubmissionError above.
+        composeRule.mainClock.advanceTimeBy(2_000)
+        composeRule.waitForIdle()
+        capture("manual_check_in_submission_error")
     }
 
     @Test
@@ -993,6 +1163,38 @@ class ScreenshotGalleryTest {
             }
         }
         capture("create_voucher_select_expenses")
+    }
+
+    // ROUND 2: submitError. A broken VoucherDao (insert throws) passed into a throwaway
+    // CreateVoucherViewModel — same "one-off dependency, bypass the shared Koin single" pattern
+    // voucherDetailsScreen uses further down, so this doesn't corrupt the shared voucherDao other
+    // tests read from. Drives the real wizard via onAction (declaration + submit aren't reachable
+    // through plain text clicks without knowing every localized label), then captures step 2 with
+    // the inline error text and the re-enabled Create button.
+    @Test
+    fun createVoucherSubmitError() {
+        val brokenDao = mockk<VoucherDao>(relaxed = true)
+        coEvery { brokenDao.insert(any()) } throws RuntimeException("Disk full")
+        val viewModel =
+            com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel(
+                savedTrackRepository = com.mileway.feature.tracking.repository.SavedTrackRepository(seededDao),
+                voucherRepository = com.mileway.feature.tracking.repository.VoucherRepository(brokenDao),
+            )
+        composeRule.setContent {
+            MilewayTheme {
+                CreateVoucherScreen(onBack = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.waitForIdle()
+        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.ToggleSelection("route-s1"))
+        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.GoToStep(1))
+        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.SetTitle("Voucher: Test"))
+        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.GoToStep(2))
+        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.ToggleDeclaration(true))
+        composeRule.waitForIdle()
+        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.Submit)
+        composeRule.waitForIdle()
+        capture("create_voucher_submit_error")
     }
 
     @Test
@@ -1091,6 +1293,19 @@ class ScreenshotGalleryTest {
             }
         }
         capture("expense_detail_screen")
+    }
+
+    // ROUND 2: not-found. logging-tail's real fix — previously an unmatched expenseId rendered
+    // only a blank body with no Scaffold/top bar/back button at all; now a proper EmptyState with
+    // the back arrow preserved.
+    @Test
+    fun expenseDetailScreenNotFound() {
+        composeRule.setContent {
+            MilewayTheme {
+                ExpenseDetailScreen(expenseId = "EXP-DOES-NOT-EXIST", onBack = {})
+            }
+        }
+        capture("expense_detail_screen_not_found")
     }
 
     @Test
@@ -1216,6 +1431,19 @@ class ScreenshotGalleryTest {
         capture("purchase_request_details_screen")
     }
 
+    // ROUND 2: not-found. other-features's fix — the not-found message previously had no scaffold
+    // chrome (only the system back gesture worked); now wrapped in TransactionDetailScaffold so
+    // back is always available, matching the loaded state.
+    @Test
+    fun purchaseRequestDetailsScreenNotFound() {
+        composeRule.setContent {
+            MilewayTheme {
+                PurchaseRequestDetailsScreen(poId = "PO-2024-999", onBack = {})
+            }
+        }
+        capture("purchase_request_details_screen_not_found")
+    }
+
     @Test
     fun createInvoiceScreen() {
         composeRule.setContent {
@@ -1265,6 +1493,19 @@ class ScreenshotGalleryTest {
             }
         }
         capture("approval_details_screen_violation")
+    }
+
+    // ROUND 2: not-found/error. other-features's fix — a stale/deleted approvalId previously
+    // blanked the entire screen (no top bar); ApprovalsViewModel.openDetail now sets
+    // ScreenState.Error and the screen renders it inside the same scaffold, back button intact.
+    @Test
+    fun approvalDetailsScreenNotFound() {
+        composeRule.setContent {
+            MilewayTheme {
+                ApprovalDetailsScreen(approvalId = "A-DOES-NOT-EXIST", onBack = {})
+            }
+        }
+        capture("approval_details_screen_not_found")
     }
 
     // ── Payments & Events ──────────────────────────────────────────────────────────
@@ -1897,6 +2138,19 @@ class ScreenshotGalleryTest {
             }
         }
         capture("verification_document_screen")
+    }
+
+    // ROUND 2: EMPTY/not-found. profile-tail's fix — an unmatched docType (stale deep link, or the
+    // seedIfEmpty()/observeAll() async gap landing exactly here) previously rendered only the top
+    // bar with a blank title; now a DefaultEmptyState names what happened.
+    @Test
+    fun verificationDocumentScreenNotFound() {
+        composeRule.setContent {
+            MilewayTheme {
+                DocumentDetailScreen(docType = "does_not_exist", onBack = {})
+            }
+        }
+        capture("verification_document_screen_not_found")
     }
 
     @Test

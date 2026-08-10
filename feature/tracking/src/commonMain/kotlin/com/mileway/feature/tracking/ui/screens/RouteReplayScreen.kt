@@ -111,6 +111,7 @@ import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.state.UiState
 import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
+import com.mileway.core.ui.mvi.DefaultErrorState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_unit_kmh
 import com.mileway.core.ui.resources.tracking_cd_back
@@ -136,8 +137,8 @@ import com.mileway.core.ui.resources.tracking_map_route_playback
 import com.mileway.core.ui.resources.tracking_map_setting_autocenter_desc
 import com.mileway.core.ui.resources.tracking_map_setting_autocenter_title
 import com.mileway.core.ui.resources.tracking_map_settings
-import com.mileway.core.ui.resources.tracking_map_stop
 import com.mileway.core.ui.resources.tracking_map_status_playback
+import com.mileway.core.ui.resources.tracking_map_stop
 import com.mileway.core.ui.resources.tracking_map_tab_layers
 import com.mileway.core.ui.resources.tracking_map_tab_playback
 import com.mileway.core.ui.resources.tracking_qa_settings
@@ -151,6 +152,7 @@ import com.mileway.feature.tracking.map.MapRouteBuilder
 import com.mileway.feature.tracking.viewmodel.LiveTrackAction
 import com.mileway.feature.tracking.viewmodel.LiveTrackViewModel
 import com.mileway.feature.tracking.viewmodel.LiveTrackingUiState
+import com.siddharth.kmp.common.UiText
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -199,32 +201,44 @@ fun RouteReplayScreen(
     LaunchedEffect(Unit) { viewModel.onAction(LiveTrackAction.Refresh) }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (currentLocation != null) {
-            RouteReplayUI(
-                currentLocation = currentLocation,
-                locationPoints = locationPoints,
-                controlsExpanded = controlsExpanded,
-                selectedControlTab = selectedControlTab,
-                autoCenterEnabled = autoCenterEnabled,
-                onToggleControls = { controlsExpanded = !controlsExpanded },
-                onTabChange = { selectedControlTab = it },
-                onToggleAutoCenter = { autoCenterEnabled = !autoCenterEnabled },
-                onNavigateBack = onNavigateBack,
-            )
-        } else {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    CircularProgressIndicator()
-                    // ponytail: reused copy from the live screen ("Getting location…") — this path is
-                    // really "loading the recorded route", but no dedicated string exists yet and the
-                    // wording gap is cosmetic only.
-                    Text(
-                        text = stringResource(Res.string.tracking_map_getting_location),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+        val trackingError = ui.liveTrackingState as? LiveTrackingUiState.Error
+        when {
+            // ERROR: the track/location read failed (bad token, Room error). Previously this fell
+            // through to the same branch as Loading below, so a real failure looked exactly like an
+            // infinite spinner forever — no way to tell "still loading" from "never going to load".
+            trackingError != null ->
+                DefaultErrorState(
+                    message = UiText.Dynamic(trackingError.message),
+                    onRetry = { viewModel.onAction(LiveTrackAction.Refresh) },
+                )
+            currentLocation != null ->
+                RouteReplayUI(
+                    currentLocation = currentLocation,
+                    locationPoints = locationPoints,
+                    controlsExpanded = controlsExpanded,
+                    selectedControlTab = selectedControlTab,
+                    autoCenterEnabled = autoCenterEnabled,
+                    onToggleControls = { controlsExpanded = !controlsExpanded },
+                    onTabChange = { selectedControlTab = it },
+                    onToggleAutoCenter = { autoCenterEnabled = !autoCenterEnabled },
+                    onNavigateBack = onNavigateBack,
+                )
+            else ->
+                // LOADING: first fetch of the recorded track (Initial/Loading), not yet resolved
+                // either way.
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        CircularProgressIndicator()
+                        // ponytail: reused copy from the live screen ("Getting location…") — this path is
+                        // really "loading the recorded route", but no dedicated string exists yet and the
+                        // wording gap is cosmetic only.
+                        Text(
+                            text = stringResource(Res.string.tracking_map_getting_location),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
                 }
-            }
         }
     }
 }

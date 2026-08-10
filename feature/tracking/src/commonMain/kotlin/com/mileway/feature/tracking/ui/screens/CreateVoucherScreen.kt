@@ -467,6 +467,17 @@ private fun StepConfirmation(
 
         Spacer(Modifier.weight(1f))
 
+        // ERROR: names what failed (the underlying write's message) and leaves the button enabled
+        // so retrying is just tapping Create again — no dead-end, no separate retry affordance needed.
+        uiState.submitError?.let { message ->
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
+
         Button(
             shape = DesignTokens.Shape.button,
             onClick = { viewModel.onAction(CreateVoucherAction.Submit) },

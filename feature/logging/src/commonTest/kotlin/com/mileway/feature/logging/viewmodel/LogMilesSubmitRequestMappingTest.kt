@@ -67,6 +67,28 @@ class LogMilesSubmitRequestMappingTest {
     }
 
     @Test
+    fun `purpose of travel and cost center fold into notes instead of being dropped`() {
+        // Regression guard for the data-loss bug: these two fields used to live only in the
+        // screen's local Compose state, read by nothing — every submit silently discarded them.
+        val request =
+            baseState()
+                .copy(purposeOfTravel = "Client visit", costCenter = "CC-4521", logMilesNote = "Bring the signed PO")
+                .toSubmitRequest()
+
+        val notes = requireNotNull(request.notes)
+        assertEquals(true, notes.contains("Purpose: Client visit"))
+        assertEquals(true, notes.contains("Cost center: CC-4521"))
+        assertEquals(true, notes.contains("Bring the signed PO"))
+    }
+
+    @Test
+    fun `purpose of travel and cost center still map to null notes when all three are blank`() {
+        val request = baseState().copy(purposeOfTravel = "  ", costCenter = "  ").toSubmitRequest()
+
+        assertNull(request.notes)
+    }
+
+    @Test
     fun `core fields are still mapped alongside the new Step 2 fields`() {
         val request = baseState().toSubmitRequest()
 

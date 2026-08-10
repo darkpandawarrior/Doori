@@ -114,8 +114,22 @@ fun PurchaseRequestDetailsScreen(
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
 
     if (po == null) {
-        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(Res.string.payables_po_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        // ERROR/EMPTY (not-found): the message alone had no way back except the system back
+        // gesture — every other branch of this screen renders inside TransactionDetailScaffold,
+        // which supplies the top bar's back arrow. Reusing it here for consistency rather than a
+        // bare centered text box.
+        TransactionDetailScaffold(
+            title = poId,
+            tabs = listOf(DetailSection.Details),
+            selectedTab = DetailSection.Details,
+            onSelectTab = {},
+            onBack = onBack,
+            snackbarHostState = snackbarHostState,
+            modifier = modifier,
+        ) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(stringResource(Res.string.payables_po_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
         return
     }

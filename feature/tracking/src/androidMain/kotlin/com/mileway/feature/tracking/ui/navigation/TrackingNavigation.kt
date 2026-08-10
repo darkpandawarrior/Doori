@@ -23,14 +23,16 @@ import com.mileway.core.data.settings.DemoSettings
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.data.settings.LAST_ODOMETER_NONE
 import com.mileway.core.ui.AppHost
+import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
+import com.mileway.feature.tracking.ui.review.DriveReviewSheet
 import com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen
 import com.mileway.feature.tracking.ui.screens.CreateVoucherScreen
 import com.mileway.feature.tracking.ui.screens.GeoCheckInScreen
 import com.mileway.feature.tracking.ui.screens.HardwareEventsLogScreen
-import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.ManualCheckInScreen
 import com.mileway.feature.tracking.ui.screens.OdometerCameraScreen
 import com.mileway.feature.tracking.ui.screens.RoutePointsScreen
+import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.SavedTracksScreen
 import com.mileway.feature.tracking.ui.screens.SetupGuideScreen
 import com.mileway.feature.tracking.ui.screens.TrackCustomizationScreen
@@ -39,8 +41,6 @@ import com.mileway.feature.tracking.ui.screens.TrackDetailScreen
 import com.mileway.feature.tracking.ui.screens.TrackInsightsScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.tracking.ui.screens.TrackSettingsScreen
-import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
-import com.mileway.feature.tracking.ui.review.DriveReviewSheet
 import com.mileway.feature.tracking.ui.screens.TrackingSuccessScreen
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
@@ -223,10 +223,23 @@ fun NavGraphBuilder.trackingGraph(
             viewModel.onAction(com.mileway.feature.tracking.viewmodel.TrackDetailAction.Load(routeId))
         }
         val state by viewModel.state.collectAsState()
-        // Render nothing until the row is in hand. An evidence screen that renders placeholder
-        // figures — even briefly — is the one surface where that is unacceptable: it exists to be
-        // the defensible record.
-        state.rawTrack?.let { TrackEvidenceScreen(track = it) }
+        when {
+            state.rawTrack != null -> TrackEvidenceScreen(track = state.rawTrack!!)
+            // Render nothing while genuinely still loading. An evidence screen that renders
+            // placeholder figures — even briefly — is the one surface where that is unacceptable:
+            // it exists to be the defensible record.
+            state.isLoading -> Unit
+            // ERROR/EMPTY: load finished and no row matched routeId (deleted record, stale deep
+            // link). Previously this rendered the identical blank screen as "still loading" above —
+            // forever, with no way out but the system back gesture. Named + a way back now.
+            else ->
+                com.mileway.core.ui.mvi.DefaultEmptyState(
+                    title = "Trip not found",
+                    subtitle = "This record may have been deleted.",
+                    ctaLabel = "Go back",
+                    onCta = { navController.popBackStack() },
+                )
+        }
     }
 
     composable(

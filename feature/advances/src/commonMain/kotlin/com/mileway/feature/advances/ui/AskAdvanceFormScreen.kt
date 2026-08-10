@@ -131,6 +131,11 @@ internal fun AskAdvanceFormContent(
             errorTextOrNull(state.errors, PettyRequestError.DECLARATION_NOT_ACCEPTED)?.let {
                 Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
             }
+            // ERROR: repository write failed — see AskAdvanceViewModel.submit()'s comment. Without
+            // this the form silently went back to idle with no explanation.
+            state.submitError?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
         }
     }
 }

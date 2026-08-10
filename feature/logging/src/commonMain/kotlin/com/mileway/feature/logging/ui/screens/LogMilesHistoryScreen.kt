@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.util.DateUtils
-import com.mileway.core.ui.components.EmptyState
+import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_delete_draft_cd
@@ -48,6 +48,7 @@ import com.mileway.core.ui.resources.logging_expense_date
 import com.mileway.core.ui.resources.logging_expense_id
 import com.mileway.core.ui.resources.logging_history_subtitle
 import com.mileway.core.ui.resources.logging_history_title
+import com.mileway.core.ui.resources.logging_log_miles_title
 import com.mileway.core.ui.resources.logging_no_drafts_subtitle
 import com.mileway.core.ui.resources.logging_no_drafts_title
 import com.mileway.core.ui.resources.logging_no_submissions_subtitle
@@ -113,9 +114,12 @@ fun LogMilesHistoryScreen(
                     drafts = uiState.drafts,
                     onOpen = onOpenDraft,
                     onDelete = { viewModel.onAction(LogMilesAction.DeleteDraft(it)) },
+                    // Reuses onBack: History is only reachable from the Log Miles entry screen, so
+                    // popping back to it IS "start a new journey" — no separate nav wiring needed.
+                    onStartJourney = onBack,
                 )
 
-            HistoryTab.SUBMITTED -> SubmittedTab(vouchers = uiState.submitted)
+            HistoryTab.SUBMITTED -> SubmittedTab(vouchers = uiState.submitted, onStartJourney = onBack)
         }
     }
 }
@@ -243,11 +247,16 @@ private fun DraftsTab(
     drafts: List<LogMilesDraftUi>,
     onOpen: (String) -> Unit,
     onDelete: (String) -> Unit,
+    onStartJourney: () -> Unit,
 ) {
     if (drafts.isEmpty()) {
-        EmptyState(
+        // "Start a new journey to save a draft" as plain text gave no actual path forward — add
+        // the button, same fix ExpenseHistoryScreen's empty state got.
+        DefaultEmptyState(
             title = stringResource(Res.string.logging_no_drafts_title),
             subtitle = stringResource(Res.string.logging_no_drafts_subtitle),
+            ctaLabel = stringResource(Res.string.logging_log_miles_title),
+            onCta = onStartJourney,
         )
         return
     }
@@ -325,9 +334,17 @@ private fun DraftCard(
 }
 
 @Composable
-private fun SubmittedTab(vouchers: List<SubmittedVoucher>) {
+private fun SubmittedTab(
+    vouchers: List<SubmittedVoucher>,
+    onStartJourney: () -> Unit,
+) {
     if (vouchers.isEmpty()) {
-        EmptyState(title = stringResource(Res.string.logging_no_submissions_title), subtitle = stringResource(Res.string.logging_no_submissions_subtitle))
+        DefaultEmptyState(
+            title = stringResource(Res.string.logging_no_submissions_title),
+            subtitle = stringResource(Res.string.logging_no_submissions_subtitle),
+            ctaLabel = stringResource(Res.string.logging_log_miles_title),
+            onCta = onStartJourney,
+        )
         return
     }
     // Group by expense day, newest first, with a date header per group.

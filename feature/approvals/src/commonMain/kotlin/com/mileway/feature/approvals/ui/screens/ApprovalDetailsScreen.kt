@@ -54,12 +54,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.timeline.TimelineStep
 import com.mileway.core.ui.components.timeline.TransactionTimeline
+import com.mileway.core.ui.mvi.DefaultLoadingState
+import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_ack_violation
@@ -147,7 +150,34 @@ fun ApprovalDetailsScreen(
         }
     }
 
-    val detail = ui.detailState.dataOrNull ?: return
+    // LOADING/ERROR: previously `ui.detailState.dataOrNull ?: return` bailed out of the whole
+    // composable with nothing rendered — not even a top bar — for a stale/deleted approval id or
+    // the brief instant before OpenDetail resolves. Indistinguishable from a crash. Now every
+    // non-content branch still gets the scaffold's back button, matching the house pattern used
+    // by EventDetailScreen / TrackDetailScreen for the same "id resolved to nothing" case.
+    if (ui.detailState !is ScreenState.Content) {
+        TransactionDetailScaffold(
+            title = stringResource(Res.string.approvals_request_details),
+            tabs = listOf(DetailSection.Details),
+            selectedTab = DetailSection.Details,
+            onSelectTab = {},
+            onBack = onBack,
+            snackbarHostState = snackbarHostState,
+            modifier = modifier,
+        ) {
+            when (ui.detailState) {
+                is ScreenState.Error, ScreenState.NoNetwork ->
+                    EmptyState(
+                        title = "Approval not found",
+                        subtitle = "This request may have been withdrawn, or the link is out of date.",
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                else -> DefaultLoadingState()
+            }
+        }
+        return
+    }
+    val detail = (ui.detailState as ScreenState.Content).data
     val item = detail.item
 
     val effectiveStatus = detail.localStatus ?: item.status

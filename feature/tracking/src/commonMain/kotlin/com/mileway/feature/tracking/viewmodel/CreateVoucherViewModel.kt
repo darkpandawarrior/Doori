@@ -21,6 +21,7 @@ data class CreateVoucherUiState(
     val category: VoucherCategory = VoucherCategory.MILEAGE,
     val notes: String = "",
     val isSubmitting: Boolean = false,
+    val submitError: String? = null,
     val submittedVoucherNumber: String? = null,
     val isLoading: Boolean = true,
     val declarationAcknowledged: Boolean = false,
@@ -120,31 +121,39 @@ class CreateVoucherViewModel(
         // here too, not just on the composable's Button `enabled`, so submit() is a no-op if
         // called without it (e.g. a future non-UI caller, or a test).
         if (!state.declarationAcknowledged) return
-        setState { copy(isSubmitting = true) }
+        setState { copy(isSubmitting = true, submitError = null) }
         viewModelScope.launch {
-            val number = "V-${Clock.System.now().toEpochMilliseconds() % 10_000}"
-            val total =
-                state.expenses
-                    .filter { state.selectedTokens.contains(it.token) }
-                    .sumOf { it.reimbursableAmount }
-            voucherRepository.save(
-                VoucherRecord(
-                    voucherNumber = number,
-                    title = state.title,
-                    category = state.category,
-                    totalAmount = total,
-                    notes = state.notes,
-                    expenseRouteIds = state.selectedTokens.toList(),
-                    createdAtMs = Clock.System.now().toEpochMilliseconds(),
-                ),
-            )
-            // P3.2: a voucher isn't useful sitting in DRAFT forever — move it to PENDING as part
-            // of the same submit flow.
-            voucherRepository.moveToApproval(number)
-            // P3.3: already-claimed guard — stamp every selected trip with this voucher's number
-            // so it can't be selected into a second voucher later.
-            savedTrackRepository.markClaimedByVoucher(state.selectedTokens.toList(), number)
-            setState { copy(isSubmitting = false, submittedVoucherNumber = number, step = 3) }
+            // ERROR: dao.insert (Room) can throw (disk full, constraint violation) — previously
+            // uncaught, which left isSubmitting=true forever (a frozen spinner the user could never
+            // get out of) or crashed the app outright. Caught here so the button re-enables and the
+            // failure is named, matching how MileageSubmissionViewModel handles its submit path.
+            try {
+                val number = "V-${Clock.System.now().toEpochMilliseconds() % 10_000}"
+                val total =
+                    state.expenses
+                        .filter { state.selectedTokens.contains(it.token) }
+                        .sumOf { it.reimbursableAmount }
+                voucherRepository.save(
+                    VoucherRecord(
+                        voucherNumber = number,
+                        title = state.title,
+                        category = state.category,
+                        totalAmount = total,
+                        notes = state.notes,
+                        expenseRouteIds = state.selectedTokens.toList(),
+                        createdAtMs = Clock.System.now().toEpochMilliseconds(),
+                    ),
+                )
+                // P3.2: a voucher isn't useful sitting in DRAFT forever — move it to PENDING as part
+                // of the same submit flow.
+                voucherRepository.moveToApproval(number)
+                // P3.3: already-claimed guard — stamp every selected trip with this voucher's number
+                // so it can't be selected into a second voucher later.
+                savedTrackRepository.markClaimedByVoucher(state.selectedTokens.toList(), number)
+                setState { copy(isSubmitting = false, submittedVoucherNumber = number, step = 3) }
+            } catch (e: Exception) {
+                setState { copy(isSubmitting = false, submitError = e.message ?: "Couldn't create the voucher") }
+            }
         }
     }
 }

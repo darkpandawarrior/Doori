@@ -97,6 +97,9 @@ fun ClarificationHistoryScreen(
         onRetry = {},
         modifier = modifier,
         emptyTitle = stringResource(Res.string.approvals_clarification_history_empty),
+        // EMPTY: title alone didn't say what the room is for or how the first one appears —
+        // added inline since core:ui strings.xml is outside this pass's module ownership.
+        emptySubtitle = "Ask a question on any approval request and the conversation shows up here.",
         itemKey = { it.room.roomId },
         tabs = tabLabels,
         selectedTab = ui.tab.ordinal,

@@ -51,9 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
-import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.OemBatteryHints
 import com.mileway.core.platform.PermissionOnboardingFlow
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.currentDeviceManufacturer
 import com.mileway.core.ui.components.topbar.TrackingStatus
 import com.mileway.core.ui.components.topbar.TrackingTopBar
@@ -112,6 +112,11 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.core.ui.toast.Toasts
+import com.mileway.feature.tracking.ui.live.LiveDriveActions
+import com.mileway.feature.tracking.ui.live.LiveDriveScreen
+import com.mileway.feature.tracking.ui.live.LiveDriveState
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerController
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerSheet
 import com.mileway.feature.tracking.ui.sheets.CenterOption
 import com.mileway.feature.tracking.ui.sheets.JourneyConsentSheet
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideSheet
@@ -129,11 +134,6 @@ import com.mileway.feature.tracking.viewmodel.HeroGaugeMode
 import com.mileway.feature.tracking.viewmodel.JourneyStep
 import com.mileway.feature.tracking.viewmodel.MultiSessionRestoreViewModel
 import com.mileway.feature.tracking.viewmodel.TrackMilesAction
-import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerController
-import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerSheet
-import com.mileway.feature.tracking.ui.live.LiveDriveActions
-import com.mileway.feature.tracking.ui.live.LiveDriveScreen
-import com.mileway.feature.tracking.ui.live.LiveDriveState
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.viewmodel.TrackMilesPrimaryAction
 import com.mileway.feature.tracking.viewmodel.TrackMilesUiState

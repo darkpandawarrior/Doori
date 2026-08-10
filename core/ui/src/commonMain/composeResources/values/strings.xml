@@ -794,6 +794,8 @@
     <string name="verification_detail_info">Details</string>
     <string name="verification_detail_locked">This document is locked while under review or verified.</string>
     <string name="verification_detail_save">Save</string>
+    <string name="verification_detail_not_found_title">Document not found</string>
+    <string name="verification_detail_not_found_subtitle">This document type isn\'t in your catalogue, or the link is out of date. Go back and pick a document from the Verification Centre.</string>
     <string name="profile_home_analytics">Analytics</string>
     <string name="profile_home_analytics_live">Live · %1$s</string>
     <string name="profile_home_live_insights">Live insights</string>
@@ -995,7 +997,9 @@
     <string name="logging_service_type">Service Type</string>
     <string name="logging_select_a_service">Select a service</string>
     <string name="logging_purpose_of_travel">Purpose of travel</string>
+    <string name="logging_purpose_of_travel_placeholder">e.g. Client meeting, site visit</string>
     <string name="logging_cost_center_optional">Cost Center (optional)</string>
+    <string name="logging_cost_center_placeholder">e.g. CC-4521</string>
     <string name="logging_additional_details_title">Additional Details (2)</string>
     <string name="logging_additional_details_subtitle">Required expense fields before submission</string>
     <string name="logging_collapse_cd">Collapse</string>
@@ -1143,6 +1147,9 @@
     <string name="logging_sort_cd">Sort</string>
     <string name="logging_no_expenses_title">No expenses logged</string>
     <string name="logging_no_expenses_subtitle">Your expense records will appear here.</string>
+    <string name="logging_no_expenses_filtered_title">No matches</string>
+    <string name="logging_no_expenses_filtered_subtitle">Nothing matches this filter. Clear it to see all your expenses.</string>
+    <string name="logging_clear_filters">Clear filters</string>
     <string name="logging_status_draft">Draft</string>
     <string name="logging_status_pending">Pending</string>
     <string name="logging_status_approved">Approved</string>
@@ -1156,6 +1163,7 @@
     <string name="logging_timeline_contact_manager">Contact your manager</string>
     <string name="logging_timeline_awaiting_decision">Awaiting Decision</string>
     <string name="logging_expense_not_found">Expense not found</string>
+    <string name="logging_expense_not_found_subtitle">This expense may have been deleted, or the link is no longer valid.</string>
     <string name="logging_note">Note</string>
     <string name="logging_resubmit">Resubmit</string>
     <string name="logging_edit_expense">Edit Expense</string>
@@ -1174,6 +1182,8 @@
     <string name="logging_search_vouchers_placeholder">Search vouchers…</string>
     <string name="logging_no_vouchers_title">No vouchers here</string>
     <string name="logging_no_vouchers_subtitle">Submitted vouchers will appear under their status.</string>
+    <string name="logging_no_vouchers_filtered_title">No matches</string>
+    <string name="logging_no_vouchers_filtered_subtitle">No vouchers match this tab or search. Try All or a different search term.</string>
     <string name="logging_voucher_actions_cd">Voucher actions</string>
     <string name="logging_withdraw">Withdraw</string>
     <string name="logging_withdraw_title">Withdraw Voucher?</string>

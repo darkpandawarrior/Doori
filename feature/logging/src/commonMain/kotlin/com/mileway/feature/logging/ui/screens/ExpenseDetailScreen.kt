@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.timeline.TimelineStep
@@ -57,6 +58,7 @@ import com.mileway.core.ui.resources.logging_description
 import com.mileway.core.ui.resources.logging_edit_expense
 import com.mileway.core.ui.resources.logging_expense_details_header
 import com.mileway.core.ui.resources.logging_expense_not_found
+import com.mileway.core.ui.resources.logging_expense_not_found_subtitle
 import com.mileway.core.ui.resources.logging_line_items
 import com.mileway.core.ui.resources.logging_note
 import com.mileway.core.ui.resources.logging_qty
@@ -101,9 +103,24 @@ fun ExpenseDetailScreen(
     // round-trip it through the ViewModel (unlike HistoryListScaffold's tab, which re-filters data).
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
 
+    // EMPTY: expenseId resolved to nothing (deleted between list and detail, a stale deep link).
+    // Previously this bypassed the scaffold entirely — no top bar, no back button, a dead end
+    // except the hardware/gesture back. Keeps the same scaffold (and its back arrow) the loaded
+    // case uses, same fix shape as TrackDetailScreen's "Journey not found" state.
     if (expense == null) {
-        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(Res.string.logging_expense_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        TransactionDetailScaffold(
+            title = stringResource(Res.string.logging_expense_details_header),
+            titleIcon = Icons.Filled.Receipt,
+            tabs = listOf(DetailSection.Details),
+            selectedTab = DetailSection.Details,
+            onSelectTab = {},
+            onBack = onBack,
+            modifier = modifier,
+        ) {
+            EmptyState(
+                title = stringResource(Res.string.logging_expense_not_found),
+                subtitle = stringResource(Res.string.logging_expense_not_found_subtitle),
+            )
         }
         return
     }

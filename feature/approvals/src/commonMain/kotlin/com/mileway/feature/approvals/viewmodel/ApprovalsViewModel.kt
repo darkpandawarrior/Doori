@@ -3,6 +3,7 @@ package com.mileway.feature.approvals.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.ledger.ApprovalTransitions
 import com.mileway.core.ui.mvi.ScreenState
+import com.mileway.core.ui.mvi.errorState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_toast_edit_distance_unavailable
 import com.mileway.core.ui.resources.approvals_toast_request_approved
@@ -179,7 +180,16 @@ class ApprovalsViewModel(
     }
 
     private fun openDetail(id: String) {
-        val item = ApprovalsRepository.getById(id) ?: return
+        val item =
+            ApprovalsRepository.getById(id) ?: run {
+                // ERROR (not-found): previously this `return`d without touching detailState at
+                // all, so a stale/deleted/bad-deep-link id would either leave the *previous*
+                // approval's detail on screen (if one was open before) or leave detailState at
+                // its initial ScreenState.Empty forever — the screen renders nothing either way.
+                // Root-caused here so every caller of OpenDetail gets the fix, not just this one.
+                setState { copy(detailState = errorState("Approval not found")) }
+                return
+            }
         setState { copy(detailState = ScreenState.Content(ApprovalDetailState(item = item))) }
 
         clarificationJob?.cancel()

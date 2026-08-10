@@ -51,11 +51,14 @@ import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.rememberMediaCaptureLauncher
+import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.verification_back
 import com.mileway.core.ui.resources.verification_detail_add_photo
 import com.mileway.core.ui.resources.verification_detail_info
 import com.mileway.core.ui.resources.verification_detail_locked
+import com.mileway.core.ui.resources.verification_detail_not_found_subtitle
+import com.mileway.core.ui.resources.verification_detail_not_found_title
 import com.mileway.core.ui.resources.verification_detail_save
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
@@ -119,7 +122,18 @@ fun DocumentDetailScreen(
                 }
             }
 
-            if (doc == null) return@Column
+            // EMPTY/not-found: an invalid docType (stale link) or a still-loading catalogue (Room
+            // seed/observe hasn't emitted yet) both land here as doc == null. Previously this
+            // `return@Column`'d silently, leaving only the top bar rendered — indistinguishable
+            // from a crash. An explicit state names what happened instead.
+            if (doc == null) {
+                DefaultEmptyState(
+                    modifier = Modifier.fillMaxSize(),
+                    title = stringResource(Res.string.verification_detail_not_found_title),
+                    subtitle = stringResource(Res.string.verification_detail_not_found_subtitle),
+                )
+                return@Column
+            }
 
             Column(
                 modifier =

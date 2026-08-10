@@ -74,6 +74,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
@@ -84,7 +85,6 @@ import com.mileway.core.ui.resources.approvals_approve_all
 import com.mileway.core.ui.resources.approvals_bulk_action_illustrative
 import com.mileway.core.ui.resources.approvals_cd_clarification_history
 import com.mileway.core.ui.resources.approvals_cd_filter
-import com.mileway.core.ui.resources.approvals_empty_no_items
 import com.mileway.core.ui.resources.approvals_filter_saved
 import com.mileway.core.ui.resources.approvals_plural_days_ago
 import com.mileway.core.ui.resources.approvals_plural_hours_ago
@@ -261,6 +261,16 @@ fun ApprovalsScreen(
                         val visible = if (ui.savedFilterOn) pending.filter { it.id in ui.savedApprovalIds } else pending
                         ApprovalListTab(
                             items = visible,
+                            // EMPTY: two different reasons land here — nothing pending at all
+                            // (the common, positive case) vs. the SAVED filter matching nothing.
+                            // Previously both showed the same literal "No items" text.
+                            emptyTitle = if (ui.savedFilterOn) "No saved conversations" else "You're all caught up",
+                            emptySubtitle =
+                                if (ui.savedFilterOn) {
+                                    "Approvals you save from the clarification chat will show up here."
+                                } else {
+                                    "Nothing is waiting for your approval right now."
+                                },
                             onOpenDetail = onOpenDetail,
                             selectionMode = selectionMode,
                             selectedIds = selectedIds.value,
@@ -275,6 +285,8 @@ fun ApprovalsScreen(
                 1 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.teamItems,
+                        emptyTitle = "No team activity yet",
+                        emptySubtitle = "Approvals submitted by your team will appear here.",
                         onOpenDetail = {},
                         selectionMode = false,
                         selectedIds = emptySet(),
@@ -284,6 +296,8 @@ fun ApprovalsScreen(
                 2 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.myRequests,
+                        emptyTitle = "No requests yet",
+                        emptySubtitle = "Submit a mileage log, expense, or travel request and its approval status will show up here.",
                         onOpenDetail = {},
                         selectionMode = false,
                         selectedIds = emptySet(),
@@ -299,6 +313,8 @@ fun ApprovalsScreen(
 @Composable
 private fun ApprovalListTab(
     items: List<ApprovalItem>,
+    emptyTitle: String,
+    emptySubtitle: String,
     onOpenDetail: (String) -> Unit,
     selectionMode: Boolean,
     selectedIds: Set<String>,
@@ -306,13 +322,7 @@ private fun ApprovalListTab(
     onToggleSelect: (String) -> Unit,
 ) {
     if (items.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                stringResource(Res.string.approvals_empty_no_items),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        EmptyState(title = emptyTitle, subtitle = emptySubtitle, modifier = Modifier.fillMaxSize())
         return
     }
     LazyColumn(

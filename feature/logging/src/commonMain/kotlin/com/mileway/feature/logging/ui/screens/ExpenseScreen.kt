@@ -851,6 +851,7 @@ private fun DraftRowCard(
                 value = row.merchantName,
                 onValueChange = onMerchantChange,
                 label = { Text(stringResource(Res.string.logging_merchant)) },
+                placeholder = { Text(stringResource(Res.string.logging_merchant_name_placeholder)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -861,6 +862,8 @@ private fun DraftRowCard(
                 value = row.amountText,
                 onValueChange = onAmountChange,
                 label = { Text(stringResource(Res.string.logging_amount)) },
+                placeholder = { Text("0.00") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -868,7 +871,9 @@ private fun DraftRowCard(
             if (row.status == DraftStatus.ERROR) {
                 Spacer(Modifier.height(DesignTokens.Spacing.s))
                 Text(
-                    text = stringResource(Res.string.logging_row_needs_attention),
+                    // A generic "needs attention" told the user nothing about which field or why —
+                    // row.errorMessage carries the actual validator/write-failure reason.
+                    text = row.errorMessage ?: stringResource(Res.string.logging_row_needs_attention),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
                 )
