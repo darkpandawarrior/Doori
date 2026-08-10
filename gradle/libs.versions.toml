@@ -72,7 +72,7 @@ navigation3 = "1.2.0-alpha07"
 storytale = "0.0.5-alpha01+dev24"
 navgraph = "0.2.1"
 # Phase 12, Code quality
-detekt = "2.0.0-alpha.5"
+detekt = "2.0.0-alpha.6"
 kover = "0.9.9"
 ktlint-plugin = "12.3.0"
 # Build health + dependency locking
