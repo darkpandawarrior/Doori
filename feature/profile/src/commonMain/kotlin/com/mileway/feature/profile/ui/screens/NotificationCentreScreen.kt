@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +67,7 @@ import com.mileway.core.ui.resources.profile_notifications_unread_count
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.data.NotifType
 import com.mileway.feature.profile.data.NotificationRecord
 import com.mileway.feature.profile.viewmodel.NotificationEffect
@@ -88,15 +90,19 @@ private fun NotifType.icon(): ImageVector =
         NotifType.SYSTEM -> Icons.Filled.Info
     }
 
+@Composable
+@ReadOnlyComposable
 private fun NotifType.iconColor(): Color =
     when (this) {
-        NotifType.APPROVAL -> Color(0xFF6366F1)
+        // Awaiting/requires an approval action — pending, not a hue pick.
+        NotifType.APPROVAL -> MilewayRoles.pending
         NotifType.ADVANCE -> StatusColors.success
         NotifType.EXPENSE -> StatusColors.error
         NotifType.POLICY -> StatusColors.warning
         NotifType.CARD -> StatusColors.neutral
         NotifType.PAYABLES -> StatusColors.info
-        NotifType.APP_UPDATE -> Color(0xFF8B5CF6)
+        // A non-blocking system notice, same lineage as SYSTEM's info icon.
+        NotifType.APP_UPDATE -> MilewayRoles.informational
         NotifType.SYSTEM -> StatusColors.neutral
     }
 

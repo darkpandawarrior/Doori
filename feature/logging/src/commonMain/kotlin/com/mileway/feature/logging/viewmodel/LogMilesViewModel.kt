@@ -94,7 +94,10 @@ data class LogMilesUiState(
     val purposeOfTravel: String = "",
     val costCenter: String = "",
     val taggedEmployees: List<String> = emptyList(),
-    val attachmentCount: Int = 0,
+    // P27.F.6 follow-up: was a bare Int counter incremented by a fake "add" tap — nothing was ever
+    // actually captured, so there was no thumbnail to show and no way to remove one. Real local
+    // receipt paths now, the same shape ExpenseScreen's receiptImagePath uses, just multi-valued.
+    val attachmentPaths: List<String> = emptyList(),
     // ── Submission ────────────────────────────────────────────────────────────
     val isSubmitting: Boolean = false,
     val submissionResult: ExpenseSubmissionResponse? = null,
@@ -260,7 +263,9 @@ sealed interface LogMilesAction {
 
     data class SetTaggedEmployees(val names: List<String>) : LogMilesAction
 
-    data object AddAttachment : LogMilesAction
+    data class AddAttachment(val path: String) : LogMilesAction
+
+    data class RemoveAttachment(val path: String) : LogMilesAction
 
     data object SaveDraft : LogMilesAction
 
@@ -392,7 +397,8 @@ class LogMilesViewModel(
             is LogMilesAction.SetPurposeOfTravel -> setState { copy(purposeOfTravel = action.text) }
             is LogMilesAction.SetCostCenter -> setState { copy(costCenter = action.text) }
             is LogMilesAction.SetTaggedEmployees -> setState { copy(taggedEmployees = action.names) }
-            LogMilesAction.AddAttachment -> setState { copy(attachmentCount = attachmentCount + 1) }
+            is LogMilesAction.AddAttachment -> setState { copy(attachmentPaths = attachmentPaths + action.path) }
+            is LogMilesAction.RemoveAttachment -> setState { copy(attachmentPaths = attachmentPaths - action.path) }
             LogMilesAction.SaveDraft -> saveDraft()
             is LogMilesAction.DeleteDraft -> deleteDraft(action.draftId)
             is LogMilesAction.LoadDraft -> loadDraft(action.draftId)

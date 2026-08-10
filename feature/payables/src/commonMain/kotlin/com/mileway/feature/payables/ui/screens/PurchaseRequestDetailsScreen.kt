@@ -73,7 +73,7 @@ import com.mileway.core.ui.resources.payables_timeline_under_review
 import com.mileway.core.ui.resources.payables_timeline_under_review_note
 import com.mileway.core.ui.resources.payables_total_incl_gst
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.payables.model.PoLineItem
 import com.mileway.feature.payables.model.PoStatus
 import com.mileway.feature.payables.model.PurchaseOrder
@@ -188,10 +188,10 @@ fun PurchaseRequestDetailsScreen(
 private fun PoHeaderCard(po: PurchaseOrder) {
     val (statusLabel, statusColor) =
         when (po.status) {
-            PoStatus.DRAFT -> stringResource(Res.string.payables_po_status_draft) to StatusColors.neutral
-            PoStatus.PENDING_APPROVAL -> stringResource(Res.string.payables_po_status_pending_approval) to StatusColors.warning
-            PoStatus.APPROVED -> stringResource(Res.string.payables_po_status_approved) to StatusColors.success
-            PoStatus.REJECTED -> stringResource(Res.string.payables_po_status_rejected) to StatusColors.error
+            PoStatus.DRAFT -> stringResource(Res.string.payables_po_status_draft) to MilewayRoles.inactive
+            PoStatus.PENDING_APPROVAL -> stringResource(Res.string.payables_po_status_pending_approval) to MilewayRoles.pending
+            PoStatus.APPROVED -> stringResource(Res.string.payables_po_status_approved) to MilewayRoles.approved
+            PoStatus.REJECTED -> stringResource(Res.string.payables_po_status_rejected) to MilewayRoles.rejected
         }
 
     Card(
@@ -217,7 +217,7 @@ private fun PoHeaderCard(po: PurchaseOrder) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
-                Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
+                Surface(color = MilewayRoles.tint(statusColor), shape = DesignTokens.Shape.button) {
                     Text(
                         text = statusLabel,
                         style = MaterialTheme.typography.labelSmall,
@@ -327,14 +327,14 @@ private fun buildPoTimelineSteps(status: PoStatus): List<TimelineStep> =
         TimelineStep(
             stringResource(Res.string.payables_timeline_submitted),
             Icons.Filled.Receipt,
-            StatusColors.info,
+            MilewayRoles.informational,
             active = true,
             note = stringResource(Res.string.payables_timeline_submitted_note),
         ),
         TimelineStep(
             stringResource(Res.string.payables_timeline_under_review),
             Icons.Filled.HourglassBottom,
-            StatusColors.warning,
+            MilewayRoles.pending,
             active = status != PoStatus.DRAFT,
             note = if (status != PoStatus.DRAFT) stringResource(Res.string.payables_timeline_under_review_note) else "",
         ),
@@ -343,7 +343,7 @@ private fun buildPoTimelineSteps(status: PoStatus): List<TimelineStep> =
                 TimelineStep(
                     stringResource(Res.string.payables_po_status_approved),
                     Icons.Filled.CheckCircle,
-                    StatusColors.success,
+                    MilewayRoles.approved,
                     active = true,
                     note = stringResource(Res.string.payables_timeline_approved_note),
                 )
@@ -351,7 +351,7 @@ private fun buildPoTimelineSteps(status: PoStatus): List<TimelineStep> =
                 TimelineStep(
                     stringResource(Res.string.payables_po_status_rejected),
                     Icons.Filled.CheckCircle,
-                    StatusColors.error,
+                    MilewayRoles.rejected,
                     active = true,
                     note = stringResource(Res.string.payables_timeline_rejected_note),
                 )
@@ -359,7 +359,7 @@ private fun buildPoTimelineSteps(status: PoStatus): List<TimelineStep> =
                 TimelineStep(
                     stringResource(Res.string.payables_timeline_pending),
                     Icons.Filled.HourglassBottom,
-                    StatusColors.neutral,
+                    MilewayRoles.inactive,
                     active = false,
                 )
         },

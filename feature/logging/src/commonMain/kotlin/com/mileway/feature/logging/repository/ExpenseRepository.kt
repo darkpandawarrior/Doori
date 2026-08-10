@@ -41,6 +41,11 @@ open class ExpenseRepository(
                 status = ExpenseStatus.PENDING,
                 dateMs = baseMs - 2 * dayMs,
                 note = "Client visit: Bengaluru",
+                // TRAVEL requires both a receipt and a cost center (ExpenseCategoryCatalog) — the
+                // seed previously left both null, so this row rendered with no attachment thumbnail
+                // and no "Project/Cost Center" value despite the category demanding them.
+                receiptImagePath = "file:///storage/emulated/0/Pictures/Mileway/receipt_ola_airport.jpg",
+                officeCode = "1349",
             ),
             ExpenseRecord(
                 id = "EXP-003",
@@ -50,6 +55,8 @@ open class ExpenseRepository(
                 status = ExpenseStatus.APPROVED,
                 dateMs = baseMs - 4 * dayMs,
                 note = "Outstation client meeting",
+                receiptImagePath = "file:///storage/emulated/0/Pictures/Mileway/receipt_taj_hotel.jpg",
+                officeCode = "1349",
             ),
             ExpenseRecord(
                 id = "EXP-004",
@@ -58,6 +65,8 @@ open class ExpenseRepository(
                 amountRupees = 340.0,
                 status = ExpenseStatus.DRAFT,
                 dateMs = baseMs - 5 * dayMs,
+                receiptImagePath = "file:///storage/emulated/0/Pictures/Mileway/receipt_staples.jpg",
+                officeCode = "1345",
             ),
             ExpenseRecord(
                 id = "EXP-005",
@@ -76,6 +85,7 @@ open class ExpenseRepository(
                 status = ExpenseStatus.PENDING,
                 dateMs = baseMs - 10 * dayMs,
                 note = "First aid supplies for office",
+                receiptImagePath = "file:///storage/emulated/0/Pictures/Mileway/receipt_apollo.jpg",
             ),
             ExpenseRecord(
                 id = "EXP-007",
@@ -97,6 +107,20 @@ open class ExpenseRepository(
                 status = ExpenseStatus.PENDING,
                 dateMs = baseMs - 18 * dayMs,
                 note = "Mumbai–Delhi flight for annual summit",
+                receiptImagePath = "file:///storage/emulated/0/Pictures/Mileway/receipt_indigo.jpg",
+                officeCode = "1345",
+            ),
+            // P27.E.16: a ninth row with no attachment on a receipt-optional category (FOOD) — the
+            // history list needs at least one row that legitimately shows the "no attachment" state
+            // next to rows that do, not every filled row looking identical.
+            ExpenseRecord(
+                id = "EXP-009",
+                category = ExpenseCategory.FOOD,
+                merchantName = "Chaayos: Client Coffee",
+                amountRupees = 480.0,
+                status = ExpenseStatus.APPROVED,
+                dateMs = baseMs - 21 * dayMs,
+                note = "Informal catch-up with vendor POC",
             ),
         )
 

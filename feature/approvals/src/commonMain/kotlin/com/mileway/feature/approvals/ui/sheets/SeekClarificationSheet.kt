@@ -50,7 +50,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.media.model.CaptureMode
@@ -73,6 +72,7 @@ import com.mileway.core.ui.resources.approvals_meta_saved
 import com.mileway.core.ui.resources.approvals_seek_clarification
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.approvals.model.ClarificationMessage
 import com.mileway.feature.approvals.model.ClarificationRoom
 import com.mileway.feature.approvals.model.ClarificationRoomMeta
@@ -347,7 +347,9 @@ private fun ChatBubble(message: ClarificationMessage) {
                     ),
                 color =
                     if (isApprover) {
-                        Color(0xFF1AB090).copy(alpha = 0.15f)
+                        // Approver bubble: tinted with the theme's accent (was a fixed teal hex,
+                        // so it rendered identically under every design direction).
+                        MilewayRoles.tint(MaterialTheme.colorScheme.primary)
                     } else {
                         MaterialTheme.colorScheme.surfaceVariant
                     },

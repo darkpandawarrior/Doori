@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -108,8 +109,12 @@ import com.mileway.feature.agent.ui.screens.AgentHistoryScreen
 import com.mileway.feature.agent.voice.SpeechToText
 import com.mileway.feature.agent.voice.TextToSpeech
 import com.mileway.feature.approvals.di.approvalsModule
+import com.mileway.feature.approvals.model.ApprovalItem
+import com.mileway.feature.approvals.model.ApprovalStatus
+import com.mileway.feature.approvals.model.ApprovalType
 import com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen
 import com.mileway.feature.approvals.ui.screens.ApprovalsScreen
+import com.mileway.feature.approvals.ui.sheets.ClaimantHistorySheet
 import com.mileway.feature.cards.di.cardsModule
 import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
@@ -223,6 +228,7 @@ import com.mileway.feature.tracking.ui.sheets.OfficePickerSheet
 import com.mileway.feature.tracking.ui.sheets.PauseReasonSheet
 import com.mileway.feature.tracking.ui.sheets.PermissionOnboardingSheet
 import com.mileway.feature.tracking.ui.sheets.PolicyViolationSheet
+import com.mileway.feature.tracking.ui.sheets.ResumeTrackingSheet
 import com.mileway.feature.tracking.ui.sheets.RestorableSession
 import com.mileway.feature.tracking.ui.sheets.SessionRestoreSheet
 import com.mileway.feature.tracking.ui.sheets.SmartDistanceSheet
@@ -828,6 +834,32 @@ class ScreenshotGalleryTest {
             }
         }
         capture("saved_tracks_journeys_tab")
+        // FILLED variant (UI-realism audit): same real render as above — seededDao's 4 journeys
+        // (mixed submitted/unsubmitted status, real km/₹ amounts) — just under the paired
+        // <screen>_filled.png / <screen>_empty.png naming so the pair sits together in docs/.
+        capture("saved_tracks_screen_filled")
+    }
+
+    // FILLED/EMPTY pair (UI-realism audit, tracking-content): the day-one state a brand-new
+    // account sees before recording a single journey — driven by a ViewModel wired to its own
+    // empty FakeSavedTrackDao rather than the class-level seededDao every other test shares
+    // (seededDao is reused across this whole class; mutating it would break those tests).
+    @Test
+    fun savedTracksScreenEmpty() {
+        composeRule.setContent {
+            MilewayTheme {
+                SavedTracksScreen(
+                    onTrackClick = {},
+                    onStartNew = {},
+                    viewModel =
+                        com.mileway.feature.tracking.viewmodel.SavedTracksViewModel(
+                            repository = com.mileway.feature.tracking.repository.SavedTrackRepository(FakeSavedTrackDao()),
+                            activeAccountSource = FakeActiveAccountSource(),
+                        ),
+                )
+            }
+        }
+        capture("saved_tracks_screen_empty")
     }
 
     @Test
@@ -845,6 +877,9 @@ class ScreenshotGalleryTest {
             }
         }
         capture("track_detail_screen")
+        // FILLED variant (UI-realism audit, tracking-content): route-j1's real distance/duration/
+        // amount data, paired with the not-found EMPTY variant below under the standardized name.
+        capture("track_detail_screen_filled")
     }
 
     // ROUND 2: "Journey not found" — an unseeded routeId (deleted record, stale deep link) drives
@@ -865,6 +900,10 @@ class ScreenshotGalleryTest {
             }
         }
         capture("track_detail_screen_not_found")
+        // EMPTY variant (UI-realism audit, tracking-content): a deleted/never-recorded routeId is
+        // the day-one "no data" shape for this single-record screen — no journeys have ever been
+        // saved yet, so this is the honest EMPTY pair for track_detail_screen_filled above.
+        capture("track_detail_screen_empty")
     }
 
     @Test
@@ -1004,6 +1043,35 @@ class ScreenshotGalleryTest {
             }
         }
         capture("geo_check_in_screen")
+        // EMPTY variant (UI-realism audit, tracking-content): the day-one blank form — check-in
+        // type still shows its placeholder, no dynamic fields yet (fixes the placeholder-as-value
+        // bug where "Select type" used to look like a real answer).
+        capture("geo_check_in_screen_empty")
+    }
+
+    // FILLED variant (UI-realism audit, tracking-content) paired with the EMPTY state above: a
+    // type picked and both of its dynamic fields filled in, stopping short of submit so the form
+    // itself — not the submission-error state already covered by geoCheckInSubmissionError — is
+    // what's captured.
+    @Test
+    fun geoCheckInScreenFilled() {
+        composeRule.setContent {
+            MilewayTheme {
+                GeoCheckInScreen(onBack = {})
+            }
+        }
+        // The type field's "Select type" copy is now the OutlinedTextField's `placeholder` (the
+        // label/placeholder fix this pairs with) — Material3 only renders a placeholder once the
+        // field has focus when a label is also present, so it isn't in the semantics tree yet to
+        // click on. "Check-In Type" appears twice (the section header, then the field's own
+        // label) — the field's own label is the one spatially inside the clickable field.
+        composeRule.onAllNodesWithText("Check-In Type")[1].performClick()
+        composeRule.onNodeWithText("Office Check-In").performClick()
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Desk number").performTextInput("D-114")
+        composeRule.onNodeWithText("Floor").performTextInput("3rd Floor, West Wing")
+        composeRule.waitForIdle()
+        capture("geo_check_in_screen_filled")
     }
 
     // ROUND 1 (never captured): submission-error. GeoCheckInScreen owns this submit flow with
@@ -1488,6 +1556,28 @@ class ScreenshotGalleryTest {
             }
         }
         capture("approvals_screen_pending_tab")
+        // FILLED variant (UI-realism audit, approvals-content): same real render — the pending
+        // queue's 4 items (4 distinct claimants, mixed types, ₹150–8,400, ages 20m–7d) — under the
+        // standardized <screen>_filled.png name so it pairs with approvals_screen_empty below.
+        capture("approvals_screen_filled")
+    }
+
+    // EMPTY variant (UI-realism audit, approvals-content) paired with approvals_screen_filled
+    // above: the pending queue's own "SAVED" filter chip, toggled with nothing saved yet — the
+    // screen's real, already-wired EMPTY state (distinct copy from the "all caught up" case, see
+    // ApprovalsScreen.kt's emptyTitle `when`), not a fabricated one.
+    @Test
+    fun approvalsScreenEmpty() {
+        composeRule.setContent {
+            CompositionLocalProvider(LocalNowMs provides { screenshotNowMs }) {
+                MilewayTheme {
+                    ApprovalsScreen(onOpenDetail = {})
+                }
+            }
+        }
+        composeRule.onNodeWithText("Saved").performClick()
+        composeRule.waitForIdle()
+        capture("approvals_screen_empty")
     }
 
     @Test
@@ -1498,6 +1588,10 @@ class ScreenshotGalleryTest {
             }
         }
         capture("approval_details_screen_violation")
+        // FILLED variant (UI-realism audit, approvals-content): same real render — A003's full
+        // requester/amount/violation detail — under the standardized name, paired with
+        // approval_details_screen_empty below.
+        capture("approval_details_screen_filled")
     }
 
     // ROUND 2: not-found/error. other-features's fix — a stale/deleted approvalId previously
@@ -1511,6 +1605,50 @@ class ScreenshotGalleryTest {
             }
         }
         capture("approval_details_screen_not_found")
+        // EMPTY variant (UI-realism audit, approvals-content): a stale/deleted approvalId is this
+        // screen's real "nothing here" shape — paired with approval_details_screen_filled above.
+        capture("approval_details_screen_empty")
+    }
+
+    // FILLED/EMPTY pair (UI-realism audit, approvals-content): ClaimantHistorySheet is new — a
+    // manager's "who is this person, should I trust this claim" lookup opened from the requester
+    // card. It's a stateless composable (items flow in as a param), so both states are driven
+    // directly rather than through ApprovalsRepository.all, which today has no requester with more
+    // than one entry — real wiring's "history" is honest but currently always empty; this
+    // illustrates what the sheet looks like once a claimant has a real track record.
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun claimantHistorySheetFilled() {
+        composeRule.setContent {
+            MilewayTheme {
+                ClaimantHistorySheet(
+                    requesterName = "Priya Sharma",
+                    items =
+                        listOf(
+                            ApprovalItem("A001", ApprovalType.MILEAGE, "Priya Sharma", "Client visit – 48 km trip", 576.0, ApprovalStatus.PENDING, 1_781_654_400_000L - 3_600_000L),
+                            ApprovalItem("A101", ApprovalType.EXPENSE, "Priya Sharma", "Business dinner – ₹3,200", 3200.0, ApprovalStatus.APPROVED, 1_781_654_400_000L - 86_400_000L),
+                            ApprovalItem("A102", ApprovalType.TRAVEL, "Priya Sharma", "Pune–Mumbai cab", 1450.0, ApprovalStatus.REJECTED, 1_781_654_400_000L - 5 * 86_400_000L),
+                            ApprovalItem(
+                                "A103", ApprovalType.EXPENSE, "Priya Sharma", "Client gift – ₹1,800", 1800.0, ApprovalStatus.APPROVED,
+                                1_781_654_400_000L - 9 * 86_400_000L, policyViolation = true,
+                            ),
+                        ),
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("claimant_history_sheet_filled")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun claimantHistorySheetEmpty() {
+        composeRule.setContent {
+            MilewayTheme {
+                ClaimantHistorySheet(requesterName = "Karan Chopra", items = emptyList(), onDismiss = {})
+            }
+        }
+        capture("claimant_history_sheet_empty")
     }
 
     // ── Payments & Events ──────────────────────────────────────────────────────────
@@ -2383,6 +2521,82 @@ class ScreenshotGalleryTest {
         capture("pause_reason_sheet")
     }
 
+    // FILLED/EMPTY pair (UI-realism audit, tracking-content): the "Custom reason" field the fix
+    // added a real label to. showCustomInput is forced true (rather than left to its
+    // customReason.isNotEmpty() default) so the EMPTY variant can show the field's placeholder +
+    // label with nothing typed yet, not just the collapsed "Add custom reason" button.
+    @Test
+    fun pauseReasonSheetFilled() {
+        composeRule.setContent {
+            ThemedBackground {
+                PauseReasonSheet(
+                    timestamp = "2:45 PM",
+                    selectedReason = null,
+                    customReason = "Waiting for the toll booth queue to clear near the flyover",
+                    showCustomInput = true,
+                    onSelectReason = {},
+                    onCustomReason = {},
+                    onConfirm = {},
+                    onCancel = {},
+                )
+            }
+        }
+        capture("pause_reason_sheet_filled")
+    }
+
+    @Test
+    fun pauseReasonSheetEmpty() {
+        composeRule.setContent {
+            ThemedBackground {
+                PauseReasonSheet(
+                    timestamp = "2:45 PM",
+                    selectedReason = null,
+                    customReason = "",
+                    showCustomInput = true,
+                    onSelectReason = {},
+                    onCustomReason = {},
+                    onConfirm = {},
+                    onCancel = {},
+                )
+            }
+        }
+        capture("pause_reason_sheet_empty")
+    }
+
+    // FILLED/EMPTY pair (UI-realism audit, tracking-content): the "Resume notes" field the fix
+    // added a real label to. ResumeTrackingSheet had no capture in this gallery at all before now.
+    @Test
+    fun resumeTrackingSheetFilled() {
+        composeRule.setContent {
+            ThemedBackground {
+                ResumeTrackingSheet(
+                    pauseReason = "traffic",
+                    resumeNotes = "Traffic cleared near Hinjewadi Phase 1, resuming the route now.",
+                    onNotesChange = {},
+                    onResume = {},
+                    onCancel = {},
+                )
+            }
+        }
+        capture("resume_tracking_sheet_filled")
+    }
+
+    @Test
+    fun resumeTrackingSheetEmpty() {
+        composeRule.setContent {
+            ThemedBackground {
+                ResumeTrackingSheet(
+                    pauseReason = "traffic",
+                    resumeNotes = "",
+                    onNotesChange = {},
+                    onResume = {},
+                    onCancel = {},
+                )
+            }
+        }
+        capture("resume_tracking_sheet_empty")
+    }
+
     @Test
     fun sessionRestoreSheet() {
         composeRule.setContent {
@@ -2496,6 +2710,52 @@ class ScreenshotGalleryTest {
         capture("smart_distance_sheet")
     }
 
+    // FILLED/EMPTY pair (UI-realism audit, tracking-content): the "Explanation" field the fix
+    // added a real label to. That field only renders once `verified = true`, so both variants
+    // force that (the plain smart_distance_sheet test above documents the pre-verification state,
+    // where the field isn't shown at all).
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun smartDistanceSheetFilled() {
+        composeRule.setContent {
+            MilewayTheme {
+                SmartDistanceSheet(
+                    trackedKm = 12.0,
+                    odometerKm = 19.0,
+                    verified = true,
+                    explanation = "GPS lost signal near the flyover, drove around back roads before it locked back on.",
+                    onVerifiedChange = {},
+                    onExplanationChange = {},
+                    onStop = {},
+                    onContinue = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("smart_distance_sheet_filled")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun smartDistanceSheetEmpty() {
+        composeRule.setContent {
+            MilewayTheme {
+                SmartDistanceSheet(
+                    trackedKm = 12.0,
+                    odometerKm = 19.0,
+                    verified = true,
+                    explanation = "",
+                    onVerifiedChange = {},
+                    onExplanationChange = {},
+                    onStop = {},
+                    onContinue = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("smart_distance_sheet_empty")
+    }
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Test
     fun submitConfirmSheet() {
@@ -2531,6 +2791,62 @@ class ScreenshotGalleryTest {
             }
         }
         capture("policy_violation_sheet")
+    }
+
+    // FILLED/EMPTY pair (UI-realism audit, tracking-content): the "Note for reviewer" field the
+    // fix added a real label + required-hint to. That field only renders once
+    // `askAuthoritiesSelected = true`, so both variants force that (the plain policy_violation_sheet
+    // test above documents the pre-selection state, where the field isn't shown at all).
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun policyViolationSheetFilled() {
+        composeRule.setContent {
+            MilewayTheme {
+                PolicyViolationSheet(
+                    violations =
+                        listOf(
+                            PolicyViolation(
+                                id = "v1",
+                                title = "Distance exceeds policy limit",
+                                message = "This trip exceeds the 50 km daily limit by 12 km.",
+                            ),
+                        ),
+                    askAuthoritiesSelected = true,
+                    note = "Submitted a written explanation to HR; awaiting sign-off from the finance desk.",
+                    onToggleAskAuthorities = {},
+                    onNoteChange = {},
+                    onSubmit = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("policy_violation_sheet_filled")
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun policyViolationSheetEmpty() {
+        composeRule.setContent {
+            MilewayTheme {
+                PolicyViolationSheet(
+                    violations =
+                        listOf(
+                            PolicyViolation(
+                                id = "v1",
+                                title = "Distance exceeds policy limit",
+                                message = "This trip exceeds the 50 km daily limit by 12 km.",
+                            ),
+                        ),
+                    askAuthoritiesSelected = true,
+                    note = "",
+                    onToggleAskAuthorities = {},
+                    onNoteChange = {},
+                    onSubmit = {},
+                    onDismiss = {},
+                )
+            }
+        }
+        capture("policy_violation_sheet_empty")
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

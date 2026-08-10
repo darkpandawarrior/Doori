@@ -346,9 +346,15 @@ fun GeoCheckInScreen(
                         onExpandedChange = { typeExpanded = it },
                     ) {
                         OutlinedTextField(
-                            value = selectedType ?: stringResource(Res.string.tracking_geo_select_type),
+                            // Was: selected value OR the "Select type" hint stuffed into the
+                            // same slot, so an unset field rendered indistinguishable from a
+                            // real answer. label + placeholder keep those two states visually
+                            // distinct (placeholder is greyed, a real value is not).
+                            value = selectedType ?: "",
                             onValueChange = {},
                             readOnly = true,
+                            label = { Text(stringResource(Res.string.tracking_geo_checkin_type)) },
+                            placeholder = { Text(stringResource(Res.string.tracking_geo_select_type)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
                             modifier =
                                 Modifier

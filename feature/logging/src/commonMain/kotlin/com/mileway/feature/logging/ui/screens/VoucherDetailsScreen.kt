@@ -1,7 +1,6 @@
 package com.mileway.feature.logging.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -26,11 +25,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.db.VoucherEntity
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.StatusChip
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.mvi.dataOrNull
@@ -91,12 +90,14 @@ fun VoucherDetailsScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
         if (voucher == null) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(Res.string.logging_voucher_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
+            // Was a bare centered Text, inconsistent with every other detail screen's EmptyState
+            // (ExpenseDetailScreen's "not found" state uses the same component) and gave no reason
+            // for the miss (deleted voucher vs a stale deep link).
+            EmptyState(
+                title = stringResource(Res.string.logging_voucher_not_found),
+                subtitle = "This voucher may have been withdrawn, or the link is out of date.",
+                modifier = Modifier.padding(innerPadding),
+            )
         } else {
             VoucherDetailsContent(voucher, Modifier.padding(innerPadding).then(modifier))
         }

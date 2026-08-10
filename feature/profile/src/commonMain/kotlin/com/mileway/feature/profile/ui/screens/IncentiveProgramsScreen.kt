@@ -31,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.IncentiveProgram
 import com.mileway.feature.profile.viewmodel.IncentiveViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -63,7 +63,7 @@ fun IncentiveProgramsScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF9333EA), Color(0xFF4C1D95))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -126,7 +126,7 @@ private fun ProgramCard(program: IncentiveProgram) {
             LinearProgressIndicator(
                 progress = { fraction },
                 modifier = Modifier.fillMaxWidth().height(8.dp),
-                color = if (program.expired) MaterialTheme.colorScheme.outline else Color(0xFF9333EA),
+                color = if (program.expired) MaterialTheme.colorScheme.outline else MilewayRoles.premium,
             )
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -135,7 +135,7 @@ private fun ProgramCard(program: IncentiveProgram) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
                 )
-                Text(ic(program.rewardKey, ""), style = MaterialTheme.typography.bodySmall, color = Color(0xFF16A34A), fontWeight = FontWeight.SemiBold)
+                Text(ic(program.rewardKey, ""), style = MaterialTheme.typography.bodySmall, color = MilewayRoles.approved, fontWeight = FontWeight.SemiBold)
             }
         }
     }

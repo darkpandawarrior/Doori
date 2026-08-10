@@ -58,6 +58,7 @@ import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.ui.components.StatusTone
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.MilewayType
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
@@ -622,6 +623,7 @@ private fun HoldToStopButton(
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     val progress = remember { Animatable(0f) }
+    val stopColor = MilewayRoles.destructive
 
     Box(
         modifier =
@@ -650,7 +652,7 @@ private fun HoldToStopButton(
         contentAlignment = Alignment.Center,
     ) {
         androidx.compose.foundation.Canvas(modifier = Modifier.size(StopButtonSize)) {
-            drawCircle(color = Color(0xFFB91C1C))
+            drawCircle(color = stopColor)
             if (progress.value > 0f) {
                 // Radial fill: a pie wedge growing clockwise from 12 o'clock, not a ring — a ring
                 // reads as a loading spinner, a wedge reads as "how much further to hold".

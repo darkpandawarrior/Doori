@@ -117,6 +117,7 @@ import com.mileway.core.ui.resources.cards_unblock
 import com.mileway.core.ui.resources.cards_unfreeze
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.core.ui.toast.ToastType
 import com.mileway.core.ui.toast.Toasts
@@ -130,7 +131,6 @@ import com.mileway.feature.cards.model.CardStatus
 import com.mileway.feature.cards.model.CardTransactionModel
 import com.mileway.feature.cards.model.CardTxnClaimStatus
 import com.mileway.feature.cards.model.LimitKind
-import com.mileway.feature.cards.ui.components.CardAccent
 import com.mileway.feature.cards.ui.components.CardFace
 import com.mileway.feature.cards.ui.components.formatMoney
 import com.mileway.feature.cards.viewmodel.CardDetailAction
@@ -301,7 +301,7 @@ private fun ApprovalStepModel.toTimelineStep(): TimelineStep =
     TimelineStep(
         label = title,
         icon = if (status == ApprovalStepStatus.APPROVED) Icons.Filled.CheckCircle else Icons.Filled.Person,
-        color = if (status == ApprovalStepStatus.APPROVED) DesignTokens.StatusColors.success else MaterialTheme.colorScheme.primary,
+        color = if (status == ApprovalStepStatus.APPROVED) MilewayRoles.approved else MaterialTheme.colorScheme.primary,
         active = status == ApprovalStepStatus.APPROVED,
         note = approverName ?: "",
     )
@@ -509,7 +509,7 @@ private fun TransactionRow(
             Text(txn.merchantName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             Text(txn.txnNumber, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-        Text(formatMoney(txn.amount, txn.currency), style = MaterialTheme.typography.bodyMedium.dataStyle(), color = CardAccent)
+        Text(formatMoney(txn.amount, txn.currency), style = MaterialTheme.typography.bodyMedium.dataStyle(), color = MilewayRoles.money)
     }
 }
 
@@ -638,7 +638,7 @@ private fun TransactionDetailSheet(
     DetailInfoBottomSheet(
         title = txn.merchantName,
         subtitle = formatMoney(txn.amount, txn.currency),
-        headerGradient = listOf(Color(0xFF3730A3), Color(0xFF5C6BC0)),
+        headerGradient = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary),
         headerIcon = Icons.Filled.ReceiptLong,
         onDismiss = onDismiss,
     ) {

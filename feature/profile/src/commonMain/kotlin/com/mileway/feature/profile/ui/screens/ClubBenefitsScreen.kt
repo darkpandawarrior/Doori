@@ -43,7 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +52,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.MembershipViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -92,7 +92,7 @@ fun ClubBenefitsScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFFB8860B), Color(0xFF6B4E00))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -120,7 +120,7 @@ fun ClubBenefitsScreen(
                 if (celebrate) {
                     val scale by animateFloatAsState(if (celebrate) 1f else 0.7f, label = "confetti")
                     Surface(
-                        color = Color(0xFF16A34A).copy(alpha = 0.12f),
+                        color = MilewayRoles.tint(MilewayRoles.approved),
                         shape = DesignTokens.Shape.roundedMd,
                         modifier =
                             Modifier.fillMaxWidth().graphicsLayer {
@@ -132,7 +132,7 @@ fun ClubBenefitsScreen(
                             cb("club_confetti", "Welcome to Mileway Club!"),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF16A34A),
+                            color = MilewayRoles.approved,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
                         )
@@ -171,7 +171,7 @@ private fun JoinPitch(onJoin: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFB8860B), modifier = Modifier.height(40.dp))
+            Icon(Icons.Default.Star, contentDescription = null, tint = MilewayRoles.premium, modifier = Modifier.height(40.dp))
             Text(
                 cb("club_join_headline", "Join Mileway Club"),
                 style = MaterialTheme.typography.titleLarge,
@@ -193,7 +193,7 @@ private fun JoinPitch(onJoin: () -> Unit) {
 private fun MemberCard(activatedAtMs: Long?) {
     Card(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.roundedMd, elevation = CardDefaults.cardElevation(DesignTokens.Elevation.card)) {
         Row(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFFB8860B))
+            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MilewayRoles.premium)
             Spacer(Modifier.width(DesignTokens.Spacing.m))
             Column(modifier = Modifier.weight(1f)) {
                 Text(cb("club_member_badge", "Club member"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -215,7 +215,7 @@ private fun BenefitRow(
     description: String,
 ) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.Spacing.s), verticalAlignment = Alignment.Top) {
-        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF16A34A))
+        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MilewayRoles.approved)
         Spacer(Modifier.width(DesignTokens.Spacing.m))
         Column {
             Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)

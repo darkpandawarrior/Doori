@@ -110,6 +110,10 @@ fun OdometerCaptureSheet(
                 source = OdometerReadingSource.MANUAL
             },
             label = { Text(stringResource(Res.string.logging_odometer_reading_label)) },
+            // ponytail: inline literal, not a stringResource — core:ui's strings.xml is outside
+            // this module's ownership for this task; mirrors the existing "0.00" amount-field
+            // placeholder precedent elsewhere in this module.
+            placeholder = { Text("e.g. 45210") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),

@@ -33,13 +33,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -68,6 +68,7 @@ import com.mileway.core.ui.resources.verification_tnc_body
 import com.mileway.core.ui.resources.verification_tnc_cancel
 import com.mileway.core.ui.resources.verification_tnc_title
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -83,14 +84,16 @@ internal fun docStatusLabel(status: DocStatus): StringResource =
         DocStatus.REJECTED -> Res.string.verification_status_rejected
     }
 
-/** Shared status → accent colour. */
+/** Shared status → accent colour (LAYERS.md: state chips are Layer-2 roles, not hues). */
+@Composable
+@ReadOnlyComposable
 internal fun docStatusColor(status: DocStatus): Color =
     when (status) {
-        DocStatus.NOT_UPLOADED -> Color(0xFF6B7280)
-        DocStatus.UPLOADED -> Color(0xFF2563EB)
-        DocStatus.APPROVAL_PENDING -> Color(0xFFB45309)
-        DocStatus.VERIFIED -> Color(0xFF16A34A)
-        DocStatus.REJECTED -> Color(0xFFDC2626)
+        DocStatus.NOT_UPLOADED -> MilewayRoles.inactive
+        DocStatus.UPLOADED -> MilewayRoles.informational
+        DocStatus.APPROVAL_PENDING -> MilewayRoles.pending
+        DocStatus.VERIFIED -> MilewayRoles.approved
+        DocStatus.REJECTED -> MilewayRoles.rejected
     }
 
 /**
@@ -114,7 +117,7 @@ fun VerificationCentreScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF1565C0), Color(0xFF0D47A1))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -144,9 +147,9 @@ fun VerificationCentreScreen(
                 modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                CounterPill(stringResource(Res.string.verification_counter_verified, uiState.verifiedCount), Color(0xFF16A34A), Modifier.weight(1f))
-                CounterPill(stringResource(Res.string.verification_counter_pending, uiState.pendingCount), Color(0xFFB45309), Modifier.weight(1f))
-                CounterPill(stringResource(Res.string.verification_counter_rejected, uiState.rejectedCount), Color(0xFFDC2626), Modifier.weight(1f))
+                CounterPill(stringResource(Res.string.verification_counter_verified, uiState.verifiedCount), MilewayRoles.approved, Modifier.weight(1f))
+                CounterPill(stringResource(Res.string.verification_counter_pending, uiState.pendingCount), MilewayRoles.pending, Modifier.weight(1f))
+                CounterPill(stringResource(Res.string.verification_counter_rejected, uiState.rejectedCount), MilewayRoles.rejected, Modifier.weight(1f))
             }
 
             LazyColumn(

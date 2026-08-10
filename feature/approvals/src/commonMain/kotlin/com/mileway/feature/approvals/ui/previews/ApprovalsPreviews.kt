@@ -3,18 +3,9 @@
 package com.mileway.feature.approvals.ui.previews
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.previews.PreviewLightDark
 import com.mileway.core.ui.previews.PreviewMatrix
@@ -23,67 +14,28 @@ import com.mileway.core.ui.previews.SampleData
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
-import com.siddharth.kmp.common.formatDecimal
+import com.mileway.feature.approvals.repository.ApprovalsRepository
+import com.mileway.feature.approvals.ui.screens.ApprovalCard
+import com.mileway.feature.approvals.ui.screens.ApprovalListTab
 
 // ---------------------------------------------------------------------------
-// Phase 9.1, Approvals feature preview matrix.
+// Approvals feature preview matrix.
 //
 // ApprovalsScreen and ApprovalDetailsScreen both require koinViewModel() at
-// runtime. The standalone data-driven previews below use only model types and
-// PreviewSurface so the preview panel can render without a DI graph.
+// runtime. The previews below render the REAL production ApprovalCard/
+// ApprovalListTab composables directly with plain data — no DI graph needed,
+// and (unlike the reimplemented mini-card this file used to carry) what a
+// capture of these previews shows is exactly what the shipped screen renders.
 // ---------------------------------------------------------------------------
 
-// ── Approval item summary card ───────────────────────────────────────────────
-
-/** Inline approximation of what the approvals list looks like for a single pending item. */
-@Composable
-private fun ApprovalItemSummary(item: ApprovalItem) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = item.type.name,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = item.requesterName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = item.summary,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(8.dp))
-            val statusColor =
-                when (item.status) {
-                    ApprovalStatus.PENDING -> Color(0xFFF59E0B)
-                    ApprovalStatus.APPROVED -> Color(0xFF22C55E)
-                    ApprovalStatus.REJECTED -> Color(0xFFEF4444)
-                }
-            Text(
-                text = "₹${item.amountRupees.formatDecimal(2)}  •  ${item.status.name}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = statusColor,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-    }
-}
-
-// ── Pending approval item ────────────────────────────────────────────────────
+// ── Single card states — names kept stable, ScreenshotCatalogTest.kt already captures these ──
 
 @PreviewLightDark
 @Composable
 fun PreviewApprovalItemPending() {
     PreviewSurface {
         Column(modifier = Modifier.padding(16.dp)) {
-            ApprovalItemSummary(
+            ApprovalCard(
                 item =
                     ApprovalItem(
                         id = "A001",
@@ -95,19 +47,21 @@ fun PreviewApprovalItemPending() {
                         timestampMs = SampleData.Trip.startTimeMs,
                         policyViolation = false,
                     ),
+                selectionMode = false,
+                isSelected = false,
+                onClick = {},
+                onLongClick = {},
             )
         }
     }
 }
-
-// ── Approved item with policy violation ─────────────────────────────────────
 
 @PreviewLightDark
 @Composable
 fun PreviewApprovalItemWithViolation() {
     PreviewSurface {
         Column(modifier = Modifier.padding(16.dp)) {
-            ApprovalItemSummary(
+            ApprovalCard(
                 item =
                     ApprovalItem(
                         id = "A002",
@@ -119,19 +73,21 @@ fun PreviewApprovalItemWithViolation() {
                         timestampMs = SampleData.Trip.startTimeMs,
                         policyViolation = true,
                     ),
+                selectionMode = false,
+                isSelected = false,
+                onClick = {},
+                onLongClick = {},
             )
         }
     }
 }
-
-// ── Full matrix, approved expense ───────────────────────────────────────────
 
 @PreviewMatrix
 @Composable
 fun PreviewApprovalItemApproved() {
     PreviewSurface {
         Column(modifier = Modifier.padding(16.dp)) {
-            ApprovalItemSummary(
+            ApprovalCard(
                 item =
                     ApprovalItem(
                         id = "A003",
@@ -142,19 +98,21 @@ fun PreviewApprovalItemApproved() {
                         status = ApprovalStatus.APPROVED,
                         timestampMs = SampleData.Trip.startTimeMs,
                     ),
+                selectionMode = false,
+                isSelected = false,
+                onClick = {},
+                onLongClick = {},
             )
         }
     }
 }
-
-// ── Full matrix, rejected advance ──────────────────────────────────────────
 
 @PreviewMatrix
 @Composable
 fun PreviewApprovalItemRejected() {
     PreviewSurface {
         Column(modifier = Modifier.padding(16.dp)) {
-            ApprovalItemSummary(
+            ApprovalCard(
                 item =
                     ApprovalItem(
                         id = "A004",
@@ -165,7 +123,158 @@ fun PreviewApprovalItemRejected() {
                         status = ApprovalStatus.REJECTED,
                         timestampMs = SampleData.Trip.startTimeMs,
                     ),
+                selectionMode = false,
+                isSelected = false,
+                onClick = {},
+                onLongClick = {},
             )
         }
+    }
+}
+
+// ── "To Approve" queue — filled/empty/selection, the manager's actual inbox ──
+
+/** FILLED: the pending queue with realistic variety — ages, amounts, and two policy violations. */
+@PreviewMatrix
+@Composable
+fun PreviewApprovalsQueueFilled() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = ApprovalsRepository.all.filter { it.status == ApprovalStatus.PENDING },
+            emptyTitle = "You're all caught up",
+            emptySubtitle = "Nothing is waiting for your approval right now.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+/** EMPTY: the positive "caught up" case — previously never captured on its own. */
+@PreviewLightDark
+@Composable
+fun PreviewApprovalsQueueEmpty() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = emptyList(),
+            emptyTitle = "You're all caught up",
+            emptySubtitle = "Nothing is waiting for your approval right now.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+/** EMPTY: the SAVED filter chip matched nothing — a distinct reason from "queue is empty". */
+@PreviewLightDark
+@Composable
+fun PreviewApprovalsQueueSavedFilterEmpty() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = emptyList(),
+            emptyTitle = "No saved conversations",
+            emptySubtitle = "Approvals you save from the clarification chat will show up here.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+/** Selection mode with a subset checked, ready for the bulk approve/reject bar. */
+@PreviewMatrix
+@Composable
+fun PreviewApprovalsQueueSelectionMode() {
+    PreviewSurface {
+        val pending = ApprovalsRepository.all.filter { it.status == ApprovalStatus.PENDING }
+        ApprovalListTab(
+            items = pending,
+            emptyTitle = "You're all caught up",
+            emptySubtitle = "Nothing is waiting for your approval right now.",
+            onOpenDetail = {},
+            selectionMode = true,
+            selectedIds = pending.take(2).map { it.id }.toSet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+// ── Team tab — filled/empty ──────────────────────────────────────────────────
+
+@PreviewMatrix
+@Composable
+fun PreviewApprovalsTeamFilled() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = ApprovalsRepository.teamItems,
+            emptyTitle = "No team activity yet",
+            emptySubtitle = "Approvals submitted by your team will appear here.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun PreviewApprovalsTeamEmpty() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = emptyList(),
+            emptyTitle = "No team activity yet",
+            emptySubtitle = "Approvals submitted by your team will appear here.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+// ── My Requests tab — filled/empty ───────────────────────────────────────────
+
+@PreviewMatrix
+@Composable
+fun PreviewApprovalsMyRequestsFilled() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = ApprovalsRepository.myRequests,
+            emptyTitle = "No requests yet",
+            emptySubtitle = "Submit a mileage log, expense, or travel request and its approval status will show up here.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun PreviewApprovalsMyRequestsEmpty() {
+    PreviewSurface {
+        ApprovalListTab(
+            items = emptyList(),
+            emptyTitle = "No requests yet",
+            emptySubtitle = "Submit a mileage log, expense, or travel request and its approval status will show up here.",
+            onOpenDetail = {},
+            selectionMode = false,
+            selectedIds = emptySet(),
+            onLongPress = {},
+            onToggleSelect = {},
+        )
     }
 }

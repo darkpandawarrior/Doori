@@ -56,7 +56,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -179,7 +178,7 @@ fun DelegationScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF1565C0), Color(0xFF7B1FA2))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -635,14 +634,14 @@ private fun DelegatedByRow(entry: DelegatedByEntry) {
                 Modifier
                     .size(40.dp)
                     .clip(DesignTokens.Shape.button)
-                    .background(Color(0xFF6A1B9A).copy(alpha = 0.15f)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 entry.delegatorName.first().toString(),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF6A1B9A),
+                color = MaterialTheme.colorScheme.primary,
             )
         }
         Spacer(Modifier.width(DesignTokens.Spacing.m))

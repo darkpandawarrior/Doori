@@ -26,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -37,6 +36,7 @@ import com.mileway.core.ui.resources.payables_success_message
 import com.mileway.core.ui.resources.payables_success_po_number
 import com.mileway.core.ui.resources.payables_success_title
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.payables.viewmodel.PayablesAction
 import com.mileway.feature.payables.viewmodel.PayablesViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -65,7 +65,7 @@ fun PurchaseRequestSuccessScreen(
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
                 contentDescription = null,
-                tint = Color(0xFF4CAF50),
+                tint = MilewayRoles.approved,
                 modifier = Modifier.size(80.dp),
             )
             Spacer(Modifier.height(DesignTokens.Spacing.xl))

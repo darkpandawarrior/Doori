@@ -310,10 +310,15 @@ fun ManualCheckInScreen(
                         onExpandedChange = { typeExpanded = it },
                     ) {
                         OutlinedTextField(
-                            value = selectedType ?: stringResource(Res.string.tracking_manual_checkin_type_placeholder),
+                            // Was: selected value OR the "Select type" hint stuffed into the same
+                            // slot, so an unset field rendered indistinguishable from a real
+                            // answer (see the identical GeoCheckInScreen fix). label + placeholder
+                            // keep those two states visually distinct.
+                            value = selectedType ?: "",
                             onValueChange = {},
                             readOnly = true,
                             label = { Text(stringResource(Res.string.tracking_manual_checkin_type_label)) },
+                            placeholder = { Text(stringResource(Res.string.tracking_manual_checkin_type_placeholder)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
                             modifier =
                                 Modifier

@@ -35,6 +35,7 @@ import com.mileway.core.ui.resources.logging_expense_requires_approval
 import com.mileway.core.ui.resources.logging_policy_sheet_review
 import com.mileway.core.ui.resources.logging_policy_sheet_submit_anyway
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -80,13 +81,13 @@ fun ExpensePolicyViolationSheet(
                         Modifier
                             .size(40.dp)
                             .clip(DesignTokens.Shape.button)
-                            .background(DesignTokens.StatusColors.warning.copy(alpha = 0.15f)),
+                            .background(MilewayRoles.tint(MilewayRoles.policyViolation)),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Warning,
                         contentDescription = null,
-                        tint = DesignTokens.StatusColors.warning,
+                        tint = MilewayRoles.policyViolation,
                         modifier = Modifier.size(DesignTokens.IconSize.badge),
                     )
                 }
@@ -140,7 +141,7 @@ private fun ViolationLine(violation: PolicyViolation) {
         if (violation.severity == ViolationSeverity.HARDSTOP) {
             MaterialTheme.colorScheme.error
         } else {
-            DesignTokens.StatusColors.warning
+            MilewayRoles.policyViolation
         }
     Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
         Icon(

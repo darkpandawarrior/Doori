@@ -10,6 +10,11 @@ private val BASE_MS = 1_781_654_400_000L
 private val H = 3_600_000L
 private val DAY = 86_400_000L
 
+// NOTE: `:app`'s ApprovalsTest/ApprovalsTabTest (outside this module's ownership) pin the exact
+// item counts and status distribution below as golden/characterization data — 12/4-pending-6-
+// approved-2-rejected for `all`, 3/all-pending for `teamItems`, 4/1-pending-2-approved-1-rejected
+// for `myRequests`. Adding or removing an entry here breaks those tests; widening this fixture set
+// needs a coordinated change there too, out of scope for this pass.
 object ApprovalsRepository {
     val all: List<ApprovalItem> =
         listOf(
@@ -45,8 +50,6 @@ object ApprovalsRepository {
             ApprovalItem("A012", ApprovalType.TRAVEL, "Raj Kumar", "Chennai–Pune train", 2200.0, ApprovalStatus.APPROVED, BASE_MS - 5 * DAY),
         )
 
-    fun getById(id: String): ApprovalItem? = all.firstOrNull { it.id == id }
-
     val teamItems: List<ApprovalItem> =
         listOf(
             ApprovalItem("T001", ApprovalType.EXPENSE, "Priya Sharma", "Expense ₹3,200: Business dinner", 3200.0, ApprovalStatus.PENDING, BASE_MS - H),
@@ -61,6 +64,12 @@ object ApprovalsRepository {
             ApprovalItem("R003", ApprovalType.TRAVEL, "Me", "Travel: PNQ→BOM flight", 3600.0, ApprovalStatus.APPROVED, BASE_MS - 3 * DAY),
             ApprovalItem("R004", ApprovalType.ADVANCE, "Me", "Advance ₹12,000: Conference", 12000.0, ApprovalStatus.REJECTED, BASE_MS - 5 * DAY),
         )
+
+    // BUG FIX: previously only searched `all`, so opening a Team or My Requests row (T00x/R00x)
+    // always fell into ApprovalsViewModel's "Approval not found" branch — those two tabs' rows
+    // were listed but untappable. Every id lives in exactly one of the three lists (A.../T.../R...
+    // prefixes), so a flat merge is unambiguous.
+    fun getById(id: String): ApprovalItem? = (all + teamItems + myRequests).firstOrNull { it.id == id }
 
     fun approve(id: String): List<ApprovalItem> =
         all.map {

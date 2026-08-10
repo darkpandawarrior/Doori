@@ -359,6 +359,7 @@ fun PauseReasonSheet(
                         }
                     },
                     modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Custom reason") },
                     placeholder = {
                         Text(stringResource(Res.string.tracking_pause_custom_placeholder))
                     },
@@ -540,6 +541,7 @@ fun ResumeTrackingSheet(
         OutlinedTextField(
             value = resumeNotes,
             onValueChange = { if (it.length <= 200) onNotesChange(it) },
+            label = { Text("Resume notes") },
             placeholder = {
                 Text(stringResource(Res.string.tracking_resume_notes_placeholder))
             },

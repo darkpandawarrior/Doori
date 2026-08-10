@@ -78,7 +78,7 @@ import com.mileway.core.ui.resources.logging_status_draft
 import com.mileway.core.ui.resources.logging_status_pending
 import com.mileway.core.ui.resources.logging_status_rejected
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
@@ -157,7 +157,7 @@ fun ExpenseHistoryScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC))))
+                        .background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.tertiaryContainer)))
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -358,13 +358,13 @@ private fun ExpenseCard(
 private fun ExpenseStatusChip(status: ExpenseStatus) {
     val (label, color) =
         when (status) {
-            ExpenseStatus.DRAFT -> stringResource(Res.string.logging_status_draft) to StatusColors.neutral
-            ExpenseStatus.PENDING -> stringResource(Res.string.logging_status_pending) to StatusColors.warning
-            ExpenseStatus.APPROVED -> stringResource(Res.string.logging_status_approved) to StatusColors.success
-            ExpenseStatus.REJECTED -> stringResource(Res.string.logging_status_rejected) to StatusColors.error
+            ExpenseStatus.DRAFT -> stringResource(Res.string.logging_status_draft) to MilewayRoles.inactive
+            ExpenseStatus.PENDING -> stringResource(Res.string.logging_status_pending) to MilewayRoles.pending
+            ExpenseStatus.APPROVED -> stringResource(Res.string.logging_status_approved) to MilewayRoles.approved
+            ExpenseStatus.REJECTED -> stringResource(Res.string.logging_status_rejected) to MilewayRoles.rejected
         }
     Surface(
-        color = color.copy(alpha = 0.15f),
+        color = MilewayRoles.tint(color),
         shape = DesignTokens.Shape.button,
     ) {
         Text(

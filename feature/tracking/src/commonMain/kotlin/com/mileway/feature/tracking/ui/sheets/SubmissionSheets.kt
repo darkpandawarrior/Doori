@@ -276,7 +276,13 @@ fun SmartDistanceSheet(
                     value = explanation,
                     onValueChange = onExplanationChange,
                     modifier = Modifier.fillMaxWidth(),
+                    // core/ui strings.xml is outside this module's ownership (feature/tracking
+                    // only) — inline label text here, same precedent as TrackDetailScreen's
+                    // "Journey not found" copy. A label (not just a placeholder) keeps the
+                    // field's purpose visible once the reviewer starts typing.
+                    label = { Text("Explanation") },
                     placeholder = { Text(stringResource(Res.string.tracking_smart_explain_placeholder)) },
+                    supportingText = { Text("Optional — helps your approver understand the gap") },
                     shape = DesignTokens.Shape.roundedSm,
                     minLines = 2,
                 )
@@ -696,7 +702,14 @@ fun PolicyViolationSheet(
                     value = note,
                     onValueChange = onNoteChange,
                     modifier = Modifier.fillMaxWidth(),
+                    // Submit stays disabled until this is filled (see `canSubmit` below) — the
+                    // label + supportingText make that requirement visible on the field itself
+                    // instead of only via a disabled button with no explanation.
+                    label = { Text("Note for reviewer") },
                     placeholder = { Text(stringResource(Res.string.tracking_policy_note_placeholder)) },
+                    supportingText = {
+                        if (note.isBlank()) Text("Required — explain why this needs review")
+                    },
                     shape = DesignTokens.Shape.roundedSm,
                     singleLine = true,
                 )
@@ -969,12 +982,24 @@ fun EntityPickerSheet(
 
             Spacer(Modifier.size(DesignTokens.Spacing.l))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-                modifier = Modifier.heightIn(max = 480.dp),
-            ) {
-                items(filtered, key = { it.name }) { entity ->
-                    EntityRow(entity = entity, onClick = { onSelect(entity.name) })
+            // The count above stays the unfiltered total, so a search matching nothing
+            // previously fell through to a blank list with no signal that it wasn't loading.
+            if (filtered.isEmpty()) {
+                Text(
+                    text = "No entities match \"$query\"",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.Spacing.xl),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+                    modifier = Modifier.heightIn(max = 480.dp),
+                ) {
+                    items(filtered, key = { it.name }) { entity ->
+                        EntityRow(entity = entity, onClick = { onSelect(entity.name) })
+                    }
                 }
             }
         }

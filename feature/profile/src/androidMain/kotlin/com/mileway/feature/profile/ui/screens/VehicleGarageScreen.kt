@@ -67,6 +67,7 @@ import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.GarageVerification
 import com.mileway.feature.profile.viewmodel.VehicleGarageViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -174,9 +175,9 @@ private fun GarageHeader(
 private fun VerificationChip(verification: GarageVerification) {
     val (label, color, icon) =
         when (verification) {
-            GarageVerification.VERIFIED -> Triple(grv("garage_verified", "Verified"), Color(0xFF16A34A), Icons.Default.CheckCircle)
-            GarageVerification.PENDING -> Triple(grv("garage_pending", "Pending"), Color(0xFFEA580C), Icons.Default.HourglassEmpty)
-            GarageVerification.INCOMPLETE -> Triple(grv("garage_incomplete", "Incomplete"), Color(0xFFB91C1C), Icons.Default.Warning)
+            GarageVerification.VERIFIED -> Triple(grv("garage_verified", "Verified"), MilewayRoles.approved, Icons.Default.CheckCircle)
+            GarageVerification.PENDING -> Triple(grv("garage_pending", "Pending"), MilewayRoles.pending, Icons.Default.HourglassEmpty)
+            GarageVerification.INCOMPLETE -> Triple(grv("garage_incomplete", "Incomplete"), MilewayRoles.rejected, Icons.Default.Warning)
         }
     AssistChip(
         onClick = {},

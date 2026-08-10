@@ -42,6 +42,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -165,6 +166,7 @@ fun SavedTracksScreen(
 ) {
     val uiState by viewModel.state.collectAsState()
     val syncChipText by syncStatusViewModel.chipText.collectAsState()
+    val hasPendingBacklog by syncStatusViewModel.hasPendingBacklog.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // PLAN_V33 A4 (RN lesson): flush the outbox on ON_START so returning to this screen (or
@@ -214,8 +216,18 @@ fun SavedTracksScreen(
                             Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.s),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
                     ) {
                         StatusBadge(text = text, color = MilewayColors.neutral)
+                        // A pending submission previously only cleared on the next automatic
+                        // trigger (foreground/connectivity change) with nothing the user could
+                        // tap — retry now surfaces that same drain as an explicit action.
+                        if (hasPendingBacklog) {
+                            TextButton(onClick = { syncStatusViewModel.onForeground() }) {
+                                Text("Retry now", style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
                     }
                 }
                 SavedTracksBody(

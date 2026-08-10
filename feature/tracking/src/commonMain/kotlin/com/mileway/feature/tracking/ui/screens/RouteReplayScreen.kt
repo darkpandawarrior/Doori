@@ -146,6 +146,7 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.LocalMapProvider
 import com.mileway.core.ui.theme.MapProvider
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.tracking.map.LiveMapOverlayData
 import com.mileway.feature.tracking.map.MapRouteBuilder
@@ -1219,7 +1220,7 @@ fun EnhancedCompactLiveStatsCard(
                             imageVector = Icons.Default.Route,
                             contentDescription = null,
                             modifier = Modifier.size(if (isSmallScreen) 12.dp else 14.dp),
-                            tint = Color(0xFF2196F3),
+                            tint = MilewayRoles.distance,
                         )
                         Text(
                             text = "${kotlin.math.round((totalDistance / 1000.0) * 100).toLong() / 100.0} km",
@@ -1237,7 +1238,7 @@ fun EnhancedCompactLiveStatsCard(
                             imageVector = Icons.Default.Timer,
                             contentDescription = null,
                             modifier = Modifier.size(if (isSmallScreen) 12.dp else 14.dp),
-                            tint = Color(0xFF9C27B0),
+                            tint = MilewayRoles.distance,
                         )
                         Text(
                             text = formatLiveDuration(liveDuration),
@@ -1254,7 +1255,7 @@ fun EnhancedCompactLiveStatsCard(
                             imageVector = Icons.Default.MyLocation,
                             contentDescription = null,
                             modifier = Modifier.size(if (isSmallScreen) 12.dp else 14.dp),
-                            tint = Color(0xFF00BCD4),
+                            tint = MilewayRoles.distance,
                         )
                         Text(
                             text = "${locationPoints.size} pts",

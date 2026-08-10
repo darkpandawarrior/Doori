@@ -61,6 +61,7 @@ import com.mileway.core.ui.resources.logging_verify_distance_body
 import com.mileway.core.ui.resources.logging_verify_distance_title
 import com.mileway.core.ui.resources.logging_violations_fallback
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
@@ -113,8 +114,17 @@ fun VerifyDistanceDialog(
             value = text,
             onValueChange = { text = it },
             label = { Text(stringResource(Res.string.logging_update_distance_label)) },
+            // ponytail: inline literal placeholder — see OdometerCaptureSheet for why (not a
+            // stringResource here; core:ui's strings.xml is outside this module's ownership).
+            placeholder = { Text("e.g. 12.5") },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            isError = text.isNotBlank() && parsed == null,
+            supportingText = {
+                if (text.isNotBlank() && parsed == null) {
+                    Text("Enter a distance in km, e.g. 12.5")
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
         )
         Row(
@@ -277,7 +287,7 @@ private fun ReimbursableAdjustedContent(
         Icon(
             Icons.Filled.WarningAmber,
             contentDescription = null,
-            tint = DesignTokens.StatusColors.warning,
+            tint = MilewayRoles.pending,
         )
         Text(
             stringResource(Res.string.logging_amount_adjusted_body),
@@ -286,7 +296,7 @@ private fun ReimbursableAdjustedContent(
         )
         Surface(
             shape = DesignTokens.Shape.roundedMd,
-            color = DesignTokens.StatusColors.warning.copy(alpha = 0.12f),
+            color = MilewayRoles.tint(MilewayRoles.pending),
             modifier = Modifier.fillMaxWidth(),
         ) {
             Row(
@@ -334,7 +344,7 @@ private fun PolicyViolationContent(
         Icon(
             Icons.Filled.WarningAmber,
             contentDescription = null,
-            tint = DesignTokens.StatusColors.error,
+            tint = MilewayRoles.policyViolation,
         )
         Text(
             pluralStringResource(Res.plurals.logging_plural_submission_violations, messages.size, messages.size),
@@ -351,6 +361,10 @@ private fun PolicyViolationContent(
             value = remarks,
             onValueChange = { remarks = it },
             label = { Text(stringResource(Res.string.logging_remarks_label)) },
+            // ponytail: inline literal placeholder — see OdometerCaptureSheet for why.
+            placeholder = { Text("e.g. Corrected the odometer photo and re-attached the receipt") },
+            minLines = 2,
+            maxLines = 4,
             modifier = Modifier.fillMaxWidth(),
         )
         Row(
@@ -385,7 +399,7 @@ private fun HardStopContent(
         Icon(
             Icons.Filled.Block,
             contentDescription = null,
-            tint = DesignTokens.StatusColors.error,
+            tint = MilewayRoles.policyViolation,
         )
         Text(
             stringResource(Res.string.logging_submission_blocked_body),

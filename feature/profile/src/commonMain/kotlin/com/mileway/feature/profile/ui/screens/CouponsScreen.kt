@@ -32,7 +32,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -43,6 +42,7 @@ import com.mileway.core.data.coupon.CouponStatus
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.CouponsViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -76,7 +76,7 @@ fun CouponsScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF00695C), Color(0xFF004D40))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -164,7 +164,7 @@ private fun ApplyCodeCard(
 @Composable
 private fun applyResultMessage(result: CouponApplyResult): Pair<String, Color> =
     when (result) {
-        CouponApplyResult.SUCCESS -> cp("coupons_result_success", "Coupon applied!") to Color(0xFF16A34A)
+        CouponApplyResult.SUCCESS -> cp("coupons_result_success", "Coupon applied!") to MilewayRoles.approved
         CouponApplyResult.INVALID -> cp("coupons_result_invalid", "Invalid code.") to MaterialTheme.colorScheme.error
         CouponApplyResult.EXPIRED -> cp("coupons_result_expired", "This code has expired.") to MaterialTheme.colorScheme.error
         CouponApplyResult.ALREADY_USED -> cp("coupons_result_used", "Code already used.") to MaterialTheme.colorScheme.error
@@ -188,7 +188,7 @@ private fun CouponRow(
                 )
                 StatusChip(coupon.status)
             }
-            Text(coupon.code, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = Color(0xFF00695C).copy(alpha = alpha))
+            Text(coupon.code, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary.copy(alpha = alpha))
             Text(coupon.terms, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha))
             Text(coupon.expiryLabel, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha))
         }
@@ -199,11 +199,11 @@ private fun CouponRow(
 private fun StatusChip(status: CouponStatus) {
     val (label, color) =
         when (status) {
-            CouponStatus.ACTIVE -> cp("coupons_status_active", "Active") to Color(0xFF16A34A)
-            CouponStatus.EXPIRED -> cp("coupons_status_expired", "Expired") to Color(0xFF6B7280)
-            CouponStatus.REDEEMED -> cp("coupons_status_redeemed", "Used") to Color(0xFF2563EB)
+            CouponStatus.ACTIVE -> cp("coupons_status_active", "Active") to MilewayRoles.approved
+            CouponStatus.EXPIRED -> cp("coupons_status_expired", "Expired") to MilewayRoles.rejected
+            CouponStatus.REDEEMED -> cp("coupons_status_redeemed", "Used") to MilewayRoles.informational
         }
-    Surface(color = color.copy(alpha = 0.12f), shape = DesignTokens.Shape.roundedMd) {
+    Surface(color = MilewayRoles.tint(color), shape = DesignTokens.Shape.roundedMd) {
         Text(
             label,
             style = MaterialTheme.typography.labelSmall,

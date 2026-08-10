@@ -1,6 +1,8 @@
 package com.mileway.feature.logging.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -46,8 +49,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.mileway.core.data.model.network.LogMilesService
 import com.mileway.core.forms.FormFieldType
 import com.mileway.core.forms.FormFieldValue
@@ -59,6 +64,7 @@ import com.mileway.core.ui.resources.logging_add_receipt
 import com.mileway.core.ui.resources.logging_additional_details_subtitle
 import com.mileway.core.ui.resources.logging_additional_details_title
 import com.mileway.core.ui.resources.logging_all_set
+import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
 import com.mileway.core.ui.resources.logging_attachments_added
 import com.mileway.core.ui.resources.logging_attachments_header
 import com.mileway.core.ui.resources.logging_attachments_hint
@@ -76,6 +82,7 @@ import com.mileway.core.ui.resources.logging_purpose_of_travel
 import com.mileway.core.ui.resources.logging_purpose_of_travel_placeholder
 import com.mileway.core.ui.resources.logging_ready_to_submit
 import com.mileway.core.ui.resources.logging_remaining
+import com.mileway.core.ui.resources.logging_remove_receipt_cd
 import com.mileway.core.ui.resources.logging_select_a_service
 import com.mileway.core.ui.resources.logging_service_type
 import com.mileway.core.ui.resources.logging_step2_title
@@ -333,9 +340,15 @@ fun LogMilesStep2Screen(
 
             // ── Attachments tab ───────────────────────────────────────────────────
             if (selectedStep2Tab == tabAttachments) {
+                // Same rememberReceiptAttachmentLauncher ExpenseScreen uses (gallery + OCR) — was
+                // previously a fake counter with no real picker behind it (see LogMilesUiState
+                // .attachmentPaths' doc).
+                val launchReceiptPicker =
+                    rememberReceiptAttachmentLauncher { path -> viewModel.onAction(LogMilesAction.AddAttachment(path)) }
                 AttachmentsCard(
-                    attachmentCount = uiState.attachmentCount,
-                    onAdd = { viewModel.onAction(LogMilesAction.AddAttachment) },
+                    attachmentPaths = uiState.attachmentPaths,
+                    onAdd = launchReceiptPicker,
+                    onRemove = { path -> viewModel.onAction(LogMilesAction.RemoveAttachment(path)) },
                 )
             }
         }
@@ -662,8 +675,9 @@ private fun TaggedEmployeesCard(
 
 @Composable
 private fun AttachmentsCard(
-    attachmentCount: Int,
+    attachmentPaths: List<String>,
     onAdd: () -> Unit,
+    onRemove: (String) -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -699,6 +713,47 @@ private fun AttachmentsCard(
             )
             Spacer(Modifier.size(DesignTokens.Spacing.m))
 
+            // Filled state: a captured receipt is real evidence for the auditor reading this
+            // claim later — show it, don't just count it. Was `if (attachmentCount == 0)` a
+            // bare "$N added" label with nothing to actually look at or remove.
+            if (attachmentPaths.isNotEmpty()) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                ) {
+                    attachmentPaths.forEach { path ->
+                        Box(modifier = Modifier.size(72.dp)) {
+                            AsyncImage(
+                                model = path,
+                                contentDescription = stringResource(Res.string.logging_attached_receipt_photo_cd),
+                                contentScale = ContentScale.Crop,
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(MaterialTheme.colorScheme.surfaceVariant, DesignTokens.Shape.roundedSm),
+                            )
+                            IconButton(
+                                onClick = { onRemove(path) },
+                                modifier = Modifier.size(24.dp).align(Alignment.TopEnd),
+                            ) {
+                                Surface(shape = DesignTokens.Shape.button, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)) {
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = stringResource(Res.string.logging_remove_receipt_cd),
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.padding(2.dp).size(16.dp),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.size(DesignTokens.Spacing.m))
+            }
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
@@ -721,12 +776,12 @@ private fun AttachmentsCard(
                     )
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
                     Text(
-                        if (attachmentCount == 0) {
+                        if (attachmentPaths.isEmpty()) {
                             stringResource(
                                 Res.string.logging_add_receipt,
                             )
                         } else {
-                            stringResource(Res.string.logging_attachments_added, attachmentCount)
+                            stringResource(Res.string.logging_attachments_added, attachmentPaths.size)
                         },
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,

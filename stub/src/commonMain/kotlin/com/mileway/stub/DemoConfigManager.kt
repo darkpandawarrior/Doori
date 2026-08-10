@@ -138,9 +138,13 @@ class DemoConfigManager(
             else -> emptyList()
         }
 
-    override fun getDemoLat(): Double = 12.927923
+    // A point ~350m from Head Office (18.5204, 73.8567) — close enough that geo check-in resolves
+    // a real nearby location instead of the ConfigProvider default (Bangalore), which sat ~840km
+    // from every check-in location / vendor center in this demo world and made "nearest location"
+    // always empty.
+    override fun getDemoLat(): Double = 18.5233
 
-    override fun getDemoLng(): Double = 77.627108
+    override fun getDemoLng(): Double = 73.8592
 
     override fun getDemoAccuracyLabel(): String = "± 8 m (GPS)"
 

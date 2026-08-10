@@ -47,7 +47,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
@@ -110,6 +109,7 @@ import com.mileway.core.ui.resources.tracking_status_flag_power_saver
 import com.mileway.core.ui.resources.tracking_time_now
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.core.ui.toast.Toasts
 import com.mileway.feature.tracking.ui.live.LiveDriveActions
@@ -278,7 +278,7 @@ fun TrackMilesScreen(
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = stringResource(Res.string.tracking_sos_cd),
-                                tint = Color(0xFFB91C1C),
+                                tint = MilewayRoles.destructive,
                             )
                         }
                     }

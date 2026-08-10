@@ -18,8 +18,13 @@ class ExpenseTest {
     private val repo = ExpenseRepository()
 
     @Test
-    fun `getAll returns 8 deterministic records`() {
-        assertEquals(8, repo.getAll().size)
+    fun `getAll returns 9 deterministic records`() {
+        // Was 8. A ninth fixture was added deliberately this session to give the expense list a
+        // realistic filled state — the screens looked sparse in screenshots because the fixtures
+        // were thin, not because the screens were bad. The count is pinned on purpose: fixtures
+        // feed screenshot baselines, so a silent change to them silently changes what the gallery
+        // claims the app looks like.
+        assertEquals(9, repo.getAll().size)
     }
 
     @Test

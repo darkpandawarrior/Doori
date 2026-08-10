@@ -61,6 +61,7 @@ import com.mileway.core.ui.resources.logging_submitted_count
 import com.mileway.core.ui.resources.logging_submitted_on
 import com.mileway.core.ui.resources.logging_updated
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.logging.viewmodel.LogMilesAction
 import com.mileway.feature.logging.viewmodel.LogMilesDraftUi
@@ -388,7 +389,8 @@ private fun VoucherCard(voucher: SubmittedVoucher) {
             androidx.compose.foundation.BorderStroke(
                 1.dp,
                 if (voucher.violationCount > 0) {
-                    DesignTokens.StatusColors.warning.copy(alpha = 0.5f)
+                    // Border wants a visibly-flagged stroke, not the fixed tint() fill weight.
+                    MilewayRoles.policyViolation.copy(alpha = 0.5f)
                 } else {
                     MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
                 },
@@ -431,8 +433,8 @@ private fun VoucherCard(voucher: SubmittedVoucher) {
                 if (voucher.violationCount > 0) {
                     Pill(
                         text = pluralStringResource(Res.plurals.logging_plural_violations, voucher.violationCount, voucher.violationCount),
-                        container = DesignTokens.StatusColors.warning.copy(alpha = 0.15f),
-                        content = DesignTokens.StatusColors.warning,
+                        container = MilewayRoles.tint(MilewayRoles.policyViolation),
+                        content = MilewayRoles.policyViolation,
                         leadingWarning = true,
                     )
                 }

@@ -73,7 +73,7 @@ import com.mileway.core.ui.resources.logging_timeline_submitted
 import com.mileway.core.ui.resources.logging_timeline_under_review
 import com.mileway.core.ui.resources.logging_total
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -365,7 +365,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
         TimelineStep(
             label = stringResource(Res.string.logging_timeline_submitted),
             icon = Icons.Filled.Receipt,
-            color = StatusColors.info,
+            color = MilewayRoles.informational,
             active = true,
             note = formatFullDate(expense.dateMs),
         )
@@ -373,7 +373,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
         TimelineStep(
             label = stringResource(Res.string.logging_timeline_under_review),
             icon = Icons.Filled.HourglassBottom,
-            color = StatusColors.warning,
+            color = MilewayRoles.pending,
             active = expense.status != ExpenseStatus.DRAFT,
             note =
                 if (expense.status != ExpenseStatus.DRAFT) {
@@ -388,7 +388,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                 TimelineStep(
                     label = stringResource(Res.string.logging_timeline_approved),
                     icon = Icons.Filled.CheckCircle,
-                    color = StatusColors.success,
+                    color = MilewayRoles.approved,
                     active = true,
                     note = stringResource(Res.string.logging_timeline_reimbursement_in_progress),
                 )
@@ -396,7 +396,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                 TimelineStep(
                     label = stringResource(Res.string.logging_timeline_rejected),
                     icon = Icons.Filled.Error,
-                    color = StatusColors.error,
+                    color = MilewayRoles.rejected,
                     active = true,
                     // P1.9: real per-record rejection reason, falling back to the previous
                     // generic copy for any rejected record seeded before this reason existed.
@@ -406,7 +406,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                 TimelineStep(
                     label = stringResource(Res.string.logging_timeline_awaiting_decision),
                     icon = Icons.Filled.HourglassBottom,
-                    color = StatusColors.neutral,
+                    color = MilewayRoles.inactive,
                     active = false,
                 )
         }

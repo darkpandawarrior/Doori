@@ -49,6 +49,7 @@ import com.mileway.core.data.rewards.RewardStatus
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -78,7 +79,7 @@ fun RewardsScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFFEA580C), Color(0xFFB45309))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -151,7 +152,7 @@ private fun RewardCardCell(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Icon(Icons.Default.Star, contentDescription = null, tint = Color(0xFFEA580C))
+                Icon(Icons.Default.Star, contentDescription = null, tint = MilewayRoles.premium)
                 Text(card.rewardLabel, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                 Text(card.title, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             }
@@ -163,7 +164,11 @@ private fun RewardCardCell(
                         Modifier
                             .matchParentSize()
                             .alpha(1f - (scratched / SCRATCH_THRESHOLD).coerceIn(0f, 1f))
-                            .background(Brush.linearGradient(listOf(Color(0xFF9CA3AF), Color(0xFF6B7280))))
+                            .background(
+                                Brush.linearGradient(
+                                    listOf(MilewayRoles.inactive, MilewayRoles.inactive.copy(alpha = 0.7f)),
+                                ),
+                            )
                             .pointerInput(card.id) {
                                 detectDragGestures { change, _ ->
                                     change.consume()

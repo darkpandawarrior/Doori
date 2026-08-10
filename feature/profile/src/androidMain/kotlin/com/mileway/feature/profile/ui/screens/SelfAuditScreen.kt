@@ -51,6 +51,7 @@ import com.mileway.core.media.rememberMediaCaptureLauncher
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.SelfAuditViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -169,7 +170,7 @@ private fun ChecklistRow(
             Icon(
                 if (photographed) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                 contentDescription = null,
-                tint = if (photographed) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = if (photographed) MilewayRoles.approved else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.width(DesignTokens.Spacing.s))
             Text(checklistLabel(item), style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
@@ -186,9 +187,11 @@ private fun ChecklistRow(
 private fun AuditHistoryCard(audit: VehicleAudit) {
     val (label, color, icon) =
         when (val v = audit.verdict) {
-            is ReviewResult.Pending -> Triple(sav("self_audit_pending", "Under review"), Color(0xFFEA580C), Icons.Default.HourglassEmpty)
-            is ReviewResult.Approved -> Triple(sav("self_audit_passed", "Passed"), Color(0xFF16A34A), Icons.Default.CheckCircle)
-            is ReviewResult.Rejected -> Triple(sav("self_audit_failed", "Failed") + ": " + v.reason, Color(0xFFB91C1C), Icons.Default.Warning)
+            // "Under review" is a wait, not a flagged problem — pending, not policyViolation
+            // (LAYERS.md tiebreak: does the user have to fix something, or just wait?).
+            is ReviewResult.Pending -> Triple(sav("self_audit_pending", "Under review"), MilewayRoles.pending, Icons.Default.HourglassEmpty)
+            is ReviewResult.Approved -> Triple(sav("self_audit_passed", "Passed"), MilewayRoles.approved, Icons.Default.CheckCircle)
+            is ReviewResult.Rejected -> Triple(sav("self_audit_failed", "Failed") + ": " + v.reason, MilewayRoles.rejected, Icons.Default.Warning)
         }
     Card(
         modifier = Modifier.fillMaxWidth(),

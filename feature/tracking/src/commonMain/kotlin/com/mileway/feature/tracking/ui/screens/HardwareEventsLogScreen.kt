@@ -79,6 +79,7 @@ import com.mileway.core.ui.resources.tracking_hw_title_count
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.tracking.viewmodel.HardwareEventsAction
 import com.mileway.feature.tracking.viewmodel.HardwareEventsViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -319,17 +320,20 @@ private fun AudienceBadge(audience: EventAudience) {
     }
 }
 
+@Composable
 private fun eventIconAndColor(type: EventType): Pair<ImageVector, Color> =
     when (type) {
-        EventType.TRACKING_STARTED -> Icons.Default.PlayArrow to DesignTokens.StatusColors.success
-        EventType.TRACKING_STOPPED -> Icons.Default.Stop to DesignTokens.StatusColors.error
-        EventType.TRACKING_PAUSED -> Icons.Default.PowerOff to DesignTokens.StatusColors.warning
-        EventType.TRACKING_RESUMED -> Icons.Default.PlayArrow to DesignTokens.StatusColors.success
-        EventType.GPS_LOST -> Icons.Default.GpsOff to DesignTokens.StatusColors.error
-        EventType.GPS_REGAINED -> Icons.Default.GpsFixed to DesignTokens.StatusColors.success
-        EventType.BATTERY_OPTIMIZATION_ON, EventType.BATTERY_OPTIMIZATION_OFF -> Icons.Default.BatteryAlert to DesignTokens.StatusColors.warning
-        EventType.APP_KILLED -> Icons.Default.PhoneAndroid to DesignTokens.StatusColors.error
-        // No static "premium" token in DesignTokens.StatusColors; purple kept for the restart accent.
-        EventType.PHONE_RESTART -> Icons.Default.PhoneAndroid to Color(0xFF9C27B0)
-        else -> Icons.Default.Info to DesignTokens.StatusColors.neutral
+        EventType.TRACKING_STARTED -> Icons.Default.PlayArrow to MilewayRoles.approved
+        EventType.TRACKING_STOPPED -> Icons.Default.Stop to MilewayRoles.rejected
+        EventType.TRACKING_PAUSED -> Icons.Default.PowerOff to MilewayRoles.pending
+        EventType.TRACKING_RESUMED -> Icons.Default.PlayArrow to MilewayRoles.approved
+        EventType.GPS_LOST -> Icons.Default.GpsOff to MilewayRoles.rejected
+        EventType.GPS_REGAINED -> Icons.Default.GpsFixed to MilewayRoles.approved
+        EventType.BATTERY_OPTIMIZATION_ON, EventType.BATTERY_OPTIMIZATION_OFF -> Icons.Default.BatteryAlert to MilewayRoles.pending
+        EventType.APP_KILLED -> Icons.Default.PhoneAndroid to MilewayRoles.rejected
+        // Genuine gap (see feature/tracking migration notes): a phone-restart event doesn't fit
+        // any of the twelve roles — it's not good/bad/blocking, just a distinct system event.
+        // Nearest fit without inventing a role: informational.
+        EventType.PHONE_RESTART -> Icons.Default.PhoneAndroid to MilewayRoles.informational
+        else -> Icons.Default.Info to MilewayRoles.inactive
     }

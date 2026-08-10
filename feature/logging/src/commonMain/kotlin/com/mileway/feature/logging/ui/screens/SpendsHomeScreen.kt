@@ -70,11 +70,7 @@ fun SpendsHomeScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(
-                            Brush.horizontalGradient(
-                                listOf(Color(0xFF1A73E8), Color(0xFF0D47A1)),
-                            ),
-                        )
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Column(
@@ -124,7 +120,7 @@ fun SpendsHomeScreen(
                     title = stringResource(Res.string.logging_track_mileage_title),
                     subtitle = stringResource(Res.string.logging_track_mileage_subtitle),
                     icon = Icons.Filled.DirectionsCar,
-                    gradient = Brush.linearGradient(listOf(Color(0xFF1565C0), Color(0xFF42A5F5))),
+                    gradient = Brush.linearGradient(listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.secondary)),
                     onClick = onTrackMileage,
                     modifier = Modifier.weight(1f),
                 )
@@ -132,7 +128,7 @@ fun SpendsHomeScreen(
                     title = stringResource(Res.string.logging_add_expense_title),
                     subtitle = stringResource(Res.string.logging_add_expense_subtitle),
                     icon = Icons.Filled.Receipt,
-                    gradient = Brush.linearGradient(listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC))),
+                    gradient = Brush.linearGradient(listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.tertiaryContainer)),
                     onClick = onAddExpense,
                     modifier = Modifier.weight(1f),
                 )

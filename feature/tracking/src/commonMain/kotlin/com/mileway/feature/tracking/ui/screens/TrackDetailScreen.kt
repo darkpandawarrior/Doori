@@ -15,23 +15,29 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Route
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Straighten
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.filled.Work
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -41,10 +47,12 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.data.model.db.AttachmentType
@@ -70,6 +79,7 @@ import com.mileway.core.ui.components.LoadingScreen
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_more_options
+import com.mileway.core.ui.resources.tracking_action_cancel
 import com.mileway.core.ui.resources.tracking_cd_back
 import com.mileway.core.ui.resources.tracking_cd_data_preview
 import com.mileway.core.ui.resources.tracking_cd_export_track
@@ -104,12 +114,14 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
+import com.mileway.feature.tracking.repository.isPersonal
 import com.mileway.feature.tracking.ui.components.ExportOptionsDialog
 import com.mileway.feature.tracking.ui.util.HealthLevel
 import com.mileway.feature.tracking.ui.util.computeHealthLevel
 import com.mileway.feature.tracking.viewmodel.ExportAction
 import com.mileway.feature.tracking.viewmodel.ExportViewModel
 import com.mileway.feature.tracking.viewmodel.TrackDetailAction
+import com.mileway.feature.tracking.viewmodel.TrackDetailEffect
 import com.mileway.feature.tracking.viewmodel.TrackDetailViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -132,6 +144,8 @@ fun TrackDetailScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     var showExportDialog by remember { mutableStateOf(false) }
+    var showEditDistanceDialog by remember { mutableStateOf(false) }
+    var showDiscardDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(routeId) { viewModel.onAction(TrackDetailAction.Load(routeId)) }
 
@@ -143,6 +157,18 @@ fun TrackDetailScreen(
         }
     }
 
+    // Edit-distance / classify / discard all report back through the effect channel: Discarded
+    // means the row is gone and this screen has nothing left to show, ActionFailed is validation
+    // (bad distance) or a race (already deleted elsewhere) surfaced as a snackbar, never a crash.
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                TrackDetailEffect.Discarded -> onBack()
+                is TrackDetailEffect.ActionFailed -> snackbarHostState.showSnackbar(effect.message)
+            }
+        }
+    }
+
     if (showExportDialog) {
         ExportOptionsDialog(
             onDismiss = { showExportDialog = false },
@@ -151,6 +177,27 @@ fun TrackDetailScreen(
                 exportViewModel.export(routeId, format, filter)
             },
             trackName = uiState.track?.name,
+        )
+    }
+
+    if (showEditDistanceDialog) {
+        EditDistanceDialog(
+            currentKm = uiState.track?.distanceKm ?: 0.0,
+            onDismiss = { showEditDistanceDialog = false },
+            onSave = { km ->
+                showEditDistanceDialog = false
+                viewModel.onAction(TrackDetailAction.EditDistance(km))
+            },
+        )
+    }
+
+    if (showDiscardDialog) {
+        DiscardJourneyDialog(
+            onDismiss = { showDiscardDialog = false },
+            onConfirm = {
+                showDiscardDialog = false
+                viewModel.onAction(TrackDetailAction.Discard)
+            },
         )
     }
 
@@ -203,6 +250,38 @@ fun TrackDetailScreen(
                                 onOpenDataPreview()
                             },
                         )
+                        // Record-editing actions only make sense before a journey has been
+                        // submitted — once it funds a voucher, the amount/classification the
+                        // approver saw must stay exactly what was submitted.
+                        if (uiState.track?.isSubmitted != true) {
+                            DropdownMenuItem(
+                                text = { Text("Edit distance") },
+                                leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                                onClick = {
+                                    showOverflowMenu = false
+                                    showEditDistanceDialog = true
+                                },
+                            )
+                            val isPersonal = uiState.rawTrack?.isPersonal ?: false
+                            DropdownMenuItem(
+                                text = { Text(if (isPersonal) "Mark as business" else "Mark as personal") },
+                                leadingIcon = {
+                                    Icon(if (isPersonal) Icons.Default.Work else Icons.Default.Person, contentDescription = null)
+                                },
+                                onClick = {
+                                    showOverflowMenu = false
+                                    viewModel.onAction(TrackDetailAction.TogglePersonal)
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Discard journey", color = MaterialTheme.colorScheme.error) },
+                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+                                onClick = {
+                                    showOverflowMenu = false
+                                    showDiscardDialog = true
+                                },
+                            )
+                        }
                     }
                 },
             )
@@ -238,7 +317,7 @@ fun TrackDetailScreen(
                     .padding(DesignTokens.Spacing.l),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
         ) {
-            DetailSummaryCard(track = track, health = health)
+            DetailSummaryCard(track = track, health = health, isPersonal = rawTrack?.isPersonal ?: false)
 
             // Metrics grid (2 columns)
             Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
@@ -340,6 +419,7 @@ fun TrackDetailScreen(
 private fun DetailSummaryCard(
     track: TrackDisplayData,
     health: HealthLevel? = null,
+    isPersonal: Boolean = false,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -358,7 +438,26 @@ private fun DetailSummaryCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DetailStatusChip(isSubmitted = track.isSubmitted)
+                Row(horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+                    DetailStatusChip(isSubmitted = track.isSubmitted)
+                    if (isPersonal) {
+                        // Only ever rendered for the non-default state — a business trip (the
+                        // default) shows no chip at all, matching how the reimbursement flow
+                        // treats "business" as the implicit case that needs no callout.
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier =
+                                Modifier
+                                    .clip(DesignTokens.Shape.button)
+                                    .background(Color.White.copy(alpha = 0.2f))
+                                    .padding(horizontal = DesignTokens.Spacing.m, vertical = 4.dp),
+                        ) {
+                            Icon(Icons.Default.Person, contentDescription = null, tint = Color.White, modifier = Modifier.size(DesignTokens.IconSize.inline))
+                            Text("Personal", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Medium, color = Color.White)
+                        }
+                    }
+                }
                 if (health != null) {
                     val healthColor =
                         when (health) {
@@ -588,4 +687,90 @@ private fun OdometerProofTile(
 private fun humanizeVehicle(key: String): String {
     if (key.isBlank()) return "—"
     return key.replace(Regex("([a-z])([A-Z])"), "$1 $2").replaceFirstChar { it.uppercaseChar() }
+}
+
+/**
+ * "Edit distance" action — the recorded GPS distance is occasionally wrong (a tunnel, a stray
+ * bounce, a paused-but-still-logging stretch), and until now there was no way to fix it short of
+ * discarding the whole journey. Validates inline (a fix-oriented message, never a bare
+ * "Invalid") before [onSave] is even reachable; [TrackDetailViewModel] re-validates server-side
+ * of that call as the source of truth, this is just so the button doesn't need a round trip to
+ * tell the user what they already typed wrong.
+ */
+@Composable
+private fun EditDistanceDialog(
+    currentKm: Double,
+    onDismiss: () -> Unit,
+    onSave: (Double) -> Unit,
+) {
+    var text by remember { mutableStateOf(currentKm.toString()) }
+    val parsed = text.toDoubleOrNull()
+    val error =
+        when {
+            text.isBlank() -> "Enter the corrected distance"
+            parsed == null -> "Numbers only, e.g. 12.4"
+            parsed <= 0.0 -> "Distance must be greater than 0 km"
+            parsed > 2000.0 -> "That's further than Pune to Delhi — check the number"
+            else -> null
+        }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit distance") },
+        text = {
+            Column {
+                Text(
+                    "Correct the recorded distance for this journey. This changes the reimbursement amount before it's submitted.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(DesignTokens.Spacing.m))
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    label = { Text("Distance (km)") },
+                    placeholder = { Text("e.g. 12.4") },
+                    isError = error != null,
+                    supportingText = { Text(error ?: "Currently ${currentKm.let { "${(it * 100).toLong() / 100.0}" }} km") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { parsed?.let(onSave) }, enabled = error == null) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.tracking_action_cancel)) }
+        },
+    )
+}
+
+/** Confirms a permanent delete — see [SavedTrackRepository.delete] for why this is a hard delete. */
+@Composable
+private fun DiscardJourneyDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Discard this journey?") },
+        text = {
+            Text(
+                "This permanently removes the trip and its recorded route. This can't be undone.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirm) {
+                Text("Discard", color = MaterialTheme.colorScheme.error)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.tracking_action_cancel)) }
+        },
+    )
 }

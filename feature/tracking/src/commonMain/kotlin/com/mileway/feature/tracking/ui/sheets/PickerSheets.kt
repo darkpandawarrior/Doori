@@ -99,14 +99,26 @@ fun VehiclePickerSheet(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             )
             Spacer(Modifier.size(DesignTokens.Spacing.m))
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-                modifier = Modifier.heightIn(max = 460.dp),
-            ) {
-                items(filtered, key = { it.key }) { v ->
-                    VehicleCard(v, onClick = { onSelect(v.key) })
+            // A search that matches nothing previously rendered a blank grid with no
+            // explanation — indistinguishable from a loading or broken state.
+            if (filtered.isEmpty()) {
+                Text(
+                    text = "No vehicles match \"$query\"",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.Spacing.xl),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
+                    modifier = Modifier.heightIn(max = 460.dp),
+                ) {
+                    items(filtered, key = { it.key }) { v ->
+                        VehicleCard(v, onClick = { onSelect(v.key) })
+                    }
                 }
             }
         }
@@ -203,12 +215,23 @@ fun VendorPickerSheet(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             )
             Spacer(Modifier.size(DesignTokens.Spacing.m))
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
-                modifier = Modifier.heightIn(max = 460.dp),
-            ) {
-                items(filtered, key = { it.id }) { c ->
-                    CenterRow(c, onClick = { onSelect(c.id) }, onOpenMaps = { onOpenMaps(c.id) })
+            // Same "blank list with no explanation" gap as the vehicle picker above.
+            if (filtered.isEmpty()) {
+                Text(
+                    text = "No centers match \"$query\"",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.Spacing.xl),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                    modifier = Modifier.heightIn(max = 460.dp),
+                ) {
+                    items(filtered, key = { it.id }) { c ->
+                        CenterRow(c, onClick = { onSelect(c.id) }, onOpenMaps = { onOpenMaps(c.id) })
+                    }
                 }
             }
         }
