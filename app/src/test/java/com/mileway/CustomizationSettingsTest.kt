@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 /**
@@ -364,10 +365,10 @@ class CustomizationSettingsTest {
     // =========================================================================
 
     @Test
-    fun `default curated theme is Ember`() {
+    fun `default curated theme is Paper`() {
         val tc = controller()
-        assertEquals(MilewayThemeVariant.EMBER, tc.milewayTheme.value)
-        assertEquals(MilewayThemeVariant.EMBER, MilewayThemeVariant.DEFAULT)
+        assertEquals(MilewayThemeVariant.PAPER, tc.milewayTheme.value)
+        assertEquals(MilewayThemeVariant.PAPER, MilewayThemeVariant.DEFAULT)
     }
 
     @Test
@@ -397,18 +398,18 @@ class CustomizationSettingsTest {
     }
 
     @Test
-    fun `fromId tolerates unknown and null ids by falling back to Ember`() {
-        assertEquals(MilewayThemeVariant.EMBER, MilewayThemeVariant.fromId(null))
-        assertEquals(MilewayThemeVariant.EMBER, MilewayThemeVariant.fromId("LEGACY_UNKNOWN"))
+    fun `fromId tolerates unknown and null ids by falling back to Paper`() {
+        assertEquals(MilewayThemeVariant.PAPER, MilewayThemeVariant.fromId(null))
+        assertEquals(MilewayThemeVariant.PAPER, MilewayThemeVariant.fromId("LEGACY_UNKNOWN"))
         assertEquals(MilewayThemeVariant.ION, MilewayThemeVariant.fromId("ION"))
     }
 
     @Test
-    fun `resetCustomization restores the curated theme to Ember`() {
+    fun `resetCustomization restores the curated theme to Paper`() {
         val tc = controller()
         tc.setMilewayTheme(MilewayThemeVariant.DAYBREAK)
         tc.resetCustomization()
-        assertEquals(MilewayThemeVariant.EMBER, tc.milewayTheme.value)
+        assertEquals(MilewayThemeVariant.PAPER, tc.milewayTheme.value)
     }
 
     @Test
@@ -428,13 +429,42 @@ class CustomizationSettingsTest {
         assertEquals(ids.size, ids.toSet().size, "Each MilewayTheme must have a unique id")
     }
 
+    // Named for the original five only. Paper and Ledger arrived later and are also light, so the
+    // old name ("only Daybreak is the light scheme") had quietly become false while still passing.
     @Test
-    fun `only Daybreak is the light scheme`() {
+    fun `the original four schemes are dark and Daybreak is light`() {
         assertTrue(MilewayThemeVariant.DAYBREAK.isLight)
         assertFalse(MilewayThemeVariant.EMBER.isLight)
         assertFalse(MilewayThemeVariant.MATRIX.isLight)
         assertFalse(MilewayThemeVariant.AMOLED.isLight)
         assertFalse(MilewayThemeVariant.ION.isLight)
+    }
+
+    /**
+     * The reason Paper is safe as the default: it is the one variant with a hand-built face at the
+     * opposite luminance, so a driver on an unlit road does not get a white page.
+     *
+     * Asserts the counterpart actually *resolves*, not merely that the field is set — a spec that
+     * exists but is never selected is the exact failure this session spent its time finding
+     * elsewhere.
+     */
+    @Test
+    fun `Paper renders a distinct hand-built face in dark, single-mode variants do not`() {
+        val paper = MilewayThemeVariant.PAPER
+        assertTrue(paper.followsSystem, "Paper is the default and must answer to the device")
+        assertNotEquals(
+            paper.specFor(dark = false).canvas,
+            paper.specFor(dark = true).canvas,
+            "Paper's night face must be a different canvas, not the same spec rendered twice",
+        )
+        // And it is hand-built, not an inversion: a flipped light canvas would be near-neutral,
+        // while PaperNight is a deliberately warm dark.
+        val night = paper.specFor(dark = true).canvas
+        assertTrue(night.red > night.blue, "Paper's night canvas should stay warm, not go neutral")
+
+        val ember = MilewayThemeVariant.EMBER
+        assertFalse(ember.followsSystem, "Single-mode variants must keep forcing their luminance")
+        assertEquals(ember.specFor(dark = false), ember.specFor(dark = true))
     }
 
     @Test

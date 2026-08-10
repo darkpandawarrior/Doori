@@ -62,13 +62,11 @@ internal val PaperSpec =
  * darker warm canvas (not neutral black), lightened ink-blue for AA on dark, brighter-but-still-
  * muted status hues.
  *
- * Not registered as a second [MilewayThemeVariant] entry. `MilewayThemeVariant.isLight` is fixed
- * per entry and `MilewayTheme()` ignores its `darkTheme` param whenever a curated variant is
- * selected, so a second mode needs a second entry — and the brief caps this direction's
- * `MilewayThemes.kt` edit at exactly one, since five directions land concurrently. [PaperTheme]
- * below is the complete, compiling way to render this dark half today (`PaperTheme(darkTheme =
- * true) { ... }`); promoting it to `PAPER_NIGHT(...)` in the enum is a one-entry follow-up once a
- * direction is chosen.
+ * Wired in on 2026-08-10 when Paper became the default, as `PAPER`'s `darkSpec` — not as a second
+ * `PAPER_NIGHT` enum entry, which is what an earlier revision of this doc predicted. A second
+ * entry would have put both faces in the theme picker as separate choices and let a stored
+ * preference disagree with the device setting. One identity, two faces, resolved by
+ * `MilewayThemeVariant.specFor(dark)`.
  */
 internal val PaperNightSpec =
     MilewaySchemeSpec(

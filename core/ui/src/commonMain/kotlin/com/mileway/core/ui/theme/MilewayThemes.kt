@@ -34,6 +34,19 @@ enum class MilewayThemeVariant(
     /** MaterialKolor seed retained for derived tones / future per-feature tints. */
     val seedHex: String,
     val spec: MilewaySchemeSpec,
+    /**
+     * A hand-tuned counterpart at the opposite luminance, or null when this variant is single-mode.
+     *
+     * Its presence changes how the variant answers to the system setting. Without one, [isLight]
+     * is the whole truth and the variant forces its own luminance. With one, the variant follows
+     * the device — because a mileage app is used at night in a moving vehicle, and a light-only
+     * default would put a white page in front of a driver on an unlit road.
+     *
+     * Deliberately a *spec*, not a second enum entry: "Paper" is one identity with a day and a
+     * night face, not two themes. A second entry would show up in the picker as a choice the user
+     * has to make, and would let their stored preference disagree with their device.
+     */
+    val darkSpec: MilewaySchemeSpec? = null,
 ) {
     /** Default (T.1). Warm-dark, amber+red duotone. Replaces the phosphor-green Matrix default. */
     EMBER(
@@ -95,17 +108,38 @@ enum class MilewayThemeVariant(
     LEDGER(id = "LEDGER", label = "Ledger", description = "Financial instrument. Restrained navy accent, proportional sans chrome, mono only for money/distance/time.", isLight = true, seedHex = "#1E3A5F", spec = LedgerSpec),
 
     /** Light-first document aesthetic: warm off-white surfaces, ink-navy accent, mono for data only. */
-    PAPER(id = "PAPER", label = "Paper", description = "Warm off-white document surfaces, ink-navy accent, monospace reserved for the number.", isLight = true, seedHex = "#1E3A5F", spec = PaperSpec),
+    PAPER(id = "PAPER", label = "Paper", description = "Warm off-white document surfaces, ink-navy accent, monospace reserved for the number.", isLight = true, seedHex = "#1E3A5F", spec = PaperSpec, darkSpec = PaperNightSpec),
 
     /** Refined Ember: same warm-dark amber identity as Ember, every review-flagged defect fixed. */
     REFINED_EMBER(id = "REFINED_EMBER", label = "Refined Ember", description = "The Ember identity, properly executed: real tonal depth, AA contrast, disciplined accent use.", isLight = false, seedHex = "#F5A623", spec = RefinedEmberSpec),
     ;
 
+    /**
+     * The spec to render at [dark]. Falls back to [spec] for single-mode variants, so asking a
+     * dark-only theme for its light face returns the theme rather than an inverted guess.
+     */
+    fun specFor(dark: Boolean): MilewaySchemeSpec = if (dark) darkSpec ?: spec else spec
+
+    /** True when this variant renders both luminances rather than forcing one. */
+    val followsSystem: Boolean get() = darkSpec != null
+
     /** The fully hand-tuned Material 3 [ColorScheme] for this theme. */
-    fun colorScheme(): ColorScheme = spec.toColorScheme(isLight)
+    fun colorScheme(dark: Boolean = !isLight): ColorScheme = specFor(dark).toColorScheme(!dark)
 
     companion object {
-        val DEFAULT = EMBER
+        /**
+         * Paper, chosen 2026-08-10 from a five-direction comparison rendered on 8 screens each
+         * (`docs/screenshots/directions.html`).
+         *
+         * The reasoning, so a future change is a decision and not a drift: Paper is the only
+         * direction that says what the product *is* rather than recolouring it. A mileage log is a
+         * record someone submits and an approver audits, and serif titles on document surfaces
+         * give that the register of a record. The others were a colour choice wearing a typeface.
+         *
+         * It is also the only direction with a hand-built counterpart at the opposite luminance,
+         * which is what makes it safe as a *default* rather than merely attractive.
+         */
+        val DEFAULT = PAPER
 
         /** Tolerant lookup by persisted id; falls back to [DEFAULT] for unknown / legacy values. */
         fun fromId(id: String?): MilewayThemeVariant = entries.firstOrNull { it.id == id } ?: DEFAULT

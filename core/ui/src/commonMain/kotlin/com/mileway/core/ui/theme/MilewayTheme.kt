@@ -53,7 +53,9 @@ private val MilewayShapes =
  * Geometry, mono-for-data type, and edge-to-edge behaviour are theme-independent.
  *
  * @param milewayTheme the curated theme to apply; `null` falls back to the legacy seed path.
- *   When non-null it also dictates light/dark (Daybreak is light), so [darkTheme] is ignored.
+ *   A single-mode variant (Daybreak is light, Ember is dark) dictates its own luminance and
+ *   [darkTheme] is ignored. A variant carrying a `darkSpec` (Paper) honours [darkTheme] instead
+ *   and renders the counterpart — see [MilewayThemeVariant.followsSystem].
  * @param typography the type scale to apply. Defaults to the house [MilewayTypography]; a
  *   direction with its own type scale (see `core/ui/theme/direction/`) passes its own here rather
  *   than this file dispatching per-variant, so directions stay additive and merge-safe.
@@ -81,7 +83,15 @@ fun MilewayTheme(
     shapes: Shapes = MilewayShapes,
     content: @Composable () -> Unit,
 ) {
-    val isDark = milewayTheme?.isLight?.not() ?: darkTheme
+    // A variant that ships both faces (Paper) follows the device; a single-mode one still forces
+    // its own luminance, because inverting a scheme that was never tuned dark looks worse than
+    // ignoring the setting.
+    val isDark =
+        when {
+            milewayTheme == null -> darkTheme
+            milewayTheme.followsSystem -> darkTheme
+            else -> !milewayTheme.isLight
+        }
 
     val seedColor =
         parseHexColor(customSeedHex)
@@ -104,9 +114,9 @@ fun MilewayTheme(
 
     val colorScheme =
         when {
-            useSystemColors -> systemDynamicColorScheme(isDark) ?: (milewayTheme?.colorScheme() ?: generatedScheme)
+            useSystemColors -> systemDynamicColorScheme(isDark) ?: (milewayTheme?.colorScheme(isDark) ?: generatedScheme)
             // A custom seed always wins over a curated theme so the colour wheel stays meaningful.
-            milewayTheme != null && customSeedHex.isBlank() -> milewayTheme.colorScheme()
+            milewayTheme != null && customSeedHex.isBlank() -> milewayTheme.colorScheme(isDark)
             else -> generatedScheme
         }
 
@@ -115,7 +125,7 @@ fun MilewayTheme(
     val semanticColors =
         remember(milewayTheme, useSystemColors, colorScheme) {
             if (milewayTheme != null && !useSystemColors && customSeedHex.isBlank()) {
-                milewayTheme.spec.semanticColors()
+                milewayTheme.specFor(isDark).semanticColors()
             } else {
                 derivedSemanticColors(colorScheme, isDark)
             }
@@ -127,7 +137,7 @@ fun MilewayTheme(
     val roleColors =
         remember(milewayTheme, useSystemColors, colorScheme, semanticColors) {
             if (milewayTheme != null && !useSystemColors && customSeedHex.isBlank()) {
-                milewayTheme.spec.roleColors()
+                milewayTheme.specFor(isDark).roleColors()
             } else {
                 derivedRoleColors(colorScheme, semanticColors)
             }
