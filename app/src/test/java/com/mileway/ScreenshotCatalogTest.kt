@@ -110,10 +110,24 @@ class ScreenshotCatalogTest {
         )
     }
 
-    private fun capture(name: String) =
-        composeRule.onRoot().captureRoboImage(
-            File(screenshotsDir, "$name.png").absolutePath,
-        )
+    // This is the SECOND screenshot producer in the repo (ScreenshotGalleryTest is the other), and
+    // it silently stopped recording when the gallery's JVM-wide
+    // System.setProperty("roborazzi.test.record") was removed — this class had no gating of its own
+    // and had been free-riding on that property.
+    //
+    // Note for whoever wonders about the green captures: they are INTENTIONAL. This catalog renders
+    // Preview*Matrix composables on purpose, to exercise the Matrix theme variant. They are not
+    // stale, not a theme bug, and must not be "fixed" to Ember. The `_matrix` filename suffix marks
+    // the deliberate ones; anything green WITHOUT that suffix is worth a second look.
+    //
+    // Same env-var gate as the gallery: a -P property cannot reach a forked test JVM.
+    //   ROBORAZZI_RECORD=true ./gradlew :app:screenshotTestNoGmsDebug
+    private fun capture(name: String) {
+        if (System.getenv("ROBORAZZI_RECORD") == "true") {
+            System.setProperty("roborazzi.test.record", "true")
+        }
+        composeRule.onRoot().captureRoboImage(File(screenshotsDir, "$name.png").absolutePath)
+    }
 
     // ── feature:tracking ────────────────────────────────────────────────────
 

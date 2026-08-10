@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -929,7 +930,9 @@ class ScreenshotGalleryTest {
     @Test
     fun locationMapScreen() {
         composeRule.setContent {
-            MilewayTheme {
+            // RouteReplayScreen is a bare Box with no background of its own — see ThemedBackground's
+            // doc for why this needs the explicit wrapper instead of bare MilewayTheme.
+            ThemedBackground {
                 RouteReplayScreen(onNavigateBack = {})
             }
         }
@@ -945,7 +948,7 @@ class ScreenshotGalleryTest {
     @Test
     fun routeReplayErrorState() {
         composeRule.setContent {
-            MilewayTheme {
+            ThemedBackground {
                 RouteReplayScreen(onNavigateBack = {})
             }
         }
@@ -1227,7 +1230,9 @@ class ScreenshotGalleryTest {
     @Test
     fun logMilesHistoryScreen() {
         composeRule.setContent {
-            MilewayTheme {
+            // LogMilesHistoryScreen's root Column has no background (only its header self-paints a
+            // gradient) — see ThemedBackground's doc.
+            ThemedBackground {
                 LogMilesHistoryScreen(onBack = {}, onOpenDraft = {})
             }
         }
@@ -1793,7 +1798,9 @@ class ScreenshotGalleryTest {
     @Test
     fun mediaCameraPermissionRequired() {
         composeRule.setContent {
-            MilewayTheme {
+            // The permission-required fallback has no background of its own — see
+            // ThemedBackground's doc.
+            ThemedBackground {
                 // Mock Context → CAMERA permission not-granted → renders the
                 // permission-required fallback (headless-safe).
                 CameraCaptureScreen(
@@ -2033,7 +2040,11 @@ class ScreenshotGalleryTest {
     @Test
     fun shellPlaceholderScreen() {
         composeRule.setContent {
-            MilewayTheme {
+            // ShellPlaceholderScreen's root Column has no background of its own — see
+            // ThemedBackground's doc. (Also currently unreferenced by any real navigation graph:
+            // grep -rn "ShellPlaceholderScreen(" turns up only this test — dead code, not a
+            // runtime-reachable screen today.)
+            ThemedBackground {
                 ShellPlaceholderScreen(
                     title = "Travel",
                     icon = Icons.Filled.TravelExplore,
@@ -2349,7 +2360,15 @@ class ScreenshotGalleryTest {
     @Test
     fun pauseReasonSheet() {
         composeRule.setContent {
-            MilewayTheme {
+            // PauseReasonSheet is a deliberately bare, stateless body (see PauseResumeSheets.kt's
+            // file-header doc) with no background of its own — see ThemedBackground's doc for why
+            // this needs the explicit wrapper. NOTE: at runtime TrackMilesScreen calls this
+            // composable directly too (feature/tracking/.../screens/TrackMilesScreen.kt, the
+            // TrackSheet.PAUSE branch) without ever wrapping it in a ModalBottomSheet, contradicting
+            // that same file-header doc's contract ("the integrator wraps each in its own
+            // ModalBottomSheet and owns the state"). That is a real product bug distinct from this
+            // capture-harness gap — reported, not fixed here (out of this file's ownership).
+            ThemedBackground {
                 PauseReasonSheet(
                     timestamp = "2:45 PM",
                     selectedReason = null,
@@ -2367,7 +2386,13 @@ class ScreenshotGalleryTest {
     @Test
     fun sessionRestoreSheet() {
         composeRule.setContent {
-            MilewayTheme {
+            // SessionRestoreSheet is a bare, stateless body with no background of its own — see
+            // ThemedBackground's doc. NOTE: unlike PauseReasonSheet, this composable is currently
+            // dead code — grep -rn "SessionRestoreSheet(" turns up only this test. Real production
+            // session-restore uses the differently-named SessionRestoreBottomSheet
+            // (feature/tracking/.../sheets/SessionRestoreBottomSheet.kt), which correctly hosts its
+            // own ModalBottomSheet. So this capture documents a composable nothing actually renders.
+            ThemedBackground {
                 SessionRestoreSheet(
                     sessions =
                         listOf(
@@ -2973,6 +2998,29 @@ class ScreenshotGalleryTest {
     // relative-name path is left as-is above (harmless: it's already a no-op today, see setup()'s D3
     // FIX, and stays correct-by-construction if the underlying Gradle wiring is ever fixed). Only the
     // explicit, deliberately-requested record path below needs to reach the real directory today.
+    // Some screen/sheet bodies (PauseReasonSheet, SessionRestoreSheet, RouteReplayScreen,
+    // LogMilesHistoryScreen, ShellPlaceholderScreen, CameraCaptureScreen's permission state, …)
+    // are deliberately self-contained with no Scaffold/Surface of their own — MilewayTheme itself
+    // never paints a background either (it only provides MaterialTheme, see its KDoc). In the real
+    // app every one of these always renders nested inside MilewayAppRoot's or MilewayApp's outer
+    // Scaffold, whose default containerColor (MaterialTheme.colorScheme.background) paints the
+    // dark surface behind them for free. This gallery mounts each capture bare under MilewayTheme
+    // with no such ancestor, so a composable that relies on it falls through to Robolectric's
+    // undecorated (white) root canvas and MaterialTheme-colored text renders washed out/illegible
+    // — a capture-harness gap, not a runtime bug (confirmed by reading the real nesting in
+    // MilewayAppRoot.kt / MilewayApp.kt). Reproduces that one ambient Scaffold layer explicitly;
+    // same fix already applied ad hoc for trackEvidenceTripNotFoundScreen above.
+    @Composable
+    private fun ThemedBackground(content: @Composable () -> Unit) {
+        MilewayTheme {
+            androidx.compose.foundation.layout.Box(
+                modifier = androidx.compose.ui.Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+            ) {
+                content()
+            }
+        }
+    }
+
     private fun capture(name: String) {
         if (System.getenv("ROBORAZZI_RECORD") == "true") {
             composeRule.onRoot().captureRoboImage(File(screenshotsDir, "$name.png").absolutePath)
