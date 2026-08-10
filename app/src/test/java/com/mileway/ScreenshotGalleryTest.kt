@@ -1091,7 +1091,12 @@ class ScreenshotGalleryTest {
                 )
             }
         }
-        composeRule.onNodeWithText("Select type").performClick()
+        // Opened by its label, not by the "Select type" hint. That hint used to be the field's
+        // *value*, so it was always in the tree; it is now a placeholder, and Material 3 renders a
+        // placeholder only while a labelled field is focused. Matching on it made the test depend
+        // on the empty state being indistinguishable from a filled one — the exact thing the
+        // screen was changed to fix. The label is stable in both states.
+        composeRule.onNode(hasText("Check-In Type") and hasClickAction()).performClick()
         composeRule.onNodeWithText("Office Check-In").performClick()
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Desk number").performTextInput("D-1")

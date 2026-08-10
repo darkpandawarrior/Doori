@@ -49,6 +49,16 @@ kotlin {
                 "com/mileway/core/ui/theme/MilewaySemanticColors.kt",
                 "com/mileway/core/ui/theme/MilewayTheme.kt",
                 "com/mileway/core/ui/theme/MilewayThemes.kt",
+                // Layer 2 (semantic roles) + the HCT maths it derives them with. MilewayTheme.kt
+                // provides LocalMilewayRoleColors unconditionally, so these are not optional
+                // extras — without them this target does not compile at all.
+                "com/mileway/core/ui/theme/MilewayRoles.kt",
+                "com/mileway/core/ui/theme/MilewayDomain.kt",
+                "com/mileway/core/ui/theme/ColorMath.kt",
+                // Every design direction, by directory rather than by name: this allowlist silently
+                // rotted the moment the five directions landed, and naming each file would set the
+                // same trap for the sixth.
+                "com/mileway/core/ui/theme/direction/**",
                 "com/mileway/core/ui/theme/ThemeController.kt",
                 "com/mileway/core/ui/theme/ThemeDefaults.kt",
                 "com/mileway/core/ui/theme/Type.kt",
