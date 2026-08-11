@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.previews.PreviewLightDark
 import com.mileway.core.ui.previews.PreviewMatrix
 import com.mileway.core.ui.previews.PreviewSurface
+import com.mileway.core.ui.theme.MilewayThemeVariant
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.payables.model.PoLineItem
 import com.mileway.feature.payables.model.PoStatus
@@ -168,7 +169,7 @@ fun PreviewPoCardPendingApproval() {
 @PreviewMatrix
 @Composable
 fun PreviewPoListMatrix() {
-    PreviewSurface {
+    PreviewSurface(MilewayThemeVariant.MATRIX) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -184,7 +185,7 @@ fun PreviewPoListMatrix() {
 @PreviewMatrix
 @Composable
 fun PreviewPoLineItemsMatrix() {
-    PreviewSurface {
+    PreviewSurface(MilewayThemeVariant.MATRIX) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
