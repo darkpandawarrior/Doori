@@ -3,7 +3,7 @@ package com.mileway.core.ui.theme
 import androidx.compose.ui.graphics.Color
 import com.materialkolor.hct.Hct
 
-/**
+/*
  * Perceptual colour maths in HCT (hue / chroma / **tone**), the space Material 3 itself uses.
  *
  * The whole layered theme system rests on one property of this space: **tone is contrast**. Two

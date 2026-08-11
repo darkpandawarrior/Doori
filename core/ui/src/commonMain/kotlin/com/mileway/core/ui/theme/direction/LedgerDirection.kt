@@ -13,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
+/*
  * Design direction: **Ledger** — a financial instrument (Stripe dashboard / a well-set annual
  * report), not a terminal. Registered as [MilewayThemeVariant.LEDGER] (light, primary). See
  * `MilewayThemes.kt` for the one-line registration; everything else this direction needs lives
@@ -41,11 +41,11 @@ import androidx.compose.ui.unit.sp
  * all five directions, not to this one.
  */
 
-// =============================================================================
-// Colour — light (registered as MilewayThemeVariant.LEDGER)
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Colour — light (registered as MilewayThemeVariant.LEDGER)
+ * =============================================================================
+ *
  * Ledger, light (primary/registered). Cool near-white canvas, white cards separated by tonal
  * steps + hairline border rather than fill, one restrained financial-navy accent used only for
  * the primary action and links — never decorative. No glow: this direction reads as calm because
@@ -104,11 +104,11 @@ internal val LedgerDarkSpec =
         useGlow = false,
     )
 
-// =============================================================================
-// Type — proportional sans for chrome, mono ONLY for money / distance / timestamps
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Type — proportional sans for chrome, mono ONLY for money / distance / timestamps
+ * =============================================================================
+ *
  * Ledger's chrome type scale. Every role — headline through label — is [FontFamily.Default] (the
  * system proportional sans), unlike [MilewayTypography] which runs mono through headline/title/
  * label. This is the whole point of the direction: a number reads as data because everything
@@ -156,11 +156,11 @@ object LedgerDataType {
     fun of(style: TextStyle): TextStyle = style.copy(fontFamily = MonoFamily, letterSpacing = 0.sp)
 }
 
-// =============================================================================
-// Money / value colour role
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Money / value colour role
+ * =============================================================================
+ *
  * The colour role this product's core number needs. Deliberately **not** accent-tinted: a
  * reimbursement total in the primary-action colour reads as a button, and colouring it for
  * "positive" implies a judgement the app hasn't made yet. [value] is the same high-contrast ink as
@@ -185,11 +185,11 @@ object LedgerColors {
         get() = MilewayColors.danger
 }
 
-// =============================================================================
-// Shape & spacing — a ledger has edges; whitespace is generous, not cramped
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Shape & spacing — a ledger has edges; whitespace is generous, not cramped
+ * =============================================================================
+ *
  * Tighter corner language than the app-wide 12dp "square rounded" default — 6–10dp reads as a
  * printed instrument (table, receipt, statement) rather than a soft app-chrome pill. Ready for
  * per-variant wiring alongside [LedgerTypography]; see the file header note.

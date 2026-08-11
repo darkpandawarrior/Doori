@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/**
+/*
  * Design direction: **Signal**.
  *
  * FOR: fixing the #1 vision-review complaint ("the visual language looks so sad") without adding
@@ -46,11 +46,11 @@ import androidx.compose.ui.unit.sp
  * follow-up phase that owns that file.
  */
 
-// =============================================================================
-// Colour — dark foundation, semantic accent roles
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Colour — dark foundation, semantic accent roles
+ * =============================================================================
+ *
  * Signal (dark, registered as [MilewayThemeVariant.SIGNAL]).
  *
  * Role mapping onto [MilewaySchemeSpec]'s five accent slots:
@@ -132,11 +132,11 @@ object SignalColors {
     val moneyValueLight: Color = SignalLightSpec.success
 }
 
-// =============================================================================
-// Typography — bold chrome, mono confined to data
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Typography — bold chrome, mono confined to data
+ * =============================================================================
+ *
  * The explicit rule the other four themes don't state out loud: **monospace is for figures the
  * user reads as data, and nowhere else.**
  *
@@ -207,11 +207,11 @@ object SignalType {
         )
 }
 
-// =============================================================================
-// Shape — a distinct corner language from the shared "square rounded" 12dp system
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Shape — a distinct corner language from the shared "square rounded" 12dp system
+ * =============================================================================
+ *
  * Signal's shape scheme: cards round noticeably more than controls, so a raised surface reads as
  * a distinct object sitting above the canvas rather than a variation on a button. Contrast with
  * the app-wide [MilewayShapes] / [DesignTokens.Shape], which use one 12dp radius everywhere.
@@ -233,11 +233,11 @@ object SignalCorners {
     val sheet = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
 }
 
-// =============================================================================
-// Elevation & spacing — real depth, a slightly more generous rhythm
-// =============================================================================
-
 /**
+ * =============================================================================
+ * Elevation & spacing — real depth, a slightly more generous rhythm
+ * =============================================================================
+ *
  * Visibly higher than [DesignTokens.Elevation] (2dp/4dp/8dp) — the vision review's #2 complaint
  * was "flat cards on flat backgrounds," so Signal's shadows are meant to actually read at a
  * glance, not just satisfy an elevation API technically.

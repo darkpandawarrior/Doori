@@ -17,7 +17,7 @@ import com.mileway.core.ui.theme.MilewaySchemeSpec
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.MilewayThemeVariant
 
-/**
+/*
  * ============================================================================================
  * DIRECTION: Refined Ember
  * ============================================================================================
@@ -41,7 +41,7 @@ import com.mileway.core.ui.theme.MilewayThemeVariant
  *     tappable element). Same family for brand cohesion, different job, different tone.
  *  5. Contrast failures (disabled Confirm, red error text). Every pair below is WCAG-AA
  *     checked (≥4.5:1) — see `RefinedEmberDirectionTest` — and the disabled-state alpha
- *     ([RefinedEmberSemantics.disabledContentAlpha]) is picked to stay legible, not just
+ *     ([RefinedEmberSemantics.DISABLED_CONTENT_ALPHA]) is picked to stay legible, not just
  *     "technically exempt because it's disabled."
  *  6. No unambiguous primary / red on non-destructive actions. Button hierarchy is a strict
  *     rule, not a token: filled `accent` = the one primary CTA per screen; outlined/tonal =
@@ -68,9 +68,9 @@ import com.mileway.core.ui.theme.MilewayThemeVariant
  * ============================================================================================
  */
 
-// ── Colour scheme (dark only — see "what it sacrifices" above) ─────────────────────────────
-
 /**
+ * ── Colour scheme (dark only — see "what it sacrifices" above) ─────────────────────────────
+ *
  * The hand-tuned [MilewaySchemeSpec] for Refined Ember. Registered as
  * [MilewayThemeVariant.REFINED_EMBER] in `MilewayThemes.kt`. A genuinely 5-step tonal ramp
  * (each step below is a visible jump, not a couple of percent) plus AA-checked accent /
@@ -101,9 +101,9 @@ internal val RefinedEmberSpec =
         useGlow = true,
     )
 
-// ── Typography: sans everywhere except data ─────────────────────────────────────────────────
-
 /**
+ * ── Typography: sans everywhere except data ─────────────────────────────────────────────────
+ *
  * Refined Ember's type scale. The one rule that fixes the review's #1 finding: **every Material
  * role here is [FontFamily.Default]** (the same humanist system sans the house [bodyLarge]/
  * [bodyMedium] roles already use) — monospace never appears in a headline, title, or label. A
@@ -134,9 +134,9 @@ val RefinedEmberTypography =
         labelSmall = TextStyle(fontFamily = FontFamily.Default, fontWeight = FontWeight.Medium, fontSize = 11.sp, letterSpacing = 0.3.sp),
     )
 
-// ── Shape / corner language ──────────────────────────────────────────────────────────────────
-
 /**
+ * ── Shape / corner language ──────────────────────────────────────────────────────────────────
+ *
  * Deliberately matches the house "square rounded" geometry (`MilewayTheme.kt`'s private
  * `MilewayShapes` — 8/10/12/16/16dp). Geometry was never the review's complaint; a direction
  * that fixes colour, type and elevation while also inventing new corner radii would be changing
@@ -152,9 +152,9 @@ val RefinedEmberShapes =
         extraLarge = RoundedCornerShape(16.dp),
     )
 
-// ── Elevation / depth treatment ──────────────────────────────────────────────────────────────
-
 /**
+ * ── Elevation / depth treatment ──────────────────────────────────────────────────────────────
+ *
  * Real elevation for Refined Ember's cards — a shadow + tonal lift via
  * `CardDefaults.cardElevation`, not just a lighter `surfaceCard` fill. Reuses
  * [DesignTokens.Elevation]'s existing dp scale (2 / 4 / 8dp) unchanged; the fix here is *using*
@@ -191,9 +191,9 @@ object RefinedEmberElevation {
         )
 }
 
-// ── Semantic roles: the money role, and the disabled-state fix ──────────────────────────────
-
 /**
+ * ── Semantic roles: the money role, and the disabled-state fix ──────────────────────────────
+ *
  * Tokens that don't fit [com.mileway.core.ui.theme.MilewaySemanticColors] (that struct is shared
  * across all 5 curated themes and stays untouched by this direction) but that this direction's
  * brief specifically calls for.
@@ -215,12 +215,12 @@ object RefinedEmberSemantics {
      * default M3 ships. Directly answers the review's "disabled Confirm is unusable" finding:
      * disabled must read as *off*, never as *invisible*.
      */
-    const val disabledContentAlpha: Float = 0.7f
+    const val DISABLED_CONTENT_ALPHA: Float = 0.7f
 }
 
-// ── Entry point ───────────────────────────────────────────────────────────────────────────────
-
 /**
+ * ── Entry point ───────────────────────────────────────────────────────────────────────────────
+ *
  * Convenience wrapper: renders [content] in the full Refined Ember direction (colour scheme +
  * type scale + shape language) in one call, for previews/galleries that want the complete
  * direction rather than assembling the pieces by hand. Thin call-through to the existing

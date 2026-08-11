@@ -55,8 +55,7 @@ class UpdateChecker(
     }
 
     /** True once a flexible update has finished downloading and is waiting for a restart. */
-    suspend fun readyToRestart(): Boolean =
-        appUpdateManager.checkForUpdate(UpdateConfig(enabled = true)) is UpdateAvailability.Downloaded
+    suspend fun readyToRestart(): Boolean = appUpdateManager.checkForUpdate(UpdateConfig(enabled = true)) is UpdateAvailability.Downloaded
 
     /** Applies a downloaded flexible update (restarts the app to install it). */
     suspend fun completeFlexibleUpdate() = appUpdateManager.completeFlexibleUpdate()

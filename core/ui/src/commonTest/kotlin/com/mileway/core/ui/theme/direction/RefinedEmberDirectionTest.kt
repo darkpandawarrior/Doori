@@ -59,7 +59,7 @@ class RefinedEmberDirectionTest {
         // Flatten textMuted at the disabled alpha over surfaceRaised (the disabled-button
         // background) and check the result still clears AA — the review's "disabled Confirm is
         // unusable" bug is exactly this pair rendered too faint to read.
-        val a = RefinedEmberSemantics.disabledContentAlpha
+        val a = RefinedEmberSemantics.DISABLED_CONTENT_ALPHA
         val flattened =
             Color(
                 red = spec.textMuted.red * a + spec.surfaceRaised.red * (1 - a),
