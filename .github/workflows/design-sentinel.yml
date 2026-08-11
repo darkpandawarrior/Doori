@@ -26,6 +26,10 @@ jobs:
           submodules: recursive
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '21' }
+      # The broken-capture check decodes pixels with Pillow. It throws when Pillow is missing
+      # rather than reporting zero findings — a blank-capture check that silently finds nothing is
+      # how a pure-black screenshot stayed shipped for weeks — so the install is not optional.
+      - run: python3 -m pip install --quiet Pillow
 
       # Re-record first, so the sentinel compares CURRENT rendering against the accepted baseline
       # rather than against whatever happens to be committed. Recording needs the env var: a -P
