@@ -143,8 +143,24 @@ mkdirSync(dirname(REPORT), { recursive: true })
 writeFileSync(REPORT, lines)
 
 if (ACCEPT) {
-  writeFileSync(STATE, JSON.stringify({ shots: now, accepted: brokenShots(shots) }, null, 2))
+  // --accept blesses DRIFT — "yes, the pixels changed and that was the intent". It must never
+  // bless BROKEN. It used to write `accepted: brokenShots(shots)`, so one --accept silently
+  // absolved every blank capture in the tree, including a pure-black widget that then sailed
+  // through as approved. The one keystroke a person reaches for after an intentional redesign was
+  // also the keystroke that turned off the blank check.
+  //
+  // Accepting a genuinely sparse capture (a FAB, an indicator dot) stays possible — add it to
+  // `accepted` in docs/screenshots/.sentinel.json by hand, which forces someone to look at it and
+  // leaves a diff saying who decided.
+  const keep = (prev.accepted || []).filter(f => now[f])
+  writeFileSync(STATE, JSON.stringify({ shots: now, accepted: keep }, null, 2))
+  const stillBroken = brokenShots(shots).filter(f => !keep.includes(f))
   console.log(`baseline accepted: ${shots.length} captures`)
+  if (stillBroken.length) {
+    console.log(`\nNOT accepted — ${stillBroken.length} still broken, fix the capture or add it to`)
+    console.log(`\`accepted\` in docs/screenshots/.sentinel.json by hand:`)
+    for (const f of stillBroken) console.log(`  - ${f}`)
+  }
   process.exit(0)
 }
 

@@ -57,8 +57,17 @@ final class WidgetScreenshotTests: XCTestCase {
 
     @MainActor
     func testCaptureLockScreenWidget() throws {
-        let view = MileageAccessoryRectangularView(entry: mockEntry)
-            .frame(width: 160, height: 72)
+        // Composited over a ground on purpose. An accessory widget draws white-on-transparent so
+        // the system can tint it against the wallpaper; rendered standalone it flattens to pure
+        // black, and that black rectangle shipped to the portfolio site as a lock-screen widget.
+        // The lock screen always provides a backdrop, so capturing without one was never showing
+        // what a user sees.
+        let view = ZStack {
+            Color.black.opacity(0.55)
+            MileageAccessoryRectangularView(entry: mockEntry)
+                .foregroundStyle(.white)
+        }
+        .frame(width: 160, height: 72)
         try render(view, to: "widget_ios_lockscreen.png")
     }
 
