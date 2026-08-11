@@ -51,9 +51,10 @@ fun DistanceLedgerBar(
     val scale = ledger.rawKm.takeIf { it > 0.0 } ?: 1.0
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = ledger.accessibilitySummary() },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .semantics { contentDescription = ledger.accessibilitySummary() },
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
     ) {
         LedgerRow(
@@ -72,7 +73,8 @@ fun DistanceLedgerBar(
                 valueKm = d.km,
                 fraction = if (scale > 0) d.km / scale else 0.0,
                 color = d.tone.color,
-                prefix = "− ", // real minus sign, not a hyphen
+                // real minus sign, not a hyphen
+                prefix = "− ",
                 indent = true,
                 // A zero deduction still gets its row: "we checked and found none" is information,
                 // and a row that appears only sometimes makes the list look incomplete.
@@ -165,12 +167,17 @@ private fun LedgerRow(
 }
 
 @Composable
-private fun LedgerBar(fraction: Double, color: Color, modifier: Modifier = Modifier) {
+private fun LedgerBar(
+    fraction: Double,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
     val track = MaterialTheme.colorScheme.surfaceVariant
     Canvas(
-        modifier = modifier
-            .height(10.dp)
-            .clip(RoundedCornerShape(5.dp)),
+        modifier =
+            modifier
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp)),
     ) {
         drawRect(color = track, size = size)
         val w = (size.width * fraction).toFloat()
@@ -199,28 +206,29 @@ data class DistanceLedger(
 ) {
     internal data class Deduction(val label: String, val km: Double, val tone: StatusTone)
 
-    internal fun deductions(): List<Deduction> = listOf(
-        // Mock first: a mock location is the only entry here that implies intent rather than
-        // instrument error, so it is the one a reviewer most wants to see called out.
-        Deduction("mock", mockKm, StatusTone.Danger),
-        Deduction("abnormal", abnormalKm, StatusTone.Warning),
-        Deduction("spikes", spikeKm, StatusTone.Info),
-    )
+    internal fun deductions(): List<Deduction> =
+        listOf(
+            // Mock first: a mock location is the only entry here that implies intent rather than
+            // instrument error, so it is the one a reviewer most wants to see called out.
+            Deduction("mock", mockKm, StatusTone.Danger),
+            Deduction("abnormal", abnormalKm, StatusTone.Warning),
+            Deduction("spikes", spikeKm, StatusTone.Info),
+        )
 
     /**
      * The invariant the distance pipeline guarantees. Exposed so a screen can assert rather than
      * assume — a ledger that does not balance is showing a number nobody can defend.
      */
-    fun balances(toleranceKm: Double = 0.01): Boolean =
-        abs(cleanedKm - (rawKm - abnormalKm - mockKm)) <= toleranceKm
+    fun balances(toleranceKm: Double = 0.01): Boolean = abs(cleanedKm - (rawKm - abnormalKm - mockKm)) <= toleranceKm
 
-    fun accessibilitySummary(): String = buildString {
-        append("Distance ledger. Raw GPS ${fmt2(rawKm)} kilometres. ")
-        deductions().filter { it.km > 0.0 }.forEach { append("Minus ${it.label} ${fmt2(it.km)}. ") }
-        append("Cleaned ${fmt2(cleanedKm)}. ")
-        odometerKm?.let { append("Odometer ${fmt2(it)}. ") }
-        append("Claimed ${fmt2(claimedKm)} kilometres.")
-    }
+    fun accessibilitySummary(): String =
+        buildString {
+            append("Distance ledger. Raw GPS ${fmt2(rawKm)} kilometres. ")
+            deductions().filter { it.km > 0.0 }.forEach { append("Minus ${it.label} ${fmt2(it.km)}. ") }
+            append("Cleaned ${fmt2(cleanedKm)}. ")
+            odometerKm?.let { append("Odometer ${fmt2(it)}. ") }
+            append("Claimed ${fmt2(claimedKm)} kilometres.")
+        }
 }
 
 private fun signed(v: Double): String = (if (v >= 0) "+" else "") + fmt2(v)

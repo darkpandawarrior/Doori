@@ -233,6 +233,7 @@ fun SettingsScreen(
             val permissionRows = rememberPermissionHealthRows()
             val permDeniedMessage = stringResource(Res.string.profile_settings_perm_denied)
             val openSettingsLabel = stringResource(Res.string.core_permission_action_open_settings)
+
             fun openAppSettings() {
                 context.startActivity(
                     Intent(SystemSettings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {

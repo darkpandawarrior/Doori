@@ -29,7 +29,6 @@ import kotlin.test.Test
  */
 @OptIn(ExperimentalTestApi::class)
 class WebPreviewScreenshotTest {
-
     @Test
     fun dashboard() =
         capture("web_dashboard.png") {

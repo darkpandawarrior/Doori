@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.Flow
  * share, URL open, app shortcuts, crash reporting. Each interface is platform-neutral, implemented
  * per platform, and surfaced through Koin / the LocalManagerProvider Compose layer (PF.3). Every impl
  * MUST degrade to a no-op when its backing key/service is absent, never crash (KEY DECISION #4).
+ *
+ * ─────────────────────────── Deep links ───────────────────────────
  */
-
-// ─────────────────────────── Deep links ───────────────────────────
 
 /** Bridges a platform-delivered URL (Android intent / iOS NSUserActivity) into the shared router. */
 interface DeepLinkHandler {

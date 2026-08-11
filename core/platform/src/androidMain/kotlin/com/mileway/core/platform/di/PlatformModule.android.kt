@@ -5,8 +5,8 @@ import com.mileway.core.platform.AndroidBatteryStatusReader
 import com.mileway.core.platform.AndroidHaptics
 import com.mileway.core.platform.AndroidMotionSensorProvider
 import com.mileway.core.platform.AndroidShareSheet
-import com.mileway.core.platform.AndroidTrackingPresenceController
 import com.mileway.core.platform.AndroidSystemSettingsOpener
+import com.mileway.core.platform.AndroidTrackingPresenceController
 import com.mileway.core.platform.AndroidUrlOpener
 import com.mileway.core.platform.AppShortcuts
 import com.mileway.core.platform.BatteryStatusReader
@@ -16,8 +16,8 @@ import com.mileway.core.platform.NotificationChannels
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ShakeGestureDetector
 import com.mileway.core.platform.ShareSheet
-import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.SystemSettingsOpener
+import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.UrlOpener
 import com.siddharth.kmp.appshell.AndroidLocationTracker
 import com.siddharth.kmp.appshell.AndroidNotificationScheduler

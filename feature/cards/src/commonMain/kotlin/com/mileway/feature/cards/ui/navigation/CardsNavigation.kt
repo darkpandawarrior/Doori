@@ -33,10 +33,11 @@ object CardRoutes {
  * [onClaimTransaction] (P27.E.7) is supplied by the app shell so feature:cards never depends on
  * feature:logging directly — it only hands back the [ExpenseSourceContext] the app shell needs to
  * build feature:logging's expense-entry route.
+ *
+ * Domain-scoped once at the feature's nav entry (LAYERS.md Layer 3) — CARDS is the one domain
+ * allowed to look like a product (cool, slightly richer). Every screen below, including the card
+ * face gradient, picks up the accent through MaterialTheme.colorScheme.primary.
  */
-// Domain-scoped once at the feature's nav entry (LAYERS.md Layer 3) — CARDS is the one domain
-// allowed to look like a product (cool, slightly richer). Every screen below, including the card
-// face gradient, picks up the accent through MaterialTheme.colorScheme.primary.
 fun NavGraphBuilder.cardsGraph(
     navController: NavHostController,
     onClaimTransaction: (ExpenseSourceContext) -> Unit = {},

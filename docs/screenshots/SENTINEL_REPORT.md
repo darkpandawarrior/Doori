@@ -1,4 +1,4 @@
-# Design sentinel — 2026-08-10
+# Design sentinel — 2026-08-11
 
 327 captures · 217 screen-like composables in tree
 
@@ -48,10 +48,13 @@
 - …and 44 more
 
 ## Broken captures
-None.
+**2 blank or near-uniform.** A blank tile looks covered and is not.
+
+- media_attachment_preview_screen.png
+- widget_ios_lockscreen.png
 
 ## Drift since last accepted baseline
-added 110 · changed 178 · removed 0
+added 110 · changed 194 · removed 0
 
 - changed: account_deletion_screen.png
 - changed: action_confirmation_bottom_sheet.png
@@ -169,6 +172,7 @@ added 110 · changed 178 · removed 0
 - changed: route_replay_error_state.png
 - changed: saved_places_screen.png
 - changed: saved_tracks_journeys_tab.png
+- changed: search_masterSearch_empty.png
 - changed: search_masterSearch_results.png
 - changed: self_audit_screen.png
 - changed: session_restore_sheet.png
@@ -209,9 +213,20 @@ added 110 · changed 178 · removed 0
 - changed: tracking_loadingScreen_subStatuses.png
 - changed: tracking_loading_screen.png
 - changed: tracking_settingsScreen.png
+- changed: tracking_setupGuide.png
 - changed: tracking_setup_guide_screen.png
+- changed: tracking_statusPills.png
+- changed: tracking_successScreen_clean.png
+- changed: tracking_successScreen_withViolation.png
+- changed: tracking_successScreen_withVoucher.png
 - changed: tracking_success_screen.png
+- changed: tracking_topBar_active.png
+- changed: tracking_topBar_idle.png
+- changed: tracking_topBar_paused.png
 - changed: training_tour_screen.png
+- changed: travel_bookingCard_activeFlight.png
+- changed: travel_bookingCard_completedFlight.png
+- changed: travel_bookingCard_upcomingTrain.png
 - changed: travel_home_screen.png
 - changed: trip_history_screen.png
 - changed: vehicle_garage_screen.png
@@ -229,6 +244,10 @@ added 110 · changed 178 · removed 0
 - changed: web_expenses.png
 - changed: web_tracking.png
 - changed: whats_new_sheet.png
+- changed: whatsnew_detail_carousel.png
+- changed: whatsnew_detail_screen.png
+- changed: whatsnew_list_empty.png
+- changed: whatsnew_list_screen.png
 - changed: wheel_date_picker_dialog.png
 - changed: wheel_time_picker_dialog.png
 

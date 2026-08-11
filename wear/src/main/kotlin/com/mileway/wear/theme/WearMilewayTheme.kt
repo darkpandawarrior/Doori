@@ -131,14 +131,15 @@ fun WearMilewayTheme(content: @Composable () -> Unit) {
 /**
  * Acceptance for P2.3: a preview renders the Ember palette on a round-watch preview. Visual-only —
  * this task is explicitly unit-free (see PLAN_V23 P2.3 acceptance).
+ *
+ * Devices.WEAR_OS_SMALL_ROUND is deprecated in favour of androidx.wear:wear-tooling-preview's
+ * WearDevices.SMALL_ROUND — not worth a new dependency for a preview-only device string constant
+ * (CLAUDE.md: no dependencies beyond what a task genuinely needs); the deprecated constant still
+ * resolves correctly.
+ * UnusedPrivateMember: only called by the Compose/Android Studio preview renderer via
+ * reflection on the @Preview annotation, never from Kotlin call sites — a known detekt false
+ * positive for private @Preview composables (no detekt-compose ruleset in this repo to exempt it).
  */
-// Devices.WEAR_OS_SMALL_ROUND is deprecated in favour of androidx.wear:wear-tooling-preview's
-// WearDevices.SMALL_ROUND — not worth a new dependency for a preview-only device string constant
-// (CLAUDE.md: no dependencies beyond what a task genuinely needs); the deprecated constant still
-// resolves correctly.
-// UnusedPrivateMember: only called by the Compose/Android Studio preview renderer via
-// reflection on the @Preview annotation, never from Kotlin call sites — a known detekt false
-// positive for private @Preview composables (no detekt-compose ruleset in this repo to exempt it).
 @Suppress("DEPRECATION", "UnusedPrivateMember")
 @Preview(name = "Wear Ember theme", device = Devices.WEAR_OS_SMALL_ROUND, showBackground = true)
 @Composable

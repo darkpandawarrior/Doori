@@ -6,16 +6,16 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class DistanceLedgerTest {
-
-    private val typical = DistanceLedger(
-        rawKm = 14.9,
-        cleanedKm = 12.4,
-        claimedKm = 12.4,
-        abnormalKm = 1.1,
-        mockKm = 1.4,
-        spikeKm = 1.4,
-        odometerKm = 12.6,
-    )
+    private val typical =
+        DistanceLedger(
+            rawKm = 14.9,
+            cleanedKm = 12.4,
+            claimedKm = 12.4,
+            abnormalKm = 1.1,
+            mockKm = 1.4,
+            spikeKm = 1.4,
+            odometerKm = 12.6,
+        )
 
     @Test
     fun a_balanced_ledger_reports_balanced() {

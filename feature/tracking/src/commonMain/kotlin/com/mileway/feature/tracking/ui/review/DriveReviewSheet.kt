@@ -484,7 +484,7 @@ private fun ExpandableReviewRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .animateContentSize(animationSpec = tween(DesignTokens.Motion.standard)),
+                .animateContentSize(animationSpec = tween(DesignTokens.Motion.STANDARD)),
     ) {
         Row(
             modifier =

@@ -176,23 +176,24 @@ private fun derivedSemanticColors(
         useGlow = isDark,
     )
 
-
 /**
  * The type scale a design direction ships with.
  *
  * Directions that do not define one fall back to the house scale, so adding a variant never forces
  * a typography decision it has no opinion about.
+ *
+ * NOTE: the five direction files disagree on package — three declared
+ * `package com.mileway.core.ui.theme` (so their symbols are unqualified here) and two used the
+ * `.direction` subpackage. Left as-is rather than renamed: five concurrent agents each made a
+ * defensible call, and unifying the package is a mechanical follow-up that should happen in one
+ * commit rather than being half-done here.
  */
-// NOTE: the five direction files disagree on package — three declared
-// `package com.mileway.core.ui.theme` (so their symbols are unqualified here) and two used the
-// `.direction` subpackage. Left as-is rather than renamed: five concurrent agents each made a
-// defensible call, and unifying the package is a mechanical follow-up that should happen in one
-// commit rather than being half-done here.
-private fun typographyFor(variant: MilewayThemeVariant?): Typography = when (variant) {
-    MilewayThemeVariant.LEDGER -> LedgerTypography
-    MilewayThemeVariant.SIGNAL -> SignalTypography
-    MilewayThemeVariant.PAPER -> PaperTypography
-    MilewayThemeVariant.INSTRUMENT -> com.mileway.core.ui.theme.direction.InstrumentTypography
-    MilewayThemeVariant.REFINED_EMBER -> com.mileway.core.ui.theme.direction.RefinedEmberTypography
-    else -> MilewayTypography
-}
+private fun typographyFor(variant: MilewayThemeVariant?): Typography =
+    when (variant) {
+        MilewayThemeVariant.LEDGER -> LedgerTypography
+        MilewayThemeVariant.SIGNAL -> SignalTypography
+        MilewayThemeVariant.PAPER -> PaperTypography
+        MilewayThemeVariant.INSTRUMENT -> com.mileway.core.ui.theme.direction.InstrumentTypography
+        MilewayThemeVariant.REFINED_EMBER -> com.mileway.core.ui.theme.direction.RefinedEmberTypography
+        else -> MilewayTypography
+    }

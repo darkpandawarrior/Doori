@@ -152,7 +152,11 @@ private fun CampaignRow(
 
 @Composable
 private fun BadgePill(badge: String) {
-    Surface(color = MilewayRoles.tint(MilewayRoles.informational), shape = DesignTokens.Shape.roundedMd, modifier = Modifier.padding(start = DesignTokens.Spacing.s)) {
+    Surface(
+        color = MilewayRoles.tint(MilewayRoles.informational),
+        shape = DesignTokens.Shape.roundedMd,
+        modifier = Modifier.padding(start = DesignTokens.Spacing.s),
+    ) {
         Text(
             badge,
             style = MaterialTheme.typography.labelSmall,

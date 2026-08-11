@@ -108,6 +108,7 @@ fun MilewayDomainTheme(
  */
 internal fun ColorScheme.withDomainAccent(domain: MilewayDomain): ColorScheme {
     if (domain.isIdentity) return this
+
     fun Color.shift(): Color = rotateHue(domain.hueShift).scaleChroma(domain.chromaScale)
     return copy(
         primary = primary.shift(),

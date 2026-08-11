@@ -8,17 +8,19 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ShadowAlgorithmRunnerTest {
-
-    private fun drive(points: Int, stepDeg: Double = 0.0005, intervalMs: Long = 5_000L) =
-        (0 until points).map { i ->
-            GpsFix(
-                lat = 12.9 + i * stepDeg,
-                lng = 77.6,
-                timeMs = 1_000L + i * intervalMs,
-                speedMps = 11f,
-                accuracyM = 6f,
-            )
-        }
+    private fun drive(
+        points: Int,
+        stepDeg: Double = 0.0005,
+        intervalMs: Long = 5_000L,
+    ) = (0 until points).map { i ->
+        GpsFix(
+            lat = 12.9 + i * stepDeg,
+            lng = 77.6,
+            timeMs = 1_000L + i * intervalMs,
+            speedMps = 11f,
+            accuracyM = 6f,
+        )
+    }
 
     @Test
     fun disabled_by_default_so_shipping_it_changes_nothing() {

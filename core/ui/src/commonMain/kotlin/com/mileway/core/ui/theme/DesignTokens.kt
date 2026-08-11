@@ -97,16 +97,16 @@ object DesignTokens {
      */
     object Motion {
         /** No animation — for the state changes the rule above forbids animating at all. */
-        const val instant = 0
+        const val INSTANT = 0
 
         /** Small, frequent transitions: a chip recolouring, an icon rotating, a ripple. */
-        const val quick = 120
+        const val QUICK = 120
 
         /** The default for most enter/exit and color/scale transitions. */
-        const val standard = 220
+        const val STANDARD = 220
 
         /** A larger surface change that benefits from being visible: a card expanding, a sheet. */
-        const val deliberate = 400
+        const val DELIBERATE = 400
 
         /** Material's standard curve — transitions that both start and end already in motion. */
         val standardEasing: Easing = FastOutSlowInEasing

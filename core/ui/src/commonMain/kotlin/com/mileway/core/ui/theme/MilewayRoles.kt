@@ -202,5 +202,4 @@ object MilewayRoles {
 
 @Composable
 @ReadOnlyComposable
-private fun isLightSurface(): Boolean =
-    MaterialTheme.colorScheme.surface.tone() > MaterialTheme.colorScheme.onSurface.tone()
+private fun isLightSurface(): Boolean = MaterialTheme.colorScheme.surface.tone() > MaterialTheme.colorScheme.onSurface.tone()

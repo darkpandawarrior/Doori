@@ -97,7 +97,11 @@ fun sampleTrackDetailSpec(hasReimbursableAmount: Boolean = true): DetailSpec =
 
 @Composable
 private fun SampleSummaryHero() {
-    Card(modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.roundedLg, elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.raised)) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = DesignTokens.Shape.roundedLg,
+        elevation = CardDefaults.cardElevation(defaultElevation = DesignTokens.Elevation.raised),
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth().background(DesignTokens.topBarGradientBrush()).padding(DesignTokens.Spacing.xl),
         ) {

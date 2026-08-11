@@ -219,10 +219,11 @@ private fun Int.toHex2(): String {
  * The Spends home renders two action cards; each branches into its own sub-flow:
  *   - Track Mileage → Log Miles two-step flow (shares one ViewModel anchored to LOG_MILES)
  *   - Add Expense   → Expense category → details → success flow (ExpenseViewModel)
+ *
+ * Domain-scoped once at the feature's nav entry (LAYERS.md Layer 3) — EXPENSES covers both halves
+ * of this module (Log Miles + Expense), warmed off the base accent. Every screen below picks up
+ * the accent through MaterialTheme.colorScheme.primary with no colour at the call site.
  */
-// Domain-scoped once at the feature's nav entry (LAYERS.md Layer 3) — EXPENSES covers both halves
-// of this module (Log Miles + Expense), warmed off the base accent. Every screen below picks up
-// the accent through MaterialTheme.colorScheme.primary with no colour at the call site.
 fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
     // ── Spends home ──────────────────────────────────────────────────────────
     composable(LoggingRoutes.HOME) {
