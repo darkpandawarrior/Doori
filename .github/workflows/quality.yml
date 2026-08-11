@@ -103,6 +103,13 @@ jobs:
       # composes, which is strictly more coverage than the zero this task previously had.
       - name: Screenshot tests (app + wear + widget + desktop)
         if: ${{ !cancelled() }}
+        # This is a CRASH gate, not a pixel gate — it proves every surface still composes and
+        # renders. Without the record flag the tests take the compare path and assert against
+        # baselines that live in roborazzi's own directory, which the direction captures never
+        # populate (they write to docs/screenshots). Pixel comparison is the sentinel's job, on a
+        # schedule, against an explicitly accepted baseline.
+        env:
+          ROBORAZZI_RECORD: 'true'
         run: ./scripts/run-jvm-tests.sh screenshotTest
 
       # KMP modules (feature:tracking, core:platform, core:security) name their JVM unit-test
