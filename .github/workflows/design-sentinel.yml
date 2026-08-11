@@ -17,6 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Mileway consumes kmp-toolkit as a composite build via includeBuild. Without this
+          # the submodule is an empty directory, includeBuild finds a build with no projects,
+          # and every task fails with ":location not found in build ':kmp-toolkit'" — which
+          # reads like a Gradle problem rather than a missing checkout. Every other workflow
+          # here already does this.
+          submodules: recursive
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '21' }
 
