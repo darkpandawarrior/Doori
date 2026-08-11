@@ -58,21 +58,39 @@ function scopeCreep (shots) {
 }
 
 // ── 2. broken captures ────────────────────────────────────────────────────────
-// A blank tile is worse than a missing one: it looks covered and is not. Detected by sampling the
-// PNG's decoded bytes for near-uniformity rather than pulling in an image library.
+// A blank tile is worse than a missing one: it looks covered and is not.
+//
+// This used to sample the PNG's *compressed* bytes for variety, which is not a measure of image
+// content at all — compression makes every file look high-entropy. widget_ios_lockscreen.png is
+// pure black, mean rgb(0,0,0), and reported 256 distinct sampled byte values, so it passed this
+// check and shipped to the portfolio site. The check has to decode.
+//
+// Delegates to Pillow, as scripts/vision-review.py already does. If Pillow is missing this throws
+// rather than returning an empty list: a broken-capture check that silently finds nothing is the
+// exact failure it exists to prevent, and that is how a black rectangle stayed shipped.
 function brokenShots (shots) {
-  return shots.filter(f => {
-    const b = readFileSync(join(SHOTS, f))
-    if (b.length < 3000) return true                    // implausibly small for a real screen
-    // Small component captures (a FAB, an indicator dot, a waveform, a Wear tile) are legitimately
-    // near-uniform and trip this check. They live in the `accepted` baseline rather than being
-    // excluded by a name heuristic, so a component that genuinely goes blank is still caught — the
-    // hash changes, it shows up as DRIFT, and someone has to look. Silence is never the default.
-    const step = Math.max(1, Math.floor(b.length / 4000))
-    const seen = new Set()
-    for (let i = 1000; i < b.length; i += step) seen.add(b[i])
-    return seen.size < 12                                // almost no byte variety => flat image
-  })
+  if (!shots.length) return []
+  const script = `
+import sys, json
+from PIL import Image, ImageStat
+out = []
+for path in json.load(sys.stdin):
+    try:
+        im = Image.open(path).convert("RGB")
+    except Exception:
+        out.append(path); continue
+    im.thumbnail((240, 240), Image.LANCZOS)
+    st = ImageStat.Stat(im)
+    # Standard deviation of the decoded pixels. A real screen has type, chrome and cards.
+    if max(st.stddev[:3]) < 6.0:
+        out.append(path)
+print(json.dumps(out))
+`
+  const paths = shots.map(f => join(SHOTS, f))
+  const res = execFileSync('python3', ['-c', script], { input: JSON.stringify(paths), encoding: 'utf8' })
+  const flat = new Set(JSON.parse(res))
+  // Size check kept as a cheap independent signal — a truncated file may still decode.
+  return shots.filter(f => flat.has(join(SHOTS, f)) || readFileSync(join(SHOTS, f)).length < 3000)
 }
 
 // ── main ──────────────────────────────────────────────────────────────────────
