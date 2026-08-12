@@ -11,8 +11,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.mileway.core.data.model.display.SurfaceSnapshot
 import com.mileway.core.data.model.display.TrackDisplayData
 import com.mileway.core.ui.AppHost
@@ -40,14 +43,31 @@ fun main() {
     val snapshot = mockSnapshot(nowEpochMs)
     val trips = mockTripRows(nowEpochMs)
 
+    // Compose Hot Reload sets this on the launched JVM (see the `-Dcompose.reload.isActive=true`
+    // entry in desktopApp/build/run/desktopMain/desktopMain.argfile). Under `hotRunDesktop` the
+    // window becomes a phone-shaped, always-on-top canvas that floats beside the editor — the
+    // point of running UI on the JVM instead of booting an emulator. The SHIPPED desktop app
+    // (nativeDistributions → Dmg/Deb/Msi) must not inherit either behaviour, hence the gate.
+    val hotReloadCanvas = System.getProperty("compose.reload.isActive").toBoolean()
+
     application {
-        Window(onCloseRequest = ::exitApplication, title = "Mileway Dashboard") {
+        // ponytail: ~9:19.5 portrait, the standard phone frame. Still resizable — drag a corner to
+        // check compact → foldable → tablet breakpoints without a second AVD.
+        val windowState = rememberWindowState(size = if (hotReloadCanvas) PhoneCanvasSize else DpSize(1280.dp, 800.dp))
+        Window(
+            onCloseRequest = ::exitApplication,
+            state = windowState,
+            alwaysOnTop = hotReloadCanvas,
+            title = if (hotReloadCanvas) "Mileway — Hot Reload canvas" else "Mileway Dashboard",
+        ) {
             AppHost {
                 DashboardScreen(snapshot, trips)
             }
         }
     }
 }
+
+private val PhoneCanvasSize = DpSize(width = 390.dp, height = 844.dp)
 
 // internal (not private): shared with DesktopDashboardScreenshotTest (showcase/T.1).
 @Composable

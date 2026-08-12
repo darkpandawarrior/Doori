@@ -92,62 +92,6 @@ internal val PaperNightSpec =
     )
 
 /**
- * [PaperNightSpec]'s own day face — the same night scheme brought up to daylight, hand-picked
- * channel by channel rather than inverted. An inversion of the night spec lands on flat neutral
- * greys with a cold blue cast, which is exactly the "dead screen" Paper exists to avoid; every
- * surface here keeps the ~45° warm hue the night canvas carries, just at paper luminance, and the
- * ink-blue accent is re-darkened for light rather than mirrored (the night accent `0xFF8FB4E0` at
- * light luminance would be a pastel with no authority).
- *
- * It is deliberately *not* a duplicate of [PaperSpec]: this is the warmer, deeper-parchment read of
- * the same identity — creamier canvas, a card that stays off-white rather than pure white, and
- * status hues that are the daylight counterparts of the night set's brighter-but-muted family. Same
- * direction, different time of day.
- *
- * Contrast, computed (WCAG 2.x relative luminance) against each surface it can sit on —
- * canvas / surface = surfaceCard / surfaceRaised / surfaceHighest:
- *
- * - `text` on them: **15.61 / 17.46 / 14.66 / 13.14** — AAA everywhere.
- * - `textMuted` (secondary body copy) : **5.99 / 6.70 / 5.63 / 5.04** — AA at every step, worst
- *   case still 5.04 on `surfaceHighest`, so muted labels stay legal even on the deepest chip.
- * - `accent` as text/icon: **9.53 / 10.66 / 8.95 / 8.02**.
- * - `warning` **5.76 / 6.44 / 5.41 / 4.85**, `danger` **6.27 / 7.01 / 5.89 / 5.28**,
- *   `info` **6.70 / 7.50 / 6.30 / 5.64**, `success` **5.47 / 6.12 / 5.14 / 4.61** — every status
- *   hue clears 4.5:1 as *text*, not merely as a fill, which is why they are this deep. The two
- *   tightest (`success` and `warning` on `surfaceHighest`) were darkened until they passed rather
- *   than shipped with a "decorative use only" note.
- * - `onAccent` on `accent` **10.93**, on `accentDim` **13.82**;
- *   `onAccentContainer` on `accentContainer` **11.93**.
- *
- * `border` (1.41:1 on canvas) is a non-text divider and is not held to 4.5:1 — it is a ruled line on
- * a page, and darkening it to text contrast would turn cards into boxes.
- */
-internal val PaperNightSpecDay =
-    MilewaySchemeSpec(
-        canvas = Color(0xFFF5EFE1),
-        surface = Color(0xFFFFFCF4),
-        surfaceCard = Color(0xFFFFFCF4),
-        surfaceRaised = Color(0xFFEFE8D8),
-        surfaceHighest = Color(0xFFE6DCC6),
-        border = Color(0xFFD6CBAF),
-        text = Color(0xFF1A170F),
-        textMuted = Color(0xFF63594A),
-        accent = Color(0xFF1D3E63),
-        accentDim = Color(0xFF142E4A),
-        accentGlow = Color(0xFF33608F),
-        onAccent = Color(0xFFFFFFFF),
-        accentContainer = Color(0xFFD8E4F0),
-        onAccentContainer = Color(0xFF10263C),
-        warning = Color(0xFF855109),
-        danger = Color(0xFFA32B1F),
-        info = Color(0xFF17558F),
-        success = Color(0xFF1A6E3F),
-        // Same reason as both other Paper faces: depth is a shadow (PaperElevation), never a
-        // light-emitting edge — and a glow edge on a light canvas is invisible anyway.
-        useGlow = false,
-    )
-
-/**
  * Canonical name for Paper's dark face under the `<Direction>SpecNight` convention the other four
  * directions follow. It is an **alias**, not a second scheme, and that is deliberate.
  *
