@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -52,7 +53,14 @@ private val MilewayShapes =
  * Geometry, mono-for-data type, and edge-to-edge behaviour are theme-independent.
  *
  * @param milewayTheme the curated theme to apply; `null` falls back to the legacy seed path.
- *   When non-null it also dictates light/dark (Daybreak is light), so [darkTheme] is ignored.
+ *   A single-mode variant (Daybreak is light, Ember is dark) dictates its own luminance and
+ *   [darkTheme] is ignored. A variant carrying a `darkSpec` (Paper) honours [darkTheme] instead
+ *   and renders the counterpart — see [MilewayThemeVariant.followsSystem].
+ * @param typography the type scale to apply. Defaults to the house [MilewayTypography]; a
+ *   direction with its own type scale (see `core/ui/theme/direction/`) passes its own here rather
+ *   than this file dispatching per-variant, so directions stay additive and merge-safe.
+ * @param shapes the corner/shape language to apply. Defaults to the house shape scheme, same
+ *   override pattern as [typography].
  */
 @Composable
 fun MilewayTheme(
@@ -63,9 +71,27 @@ fun MilewayTheme(
     useSystemColors: Boolean = ThemeDefaults.USE_SYSTEM_COLORS,
     paletteStyle: String = ThemeDefaults.PALETTE_STYLE,
     mapProvider: MapProvider = ThemeDefaults.MAP_PROVIDER,
+    // Derived from the variant, not fixed app-wide. Five design directions were built with their own
+    // type scales — and the #1 finding from a vision review of 217 real screenshots was that
+    // monospace on CHROME (not data) is what makes the app read as a terminal rather than a finance
+    // product. If typography stayed pinned here, picking a direction would swap colours only and the
+    // single most important difference between them would be invisible.
+    //
+    // Still an explicit parameter: an caller that passes one wins, which is how the screenshot
+    // harness renders a specific scale on demand.
+    typography: Typography = typographyFor(milewayTheme),
+    shapes: Shapes = MilewayShapes,
     content: @Composable () -> Unit,
 ) {
-    val isDark = milewayTheme?.isLight?.not() ?: darkTheme
+    // A variant that ships both faces (Paper) follows the device; a single-mode one still forces
+    // its own luminance, because inverting a scheme that was never tuned dark looks worse than
+    // ignoring the setting.
+    val isDark =
+        when {
+            milewayTheme == null -> darkTheme
+            milewayTheme.followsSystem -> darkTheme
+            else -> !milewayTheme.isLight
+        }
 
     val seedColor =
         parseHexColor(customSeedHex)
@@ -88,9 +114,9 @@ fun MilewayTheme(
 
     val colorScheme =
         when {
-            useSystemColors -> systemDynamicColorScheme(isDark) ?: (milewayTheme?.colorScheme() ?: generatedScheme)
+            useSystemColors -> systemDynamicColorScheme(isDark) ?: (milewayTheme?.colorScheme(isDark) ?: generatedScheme)
             // A custom seed always wins over a curated theme so the colour wheel stays meaningful.
-            milewayTheme != null && customSeedHex.isBlank() -> milewayTheme.colorScheme()
+            milewayTheme != null && customSeedHex.isBlank() -> milewayTheme.colorScheme(isDark)
             else -> generatedScheme
         }
 
@@ -99,21 +125,34 @@ fun MilewayTheme(
     val semanticColors =
         remember(milewayTheme, useSystemColors, colorScheme) {
             if (milewayTheme != null && !useSystemColors && customSeedHex.isBlank()) {
-                milewayTheme.spec.semanticColors()
+                milewayTheme.specFor(isDark).semanticColors()
             } else {
                 derivedSemanticColors(colorScheme, isDark)
             }
         }
 
+    // Layer 2 (SEMANTIC): the product's meaning vocabulary, derived once from whichever Layer-1
+    // base won above. Provided here and NOT re-derived by MilewayDomainTheme — a domain may tint
+    // the accent, it may never change what "approved" or an amount looks like.
+    val roleColors =
+        remember(milewayTheme, useSystemColors, colorScheme, semanticColors) {
+            if (milewayTheme != null && !useSystemColors && customSeedHex.isBlank()) {
+                milewayTheme.specFor(isDark).roleColors()
+            } else {
+                derivedRoleColors(colorScheme, semanticColors)
+            }
+        }
+
     CompositionLocalProvider(
         LocalMilewaySemanticColors provides semanticColors,
+        LocalMilewayRoleColors provides roleColors,
         // E.2: app-wide map provider, available to any map host via LocalMapProvider.current.
         LocalMapProvider provides mapProvider,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
-            typography = MilewayTypography,
-            shapes = MilewayShapes,
+            typography = typography,
+            shapes = shapes,
             content = content,
         )
     }
@@ -136,3 +175,25 @@ private fun derivedSemanticColors(
         surfaceHighest = scheme.surfaceContainerHighest,
         useGlow = isDark,
     )
+
+/**
+ * The type scale a design direction ships with.
+ *
+ * Directions that do not define one fall back to the house scale, so adding a variant never forces
+ * a typography decision it has no opinion about.
+ *
+ * NOTE: the five direction files disagree on package — three declared
+ * `package com.mileway.core.ui.theme` (so their symbols are unqualified here) and two used the
+ * `.direction` subpackage. Left as-is rather than renamed: five concurrent agents each made a
+ * defensible call, and unifying the package is a mechanical follow-up that should happen in one
+ * commit rather than being half-done here.
+ */
+private fun typographyFor(variant: MilewayThemeVariant?): Typography =
+    when (variant) {
+        MilewayThemeVariant.LEDGER -> LedgerTypography
+        MilewayThemeVariant.SIGNAL -> SignalTypography
+        MilewayThemeVariant.PAPER -> PaperTypography
+        MilewayThemeVariant.INSTRUMENT -> com.mileway.core.ui.theme.direction.InstrumentTypography
+        MilewayThemeVariant.REFINED_EMBER -> com.mileway.core.ui.theme.direction.RefinedEmberTypography
+        else -> MilewayTypography
+    }

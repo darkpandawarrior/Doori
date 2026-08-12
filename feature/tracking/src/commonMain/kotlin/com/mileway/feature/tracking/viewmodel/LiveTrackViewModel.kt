@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.db.CurrentTrackData
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.state.UiState
+import com.mileway.feature.tracking.manager.TrackingController
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.siddharth.kmp.mvi.BaseViewModel
@@ -35,6 +36,11 @@ sealed interface LiveTrackAction {
     data object Refresh : LiveTrackAction
 
     data object ClearError : LiveTrackAction
+
+    /** Starts a fresh session, or resumes [token] if it's currently paused. */
+    data class StartOrResume(val token: String, val isPaused: Boolean) : LiveTrackAction
+
+    data class Pause(val token: String) : LiveTrackAction
 }
 
 sealed interface LiveTrackEffect
@@ -42,6 +48,7 @@ sealed interface LiveTrackEffect
 class LiveTrackViewModel(
     private val locationRepository: LocationRepository,
     private val currentTrackRepository: CurrentTrackRepository,
+    private val trackingController: TrackingController,
 ) : BaseViewModel<LiveTrackUiState, LiveTrackEffect, LiveTrackAction>(LiveTrackUiState()) {
     companion object {
         private const val TAG = "LiveTrackViewModel"
@@ -76,6 +83,14 @@ class LiveTrackViewModel(
             LiveTrackAction.ClearError -> {
                 if (mutableTrackState.value is UiState.Error) mutableTrackState.value = UiState.Initial
                 if (mutableLocState.value is UiState.Error) mutableLocState.value = UiState.Initial
+            }
+            is LiveTrackAction.StartOrResume -> {
+                if (action.isPaused) trackingController.resume(action.token) else trackingController.start(action.token)
+                viewModelScope.launch { loadCurrentTrackData() }
+            }
+            is LiveTrackAction.Pause -> {
+                trackingController.pause(action.token)
+                viewModelScope.launch { loadCurrentTrackData() }
             }
         }
     }

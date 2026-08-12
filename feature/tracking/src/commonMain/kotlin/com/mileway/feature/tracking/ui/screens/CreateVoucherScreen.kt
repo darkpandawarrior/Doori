@@ -338,6 +338,14 @@ private fun StepVoucherDetails(
             value = uiState.title,
             onValueChange = { viewModel.onAction(CreateVoucherAction.SetTitle(it)) },
             label = { Text(stringResource(Res.string.tracking_voucher_title_label)) },
+            // core/ui strings.xml is outside this module's ownership (feature/tracking only) —
+            // inline placeholder/supporting text here, same precedent as TrackDetailScreen's
+            // "Journey not found" copy. Next is gated on this field (see enabled below); the
+            // supportingText spells out why instead of leaving a silently-disabled button.
+            placeholder = { Text("e.g. Pune client visits — March 2026") },
+            supportingText = {
+                if (uiState.title.isBlank()) Text("Required — give approvers something to recognise this voucher by")
+            },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
         )
@@ -403,6 +411,7 @@ private fun StepVoucherDetails(
             value = uiState.notes,
             onValueChange = { viewModel.onAction(CreateVoucherAction.SetNotes(it)) },
             label = { Text(stringResource(Res.string.tracking_voucher_notes_label)) },
+            placeholder = { Text("e.g. Approved verbally by manager on 12 Aug") },
             modifier = Modifier.fillMaxWidth().height(100.dp),
             maxLines = 4,
         )
@@ -466,6 +475,17 @@ private fun StepConfirmation(
         }
 
         Spacer(Modifier.weight(1f))
+
+        // ERROR: names what failed (the underlying write's message) and leaves the button enabled
+        // so retrying is just tapping Create again — no dead-end, no separate retry affordance needed.
+        uiState.submitError?.let { message ->
+            Text(
+                text = message,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+        }
 
         Button(
             shape = DesignTokens.Shape.button,

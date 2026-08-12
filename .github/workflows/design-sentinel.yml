@@ -1,0 +1,55 @@
+# The scheduled watcher. Every failure this repo suffered in Aug 2026 was the same shape: work
+# existed, nothing ran it, nothing alerted. A check that only runs on demand is a check that stops
+# running, so this is on a schedule as well as on PR.
+name: design-sentinel
+
+on:
+  schedule:
+    - cron: '17 3 * * *'      # nightly, offset off the hour to avoid runner contention
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read              # never write: a workflow that rewrites baselines destroys the evidence
+
+jobs:
+  sentinel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Mileway consumes kmp-toolkit as a composite build via includeBuild. Without this
+          # the submodule is an empty directory, includeBuild finds a build with no projects,
+          # and every task fails with ":location not found in build ':kmp-toolkit'" — which
+          # reads like a Gradle problem rather than a missing checkout. Every other workflow
+          # here already does this.
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      # The broken-capture check decodes pixels with Pillow. It throws when Pillow is missing
+      # rather than reporting zero findings — a blank-capture check that silently finds nothing is
+      # how a pure-black screenshot stayed shipped for weeks — so the install is not optional.
+      - run: python3 -m pip install --quiet Pillow
+
+      # Re-record first, so the sentinel compares CURRENT rendering against the accepted baseline
+      # rather than against whatever happens to be committed. Recording needs the env var: a -P
+      # property cannot reach the forked test JVM, and without it captureRoboImage silently no-ops.
+      - name: Re-record captures
+        run: ROBORAZZI_RECORD=true ./gradlew screenshotTest --no-daemon
+
+      # Structural checks only in CI: no API key, no spend. The vision critique is a local/manual
+      # step. Failing here means blank captures or a removed capture — unambiguous regressions.
+      - name: Design sentinel
+        run: node scripts/design-sentinel.mjs --no-ai
+
+      - name: Report
+        if: always()
+        run: cat docs/screenshots/SENTINEL_REPORT.md >> $GITHUB_STEP_SUMMARY
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: sentinel-drift
+          path: |
+            docs/screenshots/SENTINEL_REPORT.md
+            docs/screenshots/*.png

@@ -81,6 +81,7 @@ import com.mileway.core.ui.resources.profile_qr_subtitle
 import com.mileway.core.ui.resources.profile_qr_this_month
 import com.mileway.core.ui.resources.profile_qr_title
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.profile.model.CorporateCard
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel
@@ -174,7 +175,7 @@ fun QrHomeScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF004D40), Color(0xFF00796B))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -225,6 +226,8 @@ fun QrHomeScreen(
                         modifier = Modifier.fillMaxSize().background(Color.White).padding(16.dp),
                         contentAlignment = Alignment.Center,
                     ) {
+                        // ponytail: QR modules must be near-black on near-white to scan reliably —
+                        // theme-blind by requirement, see theme/LAYERS.md's genuinely-raw exceptions.
                         val darkColor = Color(0xFF1A1A1A)
                         androidx.compose.foundation.Canvas(modifier = Modifier.size(200.dp)) {
                             val cellPx = size.width / QR_SIZE
@@ -331,9 +334,10 @@ fun QrHomeScreen(
 
 @Composable
 private fun QrCardChip(card: CorporateCard) {
+    // A linked corporate card's face — "premium" (corporate-card faces), not chrome.
     val chipGradient =
         Brush.linearGradient(
-            listOf(Color(0xFF1565C0).copy(alpha = 0.85f), Color(0xFF4A148C).copy(alpha = 0.85f)),
+            listOf(MilewayRoles.premium.copy(alpha = 0.85f), MilewayRoles.premium.copy(alpha = 0.5f)),
         )
     Box(
         modifier =
@@ -435,10 +439,10 @@ private fun QrRequestSheet(
                     )
                 }
                 Box(
-                    modifier = Modifier.size(40.dp).clip(DesignTokens.Shape.button).background(Color(0xFF00796B).copy(alpha = 0.12f)),
+                    modifier = Modifier.size(40.dp).clip(DesignTokens.Shape.button).background(MilewayRoles.tint(MilewayRoles.informational)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Default.QrCode, contentDescription = null, tint = Color(0xFF00796B), modifier = Modifier.size(22.dp))
+                    Icon(Icons.Default.QrCode, contentDescription = null, tint = MilewayRoles.informational, modifier = Modifier.size(22.dp))
                 }
             }
 

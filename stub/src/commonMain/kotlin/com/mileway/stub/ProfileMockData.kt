@@ -25,12 +25,18 @@ object ProfileMockData {
             gender = "Male",
             role = "Field Sales Executive",
             organization = "Demo Logistics Pvt Ltd",
-            manager = EmployeeSummary(id = "ACC-002", name = "Asha Verma", code = "EMP001-SBX"),
+            // A distinct org-chart id/code, deliberately outside the ACC-00x switchable-account
+            // namespace and the "Asha Verma" name reused elsewhere (delegate/reportee/referral demo
+            // data) — the manager is a different person from all of those, not the same identity
+            // wearing three hats.
+            manager = EmployeeSummary(id = "EMP-0512", name = "Rohan Deshmukh", code = "EMP-0512"),
             homeLocation = "Baner, Pune",
             customFields =
                 mapOf(
                     "Cost Center" to "CC-4021",
                     "Blood Group" to "O+",
+                    "Date of Joining" to "12 Mar 2021",
+                    "PAN" to "ABCDE1234F",
                 ),
         )
 

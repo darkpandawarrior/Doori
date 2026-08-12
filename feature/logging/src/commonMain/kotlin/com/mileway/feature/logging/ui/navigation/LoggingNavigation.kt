@@ -8,6 +8,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.mileway.core.data.model.ExpenseSourceContext
+import com.mileway.core.ui.theme.MilewayDomain
+import com.mileway.core.ui.theme.MilewayDomainTheme
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
 import com.mileway.feature.logging.ui.screens.ExpenseHistoryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseScreen
@@ -217,16 +219,22 @@ private fun Int.toHex2(): String {
  * The Spends home renders two action cards; each branches into its own sub-flow:
  *   - Track Mileage → Log Miles two-step flow (shares one ViewModel anchored to LOG_MILES)
  *   - Add Expense   → Expense category → details → success flow (ExpenseViewModel)
+ *
+ * Domain-scoped once at the feature's nav entry (LAYERS.md Layer 3) — EXPENSES covers both halves
+ * of this module (Log Miles + Expense), warmed off the base accent. Every screen below picks up
+ * the accent through MaterialTheme.colorScheme.primary with no colour at the call site.
  */
 fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
     // ── Spends home ──────────────────────────────────────────────────────────
     composable(LoggingRoutes.HOME) {
-        SpendsHomeScreen(
-            onTrackMileage = { navController.navigate(LoggingRoutes.LOG_MILES) },
-            onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
-            onMileageHistory = { navController.navigate(LoggingRoutes.HISTORY) },
-            onExpenseHistory = { navController.navigate(LoggingRoutes.EXPENSE_HISTORY) },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            SpendsHomeScreen(
+                onTrackMileage = { navController.navigate(LoggingRoutes.LOG_MILES) },
+                onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
+                onMileageHistory = { navController.navigate(LoggingRoutes.HISTORY) },
+                onExpenseHistory = { navController.navigate(LoggingRoutes.EXPENSE_HISTORY) },
+            )
+        }
     }
 
     // ── Log Miles flow ───────────────────────────────────────────────────────
@@ -235,11 +243,13 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
             koinViewModel<com.mileway.feature.logging.viewmodel.LogMilesViewModel>(
                 viewModelStoreOwner = entry,
             )
-        LogMilesScreen(
-            viewModel = viewModel,
-            onNext = { navController.navigate(LoggingRoutes.STEP2) },
-            onOpenHistory = { navController.navigate(LoggingRoutes.HISTORY) },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            LogMilesScreen(
+                viewModel = viewModel,
+                onNext = { navController.navigate(LoggingRoutes.STEP2) },
+                onOpenHistory = { navController.navigate(LoggingRoutes.HISTORY) },
+            )
+        }
     }
 
     composable(LoggingRoutes.STEP2) {
@@ -248,15 +258,17 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
             koinViewModel<com.mileway.feature.logging.viewmodel.LogMilesViewModel>(
                 viewModelStoreOwner = logMilesEntry,
             )
-        LogMilesStep2Screen(
-            viewModel = viewModel,
-            onBack = { navController.popBackStack() },
-            onSubmitted = {
-                navController.navigate(LoggingRoutes.SUCCESS) {
-                    popUpTo(LoggingRoutes.STEP2) { inclusive = true }
-                }
-            },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            LogMilesStep2Screen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onSubmitted = {
+                    navController.navigate(LoggingRoutes.SUCCESS) {
+                        popUpTo(LoggingRoutes.STEP2) { inclusive = true }
+                    }
+                },
+            )
+        }
     }
 
     composable(LoggingRoutes.SUCCESS) {
@@ -265,14 +277,16 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
             koinViewModel<com.mileway.feature.logging.viewmodel.LogMilesViewModel>(
                 viewModelStoreOwner = logMilesEntry,
             )
-        LogMilesSuccessScreen(
-            viewModel = viewModel,
-            onLogAnother = {
-                navController.navigate(LoggingRoutes.LOG_MILES) {
-                    popUpTo(LoggingRoutes.LOG_MILES) { inclusive = true }
-                }
-            },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            LogMilesSuccessScreen(
+                viewModel = viewModel,
+                onLogAnother = {
+                    navController.navigate(LoggingRoutes.LOG_MILES) {
+                        popUpTo(LoggingRoutes.LOG_MILES) { inclusive = true }
+                    }
+                },
+            )
+        }
     }
 
     composable(LoggingRoutes.HISTORY) {
@@ -281,17 +295,19 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
             koinViewModel<com.mileway.feature.logging.viewmodel.LogMilesViewModel>(
                 viewModelStoreOwner = logMilesEntry,
             )
-        LogMilesHistoryScreen(
-            viewModel = viewModel,
-            onBack = { navController.popBackStack() },
-            onOpenDraft = { draftId ->
-                // P5.1: rehydrate the shared LogMilesViewModel from the persisted draft before
-                // returning to Step 1, so the fields the user saved are actually restored, not just
-                // a no-op back-navigation onto whatever the form happened to hold.
-                viewModel.onAction(com.mileway.feature.logging.viewmodel.LogMilesAction.LoadDraft(draftId))
-                navController.popBackStack(LoggingRoutes.LOG_MILES, inclusive = false)
-            },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            LogMilesHistoryScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onOpenDraft = { draftId ->
+                    // P5.1: rehydrate the shared LogMilesViewModel from the persisted draft before
+                    // returning to Step 1, so the fields the user saved are actually restored, not just
+                    // a no-op back-navigation onto whatever the form happened to hold.
+                    viewModel.onAction(com.mileway.feature.logging.viewmodel.LogMilesAction.LoadDraft(draftId))
+                    navController.popBackStack(LoggingRoutes.LOG_MILES, inclusive = false)
+                },
+            )
+        }
     }
 
     // ── Expense flow ─────────────────────────────────────────────────────────
@@ -341,11 +357,13 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
         // V27 P27.E.1: the old 2-route entry(category)/details(amount+submit) pair is now one
         // in-place 2-step wizard — ExpenseFormState.step drives which step renders, no nav
         // transition between them. EXPENSE_SUCCESS stays its own destination (unchanged).
-        ExpenseScreen(
-            onBack = { navController.popBackStack() },
-            onSubmitted = { navController.navigate(LoggingRoutes.EXPENSE_SUCCESS) },
-            viewModel = viewModel,
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            ExpenseScreen(
+                onBack = { navController.popBackStack() },
+                onSubmitted = { navController.navigate(LoggingRoutes.EXPENSE_SUCCESS) },
+                viewModel = viewModel,
+            )
+        }
     }
 
     composable(LoggingRoutes.EXPENSE_SUCCESS) {
@@ -354,26 +372,31 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
             koinViewModel<com.mileway.feature.logging.viewmodel.ExpenseViewModel>(
                 viewModelStoreOwner = expenseEntry,
             )
-        ExpenseSuccessScreen(
-            onAddAnother = {
-                navController.navigate(LoggingRoutes.expenseEntryRoute()) {
-                    popUpTo(LoggingRoutes.EXPENSE_ENTRY) { inclusive = true }
-                }
-            },
-            onViewHistory = {
-                navController.navigate(LoggingRoutes.EXPENSE_HISTORY) {
-                    popUpTo(LoggingRoutes.EXPENSE_SUCCESS) { inclusive = true }
-                }
-            },
-            viewModel = viewModel,
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            ExpenseSuccessScreen(
+                onAddAnother = {
+                    navController.navigate(LoggingRoutes.expenseEntryRoute()) {
+                        popUpTo(LoggingRoutes.EXPENSE_ENTRY) { inclusive = true }
+                    }
+                },
+                onViewHistory = {
+                    navController.navigate(LoggingRoutes.EXPENSE_HISTORY) {
+                        popUpTo(LoggingRoutes.EXPENSE_SUCCESS) { inclusive = true }
+                    }
+                },
+                viewModel = viewModel,
+            )
+        }
     }
 
     composable(LoggingRoutes.EXPENSE_HISTORY) {
-        ExpenseHistoryScreen(
-            onBack = { navController.popBackStack() },
-            onOpenDetail = { id -> navController.navigate(LoggingRoutes.expenseDetailRoute(id)) },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            ExpenseHistoryScreen(
+                onBack = { navController.popBackStack() },
+                onOpenDetail = { id -> navController.navigate(LoggingRoutes.expenseDetailRoute(id)) },
+                onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
+            )
+        }
     }
 
     composable(
@@ -381,22 +404,26 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
         arguments = listOf(navArgument("id") { type = NavType.StringType }),
     ) { backStackEntry ->
         val id = backStackEntry.arguments?.read { getStringOrNull("id") } ?: return@composable
-        ExpenseDetailScreen(
-            expenseId = id,
-            onBack = { navController.popBackStack() },
-            // V27 P27.E.1: navigates into the merged wizard carrying an Edit context — its own
-            // freshly-scoped ExpenseViewModel loads the record via openWithContext (same seam
-            // E-LINK's Trip/Card/Advance CTAs already use), landing straight on step 2.
-            onEdit = { editId -> navController.navigate(LoggingRoutes.expenseEntryRoute(ExpenseSourceContext.Edit(editId))) },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            ExpenseDetailScreen(
+                expenseId = id,
+                onBack = { navController.popBackStack() },
+                // V27 P27.E.1: navigates into the merged wizard carrying an Edit context — its own
+                // freshly-scoped ExpenseViewModel loads the record via openWithContext (same seam
+                // E-LINK's Trip/Card/Advance CTAs already use), landing straight on step 2.
+                onEdit = { editId -> navController.navigate(LoggingRoutes.expenseEntryRoute(ExpenseSourceContext.Edit(editId))) },
+            )
+        }
     }
 
     // ── Voucher history + detail (P27.E.12) ─────────────────────────────────────
     composable(LoggingRoutes.VOUCHER_HISTORY) {
-        VoucherHistoryScreen(
-            onBack = { navController.popBackStack() },
-            onOpenDetail = { voucherNumber -> navController.navigate(LoggingRoutes.voucherDetailRoute(voucherNumber)) },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            VoucherHistoryScreen(
+                onBack = { navController.popBackStack() },
+                onOpenDetail = { voucherNumber -> navController.navigate(LoggingRoutes.voucherDetailRoute(voucherNumber)) },
+            )
+        }
     }
 
     composable(
@@ -404,10 +431,12 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
         arguments = listOf(navArgument("voucherNumber") { type = NavType.StringType }),
     ) { backStackEntry ->
         val voucherNumber = backStackEntry.arguments?.read { getStringOrNull("voucherNumber") } ?: return@composable
-        VoucherDetailsScreen(
-            voucherNumber = voucherNumber,
-            onBack = { navController.popBackStack() },
-        )
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            VoucherDetailsScreen(
+                voucherNumber = voucherNumber,
+                onBack = { navController.popBackStack() },
+            )
+        }
     }
 }
 

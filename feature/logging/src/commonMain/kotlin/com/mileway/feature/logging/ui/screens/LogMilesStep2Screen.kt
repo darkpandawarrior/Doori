@@ -1,6 +1,8 @@
 package com.mileway.feature.logging.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -33,6 +36,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,8 +49,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.mileway.core.data.model.network.LogMilesService
 import com.mileway.core.forms.FormFieldType
 import com.mileway.core.forms.FormFieldValue
@@ -57,6 +64,7 @@ import com.mileway.core.ui.resources.logging_add_receipt
 import com.mileway.core.ui.resources.logging_additional_details_subtitle
 import com.mileway.core.ui.resources.logging_additional_details_title
 import com.mileway.core.ui.resources.logging_all_set
+import com.mileway.core.ui.resources.logging_attached_receipt_photo_cd
 import com.mileway.core.ui.resources.logging_attachments_added
 import com.mileway.core.ui.resources.logging_attachments_header
 import com.mileway.core.ui.resources.logging_attachments_hint
@@ -65,13 +73,16 @@ import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_collapse_cd
 import com.mileway.core.ui.resources.logging_complete_required_fields
 import com.mileway.core.ui.resources.logging_cost_center_optional
+import com.mileway.core.ui.resources.logging_cost_center_placeholder
 import com.mileway.core.ui.resources.logging_expand_cd
 import com.mileway.core.ui.resources.logging_expense_details_header
 import com.mileway.core.ui.resources.logging_log_miles_subtitle
 import com.mileway.core.ui.resources.logging_log_miles_title
 import com.mileway.core.ui.resources.logging_purpose_of_travel
+import com.mileway.core.ui.resources.logging_purpose_of_travel_placeholder
 import com.mileway.core.ui.resources.logging_ready_to_submit
 import com.mileway.core.ui.resources.logging_remaining
+import com.mileway.core.ui.resources.logging_remove_receipt_cd
 import com.mileway.core.ui.resources.logging_select_a_service
 import com.mileway.core.ui.resources.logging_service_type
 import com.mileway.core.ui.resources.logging_step2_title
@@ -94,8 +105,10 @@ import com.mileway.feature.logging.ui.dialog.TaggedEmployeesDialog
 import com.mileway.feature.logging.ui.dialog.ViolationDialog
 import com.mileway.feature.logging.ui.model.SubmittedVoucherSamples
 import com.mileway.feature.logging.viewmodel.LogMilesAction
+import com.mileway.feature.logging.viewmodel.LogMilesEffect
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.tracking.ui.components.SubmissionTabChips
+import com.siddharth.kmp.common.asString
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -139,6 +152,18 @@ fun LogMilesStep2Screen(
     onSubmitted: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Submission failures (e.g. a local write error) previously landed in [LogMilesEffect.ShowError]
+    // with no collector anywhere in this flow — the user saw the submit spinner stop and nothing
+    // else. Route it to a Snackbar naming what failed, same idiom as the rest of the app.
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is LogMilesEffect.ShowError -> snackbarHostState.showSnackbar(effect.message.asString())
+            }
+        }
+    }
 
     var showEmployeesDialog by remember { mutableStateOf(false) }
     var additionalExpanded by remember { mutableStateOf(true) }
@@ -147,8 +172,6 @@ fun LogMilesStep2Screen(
     val tabAdditionalDetails = stringResource(Res.string.logging_tab_additional_details)
     val tabAttachments = stringResource(Res.string.logging_tab_attachments)
     var selectedStep2Tab by remember { mutableStateOf(tabStops) }
-    var purposeText by remember { mutableStateOf("") }
-    var costCenter by remember { mutableStateOf("") }
 
     // When a non-violation success result lands, advance to the success route once.
     val hasCleanResult = uiState.submissionResult != null && !uiState.showViolationDialog
@@ -182,6 +205,7 @@ fun LogMilesStep2Screen(
                 onSubmit = { viewModel.onAction(LogMilesAction.Submit) },
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(
             modifier =
@@ -285,10 +309,13 @@ fun LogMilesStep2Screen(
                     services = uiState.services,
                     selectedService = uiState.selectedService,
                     onServiceSelect = { viewModel.onAction(LogMilesAction.SelectService(it)) },
-                    purposeText = purposeText,
-                    onPurposeChange = { purposeText = it },
-                    costCenter = costCenter,
-                    onCostCenterChange = { costCenter = it },
+                    // Previously local `remember` state, read by nothing — every keystroke here was
+                    // silently discarded on submit (see LogMilesUiState.purposeOfTravel). Now routed
+                    // through the shared ViewModel like every other Step 2 field.
+                    purposeText = uiState.purposeOfTravel,
+                    onPurposeChange = { viewModel.onAction(LogMilesAction.SetPurposeOfTravel(it)) },
+                    costCenter = uiState.costCenter,
+                    onCostCenterChange = { viewModel.onAction(LogMilesAction.SetCostCenter(it)) },
                 )
             }
 
@@ -313,9 +340,15 @@ fun LogMilesStep2Screen(
 
             // ── Attachments tab ───────────────────────────────────────────────────
             if (selectedStep2Tab == tabAttachments) {
+                // Same rememberReceiptAttachmentLauncher ExpenseScreen uses (gallery + OCR) — was
+                // previously a fake counter with no real picker behind it (see LogMilesUiState
+                // .attachmentPaths' doc).
+                val launchReceiptPicker =
+                    rememberReceiptAttachmentLauncher { path -> viewModel.onAction(LogMilesAction.AddAttachment(path)) }
                 AttachmentsCard(
-                    attachmentCount = uiState.attachmentCount,
-                    onAdd = { viewModel.onAction(LogMilesAction.AddAttachment) },
+                    attachmentPaths = uiState.attachmentPaths,
+                    onAdd = launchReceiptPicker,
+                    onRemove = { path -> viewModel.onAction(LogMilesAction.RemoveAttachment(path)) },
                 )
             }
         }
@@ -459,6 +492,7 @@ private fun ExpenseDetailsSection(
                 value = purposeText,
                 onValueChange = onPurposeChange,
                 label = { Text(stringResource(Res.string.logging_purpose_of_travel)) },
+                placeholder = { Text(stringResource(Res.string.logging_purpose_of_travel_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
                 singleLine = true,
@@ -469,6 +503,7 @@ private fun ExpenseDetailsSection(
                 value = costCenter,
                 onValueChange = onCostCenterChange,
                 label = { Text(stringResource(Res.string.logging_cost_center_optional)) },
+                placeholder = { Text(stringResource(Res.string.logging_cost_center_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
                 singleLine = true,
@@ -640,8 +675,9 @@ private fun TaggedEmployeesCard(
 
 @Composable
 private fun AttachmentsCard(
-    attachmentCount: Int,
+    attachmentPaths: List<String>,
     onAdd: () -> Unit,
+    onRemove: (String) -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -677,6 +713,47 @@ private fun AttachmentsCard(
             )
             Spacer(Modifier.size(DesignTokens.Spacing.m))
 
+            // Filled state: a captured receipt is real evidence for the auditor reading this
+            // claim later — show it, don't just count it. Was `if (attachmentCount == 0)` a
+            // bare "$N added" label with nothing to actually look at or remove.
+            if (attachmentPaths.isNotEmpty()) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                ) {
+                    attachmentPaths.forEach { path ->
+                        Box(modifier = Modifier.size(72.dp)) {
+                            AsyncImage(
+                                model = path,
+                                contentDescription = stringResource(Res.string.logging_attached_receipt_photo_cd),
+                                contentScale = ContentScale.Crop,
+                                modifier =
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(MaterialTheme.colorScheme.surfaceVariant, DesignTokens.Shape.roundedSm),
+                            )
+                            IconButton(
+                                onClick = { onRemove(path) },
+                                modifier = Modifier.size(24.dp).align(Alignment.TopEnd),
+                            ) {
+                                Surface(shape = DesignTokens.Shape.button, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)) {
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = stringResource(Res.string.logging_remove_receipt_cd),
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.padding(2.dp).size(16.dp),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.size(DesignTokens.Spacing.m))
+            }
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = DesignTokens.Shape.roundedMd,
@@ -699,12 +776,12 @@ private fun AttachmentsCard(
                     )
                     Spacer(Modifier.size(DesignTokens.Spacing.xs))
                     Text(
-                        if (attachmentCount == 0) {
+                        if (attachmentPaths.isEmpty()) {
                             stringResource(
                                 Res.string.logging_add_receipt,
                             )
                         } else {
-                            stringResource(Res.string.logging_attachments_added, attachmentCount)
+                            stringResource(Res.string.logging_attachments_added, attachmentPaths.size)
                         },
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,

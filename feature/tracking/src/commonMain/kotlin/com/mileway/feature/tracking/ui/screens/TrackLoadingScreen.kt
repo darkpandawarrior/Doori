@@ -46,6 +46,7 @@ import com.mileway.core.ui.resources.tracking_loading_finalizing
 import com.mileway.core.ui.resources.tracking_loading_preparing
 import com.mileway.core.ui.resources.tracking_loading_syncing
 import com.mileway.core.ui.resources.tracking_loading_working
+import com.mileway.core.ui.theme.MilewayRoles
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 
@@ -183,7 +184,7 @@ private fun FloatingPaperPlane(
     )
 
     val foldHighlight = planeColor.copy(alpha = 0.55f)
-    val cloudColor = Color(0xFF9AA0A6)
+    val cloudColor = MilewayRoles.inactive
 
     Canvas(
         modifier =

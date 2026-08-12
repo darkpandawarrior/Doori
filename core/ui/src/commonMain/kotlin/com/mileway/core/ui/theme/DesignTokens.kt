@@ -1,5 +1,9 @@
 package com.mileway.core.ui.theme
 
+import androidx.compose.animation.core.Easing
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -79,6 +83,42 @@ object DesignTokens {
     }
 
     /**
+     * Motion vocabulary: named durations and easings so every animation in the app reads as one
+     * system instead of scattered magic-number `tween(320)` calls scattered per-screen.
+     *
+     * What must NOT animate:
+     * - A figure the user is actively reading (a distance, an amount, a confidence percentage)
+     *   must never count up/down or drift between values — a number that's still moving can't be
+     *   quoted. Change it in a single frame; animate the surrounding chrome (tint, scale, chip) if
+     *   anything, never the digits themselves.
+     * - A value the user is about to act on (a submit total, a confirmation amount) must land
+     *   exactly where it says it will, not ease past and settle back — that reads as the number
+     *   was briefly wrong, which erodes trust in the one number that most needs it.
+     */
+    object Motion {
+        /** No animation — for the state changes the rule above forbids animating at all. */
+        const val INSTANT = 0
+
+        /** Small, frequent transitions: a chip recolouring, an icon rotating, a ripple. */
+        const val QUICK = 120
+
+        /** The default for most enter/exit and color/scale transitions. */
+        const val STANDARD = 220
+
+        /** A larger surface change that benefits from being visible: a card expanding, a sheet. */
+        const val DELIBERATE = 400
+
+        /** Material's standard curve — transitions that both start and end already in motion. */
+        val standardEasing: Easing = FastOutSlowInEasing
+
+        /** Entering the screen: starts fast, settles gently — for content appearing. */
+        val decelerate: Easing = LinearOutSlowInEasing
+
+        /** Exiting the screen: starts gently, leaves fast — for content disappearing. */
+        val accelerate: Easing = FastOutLinearInEasing
+    }
+
+    /**
      * Standardized card dimensions for header sections.
      */
     object CardSize {
@@ -144,14 +184,19 @@ object DesignTokens {
      * are theme-aware and stay AA on the light Daybreak surface too. Reach here only from
      * non-composable code (data classes, previews) that genuinely can't read the theme.
      */
+    @Deprecated(
+        "Theme-blind: these are fixed Ember hexes, so a screen reading them renders identically " +
+            "under all ten design directions. Use the Layer-2 roles instead — MilewayRoles.approved / " +
+            "pending / rejected / informational / inactive. See theme/LAYERS.md for the mapping.",
+    )
     object StatusColors {
-        val success = Color(0xFF46C46B) // Muted green (Ember) - approved, active, completed
-        val warning = Color(0xFFF2C14E) // Amber - pending, low balance
-        val error = Color(0xFFF2545B) // Red - rejected, critical, overdue
-        val info = Color(0xFF5BA8F5) // Blue - informational, processing
-        val neutral = Color(0xFF9AA5A0) // Gray - draft, inactive
+        val success = Color(0xFF46C46B) // → MilewayRoles.approved
+        val warning = Color(0xFFF2C14E) // → MilewayRoles.pending
+        val error = Color(0xFFF2545B) // → MilewayRoles.rejected (state) / .destructive (action)
+        val info = Color(0xFF5BA8F5) // → MilewayRoles.informational
+        val neutral = Color(0xFF9AA5A0) // → MilewayRoles.inactive
 
-        /** Badge background color for counts */
+        /** Badge background color for counts. → `MilewayRoles.tint(MilewayRoles.pending)`. */
         val badgeRed = Color(0xFFF2545B)
     }
 

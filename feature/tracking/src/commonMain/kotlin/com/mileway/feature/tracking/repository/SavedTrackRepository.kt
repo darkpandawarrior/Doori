@@ -35,6 +35,49 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
 
     suspend fun update(track: SavedTrack) = dao.updateSavedTrack(track)
 
+    /**
+     * Permanently removes a journey the user chose to discard — the DAO's row-delete already
+     * existed (deleteSavedTrack), it just had no repository caller yet. A soft "isDiscarded" flag
+     * was considered but every list query (getAllSavedTracks, etc.) ignores that column, so it
+     * wouldn't actually remove the row from any screen; a hard delete is what "discard" means to
+     * the user here. Returns false if [routeId] no longer exists (already deleted elsewhere).
+     */
+    suspend fun delete(routeId: String): Boolean {
+        if (dao.getSavedTrackById(routeId) == null) return false
+        dao.deleteSavedTrack(routeId)
+        return true
+    }
+
+    /**
+     * Corrects the recorded distance for a journey (e.g. GPS drift added a stray kilometre).
+     * Writes straight to `distance` — the column [TrackDisplayData.distanceKm] is actually
+     * derived from — rather than `smartDistanceFinal`, which no display path reads.
+     */
+    suspend fun updateDistance(
+        routeId: String,
+        distanceKm: Double,
+    ): Boolean {
+        val track = dao.getSavedTrackById(routeId) ?: return false
+        dao.updateSavedTrack(track.copy(distance = distanceKm * 1000.0))
+        return true
+    }
+
+    /**
+     * ponytail: business/personal classification has no dedicated Room column — adding one is a
+     * schema change to a shipped table (AGENTS.md guardrail, and `SavedTrack` lives in
+     * :core:data, outside this module's ownership). `notes` is a declared-but-never-read column
+     * on the same row, so it doubles as the classification tag instead of a migration. Upgrade
+     * path: a real `isPersonal` column + migration once core:data work is in scope.
+     */
+    suspend fun setPersonal(
+        routeId: String,
+        personal: Boolean,
+    ): Boolean {
+        val track = dao.getSavedTrackById(routeId) ?: return false
+        dao.updateSavedTrack(track.copy(notes = if (personal) PERSONAL_TAG else "-"))
+        return true
+    }
+
     suspend fun markSubmitted(
         routeId: String,
         transId: String,
@@ -108,6 +151,10 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
             LocalDataResolution.WouldFetchFromServer(routeId)
         }
     }
+
+    companion object {
+        private const val PERSONAL_TAG = "PERSONAL"
+    }
 }
 
 /** Result of [SavedTrackRepository.resolveLocalData]. */
@@ -120,3 +167,6 @@ sealed interface LocalDataResolution {
 
     data object NotFound : LocalDataResolution
 }
+
+/** Reads the [SavedTrackRepository.setPersonal] tag back off a raw row. See that method's doc. */
+val SavedTrack.isPersonal: Boolean get() = notes == "PERSONAL"

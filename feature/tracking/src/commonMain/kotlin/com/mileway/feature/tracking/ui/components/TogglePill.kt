@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 
 @Composable
 fun TogglePill(
@@ -38,8 +39,8 @@ fun TogglePill(
             modifier = Modifier.height(36.dp),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = if (selected) MilewayColors.info else Color(0xFFE0E0E0),
-                    contentColor = if (selected) Color.White else Color(0xFF212121),
+                    containerColor = if (selected) MilewayColors.info else MilewayRoles.inactive,
+                    contentColor = if (selected) Color.White else MilewayRoles.onFilled(MilewayRoles.inactive),
                 ),
         ) { Text(label, style = MaterialTheme.typography.bodySmall) }
     }

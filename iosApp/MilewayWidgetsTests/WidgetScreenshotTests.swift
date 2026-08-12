@@ -1,15 +1,38 @@
 // showcase: renders the iOS WidgetKit widget views to PNGs via ImageRenderer — fixed-layout
 // widget views render cleanly (no ScrollView), so no home-screen placement is needed. Writes to
-// the host repo's docs/screenshots/. Run: xcodebuild test -scheme iosApp -sdk iphonesimulator
-//      -only-testing:MilewayWidgetsTests/WidgetScreenshotTests
+// the host repo's docs/screenshots/. Run: xcodebuild test -scheme MilewayWidgetsTests
+//      -sdk iphonesimulator -only-testing:MilewayWidgetsTests/WidgetScreenshotTests
+// NB: no `@testable import MilewayWidgets` — the MilewayWidgetsTests target compiles the widget
+// view sources directly into itself (app-extension targets can't be linked into a test bundle,
+// see project.yml), so the types below are already in this module.
 
 import SwiftUI
 import WidgetKit
 import XCTest
-@testable import MilewayWidgets
 
 final class WidgetScreenshotTests: XCTestCase {
-    private let outDir = "/Users/darkpandawarrior/Repos/Mileway/docs/screenshots"
+    // Derived, not hardcoded. This was previously pinned to .../Repos/Mileway/docs/screenshots —
+    // a path that does not exist since the repo moved under Repos/Android/. Because the writer
+    // calls createDirectory(withIntermediateDirectories: true), every capture silently CREATED
+    // that phantom folder and wrote there, so the PNGs never reached the repo and nobody saw a
+    // failure. SCREENSHOT_OUT_DIR is set by the test scheme/CI; the fallback is the real path.
+    private let outDir = ProcessInfo.processInfo.environment["SCREENSHOT_OUT_DIR"]
+        ?? Self.repoScreenshotsDir
+
+    /// Derived from this source file's own location at compile time, so it cannot go stale when the
+    /// repo moves — which is exactly what happened before: the path was pinned to
+    /// .../Repos/Mileway/..., died when the repo moved under Repos/Android/, and because the writer
+    /// calls createDirectory(withIntermediateDirectories: true) every run silently CREATED the
+    /// phantom folder and wrote there. No error, no missing file, captures just stopped arriving.
+    private static var repoScreenshotsDir: String {
+        // <repo>/iosApp/<TestTarget>/<ThisFile>.swift -> up 3 -> <repo>
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("docs/screenshots")
+            .path
+    }
 
     private var mockEntry: MileageWidgetEntry {
         MileageWidgetEntry(
@@ -34,8 +57,17 @@ final class WidgetScreenshotTests: XCTestCase {
 
     @MainActor
     func testCaptureLockScreenWidget() throws {
-        let view = MileageAccessoryRectangularView(entry: mockEntry)
-            .frame(width: 160, height: 72)
+        // Composited over a ground on purpose. An accessory widget draws white-on-transparent so
+        // the system can tint it against the wallpaper; rendered standalone it flattens to pure
+        // black, and that black rectangle shipped to the portfolio site as a lock-screen widget.
+        // The lock screen always provides a backdrop, so capturing without one was never showing
+        // what a user sees.
+        let view = ZStack {
+            Color.black.opacity(0.55)
+            MileageAccessoryRectangularView(entry: mockEntry)
+                .foregroundStyle(.white)
+        }
+        .frame(width: 160, height: 72)
         try render(view, to: "widget_ios_lockscreen.png")
     }
 

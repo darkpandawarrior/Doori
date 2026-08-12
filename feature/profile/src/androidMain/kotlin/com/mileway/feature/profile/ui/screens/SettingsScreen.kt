@@ -40,6 +40,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -70,6 +71,7 @@ import com.mileway.core.ui.components.sheet.AppActionSheet
 import com.mileway.core.ui.components.theme.MilewayThemePicker
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.core_permission_action_open_settings
 import com.mileway.core.ui.resources.profile_settings_about
 import com.mileway.core.ui.resources.profile_settings_account
 import com.mileway.core.ui.resources.profile_settings_aggressive_gps
@@ -230,11 +232,28 @@ fun SettingsScreen(
         ) {
             val permissionRows = rememberPermissionHealthRows()
             val permDeniedMessage = stringResource(Res.string.profile_settings_perm_denied)
+            val openSettingsLabel = stringResource(Res.string.core_permission_action_open_settings)
+
+            fun openAppSettings() {
+                context.startActivity(
+                    Intent(SystemSettings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    },
+                )
+            }
             val requestPermissionLauncher =
                 rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
                     if (!granted) {
+                        // PERMISSION denied state: the message alone told the user to "enable it from
+                        // settings" without a way to get there — an unreachable dead end for a
+                        // permanently-denied permission (Android won't show the system dialog again
+                        // once "don't ask again" is selected, so a second tap of the toggle would
+                        // silently no-op here forever). An action button makes that instruction
+                        // actually actionable instead of cosmetic.
                         permScope.launch {
-                            permSnackbarState.showSnackbar(permDeniedMessage)
+                            val result =
+                                permSnackbarState.showSnackbar(permDeniedMessage, actionLabel = openSettingsLabel)
+                            if (result == SnackbarResult.ActionPerformed) openAppSettings()
                         }
                     }
                 }
@@ -245,11 +264,7 @@ fun SettingsScreen(
                     if (row.isGranted || manifestPermission == null) {
                         // Already granted, or nothing to request on this API level/permission (e.g.
                         // scoped-storage Storage) — only a real Settings toggle can change it.
-                        context.startActivity(
-                            Intent(SystemSettings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                data = Uri.fromParts("package", context.packageName, null)
-                            },
-                        )
+                        openAppSettings()
                     } else {
                         requestPermissionLauncher.launch(manifestPermission)
                     }

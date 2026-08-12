@@ -40,7 +40,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.model.ReporteeTrip
 import com.mileway.feature.profile.model.ReporteeTripSummary
 import com.mileway.feature.profile.model.SeededReportees
@@ -56,8 +56,6 @@ import com.mileway.feature.profile.viewmodel.ManagerReporteesViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.math.roundToInt
-
-private val headerGradient = listOf(Color(0xFF0F4C75), Color(0xFF1B6CA8))
 
 /**
  * PLAN_V24 P10.6: manager-only reportee tracking view — a list of the manager's reportees, each
@@ -148,7 +146,8 @@ private fun ManagerHeader(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .background(Brush.horizontalGradient(headerGradient))
+                // LAYERS.md: profile is chrome, no domain identity gradient — the plain base header.
+                .background(DesignTokens.topBarGradientBrush())
                 .windowInsetsPadding(WindowInsets.statusBars),
     ) {
         Row(
@@ -183,10 +182,10 @@ private fun ReporteeCard(
                     modifier =
                         Modifier
                             .size(40.dp)
-                            .background(Color(0xFF1B6CA8).copy(alpha = 0.12f), RoundedCornerShape(50)),
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), RoundedCornerShape(50)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = Color(0xFF1B6CA8))
+                    Icon(Icons.Default.Person, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                 }
                 Spacer(Modifier.width(DesignTokens.Spacing.m))
                 Column(modifier = Modifier.weight(1f)) {
@@ -202,7 +201,7 @@ private fun ReporteeCard(
                     StatChip(
                         Icons.Default.PendingActions,
                         mrv("manager_view_pending", "{n} pending").replace("{n}", summary.pendingApprovals.toString()),
-                        tint = Color(0xFFEA580C),
+                        tint = MilewayRoles.pending,
                     )
                 }
             }

@@ -56,7 +56,7 @@ fun WearRootScreen(viewModel: WearViewModel = koinViewModel()) {
     BackHandler(enabled = uiState.screen != WearScreen.Dashboard) { viewModel.onBack() }
     LaunchedEffect(ongoingActivityState) {
         if (ongoingActivityState.isLive) {
-            TrackingOngoingActivity.post(context, ongoingActivityState.distanceKm)
+            TrackingOngoingActivity.post(context, ongoingActivityState.title, ongoingActivityState.text)
         } else {
             TrackingOngoingActivity.cancel(context)
         }

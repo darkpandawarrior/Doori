@@ -30,11 +30,16 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+
+/**
+ * Floor for [TrackingTopBar]'s title auto-shrink ([ShrinkToFitTitleText]); the status pill takes
+ * fixed space beside it.
+ */
+private val TrackingTitleMinFontSize = 13.sp
 
 /**
  * The live state communicated by [TrackingStatusPill] / [TrackingTopBar].
@@ -205,14 +210,17 @@ fun TrackingTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
-                Text(
+                ShrinkToFitTitleText(
                     text = title,
+                    maxFontSize = 22.sp,
+                    minFontSize = TrackingTitleMinFontSize,
                     style = MaterialTheme.typography.titleLarge,
-                    fontSize = 22.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    // Without `weight`, Row measures this non-weighted child with an effectively
+                    // unbounded width, so it never sees the real space left after the pill and
+                    // silently overflows the slot instead of shrinking or ellipsising.
+                    modifier = Modifier.weight(1f, fill = false),
                 )
                 TrackingStatusPill(status = status)
             }

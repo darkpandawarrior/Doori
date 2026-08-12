@@ -39,6 +39,7 @@ import com.mileway.core.ui.resources.eco_subtitle
 import com.mileway.core.ui.resources.eco_title
 import com.mileway.core.ui.resources.eco_trips
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.EcoDashboardViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -87,25 +88,25 @@ fun EcoDashboardScreen(
             ) {
                 EcoStatCard(
                     icon = Icons.Filled.Co2,
-                    accent = Color(0xFF16A34A),
+                    accent = MilewayRoles.approved,
                     label = stringResource(Res.string.eco_co2_saved),
                     value = "${round1(totals.co2SavedKg)} kg",
                 )
                 EcoStatCard(
                     icon = Icons.Filled.LocalGasStation,
-                    accent = Color(0xFFEA580C),
+                    accent = MilewayRoles.money,
                     label = stringResource(Res.string.eco_fuel_saved),
                     value = "₹${round0(totals.fuelSavedInr)}",
                 )
                 EcoStatCard(
                     icon = Icons.Filled.Route,
-                    accent = Color(0xFF2563EB),
+                    accent = MilewayRoles.distance,
                     label = stringResource(Res.string.eco_distance),
                     value = "${round1(totals.distanceKm)} km",
                 )
                 EcoStatCard(
                     icon = Icons.Filled.Spa,
-                    accent = Color(0xFF0F766E),
+                    accent = MilewayRoles.informational,
                     label = stringResource(Res.string.eco_trips),
                     value = totals.trips.toString(),
                 )

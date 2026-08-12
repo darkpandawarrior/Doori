@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -52,6 +51,7 @@ import com.mileway.core.data.util.CommonUtils
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -79,7 +79,7 @@ fun PlansScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF1D4ED8), Color(0xFF0B2A6B))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -107,7 +107,7 @@ fun PlansScreen(
             ) {
                 if (hasActive) {
                     Surface(
-                        color = Color(0xFF1D4ED8).copy(alpha = 0.10f),
+                        color = MilewayRoles.tint(MilewayRoles.approved),
                         shape = DesignTokens.Shape.roundedMd,
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -174,11 +174,11 @@ private fun PlanCard(
                 Text(plan.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 Text(priceLabel(plan), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
-            Text(plan.savingsCopy, style = MaterialTheme.typography.bodySmall, color = Color(0xFF16A34A), fontWeight = FontWeight.SemiBold)
+            Text(plan.savingsCopy, style = MaterialTheme.typography.bodySmall, color = MilewayRoles.approved, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(DesignTokens.Spacing.xs))
             plan.features.forEach { f ->
                 Row(verticalAlignment = Alignment.Top) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF16A34A), modifier = Modifier.height(18.dp))
+                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MilewayRoles.approved, modifier = Modifier.height(18.dp))
                     Spacer(Modifier.width(DesignTokens.Spacing.s))
                     Text(f, style = MaterialTheme.typography.bodyMedium)
                 }

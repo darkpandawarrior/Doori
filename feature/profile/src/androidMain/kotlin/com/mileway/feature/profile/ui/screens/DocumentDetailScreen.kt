@@ -39,7 +39,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -51,11 +50,14 @@ import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.rememberMediaCaptureLauncher
+import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.verification_back
 import com.mileway.core.ui.resources.verification_detail_add_photo
 import com.mileway.core.ui.resources.verification_detail_info
 import com.mileway.core.ui.resources.verification_detail_locked
+import com.mileway.core.ui.resources.verification_detail_not_found_subtitle
+import com.mileway.core.ui.resources.verification_detail_not_found_title
 import com.mileway.core.ui.resources.verification_detail_save
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
@@ -100,7 +102,7 @@ fun DocumentDetailScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF1565C0), Color(0xFF0D47A1))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -119,7 +121,18 @@ fun DocumentDetailScreen(
                 }
             }
 
-            if (doc == null) return@Column
+            // EMPTY/not-found: an invalid docType (stale link) or a still-loading catalogue (Room
+            // seed/observe hasn't emitted yet) both land here as doc == null. Previously this
+            // `return@Column`'d silently, leaving only the top bar rendered — indistinguishable
+            // from a crash. An explicit state names what happened instead.
+            if (doc == null) {
+                DefaultEmptyState(
+                    modifier = Modifier.fillMaxSize(),
+                    title = stringResource(Res.string.verification_detail_not_found_title),
+                    subtitle = stringResource(Res.string.verification_detail_not_found_subtitle),
+                )
+                return@Column
+            }
 
             Column(
                 modifier =

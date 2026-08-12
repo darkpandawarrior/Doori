@@ -61,6 +61,7 @@ import com.mileway.core.ui.resources.tracking_stat_speed
 import com.mileway.core.ui.resources.tracking_unit_km
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
@@ -71,14 +72,19 @@ fun LiveTrackingOverviewCard(
     trackData: CurrentTrackData,
     modifier: Modifier = Modifier,
 ) {
+    // TRACKING is a deliberate identity overlay (LAYERS.md): the live drive IS the brand moment,
+    // so this glass card is built from the active direction's own accent, not a fixed navy/indigo.
+    val trackingAccent = MaterialTheme.colorScheme.primary
+    val trackingAccentDim = MaterialTheme.colorScheme.secondary
     val glassGradient =
         Brush.verticalGradient(
-            listOf(Color(0xFF0D2137).copy(alpha = 0.92f), Color(0xFF1A237E).copy(alpha = 0.88f)),
+            listOf(trackingAccent.copy(alpha = 0.92f), trackingAccentDim.copy(alpha = 0.88f)),
         )
     val glassBorder =
         Brush.linearGradient(
             listOf(Color.White.copy(alpha = 0.25f), Color.White.copy(alpha = 0.06f)),
         )
+    val onGlass = MilewayRoles.onFilled(trackingAccent)
 
     Box(
         modifier =
@@ -97,7 +103,7 @@ fun LiveTrackingOverviewCard(
                     stringResource(Res.string.tracking_live_overview_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = onGlass,
                 )
                 LiveIndicatorBadge(isPaused = trackData.isPaused)
             }
@@ -110,19 +116,19 @@ fun LiveTrackingOverviewCard(
                     label = stringResource(Res.string.tracking_stat_distance),
                     value = "${(trackData.distance / 1000.0).formatDecimal(2)} ${stringResource(Res.string.tracking_unit_km)}",
                     icon = Icons.Default.GpsFixed,
-                    color = Color(0xFF80DEEA),
+                    color = MilewayRoles.activeTracking,
                 )
                 LiveMetric(
                     label = stringResource(Res.string.tracking_stat_duration),
                     value = formatDuration(Clock.System.now().toEpochMilliseconds() - trackData.startTime),
                     icon = Icons.Default.Timer,
-                    color = Color(0xFFB39DDB),
+                    color = MilewayRoles.activeTracking,
                 )
                 LiveMetric(
                     label = stringResource(Res.string.tracking_stat_speed),
                     value = stringResource(Res.string.tracking_speed_kmh, (trackData.speed * 3.6).formatDecimal(1)),
                     icon = Icons.Default.Speed,
-                    color = Color(0xFF69F0AE),
+                    color = MilewayRoles.activeTracking,
                 )
             }
         }

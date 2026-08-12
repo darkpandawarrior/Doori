@@ -42,28 +42,34 @@ class VoucherHistoryRepository(private val dao: VoucherDao, private val clock: C
 
     private fun demoSeed(): List<VoucherEntity> {
         val now = clock.now().toEpochMilliseconds()
-        // (status, amount, daysAgo, violations) tuples → one voucher each.
+        // (title, status, amount, daysAgo, violations) tuples → one voucher each. Real trip context
+        // instead of a generic "Voucher 1000..1007" — the same list card and VoucherDetailsScreen
+        // both render `title` verbatim, so a placeholder string there is a placeholder in two
+        // screens at once. [VoucherEntity] has no office column (adding one is a Room schema
+        // change, out of scope here) — `office` stays index-derived display data in
+        // [toSubmittedVoucher], same as before, just now cycling PolicyMockData's four real
+        // registered offices (1345/1347/1349/5356) instead of the unrelated "HQ_NORTH"/"HQ_WEST".
         val spec =
             listOf(
-                Quad(VoucherStatus.DRAFT, 22_629.0, 2L, 1),
-                Quad(VoucherStatus.DRAFT, 4_180.0, 4L, 0),
-                Quad(VoucherStatus.PENDING, 14_850.0, 6L, 0),
-                Quad(VoucherStatus.PENDING, 9_240.0, 9L, 2),
-                Quad(VoucherStatus.APPROVED, 6_310.0, 12L, 0),
-                Quad(VoucherStatus.APPROVED, 31_500.0, 16L, 0),
-                Quad(VoucherStatus.REJECTED, 2_990.0, 20L, 3),
-                Quad(VoucherStatus.SETTLED, 18_400.0, 28L, 0),
+                Spec("Pune → Mumbai: Client Onsite", VoucherStatus.DRAFT, 22_629.0, 2L, 1),
+                Spec("Baner → Hinjewadi: Vendor Review", VoucherStatus.DRAFT, 4_180.0, 4L, 0),
+                Spec("Mumbai → Pune: Weekly Sync", VoucherStatus.PENDING, 14_850.0, 6L, 0),
+                Spec("Bhosari MIDC Site Visit", VoucherStatus.PENDING, 9_240.0, 9L, 2),
+                Spec("Andheri → BKC: Partner Meeting", VoucherStatus.APPROVED, 6_310.0, 12L, 0),
+                Spec("Pune → Bengaluru: Annual Summit", VoucherStatus.APPROVED, 31_500.0, 16L, 0),
+                Spec("Airport Pickup: Auditor Visit", VoucherStatus.REJECTED, 2_990.0, 20L, 3),
+                Spec("Mumbai Distribution Hub Inspection", VoucherStatus.SETTLED, 18_400.0, 28L, 0),
             )
-        return spec.mapIndexed { index, q ->
+        return spec.mapIndexed { index, s ->
             VoucherEntity(
                 voucherNumber = "VCH-${1000 + index}",
-                title = "Voucher ${1000 + index}",
+                title = s.title,
                 category = VoucherCategory.MILEAGE,
-                totalAmount = q.amount,
-                notes = if (q.violations > 0) "$VIOLATIONS_PREFIX${q.violations}" else "",
+                totalAmount = s.amount,
+                notes = if (s.violations > 0) "$VIOLATIONS_PREFIX${s.violations}" else "",
                 expenseRouteIdsJson = VoucherEntity.encodeExpenseRouteIds(listOf("EXP-${48700 + index}")),
-                status = q.status.label,
-                createdAtMs = now - q.daysAgo * dayMs,
+                status = s.status.label,
+                createdAtMs = now - s.daysAgo * dayMs,
             )
         }
     }
@@ -76,7 +82,7 @@ class VoucherHistoryRepository(private val dao: VoucherDao, private val clock: C
             voucherState = status,
             payment = "Self Paid",
             chips = if (violationCount > 0) listOf("Attachments", "Violations") else listOf("Attachments"),
-            office = if (index % 2 == 0) "HQ_NORTH" else "HQ_WEST",
+            office = REAL_OFFICE_CODES[index % REAL_OFFICE_CODES.size],
             amount = totalAmount,
             serviceTag = if (index % 3 == 0) "Log Conveyance" else "log_trip",
             expenseDateMillis = createdAtMs - 2 * dayMs,
@@ -88,7 +94,8 @@ class VoucherHistoryRepository(private val dao: VoucherDao, private val clock: C
         )
     }
 
-    private data class Quad(
+    private data class Spec(
+        val title: String,
         val status: VoucherStatus,
         val amount: Double,
         val daysAgo: Long,
@@ -97,5 +104,8 @@ class VoucherHistoryRepository(private val dao: VoucherDao, private val clock: C
 
     private companion object {
         const val VIOLATIONS_PREFIX = "violations:"
+
+        /** [com.mileway.stub.PolicyMockData.offices]' four real registered office codes. */
+        val REAL_OFFICE_CODES = listOf("1345", "1347", "1349", "5356")
     }
 }

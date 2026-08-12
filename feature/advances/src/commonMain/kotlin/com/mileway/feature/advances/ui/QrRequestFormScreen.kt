@@ -132,6 +132,11 @@ internal fun QrRequestFormContent(
             errorTextOrNull(state.errors, QrRequestError.DECLARATION_NOT_ACCEPTED)?.let {
                 Text(it, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
             }
+            // ERROR: repository write failed — see QrRequestViewModel.submit()'s comment. Without
+            // this the form silently went back to idle with no explanation.
+            state.submitError?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
         }
     }
 }

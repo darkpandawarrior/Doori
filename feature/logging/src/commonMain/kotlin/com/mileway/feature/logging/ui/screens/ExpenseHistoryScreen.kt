@@ -58,10 +58,14 @@ import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.logging_add_expense_title
 import com.mileway.core.ui.resources.logging_back_cd
 import com.mileway.core.ui.resources.logging_category
+import com.mileway.core.ui.resources.logging_clear_filters
 import com.mileway.core.ui.resources.logging_expense_history
 import com.mileway.core.ui.resources.logging_filter_cd
+import com.mileway.core.ui.resources.logging_no_expenses_filtered_subtitle
+import com.mileway.core.ui.resources.logging_no_expenses_filtered_title
 import com.mileway.core.ui.resources.logging_no_expenses_subtitle
 import com.mileway.core.ui.resources.logging_no_expenses_title
 import com.mileway.core.ui.resources.logging_sort_cd
@@ -74,7 +78,7 @@ import com.mileway.core.ui.resources.logging_status_draft
 import com.mileway.core.ui.resources.logging_status_pending
 import com.mileway.core.ui.resources.logging_status_rejected
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
@@ -93,6 +97,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ExpenseHistoryScreen(
     onBack: () -> Unit,
     onOpenDetail: (String) -> Unit,
+    onAddExpense: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ExpenseViewModel = koinViewModel(),
 ) {
@@ -152,7 +157,7 @@ fun ExpenseHistoryScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF6A1B9A), Color(0xFFAB47BC))))
+                        .background(Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.tertiaryContainer)))
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -215,10 +220,34 @@ fun ExpenseHistoryScreen(
                 onRetry = { viewModel.onAction(ExpenseAction.Refresh) },
             ) { data ->
                 if (data.records.isEmpty()) {
-                    DefaultEmptyState(
-                        title = stringResource(Res.string.logging_no_expenses_title),
-                        subtitle = stringResource(Res.string.logging_no_expenses_subtitle),
-                    )
+                    // EMPTY has two different causes here: never logged an expense at all, vs a
+                    // status/category filter that happens to match nothing right now. Collapsing
+                    // both into "No expenses logged" would tell a filtered user their history is
+                    // wiped, not that their filter is just narrow — same distinction PROFILE's
+                    // notification-center empty state makes between "no notifications" and "no
+                    // matches in this filter".
+                    val isFiltered = data.activeFilter != ExpenseFilter.ALL || data.selectedCategories.isNotEmpty()
+                    if (isFiltered) {
+                        DefaultEmptyState(
+                            title = stringResource(Res.string.logging_no_expenses_filtered_title),
+                            subtitle = stringResource(Res.string.logging_no_expenses_filtered_subtitle),
+                            ctaLabel = stringResource(Res.string.logging_clear_filters),
+                            onCta = {
+                                viewModel.onAction(ExpenseAction.SetFilter(ExpenseFilter.ALL))
+                                viewModel.onAction(ExpenseAction.SetCategories(emptySet()))
+                            },
+                        )
+                    } else {
+                        // A first-time "no expenses" screen that only says data will "appear here"
+                        // leaves the user with no path forward — add the CTA that actually gets them
+                        // to their first record, same affordance as the FAB/tab that reaches this screen.
+                        DefaultEmptyState(
+                            title = stringResource(Res.string.logging_no_expenses_title),
+                            subtitle = stringResource(Res.string.logging_no_expenses_subtitle),
+                            ctaLabel = stringResource(Res.string.logging_add_expense_title),
+                            onCta = onAddExpense,
+                        )
+                    }
                 } else {
                     // Records arrive already sorted from the VM. Keep date-bucket headers only when sorting
                     // by date; amount / merchant sorts read better as a flat ordered list.
@@ -329,13 +358,13 @@ private fun ExpenseCard(
 private fun ExpenseStatusChip(status: ExpenseStatus) {
     val (label, color) =
         when (status) {
-            ExpenseStatus.DRAFT -> stringResource(Res.string.logging_status_draft) to StatusColors.neutral
-            ExpenseStatus.PENDING -> stringResource(Res.string.logging_status_pending) to StatusColors.warning
-            ExpenseStatus.APPROVED -> stringResource(Res.string.logging_status_approved) to StatusColors.success
-            ExpenseStatus.REJECTED -> stringResource(Res.string.logging_status_rejected) to StatusColors.error
+            ExpenseStatus.DRAFT -> stringResource(Res.string.logging_status_draft) to MilewayRoles.inactive
+            ExpenseStatus.PENDING -> stringResource(Res.string.logging_status_pending) to MilewayRoles.pending
+            ExpenseStatus.APPROVED -> stringResource(Res.string.logging_status_approved) to MilewayRoles.approved
+            ExpenseStatus.REJECTED -> stringResource(Res.string.logging_status_rejected) to MilewayRoles.rejected
         }
     Surface(
-        color = color.copy(alpha = 0.15f),
+        color = MilewayRoles.tint(color),
         shape = DesignTokens.Shape.button,
     ) {
         Text(

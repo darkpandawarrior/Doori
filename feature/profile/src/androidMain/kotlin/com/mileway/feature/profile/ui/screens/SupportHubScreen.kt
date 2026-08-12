@@ -129,7 +129,7 @@ fun SupportHubScreen(
             if (faqOn) {
                 SupportChannelRow(
                     Icons.AutoMirrored.Filled.HelpOutline,
-                    Color(0xFF2563EB),
+                    MaterialTheme.colorScheme.primary,
                     stringResource(Res.string.support_channel_faq_title),
                     stringResource(Res.string.support_channel_faq_subtitle),
                     onOpenFaq,
@@ -138,7 +138,7 @@ fun SupportHubScreen(
             if (ticketOn) {
                 SupportChannelRow(
                     Icons.Filled.ConfirmationNumber,
-                    Color(0xFF7C3AED),
+                    MaterialTheme.colorScheme.primary,
                     stringResource(Res.string.support_channel_tickets_title),
                     stringResource(Res.string.support_channel_tickets_subtitle),
                     onOpenTickets,
@@ -147,7 +147,7 @@ fun SupportHubScreen(
             if (chatOn) {
                 SupportChannelRow(
                     Icons.AutoMirrored.Filled.Chat,
-                    Color(0xFF16A34A),
+                    MaterialTheme.colorScheme.primary,
                     stringResource(Res.string.support_channel_chat_title),
                     stringResource(Res.string.support_channel_chat_subtitle),
                     onOpenChat,
@@ -156,7 +156,7 @@ fun SupportHubScreen(
             if (callOn) {
                 SupportChannelRow(
                     Icons.Filled.Call,
-                    Color(0xFFEA580C),
+                    MaterialTheme.colorScheme.primary,
                     stringResource(Res.string.support_channel_call_title),
                     stringResource(Res.string.support_channel_call_subtitle),
                 ) {
@@ -166,7 +166,7 @@ fun SupportHubScreen(
             if (mailOn) {
                 SupportChannelRow(
                     Icons.Filled.Email,
-                    Color(0xFF0F766E),
+                    MaterialTheme.colorScheme.primary,
                     stringResource(Res.string.support_channel_mail_title),
                     stringResource(Res.string.support_channel_mail_subtitle),
                 ) {
@@ -176,7 +176,7 @@ fun SupportHubScreen(
             if (tourOn) {
                 SupportChannelRow(
                     Icons.Filled.School,
-                    Color(0xFFD97706),
+                    MaterialTheme.colorScheme.primary,
                     stringResource(Res.string.support_channel_tour_title),
                     stringResource(Res.string.support_channel_tour_subtitle),
                     onOpenTour,

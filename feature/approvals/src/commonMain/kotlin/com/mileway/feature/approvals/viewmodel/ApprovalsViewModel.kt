@@ -3,6 +3,8 @@ package com.mileway.feature.approvals.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.ledger.ApprovalTransitions
 import com.mileway.core.ui.mvi.ScreenState
+import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.mvi.errorState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_toast_edit_distance_unavailable
 import com.mileway.core.ui.resources.approvals_toast_request_approved
@@ -37,7 +39,17 @@ sealed interface ApprovalsAction {
 
     data object Approve : ApprovalsAction
 
-    data object Reject : ApprovalsAction
+    /** Reason is mandatory (see [ActionConfirmationBottomSheet]'s remarks field) and lands in the
+     * approval's permanent comment audit trail — a manager's rejection reason is exactly what
+     * finance/the requester needs, not just a terminal REJECTED status.
+     */
+    data class RejectWithReason(val reason: String) : ApprovalsAction
+
+    /** The bulk-selection bar's "Approve All" — same FSM guard as a single [Approve], applied per id. */
+    data class BulkApprove(val ids: Set<String>) : ApprovalsAction
+
+    /** The bulk-selection bar's "Reject All" — [reason] is posted once per id to that approval's comment thread. */
+    data class BulkReject(val ids: Set<String>, val reason: String) : ApprovalsAction
 
     /** P28.9: withdraws the current (own, still-PENDING) request — gated by `DetailActionFlags.canWithdraw`. */
     data object Withdraw : ApprovalsAction
@@ -155,10 +167,11 @@ class ApprovalsViewModel(
             is ApprovalsAction.OpenDetail -> openDetail(action.id)
             ApprovalsAction.Approve ->
                 resolve(ApprovalStatus.APPROVED, UiText.Res(Res.string.approvals_toast_request_approved.key))
-            ApprovalsAction.Reject ->
-                resolve(ApprovalStatus.REJECTED, UiText.Res(Res.string.approvals_toast_request_rejected.key))
+            is ApprovalsAction.RejectWithReason -> rejectWithReason(action.reason)
             ApprovalsAction.Withdraw ->
                 resolve(ApprovalStatus.REJECTED, UiText.Res(Res.string.approvals_toast_request_withdrawn.key))
+            is ApprovalsAction.BulkApprove -> bulkApprove(action.ids)
+            is ApprovalsAction.BulkReject -> bulkReject(action.ids, action.reason)
             ApprovalsAction.RequestEditDistance ->
                 emitEffect(ApprovalsEffect.ShowToast(UiText.Res(Res.string.approvals_toast_edit_distance_unavailable.key)))
             ApprovalsAction.OpenClarificationSheet -> updateDetail { copy(showClarificationSheet = true) }
@@ -179,7 +192,16 @@ class ApprovalsViewModel(
     }
 
     private fun openDetail(id: String) {
-        val item = ApprovalsRepository.getById(id) ?: return
+        val item =
+            ApprovalsRepository.getById(id) ?: run {
+                // ERROR (not-found): previously this `return`d without touching detailState at
+                // all, so a stale/deleted/bad-deep-link id would either leave the *previous*
+                // approval's detail on screen (if one was open before) or leave detailState at
+                // its initial ScreenState.Empty forever — the screen renders nothing either way.
+                // Root-caused here so every caller of OpenDetail gets the fix, not just this one.
+                setState { copy(detailState = errorState("Approval not found")) }
+                return
+            }
         setState { copy(detailState = ScreenState.Content(ApprovalDetailState(item = item))) }
 
         clarificationJob?.cancel()
@@ -242,12 +264,13 @@ class ApprovalsViewModel(
         if (!ApprovalTransitions.isAllowed(from, status.toFsmStatus())) return
 
         inFlightIds += id
-        val updatedList =
-            if (status == ApprovalStatus.APPROVED) {
-                ApprovalsRepository.approve(id)
-            } else {
-                ApprovalsRepository.reject(id)
-            }
+        // ponytail: derive from the *current* listState, not ApprovalsRepository.approve/reject
+        // (which always re-maps the static seed list). Deriving from the seed meant a second
+        // resolve() in the same session silently reverted whatever the first one had just changed
+        // in listState — invisible with one action at a time, but exactly what bulk actions need
+        // to get right when multiple ids resolve back-to-back.
+        val baseList = currentState.listState.dataOrNull ?: ApprovalsRepository.all
+        val updatedList = baseList.map { if (it.id == id) it.copy(status = status) else it }
         setState {
             copy(
                 listState = ScreenState.Content(updatedList),
@@ -257,6 +280,55 @@ class ApprovalsViewModel(
         emitEffect(ApprovalsEffect.ShowToast(toast))
         inFlightIds -= id
     }
+
+    private fun rejectWithReason(reason: String) {
+        val detail = currentDetail() ?: return
+        val id = detail.item.id
+        val from = (detail.localStatus ?: detail.item.status).toFsmStatus()
+        if (!ApprovalTransitions.isAllowed(from, FsmStatus.REJECTED)) return
+        resolve(ApprovalStatus.REJECTED, UiText.Res(Res.string.approvals_toast_request_rejected.key))
+        // P28.7: the reason lands in the same permanent, append-only comment thread the Comments
+        // tab already renders — the requester/finance/an auditor sees *why*, not just REJECTED.
+        viewModelScope.launch {
+            commentRepository.addComment(id, authorName = "You", designation = "Approver", message = "Rejected — $reason")
+        }
+    }
+
+    private fun bulkResolve(
+        ids: Set<String>,
+        status: ApprovalStatus,
+        toast: UiText,
+    ) {
+        if (ids.isEmpty()) return
+        val baseList = currentState.listState.dataOrNull ?: ApprovalsRepository.all
+        val updatedList =
+            baseList.map { item ->
+                if (item.id in ids && ApprovalTransitions.isAllowed(item.status.toFsmStatus(), status.toFsmStatus())) {
+                    item.copy(status = status)
+                } else {
+                    item
+                }
+            }
+        setState { copy(listState = ScreenState.Content(updatedList)) }
+        emitEffect(ApprovalsEffect.ShowToast(toast))
+    }
+
+    private fun bulkApprove(ids: Set<String>) = bulkResolve(ids, ApprovalStatus.APPROVED, UiText.Dynamic(bulkToastText(ids.size, "approved")))
+
+    private fun bulkReject(
+        ids: Set<String>,
+        reason: String,
+    ) {
+        bulkResolve(ids, ApprovalStatus.REJECTED, UiText.Dynamic(bulkToastText(ids.size, "rejected")))
+        viewModelScope.launch {
+            ids.forEach { id -> commentRepository.addComment(id, authorName = "You", designation = "Approver", message = "Rejected — $reason") }
+        }
+    }
+
+    private fun bulkToastText(
+        count: Int,
+        verb: String,
+    ) = "$count request${if (count == 1) "" else "s"} $verb"
 
     private fun sendClarification() {
         val detail = currentDetail() ?: return

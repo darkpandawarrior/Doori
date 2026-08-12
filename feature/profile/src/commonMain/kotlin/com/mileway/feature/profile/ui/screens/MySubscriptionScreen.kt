@@ -38,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +48,7 @@ import com.mileway.core.data.util.CommonUtils
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -81,7 +81,7 @@ fun MySubscriptionScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF1D4ED8), Color(0xFF0B2A6B))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -149,7 +149,7 @@ fun MySubscriptionScreen(
                     }
                 }
 
-                Surface(color = Color(0xFF16A34A).copy(alpha = 0.10f), shape = DesignTokens.Shape.roundedMd, modifier = Modifier.fillMaxWidth()) {
+                Surface(color = MilewayRoles.tint(MilewayRoles.approved), shape = DesignTokens.Shape.roundedMd, modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.l), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             sub("mysub_savings_label", "Saved so far"),
@@ -160,7 +160,7 @@ fun MySubscriptionScreen(
                             CommonUtils.formatCurrencyAmount(state.savingsSoFar),
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF16A34A),
+                            color = MilewayRoles.approved,
                         )
                     }
                 }
@@ -246,11 +246,14 @@ private fun statusLabel(status: SubscriptionStatus): String =
         SubscriptionStatus.CANCELLED -> sub("mysub_status_cancelled", "Cancelled")
     }
 
+@Composable
 private fun statusColor(status: SubscriptionStatus): Color =
     when (status) {
-        SubscriptionStatus.ACTIVE -> Color(0xFF16A34A)
-        SubscriptionStatus.EXPIRED -> Color(0xFFB91C1C)
-        SubscriptionStatus.CANCELLED -> Color(0xFFB45309)
+        SubscriptionStatus.ACTIVE -> MilewayRoles.approved
+        // Expired and cancelled are both a terminal-bad, person/lapse-decided state — one role,
+        // per theme/LAYERS.md ("rejected: rejected, failed, expired, cancelled, declined").
+        SubscriptionStatus.EXPIRED -> MilewayRoles.rejected
+        SubscriptionStatus.CANCELLED -> MilewayRoles.rejected
     }
 
 private fun formatSubDate(ms: Long): String =

@@ -29,7 +29,9 @@ import com.mileway.core.ui.theme.MilewayThemeVariant
 @Composable
 private fun TopBarInScheme(
     status: TrackingStatus,
-    theme: MilewayThemeVariant = MilewayThemeVariant.MATRIX,
+    // Follows the app default, like PreviewSurface. Was pinned to MATRIX, which is why these
+    // tracking previews rendered phosphor green long after the app stopped being green.
+    theme: MilewayThemeVariant = MilewayThemeVariant.DEFAULT,
 ) {
     PreviewSurface(theme = theme) {
         TrackingTopBar(

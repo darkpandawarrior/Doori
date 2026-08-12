@@ -49,6 +49,17 @@ class SyncStatusViewModel(
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    /**
+     * Drives a manual "Retry" affordance on the chip: today a stuck submission (no signal, the
+     * drain silently no-ops until connectivity/foreground) only ever clears on the next automatic
+     * trigger, with no way for the user to ask for one — see [onForeground] for the same drain
+     * this button calls.
+     */
+    val hasPendingBacklog: StateFlow<Boolean> =
+        combinedBacklog
+            .combine(syncer.syncStatus) { backlog, status -> backlog > 0 && status !is SyncStatus.Idle }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
     init {
         viewModelScope.launch { drainCurrentTrack() }
 

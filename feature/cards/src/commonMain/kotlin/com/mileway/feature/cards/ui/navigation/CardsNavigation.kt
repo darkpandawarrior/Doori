@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import com.mileway.core.data.model.ExpenseSourceContext
+import com.mileway.core.ui.theme.MilewayDomain
+import com.mileway.core.ui.theme.MilewayDomainTheme
 import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardKycScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
@@ -31,32 +33,42 @@ object CardRoutes {
  * [onClaimTransaction] (P27.E.7) is supplied by the app shell so feature:cards never depends on
  * feature:logging directly — it only hands back the [ExpenseSourceContext] the app shell needs to
  * build feature:logging's expense-entry route.
+ *
+ * Domain-scoped once at the feature's nav entry (LAYERS.md Layer 3) — CARDS is the one domain
+ * allowed to look like a product (cool, slightly richer). Every screen below, including the card
+ * face gradient, picks up the accent through MaterialTheme.colorScheme.primary.
  */
 fun NavGraphBuilder.cardsGraph(
     navController: NavHostController,
     onClaimTransaction: (ExpenseSourceContext) -> Unit = {},
 ) {
     composable(CardRoutes.HOME) {
-        CardsHomeScreen(
-            onOpenCard = { navController.navigate(CardRoutes.detail(it)) },
-            onRequestCard = { navController.navigate(CardRoutes.REQUEST) },
-            onStartKyc = { navController.navigate(CardRoutes.KYC) },
-        )
+        MilewayDomainTheme(MilewayDomain.CARDS) {
+            CardsHomeScreen(
+                onOpenCard = { navController.navigate(CardRoutes.detail(it)) },
+                onRequestCard = { navController.navigate(CardRoutes.REQUEST) },
+                onStartKyc = { navController.navigate(CardRoutes.KYC) },
+            )
+        }
     }
     composable(CardRoutes.REQUEST) {
-        CardRequestScreen(onDone = { navController.popBackStack() })
+        MilewayDomainTheme(MilewayDomain.CARDS) {
+            CardRequestScreen(onDone = { navController.popBackStack() })
+        }
     }
     composable(CardRoutes.KYC) {
-        CardKycScreen(
-            onDone = { completed ->
-                // P29.C.1: stash the result on the DETAIL entry (not this one, which is about to
-                // be popped) — the standard Navigation-Compose "pass a result back" pattern.
-                if (completed) {
-                    navController.previousBackStackEntry?.savedStateHandle?.set(KYC_VERIFIED_KEY, true)
-                }
-                navController.popBackStack()
-            },
-        )
+        MilewayDomainTheme(MilewayDomain.CARDS) {
+            CardKycScreen(
+                onDone = { completed ->
+                    // P29.C.1: stash the result on the DETAIL entry (not this one, which is about to
+                    // be popped) — the standard Navigation-Compose "pass a result back" pattern.
+                    if (completed) {
+                        navController.previousBackStackEntry?.savedStateHandle?.set(KYC_VERIFIED_KEY, true)
+                    }
+                    navController.popBackStack()
+                },
+            )
+        }
     }
     composable(
         route = CardRoutes.DETAIL,
@@ -64,13 +76,15 @@ fun NavGraphBuilder.cardsGraph(
     ) { entry ->
         val cardId = entry.arguments?.read { getStringOrNull("cardId") }?.toLongOrNull() ?: 0L
         val kycJustVerified by entry.savedStateHandle.getStateFlow(KYC_VERIFIED_KEY, false).collectAsState()
-        CardDetailScreen(
-            cardId = cardId,
-            onBack = { navController.popBackStack() },
-            onClaimTransaction = onClaimTransaction,
-            onStartKyc = { navController.navigate(CardRoutes.KYC) },
-            kycJustVerified = kycJustVerified,
-            onKycAcknowledged = { entry.savedStateHandle[KYC_VERIFIED_KEY] = false },
-        )
+        MilewayDomainTheme(MilewayDomain.CARDS) {
+            CardDetailScreen(
+                cardId = cardId,
+                onBack = { navController.popBackStack() },
+                onClaimTransaction = onClaimTransaction,
+                onStartKyc = { navController.navigate(CardRoutes.KYC) },
+                kycJustVerified = kycJustVerified,
+                onKycAcknowledged = { entry.savedStateHandle[KYC_VERIFIED_KEY] = false },
+            )
+        }
     }
 }

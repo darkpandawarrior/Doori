@@ -43,6 +43,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.timeline.TimelineStep
@@ -57,6 +58,7 @@ import com.mileway.core.ui.resources.logging_description
 import com.mileway.core.ui.resources.logging_edit_expense
 import com.mileway.core.ui.resources.logging_expense_details_header
 import com.mileway.core.ui.resources.logging_expense_not_found
+import com.mileway.core.ui.resources.logging_expense_not_found_subtitle
 import com.mileway.core.ui.resources.logging_line_items
 import com.mileway.core.ui.resources.logging_note
 import com.mileway.core.ui.resources.logging_qty
@@ -71,7 +73,7 @@ import com.mileway.core.ui.resources.logging_timeline_submitted
 import com.mileway.core.ui.resources.logging_timeline_under_review
 import com.mileway.core.ui.resources.logging_total
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -101,9 +103,24 @@ fun ExpenseDetailScreen(
     // round-trip it through the ViewModel (unlike HistoryListScaffold's tab, which re-filters data).
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
 
+    // EMPTY: expenseId resolved to nothing (deleted between list and detail, a stale deep link).
+    // Previously this bypassed the scaffold entirely — no top bar, no back button, a dead end
+    // except the hardware/gesture back. Keeps the same scaffold (and its back arrow) the loaded
+    // case uses, same fix shape as TrackDetailScreen's "Journey not found" state.
     if (expense == null) {
-        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(stringResource(Res.string.logging_expense_not_found), color = MaterialTheme.colorScheme.onSurfaceVariant)
+        TransactionDetailScaffold(
+            title = stringResource(Res.string.logging_expense_details_header),
+            titleIcon = Icons.Filled.Receipt,
+            tabs = listOf(DetailSection.Details),
+            selectedTab = DetailSection.Details,
+            onSelectTab = {},
+            onBack = onBack,
+            modifier = modifier,
+        ) {
+            EmptyState(
+                title = stringResource(Res.string.logging_expense_not_found),
+                subtitle = stringResource(Res.string.logging_expense_not_found_subtitle),
+            )
         }
         return
     }
@@ -348,7 +365,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
         TimelineStep(
             label = stringResource(Res.string.logging_timeline_submitted),
             icon = Icons.Filled.Receipt,
-            color = StatusColors.info,
+            color = MilewayRoles.informational,
             active = true,
             note = formatFullDate(expense.dateMs),
         )
@@ -356,7 +373,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
         TimelineStep(
             label = stringResource(Res.string.logging_timeline_under_review),
             icon = Icons.Filled.HourglassBottom,
-            color = StatusColors.warning,
+            color = MilewayRoles.pending,
             active = expense.status != ExpenseStatus.DRAFT,
             note =
                 if (expense.status != ExpenseStatus.DRAFT) {
@@ -371,7 +388,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                 TimelineStep(
                     label = stringResource(Res.string.logging_timeline_approved),
                     icon = Icons.Filled.CheckCircle,
-                    color = StatusColors.success,
+                    color = MilewayRoles.approved,
                     active = true,
                     note = stringResource(Res.string.logging_timeline_reimbursement_in_progress),
                 )
@@ -379,7 +396,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                 TimelineStep(
                     label = stringResource(Res.string.logging_timeline_rejected),
                     icon = Icons.Filled.Error,
-                    color = StatusColors.error,
+                    color = MilewayRoles.rejected,
                     active = true,
                     // P1.9: real per-record rejection reason, falling back to the previous
                     // generic copy for any rejected record seeded before this reason existed.
@@ -389,7 +406,7 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
                 TimelineStep(
                     label = stringResource(Res.string.logging_timeline_awaiting_decision),
                     icon = Icons.Filled.HourglassBottom,
-                    color = StatusColors.neutral,
+                    color = MilewayRoles.inactive,
                     active = false,
                 )
         }

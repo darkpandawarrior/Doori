@@ -834,16 +834,10 @@ private fun AccountTileGrid(
     // byte-identical; only the Super-App Consumer persona flips it on.
     val offersHubEnabled by pluginRegistry.observe("offersHubEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
-    val blue = Color(0xFF2563EB)
-    val red = Color(0xFFDC2626)
-    val green = Color(0xFF16A34A)
-    val orange = Color(0xFFEA580C)
-    val purple = Color(0xFF7C3AED)
-    val violet = Color(0xFF6D28D9)
-    val teal = Color(0xFF0F766E)
-    val indigo = Color(0xFF3730A3)
-    val cyan = Color(0xFF0277BD)
-    val darkTeal = Color(0xFF00695C)
+    // LAYERS.md migration map: menu-tile icons are chrome, not product meaning — a settings row
+    // does not need its own identity colour. Was 10 hand-picked hues (the 290-colour problem in
+    // miniature); every tile now reads the one direction accent.
+    val accent = MaterialTheme.colorScheme.primary
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -857,7 +851,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_details),
                 stringResource(Res.string.profile_home_tile_details_subtitle),
                 Icons.Default.Person,
-                blue,
+                accent,
                 onOpenDetails,
             )
         val notificationsTile =
@@ -866,7 +860,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_notifications_title),
                 stringResource(Res.string.profile_home_tile_notifications_subtitle),
                 Icons.Default.Notifications,
-                red,
+                accent,
                 onOpenNotifications,
                 badgeCount = notificationBadge,
             )
@@ -876,7 +870,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_settings_title),
                 stringResource(Res.string.profile_home_tile_settings_subtitle),
                 Icons.Default.Settings,
-                green,
+                accent,
                 onOpenSettings,
             )
         val preferencesTile =
@@ -885,7 +879,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_preferences_title),
                 stringResource(Res.string.profile_home_tile_preferences_subtitle),
                 Icons.Default.Tune,
-                orange,
+                accent,
                 onOpenPreferences,
             )
         val sessionsTile =
@@ -894,7 +888,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_sessions_title),
                 stringResource(Res.string.profile_home_tile_sessions_subtitle),
                 Icons.Default.Devices,
-                purple,
+                accent,
                 onOpenSessions,
             )
         val aboutTile =
@@ -903,7 +897,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_about_title),
                 stringResource(Res.string.profile_home_tile_about_subtitle),
                 Icons.AutoMirrored.Filled.HelpOutline,
-                violet,
+                accent,
                 onOpenAboutSupport,
             )
         val advanceTile =
@@ -912,7 +906,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_advance_title),
                 stringResource(Res.string.profile_home_tile_advance_subtitle),
                 Icons.Default.MonetizationOn,
-                teal,
+                accent,
                 onOpenAdvance,
             )
         val cardsTile =
@@ -921,7 +915,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_cards_title),
                 stringResource(Res.string.profile_home_tile_cards_subtitle),
                 Icons.Default.CreditCard,
-                indigo,
+                accent,
                 onOpenCards,
             )
         val delegationTile =
@@ -930,7 +924,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_delegation_title),
                 stringResource(Res.string.profile_home_tile_delegation_subtitle),
                 Icons.Default.SupervisorAccount,
-                cyan,
+                accent,
                 onOpenDelegation,
             )
         val insightsTile =
@@ -939,7 +933,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_insights_title),
                 stringResource(Res.string.profile_home_tile_insights_subtitle),
                 Icons.Default.History,
-                Color(0xFF6D28D9),
+                accent,
                 action = {},
             )
         val demoTile =
@@ -948,7 +942,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_demo_title),
                 stringResource(Res.string.profile_home_tile_demo_subtitle),
                 Icons.Default.BugReport,
-                darkTeal,
+                accent,
                 onOpenDemoSettings,
             )
         val qrTile =
@@ -957,7 +951,7 @@ private fun AccountTileGrid(
                 stringResource(Res.string.profile_home_tile_qr_title),
                 stringResource(Res.string.profile_home_tile_qr_subtitle),
                 Icons.Default.QrCode2,
-                Color(0xFF0F4C81),
+                accent,
                 onOpenQr,
             )
         // PLAN_V24 P3.4/P3.5: independently plugin-gated tiles, paired into one row when both on.
@@ -968,7 +962,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_saved_places_title),
                     stringResource(Res.string.profile_home_tile_saved_places_subtitle),
                     Icons.Default.Place,
-                    Color(0xFFB45309),
+                    accent,
                     onOpenSavedPlaces,
                 )
             } else {
@@ -981,7 +975,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_emergency_title),
                     stringResource(Res.string.profile_home_tile_emergency_subtitle),
                     Icons.Default.Warning,
-                    Color(0xFFB91C1C),
+                    accent,
                     onOpenEmergency,
                 )
             } else {
@@ -994,7 +988,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_verification_title),
                     stringResource(Res.string.profile_home_tile_verification_subtitle),
                     Icons.Default.CheckCircle,
-                    Color(0xFF0D47A1),
+                    accent,
                     onOpenVerification,
                 )
             } else {
@@ -1007,7 +1001,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_referral_title),
                     stringResource(Res.string.profile_home_tile_referral_subtitle),
                     Icons.Default.Star,
-                    Color(0xFF7B1FA2),
+                    accent,
                     onOpenReferral,
                 )
             } else {
@@ -1020,7 +1014,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_coupons_title),
                     stringResource(Res.string.profile_home_tile_coupons_subtitle),
                     Icons.Default.ShoppingCart,
-                    Color(0xFF00695C),
+                    accent,
                     onOpenCoupons,
                 )
             } else {
@@ -1033,7 +1027,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_rewards_title),
                     stringResource(Res.string.profile_home_tile_rewards_subtitle),
                     Icons.Default.Favorite,
-                    Color(0xFFEA580C),
+                    accent,
                     onOpenRewards,
                 )
             } else {
@@ -1046,7 +1040,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_campaigns_title),
                     stringResource(Res.string.profile_home_tile_campaigns_subtitle),
                     Icons.Default.Notifications,
-                    Color(0xFF3730A3),
+                    accent,
                     onOpenCampaigns,
                 )
             } else {
@@ -1059,7 +1053,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_club_title),
                     stringResource(Res.string.profile_home_tile_club_subtitle),
                     Icons.Default.Star,
-                    Color(0xFFB8860B),
+                    accent,
                     onOpenClub,
                 )
             } else {
@@ -1072,7 +1066,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_subscriptions_title),
                     stringResource(Res.string.profile_home_tile_subscriptions_subtitle),
                     Icons.Default.Star,
-                    Color(0xFF1D4ED8),
+                    accent,
                     onOpenSubscriptions,
                 )
             } else {
@@ -1085,7 +1079,7 @@ private fun AccountTileGrid(
                     stringResource(Res.string.profile_home_tile_incentives_title),
                     stringResource(Res.string.profile_home_tile_incentives_subtitle),
                     Icons.Default.MonetizationOn,
-                    Color(0xFF9333EA),
+                    accent,
                     onOpenIncentives,
                 )
             } else {
@@ -1098,7 +1092,7 @@ private fun AccountTileGrid(
                     pdel("profile_home_tile_manager_view_title", "My reportees"),
                     pdel("profile_home_tile_manager_view_subtitle", "Team tracking"),
                     Icons.Default.SupervisorAccount,
-                    Color(0xFF0F766E),
+                    accent,
                     onOpenManagerView,
                 )
             } else {
@@ -1111,7 +1105,7 @@ private fun AccountTileGrid(
                     pdel("profile_home_tile_garage_title", "My garage"),
                     pdel("profile_home_tile_garage_subtitle", "Vehicles"),
                     Icons.Default.DirectionsCar,
-                    Color(0xFF00695C),
+                    accent,
                     onOpenGarage,
                 )
             } else {
@@ -1124,7 +1118,7 @@ private fun AccountTileGrid(
                     pdel("profile_home_tile_ecometer_title", "Ecometer"),
                     pdel("profile_home_tile_ecometer_subtitle", "Your impact"),
                     Icons.Default.Spa,
-                    Color(0xFF16A34A),
+                    accent,
                     onOpenEcometer,
                 )
             } else {
@@ -1137,7 +1131,7 @@ private fun AccountTileGrid(
                     pdel("profile_home_tile_favourites_title", "Favourites"),
                     pdel("profile_home_tile_favourites_subtitle", "Saved routes"),
                     Icons.Default.Star,
-                    Color(0xFFF59E0B),
+                    accent,
                     onOpenFavourites,
                 )
             } else {
@@ -1150,7 +1144,7 @@ private fun AccountTileGrid(
                     pdel("profile_home_tile_offers_title", "Offers"),
                     pdel("profile_home_tile_offers_subtitle", "Coupons & deals"),
                     Icons.Default.LocalOffer,
-                    Color(0xFFDB2777),
+                    accent,
                     onOpenOffers,
                 )
             } else {

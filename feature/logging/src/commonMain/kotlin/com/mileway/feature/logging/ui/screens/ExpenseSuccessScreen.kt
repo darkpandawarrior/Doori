@@ -26,7 +26,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -39,6 +38,7 @@ import com.mileway.core.ui.resources.logging_expense_requires_approval
 import com.mileway.core.ui.resources.logging_expense_submitted_title
 import com.mileway.core.ui.resources.logging_view_expense_history
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.siddharth.kmp.common.formatDecimal
@@ -77,7 +77,7 @@ fun ExpenseSuccessScreen(
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
                 contentDescription = null,
-                tint = Color(0xFF4CAF50),
+                tint = MilewayRoles.approved,
                 modifier = Modifier.size(80.dp),
             )
 

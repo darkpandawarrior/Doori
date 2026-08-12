@@ -62,7 +62,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -91,6 +90,7 @@ import com.mileway.core.ui.resources.profile_analytics_total_spend
 import com.mileway.core.ui.resources.profile_analytics_violations
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.profile.analytics.AnalyticsMetric
 import com.mileway.feature.profile.analytics.DateRangePreset
@@ -132,7 +132,7 @@ fun AnalyticsHomeScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFF0F4C75), Color(0xFF1B6CA8))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -473,7 +473,7 @@ private fun InsightsTab(state: AnalyticsUiState) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
             ) {
-                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Color(0xFF5C6BC0), modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MilewayRoles.informational, modifier = Modifier.size(20.dp))
                 Text(
                     stringResource(Res.string.profile_analytics_ai_insights_period),
                     style = MaterialTheme.typography.bodySmall,
@@ -612,6 +612,12 @@ private fun CategoryBreakdownCard(
     state: AnalyticsUiState,
     onOpenDetail: (String) -> Unit,
 ) {
+    // NOT migrated: a chart series is categorical data, not product meaning (see theme/LAYERS.md
+    // "Categorical data series (charts)") — forcing 4 series through MilewayRoles would collide
+    // with the 12 status roles and still leave them indistinguishable on a low-chroma direction.
+    // The map's prescribed fix is a shared hue-rotation-from-accent helper living in theme/, built
+    // off Color.rotateHue (internal to core:ui, not callable from feature/profile). Out of scope
+    // for this module's sweep — flagging as a genuine gap rather than inventing a per-screen fix.
     val categoryColors =
         mapOf(
             "Mileage" to Color(0xFF2563EB),

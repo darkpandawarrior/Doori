@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -108,14 +109,22 @@ fun TrackInsightsScreen(
                         CircularProgressIndicator()
                     }
                 error != null ->
+                    // ERROR: names what failed (the ViewModel's real message, falling back to the
+                    // generic string only if it somehow arrives blank) and offers a retry — this
+                    // previously stranded the user on a dead-end message with no way back in short
+                    // of leaving the screen.
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(48.dp))
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                error ?: stringResource(Res.string.tracking_insights_error),
+                                error.ifBlank { stringResource(Res.string.tracking_insights_error) },
                                 color = MaterialTheme.colorScheme.error,
                             )
+                            Spacer(Modifier.height(16.dp))
+                            Button(onClick = { viewModel.onAction(TrackInsightsAction.Load(routeId)) }) {
+                                Text("Retry")
+                            }
                         }
                     }
                 insights != null -> {

@@ -44,7 +44,13 @@ class WearScreenshotGalleryTest {
         @org.junit.BeforeClass
         @JvmStatic
         fun setup() {
-            System.setProperty("roborazzi.test.record", "true")
+            // D2 FIX (2026-08-09): this line used to be
+            //   System.setProperty("roborazzi.test.record", "true")
+            // which forced RECORD mode unconditionally, so every run overwrote the baseline and a
+            // visual regression was literally unrepresentable — the test rewrote the evidence and
+            // passed. That is why captures went stale and wrong for months with nothing alerting.
+            // Verify is now the default; record only when explicitly asked:
+            //   ./gradlew screenshotTest -Proborazzi.test.record=true
         }
     }
 

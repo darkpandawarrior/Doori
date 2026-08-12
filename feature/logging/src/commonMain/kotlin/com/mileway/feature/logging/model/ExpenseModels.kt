@@ -59,6 +59,12 @@ data class ExpenseDraftRow(
      * already uses through P1.4); null when this row has no attachment.
      */
     val receiptImagePath: String? = null,
+    /**
+     * Fix-oriented reason this row landed in [DraftStatus.ERROR] — the specific validator message
+     * (e.g. "Enter an amount greater than 0") or a write-failure note, not just a generic "needs
+     * attention". Null while PENDING/SUCCESS. Cleared automatically on a successful (re)submit.
+     */
+    val errorMessage: String? = null,
 )
 
 data class ExpenseRecord(

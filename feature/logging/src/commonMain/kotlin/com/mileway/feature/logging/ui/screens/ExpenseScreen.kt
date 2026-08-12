@@ -51,6 +51,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -178,13 +180,16 @@ fun ExpenseScreen(
     var bulkMode by remember { mutableStateOf(false) }
     var policyViolations by remember { mutableStateOf<List<PolicyViolation>?>(null) }
     val form = ui.form
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is ExpenseEffect.NavigateToSuccess -> onSubmitted()
                 ExpenseEffect.NavigateBack -> onBack()
-                is ExpenseEffect.ShowToast -> Unit
+                // Was a silent no-op — Save Draft (and a failed CSV import) fired this and the user
+                // never saw any confirmation. Same Snackbar idiom the rest of the app uses.
+                is ExpenseEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.asString())
                 is ExpenseEffect.ShowPolicySheet -> policyViolations = effect.violations
             }
         }
@@ -267,6 +272,7 @@ fun ExpenseScreen(
                 }
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
     ) { innerPadding ->
         when {
@@ -460,6 +466,7 @@ private fun BulkModeContent(
 
         BulkDraftGrid(
             rows = ui.rows,
+            submissionSummary = ui.submissionSummary,
             onAddRow = { viewModel.onAction(ExpenseAction.AddDraftRow) },
             onDuplicateRow = { id -> viewModel.onAction(ExpenseAction.DuplicateDraftRow(id)) },
             onRemoveRow = { id -> viewModel.onAction(ExpenseAction.RemoveDraftRow(id)) },
@@ -476,6 +483,8 @@ private fun BulkModeContent(
             onReceiptScanned = { id, path ->
                 viewModel.onAction(ExpenseAction.UpdateDraftRow(id) { it.copy(receiptImagePath = path) })
             },
+            onSubmitAll = { viewModel.onAction(ExpenseAction.SubmitAllDrafts) },
+            onRetryFailed = { viewModel.onAction(ExpenseAction.RetryFailedDrafts) },
         )
     }
 }
@@ -658,6 +667,7 @@ private fun ApplyCategoryToAllRow(
 @Composable
 private fun BulkDraftGrid(
     rows: List<ExpenseDraftRow>,
+    submissionSummary: Pair<List<ExpenseDraftRow>, List<ExpenseDraftRow>>?,
     onAddRow: () -> Unit,
     onDuplicateRow: (String) -> Unit,
     onRemoveRow: (String) -> Unit,
@@ -665,8 +675,13 @@ private fun BulkDraftGrid(
     onAmountChange: (String, String) -> Unit,
     onCategoryChange: (String, ExpenseCategory) -> Unit,
     onReceiptScanned: (String, String) -> Unit,
+    onSubmitAll: () -> Unit,
+    onRetryFailed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val pendingCount = rows.count { it.status == DraftStatus.PENDING }
+    val errorCount = rows.count { it.status == DraftStatus.ERROR }
+
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
@@ -688,6 +703,61 @@ private fun BulkDraftGrid(
             OutlinedButton(onClick = onAddRow, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
                 Icon(Icons.Filled.Add, contentDescription = null)
                 Text(stringResource(Res.string.logging_add_row))
+            }
+        }
+        // The bulk grid previously had no way to actually submit its rows — ExpenseAction
+        // .SubmitAllDrafts/.RetryFailedDrafts were fully implemented in the ViewModel (per-row
+        // status + a (success, error) submissionSummary) but unreachable from this screen.
+        if (pendingCount > 0 || errorCount > 0) {
+            item {
+                Spacer(Modifier.height(DesignTokens.Spacing.s))
+                Button(onClick = onSubmitAll, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button, enabled = pendingCount > 0) {
+                    Text(if (pendingCount > 0) "Submit $pendingCount row${if (pendingCount == 1) "" else "s"}" else "All rows submitted")
+                }
+            }
+        }
+        submissionSummary?.let { (success, errors) ->
+            item { BulkSubmissionSummaryBanner(successCount = success.size, errorCount = errors.size, onRetryFailed = onRetryFailed) }
+        }
+    }
+}
+
+/**
+ * PARTIAL-outcome banner for a bulk submit batch: some rows succeeded, some failed validation or
+ * the local write. Names the split instead of collapsing it into one pass/fail result, and offers
+ * Retry scoped to just the failed rows (mirrors [ExpenseAction.RetryFailedDrafts]).
+ */
+@Composable
+private fun BulkSubmissionSummaryBanner(
+    successCount: Int,
+    errorCount: Int,
+    onRetryFailed: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (successCount == 0 && errorCount == 0) return
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = DesignTokens.Shape.roundedSm,
+        color = if (errorCount > 0) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(DesignTokens.Spacing.m),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text =
+                    when {
+                        errorCount == 0 -> "$successCount row${if (successCount == 1) "" else "s"} submitted"
+                        successCount == 0 -> "$errorCount row${if (errorCount == 1) "" else "s"} need attention before they can submit"
+                        else -> "$successCount submitted, $errorCount need attention"
+                    },
+                style = MaterialTheme.typography.bodySmall,
+                color = if (errorCount > 0) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.weight(1f),
+            )
+            if (errorCount > 0) {
+                TextButton(onClick = onRetryFailed, shape = DesignTokens.Shape.button) { Text("Retry failed") }
             }
         }
     }
@@ -781,6 +851,7 @@ private fun DraftRowCard(
                 value = row.merchantName,
                 onValueChange = onMerchantChange,
                 label = { Text(stringResource(Res.string.logging_merchant)) },
+                placeholder = { Text(stringResource(Res.string.logging_merchant_name_placeholder)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -791,6 +862,8 @@ private fun DraftRowCard(
                 value = row.amountText,
                 onValueChange = onAmountChange,
                 label = { Text(stringResource(Res.string.logging_amount)) },
+                placeholder = { Text("0.00") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -798,9 +871,21 @@ private fun DraftRowCard(
             if (row.status == DraftStatus.ERROR) {
                 Spacer(Modifier.height(DesignTokens.Spacing.s))
                 Text(
-                    text = stringResource(Res.string.logging_row_needs_attention),
+                    // A generic "needs attention" told the user nothing about which field or why —
+                    // row.errorMessage carries the actual validator/write-failure reason.
+                    text = row.errorMessage ?: stringResource(Res.string.logging_row_needs_attention),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error,
+                )
+            } else if (row.status == DraftStatus.SUCCESS) {
+                // A submitted row stays visible (not removed from the grid) but was previously
+                // indistinguishable from a still-editable PENDING row — nothing told the user it
+                // had already gone through.
+                Spacer(Modifier.height(DesignTokens.Spacing.s))
+                Text(
+                    text = "Submitted",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
                 )
             }
         }

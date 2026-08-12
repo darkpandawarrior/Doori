@@ -47,12 +47,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.platform.OemBatteryHints
 import com.mileway.core.platform.PermissionOnboardingFlow
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.currentDeviceManufacturer
 import com.mileway.core.ui.components.topbar.TrackingStatus
 import com.mileway.core.ui.components.topbar.TrackingTopBar
@@ -109,8 +109,14 @@ import com.mileway.core.ui.resources.tracking_status_flag_power_saver
 import com.mileway.core.ui.resources.tracking_time_now
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.core.ui.toast.Toasts
+import com.mileway.feature.tracking.ui.live.LiveDriveActions
+import com.mileway.feature.tracking.ui.live.LiveDriveScreen
+import com.mileway.feature.tracking.ui.live.LiveDriveState
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerController
+import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerSheet
 import com.mileway.feature.tracking.ui.sheets.CenterOption
 import com.mileway.feature.tracking.ui.sheets.JourneyConsentSheet
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideSheet
@@ -174,6 +180,11 @@ fun TrackMilesScreen(
     val onboardingFlow = remember(permissionsProvider) { PermissionOnboardingFlow(permissionsProvider) }
     val onboardingState by onboardingFlow.state.collectAsState()
     val oemHint = remember { currentDeviceManufacturer()?.let(OemBatteryHints::hintFor) }
+    val settingsOpener = koinInject<SystemSettingsOpener>()
+    // Keyed to the provider so the primer's own tier walk survives recomposition but is rebuilt if
+    // the provider is ever swapped — it holds request-in-flight state that must not be duplicated.
+    val permissionPrimerController =
+        remember(permissionsProvider) { PermissionPrimerController(permissionsProvider) }
     val scope = rememberCoroutineScope()
     // C4: single source of truth — derived from the VM-owned journeyProgress state machine instead
     // of re-deriving `phase == TRACKING || phase == PAUSED` inline (the two could otherwise drift).
@@ -267,7 +278,7 @@ fun TrackMilesScreen(
                             Icon(
                                 imageVector = Icons.Default.Warning,
                                 contentDescription = stringResource(Res.string.tracking_sos_cd),
-                                tint = Color(0xFFB91C1C),
+                                tint = MilewayRoles.destructive,
                             )
                         }
                     }
@@ -275,6 +286,33 @@ fun TrackMilesScreen(
             )
         },
     ) { padding ->
+        // Once a journey is genuinely live, the map becomes the screen and LiveDriveScreen owns it.
+        //
+        // This is a composition, not a replacement: everything above — the permission gate, vehicle
+        // selection, the odometer step, consent, session-restore and stranger-session sheets, and
+        // every LaunchedEffect — still belongs to this screen and still runs. LiveDriveScreen is
+        // only the live surface and has no pre-drive machinery at all, so routing straight to it
+        // would compile, pass every test, and quietly delete permission gating from the app.
+        if (isActive) {
+            LiveDriveScreen(
+                state = uiState.toLiveDriveState(),
+                actions =
+                    LiveDriveActions(
+                        onPause = { viewModel.pauseTracking() },
+                        onResume = { viewModel.resumeTracking() },
+                        // Already confirmed by the press-and-hold ring, so this commits directly.
+                        onStopConfirmed = { viewModel.stopTracking() },
+                        onFlag = {
+                            checkInViewModel.onAction(
+                                CheckInAction.ValidateAndGeoCheckIn(uiState.currentLat, uiState.currentLng),
+                            )
+                        },
+                    ),
+                modifier = Modifier.padding(padding),
+            )
+            return@Scaffold
+        }
+
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             Column(
                 modifier =
@@ -567,6 +605,20 @@ fun TrackMilesScreen(
                 onSkip = { onboardingFlow.skipCurrent() },
             )
         }
+    }
+
+    // The pre-drive primer: explains before requesting, and — the part the sheet above cannot do —
+    // routes to system settings once a permission is permanently denied, where an in-app re-request
+    // is a no-op on both platforms. Shown only while the required permissions are still outstanding,
+    // so it never competes with the tiered optional-permission sheet above.
+    if (!onboardingState.requiredSatisfied && !isActive) {
+        PermissionPrimerSheet(
+            controller = permissionPrimerController,
+            oemHint = oemHint,
+            onOpenAppSettings = { settingsOpener.openAppSettings() },
+            onOpenBatterySettings = { settingsOpener.openBatteryOptimisationSettings() },
+            onFinished = { scope.launch { onboardingFlow.skipAlreadyGranted() } },
+        )
     }
 
     // ── Check-in sheets (unchanged) ─────────────────────────────────────────────
@@ -883,3 +935,41 @@ private fun CurrentLocationPill(
         }
     }
 }
+
+/**
+ * Adapt this screen's state onto [LiveDriveState].
+ *
+ * [LiveDriveScreen] deliberately takes a flat, self-contained state rather than the whole
+ * [TrackMilesUiState], so it has no compile dependency on this screen and stays unit-testable.
+ * That independence costs one mapping function, and this is it.
+ *
+ * Two fields have no upstream source yet and are left at their honest defaults rather than being
+ * faked:
+ *  - `routeCoords`: the live polyline is drawn by the map surface from its own point stream; there
+ *    is no coordinate list on this state to hand over. Passing an empty list draws no *extra*
+ *    overlay, which is correct — passing a partial one would draw a route that disagrees with the
+ *    map underneath it.
+ *  - `isOffline`: no "map tiles unavailable" signal exists upstream. Defaulting to false means the
+ *    offline banner stays closed until something can actually prove the tiles are gone; claiming
+ *    offline while the map renders fine is the worse failure.
+ */
+private fun TrackMilesUiState.toLiveDriveState(): LiveDriveState =
+    LiveDriveState(
+        phase = phase,
+        distanceKm = distanceKm,
+        elapsedMs = liveElapsedMs(this),
+        speedKmh = speedKmh,
+        avgSpeedKmh = avgSpeedKmh,
+        maxSpeedKmh = maxSpeedKmh,
+        pointsCount = totalPoints,
+        qualityScore = qualityScore,
+        batteryPct = batteryPct,
+        isCharging = isCharging,
+        unsyncedPoints = unsyncedPoints,
+        pauseReason = pauseReason,
+        currentLat = currentLat,
+        currentLng = currentLng,
+        bearingDegrees = bearingDegrees,
+        signal = signal,
+        systemFlags = systemFlags,
+    )

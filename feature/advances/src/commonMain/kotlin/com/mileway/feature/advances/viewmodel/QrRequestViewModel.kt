@@ -29,6 +29,9 @@ data class QrRequestUiState(
     val errors: List<QrRequestError> = emptyList(),
     val isSubmitting: Boolean = false,
     val submittedPermissionId: Long? = null,
+    /** ERROR: set when the repository write fails, so the form can tell the user instead of
+     * silently resetting to idle (see [submit]'s comment for the bug this replaces). */
+    val submitError: String? = null,
 ) {
     val isSuccess: Boolean get() = (submittedPermissionId ?: 0L) > 0L
 }
@@ -94,7 +97,7 @@ class QrRequestViewModel(
                 cardsExist = s.cards.isNotEmpty(),
                 declarationAccepted = s.declarationAccepted,
             )
-        setState { copy(errors = errors) }
+        setState { copy(errors = errors, submitError = null) }
         if (errors.isNotEmpty()) return
 
         setState { copy(isSubmitting = true) }
@@ -108,12 +111,17 @@ class QrRequestViewModel(
                     cardId = s.selectedCardId?.toString(),
                     declarationAccepted = s.declarationAccepted,
                 )
-            setState {
-                copy(
-                    isSubmitting = false,
-                    submittedPermissionId = result.getOrNull()?.permissionId,
-                )
-            }
+            // ERROR: submitQrRequest returns Result<SubmittedRequest> — it is fail-safe. Previously
+            // only `result.getOrNull()` was read, so a repository failure silently reset the form
+            // to idle with isSubmitting=false and no explanation (same discarded-Result shape as
+            // the check-in data-loss bug from the previous state-coverage pass, just without the
+            // false "success" claim since there's no unconditional navigate-away here). Surface it.
+            result.fold(
+                onSuccess = { req -> setState { copy(isSubmitting = false, submittedPermissionId = req.permissionId, submitError = null) } },
+                onFailure = { e ->
+                    setState { copy(isSubmitting = false, submitError = e.message ?: "Could not submit the request. Try again.") }
+                },
+            )
         }
     }
 }

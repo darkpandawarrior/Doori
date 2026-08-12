@@ -12,10 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,6 +30,8 @@ import androidx.compose.ui.window.Dialog
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.mileway.core.ui.components.MilewayPrimaryButton
+import com.mileway.core.ui.components.MilewaySecondaryButton
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_cancel
 import com.mileway.core.ui.resources.core_action_select
@@ -141,14 +141,13 @@ fun ColorWheelDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    OutlinedButton(
+                    MilewaySecondaryButton(
+                        text = stringResource(Res.string.action_cancel),
                         onClick = onDismiss,
                         modifier = Modifier.weight(1f),
-                        shape = DesignTokens.Shape.button,
-                    ) {
-                        Text(stringResource(Res.string.action_cancel))
-                    }
-                    Button(
+                    )
+                    MilewayPrimaryButton(
+                        text = stringResource(Res.string.core_action_select),
                         onClick = {
                             // hexCode arrives as AARRGGBB, normalise to #RRGGBB
                             val hex =
@@ -160,10 +159,7 @@ fun ColorWheelDialog(
                             onColorSelected(currentColor, hex)
                         },
                         modifier = Modifier.weight(1f),
-                        shape = DesignTokens.Shape.button,
-                    ) {
-                        Text(stringResource(Res.string.core_action_select))
-                    }
+                    )
                 }
             }
         }

@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.resources.Res
@@ -36,6 +35,7 @@ import com.mileway.core.ui.resources.rate_app_subtitle
 import com.mileway.core.ui.resources.rate_app_thanks
 import com.mileway.core.ui.resources.rate_app_title
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -90,7 +90,7 @@ fun RateAppSheet(
                             Icon(
                                 imageVector = if (star <= rating) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                 contentDescription = stringResource(Res.string.rate_app_star, star),
-                                tint = if (star <= rating) Color(0xFFF59E0B) else MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = if (star <= rating) MilewayRoles.pending else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(36.dp),
                             )
                         }

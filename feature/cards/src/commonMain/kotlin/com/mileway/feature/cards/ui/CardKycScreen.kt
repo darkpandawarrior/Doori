@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +55,7 @@ import com.mileway.core.ui.resources.cards_kyc_title
 import com.mileway.core.ui.resources.cards_next
 import com.mileway.core.ui.resources.cards_submit
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.cards.viewmodel.CardKycAction
 import com.mileway.feature.cards.viewmodel.CardKycUiState
 import com.mileway.feature.cards.viewmodel.CardKycViewModel
@@ -210,7 +210,7 @@ private fun AttachRow(
 ) {
     if (attached) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF16A34A))
+            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MilewayRoles.approved)
             Text(
                 stringResource(Res.string.cards_kyc_attached),
                 style = MaterialTheme.typography.bodyMedium,
@@ -230,7 +230,7 @@ private fun KycSuccess(onDone: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF16A34A), modifier = Modifier.padding(bottom = DesignTokens.Spacing.l))
+        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MilewayRoles.approved, modifier = Modifier.padding(bottom = DesignTokens.Spacing.l))
         Text(
             stringResource(Res.string.cards_kyc_success_title),
             style = MaterialTheme.typography.titleLarge,

@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,6 +55,7 @@ import com.mileway.core.ui.resources.profile_badges_compliments
 import com.mileway.core.ui.resources.profile_badges_subtitle
 import com.mileway.core.ui.resources.profile_badges_title
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.BadgesViewModel
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
@@ -110,7 +110,9 @@ fun BadgesSection(
                             enabled = false,
                             label = { Text(oneDecimal(board.rating)) },
                             leadingIcon = {
-                                Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFF59E0B), modifier = Modifier.size(18.dp))
+                                // Rating star, not a workflow state — closest role is the
+                                // gamification/reward one this whole section is about.
+                                Icon(Icons.Filled.Star, contentDescription = null, tint = MilewayRoles.premium, modifier = Modifier.size(18.dp))
                             },
                             colors = AssistChipDefaults.assistChipColors(disabledLabelColor = MaterialTheme.colorScheme.onSurface),
                         )
@@ -151,7 +153,7 @@ private fun LaunchedConfettiConsume(viewModel: BadgesViewModel) {
 
 @Composable
 private fun BadgeChip(badge: Badge) {
-    val accent = if (badge.earned) Color(0xFF16A34A) else MaterialTheme.colorScheme.onSurfaceVariant
+    val accent = if (badge.earned) MilewayRoles.approved else MaterialTheme.colorScheme.onSurfaceVariant
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),

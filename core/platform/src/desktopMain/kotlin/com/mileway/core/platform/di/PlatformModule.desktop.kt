@@ -7,6 +7,7 @@ import com.mileway.core.platform.DesktopBatteryStatusReader
 import com.mileway.core.platform.DesktopHaptics
 import com.mileway.core.platform.DesktopMotionSensorProvider
 import com.mileway.core.platform.DesktopShareSheet
+import com.mileway.core.platform.DesktopSystemSettingsOpener
 import com.mileway.core.platform.DesktopTrackingPresenceController
 import com.mileway.core.platform.DesktopUrlOpener
 import com.mileway.core.platform.Haptics
@@ -14,6 +15,7 @@ import com.mileway.core.platform.MotionSensorProvider
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ShakeGestureDetector
 import com.mileway.core.platform.ShareSheet
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.TrackingPresenceController
 import com.mileway.core.platform.UrlOpener
 import com.siddharth.kmp.appshell.AnalyticsHelper
@@ -41,6 +43,7 @@ actual fun platformModule(): Module =
         single<NotificationScheduler> { NoOpNotificationScheduler }
         single<ShareSheet> { DesktopShareSheet() }
         single<UrlOpener> { DesktopUrlOpener() }
+        single<SystemSettingsOpener> { DesktopSystemSettingsOpener() }
         single<AppShortcuts> { DesktopAppShortcuts() }
         single<Haptics> { DesktopHaptics() }
         single<MotionSensorProvider> { DesktopMotionSensorProvider() }

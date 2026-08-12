@@ -16,13 +16,17 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,6 +39,8 @@ import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_cancel
 import com.mileway.core.ui.resources.logging_filter_all
+import com.mileway.core.ui.resources.logging_no_vouchers_filtered_subtitle
+import com.mileway.core.ui.resources.logging_no_vouchers_filtered_title
 import com.mileway.core.ui.resources.logging_no_vouchers_subtitle
 import com.mileway.core.ui.resources.logging_no_vouchers_title
 import com.mileway.core.ui.resources.logging_search_vouchers_placeholder
@@ -52,7 +58,9 @@ import com.mileway.core.ui.resources.logging_withdraw_title
 import com.mileway.feature.logging.ui.model.SubmittedVoucher
 import com.mileway.feature.logging.viewmodel.VOUCHER_HISTORY_TABS
 import com.mileway.feature.logging.viewmodel.VoucherHistoryAction
+import com.mileway.feature.logging.viewmodel.VoucherHistoryEffect
 import com.mileway.feature.logging.viewmodel.VoucherHistoryViewModel
+import com.siddharth.kmp.common.asString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -66,30 +74,57 @@ fun VoucherHistoryScreen(
     viewModel: VoucherHistoryViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    HistoryListScaffold(
-        title = stringResource(Res.string.logging_voucher_history_title),
-        subtitle = stringResource(Res.string.logging_voucher_history_subtitle),
-        titleIcon = Icons.Filled.ConfirmationNumber,
-        onBack = onBack,
-        state = ui.list,
-        onRetry = { viewModel.onAction(VoucherHistoryAction.Refresh) },
-        modifier = modifier,
-        tabs = VOUCHER_HISTORY_TABS.map { it?.localizedLabel() ?: stringResource(Res.string.logging_filter_all) },
-        selectedTab = ui.tabIndex,
-        onSelectTab = { viewModel.onAction(VoucherHistoryAction.SelectTab(it)) },
-        query = ui.query,
-        onQueryChange = { viewModel.onAction(VoucherHistoryAction.SetQuery(it)) },
-        searchPlaceholder = stringResource(Res.string.logging_search_vouchers_placeholder),
-        emptyTitle = stringResource(Res.string.logging_no_vouchers_title),
-        emptySubtitle = stringResource(Res.string.logging_no_vouchers_subtitle),
-        itemKey = { it.id },
-    ) { voucher ->
-        VoucherCard(
-            voucher = voucher,
-            onClick = { onOpenDetail(voucher.id) },
-            onWithdraw = { viewModel.onAction(VoucherHistoryAction.Withdraw(voucher.id)) },
-        )
+    // A withdraw write-failure previously had no collector anywhere — see VoucherHistoryEffect.
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is VoucherHistoryEffect.ShowError -> snackbarHostState.showSnackbar(effect.message.asString())
+            }
+        }
+    }
+
+    // A tab or search query narrowing the list to zero results is a different EMPTY than "you have
+    // no vouchers at all" — HistoryListScaffold has no snackbar slot of its own, so the host is
+    // layered on top here rather than touching the shared component.
+    val isFiltered = ui.tabIndex != 0 || ui.query.isNotBlank()
+
+    Box(modifier = modifier) {
+        HistoryListScaffold(
+            title = stringResource(Res.string.logging_voucher_history_title),
+            subtitle = stringResource(Res.string.logging_voucher_history_subtitle),
+            titleIcon = Icons.Filled.ConfirmationNumber,
+            onBack = onBack,
+            state = ui.list,
+            onRetry = { viewModel.onAction(VoucherHistoryAction.Refresh) },
+            tabs = VOUCHER_HISTORY_TABS.map { it?.localizedLabel() ?: stringResource(Res.string.logging_filter_all) },
+            selectedTab = ui.tabIndex,
+            onSelectTab = { viewModel.onAction(VoucherHistoryAction.SelectTab(it)) },
+            query = ui.query,
+            onQueryChange = { viewModel.onAction(VoucherHistoryAction.SetQuery(it)) },
+            searchPlaceholder = stringResource(Res.string.logging_search_vouchers_placeholder),
+            emptyTitle =
+                if (isFiltered) {
+                    stringResource(Res.string.logging_no_vouchers_filtered_title)
+                } else {
+                    stringResource(Res.string.logging_no_vouchers_title)
+                },
+            emptySubtitle =
+                if (isFiltered) {
+                    stringResource(Res.string.logging_no_vouchers_filtered_subtitle)
+                } else {
+                    stringResource(Res.string.logging_no_vouchers_subtitle)
+                },
+            itemKey = { it.id },
+        ) { voucher ->
+            VoucherCard(
+                voucher = voucher,
+                onClick = { onOpenDetail(voucher.id) },
+                onWithdraw = { viewModel.onAction(VoucherHistoryAction.Withdraw(voucher.id)) },
+            )
+        }
+        SnackbarHost(snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 

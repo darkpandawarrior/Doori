@@ -3,6 +3,7 @@ package com.mileway.feature.approvals.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.CheckCircle
@@ -51,16 +53,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.timeline.TimelineStep
 import com.mileway.core.ui.components.timeline.TransactionTimeline
-import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.core.ui.mvi.DefaultLoadingState
+import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.approvals_ack_violation
 import com.mileway.core.ui.resources.approvals_action_approve
@@ -104,8 +107,8 @@ import com.mileway.core.ui.resources.shared_status_submitted
 import com.mileway.core.ui.resources.shared_status_under_review
 import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.approvals.model.ApprovalComment
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
@@ -113,6 +116,8 @@ import com.mileway.feature.approvals.model.ApprovalType
 import com.mileway.feature.approvals.model.AuditFlags
 import com.mileway.feature.approvals.model.toAuditFlags
 import com.mileway.feature.approvals.model.toDetailActionFlags
+import com.mileway.feature.approvals.repository.ApprovalsRepository
+import com.mileway.feature.approvals.ui.sheets.ClaimantHistorySheet
 import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
@@ -147,7 +152,34 @@ fun ApprovalDetailsScreen(
         }
     }
 
-    val detail = ui.detailState.dataOrNull ?: return
+    // LOADING/ERROR: previously `ui.detailState.dataOrNull ?: return` bailed out of the whole
+    // composable with nothing rendered — not even a top bar — for a stale/deleted approval id or
+    // the brief instant before OpenDetail resolves. Indistinguishable from a crash. Now every
+    // non-content branch still gets the scaffold's back button, matching the house pattern used
+    // by EventDetailScreen / TrackDetailScreen for the same "id resolved to nothing" case.
+    if (ui.detailState !is ScreenState.Content) {
+        TransactionDetailScaffold(
+            title = stringResource(Res.string.approvals_request_details),
+            tabs = listOf(DetailSection.Details),
+            selectedTab = DetailSection.Details,
+            onSelectTab = {},
+            onBack = onBack,
+            snackbarHostState = snackbarHostState,
+            modifier = modifier,
+        ) {
+            when (ui.detailState) {
+                is ScreenState.Error, ScreenState.NoNetwork ->
+                    EmptyState(
+                        title = "Approval not found",
+                        subtitle = "This request may have been withdrawn, or the link is out of date.",
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                else -> DefaultLoadingState()
+            }
+        }
+        return
+    }
+    val detail = (ui.detailState as ScreenState.Content).data
     val item = detail.item
 
     val effectiveStatus = detail.localStatus ?: item.status
@@ -158,6 +190,8 @@ fun ApprovalDetailsScreen(
     // ponytail: which tab is showing is pure UI navigation state, not ViewModel-worthy (see the
     // same note on ExpenseDetailScreen / PurchaseRequestDetailsScreen).
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
+    var showRejectSheet by remember { mutableStateOf(false) }
+    var showHistorySheet by remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize()) {
         TransactionDetailScaffold(
@@ -190,8 +224,11 @@ fun ApprovalDetailsScreen(
                         )
                     DetailSection.Audit -> AuditSection(auditFlags)
                     else -> {
-                        // Requester info card
+                        // Requester info card — tappable: a manager deciding on this claim needs
+                        // this claimant's track record (how many of their past requests were
+                        // approved/rejected/flagged) right where the decision gets made.
                         Card(
+                            modifier = Modifier.clickable { showHistorySheet = true },
                             shape = DesignTokens.Shape.button,
                             elevation = CardDefaults.cardElevation(2.dp),
                         ) {
@@ -227,6 +264,12 @@ fun ApprovalDetailsScreen(
                                             modifier = Modifier.size(20.dp),
                                         )
                                     }
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                        contentDescription = "View ${item.requesterName}'s approval history",
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(start = 4.dp),
+                                    )
                                 }
                             }
                         }
@@ -285,7 +328,9 @@ fun ApprovalDetailsScreen(
                                         )
                                     ApprovalStatus.REJECTED ->
                                         Triple(Icons.Default.Cancel, MilewayColors.danger, stringResource(Res.string.approvals_you_rejected))
-                                    else -> Triple(Icons.Default.CheckCircle, Color.Gray, stringResource(Res.string.approvals_resolved))
+                                    // Unreachable in practice (isResolved already excludes PENDING) but kept
+                                    // exhaustive; matches the PENDING role used in buildApprovalTimelineSteps below.
+                                    else -> Triple(Icons.Default.CheckCircle, MilewayRoles.inactive, stringResource(Res.string.approvals_resolved))
                                 }
                             Card(
                                 shape = DesignTokens.Shape.button,
@@ -366,7 +411,7 @@ fun ApprovalDetailsScreen(
                             Text(stringResource(Res.string.approvals_action_clarify))
                         }
                         Button(
-                            onClick = { viewModel.onAction(ApprovalsAction.Reject) },
+                            onClick = { showRejectSheet = true },
                             enabled = !actionFlags.requiresAck || detail.acknowledged,
                             modifier = Modifier.weight(1f),
                             shape = DesignTokens.Shape.button,
@@ -422,6 +467,39 @@ fun ApprovalDetailsScreen(
             onDismiss = { viewModel.onAction(ApprovalsAction.DismissCloseRoomConfirmation) },
         )
     }
+
+    // Reject always carries a reason: it becomes a permanent, audit-trail comment (see
+    // ApprovalsViewModel.rejectWithReason) — the requester, finance, and a later auditor all read
+    // this same claim, and "REJECTED" with no reason attached tells none of them anything.
+    if (showRejectSheet) {
+        ActionConfirmationBottomSheet(
+            title = "Reject this request?",
+            description = "Your reason is added to ${item.requesterName}'s audit trail on this claim.",
+            onConfirm = { reason ->
+                viewModel.onAction(ApprovalsAction.RejectWithReason(reason))
+                showRejectSheet = false
+            },
+            onDismiss = { showRejectSheet = false },
+            confirmLabel = stringResource(Res.string.approvals_action_reject),
+            dismissLabel = stringResource(Res.string.approvals_action_cancel),
+            icon = Icons.Default.Cancel,
+            tone = ActionConfirmationToneType.Danger,
+            showRemarksField = true,
+            isRemarksMandatory = true,
+            remarksPlaceholder = "e.g. Missing receipt, exceeds policy limit",
+        )
+    }
+
+    if (showHistorySheet) {
+        ClaimantHistorySheet(
+            requesterName = item.requesterName,
+            // BUG FIX: this always included `item` itself, so "history" could never actually be
+            // empty (the claim under review satisfied its own filter) — the sheet's real "No prior
+            // requests" empty state was unreachable for any first-time claimant.
+            items = ApprovalsRepository.all.filter { it.requesterName == item.requesterName && it.id != item.id },
+            onDismiss = { showHistorySheet = false },
+        )
+    }
 }
 
 @Composable
@@ -433,7 +511,7 @@ private fun buildApprovalTimelineSteps(
         TimelineStep(
             label = stringResource(Res.string.shared_status_submitted),
             icon = Icons.Filled.Receipt,
-            color = StatusColors.info,
+            color = MilewayRoles.informational,
             active = true,
             note = formatSubmittedDate(item.timestampMs),
         )
@@ -441,7 +519,7 @@ private fun buildApprovalTimelineSteps(
         TimelineStep(
             label = stringResource(Res.string.shared_status_under_review),
             icon = Icons.Filled.HourglassBottom,
-            color = StatusColors.warning,
+            color = MilewayRoles.pending,
             active = true,
         )
     val terminal =
@@ -450,21 +528,21 @@ private fun buildApprovalTimelineSteps(
                 TimelineStep(
                     label = stringResource(Res.string.approvals_status_approved),
                     icon = Icons.Filled.CheckCircle,
-                    color = StatusColors.success,
+                    color = MilewayRoles.approved,
                     active = true,
                 )
             ApprovalStatus.REJECTED ->
                 TimelineStep(
                     label = stringResource(Res.string.approvals_status_rejected),
                     icon = Icons.Filled.Cancel,
-                    color = StatusColors.error,
+                    color = MilewayRoles.rejected,
                     active = true,
                 )
             ApprovalStatus.PENDING ->
                 TimelineStep(
                     label = stringResource(Res.string.approvals_status_pending),
                     icon = Icons.Filled.HourglassBottom,
-                    color = StatusColors.neutral,
+                    color = MilewayRoles.inactive,
                     active = false,
                 )
         }

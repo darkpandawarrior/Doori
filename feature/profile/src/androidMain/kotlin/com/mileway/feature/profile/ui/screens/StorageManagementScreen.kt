@@ -28,12 +28,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import com.mileway.core.data.settings.StorageArea
 import com.mileway.core.data.settings.StorageTier
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.StorageAreaUi
 import com.mileway.feature.profile.viewmodel.StorageManagementViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -138,7 +138,7 @@ private fun StorageAreaRow(
 @Composable
 private fun tierColor(tier: StorageTier) =
     when (tier) {
-        StorageTier.SAFE -> DesignTokens.StatusColors.success
-        StorageTier.CAUTION -> Color(0xFFF59E0B)
+        StorageTier.SAFE -> MilewayRoles.approved
+        StorageTier.CAUTION -> MilewayRoles.pending
         StorageTier.DANGER -> MaterialTheme.colorScheme.error
     }

@@ -23,14 +23,16 @@ import com.mileway.core.data.settings.DemoSettings
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.data.settings.LAST_ODOMETER_NONE
 import com.mileway.core.ui.AppHost
+import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
+import com.mileway.feature.tracking.ui.review.DriveReviewSheet
 import com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen
 import com.mileway.feature.tracking.ui.screens.CreateVoucherScreen
 import com.mileway.feature.tracking.ui.screens.GeoCheckInScreen
 import com.mileway.feature.tracking.ui.screens.HardwareEventsLogScreen
-import com.mileway.feature.tracking.ui.screens.LocationMapScreen
 import com.mileway.feature.tracking.ui.screens.ManualCheckInScreen
 import com.mileway.feature.tracking.ui.screens.OdometerCameraScreen
 import com.mileway.feature.tracking.ui.screens.RoutePointsScreen
+import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.SavedTracksScreen
 import com.mileway.feature.tracking.ui.screens.SetupGuideScreen
 import com.mileway.feature.tracking.ui.screens.TrackCustomizationScreen
@@ -39,7 +41,6 @@ import com.mileway.feature.tracking.ui.screens.TrackDetailScreen
 import com.mileway.feature.tracking.ui.screens.TrackInsightsScreen
 import com.mileway.feature.tracking.ui.screens.TrackMilesScreen
 import com.mileway.feature.tracking.ui.screens.TrackSettingsScreen
-import com.mileway.feature.tracking.ui.screens.TrackSubmissionScreen
 import com.mileway.feature.tracking.ui.screens.TrackingSuccessScreen
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
 import com.mileway.feature.tracking.viewmodel.MileageSubmissionViewModel
@@ -55,7 +56,6 @@ import org.koin.core.parameter.parametersOf
 object TrackingRoutes {
     const val SAVED_TRACKS = "saved_tracks"
     const val LIVE_TRACK = "live_track/{routeId}"
-    const val LIVE_MAP = "live_map/{routeId}"
     const val DETAIL = "detail/{routeId}"
     const val INSIGHTS = "insights/{routeId}"
     const val HW_EVENTS = "hw_events/{routeId}"
@@ -71,8 +71,11 @@ object TrackingRoutes {
     const val GEO_CHECKIN = "geo_checkin"
     const val MANUAL_CHECKIN = "manual_checkin"
     const val TRACK_DATA_PREVIEW = "track_data_preview/{routeId}"
+    const val EVIDENCE = "evidence/{routeId}"
 
     fun trackDataPreview(routeId: String) = "track_data_preview/$routeId"
+
+    fun evidence(routeId: String) = "evidence/$routeId"
 
     // reimbursement + voucher are computed/persisted by TrackingSuccessViewModel from vehicleKey,
     // so the route no longer carries the mock reimbursable/voucher values as args.
@@ -82,8 +85,6 @@ object TrackingRoutes {
             "&violationCount={violationCount}&violationMsg={violationMsg}"
 
     fun liveTrack(routeId: String) = "live_track/$routeId"
-
-    fun liveMap(routeId: String) = "live_map/$routeId"
 
     fun detail(routeId: String) = "detail/$routeId"
 
@@ -166,7 +167,9 @@ fun NavGraphBuilder.trackingGraph(
                     popUpTo(TrackingRoutes.SAVED_TRACKS)
                 }
             },
-            onOpenMap = { navController.navigate(TrackingRoutes.liveMap(routeId)) },
+            // Was liveMap(): LIVE_MAP and ROUTE_MAP both rendered the same screen, and once
+            // MapScreen's live path moved out there was only one map screen left to route to.
+            onOpenMap = { navController.navigate(TrackingRoutes.routeMap(routeId)) },
             onOpenHwEvents = { navController.navigate(TrackingRoutes.hwEvents(routeId)) },
             onOpenCheckInHistory = { navController.navigate(TrackingRoutes.CHECK_IN_HISTORY) },
             onOpenSettings = { navController.navigate(TrackingRoutes.TRACK_SETTINGS) },
@@ -175,16 +178,9 @@ fun NavGraphBuilder.trackingGraph(
         )
     }
 
-    composable(
-        route = TrackingRoutes.LIVE_MAP,
-        arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
-    ) { backStack ->
-        backStack.arguments?.getString("routeId") ?: return@composable
-        LocationMapScreen(
-            onNavigateBack = { navController.popBackStack() },
-        )
-    }
-
+    // LIVE_MAP removed: it had no navigate() call site anywhere, and once MapScreen's live path
+    // moved out, the only thing left to render under a route named "live_map" was the replay
+    // screen — a name that lies about what it shows is worse than a missing route.
     composable(
         route = TrackingRoutes.DETAIL,
         arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
@@ -197,7 +193,11 @@ fun NavGraphBuilder.trackingGraph(
             onOpenMap = { navController.navigate(TrackingRoutes.routeMap(routeId)) },
             onOpenHwEvents = { navController.navigate(TrackingRoutes.hwEvents(routeId)) },
             onOpenRoutePoints = { navController.navigate(TrackingRoutes.routePoints(routeId)) },
-            onOpenDataPreview = { navController.navigate(TrackingRoutes.trackDataPreview(routeId)) },
+            // Data preview now opens the evidence surface. TrackEvidenceScreen is the DetailSpec
+            // that folds insights, hardware events, route points and the raw-data dump into one
+            // auditable record, so this is the entry point that supersedes them — the individual
+            // routes stay reachable until they are retired in their own change.
+            onOpenDataPreview = { navController.navigate(TrackingRoutes.evidence(routeId)) },
         )
     }
 
@@ -207,6 +207,39 @@ fun NavGraphBuilder.trackingGraph(
     ) { backStack ->
         val routeId = backStack.arguments?.getString("routeId") ?: return@composable
         TrackInsightsScreen(routeId = routeId, onBack = { navController.popBackStack() })
+    }
+
+    composable(
+        route = TrackingRoutes.EVIDENCE,
+        arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
+    ) { backStack ->
+        val routeId = backStack.arguments?.getString("routeId") ?: return@composable
+        // Reuses TrackDetailViewModel rather than adding a loader: it already fetches the row and
+        // exposes it as rawTrack, and the evidence surface needs the entity itself, not the
+        // display-mapped view. A second loader would be a second chance to disagree about what
+        // this track is.
+        val viewModel: com.mileway.feature.tracking.viewmodel.TrackDetailViewModel = koinViewModel()
+        LaunchedEffect(routeId) {
+            viewModel.onAction(com.mileway.feature.tracking.viewmodel.TrackDetailAction.Load(routeId))
+        }
+        val state by viewModel.state.collectAsState()
+        when {
+            state.rawTrack != null -> TrackEvidenceScreen(track = state.rawTrack!!)
+            // Render nothing while genuinely still loading. An evidence screen that renders
+            // placeholder figures — even briefly — is the one surface where that is unacceptable:
+            // it exists to be the defensible record.
+            state.isLoading -> Unit
+            // ERROR/EMPTY: load finished and no row matched routeId (deleted record, stale deep
+            // link). Previously this rendered the identical blank screen as "still loading" above —
+            // forever, with no way out but the system back gesture. Named + a way back now.
+            else ->
+                com.mileway.core.ui.mvi.DefaultEmptyState(
+                    title = "Trip not found",
+                    subtitle = "This record may have been deleted.",
+                    ctaLabel = "Go back",
+                    onCta = { navController.popBackStack() },
+                )
+        }
     }
 
     composable(
@@ -239,7 +272,7 @@ fun NavGraphBuilder.trackingGraph(
         arguments = listOf(navArgument("routeId") { type = NavType.StringType }),
     ) { backStack ->
         backStack.arguments?.getString("routeId") ?: return@composable
-        LocationMapScreen(onNavigateBack = { navController.popBackStack() })
+        RouteReplayScreen(onNavigateBack = { navController.popBackStack() })
     }
 
     composable(
@@ -318,18 +351,25 @@ fun NavGraphBuilder.trackingGraph(
             }
         }
 
-        TrackSubmissionScreen(
+        // DriveReviewSheet replaces TrackSubmissionScreen AND TrackingSuccessScreen: it carries the
+        // success state internally as its terminal phase, so there is no longer a navigation hop
+        // between "submitting" and "submitted". That hop is what made the old flow four full-screen
+        // transitions; collapsing it is the point of the review sheet.
+        DriveReviewSheet(
             routeId = routeId,
             distanceKm = distKm,
             vehicleKey = args.getString("vehicleKey") ?: "",
             startTime = args.getLong("startTime"),
             endTime = args.getLong("endTime"),
-            onSuccess = { result ->
-                navController.navigate(TrackingRoutes.success(result)) {
-                    popUpTo(TrackingRoutes.SAVED_TRACKS)
+            onTrackNewJourney = {
+                navController.navigate(TrackingRoutes.SAVED_TRACKS) {
+                    popUpTo(TrackingRoutes.SAVED_TRACKS) { inclusive = true }
                 }
             },
-            onBack = { navController.popBackStack() },
+            // Mirrors TrackingSuccessEffect.NavigateToExpenseList — there is still no
+            // per-transaction detail screen, so both land on the voucher/approvals list.
+            onViewExpense = { navController.navigate(TrackingRoutes.CREATE_VOUCHER) },
+            onCreateVoucher = { navController.navigate(TrackingRoutes.CREATE_VOUCHER) },
             onNavigateToOdometerStart = {
                 // G7: prefer an explicit per-trip override, else roll over from the last trip's
                 // end reading, else the cold-start default.

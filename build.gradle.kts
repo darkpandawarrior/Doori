@@ -164,7 +164,8 @@ tasks.register("fullCheck") {
         // Z.5b: the @GraphicsMode(NATIVE) Roborazzi screenshot tests are excluded from the task above
         // (native Skia + forkEvery restart boundaries crash the JVM); they run in their own isolated
         // single fork here so they still gate but never destabilise the main unit-test fork.
-        ":app:screenshotTestNoGmsDebug",
+        // Was :app-only, which is how a broken :wear or :widget capture could sit unnoticed.
+        "screenshotTest",
         ":app:koverXmlReportNoGmsDebugCoverage",
         ":app:koverVerifyNoGmsDebugCoverage",
     )
@@ -190,10 +191,191 @@ gradle.projectsEvaluated {
     }
 }
 
+// --------------------------------------------------------------------------
+// Screenshot freshness guard (Wave 0.3): stale captures are the visible symptom of "work existed,
+// nothing ran it, nothing alerted" — so staleness must be a red build, not a discovery made months
+// later.
+//
+// Went with a simple max-age over "PNG newer than the newest source file of the module that
+// produces it": docs/screenshots/ is one flat directory with no naming convention that maps 1:1
+// onto a Gradle module path (e.g. is "advance_history_screen.png" owned by :feature:advances or
+// :feature:approvals? "booking_history_screen.png" by :feature:travel? there is no rule, only a
+// guess), so a per-module comparison would be brittle guesswork wearing precision's clothes. Age
+// since last commit needs no such mapping and can't silently miss a module that was never mapped.
+//
+// Uses `git log`, not filesystem mtime: a fresh checkout stamps every file with the checkout time,
+// so mtime is meaningless for staleness the moment CI does a clean clone. Git's
+// last-commit-that-touched-this-path date is the real "when was this last regenerated" signal and
+// survives a checkout.
+//
+// What this catches: a screenshot nobody has re-recorded in screenshotMaxAgeDays even though the
+// harness that produces it still runs clean — the exact silent-rot failure mode from Wave 0.
+// What this does NOT catch: a screenshot re-recorded today against code that is itself wrong
+// (freshness says nothing about correctness), or one module's screenshot going stale while only
+// that module's source changed and others didn't (no per-module mapping, see above — a max-age
+// check is blind to which module a PNG belongs to by design).
+// --------------------------------------------------------------------------
+tasks.register("screenshotFreshnessCheck") {
+    group = "verification"
+    description = "Fails if any docs/screenshots/*.png hasn't been re-recorded in screenshotMaxAgeDays."
+    val maxAgeDays = (project.findProperty("screenshotMaxAgeDays") as String?)?.toIntOrNull() ?: 30
+    val screenshotsDir = layout.projectDirectory.dir("docs/screenshots").asFile
+    val repoRoot = rootDir
+    doLast {
+        val pngs = screenshotsDir.listFiles { f -> f.isFile && f.extension.equals("png", ignoreCase = true) }.orEmpty()
+        val nowSeconds = System.currentTimeMillis() / 1000
+        val maxAgeSeconds = maxAgeDays * 24L * 60 * 60
+        val stale =
+            pngs.mapNotNull { png ->
+                val proc =
+                    ProcessBuilder("git", "log", "-1", "--format=%ct", "--", png.absolutePath)
+                        .directory(repoRoot)
+                        .redirectErrorStream(true)
+                        .start()
+                val commitEpoch = proc.inputStream.bufferedReader().readText().trim().toLongOrNull()
+                proc.waitFor()
+                // No git history for the file (freshly added, not yet committed) -> not stale.
+                val ageSeconds = commitEpoch?.let { nowSeconds - it } ?: return@mapNotNull null
+                if (ageSeconds > maxAgeSeconds) png.name to (ageSeconds / 86400) else null
+            }
+        if (stale.isNotEmpty()) {
+            throw GradleException(
+                buildString {
+                    appendLine("${stale.size} screenshot(s) haven't been re-recorded in $maxAgeDays days:")
+                    stale.sortedByDescending { it.second }.forEach { (name, days) -> appendLine("  $name (${days}d old)") }
+                    appendLine()
+                    appendLine("Re-record with: ./gradlew screenshotTest -Proborazzi.test.record=true")
+                    appendLine("(or pass -PscreenshotMaxAgeDays=N if $maxAgeDays days is intentionally tight for this run)")
+                },
+            )
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// verifyAll (Wave 0.1): THE one task that must be green before anything ships.
+//
+// Superset of `fullCheck`, not a competitor to it: `fullCheck` stays as the faster local
+// quality-loop subset (style + unit/KMP tests + screenshots + coverage — no full assemble, no
+// dependency-guard, no freshness check), useful for a tight local dev cycle. `verifyAll` depends on
+// `fullCheck` and adds exactly the pieces that make it the real release gate: the actual build,
+// the dependency-guard, and the screenshot-freshness check. There is exactly one thing to watch
+// before shipping — this task — and it is a strict superset of the other, not a second independent
+// definition of "done" that can silently drift from it.
+//
+// The absolute-path guard (OutputPathGuardTest) needs no separate wiring here: it is a JUnit test
+// under app/src/test, so testNoGmsDebugUnitTest (pulled in via fullCheck) already runs it. Adding
+// it again as its own dependency would recreate the "two gates, only one watched" bug this whole
+// program exists to kill.
+// --------------------------------------------------------------------------
+tasks.register("verifyAll") {
+    group = "verification"
+    description = "THE release gate: assemble + fullCheck (lint/detekt/unit tests/screenshots/coverage) + freshness + dependency-guard."
+    dependsOn(
+        ":app:assembleNoGmsDebug",
+        "fullCheck",
+        "screenshotFreshnessCheck",
+        ":app:dependencyGuard",
+    )
+}
+
 tasks.register("composeMetrics") {
     description = "Generate Compose compiler stability/recomposition reports for :app (release)."
     dependsOn(":app:assembleGmsRelease")
     doLast {
         println("Compose metrics written to: app/build/compose_metrics/")
+    }
+}
+
+// ---------------------------------------------------------------------------
+// One task that runs EVERY screenshot harness in the repo: app + wear + widget + desktop.
+//
+// Why this exists: the harnesses were never the problem — :app, :wear and
+// :widget each had a working Roborazzi suite. The problem was that they live on
+// three different task names and no single command ran them together, so a
+// change could turn a gate green while silently breaking a surface nobody ran.
+// That happened on 2026-08-09: injecting SystemSettingsOpener into
+// TrackMilesScreen broke every :app capture at composition, and
+// assembleNoGmsDebug + testNoGmsDebugUnitTest stayed green throughout, because
+// :app:screenshotTestNoGmsDebug is deliberately forked out of the main suite.
+//
+//   ./gradlew screenshotTest                              # verify against baselines
+//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//
+// NOT covered here, and deliberately not faked as if it were:
+//   - iOS  (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot
+//     tests that need Xcode; Gradle cannot run them.
+//   - desktop (:desktopApp) — Roborazzi is Robolectric-based and Android-only;
+//     Compose Desktop needs ImageComposeScene render-to-PNG instead.
+//   - wasm (:app-web-preview) — no test source set; needs a browser harness.
+//
+// Desktop WAS in this list until 2026-08-09, wrongly: :desktopApp already had
+// DesktopScreenshotGalleryTest writing 7 PNGs via ImageIO. It was never uncovered, just never
+// run by anything — which is the same failure this whole task exists to end.
+// ---------------------------------------------------------------------------
+// One task that runs EVERY screenshot harness in the repo.
+//
+//   ./gradlew screenshotTest                              # verify against baselines
+//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//
+// The gap this closes: :app, :wear and :widget each had a working Roborazzi suite, on three
+// different task names, with no single command running them. On 2026-08-09 injecting
+// SystemSettingsOpener into TrackMilesScreen broke all 155 :app captures at composition while
+// assembleNoGmsDebug + testNoGmsDebugUnitTest stayed green throughout, because :app's screenshot
+// suite is deliberately forked out of the main one. Two gates existed; only one was watched.
+//
+// Aggregating them was flaky until the cause was found: MockK self-attaches a ByteBuddy agent,
+// modern JDKs restrict self-attach, so it fell back to spawning an external attach process that
+// lost a race whenever several test JVMs ran at once. app/build.gradle.kts now pre-loads
+// byte-buddy-agent via -javaagent, removing runtime attachment entirely. 5/5 clean runs under
+// --rerun-tasks, against roughly 2-in-3 failures before.
+//
+// NOT covered here, and deliberately not faked as if it were:
+//   - iOS (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot tests needing Xcode.
+//   - wasm (:app-web-preview) — no test source set; needs a browser harness.
+tasks.register("screenshotTest") {
+    group = "verification"
+    description = "Runs every screenshot harness (app + wear + widget) in one command."
+    dependsOn(":app:screenshotTestNoGmsDebug")
+}
+
+gradle.projectsEvaluated {
+    tasks.named("screenshotTest") {
+        // Discovered rather than hardcoded, for the same reason fullCheck discovers
+        // testAndroidHostTest: a hardcoded list is a list that drifts. Any module whose
+        // test sources actually call captureRoboImage gets pulled in automatically, so a
+        // new screenshot suite is covered the day it is written rather than the day
+        // someone remembers this file.
+        subprojects.forEach { sub ->
+            if (sub.path == ":app") return@forEach // already wired to its dedicated forked task
+            // Both layouts: Android modules keep tests in src/test, KMP-JVM modules like
+            // :desktopApp use a custom-named source set (src/desktopTest). Walking the whole
+            // src/ dir covers either without hardcoding which module uses which.
+            val hasCaptures =
+                sub.projectDir.resolve("src").walkTopDown()
+                    .filter { it.isFile && it.extension == "kt" }
+                    // Two capture mechanisms in this repo: Roborazzi on the Android/Wear/widget
+                    // side, and plain ImageIO writes from Compose Desktop's renderComposeScene.
+                    // Match either, so a harness is discovered by what it DOES rather than by
+                    // which library it happens to use.
+                    .any { f -> f.readText().let { it.contains("captureRoboImage") || it.contains("ImageIO") } }
+            if (!hasCaptures) return@forEach
+            sub.tasks.matching {
+                // :desktopApp's test task is "desktopTest", not "test*UnitTest".
+                // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
+                // variant here would make the unified task fail for a reason that has nothing to do
+                // with the screenshots it is meant to guard.
+                (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&
+                    // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
+                    !(it.name.contains("Gms") && !it.name.contains("NoGms"))
+            }.forEach { t ->
+                dependsOn(t)
+                // Ordered, not just aggregated. :app's screenshot suite runs @GraphicsMode(NATIVE)
+                // Skia in its own single fork precisely because it is fragile about sharing a build
+                // with other test JVMs — running these concurrently reproducibly kills its class
+                // init. Sequencing costs a few seconds and buys a task that does not flake.
+                t.mustRunAfter(":app:screenshotTestNoGmsDebug")
+            }
+        }
     }
 }

@@ -41,7 +41,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -67,7 +66,7 @@ import com.mileway.core.ui.resources.payables_section_recent_invoices
 import com.mileway.core.ui.resources.payables_subtitle
 import com.mileway.core.ui.resources.payables_title
 import com.mileway.core.ui.theme.DesignTokens
-import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.payables.model.Invoice
 import com.mileway.feature.payables.model.InvoiceStatus
 import com.mileway.feature.payables.model.PoStatus
@@ -116,9 +115,7 @@ fun PayablesHomeScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(
-                            Brush.horizontalGradient(listOf(Color(0xFF00695C), Color(0xFF26A69A))),
-                        )
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Column(
@@ -237,10 +234,10 @@ private fun PoCard(
 ) {
     val (statusLabel, statusColor) =
         when (po.status) {
-            PoStatus.DRAFT -> stringResource(Res.string.payables_po_status_draft) to StatusColors.neutral
-            PoStatus.PENDING_APPROVAL -> stringResource(Res.string.payables_po_status_pending_approval) to StatusColors.warning
-            PoStatus.APPROVED -> stringResource(Res.string.payables_po_status_approved) to StatusColors.success
-            PoStatus.REJECTED -> stringResource(Res.string.payables_po_status_rejected) to StatusColors.error
+            PoStatus.DRAFT -> stringResource(Res.string.payables_po_status_draft) to MilewayRoles.inactive
+            PoStatus.PENDING_APPROVAL -> stringResource(Res.string.payables_po_status_pending_approval) to MilewayRoles.pending
+            PoStatus.APPROVED -> stringResource(Res.string.payables_po_status_approved) to MilewayRoles.approved
+            PoStatus.REJECTED -> stringResource(Res.string.payables_po_status_rejected) to MilewayRoles.rejected
         }
 
     Card(
@@ -279,7 +276,7 @@ private fun PoCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
+            Surface(color = MilewayRoles.tint(statusColor), shape = DesignTokens.Shape.button) {
                 Text(
                     text = statusLabel,
                     style = MaterialTheme.typography.labelSmall,
@@ -296,9 +293,9 @@ private fun PoCard(
 private fun InvoiceCard(invoice: Invoice) {
     val (icon, statusLabel, statusColor) =
         when (invoice.status) {
-            InvoiceStatus.UNMATCHED -> Triple(Icons.Filled.Warning, stringResource(Res.string.payables_invoice_status_unmatched), StatusColors.warning)
-            InvoiceStatus.MATCHED -> Triple(Icons.Filled.Receipt, stringResource(Res.string.payables_invoice_status_matched), StatusColors.info)
-            InvoiceStatus.PAID -> Triple(Icons.Filled.CheckCircle, stringResource(Res.string.payables_invoice_status_paid), StatusColors.success)
+            InvoiceStatus.UNMATCHED -> Triple(Icons.Filled.Warning, stringResource(Res.string.payables_invoice_status_unmatched), MilewayRoles.pending)
+            InvoiceStatus.MATCHED -> Triple(Icons.Filled.Receipt, stringResource(Res.string.payables_invoice_status_matched), MilewayRoles.informational)
+            InvoiceStatus.PAID -> Triple(Icons.Filled.CheckCircle, stringResource(Res.string.payables_invoice_status_paid), MilewayRoles.approved)
         }
     val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
@@ -334,7 +331,7 @@ private fun InvoiceCard(invoice: Invoice) {
             }
             Column(horizontalAlignment = Alignment.End) {
                 Text("₹${invoice.amountRupees.toLong()}", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Surface(color = statusColor.copy(alpha = 0.15f), shape = DesignTokens.Shape.button) {
+                Surface(color = MilewayRoles.tint(statusColor), shape = DesignTokens.Shape.button) {
                     Text(
                         statusLabel,
                         style = MaterialTheme.typography.labelSmall,

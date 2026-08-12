@@ -42,14 +42,14 @@ struct TrackingLiveActivity: Widget {
                         .accessibilityLabel("Elapsed time")
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text(context.state.isPaused ? "Paused" : "Tracking trip")
+                    Text(TrackingActivityCopy.title(isPaused: context.state.isPaused))
                         .font(.caption)
                         .foregroundStyle(WidgetMatrixPalette.textMuted)
                 }
             } compactLeading: {
                 Image(systemName: "location.fill")
                     .foregroundStyle(WidgetMatrixPalette.accent)
-                    .accessibilityLabel(context.state.isPaused ? "Trip paused" : "Trip tracking")
+                    .accessibilityLabel(TrackingActivityCopy.title(isPaused: context.state.isPaused))
             } compactTrailing: {
                 Text(formattedElapsed(context.state.elapsedSeconds))
                     .font(.caption2.monospacedDigit())
@@ -58,7 +58,7 @@ struct TrackingLiveActivity: Widget {
             } minimal: {
                 Image(systemName: "location.fill")
                     .foregroundStyle(WidgetMatrixPalette.accent)
-                    .accessibilityLabel(context.state.isPaused ? "Trip paused" : "Trip tracking")
+                    .accessibilityLabel(TrackingActivityCopy.title(isPaused: context.state.isPaused))
             }
         }
     }

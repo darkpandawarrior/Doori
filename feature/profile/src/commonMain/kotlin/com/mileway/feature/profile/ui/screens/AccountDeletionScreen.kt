@@ -41,7 +41,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -51,6 +50,7 @@ import com.mileway.core.data.lifecycle.DeletionStatus
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -82,7 +82,7 @@ fun AccountDeletionScreen(
             Box(
                 modifier =
                     Modifier
-                        .background(Brush.horizontalGradient(listOf(Color(0xFFB91C1C), Color(0xFF7F1D1D))))
+                        .background(DesignTokens.topBarGradientBrush())
                         .windowInsetsPadding(WindowInsets.statusBars),
             ) {
                 Row(
@@ -128,7 +128,7 @@ private fun RequestForm(onRequest: (String?) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Default.Warning, contentDescription = null, tint = Color(0xFFB91C1C))
+                Icon(Icons.Default.Warning, contentDescription = null, tint = MilewayRoles.destructive)
                 Spacer(Modifier.height(DesignTokens.Spacing.s))
                 Text(del("delete_warning_title", "This can't be undone"), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             }
@@ -154,7 +154,7 @@ private fun RequestForm(onRequest: (String?) -> Unit) {
             Button(
                 onClick = { onRequest(reason) },
                 enabled = canDelete,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB91C1C)),
+                colors = ButtonDefaults.buttonColors(containerColor = MilewayRoles.destructive),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(del("delete_submit", "Request account deletion"))

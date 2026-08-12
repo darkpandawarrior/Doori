@@ -67,6 +67,7 @@ import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.util.DateUtils
 import com.mileway.core.ui.components.CollapsibleSectionCard
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.LoadingScreen
 import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.components.SparklineChart
@@ -230,7 +231,17 @@ fun TrackDataPreviewScreen(
             return@Scaffold
         }
 
-        val track = uiState.rawTrack ?: return@Scaffold
+        // EMPTY/ERROR: same "resolves to nothing" case as TrackDetailScreen — a deleted track,
+        // stale deep link, or a race with a discard. Was a blank body under the top bar.
+        val track =
+            uiState.rawTrack ?: run {
+                EmptyState(
+                    title = "Journey not found",
+                    subtitle = "This journey may have been deleted or is no longer available.",
+                    modifier = Modifier.padding(innerPadding),
+                )
+                return@Scaffold
+            }
         val displayTrack = uiState.track ?: return@Scaffold
 
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {

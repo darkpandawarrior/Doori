@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,14 +53,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.components.topbar.DepthAwareTopBar
+import com.mileway.core.ui.mvi.DefaultEmptyState
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.profile_notifications_back
+import com.mileway.core.ui.resources.profile_notifications_empty_filtered_subtitle
+import com.mileway.core.ui.resources.profile_notifications_empty_filtered_title
+import com.mileway.core.ui.resources.profile_notifications_empty_subtitle
+import com.mileway.core.ui.resources.profile_notifications_empty_title
 import com.mileway.core.ui.resources.profile_notifications_mark_all_read
+import com.mileway.core.ui.resources.profile_notifications_show_all
 import com.mileway.core.ui.resources.profile_notifications_title
 import com.mileway.core.ui.resources.profile_notifications_unread_count
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.data.NotifType
 import com.mileway.feature.profile.data.NotificationRecord
 import com.mileway.feature.profile.viewmodel.NotificationEffect
@@ -82,15 +90,19 @@ private fun NotifType.icon(): ImageVector =
         NotifType.SYSTEM -> Icons.Filled.Info
     }
 
+@Composable
+@ReadOnlyComposable
 private fun NotifType.iconColor(): Color =
     when (this) {
-        NotifType.APPROVAL -> Color(0xFF6366F1)
+        // Awaiting/requires an approval action — pending, not a hue pick.
+        NotifType.APPROVAL -> MilewayRoles.pending
         NotifType.ADVANCE -> StatusColors.success
         NotifType.EXPENSE -> StatusColors.error
         NotifType.POLICY -> StatusColors.warning
         NotifType.CARD -> StatusColors.neutral
         NotifType.PAYABLES -> StatusColors.info
-        NotifType.APP_UPDATE -> Color(0xFF8B5CF6)
+        // A non-blocking system notice, same lineage as SYSTEM's info icon.
+        NotifType.APP_UPDATE -> MilewayRoles.informational
         NotifType.SYSTEM -> StatusColors.neutral
     }
 
@@ -170,21 +182,41 @@ fun NotificationCentreScreen(
                     )
                 }
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
-                contentPadding =
-                    androidx.compose.foundation.layout.PaddingValues(
-                        horizontal = DesignTokens.Spacing.l,
-                        vertical = DesignTokens.Spacing.s,
-                    ),
-            ) {
-                items(filtered, key = { it.id }) { notif ->
-                    NotificationCard(
-                        notif = notif,
-                        onClick = { viewModel.open(notif) },
+            when {
+                // EMPTY (never had data): fresh install / seed not yet applied — say what this
+                // screen is for, not just "no items".
+                state.notifications.isEmpty() ->
+                    DefaultEmptyState(
+                        title = stringResource(Res.string.profile_notifications_empty_title),
+                        subtitle = stringResource(Res.string.profile_notifications_empty_subtitle),
                     )
-                }
+                // EMPTY (filtered): real notifications exist but this filter matches none, e.g.
+                // "Mark all read" leaves the UNREAD tab empty. Distinct from the never-had-data
+                // case above — offer a way back to ALL instead of explaining the whole feature.
+                filtered.isEmpty() ->
+                    DefaultEmptyState(
+                        title = stringResource(Res.string.profile_notifications_empty_filtered_title),
+                        subtitle = stringResource(Res.string.profile_notifications_empty_filtered_subtitle),
+                        ctaLabel = stringResource(Res.string.profile_notifications_show_all),
+                        onCta = { selectedFilter = "ALL" },
+                    )
+                else ->
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
+                        contentPadding =
+                            androidx.compose.foundation.layout.PaddingValues(
+                                horizontal = DesignTokens.Spacing.l,
+                                vertical = DesignTokens.Spacing.s,
+                            ),
+                    ) {
+                        items(filtered, key = { it.id }) { notif ->
+                            NotificationCard(
+                                notif = notif,
+                                onClick = { viewModel.open(notif) },
+                            )
+                        }
+                    }
             }
         }
     }

@@ -15,7 +15,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.theme.DesignTokens
 
 /**
  * Generic modal surface. Prefer this (or [ActionConfirmationBottomSheet] for confirmations) over
@@ -34,6 +34,10 @@ fun AppActionSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        shape = DesignTokens.Shape.sheet,
+        // Matches MilewayActionSheet's raised container so every sheet in the app — tier 1 or this
+        // generic one — reads as the same elevated surface, not a flat panel blending into the scrim.
+        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(
             modifier =
@@ -41,12 +45,14 @@ fun AppActionSheet(
                     .fillMaxWidth()
                     .navigationBarsPadding()
                     .imePadding()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(horizontal = DesignTokens.Spacing.xl)
+                    .padding(bottom = DesignTokens.Spacing.l),
+            verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             if (title != null) {
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
+                // Bold, matching MilewayActionSheet's tier-1 header weight — one consistent title
+                // treatment across every sheet in the app instead of a slightly softer one here.
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             }
             content()
         }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -127,7 +128,7 @@ fun PhosphorGlowBar(
 @Composable
 fun TerminalCursor(
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFFF5A623),
+    color: Color = MaterialTheme.colorScheme.primary,
     style: TextStyle =
         TextStyle(
             fontFamily = FontFamily.Monospace,
@@ -165,9 +166,15 @@ fun TerminalCursor(
 /**
  * Applies a thin terminal-panel border + corner radius to any composable.
  * Use on cards and panels to give them the terminal-panel look.
+ *
+ * No default for [color]: this is a plain `Modifier` extension, not `@Composable`, so it cannot
+ * read the theme itself (LAYERS.md: "hoist the colour into the composable that draws it"). Pass
+ * `MaterialTheme.colorScheme.outline` or `MilewayColors.border` from the call site. No caller
+ * existed for the old default (a raw dark-green hex) in this codebase, so this is a clean cut,
+ * not a migration of live behaviour.
  */
 fun Modifier.terminalBorder(
-    color: Color = Color(0xFF1C3522),
+    color: Color,
     width: Dp = 1.dp,
     cornerRadius: Dp = 4.dp,
 ): Modifier = this.border(width, color, RoundedCornerShape(cornerRadius))
@@ -179,7 +186,7 @@ fun Modifier.terminalBorder(
 @Composable
 fun PhosphorDotGrid(
     modifier: Modifier = Modifier,
-    dotColor: Color = Color(0xFFF5A623),
+    dotColor: Color = MaterialTheme.colorScheme.primary,
     dotAlpha: Float = 0.06f,
     spacing: Float = 18f,
 ) {
@@ -205,7 +212,7 @@ fun PhosphorDotGrid(
 @Composable
 fun TerminalHeaderRule(
     modifier: Modifier = Modifier,
-    color: Color = Color(0xFFF5A623),
+    color: Color = MaterialTheme.colorScheme.primary,
     alpha: Float = 0.4f,
 ) {
     Canvas(modifier = modifier.fillMaxSize()) {

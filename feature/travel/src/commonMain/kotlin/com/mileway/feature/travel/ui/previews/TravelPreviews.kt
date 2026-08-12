@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.previews.PreviewLightDark
 import com.mileway.core.ui.previews.PreviewMatrix
 import com.mileway.core.ui.previews.PreviewSurface
+import com.mileway.core.ui.theme.MilewayThemeVariant
 import com.mileway.feature.travel.model.BookingRecord
 import com.mileway.feature.travel.model.TransportMode
 import com.mileway.feature.travel.model.TripStatus
@@ -214,7 +215,7 @@ fun PreviewBookingCardCompletedFlight() {
 @PreviewMatrix
 @Composable
 fun PreviewBookingListMatrix() {
-    PreviewSurface {
+    PreviewSurface(MilewayThemeVariant.MATRIX) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),

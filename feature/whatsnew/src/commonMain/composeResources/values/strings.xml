@@ -1,0 +1,15 @@
+<resources>
+    <!-- In-app update screen. Module-local (not core:ui's shared strings.xml — out of this
+         module's file partition); reuses this module's own compose.resources Res class, already
+         configured in build.gradle.kts for the bundled media files. -->
+    <string name="whatsnew_update_forced_title">Update required</string>
+    <string name="whatsnew_update_forced_body">This version of Mileway is no longer supported. Update to keep tracking.</string>
+    <string name="whatsnew_update_recommended_title">Recommended update</string>
+    <string name="whatsnew_update_optional_title">Update available</string>
+    <string name="whatsnew_update_release_notes_label">What's new</string>
+    <string name="whatsnew_update_action">Update</string>
+    <string name="whatsnew_update_later">Later</string>
+    <string name="whatsnew_update_ready_title">Update ready</string>
+    <string name="whatsnew_update_ready_body">Restart Mileway to finish installing the update.</string>
+    <string name="whatsnew_update_restart">Restart</string>
+</resources>

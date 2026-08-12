@@ -25,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,6 +44,7 @@ import com.mileway.core.ui.resources.sos_share_status
 import com.mileway.core.ui.resources.sos_subtitle
 import com.mileway.core.ui.resources.sos_title
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.tracking.viewmodel.SosViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -86,7 +86,7 @@ fun SosBottomSheet(
             Icon(
                 Icons.Default.Warning,
                 contentDescription = null,
-                tint = Color(0xFFB91C1C),
+                tint = MilewayRoles.destructive,
                 modifier = Modifier.height(40.dp),
             )
             Text(
@@ -115,7 +115,7 @@ fun SosBottomSheet(
                         stringResource(Res.string.sos_alerted, contacts.size),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF16A34A),
+                        color = MilewayRoles.approved,
                         textAlign = TextAlign.Center,
                     )
                     OutlinedButton(
@@ -134,7 +134,7 @@ fun SosBottomSheet(
                             viewModel.logAlert(notifTitle, notifBody, notifTime)
                             sent = true
                         },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFB91C1C)),
+                        colors = ButtonDefaults.buttonColors(containerColor = MilewayRoles.destructive),
                         modifier = Modifier.fillMaxWidth(),
                     ) { Text(stringResource(Res.string.sos_send)) }
                     OutlinedButton(

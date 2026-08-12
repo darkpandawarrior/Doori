@@ -450,7 +450,9 @@
     <string name="logging_service_type">सेवा का प्रकार</string>
     <string name="logging_select_a_service">कोई सेवा चुनें</string>
     <string name="logging_purpose_of_travel">यात्रा का उद्देश्य</string>
+    <string name="logging_purpose_of_travel_placeholder">उदा. ग्राहक मीटिंग, साइट विज़िट</string>
     <string name="logging_cost_center_optional">कॉस्ट सेंटर (वैकल्पिक)</string>
+    <string name="logging_cost_center_placeholder">उदा. CC-4521</string>
     <string name="logging_additional_details_title">अतिरिक्त विवरण (2)</string>
     <string name="logging_additional_details_subtitle">सबमिट करने से पहले आवश्यक व्यय फ़ील्ड</string>
     <string name="logging_collapse_cd">संक्षिप्त करें</string>
@@ -598,6 +600,9 @@
     <string name="logging_sort_cd">क्रमबद्ध करें</string>
     <string name="logging_no_expenses_title">कोई व्यय लॉग नहीं</string>
     <string name="logging_no_expenses_subtitle">आपके व्यय रिकॉर्ड यहाँ दिखाई देंगे।</string>
+    <string name="logging_no_expenses_filtered_title">कोई मेल नहीं</string>
+    <string name="logging_no_expenses_filtered_subtitle">इस फ़िल्टर से कुछ मेल नहीं खाता। अपने सभी व्यय देखने के लिए इसे साफ़ करें।</string>
+    <string name="logging_clear_filters">फ़िल्टर साफ़ करें</string>
     <string name="logging_status_draft">ड्राफ़्ट</string>
     <string name="logging_status_pending">लंबित</string>
     <string name="logging_status_approved">स्वीकृत</string>
@@ -611,6 +616,7 @@
     <string name="logging_timeline_contact_manager">अपने प्रबंधक से संपर्क करें</string>
     <string name="logging_timeline_awaiting_decision">निर्णय की प्रतीक्षा में</string>
     <string name="logging_expense_not_found">व्यय नहीं मिला</string>
+    <string name="logging_expense_not_found_subtitle">यह व्यय हटाया जा चुका है, या लिंक अब मान्य नहीं है।</string>
     <string name="logging_note">नोट</string>
     <string name="logging_resubmit">पुनः सबमिट करें</string>
     <string name="logging_edit_expense">व्यय संपादित करें</string>
@@ -629,6 +635,8 @@
     <string name="logging_search_vouchers_placeholder">वाउचर खोजें…</string>
     <string name="logging_no_vouchers_title">यहाँ कोई वाउचर नहीं</string>
     <string name="logging_no_vouchers_subtitle">सबमिट किए गए वाउचर उनकी स्थिति के अंतर्गत दिखाई देंगे।</string>
+    <string name="logging_no_vouchers_filtered_title">कोई मेल नहीं</string>
+    <string name="logging_no_vouchers_filtered_subtitle">इस टैब या खोज से कोई वाउचर मेल नहीं खाता। सभी आज़माएँ या खोज बदलें।</string>
     <string name="logging_voucher_actions_cd">वाउचर क्रियाएँ</string>
     <string name="logging_withdraw">वापस लें</string>
     <string name="logging_withdraw_title">वाउचर वापस लें?</string>
@@ -1372,6 +1380,12 @@
     <string name="core_maintenance_message">Mileway कुछ समय के लिए अनुपलब्ध है या यह संस्करण अब समर्थित नहीं है। कृपया अपडेट करें या कुछ देर बाद फिर देखें।</string>
     <string name="core_error_generic">कुछ गलत हो गया</string>
     <string name="core_loading">लोड हो रहा है…</string>
+    <string name="core_offline_title">आप ऑफ़लाइन हैं</string>
+    <string name="core_offline_message">अपना कनेक्शन जांचें और पुनः प्रयास करें। अब तक ट्रैक किया गया डेटा इस डिवाइस पर सुरक्षित है।</string>
+    <string name="core_permission_required_title">अनुमति आवश्यक है</string>
+    <string name="core_permission_action_grant">अनुमति दें</string>
+    <string name="core_permission_action_open_settings">सेटिंग्स खोलें</string>
+    <string name="core_permission_denied_permanently_hint">आपने इसे पहले अस्वीकार कर दिया है, इसलिए Android यहां दोबारा नहीं पूछेगा — इसे सेटिंग्स से चालू करें।</string>
     <string name="core_referral_title">किसी मित्र को रेफ़र करें</string>
     <string name="core_referral_code_label">आपका रेफ़रल कोड</string>
     <string name="core_referral_share">निमंत्रण साझा करें</string>
@@ -1748,6 +1762,11 @@
     <string name="profile_notifications_unread_count">%1$s अपठित</string>
     <string name="profile_notifications_back">वापस</string>
     <string name="profile_notifications_mark_all_read">सभी को पढ़ा हुआ चिह्नित करें</string>
+    <string name="profile_notifications_empty_title">अभी तक कोई सूचना नहीं</string>
+    <string name="profile_notifications_empty_subtitle">अनुमोदन, नीति अपडेट और ऐप समाचार यहाँ दिखाई देंगे।</string>
+    <string name="profile_notifications_empty_filtered_title">इस फ़िल्टर में कोई मेल नहीं</string>
+    <string name="profile_notifications_empty_filtered_subtitle">अभी यहाँ कुछ नहीं है। सब कुछ देखने के लिए सभी पर वापस जाएँ।</string>
+    <string name="profile_notifications_show_all">सभी दिखाएं</string>
     <string name="profile_advance_request_advance">अग्रिम का अनुरोध करें</string>
     <string name="profile_advance_step_of_4">चरण %1$s / 4</string>
     <string name="profile_advance_back">वापस</string>
@@ -1808,6 +1827,7 @@
     <string name="profile_delegation_to_me_title">मुझे सौंपे गए</string>
     <string name="profile_delegation_to_me_subtitle">आप इन लोगों की जगह काम कर रहे हैं</string>
     <string name="profile_delegation_none_incoming">कोई सक्रिय आवक प्रतिनिधिमंडल नहीं</string>
+    <string name="profile_delegation_none_outgoing">आपने अभी तक किसी को प्रतिनिधि नहीं बनाया है। टीम सदस्य को एक्सेस देने के लिए + पर टैप करें।</string>
     <string name="profile_delegation_add_new">नया प्रतिनिधिमंडल जोड़ें</string>
     <string name="profile_delegation_revoke_title">प्रतिनिधिमंडल रद्द करें</string>
     <string name="profile_delegation_revoke_desc">%1$s की पहुंच हटाएं? इसे पूर्ववत नहीं किया जा सकता।</string>

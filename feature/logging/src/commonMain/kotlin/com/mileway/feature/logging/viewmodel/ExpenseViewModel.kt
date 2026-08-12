@@ -22,6 +22,7 @@ import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.stub.PolicyMockData
 import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.common.asString
 import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -636,13 +637,22 @@ class ExpenseViewModel(
         )
     }
 
-    /** Validates+inserts a single row, returning the [DraftStatus] it landed on. Never throws. */
-    private suspend fun submitOneRow(row: ExpenseDraftRow): DraftStatus {
+    /**
+     * Validates+inserts a single row, returning the [DraftStatus] it landed on plus a fix-oriented
+     * message for the ERROR case (the specific validator error(s), or a write-failure note) — never
+     * just "needs attention" with no reason. Never throws.
+     */
+    private suspend fun submitOneRow(row: ExpenseDraftRow): Pair<DraftStatus, String?> {
         val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == row.category }
         val errors = ExpenseFormValidator.validate(row.toFormState(), catalogDef)
-        if (errors.isNotEmpty()) return DraftStatus.ERROR
+        if (errors.isNotEmpty()) {
+            return DraftStatus.ERROR to errors.values.joinToString("; ") { it.asString() }
+        }
         return runCatching { repository.insert(row.toRecord()) }
-            .fold(onSuccess = { DraftStatus.SUCCESS }, onFailure = { DraftStatus.ERROR })
+            .fold(
+                onSuccess = { DraftStatus.SUCCESS to null },
+                onFailure = { DraftStatus.ERROR to "Couldn't save this row — try again" },
+            )
     }
 
     /**
@@ -661,7 +671,7 @@ class ExpenseViewModel(
         viewModelScope.launch {
             val snapshot = currentState.rows
             val semaphore = Semaphore(BULK_SUBMIT_CONCURRENCY)
-            val statusById =
+            val outcomeById =
                 supervisorScope {
                     rowIds
                         .map { id ->
@@ -670,7 +680,10 @@ class ExpenseViewModel(
                             }
                         }.awaitAll()
                 }.toMap()
-            val rows = currentState.rows.map { row -> statusById[row.id]?.let { row.copy(status = it) } ?: row }
+            val rows =
+                currentState.rows.map { row ->
+                    outcomeById[row.id]?.let { (status, message) -> row.copy(status = status, errorMessage = message) } ?: row
+                }
             val successRows = rows.filter { it.id in rowIds && it.status == DraftStatus.SUCCESS }
             val errorRows = rows.filter { it.id in rowIds && it.status == DraftStatus.ERROR }
             setState { copy(rows = rows, submissionSummary = successRows to errorRows) }
@@ -706,7 +719,12 @@ class ExpenseViewModel(
      */
     private fun importCsv(text: String) {
         val imported = ExpenseCsvImporter.parse(text).map { it.copy(id = newRowId()) }
-        if (imported.isEmpty()) return
+        if (imported.isEmpty()) {
+            // EMPTY outcome of an explicit user action (picked a file, got zero rows) needs its own
+            // message, not silence — names what's expected so the user can fix the file and retry.
+            emitEffect(ExpenseEffect.ShowToast(UiText.of("No rows found — expects a category,amount,merchant header")))
+            return
+        }
         setState { copy(rows = rows + imported) }
     }
 }

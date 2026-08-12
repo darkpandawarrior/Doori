@@ -43,6 +43,9 @@ fun OdometerDiscrepancySheet(
         confirmLabel = stringResource(Res.string.core_action_confirm),
         dismissLabel = stringResource(Res.string.tracking_action_retake),
         tone = ActionConfirmationToneType.Warning,
+        // Accepting the best available reading is the recommended path here, not a risky one — the
+        // amber header already says "these disagreed", the confirm button shouldn't repeat that.
+        confirmMatchesTone = false,
         onConfirm = { onAccept(best) },
         onDismiss = onRetake,
         content = {
@@ -76,6 +79,9 @@ fun OdometerRejectionSheet(
         confirmLabel = stringResource(Res.string.core_odometer_action_accept_typed),
         dismissLabel = stringResource(Res.string.tracking_action_retake),
         tone = ActionConfirmationToneType.Danger,
+        // "Use typed value" is the safe, non-destructive fallback, not the rejection itself — it
+        // should never render red. The Danger tone stays on the header (nothing else was usable).
+        confirmMatchesTone = false,
         // ponytail: no typed value to fall back to — the confirm button no-ops rather than plumbing
         // an `enabled` override through the shared ActionConfirmationBottomSheet for this one caller.
         onConfirm = { userReading?.let(onAccept) },

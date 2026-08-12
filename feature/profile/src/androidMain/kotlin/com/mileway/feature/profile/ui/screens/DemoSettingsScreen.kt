@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -75,6 +74,7 @@ import com.mileway.core.ui.resources.profile_demo_view_root_clean
 import com.mileway.core.ui.resources.profile_demo_view_root_detected
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.ui.previews.LightDarkPreview
 import com.mileway.feature.profile.viewmodel.DemoSettingsAction
 import com.mileway.feature.profile.viewmodel.DemoSettingsViewModel
@@ -120,7 +120,7 @@ fun DemoSettingsScreen(
             Card(
                 colors =
                     CardDefaults.cardColors(
-                        containerColor = Color(0xFFFFF8E1),
+                        containerColor = MilewayRoles.tint(MilewayRoles.pending),
                     ),
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -251,11 +251,9 @@ fun DemoSettingsScreen(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1A237E),
-                    ),
             ) {
+                // ponytail: no custom colors override — ButtonDefaults already defaults to the
+                // theme accent, which is what the removed hardcoded indigo was trying to be.
                 Text(stringResource(Res.string.profile_demo_test_biometric))
             }
         }

@@ -25,6 +25,17 @@ kotlin {
         binaries.executable()
     }
 
+    // A JVM target that exists ONLY to screenshot this shell. Every screen here
+    // (Dashboard/Tracking/Expenses) lives in commonMain — plain Compose with no wasm-specific
+    // code; only Main.kt and one theme actual are wasmJs-only. So the same composables render on
+    // the JVM and can be captured with ImageIO, exactly as :desktopApp does.
+    //
+    // Be clear about what this does and does not prove: it covers the shell's UI, and it does NOT
+    // prove the wasm binary runs in a browser. Verifying that needs a real browser harness
+    // (Playwright against the built distribution), which is a separate piece of work. A capture
+    // that silently implied wasm-runtime coverage would be worse than none.
+    jvm("screenshot")
+
     sourceSets {
         commonMain {
             // The real Mileway theme, compiled from core:ui's sources. Allowlist (not the whole
@@ -38,6 +49,16 @@ kotlin {
                 "com/mileway/core/ui/theme/MilewaySemanticColors.kt",
                 "com/mileway/core/ui/theme/MilewayTheme.kt",
                 "com/mileway/core/ui/theme/MilewayThemes.kt",
+                // Layer 2 (semantic roles) + the HCT maths it derives them with. MilewayTheme.kt
+                // provides LocalMilewayRoleColors unconditionally, so these are not optional
+                // extras — without them this target does not compile at all.
+                "com/mileway/core/ui/theme/MilewayRoles.kt",
+                "com/mileway/core/ui/theme/MilewayDomain.kt",
+                "com/mileway/core/ui/theme/ColorMath.kt",
+                // Every design direction, by directory rather than by name: this allowlist silently
+                // rotted the moment the five directions landed, and naming each file would set the
+                // same trap for the sixth.
+                "com/mileway/core/ui/theme/direction/**",
                 "com/mileway/core/ui/theme/ThemeController.kt",
                 "com/mileway/core/ui/theme/ThemeDefaults.kt",
                 "com/mileway/core/ui/theme/Type.kt",
@@ -57,6 +78,14 @@ kotlin {
                 // Real tracking math (Kalman smoothing, path simplification) — the toolkit module
                 // already publishes a wasmJs target, so the demo drive runs the production pipeline.
                 implementation("com.siddharth.kmp:location:1.0.0")
+            }
+        }
+
+        val screenshotTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(compose.desktop.uiTestJUnit4)
+                implementation(compose.desktop.currentOs)
             }
         }
     }

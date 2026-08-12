@@ -18,11 +18,9 @@ import com.mileway.core.ui.resources.cards_status_kyc_pending
 import com.mileway.core.ui.resources.cards_status_pending
 import com.mileway.core.ui.resources.cards_status_physical_issued
 import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.cards.model.CardStatus
 import org.jetbrains.compose.resources.stringResource
-
-/** Web's primary indigo accent (`#6367FA`) reused across the cards UI. */
-internal val CardAccent = Color(0xFF6367FA)
 
 /** Thousands-grouped money string (commonMain-safe; no java.text). */
 internal fun formatMoney(
@@ -42,12 +40,13 @@ internal fun formatMoney(
 /** Masked PAN from the stored last-4. */
 internal fun maskedNumber(last4: String): String = "•••• •••• •••• $last4"
 
+@Composable
 private fun statusColor(status: CardStatus): Color =
     when (status) {
-        CardStatus.ACTIVE, CardStatus.PHYSICAL_ISSUED -> DesignTokens.StatusColors.success
-        CardStatus.BLOCKED, CardStatus.EXPIRED -> DesignTokens.StatusColors.error
-        CardStatus.FROZEN -> DesignTokens.StatusColors.info
-        CardStatus.KYC_PENDING, CardStatus.PENDING -> DesignTokens.StatusColors.warning
+        CardStatus.ACTIVE, CardStatus.PHYSICAL_ISSUED -> MilewayRoles.approved
+        CardStatus.BLOCKED, CardStatus.EXPIRED -> MilewayRoles.rejected
+        CardStatus.FROZEN -> MilewayRoles.informational
+        CardStatus.KYC_PENDING, CardStatus.PENDING -> MilewayRoles.pending
     }
 
 @Composable
@@ -71,7 +70,7 @@ internal fun CardStatusBadge(
     Text(
         text = statusLabel(status),
         style = MaterialTheme.typography.labelSmall,
-        color = Color.White,
+        color = MilewayRoles.onFilled(color),
         modifier =
             modifier
                 .clip(DesignTokens.Shape.button)

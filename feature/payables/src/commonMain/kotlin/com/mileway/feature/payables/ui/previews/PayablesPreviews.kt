@@ -22,12 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ui.previews.PreviewLightDark
 import com.mileway.core.ui.previews.PreviewMatrix
 import com.mileway.core.ui.previews.PreviewSurface
+import com.mileway.core.ui.theme.MilewayRoles
+import com.mileway.core.ui.theme.MilewayThemeVariant
 import com.mileway.feature.payables.model.PoLineItem
 import com.mileway.feature.payables.model.PoStatus
 import com.mileway.feature.payables.model.PurchaseOrder
@@ -77,10 +78,10 @@ private val samplePoPending =
 private fun PoSummaryCard(po: PurchaseOrder) {
     val (statusColor, statusLabel) =
         when (po.status) {
-            PoStatus.APPROVED -> Color(0xFF22C55E) to "Approved"
-            PoStatus.PENDING_APPROVAL -> Color(0xFFF59E0B) to "Pending Approval"
-            PoStatus.REJECTED -> Color(0xFFEF4444) to "Rejected"
-            PoStatus.DRAFT -> Color(0xFF94A3B8) to "Draft"
+            PoStatus.APPROVED -> MilewayRoles.approved to "Approved"
+            PoStatus.PENDING_APPROVAL -> MilewayRoles.pending to "Pending Approval"
+            PoStatus.REJECTED -> MilewayRoles.rejected to "Rejected"
+            PoStatus.DRAFT -> MilewayRoles.inactive to "Draft"
         }
     val statusIcon =
         when (po.status) {
@@ -168,7 +169,7 @@ fun PreviewPoCardPendingApproval() {
 @PreviewMatrix
 @Composable
 fun PreviewPoListMatrix() {
-    PreviewSurface {
+    PreviewSurface(MilewayThemeVariant.MATRIX) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -184,7 +185,7 @@ fun PreviewPoListMatrix() {
 @PreviewMatrix
 @Composable
 fun PreviewPoLineItemsMatrix() {
-    PreviewSurface {
+    PreviewSurface(MilewayThemeVariant.MATRIX) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),

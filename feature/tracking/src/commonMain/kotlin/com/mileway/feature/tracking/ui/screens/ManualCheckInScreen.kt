@@ -102,6 +102,7 @@ fun ManualCheckInScreen(
     var typeExpanded by remember { mutableStateOf(false) }
     var isRefreshing by remember { mutableStateOf(false) }
     var isSubmitting by remember { mutableStateOf(false) }
+    var submitError by remember { mutableStateOf<String?>(null) }
 
     val canSubmit = reason.isNotBlank() && !isSubmitting
 
@@ -126,21 +127,32 @@ fun ManualCheckInScreen(
     fun submitCheckIn() {
         scope.launch {
             isSubmitting = true
+            submitError = null
             delay(800)
-            hardwareEventRepository.insert(
-                HardwareEvent(
-                    token = "manual_checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
-                    eventType = EventType.CHECK_IN,
-                    time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
-                    lat = demoLat,
-                    lng = demoLng,
-                    event = "Manual check-in${if (selectedType != null) " ($selectedType)" else ""}: $reason",
-                ),
-            )
+            val result =
+                hardwareEventRepository.insert(
+                    HardwareEvent(
+                        token = "manual_checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
+                        eventType = EventType.CHECK_IN,
+                        time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                        lat = demoLat,
+                        lng = demoLng,
+                        event = "Manual check-in${if (selectedType != null) " ($selectedType)" else ""}: $reason",
+                    ),
+                )
             isSubmitting = false
-            snackbarHostState.showSnackbar("Check-in submitted successfully")
-            delay(500)
-            onBack()
+            // Every submission has a failure path: insert() returns Result rather than throwing —
+            // this is the one place that Result was previously discarded, silently dropping the
+            // check-in on a write failure while still telling the user it succeeded.
+            result.fold(
+                onSuccess = {
+                    submitError = null
+                    snackbarHostState.showSnackbar("Check-in submitted successfully")
+                    delay(500)
+                    onBack()
+                },
+                onFailure = { e -> submitError = e.message ?: "Couldn't save this check-in. Try again." },
+            )
         }
     }
 
@@ -166,6 +178,16 @@ fun ManualCheckInScreen(
                         .padding(DesignTokens.Spacing.l)
                         .padding(bottom = DesignTokens.Spacing.m),
             ) {
+                // ERROR: names what failed and stays actionable — the button underneath is the retry,
+                // already enabled since isSubmitting was reset before this text can show.
+                submitError?.let { message ->
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = DesignTokens.Spacing.s),
+                    )
+                }
                 Button(
                     shape = DesignTokens.Shape.button,
                     onClick = { submitCheckIn() },
@@ -288,10 +310,15 @@ fun ManualCheckInScreen(
                         onExpandedChange = { typeExpanded = it },
                     ) {
                         OutlinedTextField(
-                            value = selectedType ?: stringResource(Res.string.tracking_manual_checkin_type_placeholder),
+                            // Was: selected value OR the "Select type" hint stuffed into the same
+                            // slot, so an unset field rendered indistinguishable from a real
+                            // answer (see the identical GeoCheckInScreen fix). label + placeholder
+                            // keep those two states visually distinct.
+                            value = selectedType ?: "",
                             onValueChange = {},
                             readOnly = true,
                             label = { Text(stringResource(Res.string.tracking_manual_checkin_type_label)) },
+                            placeholder = { Text(stringResource(Res.string.tracking_manual_checkin_type_placeholder)) },
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(typeExpanded) },
                             modifier =
                                 Modifier

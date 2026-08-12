@@ -53,36 +53,60 @@ class MileageTileService : TileService() {
             )
             .build()
 
-    private fun buildLayout(snapshot: SurfaceSnapshot): LayoutElementBuilders.LayoutElement =
-        LayoutElementBuilders.Column.Builder()
-            .setModifiers(
-                ModifiersBuilders.Modifiers.Builder()
-                    .setClickable(openWearActivityClickable())
-                    .build()
-            )
-            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-            .addContent(
+    private fun buildLayout(snapshot: SurfaceSnapshot): LayoutElementBuilders.LayoutElement {
+        // AMBIENT.1: the cached snapshot going stale (publisher/sync stalled) matters more to the
+        // user than which exact live word would've shown — a frozen "TRACKING" is a lie, so stale
+        // wins over the normal status label rather than the two being shown at once.
+        val statusLabel =
+            if (WearPresentation.isStale(snapshot, System.currentTimeMillis())) {
+                "STALE"
+            } else {
+                WearPresentation.toTileStatusLabel(snapshot)
+            }
+        val columnBuilder =
+            LayoutElementBuilders.Column.Builder()
+                .setModifiers(
+                    ModifiersBuilders.Modifiers.Builder()
+                        .setClickable(openWearActivityClickable())
+                        .build()
+                )
+                .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                .addContent(
+                    LayoutElementBuilders.Text.Builder()
+                        .setText(WearPresentation.toTodayDistanceLabel(snapshot))
+                        .setFontStyle(
+                            LayoutElementBuilders.FontStyle.Builder()
+                                .setSize(DimensionBuilders.sp(28f))
+                                .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
+                                .build()
+                        )
+                        .build()
+                )
+                .addContent(
+                    LayoutElementBuilders.Text.Builder()
+                        .setText("Mileway")
+                        .setFontStyle(
+                            LayoutElementBuilders.FontStyle.Builder()
+                                .setSize(DimensionBuilders.sp(12f))
+                                .build()
+                        )
+                        .build()
+                )
+        if (statusLabel != null) {
+            columnBuilder.addContent(
                 LayoutElementBuilders.Text.Builder()
-                    .setText(WearPresentation.toTodayDistanceLabel(snapshot))
+                    .setText(statusLabel)
                     .setFontStyle(
                         LayoutElementBuilders.FontStyle.Builder()
-                            .setSize(DimensionBuilders.sp(28f))
+                            .setSize(DimensionBuilders.sp(STATUS_LABEL_SP))
                             .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
                             .build()
                     )
                     .build()
             )
-            .addContent(
-                LayoutElementBuilders.Text.Builder()
-                    .setText("Mileway")
-                    .setFontStyle(
-                        LayoutElementBuilders.FontStyle.Builder()
-                            .setSize(DimensionBuilders.sp(12f))
-                            .build()
-                    )
-                    .build()
-            )
-            .build()
+        }
+        return columnBuilder.build()
+    }
 
     private fun openWearActivityClickable(): ModifiersBuilders.Clickable =
         ModifiersBuilders.Clickable.Builder()
@@ -99,6 +123,10 @@ class MileageTileService : TileService() {
         /** Matches P2.6's acceptance: the tile is allowed to go stale for up to a minute before the
          * system re-invokes [onTileRequest] — cheap since the read is cache-only. */
         private const val FRESHNESS_INTERVAL_MILLIS = 60_000L
+
+        /** AMBIENT.1: the status-word line's font size, smaller than the distance (28sp) and app
+         * label (12sp) above it. */
+        private const val STATUS_LABEL_SP = 11f
 
         /**
          * Boots [WearAppGraph] if needed (idempotent — safe to call from a cold tile process) and

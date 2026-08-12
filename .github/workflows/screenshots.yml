@@ -69,6 +69,13 @@ jobs:
       # into docs/screenshots (see its class doc), so any change it makes is picked up by the
       # existing "git add docs/screenshots" step next.
       - name: Run screenshot gallery + catalog tests (crash/regression gate)
+        # This job RECORDS — the next step git-adds docs/screenshots and opens a refresh PR when
+        # they drift. Without this env var the tests take the compare path instead, write nothing,
+        # and fail against baselines the job was supposed to be producing. It has to be an env var,
+        # not a -P property: a Gradle property does not reach a forked test JVM, which is the same
+        # trap that left the whole capture pipeline silently no-op'ing for weeks.
+        env:
+          ROBORAZZI_RECORD: 'true'
         run: ./scripts/run-jvm-tests.sh :app:screenshotTestNoGmsDebug
 
       # main: baselines drifted. main is protected by the "Quality Gate required" ruleset, so the bot

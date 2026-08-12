@@ -63,7 +63,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -74,17 +73,24 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.ExpandableText
+import com.mileway.core.ui.components.sheet.BulkActionConfirmationBottomSheet
+import com.mileway.core.ui.components.sheet.BulkActionType
+import com.mileway.core.ui.components.sheet.FilterBottomSheet
+import com.mileway.core.ui.components.sheet.FilterOption
+import com.mileway.core.ui.components.sheet.FilterSection
+import com.mileway.core.ui.components.sheet.FilterSelectionMode
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.approvals_action_approve
 import com.mileway.core.ui.resources.approvals_action_cancel
+import com.mileway.core.ui.resources.approvals_action_reject
 import com.mileway.core.ui.resources.approvals_approve_all
-import com.mileway.core.ui.resources.approvals_bulk_action_illustrative
 import com.mileway.core.ui.resources.approvals_cd_clarification_history
 import com.mileway.core.ui.resources.approvals_cd_filter
-import com.mileway.core.ui.resources.approvals_empty_no_items
 import com.mileway.core.ui.resources.approvals_filter_saved
 import com.mileway.core.ui.resources.approvals_plural_days_ago
 import com.mileway.core.ui.resources.approvals_plural_hours_ago
@@ -113,7 +119,6 @@ import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
 import com.siddharth.kmp.common.formatDecimal
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -132,11 +137,16 @@ fun ApprovalsScreen(
 ) {
     val ui by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectionMode by rememberSaveable { mutableStateOf(false) }
     val selectedIds = remember { mutableStateOf(setOf<String>()) }
-    val bulkActionMessage = stringResource(Res.string.approvals_bulk_action_illustrative)
+    // Which bulk sheet is showing, if any — null means neither is open.
+    var pendingBulkAction by remember { mutableStateOf<BulkActionType?>(null) }
+    // The header's filter icon previously did nothing (onClick = {}) — a real screen offering a
+    // filter affordance with no filter behind it. Type is a view-local narrowing of the pending
+    // queue, same tier as savedFilterOn/selectionMode below — no ViewModel round-trip needed.
+    var typeFilter by remember { mutableStateOf<ApprovalType?>(null) }
+    var showTypeFilterSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -174,6 +184,7 @@ fun ApprovalsScreen(
                     selectedIds.value = emptySet()
                 },
                 onOpenClarificationHistory = onOpenClarificationHistory,
+                onOpenFilter = { showTypeFilterSheet = true },
             )
         },
         bottomBar = {
@@ -192,11 +203,7 @@ fun ApprovalsScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         OutlinedButton(
-                            onClick = {
-                                scope.launch { snackbarHostState.showSnackbar(bulkActionMessage) }
-                                selectionMode = false
-                                selectedIds.value = emptySet()
-                            },
+                            onClick = { pendingBulkAction = BulkActionType.Decline },
                             modifier = Modifier.weight(1f),
                             shape = DesignTokens.Shape.button,
                         ) {
@@ -205,11 +212,7 @@ fun ApprovalsScreen(
                             Text(stringResource(Res.string.approvals_reject_all, selectedIds.value.size))
                         }
                         Button(
-                            onClick = {
-                                scope.launch { snackbarHostState.showSnackbar(bulkActionMessage) }
-                                selectionMode = false
-                                selectedIds.value = emptySet()
-                            },
+                            onClick = { pendingBulkAction = BulkActionType.Approve },
                             modifier = Modifier.weight(1f),
                             shape = DesignTokens.Shape.button,
                         ) {
@@ -244,13 +247,26 @@ fun ApprovalsScreen(
                 0 -> {
                     // P28.4: SAVED filters the pending list down to approvals whose clarification
                     // room is currently saved (empty when nothing's saved yet — chip stays visible).
-                    Row(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
                         FilterChip(
                             selected = ui.savedFilterOn,
                             onClick = { viewModel.onAction(ApprovalsAction.ToggleSavedFilter) },
                             label = { Text(stringResource(Res.string.approvals_filter_saved)) },
                             leadingIcon = { Icon(Icons.Filled.Bookmark, contentDescription = null, modifier = Modifier.size(16.dp)) },
                         )
+                        // Mirrors the header's filter icon — shows what's active and doubles as a
+                        // one-tap clear, same as the SAVED chip beside it.
+                        typeFilter?.let { active ->
+                            FilterChip(
+                                selected = true,
+                                onClick = { typeFilter = null },
+                                label = { Text(typeLabel(active)) },
+                                trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Clear type filter", modifier = Modifier.size(16.dp)) },
+                            )
+                        }
                     }
                     ScreenStateContent(
                         state = ui.listState,
@@ -258,9 +274,26 @@ fun ApprovalsScreen(
                         onRetry = { viewModel.onAction(ApprovalsAction.Refresh) },
                     ) { loaded ->
                         val pending = loaded.filter { it.status == ApprovalStatus.PENDING }
-                        val visible = if (ui.savedFilterOn) pending.filter { it.id in ui.savedApprovalIds } else pending
+                        val savedFiltered = if (ui.savedFilterOn) pending.filter { it.id in ui.savedApprovalIds } else pending
+                        val visible = typeFilter?.let { t -> savedFiltered.filter { it.type == t } } ?: savedFiltered
                         ApprovalListTab(
                             items = visible,
+                            // EMPTY: three different reasons can land here — nothing pending at
+                            // all (the common, positive case), the SAVED filter matching nothing,
+                            // or the type filter matching nothing. Previously all three showed the
+                            // same literal "No items" text.
+                            emptyTitle =
+                                when {
+                                    ui.savedFilterOn -> "No saved conversations"
+                                    typeFilter != null -> "No ${typeLabel(typeFilter!!).lowercase()} requests pending"
+                                    else -> "You're all caught up"
+                                },
+                            emptySubtitle =
+                                when {
+                                    ui.savedFilterOn -> "Approvals you save from the clarification chat will show up here."
+                                    typeFilter != null -> "Try a different type, or clear the filter to see everything pending."
+                                    else -> "Nothing is waiting for your approval right now."
+                                },
                             onOpenDetail = onOpenDetail,
                             selectionMode = selectionMode,
                             selectedIds = selectedIds.value,
@@ -275,7 +308,9 @@ fun ApprovalsScreen(
                 1 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.teamItems,
-                        onOpenDetail = {},
+                        emptyTitle = "No team activity yet",
+                        emptySubtitle = "Approvals submitted by your team will appear here.",
+                        onOpenDetail = onOpenDetail,
                         selectionMode = false,
                         selectedIds = emptySet(),
                         onLongPress = {},
@@ -284,7 +319,9 @@ fun ApprovalsScreen(
                 2 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.myRequests,
-                        onOpenDetail = {},
+                        emptyTitle = "No requests yet",
+                        emptySubtitle = "Submit a mileage log, expense, or travel request and its approval status will show up here.",
+                        onOpenDetail = onOpenDetail,
                         selectionMode = false,
                         selectedIds = emptySet(),
                         onLongPress = {},
@@ -293,12 +330,82 @@ fun ApprovalsScreen(
             }
         }
     }
+
+    // Bulk approve/reject — was a fake "illustrative" toast that discarded the selection with no
+    // real change; now a real per-id resolve (see ApprovalsViewModel.bulkApprove/bulkReject), gated
+    // behind the same mandatory-reason confirmation a single reject gets.
+    pendingBulkAction?.let { action ->
+        BulkActionConfirmationBottomSheet(
+            actionType = action,
+            selectedCount = selectedIds.value.size,
+            confirmLabel =
+                if (action == BulkActionType.Approve) {
+                    stringResource(Res.string.approvals_action_approve)
+                } else {
+                    stringResource(Res.string.approvals_action_reject)
+                },
+            onConfirm = { remarks ->
+                val ids = selectedIds.value
+                if (action == BulkActionType.Approve) {
+                    viewModel.onAction(ApprovalsAction.BulkApprove(ids))
+                } else {
+                    viewModel.onAction(ApprovalsAction.BulkReject(ids, remarks))
+                }
+                pendingBulkAction = null
+                selectionMode = false
+                selectedIds.value = emptySet()
+            },
+            onDismiss = { pendingBulkAction = null },
+        )
+    }
+
+    // Header filter icon: was onClick = {} — a control that promised filtering and did nothing.
+    // Reuses core:ui's FilterBottomSheet (same drill-down/apply-on-confirm pattern the rest of the
+    // app already uses) rather than a bespoke dropdown.
+    if (showTypeFilterSheet) {
+        FilterBottomSheet(
+            sections =
+                listOf(
+                    FilterSection(
+                        key = "type",
+                        title = "Request type",
+                        icon = Icons.Default.FilterList,
+                        mode = FilterSelectionMode.SINGLE,
+                        options =
+                            listOf(FilterOption(TYPE_FILTER_ALL, "All types")) +
+                                ApprovalType.entries.map { FilterOption(it.name, typeLabel(it)) },
+                    ),
+                ),
+            initialSelected = mapOf("type" to setOf(typeFilter?.name ?: TYPE_FILTER_ALL)),
+            onApply = { staged ->
+                val picked = staged["type"]?.firstOrNull()
+                typeFilter = picked?.takeIf { it != TYPE_FILTER_ALL }?.let { ApprovalType.valueOf(it) }
+                showTypeFilterSheet = false
+            },
+            onDismiss = { showTypeFilterSheet = false },
+            title = "Filter requests",
+        )
+    }
 }
 
+private const val TYPE_FILTER_ALL = "ALL"
+
+private fun typeLabel(type: ApprovalType): String =
+    when (type) {
+        ApprovalType.MILEAGE -> "Mileage"
+        ApprovalType.EXPENSE -> "Expense"
+        ApprovalType.TRAVEL -> "Travel"
+        ApprovalType.ADVANCE -> "Advance"
+    }
+
+// internal, not private: reused as-is by ApprovalsPreviews.kt so the filled/empty capture states
+// render the real production list, not a reimplemented approximation.
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ApprovalListTab(
+internal fun ApprovalListTab(
     items: List<ApprovalItem>,
+    emptyTitle: String,
+    emptySubtitle: String,
     onOpenDetail: (String) -> Unit,
     selectionMode: Boolean,
     selectedIds: Set<String>,
@@ -306,13 +413,7 @@ private fun ApprovalListTab(
     onToggleSelect: (String) -> Unit,
 ) {
     if (items.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text(
-                stringResource(Res.string.approvals_empty_no_items),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        EmptyState(title = emptyTitle, subtitle = emptySubtitle, modifier = Modifier.fillMaxSize())
         return
     }
     LazyColumn(
@@ -338,11 +439,12 @@ private fun ApprovalsGradientHeader(
     selectionMode: Boolean,
     onCancelSelection: () -> Unit,
     onOpenClarificationHistory: () -> Unit,
+    onOpenFilter: () -> Unit,
 ) {
-    val gradient =
-        Brush.horizontalGradient(
-            listOf(Color(0xFF6C63FF), Color(0xFF9C6BFF)),
-        )
+    // Theme-aware gradient (the same brush every other ROOT-level header uses, e.g. LogMilesHistoryScreen) —
+    // this previously hardcoded a fixed purple brush, so the header rendered identically under
+    // every theme instead of following it.
+    val gradient = DesignTokens.topBarGradientBrush()
     val shimmerProgress by rememberInfiniteTransition(label = "shimmer").animateFloat(
         initialValue = -1f,
         targetValue = 2f,
@@ -437,7 +539,7 @@ private fun ApprovalsGradientHeader(
                         IconButton(onClick = onOpenClarificationHistory) {
                             Icon(Icons.Default.Chat, contentDescription = stringResource(Res.string.approvals_cd_clarification_history), tint = Color.White)
                         }
-                        IconButton(onClick = {}) {
+                        IconButton(onClick = onOpenFilter) {
                             Icon(Icons.Default.FilterList, contentDescription = stringResource(Res.string.approvals_cd_filter), tint = Color.White)
                         }
                     }
@@ -447,9 +549,10 @@ private fun ApprovalsGradientHeader(
     }
 }
 
+// internal, not private: reused by ApprovalsPreviews.kt (see ApprovalListTab's note).
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun ApprovalCard(
+internal fun ApprovalCard(
     item: ApprovalItem,
     selectionMode: Boolean,
     isSelected: Boolean,
