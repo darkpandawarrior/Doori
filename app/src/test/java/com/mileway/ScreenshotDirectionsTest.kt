@@ -569,9 +569,70 @@ class ScreenshotDirectionsTest {
      * actually need it (each owns its own Scaffold/Surface, same as their ScreenshotGalleryTest
      * captures) but it costs nothing to apply uniformly and removes the failure mode entirely.
      */
+
+    // ── PAPER, NIGHT ────────────────────────────────────────────────────────────────────
+    // Paper's hand-built dark counterpart. Captured as a pair with the light face so the site
+    // can wipe between them: same layout, same content, only luminance differs, which is
+    // exactly the comparison a drag-divider is good at.
+
+    @Test
+    fun dirPaperNightApprovals() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoApprovals() } }
+        capture("dir_paper_night_approvals")
+    }
+
+    @Test
+    fun dirPaperNightTrackDetail() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoTrackDetail() } }
+        capture("dir_paper_night_track_detail")
+    }
+
+    @Test
+    fun dirPaperNightExpense() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoExpense() } }
+        capture("dir_paper_night_expense")
+    }
+
+    @Test
+    fun dirPaperNightLiveDrive() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoLiveDrive() } }
+        capture("dir_paper_night_live_drive")
+    }
+
+    @Test
+    fun dirPaperNightDriveReview() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoDriveReview() } }
+        capture("dir_paper_night_drive_review")
+    }
+
+    @Test
+    fun dirPaperNightSavedTracks() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoSavedTracks() } }
+        capture("dir_paper_night_saved_tracks")
+    }
+
+    @Test
+    fun dirPaperNightTrackEvidence() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoTrackEvidence() } }
+        capture("dir_paper_night_track_evidence")
+    }
+
+    @Test
+    fun dirPaperNightJourneyGuide() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoJourneyGuide() } }
+        capture("dir_paper_night_journey_guide")
+    }
+
     @Composable
-    private fun directed(variant: MilewayThemeVariant, content: @Composable () -> Unit) {
-        MilewayTheme(milewayTheme = variant) {
+    private fun directed(
+        variant: MilewayThemeVariant,
+        dark: Boolean = false,
+        content: @Composable () -> Unit,
+    ) {
+        // `dark` only does anything for a variant that ships both faces (Paper). A single-mode
+        // variant still forces its own luminance, so passing true there is a no-op rather than an
+        // inverted guess — see MilewayThemeVariant.followsSystem.
+        MilewayTheme(darkTheme = dark, milewayTheme = variant) {
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             ) {
