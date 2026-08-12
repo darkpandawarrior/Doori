@@ -1,6 +1,6 @@
-# Design sentinel — 2026-08-11
+# Design sentinel — 2026-08-12
 
-326 captures · 217 screen-like composables in tree
+328 captures · 217 screen-like composables in tree
 
 ## Scope creep
 **84 screens have no capture.**
@@ -51,8 +51,9 @@
 None.
 
 ## Drift since last accepted baseline
-added 0 · changed 0 · removed 0
+added 2 · changed 1 · removed 0
 
+- changed: wear_dashboard.png
 
 
 ## Design critique of what changed

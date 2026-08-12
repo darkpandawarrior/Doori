@@ -49,8 +49,16 @@ class WearScreenshotGalleryTest {
             // which forced RECORD mode unconditionally, so every run overwrote the baseline and a
             // visual regression was literally unrepresentable — the test rewrote the evidence and
             // passed. That is why captures went stale and wrong for months with nothing alerting.
-            // Verify is now the default; record only when explicitly asked:
-            //   ./gradlew screenshotTest -Proborazzi.test.record=true
+            // Verify is now the default; record only when explicitly asked.
+            //
+            // Via the ENV VAR, not the -P property this comment used to name: a Gradle property
+            // does not reach a forked test JVM, so the documented record path was unreachable and
+            // a newly added capture could never be written at all. Found exactly that way — two new
+            // states ran green and produced no files.
+            //   ROBORAZZI_RECORD=true ./gradlew screenshotTest
+            if (System.getenv("ROBORAZZI_RECORD") == "true") {
+                System.setProperty("roborazzi.test.record", "true")
+            }
         }
     }
 
@@ -74,6 +82,69 @@ class WearScreenshotGalleryTest {
                                     weekGoalKm = 100.0,
                                     weekGoalProgress = 0.587f,
                                     trips = mockTrips(),
+                                    activeToken = "phone-session",
+                                    canControlTracking = true,
+                                ),
+                            listState = listState,
+                            onTripsClick = {},
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * The state the control exists to make honest: a trip is running, but this watch never received
+     * the phone's session token, so a stop it sent would be ignored. The button says "Stop on
+     * phone" and is disabled rather than looking tappable.
+     */
+    @Test
+    fun wearDashboardTrackingUnstoppable() {
+        captureRoboImage(File(screenshotsDir, "wear_dashboard_stop_on_phone.png").absolutePath) {
+            WearMilewayTheme {
+                AppScaffold {
+                    val listState = rememberScalingLazyListState()
+                    ScreenScaffold(scrollState = listState, timeText = {}) {
+                        WearDashboard(
+                            uiState =
+                                WearRootUiState(
+                                    todayDistanceKm = 12.4,
+                                    weekDistanceKm = 58.7,
+                                    isTracking = true,
+                                    weekGoalKm = 100.0,
+                                    weekGoalProgress = 0.587f,
+                                    trips = mockTrips(),
+                                    activeToken = null,
+                                    canControlTracking = true,
+                                ),
+                            listState = listState,
+                            onTripsClick = {},
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /** Idle: the control offers to start. */
+    @Test
+    fun wearDashboardIdle() {
+        captureRoboImage(File(screenshotsDir, "wear_dashboard_idle.png").absolutePath) {
+            WearMilewayTheme {
+                AppScaffold {
+                    val listState = rememberScalingLazyListState()
+                    ScreenScaffold(scrollState = listState, timeText = {}) {
+                        WearDashboard(
+                            uiState =
+                                WearRootUiState(
+                                    todayDistanceKm = 0.0,
+                                    weekDistanceKm = 58.7,
+                                    isTracking = false,
+                                    weekGoalKm = 100.0,
+                                    weekGoalProgress = 0.587f,
+                                    trips = mockTrips(),
+                                    canControlTracking = true,
                                 ),
                             listState = listState,
                             onTripsClick = {},
