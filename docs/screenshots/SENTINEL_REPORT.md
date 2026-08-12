@@ -51,9 +51,9 @@
 None.
 
 ## Drift since last accepted baseline
-added 2 · changed 1 · removed 0
+added 0 · changed 1 · removed 0
 
-- changed: wear_dashboard.png
+- changed: widget_glance.png
 
 
 ## Design critique of what changed

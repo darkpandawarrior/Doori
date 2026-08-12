@@ -10,6 +10,7 @@ import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.mileway.core.data.widget.WidgetPalette
 import com.github.takahirom.roborazzi.captureRoboImage
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -39,8 +40,15 @@ class WidgetScreenshotTest {
         // which forced RECORD mode unconditionally, so every run overwrote the baseline and a
         // visual regression was literally unrepresentable — the test rewrote the evidence and
         // passed. That is why captures went stale and wrong for months with nothing alerting.
-        // Verify is now the default; record only when explicitly asked:
-        //   ./gradlew screenshotTest -Proborazzi.test.record=true
+        // Verify is now the default; record only when explicitly asked.
+        //
+        // Via the ENV VAR, not the -P property this comment used to name: a Gradle property does
+        // not reach a forked test JVM, so the documented record path was unreachable. Found by
+        // deleting this capture and re-running with -P — the file simply never came back.
+        //   ROBORAZZI_RECORD=true ./gradlew screenshotTest
+        if (System.getenv("ROBORAZZI_RECORD") == "true") {
+            System.setProperty("roborazzi.test.record", "true")
+        }
         val context = ApplicationProvider.getApplicationContext<Application>()
         val model =
             WidgetUiModel(
@@ -53,7 +61,12 @@ class WidgetScreenshotTest {
         val remoteViews =
             runBlocking {
                 GlanceRemoteViews()
-                    .compose(context, DpSize(220.dp, 120.dp)) { MileageSummaryContent(model) }
+                    .compose(context, DpSize(220.dp, 120.dp)) {
+                        // Explicitly the app's shipped theme. Defaulting here would capture
+                        // the Ember fallback and the gallery would keep advertising a widget
+                        // nobody has, which is the drift this whole change removes.
+                        MileageSummaryContent(model, shippedWidgetColors())
+                    }
                     .remoteViews
             }
 
@@ -80,3 +93,20 @@ class WidgetScreenshotTest {
         return File(repoRoot, "docs/screenshots").also { it.mkdirs() }
     }
 }
+
+/**
+ * The colours the widget ships with, derived from the app's default variant the same way
+ * `ThemeWidgetPaletteSource` does at runtime. `:widget` cannot see `:core:ui`, so the two values it
+ * needs are stated here — and `WidgetPaletteFollowsThemeTest` in `:app` asserts the runtime source
+ * agrees with every variant's spec, so this cannot quietly disagree with the app.
+ */
+private fun shippedWidgetColors(): WidgetColors =
+    WidgetColors.from(
+        WidgetPalette(
+            surface = 0xFFF7F3EA, // Paper canvas
+            accent = 0xFF1E3A5F, // Paper ink-navy
+            live = 0xFFB3261E,
+            onSurface = 0xFF241F1A,
+            stale = 0xFF6E6353,
+        ),
+    )

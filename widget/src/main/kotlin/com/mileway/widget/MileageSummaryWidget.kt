@@ -38,16 +38,43 @@ import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingSnapshot
 import com.mileway.feature.tracking.watch.WatchFacade
 import kotlin.math.round
+import com.mileway.core.data.widget.WidgetPalette
+import com.mileway.core.data.widget.WidgetPaletteSource
 import org.koin.mp.KoinPlatform
 
 // Fixed palette (T.2: mirrors core:ui's Ember spec — warm-dark surface + amber accent) — plain
 // Glance colors keep the widget free of the Material-You/glance-material3 surface so it renders
 // identically across hosts.
-private val SurfaceColor = Color(0xFF17110B)
-private val AccentColor = Color(0xFFF5A623)
-private val LiveColor = Color(0xFFFF453A)
-private val OnSurfaceColor = Color(0xFFF7EFE3)
-private val StaleColor = Color(0xFF8A7F6E)
+/**
+ * The widget's five colours, resolved from the app's live theme.
+ *
+ * These were five hardcoded Ember values. The app's default became Paper and the widget kept
+ * painting amber-on-warm-black next to a light-document app — nothing failed, nothing warned, it
+ * just quietly stopped being the same product. Reading the theme is the only version that cannot
+ * drift again.
+ */
+data class WidgetColors(
+    val surface: Color,
+    val accent: Color,
+    val live: Color,
+    val onSurface: Color,
+    val stale: Color,
+) {
+    companion object {
+        fun from(palette: WidgetPalette) =
+            WidgetColors(
+                surface = Color(palette.surface),
+                accent = Color(palette.accent),
+                live = Color(palette.live),
+                onSurface = Color(palette.onSurface),
+                stale = Color(palette.stale),
+            )
+
+        /** Ember, as the widget always looked. Used when no source is bound — see [WidgetPalette]. */
+        val Fallback = from(WidgetPalette())
+    }
+}
+
 
 /**
  * P6.2/AMBIENT.1: state a widget renders — a pure projection of [WatchSyncPayload] (the same wire
@@ -172,8 +199,13 @@ class MileageSummaryWidget : GlanceAppWidget() {
         val payload = koin.getOrNull<SnapshotCache>()?.read() ?: WatchSyncPayload()
         val liveSnapshot = koin.getOrNull<TrackingServiceApi>()?.trackingState?.value
         val model = buildWidgetUiModel(payload, liveSnapshot, System.currentTimeMillis())
+        // getOrNull, not get: an unbound graph degrades to the Ember fallback rather than crashing
+        // the launcher's widget host, which is a far worse failure than a stale colour.
+        val colors =
+            koin.getOrNull<WidgetPaletteSource>()?.let { WidgetColors.from(it.current()) }
+                ?: WidgetColors.Fallback
         provideContent {
-            MileageSummaryContent(model)
+            MileageSummaryContent(model, colors)
         }
     }
 }
@@ -193,32 +225,35 @@ private val COMPACT_HEIGHT_THRESHOLD = 130.dp
  * legible (not clipped) render instead of the fixed layout this replaces.
  */
 @Composable
-fun MileageSummaryContent(model: WidgetUiModel) {
+fun MileageSummaryContent(
+    model: WidgetUiModel,
+    colors: WidgetColors = WidgetColors.Fallback,
+) {
     val isCompact = LocalSize.current.height < COMPACT_HEIGHT_THRESHOLD
     Column(
         modifier =
             GlanceModifier
                 .fillMaxSize()
-                .background(SurfaceColor)
+                .background(colors.surface)
                 .cornerRadius(16.dp)
                 .padding(if (isCompact) 8.dp else 16.dp),
     ) {
         if (!isCompact) {
             Text(
                 text = "Mileway",
-                style = TextStyle(color = ColorProvider(AccentColor), fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                style = TextStyle(color = ColorProvider(colors.accent), fontWeight = FontWeight.Bold, fontSize = 16.sp),
             )
             Spacer(GlanceModifier.height(8.dp))
         }
         Text(
             text = model.todayLabel,
-            style = TextStyle(color = ColorProvider(OnSurfaceColor), fontSize = 14.sp),
+            style = TextStyle(color = ColorProvider(colors.onSurface), fontSize = 14.sp),
         )
         if (!isCompact) {
             Spacer(GlanceModifier.height(4.dp))
             Text(
                 text = model.weekLabel,
-                style = TextStyle(color = ColorProvider(OnSurfaceColor), fontSize = 14.sp),
+                style = TextStyle(color = ColorProvider(colors.onSurface), fontSize = 14.sp),
             )
         }
         // AMBIENT.1: a stale cache wins over the normal status word — a frozen "Tracking active" is
@@ -230,7 +265,7 @@ fun MileageSummaryContent(model: WidgetUiModel) {
                 text = statusText,
                 style =
                     TextStyle(
-                        color = ColorProvider(if (model.isStale) StaleColor else if (model.isTracking) LiveColor else AccentColor),
+                        color = ColorProvider(if (model.isStale) colors.stale else if (model.isTracking) colors.live else colors.accent),
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp,
                     ),
@@ -240,7 +275,7 @@ fun MileageSummaryContent(model: WidgetUiModel) {
             Spacer(GlanceModifier.height(8.dp))
             Text(
                 text = if (model.isTracking) "■ Stop" else "▶ Start",
-                style = TextStyle(color = ColorProvider(AccentColor), fontWeight = FontWeight.Bold, fontSize = 14.sp),
+                style = TextStyle(color = ColorProvider(colors.accent), fontWeight = FontWeight.Bold, fontSize = 14.sp),
                 modifier =
                     GlanceModifier
                         .clickable(
