@@ -5,6 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 import com.mileway.core.ui.theme.direction.RefinedEmberSpec
+import com.mileway.core.ui.theme.direction.RefinedEmberSpecDay
 
 /**
  * Design Language v2 — the five curated, hand-tuned theme schemes.
@@ -47,6 +48,15 @@ enum class MilewayThemeVariant(
      * has to make, and would let their stored preference disagree with their device.
      */
     val darkSpec: MilewaySchemeSpec? = null,
+    /**
+     * The mirror of [darkSpec] for a dark-first variant: its hand-tuned *day* face.
+     *
+     * Two fields rather than one `counterpartSpec`, because which side is the counterpart is not
+     * derivable from [isLight] alone at the call site — [specFor] has to answer "give me the light
+     * face" and "give me the dark face" directly, and a single field would make a dark-first
+     * variant return its day spec when asked for dark.
+     */
+    val lightSpec: MilewaySchemeSpec? = null,
 ) {
     /** Default (T.1). Warm-dark, amber+red duotone. Replaces the phosphor-green Matrix default. */
     EMBER(
@@ -106,6 +116,7 @@ enum class MilewayThemeVariant(
         isLight = false,
         seedHex = "#2F8FFF",
         spec = com.mileway.core.ui.theme.direction.InstrumentSpec,
+        lightSpec = com.mileway.core.ui.theme.direction.InstrumentSpecDay,
     ),
 
     /** Signal: dark foundation, saturated semantic accents (money/motion/warning), bold type. */
@@ -116,6 +127,7 @@ enum class MilewayThemeVariant(
         isLight = false,
         seedHex = "#5B6EFF",
         spec = SignalSpec,
+        lightSpec = SignalSpecDay,
     ),
 
     /** Financial instrument (light): proportional sans chrome, mono only for money/distance/time. */
@@ -126,6 +138,7 @@ enum class MilewayThemeVariant(
         isLight = true,
         seedHex = "#1E3A5F",
         spec = LedgerSpec,
+        darkSpec = LedgerSpecNight,
     ),
 
     /** Light-first document aesthetic: warm off-white surfaces, ink-navy accent, mono for data only. */
@@ -147,6 +160,7 @@ enum class MilewayThemeVariant(
         isLight = false,
         seedHex = "#F5A623",
         spec = RefinedEmberSpec,
+        lightSpec = RefinedEmberSpecDay,
     ),
     ;
 
@@ -154,10 +168,10 @@ enum class MilewayThemeVariant(
      * The spec to render at [dark]. Falls back to [spec] for single-mode variants, so asking a
      * dark-only theme for its light face returns the theme rather than an inverted guess.
      */
-    fun specFor(dark: Boolean): MilewaySchemeSpec = if (dark) darkSpec ?: spec else spec
+    fun specFor(dark: Boolean): MilewaySchemeSpec = if (dark) darkSpec ?: spec else lightSpec ?: spec
 
     /** True when this variant renders both luminances rather than forcing one. */
-    val followsSystem: Boolean get() = darkSpec != null
+    val followsSystem: Boolean get() = darkSpec != null || lightSpec != null
 
     /** The fully hand-tuned Material 3 [ColorScheme] for this theme. */
     fun colorScheme(dark: Boolean = !isLight): ColorScheme = specFor(dark).toColorScheme(!dark)

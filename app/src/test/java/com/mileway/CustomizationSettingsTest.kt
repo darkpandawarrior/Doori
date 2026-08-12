@@ -467,6 +467,40 @@ class CustomizationSettingsTest {
         assertEquals(ember.specFor(dark = false), ember.specFor(dark = true))
     }
 
+    /**
+     * The five directions that now ship both faces must resolve each face at the luminance it was
+     * built for — including the dark-first ones, whose counterpart is a *day* spec.
+     *
+     * Asserts the direction of resolution, not merely that a counterpart exists: a dark-first
+     * variant wired through `darkSpec` would compile, report `followsSystem == true`, and then hand
+     * back its day face when asked for dark. That is exactly the inversion this catches.
+     */
+    @Test
+    fun `every direction with a counterpart resolves the right face at each luminance`() {
+        val both =
+            listOf(
+                MilewayThemeVariant.PAPER,
+                MilewayThemeVariant.LEDGER,
+                MilewayThemeVariant.INSTRUMENT,
+                MilewayThemeVariant.SIGNAL,
+                MilewayThemeVariant.REFINED_EMBER,
+            )
+        both.forEach { variant ->
+            assertTrue(variant.followsSystem, "${variant.id} ships both faces and must follow the device")
+            val day = variant.specFor(dark = false)
+            val night = variant.specFor(dark = true)
+            assertNotEquals(day.canvas, night.canvas, "${variant.id}: two faces must not be the same spec")
+            val brightness = { c: androidx.compose.ui.graphics.Color -> c.red + c.green + c.blue }
+            assertTrue(
+                brightness(day.canvas) > brightness(night.canvas),
+                "${variant.id}: the light face must actually be lighter — specFor is resolving inverted",
+            )
+            // The variant's own native face is the one `spec` holds; asking for that luminance must
+            // return it, never the counterpart.
+            assertEquals(variant.spec, variant.specFor(dark = !variant.isLight))
+        }
+    }
+
     @Test
     fun `dark schemes use glow and the light scheme does not`() {
         assertTrue(MilewayThemeVariant.EMBER.spec.useGlow)
