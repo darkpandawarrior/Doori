@@ -1,6 +1,6 @@
-# Design sentinel — 2026-08-11
+# Design sentinel — 2026-08-12
 
-326 captures · 217 screen-like composables in tree
+368 captures · 217 screen-like composables in tree
 
 ## Scope creep
 **84 screens have no capture.**
@@ -51,7 +51,7 @@
 None.
 
 ## Drift since last accepted baseline
-added 0 · changed 0 · removed 0
+added 40 · changed 0 · removed 0
 
 
 

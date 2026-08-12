@@ -10,12 +10,12 @@ import com.mileway.stub.di.stubModule
 import com.mileway.wear.gms.watchSyncKoinModule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.logger.Level
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import org.koin.mp.KoinPlatform
 
@@ -46,7 +46,11 @@ private class WearActivityRecognizer : ActivityRecognizer {
  */
 private val wearModule =
     module {
-        viewModelOf(::WearViewModel)
+        // Explicit rather than viewModelOf(::WearViewModel): the command sender is nullable, and
+        // constructor-reflection makes "absent on noGms" ambiguous — it either throws or quietly
+        // takes the default, and which one is a Koin-version detail. getOrNull() states the intent,
+        // so the gms watch gets a real sender and the noGms watch gets null and hides the control.
+        viewModel { WearViewModel(get(), get(), getOrNull()) }
         single<ActivityRecognizer> { WearActivityRecognizer() }
     }
 

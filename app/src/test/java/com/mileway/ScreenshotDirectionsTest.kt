@@ -569,9 +569,72 @@ class ScreenshotDirectionsTest {
      * actually need it (each owns its own Scaffold/Surface, same as their ScreenshotGalleryTest
      * captures) but it costs nothing to apply uniformly and removes the failure mode entirely.
      */
+
+    // ── PAPER, NIGHT ────────────────────────────────────────────────────────────────────
+    // Paper's hand-built dark counterpart. Captured as a pair with the light face so the site
+    // can wipe between them: same layout, same content, only luminance differs, which is
+    // exactly the comparison a drag-divider is good at.
+
+    @Test
+    fun dirPaperNightApprovals() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoApprovals() } }
+        capture("dir_paper_night_approvals")
+    }
+
+    @Test
+    fun dirPaperNightTrackDetail() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoTrackDetail() } }
+        capture("dir_paper_night_track_detail")
+    }
+
+    @Test
+    fun dirPaperNightExpense() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoExpense() } }
+        capture("dir_paper_night_expense")
+    }
+
+    @Test
+    fun dirPaperNightLiveDrive() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoLiveDrive() } }
+        capture("dir_paper_night_live_drive")
+    }
+
+    @Test
+    fun dirPaperNightDriveReview() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoDriveReview() } }
+        capture("dir_paper_night_drive_review")
+    }
+
+    @Test
+    fun dirPaperNightSavedTracks() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoSavedTracks() } }
+        capture("dir_paper_night_saved_tracks")
+    }
+
+    @Test
+    fun dirPaperNightTrackEvidence() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoTrackEvidence() } }
+        capture("dir_paper_night_track_evidence")
+    }
+
+    @Test
+    fun dirPaperNightJourneyGuide() {
+        composeRule.setContent { directed(MilewayThemeVariant.PAPER, dark = true) { demoJourneyGuide() } }
+        capture("dir_paper_night_journey_guide")
+    }
+
     @Composable
-    private fun directed(variant: MilewayThemeVariant, content: @Composable () -> Unit) {
-        MilewayTheme(milewayTheme = variant) {
+    private fun directed(
+        variant: MilewayThemeVariant,
+        dark: Boolean = !variant.isLight,
+        content: @Composable () -> Unit,
+    ) {
+        // Defaulting to the variant's *native* luminance, not to `false`. Once a direction gains a
+        // counterpart spec it starts answering to `darkTheme` (MilewayThemeVariant.followsSystem),
+        // so a hardcoded `false` default would silently re-record every dark direction's flagship
+        // capture as its day face — which is what happened on the first record pass here.
+        // For a still-single-mode variant this stays a no-op: it forces its own luminance anyway.
+        MilewayTheme(darkTheme = dark, milewayTheme = variant) {
             androidx.compose.foundation.layout.Box(
                 modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             ) {
@@ -836,5 +899,217 @@ class ScreenshotDirectionsTest {
     fun dirRefinedEmberTrackEvidence() {
         composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER) { demoTrackEvidence() } }
         capture("dir_refined_ember_track_evidence")
+    }
+
+    // ── LEDGER, NIGHT ─────────────────────────────────────────────────────────────────────
+    // Ledger's hand-built night counterpart (LedgerSpecNight), now registered as LEDGER.darkSpec.
+    // Captured as a pair with the face above so the site can wipe between them: same layout,
+    // same content, only luminance differs.
+
+    @Test
+    fun dirLedgerNightLiveDrive() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoLiveDrive() } }
+        capture("dir_ledger_night_live_drive")
+    }
+
+    @Test
+    fun dirLedgerNightDriveReview() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoDriveReview() } }
+        capture("dir_ledger_night_drive_review")
+    }
+
+    @Test
+    fun dirLedgerNightSavedTracks() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoSavedTracks() } }
+        capture("dir_ledger_night_saved_tracks")
+    }
+
+    @Test
+    fun dirLedgerNightApprovals() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoApprovals() } }
+        capture("dir_ledger_night_approvals")
+    }
+
+    @Test
+    fun dirLedgerNightTrackDetail() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoTrackDetail() } }
+        capture("dir_ledger_night_track_detail")
+    }
+
+    @Test
+    fun dirLedgerNightExpense() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoExpense() } }
+        capture("dir_ledger_night_expense")
+    }
+
+    @Test
+    fun dirLedgerNightJourneyGuide() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoJourneyGuide() } }
+        capture("dir_ledger_night_journey_guide")
+    }
+
+    @Test
+    fun dirLedgerNightTrackEvidence() {
+        composeRule.setContent { directed(MilewayThemeVariant.LEDGER, dark = true) { demoTrackEvidence() } }
+        capture("dir_ledger_night_track_evidence")
+    }
+
+    // ── SIGNAL, DAY ───────────────────────────────────────────────────────────────────────
+    // Signal's hand-built day counterpart (SignalSpecDay), now registered as SIGNAL.lightSpec.
+    // Captured as a pair with the face above so the site can wipe between them: same layout,
+    // same content, only luminance differs.
+
+    @Test
+    fun dirSignalDayLiveDrive() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoLiveDrive() } }
+        capture("dir_signal_day_live_drive")
+    }
+
+    @Test
+    fun dirSignalDayDriveReview() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoDriveReview() } }
+        capture("dir_signal_day_drive_review")
+    }
+
+    @Test
+    fun dirSignalDaySavedTracks() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoSavedTracks() } }
+        capture("dir_signal_day_saved_tracks")
+    }
+
+    @Test
+    fun dirSignalDayApprovals() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoApprovals() } }
+        capture("dir_signal_day_approvals")
+    }
+
+    @Test
+    fun dirSignalDayTrackDetail() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoTrackDetail() } }
+        capture("dir_signal_day_track_detail")
+    }
+
+    @Test
+    fun dirSignalDayExpense() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoExpense() } }
+        capture("dir_signal_day_expense")
+    }
+
+    @Test
+    fun dirSignalDayJourneyGuide() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoJourneyGuide() } }
+        capture("dir_signal_day_journey_guide")
+    }
+
+    @Test
+    fun dirSignalDayTrackEvidence() {
+        composeRule.setContent { directed(MilewayThemeVariant.SIGNAL, dark = false) { demoTrackEvidence() } }
+        capture("dir_signal_day_track_evidence")
+    }
+
+    // ── INSTRUMENT, DAY ───────────────────────────────────────────────────────────────────
+    // Instrument's hand-built day counterpart (InstrumentSpecDay), now registered as INSTRUMENT.lightSpec.
+    // Captured as a pair with the face above so the site can wipe between them: same layout,
+    // same content, only luminance differs.
+
+    @Test
+    fun dirInstrumentDayLiveDrive() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoLiveDrive() } }
+        capture("dir_instrument_day_live_drive")
+    }
+
+    @Test
+    fun dirInstrumentDayDriveReview() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoDriveReview() } }
+        capture("dir_instrument_day_drive_review")
+    }
+
+    @Test
+    fun dirInstrumentDaySavedTracks() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoSavedTracks() } }
+        capture("dir_instrument_day_saved_tracks")
+    }
+
+    @Test
+    fun dirInstrumentDayApprovals() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoApprovals() } }
+        capture("dir_instrument_day_approvals")
+    }
+
+    @Test
+    fun dirInstrumentDayTrackDetail() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoTrackDetail() } }
+        capture("dir_instrument_day_track_detail")
+    }
+
+    @Test
+    fun dirInstrumentDayExpense() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoExpense() } }
+        capture("dir_instrument_day_expense")
+    }
+
+    @Test
+    fun dirInstrumentDayJourneyGuide() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoJourneyGuide() } }
+        capture("dir_instrument_day_journey_guide")
+    }
+
+    @Test
+    fun dirInstrumentDayTrackEvidence() {
+        composeRule.setContent { directed(MilewayThemeVariant.INSTRUMENT, dark = false) { demoTrackEvidence() } }
+        capture("dir_instrument_day_track_evidence")
+    }
+
+    // ── REFINED_EMBER, DAY ────────────────────────────────────────────────────────────────
+    // Refined Ember's hand-built day counterpart (RefinedEmberSpecDay), now registered as REFINED_EMBER.lightSpec.
+    // Captured as a pair with the face above so the site can wipe between them: same layout,
+    // same content, only luminance differs.
+
+    @Test
+    fun dirRefinedEmberDayLiveDrive() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoLiveDrive() } }
+        capture("dir_refined_ember_day_live_drive")
+    }
+
+    @Test
+    fun dirRefinedEmberDayDriveReview() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoDriveReview() } }
+        capture("dir_refined_ember_day_drive_review")
+    }
+
+    @Test
+    fun dirRefinedEmberDaySavedTracks() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoSavedTracks() } }
+        capture("dir_refined_ember_day_saved_tracks")
+    }
+
+    @Test
+    fun dirRefinedEmberDayApprovals() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoApprovals() } }
+        capture("dir_refined_ember_day_approvals")
+    }
+
+    @Test
+    fun dirRefinedEmberDayTrackDetail() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoTrackDetail() } }
+        capture("dir_refined_ember_day_track_detail")
+    }
+
+    @Test
+    fun dirRefinedEmberDayExpense() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoExpense() } }
+        capture("dir_refined_ember_day_expense")
+    }
+
+    @Test
+    fun dirRefinedEmberDayJourneyGuide() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoJourneyGuide() } }
+        capture("dir_refined_ember_day_journey_guide")
+    }
+
+    @Test
+    fun dirRefinedEmberDayTrackEvidence() {
+        composeRule.setContent { directed(MilewayThemeVariant.REFINED_EMBER, dark = false) { demoTrackEvidence() } }
+        capture("dir_refined_ember_day_track_evidence")
     }
 }

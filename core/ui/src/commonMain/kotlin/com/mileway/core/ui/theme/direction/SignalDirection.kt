@@ -92,44 +92,106 @@ internal val SignalSpec =
     )
 
 /**
- * Signal (light). Not registered as a selectable [MilewayThemeVariant] — the direction's brief is
- * explicitly "keep a dark foundation," and only one enum entry is permitted per direction in this
- * pass. Kept here, fully AA-verified, so the direction doesn't stop at "dark only" on paper; wire
- * it up as [MilewayThemeVariant.SIGNAL]'s light counterpart if a light mode is ever wanted.
+ * Signal's **day face** — the hand-tuned counterpart at the opposite luminance to [SignalSpec],
+ * not an algorithmic inversion of it. Flipping [SignalSpec]'s lightness channel would land on a
+ * neutral grey page with pastel accents: the exact "sad visual language" complaint Signal exists
+ * to answer, restated in daylight. Every value below was picked on its own terms.
+ *
+ * **What carries over (the identity):** Signal is a *cool* direction and stays cool. The canvas is
+ * indigo-tinted daylight (`#EEF1FC`), never neutral `#F5F5F5`; the surface ramp steps down from
+ * white toward indigo rather than toward grey, so elevation-by-tint keeps the direction's hue
+ * instead of washing it out. All five semantic hues survive — indigo primary, cyan motion,
+ * emerald money, amber attention, red destructive — so a manager scanning ten claims in daylight
+ * reads them by exactly the same colour code as at night.
+ *
+ * **What changes (and why):** saturation moves, hue doesn't. Signal's night accents are luminous
+ * (`#22D3EE` cyan, `#1FCE8C` emerald) because they sit on a near-black canvas. On white those same
+ * values are unreadable — an electric cyan on white is roughly 1.9:1. The day face therefore takes
+ * each hue to its *deep, saturated* end rather than its bright end: `info` becomes a deep cyan
+ * (`#076B7C`), `success` a deep emerald (`#0A6E4C`). Chroma stays high — these are not the muted
+ * pastels a tint-inversion produces — but the luminance is inverted so the same hue reads *against*
+ * a light page instead of glowing off a dark one. Confidence is preserved by being deep and
+ * saturated, not by being bright.
+ *
+ * Two structural flips are deliberate:
+ *  - [accentDim] is **darker** than [accent] here, the reverse of [SignalSpec]. `accentDim` maps to
+ *    Material's `secondary`, whose `onSecondary` is [onAccent] — so on a light face it must be dark
+ *    enough to carry white text (10.58:1 below). A "dim" that lightened, as a naive inversion would
+ *    produce, ships an unreadable secondary button.
+ *  - [useGlow] is `false`. Signal's night face raises a card with a light-emitting edge; on a light
+ *    canvas a glow has nothing to emit against and reads as a smudge. Daylight depth comes from
+ *    [SignalElevation]'s real shadows, which are already tuned high for exactly this reason.
+ *
+ * **Contrast (WCAG 2.1 relative luminance, computed not estimated).** Every foreground below
+ * clears AA 4.5:1 against every one of this spec's five backgrounds; the worst cell in the whole
+ * matrix is 4.59:1.
+ *
+ * ```
+ * fg \ bg          canvas  surface  surfaceRaised  surfaceHighest  accentContainer
+ * text             16.72    18.86       15.73          14.77           14.47
+ * textMuted         6.68     7.53        6.28           5.90            5.78
+ * accent            6.73     7.58        6.33           5.94            5.82
+ * accentDim         9.38    10.58        8.82           8.28            8.11
+ * accentGlow        5.43     6.13        5.11           4.80            4.70
+ * warning           5.20     5.86        4.89           4.59            4.50
+ * danger            5.49     6.19        5.17           4.85            4.75
+ * info              5.47     6.17        5.15           4.83            4.73
+ * success           5.56     6.27        5.23           4.91            4.81
+ * ```
+ *
+ * `surface` == `surfaceCard` (both `#FFFFFF`), so the surface column covers cards too. Body text
+ * on its own surface — [text] on [surface] — is 18.86:1, and the muted body role [textMuted] on
+ * [surface] is 7.53:1; both clear AAA, not just AA.
+ *
+ * Filled-role pairings, all AA: [onAccent] on [accent] 7.58:1, on [accentDim] 10.58:1, on
+ * [accentGlow] 6.13:1; [onAccentContainer] on [accentContainer] 11.25:1; white on [danger] 6.19:1,
+ * on [info] 6.17:1, on [success] 6.27:1, on [warning] 5.86:1 — which matters because
+ * `toColorScheme(isLight = true)` hardcodes white for `onError`/`onTertiary`.
+ *
+ * [border] is not text, so it takes the 3:1 non-text threshold instead: 3.39:1 on [surface] and
+ * 3.01:1 on [canvas]. It is a visibly indigo hairline rather than the near-invisible `#D8DCEF` an
+ * inversion suggests — a direction whose whole thesis is "cards you can see sitting on a
+ * background" cannot ship a 1.4:1 outline on its text fields.
+ *
+ * Not registered as a selectable [MilewayThemeVariant]: one identity, two faces. Wire it as
+ * `SIGNAL`'s counterpart the way `PAPER` carries `PaperNightSpec` — a second enum entry would put
+ * both faces in the picker as competing choices and let a stored preference disagree with the
+ * device setting.
  */
-internal val SignalLightSpec =
+internal val SignalSpecDay =
     MilewaySchemeSpec(
-        canvas = Color(0xFFF6F7FB),
+        canvas = Color(0xFFEEF1FC),
         surface = Color(0xFFFFFFFF),
         surfaceCard = Color(0xFFFFFFFF),
-        surfaceRaised = Color(0xFFEEF0FA),
-        surfaceHighest = Color(0xFFE2E5F5),
-        border = Color(0xFFD8DCEF),
-        text = Color(0xFF10121F),
-        textMuted = Color(0xFF565C7A),
-        accent = Color(0xFF3B4CDB),
-        accentDim = Color(0xFF6472E8),
-        accentGlow = Color(0xFF5B6EFF),
+        surfaceRaised = Color(0xFFE6EAFA),
+        surfaceHighest = Color(0xFFDEE3F8),
+        border = Color(0xFF7B87CD),
+        text = Color(0xFF0E1020),
+        textMuted = Color(0xFF4C5372),
+        accent = Color(0xFF3341CC),
+        accentDim = Color(0xFF232FA0),
+        accentGlow = Color(0xFF4150DE),
         onAccent = Color(0xFFFFFFFF),
-        accentContainer = Color(0xFFDDE1FA),
-        onAccentContainer = Color(0xFF1B2470),
-        warning = Color(0xFFA8660A),
-        danger = Color(0xFFD82A44),
-        info = Color(0xFF0E93AB),
-        success = Color(0xFF11835A),
+        accentContainer = Color(0xFFDCE0FC),
+        onAccentContainer = Color(0xFF161E6B),
+        warning = Color(0xFF8C5A08),
+        danger = Color(0xFFBE1A36),
+        info = Color(0xFF076B7C),
+        success = Color(0xFF0A6E4C),
+        // Depth by shadow, not by emitted edge — see the KDoc's second structural flip.
         useGlow = false,
     )
 
 /**
  * The one semantic role [MilewaySchemeSpec] has no dedicated slot for: money specifically, as
- * distinct from "success" generally. Same hue as [SignalSpec.success] / [SignalLightSpec.success]
+ * distinct from "success" generally. Same hue as [SignalSpec.success] / [SignalSpecDay.success]
  * by design (see [SignalSpec] KDoc) — named separately so a screen showing a reimbursement total
  * can say "give me the money colour" and mean it, independent of whether that number also happens
  * to represent an approved state.
  */
 object SignalColors {
     val moneyValueDark: Color = SignalSpec.success
-    val moneyValueLight: Color = SignalLightSpec.success
+    val moneyValueLight: Color = SignalSpecDay.success
 }
 
 /**

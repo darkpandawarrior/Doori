@@ -2,6 +2,8 @@ package com.mileway.wear
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.watch.TrackingCommandSender
+import kotlinx.coroutines.launch
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.watch.WatchFacade
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +32,12 @@ import kotlinx.coroutines.flow.stateIn
 class WearViewModel(
     watchFacade: WatchFacade,
     trackingServiceApi: TrackingServiceApi,
+    /**
+     * Null on noGms, where there is no Data Layer to carry a command to the phone. Nullable rather
+     * than a no-op implementation on purpose: a silent no-op would render a live-looking button
+     * that does nothing, which is the failure this whole feature exists to avoid.
+     */
+    private val commandSender: TrackingCommandSender? = null,
 ) : ViewModel() {
     private val navigation = MutableStateFlow(NavigationState())
 
@@ -43,6 +51,7 @@ class WearViewModel(
                 trips = WearPresentation.toTripListItems(trips),
                 screen = nav.screen,
                 selectedTripId = nav.selectedTripId,
+                canControlTracking = commandSender != null,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -61,6 +70,31 @@ class WearViewModel(
             )
 
     /** Dashboard → trip list. */
+    /**
+     * Start the trip, or stop the one already running.
+     *
+     * Stopping reuses [WearRootUiState.activeToken] — the token the phone started with — because
+     * `TrackingController.stop` ignores anything else and returns silently. If a trip is live but
+     * no token arrived (an old phone build, or a snapshot from before this field existed), this
+     * does nothing rather than sending a token that cannot match: failing visibly beats a button
+     * that appears to work.
+     *
+     * Starting mints a token the watch owns. The phone echoes it back in the next snapshot, so the
+     * stop path uses the same value even after the watch app is killed and relaunched.
+     */
+    fun toggleTracking(nowMs: Long) {
+        val sender = commandSender ?: return
+        val state = uiState.value
+        viewModelScope.launch {
+            if (state.isTracking) {
+                val token = state.activeToken ?: return@launch
+                sender.sendStop(token)
+            } else {
+                sender.sendStart("wear-$nowMs")
+            }
+        }
+    }
+
     fun openTripList() {
         navigation.value = NavigationState(screen = WearScreen.TripList)
     }

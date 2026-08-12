@@ -25,6 +25,7 @@ object WearPresentation {
             isTracking = snapshot.isTracking,
             weekGoalKm = snapshot.weekGoalKm,
             weekGoalProgress = snapshot.weekGoalProgress,
+            activeToken = snapshot.activeToken,
         )
 
     /** Maps [WatchFacade.recentTrips]' raw [TripSummary]s into display-ready [TripListItemUi] rows. */
@@ -136,6 +137,17 @@ data class WearRootUiState(
     val trips: List<TripListItemUi> = emptyList(),
     val screen: WearScreen = WearScreen.Dashboard,
     val selectedTripId: String? = null,
+    /**
+     * Token of the live session, straight from the phone's snapshot. Null when idle — and also
+     * null when a trip is running that this watch cannot stop, which the UI must treat as
+     * "no control", not "press and hope".
+     */
+    val activeToken: String? = null,
+    /**
+     * Whether this build can drive tracking at all. False on noGms, where there is no Data Layer
+     * to carry a command, so the control is hidden rather than shown-and-inert.
+     */
+    val canControlTracking: Boolean = false,
 ) {
     /** The [TripListItemUi] matching [selectedTripId], resolved once for [WearRootScreen] to render. */
     val selectedTrip: TripListItemUi?

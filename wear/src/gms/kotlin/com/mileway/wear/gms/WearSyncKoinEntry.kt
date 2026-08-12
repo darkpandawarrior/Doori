@@ -4,6 +4,7 @@ import com.mileway.core.data.watch.WatchSyncBridge
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
+import com.mileway.core.data.watch.TrackingCommandSender
 
 /**
  * P2.9: gms flavor — binds the real Data Layer [WatchSyncBridge]. Mirrors `:app`'s per-flavor
@@ -16,5 +17,9 @@ import org.koin.dsl.module
 fun watchSyncKoinModule(): Module =
     module {
         single<WatchSyncBridge> { WearDataLayerSyncBridge(androidContext()) }
+        // Bound to the interface as well: wear/src/main's ViewModel can only see the interface,
+        // and a noGms watch binds neither — which is what makes the control absent there rather
+        // than present and inert.
         single { WearTrackingCommandSender(androidContext()) }
+        single<TrackingCommandSender> { get<WearTrackingCommandSender>() }
     }

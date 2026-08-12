@@ -13,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlin.time.Clock
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
@@ -25,6 +26,8 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
@@ -76,6 +79,7 @@ fun WearRootScreen(viewModel: WearViewModel = koinViewModel()) {
                             uiState = uiState,
                             listState = listState,
                             onTripsClick = viewModel::openTripList,
+                            onToggleTracking = { viewModel.toggleTracking(Clock.System.now().toEpochMilliseconds()) },
                         )
                     WearScreen.TripList ->
                         TripListScreen(
@@ -96,6 +100,7 @@ internal fun WearDashboard(
     uiState: WearRootUiState,
     listState: ScalingLazyListState,
     onTripsClick: () -> Unit,
+    onToggleTracking: () -> Unit = {},
 ) {
     ScalingLazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -103,12 +108,56 @@ internal fun WearDashboard(
     ) {
         item { DashboardHeader() }
         item { TrackingPill(isTracking = uiState.isTracking) }
+        // Directly under the status pill: the thing you came to the watch to do sits above the
+        // numbers you came to read, because starting a drive is the time-critical half.
+        if (uiState.canControlTracking) {
+            item { TrackingControlButton(uiState = uiState, onClick = onToggleTracking) }
+        }
         item { DistanceCard(label = "TODAY", km = uiState.todayDistanceKm) }
         item { DistanceCard(label = "WEEK", km = uiState.weekDistanceKm) }
         item { WeekGoalCard(uiState = uiState) }
         item { TripsEntryCard(tripCount = uiState.trips.size, onClick = onTripsClick) }
     }
 }
+
+/**
+ * Start/stop the trip from the wrist.
+ *
+ * Absent entirely on noGms (see [WearRootUiState.canControlTracking]) rather than disabled, and
+ * disabled while a trip is running whose token never reached this watch — in that state the phone
+ * would ignore any stop we sent, so offering the tap would be a lie. The label says why.
+ */
+@Composable
+private fun TrackingControlButton(
+    uiState: WearRootUiState,
+    onClick: () -> Unit,
+) {
+    val stoppable = !uiState.isTracking || uiState.activeToken != null
+    Button(
+        onClick = onClick,
+        enabled = stoppable,
+        colors =
+            if (uiState.isTracking) {
+                ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            } else {
+                ButtonDefaults.buttonColors()
+            },
+        modifier = Modifier.fillMaxWidth().semantics { contentDescription = trackingActionLabel(uiState) },
+    ) {
+        Text(
+            text = trackingActionLabel(uiState),
+            style = MaterialTheme.typography.labelMedium,
+        )
+    }
+}
+
+/** Pulled out so the screenshot tests and the a11y label cannot drift from the visible text. */
+internal fun trackingActionLabel(uiState: WearRootUiState): String =
+    when {
+        uiState.isTracking && uiState.activeToken == null -> "Stop on phone"
+        uiState.isTracking -> "Stop trip"
+        else -> "Start trip"
+    }
 
 @Composable
 private fun DashboardHeader() {

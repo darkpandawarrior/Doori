@@ -55,10 +55,11 @@ import com.mileway.core.ui.theme.MilewayThemeVariant
  *
  * WHAT IT SACRIFICES: novelty. This direction proves the existing identity was never broken at
  * the concept level — only the execution was — so it is the least visually distinct of the five
- * directions side by side. It is also dark-only, on purpose: Ember (like Matrix/Amoled/Ion) has
- * never had a light companion, and manufacturing one here would blur "fix Ember" into "invent a
- * sixth theme." If leadership wants a light-first, always-on-screen daylight use case, that is a
- * different direction's job, not this one's.
+ * directions side by side.
+ *
+ * DAY FACE: originally dark-only. [RefinedEmberSpecDay] adds the daylight counterpart — the same
+ * ember identity at noon rather than a second theme, hand-tuned rather than inverted. See its doc
+ * for why an inversion was the wrong tool and for the measured contrast ratios.
  *
  * BEST SCREEN: the trip/claim summary — a single hero card with the reimbursement total in
  * large mono digits, a resting-elevation card, a clear filled-primary "Submit claim" button, and
@@ -99,6 +100,95 @@ internal val RefinedEmberSpec =
         info = Color(0xFF6BB6FF),
         success = Color(0xFF4CC98A),
         useGlow = true,
+    )
+
+/**
+ * ── Colour scheme (day face) ─────────────────────────────────────────────────────────────────
+ *
+ * The daylight counterpart to [RefinedEmberSpec], hand-picked colour by colour — **not** an
+ * algorithmic inversion of it, for the same reason `PaperNightSpec` isn't an inversion of
+ * `PaperSpec`. Flipping the dark ramp's lightness channel produces a neutral grey canvas (the
+ * warm hue survives inversion at maybe 2% chroma once L is near 95) and turns a #F2A428 accent
+ * into a pale straw that fails on every surface it sits on. Both halves of Ember's identity —
+ * warmth and the ember accent — are exactly what an inversion destroys. So:
+ *
+ *  - **The canvas keeps its warmth, and gains more of it.** Sunlit paper (#FFF6E8), not
+ *    off-white. In daylight the ember is the light *falling on* the page rather than the glow
+ *    coming off a coal, so the warm bias moves into the surfaces instead of the accent.
+ *  - **The 5-step ramp inverts its direction, not its spacing.** Dark lifts a surface by getting
+ *    lighter; light lifts a card by getting *whiter* (canvas → surface → surfaceCard) and then
+ *    recesses raised/highest by getting *more tinted* (surfaceRaised → surfaceHighest). Measured
+ *    relative luminance: 93.0% → 96.1% → 99.3% → 84.8% → 77.3% — five steps that are visible
+ *    jumps, which is defect #2 in the header staying fixed on this face too.
+ *  - **The accent inverts its lightness but not its hue.** #F2A428 (a light-emitting ember on
+ *    black) becomes #9E4C0D (burnt ember ink on paper): the same amber-orange family, dark enough
+ *    to be a legible link/label on paper and to carry a near-white `onAccent` on a filled button.
+ *  - **`accentGlow` becomes a hue shift, not a lightness shift.** On dark, "hotter" means
+ *    brighter (#FFC15E). On paper there is nothing to emit, so heat reads as a push toward red:
+ *    #A64207 at essentially the same luminance as `accent`, distinguished by hue alone. The two
+ *    are never layered on each other, so equal luminance costs nothing.
+ *  - **The accent-vs-warning separation from defect #4 survives.** `accent` is a burnt orange
+ *    (interactive); `warning` is a dark ochre/gold (#7E5A05, status). Different hue, different
+ *    job, still one family.
+ *  - **`useGlow = false`, unlike the night face.** The flag drives a light-emitting top edge
+ *    (`MilewaySchemeSpec.useGlow` is documented dark-only); a glow edge on white paper reads as a
+ *    render artefact. Depth on this face comes from [RefinedEmberElevation]'s real shadows, which
+ *    is where it should have come from all along.
+ *
+ * **Contrast (WCAG 2.1 relative luminance, computed not eyeballed).** Every foreground role
+ * against all five surfaces, worst case of the five, AA body-text threshold 4.5:1:
+ *
+ * | Foreground | canvas | surface | surfaceCard | surfaceRaised | surfaceHighest | worst |
+ * |---|---|---|---|---|---|---|
+ * | `text` #1F150A       | 16.75 | 17.28 | 17.82 | 15.35 | 14.07 | **14.07** |
+ * | `textMuted` #6B5636  |  6.51 |  6.72 |  6.93 |  5.97 |  5.47 |  **5.47** |
+ * | `accent` #9E4C0D     |  5.61 |  5.79 |  5.97 |  5.14 |  4.71 |  **4.71** |
+ * | `accentDim` #71350A  |  8.85 |  9.13 |  9.41 |  8.11 |  7.43 |  **7.43** |
+ * | `accentGlow` #A64207 |  5.76 |  5.94 |  6.13 |  5.28 |  4.84 |  **4.84** |
+ * | `warning` #7E5A05    |  5.85 |  6.03 |  6.22 |  5.36 |  4.91 |  **4.91** |
+ * | `danger` #B3261E     |  6.10 |  6.29 |  6.49 |  5.59 |  5.12 |  **5.12** |
+ * | `info` #1A5FA8       |  6.04 |  6.23 |  6.42 |  5.53 |  5.07 |  **5.07** |
+ * | `success` #16653C    |  6.62 |  6.83 |  7.04 |  6.07 |  5.56 |  **5.56** |
+ *
+ * On-colour pairs: `onAccent` on `accent` **5.69**, on `accentDim` **8.98**, on `accentGlow`
+ * **5.84**; `onAccentContainer` on `accentContainer` **11.06**; `text` on `accentContainer`
+ * **14.72**. `border` #9C7538 is a non-text divider, judged against the 3:1 non-text threshold:
+ * 3.91 / 4.03 / 4.16 / 3.58 / **3.28** worst case — a warm bronze hairline rather than the near
+ * invisible 1.5:1 tint a light theme usually settles for.
+ *
+ * Nothing below ships under threshold. `accent` was darkened from a first pass at #A85411 (4.08:1
+ * on `surfaceHighest`) and `accentGlow` twice from #B85E0C, because chips draw accent-coloured
+ * text on the highest surface and that is the one pairing a light theme always gets wrong.
+ *
+ * One known gap, stated rather than papered over: [RefinedEmberSemantics.moneyValue] (#E0A64C) is
+ * tuned for the night face and reads at 2.01:1 on this canvas. On the day face draw a reimbursement
+ * figure in `accentDim` (8.85:1) — same "computed fact, not a CTA" separation from `accent`,
+ * already in the spec. Giving `moneyValue` a per-face value means changing that object's shape,
+ * which belongs with whichever step wires the two faces together, not here.
+ */
+internal val RefinedEmberSpecDay =
+    MilewaySchemeSpec(
+        canvas = Color(0xFFFFF6E8),
+        surface = Color(0xFFFFFAF3),
+        surfaceCard = Color(0xFFFFFFF3),
+        surfaceRaised = Color(0xFFF6ECDD),
+        surfaceHighest = Color(0xFFF0E2CD),
+        border = Color(0xFF9C7538),
+        text = Color(0xFF1F150A),
+        textMuted = Color(0xFF6B5636),
+        accent = Color(0xFF9E4C0D),
+        accentDim = Color(0xFF71350A),
+        accentGlow = Color(0xFFA64207),
+        onAccent = Color(0xFFFFF8EC),
+        accentContainer = Color(0xFFFBE6C4),
+        onAccentContainer = Color(0xFF4A2503),
+        // Same rule as the night face: status stays a hue apart from `accent` so "this needs
+        // attention" never reads as "this is tappable" — ochre for warning, not burnt orange.
+        warning = Color(0xFF7E5A05),
+        danger = Color(0xFFB3261E),
+        info = Color(0xFF1A5FA8),
+        success = Color(0xFF16653C),
+        useGlow = false,
     )
 
 /**

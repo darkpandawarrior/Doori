@@ -28,6 +28,16 @@ data class SurfaceSnapshot(
     val actionRequiredCount: Int = 0,
     /** Short label for the most recent completed trip (its name), or null if none. */
     val lastTripLabel: String? = null,
+    /**
+     * The session token of the live trip, or null when idle.
+     *
+     * Carried off-device on purpose. `TrackingController.stop(token)` early-returns when the token
+     * does not match the running session, so a watch that invented its own token could only ever
+     * *start* a trip — its stop would be a silent no-op while the UI showed the trip ending. The
+     * only token that can stop this session is the one that started it, so the surface has to know
+     * it. Null is the honest idle value: nothing to stop.
+     */
+    val activeToken: String? = null,
 ) {
     /** This week's progress toward [weekGoalKm], clamped to 0f..1f. */
     val weekGoalProgress: Float
@@ -56,6 +66,8 @@ object SurfaceSnapshotProducer {
         isPaused: Boolean = false,
         qualityScore: Int = 100,
         weekGoalKm: Double = SurfaceSnapshot.DEFAULT_WEEK_GOAL_KM,
+        /** Token of the live session; null when idle. See [SurfaceSnapshot.activeToken]. */
+        activeToken: String? = null,
     ): SurfaceSnapshot {
         val todayStart =
             Instant.fromEpochMilliseconds(nowEpochMs)
@@ -83,6 +95,9 @@ object SurfaceSnapshotProducer {
             // Completed trips not yet uploaded/submitted still need the user's attention.
             actionRequiredCount = completed.count { !it.serverUploaded },
             lastTripLabel = mostRecent?.name?.takeIf { it.isNotBlank() },
+            // Only meaningful while live. Carrying a stale token into an idle snapshot would let a
+            // surface offer to stop a trip that already ended.
+            activeToken = activeToken.takeIf { isTracking },
         )
     }
 }

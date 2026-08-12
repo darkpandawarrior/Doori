@@ -75,32 +75,119 @@ internal val LedgerSpec =
     )
 
 /**
- * Ledger, dark companion — the direction's answer to "colour scheme, light AND dark". Same navy
- * accent family and the same no-glow discipline, just inverted tonal steps. **Not** registered as
- * a [MilewayThemeVariant] — the task caps this file's enum touch to one line, and a dark Ledger
- * needs its own `LEDGER_DARK` entry. Kept here, ready to promote in the integration pass, rather
- * than left undesigned.
+ * =============================================================================
+ * Colour — night counterpart (hand-tuned, NOT an inversion of [LedgerSpec])
+ * =============================================================================
+ *
+ * Ledger after hours: the same restrained financial instrument, read at night. Every value below
+ * was picked deliberately, not derived — a channel-flip of [LedgerSpec] produces neutral charcoal
+ * (`#F4F5F7` → `#0B0A08`), and a neutral grey ledger reads as dead switched-off hardware, which is
+ * the exact opposite of the "calm because it refuses to shout" identity.
+ *
+ * What is deliberately preserved from the light face, and why:
+ *
+ * - **The cool cast stays cool.** Ledger's light canvas is blue-leaning near-white (`#F4F5F7`), and
+ *   the night canvas keeps that bias hard: `#0E141C` is measurably navy (B > G > R), not `#111111`.
+ *   Every surface step carries the same blue lean, so the direction still feels like a statement
+ *   printed on cool stock rather than a terminal that happened to go dark.
+ * - **Fill still doesn't do the separating.** Cards sit at the same value as `surface` (`surfaceCard`
+ *   == `surface`, mirroring the light face's white-on-white), and structure comes from the hairline
+ *   `border` plus the tonal ramp. The night `border` is pulled *up* relative to its ground
+ *   (3.06:1 on `surface`) because a dark hairline at the light face's 1.15:1 separation would
+ *   simply vanish — hairline rules are what make a table read as a table in this direction.
+ * - **One navy accent, still non-decorative.** The light `#1E3A5F` is inverted-lightness but not
+ *   inverted-hue: `#7DA5DC` is the same financial navy raised into the legible band for a dark
+ *   ground. `accentGlow` exists only because [MilewaySchemeSpec] requires it; `useGlow` stays
+ *   `false`, so nothing here emits an edge — depth remains tonal, exactly as in the light face.
+ * - **Status hues keep their light-face families**: ochre warning, brick danger, teal info (Ledger's
+ *   info is teal, not blue, so it can never be mistaken for the navy accent), ledger-green success.
+ *   Each is lifted in lightness and pulled *down* in saturation from the naive dark equivalent — a
+ *   fully-saturated status chip on a near-black ground is a warning light, and this direction owns
+ *   a statement, not a dashboard.
+ *
+ * ### Measured contrast (sRGB relative luminance, WCAG 2.x)
+ *
+ * Body text on its own ground — the AA 4.5:1 gate:
+ *
+ * | Foreground | Ground | Ratio |
+ * |---|---|---|
+ * | `text` `#E4E9F0` | `canvas` `#0E141C` | **15.16:1** |
+ * | `text` | `surface` / `surfaceCard` `#151C26` | **14.04:1** |
+ * | `text` | `surfaceRaised` `#1D2632` | **12.51:1** |
+ * | `text` | `surfaceHighest` `#27313F` | **10.78:1** |
+ * | `textMuted` `#94A2B5` | `canvas` | **7.13:1** |
+ * | `textMuted` | `surface` | **6.60:1** |
+ * | `textMuted` | `surfaceRaised` | **5.88:1** |
+ * | `textMuted` | `surfaceHighest` | **5.07:1** |
+ *
+ * Accent and its on-colours (`accentDim` is Material `secondary`/`inversePrimary`, and
+ * `toColorScheme` pairs it with `onAccent`, so that pair is a real body-text pair too):
+ *
+ * | Pair | Ratio |
+ * |---|---|
+ * | `accent` `#7DA5DC` on `surface` | **6.76:1** |
+ * | `accent` on `canvas` | **7.30:1** |
+ * | `accent` on `surfaceHighest` | **5.19:1** |
+ * | `accentDim` `#6688BA` on `surface` | **4.73:1** |
+ * | `onAccent` `#0A1422` on `accent` | **7.29:1** |
+ * | `onAccent` on `accentDim` | **5.10:1** |
+ * | `onAccentContainer` `#C6D9F2` on `accentContainer` `#1F2E45` | **9.52:1** |
+ * | `text` on `accentContainer` | **11.21:1** |
+ *
+ * Status colours, on every ground they can land on — and inverted, since `toColorScheme` maps
+ * `onError`/`onTertiary` to `canvas` for dark schemes:
+ *
+ * | Pair | on `canvas` | on `surface` | on `surfaceHighest` |
+ * |---|---|---|---|
+ * | `warning` `#D9A441` | **8.22:1** | **7.62:1** | **5.85:1** |
+ * | `danger` `#EC7C6F` | **6.76:1** | **6.26:1** | **4.81:1** |
+ * | `info` `#4CC0CC` | **8.56:1** | **7.93:1** | **6.08:1** |
+ * | `success` `#45BE80` | **7.86:1** | **7.28:1** | **5.59:1** |
+ *
+ * Lowest text ratio anywhere in this spec is **4.73:1** (`accentDim` on `surface`) — the whole
+ * scheme clears AA with margin, and `danger` was lifted from a first pass at `#E3695E` (4.04:1 on
+ * `surfaceHighest`, a fail) rather than shipped with a caveat.
+ *
+ * Non-text, for completeness: the `border` hairline `#5A6884` clears WCAG 1.4.11's 3:1 against the
+ * two grounds it actually rules against — `canvas` (**3.30:1**) and `surface` (**3.06:1**). Against
+ * filled `surfaceRaised` (2.72:1) / `surfaceHighest` (2.35:1) chips it sits below 3:1, which is
+ * correct for this direction: there the fill is the boundary, not the stroke.
+ *
+ * Not registered as a [MilewayThemeVariant]. Registration is a `MilewayThemes.kt` edit, owned by
+ * the integration pass — the same reasoning `PaperNightSpec` records: one identity, two faces,
+ * resolved by the variant's dark/light lookup, never two picker entries a stored preference could
+ * disagree with. This replaces the earlier `LedgerDarkSpec`, which was an honest tonal flip and
+ * nothing more.
  */
-internal val LedgerDarkSpec =
+internal val LedgerSpecNight =
     MilewaySchemeSpec(
-        canvas = Color(0xFF11151C),
-        surface = Color(0xFF171C24),
-        surfaceCard = Color(0xFF1D232D),
-        surfaceRaised = Color(0xFF242B37),
-        surfaceHighest = Color(0xFF2D3543),
-        border = Color(0xFF333C4C),
-        text = Color(0xFFE7EAF0),
-        textMuted = Color(0xFF9AA4B5),
-        accent = Color(0xFF6E93D6),
-        accentDim = Color(0xFF4E6FA0),
-        accentGlow = Color(0xFF89ADEF),
-        onAccent = Color(0xFF0B1420),
-        accentContainer = Color(0xFF223252),
-        onAccentContainer = Color(0xFFCBDCF7),
-        warning = Color(0xFFD8A73D),
-        danger = Color(0xFFE0665C),
-        info = Color(0xFF4FB5C2),
-        success = Color(0xFF4CC486),
+        // Navy-cast, never neutral: B > G > R holds at every step of the ramp.
+        canvas = Color(0xFF0E141C),
+        surface = Color(0xFF151C26),
+        // Matches `surface` on purpose — the light face's card is white on white; structure is the
+        // hairline and the tonal step, not a fill.
+        surfaceCard = Color(0xFF151C26),
+        surfaceRaised = Color(0xFF1D2632),
+        surfaceHighest = Color(0xFF27313F),
+        // Lifted well above a naive dark hairline: at the light face's separation it would vanish,
+        // and a ledger without visible rules is just a list.
+        border = Color(0xFF5A6884),
+        text = Color(0xFFE4E9F0),
+        textMuted = Color(0xFF94A2B5),
+        // Same financial navy as light `#1E3A5F`, raised into the legible band — not re-hued.
+        accent = Color(0xFF7DA5DC),
+        accentDim = Color(0xFF6688BA),
+        accentGlow = Color(0xFF9CBCEC),
+        onAccent = Color(0xFF0A1422),
+        accentContainer = Color(0xFF1F2E45),
+        onAccentContainer = Color(0xFFC6D9F2),
+        // Light-face hue families, lifted for the dark ground and held back on saturation so a
+        // status chip reads as a note in a statement, not a warning lamp.
+        warning = Color(0xFFD9A441),
+        danger = Color(0xFFEC7C6F),
+        info = Color(0xFF4CC0CC),
+        success = Color(0xFF45BE80),
+        // Same discipline as the light face: depth is tonal, never emitted.
         useGlow = false,
     )
 

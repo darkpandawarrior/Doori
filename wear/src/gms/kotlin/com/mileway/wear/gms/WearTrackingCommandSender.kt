@@ -5,6 +5,7 @@ import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import com.mileway.core.data.watch.TrackingCommand
+import com.mileway.core.data.watch.TrackingCommandSender
 import com.mileway.core.data.watch.TrackingCommandCodec
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.tasks.await
@@ -31,15 +32,15 @@ internal const val PHONE_TRACK_CAPABILITY = "mileway_phone_track"
  * phone's `WearTrackingCommandService` (`app/src/gms`, a `WearableListenerService`) decodes and
  * dispatches to `TrackingController.start`/`stop`.
  */
-class WearTrackingCommandSender(context: Context) {
+class WearTrackingCommandSender(context: Context) : TrackingCommandSender {
     private val messageClient: MessageClient = Wearable.getMessageClient(context.applicationContext)
     private val capabilityClient: CapabilityClient = Wearable.getCapabilityClient(context.applicationContext)
 
     /** Sends a start command for [token] to the paired phone, if one is reachable. */
-    suspend fun sendStart(token: String) = send(TrackingCommand(TrackingCommand.Action.START, token))
+    override suspend fun sendStart(token: String) = send(TrackingCommand(TrackingCommand.Action.START, token))
 
     /** Sends a stop command for [token] to the paired phone, if one is reachable. */
-    suspend fun sendStop(token: String) = send(TrackingCommand(TrackingCommand.Action.STOP, token))
+    override suspend fun sendStop(token: String) = send(TrackingCommand(TrackingCommand.Action.STOP, token))
 
     private suspend fun send(command: TrackingCommand) {
         runCatching {

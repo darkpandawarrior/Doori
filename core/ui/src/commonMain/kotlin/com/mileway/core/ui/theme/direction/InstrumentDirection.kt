@@ -81,6 +81,91 @@ internal val InstrumentSpec =
     )
 
 /**
+ * INSTRUMENT — day face. The counterpart at the opposite luminance to [InstrumentSpec], and the
+ * answer to that spec's original "dark-only, deliberately" note: a phone in a windscreen mount at
+ * midday *is* sun-facing glass, and a black panel under direct sun loses the one thing this
+ * direction sells — the number readable in under a second from arm's length. This is the cluster
+ * in day mode, not Daybreak with different numerals.
+ *
+ * Hand-tuned, not an inversion of [InstrumentSpec]. What that distinction actually cost:
+ *  - **The surface ramp stays cool and stays a ramp.** Flipping the dark ramp's luminances gives
+ *    neutral greys; these are blue-grey (hue ~207°, 6–10% saturation held all the way up), so the
+ *    panel still reads as instrument bezel rather than default Material paper. The steps are also
+ *    *compressed* relative to the dark face (canvas→surfaceHighest spans 16.4:1→14.1:1 against
+ *    text, not the dark face's wider swing) because on a light ground a big luminance jump reads
+ *    as a shadow, and [InstrumentTokens.ELEVATION_DP] is 0 on purpose.
+ *  - **Every hue was re-picked, not lightness-flipped.** The dark face's telltale blue `#2F8FFF`
+ *    on white is 3.2:1 — it fails as text — so `accent` is a deeper `#0A57C0`. Likewise brake red
+ *    `#FF3B30` → `#B81409`, caution amber `#FFB020` → `#7F4C00`, go-green `#22D46B` → `#0A6E37`,
+ *    info cyan `#33C7FF` → `#0A6076`. Each keeps its hue family so the semantic language is
+ *    unchanged between faces; only the depth moved.
+ *  - **`info` stays a separate cyan from `accent`-blue**, the same rule [InstrumentSpec] sets: on
+ *    light the two get *closer* by default (both darken toward navy), so `info` was pushed to a
+ *    genuinely green-cyan hue (~193°) to keep "here is a fact" and "press here" distinguishable.
+ *  - **`success` is still the money/value role** — see [InstrumentSpec]'s KDoc. Unchanged
+ *    semantics, day-legible green.
+ *  - **`border` is deliberately dark for a light theme** (`#74838F`, 3.4:1 on canvas). Instrument's
+ *    depth comes from a 1dp hairline, never a shadow; a typical light-theme `#E0E0E0` divider is
+ *    invisible at arm's length in a moving vehicle, which would leave this face with no depth at all.
+ *  - **[useGlow] is `false` here** and true on the dark face. Not a downgrade: a 30%-alpha accent
+ *    halo over a light ground is mud. `CompassGaugeHero` already falls through to a solid 35%
+ *    accent ring when glow is off, so "this readout is live" is still signalled — by a crisp ring,
+ *    which is what a daylight cluster uses anyway.
+ *
+ * **Contrast (WCAG 2.1, computed, not estimated).** Grounds are canvas `#EBEFF3`, surface
+ * `#F6F8FA`, surfaceCard `#FFFFFF`, surfaceRaised `#E1E7ED`, surfaceHighest `#D8DFE6`,
+ * accentContainer `#D2E2FA`. Ratios are min → max across all six:
+ *
+ * | Foreground | vs canvas | worst ground | best ground | AA body (4.5:1) |
+ * |---|---|---|---|---|
+ * | `text` #0B1116        | 16.43 | 14.12 | 18.99 | pass |
+ * | `textMuted` #46535D   |  6.84 |  5.88 |  7.91 | pass |
+ * | `accent` #0A57C0      |  5.79 |  4.98 |  6.69 | pass |
+ * | `accentDim` #073F8C   |  8.66 |  7.44 | 10.01 | pass |
+ * | `warning` #7F4C00     |  6.19 |  5.32 |  7.15 | pass |
+ * | `danger` #B81409      |  5.78 |  4.97 |  6.68 | pass |
+ * | `info` #0A6076        |  6.17 |  5.30 |  7.12 | pass |
+ * | `success` #0A6E37     |  5.51 |  4.73 |  6.37 | pass |
+ *
+ * Body text on its own surface is the `text`/`textMuted` rows: worst case 5.88:1 (`textMuted` on
+ * `surfaceHighest`), comfortably over 4.5:1. Every semantic hue clears 4.5:1 on *every* surface in
+ * the ramp too, not just on canvas — a status chip sits on `surfaceHighest` often enough that the
+ * weaker "AA on canvas only" guarantee isn't worth shipping.
+ *
+ * Pairs: `onAccent` on `accent` 6.69:1, on `accentDim` 10.01:1; `onAccentContainer` #04274F on
+ * `accentContainer` 11.36:1. Non-text (3:1 target): `border` on canvas 3.37:1 / on card 3.90:1;
+ * `accentGlow` #2278D8 on canvas 3.83:1 / on card 4.42:1.
+ *
+ * Not registered in `MilewayThemes.kt` here — wiring this in as `INSTRUMENT`'s `darkSpec`
+ * counterpart (the same one-identity-two-faces shape `PAPER` uses) is a separate step, so this
+ * file stays a single-file direction.
+ */
+internal val InstrumentSpecDay =
+    MilewaySchemeSpec(
+        canvas = Color(0xFFEBEFF3),
+        surface = Color(0xFFF6F8FA),
+        surfaceCard = Color(0xFFFFFFFF),
+        surfaceRaised = Color(0xFFE1E7ED),
+        surfaceHighest = Color(0xFFD8DFE6),
+        border = Color(0xFF74838F),
+        text = Color(0xFF0B1116),
+        textMuted = Color(0xFF46535D),
+        accent = Color(0xFF0A57C0),
+        accentDim = Color(0xFF073F8C),
+        accentGlow = Color(0xFF2278D8),
+        onAccent = Color(0xFFFFFFFF),
+        accentContainer = Color(0xFFD2E2FA),
+        onAccentContainer = Color(0xFF04274F),
+        warning = Color(0xFF7F4C00),
+        danger = Color(0xFFB81409),
+        info = Color(0xFF0A6076),
+        success = Color(0xFF0A6E37),
+        // A halo over a light ground is mud; the live readout is marked by a solid accent ring
+        // instead (CompassGaugeHero's non-glow branch). Depth here is the border, never a shadow.
+        useGlow = false,
+    )
+
+/**
  * Chrome typography for the Instrument direction. NOT yet wired into [com.mileway.core.ui.theme.MilewayTheme] —
  * per the architecture note in `MilewayThemes.kt`, typography is still theme-independent app-wide
  * (the shared [com.mileway.core.ui.theme.MilewayTypography]). Staged here for the follow-up phase that lets a

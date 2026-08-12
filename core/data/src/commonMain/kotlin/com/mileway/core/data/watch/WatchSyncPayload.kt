@@ -26,6 +26,12 @@ data class WatchSyncPayload(
     @EncodeDefault(EncodeDefault.Mode.ALWAYS) val weekGoalProgress: Float = 0f,
     @EncodeDefault(EncodeDefault.Mode.ALWAYS) val lastTripLabel: String? = null,
     @EncodeDefault(EncodeDefault.Mode.ALWAYS) val updatedAtMs: Long = 0L,
+    /**
+     * Token of the live session, or null when idle. The watch needs it to stop a trip the *phone*
+     * started: `TrackingController.stop` ignores a token that does not match the running session,
+     * so without this the watch's stop button would be decorative.
+     */
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS) val activeToken: String? = null,
 )
 
 /** Projects the full [SurfaceSnapshot] down to the watch-relevant subset for wire transport. */
@@ -39,6 +45,7 @@ fun SurfaceSnapshot.toWatchPayload(): WatchSyncPayload =
         weekGoalProgress = weekGoalProgress,
         lastTripLabel = lastTripLabel,
         updatedAtMs = lastUpdatedEpochMs,
+        activeToken = activeToken,
     )
 
 /**
@@ -58,4 +65,5 @@ fun WatchSyncPayload.toSurfaceSnapshot(): SurfaceSnapshot =
         isPaused = isPaused,
         weekGoalKm = if (weekGoalProgress > 0f) weekKm / weekGoalProgress else SurfaceSnapshot.DEFAULT_WEEK_GOAL_KM,
         lastTripLabel = lastTripLabel,
+        activeToken = activeToken,
     )
