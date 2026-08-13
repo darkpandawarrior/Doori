@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:EventDetailViewModel.kt:EventDetailViewModel$override fun onAction</ID>
+    <ID>MagicNumber:EventsRepository.kt:EventsRepository$3</ID>
+    <ID>MatchingDeclarationName:EventsNavigation.kt:EventsRoutes</ID>
+    <ID>ReturnCount:EventsRepository.kt:EventsRepository$fun delete: Boolean</ID>
+    <ID>ReturnCount:EventsSearchProvider.kt:EventsSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>TooManyFunctions:EventsRepository.kt:EventsRepository</ID>
+  </CurrentIssues>
+</SmellBaseline>

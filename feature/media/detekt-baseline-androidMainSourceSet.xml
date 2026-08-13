@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:AttachmentSelectionScreen.kt:@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class) @Composable fun AttachmentSelectionScreen</ID>
+    <ID>CyclomaticComplexMethod:CameraCaptureScreen.kt:@Composable fun CameraCaptureScreen</ID>
+    <ID>LongMethod:MediaGraph.kt:fun NavGraphBuilder.mediaGraph</ID>
+    <ID>MagicNumber:AttachmentSelectionScreen.kt:0.38f</ID>
+    <ID>MagicNumber:AttachmentSelectionScreen.kt:3</ID>
+    <ID>MagicNumber:CameraCaptureScreen.kt:0.86f</ID>
+    <ID>MagicNumber:CameraCaptureScreen.kt:12f</ID>
+    <ID>MagicNumber:CameraCaptureScreen.kt:150</ID>
+    <ID>MagicNumber:CameraCaptureScreen.kt:20</ID>
+    <ID>MagicNumber:CameraCaptureScreen.kt:24f</ID>
+    <ID>MagicNumber:RealMediaRepository.kt:RealMediaRepository$180f</ID>
+    <ID>MagicNumber:RealMediaRepository.kt:RealMediaRepository$270f</ID>
+    <ID>MagicNumber:RealMediaRepository.kt:RealMediaRepository$90f</ID>
+    <ID>MatchingDeclarationName:MediaGraph.kt:MediaRoutes</ID>
+  </CurrentIssues>
+</SmellBaseline>

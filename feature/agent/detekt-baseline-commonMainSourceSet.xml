@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:AgentChatScreen.kt:@OptIn(ExperimentalLayoutApi::class) @Composable private fun ChatTab</ID>
+    <ID>CyclomaticComplexMethod:AgentChatScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AgentChatScreen</ID>
+    <ID>MagicNumber:AgentChatScreen.kt:0xFF00280E</ID>
+    <ID>MagicNumber:AgentChatScreen.kt:0xFF040C06</ID>
+    <ID>MagicNumber:AgentChatScreen.kt:0xFF0B0806</ID>
+    <ID>MagicNumber:AgentChatScreen.kt:3</ID>
+    <ID>MagicNumber:AgentComponents.kt:0xFF0B0806</ID>
+    <ID>MagicNumber:AgentComponents.kt:0xFF3A2A12</ID>
+    <ID>MagicNumber:AgentViewModel.kt:AgentViewModel$50</ID>
+    <ID>MagicNumber:ConversationTitler.kt:ConversationTitler$47</ID>
+    <ID>MagicNumber:ConversationTitler.kt:ConversationTitler$50</ID>
+    <ID>MatchingDeclarationName:AgentGraph.kt:AgentRoutes</ID>
+    <ID>MatchingDeclarationName:ChatAgentIndicator.kt:ChatIndicatorMode</ID>
+    <ID>MatchingDeclarationName:VoiceWaveformOverlay.kt:WaveformState</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>SwallowedException:AuthApi.kt:AuthApi$e: ResponseException</ID>
+    <ID>TooManyFunctions:ConfigProvider.kt:ConfigProvider</ID>
+    <ID>TooManyFunctions:KtorMilewayNetworkApi.kt:KtorMilewayNetworkApi : MilewayNetworkApi</ID>
+    <ID>TooManyFunctions:MilewayNetworkApi.kt:MilewayNetworkApi</ID>
+  </CurrentIssues>
+</SmellBaseline>

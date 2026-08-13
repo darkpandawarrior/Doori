@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0x261565C0</ID>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0xFF1565C0</ID>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0xFF388E3C</ID>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0xFFD32F2F</ID>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0xFFE64A19</ID>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0xFFFF9800</ID>
+    <ID>MagicNumber:MapLibreSurface.kt:MapLibreSurface$0xFFFFC107</ID>
+  </CurrentIssues>
+</SmellBaseline>

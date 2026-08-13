@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CloudLibraryScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun CloudLibraryScreen</ID>
+    <ID>MagicNumber:AttachmentPreviewScreen.kt:3</ID>
+    <ID>MagicNumber:CloudLibraryScreen.kt:0.35f</ID>
+    <ID>MagicNumber:CloudLibraryScreen.kt:0xFF6367FA</ID>
+    <ID>MagicNumber:CloudLibraryScreen.kt:3</ID>
+    <ID>MagicNumber:FakeMediaRepository.kt:FakeMediaRepository$1100</ID>
+    <ID>MagicNumber:FakeMediaRepository.kt:FakeMediaRepository$900</ID>
+    <ID>MagicNumber:MediaViewModel.kt:MediaViewModel$36</ID>
+    <ID>MatchingDeclarationName:AttachmentModels.kt:FlashMode</ID>
+    <ID>ReturnCount:OdometerOcrParser.kt:OdometerOcrParser$fun parse: String?</ID>
+  </CurrentIssues>
+</SmellBaseline>

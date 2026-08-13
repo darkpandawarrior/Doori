@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:PayablesViewModel.kt:PayablesViewModel$override fun onAction</ID>
+    <ID>LongMethod:PayablesNavigation.kt:fun NavGraphBuilder.payablesGraph</ID>
+    <ID>MagicNumber:GinRepository.kt:GinRepository$3</ID>
+    <ID>MagicNumber:InvoiceRepository.kt:InvoiceRepository$3</ID>
+    <ID>MagicNumber:ParkingRepository.kt:ParkingRepository$3</ID>
+    <ID>MagicNumber:PayablesHistoryRepository.kt:PayablesHistoryRepository$9000</ID>
+    <ID>MatchingDeclarationName:PayablesNavigation.kt:PayablesRoutes</ID>
+    <ID>ReturnCount:PayablesSearchProvider.kt:PayablesSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>VariableNaming:PayablesHomeScreen.kt:val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")</ID>
+  </CurrentIssues>
+</SmellBaseline>

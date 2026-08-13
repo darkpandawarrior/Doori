@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MatchingDeclarationName:OemBatteryHint.kt:OemBatteryHints</ID>
+    <ID>ReturnCount:ShakeGestureDetector.kt:ShakeSpikeTracker$fun onSpike: Boolean</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,23 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CardDetailViewModel.kt:CardDetailViewModel$override fun onAction</ID>
+    <ID>MagicNumber:CardFace.kt:1.586f</ID>
+    <ID>MagicNumber:CardKycScreen.kt:3</ID>
+    <ID>MagicNumber:CardKycScreen.kt:4</ID>
+    <ID>MagicNumber:CardKycViewModel.kt:CardKycViewModel$4</ID>
+    <ID>MagicNumber:CardKycViewModel.kt:CardKycViewModel$6</ID>
+    <ID>MagicNumber:CardSecurityManager.kt:CardSecurityManager$1000L</ID>
+    <ID>MagicNumber:CardSecurityManager.kt:CardSecurityManager$5L</ID>
+    <ID>MagicNumber:CardSecurityManager.kt:CardSecurityManager$60L</ID>
+    <ID>MagicNumber:CardsMockData.kt:CardsMockData$20</ID>
+    <ID>MagicNumber:CardsMockData.kt:CardsMockData$3</ID>
+    <ID>MagicNumber:CardsMockData.kt:CardsMockData$3L</ID>
+    <ID>MagicNumber:CardsMockData.kt:CardsMockData$4L</ID>
+    <ID>MagicNumber:CardsMockData.kt:CardsMockData$5L</ID>
+    <ID>MagicNumber:CardsMockData.kt:CardsMockData$6</ID>
+    <ID>TooManyFunctions:CardDetailScreen.kt:com.mileway.feature.cards.ui.CardDetailScreen.kt</ID>
+    <ID>TooManyFunctions:CardDetailViewModel.kt:CardDetailViewModel : BaseViewModel</ID>
+  </CurrentIssues>
+</SmellBaseline>

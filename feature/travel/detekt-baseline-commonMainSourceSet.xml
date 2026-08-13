@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$3</ID>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$4400</ID>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$5100</ID>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$6200</ID>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$7300</ID>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$8400</ID>
+    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$9500</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$12L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$1400.0</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$14L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$18L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$21L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$21_000.0</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$3</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$3L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$4</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$4400</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$5</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$5000</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$5L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$6</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$6200.0</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$6L</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$7800.0</ID>
+    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$9L</ID>
+    <ID>MagicNumber:TravelHomeScreen.kt:0xFF00695C</ID>
+    <ID>MagicNumber:TravelHomeScreen.kt:0xFF1565C0</ID>
+    <ID>MagicNumber:TravelHomeScreen.kt:0xFF6A1B9A</ID>
+    <ID>MagicNumber:TravelHomeScreen.kt:0xFFE65100</ID>
+    <ID>MagicNumber:TravelPreviews.kt:0xFF22C55E</ID>
+    <ID>MagicNumber:TravelPreviews.kt:0xFF3B82F6</ID>
+    <ID>MagicNumber:TravelPreviews.kt:0xFF94A3B8</ID>
+    <ID>MatchingDeclarationName:TravelCreateContract.kt:TravelCreateEffect</ID>
+    <ID>MatchingDeclarationName:TravelNavigation.kt:TravelRoutes</ID>
+    <ID>MayBeConstant:TravelPreviews.kt:private val BASE_MS = 1_781_654_400_000L</ID>
+    <ID>MayBeConstant:TravelPreviews.kt:private val DAY_MS = 86_400_000L</ID>
+    <ID>MayBeConstant:TravelRepository.kt:private val BASE_MS = 1_781_654_400_000L</ID>
+    <ID>MayBeConstant:TravelRepository.kt:private val DAY_MS = 86_400_000L</ID>
+    <ID>ReturnCount:TravelSearchProvider.kt:TravelSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>TooManyFunctions:TravelHomeScreen.kt:com.mileway.feature.travel.ui.screens.TravelHomeScreen.kt</ID>
+    <ID>UnusedParameter:TravelCreateRepository.kt:TravelCreateRepository$draft: BusDraft</ID>
+    <ID>UnusedParameter:TravelCreateRepository.kt:TravelCreateRepository$draft: FlightDraft</ID>
+    <ID>UnusedParameter:TravelCreateRepository.kt:TravelCreateRepository$draft: HotelDraft</ID>
+    <ID>UnusedParameter:TravelCreateRepository.kt:TravelCreateRepository$draft: MjpDraft</ID>
+    <ID>UnusedParameter:TravelCreateRepository.kt:TravelCreateRepository$draft: TripDraft</ID>
+    <ID>UnusedParameter:TravelCreateRepository.kt:TravelCreateRepository$draft: VisaDraft</ID>
+  </CurrentIssues>
+</SmellBaseline>

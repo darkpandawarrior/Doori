@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>SwallowedException:FormattingUtils.kt:FormattingUtils$e: Exception</ID>
+  </CurrentIssues>
+</SmellBaseline>

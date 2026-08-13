@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:LoginScreen.kt:phoneLoginEnabled &amp;&amp; usePhoneMode &amp;&amp; showOtpEntry &amp;&amp; lastLoginOtp != null</ID>
+    <ID>CyclomaticComplexMethod:AssistantHomeSheet.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AssistantHomeSheet</ID>
+    <ID>CyclomaticComplexMethod:CheckPinScreen.kt:@Composable fun CheckPinScreen</ID>
+    <ID>CyclomaticComplexMethod:HomeScreen.kt:@Suppress("LongParameterList") // Composable entry point: Koin-defaulted VM/service params, not real call-site burden. @Composable fun HomeScreen</ID>
+    <ID>CyclomaticComplexMethod:LoginScreen.kt:@Composable fun LoginScreen</ID>
+    <ID>MagicNumber:HomeComponents.kt:0.7f</ID>
+    <ID>MagicNumber:HomeComponents.kt:3</ID>
+    <ID>MagicNumber:HomeComponents.kt:4000L</ID>
+    <ID>MagicNumber:HomeComponents.kt:50</ID>
+    <ID>MagicNumber:LoginScreen.kt:0.9f</ID>
+    <ID>MagicNumber:MasterSearchViewModel.kt:DateRangePreset$29</ID>
+    <ID>MagicNumber:MasterSearchViewModel.kt:DateRangePreset$6</ID>
+    <ID>MagicNumber:OtpVerificationScreen.kt:6</ID>
+    <ID>MagicNumber:OtpVerificationViewModel.kt:OtpVerificationViewModel$1_000</ID>
+    <ID>MagicNumber:PinViewModel.kt:PinViewModel$1000</ID>
+    <ID>MagicNumber:PinViewModel.kt:PinViewModel$1_000</ID>
+    <ID>MagicNumber:SplashScreen.kt:220</ID>
+    <ID>TooManyFunctions:HomeComponents.kt:com.mileway.ui.home.HomeComponents.kt</ID>
+    <ID>TooManyFunctions:LoginScreen.kt:com.mileway.ui.auth.LoginScreen.kt</ID>
+    <ID>TooManyFunctions:SignupOnboardingViewModel.kt:SignupOnboardingViewModel : ViewModel</ID>
+    <ID>UnusedParameter:HomeComponents.kt:leadingIcon: ImageVector</ID>
+    <ID>UnusedParameter:MasterSearchScreen.kt:onClearFilters: () -&gt; Unit</ID>
+  </CurrentIssues>
+</SmellBaseline>

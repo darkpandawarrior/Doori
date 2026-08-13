@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:IosMotionSensorProvider.kt:IosMotionSensorProvider$30.0</ID>
+    <ID>ReturnCount:IosReferralCapture.kt:IosReferralCapture$fun pasteboardReferral: ReferralData?</ID>
+  </CurrentIssues>
+</SmellBaseline>

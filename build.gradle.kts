@@ -112,6 +112,9 @@ kover {
 // --------------------------------------------------------------------------
 // ktlint: code style; applied to all subprojects
 // --------------------------------------------------------------------------
+// Kotlin/Native per-architecture source-set names, e.g. detektIosArm64MainSourceSet.
+val archLeafPattern = Regex("(Arm64|X64|X86)")
+
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "dev.detekt")
@@ -119,6 +122,24 @@ subprojects {
         config.setFrom(rootProject.files("config/detekt/detekt.yml"))
         buildUponDefaultConfig = true
         baseline = file("detekt-baseline.xml")
+    }
+
+    // `./gradlew detekt` analyses nothing on a KMP module: the per-module `detekt` task looks for
+    // src/main/kotlin, which KMP does not have. The tasks that see the code are per-source-set, and
+    // were never attached to it — so every "detekt passed" on a KMP module was vacuous.
+    tasks.matching { it.name == "detekt" }.configureEach {
+        dependsOn(
+            tasks.matching {
+                it.name.startsWith("detekt") &&
+                    it.name.endsWith("SourceSet") &&
+                    !it.name.startsWith("detektBaseline") &&
+                    // Skip the per-ARCHITECTURE native leaves (IosArm64, WatchosSimulatorArm64,
+                    // ...). They hold no source of their own — they re-analyse what iosMain and
+                    // watchosMain already cover, plus generated cinterop stubs, and each reported
+                    // the same 8,535 issues. Five copies of one analysis, none of it ours.
+                    !archLeafPattern.containsMatchIn(it.name)
+            },
+        )
     }
 }
 

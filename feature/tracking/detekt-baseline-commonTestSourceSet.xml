@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>EmptyFunctionBlock:AppKilledFlagTest.kt:FakeAppKilledSavedTrackDao${}</ID>
+    <ID>EmptyFunctionBlock:AutoDiscardPolicyTest.kt:FakeDiscardCurrentTrackSource${}</ID>
+    <ID>EmptyFunctionBlock:AutoDiscardPolicyTest.kt:FakeDiscardLocationDao${}</ID>
+    <ID>EmptyFunctionBlock:AutoDiscardPolicyTest.kt:FakeDiscardSavedTrackDao${}</ID>
+    <ID>EmptyFunctionBlock:CheckInHistoryQueryTest.kt:FakeCheckInLocationDao${}</ID>
+    <ID>EmptyFunctionBlock:LocalDataResolutionTest.kt:FakeLocalDataSavedTrackDao${}</ID>
+    <ID>EmptyFunctionBlock:LocationBatcherTest.kt:FakeLocationDao${}</ID>
+    <ID>EmptyFunctionBlock:MaintenancePurgeTest.kt:FakeEligibleSavedTrackDao${}</ID>
+    <ID>EmptyFunctionBlock:MaintenancePurgeTest.kt:FakeLocationDao${}</ID>
+    <ID>EmptyFunctionBlock:SessionReconciliationPolicyTest.kt:FakeReconcileDao${}</ID>
+    <ID>EmptyFunctionBlock:ShutdownFlagPolicyTest.kt:FakeShutdownDao${}</ID>
+    <ID>EmptyFunctionBlock:SmartEventLoggerTest.kt:FakeHardwareEventDao${}</ID>
+    <ID>EmptyFunctionBlock:SyncTestFakes.kt:FakeCurrentTrackSource${}</ID>
+    <ID>EmptyFunctionBlock:SyncTestFakes.kt:FakeMilesSubmitDao${}</ID>
+    <ID>EmptyFunctionBlock:SyncTestFakes.kt:FakeSyncLocationDao${}</ID>
+    <ID>EmptyFunctionBlock:SyncTestFakes.kt:FakeUnsyncedHardwareEventDao${}</ID>
+    <ID>EmptyFunctionBlock:SystemRecoveryDetectorTest.kt:FakeSystemRecoveryDao${}</ID>
+    <ID>EmptyFunctionBlock:TrackMilesViewModelTestHarness.kt:FakeCurrentTrackDataSource${}</ID>
+    <ID>EmptyFunctionBlock:TrackMilesViewModelTestHarness.kt:FakeLocationDao${}</ID>
+    <ID>EmptyFunctionBlock:TrackMilesViewModelTestHarness.kt:FakeSavedTrackDao${}</ID>
+    <ID>EmptyFunctionBlock:TrackMilesViewModelTestHarness.kt:NoOpTrackingController${}</ID>
+    <ID>EmptyFunctionBlock:WatchFacadeTest.kt:FakeWatchDao${}</ID>
+    <ID>EmptyFunctionBlock:WatchFacadeTest.kt:RecordingTrackingController${}</ID>
+    <ID>TooGenericExceptionThrown:HardwareEventSyncerTest.kt:HardwareEventSyncerTest$throw RuntimeException("simulated crash")</ID>
+    <ID>TooGenericExceptionThrown:LocationDataSyncerTest.kt:LocationDataSyncerTest$throw RuntimeException("simulated crash")</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ExpenseScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ExpenseScreen</ID>
+    <ID>CyclomaticComplexMethod:ExpenseViewModel.kt:ExpenseViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:ExpensesSearchProvider.kt:ExpensesSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>CyclomaticComplexMethod:LogMilesScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun LogMilesScreen</ID>
+    <ID>CyclomaticComplexMethod:LogMilesViewModel.kt:LogMilesViewModel$override fun onAction</ID>
+    <ID>LongMethod:ExpensesSearchProvider.kt:ExpensesSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>LongMethod:LoggingNavigation.kt:fun NavGraphBuilder.loggingGraph</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.05</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.08</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.1</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.12</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.80</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.85</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.88</ID>
+    <ID>MagicNumber:ExpenseDetailScreen.kt:0.9</ID>
+    <ID>MagicNumber:ExpenseScreen.kt:3</ID>
+    <ID>MagicNumber:LogMilesHistoryScreen.kt:86_400_000L</ID>
+    <ID>MagicNumber:LogMilesModels.kt:1_000.0</ID>
+    <ID>MagicNumber:LogMilesScreen.kt:280</ID>
+    <ID>MagicNumber:LoggingNavigation.kt:16</ID>
+    <ID>MagicNumber:LoggingNavigation.kt:3</ID>
+    <ID>MagicNumber:LoggingNavigation.kt:4</ID>
+    <ID>MagicNumber:VehiclePickerSheet.kt:1.2f</ID>
+    <ID>MagicNumber:VoucherHistoryRepository.kt:VoucherHistoryRepository$48700</ID>
+    <ID>MatchingDeclarationName:LocationSearchSheet.kt:LocationSearchActions</ID>
+    <ID>MatchingDeclarationName:SavedPlaceMapping.kt:SavedPlaceUi</ID>
+    <ID>MatchingDeclarationName:TravelledLocationsCard.kt:TravelledLocationsActions</ID>
+    <ID>ReturnCount:ExpensesSearchProvider.kt:ExpensesSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>TooManyFunctions:ExpenseScreen.kt:com.mileway.feature.logging.ui.screens.ExpenseScreen.kt</ID>
+    <ID>TooManyFunctions:ExpenseViewModel.kt:ExpenseViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:LogMilesViewModel.kt:LogMilesViewModel : BaseViewModel</ID>
+  </CurrentIssues>
+</SmellBaseline>
