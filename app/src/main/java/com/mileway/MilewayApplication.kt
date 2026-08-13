@@ -42,9 +42,8 @@ import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.worker.AutoDiscardTask
 import com.mileway.feature.tracking.worker.MileageMaintenanceTask
 import com.mileway.feature.tracking.worker.MilewayWorkerFactory
-import dev.brewkits.kmpworkmanager.background.domain.BackgroundTaskScheduler
+import dev.brewkits.kmpworkmanager.KmpWorkManager
 import dev.brewkits.kmpworkmanager.background.domain.enqueuePeriodic
-import dev.brewkits.kmpworkmanager.kmpWorkerModule
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -165,6 +164,12 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
         WormaCeptorHelper.init(this)
         // Initialize konnection for KMP network connectivity monitoring.
         Konnection.createInstance(this)
+        // kmpworkmanager 3.3.1 dropped the Koin integration this used to go through
+        // (`kmpWorkerModule(workerFactory = ...)` in the initKoin list below). The library now owns
+        // its own singleton: initialize() builds the AndroidServiceRegistry, and consumers pull
+        // services off requireRegistry() rather than out of Koin. Must run BEFORE anything calls
+        // requireRegistry() — scheduleWeeklyMaintenance() does, from the appScope.launch below.
+        KmpWorkManager.initialize(this, MilewayWorkerFactory())
         // KOIN.1: shared bootstrap. initKoin() prepends platformModule() (the per-platform service graph,
         // LocationTracker/NotificationScheduler/TextRecognizer/BackgroundScheduler on Android) to the list,
         // wiring it into the Android graph for the first time. The NotificationScheduler it adds duplicates
@@ -178,7 +183,6 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
                 stubModule,
                 advancesModule,
                 trackingModule,
-                kmpWorkerModule(workerFactory = MilewayWorkerFactory()),
                 loggingModule,
                 mediaModule,
                 profileModule,
@@ -257,7 +261,10 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
     }
 
     private suspend fun scheduleWeeklyMaintenance() {
-        val scheduler = get<BackgroundTaskScheduler>()
+        // ponytail: read straight off the registry — this is the only BackgroundTaskScheduler
+        // consumer in the repo, so re-binding it into Koin just to keep a `get()` here would be
+        // indirection for one call site.
+        val scheduler = KmpWorkManager.getInstance().backgroundTaskScheduler
         scheduler.enqueuePeriodic(
             MileageMaintenanceTask.TASK_ID,
             MileageMaintenanceTask.WORKER_CLASS,

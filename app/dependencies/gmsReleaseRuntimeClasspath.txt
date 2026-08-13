@@ -309,8 +309,8 @@ com.squareup.okhttp3:okhttp-android:5.3.2
 com.squareup.okhttp3:okhttp:5.3.2
 com.squareup.okio:okio-jvm:3.17.0
 com.squareup.okio:okio:3.17.0
-dev.brewkits:kmpworkmanager-android:3.1.0
-dev.brewkits:kmpworkmanager:3.1.0
+dev.brewkits:kmpworkmanager-android:3.3.1
+dev.brewkits:kmpworkmanager:3.3.1
 dev.drewhamilton.poko:poko-annotations-jvm:0.23.1
 dev.drewhamilton.poko:poko-annotations:0.23.1
 dev.jordond.compass:autocomplete-android:3.2.0
