@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:FormLogic.kt:fun computedFields: Map&lt;FieldId, FormFieldValue&gt;</ID>
+    <ID>CyclomaticComplexMethod:FormLogic.kt:private fun fieldError: UiText?</ID>
+    <ID>CyclomaticComplexMethod:FormRenderer.kt:@Composable private fun FormFieldRow</ID>
+    <ID>LoopWithTooManyJumpStatements:FormLogic.kt:for</ID>
+    <ID>MagicNumber:FormRenderer.kt:0.6f</ID>
+    <ID>MagicNumber:FormRenderer.kt:24</ID>
+    <ID>MagicNumber:FormRenderer.kt:5</ID>
+    <ID>MagicNumber:FormRenderer.kt:60</ID>
+    <ID>ReturnCount:FormLogic.kt:private fun boundsError: UiText?</ID>
+    <ID>ReturnCount:FormLogic.kt:private fun fieldError: UiText?</ID>
+    <ID>ReturnCount:FormLogic.kt:private fun isVisible: Boolean</ID>
+    <ID>ReturnCount:FormLogic.kt:private fun relationError: UiText?</ID>
+    <ID>TooManyFunctions:FormLogic.kt:com.mileway.core.forms.FormLogic.kt</ID>
+    <ID>TooManyFunctions:FormRenderer.kt:com.mileway.core.forms.ui.FormRenderer.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

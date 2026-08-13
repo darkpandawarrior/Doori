@@ -72,6 +72,8 @@ naming:
       - '**/androidUnitTest/**'
       - '**/androidInstrumentedTest/**'
       - '**/iosTest/**'
+      - '**/desktopTest/**'
+      - '**/wasmJsTest/**'
     ignoreAnnotated:
       - 'androidx.compose.runtime.Composable'
     functionPattern: '[a-zA-Z][a-zA-Z0-9]*'

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:MediaCaptureLauncher.android.kt:@Composable actual fun rememberMediaCaptureLauncher: () -&gt; Unit</ID>
+    <ID>MagicNumber:Watermark.android.kt:92</ID>
+    <ID>MatchingDeclarationName:OdometerOcrService.android.kt:MlKitGalleryMultiPassRecognizer : GalleryMultiPassRecognizer</ID>
+    <ID>ReturnCount:Watermark.android.kt:actual suspend fun burnWatermark: String</ID>
+    <ID>SwallowedException:Watermark.android.kt:e: Exception</ID>
+  </CurrentIssues>
+</SmellBaseline>

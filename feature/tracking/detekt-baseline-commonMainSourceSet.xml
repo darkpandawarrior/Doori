@@ -1,0 +1,216 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:CsvExporter.kt:CsvExporter$v.contains(',') || v.contains('"') || v.contains('\n') || v.contains('\r')</ID>
+    <ID>ComplexCondition:TrackMilesScreen.kt:restorableSessions.size &gt; 1 &amp;&amp; !multiSessionDismissed &amp;&amp; uiState.activeSheet == TrackSheet.NONE &amp;&amp; uiState.phase == TrackMilesPhase.IDLE</ID>
+    <ID>ComplexCondition:TrackingPipeline.kt:LocationProcessor$(displacement &lt; gate || stationaryMicroJitter) &amp;&amp; (!hasMovementHistory() || motionStill || harshAccel)</ID>
+    <ID>CyclomaticComplexMethod:CreateVoucherScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateVoucherScreen</ID>
+    <ID>CyclomaticComplexMethod:GeoCheckInScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun GeoCheckInScreen</ID>
+    <ID>CyclomaticComplexMethod:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$fun analyze: QualityResult</ID>
+    <ID>CyclomaticComplexMethod:LiveDriveScreen.kt:@Composable fun LiveDriveScreen</ID>
+    <ID>CyclomaticComplexMethod:MileageSubmissionViewModel.kt:MileageSubmissionViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:RoutePointsScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun RoutePointsScreen</ID>
+    <ID>CyclomaticComplexMethod:SavedTracksRevamp.kt:@OptIn(ExperimentalFoundationApi::class) @Composable fun SubmissionCard</ID>
+    <ID>CyclomaticComplexMethod:SavedTracksViewModel.kt:SavedTracksViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:TrackDetailScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun TrackDetailScreen</ID>
+    <ID>CyclomaticComplexMethod:TrackMilesScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun TrackMilesScreen</ID>
+    <ID>CyclomaticComplexMethod:TrackMilesViewModel.kt:TrackMilesViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:TrackingPipeline.kt:LocationProcessor$fun process: ProcessResult?</ID>
+    <ID>CyclomaticComplexMethod:TrackingSuccessScreen.kt:@Composable fun TrackingSuccessScreen</ID>
+    <ID>FunctionNaming:SubmissionComponents.kt:private fun Modifier.androidx_drawBehindDashed: Modifier</ID>
+    <ID>FunctionOnlyReturningConstant:DebugMenuUtils.kt:DebugMenuUtils$fun getReferralParams: String</ID>
+    <ID>LongMethod:ActivityAnalyzer.kt:ActivityAnalyzer$private fun analyzeAccelerationBehavior: AccelerationProfile</ID>
+    <ID>LongMethod:CheckInViewModel.kt:CheckInViewModel$private fun persistGeoCheckIn</ID>
+    <ID>LongMethod:CheckInViewModel.kt:CheckInViewModel$private fun submitManualCheckIn</ID>
+    <ID>LongMethod:GeoJsonExporter.kt:GeoJsonExporter$fun export: String</ID>
+    <ID>LongMethod:HardwareEventsViewModel.kt:HardwareEventsViewModel.Companion$private fun demoEvents: List&lt;HardwareEvent&gt;</ID>
+    <ID>LongMethod:MileageSubmissionViewModel.kt:MileageSubmissionViewModel$override fun onAction</ID>
+    <ID>LongMethod:MileageSubmissionViewModel.kt:MileageSubmissionViewModel$private fun submit</ID>
+    <ID>LongMethod:SavedTracksScreen.kt:private fun androidx.compose.foundation.lazy.LazyListScope.journeysSection</ID>
+    <ID>LongMethod:SavedTracksScreen.kt:private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection</ID>
+    <ID>LongMethod:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$fun analyze: SystemImpactResult</ID>
+    <ID>LongMethod:TrackEvidenceScreen.kt:fun trackEvidenceDetailSpec: DetailSpec</ID>
+    <ID>LongMethod:TrackingPipeline.kt:LocationProcessor$fun process: ProcessResult?</ID>
+    <ID>LoopWithTooManyJumpStatements:LocationDataSyncer.kt:LocationDataSyncer$while</ID>
+    <ID>MagicNumber:ActivityAnalyzer.kt:ActivityAnalyzer$3</ID>
+    <ID>MagicNumber:CheckInSheets.kt:100_000</ID>
+    <ID>MagicNumber:CheckInSheets.kt:100_000.0</ID>
+    <ID>MagicNumber:CheckInViewModel.kt:CheckInViewModel$8</ID>
+    <ID>MagicNumber:CreateVoucherScreen.kt:3</ID>
+    <ID>MagicNumber:CreateVoucherScreen.kt:6</ID>
+    <ID>MagicNumber:CsvExporter.kt:CsvExporter$1000.0</ID>
+    <ID>MagicNumber:CsvExporter.kt:CsvExporter$3</ID>
+    <ID>MagicNumber:DebugMenuUtils.kt:DebugMenuUtils$3</ID>
+    <ID>MagicNumber:DebugMenuUtils.kt:DebugMenuUtils$4</ID>
+    <ID>MagicNumber:DestinationModePanel.kt:4</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$0.3</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$0.5</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$10</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$20</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$20.0</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$30</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$30.0</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$40</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$5</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$50</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$60</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$75</ID>
+    <ID>MagicNumber:DistanceQualityAnalyzer.kt:DistanceQualityAnalyzer$90</ID>
+    <ID>MagicNumber:GeoCheckInScreen.kt:1_200</ID>
+    <ID>MagicNumber:GeoCheckInScreen.kt:600</ID>
+    <ID>MagicNumber:GeoCheckInScreen.kt:7</ID>
+    <ID>MagicNumber:HardwareEventsLogScreen.kt:3</ID>
+    <ID>MagicNumber:HealthLevel.kt:10</ID>
+    <ID>MagicNumber:HealthLevel.kt:15</ID>
+    <ID>MagicNumber:HealthLevel.kt:20</ID>
+    <ID>MagicNumber:HealthLevel.kt:30</ID>
+    <ID>MagicNumber:HealthLevel.kt:40</ID>
+    <ID>MagicNumber:HealthLevel.kt:50</ID>
+    <ID>MagicNumber:HealthLevel.kt:70</ID>
+    <ID>MagicNumber:HealthLevel.kt:90</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$0.7</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$0.9</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$1.3</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$10</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$15</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$20</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$25</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$30</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$300_000L</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$5</ID>
+    <ID>MagicNumber:JourneyQualityAnalyzer.kt:JourneyQualityAnalyzer$50</ID>
+    <ID>MagicNumber:LiveDriveScreen.kt:0.4f</ID>
+    <ID>MagicNumber:LiveDriveScreen.kt:12f</ID>
+    <ID>MagicNumber:LiveDriveScreen.kt:150</ID>
+    <ID>MagicNumber:LiveDriveScreen.kt:180f</ID>
+    <ID>MagicNumber:LiveTrackingComponents.kt:3</ID>
+    <ID>MagicNumber:LiveTrackingComponents.kt:3.6</ID>
+    <ID>MagicNumber:LiveTrackingComponents.kt:3600</ID>
+    <ID>MagicNumber:LiveTrackingComponents.kt:60</ID>
+    <ID>MagicNumber:ManualCheckInScreen.kt:1_000</ID>
+    <ID>MagicNumber:ManualCheckInScreen.kt:500</ID>
+    <ID>MagicNumber:PauseResumeSheets.kt:7</ID>
+    <ID>MagicNumber:RelativeTimeFormatter.kt:RelativeTimeFormatter$3_600L</ID>
+    <ID>MagicNumber:RelativeTimeFormatter.kt:RelativeTimeFormatter$60L</ID>
+    <ID>MagicNumber:RelativeTimeFormatter.kt:RelativeTimeFormatter$86_400L</ID>
+    <ID>MagicNumber:RouteAnalyzer.kt:RouteAnalyzer$10.0</ID>
+    <ID>MagicNumber:RouteAnalyzer.kt:RouteAnalyzer$17</ID>
+    <ID>MagicNumber:RouteAnalyzer.kt:RouteAnalyzer$19</ID>
+    <ID>MagicNumber:RouteAnalyzer.kt:RouteAnalyzer$3.0</ID>
+    <ID>MagicNumber:RouteAnalyzer.kt:RouteAnalyzer$6</ID>
+    <ID>MagicNumber:RouteAnalyzer.kt:RouteAnalyzer$9</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:10</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:1000.0</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:10000</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:12f</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:13f</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:15</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:17f</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:20</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:20f</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:25</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:3</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:3.6f</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:30</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:40</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:5</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:50</ID>
+    <ID>MagicNumber:RouteReplayScreen.kt:500</ID>
+    <ID>MagicNumber:SavedTrackComponents.kt:0.5</ID>
+    <ID>MagicNumber:SavedTrackComponents.kt:15.0</ID>
+    <ID>MagicNumber:SavedTrackComponents.kt:30.0</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:10</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:12</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:15</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:150</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:20</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:5</ID>
+    <ID>MagicNumber:SavedTracksScreen.kt:50</ID>
+    <ID>MagicNumber:SavedTracksViewModel.kt:8</ID>
+    <ID>MagicNumber:SharedTrackComponents.kt:35</ID>
+    <ID>MagicNumber:SharedTrackComponents.kt:75</ID>
+    <ID>MagicNumber:SubmissionNotificationContent.kt:20</ID>
+    <ID>MagicNumber:SubmissionNotificationContent.kt:40</ID>
+    <ID>MagicNumber:SubmissionNotificationContent.kt:60</ID>
+    <ID>MagicNumber:SubmissionNotificationContent.kt:75</ID>
+    <ID>MagicNumber:SubmissionNotificationContent.kt:90</ID>
+    <ID>MagicNumber:SubmissionSheets.kt:20.0</ID>
+    <ID>MagicNumber:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$10.0</ID>
+    <ID>MagicNumber:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$15.0</ID>
+    <ID>MagicNumber:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$30.0</ID>
+    <ID>MagicNumber:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$5.0</ID>
+    <ID>MagicNumber:TrackDataPreviewScreen.kt:10</ID>
+    <ID>MagicNumber:TrackDataPreviewScreen.kt:10.0</ID>
+    <ID>MagicNumber:TrackDataPreviewScreen.kt:1000</ID>
+    <ID>MagicNumber:TrackDataPreviewScreen.kt:1000.0</ID>
+    <ID>MagicNumber:TrackDataPreviewScreen.kt:3</ID>
+    <ID>MagicNumber:TrackEvidenceScreen.kt:1000</ID>
+    <ID>MagicNumber:TrackEvidenceScreen.kt:1000.0</ID>
+    <ID>MagicNumber:TrackEvidenceScreen.kt:4</ID>
+    <ID>MagicNumber:TrackInsightsViewModel.kt:TrackInsightsViewModel$5</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.16f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.27f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.30f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.31f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.78f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.86f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.93f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:0.9f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:400</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:4f</ID>
+    <ID>MagicNumber:TrackLoadingScreen.kt:6f</ID>
+    <ID>MagicNumber:TrackMilesScreen.kt:10</ID>
+    <ID>MagicNumber:TrackMilesScreen.kt:10.0</ID>
+    <ID>MagicNumber:TrackMilesScreen.kt:50</ID>
+    <ID>MagicNumber:TrackMilesScreen.kt:80</ID>
+    <ID>MagicNumber:TrackingSuccessScreen.kt:0.3f</ID>
+    <ID>MagicNumber:TrackingSuccessScreen.kt:200</ID>
+    <ID>MagicNumber:TrackingSuccessScreen.kt:300</ID>
+    <ID>MagicNumber:TrackingSuccessScreen.kt:400</ID>
+    <ID>MagicNumber:TrackingSuccessScreen.kt:500</ID>
+    <ID>MagicNumber:TrackingSuccessScreen.kt:700</ID>
+    <ID>MatchingDeclarationName:CheckInHistoryScreen.kt:CheckInHistoryItem</ID>
+    <ID>MatchingDeclarationName:SharedTrackComponents.kt:TrendDirection</ID>
+    <ID>ReturnCount:AutoDiscardTask.kt:AutoDiscardTask$override suspend fun doWork: WorkerResult</ID>
+    <ID>ReturnCount:BootRestorePolicy.kt:BootRestorePolicy$fun decide: BootRestoreAction</ID>
+    <ID>ReturnCount:CheckInHistoryScreen.kt:private fun matchesTimeFilter: Boolean</ID>
+    <ID>ReturnCount:EventThrottler.kt:EventThrottler$suspend fun allow: Boolean</ID>
+    <ID>ReturnCount:HardwareEventSyncer.kt:HardwareEventSyncer$suspend fun drain</ID>
+    <ID>ReturnCount:ImportRepository.kt:ImportRepository$suspend fun import: ImportResult</ID>
+    <ID>ReturnCount:LocationPagingSource.kt:LocationPagingSource$override fun getRefreshKey: Int?</ID>
+    <ID>ReturnCount:ShutdownFlagPolicy.kt:ShutdownFlagPolicy$suspend fun consumeAndMark: Boolean</ID>
+    <ID>ReturnCount:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$private fun analyzeBatteryImpact: BatteryImpact?</ID>
+    <ID>ReturnCount:TrackingPipeline.kt:LocationProcessor$fun process: ProcessResult?</ID>
+    <ID>ReturnCount:TrackingSearchProvider.kt:TrackingSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>ReturnCount:VoucherRepository.kt:VoucherRepository$private suspend fun transition</ID>
+    <ID>ReturnCount:VoucherRepository.kt:VoucherRepository$suspend fun advance</ID>
+    <ID>ReturnCount:VoucherRepository.kt:VoucherRepository$suspend fun withdraw</ID>
+    <ID>SwallowedException:CheckInViewModel.kt:CheckInViewModel$e: Exception</ID>
+    <ID>SwallowedException:RealHardwareEventSend.kt:e: Exception</ID>
+    <ID>SwallowedException:RealLocationSend.kt:e: Exception</ID>
+    <ID>SwallowedException:RealMilesSubmitSend.kt:e: Exception</ID>
+    <ID>TooManyFunctions:CheckInHistoryScreen.kt:com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen.kt</ID>
+    <ID>TooManyFunctions:JourneyGuideSheet.kt:com.mileway.feature.tracking.ui.sheets.JourneyGuideSheet.kt</ID>
+    <ID>TooManyFunctions:LiveDriveScreen.kt:com.mileway.feature.tracking.ui.live.LiveDriveScreen.kt</ID>
+    <ID>TooManyFunctions:RouteReplayScreen.kt:com.mileway.feature.tracking.ui.screens.RouteReplayScreen.kt</ID>
+    <ID>TooManyFunctions:SavedTrackRepository.kt:SavedTrackRepository</ID>
+    <ID>TooManyFunctions:SavedTracksRevamp.kt:com.mileway.feature.tracking.ui.components.SavedTracksRevamp.kt</ID>
+    <ID>TooManyFunctions:SavedTracksScreen.kt:com.mileway.feature.tracking.ui.screens.SavedTracksScreen.kt</ID>
+    <ID>TooManyFunctions:SmartDistanceAnalyzer.kt:SmartDistanceAnalyzer</ID>
+    <ID>TooManyFunctions:SubmissionComponents.kt:com.mileway.feature.tracking.ui.components.SubmissionComponents.kt</ID>
+    <ID>TooManyFunctions:TrackDataPreviewScreen.kt:com.mileway.feature.tracking.ui.screens.TrackDataPreviewScreen.kt</ID>
+    <ID>TooManyFunctions:TrackEvidenceScreen.kt:com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen.kt</ID>
+    <ID>TooManyFunctions:TrackMilesScreen.kt:com.mileway.feature.tracking.ui.screens.TrackMilesScreen.kt</ID>
+    <ID>TooManyFunctions:TrackMilesViewModel.kt:TrackMilesViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:TrackingConfigManager.kt:TrackingConfigManager</ID>
+    <ID>TooManyFunctions:TripAttachmentRepository.kt:TripAttachmentRepository</ID>
+    <ID>TopLevelPropertyNaming:TrackLoadingScreen.kt:/** How long each sub-status stays on screen before the next is shown. */ private const val SubStatusDwellMillis = 1_600L</ID>
+    <ID>UnusedParameter:LiveTrackingComponents.kt:unsyncedCount: Long</ID>
+    <ID>UnusedParameter:RouteAnalyzer.kt:RouteAnalyzer$points: List&lt;LocationData&gt;</ID>
+    <ID>UnusedParameter:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$events: List&lt;HardwareEvent&gt; = emptyList()</ID>
+    <ID>UnusedParameter:TrackDataPreviewScreen.kt:onExport: () -&gt; Unit</ID>
+    <ID>UnusedParameter:TrackMilesViewModel.kt:TrackMilesViewModel$id: String</ID>
+    <ID>UnusedParameter:TrackingSuccessScreen.kt:onCreateVoucher: () -&gt; Unit</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:IosDemoApp.kt:0xFF1A1A2E</ID>
+  </CurrentIssues>
+</SmellBaseline>

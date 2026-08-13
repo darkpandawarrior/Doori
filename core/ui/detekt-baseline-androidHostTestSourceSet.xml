@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MayBeConstant:RawColorRatchetTest.kt:RawColorRatchetTest.Companion$/** Assembled at runtime so this file does not count as one of its own violations. */ val NEEDLE = "Color(" + "0x"</ID>
+  </CurrentIssues>
+</SmellBaseline>

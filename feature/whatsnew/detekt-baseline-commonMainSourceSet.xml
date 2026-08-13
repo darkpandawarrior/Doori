@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:UpdateRequirement.kt:MarketingVersion.Companion$3</ID>
+    <ID>MatchingDeclarationName:WhatsNewNavigation.kt:WhatsNewRoutes</ID>
+    <ID>ReturnCount:UpdateChecker.kt:UpdateChecker$suspend fun check: UpdateRequirement?</ID>
+    <ID>ReturnCount:UpdateRequirement.kt:MarketingVersion.Companion$fun parse: MarketingVersion?</ID>
+  </CurrentIssues>
+</SmellBaseline>

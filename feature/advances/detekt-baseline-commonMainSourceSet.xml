@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:PettyRequestValidator.kt:PettyRequestValidator$requireDateRange &amp;&amp; (dateRangeStartMs == null || dateRangeEndMs == null || dateRangeStartMs &gt; dateRangeEndMs)</ID>
+    <ID>LoopWithTooManyJumpStatements:UpiQrParser.kt:UpiQrParser$while</ID>
+    <ID>MagicNumber:AdvanceModels.kt:0.2</ID>
+    <ID>MagicNumber:AdvanceModels.kt:0.5</ID>
+    <ID>MagicNumber:AdvancesFormatting.kt:3</ID>
+    <ID>MagicNumber:AdvancesMockData.kt:AdvancesMockData$10</ID>
+    <ID>MagicNumber:AdvancesMockData.kt:AdvancesMockData$3</ID>
+    <ID>MagicNumber:AdvancesMockData.kt:AdvancesMockData$4</ID>
+    <ID>MagicNumber:AdvancesMockData.kt:AdvancesMockData$5</ID>
+    <ID>MagicNumber:PettyCardDetailScreen.kt:0.2</ID>
+    <ID>MagicNumber:QrCardDetailScreen.kt:0.2</ID>
+    <ID>MagicNumber:QrScanResultSheet.kt:0xFF2D2F6B</ID>
+    <ID>MagicNumber:QrScanResultSheet.kt:0xFF6367FA</ID>
+    <ID>MagicNumber:UpiQrParser.kt:UpiQrParser$3</ID>
+    <ID>MagicNumber:UpiQrParser.kt:UpiQrParser$4</ID>
+    <ID>MatchingDeclarationName:AdvancesNavigation.kt:AdvancesRoutes</ID>
+    <ID>MatchingDeclarationName:TransactionFilter.kt:VoucherFilter</ID>
+    <ID>ReturnCount:UpiQrParser.kt:UpiQrParser$private fun parseEmv: UpiPayment?</ID>
+    <ID>ReturnCount:UpiQrParser.kt:UpiQrParser$private fun parseUpiLink: UpiPayment?</ID>
+  </CurrentIssues>
+</SmellBaseline>

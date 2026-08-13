@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:DeepLinkRouter.kt:DeepLinkRouter$fun resolve: DeepLinkTarget</ID>
+    <ID>MagicNumber:DeepLinkRouter.kt:DeepLinkRouter$3</ID>
+    <ID>ReturnCount:DeepLinkAction.kt:DeepLinkActionDispatcher$fun resolve: DeepLinkAction</ID>
+  </CurrentIssues>
+</SmellBaseline>

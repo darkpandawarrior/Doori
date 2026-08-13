@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>TooManyFunctions:DemoSettingsRepository.kt:DemoSettingsRepository</ID>
+    <ID>TooManyFunctions:SessionRepository.kt:SessionRepository : SessionSource</ID>
+  </CurrentIssues>
+</SmellBaseline>

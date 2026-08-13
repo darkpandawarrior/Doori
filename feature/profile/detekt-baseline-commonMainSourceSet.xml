@@ -1,0 +1,59 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComplexCondition:AnalyticsAggregation.kt:AnalyticsAggregator$preset == DateRangePreset.CUSTOM &amp;&amp; customStart != null &amp;&amp; customEnd != null &amp;&amp; customEnd &gt;= customStart</ID>
+    <ID>CyclomaticComplexMethod:AdvanceViewModel.kt:AdvanceViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:AskAdvanceFormScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AskAdvanceFormScreen</ID>
+    <ID>ForEachOnRange:ClubBenefitsScreen.kt:1..4</ID>
+    <ID>MagicNumber:AdvanceViewModel.kt:AdvanceViewModel$4</ID>
+    <ID>MagicNumber:AnalyticsAggregation.kt:DateRangePreset.LAST_30$30</ID>
+    <ID>MagicNumber:AnalyticsAggregation.kt:DateRangePreset.LAST_7$7</ID>
+    <ID>MagicNumber:AnalyticsAggregation.kt:DateRangePreset.LAST_90$90</ID>
+    <ID>MagicNumber:AnalyticsHomeScreen.kt:6f</ID>
+    <ID>MagicNumber:AskAdvanceFormScreen.kt:10_000.0</ID>
+    <ID>MagicNumber:AskAdvanceFormScreen.kt:3</ID>
+    <ID>MagicNumber:ClubBenefitsScreen.kt:4</ID>
+    <ID>MagicNumber:ConnectedAccountsViewModel.kt:ConnectedAccountsViewModel$6</ID>
+    <ID>MagicNumber:CorporateVerificationViewModel.kt:CorporateVerificationViewModel$6</ID>
+    <ID>MagicNumber:DelegationRepository.kt:DelegationRepository$8</ID>
+    <ID>MagicNumber:DelegationScreen.kt:6</ID>
+    <ID>MagicNumber:HelpScreen.kt:0.05f</ID>
+    <ID>MagicNumber:HelpScreen.kt:200L</ID>
+    <ID>MagicNumber:ManagerReporteesScreen.kt:50</ID>
+    <ID>MagicNumber:MockAccountRepository.kt:MockAccountRepository$8</ID>
+    <ID>MagicNumber:PhoneChangeViewModel.kt:PhoneChangeViewModel$6</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.30f</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.38f</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.42f</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.48f</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.55f</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.62f</ID>
+    <ID>MagicNumber:ProfileModels.kt:AccountAnalyticsSnapshot.Companion$0.70f</ID>
+    <ID>MagicNumber:QrHomeScreen.kt:0.5f</ID>
+    <ID>MagicNumber:QrHomeScreen.kt:3</ID>
+    <ID>MagicNumber:QrHomeScreen.kt:5</ID>
+    <ID>MagicNumber:QrHomeScreen.kt:6</ID>
+    <ID>MagicNumber:QrHomeScreen.kt:7</ID>
+    <ID>MagicNumber:RewardsRepository.kt:RewardsRepository$1_000L</ID>
+    <ID>MagicNumber:RewardsScreen.kt:0.05f</ID>
+    <ID>MagicNumber:SavedPlacesRepository.kt:SavedPlacesRepository$10</ID>
+    <ID>MagicNumber:SavedPlacesViewModel.kt:180.0</ID>
+    <ID>MagicNumber:SavedPlacesViewModel.kt:90.0</ID>
+    <ID>MagicNumber:SupportTicketRepository.kt:SupportTicketRepository$8</ID>
+    <ID>MatchingDeclarationName:VideoTutorialData.kt:VideoTutorial</ID>
+    <ID>ReturnCount:AdvanceSearchProvider.kt:AdvanceSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>ReturnCount:EmergencyContactsViewModel.kt:EmergencyContactsViewModel$fun save: Boolean</ID>
+    <ID>ReturnCount:RewardsRepository.kt:RewardsRepository$suspend fun scratch: Int</ID>
+    <ID>ReturnCount:SavedPlacesViewModel.kt:SavedPlacesViewModel$fun save: Boolean</ID>
+    <ID>ReturnCount:SavedPlacesViewModel.kt:internal fun parseCoordinates: Pair&lt;Double, Double&gt;?</ID>
+    <ID>ReturnCount:SupportChatResponder.kt:SupportChatResponder$fun classify: SupportChatTopic</ID>
+    <ID>TooManyFunctions:AnalyticsHomeScreen.kt:com.mileway.feature.profile.ui.screens.AnalyticsHomeScreen.kt</ID>
+    <ID>TooManyFunctions:QrHomeScreen.kt:com.mileway.feature.profile.ui.screens.QrHomeScreen.kt</ID>
+    <ID>TooManyFunctions:ReferralHubScreen.kt:com.mileway.feature.profile.ui.screens.ReferralHubScreen.kt</ID>
+    <ID>UnusedParameter:AnalyticsHomeScreen.kt:state: AnalyticsUiState</ID>
+    <ID>UnusedParameter:AskAdvanceFormScreen.kt:onSubmitted: () -&gt; Unit</ID>
+    <ID>VariableNaming:AdvanceHistoryScreen.kt:val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")</ID>
+    <ID>VariableNaming:AnalyticsHomeScreen.kt:val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")</ID>
+  </CurrentIssues>
+</SmellBaseline>

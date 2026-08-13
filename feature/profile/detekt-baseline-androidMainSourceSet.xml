@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:DocumentDetailScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun DocumentDetailScreen</ID>
+    <ID>CyclomaticComplexMethod:PreferencesScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun PreferencesScreen</ID>
+    <ID>CyclomaticComplexMethod:ProfileDetailsScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileDetailsScreen</ID>
+    <ID>CyclomaticComplexMethod:ProfileScreen.kt:@Composable fun ProfileScreen</ID>
+    <ID>CyclomaticComplexMethod:ProfileScreen.kt:@Composable private fun AccountTileGrid</ID>
+    <ID>CyclomaticComplexMethod:ProfileViewModel.kt:ProfileViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:SettingsScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen</ID>
+    <ID>LongMethod:ProfileGraph.kt:fun NavGraphBuilder.profileGraph</ID>
+    <ID>MagicNumber:BadgesSection.kt:10</ID>
+    <ID>MagicNumber:BadgesSection.kt:1800</ID>
+    <ID>MagicNumber:ChangePasswordSheet.kt:0.33f</ID>
+    <ID>MagicNumber:ChangePasswordSheet.kt:0.66f</ID>
+    <ID>MagicNumber:EcoDashboardScreen.kt:0.5</ID>
+    <ID>MagicNumber:EcoDashboardScreen.kt:10</ID>
+    <ID>MagicNumber:EcoDashboardScreen.kt:10.0</ID>
+    <ID>MagicNumber:OrgChartScreen.kt:24</ID>
+    <ID>MagicNumber:ProfileDetailsScreen.kt:0.15f</ID>
+    <ID>MagicNumber:ProfileDetailsScreen.kt:0.5f</ID>
+    <ID>MagicNumber:ProfileDetailsScreen.kt:3</ID>
+    <ID>MagicNumber:ProfileDetailsScreen.kt:4</ID>
+    <ID>MagicNumber:ProfileDetailsScreen.kt:6</ID>
+    <ID>MagicNumber:TrainingTourScreen.kt:10</ID>
+    <ID>MagicNumber:VehicleGarageScreen.kt:2022</ID>
+    <ID>MagicNumber:VehicleGarageScreen.kt:23</ID>
+    <ID>MagicNumber:VehicleGarageScreen.kt:4</ID>
+    <ID>MagicNumber:VehicleGarageScreen.kt:59</ID>
+    <ID>MagicNumber:VehicleGarageScreen.kt:60</ID>
+    <ID>MatchingDeclarationName:ProfileGraph.kt:ProfileRoutes</ID>
+    <ID>ReturnCount:VehicleGarageScreen.kt:private fun hhmmToMinutes: Int?</ID>
+    <ID>TooManyFunctions:ProfileDetailsScreen.kt:com.mileway.feature.profile.ui.screens.ProfileDetailsScreen.kt</ID>
+    <ID>TooManyFunctions:ProfileScreen.kt:com.mileway.feature.profile.ui.screens.ProfileScreen.kt</ID>
+    <ID>TooManyFunctions:ProfileViewModel.kt:ProfileViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:VehicleGarageScreen.kt:com.mileway.feature.profile.ui.screens.VehicleGarageScreen.kt</ID>
+  </CurrentIssues>
+</SmellBaseline>

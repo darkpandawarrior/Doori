@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ConstructorParameterNaming:NetworkRequests.kt:EmptyRequest$val _empty: String? = null</ID>
+    <ID>MagicNumber:NetworkModels.kt:TrackMileageStatusResponse$200</ID>
+    <ID>MagicNumber:NetworkModels.kt:TrackMileageStatusResponse$504</ID>
+    <ID>MagicNumber:NetworkModels.kt:TrackMileageStatusResponse$505</ID>
+  </CurrentIssues>
+</SmellBaseline>

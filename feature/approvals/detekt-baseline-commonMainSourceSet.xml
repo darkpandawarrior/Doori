@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ApprovalDetailsScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ApprovalDetailsScreen</ID>
+    <ID>CyclomaticComplexMethod:ApprovalsScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ApprovalsScreen</ID>
+    <ID>CyclomaticComplexMethod:ApprovalsViewModel.kt:ApprovalsViewModel$override fun onAction</ID>
+    <ID>CyclomaticComplexMethod:SeekClarificationSheet.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun SeekClarificationSheet</ID>
+    <ID>MagicNumber:ApprovalsScreen.kt:24</ID>
+    <ID>MagicNumber:ApprovalsScreen.kt:7</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.MONTH$24</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.MONTH$30</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.MONTH$3_600_000L</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.TODAY$24</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.TODAY$3_600_000L</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.WEEK$24</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.WEEK$3_600_000L</ID>
+    <ID>MagicNumber:ClarificationHistoryViewModel.kt:ClarificationDateRange.WEEK$7</ID>
+    <ID>MagicNumber:SeekClarificationSheet.kt:0.78f</ID>
+    <ID>MatchingDeclarationName:ApprovalsNavigation.kt:ApprovalsRoutes</ID>
+    <ID>MayBeConstant:ApprovalsRepository.kt:private val BASE_MS = 1_781_654_400_000L</ID>
+    <ID>MayBeConstant:ApprovalsRepository.kt:private val DAY = 86_400_000L</ID>
+    <ID>MayBeConstant:ApprovalsRepository.kt:private val H = 3_600_000L</ID>
+    <ID>ReturnCount:ApprovalsSearchProvider.kt:ApprovalsSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
+    <ID>ReturnCount:ApprovalsViewModel.kt:ApprovalsViewModel$private fun resolve</ID>
+    <ID>ReturnCount:ApprovalsViewModel.kt:ApprovalsViewModel$private fun sendClarification</ID>
+    <ID>TooManyFunctions:ApprovalsPreviews.kt:com.mileway.feature.approvals.ui.previews.ApprovalsPreviews.kt</ID>
+    <ID>TooManyFunctions:ApprovalsScreen.kt:com.mileway.feature.approvals.ui.screens.ApprovalsScreen.kt</ID>
+    <ID>TooManyFunctions:ApprovalsViewModel.kt:ApprovalsViewModel : BaseViewModel</ID>
+    <ID>TooManyFunctions:ClarificationRepository.kt:ClarificationRepository</ID>
+    <ID>TooManyFunctions:ClarificationRepository.kt:RoomClarificationRepository : ClarificationRepository</ID>
+    <ID>TooManyFunctions:FakeClarificationRepository.kt:FakeClarificationRepository : ClarificationRepository</ID>
+  </CurrentIssues>
+</SmellBaseline>
