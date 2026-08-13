@@ -33,6 +33,10 @@ style:
 
 complexity:
   LongMethod:
+    # Generated Compose resource accessors declare 100-line _collectCommonMainString0Resources
+    # functions. Nothing we can fix, and their presence is why detektCommonMainSourceSet was never
+    # wired into the aggregate `detekt` task — so the gate read nothing at all on KMP modules.
+    excludes: ['**/build/generated/**']
     allowedLines: 60   # Compose screens tend to be long but readable
     ignoreAnnotated:
       - 'androidx.compose.runtime.Composable'   # declarative @Composable trees are long by design
@@ -55,6 +59,19 @@ exceptions:
 
 naming:
   FunctionNaming:
+    # Same generated accessors: `_collectCommonMainString0Resources` cannot match a naming pattern
+    # we control.
+    excludes:
+      - '**/build/generated/**'
+      # detekt's own defaults, restored: naming `excludes` REPLACES the default list, so omitting
+      # these made every backtick-named test function a violation.
+      - '**/test/**'
+      - '**/androidTest/**'
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/androidUnitTest/**'
+      - '**/androidInstrumentedTest/**'
+      - '**/iosTest/**'
     ignoreAnnotated:
       - 'androidx.compose.runtime.Composable'
     functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
