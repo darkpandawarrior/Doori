@@ -439,7 +439,7 @@ dependencyGuard {
 }
 
 dependencies {
-    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.2")
+    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.11")
 
     // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
     // runtime classpath resolved (Gradle reports those as `{strictly X}` and labels them "from lock
