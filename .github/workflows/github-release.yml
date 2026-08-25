@@ -28,7 +28,7 @@ jobs:
       # (app/build.gradle.kts printFingerprint) instead of re-deriving the date/week formula in bash.
       # Prevents "tagged a stale fingerprint, published a differently-stamped APK" silent drift.
       - name: Set up JDK 21
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v5
         with: { java-version: '21', distribution: 'temurin' }
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -217,7 +217,7 @@ jobs:
           fi
       - name: Set up JDK 21
         if: steps.detect.outputs.found == 'true'
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v5
         with: { java-version: '21', distribution: 'temurin' }
       - name: Set up Gradle
         if: steps.detect.outputs.found == 'true'
