@@ -21,9 +21,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
+      # A skipped run still exits 0, so the "Report deploy status" step below always runs and
+      # writes the real outcome to the job summary — otherwise a missing secret paints a silent
+      # green check that reads as "deployed" when nothing was uploaded.
       HAS_SECRET: ${{ secrets.SAMSUNG_ACCESS_TOKEN != '' }}
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     steps:
+      - name: Report deploy status
+        run: |
+          if [ "${{ env.HAS_SECRET }}" = "true" ]; then
+            echo "Deploying to Samsung Galaxy Store." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Not deployed to Samsung Galaxy Store" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No store credentials are configured, so every build and upload step was skipped." >> "$GITHUB_STEP_SUMMARY"
+            echo "This run is green because nothing failed, NOT because the app was published." >> "$GITHUB_STEP_SUMMARY"
+            echo "Set the required secrets to enable it: SAMSUNG_ACCESS_TOKEN, SAMSUNG_SERVICE_ACCOUNT_ID, SAMSUNG_CONTENT_ID." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - uses: actions/checkout@v7
         with:
           submodules: recursive
