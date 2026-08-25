@@ -1,8 +1,17 @@
-Mileway is an offline-first mileage and expense tracker.
+Mileway is an offline-first mileage and expense tracker. Core tracking works with no account and no network connection: log a trip, record an expense, and everything is saved straight to your device.
 
-- Track trips with GPS. It works fully offline, with no account required.
-- Log mileage and expenses; everything is stored locally on your device.
-- Review saved trips, export your data, and manage reimbursement vouchers.
+It targets four platforms from one Kotlin Multiplatform codebase: Android, iOS, watchOS, and Wear OS. Start a trip on your phone or your wrist, and the record lands in the same local store either way.
 
-The F-Droid (FOSS) build uses open-source maps (MapLibre) and contains no
-proprietary Google or Firebase components.
+What it does:
+
+- GPS trip tracking, start to stop, with distance and duration logged automatically.
+- Expense entries with receipt photos and a document scanner for pulling numbers off paper receipts.
+- Geo check-ins for logging a location visit without a full trip.
+- An approvals view for reimbursement, so a saved trip can move from logged to submitted to approved.
+- Local export of your trip and expense history.
+
+Who it is for: anyone who tracks mileage or expenses for reimbursement, whether that is a daily commute, client visits, or field work, and would rather that data stay on the device than sync to a server by default.
+
+What is technically interesting: the whole app, UI included, is shared Kotlin across Android, iOS, and the two watch platforms, with a local-first data layer that does not require a backend to be useful on day one.
+
+Caveat, stated plainly: this build includes Google Play Services components for location (play-services-location) and on-device text recognition (Play Services ML Kit document scanner and text recognition). The noGms build flavor removes the Firebase and Google Services Gradle plugins, but the location and OCR features still pull in these proprietary runtime dependencies. That is why this package carries the NonFreeDep anti-feature. If you need a build with zero proprietary dependencies, those two features are the parts to look at first.

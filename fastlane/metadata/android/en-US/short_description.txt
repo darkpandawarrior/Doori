@@ -1,1 +1,1 @@
-Offline-first mileage and expense tracker.
+Offline-first mileage and expense tracking, no account needed
