@@ -1,0 +1,63 @@
+# F-Droid metadata for com.mileway (the noGms / FOSS build), Binaries approach.
+# Filename must match the applicationId (app/build.gradle.kts) exactly, or fdroiddata's
+# linter rejects the package.
+Categories:
+  - Money
+  - Navigation
+License: GPL-3.0-or-later
+AuthorName: Siddharth Pandalai
+
+SourceCode: https://github.com/darkpandawarrior/Mileway
+IssueTracker: https://github.com/darkpandawarrior/Mileway/issues
+RepoType: git
+Repo: https://github.com/darkpandawarrior/Mileway.git
+
+AutoName: Mileway
+
+# publish-fdroid.yml builds assembleNoGmsRelease, signs it out of band with a pinned apksigner,
+# and uploads it to the GitHub Release for the pushed tag as Mileway-<tag>.apk (+ .sha256).
+# %v expands to the tag F-Droid is checking, matching that workflow's naming exactly.
+Binaries: https://github.com/darkpandawarrior/Mileway/releases/download/%v/Mileway-%v.apk
+
+# Real signing certificate fingerprint (SHA-256, lowercase hex, no colons) for the key
+# publish-fdroid.yml signs the FOSS APK with. F-Droid refuses the binary if this disagrees
+# with what's actually on the release asset.
+AllowedAPKSigningKeys:
+  - e3cd9ed25baaa6db5501621a2a7399edc0878022f9b64b5d95446db0348dd19c
+
+Builds:
+  - versionName: "2026.7.36"
+    versionCode: 743
+    commit: v2026.07.30.36.742
+    subdir: app
+    gradle:
+      - noGms
+    # Reproducible FOSS build: no R8/shrink, matching the published binary.
+    gradleprops:
+      - fdroid
+    # Strip the proprietary Firebase Gradle plugins + config so this build definition has no
+    # Google components at the plugin level. This does NOT remove the Play Services / ML Kit
+    # runtime dependencies the noGms flavor still pulls in for location and OCR (see
+    # AntiFeatures below) - those are compiled dependencies, not a plugin line sed can drop.
+    prebuild:
+      - sed -i -e '/com.google.gms.google-services/d' -e '/com.google.firebase.crashlytics/d' build.gradle.kts
+    rm:
+      - app/google-services.json
+
+# AutoUpdateMode Version + this regex follow the repo's real tag scheme: fingerprint versioning
+# YYYY.0M.0W.MILESTONE.commitCount (see gradle/versioning.gradle.kts), e.g. v2026.07.30.36.742.
+# Older tags (v0.18.0 etc.) predate this scheme and are intentionally not matched.
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]+\.[0-9]+$
+
+# Matches Builds[0] above: the latest tagged release at the time this file was written.
+CurrentVersion: "2026.7.36"
+CurrentVersionCode: 743
+
+# NonFreeDep is not optional here. The noGms flavor's name promises a Google-free build, but
+# app/dependencies/noGmsReleaseRuntimeClasspath.txt shows it still resolves 19 proprietary
+# artifacts at build time, including play-services-location, play-services-mlkit-document-scanner,
+# and several com.google.mlkit:* text-recognition/genai libraries. F-Droid installs bit-identical
+# to what's on the release asset, so this flag must be honest about what that asset contains.
+AntiFeatures:
+  - NonFreeDep
