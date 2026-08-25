@@ -131,6 +131,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Default placeholder; override in gms flavor with your real key or via local.properties.
         manifestPlaceholders["MAPS_API_KEY"] = ""
+        // Perf/apk-size: the app only genuinely ships en (default) + hi translations (core:ui's
+        // composeResources is the sole values-hi/ in the whole module graph). Every transitive
+        // AndroidX/library locale (values-af, -am, -ar, ... 70+) was being merged in unfiltered.
+        // Restrict to what's real; add a locale here when it's actually translated.
+        resourceConfigurations += setOf("en", "hi")
     }
 
     // CF.5: expose BuildConfig.VERSION_CODE for the maintenance/min-version gate.

@@ -24,7 +24,21 @@ kotlin {
             // LlmGateway actual: kmp-toolkit's :ai OnDeviceLlm seam (MlKitGenAiOnDeviceLlm), same
             // engine core:ai's MlKitGenAiAnalyzer uses for document extraction. EXPERIMENTAL —
             // see MlKitLlmGateway. Same coordinate core:ai/build.gradle.kts already uses.
-            implementation("com.siddharth.kmp:ai:1.0.0")
+            //
+            // F-Droid build only: drop com.google.mediapipe:tasks-genai, whose
+            // libllm_inference_engine_jni.so is ~44MB across the two shipped ABIs. Safe to
+            // exclude: MediaPipeOnDeviceLlm and MediaPipeModelManager never touch mediapipe
+            // types in their constructors or in isAvailable(); generate() is the only call
+            // site that does, and it is wrapped in runCatching{}.getOrNull(), so a missing
+            // class degrades to null and CompositeOnDeviceLlm falls through to
+            // MlKitGenAiOnDeviceLlm. Both this app's analyzers use the ML Kit seam anyway,
+            // which stays intact.
+            val fdroidBuild = providers.gradleProperty("fdroid").isPresent
+            implementation("com.siddharth.kmp:ai:1.0.0") {
+                if (fdroidBuild) {
+                    exclude(group = "com.google.mediapipe", module = "tasks-genai")
+                }
+            }
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
