@@ -5,7 +5,9 @@
 #
 # Changelog source = commit messages between the previous tag and this one. Commit messages are
 # guard-clean (the pre-commit no-reference-leak hook blocks reference terms), so the changelog is
-# leak-safe by construction. If a RELEASE_SCRUBLIST_B64 secret is set, it's applied as a second layer.
+# leak-safe by construction. RELEASE_SCRUBLIST_B64 is applied as a mandatory second layer — this
+# repo is public, so a missing/rotated-out secret hard-fails the job instead of silently skipping
+# the scrub.
 name: GitHub Release
 on:
   push:
@@ -57,13 +59,18 @@ jobs:
             range="${prev:+$prev..}$cur"
             git log --no-merges --pretty='- %s' "$range" > CHANGELOG_BODY.md
           fi
-          # Optional second-layer scrub if the secret is set (commits + CHANGELOG are already guard-clean).
+          # Leak gate. These notes go to a PUBLIC release, so a reference-app name in a
+          # commit subject would be published verbatim. Refuse rather than redact: a
+          # silent redaction hides that a guarded term reached a commit message at all.
           if [ -n "${RELEASE_SCRUBLIST_B64:-}" ]; then
             echo "$RELEASE_SCRUBLIST_B64" | base64 -d > /tmp/scrublist.txt
             pat="$(grep -vE '^\s*#|^\s*$' /tmp/scrublist.txt | paste -sd'|' -)"
             if [ -n "$pat" ] && grep -Eiq "$pat" CHANGELOG_BODY.md; then
               echo "::error::release notes match a scrublist term — refusing to publish"; exit 1
             fi
+          else
+            echo "::error::RELEASE_SCRUBLIST_B64 is not set; this repo is public and must not publish unscrubbed notes"
+            exit 1
           fi
           echo "prev=$prev" >> "$GITHUB_OUTPUT"
         env:
