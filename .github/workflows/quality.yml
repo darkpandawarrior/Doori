@@ -32,6 +32,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           submodules: recursive
 
       - name: Set up JDK 21
