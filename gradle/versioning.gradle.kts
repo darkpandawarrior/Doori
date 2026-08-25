@@ -13,9 +13,22 @@
 val milestoneFile = rootProject.file("MILESTONE")
 val mileawayMilestone = if (milestoneFile.exists()) milestoneFile.readText().trim().toIntOrNull() ?: 1 else 1
 
+// A shallow clone reports 1 commit, so versionCode silently becomes 2. That is exactly what
+// shipped: every APK published to F-Droid carried versionCode 2, so no client could ever offer
+// an upgrade. actions/checkout defaults to fetch-depth 1, so any workflow that forgets
+// fetch-depth: 0 reintroduces it. Refuse rather than guess.
+val milewayIsShallow =
+    providers.exec { commandLine("git", "rev-parse", "--is-shallow-repository") }
+        .standardOutput.asText.get().trim() == "true"
+
 val milewayCommitCount =
     providers.exec { commandLine("git", "rev-list", "--count", "HEAD") }
         .standardOutput.asText.get().trim().toIntOrNull() ?: 0
+
+require(!milewayIsShallow) {
+    "Shallow clone: git rev-list reports $milewayCommitCount commits, so versionCode would be " +
+        "${1 + milewayCommitCount}. Set `fetch-depth: 0` on actions/checkout."
+}
 
 val milewayToday = java.time.LocalDate.now()
 val milewayIsoWeek = milewayToday.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear())
