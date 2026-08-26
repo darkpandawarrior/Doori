@@ -1,1 +1,0 @@
-- Initial F-Droid release of the offline mileage tracker.

@@ -16,17 +16,35 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
+      # A skipped run still exits 0, so the "Report deploy status" step below always runs and
+      # writes the real outcome to the job summary — otherwise a missing secret paints a silent
+      # green check that reads as "deployed" when nothing was uploaded.
       HAS_SECRET: ${{ secrets.APTOIDE_API_KEY != '' }}
       GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     steps:
+      - name: Report deploy status
+        run: |
+          if [ "${{ env.HAS_SECRET }}" = "true" ]; then
+            echo "Deploying to Aptoide." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Not deployed to Aptoide" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "No store credentials are configured, so every build and upload step was skipped." >> "$GITHUB_STEP_SUMMARY"
+            echo "This run is green because nothing failed, NOT because the app was published." >> "$GITHUB_STEP_SUMMARY"
+            echo "Set the required secrets to enable it: APTOIDE_API_KEY." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - uses: actions/checkout@v7
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           submodules: recursive
         if: env.HAS_SECRET == 'true'
 
       - name: Set up JDK 21
         if: env.HAS_SECRET == 'true'
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'

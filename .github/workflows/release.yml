@@ -38,9 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           submodules: recursive
       - name: Set up JDK 21
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -103,6 +106,9 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           submodules: recursive
       - name: Set up Ruby (fastlane)
         uses: ruby/setup-ruby@v1
@@ -139,9 +145,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           submodules: recursive
       - name: Set up JDK 21
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -169,9 +178,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           submodules: recursive
       - name: Set up JDK 21
-        uses: actions/setup-java@v5.6.0
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'

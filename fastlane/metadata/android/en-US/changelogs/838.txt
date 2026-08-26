@@ -1,0 +1,8 @@
+New live tracking screens: a review sheet before you submit a trip, an evidence view, and a permission primer that explains why location access is needed.
+Distance readings now show how the raw GPS number became the logged distance, plus a route confidence meter.
+Fixed a bug where odometer readings could be fabricated instead of read from the device.
+Start and stop a trip from the Wear OS watch face.
+Home-screen widget now follows the app's own theme instead of a fixed look.
+New in-app update flow.
+Fixed missing dependency wiring on iOS that could leave parts of the app uninitialised.
+Added the GPL-3.0-or-later licence and F-Droid store metadata.

@@ -131,6 +131,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // Default placeholder; override in gms flavor with your real key or via local.properties.
         manifestPlaceholders["MAPS_API_KEY"] = ""
+        // Perf/apk-size: the app only genuinely ships en (default) + hi translations (core:ui's
+        // composeResources is the sole values-hi/ in the whole module graph). Every transitive
+        // AndroidX/library locale (values-af, -am, -ar, ... 70+) was being merged in unfiltered.
+        // Restrict to what's real; add a locale here when it's actually translated.
+        resourceConfigurations += setOf("en", "hi")
     }
 
     // CF.5: expose BuildConfig.VERSION_CODE for the maintenance/min-version gate.
@@ -188,9 +193,16 @@ android {
             versionNameSuffix = "-${readFingerprint()}"
         }
         release {
-            // FLFD.1: off for reproducible F-Droid builds (-Pfdroid); on for Play/CI release.
-            isMinifyEnabled = !fdroidBuild
-            isShrinkResources = !fdroidBuild
+            // FLFD.1 originally disabled R8 under -Pfdroid so F-Droid's build server could
+            // rebuild from source and byte-compare against the published binary. That does not
+            // apply to Mileway: it ships play-services-location and the ML Kit OCR pipeline,
+            // which are core features, so it is permanently ineligible for official fdroiddata
+            // and reaches F-Droid only as a prebuilt Binaries entry that nobody re-builds.
+            // With nothing to byte-compare against, the ~45MB of unminified dex bought nothing.
+            //
+            // Kursi keeps the flag, because Kursi IS an fdroiddata candidate.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             // CF.4: Crashlytics mapping upload is OFF by default (placeholder Firebase config), enabled in CI
             // only when CRASHLYTICS_UPLOAD=true with a real google-services.json, "guarded by key".
@@ -439,7 +451,7 @@ dependencyGuard {
 }
 
 dependencies {
-    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.2")
+    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.11")
 
     // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
     // runtime classpath resolved (Gradle reports those as `{strictly X}` and labels them "from lock

@@ -1,0 +1,4 @@
+Backend dev toggle and dead-validator wiring for trip tracking.
+Fixed iOS trips showing 0.00 km, a duplicate-trip bug, and a shared-sensor teardown issue.
+Money values now match between the local stub data and the real backend.
+Batched dependency updates across Compose, Wear, Navigation 3, Kover, and Roborazzi.

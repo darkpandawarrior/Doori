@@ -18,13 +18,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          # versionCode derives from `git rev-list --count HEAD`. A shallow clone
+          # reports 1, which silently produced versionCode 2 on every published APK.
+          fetch-depth: 0
           # Mileway consumes kmp-toolkit as a composite build via includeBuild. Without this
           # the submodule is an empty directory, includeBuild finds a build with no projects,
           # and every task fails with ":location not found in build ':kmp-toolkit'" — which
           # reads like a Gradle problem rather than a missing checkout. Every other workflow
           # here already does this.
           submodules: recursive
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with: { distribution: temurin, java-version: '21' }
       # The broken-capture check decodes pixels with Pillow. It throws when Pillow is missing
       # rather than reporting zero findings — a blank-capture check that silently finds nothing is
@@ -46,7 +49,7 @@ jobs:
         if: always()
         run: cat docs/screenshots/SENTINEL_REPORT.md >> $GITHUB_STEP_SUMMARY
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: sentinel-drift
