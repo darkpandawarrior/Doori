@@ -1,8 +1,10 @@
 package com.mileway.core.data.model.display
 
+import androidx.compose.runtime.Immutable
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.util.fmt2d
 
+@Immutable
 data class TrackDisplayData(
     val token: String,
     val name: String? = null,

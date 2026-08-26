@@ -1,5 +1,6 @@
 package com.mileway.core.data.model.db
 
+import androidx.compose.runtime.Immutable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -14,6 +15,7 @@ import androidx.room.PrimaryKey
         Index(value = ["createdAt"]),
     ],
 )
+@Immutable
 data class SavedTrack(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

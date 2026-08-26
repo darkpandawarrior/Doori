@@ -24,6 +24,10 @@ kotlin {
             implementation(libs.datastore.preferences.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
+            // @Immutable on the UI-facing models below. Annotations only: this module stays
+            // free of the Compose runtime, but the Compose compiler can now see that these
+            // types are stable instead of inferring "unstable" from a module it never compiles.
+            implementation(libs.compose.runtime.annotation)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.koin.core)
             // Durable outbox + change-bus, extracted to kmp-toolkit (own separate Room DB — see
