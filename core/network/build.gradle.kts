@@ -16,6 +16,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // @Immutable on UI-facing models; annotations only, no Compose runtime here.
+            implementation(libs.compose.runtime.annotation)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)

@@ -1,9 +1,12 @@
 package com.mileway.core.network.netlog
 
+import androidx.compose.runtime.Immutable
+
 /**
  * One recorded HTTP exchange. Populated by [NetworkLogPlugin] and rendered by the debug
  * NetworkLogScreen; [toCurl] is the replay affordance (copy-pasteable curl command).
  */
+@Immutable
 data class NetworkLogEntry(
     val method: String,
     val url: String,

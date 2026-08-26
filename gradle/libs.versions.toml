@@ -144,6 +144,9 @@ workmanager-runtime = { module = "androidx.work:work-runtime-ktx", version.ref =
 
 # Compose (via Compose Multiplatform BOM)
 compose-bom = { module = "androidx.compose:compose-bom", version = "2026.08.00" }
+# @Stable/@Immutable for modules that hold UI state models but must NOT depend on the Compose
+# runtime (core:data, core:network). Annotations only - no runtime weight, no Compose coupling.
+compose-runtime-annotation = { module = "androidx.compose.runtime:runtime-annotation", version.ref = "compose-multiplatform" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }

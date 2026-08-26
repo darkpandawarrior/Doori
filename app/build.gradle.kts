@@ -358,18 +358,12 @@ ksp {
     arg("appfunctions:aggregateAppFunctions", "true")
 }
 
-// Compose compiler stability/recomposition reports, written to build/compose_metrics/.
-// Trigger via: ./gradlew assembleGmsRelease -PenableComposeMetrics=true
-// (debug builds add Live Literals noise; always run on release variant)
-if (project.findProperty("enableComposeMetrics") == "true") {
-    composeCompiler {
-        metricsDestination = layout.buildDirectory.dir("compose_metrics")
-        reportsDestination = layout.buildDirectory.dir("compose_metrics")
-        // Stability config: teach the compiler about third-party immutable types
-        // to prevent false "unstable" labels and unnecessary recompositions.
-        stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose_stability.conf"))
-    }
-}
+// Compose compiler metrics/stability reports come from the shared convention plugin
+// (`shared.android.application` -> configureComposeCompilerMetrics), which also applies
+// compose_stability.conf and covers all 21 Compose modules, not just :app. Trigger with
+// `-Pcompose.metrics` on a release variant; output lands in build/compose-{metrics,reports}/.
+// The :app-local duplicate behind -PenableComposeMetrics was removed 2026-08-27: it wrote a
+// third copy to build/compose_metrics/ under a second flag name for this module alone.
 
 // Kover: line-coverage floor enforced by koverVerifyNoGmsDebugCoverage. Coverage is
 // measured on the noGms (JVM-safe) variant; the gms flavor's Play Services maps crash

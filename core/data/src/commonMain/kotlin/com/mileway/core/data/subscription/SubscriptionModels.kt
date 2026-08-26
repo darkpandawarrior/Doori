@@ -1,5 +1,7 @@
 package com.mileway.core.data.subscription
 
+import androidx.compose.runtime.Immutable
+
 /*
  * PLAN_V24 P6.2: subscription-plan models (per the reference app's subscription plans).
  * Offline/mock — Room-backed via [SubscriptionRepository], purchase is a mock
@@ -17,6 +19,7 @@ enum class SubscriptionStatus { ACTIVE, EXPIRED, CANCELLED }
  * `CommonUtils.formatCurrencyAmount`). [monthlySavingsAmount] powers the "savings so far" counter on
  * the active-subscription screen; [savingsCopy] is the marketing line on the plan card.
  */
+@Immutable
 data class SubscriptionPlan(
     val id: String,
     val name: String,
