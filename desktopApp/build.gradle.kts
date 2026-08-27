@@ -12,6 +12,10 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    // Reads the compose.desktop block below and turns it into signed .dmg/.msix/.deb with delta
+    // auto-update. `packageDistributionForCurrentOS` builds an installer; it does not give the
+    // user a way to receive the NEXT one, and that gap is the whole reason this is here.
+    alias(libs.plugins.conveyor)
 }
 
 // Wave-2 §A: native-installer version, computed by gradle/versioning.gradle.kts. NOT MARKETING —
@@ -23,6 +27,11 @@ apply(from = rootProject.file("gradle/versioning.gradle.kts"))
 // Read once at project scope — inside the compose.desktop { } DSL, `extra[...]` would resolve
 // against the DSL receiver, not the project's extra.
 val desktopPackageVersion = extra["mileway.desktopPackageVersion"] as String
+
+// Conveyor reads project.version, and every package format requires one. This is the same
+// desktop-legal MAJOR.MINOR.BUILD that Compose Desktop already validates against - NOT the
+// MARKETING version, whose MAJOR is the year and would fail both.
+version = desktopPackageVersion
 
 kotlin {
     jvm("desktop")
