@@ -3,6 +3,7 @@ package com.mileway.core.maps.maplibre
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -17,7 +18,8 @@ import org.maplibre.compose.layers.CircleLayer
 import org.maplibre.compose.layers.LineLayer
 import org.maplibre.compose.map.MapOptions
 import org.maplibre.compose.map.MaplibreMap
-import org.maplibre.compose.map.OrnamentOptions
+import org.maplibre.compose.overlay.MapOverlay
+import org.maplibre.compose.overlay.MaplibreLogo
 import org.maplibre.compose.sources.GeoJsonData
 import org.maplibre.compose.sources.GeoJsonOptions
 import org.maplibre.compose.sources.rememberGeoJsonSource
@@ -113,12 +115,24 @@ class MapLibreSurface : MapSurface {
             }
 
         // showTraffic has no equivalent in open-tile MapLibre, silently ignored.
-        val ornaments = if (showCompass) OrnamentOptions.AllEnabled else OrnamentOptions.OnlyLogo
+        //
+        // maplibre-compose 0.15.0 removed MapOptions.ornamentOptions: ornaments are composables in
+        // a MapOverlay now, not flags. MapOverlay.Default is the old OrnamentOptions.AllEnabled
+        // (compass + logo + attribution + scale bar). The no-compass branch is spelled out rather
+        // than using MapOverlay.None, because None drops the MapLibre logo and the attribution with
+        // it, and attribution is a licence condition of the tiles, not decoration.
+        val overlay =
+            if (showCompass) {
+                MapOverlay.Default
+            } else {
+                MapOverlay { MaplibreLogo(modifier = Modifier.align(Alignment.BottomStart)) }
+            }
         MaplibreMap(
             modifier = modifier,
             baseStyle = baseStyle,
             cameraState = cameraState,
-            options = MapOptions(ornamentOptions = ornaments),
+            options = MapOptions(),
+            overlay = overlay,
         ) {
             // Main route polyline (blue)
             if (routeCoords.isNotEmpty()) {
