@@ -29,7 +29,7 @@ shots=$(find "$SHOTS_DIR" -maxdepth 1 -name '*.png' | wc -l | tr -d ' ')
 db=$(grep -oE 'version = [0-9]+' "$DB_FILE" | grep -oE '[0-9]+' | head -1)
 
 stats="<!-- AUTOGEN:stats -->
-> **At a glance** — **${modules}-module** clean architecture: **${local_total} local** (${features} feature · ${cores} core) + **${composed_total} composed** via \`includeBuild(external/kmp-toolkit)\`, Room schema **v${db}**, **${shots}** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from \`settings.gradle.kts\` by \`scripts/gen-readme.sh\`.*
+> **At a glance**, **${modules}-module** clean architecture: **${local_total} local** (${features} feature · ${cores} core) + **${composed_total} composed** via \`includeBuild(external/kmp-toolkit)\`, Room schema **v${db}**, **${shots}** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from \`settings.gradle.kts\` by \`scripts/gen-readme.sh\`.*
 <!-- /AUTOGEN:stats -->"
 
 replace_block() {   # $1=tag  $2=replacement (marker lines included)
