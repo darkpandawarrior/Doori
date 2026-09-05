@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mileway</string>
+    <string name="app_name">Doori</string>
 
     <!-- P7.2: static App Shortcuts (long-press launcher) + App Actions capability labels. -->
     <string name="shortcut_start_tracking_short">Start tracking</string>

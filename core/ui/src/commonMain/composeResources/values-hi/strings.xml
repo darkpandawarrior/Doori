@@ -1465,7 +1465,7 @@
     <string name="core_action_skip">छोड़ें</string>
 
     <!-- L10n sweep: Hindi backfill (payables + profile A-E + misc) -->
-    <string name="app_name">Mileway</string>
+    <string name="app_name">Doori</string>
     <string name="action_ok">OK</string>
     <string name="action_save">सहेजें</string>
     <string name="action_retry">पुनः प्रयास करें</string>

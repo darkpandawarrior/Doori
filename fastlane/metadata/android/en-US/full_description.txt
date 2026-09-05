@@ -1,4 +1,4 @@
-Mileway is an offline-first mileage and expense tracker. Core tracking works with no account and no network connection: log a trip, record an expense, and everything is saved straight to your device.
+Doori is an offline-first mileage and expense tracker. Core tracking works with no account and no network connection: log a trip, record an expense, and everything is saved straight to your device.
 
 It targets four platforms from one Kotlin Multiplatform codebase: Android, iOS, watchOS, and Wear OS. Start a trip on your phone or your wrist, and the record lands in the same local store either way.
 

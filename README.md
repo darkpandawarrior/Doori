@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.gif" alt="Mileway, offline-first mileage, travel and expense tracking" width="700"/>
+<img src="docs/assets/banner.gif" alt="Doori, offline-first mileage, travel and expense tracking" width="700"/>
 
 ### Offline-first mileage, travel and expense tracking, built in Kotlin and Compose Multiplatform.
 
@@ -9,8 +9,8 @@ multi-module architecture I care about into one place you can actually run.
 Every screen still runs on deterministic mock data by default, a real Kotlin/Ktor backend now
 exists too, sharing `:contract` DTOs with the client, off by default behind a flag.
 
-[![CI](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/ci.yml)
-[![Quality](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Mileway/actions/workflows/quality.yml)
+[![CI](https://github.com/darkpandawarrior/Doori/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Doori/actions/workflows/ci.yml)
+[![Quality](https://github.com/darkpandawarrior/Doori/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Doori/actions/workflows/quality.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20--RC-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.12.0--rc01-4285F4?logo=jetpackcompose&logoColor=white)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop%20preview-3DDC84)
@@ -27,7 +27,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 <details>
 <summary><b>Table of contents</b></summary>
 
-- [Why Mileway](#why-mileway)
+- [Why Doori](#why-doori)
 - [Highlights](#highlights)
 - [Screenshots](#screenshots)
 - [Features](#features)
@@ -51,9 +51,9 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 > **At a glance**, **46-module** clean architecture: **36 local** (13 feature · 12 core) + **10 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **368** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
-## Why Mileway
+## Why Doori
 
-Mileway is a self-contained, offline-first mileage tracker. The whole thing still runs in airplane
+Doori is a self-contained, offline-first mileage tracker. The whole thing still runs in airplane
 mode: you track trips, log expenses, route approvals, and the data is there after a restart, reads
 come from Room, and writes queue in a durable offline outbox. A real Kotlin/Ktor backend now exists
 alongside it (`:server` + a shared `:contract` module) as an opt-in addon, not a replacement, it's
@@ -65,16 +65,16 @@ a multi-module clean architecture, MVI-style unidirectional state, Koin for
 DI, Room (KMP) with DataStore, and a `gms`/`noGms` flavor split so the same code ships to both the
 Play Store and F-Droid.
 
-Mileway doesn't stand alone. Its Gradle convention plugins live in a separate, reusable repo
+Doori doesn't stand alone. Its Gradle convention plugins live in a separate, reusable repo
 [**kmp-build-logic**](https://github.com/darkpandawarrior/kmp-build-logic), pulled in as a Gradle
 `includeBuild`, so the AGP/Kotlin/Compose/test setup isn't copy-pasted per project but shared across
 my KMP work. Its shared *libraries* increasingly come from the same place too:
 [**kmp-toolkit**](https://github.com/darkpandawarrior/kmp-toolkit), a 36-module MIT Kotlin
-Multiplatform toolkit vendored here as a git submodule. Mileway consumes **ten** of its modules
+Multiplatform toolkit vendored here as a git submodule. Doori consumes **ten** of its modules
 `:mvi-core`, `:result`, `:common`, `:location`, `:offline-outbox`, `:security`, `:app-shell`,
 `:network`, `:settings` and the on-device `:ai` seam (multimodal + streaming), rather than
 hand-rolling them, the "extract the reusable core the moment a second app needs it, then consume it"
-philosophy in practice: Mileway is both the flagship *and* a consumer. Its sibling,
+philosophy in practice: Doori is both the flagship *and* a consumer. Its sibling,
 [**PaymentsLab**](https://github.com/darkpandawarrior/PaymentsLab), goes deep on the payments/UPI
 slice the same way this repo goes deep on location and offline-first. All three sit under the same
 [portfolio](https://cv-siddharth.vercel.app/).
@@ -372,7 +372,7 @@ choices here were deliberate, and each one closed off an easier alternative on p
 ### Project structure
 
 ```text
-Mileway/
+Doori/
 ├── app/                      # Android application: composition root, navigation, DI, flavors
 ├── core/
 │   ├── ui/                   # Compose design system, theme engine, shared scaffolds
@@ -436,8 +436,8 @@ libraries ([kmp-toolkit]) live under `external/` as git submodules, pulled into 
 'external/kmp-build-logic' does not exist"*, so recurse:
 
 ```bash
-git clone --recurse-submodules https://github.com/darkpandawarrior/Mileway.git
-cd Mileway
+git clone --recurse-submodules https://github.com/darkpandawarrior/Doori.git
+cd Doori
 # already cloned without --recurse-submodules? pull them in:
 git submodule update --init --recursive
 
@@ -581,7 +581,7 @@ submission API, manual web-form upload only.
 
 ## Roadmap
 
-A snapshot of where Mileway is and where it's heading. This is a portfolio/demo project, so the
+A snapshot of where Doori is and where it's heading. This is a portfolio/demo project, so the
 roadmap reflects direction rather than commitments.
 
 **Shipped**
@@ -614,7 +614,7 @@ roadmap reflects direction rather than commitments.
       `xcodebuild`-gated, not yet device-verified), degrading to the offline retrieval engine
       wherever no model is available.
 - [x] Matrix / terminal design-language pass across the whole UI (theme tokens, topbar, screenshots)
-- [x] Renamed the project and package from MileTracker(Demo) to Mileway end-to-end
+- [x] Renamed the project and package from MileTracker(Demo) to Mileway end-to-end (now Doori)
 - [x] **Multi-account depth (V22).** Room-backed multi-persona account store with a real
       switch-account mechanism, PIN/biometric gate, and per-account session isolation (trip/expense
       queries re-scoped, cross-persona cold-start reconciliation).
@@ -772,5 +772,5 @@ same pipeline, so the whole tracking flow works on an emulator with no GPS hardw
 
 **[Portfolio](https://cv-siddharth.vercel.app/)** &nbsp;·&nbsp; **[PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab)** (sibling KMP project) &nbsp;·&nbsp; **[kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)** (shared convention plugins)
 
-<sub>Mileway is a portfolio / demo project. All companies, bookings, cards and amounts are fictional mock data.</sub>
+<sub>Doori is a portfolio / demo project. All companies, bookings, cards and amounts are fictional mock data.</sub>
 </div>

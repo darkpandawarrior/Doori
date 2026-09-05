@@ -58,7 +58,7 @@ fun main() {
             onCloseRequest = ::exitApplication,
             state = windowState,
             alwaysOnTop = hotReloadCanvas,
-            title = if (hotReloadCanvas) "Mileway — Hot Reload canvas" else "Mileway Dashboard",
+            title = if (hotReloadCanvas) "Doori — Hot Reload canvas" else "Doori Dashboard",
         ) {
             AppHost {
                 DashboardScreen(snapshot, trips)

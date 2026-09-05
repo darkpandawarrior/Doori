@@ -15,7 +15,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.mileway.ios</string>
 	<key>CFBundleName</key>
-	<string>Mileway</string>
+	<string>Doori</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,15 +45,15 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSCameraUsageDescription</key>
-	<string>Mileway uses the camera to capture odometer readings.</string>
+	<string>Doori uses the camera to capture odometer readings.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>Mileway uses Face ID to protect sensitive account data.</string>
+	<string>Doori uses Face ID to protect sensitive account data.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Mileway uses background location to auto-start trip tracking.</string>
+	<string>Doori uses background location to auto-start trip tracking.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Mileway uses your location to track mileage during trips.</string>
+	<string>Doori uses your location to track mileage during trips.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Mileway reads photos to attach receipts to expense entries.</string>
+	<string>Doori reads photos to attach receipts to expense entries.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIBackgroundModes</key>

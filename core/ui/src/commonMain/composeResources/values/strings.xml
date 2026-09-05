@@ -1,6 +1,6 @@
 <resources>
     <!-- App -->
-    <string name="app_name">Mileway</string>
+    <string name="app_name">Doori</string>
     <string name="app_tagline">Let's manage your spends!</string>
 
     <!-- Common actions -->
