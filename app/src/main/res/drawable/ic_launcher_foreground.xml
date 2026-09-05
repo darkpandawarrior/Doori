@@ -4,20 +4,53 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Route trail leading up to the pin (the "way") -->
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M54,69 C49,78 44,80 38,81"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="7"
-        android:strokeLineCap="round" />
-    <!-- Journey start marker -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M37,81 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0 z" />
-    <!-- Map pin (milestone), hole punched via evenOdd -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M54,24 C63.94,24 72,32.06 72,42 C72,53 64,61 54,72 C44,61 36,53 36,42 C36,32.06 44.06,24 54,24 Z M47.5,40 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0 z" />
+    <!-- Doori mark: THE MEASURED SPAN, concept A (2026-09-05 brand system, winner).
+         48-unit grid, converted from icon-foreground.svg. translate(21,21) scale(1.375) centres
+         the 48 grid inside the 108 viewport within the 66-unit safe zone. -->
+    <group
+        android:translateX="21"
+        android:translateY="21"
+        android:scaleX="1.375"
+        android:scaleY="1.375">
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M10,14L10,34" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M34,14L34,34" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M10,24L21,24" />
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="4"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M27,24L34,24" />
+        <!-- Ghost step: the x=34 tick repeated at trace weight, +4 on x. -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M38,14L38,34" />
+        <!-- The one dot: the point measured from. -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M10,24 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 z" />
+    </group>
 </vector>

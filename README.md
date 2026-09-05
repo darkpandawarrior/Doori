@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/assets/banner.svg" alt="Doori — a trip log measured in distance" width="500"/>
+
 <img src="docs/assets/banner.gif" alt="Doori, offline-first mileage, travel and expense tracking" width="700"/>
 
 ### Offline-first mileage, travel and expense tracking, built in Kotlin and Compose Multiplatform.
