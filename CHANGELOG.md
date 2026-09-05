@@ -6,7 +6,7 @@ mileage / travel / expense tracker for Android, iOS and Wear OS.
 Versions map to the project's phased development milestones (`v0.N.0` = milestone N). Dates are
 approximate for early retrospective entries; the app is built through versioned, individually-
 revertable phases. This file is the browsable "what happened when" — each entry also has a matching
-[GitHub Release](https://github.com/darkpandawarrior/Mileway/releases).
+[GitHub Release](https://github.com/darkpandawarrior/Doori/releases).
 
 The format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
