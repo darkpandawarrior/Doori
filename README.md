@@ -18,7 +18,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 
 **[Highlights](#highlights)** · **[Screenshots](#screenshots)** · **[Features](#features)** · **[Architecture](#architecture)** · **[Getting started](#getting-started)** · **[Roadmap](#roadmap)**
 
-**Case study:** [Mileway](https://cv-siddharth.vercel.app/project/mileway) &nbsp;·&nbsp; **Sibling project:** [PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab) &nbsp;·&nbsp; **Shared libraries:** [kmp-toolkit](https://github.com/darkpandawarrior/kmp-toolkit) &nbsp;·&nbsp; **Shared build logic:** [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)
+**Case study:** [Doori](https://cv-siddharth.vercel.app/project/mileway) &nbsp;·&nbsp; **Sibling project:** [PaymentsLab-KMP](https://github.com/darkpandawarrior/PaymentsLab-KMP) &nbsp;·&nbsp; **Shared libraries:** [kmp-toolkit](https://github.com/darkpandawarrior/kmp-toolkit) &nbsp;·&nbsp; **Shared build logic:** [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)
 
 </div>
 
@@ -75,7 +75,7 @@ Multiplatform toolkit vendored here as a git submodule. Doori consumes **ten** o
 `:network`, `:settings` and the on-device `:ai` seam (multimodal + streaming), rather than
 hand-rolling them, the "extract the reusable core the moment a second app needs it, then consume it"
 philosophy in practice: Doori is both the flagship *and* a consumer. Its sibling,
-[**PaymentsLab**](https://github.com/darkpandawarrior/PaymentsLab), goes deep on the payments/UPI
+[**PaymentsLab-KMP**](https://github.com/darkpandawarrior/PaymentsLab-KMP), goes deep on the payments/UPI
 slice the same way this repo goes deep on location and offline-first. All three sit under the same
 [portfolio](https://cv-siddharth.vercel.app/).
 
@@ -148,7 +148,7 @@ slice the same way this repo goes deep on location and offline-first. All three 
 <td valign="top"><b>Verification &amp; growth</b><br/><sub>Identity verification centre, referral hub, coupons, scratch-card rewards and the campaign marketing hub.</sub><br/><br/><img src="docs/gifs/verification_growth.gif" alt="Verification centre, referral hub, coupons, rewards and marketing hub"/></td>
 </tr>
 <tr>
-<td valign="top"><b>Membership &amp; subscription</b><br/><sub>Mileway Club benefits, subscription plans, the active subscription and incentive programs.</sub><br/><br/><img src="docs/gifs/membership.gif" alt="Club benefits, subscription plans, my subscription and incentive programs"/></td>
+<td valign="top"><b>Membership &amp; subscription</b><br/><sub>Doori Club benefits, subscription plans, the active subscription and incentive programs.</sub><br/><br/><img src="docs/gifs/membership.gif" alt="Club benefits, subscription plans, my subscription and incentive programs"/></td>
 <td valign="top"><b>AI assistant</b><br/><sub>On-device expense chat, saved history and question analytics behind a shared <code>LlmGateway</code>.</sub><br/><br/><img src="docs/gifs/ai_assistant.gif" alt="Assistant chat, conversation history and chat analytics"/></td>
 </tr>
 <tr>
@@ -250,7 +250,7 @@ Every feature is fully interactive on mocked, offline data.
 | **Travel** | Travel hub, active-trip card (flight / train), upcoming bookings, plus trip &amp; booking history surfaces. |
 | **Approvals &amp; Payables** | Approval queue with policy-violation badges; persistent clarification rooms with lifecycle/metadata/history and rich chat + attachments, shared across every transaction type via a common detail scaffold with comments, audit trail and action flags; payables hub, multi-step create-PR / invoice flows and history surfaces. |
 | **Payments, Events &amp; Cards** | QR pay / request + history; event creation, history and rich event detail; card home / detail / request with KYC, QR, dispute and limits flows. |
-| **Profile &amp; Account (super-profile, V24)** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, MaterialKolor theme engine; **plus V24 depth:** verification centre + corporate-email/OTP verification, growth surfaces (referral, coupons, scratch rewards, campaigns), membership (Mileway Club, subscription plans, incentive programs), account-deletion lifecycle, enriched active-sessions, **act-on-behalf session delegation** with an app-wide "Acting as" banner, external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle + QR), and a manager/reportee tracking view. |
+| **Profile &amp; Account (super-profile, V24)** | Account hub, advance requests, Canvas-rendered analytics dashboards, an AI assistant sheet, notification centre, permission-health screen, MaterialKolor theme engine; **plus V24 depth:** verification centre + corporate-email/OTP verification, growth surfaces (referral, coupons, scratch rewards, campaigns), membership (Doori Club, subscription plans, incentive programs), account-deletion lifecycle, enriched active-sessions, **act-on-behalf session delegation** with an app-wide "Acting as" banner, external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle + QR), and a manager/reportee tracking view. |
 | **Customization / personas (V24)** | A single **plugin registry** is the composition mechanism, every feature (tile, capability, tunable value) gates through it, resolved by layering FORCED &gt; USER &gt; PRESET &gt; DEFAULT. A **Master Plugin page** toggles any of them live with source chips; **persona presets** (Corporate Commuter, Super-App Consumer, Gig Driver, Minimal Guest) reshape the whole app, different hubs, auth flows, tracking behavior and tunable knobs, from one account. Tracking settings (accuracy/interval/displacement floors, force-GPS, sync toggles) are registry-backed and persisted, driving the live location engine. |
 | **Backend &amp; sync (V33, opt-in)** | A Kotlin/Ktor `:server` module (Netty + Exposed, H2 by default) sharing `:contract` DTOs with the client; idempotent location/event ingestion (`opId` dedup on a unique index) and a `PolicyRateEngine` shared verbatim between server and client; a `JourneyValidator`/`DistanceValidator` validation layer; writes queue through a durable offline outbox and flush once online. Off by default (`NetworkBackendFlags.useRealBackend = false`), the on-device `:stub` path is unchanged. |
 | **Local dev &amp; infra** | A local analytics sink with a kill switch, a Ktor network-log + API-tester debug console, and a server-driven tracking config loaded from local JSON, all offline by default. |
@@ -338,7 +338,7 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | **MVI + single immutable state per screen** | One `StateFlow<State>` per screen, collected with `collectAsStateWithLifecycle`, wrapped in a shared `ScreenState` that models loading/empty/error/content uniformly. Renders are a pure function of state; there's no half-updated UI to reason about. | More boilerplate than mutable view state, and every field change means a fresh copy of the state object. Accepted because it makes recomposition predictable and screens trivial to screenshot-test. |
 | **`SearchProvider` registry instead of a central search index** | Each feature binds its own `SearchProvider` into Koin; the master-search aggregator resolves `getAll<SearchProvider>()` and fans out. Adding a searchable feature is a one-line Koin binding, no edit to a shared switch statement, no feature-to-feature dependency. | Search is only as good as each provider, and cross-feature ranking is naive (per-provider, then merged). Fine for the scale here; the decoupling is worth more than global relevance tuning. |
 | **One codebase, two distributions (`gms` / `noGms`) with a FOSS purity guard** | The same app ships to Play (Google Maps/Firebase via `gms`) and to F-Droid (MapLibre + offline MBTiles via `noGms`). A dependency-prefix guard fails the build when an unlisted proprietary prefix reaches the `noGms` classpath, and `dependencyGuard` baselines that classpath so any *new* arrival is a failing diff. **Honest status: `noGms` is not GMS-free today.** Its baseline carries 19 proprietary entries, 15 `com.google.android.gms`/`com.google.mlkit` plus 4 transitive `com.google.firebase`, because ML Kit powers OCR and document scanning and is deliberately allowlisted. So the guard means *"nothing new leaked in"*, not *"this build is FOSS"*, and F-Droid submission is blocked until that set reaches zero. | Every platform integration needs a FOSS fallback (maps being the big one), and CI has to build/verify both flavors. The guard is what makes "it's really FOSS" a checkable claim rather than a README promise. |
-| **Shared Gradle logic in a separate `includeBuild` repo** | The convention plugins live in [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic), not inlined here, so AGP/Kotlin/Compose/test config is reused across projects (PaymentsLab too) instead of drifting per-repo. | One more repo to keep in sync, and a composite build to reason about. Worth it the moment a second KMP project exists. |
+| **Shared Gradle logic in a separate `includeBuild` repo** | The convention plugins live in [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic), not inlined here, so AGP/Kotlin/Compose/test config is reused across projects (PaymentsLab-KMP too) instead of drifting per-repo. | One more repo to keep in sync, and a composite build to reason about. Worth it the moment a second KMP project exists. |
 | **Autonomous Ralph-loop development with a revert-on-uncommitted guard** | The app is built through versioned `.ralph/PLAN_Vxx.md` phases, each iteration editing → building → committing in one turn. A Stop hook reverts uncommitted tracked edits between turns, which *forces* small, self-contained, individually-revertable commits. | The workflow is unforgiving, a build that fails to commit in-turn is lost. That constraint is the point: it makes every change atomic and the history clean to bisect. |
 
 ### Module map
@@ -645,7 +645,7 @@ roadmap reflects direction rather than commitments.
       four **persona presets** that reshape the whole app from one account. On top of it: auth depth
       (phone login, MFA, OTP-via-call), signup onboarding + what's-new, profile depth (OTP phone
       change, email/corporate verification, avatar, saved places, emergency contacts), a verification
-      centre + card KYC, growth (referral, coupons, scratch rewards, campaigns), membership (Mileway
+      centre + card KYC, growth (referral, coupons, scratch rewards, campaigns), membership (Doori
       Club, subscription plans, incentive programs), account-deletion lifecycle + enriched sessions,
       **act-on-behalf session delegation** (app-wide "Acting as" banner, trip-ownership isolation),
       external **wallet linking via OTP**, **payout identity** (masked bank + editable UPI handle +
@@ -770,7 +770,7 @@ same pipeline, so the whole tracking flow works on an emulator with no GPS hardw
 
 <div align="center">
 
-**[Portfolio](https://cv-siddharth.vercel.app/)** &nbsp;·&nbsp; **[PaymentsLab](https://github.com/darkpandawarrior/PaymentsLab)** (sibling KMP project) &nbsp;·&nbsp; **[kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)** (shared convention plugins)
+**[Portfolio](https://cv-siddharth.vercel.app/)** &nbsp;·&nbsp; **[PaymentsLab-KMP](https://github.com/darkpandawarrior/PaymentsLab-KMP)** (sibling KMP project) &nbsp;·&nbsp; **[kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic)** (shared convention plugins)
 
 <sub>Doori is a portfolio / demo project. All companies, bookings, cards and amounts are fictional mock data.</sub>
 </div>

@@ -103,7 +103,7 @@ fun ClubBenefitsScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = cb("club_back", "Back"), tint = Color.White)
                     }
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(cb("club_title", "Mileway Club"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
+                        Text(cb("club_title", "Doori Club"), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
                         Text(
                             cb("club_subtitle", "Member perks and benefits"),
                             style = MaterialTheme.typography.bodySmall,
@@ -129,7 +129,7 @@ fun ClubBenefitsScreen(
                             },
                     ) {
                         Text(
-                            cb("club_confetti", "Welcome to Mileway Club!"),
+                            cb("club_confetti", "Welcome to Doori Club!"),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MilewayRoles.approved,
@@ -173,7 +173,7 @@ private fun JoinPitch(onJoin: () -> Unit) {
         ) {
             Icon(Icons.Default.Star, contentDescription = null, tint = MilewayRoles.premium, modifier = Modifier.height(40.dp))
             Text(
-                cb("club_join_headline", "Join Mileway Club"),
+                cb("club_join_headline", "Join Doori Club"),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,

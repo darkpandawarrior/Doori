@@ -10,14 +10,14 @@ package com.mileway.core.platform
 object OemBatteryHints {
     private val hints =
         mapOf(
-            "xiaomi" to "Xiaomi may stop background tracking. Enable Autostart for Mileway in Settings > Apps > Permissions > Autostart.",
-            "redmi" to "Xiaomi may stop background tracking. Enable Autostart for Mileway in Settings > Apps > Permissions > Autostart.",
-            "poco" to "Xiaomi may stop background tracking. Enable Autostart for Mileway in Settings > Apps > Permissions > Autostart.",
-            "samsung" to "Samsung may put Mileway to sleep. Turn off 'Put unused apps to sleep' and disable battery optimization for Mileway.",
-            "oneplus" to "OnePlus may restrict background activity. Set Mileway's battery usage to 'Don't optimize' in Settings > Battery.",
-            "oppo" to "Oppo/ColorOS may restrict background activity. Allow Mileway to run in the background in Settings > Battery > App battery management.",
-            "vivo" to "Vivo/FuntouchOS may restrict background activity. Add Mileway to the background app whitelist in iManager.",
-            "huawei" to "Huawei's Protected Apps list can stop background tracking. Add Mileway to Protected Apps in Battery settings.",
+            "xiaomi" to "Xiaomi may stop background tracking. Enable Autostart for Doori in Settings > Apps > Permissions > Autostart.",
+            "redmi" to "Xiaomi may stop background tracking. Enable Autostart for Doori in Settings > Apps > Permissions > Autostart.",
+            "poco" to "Xiaomi may stop background tracking. Enable Autostart for Doori in Settings > Apps > Permissions > Autostart.",
+            "samsung" to "Samsung may put Doori to sleep. Turn off 'Put unused apps to sleep' and disable battery optimization for Doori.",
+            "oneplus" to "OnePlus may restrict background activity. Set Doori's battery usage to 'Don't optimize' in Settings > Battery.",
+            "oppo" to "Oppo/ColorOS may restrict background activity. Allow Doori to run in the background in Settings > Battery > App battery management.",
+            "vivo" to "Vivo/FuntouchOS may restrict background activity. Add Doori to the background app whitelist in iManager.",
+            "huawei" to "Huawei's Protected Apps list can stop background tracking. Add Doori to Protected Apps in Battery settings.",
         )
 
     /** Hint copy for [manufacturer], or null when there's no known OEM-specific guidance (stock/unknown). */

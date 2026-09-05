@@ -240,7 +240,7 @@ fun MileageSummaryContent(
     ) {
         if (!isCompact) {
             Text(
-                text = "Mileway",
+                text = "Doori",
                 style = TextStyle(color = ColorProvider(colors.accent), fontWeight = FontWeight.Bold, fontSize = 16.sp),
             )
             Spacer(GlanceModifier.height(8.dp))

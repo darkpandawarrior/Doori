@@ -33,7 +33,7 @@ val defaultPermissionTiers =
             id = PermissionTierId.LOCATION_FINE,
             permission = AppPermission.LOCATION,
             required = true,
-            rationale = "Mileway needs your location to record trip distance and route.",
+            rationale = "Doori needs your location to record trip distance and route.",
             skipImpact = "Without this, trips can't be tracked at all.",
         ),
         PermissionTier(
@@ -54,7 +54,7 @@ val defaultPermissionTiers =
             id = PermissionTierId.ACTIVITY_RECOGNITION,
             permission = AppPermission.ACTIVITY_RECOGNITION,
             required = false,
-            rationale = "Activity recognition lets Mileway auto-detect driving vs walking.",
+            rationale = "Activity recognition lets Doori auto-detect driving vs walking.",
             skipImpact = "You'll need to pick your vehicle/mode manually for every trip.",
         ),
     )
