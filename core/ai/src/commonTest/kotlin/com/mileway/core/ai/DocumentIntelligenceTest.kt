@@ -24,14 +24,18 @@ private class FakeAiAnalyzer(
 ) : DocumentAiAnalyzer {
     var extractCalled = false
         private set
+    var lastOcrText: String? = null
+        private set
 
     override fun isAvailable(): Boolean = available
 
     override suspend fun extract(
         image: DocumentImageRef,
         prompt: DocPrompt,
+        ocrText: String,
     ): AiResult<AiExtraction> {
         extractCalled = true
+        lastOcrText = ocrText
         return extraction?.let { Result.Success(it) } ?: Result.Failure(AiFailure.EmptyReply)
     }
 }
@@ -77,6 +81,7 @@ class DocumentIntelligenceTest {
             val result = intelligence.analyze("content://image", PROMPT)
 
             assertTrue(ai.extractCalled)
+            assertEquals("TAX INVOICE Acme Corp", ai.lastOcrText, "recognized text must reach the AI tier's prompt")
             assertEquals(DocType.INVOICE, result.docType)
             assertEquals("Acme Corp", result.fields.getValue(DocField.MERCHANT).value)
             assertTrue(AnalyzerSource.ON_DEVICE_AI in result.contributingSources)
