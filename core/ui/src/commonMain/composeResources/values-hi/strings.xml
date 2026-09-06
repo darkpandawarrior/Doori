@@ -146,6 +146,7 @@
     <string name="payments_status_failed_title">भुगतान विफल</string>
     <string name="payments_status_done">हो गया</string>
     <string name="payments_attach_invoice">इनवॉइस संलग्न करें</string>
+    <string name="payments_scan_invoice_prefill">फ़ॉर्म भरने के लिए इनवॉइस स्कैन करें</string>
     <string name="payments_invoice_attached">इनवॉइस संलग्न किया गया</string>
     <string name="payments_invoice_duplicate_title">संभावित डुप्लिकेट</string>
     <string name="payments_invoice_duplicate_message">यह पहले से संलग्न इनवॉइस (%1$s) जैसा दिखता है। फिर भी संलग्न करें?</string>
