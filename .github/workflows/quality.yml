@@ -140,6 +140,7 @@ jobs:
         with:
           name: kover-report
           path: app/build/reports/kover/reportNoGmsDebugCoverage.xml
+          retention-days: 2
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
@@ -149,6 +150,7 @@ jobs:
           path: |
             **/build/reports/tests/
             **/build/test-results/
+          retention-days: 2
 
       # Roborazzi writes actual/compare (side-by-side diff) PNGs for every mismatch — the fastest
       # way to see WHAT changed without pulling the branch locally. roborazzi.properties pins
@@ -168,6 +170,7 @@ jobs:
             docs/screenshots/**/*_actual.png
             **/build/outputs/roborazzi/**
           if-no-files-found: ignore
+          retention-days: 2
 
       # Loud failure, since this job is the required "Quality Gate" ruleset check AND now runs
       # unattended on a nightly schedule with no PR to surface a red X on. Every failing step above

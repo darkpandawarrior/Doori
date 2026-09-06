@@ -56,3 +56,4 @@ jobs:
           path: |
             docs/screenshots/SENTINEL_REPORT.md
             docs/screenshots/*.png
+          retention-days: 2

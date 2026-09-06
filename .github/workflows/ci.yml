@@ -89,12 +89,14 @@ jobs:
         with:
           name: test-results
           path: '**/build/reports/tests/'
+          retention-days: 2
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v7
         with:
           name: debug-apk
           path: app/build/outputs/apk/gms/debug/
+          retention-days: 2
 
   release-build:
     name: Release Build
@@ -141,6 +143,7 @@ jobs:
         with:
           name: release-apk
           path: app/build/outputs/apk/gms/release/
+          retention-days: 2
 
   # Screenshot baselines are handled by the self-maintaining `Screenshots` workflow
   # (.github/workflows/screenshots.yml): it records them in the CI environment and commits new/changed
@@ -244,6 +247,7 @@ jobs:
         with:
           name: instrumented-test-results
           path: '**/build/reports/androidTests/'
+          retention-days: 2
 
   # iOS Kotlin/Native compile moved to .github/workflows/ios.yml (macOS runner, path-filtered)
   # so it doesn't run on every PR regardless of whether iOS-relevant sources changed.
