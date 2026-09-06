@@ -54,6 +54,9 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
+            // FakeOnDeviceLlm for LlmAssistantEngineTest — scripts streaming success/failure
+            // without a real Gemini Nano/Foundation Models device.
+            implementation("com.siddharth.kmp:ai-testing:1.0.0")
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.mileway
 
+import com.mileway.feature.agent.engine.AssistantChunk
 import com.mileway.feature.agent.engine.AssistantEngine
 import com.mileway.feature.agent.model.AgentConversation
 import com.mileway.feature.agent.repository.AgentRepository
@@ -9,6 +10,10 @@ import com.mileway.feature.agent.voice.SpeechToText
 import com.mileway.core.platform.ShareSheet
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.voice.TextToSpeech
+import com.siddharth.kmp.result.AiFailure
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -16,14 +21,35 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+
+/** A reply that fails with [reason] right after "thinking" — never drops a reply silently. */
+private class ErrorAssistantEngine(private val reason: AiFailure) : AssistantEngine {
+    override fun respond(conversationId: String, userMessage: String, historySize: Int): Flow<AssistantChunk> = flow {
+        emit(AssistantChunk.Thinking("Thinking…"))
+        emit(AssistantChunk.Error(reason))
+    }
+}
+
+/** A reply that never finishes on its own — only Stop (job cancellation) ends it. */
+private class SlowAssistantEngine : AssistantEngine {
+    override fun respond(conversationId: String, userMessage: String, historySize: Int): Flow<AssistantChunk> = flow {
+        emit(AssistantChunk.Thinking("Thinking…"))
+        while (true) {
+            delay(10)
+            emit(AssistantChunk.Token("x"))
+        }
+    }
+}
 
 class AgentViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun viewModel() = AgentViewModel(AgentRepository(FakeAgentDao(), FakeAgentSessionStore()), FakeAssistantEngine(), FakeSpeechToText(), FakeTextToSpeech(), FakeShareSheet(), FakeAgentAnalyticsStore())
+    private fun viewModel(engine: AssistantEngine = FakeAssistantEngine()) =
+        AgentViewModel(AgentRepository(FakeAgentDao(), FakeAgentSessionStore()), engine, FakeSpeechToText(), FakeTextToSpeech(), FakeShareSheet(), FakeAgentAnalyticsStore())
 
     @Test
     fun `init seeds popular and unanswered tabs synchronously, history after coroutine`() = runTest {
@@ -113,6 +139,50 @@ class AgentViewModelTest {
     fun `DismissError clears the error field`() {
         val vm = viewModel()
         vm.onAction(AgentAction.DismissError)
-        assertNotNull(null == vm.state.value.error) // error stays null (was already null)
+        assertNull(vm.state.value.error) // error stays null (was already null)
+    }
+
+    @Test
+    fun `a mid-stream AiFailure stops streaming and sets the error field, message stays in transcript`() = runTest {
+        val vm = viewModel(engine = ErrorAssistantEngine(AiFailure.EmptyReply))
+        vm.onAction(AgentAction.SendMessage("what is my travel spend"))
+        advanceUntilIdle()
+
+        assertFalse(vm.state.value.isStreaming)
+        assertEquals(AiFailure.EmptyReply, vm.state.value.error)
+        // the user's question is not silently dropped — it's still there for Retry to resend
+        assertEquals(1, vm.state.value.messages.size)
+    }
+
+    @Test
+    fun `StopStreaming cancels the in-flight reply and clears streaming state without an assistant reply`() = runTest {
+        val vm = viewModel(engine = SlowAssistantEngine())
+        vm.onAction(AgentAction.SendMessage("long question"))
+        // No advanceUntilIdle(): SlowAssistantEngine's loop always has another delay scheduled, so
+        // draining the virtual clock would never finish. isStreaming flips true synchronously in
+        // sendMessage, before the streaming coroutine is even launched.
+        assertTrue(vm.state.value.isStreaming)
+
+        vm.onAction(AgentAction.StopStreaming)
+
+        assertFalse(vm.state.value.isStreaming)
+        assertEquals("", vm.state.value.streamedText)
+        assertEquals(1, vm.state.value.messages.size) // only the user's message; no assistant reply appended
+    }
+
+    @Test
+    fun `RetryLastMessage resends the last user question and clears the error`() = runTest {
+        val vm = viewModel(engine = ErrorAssistantEngine(AiFailure.Network))
+        vm.onAction(AgentAction.SendMessage("what is my travel spend"))
+        advanceUntilIdle()
+        assertNotNull(vm.state.value.error)
+
+        vm.onAction(AgentAction.RetryLastMessage)
+        advanceUntilIdle()
+
+        assertNotNull(vm.state.value.error) // ErrorAssistantEngine fails every time, so it's set again...
+        assertEquals(2, vm.state.value.messages.size) // ...but the question was genuinely resent
+        assertTrue(vm.state.value.messages[1].isUser)
+        assertEquals("what is my travel spend", vm.state.value.messages[1].text)
     }
 }

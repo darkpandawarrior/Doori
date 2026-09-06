@@ -66,6 +66,18 @@ class AgentViewModel(
     override fun onAction(action: AgentAction) {
         when (action) {
             is AgentAction.SendMessage -> sendMessage(action.text)
+            // Cancelling streamingJob throws CancellationException out of engine's stream —
+            // LlmAssistantEngine rethrows it rather than turning it into an AssistantChunk.Error,
+            // so this never surfaces as a user-facing failure.
+            //
+            // ponytail: discards whatever streamed so far instead of keeping it as a partial
+            // assistant message — simplest correct Stop; upgrade to persisting streamedText via
+            // repository.appendMessage if product wants a stopped answer kept rather than cleared.
+            is AgentAction.StopStreaming -> {
+                streamingJob?.cancel()
+                setState { copy(isStreaming = false, streamedText = "") }
+            }
+            is AgentAction.RetryLastMessage -> retryLastMessage()
             is AgentAction.LoadConversation -> loadConversation(action.conversation)
             is AgentAction.DismissError -> setState { copy(error = null) }
             is AgentAction.ResumeThread,
@@ -93,7 +105,9 @@ class AgentViewModel(
         val userMsg = AgentMessage(text = text.trim(), isUser = true, timestampMs = nowMs)
 
         val historySize = state.value.messages.size
-        setState { copy(messages = messages + userMsg, isStreaming = true, streamedText = "", thinkingPhrase = DEFAULT_THINKING) }
+        setState {
+            copy(messages = messages + userMsg, isStreaming = true, streamedText = "", thinkingPhrase = DEFAULT_THINKING, error = null)
+        }
         emitEffect(AgentEffect.ScrollToBottom)
 
         val existingThreadId = state.value.activeThreadId
@@ -128,9 +142,18 @@ class AgentViewModel(
                             setState { copy(messages = messages + assistantMsg, isStreaming = false, streamedText = "") }
                             emitEffect(AgentEffect.ScrollToBottom)
                         }
+                        is AssistantChunk.Error ->
+                            setState { copy(isStreaming = false, streamedText = "", error = chunk.reason) }
                     }
                 }
             }
+    }
+
+    /** Re-runs the last user question through [sendMessage] after an [AssistantChunk.Error] — a
+     * plain resend, same as the user retyping it, rather than a special "regenerate in place" path. */
+    private fun retryLastMessage() {
+        val lastUserText = state.value.messages.lastOrNull { it.isUser }?.text ?: return
+        sendMessage(lastUserText)
     }
 
     private fun loadConversation(conversation: AgentConversation) {

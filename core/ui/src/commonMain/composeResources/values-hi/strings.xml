@@ -2119,6 +2119,11 @@
     <string name="agent_cd_stop_voice">आवाज़ रोकें</string>
     <string name="agent_cd_toggle_voice_mode">हैंड्स-फ़्री मोड टॉगल करें</string>
     <string name="agent_cd_send">भेजें</string>
+    <string name="agent_cd_stop_generating">जवाब बनाना रोकें</string>
+    <string name="agent_error_model_not_resident">ऑन-डिवाइस मॉडल अभी इस डिवाइस पर डाउनलोड नहीं हुआ है।</string>
+    <string name="agent_error_unsupported">AI असिस्टेंट इस डिवाइस पर उपलब्ध नहीं है।</string>
+    <string name="agent_error_empty_reply">कोई जवाब नहीं मिला। फिर से कोशिश करें।</string>
+    <string name="agent_error_generic">जवाब बनाने में कुछ गड़बड़ हो गई।</string>
     <string name="agent_status_online">सिस्टम ऑनलाइन</string>
     <string name="agent_tab_chat">चैट</string>
     <string name="agent_tab_popular">लोकप्रिय</string>
