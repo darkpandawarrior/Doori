@@ -18,9 +18,11 @@ plugins {
  *  - feature:tracking → MilwayViewController (IosTrackingEntry), IosBgTaskDispatcher
  *  - feature:agent    → iosAgentModule (IosAgentEntry)
  *  - feature:logging  → IosIntentEntry (iOS App Intents start/stop/log-expense bridge)
- *  - core:ai          → DocumentAiAnalyzer, FoundationModelsBridge, AiExtraction/DocPrompt models
- *    (V26 AI: lets Swift conform to DocumentAiAnalyzer and register a Foundation Models bridge —
- *    see `iosApp/iosApp/ai/FoundationModelsDocumentAnalyzer.swift`)
+ *  - core:ai          → DocumentAiAnalyzer, AiExtraction/DocPrompt models
+ *  - kmp-toolkit :ai  → NativeLlm, InjectableNativeLlm, FoundationModelsBridge (the toolkit's
+ *    generic on-device-LLM bridge seam; core:ai's FoundationModelsAnalyzer and feature:agent's
+ *    FoundationModelsLlmGateway both sit on top of it now, sharing ONE Swift bridge class — see
+ *    `iosApp/iosApp/ai/FoundationModelsBridge.swift`, `AppDelegate.swift`)
  */
 kotlin {
     android {
@@ -40,6 +42,10 @@ kotlin {
             export(project(":feature:agent"))
             export(project(":feature:logging"))
             export(project(":core:ai"))
+            // NativeLlm/InjectableNativeLlm/FoundationModelsBridge — the Swift bridge in
+            // iosApp/iosApp/ai/FoundationModelsBridge.swift conforms to NativeLlm, so it must be
+            // ObjC-visible here (see the api(...) mirror below).
+            export("com.siddharth.kmp:ai:1.0.0")
         }
     }
 
@@ -78,6 +84,7 @@ kotlin {
             api(project(":feature:agent"))
             api(project(":feature:logging"))
             api(project(":core:ai"))
+            api("com.siddharth.kmp:ai:1.0.0")
 
             // Remaining feature deps — the hoisted app-shell (home/nav/auth/search) composes every
             // feature at the composition root, so this module depends on all of them (as :app did).
