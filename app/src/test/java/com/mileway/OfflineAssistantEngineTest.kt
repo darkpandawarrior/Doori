@@ -3,8 +3,10 @@ package com.mileway
 import app.cash.turbine.test
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.model.db.SavedTrack
+import com.mileway.feature.advances.data.AdvancesRepository
 import com.mileway.feature.agent.engine.AssistantChunk
 import com.mileway.feature.agent.engine.OfflineAssistantEngine
+import com.mileway.feature.logging.repository.ExpenseRepository
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.flow.flowOf
@@ -17,7 +19,12 @@ class OfflineAssistantEngineTest {
 
     private val now = Clock.System.now().toEpochMilliseconds()
     private val mockDao = mockk<SavedTrackDao>(relaxed = true)
-    private val engine = OfflineAssistantEngine(mockDao)
+    private val mockAdvances =
+        mockk<AdvancesRepository>(relaxed = true) {
+            every { openRequests() } returns flowOf(emptyList())
+            every { closedRequests() } returns flowOf(emptyList())
+        }
+    private val engine = OfflineAssistantEngine(mockDao, mockAdvances, ExpenseRepository())
 
     private fun track(routeId: String, distanceKm: Double, endOffsetMs: Long = 1_000L) = SavedTrack(
         routeId = routeId,
@@ -60,9 +67,11 @@ class OfflineAssistantEngineTest {
     }
 
     @Test
-    fun `card balance reply returns static card data`() = runTest {
+    fun `card balance reply reflects the real cards feature data, not a fictional balance`() = runTest {
         val reply = collectDone("what is my card balance")
-        assertTrue(reply.contains("₹48,000"), "Expected card balance, got: $reply")
+        // CardsMockData's real virtual cards (feature/cards/data/CardsMockData.kt): 4291, 8830, 5102, 7744.
+        assertTrue(reply.contains("4291"), "Expected a real card number, got: $reply")
+        assertTrue(!reply.contains("4821"), "Must not fall back to the old fictional card number, got: $reply")
     }
 
     @Test
