@@ -62,6 +62,7 @@ import com.mileway.core.ui.resources.tracking_odometer_reading_km_value
 import com.mileway.core.ui.resources.tracking_odometer_start_title
 import com.mileway.core.ui.resources.tracking_odometer_use_reading
 import com.mileway.core.ui.theme.DesignTokens
+import kotlinx.coroutines.CancellationException
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -108,7 +109,19 @@ fun OdometerReadingConfirmSheet(
     LaunchedEffect(capturedUri) {
         isProcessing = true
         val aggregate = ocrService.analyzeSingle(capturedUri)
-        val aiReading = runCatching { ocrService.analyzeAi(capturedUri) }.getOrNull()
+
+        // Was runCatching { }.getOrNull() — that also caught CancellationException, so a retake or
+        // dismiss mid-AI-read (this LaunchedEffect gets cancelled) silently kept going instead of
+        // actually stopping the extraction.
+        @Suppress("SwallowedException")
+        val aiReading =
+            try {
+                ocrService.analyzeAi(capturedUri)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (failure: Exception) {
+                null
+            }
         val reading =
             odometerReading.copy(
                 url = capturedUri,

@@ -13,6 +13,7 @@ import com.siddharth.kmp.ai.structuredOutput
 import com.siddharth.kmp.result.AiFailure
 import com.siddharth.kmp.result.AiResult
 import com.siddharth.kmp.result.Result
+import kotlinx.coroutines.CancellationException
 import java.io.File
 
 // ponytail: EXPERIMENTAL — delegates the ML Kit GenAI Prompt API call (Gemini Nano) to
@@ -30,14 +31,25 @@ class MlKitGenAiAnalyzer(
 ) : DocumentAiAnalyzer {
     override fun isAvailable(): Boolean = llm.isAvailable()
 
+    // SwallowedException: AiResult/AiFailure is design-frozen (see AGENTS.md) with no free-text/
+    // cause slot for `failure` — the comment above already explains why EmptyReply is the reason.
+    @Suppress("SwallowedException")
     override suspend fun extract(
         image: DocumentImageRef,
         prompt: DocPrompt,
         ocrText: String,
     ): AiResult<AiExtraction> {
         if (!isAvailable()) return Result.Failure(AiFailure.NotSupportedOnPlatform)
-        return runCatching { runExtraction(image, prompt, ocrText) }
-            .getOrElse { Result.Failure(AiFailure.EmptyReply) }
+        // Was runCatching { }.getOrElse { } — that also catches CancellationException, so
+        // navigating away mid-scan (the caller's coroutineScope cancels) got silently rewritten
+        // into a normal EmptyReply result instead of actually stopping the extraction.
+        return try {
+            runExtraction(image, prompt, ocrText)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (failure: Exception) {
+            Result.Failure(AiFailure.EmptyReply)
+        }
     }
 
     private suspend fun runExtraction(
