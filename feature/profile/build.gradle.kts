@@ -32,6 +32,21 @@ kotlin {
             implementation("androidx.appcompat:appcompat:1.8.0")
             // BiometricGuard (BiometricPrompt helper) now lives in the toolkit :security module.
             implementation("com.siddharth.kmp:security:1.0.0")
+            // AiSettingsSection/AiSettingsState (consent, on-device model download, BYOK cloud
+            // key) — SettingsScreen's new AI card, wired via ProfileModule.
+            //
+            // F-Droid build only: drop com.google.mediapipe:tasks-genai (~44MB), matching
+            // core:ai/build.gradle.kts's own exclude on this coordinate — every Android edge that
+            // pulls in com.siddharth.kmp:ai must apply it, or the transitive dependency leaks back
+            // in through whichever edge omits it.
+            val fdroidBuild = providers.gradleProperty("fdroid").isPresent
+            implementation("com.siddharth.kmp:ai:1.0.0") {
+                if (fdroidBuild) {
+                    exclude(group = "com.google.mediapipe", module = "tasks-genai")
+                }
+            }
+            implementation("com.siddharth.kmp:llm-chat:1.0.0")
+            implementation("com.siddharth.kmp:designsystem:1.0.0")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

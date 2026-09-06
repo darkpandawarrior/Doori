@@ -71,6 +71,12 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:security")).using(project(":security"))
         // PLAN_V34 P2/A6: AuthTokenStore's refresh-token persistence (SecureSettingsFactory).
         substitute(module("com.siddharth.kmp:settings")).using(project(":settings"))
+        // lane mileway-ai-settings-and-desktop: buildCloudFallback's BYOK provider chain
+        // (AiProvider/ProviderId/SecureKeyStore/buildProviderChain).
+        substitute(module("com.siddharth.kmp:llm-chat")).using(project(":llm-chat"))
+        // AiSettingsSection/AiSettingsState — the Settings-screen AI card and the desktop
+        // assistant both render.
+        substitute(module("com.siddharth.kmp:designsystem")).using(project(":designsystem"))
     }
 }
 

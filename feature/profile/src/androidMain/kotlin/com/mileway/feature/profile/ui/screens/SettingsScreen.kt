@@ -152,6 +152,8 @@ import com.mileway.feature.profile.model.SettingsUiState
 import com.mileway.feature.profile.model.computePermissionHealth
 import com.mileway.feature.profile.ui.components.SyncDiagnosticsCard
 import com.mileway.feature.profile.viewmodel.ProfileViewModel
+import com.siddharth.kmp.designsystem.ai.AiSettingsSection
+import com.siddharth.kmp.designsystem.ai.AiSettingsState
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
@@ -169,6 +171,7 @@ fun SettingsScreen(
     onOpenWhatsNew: () -> Unit = {},
     viewModel: ProfileViewModel = koinViewModel(),
     localeController: LocaleController = koinInject(),
+    aiSettingsState: AiSettingsState = koinInject(),
 ) {
     val darkOverride by viewModel.darkThemeOverride.collectAsStateWithLifecycle()
     val useMiles by viewModel.useMiles.collectAsStateWithLifecycle()
@@ -181,6 +184,7 @@ fun SettingsScreen(
     val paletteStyle by viewModel.paletteStyle.collectAsStateWithLifecycle()
     val language by viewModel.language.collectAsStateWithLifecycle()
     val experimentalFlags by viewModel.experimentalFlags.collectAsStateWithLifecycle()
+    val aiUiState by aiSettingsState.uiState.collectAsStateWithLifecycle()
     val systemDark = isSystemInDarkTheme()
     val context = LocalContext.current
     val about = SettingsUiState(darkThemeOverride = darkOverride, useMiles = useMiles)
@@ -347,6 +351,26 @@ fun SettingsScreen(
                         onCheckedChange = { viewModel.toggleNotifications() },
                     )
                 },
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
+
+            // ----------------------------------------------------------------
+            // AI section — consent, on-device model download, BYOK cloud key (see the lane brief:
+            // "AI visible in Settings"). AiSettingsSection renders its own titled cards, so no
+            // extra SettingsSectionLabel wrapper is needed here.
+            // ----------------------------------------------------------------
+            AiSettingsSection(
+                uiState = aiUiState,
+                onConsentChange = aiSettingsState::setAiConsent,
+                onStartDownload = aiSettingsState::startDownload,
+                onPauseDownload = aiSettingsState::pauseDownload,
+                onDeleteModel = aiSettingsState::deleteModel,
+                onSelectProvider = aiSettingsState::selectProvider,
+                onProviderKeyChange = aiSettingsState::setProviderKey,
+                onClearProviderKey = aiSettingsState::clearProviderKey,
+                onTestProviderKey = aiSettingsState::testKey,
+                modifier = Modifier.padding(horizontal = DesignTokens.Spacing.l),
             )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.s))
