@@ -2883,8 +2883,8 @@ class ScreenshotGalleryTest {
                 EntityPickerSheet(
                     entities =
                         listOf(
-                            BusinessEntity(id = 1L, name = "Mileway Technologies Pvt Ltd", country = "India", currencySymbol = "₹"),
-                            BusinessEntity(id = 2L, name = "Mileway Inc", country = "United States", currencySymbol = "$"),
+                            BusinessEntity(id = 1L, name = "Doori Technologies Pvt Ltd", country = "India", currencySymbol = "₹"),
+                            BusinessEntity(id = 2L, name = "Doori Inc", country = "United States", currencySymbol = "$"),
                         ),
                     query = "",
                     onQueryChange = {},

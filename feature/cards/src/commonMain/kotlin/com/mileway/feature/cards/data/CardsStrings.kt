@@ -29,7 +29,7 @@ internal val EnglishCardsStrings =
     CardsStrings(
         holderName = "Demo User",
         email = "demo@mileway.app",
-        issuer = "Mileway Bank",
+        issuer = "Doori Bank",
         typeTravel = "Travel",
         typeTravelDesc = "For flights, hotels and ground travel.",
         typeFuel = "Fuel",

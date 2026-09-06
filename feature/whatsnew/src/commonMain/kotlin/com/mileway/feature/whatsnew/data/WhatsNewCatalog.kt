@@ -46,7 +46,7 @@ object WhatsNewCatalog {
                     listOf(
                         WhatsNewMedia(
                             path = "files/whatsnew/phone-signin/01-sign-in-screen.png",
-                            caption = "Sign in to Mileway",
+                            caption = "Sign in to Doori",
                         ),
                     ),
                 releasedOn = LocalDate(2026, 7, 8),

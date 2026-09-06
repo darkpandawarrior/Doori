@@ -29,7 +29,7 @@ class MilewayFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        val title = message.notification?.title ?: message.data["title"] ?: "Mileway"
+        val title = message.notification?.title ?: message.data["title"] ?: "Doori"
         val body = message.notification?.body ?: message.data["body"].orEmpty()
         showNotification(title, body, message.data["path"])
     }

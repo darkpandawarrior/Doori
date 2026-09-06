@@ -138,7 +138,7 @@ private fun PermissionPrimerIntroSheet(onContinue: () -> Unit) {
                 modifier = Modifier.padding(bottom = DesignTokens.Spacing.m),
             )
             Text(
-                text = "Mileway needs your location to work",
+                text = "Doori needs your location to work",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -146,10 +146,10 @@ private fun PermissionPrimerIntroSheet(onContinue: () -> Unit) {
             Spacer(Modifier.height(DesignTokens.Spacing.s))
             Text(
                 text =
-                    "While you're tracking a trip, Mileway records your route and distance so it can " +
+                    "While you're tracking a trip, Doori records your route and distance so it can " +
                         "log your mileage automatically. If you also allow background access, that " +
                         "continues when the app isn't on screen — but only during an active trip. " +
-                        "Mileway never records your location when you aren't tracking.",
+                        "Doori never records your location when you aren't tracking.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -320,7 +320,7 @@ private fun outcomeCopy(outcome: PrimerOutcome): OutcomeCopy =
             OutcomeCopy(
                 icon = Icons.Filled.CheckCircle,
                 title = "You're all set",
-                body = "Mileway will record your location automatically while a trip is being tracked — in the background too.",
+                body = "Doori will record your location automatically while a trip is being tracked — in the background too.",
             )
 
         PrimerOutcome.ForegroundOnly ->
@@ -336,7 +336,7 @@ private fun outcomeCopy(outcome: PrimerOutcome): OutcomeCopy =
             OutcomeCopy(
                 icon = Icons.Filled.ErrorOutline,
                 title = "Location access is required",
-                body = "Mileway can't track a trip without location. You can try again, or continue without tracking for now.",
+                body = "Doori can't track a trip without location. You can try again, or continue without tracking for now.",
             )
 
         PrimerOutcome.PermanentlyDenied ->
@@ -344,14 +344,14 @@ private fun outcomeCopy(outcome: PrimerOutcome): OutcomeCopy =
                 icon = Icons.Filled.ErrorOutline,
                 title = "Location was turned off",
                 body =
-                    "Mileway can't ask again in-app — Android/iOS blocks repeat prompts after a second " +
-                        "denial. Turn location back on for Mileway from Settings, then come back here.",
+                    "Doori can't ask again in-app — Android/iOS blocks repeat prompts after a second " +
+                        "denial. Turn location back on for Doori from Settings, then come back here.",
             )
 
         PrimerOutcome.RestrictedByPolicy ->
             OutcomeCopy(
                 icon = Icons.Filled.Block,
                 title = "Location is blocked by your organization",
-                body = "A device policy on this phone prevents Mileway from accessing location. Contact your IT admin to enable it for this app.",
+                body = "A device policy on this phone prevents Doori from accessing location. Contact your IT admin to enable it for this app.",
             )
     }

@@ -79,4 +79,4 @@ fun ReferralCard(
 fun buildReferralInvite(
     code: String,
     linkBase: String = "https://mileway.example.com",
-): String = "Join me on Mileway! Use my referral code $code or open $linkBase/referral?code=$code"
+): String = "Join me on Doori! Use my referral code $code or open $linkBase/referral?code=$code"

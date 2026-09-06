@@ -97,7 +97,7 @@ private val ALL_FAQS =
     listOf(
         // Getting Started
         Faq(
-            "What permissions does Mileway need?",
+            "What permissions does Doori need?",
             "Location (Fine + Background) for continuous GPS tracking. Notification permission on Android 13+ for the tracking notification. Camera for odometer photo capture.",
             "Getting Started",
         ),

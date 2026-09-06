@@ -31,7 +31,7 @@ class TrackingNotificationManager(private val context: Context) {
 
     fun buildInitialNotification(): Notification =
         buildNotification(
-            title = "Mileway Active",
+            title = "Doori Active",
             text = "Starting GPS tracking…",
             distanceKm = 0.0,
             speedKmh = 0.0,

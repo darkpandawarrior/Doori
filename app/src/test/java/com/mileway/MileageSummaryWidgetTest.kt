@@ -32,7 +32,7 @@ class MileageSummaryWidgetTest {
             }
 
             // Full rendered strings (match under either exact or contains matcher semantics).
-            onNode(hasText("Mileway")).assertExists()
+            onNode(hasText("Doori")).assertExists()
             onNode(hasText("Today   12.3 km")).assertExists()
             onNode(hasText("Week    45.6 km · 7 trips")).assertExists()
             onNode(hasText("● Tracking now")).assertExists()

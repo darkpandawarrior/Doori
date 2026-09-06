@@ -26,5 +26,5 @@ object PayoutDetails {
     fun isValidUpiHandle(handle: String): Boolean = UPI_REGEX.matches(handle.trim())
 
     /** The `upi://pay?pa=<handle>` string a real UPI QR would encode (illustrative QR here). */
-    fun upiPayString(handle: String): String = "upi://pay?pa=${handle.trim()}&pn=Mileway"
+    fun upiPayString(handle: String): String = "upi://pay?pa=${handle.trim()}&pn=Doori"
 }
