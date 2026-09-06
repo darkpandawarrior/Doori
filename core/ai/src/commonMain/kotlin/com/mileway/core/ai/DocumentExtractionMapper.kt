@@ -32,8 +32,10 @@ internal object DocumentExtractionMapper {
             putField(DocField.ODOMETER, fields.odometer)
         }
 
-    fun toDocType(fields: DocumentExtractionFields): DocType? =
-        fields.docType?.let { key -> DocType.entries.find { it.name.equals(key, ignoreCase = true) } }
+    fun toDocType(fields: DocumentExtractionFields): DocType? {
+        val key = fields.docType ?: return null
+        return DocType.entries.find { it.name.equals(key, ignoreCase = true) }
+    }
 
     /**
      * [prompt]'s instruction+schemaHint, plus [ocrText] (already-recognized text — this never runs
