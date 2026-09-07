@@ -1,7 +1,7 @@
 [versions]
 agp = "9.5.0-alpha02"
 foundation = "1.12.0"
-kotlin = "2.4.20-RC2"
+kotlin = "2.4.20-RC3"
 material = "1.14.0"
 material3 = "1.12.0-alpha03"
 materialIconsExtended = "1.7.3"
@@ -56,14 +56,14 @@ datetimeWheelPicker = "1.4.0"
 # V12 KMP storage + security
 napier = "2.7.1"
 # V11 KMP/CMP migration (verified coords in .ralph/kmp-migration-map.md)
-coil3 = "3.6.0"
-markdownRenderer = "0.45.0"
+coil3 = "3.6.2"
+markdownRenderer = "0.43.0"
 webviewMultiplatform = "2.0.3"
 maplibreCompose = "0.15.0"
 ktor = "3.5.2"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
-exposed = "1.4.0"
+exposed = "1.5.0"
 postgresql = "42.7.13"
 h2 = "2.4.240"
 logback = "1.6.3"
@@ -95,7 +95,7 @@ install-referrer = "2.2"
 # KoinModule_androidKt (hence `kmpWorkerModule(workerFactory = ...)`), 3.3.1 ships none of them and
 # replaces the mechanism with KmpWorkManagerAndroid.initialize() + requireRegistry(). Migrated in
 # MilewayApplication.onCreate on 2026-08-13 — see the comment at the initialize() call there.
-kmpworkmanager = "3.3.1"
+kmpworkmanager = "3.4.1"
 # P7.5: AppFunctions — exposes start/stop-tracking, log-expense, today-summary to on-device agents.
 appfunctions = "1.0.0-alpha11"
 appfunctions-service = "1.0.0-alpha09"

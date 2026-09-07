@@ -50,7 +50,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance**, **47-module** clean architecture: **36 local** (13 feature · 12 core) + **11 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **368** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance**, **49-module** clean architecture: **36 local** (13 feature · 12 core) + **13 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **368** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why Doori
@@ -71,11 +71,13 @@ Doori doesn't stand alone. Its Gradle convention plugins live in a separate, reu
 [**kmp-build-logic**](https://github.com/darkpandawarrior/kmp-build-logic), pulled in as a Gradle
 `includeBuild`, so the AGP/Kotlin/Compose/test setup isn't copy-pasted per project but shared across
 my KMP work. Its shared *libraries* increasingly come from the same place too:
-[**kmp-toolkit**](https://github.com/darkpandawarrior/kmp-toolkit), a 36-module MIT Kotlin
-Multiplatform toolkit vendored here as a git submodule. Doori consumes **ten** of its modules
-`:mvi-core`, `:result`, `:common`, `:location`, `:offline-outbox`, `:security`, `:app-shell`,
-`:network`, `:settings` and the on-device `:ai` seam (multimodal + streaming), rather than
-hand-rolling them, the "extract the reusable core the moment a second app needs it, then consume it"
+[**kmp-toolkit**](https://github.com/darkpandawarrior/kmp-toolkit), a 40-module MIT Kotlin
+Multiplatform toolkit vendored here as a git submodule, pinned to **2.0.0**. Doori consumes
+**thirteen** of its modules: `:mvi-core`, `:result`, `:common`, `:location`, `:offline-outbox`,
+`:security`, `:app-shell`, `:network`, `:settings`, the on-device `:ai` seam (multimodal +
+streaming, `InjectableNativeLlm`), `:ai-testing`, `:llm-chat` (the BYOK provider chain) and
+`:designsystem` (the shared `AiSettingsSection`), rather than hand-rolling them, the "extract the
+reusable core the moment a second app needs it, then consume it"
 philosophy in practice: Doori is both the flagship *and* a consumer. Its sibling,
 [**PaymentsLab-KMP**](https://github.com/darkpandawarrior/PaymentsLab-KMP), goes deep on the payments/UPI
 slice the same way this repo goes deep on location and offline-first. All three sit under the same
@@ -116,13 +118,22 @@ slice the same way this repo goes deep on location and offline-first. All three 
 - 🔥 **Ember theme, four platforms from one KMP core.** A warm amber/red dark theme (replacing an
   earlier phosphor-green look) skins Android/iOS phone, Wear OS, watchOS and Compose Desktop, all
   from the same `commonMain` architecture.
-- 📄 **On-device document intelligence.** A capture-to-form pipeline combines on-device AI, text
-  recognition and heuristics, OCR field-fill, doc-type classification and duplicate detection, on
-  device where the platform supports it, degrading gracefully everywhere else.
-- 🤖 **On-device LLM assistant.** The expense chat runs against a real on-device model behind a
-  shared `LlmGateway`, ML Kit GenAI on Android, Apple Foundation Models on iOS via a Swift bridge
-  (`xcodebuild`-gated, not device-verified), degrading to the offline retrieval engine wherever no
-  model is available. Not a stub response generator.
+- 📄 **On-device document intelligence, typed extraction.** A capture-to-form pipeline combines
+  on-device AI, text recognition and heuristics; the AI tier returns a typed `AiResult<AiExtraction>`
+  (schema-typed field extraction via `structuredOutput<...>()`, untrusted OCR text guarded through
+  `PromptGuard`) instead of a regex scrape, feeding one unified `FormFieldWithSuggestions` prefill
+  across every call site, plus doc-type classification and duplicate detection, on device where the
+  platform supports it, degrading gracefully everywhere else.
+- 🤖 **On-device LLM assistant, one shared seam, streaming.** The expense chat streams real
+  per-token replies behind `LlmGateway`, ML Kit GenAI (Gemini Nano) on Android, Apple Foundation
+  Models on iOS through one shared Swift bridge, kmp-toolkit's `InjectableNativeLlm`/`OnDeviceLlm`
+  seam that document extraction above now runs on too, degrading to the offline retrieval engine
+  wherever no model is available. AI is visible in Settings and on desktop: consent, on-device model
+  download/pause/delete, and a BYOK cloud key (Anthropic/OpenAI/Gemini, tested and stored via
+  `SecureKeyStore`) as the fallback tier everywhere, the *only* answer path on desktop, which has no
+  on-device model at all. Neither on-device tier is device-verified here: no Gemini-Nano-class
+  hardware (Pixel 8+/AICore-eligible) and no Apple Foundation Models device in this environment, so
+  both are compile-verified only.
 
 ## Screenshots
 
@@ -421,7 +432,7 @@ Doori/
 | Charts | Canvas-only (no MPAndroidChart / Vico) |
 | Theming | MaterialKolor **5.0.0** |
 | Capture | Peekaboo (KMP camera/gallery) |
-| On-device AI | ML Kit GenAI (Android) / Apple Foundation Models (iOS, Swift-bridge) behind a shared `LlmGateway`, text recognition + barcode scanning, degrading to an offline heuristic engine where a model isn't available |
+| On-device AI | kmp-toolkit's `InjectableNativeLlm`/`OnDeviceLlm` seam, ML Kit GenAI (Gemini Nano, Android) / Apple Foundation Models (iOS, one shared Swift bridge) behind `LlmGateway` (streaming chat) and `DocumentAiAnalyzer` (typed extraction); a BYOK cloud fallback (Anthropic/OpenAI/Gemini via `SecureKeyStore`) on every platform including desktop, which has no on-device tier at all; text recognition + barcode scanning; degrading to an offline heuristic engine where no model is available. Neither on-device tier is device-verified here (no Gemini Nano / Foundation Models hardware) |
 | Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.68.0** screenshots |
 | Quality | detekt **2.0.0-alpha.5**, ktlint, Kover, dependency-guard |
 | SDK | compileSdk **37**, minSdk **30**, JDK 21 |
@@ -540,12 +551,12 @@ hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per i
 
 ## Testing and quality
 
-**2,510 `@Test` methods across 370 test classes in 30 modules**, plus 159 host-rendered screenshots.
-Numbers you can reproduce:
+**2,925 `@Test` methods across 397 test classes in 33 modules**, plus 368 host-rendered screenshots.
+Numbers you can reproduce (excluding the vendored `external/` toolkit, which ships its own suite):
 
 ```bash
-grep -rho '@Test' --include='*.kt' . | wc -l          # 2510
-ls docs/screenshots/*.png | wc -l                     # 159
+grep -rho '@Test' --include='*.kt' --exclude-dir=external . | wc -l   # 2925
+ls docs/screenshots/*.png | wc -l                                     # 368
 ```
 
 | Layer | What runs it | Gates a merge? |
@@ -609,8 +620,10 @@ roadmap reflects direction rather than commitments.
 - [x] **AI assistant / "agent" feature (V20).** Offline, retrieval-grounded chat over real local
       trip/expense/card data; Room-backed persistent history + 5-minute session resume; on-device
       voice I/O (STT/TTS); feedback, export and real-usage popular-question ranking; full
-      `commonMain` + iOS parity. (A dedicated Popular/Unanswered analytics screen and persisted
-      unanswered-question submission are still open, tracked as backlog.)
+      `commonMain` + iOS parity. The dedicated Popular/Unanswered analytics screen (`PopularTab`,
+      `UnansweredTab` in `AgentChatScreen`) has since shipped; persisted unanswered-question
+      submission has not, `AgentRepository.unansweredQuestions` still reads from
+      `AgentMockData`, not Room, tracked as backlog.
 - [x] **On-device LLM backing (post-V25).** `LlmGateway` swaps the assistant onto a real on-device
       model, ML Kit GenAI on Android, Apple Foundation Models on iOS (Swift bridge,
       `xcodebuild`-gated, not yet device-verified), degrading to the offline retrieval engine
@@ -686,6 +699,20 @@ roadmap reflects direction rather than commitments.
 - [x] **iOS launch-crash fix (V33).** `CADisableMinimumFrameDurationOnPhone` added to `Info.plist`
       (a Compose Multiplatform `PlistSanityCheck` requirement), the iOS app builds
       (`xcodebuild`-green) and launches correctly on device.
+- [x] **AI stack unification (V35).** Chat and document extraction share ONE on-device seam now:
+      kmp-toolkit's `InjectableNativeLlm`/`OnDeviceLlm` (`MlKitGenAiOnDeviceLlm` on Android,
+      `FoundationModelsOnDeviceLlm` over a single Swift `FoundationModelsBridge` registered once in
+      `AppDelegate.swift` on iOS), replacing this app's own separate seams. `feature:agent`'s
+      `LlmAssistantEngine` streams real per-token output through it; `core:ai`'s
+      `DocumentAiAnalyzer` returns a typed `AiResult<AiExtraction>` via `structuredOutput<...>()`
+      instead of a hand-rolled regex scrape, and OCR-to-form prefill is unified on one
+      `FormFieldWithSuggestions` component. AI is now visible in Settings (consent, on-device model
+      download/pause/delete, BYOK cloud-key entry and test) on Android and on the Compose Desktop
+      target, which has no on-device model at all and always answers through the BYOK cloud
+      fallback (Anthropic/OpenAI/Gemini keys via `SecureKeyStore`). **Not device-verified:**
+      Gemini-Nano-class hardware (Pixel 8+/AICore-eligible) and an Apple Foundation Models device
+      are both unavailable in this environment, so both on-device tiers remain compile-verified
+      only, same caveat the V25 bullet above already carried.
 
 **Exploring**
 
@@ -703,6 +730,9 @@ roadmap reflects direction rather than commitments.
       `NetworkBackendFlags.useRealBackend` is a compile-time `false` with no debug toggle wiring it
       on, so the authenticated path has never run in an actual app process, that wiring, plus the
       remaining PLAN_V33.1 routes beyond miles/location/events, is the next step
+- [ ] On-device LLM hardware verification: Gemini Nano (Pixel 8+/AICore-eligible) and Apple
+      Foundation Models are both compile/build-verified only here, no eligible device in this
+      environment
 
 ## iOS, Wear OS and watchOS
 
@@ -747,6 +777,7 @@ roadmap reflects direction rather than commitments.
 | iOS WidgetKit + Live Activity/Dynamic Island | ✅ `xcodebuild -scheme MilewayWidgets build` | ✅ host-rendered screenshots (WidgetScreenshotTests) | ✅ widgets + Live Activity captured |
 | iOS App Intents / Siri Shortcuts | ✅ compiles, `AppShortcutsProvider` registered |, | ⏸ Siri phrase invocation needs a device/simulator with Siri running |
 | Compose Desktop dashboard | ✅ `:desktopApp:desktopMain` compiles | ✅ `desktopTest` (host-rendered screenshot) |, (pure-JVM, no separate device verification needed) |
+| On-device LLM (chat streaming + document extraction) | ✅ compiles both platforms | ✅ unit-tested (`LlmAssistantEngineTest`, `DocumentIntelligenceTest`) | ⏸ Gemini Nano and Apple Foundation Models both need eligible hardware, none available here; the BYOK cloud fallback is the only tier ever exercised live |
 | Accessibility sweep (Android + iOS/watchOS surfaces) | ✅ compiles |, | ⏸ manual VoiceOver/TalkBack walkthrough documented inline; no automated a11y audit target yet |
 
 ## The location engine
