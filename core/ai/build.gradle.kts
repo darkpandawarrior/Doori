@@ -18,6 +18,15 @@ kotlin {
             // DocumentIntelligence.analyze() runs aiAnalyzer/textRecognizer concurrently via
             // coroutineScope { async {} }.
             implementation(libs.kotlinx.coroutines.core)
+            // DocumentAiAnalyzer.extract returns kmp-toolkit's typed AiResult<AiExtraction> —
+            // :result is otherwise dependency-free (same coordinate :stub already carries).
+            implementation("com.siddharth.kmp:result:1.0.0")
+        }
+        iosMain.dependencies {
+            // FoundationModelsAnalyzer actual delegates the model call to kmp-toolkit's :ai
+            // OnDeviceLlm seam (FoundationModelsOnDeviceLlm) — same split as the Android actual
+            // below (this module owns prompt building + JSON parsing, not the bridge plumbing).
+            implementation("com.siddharth.kmp:ai:1.0.0")
         }
         androidMain.dependencies {
             // TextRecognizer actual: ML Kit on-device Latin text recognition.

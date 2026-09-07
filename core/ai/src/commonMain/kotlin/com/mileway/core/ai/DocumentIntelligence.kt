@@ -4,6 +4,7 @@ import com.mileway.core.ai.model.DedupCandidate
 import com.mileway.core.ai.model.DocPrompt
 import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.ai.model.DocumentImageRef
+import com.siddharth.kmp.result.getOrNull
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
@@ -33,7 +34,11 @@ class DocumentIntelligence(
             val rawText = textRecognizer.recognize(image)
             val heuristicDocType = classifier.classify(rawText)
             val textFields = RawTextFieldExtractor.extract(rawText)
-            val aiExtraction = aiDeferred.await()
+            // aiAnalyzer.extract returns a typed AiResult (see DocumentAiAnalyzer) — a failure
+            // (unsupported platform, model not resident, empty reply, ...) degrades to the same
+            // "no AI extraction" null AnalysisCombiner already handles, same as before this seam
+            // carried a reason at all.
+            val aiExtraction = aiDeferred.await()?.getOrNull()
 
             val combined =
                 combiner.combine(
