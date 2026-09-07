@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,12 +30,19 @@ import com.mikepenz.markdown.m3.Markdown
 import com.mikepenz.markdown.m3.markdownColor
 import com.mikepenz.markdown.m3.markdownTypography
 import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.action_cancel
+import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.agent_cd_helpful
 import com.mileway.core.ui.resources.agent_cd_not_helpful
+import com.mileway.core.ui.resources.agent_error_empty_reply
+import com.mileway.core.ui.resources.agent_error_generic
+import com.mileway.core.ui.resources.agent_error_model_not_resident
+import com.mileway.core.ui.resources.agent_error_unsupported
 import com.mileway.core.ui.resources.agent_terminal_prompt_label
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.TerminalType
 import com.mileway.feature.agent.model.AgentMessage
+import com.siddharth.kmp.result.AiFailure
 import org.jetbrains.compose.resources.stringResource
 
 private val USER_BUBBLE_SHAPE = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 12.dp, bottomEnd = 4.dp)
@@ -43,6 +51,7 @@ private val EMBER_ACCENT = Color(0xFFF5A623)
 private val EMBER_DIM = Color(0xFFB87A1C)
 private val TERMINAL_BORDER = Color(0xFF3D2E1C)
 private val TERMINAL_SURFACE = Color(0xFF17110B)
+private val ERROR_BANNER_BG = Color(0xFF2A0E0E)
 
 @Composable
 fun AgentMessageBubble(
@@ -163,6 +172,46 @@ fun AgentStreamingBubble(
         }
     }
 }
+
+/** Renders after a mid-stream [com.mileway.feature.agent.engine.AssistantChunk.Error] instead of a
+ * silently dropped reply — [reason] picks the message, [onRetry]/[onDismiss] back
+ * [com.mileway.feature.agent.viewmodel.AgentAction.RetryLastMessage]/[com.mileway.feature.agent.viewmodel.AgentAction.DismissError]. */
+@Composable
+fun AgentErrorBanner(
+    reason: AiFailure,
+    onRetry: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(ERROR_BANNER_BG, DesignTokens.Shape.button)
+                .border(1.dp, MaterialTheme.colorScheme.error, DesignTokens.Shape.button)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = stringResource(reason.toDisplayMessageRes()),
+            style = TerminalType.output,
+            color = MaterialTheme.colorScheme.error,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.padding(top = 6.dp)) {
+            TextButton(onClick = onRetry) { Text(stringResource(Res.string.action_retry), color = EMBER_ACCENT) }
+            TextButton(onClick = onDismiss) { Text(stringResource(Res.string.action_cancel), color = EMBER_DIM) }
+        }
+    }
+}
+
+private fun AiFailure.toDisplayMessageRes() =
+    when (this) {
+        AiFailure.ModelNotResident -> Res.string.agent_error_model_not_resident
+        AiFailure.NotSupportedOnPlatform -> Res.string.agent_error_unsupported
+        AiFailure.EmptyReply -> Res.string.agent_error_empty_reply
+        // NoKey/Unauthorized/RateLimited/Timeout/Network: on-device gateways never carry a key, so
+        // these realistically only reach here via LlmAssistantEngine's catch-all — one generic
+        // message covers all of them rather than a claim this seam can't actually back up.
+        else -> Res.string.agent_error_generic
+    }
 
 @Composable
 fun AgentThinkingIndicator(phrase: String) {

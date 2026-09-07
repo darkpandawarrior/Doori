@@ -32,6 +32,7 @@ import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.ui.di.coreUiModule
 import com.mileway.feature.agent.di.agentModule
 import com.mileway.feature.agent.viewmodel.AgentViewModel
+import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.approvals.di.approvalsModule
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
 import com.mileway.feature.approvals.viewmodel.ClarificationHistoryViewModel
@@ -310,6 +311,7 @@ class KoinGraphTest : KoinTest {
                 approvalsModule,
                 payablesModule,
                 agentModule,
+                advancesModule,
                 com.mileway.feature.cards.di.cardsModule,
                 paymentsModule,
                 eventsModule,

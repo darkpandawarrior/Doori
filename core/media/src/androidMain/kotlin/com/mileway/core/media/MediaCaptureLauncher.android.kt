@@ -39,6 +39,7 @@ import com.mileway.core.ui.components.sheet.OcrBatchResultsSheet
 import com.mileway.core.ui.components.sheet.OcrResultHost
 import com.preat.peekaboo.image.picker.SelectionMode
 import com.preat.peekaboo.image.picker.rememberImagePickerLauncher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
 import java.io.File
@@ -141,7 +142,7 @@ actual fun rememberMediaCaptureLauncher(
                 return@launch
             }
             if (watermarked.size == 1) {
-                val analysis = runCatching { documentIntelligence.analyze(watermarked[0].uri, ocrPrompt) }.getOrNull()
+                val analysis = documentIntelligence.analyzeOrNull(watermarked[0].uri, ocrPrompt)
                 if (analysis == null) {
                     // OCR itself failed (not a duplicate/wrong-doc-type verdict) — still attach the
                     // photo rather than blocking the user on an OCR-plumbing error.
@@ -153,7 +154,7 @@ actual fun rememberMediaCaptureLauncher(
             } else {
                 batchItems =
                     watermarked.map { item ->
-                        val analysis = runCatching { documentIntelligence.analyze(item.uri, ocrPrompt) }.getOrNull()
+                        val analysis = documentIntelligence.analyzeOrNull(item.uri, ocrPrompt)
                         BatchOcrItem(label = item.uri.substringAfterLast('/'), status = analysis.toBatchStatus(expectedDocType))
                     }
                 pendingItems = watermarked
@@ -380,4 +381,23 @@ private fun DocumentAnalysis?.toBatchStatus(expectedDocType: DocType): BatchOcrS
         this == null || docType != expectedDocType -> BatchOcrStatus.Failed
         duplicate != DuplicateVerdict.Unique -> BatchOcrStatus.Duplicate
         else -> BatchOcrStatus.Success
+    }
+
+// SwallowedException: null already IS this call's failure signal (both call sites fall back to
+// "attach the photo without OCR"), same shape runCatching{}.getOrNull() had — the only change is
+// no longer treating cancellation as just another failure. Was runCatching { }.getOrNull(), which
+// also caught CancellationException: navigating away mid-scan (scope.launch's coroutine gets
+// cancelled) was silently rewritten into "OCR failed, attach anyway" instead of actually stopping
+// the extraction and the delivery it drives.
+@Suppress("SwallowedException")
+private suspend fun DocumentIntelligence.analyzeOrNull(
+    uri: String,
+    prompt: DocPrompt,
+): DocumentAnalysis? =
+    try {
+        analyze(uri, prompt)
+    } catch (cancellation: CancellationException) {
+        throw cancellation
+    } catch (failure: Exception) {
+        null
     }
