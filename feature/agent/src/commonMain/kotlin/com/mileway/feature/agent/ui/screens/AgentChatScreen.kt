@@ -91,6 +91,7 @@ import com.mileway.core.ui.resources.agent_cd_export
 import com.mileway.core.ui.resources.agent_cd_history
 import com.mileway.core.ui.resources.agent_cd_send
 import com.mileway.core.ui.resources.agent_cd_start_voice
+import com.mileway.core.ui.resources.agent_cd_stop_generating
 import com.mileway.core.ui.resources.agent_cd_stop_voice
 import com.mileway.core.ui.resources.agent_cd_toggle_voice_mode
 import com.mileway.core.ui.resources.agent_export_unavailable
@@ -117,6 +118,7 @@ import com.mileway.core.ui.theme.TerminalType
 import com.mileway.feature.agent.model.AgentMessage
 import com.mileway.feature.agent.model.PopularQuestion
 import com.mileway.feature.agent.model.UnansweredQuestion
+import com.mileway.feature.agent.ui.components.AgentErrorBanner
 import com.mileway.feature.agent.ui.components.AgentMessageBubble
 import com.mileway.feature.agent.ui.components.AgentStreamingBubble
 import com.mileway.feature.agent.ui.components.AgentThinkingIndicator
@@ -125,6 +127,7 @@ import com.mileway.feature.agent.ui.components.WaveformState
 import com.mileway.feature.agent.viewmodel.AgentAction
 import com.mileway.feature.agent.viewmodel.AgentEffect
 import com.mileway.feature.agent.viewmodel.AgentViewModel
+import com.siddharth.kmp.result.AiFailure
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -258,7 +261,11 @@ fun AgentChatScreen(
                             inputText = inputText,
                             onInputChange = { inputText = it },
                             onSend = { sendText(inputText) },
+                            onStop = { viewModel.onAction(AgentAction.StopStreaming) },
                             onChipClicked = { sendText(it) },
+                            error = uiState.error,
+                            onRetryError = { viewModel.onAction(AgentAction.RetryLastMessage) },
+                            onDismissError = { viewModel.onAction(AgentAction.DismissError) },
                             onMic = {
                                 if (uiState.isListening) {
                                     viewModel.onAction(AgentAction.StopVoice)
@@ -431,7 +438,11 @@ private fun ChatTab(
     inputText: String,
     onInputChange: (String) -> Unit,
     onSend: () -> Unit,
+    onStop: () -> Unit,
     onChipClicked: (String) -> Unit,
+    error: AiFailure?,
+    onRetryError: () -> Unit,
+    onDismissError: () -> Unit,
     onFeedback: (messageId: String, rating: Int) -> Unit,
     feedbackMap: Map<String, Int>,
     onMic: () -> Unit,
@@ -514,6 +525,12 @@ private fun ChatTab(
                     } else {
                         AgentStreamingBubble(text = streamedText, cursorAlpha = cursorAlpha)
                     }
+                }
+            }
+
+            if (error != null) {
+                item {
+                    AgentErrorBanner(reason = error, onRetry = onRetryError, onDismiss = onDismissError)
                 }
             }
 
@@ -613,15 +630,25 @@ private fun ChatTab(
                     tint = if (isVoiceConversationMode) EMBER_ACCENT else EMBER_DIM,
                 )
             }
-            IconButton(
-                onClick = onSend,
-                enabled = inputText.isNotBlank() && !isStreaming,
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.Send,
-                    contentDescription = stringResource(Res.string.agent_cd_send),
-                    tint = if (inputText.isNotBlank()) EMBER_ACCENT else EMBER_DIM,
-                )
+            if (isStreaming) {
+                IconButton(onClick = onStop) {
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = stringResource(Res.string.agent_cd_stop_generating),
+                        tint = EMBER_ACCENT,
+                    )
+                }
+            } else {
+                IconButton(
+                    onClick = onSend,
+                    enabled = inputText.isNotBlank(),
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = stringResource(Res.string.agent_cd_send),
+                        tint = if (inputText.isNotBlank()) EMBER_ACCENT else EMBER_DIM,
+                    )
+                }
             }
         }
     }

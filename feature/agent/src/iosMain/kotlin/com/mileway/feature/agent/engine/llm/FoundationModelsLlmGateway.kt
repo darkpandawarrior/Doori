@@ -1,27 +1,22 @@
 package com.mileway.feature.agent.engine.llm
 
+import com.siddharth.kmp.ai.FoundationModelsOnDeviceLlm
+import com.siddharth.kmp.ai.OnDeviceLlm
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
-// EXPERIMENTAL — Apple Foundation Models, same "no platform.FoundationModels.* Kotlin/Native
-// cinterop binding" gap as core:ai's FoundationModelsAnalyzer — the real actual is a Swift class
-// conforming to [TextGenerator], injected into [FoundationModelsTextGeneratorBridge] at app startup.
-// See `iosApp/iosApp/ai/FoundationModelsTextGenerator.swift`.
-object FoundationModelsTextGeneratorBridge {
-    val seam = InjectableTextGenerator()
-}
+// EXPERIMENTAL — Apple Foundation Models. Delegates to kmp-toolkit's :ai OnDeviceLlm seam
+// (FoundationModelsOnDeviceLlm), same engine core:ai's FoundationModelsAnalyzer uses for document
+// extraction — both now share ONE Swift bridge (com.siddharth.kmp.ai.FoundationModelsBridge,
+// registered once in AppDelegate.swift) instead of this app's own separate InjectableTextGenerator/
+// FoundationModelsTextGeneratorBridge seam. Mirrors MlKitLlmGateway's shape exactly.
+//
+// FoundationModelsOnDeviceLlm.generateStream is REAL per-token streaming through the injected
+// bridge (LanguageModelSession.streamResponse, diffed into suffixes) — an upgrade over the old
+// Swift TextGenerator seam, which only ever replayed one whole-response emit.
+class FoundationModelsLlmGateway(
+    private val llm: OnDeviceLlm = FoundationModelsOnDeviceLlm(),
+) : LlmGateway {
+    override fun isAvailable(): Boolean = llm.isAvailable()
 
-// [TextGenerator.generate] returns the whole response as one String (LanguageModelSession.respond
-// isn't threaded through this seam incrementally) — this degrades gracefully to a single
-// AssistantChunk.Token instead of true per-token streaming. Revisit if/when a streaming variant of
-// the Swift bridge (LanguageModelSession.streamResponse) is worth the added completion-handler
-// plumbing.
-class FoundationModelsLlmGateway : LlmGateway {
-    override fun isAvailable(): Boolean = FoundationModelsTextGeneratorBridge.seam.isAvailable()
-
-    override fun stream(prompt: String): Flow<String> =
-        flow {
-            val text = FoundationModelsTextGeneratorBridge.seam.generate(prompt)
-            if (!text.isNullOrEmpty()) emit(text)
-        }
+    override fun stream(prompt: String): Flow<String> = llm.generateStream(prompt)
 }

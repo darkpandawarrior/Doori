@@ -16,11 +16,12 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { _, _ in
             DispatchQueue.main.async { application.registerForRemoteNotifications() }
         }
-        // V26 AI: register the Foundation Models Swift bridges (EXPERIMENTAL, xcodebuild-gated —
-        // see FoundationModelsDocumentAnalyzer.swift / FoundationModelsTextGenerator.swift). Both
-        // seams degrade to "unavailable" if this line is ever removed — nothing else depends on it.
-        FoundationModelsBridge.shared.seam.analyzer = FoundationModelsDocumentAnalyzer()
-        FoundationModelsTextGeneratorBridge.shared.seam.generator = FoundationModelsTextGenerator()
+        // V26 AI: register the ONE Foundation Models Swift bridge (EXPERIMENTAL, xcodebuild-gated
+        // — see FoundationModelsBridge.swift) into kmp-toolkit's own seam
+        // (com.siddharth.kmp.ai.FoundationModelsBridge, imported from Mileway). Both core:ai's
+        // document extraction and feature:agent's assistant chat sit on top of this seam now —
+        // it degrades to "unavailable" for both if this line is ever removed.
+        FoundationModelsBridge.shared.seam.generator = MilewayFoundationModelsBridge()
         // RF.3: capture a deferred referral left on the pasteboard at first launch.
         ReferralBridge.shared.captureDeferred()
         // P4.5: activate the WatchConnectivity session so a paired watch gets the latest

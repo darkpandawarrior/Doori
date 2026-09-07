@@ -9,9 +9,14 @@ import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentImageRef
 import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
+import com.siddharth.kmp.result.AiFailure
+import com.siddharth.kmp.result.AiResult
+import com.siddharth.kmp.result.Result
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -21,15 +26,19 @@ private class FakeAiAnalyzer(
 ) : DocumentAiAnalyzer {
     var extractCalled = false
         private set
+    var lastOcrText: String? = null
+        private set
 
     override fun isAvailable(): Boolean = available
 
     override suspend fun extract(
         image: DocumentImageRef,
         prompt: DocPrompt,
-    ): AiExtraction? {
+        ocrText: String,
+    ): AiResult<AiExtraction> {
         extractCalled = true
-        return extraction
+        lastOcrText = ocrText
+        return extraction?.let { Result.Success(it) } ?: Result.Failure(AiFailure.EmptyReply)
     }
 }
 
@@ -74,6 +83,7 @@ class DocumentIntelligenceTest {
             val result = intelligence.analyze("content://image", PROMPT)
 
             assertTrue(ai.extractCalled)
+            assertEquals("TAX INVOICE Acme Corp", ai.lastOcrText, "recognized text must reach the AI tier's prompt")
             assertEquals(DocType.INVOICE, result.docType)
             assertEquals("Acme Corp", result.fields.getValue(DocField.MERCHANT).value)
             assertTrue(AnalyzerSource.ON_DEVICE_AI in result.contributingSources)
@@ -123,5 +133,43 @@ class DocumentIntelligenceTest {
             val result = intelligence.analyze("img", PROMPT, dedupCandidates = candidates, timestampMillis = 0L)
 
             assertEquals(DuplicateVerdict.Unique, result.duplicate)
+        }
+
+    // Guards the actual gap named in the streaming/cancellation lane: analyze() itself must never
+    // gain a runCatching/try-catch that swallows CancellationException — the real bugs found (and
+    // fixed) turned out to live in Android-only callers (MlKitGenAiAnalyzer.extract,
+    // MediaCaptureLauncher, OdometerSheets), not here, but this test exists so that stays true.
+    @Test
+    fun `cancellation from the AI tier during analyze propagates, is not swallowed into a result`() =
+        runTest {
+            val cancellingAi =
+                object : DocumentAiAnalyzer {
+                    override fun isAvailable(): Boolean = true
+
+                    override suspend fun extract(
+                        image: DocumentImageRef,
+                        prompt: DocPrompt,
+                        ocrText: String,
+                    ): AiResult<AiExtraction> = throw CancellationException("navigated away mid-scan")
+                }
+            val intelligence = DocumentIntelligence(cancellingAi, FakeTextRecognizer("some text"), KeywordHeuristicClassifier)
+
+            assertFailsWith<CancellationException> {
+                intelligence.analyze("img", PROMPT)
+            }
+        }
+
+    @Test
+    fun `cancellation from OCR during analyze propagates, is not swallowed into a result`() =
+        runTest {
+            val cancellingText =
+                object : TextRecognizer {
+                    override suspend fun recognize(image: DocumentImageRef): String = throw CancellationException("navigated away mid-scan")
+                }
+            val intelligence = DocumentIntelligence(FakeAiAnalyzer(available = false), cancellingText, KeywordHeuristicClassifier)
+
+            assertFailsWith<CancellationException> {
+                intelligence.analyze("img", PROMPT)
+            }
         }
 }

@@ -1,25 +1,59 @@
 package com.mileway.core.ai
 
-// ponytail: EXPERIMENTAL — Apple FoundationModels (LanguageModelSession/@Generable/
-// SystemLanguageModel, iOS 18.1+/26) is NOT reachable from Kotlin/Native cinterop on this
-// toolchain (Kotlin 2.4.20-Beta1 / Kotlin-Native prebuilt 2.4.20-Beta1 & 2.3.21): there is no
-// `platform.FoundationModels.*` package in either version's platform klibs (verified: no
-// `org.jetbrains.kotlin.native.platform.FoundationModels` dir under either
-// `~/.konan/kotlin-native-prebuilt-macos-aarch64-<ver>/klib/platform/ios_simulator_arm64/`, and
-// no matching `.def` under `konan/platformDef/`), unlike e.g. `platform.Vision.*`
-// ([VisionTextRecognizer]) or `platform.VisionKit.*` (`MediaCaptureLauncher.ios.kt`'s document
-// scanner), which both ARE present. FoundationModels is new enough (and its Swift-macro-driven
-// `@Generable` guided output has no Objective-C-compatible surface at all) that def-file
-// generation hasn't caught up. Kotlin/Native still exports plain Kotlin interfaces TO Swift as
-// ObjC protocols though (see `core:media`'s `DocumentAiAnalyzer` usage) — so the real actual is a
-// Swift class conforming to [DocumentAiAnalyzer], injected at app-startup into
-// [FoundationModelsBridge]. See `iosApp/iosApp/ai/FoundationModelsDocumentAnalyzer.swift`.
-//
-// Until the Swift app registers a bridge, [FoundationModelsBridge]'s seam degrades to
-// unavailable, so DocumentIntelligence exercises its degrade path (TEXT_RECOGNITION +
-// HEURISTIC_CLASSIFIER only) — same behavior this stub always had.
-object FoundationModelsBridge {
-    val seam = InjectableDocumentAiAnalyzer()
-}
+import com.mileway.core.ai.model.AiExtraction
+import com.mileway.core.ai.model.DocPrompt
+import com.mileway.core.ai.model.DocumentExtractionFields
+import com.mileway.core.ai.model.DocumentImageRef
+import com.siddharth.kmp.ai.FoundationModelsOnDeviceLlm
+import com.siddharth.kmp.ai.OnDeviceLlm
+import com.siddharth.kmp.ai.structuredOutput
+import com.siddharth.kmp.result.AiFailure
+import com.siddharth.kmp.result.AiResult
+import com.siddharth.kmp.result.Result
 
-class FoundationModelsAnalyzer : DocumentAiAnalyzer by FoundationModelsBridge.seam
+/**
+ * Real actual: kmp-toolkit's :ai [FoundationModelsOnDeviceLlm] (backed by its
+ * `InjectableNativeLlm`/`FoundationModelsBridge` seam — a Swift class conforming to `NativeLlm`
+ * registered at app startup, see `iosApp/iosApp/ai/FoundationModelsBridge.swift` and
+ * `AppDelegate.swift`). Mirrors [MlKitGenAiAnalyzer]'s split: this class owns document-scan prompt
+ * building (via [DocumentExtractionMapper], shared with the Android actual), not the model-client
+ * plumbing or the StructuredOutput<DocumentExtractionFields> reply parse.
+ *
+ * ponytail: [FoundationModelsOnDeviceLlm]'s bridge is text-only — `NativeLlm.generate(prompt:
+ * String)` carries no image parameter at all (Apple's on-device Foundation Models framework has no
+ * vision input on this bridge), so [image] is accepted (interface parity with the Android
+ * multimodal actual) but never read. [ocrText] is what actually grounds this tier now — before
+ * DocumentAiAnalyzer.extract carried it, this analyzer ran on instruction+schemaHint alone with no
+ * document content at all; upgrade [image] to a real vision call if the toolkit bridge (or Apple's
+ * framework) ever offers one.
+ */
+class FoundationModelsAnalyzer(
+    private val llm: OnDeviceLlm = FoundationModelsOnDeviceLlm(),
+) : DocumentAiAnalyzer {
+    override fun isAvailable(): Boolean = llm.isAvailable()
+
+    override suspend fun extract(
+        image: DocumentImageRef,
+        prompt: DocPrompt,
+        ocrText: String,
+    ): AiResult<AiExtraction> {
+        if (!isAvailable()) return Result.Failure(AiFailure.NotSupportedOnPlatform)
+        val instruction = DocumentExtractionMapper.buildInstruction(prompt, ocrText)
+        val result =
+            structuredOutput<DocumentExtractionFields>().ask(instruction) { hintedPrompt -> llm.generate(hintedPrompt) }
+        return when (result) {
+            is Result.Failure -> result
+            is Result.Success -> {
+                val fields = result.data
+                Result.Success(
+                    AiExtraction(
+                        docType = DocumentExtractionMapper.toDocType(fields),
+                        fields = DocumentExtractionMapper.toFields(fields),
+                        rawText = fields.toString(),
+                        confidence = DocumentExtractionMapper.RESPONSE_CONFIDENCE,
+                    ),
+                )
+            }
+        }
+    }
+}

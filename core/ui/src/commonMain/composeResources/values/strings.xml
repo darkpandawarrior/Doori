@@ -165,6 +165,7 @@
     <string name="payments_status_failed_title">Payment failed</string>
     <string name="payments_status_done">Done</string>
     <string name="payments_attach_invoice">Attach invoice</string>
+    <string name="payments_scan_invoice_prefill">Scan invoice to prefill</string>
     <string name="payments_invoice_attached">Invoice attached</string>
     <string name="payments_invoice_duplicate_title">Possible duplicate</string>
     <string name="payments_invoice_duplicate_message">This looks similar to an invoice already attached (%1$s). Attach anyway?</string>
@@ -2125,6 +2126,11 @@
     <string name="agent_cd_stop_voice">Stop voice</string>
     <string name="agent_cd_toggle_voice_mode">Toggle hands-free mode</string>
     <string name="agent_cd_send">Send</string>
+    <string name="agent_cd_stop_generating">Stop generating</string>
+    <string name="agent_error_model_not_resident">The on-device model isn\'t downloaded yet on this device.</string>
+    <string name="agent_error_unsupported">The AI assistant isn\'t available on this device.</string>
+    <string name="agent_error_empty_reply">No reply came back. Try again.</string>
+    <string name="agent_error_generic">Something went wrong generating a reply.</string>
     <string name="agent_status_online">System online</string>
     <string name="agent_tab_chat">Chat</string>
     <string name="agent_tab_popular">Popular</string>

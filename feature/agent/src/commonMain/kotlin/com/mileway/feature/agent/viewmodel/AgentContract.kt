@@ -4,6 +4,7 @@ import com.mileway.feature.agent.model.AgentConversation
 import com.mileway.feature.agent.model.AgentMessage
 import com.mileway.feature.agent.model.PopularQuestion
 import com.mileway.feature.agent.model.UnansweredQuestion
+import com.siddharth.kmp.result.AiFailure
 
 internal const val DEFAULT_THINKING = "Thinking…"
 
@@ -23,13 +24,20 @@ data class AgentUiState(
     val voiceTranscript: String = "",
     val voiceRms: Float = 0f,
     val feedback: Map<String, Int> = emptyMap(),
-    val error: String? = null,
+    val error: AiFailure? = null,
     val isServiceReady: Boolean = true,
     val serviceStatusMessage: String? = null,
 )
 
 sealed interface AgentAction {
     data class SendMessage(val text: String) : AgentAction
+
+    /** Cancels the in-flight [LlmAssistantEngine][com.mileway.feature.agent.engine.llm.LlmAssistantEngine]
+     * (or offline) reply. Whatever streamed so far is discarded, not kept as a partial message. */
+    data object StopStreaming : AgentAction
+
+    /** Re-sends the last user question after an [AssistantChunk.Error][com.mileway.feature.agent.engine.AssistantChunk.Error]. */
+    data object RetryLastMessage : AgentAction
 
     data class LoadConversation(val conversation: AgentConversation) : AgentAction
 

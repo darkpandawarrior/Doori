@@ -65,6 +65,9 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:result")).using(project(":result"))
         substitute(module("com.siddharth.kmp:app-shell")).using(project(":app-shell"))
         substitute(module("com.siddharth.kmp:ai")).using(project(":ai"))
+        // FakeOnDeviceLlm — feature:agent's LlmAssistantEngineTest scripts streaming success/
+        // failure without a real Gemini Nano/Foundation Models device.
+        substitute(module("com.siddharth.kmp:ai-testing")).using(project(":ai-testing"))
         substitute(module("com.siddharth.kmp:security")).using(project(":security"))
         // PLAN_V34 P2/A6: AuthTokenStore's refresh-token persistence (SecureSettingsFactory).
         substitute(module("com.siddharth.kmp:settings")).using(project(":settings"))

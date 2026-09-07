@@ -1,6 +1,7 @@
 plugins {
     id("shared.kmp.library")
     id("mileway.kmp.desktop")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -15,9 +16,22 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // DocumentIntelligence.analyze() runs aiAnalyzer/textRecognizer concurrently via
-            // coroutineScope { async {} }.
+            // suspend-fun plumbing throughout this module; MlKitTextRecognizer's androidMain
+            // actual also needs it directly.
             implementation(libs.kotlinx.coroutines.core)
+            // DocumentAiAnalyzer.extract returns kmp-toolkit's typed AiResult<AiExtraction> —
+            // :result is otherwise dependency-free (same coordinate :stub already carries).
+            implementation("com.siddharth.kmp:result:1.0.0")
+            // DocumentExtractionFields (StructuredOutput<T>'s decode target) is @Serializable —
+            // already used elsewhere in this repo (core:network, :contract, ...), just not in
+            // this module until now.
+            implementation(libs.kotlinx.serialization.json)
+        }
+        iosMain.dependencies {
+            // FoundationModelsAnalyzer actual delegates the model call to kmp-toolkit's :ai
+            // OnDeviceLlm seam (FoundationModelsOnDeviceLlm) — same split as the Android actual
+            // below (this module owns prompt building + JSON parsing, not the bridge plumbing).
+            implementation("com.siddharth.kmp:ai:1.0.0")
         }
         androidMain.dependencies {
             // TextRecognizer actual: ML Kit on-device Latin text recognition.

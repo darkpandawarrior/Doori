@@ -27,6 +27,6 @@ val agentModule =
     module {
         includes(agentPlatformModule)
         single { AgentRepository(get(), get()) }
-        single<AssistantEngine> { selectAssistantEngine(get()) { OfflineAssistantEngine(get()) } }
+        single<AssistantEngine> { selectAssistantEngine(get()) { OfflineAssistantEngine(get(), get(), get()) } }
         viewModelOf(::AgentViewModel)
     }
