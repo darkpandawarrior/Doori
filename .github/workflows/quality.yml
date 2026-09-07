@@ -136,6 +136,8 @@ jobs:
 
       - name: Upload kover coverage
         uses: actions/upload-artifact@v7
+        # An artifact is a convenience; the account's 500 MB artifact quota must not fail the gate.
+        continue-on-error: true
         if: always()
         with:
           name: kover-report
@@ -144,6 +146,8 @@ jobs:
 
       - name: Upload test results
         uses: actions/upload-artifact@v7
+        # An artifact is a convenience; the account's 500 MB artifact quota must not fail the gate.
+        continue-on-error: true
         if: always()
         with:
           name: test-results
@@ -162,6 +166,8 @@ jobs:
       # with nothing to diff doesn't fail this step.
       - name: Upload screenshot diffs
         uses: actions/upload-artifact@v7
+        # An artifact is a convenience; the account's 500 MB artifact quota must not fail the gate.
+        continue-on-error: true
         if: always()
         with:
           name: screenshot-diffs
