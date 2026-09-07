@@ -36,7 +36,11 @@ jobs:
           set -eu
           PATTERN='co-authored-by:.*(claude|anthropic|openai|copilot|chatgpt)|generated with .{0,4}(claude|copilot|chatgpt|cursor)|🤖 generated'
           if [ "$EVENT" = "pull_request" ]; then
-            git fetch --no-tags --depth=1 origin "$BASE_REF" >/dev/null 2>&1 || true
+            # NOT --depth=1. A shallow base makes origin/$BASE_REF a single commit, so
+            # "origin/$BASE_REF..$PR_HEAD" stops excluding real history and sweeps in commits that
+            # are already merged into the base. The push path below already fetches the default
+            # branch un-shallowed for exactly this reason; the pull_request path never got the fix.
+            git fetch --no-tags origin "$BASE_REF" >/dev/null 2>&1 || true
             set -- "origin/${BASE_REF}..${PR_HEAD}"
           else
             ZERO=0000000000000000000000000000000000000000
