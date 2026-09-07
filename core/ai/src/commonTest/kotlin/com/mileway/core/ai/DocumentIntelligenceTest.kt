@@ -9,6 +9,9 @@ import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentImageRef
 import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
+import com.siddharth.kmp.result.AiFailure
+import com.siddharth.kmp.result.AiResult
+import com.siddharth.kmp.result.Result
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -27,9 +30,9 @@ private class FakeAiAnalyzer(
     override suspend fun extract(
         image: DocumentImageRef,
         prompt: DocPrompt,
-    ): AiExtraction? {
+    ): AiResult<AiExtraction> {
         extractCalled = true
-        return extraction
+        return extraction?.let { Result.Success(it) } ?: Result.Failure(AiFailure.EmptyReply)
     }
 }
 
