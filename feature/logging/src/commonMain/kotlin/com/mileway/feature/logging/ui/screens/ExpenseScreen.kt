@@ -73,7 +73,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.mileway.core.forms.ui.FormRenderer
+import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.forms.ui.FormFieldWithSuggestions
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
@@ -179,6 +180,9 @@ fun ExpenseScreen(
     val ui by viewModel.state.collectAsState()
     var bulkMode by remember { mutableStateOf(false) }
     var policyViolations by remember { mutableStateOf<List<PolicyViolation>?>(null) }
+    // Whatever the step-1 receipt scan last read (core:ai's DocumentIntelligence output) — feeds
+    // step 2's custom-form suggestions (e.g. a GST invoice number) via FormFieldWithSuggestions.
+    var scannedReceiptAnalysis by remember { mutableStateOf<DocumentAnalysis?>(null) }
     val form = ui.form
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -291,12 +295,14 @@ fun ExpenseScreen(
                     viewModel = viewModel,
                     bulkMode = bulkMode,
                     onBulkModeChange = { bulkMode = it },
+                    onOcrAnalysis = { scannedReceiptAnalysis = it },
                 )
             else ->
                 Step2Content(
                     modifier = modifier.padding(innerPadding),
                     ui = ui,
                     viewModel = viewModel,
+                    scannedAnalysis = scannedReceiptAnalysis,
                 )
         }
     }
@@ -321,13 +327,18 @@ private fun Step1Content(
     viewModel: ExpenseViewModel,
     bulkMode: Boolean,
     onBulkModeChange: (Boolean) -> Unit,
+    onOcrAnalysis: (DocumentAnalysis) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val form = ui.form
     val categoryLocked = ExpenseFormValidator.FIELD_CATEGORY in ExpenseFormValidator.lockedFieldKeys(form.sourceContext)
     // Scoped to this composable (not hoisted to ExpenseScreen) so it's only composed while step 1
     // is actually on screen — mirrors how the bulk-grid's per-row launcher is scoped to each row.
-    val launchReceiptPicker = rememberReceiptAttachmentLauncher { path -> viewModel.onAction(ExpenseAction.SetReceiptImage(path)) }
+    val launchReceiptPicker =
+        rememberReceiptAttachmentLauncher(
+            onPicked = { path -> viewModel.onAction(ExpenseAction.SetReceiptImage(path)) },
+            onOcrAnalysis = onOcrAnalysis,
+        )
 
     // Mirrors the pre-P27.E.1 layout strategy: a plain (non-scrolling) fillMaxSize Column whose
     // fixed-size header content (context card/resume-draft/attachments/error) sits above the
@@ -499,6 +510,7 @@ private fun BulkModeContent(
 private fun Step2Content(
     ui: ExpenseUiState,
     viewModel: ExpenseViewModel,
+    scannedAnalysis: DocumentAnalysis?,
     modifier: Modifier = Modifier,
 ) {
     val form = ui.form
@@ -592,12 +604,15 @@ private fun Step2Content(
         )
 
         // V27 P27.E.1: step-2's custom-form section, rendered through core:forms' shared
-        // FormRenderer — empty schema (most categories) renders nothing.
+        // FormRenderer — empty schema (most categories) renders nothing. P29.C.7 fix: wrapped in
+        // FormFieldWithSuggestions so a step-1 receipt scan (e.g. its GST invoice number) can
+        // prefill this section's fields as accept/dismiss/undo chips, same as CreatePaymentScreen.
         if (customFormSchema.isNotEmpty()) {
-            FormRenderer(
+            FormFieldWithSuggestions(
                 schema = customFormSchema,
                 values = form.formValues,
                 onValueChange = { key, value -> viewModel.onAction(ExpenseAction.SetFormValue(key, value)) },
+                analysis = scannedAnalysis,
             )
         }
 

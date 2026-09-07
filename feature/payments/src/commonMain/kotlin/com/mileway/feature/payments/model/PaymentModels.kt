@@ -30,11 +30,8 @@ data class PaymentRecord(
     val note: String,
     val dateMillis: Long,
     // P29.C.7: post-payment invoice attachment — set once `AttachInvoice` clears the
-    // duplicate-detection gate. `invoiceOcrPrefill` holds whatever DocField the shared OCR
-    // pipeline (core:ai's DocumentIntelligence, via core:media's rememberMediaCaptureLauncher)
-    // managed to read off the picked image (invoice number/amount/date), keyed by DocField.name.
+    // duplicate-detection gate.
     val attachmentUrl: String? = null,
-    val invoiceOcrPrefill: Map<String, String> = emptyMap(),
     // P29.C.8: only set for ACTIVE `REQUEST` records — the validity window after which an unpaid
     // request is treated as EXPIRED. See [effectiveStatus].
     val expiresAtMillis: Long? = null,

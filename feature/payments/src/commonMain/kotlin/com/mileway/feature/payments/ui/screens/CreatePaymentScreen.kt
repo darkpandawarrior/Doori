@@ -40,6 +40,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.forms.FormFieldType
+import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.MockFormSchema
+import com.mileway.core.forms.ui.FormFieldWithSuggestions
 import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
@@ -65,6 +69,7 @@ import com.mileway.core.ui.resources.payments_pin_confirm
 import com.mileway.core.ui.resources.payments_pin_error
 import com.mileway.core.ui.resources.payments_pin_subtitle
 import com.mileway.core.ui.resources.payments_pin_title
+import com.mileway.core.ui.resources.payments_scan_invoice_prefill
 import com.mileway.core.ui.resources.payments_section_details
 import com.mileway.core.ui.resources.payments_section_mode
 import com.mileway.core.ui.resources.payments_status_done
@@ -186,13 +191,36 @@ private fun PaymentFormScreen(
                 }
             }
             SectionCard(title = stringResource(Res.string.payments_section_details), leadingIcon = null) {
-                Field(stringResource(Res.string.payments_field_counterparty), ui.counterparty) { onAction(CreatePaymentAction.SetCounterparty(it)) }
-                Field(
-                    stringResource(Res.string.payments_field_amount),
-                    ui.amountText,
-                    KeyboardType.Decimal,
-                ) { onAction(CreatePaymentAction.SetAmount(it)) }
-                Field(stringResource(Res.string.payments_field_note), ui.note) { onAction(CreatePaymentAction.SetNote(it)) }
+                var scannedAnalysis by remember { mutableStateOf<DocumentAnalysis?>(null) }
+                val launchInvoiceScan =
+                    rememberMediaCaptureLauncher(
+                        config = MediaCaptureConfig(allowedModes = setOf(CaptureMode.Gallery), enableOcr = true, ocrDocType = DocType.INVOICE.name),
+                        onOcrAnalysis = { scannedAnalysis = it },
+                        onResult = {},
+                    )
+                OutlinedButton(onClick = launchInvoiceScan, modifier = Modifier.fillMaxWidth(), shape = DesignTokens.Shape.button) {
+                    Icon(Icons.Filled.ReceiptLong, contentDescription = null)
+                    Spacer()
+                    Text(stringResource(Res.string.payments_scan_invoice_prefill))
+                }
+                Spacer()
+                FormFieldWithSuggestions(
+                    schema = paymentFormSchema(),
+                    values =
+                        mapOf(
+                            PaymentFieldKeys.COUNTERPARTY to FormFieldValue.Text(ui.counterparty),
+                            PaymentFieldKeys.AMOUNT to FormFieldValue.Number(ui.amount),
+                            PaymentFieldKeys.NOTE to FormFieldValue.Text(ui.note),
+                        ),
+                    onValueChange = { fieldKey, value ->
+                        when (fieldKey) {
+                            PaymentFieldKeys.COUNTERPARTY -> onAction(CreatePaymentAction.SetCounterparty((value as? FormFieldValue.Text)?.value.orEmpty()))
+                            PaymentFieldKeys.AMOUNT -> onAction(CreatePaymentAction.SetAmount((value as? FormFieldValue.Number)?.value?.toString().orEmpty()))
+                            PaymentFieldKeys.NOTE -> onAction(CreatePaymentAction.SetNote((value as? FormFieldValue.Text)?.value.orEmpty()))
+                        }
+                    },
+                    analysis = scannedAnalysis,
+                )
             }
             // P29.C.8: QR advance/request declaration gate — REQUEST only, mirrors the reference
             // app's "confirm this is a genuine ask" checkbox before a collect-request goes out.
@@ -373,19 +401,48 @@ private fun InvoiceAttachSection(
 @Composable
 private fun Spacer() = androidx.compose.foundation.layout.Spacer(Modifier.size(8.dp))
 
-@Composable
-private fun Field(
-    label: String,
-    value: String,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    onChange: (String) -> Unit,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onChange,
-        label = { Text(label) },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
-    )
+/**
+ * [MockFormSchema.fieldKey]s for [paymentFormSchema] — also the keys `PaymentFormScreen` reads
+ * back out of `FormFieldWithSuggestions`'s `onValueChange` to route into the right ViewModel action.
+ */
+private object PaymentFieldKeys {
+    const val COUNTERPARTY = "counterparty"
+    const val AMOUNT = "amount"
+    const val NOTE = "note"
 }
+
+/**
+ * P29.C.7 fix: the create-payment form's fields as a [MockFormSchema], so a scanned invoice's
+ * [DocumentAnalysis] can prefill them through the shared `FormFieldWithSuggestions` — replaces the
+ * old `invoiceOcrPrefill` hand-roll (computed post-submission, into a map nothing ever read).
+ * Labels carry the keyword `FieldSuggestions.matchFieldFor` matches a `DocField` against (e.g.
+ * "Payee" for [com.mileway.core.ai.model.DocField.MERCHANT]).
+ */
+@Composable
+private fun paymentFormSchema(): List<MockFormSchema> =
+    listOf(
+        MockFormSchema(
+            id = PaymentFieldKeys.COUNTERPARTY,
+            fieldKey = PaymentFieldKeys.COUNTERPARTY,
+            label = stringResource(Res.string.payments_field_counterparty),
+            type = FormFieldType.TEXT,
+            // Not schema-`required`: the label's own "*" already communicates it, and `canSubmit`
+            // (not core:forms' validationErrors) gates the submit button — avoids a duplicate "*"
+            // and an inline "required" error rendering before the user has typed anything.
+            rank = 0,
+        ),
+        MockFormSchema(
+            id = PaymentFieldKeys.AMOUNT,
+            fieldKey = PaymentFieldKeys.AMOUNT,
+            label = stringResource(Res.string.payments_field_amount),
+            type = FormFieldType.NUMBER,
+            rank = 1,
+        ),
+        MockFormSchema(
+            id = PaymentFieldKeys.NOTE,
+            fieldKey = PaymentFieldKeys.NOTE,
+            label = stringResource(Res.string.payments_field_note),
+            type = FormFieldType.TEXTAREA,
+            rank = 2,
+        ),
+    )

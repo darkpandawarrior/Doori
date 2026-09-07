@@ -1,6 +1,7 @@
 package com.mileway.feature.logging.ui.screens
 
 import androidx.compose.runtime.Composable
+import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
 import com.mileway.core.media.model.MediaCaptureResult
@@ -18,9 +19,17 @@ import com.mileway.core.media.rememberMediaCaptureLauncher
  * Gains: real iOS support, multi-select (`config.multiple`), and OCR — [MediaCaptureConfig.enableOcr]
  * runs the picked image(s) through `core:ai`'s `DocumentIntelligence` and shows the matching
  * `OcrReviewSheet`/`OcrBatchResultsSheet` (defaults to [DocType.RECEIPT]) before [onPicked] fires.
+ *
+ * [onOcrAnalysis] forwards straight through to [rememberMediaCaptureLauncher]'s own hook — a
+ * caller that wants the extracted fields (e.g. to prefill a custom-form field via
+ * `core:forms`' `FormFieldWithSuggestions`) gets them for free; a no-op default keeps every
+ * existing caller (odometer capture, the bulk-entry grid) unchanged.
  */
 @Composable
-fun rememberReceiptAttachmentLauncher(onPicked: (String) -> Unit): () -> Unit =
+fun rememberReceiptAttachmentLauncher(
+    onPicked: (String) -> Unit,
+    onOcrAnalysis: (DocumentAnalysis) -> Unit = {},
+): () -> Unit =
     rememberMediaCaptureLauncher(
         config =
             MediaCaptureConfig(
@@ -29,6 +38,7 @@ fun rememberReceiptAttachmentLauncher(onPicked: (String) -> Unit): () -> Unit =
                 maxCount = 5,
                 enableOcr = true,
             ),
+        onOcrAnalysis = onOcrAnalysis,
         onResult = { result ->
             if (result is MediaCaptureResult.Attachments) {
                 result.items.forEach { onPicked(it.uri) }

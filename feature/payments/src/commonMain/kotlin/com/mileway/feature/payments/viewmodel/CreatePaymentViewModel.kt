@@ -34,7 +34,6 @@ data class CreatePaymentUiState(
     val failureReason: String? = null,
     // P29.C.7: invoice attachment, gated on a duplicate check against PaymentsRepository history.
     val attachmentUrl: String? = null,
-    val invoiceOcrPrefill: Map<String, String> = emptyMap(),
     val duplicatePrompt: DuplicateVerdict.Possible? = null,
     // P29.C.8: REQUEST (QR advance/request) submissions are gated on this declaration checkbox;
     // PAY isn't (mirrors the reference app's declaration only applying to money-in requests).
@@ -220,12 +219,7 @@ class CreatePaymentViewModel(
     ) {
         val id = currentState.resultId ?: return
         repository.recordInvoiceAttachment(id, analysis.fields, timestampMillis)
-        setState {
-            copy(
-                attachmentUrl = uri,
-                invoiceOcrPrefill = analysis.fields.mapKeys { (field, _) -> field.name }.mapValues { it.value.value },
-            )
-        }
+        setState { copy(attachmentUrl = uri) }
         emitEffect(CreatePaymentEffect.InvoiceAttached)
     }
 }

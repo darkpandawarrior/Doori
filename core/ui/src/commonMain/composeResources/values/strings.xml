@@ -165,6 +165,7 @@
     <string name="payments_status_failed_title">Payment failed</string>
     <string name="payments_status_done">Done</string>
     <string name="payments_attach_invoice">Attach invoice</string>
+    <string name="payments_scan_invoice_prefill">Scan invoice to prefill</string>
     <string name="payments_invoice_attached">Invoice attached</string>
     <string name="payments_invoice_duplicate_title">Possible duplicate</string>
     <string name="payments_invoice_duplicate_message">This looks similar to an invoice already attached (%1$s). Attach anyway?</string>

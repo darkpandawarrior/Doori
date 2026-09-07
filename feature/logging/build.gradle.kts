@@ -25,6 +25,10 @@ kotlin {
             // V26 P26.CONV: OdometerCaptureSheet runs real OCR on the attached photo via the one
             // shared odometer OCR pipeline instead of manual-only entry.
             implementation(project(":core:media"))
+            // P29.C.7 fix: rememberReceiptAttachmentLauncher forwards core:media's onOcrAnalysis
+            // hook (a DocumentAnalysis) so ExpenseScreen can wire it into FormFieldWithSuggestions —
+            // core:media only depends on core:ai as `implementation`, so this needs its own line.
+            implementation(project(":core:ai"))
             // V27 P27.F.6: LogMilesStep2Screen's "Additional Details" card routes through the
             // shared core:forms FormRenderer/validationErrors instead of a hand-rolled duplicate.
             implementation(project(":core:forms"))

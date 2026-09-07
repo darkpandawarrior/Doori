@@ -344,7 +344,7 @@ fun LogMilesStep2Screen(
                 // previously a fake counter with no real picker behind it (see LogMilesUiState
                 // .attachmentPaths' doc).
                 val launchReceiptPicker =
-                    rememberReceiptAttachmentLauncher { path -> viewModel.onAction(LogMilesAction.AddAttachment(path)) }
+                    rememberReceiptAttachmentLauncher(onPicked = { path -> viewModel.onAction(LogMilesAction.AddAttachment(path)) })
                 AttachmentsCard(
                     attachmentPaths = uiState.attachmentPaths,
                     onAdd = launchReceiptPicker,

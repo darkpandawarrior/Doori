@@ -82,18 +82,17 @@ fun FormFieldWithSuggestions(
         debouncedValues = values
     }
 
-    var dismissedKeys by remember(analysis) { mutableStateOf(emptySet<FieldId>()) }
-    var lastDismissed by remember(analysis) { mutableStateOf<FieldSuggestion?>(null) }
+    var dismissal by remember(analysis) { mutableStateOf(SuggestionDismissalState()) }
 
     val suggestions =
-        remember(schema, debouncedValues, analysis, dismissedKeys, values) {
+        remember(schema, debouncedValues, analysis, dismissal, values) {
             analysis
                 ?.takeIf { it.fields.isNotEmpty() }
                 ?.let { fieldSuggestions(schema, debouncedValues, it) }
                 .orEmpty()
                 // Re-check against the live (non-debounced) values too, so accepting/editing a
                 // field hides its chip immediately instead of waiting out the debounce window.
-                .filter { it.fieldKey !in dismissedKeys && isFieldValueBlank(values[it.fieldKey]) }
+                .filter { it.fieldKey !in dismissal.dismissedKeys && isFieldValueBlank(values[it.fieldKey]) }
         }
     val highConfidence = remember(suggestions) { highConfidenceSuggestions(suggestions) }
 
@@ -103,26 +102,40 @@ fun FormFieldWithSuggestions(
                 suggestions = suggestions,
                 highConfidenceCount = highConfidence.size,
                 onAccept = { onValueChange(it.fieldKey, it.value) },
-                onDismiss = {
-                    dismissedKeys = dismissedKeys + it.fieldKey
-                    lastDismissed = it
-                },
+                onDismiss = { dismissal = dismissal.dismiss(it) },
                 onAcceptAllHighConfidence = { highConfidence.forEach { onValueChange(it.fieldKey, it.value) } },
             )
         }
-        lastDismissed?.let { dismissed ->
-            if (dismissed.fieldKey in dismissedKeys) {
-                UndoRow(
-                    fieldLabel = dismissed.label,
-                    onUndo = {
-                        dismissedKeys = dismissedKeys - dismissed.fieldKey
-                        lastDismissed = null
-                    },
-                )
-            }
+        dismissal.undoableSuggestion?.let { dismissed ->
+            UndoRow(fieldLabel = dismissed.label, onUndo = { dismissal = dismissal.undo() })
         }
         FormRenderer(schema = schema, values = values, onValueChange = onValueChange, onReset = onReset)
     }
+}
+
+/**
+ * Pure dismiss/undo bookkeeping for [FormFieldWithSuggestions]' chips — extracted out of the
+ * composable so it's directly unit-testable (see `FormFieldWithSuggestionsTest`) without a Compose
+ * test harness, which no `core:*`/`feature:*` KMP library module in this repo has wired up yet
+ * (only `:app`, a classic Android application module, does). [dismiss]/[undo] are the only two
+ * transitions; [undoableSuggestion] is `lastDismissed` gated on "is it still actually dismissed" —
+ * the two fields could never actually diverge under [dismiss]/[undo] alone, but keeping them as one
+ * value makes that an invariant of the type instead of a runtime check at the call site.
+ */
+data class SuggestionDismissalState(
+    val dismissedKeys: Set<FieldId> = emptySet(),
+    val lastDismissed: FieldSuggestion? = null,
+) {
+    fun dismiss(suggestion: FieldSuggestion): SuggestionDismissalState = copy(dismissedKeys = dismissedKeys + suggestion.fieldKey, lastDismissed = suggestion)
+
+    fun undo(): SuggestionDismissalState {
+        val dismissed = lastDismissed ?: return this
+        return copy(dismissedKeys = dismissedKeys - dismissed.fieldKey, lastDismissed = null)
+    }
+
+    /** The suggestion the "Undo" row should offer to restore, if any. */
+    val undoableSuggestion: FieldSuggestion?
+        get() = lastDismissed?.takeIf { it.fieldKey in dismissedKeys }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

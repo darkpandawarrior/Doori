@@ -20,6 +20,9 @@ kotlin {
             // and DuplicateDetector/DuplicateVerdict for local duplicate-receipt detection.
             implementation(project(":core:media"))
             implementation(project(":core:ai"))
+            // P29.C.7 fix: CreatePaymentScreen's fields now route through core:forms' shared
+            // MockFormSchema/FormFieldWithSuggestions instead of ad hoc OutlinedTextFields.
+            implementation(project(":core:forms"))
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
