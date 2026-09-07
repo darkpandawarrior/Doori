@@ -146,7 +146,7 @@ def wipe_pairs(rows: list[dict], ref: str, limit: int) -> list[dict]:
 
 CSS = """
 :root{
-  /* Mileway's own PaperSpec. The gallery is rendered in the palette it documents, so a token
+  /* Doori's own PaperSpec. The gallery is rendered in the palette it documents, so a token
      that goes wrong in the app goes visibly wrong here too. */
   --canvas:#F7F3EA; --card:#FFFFFF; --rule:#DDD3B8; --muted:#6E6353;
   --ink:#241F1A; --accent:#1E3A5F; --accent-soft:#1E3A5F1a; --shot-bg:#EFE9DC;
@@ -345,11 +345,11 @@ def render(rows: list[dict], pairs: list[dict], built: str) -> str:
   <div class="wipes">{''.join(wipes)}</div>
 </section>"""
 
-    return f"""<title>Mileway &mdash; screenshot gallery</title>
+    return f"""<title>Doori &mdash; screenshot gallery</title>
 <style>{CSS}</style>
 <div class="wrap">
 <header>
-  <p class="eyebrow"><span>Mileway</span><span>&middot;</span><span>screenshot gallery</span>
+  <p class="eyebrow"><span>Doori</span><span>&middot;</span><span>screenshot gallery</span>
     <span>&middot;</span><span class="figure">{html.escape(built)}</span></p>
   <h1>Every screen, as it <em>actually</em> renders.</h1>
   <p class="standfirst">Generated from the captures in <span class="figure">docs/screenshots</span>,

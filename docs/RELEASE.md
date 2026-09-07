@@ -1,6 +1,6 @@
 # Release guide
 
-How to ship Mileway to Play (gms), the App Store / TestFlight (iOS), and F-Droid (noGms). Every
+How to ship Doori (formerly Mileway) to Play (gms), the App Store / TestFlight (iOS), and F-Droid (noGms). Every
 credential below is an **env-activated placeholder**. The build degrades to a no-op when a key is absent, so
 nothing here is required to build or run the demo.
 

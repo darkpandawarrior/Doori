@@ -84,7 +84,7 @@ class MileageTileService : TileService() {
                 )
                 .addContent(
                     LayoutElementBuilders.Text.Builder()
-                        .setText("Mileway")
+                        .setText("Doori")
                         .setFontStyle(
                             LayoutElementBuilders.FontStyle.Builder()
                                 .setSize(DimensionBuilders.sp(12f))

@@ -162,7 +162,7 @@ internal fun trackingActionLabel(uiState: WearRootUiState): String =
 @Composable
 private fun DashboardHeader() {
     Text(
-        text = "Mileway",
+        text = "Doori",
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.primary,
     )

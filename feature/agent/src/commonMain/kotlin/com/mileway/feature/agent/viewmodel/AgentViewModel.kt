@@ -201,12 +201,12 @@ class AgentViewModel(
                 appendLine("# $title")
                 appendLine()
                 messages.forEach { msg ->
-                    val speaker = if (msg.isUser) "You" else "Mileway"
+                    val speaker = if (msg.isUser) "You" else "Doori"
                     appendLine("**$speaker:** ${msg.text}")
                     appendLine()
                 }
             }
-        shareSheet.share(transcript, subject = "Mileway conversation transcript")
+        shareSheet.share(transcript, subject = "Doori conversation transcript")
     }
 
     private fun submitFeedback(

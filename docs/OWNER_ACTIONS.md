@@ -33,7 +33,7 @@ These are pure GitHub settings. Highest value per minute; do these first.
 - **Now:** ruleset `19036462` requires both contexts, `bypass_actors: []`.
 - **Re-check any time:**
   ```bash
-  gh api repos/darkpandawarrior/Mileway/rules/branches/main \
+  gh api repos/darkpandawarrior/Doori/rules/branches/main \
     --jq '.[].parameters.required_status_checks[].context'
   ```
   Should print two lines. Kept here as the record of what was changed and why.
@@ -58,7 +58,7 @@ These are pure GitHub settings. Highest value per minute; do these first.
 - [ ] **Where:** GitHub → **your profile** (not the repo) → **Settings** → **Developer settings** →
       **Personal access tokens** → **Fine-grained tokens** → **Generate new token**
 - [ ] **What you get:**
-      - Resource owner: your account · Repository access: **Only select repositories** → `Mileway`
+      - Resource owner: your account · Repository access: **Only select repositories** → `Doori`
       - Permissions → Repository:
         - **Contents:** Read and write  *(push the `bot/refresh-screenshot-baselines-*` branch)*
         - **Pull requests:** Read and write  *(open the refresh PR)*
@@ -77,7 +77,7 @@ These are pure GitHub settings. Highest value per minute; do these first.
 ```bash
 for r in $(gh run list --branch bot/refresh-screenshot-baselines-<sha7> --limit 10 \
             --json databaseId,conclusion -q '.[] | select(.conclusion=="action_required") | .databaseId'); do
-  gh api -X POST repos/darkpandawarrior/Mileway/actions/runs/$r/approve
+  gh api -X POST repos/darkpandawarrior/Doori/actions/runs/$r/approve
 done
 ```
 
@@ -115,9 +115,9 @@ Everything from here needs a **paid developer account**. Play is a one-time **$2
 - [ ] **What you get:**
       | Secret | Where it comes from |
       |---|---|
-      | `KEYSTORE_B64` | `keytool -genkeypair -v -keystore mileway.jks -alias mileway -keyalg RSA -keysize 2048 -validity 10000`, then base64 the `.jks`. **Back this file up somewhere permanent — losing it means you can never update the app on Play.** |
+      | `KEYSTORE_B64` | `keytool -genkeypair -v -keystore doori.jks -alias doori -keyalg RSA -keysize 2048 -validity 10000`, then base64 the `.jks`. **Back this file up somewhere permanent — losing it means you can never update the app on Play.** |
       | `KEYSTORE_PASSWORD` | the store password you chose above |
-      | `KEY_ALIAS` | `mileway` (or whatever `-alias` you used) |
+      | `KEY_ALIAS` | `doori` (or whatever `-alias` you used) |
       | `KEY_PASSWORD` | the key password you chose above |
       | `GOOGLE_SERVICES_B64` | Firebase console → project → Android app → download `google-services.json` → base64 |
       | `FIREBASE_APP_ID` | Firebase console → Project settings → Your apps → **App ID** (looks like `1:1234567890:android:abc123`) |
@@ -231,6 +231,6 @@ Tier 3.1 signing secrets.
 ```bash
 gh secret list                       # repository secrets (names only — values are never readable)
 gh variable list                     # repository variables
-gh api repos/darkpandawarrior/Mileway/rules/branches/main \
+gh api repos/darkpandawarrior/Doori/rules/branches/main \
   --jq '.[].parameters.required_status_checks[].context'   # which checks are actually required
 ```

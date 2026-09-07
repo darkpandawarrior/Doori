@@ -153,7 +153,7 @@ private fun WearMilewayThemePreview() {
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = "Mileway",
+                text = "Doori",
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.titleLarge,
             )

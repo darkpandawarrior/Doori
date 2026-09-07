@@ -7,17 +7,17 @@ Categories:
 License: GPL-3.0-or-later
 AuthorName: Siddharth Pandalai
 
-SourceCode: https://github.com/darkpandawarrior/Mileway
-IssueTracker: https://github.com/darkpandawarrior/Mileway/issues
+SourceCode: https://github.com/darkpandawarrior/Doori
+IssueTracker: https://github.com/darkpandawarrior/Doori/issues
 RepoType: git
-Repo: https://github.com/darkpandawarrior/Mileway.git
+Repo: https://github.com/darkpandawarrior/Doori.git
 
-AutoName: Mileway
+AutoName: Doori
 
 # publish-fdroid.yml builds assembleNoGmsRelease, signs it out of band with a pinned apksigner,
 # and uploads it to the GitHub Release for the pushed tag as Mileway-<tag>.apk (+ .sha256).
 # %v expands to the tag F-Droid is checking, matching that workflow's naming exactly.
-Binaries: https://github.com/darkpandawarrior/Mileway/releases/download/%v/Mileway-%v.apk
+Binaries: https://github.com/darkpandawarrior/Doori/releases/download/%v/Mileway-%v.apk
 
 # Real signing certificate fingerprint (SHA-256, lowercase hex, no colons) for the key
 # publish-fdroid.yml signs the FOSS APK with. F-Droid refuses the binary if this disagrees

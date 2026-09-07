@@ -193,7 +193,7 @@ class WearScreenshotGalleryTest {
                             style = MaterialTheme.typography.displaySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
-                        Text(text = "Mileway", style = MaterialTheme.typography.labelSmall)
+                        Text(text = "Doori", style = MaterialTheme.typography.labelSmall)
                     }
                 }
             }

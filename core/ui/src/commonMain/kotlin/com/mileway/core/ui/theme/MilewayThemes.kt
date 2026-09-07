@@ -62,7 +62,7 @@ enum class MilewayThemeVariant(
     EMBER(
         id = "EMBER",
         label = "Ember",
-        description = "Warm-dark, amber accent with red live/recording state. The Mileway signature.",
+        description = "Warm-dark, amber accent with red live/recording state. The Doori signature.",
         isLight = false,
         seedHex = "#F5A623",
         spec = EmberSpec,
@@ -72,7 +72,7 @@ enum class MilewayThemeVariant(
     MATRIX(
         id = "MATRIX",
         label = "Matrix",
-        description = "Deep-dark, phosphor green. The original Mileway look.",
+        description = "Deep-dark, phosphor green. The original Doori look.",
         isLight = false,
         seedHex = "#00FE41",
         spec = MatrixSpec,

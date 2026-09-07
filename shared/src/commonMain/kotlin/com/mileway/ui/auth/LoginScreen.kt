@@ -122,7 +122,7 @@ import org.koin.compose.viewmodel.koinViewModel
 private const val DEMO_EMAIL = "demo@mileway.app"
 
 /** App name shown beside the logo mark. */
-private const val APP_NAME = "Mileway"
+private const val APP_NAME = "Doori"
 
 /** How long each onboarding slide is shown before auto-advancing. */
 private const val ONBOARDING_AUTO_ADVANCE_MS = 2_600L

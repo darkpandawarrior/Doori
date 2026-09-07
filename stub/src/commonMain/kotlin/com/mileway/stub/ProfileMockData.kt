@@ -74,7 +74,7 @@ object ProfileMockData {
                 lastActiveMillis = 1_780_000_000_000L,
                 isCurrent = true,
                 os = "Android 15",
-                appVersion = "Mileway 2.4.0",
+                appVersion = "Doori 2.4.0",
                 ip = "192.168.1.24",
             ),
             UserSession(
@@ -92,7 +92,7 @@ object ProfileMockData {
                 lastActiveMillis = 1_778_100_000_000L,
                 isCurrent = false,
                 os = "iPadOS 18.2",
-                appVersion = "Mileway 2.3.1",
+                appVersion = "Doori 2.3.1",
                 ip = "198.51.100.42",
             ),
         )

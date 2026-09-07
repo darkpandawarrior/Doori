@@ -17,8 +17,8 @@ import com.siddharth.kmp.appshell.GeoPoint
  * existing commonTest uses in 39 places across 22 files, so enabling `iosTest` here would mean
  * renaming tests unrelated to the change. Both [GeoPoint] and [GpsFix] are commonMain types, so
  * moving the mapping down is the smaller and more honest fix — and it matches the convention already
- * documented in `InjectableDocumentAiAnalyzer` and `TextGenerator` ("kept in commonMain so it's
- * unit-testable").
+ * documented on kmp-toolkit's `InjectableNativeLlm` ("kept in commonMain, not iosMain, so this
+ * logic is unit-testable").
  *
  * Altitude and accuracy are passed through untouched: a negative altitude is meaningful (below sea
  * level), unlike the speed/course sentinels.

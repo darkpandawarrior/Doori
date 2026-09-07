@@ -19,6 +19,12 @@ kotlin {
             implementation(project(":core:platform"))
             implementation(project(":stub"))
         }
+        iosMain.dependencies {
+            // FoundationModelsLlmGateway actual: kmp-toolkit's :ai OnDeviceLlm seam
+            // (FoundationModelsOnDeviceLlm) — same coordinate core:ai/build.gradle.kts uses for
+            // FoundationModelsAnalyzer, both sharing ONE Swift bridge registration.
+            implementation("com.siddharth.kmp:ai:1.0.0")
+        }
         androidMain.dependencies {
             implementation(libs.datastore.preferences)
             // LlmGateway actual: kmp-toolkit's :ai OnDeviceLlm seam (MlKitGenAiOnDeviceLlm), same

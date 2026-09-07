@@ -7,7 +7,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.mileway.ios.widgets</string>
 	<key>CFBundleName</key>
-	<string>MilewayWidgets</string>
+	<string>DooriWidgets</string>
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
 	<key>CFBundleShortVersionString</key>

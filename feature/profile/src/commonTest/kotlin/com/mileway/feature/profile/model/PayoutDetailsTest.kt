@@ -31,6 +31,6 @@ class PayoutDetailsTest {
 
     @Test
     fun `upiPayString embeds the handle`() {
-        assertEquals("upi://pay?pa=user@ybl&pn=Mileway", PayoutDetails.upiPayString("user@ybl"))
+        assertEquals("upi://pay?pa=user@ybl&pn=Doori", PayoutDetails.upiPayString("user@ybl"))
     }
 }

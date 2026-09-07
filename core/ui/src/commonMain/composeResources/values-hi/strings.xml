@@ -1285,17 +1285,17 @@
 
     <!-- shared+core hi -->
     <string name="shared_assistant_title">एआई असिस्टेंट</string>
-    <string name="shared_assistant_powered_by">Mileway AI द्वारा संचालित</string>
+    <string name="shared_assistant_powered_by">Doori AI द्वारा संचालित</string>
     <string name="shared_assistant_input_placeholder">मुझसे कुछ भी पूछें…</string>
     <string name="shared_cd_send">भेजें</string>
     <string name="shared_auth_unlock">अनलॉक करें</string>
     <string name="shared_auth_use_biometrics">इसके बजाय बायोमेट्रिक्स इस्तेमाल करें</string>
     <string name="shared_auth_enter_pin">अपना पिन दर्ज करें</string>
-    <string name="shared_auth_unlock_subtitle">जारी रखने के लिए Mileway अनलॉक करें</string>
+    <string name="shared_auth_unlock_subtitle">जारी रखने के लिए Doori अनलॉक करें</string>
     <string name="shared_auth_locked_out">लॉक — फिर से कोशिश करने के लिए साइन आउट करके दोबारा साइन इन करें</string>
     <string name="shared_shell_placeholder_subtitle">यह हिस्सा डेमो में केवल उदाहरण के लिए है। माइलेज, खर्च और प्रोफ़ाइल पूरी तरह कार्यशील हैं।</string>
     <string name="shared_welcome_disclaimer_title">ट्रैकिंग शुरू करने से पहले</string>
-    <string name="shared_welcome_disclaimer_body">Mileway आपके डिवाइस पर ट्रिप को पूरी तरह ऑफ़लाइन रिकॉर्ड करता है। इसके लिए इसे कुछ अनुमतियों की ज़रूरत है:</string>
+    <string name="shared_welcome_disclaimer_body">Doori आपके डिवाइस पर ट्रिप को पूरी तरह ऑफ़लाइन रिकॉर्ड करता है। इसके लिए इसे कुछ अनुमतियों की ज़रूरत है:</string>
     <string name="shared_action_confirm">पुष्टि करें</string>
     <string name="shared_auth_confirm_pin_title">अपने पिन की पुष्टि करें</string>
     <string name="shared_auth_set_pin_title">पिन सेट करें</string>
@@ -1370,14 +1370,14 @@
     <string name="shared_home_carousel_checkin_title">सेंटर चेक-इन</string>
     <string name="shared_home_carousel_checkin_subtitle">अपने पास के किसी सेंटर पर चेक इन करें</string>
     <string name="core_update_available_title">अपडेट उपलब्ध</string>
-    <string name="core_update_available_message">Mileway का नया संस्करण नवीनतम सुधारों के साथ उपलब्ध है।</string>
+    <string name="core_update_available_message">Doori का नया संस्करण नवीनतम सुधारों के साथ उपलब्ध है।</string>
     <string name="core_update_action">अपडेट करें</string>
     <string name="core_update_later">बाद में</string>
     <string name="core_update_required_title">अपडेट आवश्यक</string>
-    <string name="core_update_required_message">जारी रखने के लिए Mileway का नया संस्करण आवश्यक है। ट्रैकिंग जारी रखने के लिए कृपया अपडेट करें।</string>
+    <string name="core_update_required_message">जारी रखने के लिए Doori का नया संस्करण आवश्यक है। ट्रैकिंग जारी रखने के लिए कृपया अपडेट करें।</string>
     <string name="core_update_now">अभी अपडेट करें</string>
     <string name="core_maintenance_title">रखरखाव जारी है</string>
-    <string name="core_maintenance_message">Mileway कुछ समय के लिए अनुपलब्ध है या यह संस्करण अब समर्थित नहीं है। कृपया अपडेट करें या कुछ देर बाद फिर देखें।</string>
+    <string name="core_maintenance_message">Doori कुछ समय के लिए अनुपलब्ध है या यह संस्करण अब समर्थित नहीं है। कृपया अपडेट करें या कुछ देर बाद फिर देखें।</string>
     <string name="core_error_generic">कुछ गलत हो गया</string>
     <string name="core_loading">लोड हो रहा है…</string>
     <string name="core_offline_title">आप ऑफ़लाइन हैं</string>
@@ -1465,7 +1465,7 @@
     <string name="core_action_skip">छोड़ें</string>
 
     <!-- L10n sweep: Hindi backfill (payables + profile A-E + misc) -->
-    <string name="app_name">Mileway</string>
+    <string name="app_name">Doori</string>
     <string name="action_ok">OK</string>
     <string name="action_save">सहेजें</string>
     <string name="action_retry">पुनः प्रयास करें</string>
@@ -1908,7 +1908,7 @@
     <string name="sos_share_status">यात्रा स्थिति साझा करें</string>
     <string name="sos_disable">बंद करें</string>
     <string name="sos_alerted">%1$d आपातकालीन संपर्क को सूचित किया</string>
-    <string name="sos_share_message">आपातकाल: मैंने Mileway पर SOS ट्रिगर किया है और मुझे मदद की आवश्यकता हो सकती है। यह मेरी वर्तमान यात्रा स्थिति है।</string>
+    <string name="sos_share_message">आपातकाल: मैंने Doori पर SOS ट्रिगर किया है और मुझे मदद की आवश्यकता हो सकती है। यह मेरी वर्तमान यात्रा स्थिति है।</string>
     <string name="sos_notif_title">आपातकालीन SOS भेजा गया</string>
     <string name="sos_notif_body">आपने SOS के माध्यम से अपने आपातकालीन संपर्कों को सूचित किया।</string>
     <string name="sos_notif_time">अभी</string>
@@ -2111,7 +2111,7 @@
     <string name="agent_cd_helpful">सहायक</string>
     <string name="agent_cd_not_helpful">सहायक नहीं</string>
     <string name="agent_cd_open_assistant">AI सहायक खोलें</string>
-    <string name="agent_ask_mileway">Mileway से पूछें</string>
+    <string name="agent_ask_mileway">Doori से पूछें</string>
     <string name="agent_cd_history">इतिहास</string>
     <string name="agent_cd_export">निर्यात</string>
     <string name="agent_cd_start_voice">आवाज़ शुरू करें</string>
@@ -2322,7 +2322,7 @@
     <string name="plugin_onboarding_showskiponboarding_desc">साइनअप फ़ॉर्म पर छोड़ें बटन दिखाएँ</string>
 
     <!-- PLAN_V24 P2.2: what's-new sheet -->
-    <string name="whats_new_title">Mileway में नया क्या है</string>
+    <string name="whats_new_title">Doori में नया क्या है</string>
     <string name="whats_new_got_it">समझ गया</string>
     <!-- PLAN_V36 P2: footer link from the digest sheet to the full What's New list -->
     <string name="whats_new_see_all">See all updates</string>
@@ -2392,7 +2392,7 @@
     <string name="plugin_cards_kyc_title">कार्ड KYC</string>
     <string name="plugin_cards_kyc_desc">कार्ड KYC सत्यापन विज़ार्ड दिखाएँ</string>
     <!-- PLAN_V24 P5.1: referral program v2 -->
-    <!-- PLAN_V24 P6.1: Mileway Club membership -->
+    <!-- PLAN_V24 P6.1: Doori Club membership -->
     <string name="plugin_membership_club_title">माइलवे क्लब</string>
     <string name="plugin_membership_club_desc">सदस्यता जॉइन फ़्लो और लाभ दिखाएँ</string>
     <string name="profile_home_tile_club_title">माइलवे क्लब</string>
@@ -2506,29 +2506,29 @@
     <string name="support_chat_input_hint">अपना प्रश्न लिखें…</string>
     <string name="support_chat_send">भेजें</string>
     <string name="support_chat_disclaimer">स्वचालित उत्तर। अन्य किसी बात के लिए, टिकट दर्ज करें।</string>
-    <string name="support_chat_greeting_bot">नमस्ते! मैं Mileway सहायक हूँ। मुझसे ट्रैकिंग, ख़र्च, अनुमतियों या अपने खाते के बारे में पूछें।</string>
+    <string name="support_chat_greeting_bot">नमस्ते! मैं Doori सहायक हूँ। मुझसे ट्रैकिंग, ख़र्च, अनुमतियों या अपने खाते के बारे में पूछें।</string>
     <string name="support_chat_reply_greeting">नमस्ते! आज मैं आपकी कैसे मदद कर सकता हूँ?</string>
     <string name="support_chat_reply_tracking">ट्रैकिंग के लिए: Track टैब खोलें और Start Journey पर टैप करें। बेहतर सटीकता के लिए Location को Fine और बैकग्राउंड एक्सेस चालू रखें।</string>
     <string name="support_chat_reply_expense">ख़र्च का दावा करने के लिए, कोई पूर्ण यात्रा खोलें और Submit पर टैप करें, फिर फ़ॉर्म भरकर अपना दावा सबमिट करें।</string>
     <string name="support_chat_reply_account">खाता सहायता के लिए, Profile खोलें → खाता बदलने के लिए अपने नाम पर टैप करें, या पासवर्ड और प्राथमिकताओं के लिए Settings।</string>
-    <string name="support_chat_reply_permissions">Mileway को ट्रैकिंग के लिए Location (Fine + Background) और Android 13+ पर सूचनाओं की ज़रूरत है। विश्वसनीय ट्रैकिंग के लिए Battery Optimisation बंद करें।</string>
+    <string name="support_chat_reply_permissions">Doori को ट्रैकिंग के लिए Location (Fine + Background) और Android 13+ पर सूचनाओं की ज़रूरत है। विश्वसनीय ट्रैकिंग के लिए Battery Optimisation बंद करें।</string>
     <string name="support_chat_reply_ticket">मैं यहाँ किसी व्यक्ति तक नहीं पहुँच सकता, पर आप Support → मेरे टिकट से टिकट दर्ज कर सकते हैं, या कॉल/ईमेल सहायता का उपयोग करें।</string>
     <string name="support_chat_reply_thanks">आपका स्वागत है! क्या मैं किसी और चीज़ में मदद कर सकता हूँ?</string>
     <string name="support_chat_reply_fallback">मुझे इसके बारे में अभी पक्का पता नहीं है। ट्रैकिंग, ख़र्च, अनुमतियों या अपने खाते के बारे में पूछें — या टिकट दर्ज करें।</string>
     <!-- PLAN_V24 P12.3: review prompter + native rate sheet -->
     <string name="plugin_engagement_review_prompt_title">समीक्षा संकेत</string>
     <string name="plugin_engagement_review_prompt_desc">सक्रिय उपयोगकर्ता बनने पर होम पर रेटिंग के लिए पूछें</string>
-    <string name="rate_app_title">Mileway पसंद आ रहा है?</string>
+    <string name="rate_app_title">Doori पसंद आ रहा है?</string>
     <string name="rate_app_subtitle">अपने अनुभव को रेट करने के लिए किसी तारे पर टैप करें।</string>
     <string name="rate_app_submit">सबमिट करें</string>
     <string name="rate_app_dismiss">अभी नहीं</string>
     <string name="rate_app_thanks">आपकी प्रतिक्रिया के लिए धन्यवाद!</string>
     <string name="rate_app_star">तारा %1$d</string>
-    <string name="profile_settings_rate">Mileway को रेट करें</string>
+    <string name="profile_settings_rate">Doori को रेट करें</string>
     <string name="profile_settings_rate_desc">बताएँ कि हम कैसा कर रहे हैं</string>
     <!-- PLAN_V24 P12.4: what's-new animated indicator -->
     <string name="whats_new_button">नया क्या है</string>
-    <string name="whats_new_indicator_desc">Mileway में नया क्या है देखें</string>
+    <string name="whats_new_indicator_desc">Doori में नया क्या है देखें</string>
     <string name="profile_settings_whats_new_desc">नवीनतम सुविधाएँ देखें</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">प्रोत्साहन कार्यक्रम</string>
@@ -2907,7 +2907,7 @@
     <string name="profile_permission_bluetooth">ब्लूटूथ</string>
     <string name="profile_home_biometric_confirm_title">पुष्टि करें कि यह आप हैं</string>
     <string name="profile_home_biometric_switching_subtitle">प्रोफ़ाइल बदली जा रही है</string>
-    <string name="profile_home_referral_share_subject">Mileway पर मेरे साथ जुड़ें</string>
+    <string name="profile_home_referral_share_subject">Doori पर मेरे साथ जुड़ें</string>
     <string name="tracking_action_retake">फिर से लें</string>
     <string name="tracking_capture_cd_photo">कैप्चर की गई फ़ोटो</string>
     <string name="tracking_capture_detected_confidence">पहचानी गई रीडिंग · %1$d% विश्वास</string>
@@ -3101,7 +3101,7 @@
     <string name="tour_step_intro_title">स्वागत है</string>
     <string name="tour_step_intro_body">ट्रिप ट्रैक करने का त्वरित वॉकथ्रू। हाइलाइट किए गए चरणों का पालन करें।</string>
     <string name="tour_step_start_title">ट्रिप शुरू करें</string>
-    <string name="tour_step_start_body">निकलते समय शुरू पर टैप करें। Mileway पृष्ठभूमि में दूरी और समय ट्रैक करता है।</string>
+    <string name="tour_step_start_body">निकलते समय शुरू पर टैप करें। Doori पृष्ठभूमि में दूरी और समय ट्रैक करता है।</string>
     <string name="tour_step_hud_title">लाइव प्रगति</string>
     <string name="tour_step_hud_body">आपकी दूरी और अवधि गाड़ी चलाते समय लाइव अपडेट होती है।</string>
     <string name="tour_step_pause_title">कभी भी रोकें</string>
@@ -3130,14 +3130,14 @@
     <string name="plugin_banner_subscription_expiry_title">सदस्यता समाप्ति चेतावनी (दिन)</string>
     <string name="plugin_banner_subscription_expiry_desc">समाप्ति बैनर दिखाना शुरू करने के लिए नवीनीकरण से कितने दिन पहले</string>
     <string name="banner_custom_text">आज रात 11 बजे–1 बजे निर्धारित रखरखाव। कुछ सुविधाएं थोड़ी देर के लिए अनुपलब्ध रह सकती हैं।</string>
-    <string name="banner_update_ready">Mileway का एक नया संस्करण इंस्टॉल करने के लिए तैयार है।</string>
+    <string name="banner_update_ready">Doori का एक नया संस्करण इंस्टॉल करने के लिए तैयार है।</string>
     <string name="banner_update_action">अपडेट करें</string>
     <string name="banner_deletion_requested">आपके खाता-हटाने के अनुरोध पर कार्रवाई की जा रही है।</string>
     <string name="banner_document_expiry">%1$d दस्तावेज़ों पर आपका ध्यान चाहिए।</string>
     <string name="banner_subscription_expiry">आपकी सदस्यता %1$d दिन में नवीनीकृत होगी।</string>
     <string name="banner_dismiss">खारिज करें</string>
     <!-- PLAN_V24 P13.2: home banner carousel seeded sources. -->
-    <string name="home_banner_club_title">Mileway क्लब</string>
+    <string name="home_banner_club_title">Doori क्लब</string>
     <string name="home_banner_club_subtitle">हर ट्रिप पर सदस्य लाभ अनलॉक करें।</string>
     <string name="home_banner_club_badge">क्लब</string>
     <string name="home_banner_offers_title">ऑफ़र और रिवॉर्ड</string>
@@ -3145,7 +3145,7 @@
     <string name="home_banner_offers_badge">ऑफ़र</string>
     <!-- PLAN_V24 P13.3: forced-popup coordinator (signature re-sign one-shot). -->
     <string name="popup_signature_title">अनुबंध अपडेट</string>
-    <string name="popup_signature_body">हमने शर्तें अपडेट की हैं। Mileway का उपयोग जारी रखने के लिए कृपया फिर से हस्ताक्षर करें।</string>
+    <string name="popup_signature_body">हमने शर्तें अपडेट की हैं। Doori का उपयोग जारी रखने के लिए कृपया फिर से हस्ताक्षर करें।</string>
     <string name="popup_signature_confirm">अभी फिर से हस्ताक्षर करें</string>
     <string name="popup_signature_later">बाद में</string>
     <!-- PLAN_V25 P25.A5.1: TransactionDetailScaffold's shared DetailSection tab labels. -->
@@ -3207,7 +3207,7 @@
     <string name="shared_welcome_disclosure_notifications_title">सूचनाएं</string>
     <string name="shared_welcome_disclosure_notifications_reason">ट्रैकिंग स्थिति दिखाने के लिए</string>
     <string name="shared_onboarding_slide1_title">हर मील ट्रैक करें</string>
-    <string name="shared_onboarding_slide1_caption">एक ट्रिप शुरू करें और Mileway आपका मार्ग, दूरी और अवधि अपने आप रिकॉर्ड करता है।</string>
+    <string name="shared_onboarding_slide1_caption">एक ट्रिप शुरू करें और Doori आपका मार्ग, दूरी और अवधि अपने आप रिकॉर्ड करता है।</string>
     <string name="shared_onboarding_slide2_title">पूरी तरह ऑफलाइन काम करता है</string>
     <string name="shared_onboarding_slide2_caption">सिग्नल न हो तो भी कोई समस्या नहीं। ट्रिप आपके डिवाइस पर सेव होती हैं और जब चाहें तैयार मिलती हैं।</string>
     <string name="shared_onboarding_slide3_title">आपका डेटा वहीं रहता है</string>

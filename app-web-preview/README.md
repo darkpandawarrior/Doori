@@ -1,6 +1,6 @@
 # `:app-web-preview` — wasmJs preview shell
 
-A browser-playable Mileway demo for the portfolio site, embedded the same way Kursi's web build
+A browser-playable Doori demo for the portfolio site, embedded the same way Kursi's web build
 is (an iframe over a static folder). Not a product target — a curated three-screen preview
 (dashboard, live tracking, expense log) running entirely in-memory in the browser.
 
@@ -13,7 +13,7 @@ feature module) — can never compile to wasmJs. Two consequences:
   MilewayTheme, MilewaySemanticColors, typography — dependency-clean: Compose + MaterialKolor
   only) is compiled directly into this module via a `srcDir` + explicit file allowlist in
   `build.gradle.kts`. Same tokens, same curated theme variants, zero duplication.
-- **The data layer is faked, not reused.** Mileway's repositories are concrete Room-DAO-backed
+- **The data layer is faked, not reused.** Doori's repositories are concrete Room-DAO-backed
   classes (there is no repository-interface seam today), so this module ships small in-memory
   stand-ins (`DemoEngine.kt`) that mirror the real shapes: a deterministic port of
   `feature:tracking`'s `SimulatedLocationSource` (seeded RNG + synthetic clock) feeding the
@@ -46,7 +46,7 @@ cp -r app-web-preview/build/dist/wasmJs/productionExecutable/. \
 
 Then in cv-siddharth:
 
-1. Point the Mileway project's Web platform entry in `src/data/profile.ts` at
+1. Point the Doori project's Web platform entry in `src/data/profile.ts` at
    `liveUrl: "/mileway-app/index.html"` (`mileway` is already in `LIVE_WEB_PROJECTS`).
 2. Add a `vercel.json` header block mirroring the Kursi one so the ~13 MB of wasm gets
    `Cache-Control: immutable`: source `/mileway-app/(.*)\.wasm`.

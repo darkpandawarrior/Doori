@@ -1,6 +1,6 @@
 <resources>
     <!-- App -->
-    <string name="app_name">Mileway</string>
+    <string name="app_name">Doori</string>
     <string name="app_tagline">Let's manage your spends!</string>
 
     <!-- Common actions -->
@@ -763,7 +763,7 @@
     <string name="sos_share_status">Share ride status</string>
     <string name="sos_disable">Close</string>
     <string name="sos_alerted">Alerted %1$d emergency contact(s)</string>
-    <string name="sos_share_message">Emergency: I have triggered an SOS on Mileway and may need help. This is my current trip status.</string>
+    <string name="sos_share_message">Emergency: I have triggered an SOS on Doori and may need help. This is my current trip status.</string>
     <string name="sos_notif_title">Emergency SOS sent</string>
     <string name="sos_notif_body">You alerted your emergency contacts via SOS.</string>
     <string name="sos_notif_time">Just now</string>
@@ -1832,17 +1832,17 @@
 
     <!-- ===== L10n sweep: shared shell + core-ui ===== -->
     <string name="shared_assistant_title">AI Assistant</string>
-    <string name="shared_assistant_powered_by">Powered by Mileway AI</string>
+    <string name="shared_assistant_powered_by">Powered by Doori AI</string>
     <string name="shared_assistant_input_placeholder">Ask me anything…</string>
     <string name="shared_cd_send">Send</string>
     <string name="shared_auth_unlock">Unlock</string>
     <string name="shared_auth_use_biometrics">Use biometrics instead</string>
     <string name="shared_auth_enter_pin">Enter your PIN</string>
-    <string name="shared_auth_unlock_subtitle">Unlock Mileway to continue</string>
+    <string name="shared_auth_unlock_subtitle">Unlock Doori to continue</string>
     <string name="shared_auth_locked_out">Locked — sign out and back in to try again</string>
     <string name="shared_shell_placeholder_subtitle">This area is illustrative in the demo. Mileage, expenses, and profile are fully functional.</string>
     <string name="shared_welcome_disclaimer_title">Before you start tracking</string>
-    <string name="shared_welcome_disclaimer_body">Mileway records trips fully offline on your device. It needs a couple of permissions to do that:</string>
+    <string name="shared_welcome_disclaimer_body">Doori records trips fully offline on your device. It needs a couple of permissions to do that:</string>
     <string name="shared_action_confirm">Confirm</string>
     <string name="shared_auth_confirm_pin_title">Confirm your PIN</string>
     <string name="shared_auth_set_pin_title">Set a PIN</string>
@@ -1918,14 +1918,14 @@
     <string name="shared_home_carousel_checkin_title">Center Check-In</string>
     <string name="shared_home_carousel_checkin_subtitle">Check in at a center near you</string>
     <string name="core_update_available_title">Update available</string>
-    <string name="core_update_available_message">A new version of Mileway is available with the latest improvements.</string>
+    <string name="core_update_available_message">A new version of Doori is available with the latest improvements.</string>
     <string name="core_update_action">Update</string>
     <string name="core_update_later">Later</string>
     <string name="core_update_required_title">Update required</string>
-    <string name="core_update_required_message">A newer version of Mileway is required to continue. Please update to keep tracking.</string>
+    <string name="core_update_required_message">A newer version of Doori is required to continue. Please update to keep tracking.</string>
     <string name="core_update_now">Update now</string>
     <string name="core_maintenance_title">Under maintenance</string>
-    <string name="core_maintenance_message">Mileway is briefly unavailable or this version is no longer supported. Please update or check back soon.</string>
+    <string name="core_maintenance_message">Doori is briefly unavailable or this version is no longer supported. Please update or check back soon.</string>
     <string name="core_error_generic">Something went wrong</string>
     <string name="core_loading">Loading…</string>
     <string name="core_offline_title">You\'re offline</string>
@@ -2118,7 +2118,7 @@
     <string name="agent_cd_helpful">Helpful</string>
     <string name="agent_cd_not_helpful">Not helpful</string>
     <string name="agent_cd_open_assistant">Open AI assistant</string>
-    <string name="agent_ask_mileway">Ask Mileway</string>
+    <string name="agent_ask_mileway">Ask Doori</string>
     <string name="agent_cd_history">History</string>
     <string name="agent_cd_export">Export</string>
     <string name="agent_cd_start_voice">Start voice</string>
@@ -2329,7 +2329,7 @@
     <string name="plugin_onboarding_showskiponboarding_desc">Show a Skip button on the signup form</string>
 
     <!-- PLAN_V24 P2.2: what's-new sheet -->
-    <string name="whats_new_title">What's new in Mileway</string>
+    <string name="whats_new_title">What's new in Doori</string>
     <string name="whats_new_got_it">Got it</string>
     <!-- PLAN_V36 P2: footer link from the digest sheet to the full What's New list -->
     <string name="whats_new_see_all">See all updates</string>
@@ -2395,15 +2395,15 @@
     <!-- PLAN_V24 P4.1: verification centre -->
     <string name="plugin_verification_centre_title">Verification centre</string>
     <string name="plugin_verification_centre_desc">Upload and track verification documents</string>
-    <!-- PLAN_V24 P6.1: Mileway Club membership -->
-    <string name="plugin_membership_club_title">Mileway Club</string>
+    <!-- PLAN_V24 P6.1: Doori Club membership -->
+    <string name="plugin_membership_club_title">Doori Club</string>
     <string name="plugin_membership_club_desc">Show the membership join flow and benefits</string>
-    <string name="profile_home_tile_club_title">Mileway Club</string>
+    <string name="profile_home_tile_club_title">Doori Club</string>
     <string name="profile_home_tile_club_subtitle">Membership &amp; perks</string>
-    <string name="club_title">Mileway Club</string>
+    <string name="club_title">Doori Club</string>
     <string name="club_subtitle">Member perks and benefits</string>
     <string name="club_back">Back</string>
-    <string name="club_join_headline">Join Mileway Club</string>
+    <string name="club_join_headline">Join Doori Club</string>
     <string name="club_join_body">Unlock member-only perks — faster reimbursements, exclusive offers and bonus rewards on every trip.</string>
     <string name="club_join_cta">Join now</string>
     <string name="club_member_badge">Club member</string>
@@ -2418,10 +2418,10 @@
     <string name="club_benefit_4_title">Early access</string>
     <string name="club_benefit_4_desc">Try new features before everyone else.</string>
     <string name="club_consent_title">Membership terms</string>
-    <string name="club_consent_body">By joining you agree to the Mileway Club terms. Membership is free and you can leave at any time.</string>
+    <string name="club_consent_body">By joining you agree to the Doori Club terms. Membership is free and you can leave at any time.</string>
     <string name="club_consent_accept">I agree — activate</string>
     <string name="club_consent_decline">Not now</string>
-    <string name="club_confetti">Welcome to Mileway Club!</string>
+    <string name="club_confetti">Welcome to Doori Club!</string>
     <!-- PLAN_V24 P6.2: subscription plans -->
     <string name="plugin_membership_subscriptions_title">Subscription plans</string>
     <string name="plugin_membership_subscriptions_desc">Show subscription plans and the active-subscription screen</string>
@@ -2509,29 +2509,29 @@
     <string name="support_chat_input_hint">Type your question…</string>
     <string name="support_chat_send">Send</string>
     <string name="support_chat_disclaimer">Automated replies. For anything else, raise a ticket.</string>
-    <string name="support_chat_greeting_bot">Hi! I'm the Mileway assistant. Ask me about tracking, expenses, permissions or your account.</string>
+    <string name="support_chat_greeting_bot">Hi! I'm the Doori assistant. Ask me about tracking, expenses, permissions or your account.</string>
     <string name="support_chat_reply_greeting">Hello! How can I help you today?</string>
     <string name="support_chat_reply_tracking">For tracking: open the Track tab and tap Start Journey. Keep Location set to Fine with background access on for the best accuracy.</string>
     <string name="support_chat_reply_expense">To claim an expense, open a completed journey and tap Submit, then fill in the submission form and submit your claim.</string>
     <string name="support_chat_reply_account">For account help, open Profile → tap your name to switch accounts, or Settings for password and preferences.</string>
-    <string name="support_chat_reply_permissions">Mileway needs Location (Fine + Background) for tracking, and Notifications on Android 13+. Turn off Battery Optimisation for reliable tracking.</string>
+    <string name="support_chat_reply_permissions">Doori needs Location (Fine + Background) for tracking, and Notifications on Android 13+. Turn off Battery Optimisation for reliable tracking.</string>
     <string name="support_chat_reply_ticket">I can't reach a human here, but you can raise a ticket from Support → My tickets, or use Call/Email support.</string>
     <string name="support_chat_reply_thanks">You're welcome! Anything else I can help with?</string>
     <string name="support_chat_reply_fallback">I'm not sure about that yet. Try asking about tracking, expenses, permissions or your account — or raise a ticket.</string>
     <!-- PLAN_V24 P12.3: review prompter + native rate sheet -->
     <string name="plugin_engagement_review_prompt_title">Review prompt</string>
     <string name="plugin_engagement_review_prompt_desc">Ask for a rating on Home once you're an engaged user</string>
-    <string name="rate_app_title">Enjoying Mileway?</string>
+    <string name="rate_app_title">Enjoying Doori?</string>
     <string name="rate_app_subtitle">Tap a star to rate your experience.</string>
     <string name="rate_app_submit">Submit</string>
     <string name="rate_app_dismiss">Not now</string>
     <string name="rate_app_thanks">Thanks for your feedback!</string>
     <string name="rate_app_star">Star %1$d</string>
-    <string name="profile_settings_rate">Rate Mileway</string>
+    <string name="profile_settings_rate">Rate Doori</string>
     <string name="profile_settings_rate_desc">Tell us how we're doing</string>
     <!-- PLAN_V24 P12.4: what's-new animated indicator -->
     <string name="whats_new_button">What's new</string>
-    <string name="whats_new_indicator_desc">See what's new in Mileway</string>
+    <string name="whats_new_indicator_desc">See what's new in Doori</string>
     <string name="profile_settings_whats_new_desc">See the latest features</string>
     <!-- PLAN_V24 P6.3: incentive programs -->
     <string name="plugin_engagement_incentives_title">Incentive programs</string>
@@ -2913,7 +2913,7 @@
     <string name="profile_permission_bluetooth">Bluetooth</string>
     <string name="profile_home_biometric_confirm_title">Confirm it's you</string>
     <string name="profile_home_biometric_switching_subtitle">Switching persona</string>
-    <string name="profile_home_referral_share_subject">Join me on Mileway</string>
+    <string name="profile_home_referral_share_subject">Join me on Doori</string>
     <string name="tracking_action_retake">Retake</string>
     <string name="tracking_capture_cd_photo">Captured photo</string>
     <string name="tracking_capture_detected_confidence">Detected reading · %1$d% confidence</string>
@@ -3107,7 +3107,7 @@
     <string name="tour_step_intro_title">Welcome aboard</string>
     <string name="tour_step_intro_body">A quick walkthrough of tracking a trip. Follow the highlighted steps.</string>
     <string name="tour_step_start_title">Start a trip</string>
-    <string name="tour_step_start_body">Tap Start when you set off. Mileway tracks distance and time in the background.</string>
+    <string name="tour_step_start_body">Tap Start when you set off. Doori tracks distance and time in the background.</string>
     <string name="tour_step_hud_title">Live progress</string>
     <string name="tour_step_hud_body">Your distance and duration update live as you drive.</string>
     <string name="tour_step_pause_title">Pause anytime</string>
@@ -3136,14 +3136,14 @@
     <string name="plugin_banner_subscription_expiry_title">Subscription expiry alert (days)</string>
     <string name="plugin_banner_subscription_expiry_desc">Days before renewal to start showing the expiry banner</string>
     <string name="banner_custom_text">Scheduled maintenance tonight, 11pm–1am. Some features may be briefly unavailable.</string>
-    <string name="banner_update_ready">A new version of Mileway is ready to install.</string>
+    <string name="banner_update_ready">A new version of Doori is ready to install.</string>
     <string name="banner_update_action">Update</string>
     <string name="banner_deletion_requested">Your account-deletion request is being processed.</string>
     <string name="banner_document_expiry">%1$d document(s) need your attention.</string>
     <string name="banner_subscription_expiry">Your subscription renews in %1$d day(s).</string>
     <string name="banner_dismiss">Dismiss</string>
     <!-- PLAN_V24 P13.2: home banner carousel seeded sources. -->
-    <string name="home_banner_club_title">Mileway Club</string>
+    <string name="home_banner_club_title">Doori Club</string>
     <string name="home_banner_club_subtitle">Unlock member perks on every trip.</string>
     <string name="home_banner_club_badge">CLUB</string>
     <string name="home_banner_offers_title">Offers &amp; rewards</string>
@@ -3151,7 +3151,7 @@
     <string name="home_banner_offers_badge">OFFER</string>
     <!-- PLAN_V24 P13.3: forced-popup coordinator (signature re-sign one-shot). -->
     <string name="popup_signature_title">Agreement update</string>
-    <string name="popup_signature_body">We've updated the terms. Please re-sign to continue using Mileway.</string>
+    <string name="popup_signature_body">We've updated the terms. Please re-sign to continue using Doori.</string>
     <string name="popup_signature_confirm">Re-sign now</string>
     <string name="popup_signature_later">Later</string>
     <!-- PLAN_V25 P25.A5.1: TransactionDetailScaffold's shared DetailSection tab labels. -->
@@ -3214,7 +3214,7 @@
     <string name="shared_welcome_disclosure_notifications_title">Notifications</string>
     <string name="shared_welcome_disclosure_notifications_reason">to show tracking status</string>
     <string name="shared_onboarding_slide1_title">Track every mile</string>
-    <string name="shared_onboarding_slide1_caption">Start a trip and Mileway records your route, distance, and duration automatically.</string>
+    <string name="shared_onboarding_slide1_caption">Start a trip and Doori records your route, distance, and duration automatically.</string>
     <string name="shared_onboarding_slide2_title">Works fully offline</string>
     <string name="shared_onboarding_slide2_caption">No signal, no problem. Trips are saved on your device and are ready whenever you are.</string>
     <string name="shared_onboarding_slide3_title">Your data stays put</string>
