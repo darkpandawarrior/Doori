@@ -50,7 +50,9 @@ jobs:
           set -euo pipefail
           BUILD_TOOLS="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -1)"
           UNSIGNED="$(find app/build/outputs/apk/noGms/release -name '*.apk' | head -1)"
-          OUT="Mileway-${{ github.event.inputs.tag }}.apk"
+          # The F-Droid publisher in darkpandawarrior.github.io fetches by this name; flip its
+          # fetch line with the next release.
+          OUT="Doori-${{ github.event.inputs.tag }}.apk"
           "$BUILD_TOOLS/apksigner" sign \
             --ks "${RUNNER_TEMP}/release.keystore" \
             --ks-pass "pass:${KEYSTORE_PASSWORD}" \
@@ -68,8 +70,10 @@ jobs:
           set -euo pipefail
           TAG="${{ github.event.inputs.tag }}"
           gh release create "$TAG" --generate-notes || true
+          # The F-Droid publisher in darkpandawarrior.github.io fetches by this name; flip its
+          # fetch line with the next release.
           gh release upload "$TAG" \
-            "Mileway-$TAG.apk" \
-            "Mileway-$TAG.apk.sha256" --clobber
+            "Doori-$TAG.apk" \
+            "Doori-$TAG.apk.sha256" --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

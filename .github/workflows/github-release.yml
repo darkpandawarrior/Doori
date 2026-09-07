@@ -76,7 +76,7 @@ jobs:
         env:
           RELEASE_SCRUBLIST_B64: ${{ secrets.RELEASE_SCRUBLIST_B64 }}
       # JDK/Gradle already set up above (needed early for the FINGERPRINT check).
-      # Builds every flavor+buildType the repo variable RELEASE_BUILD_CMD lists (Mileway: gms + noGms,
+      # Builds every flavor+buildType the repo variable RELEASE_BUILD_CMD lists (Doori: gms + noGms,
       # debug + release — so testers can grab the exact variant they need).
       #
       # These release APKs are ALWAYS DEBUG-SIGNED. This workflow has no keystore step — grep it for
@@ -92,7 +92,7 @@ jobs:
         run: |
           set -uo pipefail
           # Build command is repo-specific: set repo variable RELEASE_BUILD_CMD (Settings → Variables).
-          # Mileway: "assembleGmsDebug assembleGmsRelease assembleNoGmsDebug assembleNoGmsRelease";
+          # Doori: "assembleGmsDebug assembleGmsRelease assembleNoGmsDebug assembleNoGmsRelease";
           # a repo with no flavors uses "assembleDebug assembleRelease".
           cmd="${RELEASE_BUILD_CMD:-assembleDebug assembleRelease}"
           # --continue: one variant failing (e.g. a lint/dependency-guard gate that only applies to one
@@ -104,13 +104,13 @@ jobs:
 
           mkdir -p dist
           tag="${GITHUB_REF_NAME}"
-          # Attach APKs under meaningful names: Mileway-<tag>-<flavor>-<buildType>.apk
+          # Attach APKs under meaningful names: Doori-<tag>-<flavor>-<buildType>.apk
           # (source name is app-<flavor>-<buildType>[-unsigned].apk; strip the "app-" prefix). Skip test
           # APKs. The `app-*.apk` wildcard already matches the `-unsigned` suffix an unsigned release
           # build emits, so no separate pattern is needed.
           while IFS= read -r apk; do
             variant="$(basename "$apk" .apk)"; variant="${variant#app-}"
-            cp "$apk" "dist/Mileway-${tag}-${variant}.apk"
+            cp "$apk" "dist/Doori-${tag}-${variant}.apk"
           done < <(find . -path '*/outputs/apk/*' -name 'app-*.apk' -not -name '*androidTest*')
 
           echo "::group::Artifacts collected"; ls -la dist/ 2>/dev/null || true; echo "::endgroup::"
@@ -228,7 +228,7 @@ jobs:
         run: |
           set -uo pipefail
           # Override with the IOS_SCHEME repo variable if a repo has multiple app schemes and needs a
-          # specific one. Default: first scheme that isn't a *Tests scheme (Mileway: "iosApp").
+          # specific one. Default: first scheme that isn't a *Tests scheme (Doori: "iosApp").
           scheme="${IOS_SCHEME:-}"
           if [ -z "$scheme" ]; then
             scheme="$(xcodebuild -list -project "${{ steps.detect.outputs.project }}" 2>/dev/null \
@@ -256,7 +256,7 @@ jobs:
           fingerprint="$(./gradlew -q :app:printFingerprint)"
           build_code=$(( 1 + $(git rev-list --count HEAD) ))
           if xcodebuild -project "${{ steps.detect.outputs.project }}" -scheme "${{ steps.scheme.outputs.scheme }}" \
-              -configuration Release -sdk iphoneos -archivePath build/Mileway.xcarchive archive \
+              -configuration Release -sdk iphoneos -archivePath build/Doori.xcarchive archive \
               CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
               MARKETING_VERSION="$marketing" CURRENT_PROJECT_VERSION="$build_code" MILEWAY_FINGERPRINT="$fingerprint" \
               2>&1 | tee build/xcodebuild-archive.log; then
@@ -269,7 +269,7 @@ jobs:
         if: steps.detect.outputs.found == 'true' && steps.archive.outputs.archived == 'true'
         run: |
           set -uo pipefail
-          app="$(find build/Mileway.xcarchive/Products/Applications -maxdepth 1 -name '*.app' 2>/dev/null | head -1)"
+          app="$(find build/Doori.xcarchive/Products/Applications -maxdepth 1 -name '*.app' 2>/dev/null | head -1)"
           if [ -z "$app" ]; then
             echo "::warning::Archive succeeded but produced no .app bundle under Products/Applications; nothing to package."
             exit 0
@@ -277,9 +277,9 @@ jobs:
           tag="${GITHUB_REF_NAME}"
           mkdir -p dist/Payload
           cp -R "$app" dist/Payload/
-          ( cd dist && zip -qr "Mileway-${tag}-ios-unsigned.ipa" Payload )
+          ( cd dist && zip -qr "Doori-${tag}-ios-unsigned.ipa" Payload )
           rm -rf dist/Payload
-          ls -la "dist/Mileway-${tag}-ios-unsigned.ipa"
+          ls -la "dist/Doori-${tag}-ios-unsigned.ipa"
       - name: Upload iOS artifact to release
         if: steps.detect.outputs.found == 'true' && steps.archive.outputs.archived == 'true'
         run: |
