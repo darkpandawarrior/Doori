@@ -56,7 +56,7 @@ datetimeWheelPicker = "1.4.0"
 # V12 KMP storage + security
 napier = "2.7.1"
 # V11 KMP/CMP migration (verified coords in .ralph/kmp-migration-map.md)
-coil3 = "3.5.0"
+coil3 = "3.6.0"
 markdownRenderer = "0.43.0"
 webviewMultiplatform = "2.0.3"
 maplibreCompose = "0.15.0"
