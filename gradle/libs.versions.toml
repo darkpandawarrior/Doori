@@ -57,7 +57,7 @@ datetimeWheelPicker = "1.4.0"
 napier = "2.7.1"
 # V11 KMP/CMP migration (verified coords in .ralph/kmp-migration-map.md)
 coil3 = "3.6.2"
-markdownRenderer = "0.43.0"
+markdownRenderer = "0.45.0"
 webviewMultiplatform = "2.0.3"
 maplibreCompose = "0.15.0"
 ktor = "3.5.2"

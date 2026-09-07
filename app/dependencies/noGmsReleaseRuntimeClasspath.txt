@@ -258,10 +258,10 @@ com.materialkolor:material-color-utilities-android:5.0.0
 com.materialkolor:material-color-utilities:5.0.0
 com.materialkolor:material-kolor-android:5.0.0
 com.materialkolor:material-kolor:5.0.0
-com.mikepenz:multiplatform-markdown-renderer-android:0.43.0
-com.mikepenz:multiplatform-markdown-renderer-m3-android:0.43.0
-com.mikepenz:multiplatform-markdown-renderer-m3:0.43.0
-com.mikepenz:multiplatform-markdown-renderer:0.43.0
+com.mikepenz:multiplatform-markdown-renderer-android:0.45.0
+com.mikepenz:multiplatform-markdown-renderer-m3-android:0.45.0
+com.mikepenz:multiplatform-markdown-renderer-m3:0.45.0
+com.mikepenz:multiplatform-markdown-renderer:0.45.0
 com.mohamedrejeb.calf:calf-core-android:0.13.0
 com.mohamedrejeb.calf:calf-core:0.13.0
 com.mohamedrejeb.calf:calf-io-android:0.13.0
@@ -445,8 +445,8 @@ org.jetbrains.kotlinx:kotlinx-serialization-json-io:1.11.0
 org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.11.0
 org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0
 org.jetbrains:annotations:26.1.0
-org.jetbrains:markdown-jvm:0.7.5
-org.jetbrains:markdown:0.7.5
+org.jetbrains:markdown-jvm:0.7.9
+org.jetbrains:markdown:0.7.9
 org.jspecify:jspecify:1.0.0
 org.kobjects.ktxml:core-jvm:1.0.0
 org.kobjects.ktxml:core:1.0.0
