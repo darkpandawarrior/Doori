@@ -50,6 +50,8 @@ jobs:
         run: cat docs/screenshots/SENTINEL_REPORT.md >> $GITHUB_STEP_SUMMARY
 
       - uses: actions/upload-artifact@v7
+        # An artifact is a convenience; the account's 500 MB artifact quota must not fail the gate.
+        continue-on-error: true
         if: failure()
         with:
           name: sentinel-drift
