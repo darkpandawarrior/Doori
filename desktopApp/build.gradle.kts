@@ -48,6 +48,8 @@ kotlin {
                 implementation(project(":core:common"))
                 implementation(project(":core:data"))
                 implementation(project(":core:platform"))
+                // buildCloudFallback (the BYOK cloud-provider chain) — see Assistant.kt.
+                implementation(project(":core:ai"))
                 // Excludes kcef/jogamp: core:ui's desktop webview backend pulls JogAmp artifacts
                 // that aren't resolvable from this project's configured repositories (pre-existing
                 // gap, not a D.2 concern — the thin dashboard never renders a webview).
@@ -62,6 +64,15 @@ kotlin {
                 implementation(libs.material.icons.extended)
                 implementation(libs.koin.core)
                 implementation(libs.kotlinx.coroutines.core)
+                // Assistant.kt: AiSettingsSection/AiSettingsState (consent + BYOK key card) and the
+                // SecureKeyStore/ModelManager/OnDeviceLlm seam behind it — desktop's on-device tier
+                // is always UnavailableOnDeviceLlm, so the cloud key is the only way this card ever
+                // answers a prompt.
+                implementation("com.siddharth.kmp:ai:1.0.0")
+                implementation("com.siddharth.kmp:llm-chat:1.0.0")
+                implementation("com.siddharth.kmp:designsystem:1.0.0")
+                // AiResult<T>/AiFailure/fold — CloudOnDeviceLlm.generate()'s return type.
+                implementation("com.siddharth.kmp:result:1.0.0")
             }
         }
         val desktopTest by getting {

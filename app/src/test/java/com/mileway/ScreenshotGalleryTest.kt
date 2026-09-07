@@ -259,6 +259,9 @@ import com.mileway.ui.home.HomeScreenContent
 import com.mileway.ui.home.HomeUiState
 import com.mileway.ui.home.WhatsNewSheet
 import com.mileway.ui.home.homeModule
+import com.siddharth.kmp.ai.MediaPipeModelManager
+import com.siddharth.kmp.ai.NoModelManager
+import com.siddharth.kmp.ai.UnavailableOnDeviceLlm
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
@@ -266,11 +269,16 @@ import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.PermissionsProvider
 import com.siddharth.kmp.common.CrashReporter
+import com.siddharth.kmp.designsystem.ai.AiSettingsState
+import com.siddharth.kmp.llmchat.ProviderId
 import dev.tmapps.konnection.Konnection
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -700,6 +708,30 @@ class ScreenshotGalleryTest {
             single<PermissionsProvider> { mockk(relaxed = true) }
             single<UrlOpener> { mockk(relaxed = true) }
             single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() }
+            // LANDMINE (settingsScreen, added with the AI settings card): profileModule's real
+            // AiSettingsState pulls two Context-touching real impls, both fatal under Robolectric's
+            // relaxed mockk<Context>:
+            //  - SecureKeyStore(androidContext()) is EncryptedSharedPreferences over a
+            //    MasterKey.AES256_GCM, which needs the "AndroidKeyStore" JCA provider Robolectric
+            //    never registers — the FIRST getKey() call (inside AiSettingsState's own
+            //    constructor, building its initial provider rows) throws NoSuchAlgorithmException.
+            //  - MediaPipeModelManager(androidContext()) reads context.filesDir in its own
+            //    constructor (via snapshot()/isReady()); the relaxed mock's filesDir is null, so
+            //    `File(null, ...)` NPEs immediately.
+            // Both throw before a single pixel renders. Override with the same shape but the
+            // toolkit's own safe no-op defaults (NoModelManager, UnavailableOnDeviceLlm) and an
+            // in-memory key map — same fix pattern as the VehiclePricingCache landmine above.
+            single<AiSettingsState> {
+                val inMemoryKeys = mutableMapOf<ProviderId, String>()
+                AiSettingsState(
+                    modelManager = NoModelManager,
+                    manifest = listOf(MediaPipeModelManager.GEMMA_3_1B),
+                    onDeviceLlm = UnavailableOnDeviceLlm,
+                    getKey = { inMemoryKeys[it] },
+                    setKey = { id, key -> if (key.isNullOrBlank()) inMemoryKeys.remove(id) else inMemoryKeys[id] = key },
+                    scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+                )
+            }
         }
 
         @BeforeClass @JvmStatic

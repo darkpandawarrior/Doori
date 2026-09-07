@@ -3,10 +3,11 @@ package com.mileway.desktop
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +24,13 @@ import com.mileway.core.ui.components.SectionCard
 import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.di.initKoin
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.ai.NoModelManager
+import com.siddharth.kmp.ai.UnavailableOnDeviceLlm
+import com.siddharth.kmp.designsystem.ai.AiSettingsState
+import com.siddharth.kmp.llmchat.SecureKeyStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
@@ -43,6 +51,24 @@ fun main() {
     val snapshot = mockSnapshot(nowEpochMs)
     val trips = mockTripRows(nowEpochMs)
 
+    // AI card (lane mileway-ai-settings-and-desktop): no on-device model on the JVM, so the
+    // on-device tier is always UnavailableOnDeviceLlm/NoModelManager — see Assistant.kt for the
+    // BYOK cloud fallback that's the only real answer path here. keyStore has no Context to build
+    // from on desktop (unlike Android), only a real file-backed store — see SecureKeyStore.jvm.kt.
+    val keyStore = SecureKeyStore()
+    val aiSettingsState =
+        AiSettingsState(
+            modelManager = NoModelManager,
+            manifest = emptyList(),
+            onDeviceLlm = UnavailableOnDeviceLlm,
+            getKey = keyStore::getKey,
+            setKey = keyStore::setKey,
+            // ponytail: process-lifetime scope — this app has no shorter-lived owner to tie it to
+            // (see Main.kt's own single-window, no-navigation shape); same tradeoff
+            // ProfileModule.kt's AiSettingsState binding documents on Android.
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+        )
+
     // Compose Hot Reload sets this on the launched JVM (see the `-Dcompose.reload.isActive=true`
     // entry in desktopApp/build/run/desktopMain/desktopMain.argfile). Under `hotRunDesktop` the
     // window becomes a phone-shaped, always-on-top canvas that floats beside the editor — the
@@ -61,7 +87,10 @@ fun main() {
             title = if (hotReloadCanvas) "Doori — Hot Reload canvas" else "Doori Dashboard",
         ) {
             AppHost {
-                DashboardScreen(snapshot, trips)
+                Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+                    DashboardScreen(snapshot, trips)
+                    AssistantCard(aiSettingsState, keyStore::getKey)
+                }
             }
         }
     }
@@ -92,8 +121,13 @@ private fun DashboardScreen(
             Text("${snapshot.weekDistanceKm} km  ·  ${snapshot.weekTrips} trips", style = MaterialTheme.typography.bodyLarge)
         }
         SectionCard(title = "Recent trips") {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
-                items(trips, key = { it.token }) { trip ->
+            // A plain Column, not LazyColumn: Main.kt now scrolls the whole window (the new
+            // Assistant card below needs room), and a lazily-scrolling list measured inside an
+            // already-unbounded-height scroll container crashes at runtime ("vertically scrollable
+            // component was measured with an infinity maximum height"). Mock data is a handful of
+            // rows, so a plain loop costs nothing here.
+            Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+                trips.forEach { trip ->
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(trip.name.orEmpty(), style = MaterialTheme.typography.bodyMedium)
                         Text(trip.getFormattedDistance(), style = MaterialTheme.typography.bodyMedium)

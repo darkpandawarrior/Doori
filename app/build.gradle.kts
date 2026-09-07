@@ -605,6 +605,12 @@ dependencies {
     // feature:tracking's classes directly; feature:tracking depends on this as `implementation`,
     // not `api`, so it isn't on :app's test classpath transitively.
     testImplementation("com.siddharth.kmp:location:1.0.0")
+    // ScreenshotGalleryTest's fakeOverrides binds AiSettingsState (feature:profile's real AI
+    // settings state) with an in-memory key store instead of the SecureKeyStore that crashes
+    // Robolectric; feature:profile depends on these as `implementation`, not `api`, so they
+    // aren't on :app's test classpath transitively.
+    testImplementation("com.siddharth.kmp:designsystem:1.0.0")
+    testImplementation("com.siddharth.kmp:llm-chat:1.0.0")
     testImplementation(libs.room.testing)
     // G11: Glance render test (host-side, runs in the JVM gate via Robolectric).
     testImplementation(libs.glance.appwidget.testing)
