@@ -95,7 +95,7 @@ install-referrer = "2.2"
 # KoinModule_androidKt (hence `kmpWorkerModule(workerFactory = ...)`), 3.3.1 ships none of them and
 # replaces the mechanism with KmpWorkManagerAndroid.initialize() + requireRegistry(). Migrated in
 # MilewayApplication.onCreate on 2026-08-13 — see the comment at the initialize() call there.
-kmpworkmanager = "3.3.1"
+kmpworkmanager = "3.4.1"
 # P7.5: AppFunctions — exposes start/stop-tracking, log-expense, today-summary to on-device agents.
 appfunctions = "1.0.0-alpha11"
 appfunctions-service = "1.0.0-alpha09"
