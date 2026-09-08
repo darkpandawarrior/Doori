@@ -1,0 +1,25 @@
+{
+  "width": 1280,
+  "fps": 30,
+  "duration": 5.0,
+  "colors": 192,
+  "dither": "none",
+  "clip_to_base_alpha": true,
+  "max_size_mb": 1.5,
+  "reveals": [
+    {
+      "id": "doori-route",
+      "axis": "x",
+      "start": 0.3,
+      "end": 1.3,
+      "exit": {"start": 4.0, "end": 4.85}
+    }
+  ],
+  "layers": [
+    {
+      "id": "doori-pin",
+      "enter": {"start": 1.2, "end": 1.9, "from": [0, -18]},
+      "exit": {"start": 4.0, "end": 4.85, "to": [0, -18]}
+    }
+  ]
+}
