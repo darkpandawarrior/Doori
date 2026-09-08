@@ -1,7 +1,7 @@
 name: Deploy to Indus Appstore
 
 # Publishes the Gms-flavor release AAB to Indus Appstore via PhonePe's Indus-Flows action, matching
-# the pattern used by PaymentsLab/Kursi. Gated on INDUS_API_KEY: this repo ships no keystore or
+# the pattern used by PaymentsLab-KMP/Gaddi. Gated on INDUS_API_KEY: this repo ships no keystore or
 # store credentials (see fastlane/Fastfile and release.yml), so this job no-ops until configured.
 
 on:
