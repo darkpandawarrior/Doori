@@ -1,25 +1,24 @@
 {
-  "width": 1280,
-  "fps": 30,
-  "duration": 5.0,
+  "width": 900,
+  "fps": 24,
+  "duration": 4.5,
   "colors": 192,
   "dither": "none",
   "clip_to_base_alpha": true,
-  "max_size_mb": 1.5,
   "reveals": [
     {
-      "id": "doori-route",
+      "id": "mw-route",
       "axis": "x",
       "start": 0.3,
-      "end": 1.3,
-      "exit": {"start": 4.0, "end": 4.85}
+      "end": 1.6,
+      "exit": {"start": 3.6, "end": 4.4}
     }
   ],
   "layers": [
     {
-      "id": "doori-pin",
-      "enter": {"start": 1.2, "end": 1.9, "from": [0, -18]},
-      "exit": {"start": 4.0, "end": 4.85, "to": [0, -18]}
+      "id": "mw-pin",
+      "enter": {"start": 1.5, "end": 2.1, "from": [40, 0]},
+      "exit": {"start": 3.6, "end": 4.3, "to": [0, -6]}
     }
   ]
 }
