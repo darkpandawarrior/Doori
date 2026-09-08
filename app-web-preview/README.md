@@ -1,6 +1,6 @@
 # `:app-web-preview` — wasmJs preview shell
 
-A browser-playable Doori demo for the portfolio site, embedded the same way Kursi's web build
+A browser-playable Doori demo for the portfolio site, embedded the same way Gaddi's web build
 is (an iframe over a static folder). Not a product target — a curated three-screen preview
 (dashboard, live tracking, expense log) running entirely in-memory in the browser.
 
@@ -37,19 +37,19 @@ python3 -m http.server 8080 -d app-web-preview/build/dist/wasmJs/productionExecu
 ## Embedding in cv-siddharth
 
 Copy the dist folder into the portfolio repo (no sync automation exists — same manual flow as
-`public/kursi-app/`):
+`heavy/gaddi-app/`):
 
 ```bash
 cp -r app-web-preview/build/dist/wasmJs/productionExecutable/. \
-      ../../Interview/cv-siddharth/public/mileway-app/
+      ../../Interview/cv-siddharth/heavy/doori-app/
 ```
 
 Then in cv-siddharth:
 
 1. Point the Doori project's Web platform entry in `src/data/profile.ts` at
-   `liveUrl: "/mileway-app/index.html"` (`mileway` is already in `LIVE_WEB_PROJECTS`).
-2. Add a `vercel.json` header block mirroring the Kursi one so the ~13 MB of wasm gets
-   `Cache-Control: immutable`: source `/mileway-app/(.*)\.wasm`.
+   `liveUrl: "/doori-app/index.html"` (`mileway` is already in `LIVE_WEB_PROJECTS`).
+2. Add a `vercel.json` header block mirroring the Gaddi one so the ~13 MB of wasm gets
+   `Cache-Control: immutable`: source `/doori-app/(.*)\.wasm`.
 
 The shipped `index.html` already satisfies `LiveEmbed`'s paint-detection contract: it tags the
 Compose-injected canvas with `id="ComposeTarget"` once it appears, which is what the portfolio

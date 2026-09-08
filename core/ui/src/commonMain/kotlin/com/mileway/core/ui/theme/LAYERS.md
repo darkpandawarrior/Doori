@@ -1,6 +1,6 @@
-# Mileway theme layers — the rule, and the migration map
+# Doori theme layers — the rule, and the migration map
 
-Mileway turns a recorded drive into a mileage reimbursement claim. That document is read by the
+Doori turns a recorded drive into a mileage reimbursement claim. That document is read by the
 employee who drove, the manager who approves, finance who pays, and possibly a tax auditor. Colour
 in this app is not decoration — it is how those four people tell an approved claim from a pending
 one at a glance. It has to mean the same thing on every screen, and it has to survive a change of
