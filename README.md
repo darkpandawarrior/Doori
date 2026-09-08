@@ -375,7 +375,7 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | `:stub` | Deterministic mock data for every repository; the default data source while `NetworkBackendFlags.useRealBackend` is off |
 | `:wear` | Wear OS app, dashboard, trip list/detail, tile, complication, ongoing activity, phone sync |
 | `:sharedWatch` | Headless KMP static framework (no Compose) consumed by the native SwiftUI watchOS app |
-| `:shared` | iOS umbrella framework, re-exports `core:ui`, `feature:tracking`, `feature:agent` and `feature:logging` as the single `Mileway.framework` Xcode links against |
+| `:shared` | iOS umbrella framework, re-exports `core:ui`, `feature:tracking`, `feature:agent` and `feature:logging` as the single `Mileway.framework` Xcode links against (the framework keeps its pre-rename name; `applicationId`s and package names never changed) |
 | `:widget` | Glance home-screen widget (mileage summary + quick start/stop) |
 | `:desktopApp` | Compose Desktop preview, `main()` opens one window rendering a mock-data dashboard over `core:ui`; Koin is `listOf(coreUiModule)` only, so no repository/ViewModel graph. The wider desktop gallery above is host-rendered from `desktopTest`. |
 | `:app-web-preview` | wasmJs browser shell embedded in the portfolio site, compiles `core:ui`'s theme package straight from source (allowlisted `srcDir`) and rebuilds a curated dashboard / tracking / expense demo over in-memory fakes, since Room KMP publishes no wasm target |
