@@ -30,7 +30,7 @@ import org.robolectric.annotation.GraphicsMode
  * Output: docs/screenshots/wear_*.png.
  */
 @RunWith(androidx.test.ext.junit.runners.AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class, qualifiers = "w227dp-h227dp-mdpi")
+@Config(sdk = [33], application = Application::class, qualifiers = "w227dp-h227dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WearScreenshotGalleryTest {
 
