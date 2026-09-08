@@ -139,7 +139,7 @@ import org.robolectric.annotation.GraphicsMode
 // ---------------------------------------------------------------------------
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-mdpi")
+@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotDirectionsTest {
     private val screenshotNowMs = 1_767_268_800_000L

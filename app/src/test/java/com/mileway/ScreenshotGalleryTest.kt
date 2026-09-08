@@ -313,11 +313,12 @@ import org.robolectric.annotation.GraphicsMode
 // ---------------------------------------------------------------------------
 
 // Use plain Application to skip MilewayApplication.onCreate → startKoin.
-// qualifiers pins a realistic phone viewport (411×891 dp, mdpi) so chip/button rows
+// qualifiers pins a realistic phone viewport (411×891 dp, xxhdpi/3x so exported PNGs aren't
+// upscaled blurry on the docs site) so chip/button rows
 // (booking & expense status filters, check-in actions) lay out the way they do on a
 // real device instead of overflowing in the narrow 320 dp Robolectric default.
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-mdpi")
+@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotGalleryTest {
     /**

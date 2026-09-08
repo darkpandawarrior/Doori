@@ -29,7 +29,7 @@ import java.io.File
  */
 @OptIn(ExperimentalGlanceRemoteViewsApi::class)
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class, qualifiers = "w320dp-h180dp-mdpi")
+@Config(sdk = [33], application = Application::class, qualifiers = "w320dp-h180dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WidgetScreenshotTest {
 

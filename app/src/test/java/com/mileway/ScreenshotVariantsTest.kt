@@ -135,7 +135,7 @@ import org.robolectric.annotation.GraphicsMode
 // ---------------------------------------------------------------------------
 
 @RunWith(AndroidJUnit4::class)
-@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-mdpi")
+@Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotVariantsTest {
 
