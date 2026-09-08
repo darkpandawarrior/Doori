@@ -1,15 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320">
-  <rect width="1280" height="320" fill="#F7F5F1"/>
-  <g transform="translate(64,64) scale(4)" fill="none" stroke="#0A0D0C" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="10" y1="14" x2="10" y2="34" stroke-width="4"/>
-    <line x1="34" y1="14" x2="34" y2="34" stroke-width="4"/>
-    <g id="doori-route">
-      <line x1="10" y1="24" x2="21" y2="24" stroke-width="4"/>
-      <line x1="27" y1="24" x2="34" y2="24" stroke-width="4"/>
-    </g>
-    <line x1="38" y1="14" x2="38" y2="34" stroke-width="2"/>
+<svg width="900" height="170" viewBox="0 0 900 170" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="mw-title mw-desc">
+  <title id="mw-title">Doori</title>
+  <desc id="mw-desc">Offline-first mileage, travel and expense tracking — a dashed GPS route with a location pin marking the current trip.</desc>
+  <defs>
+    <linearGradient id="mw-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#FF453A"/>
+    </linearGradient>
+    <linearGradient id="mw-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="1" y="1" width="898" height="168" rx="16" fill="url(#mw-bg)" stroke="#30363d" stroke-width="1"/>
+
+  <text x="450" y="80" text-anchor="middle" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="58" font-weight="800" fill="url(#mw-grad)">
+    Doori
+  </text>
+
+  <!-- a dashed road / GPS track -->
+  <path id="mw-route" d="M 50 122 Q 110 105 170 122 T 290 122 T 410 122 T 530 122 T 650 122 T 770 122"
+        fill="none" stroke="url(#mw-grad)" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="14 10" opacity="0.85"/>
+
+  <!-- location pin marking the trip's current position -->
+  <g id="mw-pin" transform="translate(770,122)">
+    <path d="M 0 -14 C 7 -14 12 -9 12 -2 C 12 7 0 18 0 18 C 0 18 -12 7 -12 -2 C -12 -9 -7 -14 0 -14 Z"
+          fill="#FF453A" stroke="#FFC15E" stroke-width="1.5"/>
+    <circle cx="0" cy="-2" r="4" fill="#0B0806"/>
   </g>
-  <circle id="doori-pin" cx="104" cy="160" r="12" fill="#38B4CC"/>
-  <text x="304" y="160" font-family="'Space Grotesk', sans-serif" font-weight="600" font-size="132" letter-spacing="-0.01em" dominant-baseline="central" fill="#0A0D0C">Doori</text>
-  <text x="306" y="240" font-family="'JetBrains Mono', monospace" font-size="30" letter-spacing="0.16em" fill="#0A0D0C">A TRIP LOG MEASURED IN DISTANCE</text>
+
+  <text x="450" y="155" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="15" letter-spacing="3" fill="#94a3b8">
+    OFFLINE-FIRST MILEAGE &amp; EXPENSE TRACKING
+  </text>
 </svg>
