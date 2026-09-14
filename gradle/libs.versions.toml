@@ -65,7 +65,7 @@ ktor = "3.5.2"
 # prior catalog entry existed for any of these.
 exposed = "1.5.0"
 postgresql = "42.7.13"
-h2 = "2.4.240"
+h2 = "2.5.250"
 logback = "1.6.3"
 jbNavigationCompose = "2.10.0-alpha02"
 navigation3 = "1.2.0-beta01"
