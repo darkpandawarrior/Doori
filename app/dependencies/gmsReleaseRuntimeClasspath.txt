@@ -167,10 +167,10 @@ androidx.privacysandbox.ads:ads-adservices:1.1.0-beta11
 androidx.profileinstaller:profileinstaller:1.4.1
 androidx.recyclerview:recyclerview:1.2.1
 androidx.resourceinspection:resourceinspection-annotation:1.0.1
-androidx.room:room-common-jvm:2.8.4
-androidx.room:room-common:2.8.4
-androidx.room:room-runtime-android:2.8.4
-androidx.room:room-runtime:2.8.4
+androidx.room:room-common-jvm:2.8.5
+androidx.room:room-common:2.8.5
+androidx.room:room-runtime-android:2.8.5
+androidx.room:room-runtime:2.8.5
 androidx.savedstate:savedstate-android:1.6.0-alpha02
 androidx.savedstate:savedstate-compose-android:1.6.0-alpha02
 androidx.savedstate:savedstate-compose:1.6.0-alpha02
