@@ -260,11 +260,11 @@ com.google.dagger:dagger:2.59
 com.google.errorprone:error_prone_annotations:2.30.0
 com.google.firebase:firebase-analytics:23.2.0
 com.google.firebase:firebase-annotations:17.0.0
-com.google.firebase:firebase-bom:34.18.0
-com.google.firebase:firebase-common:22.2.0
+com.google.firebase:firebase-bom:34.19.0
+com.google.firebase:firebase-common:22.2.1
 com.google.firebase:firebase-components:19.0.0
 com.google.firebase:firebase-config-interop:16.0.1
-com.google.firebase:firebase-crashlytics:20.1.0
+com.google.firebase:firebase-crashlytics:20.1.1
 com.google.firebase:firebase-datatransport:19.0.0
 com.google.firebase:firebase-encoders-json:18.0.1
 com.google.firebase:firebase-encoders-proto:16.0.0
@@ -273,8 +273,8 @@ com.google.firebase:firebase-iid-interop:17.1.0
 com.google.firebase:firebase-installations-interop:17.3.0
 com.google.firebase:firebase-installations:19.1.2
 com.google.firebase:firebase-measurement-connector:20.0.1
-com.google.firebase:firebase-messaging:25.1.2
-com.google.firebase:firebase-sessions:3.0.7
+com.google.firebase:firebase-messaging:25.1.3
+com.google.firebase:firebase-sessions:3.0.8
 com.google.guava:failureaccess:1.0.2
 com.google.guava:guava:33.3.1-android
 com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
