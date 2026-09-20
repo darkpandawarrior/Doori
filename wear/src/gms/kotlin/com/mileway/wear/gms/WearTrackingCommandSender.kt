@@ -3,6 +3,7 @@ package com.mileway.wear.gms
 import android.content.Context
 import com.google.android.gms.wearable.CapabilityClient
 import com.google.android.gms.wearable.MessageClient
+import com.google.android.gms.wearable.NodeClient
 import com.google.android.gms.wearable.Wearable
 import com.mileway.core.data.watch.TrackingCommand
 import com.mileway.core.data.watch.TrackingCommandSender
@@ -35,6 +36,7 @@ internal const val PHONE_TRACK_CAPABILITY = "mileway_phone_track"
 class WearTrackingCommandSender(context: Context) : TrackingCommandSender {
     private val messageClient: MessageClient = Wearable.getMessageClient(context.applicationContext)
     private val capabilityClient: CapabilityClient = Wearable.getCapabilityClient(context.applicationContext)
+    private val nodeClient: NodeClient = Wearable.getNodeClient(context.applicationContext)
 
     /** Sends a start command for [token] to the paired phone, if one is reachable. */
     override suspend fun sendStart(token: String) = send(TrackingCommand(TrackingCommand.Action.START, token))
@@ -44,11 +46,43 @@ class WearTrackingCommandSender(context: Context) : TrackingCommandSender {
 
     private suspend fun send(command: TrackingCommand) {
         runCatching {
-            val nodeId = resolvePhoneNodeId() ?: return
+            val nodeId = resolvePhoneNodeId()
+            if (nodeId == null) {
+                warnNoPhoneNode()
+                return
+            }
             val bytes = TrackingCommandCodec.encode(command)
             messageClient.sendMessage(nodeId, TRACK_COMMAND_PATH, bytes).await()
         }.onFailure { e ->
             Napier.e(tag = TAG, message = "send failed", throwable = e)
+        }
+    }
+
+    /**
+     * The one failure this sender must never swallow. An unresolved phone node used to `return`
+     * silently from inside [send]'s `runCatching`, which is exactly how `:wear` shipping
+     * `applicationId = "com.mileway.wear"` against `:app`'s `"com.mileway"` survived unnoticed:
+     * the Data Layer only pairs apps that agree on applicationId AND signing certificate, so the
+     * capability query truthfully found nothing and every command vanished without one log line.
+     *
+     * The two causes want different answers, so say which one happened. No connected node at all
+     * is an ordinary unpaired watch — a user state, warn and move on. A node that IS connected but
+     * advertises no [PHONE_TRACK_CAPABILITY] means the phone app is not installed on it, or the
+     * two APKs disagree on applicationId or signing certificate. That is always a build
+     * misconfiguration and is logged at error.
+     */
+    private suspend fun warnNoPhoneNode() {
+        val connected = runCatching { nodeClient.connectedNodes.await() }.getOrElse { emptyList() }
+        if (connected.isEmpty()) {
+            Napier.w(tag = TAG, message = "no connected Wear node; dropping command (watch not paired to a phone)")
+        } else {
+            Napier.e(
+                tag = TAG,
+                message =
+                    "connected node(s) [${connected.joinToString { it.displayName }}] advertise no " +
+                        "'$PHONE_TRACK_CAPABILITY'; dropping command. Either the phone app is not installed, " +
+                        "or :app and :wear disagree on applicationId / signing certificate.",
+            )
         }
     }
 
