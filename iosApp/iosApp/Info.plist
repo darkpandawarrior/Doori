@@ -44,6 +44,11 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Doori uses the camera to capture odometer readings.</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -52,6 +57,8 @@
 	<string>Doori uses background location to auto-start trip tracking.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Doori uses your location to track mileage during trips.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Doori reads motion sensors to detect driving, pauses and shake-to-report while tracking a trip.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Doori reads photos to attach receipts to expense entries.</string>
 	<key>NSSupportsLiveActivities</key>
