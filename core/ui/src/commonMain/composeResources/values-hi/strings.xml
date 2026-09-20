@@ -3299,4 +3299,27 @@
     <string name="advances_scan_pay_from">%1$s से भुगतान करें</string>
     <string name="advances_scan_parse_error">यह क्यूआर कोड नहीं पढ़ा जा सका</string>
     <string name="advances_scan_parse_error_body">यह एक मान्य यूपीआई क्यूआर कोड नहीं लगता।</string>
+
+    <!-- PLAN: iOS shell widening — the More tab's destination list (see MilewayApp.kt). -->
+    <string name="tab_more">अधिक</string>
+    <string name="shell_more_title">अधिक</string>
+    <string name="shell_more_subtitle">इस प्लेटफ़ॉर्म पर दिखने वाली सभी साझा स्क्रीन, और जो अब भी नहीं दिखतीं</string>
+    <string name="shell_more_section_shared">साझा स्क्रीन</string>
+    <string name="shell_more_section_android_only">फ़िलहाल केवल Android पर</string>
+    <string name="shell_more_cards">कार्ड</string>
+    <string name="shell_more_agent">सहायक</string>
+    <string name="shell_more_garage">वाहन गैराज</string>
+    <string name="shell_more_routes">पसंदीदा मार्ग</string>
+    <string name="shell_more_offers">ऑफ़र हब</string>
+    <string name="shell_more_plugins">प्लगइन प्रबंधक</string>
+    <string name="shell_more_unavailable_profile">प्रोफ़ाइल हब और सेटिंग्स</string>
+    <string name="shell_more_unavailable_profile_why">OS सेटिंग्स स्क्रीन और बायोमेट्रिक प्रॉम्प्ट खोलता है</string>
+    <string name="shell_more_unavailable_capture">कैमरा कैप्चर और दस्तावेज़ स्कैन</string>
+    <string name="shell_more_unavailable_capture_why">CameraX और ML Kit पर बना है</string>
+    <string name="shell_more_unavailable_storage">स्टोरेज प्रबंधन</string>
+    <string name="shell_more_unavailable_storage_why">Android कैश और डेटाबेस डायरेक्टरी पढ़ता है</string>
+    <string name="shell_more_unavailable_debug">डीबग मेन्यू</string>
+    <string name="shell_more_unavailable_debug_why">Android प्रोसेस को पुनः आरंभ करता है और ऐप स्टोरेज पढ़ता है</string>
+    <string name="shell_more_unavailable_signature">हस्ताक्षर पैड</string>
+    <string name="shell_more_unavailable_signature_why">Android बिटमैप एन्कोडर से PNG लिखता है</string>
 </resources>
