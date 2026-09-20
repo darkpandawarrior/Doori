@@ -35,8 +35,8 @@ compose-multiplatform = "1.13.0-alpha01"
 # does not exist on androidx. Pinned to the real androidx latest.
 androidx-compose-runtime = "1.13.0-alpha03"
 datastore = "1.3.0-alpha11"
-materialKolor = "5.0.0"
-colorpicker = "1.2.0"
+materialKolor = "5.0.1"
+colorpicker = "1.3.0"
 kotlinx-datetime = "0.8.0"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.12.0-RC"
@@ -77,13 +77,32 @@ napier = "2.7.1"
 coil3 = "3.6.3"
 markdownRenderer = "0.45.0"
 webviewMultiplatform = "2.0.3"
+# HELD at 0.15.0 -- 0.17.0 exists and was rejected on purpose, not missed. 0.16.0 AND 0.17.0 are
+# both breaking, and together they rewrite every API MapLibreSurface.kt uses. Read from the
+# published 0.17.0 sources jar, not from release-note prose:
+#   * MaplibreMap(modifier, state, cameraPadding, cameraConstraints, renderOptions, interactions,
+#     uiOptions, overlay) -- it no longer takes baseStyle, cameraState, options, or a trailing
+#     content lambda. Sources and layers move into rememberMapState(runtime, baseStyle,
+#     initialCameraPosition, content).
+#   * rememberCameraState / CameraState are gone. Camera lives on MapState:
+#     setCameraPosition(), stopCameraMovement(), and suspend animateCameraPosition() /
+#     animateCameraAround() / animateCameraToBounds() with a CameraAnimation (Ease | Fly).
+#   * MapOptions -> MapUiOptions + MapInteractions. MapState is closeable (close()/awaitClosed())
+#     and owned by a MapRuntime, so the surface gains a lifecycle it does not have today.
+#   * 0.17 overlay controls read LocalMapState/LocalViewport/LocalCameraPadding instead of a
+#     MapOverlayScope receiver, and custom overlays no longer get automatic padding.
+# Separately, 0.15.0 already made an Android render runtime mandatory
+# (maplibre-compose-runtime-vulkan-android | -opengl-android; the MapLibre Android SDK stopped
+# being a transitive dep) and this repo declares NEITHER -- see core/maps-maplibre/build.gradle.kts.
+# That gap should be closed before 0.17 is attempted. This is a day of work with a device check at
+# the end, not a version bump, and it touches the native iOS MapLibre SDK too.
 maplibreCompose = "0.15.0"
 ktor = "3.6.0"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
 exposed = "1.5.0"
 postgresql = "42.7.13"
-h2 = "2.4.240"
+h2 = "2.5.250"
 logback = "1.6.3"
 jbNavigationCompose = "2.10.0-beta01"
 navigation3 = "1.2.0-rc01"
@@ -105,7 +124,7 @@ play-app-update = "2.1.0"
 play-review = "2.0.2"
 # V15: Firebase (gms-only): FCM, Analytics, Crashlytics
 google-services = "4.5.0"
-firebase-bom = "34.18.0"
+firebase-bom = "34.19.0"
 firebase-crashlytics-plugin = "3.0.8"
 install-referrer = "2.2"
 # 3.3.1 removed the library's Koin integration: 3.1.0 shipped KmpWorkManagerKoin/KoinModuleKt/
