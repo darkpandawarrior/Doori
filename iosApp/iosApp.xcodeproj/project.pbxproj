@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		P00000000000000000011 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = P00000000000000000001 /* PrivacyInfo.xcprivacy */; };
+		P00000000000000000012 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = P00000000000000000002 /* PrivacyInfo.xcprivacy */; };
+		P00000000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = P00000000000000000003 /* PrivacyInfo.xcprivacy */; };
 		0472B2384ADF0626A2962D34 /* MilewaySyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5F14FEDB21C9BE211272AC /* MilewaySyncModels.swift */; };
 		144D6B11BB281FD828D1E539 /* ToggleTrackingIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934539E1038EDCE32F85CC15 /* ToggleTrackingIntent.swift */; };
 		155AA8BCA2F1FF1FF3FA589C /* MilewayWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3408BF1238111660C52B82AD /* MilewayWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -117,6 +120,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		P00000000000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		P00000000000000000002 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		P00000000000000000003 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageWidgetProvider.swift; sourceTree = "<group>"; };
 		0DB9BE89BCB5056E43C4F34B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		10514A614A98E936225446FF /* WatchDashboardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDashboardModel.swift; sourceTree = "<group>"; };
@@ -186,6 +192,7 @@
 				8B6C1F485E0CF8BB70C9DDD2 /* AppDelegate.swift */,
 				CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */,
 				A55143988C4C8F291BE72E9A /* GoogleService-Info.plist */,
+				P00000000000000000001 /* PrivacyInfo.xcprivacy */,
 				668CECA83ACC03A83C85A623 /* iOSApp.swift */,
 				452F9BFCAD19BEA4E64088D3 /* PhoneWatchSyncBridge.swift */,
 				725FADE80ADD26488304CA75 /* TrackingLiveActivityController.swift */,
@@ -220,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */,
+				P00000000000000000002 /* PrivacyInfo.xcprivacy */,
 				D10DC23AA5359B7EEFBCE845 /* MileageWidgetViews.swift */,
 				4C5B4EB34FE5C8CCFD2210AB /* MilewayWidgetsBundle.swift */,
 				934539E1038EDCE32F85CC15 /* ToggleTrackingIntent.swift */,
@@ -254,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				0DB9BE89BCB5056E43C4F34B /* Assets.xcassets */,
+				P00000000000000000003 /* PrivacyInfo.xcprivacy */,
 				8C1D61413F7E3E63A3502BC0 /* MilewayWatchGraph.swift */,
 				B793F8131E4F61634C2845A1 /* WatchApp.swift */,
 				10514A614A98E936225446FF /* WatchDashboardModel.swift */,
@@ -336,6 +345,7 @@
 			buildConfigurationList = EAC5BFABC74D56533EE1A3CA /* Build configuration list for PBXNativeTarget "MilewayWidgets" */;
 			buildPhases = (
 				4D4DE615279DBE6D60585685 /* Sources */,
+				P00000000000000000021 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -434,11 +444,20 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		P00000000000000000021 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				P00000000000000000012 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1623B02D10928C8101C1F806 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				C87B4FA04BDA1DA04158D48E /* GoogleService-Info.plist in Resources */,
+				P00000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -447,6 +466,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F788359DF1336E6977E0D04C /* Assets.xcassets in Resources */,
+				P00000000000000000013 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
