@@ -1,7 +1,7 @@
 [versions]
 agp = "9.5.0-alpha02"
 foundation = "1.12.0"
-kotlin = "2.4.20-RC"
+kotlin = "2.4.20"
 material = "1.14.0"
 material3 = "1.12.0-alpha03"
 materialIconsExtended = "1.7.3"
@@ -14,7 +14,11 @@ wear-ongoing = "1.1.0"
 # protolayout core (P2.6's tile rewrite target).
 wear-compose = "1.7.0-beta02"
 wear-protolayout = "1.4.2"
-ksp = "2.3.11"
+# KSP NO LONGER TRACKS KOTLIN. symbol-processing-gradle-plugin:2.3.12's POM declares only
+# symbol-processing-api + symbol-processing-common-deps -- no kotlin-gradle-plugin, no Kotlin
+# version. The compound "<kotlin>-<ksp>" scheme ended at 2.2.21-2.0.5, so a bare 2.3.12 alongside
+# kotlin 2.4.20 is correct; do not "fix" it back into a compound string.
+ksp = "2.3.12"
 room = "2.8.4"
 sqlite-bundled = "2.7.0"
 koin = "4.2.2"
