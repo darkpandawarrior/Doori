@@ -453,8 +453,11 @@ org.kobjects.ktxml:core:1.0.0
 org.maplibre.compose:location-android:0.15.0
 org.maplibre.compose:location:0.15.0
 org.maplibre.compose:maplibre-compose-android:0.15.0
+org.maplibre.compose:maplibre-compose-runtime-opengl-android:0.15.0
 org.maplibre.compose:maplibre-compose:0.15.0
 org.maplibre.nativeffi:maplibre-native-ffi-android:0.202608.3
+org.maplibre.nativeffi:maplibre-native-ffi-runtime-opengl-android:0.202608.3
+org.maplibre.nativeffi:maplibre-native-ffi-runtime-opengl:0.202608.3
 org.maplibre.nativeffi:maplibre-native-ffi:0.202608.3
 org.maplibre.spatialk:geojson-jvm:0.7.0
 org.maplibre.spatialk:geojson:0.7.0

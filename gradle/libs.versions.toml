@@ -91,11 +91,13 @@ webviewMultiplatform = "2.0.3"
 #     and owned by a MapRuntime, so the surface gains a lifecycle it does not have today.
 #   * 0.17 overlay controls read LocalMapState/LocalViewport/LocalCameraPadding instead of a
 #     MapOverlayScope receiver, and custom overlays no longer get automatic padding.
-# Separately, 0.15.0 already made an Android render runtime mandatory
-# (maplibre-compose-runtime-vulkan-android | -opengl-android; the MapLibre Android SDK stopped
-# being a transitive dep) and this repo declares NEITHER -- see core/maps-maplibre/build.gradle.kts.
-# That gap should be closed before 0.17 is attempted. This is a day of work with a device check at
-# the end, not a version bump, and it touches the native iOS MapLibre SDK too.
+# Separately, 0.15.0 already made an Android render runtime mandatory, and that gap is now CLOSED
+# (it was open and shipping): maplibre-compose-android's pom brings maplibre-native-ffi-android,
+# the FFI bindings, but no maplibre-native-ffi-runtime-* to implement them, and the MapLibre
+# Android SDK stopped being a transitive dep -- so the Android map had no renderer at all. The
+# OpenGL runtime is declared below and wired in core/maps-maplibre/build.gradle.kts.
+# The 0.17 bump itself is still a day of work with a device check at the end, not a version bump,
+# and it touches the native iOS MapLibre SDK too.
 maplibreCompose = "0.15.0"
 ktor = "3.6.0"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
@@ -310,6 +312,12 @@ markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-
 webview-multiplatform = { module = "io.github.kevinnzou:compose-webview-multiplatform", version.ref = "webviewMultiplatform" }
 # Maps (MapLibre, multiplatform; offline MBTiles)
 maplibre-compose = { module = "org.maplibre.compose:maplibre-compose", version.ref = "maplibreCompose" }
+# The render runtime the line above needs on Android (see the maplibreCompose note). Published ONLY
+# at the -android coordinate -- there is no KMP root module -- so it is an androidMain dependency,
+# not a commonMain one. OpenGL rather than Vulkan: both ship at every maplibre-compose version,
+# OpenGL ES is guaranteed on every device at our minSdk 30, and the Vulkan renderer is the newer,
+# less-proven path. Swap to -vulkan-android if GPU profiling ever justifies it.
+maplibre-compose-runtime-opengl-android = { module = "org.maplibre.compose:maplibre-compose-runtime-opengl-android", version.ref = "maplibreCompose" }
 # Ktor (multiplatform networking + Logging plugin; replaces WormaCeptor)
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
