@@ -173,7 +173,12 @@ targets:
           - MilewayActivityAttributes.swift
     settings:
       base:
-        SDKROOT: watchsimulator
+        # watchos, NOT watchsimulator. Xcode resolves this to watchsimulator automatically for a
+        # simulator destination, exactly as the iosApp target's SDKROOT: iphoneos does. Pinning it
+        # to watchsimulator meant the watch app -- which iosApp embeds via "Embed Watch Content" --
+        # could only ever build against the simulator SDK, so an archive of the parent app could
+        # not produce a shippable watch bundle. Same class of bug as the iosSimulatorArm64 pin.
+        SDKROOT: watchos
         CODE_SIGN_STYLE: Automatic
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: "1.0"
