@@ -13,6 +13,7 @@ import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.di.agentModule
 import com.mileway.feature.approvals.di.approvalsModule
+import com.mileway.feature.cards.di.cardsModule
 import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.payables.di.payablesModule
@@ -106,13 +107,20 @@ fun MilewayAppViewController(): UIViewController {
                 // payments carry nothing in androidMain but an AndroidManifest.xml, agentModule is
                 // commonMain, and authModule/pinModule live in shared/commonMain.
                 //
-                // Still NOT here, deliberately: cardsModule, profileModule and mediaModule are all
-                // defined in src/androidMain, so they are invisible from iosMain — they need their
-                // definitions hoisted to commonMain (or iOS actuals written) before a line here
-                // would even compile. A directory check is not enough: feature:cards HAS an
-                // iosMain, it just does not define its Koin module there. appModule is Android
-                // app-level and has no iOS counterpart by design.
+                // cardsModule joined them once its definition was hoisted out of
+                // feature:cards/src/androidMain into commonMain. It carried no android import at
+                // all — only commonMain types (CardsMockDataProviderFactory, CardSecurityManager
+                // and the four card ViewModels) — so the hoist was a file move, not a rewrite.
+                // :shared takes feature:cards as an api() dependency of commonMain, so iosMain
+                // resolves it from here.
+                //
+                // Still NOT here, deliberately: profileModule and mediaModule cannot be hoisted the
+                // same way. ProfileModule.kt calls org.koin.android.ext.koin.androidContext (for
+                // SecureKeyStore) and MediaModule.kt injects an android.content.Context into
+                // RealMediaRepository; both need an iOS actual written before a line here would
+                // compile. appModule is Android app-level and has no iOS counterpart by design.
                 agentModule,
+                cardsModule,
                 approvalsModule,
                 authModule,
                 eventsModule,
