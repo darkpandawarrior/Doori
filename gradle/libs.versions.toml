@@ -9,9 +9,10 @@ materialIconsExtended = "1.7.3"
 wear-tiles = "1.6.2"
 wear-complications = "1.3.0"
 wear-ongoing = "1.1.0"
-# P2.1: Compose for Wear OS (latest stable — material3/foundation/navigation ship in lockstep) +
-# protolayout core (P2.6's tile rewrite target).
-wear-compose = "1.7.0-beta02"
+# P2.1: Compose for Wear OS — compose-foundation/compose-material3/compose-navigation ship in
+# lockstep off this single ref, so it drives the whole :wear module. 1.7.0-rc01 is the newest on
+# the 1.7 train (beta02 -> rc01); protolayout below is a separate train (P2.6's tile rewrite target).
+wear-compose = "1.7.0-rc01"
 wear-protolayout = "1.4.2"
 # KSP NO LONGER TRACKS KOTLIN. symbol-processing-gradle-plugin:2.3.12's POM declares only
 # symbol-processing-api + symbol-processing-common-deps -- no kotlin-gradle-plugin, no Kotlin
