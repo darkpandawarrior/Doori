@@ -68,9 +68,11 @@ import com.mileway.feature.cards.di.cardsModule
 import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.ui.screens.ExpenseScreen
+import com.mileway.feature.media.di.androidMediaModule
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.payables.di.payablesModule
 import com.mileway.feature.payments.di.paymentsModule
+import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.ui.screens.ProfileScreen
 import com.mileway.feature.tracking.di.trackingModule
@@ -391,7 +393,9 @@ class ScreenshotVariantsTest {
                     trackingModule,
                     loggingModule,
                     mediaModule,
+                    androidMediaModule,
                     profileModule,
+                    profileAndroidModule,
                     approvalsModule,
                     payablesModule,
                     travelModule,

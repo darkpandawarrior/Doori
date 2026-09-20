@@ -16,8 +16,12 @@ import com.mileway.feature.approvals.di.approvalsModule
 import com.mileway.feature.cards.di.cardsModule
 import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.media.di.mediaModule
+import com.mileway.feature.media.repository.FakeMediaRepository
+import com.mileway.feature.media.repository.MediaRepository
 import com.mileway.feature.payables.di.payablesModule
 import com.mileway.feature.payments.di.paymentsModule
+import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.service.AppSyncTrigger
@@ -40,6 +44,24 @@ import platform.Foundation.NSOperationQueue
 import platform.UIKit.UIAccessibilityIsReduceMotionEnabled
 import platform.UIKit.UIApplicationDidBecomeActiveNotification
 import platform.UIKit.UIViewController
+
+/**
+ * iOS's half of feature:media's graph. `mediaModule` (commonMain) binds everything that is
+ * platform-agnostic and deliberately leaves `MediaRepository` unbound, because its only real
+ * implementation, `RealMediaRepository`, does EXIF-corrected bitmap work and ML Kit OCR against an
+ * `android.content.Context`. Android contributes `androidMediaModule`; iOS binds the offline
+ * `FakeMediaRepository` that already ships in commonMain, so the media screens resolve and run
+ * against canned OCR/upload results rather than crashing on a missing definition.
+ *
+ * ponytail: a Fake, not a Vision/PHPicker-backed iOS implementation. Writing that is a real feature,
+ * not a parity move, and nothing on the iOS shell reaches the camera capture path yet — the screens
+ * that do (`CameraCaptureScreen`, `AttachmentSelectionScreen`, `DocumentScanLauncher`) are still
+ * androidMain-only. Swap this binding when the iOS capture path lands.
+ */
+private val iosMediaModule =
+    module {
+        single<MediaRepository> { FakeMediaRepository() }
+    }
 
 /**
  * V36 review FIX 4: `TrackMilesScreen`'s `checkInViewModel: CheckInViewModel = koinViewModel()`
@@ -114,11 +136,17 @@ fun MilewayAppViewController(): UIViewController {
                 // :shared takes feature:cards as an api() dependency of commonMain, so iosMain
                 // resolves it from here.
                 //
-                // Still NOT here, deliberately: profileModule and mediaModule cannot be hoisted the
-                // same way. ProfileModule.kt calls org.koin.android.ext.koin.androidContext (for
-                // SecureKeyStore) and MediaModule.kt injects an android.content.Context into
-                // RealMediaRepository; both need an iOS actual written before a line here would
-                // compile. appModule is Android app-level and has no iOS counterpart by design.
+                // profileModule and mediaModule joined them the same way, once each was SPLIT
+                // rather than moved. Both were blocked by a small Android-only tail, not by their
+                // bulk: ProfileModule.kt called org.koin.android.ext.koin.androidContext for
+                // SecureKeyStore (plus the toolkit's Android-only AI artifacts and the two storage
+                // ViewModels over core:data's Context-taking StorageRepository), and MediaModule.kt
+                // injected an android.content.Context into RealMediaRepository. Those tails now live
+                // in profileAndroidModule / androidMediaModule, registered next to their commonMain
+                // halves in MilewayApplication.kt; iOS registers the commonMain halves here and
+                // contributes its own MediaRepository via iosMediaModule below.
+                //
+                // appModule is still Android app-level and has no iOS counterpart by design.
                 agentModule,
                 cardsModule,
                 approvalsModule,
@@ -133,6 +161,9 @@ fun MilewayAppViewController(): UIViewController {
                 // module list, iOS was missing them.
                 whatsNewModule,
                 firstLoginBannerModule,
+                profileModule,
+                mediaModule,
+                iosMediaModule,
                 // V36 review FIX 4: TrackMilesScreen's CheckInViewModel — see iosCheckInModule's KDoc.
                 iosCheckInModule,
             ),

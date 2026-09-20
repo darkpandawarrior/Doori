@@ -135,6 +135,7 @@ import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.logging.ui.screens.VoucherDetailsScreen
 import com.mileway.feature.logging.ui.screens.VoucherHistoryScreen
 import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
+import com.mileway.feature.media.di.androidMediaModule
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.media.model.FlashMode
 import com.mileway.feature.media.ui.camera.CameraCaptureScreen
@@ -151,6 +152,7 @@ import com.mileway.feature.payables.ui.screens.PurchaseRequestDetailsScreen
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.ui.screens.CreatePaymentScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
+import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
@@ -787,7 +789,9 @@ class ScreenshotGalleryTest {
                     trackingModule,
                     loggingModule,
                     mediaModule,
+                    androidMediaModule,
                     profileModule,
+                    profileAndroidModule,
                     approvalsModule,
                     payablesModule,
                     travelModule,

@@ -6,10 +6,12 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.events.repository.EventsRepository
+import com.mileway.feature.media.di.androidMediaModule
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.media.repository.MediaRepository
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.repository.PaymentsRepository
+import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.repository.ProfileRepository
 import io.mockk.mockk
@@ -41,7 +43,9 @@ class NewModulesWiringTest : KoinTest {
                 module { single<MockAccountDao> { FakeMockAccountDao() } },
                 coreUiModule,
                 mediaModule,
+                androidMediaModule,
                 profileModule,
+                profileAndroidModule,
                 paymentsModule,
                 eventsModule,
             )

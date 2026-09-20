@@ -52,8 +52,6 @@ import com.mileway.feature.profile.viewmodel.RewardsViewModel
 import com.mileway.feature.profile.viewmodel.SavedPlacesViewModel
 import com.mileway.feature.profile.viewmodel.SelfAuditViewModel
 import com.mileway.feature.profile.viewmodel.SignatureViewModel
-import com.mileway.feature.profile.viewmodel.StorageManagementViewModel
-import com.mileway.feature.profile.viewmodel.StorageViewModel
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
 import com.mileway.feature.profile.viewmodel.SupportTicketViewModel
 import com.mileway.feature.profile.viewmodel.SwitchAccountViewModel
@@ -61,42 +59,24 @@ import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
 import com.mileway.feature.profile.viewmodel.TrainingTourViewModel
 import com.mileway.feature.profile.viewmodel.VehicleGarageViewModel
 import com.mileway.feature.profile.viewmodel.VerificationCentreViewModel
-import com.siddharth.kmp.ai.MediaPipeModelManager
-import com.siddharth.kmp.ai.onDeviceLlmModule
-import com.siddharth.kmp.designsystem.ai.AiSettingsState
-import com.siddharth.kmp.llmchat.SecureKeyStore
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
+/**
+ * The platform-agnostic half of feature:profile's graph — every repository plus the ~45 screen
+ * ViewModels, all of which resolve from commonMain types. Living here (rather than in
+ * `src/androidMain`, where it used to sit) is what lets `MilewayAppViewController` register it on
+ * iOS.
+ *
+ * Two groups of bindings stayed Android-only and moved to [profileAndroidModule]: the AI settings
+ * card (the toolkit's `onDeviceLlmModule`/`SecureKeyStore`/`AiSettingsState` are Android artifacts,
+ * and `SecureKeyStore` needs `androidContext()`), and the two storage ViewModels (core:data's
+ * `StorageRepository` takes an `android.content.Context`). Register both on Android.
+ */
 val profileModule =
     module {
-        // AI Settings card (consent, on-device model download, BYOK cloud key). Binds
-        // ModelManager/OnDeviceLlm — MediaPipe Gemma + ML Kit GenAI, detection-ordered — the same
-        // real seam feature:agent's own LlmGateway wraps a narrower slice of; see the lane brief
-        // for why this settles for exposing it rather than also re-routing feature:agent's chat
-        // through it.
-        includes(onDeviceLlmModule())
-        single { SecureKeyStore(androidContext()) }
-        single {
-            val keyStore = get<SecureKeyStore>()
-            AiSettingsState(
-                modelManager = get(),
-                manifest = listOf(MediaPipeModelManager.GEMMA_3_1B),
-                onDeviceLlm = get(),
-                getKey = keyStore::getKey,
-                setKey = keyStore::setKey,
-                // ponytail: process-lifetime scope, same lifecycle as every other `single` in this
-                // module — AiSettingsState has no per-screen state to tear down (downloads survive
-                // navigating away by design, see its pauseDownload KDoc).
-                scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
-            )
-        }
         single { MockAccountRepository(get()) }
         single<ProfileRepository> { FakeProfileRepository(get()) }
         single { AdvanceRepository() }
@@ -161,10 +141,6 @@ val profileModule =
         viewModelOf(::ActiveSessionsViewModel)
         viewModelOf(::NotificationViewModel)
         viewModelOf(::ConnectedAccountsViewModel)
-        // P6.6: Preferences' Storage tile/sheet (real cache-size readout + clear-cache action).
-        viewModelOf(::StorageViewModel)
-        // P31.MISC.2: the full tiered storage-management screen (Safe/Caution/Danger clearers).
-        viewModelOf(::StorageManagementViewModel)
         // P10.2: now takes PluginRegistry (persisted sync defaults) + CurrentTrackDataSource
         // (current-journey override) — both are Koin singles, so viewModelOf resolves them too, but
         // spelled out for clarity alongside the new constructor shape.
