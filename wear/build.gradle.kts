@@ -16,9 +16,17 @@ val milewayMarketing = extra["mileway.marketing"] as String
 val milewayFingerprint = extra["mileway.fingerprint"] as String
 
 android {
+    // namespace != applicationId ON PURPOSE. The namespace is only the R/BuildConfig package and
+    // stays `.wear` so the two APKs' generated classes cannot collide; the applicationId is the
+    // installed package name, and the Wear Data Layer pairs a watch app to a phone app ONLY when
+    // both agree on applicationId AND signing certificate. Shipping `com.mileway.wear` against
+    // :app's `com.mileway` meant the two were never peers: CapabilityClient resolved zero phone
+    // nodes, every watch->phone command evaporated, and because the watch app is
+    // `standalone = true` (wear/src/main/AndroidManifest.xml) nothing ever looked broken.
+    // Free to rename: neither id was ever published (Play/F-Droid/IzzyOnDroid all 404).
     namespace = "com.mileway.wear"
     defaultConfig {
-        applicationId = "com.mileway.wear"
+        applicationId = "com.mileway"
         minSdk = 30
         targetSdk = 36
         versionCode = milewayBuildCode
