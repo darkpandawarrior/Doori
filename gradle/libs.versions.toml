@@ -60,7 +60,7 @@ coil3 = "3.6.2"
 markdownRenderer = "0.45.0"
 webviewMultiplatform = "2.0.3"
 maplibreCompose = "0.15.0"
-ktor = "3.5.2"
+ktor = "3.6.0"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
 exposed = "1.5.0"
