@@ -140,6 +140,25 @@ subprojects {
         baseline = file("detekt-baseline.xml")
     }
 
+    // The same hole as `detekt` below, in the other tool. `./gradlew ktlintCheck` on :app and
+    // :wear ran ONLY ktlintKotlinScriptCheck — the per-source-set check tasks that see
+    // src/main/kotlin and the variant source sets were never attached to the aggregate. The gate
+    // was reading the build scripts and nothing else, so "ktlint passed" meant nothing on the
+    // Android modules. Verified: :wear:ktlintMainSourceSetCheck run directly reports 68
+    // violations on a tree the aggregate called clean.
+    // *Format tasks are excluded: the gate checks, it does not rewrite.
+    tasks.matching { it.name == "ktlintCheck" }.configureEach {
+        dependsOn(
+            tasks.matching {
+                it.name.startsWith("ktlint") &&
+                    it.name.endsWith("SourceSetCheck") &&
+                    // Same reasoning as the native-leaf skip below: per-architecture source sets
+                    // re-lint what iosMain/watchosMain already cover.
+                    !archLeafPattern.containsMatchIn(it.name)
+            },
+        )
+    }
+
     // `./gradlew detekt` analyses nothing on a KMP module: the per-module `detekt` task looks for
     // src/main/kotlin, which KMP does not have. The tasks that see the code are per-source-set, and
     // were never attached to it — so every "detekt passed" on a KMP module was vacuous.
@@ -269,7 +288,12 @@ tasks.register("screenshotFreshnessCheck") {
                         .directory(repoRoot)
                         .redirectErrorStream(true)
                         .start()
-                val commitEpoch = proc.inputStream.bufferedReader().readText().trim().toLongOrNull()
+                val commitEpoch =
+                    proc.inputStream
+                        .bufferedReader()
+                        .readText()
+                        .trim()
+                        .toLongOrNull()
                 proc.waitFor()
                 // No git history for the file (freshly added, not yet committed) -> not stale.
                 val ageSeconds = commitEpoch?.let { nowSeconds - it } ?: return@mapNotNull null
@@ -389,7 +413,9 @@ gradle.projectsEvaluated {
             // :desktopApp use a custom-named source set (src/desktopTest). Walking the whole
             // src/ dir covers either without hardcoding which module uses which.
             val hasCaptures =
-                sub.projectDir.resolve("src").walkTopDown()
+                sub.projectDir
+                    .resolve("src")
+                    .walkTopDown()
                     .filter { it.isFile && it.extension == "kt" }
                     // Two capture mechanisms in this repo: Roborazzi on the Android/Wear/widget
                     // side, and plain ImageIO writes from Compose Desktop's renderComposeScene.
@@ -397,22 +423,23 @@ gradle.projectsEvaluated {
                     // which library it happens to use.
                     .any { f -> f.readText().let { it.contains("captureRoboImage") || it.contains("ImageIO") } }
             if (!hasCaptures) return@forEach
-            sub.tasks.matching {
-                // :desktopApp's test task is "desktopTest", not "test*UnitTest".
-                // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
-                // variant here would make the unified task fail for a reason that has nothing to do
-                // with the screenshots it is meant to guard.
-                (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&
-                    // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
-                    !(it.name.contains("Gms") && !it.name.contains("NoGms"))
-            }.forEach { t ->
-                dependsOn(t)
-                // Ordered, not just aggregated. :app's screenshot suite runs @GraphicsMode(NATIVE)
-                // Skia in its own single fork precisely because it is fragile about sharing a build
-                // with other test JVMs — running these concurrently reproducibly kills its class
-                // init. Sequencing costs a few seconds and buys a task that does not flake.
-                t.mustRunAfter(":app:screenshotTestNoGmsDebug")
-            }
+            sub.tasks
+                .matching {
+                    // :desktopApp's test task is "desktopTest", not "test*UnitTest".
+                    // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
+                    // variant here would make the unified task fail for a reason that has nothing to do
+                    // with the screenshots it is meant to guard.
+                    (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&
+                        // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
+                        !(it.name.contains("Gms") && !it.name.contains("NoGms"))
+                }.forEach { t ->
+                    dependsOn(t)
+                    // Ordered, not just aggregated. :app's screenshot suite runs @GraphicsMode(NATIVE)
+                    // Skia in its own single fork precisely because it is fragile about sharing a build
+                    // with other test JVMs — running these concurrently reproducibly kills its class
+                    // init. Sequencing costs a few seconds and buys a task that does not flake.
+                    t.mustRunAfter(":app:screenshotTestNoGmsDebug")
+                }
         }
     }
 }
