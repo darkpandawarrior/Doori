@@ -62,6 +62,7 @@ import com.mileway.core.ui.resources.tracking_odometer_reading_km_value
 import com.mileway.core.ui.resources.tracking_odometer_start_title
 import com.mileway.core.ui.resources.tracking_odometer_use_reading
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.common.formatGrouped
 import kotlinx.coroutines.CancellationException
 import org.jetbrains.compose.resources.stringResource
 
@@ -189,7 +190,7 @@ fun OdometerReadingConfirmSheet(
                 )
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
                 Text(
-                    text = stringResource(Res.string.tracking_odometer_reading_km_value, "%,d".format(displayedReading)),
+                    text = stringResource(Res.string.tracking_odometer_reading_km_value, displayedReading.toDouble().formatGrouped()),
                     style =
                         MaterialTheme.typography.headlineMedium.copy(
                             fontSize = 28.sp,
