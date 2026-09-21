@@ -30,6 +30,19 @@ class MilewayAndroidLibraryConventionPlugin : Plugin<Project> {
                 compose = true
                 buildConfig = false  // libraries almost never need BuildConfig
             }
+            testOptions {
+                // AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every
+                // module with compose = true, and that registration hard-fails on AGP's default
+                // isIncludeAndroidResources = false, because Compose Preview needs compiled Android
+                // resources to resolve layout XML and theme attributes. The shared
+                // SharedAndroidLibraryConventionPlugin already carries this; the three modules on
+                // THIS local plugin bypass it, which is how :core:maps-krossmap still failed.
+                // NOTE: a behaviour change - unit tests in these modules now run against compiled
+                // Android resources.
+                unitTests {
+                    isIncludeAndroidResources = true
+                }
+            }
         }
     }
 }
