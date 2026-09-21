@@ -213,9 +213,12 @@ tasks.register("quickBuild") {
 tasks.register("fullCheck") {
     description = "ktlint + detekt + tests + kover coverage floor: all quality gates."
     // noGms is the JVM-safe unit-test variant; kover floor verified on the same variant.
+    // NOT "ktlintCheck"/"detekt" as bare names. At the root project those resolve to :ktlintCheck
+    // and :detekt, and the root project holds no Kotlin source: the gate logged
+    // `> Task :detekt NO-SOURCE` and a :ktlintCheck that read the root build scripts only. Every
+    // module's static analysis was outside the gate. The real tasks are wired in below, once every
+    // subproject is configured, the same way testAndroidHostTest already is (Z.5a).
     dependsOn(
-        "ktlintCheck",
-        "detekt",
         ":app:testNoGmsDebugUnitTest",
         // Z.5b: the @GraphicsMode(NATIVE) Roborazzi screenshot tests are excluded from the task above
         // (native Skia + forkEvery restart boundaries crash the JVM); they run in their own isolated
@@ -241,8 +244,16 @@ tasks.register("fullCheck") {
 // config-cache-safe way to wire this in — no `Project` reference is captured for execution.
 gradle.projectsEvaluated {
     tasks.named("fullCheck") {
+        val external = rootDir.resolve("external")
         subprojects.forEach { sub ->
             sub.tasks.findByName("testAndroidHostTest")?.let { dependsOn(it) }
+            // Same derive-don't-list reasoning for the two static-analysis gates. Skipped for the
+            // external/ git submodules: those are separate repositories with their own gates and
+            // their own baselines, and this build has no business failing on their code.
+            if (!sub.projectDir.startsWith(external)) {
+                sub.tasks.findByName("ktlintCheck")?.let { dependsOn(it) }
+                sub.tasks.findByName("detekt")?.let { dependsOn(it) }
+            }
         }
     }
 }
