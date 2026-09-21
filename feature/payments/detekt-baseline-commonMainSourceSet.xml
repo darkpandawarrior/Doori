@@ -3,7 +3,5 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>MagicNumber:PaymentsRepository.kt:PaymentsRepository$3</ID>
-    <ID>MatchingDeclarationName:PaymentsNavigation.kt:PaymentsRoutes</ID>
-    <ID>ReturnCount:PaymentsSearchProvider.kt:PaymentsSearchProvider$override suspend fun search: List&lt;SearchResult&gt;</ID>
   </CurrentIssues>
 </SmellBaseline>

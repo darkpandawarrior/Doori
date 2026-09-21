@@ -3,5 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>SwallowedException:FormattingUtils.kt:FormattingUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FormattingUtils.kt:FormattingUtils$e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

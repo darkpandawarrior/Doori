@@ -2,10 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:HardwareEvent.kt:HardwareEvent.Companion$fun inferEventType: EventType</ID>
     <ID>LargeClass:PluginCatalog.kt:PluginCatalog</ID>
-    <ID>LongMethod:JourneyValidator.kt:JourneyValidator$fun validateBeforeSubmission: JourneyValidationResult</ID>
-    <ID>LongMethod:PinHashing.kt:fun sha256Hex: String</ID>
     <ID>MagicNumber:BadgeCatalog.kt:10</ID>
     <ID>MagicNumber:CampaignRepository.kt:CampaignRepository$86_400_000L</ID>
     <ID>MagicNumber:CommonUtils.kt:CommonUtils$1000</ID>
@@ -53,18 +50,11 @@
     <ID>MagicNumber:StorageFormat.kt:1_048_576.0</ID>
     <ID>MagicNumber:StorageFormat.kt:1_048_576L</ID>
     <ID>ReturnCount:CurrentTrackDataSource.kt:SyncSessionOverride.Companion$fun decode: SyncSessionOverride?</ID>
-    <ID>ReturnCount:LocalOtpEngine.kt:LocalOtpEngine$fun verify: OtpVerifyResult</ID>
-    <ID>ReturnCount:MasterSearchRepository.kt:MasterSearchRepository$suspend fun search: SearchOutcome</ID>
-    <ID>ReturnCount:OdometerValidator.kt:OdometerValidator$fun validate: OdometerValidation</ID>
-    <ID>ReturnCount:TourStateMachine.kt:fun tourAdvance: TourState</ID>
     <ID>SwallowedException:DateUtils.kt:DateUtils$e: Exception</ID>
-    <ID>TooManyFunctions:ClarificationDao.kt:ClarificationDao</ID>
-    <ID>TooManyFunctions:CommonUtils.kt:CommonUtils</ID>
-    <ID>TooManyFunctions:GarageRepository.kt:GarageRepository</ID>
+    <ID>TooGenericExceptionCaught:DateUtils.kt:DateUtils$e: Exception</ID>
     <ID>TooManyFunctions:HardwareEventDao.kt:HardwareEventDao</ID>
     <ID>TooManyFunctions:LocationDao.kt:LocationDao</ID>
     <ID>TooManyFunctions:MilewayDatabase.kt:MilewayDatabase : RoomDatabase</ID>
-    <ID>TooManyFunctions:PluginRegistry.kt:PluginRegistry</ID>
     <ID>TooManyFunctions:SavedTrackDao.kt:SavedTrackDao</ID>
   </CurrentIssues>
 </SmellBaseline>

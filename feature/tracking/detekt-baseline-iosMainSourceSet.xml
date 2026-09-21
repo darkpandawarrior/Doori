@@ -3,5 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>LongMethod:IosTrackingController.kt:IosTrackingController$override fun start</ID>
+    <ID>TooGenericExceptionCaught:IosBgTaskDispatcher.kt:IosBgTaskDispatcher$e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

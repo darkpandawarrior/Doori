@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>EmptyFunctionBlock:AndroidSpeechToText.kt:AndroidSpeechToText.&lt;no name provided&gt;${}</ID>
-    <ID>EmptyFunctionBlock:AndroidTextToSpeech.kt:AndroidTextToSpeech.&lt;no name provided&gt;${}</ID>
-  </CurrentIssues>
-</SmellBaseline>

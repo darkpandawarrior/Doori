@@ -2,19 +2,11 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$override fun onAction</ID>
-    <ID>CyclomaticComplexMethod:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$private fun applyProfileToDebugState</ID>
-    <ID>CyclomaticComplexMethod:DebugMenuScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun DebugMenuScreen</ID>
-    <ID>CyclomaticComplexMethod:LocationTrackingService.kt:LocationTrackingService$private fun onFix</ID>
-    <ID>CyclomaticComplexMethod:OdometerSheets.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun OdometerReadingConfirmSheet</ID>
     <ID>CyclomaticComplexMethod:TrackingNavigation.kt:fun NavGraphBuilder.trackingGraph</ID>
     <ID>FunctionOnlyReturningConstant:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$private fun getReferralParams</ID>
     <ID>LargeClass:LocationTrackingService.kt:LocationTrackingService : Service</ID>
-    <ID>LongMethod:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$override fun onAction</ID>
     <ID>LongMethod:LocationTrackingService.kt:LocationTrackingService$private fun onFix</ID>
-    <ID>LongMethod:LocationTrackingService.kt:LocationTrackingService$private fun stopAndFinalize</ID>
     <ID>LongMethod:TrackingNavigation.kt:fun NavGraphBuilder.trackingGraph</ID>
-    <ID>MagicNumber:DebugMenuScreen.kt:1024</ID>
     <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$0.2f</ID>
     <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$0.3f</ID>
     <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$1.15f</ID>
@@ -29,14 +21,14 @@
     <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$60</ID>
     <ID>MagicNumber:TrackingContextReceiver.kt:TrackingContextReceiver$10</ID>
     <ID>MagicNumber:TrackingNavigation.kt:45_000</ID>
-    <ID>MatchingDeclarationName:CameraCaptureSheet.kt:CaptureMode</ID>
-    <ID>MatchingDeclarationName:TrackingNavigation.kt:TrackingRoutes</ID>
-    <ID>ReturnCount:AutoDiscardWorker.kt:AutoDiscardWorker$override suspend fun doWork: Result</ID>
-    <ID>ReturnCount:FloatingBubbleService.kt:FloatingBubbleService$override fun onStartCommand: Int</ID>
-    <ID>ReturnCount:LocationTrackingService.kt:LocationTrackingService$override fun onStartCommand: Int</ID>
     <ID>SwallowedException:AppRestartUtils.kt:AppRestartUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:AppRestartUtils.kt:AppRestartUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FloatingBubbleManager.kt:FloatingBubbleManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:FloatingBubbleService.kt:FloatingBubbleService$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LocationTrackingBootReceiver.kt:LocationTrackingBootReceiver$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LocationTrackingService.kt:LocationTrackingService$e: Exception</ID>
     <ID>TooManyFunctions:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel : BaseViewModel</ID>
-    <ID>TooManyFunctions:DebugMenuScreen.kt:com.mileway.feature.tracking.debug.DebugMenuScreen.kt</ID>
     <ID>TooManyFunctions:LocationTrackingService.kt:LocationTrackingService : Service</ID>
     <ID>UnusedParameter:LocationTrackingService.kt:LocationTrackingService$battery: Double</ID>
     <ID>UnusedParameter:TrackingNotificationManager.kt:TrackingNotificationManager$distanceKm: Double</ID>

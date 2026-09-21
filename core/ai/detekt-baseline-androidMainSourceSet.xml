@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LoopWithTooManyJumpStatements:MlKitGenAiAnalyzer.kt:MlKitGenAiAnalyzer$for</ID>
-    <ID>ReturnCount:MlKitGenAiAnalyzer.kt:MlKitGenAiAnalyzer$private suspend fun runExtraction: AiExtraction?</ID>
+    <ID>TooGenericExceptionCaught:MlKitGenAiAnalyzer.kt:MlKitGenAiAnalyzer$failure: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

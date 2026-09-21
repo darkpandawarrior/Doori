@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:MilewayTheme.kt:@Composable fun MilewayTheme</ID>
     <ID>InvalidPackageDeclaration:LedgerDirection.kt:package com.mileway.core.ui.theme</ID>
     <ID>InvalidPackageDeclaration:PaperDirection.kt:package com.mileway.core.ui.theme</ID>
     <ID>InvalidPackageDeclaration:SignalDirection.kt:package com.mileway.core.ui.theme</ID>
@@ -14,8 +13,6 @@
     <ID>MagicNumber:ColorMath.kt:24</ID>
     <ID>MagicNumber:ColorMath.kt:255f</ID>
     <ID>MagicNumber:ColorMath.kt:8</ID>
-    <ID>MagicNumber:DashboardScreen.kt:128.4</ID>
-    <ID>MagicNumber:DashboardScreen.kt:4</ID>
     <ID>MagicNumber:DemoEngine.kt:10</ID>
     <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$0.5</ID>
     <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$111_320.0</ID>
@@ -30,8 +27,6 @@
     <ID>MagicNumber:DesignTokens.kt:1.055f</ID>
     <ID>MagicNumber:DesignTokens.kt:12.92f</ID>
     <ID>MagicNumber:DesignTokens.kt:2.4</ID>
-    <ID>MagicNumber:DesignTokens.kt:DesignTokens$0.15f</ID>
-    <ID>MagicNumber:DesignTokens.kt:DesignTokens$0.2f</ID>
     <ID>MagicNumber:MilewayRoles.kt:0.42</ID>
     <ID>MagicNumber:MilewayRoles.kt:0.5</ID>
     <ID>MagicNumber:MilewayRoles.kt:1.18</ID>
@@ -54,7 +49,5 @@
     <ID>MagicNumber:MilewayTheme.kt:0xFFB8860B</ID>
     <ID>MagicNumber:MilewayTheme.kt:0xFFF2C14E</ID>
     <ID>MagicNumber:MilewayThemes.kt:MilewaySchemeSpec$0xCC000000</ID>
-    <ID>ReturnCount:Color.kt:fun parseHexColor: Color?</ID>
-    <ID>TooManyFunctions:ThemeController.kt:ThemeController</ID>
   </CurrentIssues>
 </SmellBaseline>

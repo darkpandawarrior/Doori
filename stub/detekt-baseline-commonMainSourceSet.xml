@@ -17,7 +17,6 @@
     <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isOfficeSelectionOnExpenseEnabled: Boolean</ID>
     <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isTrackMilesV2Enabled: Boolean</ID>
     <ID>FunctionOnlyReturningConstant:HomeMockData.kt:HomeMockData$fun notificationCount: Int</ID>
-    <ID>LongMethod:VendorMockData.kt:VendorMockData$fun vendorCenters: List&lt;VendorCenter&gt;</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$15000.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$1600.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$1800.0</ID>
@@ -31,6 +30,7 @@
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$5500.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$6200.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$650.0</ID>
+    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$800.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$8000.0</ID>
     <ID>MagicNumber:DemoMockData.kt:DemoMockData$10.0</ID>
     <ID>MagicNumber:DemoMockData.kt:DemoMockData$16.0</ID>
@@ -64,7 +64,6 @@
     <ID>MayBeConstant:AnalyticsMockData.kt:AnalyticsMockData$val violationCount: Int = 3</ID>
     <ID>TooManyFunctions:DemoConfigManager.kt:DemoConfigManager : ConfigProvider</ID>
     <ID>TooManyFunctions:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi : MilewayNetworkApi</ID>
-    <ID>TooManyFunctions:PolicyMockData.kt:PolicyMockData</ID>
     <ID>UnusedParameter:DemoConfigManager.kt:DemoConfigManager$source: String</ID>
     <ID>UnusedParameter:DemoMockData.kt:DemoMockData$isInsideTrip: Boolean = false</ID>
     <ID>UnusedParameter:DemoMockData.kt:DemoMockData$trackMiles: Boolean = true</ID>
