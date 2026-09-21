@@ -113,7 +113,9 @@ val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 // Resolved as its own configuration so the agent jar has a stable path to hand to -javaagent;
 // it is already on the test runtime classpath transitively via MockK, pinned here to the same
 // version so the two can never drift apart.
-val mockkAgent: Configuration by configurations.creating
+// configurations.create(name), not `by configurations.creating`: Gradle 10 removes the
+// property-delegate form.
+val mockkAgent: Configuration = configurations.create("mockkAgent")
 
 android {
     namespace = "com.mileway"

@@ -39,7 +39,10 @@ kotlin {
             // and never sees the Kotlin framework's symbols). Distinct names avoid the collision.
             baseName = "SharedWatch"
             isStatic = true
-            export(project(":core:data"))
+            // dependencies.project(path), not project(path): Gradle 10 refuses a Project
+            // object as a dependency notation, and KGP's export() takes Any so the old form
+            // compiled fine while deprecating underneath.
+            export(dependencies.project(":core:data"))
             linkerOpts("-lsqlite3")
         }
     }

@@ -37,11 +37,14 @@ kotlin {
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "Mileway"
-            export(project(":core:ui"))
-            export(project(":feature:tracking"))
-            export(project(":feature:agent"))
-            export(project(":feature:logging"))
-            export(project(":core:ai"))
+            // dependencies.project(path), not project(path): Gradle 10 refuses a Project
+            // object as a dependency notation, and KGP's export() takes Any so the old form
+            // compiled fine while deprecating underneath.
+            export(dependencies.project(":core:ui"))
+            export(dependencies.project(":feature:tracking"))
+            export(dependencies.project(":feature:agent"))
+            export(dependencies.project(":feature:logging"))
+            export(dependencies.project(":core:ai"))
             // NativeLlm/InjectableNativeLlm/FoundationModelsBridge — the Swift bridge in
             // iosApp/iosApp/ai/FoundationModelsBridge.swift conforms to NativeLlm, so it must be
             // ObjC-visible here (see the api(...) mirror below).

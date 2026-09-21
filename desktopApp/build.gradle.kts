@@ -37,13 +37,13 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
-        // `by getting`, not the `desktopMain { }` typed accessor: Kotlin generates those accessors
-        // only for standard targets (commonMain/androidMain/iosMain). This module declares a
-        // CUSTOM-named target via `jvm("desktop")`, so no accessor exists and the typed form fails
-        // with "Unresolved reference 'desktopMain'". Gradle 9.6 deprecates `by getting` generally,
-        // but for a custom-named target this remains the working form — revisit when Kotlin ships
-        // accessors for custom target names, not before.
-        val desktopMain by getting {
+        // getByName, not the `desktopMain { }` typed accessor and not `by getting`. Kotlin
+        // generates typed accessors only for standard targets (commonMain/androidMain/iosMain);
+        // this module declares a CUSTOM-named target via `jvm("desktop")`, so the typed form
+        // fails with "Unresolved reference 'desktopMain'". `by getting` worked but Gradle 10
+        // removes the property-delegate form outright, and getByName(name) is the replacement
+        // Gradle's own deprecation message names. It has neither problem.
+        getByName("desktopMain") {
             dependencies {
                 implementation(project(":core:common"))
                 implementation(project(":core:data"))
@@ -75,7 +75,7 @@ kotlin {
                 implementation("com.siddharth.kmp:result:1.0.0")
             }
         }
-        val desktopTest by getting {
+        getByName("desktopTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotlinx.coroutines.test)
