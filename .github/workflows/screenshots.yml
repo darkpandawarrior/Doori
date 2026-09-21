@@ -57,6 +57,17 @@ jobs:
           cache-read-only: ${{ github.event_name == 'pull_request' }}
           cache-cleanup: on-success
 
+      # Robolectric downloads its android-all-instrumented jars (~150 MB each, one per @Config sdk)
+      # into ~/.m2/repository at TEST time — outside ~/.gradle, so setup-gradle's cache never sees
+      # them. This repo pins sdk = [33] and runs a ~931-test Robolectric suite, so every job here
+      # re-fetched that jar from Maven Central before the first test could start.
+      - name: Cache Robolectric android-all jars
+        uses: actions/cache@v6
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: ${{ runner.os }}-robolectric-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: ${{ runner.os }}-robolectric-
+
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
