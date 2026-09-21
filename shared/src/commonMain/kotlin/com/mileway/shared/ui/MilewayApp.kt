@@ -179,6 +179,12 @@ private val shellTabs =
         ShellTab(Res.string.tab_more, Icons.Filled.MoreHoriz),
     )
 
+// Tab indices. MORE_TAB already existed; the rest were raw literals, which is what detekt's
+// MagicNumber rule was pointing at. Naming all five is the fix, not a suppression.
+private const val HOME_TAB = 0
+private const val TRACK_TAB = 1
+private const val SPENDS_TAB = 2
+private const val TRAVEL_TAB = 3
 private const val MORE_TAB = 4
 
 /**
@@ -225,7 +231,7 @@ private val androidOnlyEntries =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MilewayApp() {
-    var tab by remember { mutableIntStateOf(0) }
+    var tab by remember { mutableIntStateOf(HOME_TAB) }
     var showLanguage by remember { mutableStateOf(false) }
     var screen by remember { mutableStateOf<ShellScreen>(ShellScreen.None) }
     Box(Modifier.fillMaxSize()) {
@@ -261,7 +267,7 @@ fun MilewayApp() {
         ) { padding ->
             Box(Modifier.padding(padding).fillMaxSize()) {
                 when (tab) {
-                    0 ->
+                    HOME_TAB ->
                         HomeScreen(
                             onStartTracking = { tab = 1 },
                             onAddExpense = { tab = 2 },
@@ -271,20 +277,20 @@ fun MilewayApp() {
                             },
                             onSeeAllWhatsNew = { screen = ShellScreen.WhatsNew },
                         )
-                    1 ->
+                    TRACK_TAB ->
                         TrackMilesScreen(
-                            onStop = { _, _, _, _, _ -> tab = 0 },
+                            onStop = { _, _, _, _, _ -> tab = HOME_TAB },
                             onOpenMap = {},
                             onOpenHwEvents = {},
                         )
-                    2 ->
+                    SPENDS_TAB ->
                         SpendsHomeScreen(
-                            onTrackMileage = { tab = 1 },
+                            onTrackMileage = { tab = TRACK_TAB },
                             onAddExpense = {},
                             onMileageHistory = {},
                             onExpenseHistory = {},
                         )
-                    3 -> TravelHomeScreen()
+                    TRAVEL_TAB -> TravelHomeScreen()
                     else -> MoreTab(onOpen = { screen = it })
                 }
             }
@@ -352,6 +358,11 @@ private fun SectionHeader(label: StringResource) {
  * that host exists on both platforms.
  */
 @Composable
+// A flat dispatch table over a sealed interface: 19 branches, zero nesting, no conditional logic.
+// CyclomaticComplexity counts branches, so exhaustive `when` dispatch always trips it; splitting
+// this into sub-functions would hide the one place that maps a destination to its screen, which is
+// the opposite of readable. The compiler already enforces exhaustiveness.
+@Suppress("CyclomaticComplexMethod")
 private fun ShellOverlay(
     screen: ShellScreen,
     onNavigate: (ShellScreen) -> Unit,
