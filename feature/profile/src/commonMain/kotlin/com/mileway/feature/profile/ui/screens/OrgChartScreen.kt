@@ -45,7 +45,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 /**
  * PLAN_V22 P6.2: a small (root → manager → reports), fully local org chart pushed from the
- * "Reporting Manager" tile on [ProfileDetailsScreen] — replaces the prior no-op tap. Built from
+ * "Reporting Manager" tile on ProfileDetailsScreen (still Android-only, so no KDoc link across
+ * source sets) — replaces the prior no-op tap. Built from
  * the already-seeded personas ([OrgChartBuilder]), not a real org-chart backend. Own Matrix/
  * terminal design language (indented rows + a highlighted "you" row), not a port of any reference
  * app org-chart UI.

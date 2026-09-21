@@ -20,8 +20,10 @@ import com.mileway.feature.cards.di.cardsModule
 import com.mileway.feature.travel.di.travelModule
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.events.di.eventsModule
+import com.mileway.feature.media.di.androidMediaModule
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.payments.di.paymentsModule
+import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
@@ -185,7 +187,9 @@ class MilewayApplication : Application(), SingletonImageLoader.Factory, AppFunct
                 trackingModule,
                 loggingModule,
                 mediaModule,
+                androidMediaModule,
                 profileModule,
+                profileAndroidModule,
                 approvalsModule,
                 payablesModule,
                 travelModule,

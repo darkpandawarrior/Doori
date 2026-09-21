@@ -95,31 +95,36 @@ targets:
         LD_RUNPATH_SEARCH_PATHS:
           - "$(inherited)"
           - "@executable_path/Frameworks"
-      configs:
-        Debug:
-          FRAMEWORK_SEARCH_PATHS:
-            - "$(inherited)"
-            - "$(SRCROOT)/../shared/build/bin/iosSimulatorArm64/debugFramework"
-        Release:
-          FRAMEWORK_SEARCH_PATHS:
-            - "$(inherited)"
-            - "$(SRCROOT)/../shared/build/bin/iosSimulatorArm64/releaseFramework"
+        # embedAndSignAppleFrameworkForXcode writes the slice for the CURRENT build into
+        # shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/. One path covers
+        # Debug+Release and simulator+device, which is the whole point: the previous setup
+        # hardcoded iosSimulatorArm64 in both configs, so `xcodebuild archive` (SDK iphoneos,
+        # arch arm64) linked a simulator slice and could not produce a shippable .xcarchive.
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(inherited)"
+          - "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        # The framework is linked by flag rather than by a project file reference, because a
+        # PBXFileReference cannot carry $(CONFIGURATION)/$(SDK_NAME) -- that is what pinned it to
+        # one slice before. Same shape as the MilewayWatch target below and as Kursi's iosApp.
+        OTHER_LDFLAGS:
+          - "$(inherited)"
+          - "-framework"
+          - "Mileway"
     preBuildScripts:
       - name: "Build Kotlin Framework"
+        # embedAndSignAppleFrameworkForXcode reads CONFIGURATION, SDK_NAME, ARCHS,
+        # TARGET_BUILD_DIR and FRAMEWORKS_FOLDER_PATH from Xcode, links the matching slice, and
+        # copies + code-signs it into the app bundle itself. That replaces BOTH the old
+        # linkXxxFrameworkIosSimulatorArm64 call and the "Embed Frameworks" copy phase -- keeping
+        # the copy phase as well would embed the framework twice.
         script: |
           set -e
           cd "${SRCROOT}/.."
-          if [ "${CONFIGURATION}" = "Release" ]; then
-            ./gradlew :shared:linkReleaseFrameworkIosSimulatorArm64
-          else
-            ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
-          fi
+          ./gradlew :shared:embedAndSignAppleFrameworkForXcode
+        outputFiles:
+          - "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/Mileway.framework/Mileway"
         basedOnDependencyAnalysis: false
     dependencies:
-      - framework: ../shared/build/bin/iosSimulatorArm64/debugFramework/Mileway.framework
-        embed: true
-        codeSignOnCopy: true
-        removeHeadersOnCopy: true
       - target: MilewayWatch
         embed: true
         codeSignOnCopy: true
@@ -168,7 +173,12 @@ targets:
           - MilewayActivityAttributes.swift
     settings:
       base:
-        SDKROOT: watchsimulator
+        # watchos, NOT watchsimulator. Xcode resolves this to watchsimulator automatically for a
+        # simulator destination, exactly as the iosApp target's SDKROOT: iphoneos does. Pinning it
+        # to watchsimulator meant the watch app -- which iosApp embeds via "Embed Watch Content" --
+        # could only ever build against the simulator SDK, so an archive of the parent app could
+        # not produce a shippable watch bundle. Same class of bug as the iosSimulatorArm64 pin.
+        SDKROOT: watchos
         CODE_SIGN_STYLE: Automatic
         CURRENT_PROJECT_VERSION: 1
         MARKETING_VERSION: "1.0"

@@ -3306,4 +3306,27 @@
     <string name="advances_scan_pay_from">Pay from %1$s</string>
     <string name="advances_scan_parse_error">Couldn't read this QR code</string>
     <string name="advances_scan_parse_error_body">This doesn't look like a valid UPI QR code.</string>
+
+    <!-- PLAN: iOS shell widening — the More tab's destination list (see MilewayApp.kt). -->
+    <string name="tab_more">More</string>
+    <string name="shell_more_title">More</string>
+    <string name="shell_more_subtitle">Every shared screen this platform can render, plus what it still can't</string>
+    <string name="shell_more_section_shared">Shared screens</string>
+    <string name="shell_more_section_android_only">Android only for now</string>
+    <string name="shell_more_cards">Cards</string>
+    <string name="shell_more_agent">Assistant</string>
+    <string name="shell_more_garage">Vehicle garage</string>
+    <string name="shell_more_routes">Favourite routes</string>
+    <string name="shell_more_offers">Offers hub</string>
+    <string name="shell_more_plugins">Plugin manager</string>
+    <string name="shell_more_unavailable_profile">Profile hub and Settings</string>
+    <string name="shell_more_unavailable_profile_why">Opens OS settings screens and the biometric prompt</string>
+    <string name="shell_more_unavailable_capture">Camera capture and document scan</string>
+    <string name="shell_more_unavailable_capture_why">Built on CameraX and ML Kit</string>
+    <string name="shell_more_unavailable_storage">Storage management</string>
+    <string name="shell_more_unavailable_storage_why">Reads the Android cache and database directories</string>
+    <string name="shell_more_unavailable_debug">Debug menu</string>
+    <string name="shell_more_unavailable_debug_why">Restarts the Android process and reads app storage</string>
+    <string name="shell_more_unavailable_signature">Signature pad</string>
+    <string name="shell_more_unavailable_signature_why">Writes a PNG through the Android bitmap encoder</string>
 </resources>

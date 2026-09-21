@@ -39,6 +39,7 @@ import com.mileway.feature.approvals.viewmodel.ClarificationHistoryViewModel
 import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
+import com.mileway.feature.media.di.androidMediaModule
 import com.mileway.feature.media.di.mediaModule
 import com.mileway.feature.media.viewmodel.CloudLibraryViewModel
 import com.mileway.feature.media.viewmodel.MediaViewModel
@@ -50,6 +51,7 @@ import com.mileway.feature.events.viewmodel.EventsHistoryViewModel
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.viewmodel.CreatePaymentViewModel
 import com.mileway.feature.payments.viewmodel.PaymentsHistoryViewModel
+import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
@@ -307,7 +309,9 @@ class KoinGraphTest : KoinTest {
                 trackingModule,
                 loggingModule,
                 mediaModule,
+                androidMediaModule,
                 profileModule,
+                profileAndroidModule,
                 approvalsModule,
                 payablesModule,
                 agentModule,

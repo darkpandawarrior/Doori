@@ -257,6 +257,11 @@ android {
                     "--add-opens=java.base/java.lang=ALL-UNNAMED",
                     "--add-opens=java.base/java.util=ALL-UNNAMED",
                     "--add-opens=java.base/java.io=ALL-UNNAMED",
+                    // Robolectric 4.17 reaches ApplicationSharedMemory.create, whose
+                    // FileDescriptorInterceptor touches jdk.internal.access.SharedSecrets. That is an
+                    // INTERNAL package, so it needs --add-exports, not --add-opens: without it the
+                    // JDK throws IllegalAccessException before any test body runs.
+                    "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
                     "-XX:+EnableDynamicAgentLoading",
                 )
             }
@@ -751,4 +756,16 @@ afterEvaluate {
         }
     tasks.named("check").configure { dependsOn(verifyTask) }
     tasks.matching { it.name == "assembleNoGmsRelease" }.configureEach { dependsOn(verifyTask) }
+}
+
+// AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled
+// variant and hard-fails when that variant has no unit-test component, while the Roborazzi plugin
+// disables that component on non-debug variants. This MUST live in the module build script rather
+// than a convention plugin: beforeVariants callbacks run in registration order, and Roborazzi
+// registers during plugin application, so a convention plugin's callback is overwritten by it.
+// Re-enabling only registers the task graph - no release unit test is written or run.
+androidComponents {
+    beforeVariants(selector().all()) { variant ->
+        (variant as? com.android.build.api.variant.HasUnitTestBuilder)?.enableUnitTest = true
+    }
 }

@@ -116,6 +116,22 @@ kover {
 val archLeafPattern = Regex("(Arm64|X64|X86)")
 
 subprojects {
+    // AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled
+    // variant and hard-fails when that variant has no unit-test component. AGP itself drops the
+    // component on library release variants, and Roborazzi drops it on every non-debug variant, so
+    // this bit three separate modules one at a time (:wear, :widget, :core:maps-krossmap) across
+    // three different convention plugins. Doing it here catches EVERY Android module regardless of
+    // which plugin it applies, which is the only way to stop playing whack-a-mole.
+    // Re-enabling only registers the task graph - no release unit test is written or run.
+    // Modules that also apply Roborazzi keep their own module-level block: beforeVariants runs in
+    // registration order and Roborazzi registers after this, so theirs has to be last.
+    pluginManager.withPlugin("com.android.base") {
+        extensions.configure<com.android.build.api.variant.AndroidComponentsExtension<*, *, *>>("androidComponents") {
+            beforeVariants(selector().all()) { variant ->
+                (variant as? com.android.build.api.variant.HasUnitTestBuilder)?.enableUnitTest = true
+            }
+        }
+    }
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "dev.detekt")
     extensions.configure<dev.detekt.gradle.extensions.DetektExtension> {

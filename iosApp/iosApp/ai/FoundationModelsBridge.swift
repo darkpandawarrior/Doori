@@ -78,7 +78,7 @@ final class MilewayFoundationModelsBridge: NSObject, NativeLlm {
                     if Task.isCancelled { break }
                     let full = partial.content
                     if full.count > lastText.count {
-                        callback.onPartial(String(full.dropFirst(lastText.count)))
+                        callback.onPartial(text: String(full.dropFirst(lastText.count)))
                         lastText = full
                     }
                 }

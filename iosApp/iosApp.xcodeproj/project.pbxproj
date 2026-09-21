@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		P00000000000000000011 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = P00000000000000000001 /* PrivacyInfo.xcprivacy */; };
+		P00000000000000000012 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = P00000000000000000002 /* PrivacyInfo.xcprivacy */; };
+		P00000000000000000013 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = P00000000000000000003 /* PrivacyInfo.xcprivacy */; };
 		0472B2384ADF0626A2962D34 /* MilewaySyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5F14FEDB21C9BE211272AC /* MilewaySyncModels.swift */; };
 		144D6B11BB281FD828D1E539 /* ToggleTrackingIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934539E1038EDCE32F85CC15 /* ToggleTrackingIntent.swift */; };
 		155AA8BCA2F1FF1FF3FA589C /* MilewayWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3408BF1238111660C52B82AD /* MilewayWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1E8DD99289E98D16AD40AF9F /* MilewayShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F2BE2FA2205E347BC2C5F3 /* MilewayShortcuts.swift */; };
 		2870CD493E6C7633C4B43252 /* MileageWidgetViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10DC23AA5359B7EEFBCE845 /* MileageWidgetViews.swift */; };
 		307C2654CD5972A25FB7FD87 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 668CECA83ACC03A83C85A623 /* iOSApp.swift */; };
-		38683ACAC990751F0AA92EFC /* Mileway.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 09A024EED53672A3583D2772 /* Mileway.framework */; };
 		3D331F720EDE4C905BA769BB /* TrackingCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F34BC1FDAB97CDFA655DE9 /* TrackingCommand.swift */; };
 		3D73BE78ED4B7A82D1BB1306 /* MilewayWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5B4EB34FE5C8CCFD2210AB /* MilewayWidgetsBundle.swift */; };
 		42CA4FF6C19CA27427355A8D /* StopTrackingIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E494963B3BE554483C3E044 /* StopTrackingIntent.swift */; };
@@ -29,7 +31,6 @@
 		6542FA3FE29BB94B181C9145 /* TrackingLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = D82548D16AAFAF0F82B19746 /* TrackingLiveActivity.swift */; };
 		6A9433079420A0908C5AF787 /* ToggleTrackingIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934539E1038EDCE32F85CC15 /* ToggleTrackingIntent.swift */; };
 		783360A3B62015A27CFDE018 /* MilewaySyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5F14FEDB21C9BE211272AC /* MilewaySyncModels.swift */; };
-		8B89BD7706E039328290B97A /* Mileway.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 09A024EED53672A3583D2772 /* Mileway.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		94929968F9F24A759F9DEE60 /* WatchDashboardModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D997782651414A5BD00A79 /* WatchDashboardModelTests.swift */; };
 		982547CD67E6EC5B3853445E /* MilewayWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 927CAB2C06ADE37DB9C92138 /* MilewayWidgets.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A3F43490EFC69660B4A256F6 /* MileageWidgetProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */; };
@@ -90,7 +91,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				8B89BD7706E039328290B97A /* Mileway.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,8 +120,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		P00000000000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		P00000000000000000002 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		P00000000000000000003 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MileageWidgetProvider.swift; sourceTree = "<group>"; };
-		09A024EED53672A3583D2772 /* Mileway.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Mileway.framework; path = ../shared/build/bin/iosSimulatorArm64/debugFramework/Mileway.framework; sourceTree = "<group>"; };
 		0DB9BE89BCB5056E43C4F34B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		10514A614A98E936225446FF /* WatchDashboardModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchDashboardModel.swift; sourceTree = "<group>"; };
 		1802090AD53C4FB238ECC676 /* MilewayWidgetsTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MilewayWidgetsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -167,7 +169,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				38683ACAC990751F0AA92EFC /* Mileway.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,6 +192,7 @@
 				8B6C1F485E0CF8BB70C9DDD2 /* AppDelegate.swift */,
 				CE8509E5A49E4A5CAAEB3ADB /* ContentView.swift */,
 				A55143988C4C8F291BE72E9A /* GoogleService-Info.plist */,
+				P00000000000000000001 /* PrivacyInfo.xcprivacy */,
 				668CECA83ACC03A83C85A623 /* iOSApp.swift */,
 				452F9BFCAD19BEA4E64088D3 /* PhoneWatchSyncBridge.swift */,
 				725FADE80ADD26488304CA75 /* TrackingLiveActivityController.swift */,
@@ -203,7 +205,6 @@
 		3666012298E772D226418813 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				09A024EED53672A3583D2772 /* Mileway.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -226,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				0336AF6170D915183C5FBB0D /* MileageWidgetProvider.swift */,
+				P00000000000000000002 /* PrivacyInfo.xcprivacy */,
 				D10DC23AA5359B7EEFBCE845 /* MileageWidgetViews.swift */,
 				4C5B4EB34FE5C8CCFD2210AB /* MilewayWidgetsBundle.swift */,
 				934539E1038EDCE32F85CC15 /* ToggleTrackingIntent.swift */,
@@ -260,6 +262,7 @@
 			isa = PBXGroup;
 			children = (
 				0DB9BE89BCB5056E43C4F34B /* Assets.xcassets */,
+				P00000000000000000003 /* PrivacyInfo.xcprivacy */,
 				8C1D61413F7E3E63A3502BC0 /* MilewayWatchGraph.swift */,
 				B793F8131E4F61634C2845A1 /* WatchApp.swift */,
 				10514A614A98E936225446FF /* WatchDashboardModel.swift */,
@@ -342,6 +345,7 @@
 			buildConfigurationList = EAC5BFABC74D56533EE1A3CA /* Build configuration list for PBXNativeTarget "MilewayWidgets" */;
 			buildPhases = (
 				4D4DE615279DBE6D60585685 /* Sources */,
+				P00000000000000000021 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -440,11 +444,20 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		P00000000000000000021 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				P00000000000000000012 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1623B02D10928C8101C1F806 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				C87B4FA04BDA1DA04158D48E /* GoogleService-Info.plist in Resources */,
+				P00000000000000000011 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +466,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F788359DF1336E6977E0D04C /* Assets.xcassets in Resources */,
+				P00000000000000000013 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -492,10 +506,11 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)/Mileway.framework/Mileway",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\ncd \"${SRCROOT}/..\"\nif [ \"${CONFIGURATION}\" = \"Release\" ]; then\n  ./gradlew :shared:linkReleaseFrameworkIosSimulatorArm64\nelse\n  ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64\nfi\n";
+			shellScript = "set -e\ncd \"${SRCROOT}/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -654,7 +669,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mileway.ios.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchsimulator;
+				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -851,8 +866,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../shared/build/bin/iosSimulatorArm64/debugFramework",
-					"\"../shared/build/bin/iosSimulatorArm64/debugFramework\"",
+					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
 				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = iosApp/Info.plist;
@@ -862,6 +876,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Mileway,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mileway.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -881,8 +900,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../shared/build/bin/iosSimulatorArm64/releaseFramework",
-					"\"../shared/build/bin/iosSimulatorArm64/debugFramework\"",
+					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
 				);
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = iosApp/Info.plist;
@@ -892,6 +910,11 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-framework",
+					Mileway,
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mileway.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -992,7 +1015,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.mileway.ios.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchsimulator;
+				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

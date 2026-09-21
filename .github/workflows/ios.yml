@@ -81,3 +81,18 @@ jobs:
         # now NO workflow compiled it, so it could break silently — it rides this macOS job because
         # Kotlin/Native watchOS targets can't be built on the Linux runners.
         run: ./gradlew :shared:compileKotlinIosArm64 :shared:compileKotlinIosSimulatorArm64 :sharedWatch:compileKotlinWatchosSimulatorArm64
+
+      # Local-only, for whoever needs the full Xcode build (this job deliberately stops at the
+      # Kotlin compile, see above). Drive the iosApp scheme by simulator UDID — NOT by name and
+      # NOT generically:
+      #   -destination "platform=iOS Simulator,name=iPhone 17 Pro" does not resolve; the scheme's
+      #     watch target (SDKROOT=watchos) stops Xcode enumerating concrete simulators, so
+      #     -showdestinations returns placeholders only.
+      #   -destination "generic/platform=iOS Simulator" requests ARCHS arm64 + x86_64 and dies with
+      #     "Requested Architecture Not Configured in Gradle" — :shared declares arm64 only.
+      #   -sdk is also wrong here: it overrides the watch target's SDKROOT.
+      #
+      #   UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; print(next(d['udid'] for rs in json.load(sys.stdin)['devices'].values() for d in rs if d['name']=='iPhone 17 Pro'))")
+      #   set -o pipefail
+      #   xcodebuild -project iosApp/iosApp.xcodeproj -scheme iosApp -configuration Debug \
+      #     -destination "id=$UDID" build 2>&1 | xcbeautify
