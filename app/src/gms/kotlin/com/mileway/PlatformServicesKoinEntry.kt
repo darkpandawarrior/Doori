@@ -2,7 +2,6 @@ package com.mileway
 
 import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
-import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.ReferralManager
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.mileway.platform.gms.AndroidInstallReferrerManager
@@ -14,6 +13,7 @@ import com.mileway.platform.gms.WearDataLayerWatchSyncBridge
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
+import com.siddharth.kmp.common.CrashReporter
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module

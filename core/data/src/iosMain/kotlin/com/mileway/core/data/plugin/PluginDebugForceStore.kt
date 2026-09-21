@@ -21,7 +21,8 @@ class PluginDebugForceStore : PluginDebugForceSource {
 
     override val overrides: Flow<Map<String, String>> =
         store.data.map { prefs ->
-            prefs.asMap()
+            prefs
+                .asMap()
                 .filterKeys { it.name.startsWith(PREFIX) }
                 .entries
                 .associate { (key, value) -> key.name.removePrefix(PREFIX) to value.toString() }
@@ -39,7 +40,11 @@ class PluginDebugForceStore : PluginDebugForceSource {
 
     override suspend fun clearAll() {
         store.edit { prefs ->
-            prefs.asMap().keys.filter { it.name.startsWith(PREFIX) }.forEach { prefs.remove(it) }
+            prefs
+                .asMap()
+                .keys
+                .filter { it.name.startsWith(PREFIX) }
+                .forEach { prefs.remove(it) }
         }
     }
 }

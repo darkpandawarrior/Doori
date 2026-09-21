@@ -10,7 +10,10 @@ sealed interface ScreenState<out T> {
 
     data object NoNetwork : ScreenState<Nothing>
 
-    data class Error(val message: UiText, val cause: Throwable? = null) : ScreenState<Nothing>
+    data class Error(
+        val message: UiText,
+        val cause: Throwable? = null,
+    ) : ScreenState<Nothing>
 
     /**
      * Loaded content. [isStale] marks data shown from cache while a refresh is in flight (drives

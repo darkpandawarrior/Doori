@@ -22,7 +22,10 @@ class MileageMaintenanceTask(
         input: String?,
         env: WorkerEnvironment,
     ): WorkerResult {
-        val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - RETENTION_MS
+        val cutoff =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds() - RETENTION_MS
         locationDao.deleteOlderThan(cutoff)
 
         savedTrackDao?.let { dao ->

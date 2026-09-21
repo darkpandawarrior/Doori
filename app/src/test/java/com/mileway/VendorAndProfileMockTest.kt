@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * profile mock data are well-formed and internally consistent.
  */
 class VendorAndProfileMockTest {
-
     // Rough bounding box around the demo city (Pune) used by the mock coordinates.
     private val latRange = 18.35..18.75
     private val lngRange = 73.65..74.10
@@ -115,7 +114,7 @@ class VendorAndProfileMockTest {
         assertEquals(
             sessions.maxOf { it.lastActiveMillis },
             current.lastActiveMillis,
-            "current session must be the most recently active"
+            "current session must be the most recently active",
         )
         sessions.forEach { s ->
             assertTrue(s.deviceName.isNotBlank(), "deviceName must not be blank")
@@ -136,7 +135,7 @@ class VendorAndProfileMockTest {
         }
         assertTrue(
             accounts.any { it.employeeCode == ProfileMockData.primaryProfile().employeeCode },
-            "one switchable account must match the primary employee code"
+            "one switchable account must match the primary employee code",
         )
     }
 

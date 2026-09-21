@@ -4,8 +4,14 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import com.mileway.core.ui.theme.direction.LedgerSpec
+import com.mileway.core.ui.theme.direction.LedgerSpecNight
+import com.mileway.core.ui.theme.direction.PaperNightSpec
+import com.mileway.core.ui.theme.direction.PaperSpec
 import com.mileway.core.ui.theme.direction.RefinedEmberSpec
 import com.mileway.core.ui.theme.direction.RefinedEmberSpecDay
+import com.mileway.core.ui.theme.direction.SignalSpec
+import com.mileway.core.ui.theme.direction.SignalSpecDay
 
 /**
  * Design Language v2 — the five curated, hand-tuned theme schemes.

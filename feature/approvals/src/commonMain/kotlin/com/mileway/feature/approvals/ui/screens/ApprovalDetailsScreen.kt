@@ -236,7 +236,9 @@ fun ApprovalDetailsScreen(
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Box(
                                         modifier =
-                                            Modifier.size(40.dp).clip(DesignTokens.Shape.button)
+                                            Modifier
+                                                .size(40.dp)
+                                                .clip(DesignTokens.Shape.button)
                                                 .background(MaterialTheme.colorScheme.primaryContainer),
                                         contentAlignment = Alignment.Center,
                                     ) {

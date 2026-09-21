@@ -17,11 +17,17 @@ data class EventDraft(
 
 /** Rotating submission outcome for the create-event flow (EV). */
 sealed interface EventResult {
-    data class Submitted(val id: String) : EventResult
+    data class Submitted(
+        val id: String,
+    ) : EventResult
 
-    data class NeedsApproval(val id: String) : EventResult
+    data class NeedsApproval(
+        val id: String,
+    ) : EventResult
 
-    data class PolicyViolation(val messages: List<String>) : EventResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : EventResult
 }
 
 /**
@@ -34,7 +40,9 @@ sealed interface EventResult {
  * something to approve/reject. A `Submitted` outcome persists at [EventStatus.PUBLISHED].
  * `PolicyViolation` persists nothing, mirroring the pre-existing "rejected outright" behavior.
  */
-class EventsRepository(private val clock: Clock = Clock.System) {
+class EventsRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
     private var counter = 0
 
@@ -99,7 +107,12 @@ class EventsRepository(private val clock: Clock = Clock.System) {
 
     /** Expenses not yet linked to [eventId], for the P29.E.8 bulk-link sheet. */
     fun availableExpensesToLink(eventId: String): List<LinkedExpense> {
-        val linkedIds = get(eventId)?.linkedExpenses.orEmpty().map { it.id }.toSet()
+        val linkedIds =
+            get(eventId)
+                ?.linkedExpenses
+                .orEmpty()
+                .map { it.id }
+                .toSet()
         return expensePool.filter { it.id !in linkedIds }
     }
 

@@ -33,7 +33,9 @@ class FakeClarificationRepository : ClarificationRepository {
         approvalId: String,
         participants: List<String>,
     ): ClarificationRoom {
-        rooms.value.values.firstOrNull { it.approvalId == approvalId }?.let { return it }
+        rooms.value.values
+            .firstOrNull { it.approvalId == approvalId }
+            ?.let { return it }
         val room =
             ClarificationRoom(
                 roomId = "room_$approvalId",
@@ -82,7 +84,10 @@ class FakeClarificationRepository : ClarificationRepository {
 
     override fun observeSavedApprovalIds(): Flow<Set<String>> =
         combine(rooms, meta) { roomMap, metaMap ->
-            roomMap.values.filter { metaMap[it.roomId]?.isSaved == true }.map { it.approvalId }.toSet()
+            roomMap.values
+                .filter { metaMap[it.roomId]?.isSaved == true }
+                .map { it.approvalId }
+                .toSet()
         }
 
     override fun observeRoomSummary(): Flow<ClarificationRoomSummary> =

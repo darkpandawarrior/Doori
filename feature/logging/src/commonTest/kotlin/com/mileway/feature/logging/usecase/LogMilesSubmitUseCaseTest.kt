@@ -44,7 +44,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 /** Network fake — only [logMiles] is exercised by [LogMilesSubmitUseCase]; [shouldFail] drives the failure path. */
-private class FakeLogMilesApi(private val shouldFail: Boolean = false) : MilewayNetworkApi {
+private class FakeLogMilesApi(
+    private val shouldFail: Boolean = false,
+) : MilewayNetworkApi {
     override suspend fun vehicles(trackMiles: Boolean): PolicyApprovedVehiclesResponse = error("unused")
 
     override suspend fun pricing(): ApprovedVehiclePricingResponse = error("unused")

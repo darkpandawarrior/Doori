@@ -12,7 +12,12 @@ import kotlinx.datetime.toLocalDateTime
 /** Thousands-grouped rupee amount, e.g. 3200.0 -> "3,200". */
 internal fun formatMoney(amount: Double): String {
     val whole = amount.toLong()
-    return whole.toString().reversed().chunked(3).joinToString(",").reversed()
+    return whole
+        .toString()
+        .reversed()
+        .chunked(3)
+        .joinToString(",")
+        .reversed()
 }
 
 private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")

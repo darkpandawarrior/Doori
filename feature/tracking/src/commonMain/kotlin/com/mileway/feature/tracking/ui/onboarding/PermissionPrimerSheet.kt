@@ -308,7 +308,11 @@ private fun PermissionPrimerOutcomeSheet(
     }
 }
 
-private data class OutcomeCopy(val icon: ImageVector, val title: String, val body: String)
+private data class OutcomeCopy(
+    val icon: ImageVector,
+    val title: String,
+    val body: String,
+)
 
 // ponytail: copy is plain Kotlin strings, not string-resource IDs — matches the existing precedent
 // set by PermissionTier.rationale/skipImpact and OemBatteryHints (core/platform), which this screen

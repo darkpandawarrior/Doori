@@ -184,8 +184,7 @@ object SuperProfilePersonas {
  * overrides. Bound in `stubModule` (overrides the core:data Empty default via Koin override).
  */
 class StubPersonaPresetProvider : PersonaPresetProvider {
-    override fun presetOverrides(accountId: String?): Flow<Map<String, String>> =
-        flowOf(SuperProfilePersonas.forAccount(accountId).overrides())
+    override fun presetOverrides(accountId: String?): Flow<Map<String, String>> = flowOf(SuperProfilePersonas.forAccount(accountId).overrides())
 
     override fun availablePersonas(): List<PersonaSummary> =
         SuperProfilePersonas.all.map { preset ->

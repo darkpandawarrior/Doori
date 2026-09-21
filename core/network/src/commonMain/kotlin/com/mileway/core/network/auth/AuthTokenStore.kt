@@ -13,7 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * `SecureSettingsFactory` output (Keychain on iOS, EncryptedSharedPreferences on Android) in
  * production DI, or an in-memory fake `Settings` in tests.
  */
-class AuthTokenStore(private val settings: Settings) {
+class AuthTokenStore(
+    private val settings: Settings,
+) {
     private val _accessToken = MutableStateFlow<String?>(null)
     val accessToken: StateFlow<String?> = _accessToken.asStateFlow()
 

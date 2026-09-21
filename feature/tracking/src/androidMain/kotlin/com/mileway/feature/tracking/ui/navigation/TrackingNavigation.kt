@@ -150,7 +150,10 @@ fun NavGraphBuilder.trackingGraph(
         SavedTracksScreen(
             onTrackClick = { routeId -> navController.navigate(TrackingRoutes.detail(routeId)) },
             onStartNew = {
-                val newId = java.util.UUID.randomUUID().toString()
+                val newId =
+                    java.util.UUID
+                        .randomUUID()
+                        .toString()
                 navController.navigate(TrackingRoutes.liveTrack(newId))
             },
         )
@@ -220,7 +223,10 @@ fun NavGraphBuilder.trackingGraph(
         // this track is.
         val viewModel: com.mileway.feature.tracking.viewmodel.TrackDetailViewModel = koinViewModel()
         LaunchedEffect(routeId) {
-            viewModel.onAction(com.mileway.feature.tracking.viewmodel.TrackDetailAction.Load(routeId))
+            viewModel.onAction(
+                com.mileway.feature.tracking.viewmodel.TrackDetailAction
+                    .Load(routeId),
+            )
         }
         val state by viewModel.state.collectAsState()
         when {
@@ -540,11 +546,14 @@ fun NavGraphBuilder.trackingGraph(
         // read via observe(id). The service re-reads these at the next trip start.
         val registry = koinInject<PluginRegistry>()
         val scope = rememberCoroutineScope()
-        val gpsAccuracy by registry.observeValue("track_min_accuracy_m")
+        val gpsAccuracy by registry
+            .observeValue("track_min_accuracy_m")
             .collectAsState(initial = PluginValue.IntVal(50))
-        val locationInterval by registry.observeValue("track_location_interval_s")
+        val locationInterval by registry
+            .observeValue("track_location_interval_s")
             .collectAsState(initial = PluginValue.IntVal(10))
-        val minDisplacement by registry.observeValue("track_min_displacement_m")
+        val minDisplacement by registry
+            .observeValue("track_min_displacement_m")
             .collectAsState(initial = PluginValue.IntVal(0))
         val uploadInBackground by registry.observe("track_upload_in_background").collectAsState(initial = true)
         val autoPause by registry.observe("track_auto_pause_detection").collectAsState(initial = false)

@@ -17,7 +17,10 @@ private const val YEAR_MS = 365L * DAY_MS
  * subscription row (mock purchase — NO payment integration). [cancel] keeps access until the period
  * end (source semantics); [upgrade] swaps the plan on the existing row; [renew] extends the window.
  */
-class SubscriptionRepository(private val dao: SubscriptionDao, private val clock: Clock = Clock.System) {
+class SubscriptionRepository(
+    private val dao: SubscriptionDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live plan tiers, low → high (source: plan cards). */
     fun observePlans(): Flow<List<SubscriptionPlan>> = dao.observePlans().map { rows -> rows.map { it.toPlan() } }
 

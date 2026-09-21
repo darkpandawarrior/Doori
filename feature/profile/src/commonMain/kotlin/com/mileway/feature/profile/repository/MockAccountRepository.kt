@@ -17,7 +17,10 @@ import kotlin.time.Clock
  * preserved (`AgentRepository`'s `seedIfEmpty()` pattern from PLAN_V20 P1.2, also used by
  * `VoucherHistoryRepository` in PLAN_V21 P3.1).
  */
-class MockAccountRepository(private val dao: MockAccountDao, private val clock: Clock = Clock.System) {
+class MockAccountRepository(
+    private val dao: MockAccountDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, DAO-ordered (`createdAtMs ASC`) list of switchable personas. */
     fun observeAll(): Flow<List<DemoAccount>> = dao.observeAll().map { rows -> rows.map { it.toDemoAccount() } }
 

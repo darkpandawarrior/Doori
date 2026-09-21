@@ -431,8 +431,7 @@ private fun LibraryThumbnail(
                     } else {
                         Modifier
                     },
-                )
-                .then(
+                ).then(
                     if (isSelected) {
                         Modifier.border(3.dp, MaterialTheme.colorScheme.primary, shape)
                     } else {

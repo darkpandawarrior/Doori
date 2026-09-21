@@ -158,7 +158,11 @@ fun ProfileDetailsScreen(
     val corporateVerificationEnabled by pluginRegistry.observe("corporateVerificationEnabled").collectAsStateWithLifecycle(initialValue = true)
     // PLAN_V24 P8.2: payout identity (bank + editable UPI + QR) — off by default, driver-ish persona.
     val payoutDetailsEnabled by pluginRegistry.observe("payoutDetailsEnabled").collectAsStateWithLifecycle(initialValue = false)
-    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
+    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(
+        initialValue =
+            com.mileway.core.data.session
+                .SessionState(),
+    )
     val completion = state.completion
     var activeSheet by remember { mutableStateOf<ProfileDetailSheet?>(null) }
 
@@ -474,7 +478,9 @@ private fun DetailChip(text: String) {
 private fun EmailVerificationRow(
     email: String,
     enabled: Boolean,
-    viewModel: com.mileway.feature.profile.viewmodel.EmailVerificationViewModel = org.koin.compose.viewmodel.koinViewModel(),
+    viewModel: com.mileway.feature.profile.viewmodel.EmailVerificationViewModel =
+        org.koin.compose.viewmodel
+            .koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     Column {
@@ -567,7 +573,9 @@ private fun PayoutDetailsCard(
             placeholder = { Text(cvRes("payout_upi_hint", "name@bank")) },
             singleLine = true,
             isError = showError,
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Email),
+            keyboardOptions =
+                androidx.compose.foundation.text
+                    .KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
         )
         if (showError) {
@@ -618,7 +626,12 @@ private fun UpiQrCanvas(
     val seed = data.fold(0) { acc, c -> acc * 31 + c.code }
     val dark = MaterialTheme.colorScheme.onSurface
     Box(
-        modifier = modifier.size(96.dp).clip(DesignTokens.Shape.roundedSm).background(Color.White).padding(6.dp),
+        modifier =
+            modifier
+                .size(96.dp)
+                .clip(DesignTokens.Shape.roundedSm)
+                .background(Color.White)
+                .padding(6.dp),
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val n = 21
@@ -693,7 +706,8 @@ private fun ContactRow(
 }
 
 private fun initialsOf(name: String): String =
-    name.trim()
+    name
+        .trim()
         .split(Regex("\\s+"))
         .filter { it.isNotBlank() }
         .take(2)

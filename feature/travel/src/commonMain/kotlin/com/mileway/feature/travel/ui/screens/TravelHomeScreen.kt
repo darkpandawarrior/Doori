@@ -122,7 +122,10 @@ private data class ItineraryItem(
     val type: ItineraryType,
 )
 
-private data class ItineraryDay(val label: StringResource, val items: List<ItineraryItem>)
+private data class ItineraryDay(
+    val label: StringResource,
+    val items: List<ItineraryItem>,
+)
 
 /** Sample itinerary shown on the Itinerary tab (Phase P). */
 private val ITINERARY =

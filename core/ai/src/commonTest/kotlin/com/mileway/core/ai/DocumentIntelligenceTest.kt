@@ -42,7 +42,9 @@ private class FakeAiAnalyzer(
     }
 }
 
-private class FakeTextRecognizer(private val text: String) : TextRecognizer {
+private class FakeTextRecognizer(
+    private val text: String,
+) : TextRecognizer {
     override suspend fun recognize(image: DocumentImageRef): String = text
 }
 

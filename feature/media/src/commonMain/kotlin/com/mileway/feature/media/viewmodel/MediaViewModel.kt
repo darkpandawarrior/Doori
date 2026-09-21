@@ -29,15 +29,23 @@ data class MediaUiState(
 )
 
 sealed interface MediaAction {
-    data class SelectSource(val source: AttachmentSource) : MediaAction
+    data class SelectSource(
+        val source: AttachmentSource,
+    ) : MediaAction
 
     data object CycleFlashMode : MediaAction
 
-    data class Captured(val uri: String) : MediaAction
+    data class Captured(
+        val uri: String,
+    ) : MediaAction
 
-    data class PickedFromGallery(val uri: String) : MediaAction
+    data class PickedFromGallery(
+        val uri: String,
+    ) : MediaAction
 
-    data class RemoveFromBatch(val id: String) : MediaAction
+    data class RemoveFromBatch(
+        val id: String,
+    ) : MediaAction
 
     data object RunOcr : MediaAction
 
@@ -73,7 +81,11 @@ class MediaViewModel(
         }
     }
 
-    private fun newId(): String = Clock.System.now().toEpochMilliseconds().toString(36) + "_" + Random.nextLong().toString(36)
+    private fun newId(): String =
+        Clock.System
+            .now()
+            .toEpochMilliseconds()
+            .toString(36) + "_" + Random.nextLong().toString(36)
 
     /** Cycle the camera flash mode AUTO -> ON -> OFF -> AUTO. */
     private fun cycleFlashMode() {

@@ -23,7 +23,9 @@ data class SavedPlacesUiState(
     val submitError: String? = null,
 )
 
-class SavedPlacesViewModel(private val repository: SavedPlacesRepository) : ViewModel() {
+class SavedPlacesViewModel(
+    private val repository: SavedPlacesRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(SavedPlacesUiState())
     val state: StateFlow<SavedPlacesUiState> = _state.asStateFlow()
 

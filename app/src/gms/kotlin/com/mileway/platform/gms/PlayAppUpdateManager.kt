@@ -6,18 +6,17 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.play.core.appupdate.AppUpdateInfo
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory as PlayAppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.InstallStateUpdatedListener
 import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.InstallStatus
-import com.google.android.play.core.install.model.UpdateAvailability as PlayUpdateAvailability
 import com.google.android.play.core.ktx.requestAppUpdateInfo
 import com.siddharth.kmp.appshell.AppUpdateManager
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
 import com.siddharth.kmp.appshell.UpdateAvailability
 import com.siddharth.kmp.appshell.UpdateConfig
 import com.siddharth.kmp.appshell.UpdateMode
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory as PlayAppUpdateManagerFactory
+import com.google.android.play.core.install.model.UpdateAvailability as PlayUpdateAvailability
 
 /**
  * Play-Core in-app update (gms flavor only). Wraps Play's [PlayAppUpdateManagerFactory] delegate.
@@ -27,7 +26,9 @@ import com.siddharth.kmp.appshell.UpdateMode
  * `registerForActivityResult` helper forbids). Every store call is wrapped in runCatching → degrades to
  * a no-op when there is no Play Store connection (e.g. a sideloaded demo build), never crashing.
  */
-class PlayAppUpdateManager(activity: Activity) : AppUpdateManager {
+class PlayAppUpdateManager(
+    activity: Activity,
+) : AppUpdateManager {
     private val delegate = PlayAppUpdateManagerFactory.create(activity)
     private val launcher: ActivityResultLauncher<IntentSenderRequest>? =
         (activity as? ComponentActivity)?.activityResultRegistry?.register(

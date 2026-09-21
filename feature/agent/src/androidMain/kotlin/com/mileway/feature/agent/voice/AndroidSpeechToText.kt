@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.callbackFlow
 
 private const val MAX_TRANSCRIPT_CHARS = 2000
 
-class AndroidSpeechToText(private val context: Context) : SpeechToText {
+class AndroidSpeechToText(
+    private val context: Context,
+) : SpeechToText {
     private var recognizer: SpeechRecognizer? = null
 
     override fun listen(): Flow<SpeechEvent> =

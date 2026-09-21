@@ -1,7 +1,9 @@
 package com.mileway.feature.payments.model
 
 /** Whether a payment sends money out (pay) or asks for money in (request) (PM). */
-enum class PaymentDirection(val label: String) {
+enum class PaymentDirection(
+    val label: String,
+) {
     PAY("Pay"),
     REQUEST("Request"),
 }
@@ -12,7 +14,9 @@ enum class PaymentDirection(val label: String) {
  * window elapses unpaid — EXPIRED, see [PaymentRecord.effectiveStatus]). [PENDING] stays for PAY's
  * still-settling case.
  */
-enum class PaymentStatus(val label: String) {
+enum class PaymentStatus(
+    val label: String,
+) {
     PENDING("Pending"),
     ACTIVE("Active"),
     COMPLETED("Completed"),

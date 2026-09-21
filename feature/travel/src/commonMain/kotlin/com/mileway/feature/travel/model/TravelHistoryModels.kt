@@ -1,7 +1,9 @@
 package com.mileway.feature.travel.model
 
 /** Lifecycle status shared by trip requests and booking requests (TR.8). */
-enum class TravelReqStatus(val label: String) {
+enum class TravelReqStatus(
+    val label: String,
+) {
     PENDING("Pending"),
     APPROVED("Approved"),
     REJECTED("Rejected"),
@@ -9,7 +11,9 @@ enum class TravelReqStatus(val label: String) {
 }
 
 /** The booking-request families surfaced in the booking history (TR.8). */
-enum class BookingType(val label: String) {
+enum class BookingType(
+    val label: String,
+) {
     FLIGHT("Flight"),
     BUS("Bus"),
     HOTEL("Hotel"),

@@ -453,7 +453,9 @@ private fun QrRequestSheet(
                 prefix = { Text("₹ ") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                keyboardOptions =
+                    androidx.compose.foundation.text
+                        .KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
 
             OutlinedTextField(

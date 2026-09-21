@@ -313,7 +313,10 @@ fun TrackDetailScreen(
         val gpsPoints = if (uiState.locations.isNotEmpty()) uiState.locations.size else track.locationCount
         Column(
             modifier =
-                Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .verticalScroll(rememberScrollState())
                     .padding(DesignTokens.Spacing.l),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
         ) {

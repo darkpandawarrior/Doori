@@ -11,7 +11,9 @@ import android.os.VibratorManager
  * (default amplitude on API 26+). Resolves the vibrator through VibratorManager on API 31+, falling back to
  * the deprecated VIBRATOR_SERVICE below it. Requires the (normal, no-prompt) VIBRATE permission.
  */
-class AndroidHaptics(private val context: Context) : Haptics {
+class AndroidHaptics(
+    private val context: Context,
+) : Haptics {
     private val vibrator: Vibrator? by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator

@@ -17,7 +17,9 @@ data class CardsTxnHistoryUiState(
 sealed interface CardsTxnHistoryAction {
     data object Refresh : CardsTxnHistoryAction
 
-    data class SelectTab(val index: Int) : CardsTxnHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : CardsTxnHistoryAction
 }
 
 sealed interface CardsTxnHistoryEffect

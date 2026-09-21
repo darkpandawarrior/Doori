@@ -40,15 +40,23 @@ data class CardDetailUiState(
 )
 
 sealed interface CardDetailAction {
-    data class Load(val cardId: Long) : CardDetailAction
+    data class Load(
+        val cardId: Long,
+    ) : CardDetailAction
 
-    data class SelectClaimTab(val status: CardTxnClaimStatus) : CardDetailAction
+    data class SelectClaimTab(
+        val status: CardTxnClaimStatus,
+    ) : CardDetailAction
 
-    data class OpenTransaction(val transaction: CardTransactionModel) : CardDetailAction
+    data class OpenTransaction(
+        val transaction: CardTransactionModel,
+    ) : CardDetailAction
 
     data object DismissTransaction : CardDetailAction
 
-    data class ClaimTransaction(val transactionId: Long) : CardDetailAction
+    data class ClaimTransaction(
+        val transactionId: Long,
+    ) : CardDetailAction
 
     data object ToggleBlock : CardDetailAction
 
@@ -58,27 +66,42 @@ sealed interface CardDetailAction {
 
     data object DismissMonthlyLimit : CardDetailAction
 
-    data class SetMonthlyLimit(val limit: Double) : CardDetailAction
+    data class SetMonthlyLimit(
+        val limit: Double,
+    ) : CardDetailAction
 
     data object OpenPhysicalCard : CardDetailAction
 
     data object DismissPhysicalCard : CardDetailAction
 
-    data class IssuePhysicalCard(val address: CardShippingAddress) : CardDetailAction
+    data class IssuePhysicalCard(
+        val address: CardShippingAddress,
+    ) : CardDetailAction
 
-    data class SelectDetailTab(val tab: CardDetailTab) : CardDetailAction
+    data class SelectDetailTab(
+        val tab: CardDetailTab,
+    ) : CardDetailAction
 
-    data class OpenLimitSheet(val kind: LimitKind) : CardDetailAction
+    data class OpenLimitSheet(
+        val kind: LimitKind,
+    ) : CardDetailAction
 
     data object DismissLimitSheet : CardDetailAction
 
-    data class SetLimit(val kind: LimitKind, val value: Double) : CardDetailAction
+    data class SetLimit(
+        val kind: LimitKind,
+        val value: Double,
+    ) : CardDetailAction
 
-    data class OpenDispute(val transactionId: Long) : CardDetailAction
+    data class OpenDispute(
+        val transactionId: Long,
+    ) : CardDetailAction
 
     data object DismissDispute : CardDetailAction
 
-    data class SubmitDispute(val reason: String) : CardDetailAction
+    data class SubmitDispute(
+        val reason: String,
+    ) : CardDetailAction
 
     /**
      * P29.C.1: fired when [com.mileway.feature.cards.viewmodel.CardKycViewModel]'s wizard
@@ -89,14 +112,18 @@ sealed interface CardDetailAction {
 }
 
 sealed interface CardDetailEffect {
-    data class ShowToast(val message: UiText) : CardDetailEffect
+    data class ShowToast(
+        val message: UiText,
+    ) : CardDetailEffect
 
     /**
      * P27.E.7: replaces the old claim-transaction toast-stub with real navigation into the
      * expense-entry flow, carrying an [ExpenseSourceContext.Card] built here (not by the nav
      * layer) so feature:cards never depends on feature:logging directly.
      */
-    data class NavigateToExpenseEntry(val context: ExpenseSourceContext) : CardDetailEffect
+    data class NavigateToExpenseEntry(
+        val context: ExpenseSourceContext,
+    ) : CardDetailEffect
 }
 
 class CardDetailViewModel(

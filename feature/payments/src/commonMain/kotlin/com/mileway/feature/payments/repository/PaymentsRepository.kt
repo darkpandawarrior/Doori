@@ -20,11 +20,17 @@ data class PaymentDraft(
 
 /** Rotating submission outcome for the QR/UPI flow (PM). */
 sealed interface PaymentResult {
-    data class Completed(val id: String) : PaymentResult
+    data class Completed(
+        val id: String,
+    ) : PaymentResult
 
-    data class Pending(val id: String) : PaymentResult
+    data class Pending(
+        val id: String,
+    ) : PaymentResult
 
-    data class Failed(val reason: String) : PaymentResult
+    data class Failed(
+        val reason: String,
+    ) : PaymentResult
 }
 
 /**
@@ -32,7 +38,9 @@ sealed interface PaymentResult {
  * and returns a **rotating** [PaymentResult] (completed / pending / failed) across repeated submits. Every UPI
  * call is mocked theater; no real PSP. Mirrors the PB/TR fake-repo pattern.
  */
-class PaymentsRepository(private val clock: Clock = Clock.System) {
+class PaymentsRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
     private val submitted = mutableListOf<PaymentDraft>()
     private var counter = 0

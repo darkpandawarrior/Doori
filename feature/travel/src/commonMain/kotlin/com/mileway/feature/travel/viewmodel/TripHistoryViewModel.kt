@@ -18,9 +18,13 @@ data class TripHistoryUiState(
 sealed interface TripHistoryAction {
     data object Refresh : TripHistoryAction
 
-    data class SelectTab(val index: Int) : TripHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : TripHistoryAction
 
-    data class SetQuery(val query: String) : TripHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : TripHistoryAction
 }
 
 sealed interface TripHistoryEffect

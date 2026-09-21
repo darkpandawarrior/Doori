@@ -27,7 +27,9 @@ val SEARCH_SCOPE_TABS: List<SearchScope> =
 private const val DAY_MS = 86_400_000L
 
 /** PLAN_V29 P29.S.3: date-range filter chip presets over [SearchResult.dateEpochDay]. */
-enum class DateRangePreset(val labelKey: String) {
+enum class DateRangePreset(
+    val labelKey: String,
+) {
     ALL("All time"),
     TODAY("Today"),
     WEEK("Last 7 days"),
@@ -76,15 +78,25 @@ data class MasterSearchUiState(
 }
 
 sealed interface MasterSearchAction {
-    data class SetQuery(val query: String) : MasterSearchAction
+    data class SetQuery(
+        val query: String,
+    ) : MasterSearchAction
 
-    data class SelectScope(val index: Int) : MasterSearchAction
+    data class SelectScope(
+        val index: Int,
+    ) : MasterSearchAction
 
-    data class ToggleType(val type: SearchEntityType) : MasterSearchAction
+    data class ToggleType(
+        val type: SearchEntityType,
+    ) : MasterSearchAction
 
-    data class ToggleStatus(val status: String) : MasterSearchAction
+    data class ToggleStatus(
+        val status: String,
+    ) : MasterSearchAction
 
-    data class SelectDateRange(val preset: DateRangePreset) : MasterSearchAction
+    data class SelectDateRange(
+        val preset: DateRangePreset,
+    ) : MasterSearchAction
 
     data object DismissDetectionHint : MasterSearchAction
 
@@ -95,9 +107,13 @@ sealed interface MasterSearchAction {
 
 /** One-shot navigation effects — a tapped result or a tapped quick action. */
 sealed interface MasterSearchEffect {
-    data class OpenResult(val result: SearchResult) : MasterSearchEffect
+    data class OpenResult(
+        val result: SearchResult,
+    ) : MasterSearchEffect
 
-    data class OpenAction(val action: AppAction) : MasterSearchEffect
+    data class OpenAction(
+        val action: AppAction,
+    ) : MasterSearchEffect
 }
 
 /**
@@ -206,10 +222,16 @@ class MasterSearchViewModel(
                 outcome.results.filter { r ->
                     (dateFrom == null || r.dateEpochDay >= dateFrom) && (dateTo == null || r.dateEpochDay <= dateTo)
                 }
-            val availableStatuses = dateFiltered.mapNotNull { it.status }.distinct().sorted().toSet()
+            val availableStatuses =
+                dateFiltered
+                    .mapNotNull { it.status }
+                    .distinct()
+                    .sorted()
+                    .toSet()
             val visible = if (s.activeStatuses.isEmpty()) dateFiltered else dateFiltered.filter { it.status in s.activeStatuses }
             val grouped =
-                visible.groupBy { it.type }
+                visible
+                    .groupBy { it.type }
                     .map { (type, results) -> SearchResultGroup(type, results) }
                     .sortedByDescending { it.results.size }
             setState {

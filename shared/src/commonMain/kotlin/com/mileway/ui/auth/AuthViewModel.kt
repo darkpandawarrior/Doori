@@ -70,7 +70,9 @@ sealed interface MilewayAuthState {
 
     data object Success : MilewayAuthState
 
-    data class Error(val message: String) : MilewayAuthState
+    data class Error(
+        val message: String,
+    ) : MilewayAuthState
 }
 
 /**

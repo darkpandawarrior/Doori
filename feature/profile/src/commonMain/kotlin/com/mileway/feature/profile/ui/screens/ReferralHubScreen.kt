@@ -135,7 +135,9 @@ private fun OverviewTab(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         item {
@@ -201,7 +203,9 @@ private fun ReferralsTab(state: ReferralHubUiState) {
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         if (state.pending.isNotEmpty()) {
@@ -262,7 +266,9 @@ private fun StatusPill(status: ReferralStatus) {
 private fun LeaderboardTab(state: ReferralHubUiState) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
     ) {
         items(state.leaderboard) { entry -> LeaderboardRow(entry) }
@@ -294,7 +300,9 @@ private fun LeaderboardRow(entry: ReferralLeaderboardEntry) {
 private fun ActivityTab(state: ReferralHubUiState) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
     ) {
         items(state.activity) { event -> ActivityRow(event) }

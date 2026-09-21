@@ -6,13 +6,33 @@ private const val AGENT_BASE_MS = 1_781_654_400_000L
 private const val AGENT_DAY_MS = 86_400_000L
 private const val AGENT_HR_MS = 3_600_000L
 
-data class AgentMessageStub(val text: String, val isUser: Boolean, val timestampMs: Long)
+data class AgentMessageStub(
+    val text: String,
+    val isUser: Boolean,
+    val timestampMs: Long,
+)
 
-data class AgentConversationStub(val id: String, val title: String, val lastMessageMs: Long, val messages: List<AgentMessageStub>)
+data class AgentConversationStub(
+    val id: String,
+    val title: String,
+    val lastMessageMs: Long,
+    val messages: List<AgentMessageStub>,
+)
 
-data class PopularQuestionStub(val id: String, val question: String, val module: String, val askCount: Int, val isTrending: Boolean)
+data class PopularQuestionStub(
+    val id: String,
+    val question: String,
+    val module: String,
+    val askCount: Int,
+    val isTrending: Boolean,
+)
 
-data class UnansweredQuestionStub(val id: String, val question: String, val module: String, val askCount: Int)
+data class UnansweredQuestionStub(
+    val id: String,
+    val question: String,
+    val module: String,
+    val askCount: Int,
+)
 
 object AgentMockData {
     val conversations: List<AgentConversationStub> =

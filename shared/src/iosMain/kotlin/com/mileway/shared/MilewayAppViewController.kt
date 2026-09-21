@@ -93,7 +93,7 @@ private val iosCheckInModule =
                 hardwareEventRepo = get(),
                 currentTrackRepository = get(),
                 geoCheckInLocations = get<List<CheckInLocation>>(),
-                defaultRadiusMeters = get<DemoConfigManager>().getDefaultGeoCheckInRadiusMeters(),
+                defaultRadiusMeters = get<DemoConfigManager>().defaultGeoCheckInRadiusMeters,
             )
         }
     }

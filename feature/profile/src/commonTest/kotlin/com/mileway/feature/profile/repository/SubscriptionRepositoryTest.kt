@@ -21,7 +21,9 @@ import kotlin.time.Instant
 private const val NOW_MS = 1_700_000_000_000L
 private const val MONTH_MS = 30L * 86_400_000L
 
-private class SubFixedClock(private val ms: Long) : Clock {
+private class SubFixedClock(
+    private val ms: Long,
+) : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(ms)
 }
 

@@ -45,9 +45,15 @@ class AdvanceViewModelTest {
             val vm = vm()
             vm.onAction(AdvanceAction.SetMode(AdvanceMode.CARD_LINKED))
             assertEquals(AdvanceMode.CARD_LINKED, vm.state.value.form.mode)
-            assertTrue(vm.state.value.cards.isNotEmpty(), "Expected stub cards to be available for the picker")
+            assertTrue(
+                vm.state.value.cards
+                    .isNotEmpty(),
+                "Expected stub cards to be available for the picker",
+            )
 
-            val firstCard = vm.state.value.cards.first()
+            val firstCard =
+                vm.state.value.cards
+                    .first()
             vm.onAction(AdvanceAction.SelectCard(firstCard.id))
             assertEquals(firstCard.id, vm.state.value.form.selectedCardId)
 
@@ -60,7 +66,9 @@ class AdvanceViewModelTest {
         runTest {
             val vm = vm()
             vm.onAction(AdvanceAction.SetMode(AdvanceMode.CARD_LINKED))
-            val firstCard = vm.state.value.cards.first()
+            val firstCard =
+                vm.state.value.cards
+                    .first()
             vm.onAction(AdvanceAction.SelectCard(firstCard.id))
             assertEquals(firstCard.id, vm.state.value.form.selectedCardId)
 
@@ -73,7 +81,13 @@ class AdvanceViewModelTest {
         runTest {
             val vm = vm()
             vm.onAction(AdvanceAction.SetMode(AdvanceMode.CARD_LINKED))
-            vm.onAction(AdvanceAction.SelectCard(vm.state.value.cards.first().id))
+            vm.onAction(
+                AdvanceAction.SelectCard(
+                    vm.state.value.cards
+                        .first()
+                        .id,
+                ),
+            )
             vm.onAction(AdvanceAction.GoToStep(3))
 
             vm.onAction(AdvanceAction.ResetForm)
@@ -118,6 +132,10 @@ class AdvanceViewModelTest {
         runTest {
             val vm = vm()
             vm.onAction(AdvanceAction.LoadDetail("ADV-001"))
-            assertEquals(AdvanceType.FIELD_VISIT, vm.state.value.detail.dataOrNull?.type)
+            assertEquals(
+                AdvanceType.FIELD_VISIT,
+                vm.state.value.detail.dataOrNull
+                    ?.type,
+            )
         }
 }

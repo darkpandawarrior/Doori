@@ -36,7 +36,9 @@ interface CardsMockDataProvider {
 
 private const val DAY_MILLIS = 24L * 60L * 60L * 1000L
 
-internal class CardsMockData(private val s: CardsStrings) : CardsMockDataProvider {
+internal class CardsMockData(
+    private val s: CardsStrings,
+) : CardsMockDataProvider {
     private val now = Clock.System.now().toEpochMilliseconds()
 
     private fun daysAgo(n: Int): Long = now - n * DAY_MILLIS
@@ -137,8 +139,14 @@ internal class CardsMockData(private val s: CardsStrings) : CardsMockDataProvide
     override fun cardTypes(): List<CardTypeModel> =
         listOf(
             CardTypeModel(
-                1L, s.typeTravel, s.typeTravelDesc, "VISA", isDefault = true,
-                defaultMonthlyLimit = 10000.0, defaultSingleTransactionLimit = 2000.0, defaultDailyLimit = 4000.0,
+                1L,
+                s.typeTravel,
+                s.typeTravelDesc,
+                "VISA",
+                isDefault = true,
+                defaultMonthlyLimit = 10000.0,
+                defaultSingleTransactionLimit = 2000.0,
+                defaultDailyLimit = 4000.0,
                 approvalMatrix = approvalMatrix,
             ),
             CardTypeModel(
@@ -162,13 +170,25 @@ internal class CardsMockData(private val s: CardsStrings) : CardsMockDataProvide
                 approvalMatrix = approvalMatrix,
             ),
             CardTypeModel(
-                4L, s.typeCorporate, s.typeCorporateDesc, "VISA", isAiSuggested = true,
-                defaultMonthlyLimit = 3000.0, defaultSingleTransactionLimit = 1000.0, defaultDailyLimit = 2000.0,
+                4L,
+                s.typeCorporate,
+                s.typeCorporateDesc,
+                "VISA",
+                isAiSuggested = true,
+                defaultMonthlyLimit = 3000.0,
+                defaultSingleTransactionLimit = 1000.0,
+                defaultDailyLimit = 2000.0,
                 approvalMatrix = approvalMatrix,
             ),
             CardTypeModel(
-                5L, s.typeIt, s.typeItDesc, "MASTERCARD", isAiSuggested = true,
-                defaultMonthlyLimit = 1500.0, defaultSingleTransactionLimit = 500.0, defaultDailyLimit = 1000.0,
+                5L,
+                s.typeIt,
+                s.typeItDesc,
+                "MASTERCARD",
+                isAiSuggested = true,
+                defaultMonthlyLimit = 1500.0,
+                defaultSingleTransactionLimit = 500.0,
+                defaultDailyLimit = 1000.0,
                 approvalMatrix = approvalMatrix,
             ),
         )

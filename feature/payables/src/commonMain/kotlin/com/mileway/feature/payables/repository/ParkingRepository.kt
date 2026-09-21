@@ -1,7 +1,9 @@
 package com.mileway.feature.payables.repository
 
 /** Whether a parking event records a vehicle arriving at, or departing from, the gate (PB.3). */
-enum class ParkMode(val label: String) {
+enum class ParkMode(
+    val label: String,
+) {
     IN("Park In"),
     OUT("Park Out"),
 }

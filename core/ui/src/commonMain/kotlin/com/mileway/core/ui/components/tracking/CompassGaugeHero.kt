@@ -582,16 +582,17 @@ fun HeroTrackingCard(
     val breath =
         if (isActive) {
             val infinite = rememberInfiniteTransition(label = "heroBreath")
-            infinite.animateFloat(
-                initialValue = 0.99f,
-                targetValue = 1.01f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(durationMillis = 1400, easing = EaseOutCubic),
-                        repeatMode = RepeatMode.Reverse,
-                    ),
-                label = "heroBreathAnim",
-            ).value
+            infinite
+                .animateFloat(
+                    initialValue = 0.99f,
+                    targetValue = 1.01f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis = 1400, easing = EaseOutCubic),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    label = "heroBreathAnim",
+                ).value
         } else {
             1f
         }

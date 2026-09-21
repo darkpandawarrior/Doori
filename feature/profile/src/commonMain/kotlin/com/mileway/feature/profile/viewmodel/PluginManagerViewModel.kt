@@ -20,22 +20,36 @@ data class PluginManagerUiState(
     /** Search-filtered plugins, hiding experimental ones until unlocked. */
     val visiblePlugins: List<ResolvedPlugin>
         get() =
-            plugins.filter { experimentalUnlocked || !it.descriptor.experimental }
+            plugins
+                .filter { experimentalUnlocked || !it.descriptor.experimental }
                 .filter { query.isBlank() || it.descriptor.id.contains(query, ignoreCase = true) }
 }
 
 sealed interface PluginManagerAction {
-    data class Search(val query: String) : PluginManagerAction
+    data class Search(
+        val query: String,
+    ) : PluginManagerAction
 
-    data class SetToggle(val id: String, val on: Boolean) : PluginManagerAction
+    data class SetToggle(
+        val id: String,
+        val on: Boolean,
+    ) : PluginManagerAction
 
-    data class SetValue(val id: String, val value: PluginValue) : PluginManagerAction
+    data class SetValue(
+        val id: String,
+        val value: PluginValue,
+    ) : PluginManagerAction
 
-    data class ClearOverride(val id: String) : PluginManagerAction
+    data class ClearOverride(
+        val id: String,
+    ) : PluginManagerAction
 
     data object ResetToPreset : PluginManagerAction
 
-    data class ApplyPersona(val persona: PersonaSummary, val clearFirst: Boolean) : PluginManagerAction
+    data class ApplyPersona(
+        val persona: PersonaSummary,
+        val clearFirst: Boolean,
+    ) : PluginManagerAction
 
     /** One tap on the version row; the 7th unlocks the experimental section. */
     data object VersionRowTap : PluginManagerAction
@@ -106,7 +120,11 @@ class PluginManagerViewModel(
     }
 
     private fun bumpRestartIfNeeded(id: String) {
-        val requiresRestart = currentState.plugins.firstOrNull { it.descriptor.id == id }?.descriptor?.requiresRestart == true
+        val requiresRestart =
+            currentState.plugins
+                .firstOrNull { it.descriptor.id == id }
+                ?.descriptor
+                ?.requiresRestart == true
         if (requiresRestart) setState { copy(restartPendingCount = restartPendingCount + 1) }
     }
 

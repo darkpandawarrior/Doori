@@ -76,7 +76,12 @@ class SelfAuditRepository(
             id = id,
             vehicleId = vehicleId,
             submittedAtMs = submittedAtMs,
-            checkedItems = checkedItemsCsv.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+            checkedItems =
+                checkedItemsCsv
+                    .split(",")
+                    .map { it.trim() }
+                    .filter { it.isNotEmpty() }
+                    .toSet(),
             note = note,
             verdict = engine.resolve(submittedAtMs, note),
         )

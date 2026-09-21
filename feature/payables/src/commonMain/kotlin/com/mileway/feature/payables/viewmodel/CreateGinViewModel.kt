@@ -23,27 +23,45 @@ data class CreateGinUiState(
 }
 
 sealed interface CreateGinAction {
-    data class SetGinNumber(val value: String) : CreateGinAction
+    data class SetGinNumber(
+        val value: String,
+    ) : CreateGinAction
 
-    data class SetPoReference(val value: String) : CreateGinAction
+    data class SetPoReference(
+        val value: String,
+    ) : CreateGinAction
 
-    data class SetVendor(val value: String) : CreateGinAction
+    data class SetVendor(
+        val value: String,
+    ) : CreateGinAction
 
-    data class SetWarehouse(val value: String) : CreateGinAction
+    data class SetWarehouse(
+        val value: String,
+    ) : CreateGinAction
 
-    data class SetReceivedQty(val value: String) : CreateGinAction
+    data class SetReceivedQty(
+        val value: String,
+    ) : CreateGinAction
 
-    data class SetRemarks(val value: String) : CreateGinAction
+    data class SetRemarks(
+        val value: String,
+    ) : CreateGinAction
 
     data object Submit : CreateGinAction
 }
 
 sealed interface CreateGinEffect {
-    data class Success(val id: String) : CreateGinEffect
+    data class Success(
+        val id: String,
+    ) : CreateGinEffect
 
-    data class NeedsApproval(val id: String) : CreateGinEffect
+    data class NeedsApproval(
+        val id: String,
+    ) : CreateGinEffect
 
-    data class Violation(val messages: List<String>) : CreateGinEffect
+    data class Violation(
+        val messages: List<String>,
+    ) : CreateGinEffect
 }
 
 /**

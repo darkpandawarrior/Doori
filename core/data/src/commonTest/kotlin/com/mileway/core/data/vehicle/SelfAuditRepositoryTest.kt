@@ -21,7 +21,9 @@ import kotlin.time.Instant
  * carries the reject marker. Per-type checklists are also pinned.
  */
 class SelfAuditRepositoryTest {
-    private class MutableClock(var millis: Long) : Clock {
+    private class MutableClock(
+        var millis: Long,
+    ) : Clock {
         override fun now(): Instant = Instant.fromEpochMilliseconds(millis)
     }
 
@@ -55,10 +57,24 @@ class SelfAuditRepositoryTest {
             val repo = SelfAuditRepository(FakeAuditDao(), SimulatedReviewEngine(clock, simDelayMillis = 5_000), clock)
             repo.submit("veh_1", setOf("tyres", "lights"), note = "")
 
-            assertEquals(ReviewResult.Pending, repo.observeForVehicle("veh_1").first().single().verdict)
+            assertEquals(
+                ReviewResult.Pending,
+                repo
+                    .observeForVehicle("veh_1")
+                    .first()
+                    .single()
+                    .verdict,
+            )
 
             clock.millis = 5_000
-            assertEquals(ReviewResult.Approved, repo.observeForVehicle("veh_1").first().single().verdict)
+            assertEquals(
+                ReviewResult.Approved,
+                repo
+                    .observeForVehicle("veh_1")
+                    .first()
+                    .single()
+                    .verdict,
+            )
         }
 
     @Test
@@ -69,7 +85,12 @@ class SelfAuditRepositoryTest {
             repo.submit("veh_1", setOf("tyres"), note = "reject: bald tyres")
 
             clock.millis = 5_000
-            val verdict = repo.observeForVehicle("veh_1").first().single().verdict
+            val verdict =
+                repo
+                    .observeForVehicle("veh_1")
+                    .first()
+                    .single()
+                    .verdict
             assertTrue(verdict is ReviewResult.Rejected)
             assertEquals("bald tyres", (verdict as ReviewResult.Rejected).reason)
         }

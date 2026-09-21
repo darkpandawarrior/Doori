@@ -34,6 +34,10 @@ class ExportViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     fun export(
         routeId: String,
         format: ExportFormat,

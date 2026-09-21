@@ -41,7 +41,8 @@ class CouponsViewModel(
 
     init {
         viewModelScope.launch { repository.seedIfEmpty() }
-        repository.observeAll()
+        repository
+            .observeAll()
             .onEach { coupons ->
                 _state.update {
                     it.copy(
@@ -49,8 +50,7 @@ class CouponsViewModel(
                         inactive = coupons.filter { c -> c.status != CouponStatus.ACTIVE },
                     )
                 }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     fun onCodeChange(value: String) {

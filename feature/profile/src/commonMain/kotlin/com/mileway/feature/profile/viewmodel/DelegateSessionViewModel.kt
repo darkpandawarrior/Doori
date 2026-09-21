@@ -55,8 +55,7 @@ class DelegateSessionViewModel(
                 _state.update {
                     it.copy(enabled = enabled, isActing = d.isActing, actingName = d.actingName)
                 }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     /** Begin acting as [reportee] (no-op if already acting — nested delegation is blocked). */

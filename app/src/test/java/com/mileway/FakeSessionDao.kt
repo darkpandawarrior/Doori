@@ -14,8 +14,7 @@ import kotlinx.coroutines.flow.map
 class FakeSessionDao : SessionDao {
     private val rows = MutableStateFlow<Map<String, SessionEntity>>(emptyMap())
 
-    override fun observeAll(): Flow<List<SessionEntity>> =
-        rows.map { it.values.sortedByDescending { row -> row.lastActiveMillis } }
+    override fun observeAll(): Flow<List<SessionEntity>> = rows.map { it.values.sortedByDescending { row -> row.lastActiveMillis } }
 
     override suspend fun count(): Int = rows.value.size
 

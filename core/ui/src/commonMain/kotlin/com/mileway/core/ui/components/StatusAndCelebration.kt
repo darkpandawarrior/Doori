@@ -418,8 +418,8 @@ private fun NetworkStatusBadge(
 private fun getNetworkTypeIcon(
     type: NetworkType,
     signalStrength: Int,
-): ImageVector {
-    return when (type) {
+): ImageVector =
+    when (type) {
         NetworkType.WIFI ->
             when (signalStrength) {
                 0 -> Icons.Default.SignalWifi0Bar
@@ -437,7 +437,6 @@ private fun getNetworkTypeIcon(
         NetworkType.ETHERNET -> Icons.Default.NetworkCheck
         NetworkType.UNKNOWN -> Icons.Default.NetworkCheck
     }
-}
 
 /**
  * Lightweight confetti burst overlay. Automatically hides after [durationMs].

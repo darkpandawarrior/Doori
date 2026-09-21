@@ -31,11 +31,15 @@ class PinViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private class MutableClock(var millis: Long) : Clock {
+    private class MutableClock(
+        var millis: Long,
+    ) : Clock {
         override fun now(): Instant = Instant.fromEpochMilliseconds(millis)
     }
 
-    private class FakePinLockoutSource(seed: PinLockoutState? = null) : PinLockoutSource {
+    private class FakePinLockoutSource(
+        seed: PinLockoutState? = null,
+    ) : PinLockoutSource {
         private val states = mutableMapOf<String, PinLockoutState>()
 
         init {

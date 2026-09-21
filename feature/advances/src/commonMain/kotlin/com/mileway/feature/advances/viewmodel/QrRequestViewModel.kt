@@ -37,17 +37,29 @@ data class QrRequestUiState(
 }
 
 sealed interface QrRequestAction {
-    data class SelectType(val type: String) : QrRequestAction
+    data class SelectType(
+        val type: String,
+    ) : QrRequestAction
 
-    data class SetAmount(val text: String) : QrRequestAction
+    data class SetAmount(
+        val text: String,
+    ) : QrRequestAction
 
-    data class SetTitle(val value: String) : QrRequestAction
+    data class SetTitle(
+        val value: String,
+    ) : QrRequestAction
 
-    data class SetDescription(val value: String) : QrRequestAction
+    data class SetDescription(
+        val value: String,
+    ) : QrRequestAction
 
-    data class SelectCard(val cardId: Long) : QrRequestAction
+    data class SelectCard(
+        val cardId: Long,
+    ) : QrRequestAction
 
-    data class SetDeclaration(val accepted: Boolean) : QrRequestAction
+    data class SetDeclaration(
+        val accepted: Boolean,
+    ) : QrRequestAction
 
     data object Submit : QrRequestAction
 }

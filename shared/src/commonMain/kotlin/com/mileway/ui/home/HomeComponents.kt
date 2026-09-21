@@ -273,8 +273,7 @@ fun HomeProfileHeader(
                                 width = 1.dp,
                                 color = headerContent,
                                 shape = RoundedCornerShape(6.dp),
-                            )
-                            .clip(RoundedCornerShape(6.dp))
+                            ).clip(RoundedCornerShape(6.dp))
                             .background(
                                 headerContent.copy(alpha = 0.12f),
                                 RoundedCornerShape(6.dp),
@@ -896,8 +895,7 @@ fun AtAGlanceRowView(
                 .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "${row.count} ${row.title}, ${row.subtitle}"
-                }
-                .fillMaxWidth()
+                }.fillMaxWidth()
                 .padding(vertical = DesignTokens.Spacing.m),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
@@ -1319,7 +1317,12 @@ private fun GlanceCell(
 // Phase O, My Cards carousel
 // =============================================================================
 
-private data class MockCard(val label: String, val balance: String, val last4: String, val gradient: Brush)
+private data class MockCard(
+    val label: String,
+    val balance: String,
+    val last4: String,
+    val gradient: Brush,
+)
 
 private val MOCK_CARDS =
     listOf(
@@ -1346,7 +1349,9 @@ fun MyCardsSection(
         }
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 2.dp),
+            contentPadding =
+                androidx.compose.foundation.layout
+                    .PaddingValues(horizontal = 2.dp),
         ) {
             items(MOCK_CARDS) { card ->
                 MockCardView(card = card, onAction = { scope.launch { onSnackbar() } })
@@ -1413,7 +1418,13 @@ private fun MockCardView(
 
 private enum class ActivityStatus { APPROVED, PENDING, SUBMITTED, REJECTED }
 
-private data class ActivityItem(val id: String, val title: String, val amount: String, val status: ActivityStatus, val date: String)
+private data class ActivityItem(
+    val id: String,
+    val title: String,
+    val amount: String,
+    val status: ActivityStatus,
+    val date: String,
+)
 
 private val RECENT_ACTIVITIES =
     listOf(
@@ -1476,8 +1487,7 @@ private fun ActivityRow(
                 .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "${item.title}, ${item.id}, ${item.date}, ${item.amount}, $statusLabel"
-                }
-                .padding(vertical = DesignTokens.Spacing.s),
+                }.padding(vertical = DesignTokens.Spacing.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
@@ -1595,7 +1605,9 @@ fun HomeMileageCard(
                             startAngle = 135f,
                             sweepAngle = 270f,
                             useCenter = false,
-                            topLeft = androidx.compose.ui.geometry.Offset(offset, offset),
+                            topLeft =
+                                androidx.compose.ui.geometry
+                                    .Offset(offset, offset),
                             size = arcSize,
                             style = stroke,
                         )
@@ -1605,7 +1617,9 @@ fun HomeMileageCard(
                             startAngle = 135f,
                             sweepAngle = 270f * progress,
                             useCenter = false,
-                            topLeft = androidx.compose.ui.geometry.Offset(offset, offset),
+                            topLeft =
+                                androidx.compose.ui.geometry
+                                    .Offset(offset, offset),
                             size = arcSize,
                             style = stroke,
                         )
@@ -1695,7 +1709,11 @@ private fun MileageStat(
 // Phase VII, HomeCheckInCard (ref 11)
 // =============================================================================
 
-private data class DemoCheckIn(val location: String, val time: String, val isIn: Boolean)
+private data class DemoCheckIn(
+    val location: String,
+    val time: String,
+    val isIn: Boolean,
+)
 
 private val DEMO_CHECK_INS =
     listOf(

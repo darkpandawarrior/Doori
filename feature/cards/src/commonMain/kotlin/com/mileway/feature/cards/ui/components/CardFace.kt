@@ -53,8 +53,7 @@ fun CardFace(
                 .border(3.2.dp, accent, DesignTokens.Shape.roundedSm)
                 .background(
                     Brush.linearGradient(listOf(MaterialTheme.colorScheme.primaryContainer, accent)),
-                )
-                .padding(20.dp),
+                ).padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(

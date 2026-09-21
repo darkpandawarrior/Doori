@@ -30,7 +30,8 @@ class TravelSearchProvider(
 
         val results = mutableListOf<SearchResult>()
 
-        history.trips()
+        history
+            .trips()
             .filter { it.id.contains(q, true) || it.purpose.contains(q, true) || it.route.contains(q, true) }
             .forEach {
                 results +=
@@ -45,7 +46,8 @@ class TravelSearchProvider(
                     )
             }
 
-        history.bookings()
+        history
+            .bookings()
             .filter { it.id.contains(q, true) || it.summary.contains(q, true) || it.type.label.contains(q, true) }
             .forEach {
                 results +=

@@ -22,7 +22,9 @@ import kotlin.test.assertNotNull
 // Mirrors MlKitLlmGateway/FoundationModelsLlmGateway's shape exactly — both are just this same
 // isAvailable()/generateStream() delegation, per-platform. A FakeOnDeviceLlm-backed one, here,
 // lets LlmAssistantEngine be exercised in commonTest with no real model or device.
-private class FakeLlmGateway(private val llm: FakeOnDeviceLlm) : LlmGateway {
+private class FakeLlmGateway(
+    private val llm: FakeOnDeviceLlm,
+) : LlmGateway {
     override fun isAvailable(): Boolean = llm.isAvailable()
 
     override fun stream(prompt: String): Flow<String> = llm.generateStream(prompt)

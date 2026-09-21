@@ -480,8 +480,7 @@ private fun SuccessBadge(
                         elevation = DesignTokens.Elevation.prominent,
                         shape = DesignTokens.Shape.button,
                         spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                    )
-                    .background(
+                    ).background(
                         brush =
                             Brush.linearGradient(
                                 colors =
@@ -514,8 +513,7 @@ private fun PolicyIssueChip(violationCount: Int) {
                 .background(
                     MaterialTheme.colorScheme.errorContainer,
                     DesignTokens.Shape.button,
-                )
-                .padding(horizontal = 10.dp, vertical = 6.dp),
+                ).padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -682,8 +680,7 @@ private fun TransactionCard(
                             .background(
                                 MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
                                 DesignTokens.Shape.roundedSm,
-                            )
-                            .padding(DesignTokens.Spacing.m),
+                            ).padding(DesignTokens.Spacing.m),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -946,8 +943,7 @@ private fun SuccessActionBar(
                                     MaterialTheme.colorScheme.surface,
                                 ),
                         ),
-                    )
-                    .padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
+                    ).padding(horizontal = DesignTokens.Spacing.l, vertical = DesignTokens.Spacing.m),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
             if (hasVoucher) {

@@ -55,7 +55,9 @@ data class TrackInsightsUiState(
 )
 
 sealed interface TrackInsightsAction {
-    data class Load(val routeId: String) : TrackInsightsAction
+    data class Load(
+        val routeId: String,
+    ) : TrackInsightsAction
 }
 
 sealed interface TrackInsightsEffect
@@ -72,6 +74,10 @@ class TrackInsightsViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun loadInsights(routeId: String) {
         viewModelScope.launch {
             setState { copy(isLoading = true, error = null) }

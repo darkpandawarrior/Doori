@@ -7,7 +7,6 @@ import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.ui.theme.AccentPalette
 import com.mileway.core.ui.theme.AppLanguage
 import com.mileway.core.ui.theme.ExperimentalFlags
-import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.MilewayThemeVariant
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.core.ui.theme.ThemeDefaults
@@ -31,8 +30,8 @@ import kotlin.test.assertTrue
  * Each test is isolated via a fresh [ThemeController] + [ProfileViewModel] pair.
  */
 class CustomizationSettingsTest {
-
     private fun controller() = ThemeController()
+
     private fun viewModel(tc: ThemeController = controller()) =
         ProfileViewModel(
             FakeProfileRepository(MockAccountRepository(FakeMockAccountDao())),
@@ -76,15 +75,20 @@ class CustomizationSettingsTest {
     @Test
     fun `each palette maps to a distinct seed color`() {
         val seeds = AccentPalette.entries.map { it.seedHex }
-        assertEquals(seeds.size, seeds.toSet().size,
-            "Each AccentPalette must map to a unique seed color")
+        assertEquals(
+            seeds.size,
+            seeds.toSet().size,
+            "Each AccentPalette must map to a unique seed color",
+        )
     }
 
     @Test
     fun `every preset seed is a parseable hex color`() {
         AccentPalette.entries.forEach { palette ->
-            assertTrue(parseHexColor(palette.seedHex) != null,
-                "Seed for ${palette.name} must parse: ${palette.seedHex}")
+            assertTrue(
+                parseHexColor(palette.seedHex) != null,
+                "Seed for ${palette.name} must parse: ${palette.seedHex}",
+            )
         }
     }
 
@@ -356,8 +360,11 @@ class CustomizationSettingsTest {
         val tc = controller()
         tc.set(true)
         tc.resetCustomization()
-        assertEquals(true, tc.darkThemeOverride.value,
-            "Dark theme override is separate from customization reset")
+        assertEquals(
+            true,
+            tc.darkThemeOverride.value,
+            "Dark theme override is separate from customization reset",
+        )
     }
 
     // =========================================================================
@@ -418,8 +425,11 @@ class CustomizationSettingsTest {
             assertTrue(theme.id.isNotBlank(), "${theme.name}: id must be non-blank")
             assertTrue(theme.label.isNotBlank(), "${theme.name}: label must be non-blank")
             assertTrue(theme.description.isNotBlank(), "${theme.name}: description must be non-blank")
-            assertEquals(theme, MilewayThemeVariant.fromId(theme.id),
-                "${theme.name}: id must round-trip through fromId")
+            assertEquals(
+                theme,
+                MilewayThemeVariant.fromId(theme.id),
+                "${theme.name}: id must round-trip through fromId",
+            )
         }
     }
 
@@ -507,25 +517,41 @@ class CustomizationSettingsTest {
         assertTrue(MilewayThemeVariant.MATRIX.spec.useGlow)
         assertTrue(MilewayThemeVariant.AMOLED.spec.useGlow)
         assertTrue(MilewayThemeVariant.ION.spec.useGlow)
-        assertFalse(MilewayThemeVariant.DAYBREAK.spec.useGlow,
-            "Light scheme is shadow-free / elevation-by-tint, so no glow")
+        assertFalse(
+            MilewayThemeVariant.DAYBREAK.spec.useGlow,
+            "Light scheme is shadow-free / elevation-by-tint, so no glow",
+        )
     }
 
     @Test
     fun `every curated theme builds a Material ColorScheme with its accent as primary`() {
         MilewayThemeVariant.entries.forEach { theme ->
             val scheme = theme.colorScheme()
-            assertEquals(theme.spec.accent, scheme.primary,
-                "${theme.name}: primary must be the hand-tuned accent")
-            assertEquals(theme.spec.canvas, scheme.background,
-                "${theme.name}: background must be the canvas token")
+            assertEquals(
+                theme.spec.accent,
+                scheme.primary,
+                "${theme.name}: primary must be the hand-tuned accent",
+            )
+            assertEquals(
+                theme.spec.canvas,
+                scheme.background,
+                "${theme.name}: background must be the canvas token",
+            )
         }
     }
 
     @Test
     fun `Amoled canvas is true black and Daybreak canvas is light`() {
         // True-black OLED canvas; the light scheme's canvas is near-white.
-        assertEquals(androidx.compose.ui.graphics.Color(0xFF000000), MilewayThemeVariant.AMOLED.spec.canvas)
-        assertEquals(androidx.compose.ui.graphics.Color(0xFFF4F7F4), MilewayThemeVariant.DAYBREAK.spec.canvas)
+        assertEquals(
+            androidx.compose.ui.graphics
+                .Color(0xFF000000),
+            MilewayThemeVariant.AMOLED.spec.canvas,
+        )
+        assertEquals(
+            androidx.compose.ui.graphics
+                .Color(0xFFF4F7F4),
+            MilewayThemeVariant.DAYBREAK.spec.canvas,
+        )
     }
 }

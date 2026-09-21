@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * iOS mirrors the tag into `NSUserDefaults` AppleLanguages for the same reason. Keeping this class
  * state-only avoids pulling appcompat into a core module.
  */
-class LocaleController(initialTag: String = AppLanguage.ENGLISH.tag) {
+class LocaleController(
+    initialTag: String = AppLanguage.ENGLISH.tag,
+) {
     private val _currentTag = MutableStateFlow(initialTag)
     val currentTag: StateFlow<String> = _currentTag.asStateFlow()
 

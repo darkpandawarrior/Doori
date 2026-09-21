@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ApprovalsTabTest {
-
     @Test
     fun `teamItems has exactly 3 entries`() {
         assertEquals(3, ApprovalsRepository.teamItems.size)
@@ -19,7 +18,7 @@ class ApprovalsTabTest {
             assertEquals(
                 ApprovalStatus.PENDING,
                 item.status,
-                "Team item ${item.id} expected PENDING but was ${item.status}"
+                "Team item ${item.id} expected PENDING but was ${item.status}",
             )
         }
     }

@@ -6,9 +6,9 @@ import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
 
-private val BASE_MS = 1_781_654_400_000L
-private val H = 3_600_000L
-private val DAY = 86_400_000L
+private const val BASE_MS = 1_781_654_400_000L
+private const val H = 3_600_000L
+private const val DAY = 86_400_000L
 
 // NOTE: `:app`'s ApprovalsTest/ApprovalsTabTest (outside this module's ownership) pin the exact
 // item counts and status distribution below as golden/characterization data — 12/4-pending-6-

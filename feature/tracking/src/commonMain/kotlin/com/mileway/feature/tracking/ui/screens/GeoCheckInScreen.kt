@@ -150,7 +150,10 @@ fun GeoCheckInScreen(
                     HardwareEvent(
                         token = "checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
                         eventType = EventType.CHECK_IN,
-                        time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                        time =
+                            kotlin.time.Clock.System
+                                .now()
+                                .toEpochMilliseconds(),
                         lat = demoLat,
                         lng = demoLng,
                         event = "Geo check-in at $locationLabel ($selectedType)",

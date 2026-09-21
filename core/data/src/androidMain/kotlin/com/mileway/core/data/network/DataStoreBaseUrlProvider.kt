@@ -16,7 +16,9 @@ private val Context.serverBaseUrlDataStore by preferencesDataStore(name = "serve
  * real device on the same LAN (or a different emulator host) needs the actual host LAN IP set via
  * [setBaseUrl] — no auto-discovery here, this is a manual dev/debug override.
  */
-class DataStoreBaseUrlProvider(private val context: Context) : BaseUrlProvider {
+class DataStoreBaseUrlProvider(
+    private val context: Context,
+) : BaseUrlProvider {
     private val key = stringPreferencesKey("server_base_url")
 
     override suspend fun baseUrl(): String = context.serverBaseUrlDataStore.data.first()[key] ?: DEFAULT_BASE_URL

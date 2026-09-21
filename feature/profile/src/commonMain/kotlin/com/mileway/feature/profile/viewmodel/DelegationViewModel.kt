@@ -35,7 +35,9 @@ data class DelegationUiState(
     val submitError: String? = null,
 )
 
-class DelegationViewModel(private val repository: DelegationRepository) : ViewModel() {
+class DelegationViewModel(
+    private val repository: DelegationRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(DelegationUiState())
     val state: StateFlow<DelegationUiState> = _state.asStateFlow()
 

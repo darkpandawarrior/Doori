@@ -471,8 +471,7 @@ private fun filterJourneys(uiState: SavedTracksUiState): List<TrackDisplayData> 
                 JourneyFilter.KEPT -> track.isSubmitted
                 JourneyFilter.ALL -> true
             }
-        }
-        .filter { track ->
+        }.filter { track ->
             uiState.journeySearch.isBlank() ||
                 (track.name?.contains(uiState.journeySearch, ignoreCase = true) == true) ||
                 track.token.contains(uiState.journeySearch, ignoreCase = true)

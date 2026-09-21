@@ -46,15 +46,27 @@ class DemoConfigManager(
 
     override fun getTrackMilesConfig(): TrackMilesPluginConfig =
         TrackMilesPluginConfig(
-            isTrackMilesEnabled = true, trackMilesV2 = true, draftTrackMiles = true,
-            allowPauseTrackMiles = true, allowExpenseCreation = true,
-            isOdometerMandatory = false, calculateExpenseViaOdometer = false, odometerOcrEnabled = false,
-            geoCheckInEnabled = true, calculateDistanceOnBackend = false,
-            autoDiscardTrackMileage = false, skipOdometer = true,
-            showTrackingOverlay = true, saveTrackMilesEnabled = true,
-            isDiscardJourneyEnabled = true, allowManualCheckIn = true,
-            enableNetworkSyncing = true, minTrackingIntervalSeconds = 10L,
-            tenantCode = "DEMO", currency = "INR", profile = demoProfile,
+            isTrackMilesEnabled = true,
+            trackMilesV2 = true,
+            draftTrackMiles = true,
+            allowPauseTrackMiles = true,
+            allowExpenseCreation = true,
+            isOdometerMandatory = false,
+            calculateExpenseViaOdometer = false,
+            odometerOcrEnabled = false,
+            geoCheckInEnabled = true,
+            calculateDistanceOnBackend = false,
+            autoDiscardTrackMileage = false,
+            skipOdometer = true,
+            showTrackingOverlay = true,
+            saveTrackMilesEnabled = true,
+            isDiscardJourneyEnabled = true,
+            allowManualCheckIn = true,
+            enableNetworkSyncing = true,
+            minTrackingIntervalSeconds = 10L,
+            tenantCode = "DEMO",
+            currency = "INR",
+            profile = demoProfile,
         )
 
     override fun getLogMilesConfig(): LogMilesPluginConfig =
@@ -75,38 +87,24 @@ class DemoConfigManager(
 
     override fun getCurrency(): String = "INR"
 
-    fun isTrackMilesV2Enabled(): Boolean = true
-
-    fun isDraftTrackMilesEnabled(): Boolean = true
-
-    fun isGeoCheckInEnabled(): Boolean = true
-
-    fun isManualCheckInEnabled(): Boolean = true
-
-    fun isOdometerMandatory(): Boolean = false
-
-    fun isAutoDiscardEnabled(): Boolean = false
-
-    fun isCalculateDistanceOnBackend(): Boolean = false
-
-    fun isMultiServiceLogMiles(): Boolean = false
-
-    fun getMileageTimeThreshold(): Int = 10
-
     /** Default geofence radius in metres for geo check-in validation. */
-    fun getDefaultGeoCheckInRadiusMeters(): Double = 100.0
+    val defaultGeoCheckInRadiusMeters: Double = 100.0
 
     /** Returns the list of mock check-in locations for local geofence validation. */
     fun getMockCheckInLocations(): List<MockCheckInLocation> = DemoMockData.checkInLocations()
 
     /** Whether the expense form shows the office-selection picker. */
-    fun isOfficeSelectionOnExpenseEnabled(): Boolean = true
+    val isOfficeSelectionOnExpenseEnabled: Boolean = true
 
     /** Whether inter-office journeys are enabled in the demo. */
-    fun isInterOfficeEnabled(): Boolean = true
+    val isInterOfficeEnabled: Boolean = true
 
-    /** Whether odometer photo upload is enabled for the given entry point (e.g. "start", "end"). */
-    fun isOdometerUploadEnabled(source: String): Boolean = true
+    /**
+     * Whether odometer photo upload is enabled. The old signature took an entry-point `source`
+     * ("start"/"end") that it never read — the flag does not vary by entry point, and a parameter
+     * every caller computes for nothing reads as a bug to the next person.
+     */
+    val isOdometerUploadEnabled: Boolean = true
 
     /** Branch check-in gate before starting a journey. Default off; debug-flippable later. */
     override fun isBranchCheckInRequired(): Boolean = false

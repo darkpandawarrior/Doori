@@ -6,7 +6,9 @@ package com.mileway.core.data.model.db
  * [DRAFT]) and `feature:logging` (renders history tabs per status) read/write it, and feature
  * modules never depend on each other — only on shared `core:*` modules.
  */
-enum class VoucherStatus(val label: String) {
+enum class VoucherStatus(
+    val label: String,
+) {
     DRAFT("Draft"),
     PENDING("Pending"),
     APPROVED("Approved"),

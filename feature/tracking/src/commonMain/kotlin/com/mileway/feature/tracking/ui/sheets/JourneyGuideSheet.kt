@@ -812,8 +812,7 @@ private fun ConsentPersonaChip(label: String) {
                 .background(
                     color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.55f),
                     shape = DesignTokens.Shape.button,
-                )
-                .padding(horizontal = 10.dp, vertical = 5.dp),
+                ).padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -849,7 +848,10 @@ private fun JourneyDragHandle() {
     )
 }
 
-private data class ChecklistItem(val title: String, val complete: Boolean)
+private data class ChecklistItem(
+    val title: String,
+    val complete: Boolean,
+)
 
 /** Builds the Quick Start Checklist rows from the current state. */
 @Composable

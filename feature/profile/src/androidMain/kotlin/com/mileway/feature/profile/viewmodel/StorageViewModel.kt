@@ -27,7 +27,9 @@ data class StorageUiState(
     val didClear: Boolean = false,
 )
 
-class StorageViewModel(private val repository: StorageRepository) : ViewModel() {
+class StorageViewModel(
+    private val repository: StorageRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(StorageUiState())
     val state: StateFlow<StorageUiState> = _state.asStateFlow()
 

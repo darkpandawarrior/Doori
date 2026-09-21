@@ -23,7 +23,8 @@ data class ProfileHeader(
  */
 object AccountBadge {
     fun initialsFor(name: String): String =
-        name.trim()
+        name
+            .trim()
             .split(Regex("\\s+"))
             .filter { it.isNotBlank() }
             .take(2)
@@ -146,7 +147,9 @@ sealed interface ProfileRoute {
      * screen. [fieldId] matches [DetailEntry][com.mileway.feature.profile.ui.screens.ProfileDetailsScreen]'s
      * `ProfileGridItem.id] so the screen can scroll to and highlight the exact tile.
      */
-    data class ProfileDetails(val fieldId: String) : ProfileRoute
+    data class ProfileDetails(
+        val fieldId: String,
+    ) : ProfileRoute
 }
 
 /**
@@ -174,7 +177,12 @@ data class ProfileFieldCompletion(
 ) {
     companion object {
         /** Ordered lower-priority-first; required fields (see [isRequiredField]) sort ahead of optional ones. */
-        private data class FieldDef(val fieldId: String, val label: String, val required: Boolean, val value: (EmployeeProfile) -> String)
+        private data class FieldDef(
+            val fieldId: String,
+            val label: String,
+            val required: Boolean,
+            val value: (EmployeeProfile) -> String,
+        )
 
         private val FIELD_DEFS =
             listOf(

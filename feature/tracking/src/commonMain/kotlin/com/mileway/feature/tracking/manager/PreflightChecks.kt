@@ -5,10 +5,14 @@ import com.mileway.core.platform.BatteryStatus
 /** Outcome of [PreflightChecks.evaluateStartPreflight]: whether a trip may start right now. */
 sealed interface StartCheckResult {
     /** Start is refused; [reason] is shown to the user. */
-    data class Blocked(val reason: String) : StartCheckResult
+    data class Blocked(
+        val reason: String,
+    ) : StartCheckResult
 
     /** Start proceeds, but [reason] is surfaced as an advisory. */
-    data class Warn(val reason: String) : StartCheckResult
+    data class Warn(
+        val reason: String,
+    ) : StartCheckResult
 
     /** No battery concern. */
     data object Ok : StartCheckResult

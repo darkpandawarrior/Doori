@@ -27,7 +27,9 @@ import kotlin.time.Clock
 
 // ── Fake DAO ──────────────────────────────────────────────────────────────────
 
-private class FakeSavedTrackDao(tracks: List<SavedTrack> = emptyList()) : SavedTrackDao {
+private class FakeSavedTrackDao(
+    tracks: List<SavedTrack> = emptyList(),
+) : SavedTrackDao {
     @Suppress("ktlint:standard:property-naming")
     private val _flow = MutableStateFlow(tracks)
 
@@ -194,9 +196,12 @@ private fun fakeTrack(
         routeId = routeId,
         name = routeId,
         isCompleted = true,
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
         startTime = endTimeMs - 60_000L,
         endTime = endTimeMs,
         distance = distanceKm,

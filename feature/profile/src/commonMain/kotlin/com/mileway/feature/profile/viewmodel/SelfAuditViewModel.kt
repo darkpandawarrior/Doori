@@ -45,7 +45,8 @@ class SelfAuditViewModel(
     val state: StateFlow<SelfAuditUiState> = _state.asStateFlow()
 
     init {
-        vehicleId.filterNotNull()
+        vehicleId
+            .filterNotNull()
             .flatMapLatest { garage.observeAll() }
             .onEach { vehicles ->
                 val vehicle = vehicles.firstOrNull { it.id == vehicleId.value }
@@ -59,7 +60,8 @@ class SelfAuditViewModel(
                 }
             }.launchIn(viewModelScope)
 
-        vehicleId.filterNotNull()
+        vehicleId
+            .filterNotNull()
             .flatMapLatest { id -> repository.observeForVehicle(id) }
             .onEach { audits -> _state.update { it.copy(history = audits) } }
             .launchIn(viewModelScope)

@@ -47,7 +47,8 @@ class MlKitGenAiAnalyzer(
             runExtraction(image, prompt, ocrText)
         } catch (cancellation: CancellationException) {
             throw cancellation
-        } catch (failure: Exception) {
+        } catch (ignored: Exception) {
+            // Any backend failure is reported as EmptyReply; nothing here can act on the cause.
             Result.Failure(AiFailure.EmptyReply)
         }
     }

@@ -281,15 +281,14 @@ object DesignTokens {
      * Complete TopBar configuration for a given navigation depth.
      */
     @Composable
-    fun topBarConfig(depth: NavigationDepth): TopBarConfig {
-        return TopBarConfig(
+    fun topBarConfig(depth: NavigationDepth): TopBarConfig =
+        TopBarConfig(
             depth = depth,
             useGradient = shouldUseGradient(depth),
             containerColor = topBarContainerColor(depth),
             gradientBrush = if (shouldUseGradient(depth)) topBarGradientBrush() else null,
             textColors = topBarTextColors(depth),
         )
-    }
 
     data class TopBarConfig(
         val depth: NavigationDepth,
@@ -339,9 +338,7 @@ object DesignTokens {
 }
 
 /** Returns whether the current Material color scheme is considered light. */
-private fun androidx.compose.material3.ColorScheme.isLight(): Boolean {
-    return this.surface.luminance() > this.onSurface.luminance()
-}
+private fun androidx.compose.material3.ColorScheme.isLight(): Boolean = this.surface.luminance() > this.onSurface.luminance()
 
 /** Linear interpolate two colors (ARGB). */
 private fun lerpColor(
@@ -358,12 +355,11 @@ private fun lerpColor(
 
 /** Compute relative luminance roughly for the light/dark heuristic. */
 private fun Color.luminance(): Float {
-    fun channel(c: Float): Float {
-        return if (c <= 0.03928f) {
+    fun channel(c: Float): Float =
+        if (c <= 0.03928f) {
             c / 12.92f
         } else {
             ((c + 0.055f) / 1.055f).toDouble().pow(2.4).toFloat()
         }
-    }
     return 0.2126f * channel(this.red) + 0.7152f * channel(this.green) + 0.0722f * channel(this.blue)
 }

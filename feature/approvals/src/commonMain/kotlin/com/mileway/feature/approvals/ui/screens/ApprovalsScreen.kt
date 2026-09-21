@@ -418,7 +418,9 @@ internal fun ApprovalListTab(
     }
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(items, key = { it.id }) { item ->
@@ -687,8 +689,7 @@ private fun StatusChip(status: ApprovalStatus) {
 private fun dateBucket(ms: Long): String {
     val days = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
     val months = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-    return Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-            ldt ->
+    return Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
         "${days[ldt.dayOfWeek.ordinal % 7]}, ${ldt.dayOfMonth.toString().padStart(2, '0')} ${months[ldt.monthNumber - 1]} ${ldt.year}"
     }
 }

@@ -152,7 +152,10 @@ class AgentViewModel(
     /** Re-runs the last user question through [sendMessage] after an [AssistantChunk.Error] — a
      * plain resend, same as the user retyping it, rather than a special "regenerate in place" path. */
     private fun retryLastMessage() {
-        val lastUserText = state.value.messages.lastOrNull { it.isUser }?.text ?: return
+        val lastUserText =
+            state.value.messages
+                .lastOrNull { it.isUser }
+                ?.text ?: return
         sendMessage(lastUserText)
     }
 
@@ -220,7 +223,10 @@ class AgentViewModel(
         if (messages.isEmpty()) return
         val transcript =
             buildString {
-                val title = state.value.history.firstOrNull { it.id == threadId }?.title ?: "Conversation"
+                val title =
+                    state.value.history
+                        .firstOrNull { it.id == threadId }
+                        ?.title ?: "Conversation"
                 appendLine("# $title")
                 appendLine()
                 messages.forEach { msg ->

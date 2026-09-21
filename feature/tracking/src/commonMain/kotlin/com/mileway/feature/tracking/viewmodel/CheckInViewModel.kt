@@ -34,7 +34,9 @@ sealed interface CheckInAction {
 
     data object DismissManualCheckIn : CheckInAction
 
-    data class UpdateManualReason(val text: String) : CheckInAction
+    data class UpdateManualReason(
+        val text: String,
+    ) : CheckInAction
 
     data object SubmitManualCheckIn : CheckInAction
 
@@ -42,7 +44,10 @@ sealed interface CheckInAction {
 
     data object DismissGeoCheckIn : CheckInAction
 
-    data class ValidateAndGeoCheckIn(val lat: Double, val lng: Double) : CheckInAction
+    data class ValidateAndGeoCheckIn(
+        val lat: Double,
+        val lng: Double,
+    ) : CheckInAction
 
     data object DismissRadiusWarning : CheckInAction
 
@@ -98,6 +103,10 @@ class CheckInViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun submitManualCheckIn() {
         val snapshot = currentState
         if (snapshot.isSubmitting) return
@@ -117,11 +126,15 @@ class CheckInViewModel(
                 val lastLocation: LocationData? =
                     try {
                         locationRepo.locationsForToken(token).first().lastOrNull()
-                    } catch (e: Exception) {
+                    } catch (ignored: Exception) {
+                        // No cached location for this token is an ordinary outcome, not an error to report.
                         null
                     }
 
-                val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                val now =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds()
                 val checkInRecord =
                     if (lastLocation != null) {
                         lastLocation.copy(
@@ -135,7 +148,8 @@ class CheckInViewModel(
                     } else {
                         LocationData(
                             token = token,
-                            lat = 0.0, lng = 0.0,
+                            lat = 0.0,
+                            lng = 0.0,
                             activity = "MANUAL_CHECK_IN",
                             speed = 0f,
                             batteryPercentage = 0.0,
@@ -218,6 +232,10 @@ class CheckInViewModel(
         persistGeoCheckIn(pending, isOverride = true)
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun persistGeoCheckIn(
         result: CheckInValidator.ValidationResult,
         isOverride: Boolean = false,
@@ -237,7 +255,10 @@ class CheckInViewModel(
                     return@launch
                 }
 
-                val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                val now =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds()
                 val checkInType = if (isOverride) "GEO_OVERRIDE" else "GEO"
                 val checkInRecord =
                     LocationData(

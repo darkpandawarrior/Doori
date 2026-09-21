@@ -100,7 +100,8 @@ fun PreferencesScreen(
     var showStorageSheet by remember { mutableStateOf(false) }
     // PLAN_V24 P1.5: the change-password entry is gated by the showPasswordSettings plugin.
     var showChangePasswordSheet by remember { mutableStateOf(false) }
-    val changePasswordEnabled by pluginRegistry.observe("showPasswordSettings")
+    val changePasswordEnabled by pluginRegistry
+        .observe("showPasswordSettings")
         .collectAsStateWithLifecycle(initialValue = false)
 
     // Surface any one-shot preference demo message as a snackbar, then clear it.

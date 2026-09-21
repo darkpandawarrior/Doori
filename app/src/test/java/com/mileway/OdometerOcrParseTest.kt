@@ -13,38 +13,40 @@ import kotlin.test.assertNull
  * [OdometerOcrParser] contains no Android imports.
  */
 class OdometerOcrParseTest {
-
     // -------------------------------------------------------------------------
     // Labelled-line hits (highest priority, highest confidence)
     // -------------------------------------------------------------------------
 
     @Test
     fun `extracts reading from labelled odometer line`() {
-        val lines = listOf(
-            "FUEL RECEIPT",
-            "Station: Demo Petroleum #4821",
-            "Odometer: 048213 km",
-            "Litres: 41.20   Total: 73.18"
-        )
+        val lines =
+            listOf(
+                "FUEL RECEIPT",
+                "Station: Demo Petroleum #4821",
+                "Odometer: 048213 km",
+                "Litres: 41.20   Total: 73.18",
+            )
         assertEquals("048213", OdometerOcrParser.parse(lines))
     }
 
     @Test
     fun `extracts reading when label is odo abbreviation`() {
-        val lines = listOf(
-            "ODO 12345",
-            "Trip A 0.0",
-            "Trip B 0.0"
-        )
+        val lines =
+            listOf(
+                "ODO 12345",
+                "Trip A 0.0",
+                "Trip B 0.0",
+            )
         assertEquals("12345", OdometerOcrParser.parse(lines))
     }
 
     @Test
     fun `extracts reading with km suffix on same line`() {
-        val lines = listOf(
-            "Current km: 87654",
-            "Next service: 90000 km"
-        )
+        val lines =
+            listOf(
+                "Current km: 87654",
+                "Next service: 90000 km",
+            )
         // "Current km: 87654" is a labelled line; "87654" is the first 5-digit group.
         assertEquals("87654", OdometerOcrParser.parse(lines))
     }
@@ -57,9 +59,10 @@ class OdometerOcrParseTest {
 
     @Test
     fun `extracts reading with miles label`() {
-        val lines = listOf(
-            "Mileage: 56789 miles"
-        )
+        val lines =
+            listOf(
+                "Mileage: 56789 miles",
+            )
         assertEquals("56789", OdometerOcrParser.parse(lines))
     }
 
@@ -69,12 +72,13 @@ class OdometerOcrParseTest {
 
     @Test
     fun `picks longest digit group from noisy multi-line receipt`() {
-        val lines = listOf(
-            "Trip A 123.4",
-            "Reading 56789",
-            "Date 2024-06-01",
-            "Ref 8821"
-        )
+        val lines =
+            listOf(
+                "Trip A 123.4",
+                "Reading 56789",
+                "Date 2024-06-01",
+                "Ref 8821",
+            )
         // "Reading" is an ODO label; "56789" (5 digits) is found first in the labelled-line pass.
         // "8821" (4 digits) is also plausible but shorter.
         assertEquals("56789", OdometerOcrParser.parse(lines))
@@ -82,12 +86,13 @@ class OdometerOcrParseTest {
 
     @Test
     fun `returns null when all lines contain only noise`() {
-        val lines = listOf(
-            "Price: 73.18",
-            "Tax: 4.50",
-            "Date: 2024-06-01",
-            "Total: 77.68"
-        )
+        val lines =
+            listOf(
+                "Price: 73.18",
+                "Tax: 4.50",
+                "Date: 2024-06-01",
+                "Total: 77.68",
+            )
         // These all start with noise prefixes or have values < 4 digits; no valid odometer.
         // However "73.18" → "7318" is 4 digits so we need to ensure the noise filter works.
         // "Price" triggers noise filter; result should be null or any non-price candidate.
@@ -157,14 +162,15 @@ class OdometerOcrParseTest {
 
     @Test
     fun `handles typical dashboard photo with multiple number groups`() {
-        val lines = listOf(
-            "SPEED",
-            "60",
-            "KM/H",
-            "ODO",
-            "123456",
-            "FUEL"
-        )
+        val lines =
+            listOf(
+                "SPEED",
+                "60",
+                "KM/H",
+                "ODO",
+                "123456",
+                "FUEL",
+            )
         // "ODO" line doesn't have a digit on the same line, but "123456" on the next line
         // should be found in the unlabelled fallback pass.
         assertEquals("123456", OdometerOcrParser.parse(lines))
@@ -172,11 +178,12 @@ class OdometerOcrParseTest {
 
     @Test
     fun `picks odometer over trip meter on same receipt`() {
-        val lines = listOf(
-            "Trip A 0123",
-            "Odometer: 045678 km",
-            "Trip B 0456"
-        )
+        val lines =
+            listOf(
+                "Trip A 0123",
+                "Odometer: 045678 km",
+                "Trip B 0456",
+            )
         // "Odometer" is a labelled keyword line, this should win over Trip readings.
         assertEquals("045678", OdometerOcrParser.parse(lines))
     }

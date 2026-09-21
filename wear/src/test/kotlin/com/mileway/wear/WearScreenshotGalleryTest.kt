@@ -16,11 +16,11 @@ import androidx.wear.compose.material3.Text
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.data.model.display.SurfaceSnapshot
 import com.mileway.wear.theme.WearMilewayTheme
-import java.io.File
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.io.File
 
 /**
  * showcase/Wear.1: Roborazzi host-render of the Ember Wear dashboard + trip list + tile over
@@ -33,7 +33,6 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [33], application = Application::class, qualifiers = "w227dp-h227dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WearScreenshotGalleryTest {
-
     companion object {
         private val screenshotsDir: File by lazy {
             val moduleDir = File(System.getProperty("user.dir") ?: ".")
@@ -182,9 +181,10 @@ class WearScreenshotGalleryTest {
         captureRoboImage(File(screenshotsDir, "wear_tile.png").absolutePath) {
             WearMilewayTheme {
                 Box(
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
-                        .padding(16.dp),
+                    modifier =
+                        Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(16.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

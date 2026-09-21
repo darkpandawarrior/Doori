@@ -14,7 +14,6 @@ import kotlin.test.assertTrue
  * Validates the home/shell mocks, OCR mocks, and the demo plugin-config flags.
  */
 class HomeAndOcrMockTest {
-
     // --- OCR receipt extraction ---
 
     @Test
@@ -52,7 +51,7 @@ class HomeAndOcrMockTest {
             assertEquals(
                 OcrMockData.batchStatusFor(seed),
                 OcrMockData.batchStatusFor(seed),
-                "same seed must produce the same status: $seed"
+                "same seed must produce the same status: $seed",
             )
         }
     }
@@ -61,8 +60,9 @@ class HomeAndOcrMockTest {
     fun `batch status covers every enum value across seeds`() {
         val observed = (0 until 200).map { OcrMockData.batchStatusFor("upload-$it.jpg") }.toSet()
         assertEquals(
-            OcrBatchStatus.entries.toSet(), observed,
-            "all four batch statuses must be reachable, got $observed"
+            OcrBatchStatus.entries.toSet(),
+            observed,
+            "all four batch statuses must be reachable, got $observed",
         )
     }
 
@@ -88,7 +88,7 @@ class HomeAndOcrMockTest {
             assertEquals(
                 reading + OcrMockData.ODOMETER_DISCREPANCY_OFFSET,
                 OcrMockData.serverReadingFor(reading),
-                "discrepancy expected for $reading"
+                "discrepancy expected for $reading",
             )
         }
     }
@@ -136,7 +136,7 @@ class HomeAndOcrMockTest {
             assertTrue(item.badge.isNotBlank())
         }
 
-        assertTrue(HomeMockData.notificationCount() > 0)
+        assertTrue(HomeMockData.notificationCount > 0)
     }
 
     @Test
@@ -151,10 +151,9 @@ class HomeAndOcrMockTest {
     @Test
     fun `new plugin-config flags have expected defaults`() {
         val config = DemoConfigManager()
-        assertTrue(config.isOfficeSelectionOnExpenseEnabled())
-        assertTrue(config.isInterOfficeEnabled())
-        assertTrue(config.isOdometerUploadEnabled(source = "start"))
-        assertTrue(config.isOdometerUploadEnabled(source = "end"))
+        assertTrue(config.isOfficeSelectionOnExpenseEnabled)
+        assertTrue(config.isInterOfficeEnabled)
+        assertTrue(config.isOdometerUploadEnabled)
         assertFalse(config.isBranchCheckInRequired(), "branch check-in defaults off")
         assertEquals(10.0, config.getMaxDailyDistanceKm(), 0.001)
     }

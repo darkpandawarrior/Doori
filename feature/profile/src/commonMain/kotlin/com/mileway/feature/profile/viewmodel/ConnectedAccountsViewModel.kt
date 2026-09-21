@@ -63,8 +63,7 @@ class ConnectedAccountsViewModel(
         ) { wallets, enabled -> wallets to enabled }
             .onEach { (wallets, enabled) ->
                 _state.update { it.copy(wallets = wallets, walletsEnabled = enabled) }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     /** Toggles a connected-account [id]'s state — a local flag flip only, never a real network call. */

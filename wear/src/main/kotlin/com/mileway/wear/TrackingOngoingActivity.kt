@@ -26,33 +26,42 @@ import androidx.wear.ongoing.Status
  * [Notification]/[OngoingActivity].
  */
 object TrackingOngoingActivity {
-
     private const val CHANNEL_ID = "mileway_tracking"
     private const val NOTIFICATION_ID = 1001
 
     /** Builds (and does NOT post) the ongoing-tracking notification for the given [title]/[text]. */
-    fun buildNotification(context: Context, title: String, text: String): Notification {
+    fun buildNotification(
+        context: Context,
+        title: String,
+        text: String,
+    ): Notification {
         ensureChannel(context)
 
-        val tapIntent = PendingIntent.getActivity(
-            context,
-            0,
-            Intent(Intent.ACTION_MAIN).setPackage(context.packageName),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        val tapIntent =
+            PendingIntent.getActivity(
+                context,
+                0,
+                Intent(Intent.ACTION_MAIN).setPackage(context.packageName),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
 
-        val status = Status.Builder()
-            .addTemplate(text)
-            .build()
+        val status =
+            Status
+                .Builder()
+                .addTemplate(text)
+                .build()
 
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setOngoing(true)
-            .setContentIntent(tapIntent)
+        val builder =
+            NotificationCompat
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_media_play)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setOngoing(true)
+                .setContentIntent(tapIntent)
 
-        OngoingActivity.Builder(context, NOTIFICATION_ID, builder)
+        OngoingActivity
+            .Builder(context, NOTIFICATION_ID, builder)
             .setStaticIcon(android.R.drawable.ic_media_play)
             .setTouchIntent(tapIntent)
             .setStatus(status)
@@ -63,7 +72,11 @@ object TrackingOngoingActivity {
     }
 
     /** Builds and posts the ongoing notification, called each time a live [title]/[text] update arrives. */
-    fun post(context: Context, title: String, text: String) {
+    fun post(
+        context: Context,
+        title: String,
+        text: String,
+    ) {
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, buildNotification(context, title, text))
     }
 

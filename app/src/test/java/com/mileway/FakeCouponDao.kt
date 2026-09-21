@@ -18,8 +18,7 @@ class FakeCouponDao : CouponDao {
 
     override suspend fun count(): Int = rows.value.size
 
-    override suspend fun findByCode(code: String): CouponEntity? =
-        rows.value.values.firstOrNull { it.code.equals(code, ignoreCase = true) }
+    override suspend fun findByCode(code: String): CouponEntity? = rows.value.values.firstOrNull { it.code.equals(code, ignoreCase = true) }
 
     override suspend fun upsertAll(entities: List<CouponEntity>) {
         rows.value = rows.value + entities.associateBy { it.id }

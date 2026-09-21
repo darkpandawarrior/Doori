@@ -38,7 +38,10 @@ data class TrackDisplayData(
     fun getDurationMs(): Long =
         when {
             endTime > 0 && startTime > 0 -> endTime - startTime
-            startTime > 0 -> kotlin.time.Clock.System.now().toEpochMilliseconds() - startTime
+            startTime > 0 ->
+                kotlin.time.Clock.System
+                    .now()
+                    .toEpochMilliseconds() - startTime
             else -> 0L
         }
 

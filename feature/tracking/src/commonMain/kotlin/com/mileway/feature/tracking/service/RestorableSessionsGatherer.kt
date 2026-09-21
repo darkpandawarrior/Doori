@@ -60,6 +60,5 @@ object RestorableSessionsGatherer {
                     isDraft = track.isDraft,
                     status = status,
                 )
-            }
-            .sortedByDescending { it.startedAtMs }
+            }.sortedByDescending { it.startedAtMs }
 }

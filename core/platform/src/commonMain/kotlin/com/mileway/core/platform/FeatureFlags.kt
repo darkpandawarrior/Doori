@@ -5,7 +5,9 @@ package com.mileway.core.platform
  * env/BuildConfig-overridable). Injected via Koin so UI can gate optional surfaces without touching the
  * config layer directly.
  */
-class FeatureFlags(private val flags: Map<String, Boolean> = emptyMap()) {
+class FeatureFlags(
+    private val flags: Map<String, Boolean> = emptyMap(),
+) {
     fun isEnabled(
         key: String,
         default: Boolean = false,

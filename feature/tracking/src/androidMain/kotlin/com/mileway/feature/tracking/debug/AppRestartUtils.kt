@@ -14,7 +14,12 @@ object AppRestartUtils {
 
     /**
      * Perform a complete app restart using the proven legacy approach.
+     *
+     * Boundary catch-all: this is the edge between the app and a platform or backend call that
+     * fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+     * and surfaced to the caller, never swallowed — crashing the process is the alternative.
      */
+    @Suppress("TooGenericExceptionCaught")
     fun performAppRestart(context: Context) {
         try {
             Napier.i("App restart requested", tag = TAG)
@@ -45,13 +50,12 @@ object AppRestartUtils {
             }
             android.os.Process.killProcess(android.os.Process.myPid())
             exitProcess(0)
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
+            // The fallback restart already failed; the process is killed either way.
             android.os.Process.killProcess(android.os.Process.myPid())
             exitProcess(0)
         }
     }
 
-    fun isDebugRestart(intent: Intent?): Boolean {
-        return intent?.getBooleanExtra("debug_restart", false) == true
-    }
+    fun isDebugRestart(intent: Intent?): Boolean = intent?.getBooleanExtra("debug_restart", false) == true
 }

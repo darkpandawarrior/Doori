@@ -37,9 +37,13 @@ sealed interface EventDetailAction {
 
     data object OpenEdit : EventDetailAction
 
-    data class SetEditCategory(val category: EventCategory) : EventDetailAction
+    data class SetEditCategory(
+        val category: EventCategory,
+    ) : EventDetailAction
 
-    data class SetEditBudgetText(val value: String) : EventDetailAction
+    data class SetEditBudgetText(
+        val value: String,
+    ) : EventDetailAction
 
     data object SaveEdit : EventDetailAction
 
@@ -47,7 +51,9 @@ sealed interface EventDetailAction {
 
     data object OpenLinkSheet : EventDetailAction
 
-    data class ToggleLinkSelection(val expenseId: String) : EventDetailAction
+    data class ToggleLinkSelection(
+        val expenseId: String,
+    ) : EventDetailAction
 
     data object ConfirmLink : EventDetailAction
 
@@ -59,7 +65,9 @@ sealed interface EventDetailAction {
 sealed interface EventDetailEffect {
     data object Deleted : EventDetailEffect
 
-    data class NavigateToExpenseEntry(val context: ExpenseSourceContext) : EventDetailEffect
+    data class NavigateToExpenseEntry(
+        val context: ExpenseSourceContext,
+    ) : EventDetailEffect
 }
 
 /**

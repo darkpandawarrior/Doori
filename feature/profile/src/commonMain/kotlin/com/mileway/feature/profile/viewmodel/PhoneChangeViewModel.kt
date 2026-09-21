@@ -95,7 +95,9 @@ class PhoneChangeViewModel(
     }
 
     fun autofillDemoCode() {
-        _state.value.delivery?.code?.let { onCodeChange(it) }
+        _state.value.delivery
+            ?.code
+            ?.let { onCodeChange(it) }
     }
 
     fun cancel() {

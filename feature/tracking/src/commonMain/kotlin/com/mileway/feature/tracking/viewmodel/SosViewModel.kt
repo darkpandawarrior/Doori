@@ -26,7 +26,8 @@ class SosViewModel(
     private val clock: Clock = Clock.System,
 ) : ViewModel() {
     val contacts: StateFlow<List<EmergencyContact>> =
-        emergencyContactsRepository.observeAll()
+        emergencyContactsRepository
+            .observeAll()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /**

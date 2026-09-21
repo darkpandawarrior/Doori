@@ -13,7 +13,10 @@ object MapRouteBuilder {
     // -------------------------------------------------------------------
 
     /** A geographic coordinate without any Android or osmdroid dependency. */
-    data class LatLng(val lat: Double, val lng: Double)
+    data class LatLng(
+        val lat: Double,
+        val lng: Double,
+    )
 
     /**
      * Axis-aligned bounding box for the route.

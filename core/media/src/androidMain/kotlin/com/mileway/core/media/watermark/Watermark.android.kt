@@ -34,7 +34,8 @@ actual suspend fun burnWatermark(
     return try {
         val watermarked = source.drawLegibilityStripAndText(text)
         writeToCacheFile(context, watermarked)
-    } catch (e: Exception) {
+    } catch (ignored: Exception) {
+        // Watermarking is cosmetic: on any failure the caller gets the unmodified image back.
         imageUri
     } finally {
         source.recycle()

@@ -11,11 +11,17 @@ data class InvoiceDraft(
 
 /** Rotating submission outcome, exercises the success / approval / violation result paths (PB.1). */
 sealed interface InvoiceSubmissionResult {
-    data class Submitted(val id: String) : InvoiceSubmissionResult
+    data class Submitted(
+        val id: String,
+    ) : InvoiceSubmissionResult
 
-    data class NeedsApproval(val id: String) : InvoiceSubmissionResult
+    data class NeedsApproval(
+        val id: String,
+    ) : InvoiceSubmissionResult
 
-    data class PolicyViolation(val messages: List<String>) : InvoiceSubmissionResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : InvoiceSubmissionResult
 }
 
 /**

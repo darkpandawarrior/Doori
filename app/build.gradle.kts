@@ -718,7 +718,9 @@ afterEvaluate {
     // wired into `assembleNoGmsRelease`, the next F-Droid release build would have failed here.
     // Nothing in routine CI runs `check` or `assembleNoGmsRelease`, so it was latent, not red.
     val noGmsRootComponent =
-        configurations.getByName("noGmsReleaseRuntimeClasspath").incoming.resolutionResult.rootComponent
+        configurations
+            .getByName("noGmsReleaseRuntimeClasspath")
+            .incoming.resolutionResult.rootComponent
     val verifyTask =
         tasks.register("verifyNoGmsDependencyPrefixes") {
             group = "verification"

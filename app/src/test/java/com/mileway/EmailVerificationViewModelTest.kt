@@ -22,8 +22,7 @@ class EmailVerificationViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun repo(state: SessionState): SessionRepository =
-        mockk(relaxed = true) { every { sessionState } returns MutableStateFlow(state) }
+    private fun repo(state: SessionState): SessionRepository = mockk(relaxed = true) { every { sessionState } returns MutableStateFlow(state) }
 
     @Test
     fun `unverified email exposes the verify flow`() =

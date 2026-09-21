@@ -16,7 +16,10 @@ import kotlin.time.Clock
  * ponytail: a separate credits ledger is out of scope — the granted credits live on the card row;
  * the total is derived from scratched cards. Noted in PROGRESS.
  */
-class RewardsRepository(private val dao: RewardCardDao, private val clock: Clock = Clock.System) {
+class RewardsRepository(
+    private val dao: RewardCardDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, newest-first reward cards. */
     fun observeAll(): Flow<List<RewardCard>> = dao.observeAll().map { rows -> rows.map { it.toCard() } }
 

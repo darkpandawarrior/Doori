@@ -15,8 +15,7 @@ import kotlinx.coroutines.flow.map
 class FakeSavedPlaceDao : SavedPlaceDao {
     private val rows = MutableStateFlow<Map<String, SavedPlaceEntity>>(emptyMap())
 
-    override fun observeAll(): Flow<List<SavedPlaceEntity>> =
-        rows.map { it.values.sortedByDescending { row -> row.updatedAtMs } }
+    override fun observeAll(): Flow<List<SavedPlaceEntity>> = rows.map { it.values.sortedByDescending { row -> row.updatedAtMs } }
 
     override suspend fun upsert(entity: SavedPlaceEntity) {
         rows.value = rows.value + (entity.id to entity)

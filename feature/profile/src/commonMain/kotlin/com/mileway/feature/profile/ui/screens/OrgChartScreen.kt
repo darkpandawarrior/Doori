@@ -88,7 +88,10 @@ fun OrgChartScreen(
     }
 }
 
-private data class OrgChartRow(val depth: Int, val node: OrgChartNode)
+private data class OrgChartRow(
+    val depth: Int,
+    val node: OrgChartNode,
+)
 
 private fun flattenOrgChart(
     node: OrgChartNode,

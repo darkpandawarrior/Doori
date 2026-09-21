@@ -33,7 +33,9 @@ import org.koin.core.component.inject
  * startForegroundService call below will throw and we fall back to a notification the user
  * taps to resume manually.
  */
-class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
+class LocationTrackingBootReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
     private val currentTrackDataStore: CurrentTrackDataStore by inject()
 
     companion object {
@@ -41,6 +43,10 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
         private const val RESUME_NOTIFICATION_ID = 1002
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     override fun onReceive(
         context: Context,
         intent: Intent,
@@ -69,6 +75,10 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun checkAndRestore(context: Context) {
         val dataStore = currentTrackDataStore
         val session = dataStore.currentTrackFlow.first()
@@ -129,7 +139,8 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         val notification =
-            Notification.Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
+            Notification
+                .Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Trip tracking was interrupted")
                 .setContentText("Tap to reopen Doori and resume your trip")
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)

@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
  * them back to login.
  */
 class SessionStateTest {
-
     @Test
     fun `fresh state is not signed in`() {
         val state = SessionState()

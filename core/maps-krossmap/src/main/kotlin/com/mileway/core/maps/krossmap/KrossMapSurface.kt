@@ -21,7 +21,6 @@ import com.mileway.core.maps.MapSurface
 import kotlinx.coroutines.launch
 
 class KrossMapSurface : MapSurface {
-
     @Composable
     override fun LocationPinMap(
         latitude: Double,
@@ -29,25 +28,27 @@ class KrossMapSurface : MapSurface {
         modifier: Modifier,
     ) {
         val mapState = rememberKrossMapState()
-        val cameraState = rememberKrossCameraPositionState(
-            latitude = latitude,
-            longitude = longitude,
-            zoom = 15f,
-            cameraFollow = false,
-        )
+        val cameraState =
+            rememberKrossCameraPositionState(
+                latitude = latitude,
+                longitude = longitude,
+                zoom = 15f,
+                cameraFollow = false,
+            )
         // KrossMapProperties positional order (v1.3 bytecode):
         // showTraffic, showCompass, showBuildings, showPointOfInterest,
         // enableRotationGesture, enableTiltGesture, enableScrollGesture
-        val staticProps = remember {
-            KrossMapProperties(false, false, false, false, false, false, false)
-        }
+        val staticProps =
+            remember {
+                KrossMapProperties(false, false, false, false, false, false, false)
+            }
 
         LaunchedEffect(latitude, longitude) {
             mapState.addOrUpdateMarker(
                 KrossMarker(
                     coordinate = KrossCoordinate(latitude, longitude),
                     title = "location_pin",
-                )
+                ),
             )
         }
 
@@ -80,12 +81,13 @@ class KrossMapSurface : MapSurface {
     ) {
         val scope = rememberCoroutineScope()
         val mapState = rememberKrossMapState()
-        val cameraState = rememberKrossCameraPositionState(
-            latitude = currentLat,
-            longitude = currentLng,
-            zoom = 17f,
-            cameraFollow = false,
-        )
+        val cameraState =
+            rememberKrossCameraPositionState(
+                latitude = currentLat,
+                longitude = currentLng,
+                zoom = 17f,
+                cameraFollow = false,
+            )
 
         // Camera follow
         LaunchedEffect(currentLat, currentLng, autoCenterEnabled) {
@@ -104,7 +106,7 @@ class KrossMapSurface : MapSurface {
         // Current position marker
         LaunchedEffect(currentLat, currentLng) {
             mapState.addOrUpdateMarker(
-                KrossMarker(KrossCoordinate(currentLat, currentLng), title = "current_pos")
+                KrossMarker(KrossCoordinate(currentLat, currentLng), title = "current_pos"),
             )
         }
 
@@ -112,7 +114,7 @@ class KrossMapSurface : MapSurface {
         LaunchedEffect(playbackCoord) {
             if (playbackCoord != null) {
                 mapState.addOrUpdateMarker(
-                    KrossMarker(KrossCoordinate(playbackCoord.lat, playbackCoord.lng), "playback")
+                    KrossMarker(KrossCoordinate(playbackCoord.lat, playbackCoord.lng), "playback"),
                 )
             }
         }
@@ -122,12 +124,13 @@ class KrossMapSurface : MapSurface {
         LaunchedEffect(routeCoords) {
             prevRoute?.let { mapState.removePolyLine(it) }
             if (routeCoords.isNotEmpty()) {
-                val pl = KrossPolyLine(
-                    points = routeCoords.map { KrossCoordinate(it.lat, it.lng) },
-                    title = "route",
-                    color = Color(0xFF1565C0),
-                    width = 6f,
-                )
+                val pl =
+                    KrossPolyLine(
+                        points = routeCoords.map { KrossCoordinate(it.lat, it.lng) },
+                        title = "route",
+                        color = Color(0xFF1565C0),
+                        width = 6f,
+                    )
                 mapState.addPolyLine(pl)
                 prevRoute = pl
             }
@@ -139,12 +142,13 @@ class KrossMapSurface : MapSurface {
             prevFiltered?.let { mapState.removePolyLine(it) }
             prevFiltered = null
             if (showIssueMarkers && filteredCoords.isNotEmpty()) {
-                val pl = KrossPolyLine(
-                    points = filteredCoords.map { KrossCoordinate(it.lat, it.lng) },
-                    title = "filtered",
-                    color = Color(0xFFFF9800),
-                    width = 4f,
-                )
+                val pl =
+                    KrossPolyLine(
+                        points = filteredCoords.map { KrossCoordinate(it.lat, it.lng) },
+                        title = "filtered",
+                        color = Color(0xFFFF9800),
+                        width = 4f,
+                    )
                 mapState.addPolyLine(pl)
                 prevFiltered = pl
             }
@@ -156,12 +160,13 @@ class KrossMapSurface : MapSurface {
             prevAbnormal?.let { mapState.removePolyLine(it) }
             prevAbnormal = null
             if (showIssueMarkers && abnormalCoords.isNotEmpty()) {
-                val pl = KrossPolyLine(
-                    points = abnormalCoords.map { KrossCoordinate(it.lat, it.lng) },
-                    title = "abnormal",
-                    color = Color(0xFFD32F2F),
-                    width = 4f,
-                )
+                val pl =
+                    KrossPolyLine(
+                        points = abnormalCoords.map { KrossCoordinate(it.lat, it.lng) },
+                        title = "abnormal",
+                        color = Color(0xFFD32F2F),
+                        width = 4f,
+                    )
                 mapState.addPolyLine(pl)
                 prevAbnormal = pl
             }
@@ -184,7 +189,7 @@ class KrossMapSurface : MapSurface {
             mapState = mapState,
             cameraPositionState = cameraState,
             // positional: showTraffic, showCompass, showBuildings, showPOI, rotation, tilt, scroll
-        properties = KrossMapProperties(showTraffic, showCompass, false, false, true, true, true),
+            properties = KrossMapProperties(showTraffic, showCompass, false, false, true, true, true),
         )
     }
 }

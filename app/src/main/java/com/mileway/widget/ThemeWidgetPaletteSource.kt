@@ -21,7 +21,6 @@ import com.mileway.core.ui.theme.ThemeController
 class ThemeWidgetPaletteSource(
     private val themeController: ThemeController,
 ) : WidgetPaletteSource {
-
     override fun current(): WidgetPalette {
         // milewayTheme, NOT themeVariant. They are different properties: themeVariant is the
         // legacy palette-style string, while setMilewayTheme() writes milewayTheme. Reading the

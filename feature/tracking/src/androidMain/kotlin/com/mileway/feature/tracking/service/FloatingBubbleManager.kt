@@ -17,7 +17,9 @@ import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
 import io.github.aakira.napier.Napier
 
-class FloatingBubbleManager(private val context: Context) {
+class FloatingBubbleManager(
+    private val context: Context,
+) {
     companion object {
         private const val TAG = "FloatingBubbleManager"
         private const val BUBBLE_SIZE_DP = 56
@@ -36,6 +38,10 @@ class FloatingBubbleManager(private val context: Context) {
 
     private val bubbleSizePx = (BUBBLE_SIZE_DP * density).toInt()
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     fun showBubble(
         isTracking: Boolean,
         savedX: Int = 0,
@@ -59,23 +65,24 @@ class FloatingBubbleManager(private val context: Context) {
             }
 
         val params =
-            WindowManager.LayoutParams(
-                bubbleSizePx,
-                bubbleSizePx,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
-                } else {
-                    @Suppress("DEPRECATION")
-                    WindowManager.LayoutParams.TYPE_PHONE
-                },
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSLUCENT,
-            ).apply {
-                gravity = Gravity.TOP or Gravity.START
-                x = savedX
-                y = savedY
-            }
+            WindowManager
+                .LayoutParams(
+                    bubbleSizePx,
+                    bubbleSizePx,
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                    } else {
+                        @Suppress("DEPRECATION")
+                        WindowManager.LayoutParams.TYPE_PHONE
+                    },
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    PixelFormat.TRANSLUCENT,
+                ).apply {
+                    gravity = Gravity.TOP or Gravity.START
+                    x = savedX
+                    y = savedY
+                }
 
         try {
             windowManager.addView(view, params)
@@ -151,6 +158,10 @@ class FloatingBubbleManager(private val context: Context) {
         removeBubble()
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun removeBubble() {
         try {
             bubbleView?.let { if (isAdded) windowManager.removeView(it) }
@@ -210,6 +221,10 @@ class FloatingBubbleManager(private val context: Context) {
         return Pair(params.x, params.y)
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     fun updatePosition(
         x: Int,
         y: Int,

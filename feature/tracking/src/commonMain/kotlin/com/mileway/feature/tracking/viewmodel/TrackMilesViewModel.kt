@@ -516,8 +516,7 @@ class TrackMilesViewModel(
                             signal = signal,
                         )
                     }
-                }
-                .launchIn(viewModelScope)
+                }.launchIn(viewModelScope)
     }
 
     /**
@@ -542,8 +541,7 @@ class TrackMilesViewModel(
                             systemFlags = snap.systemFlags,
                         )
                     }
-                }
-                .launchIn(viewModelScope)
+                }.launchIn(viewModelScope)
     }
 
     /**
@@ -554,7 +552,8 @@ class TrackMilesViewModel(
     private fun observeBearing(routeId: String) {
         bearingObserveJob?.cancel()
         bearingObserveJob =
-            locationRepo.locationsForToken(routeId)
+            locationRepo
+                .locationsForToken(routeId)
                 .onEach { points ->
                     if (points.isEmpty()) return@onEach
                     val last = points.last()
@@ -576,8 +575,7 @@ class TrackMilesViewModel(
                             currentLng = last.lng,
                         )
                     }
-                }
-                .launchIn(viewModelScope)
+                }.launchIn(viewModelScope)
     }
 
     /**
@@ -736,7 +734,8 @@ class TrackMilesViewModel(
     }
 
     private fun loadWeekSummary() {
-        trackRepo.completedTracksFlow()
+        trackRepo
+            .completedTracksFlow()
             .onEach { tracks ->
                 val weekStartMs = Clock.System.now().toEpochMilliseconds() - 7L * 24 * 3_600_000
                 val thisWeek = tracks.filter { it.endTime >= weekStartMs }
@@ -748,8 +747,7 @@ class TrackMilesViewModel(
                         "This Week: ${thisWeek.size} trip${if (thisWeek.size != 1) "s" else ""} • ${totalKm.fmt1()} km"
                     }
                 setState { copy(weekSummaryText = text) }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     /**
@@ -758,7 +756,8 @@ class TrackMilesViewModel(
      * once a network refresh completes.
      */
     private fun loadVehicles() {
-        vehicleRepo.vehiclesState(trackMiles = true)
+        vehicleRepo
+            .vehiclesState(trackMiles = true)
             .onEach { readState ->
                 when (readState) {
                     is ReadState.Content -> {
@@ -780,8 +779,7 @@ class TrackMilesViewModel(
                     ReadState.Loading -> Unit
                     is ReadState.Error -> Napier.w("Failed to load vehicles: ${readState.message}", tag = "TrackMilesVM")
                 }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     private fun restoreActiveTrack() {
@@ -907,9 +905,13 @@ class TrackMilesViewModel(
         val routeId = Uuid.random().toString()
         val now = Clock.System.now().toEpochMilliseconds()
         val dt =
-            kotlin.time.Instant.fromEpochMilliseconds(now)
+            kotlin.time.Instant
+                .fromEpochMilliseconds(now)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-        val mon = dt.month.name.take(3).let { it[0].uppercase() + it.substring(1).lowercase() }
+        val mon =
+            dt.month.name
+                .take(3)
+                .let { it[0].uppercase() + it.substring(1).lowercase() }
         val hhmm = "${dt.hour.toString().padStart(2, '0')}:${dt.minute.toString().padStart(2, '0')}"
         viewModelScope.launch {
             // P3.3: stamp the real signed-in identity's ownership pointer instead of a hardcoded
@@ -929,14 +931,20 @@ class TrackMilesViewModel(
                 SavedTrack(
                     routeId = routeId,
                     name = "Journey ${dt.dayOfMonth} $mon $hhmm",
-                    startLatitude = 0.0, startLongitude = 0.0,
-                    endLatitude = 0.0, endLongitude = 0.0,
-                    pausedLatitude = 0.0, pausedLongitude = 0.0,
-                    startTime = now, endTime = -1L,
-                    distance = 0.0, duration = 0L,
+                    startLatitude = 0.0,
+                    startLongitude = 0.0,
+                    endLatitude = 0.0,
+                    endLongitude = 0.0,
+                    pausedLatitude = 0.0,
+                    pausedLongitude = 0.0,
+                    startTime = now,
+                    endTime = -1L,
+                    distance = 0.0,
+                    duration = 0L,
                     selectedVehicleType = vehicle.vehicleKey ?: "",
                     vehiclePricing = vehicle.vehiclePricing ?: 0.0,
-                    createdAt = now, startedAtTimestamp = now,
+                    createdAt = now,
+                    startedAtTimestamp = now,
                     startedByEmployeeCode = stampIdentity.employeeCode ?: "EMP001",
                     startedByAccountEmail = stampIdentity.accountEmail.orEmpty(),
                     startedByTenant = stampIdentity.tenant,
@@ -967,7 +975,8 @@ class TrackMilesViewModel(
     private fun observeLive(routeId: String) {
         liveObserveJob?.cancel()
         liveObserveJob =
-            trackRepo.observeByRouteId(routeId)
+            trackRepo
+                .observeByRouteId(routeId)
                 .onEach { track ->
                     if (track == null) return@onEach
                     val pricing = currentState.selectedVehicle?.vehiclePricing ?: track.vehiclePricing
@@ -980,8 +989,7 @@ class TrackMilesViewModel(
                             viaOdometer = currentState.config.calculateExpenseViaOdometer,
                         )
                     setState { copy(distanceKm = km, durationMs = track.duration, reimbursableAmount = amount) }
-                }
-                .launchIn(viewModelScope)
+                }.launchIn(viewModelScope)
     }
 
     fun pauseTracking(reason: String? = null) {
@@ -1021,7 +1029,8 @@ class TrackMilesViewModel(
     // ── P-C.5: session-restore sheet ─────────────────────────────────────────
 
     private fun observeReconciliationResult() {
-        reconciliationHolder?.outcome
+        reconciliationHolder
+            ?.outcome
             ?.onEach { outcome ->
                 if (outcome is SessionReconciliationPolicy.Outcome.NeedsDecision) {
                     val config =
@@ -1034,8 +1043,7 @@ class TrackMilesViewModel(
                     setState { copy(activeSheet = TrackSheet.SESSION_RESTORE, activeRecovery = config) }
                     reconciliationHolder.consume()
                 }
-            }
-            ?.launchIn(viewModelScope)
+            }?.launchIn(viewModelScope)
     }
 
     fun handleRecoveryResume() {

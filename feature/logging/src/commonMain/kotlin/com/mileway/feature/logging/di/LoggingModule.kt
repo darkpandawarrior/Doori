@@ -52,6 +52,7 @@ val loggingModule =
         // PLAN_V29 P29.S.1: named qualifier so this doesn't silently override another module's
         // SearchProvider binding — see TrackingSearchProvider's doc for the full why.
         single<SearchProvider>(named("logging")) {
-            com.mileway.feature.logging.search.ExpensesSearchProvider(get(), get(), get(), get())
+            com.mileway.feature.logging.search
+                .ExpensesSearchProvider(get(), get(), get(), get())
         }
     }

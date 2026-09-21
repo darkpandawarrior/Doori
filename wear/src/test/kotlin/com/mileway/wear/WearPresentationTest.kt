@@ -15,7 +15,6 @@ import org.junit.Test
  * per the plan's acceptance) — no Compose/Robolectric needed since it's plain data mapping.
  */
 class WearPresentationTest {
-
     @Test
     fun `maps today and week distance straight through`() {
         val snapshot = SurfaceSnapshot(todayDistanceKm = 12.4, weekDistanceKm = 58.7)

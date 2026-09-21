@@ -11,7 +11,6 @@ import androidx.activity.compose.setContent
  * [WearRootScreen] (P2.4: the dashboard; P2.5 adds trip-list/detail states to the same screen).
  */
 class WearActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WearAppGraph.start(this)

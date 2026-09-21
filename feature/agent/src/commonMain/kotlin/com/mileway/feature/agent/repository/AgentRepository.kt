@@ -14,7 +14,10 @@ import kotlinx.coroutines.flow.map
 
 private const val SESSION_RESUME_WINDOW_MS = 5 * 60 * 1000L
 
-class AgentRepository(private val agentDao: AgentDao, private val sessionStore: AgentSessionStore) {
+class AgentRepository(
+    private val agentDao: AgentDao,
+    private val sessionStore: AgentSessionStore,
+) {
     val conversationsFlow: Flow<List<AgentConversation>> =
         agentDao.observeConversations().map { entities ->
             entities.map { entity ->

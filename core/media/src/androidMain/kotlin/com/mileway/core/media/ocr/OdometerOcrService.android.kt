@@ -109,10 +109,26 @@ class MlKitGalleryMultiPassRecognizer(
             val translate = (1f - c) / 2f * 255f
             return ColorMatrix(
                 floatArrayOf(
-                    c, 0f, 0f, 0f, translate,
-                    0f, c, 0f, 0f, translate,
-                    0f, 0f, c, 0f, translate,
-                    0f, 0f, 0f, 1f, 0f,
+                    c,
+                    0f,
+                    0f,
+                    0f,
+                    translate,
+                    0f,
+                    c,
+                    0f,
+                    0f,
+                    translate,
+                    0f,
+                    0f,
+                    c,
+                    0f,
+                    translate,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f,
                 ),
             )
         }
@@ -120,10 +136,26 @@ class MlKitGalleryMultiPassRecognizer(
         fun brightnessMatrix(b: Float): ColorMatrix =
             ColorMatrix(
                 floatArrayOf(
-                    b, 0f, 0f, 0f, 0f,
-                    0f, b, 0f, 0f, 0f,
-                    0f, 0f, b, 0f, 0f,
-                    0f, 0f, 0f, 1f, 0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f,
                 ),
             )
     }

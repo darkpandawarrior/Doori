@@ -59,15 +59,25 @@ sealed interface CardKycAction {
 
     data object Back : CardKycAction
 
-    data class SetFullName(val value: String) : CardKycAction
+    data class SetFullName(
+        val value: String,
+    ) : CardKycAction
 
-    data class SetIdNumber(val value: String) : CardKycAction
+    data class SetIdNumber(
+        val value: String,
+    ) : CardKycAction
 
-    data class SetPhone(val value: String) : CardKycAction
+    data class SetPhone(
+        val value: String,
+    ) : CardKycAction
 
-    data class SetOtp(val value: String) : CardKycAction
+    data class SetOtp(
+        val value: String,
+    ) : CardKycAction
 
-    data class AttachDocument(val uri: String) : CardKycAction
+    data class AttachDocument(
+        val uri: String,
+    ) : CardKycAction
 
     data object AttachSelfie : CardKycAction
 }

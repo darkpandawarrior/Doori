@@ -13,7 +13,10 @@ import kotlin.time.Clock
  * previous fire-and-forget `snackbarHostState.showSnackbar(...)`-only tap with a real, persisted
  * ticket visible afterward in "My Tickets".
  */
-class SupportTicketRepository(private val dao: SupportTicketDao, private val clock: Clock = Clock.System) {
+class SupportTicketRepository(
+    private val dao: SupportTicketDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, most-recent-first list of this account's submitted tickets. */
     fun observeAll(): Flow<List<SupportTicket>> = dao.observeAll().map { rows -> rows.map { it.toTicket() } }
 

@@ -11,7 +11,10 @@ import kotlin.time.Clock
  * P6.2: reads/writes the profile's linked [VehicleDetails] from the Room-backed
  * [VehicleDetailsDao] singleton row. `null` means no vehicle has been added yet.
  */
-class VehicleDetailsRepository(private val dao: VehicleDetailsDao, private val clock: Clock = Clock.System) {
+class VehicleDetailsRepository(
+    private val dao: VehicleDetailsDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live vehicle details, or null while none is on file. */
     fun observe(): Flow<VehicleDetails?> = dao.observe().map { it?.toVehicleDetails() }
 

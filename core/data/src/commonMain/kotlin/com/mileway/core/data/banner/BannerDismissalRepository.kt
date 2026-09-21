@@ -17,7 +17,11 @@ import kotlinx.coroutines.flow.map
 class BannerDismissalRepository(
     private val dao: BannerDismissalDao,
     private val activeAccount: ActiveAccountSource,
-    private val nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() },
+    private val nowMs: () -> Long = {
+        kotlin.time.Clock.System
+            .now()
+            .toEpochMilliseconds()
+    },
 ) {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun observeDismissed(): Flow<Set<String>> =

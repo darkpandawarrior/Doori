@@ -17,7 +17,9 @@ import org.koin.core.component.get
  * Koin graph at task-execution time (not at module-registration time). No constructor
  * arguments needed — the factory is safe to instantiate before Koin starts.
  */
-class MilewayWorkerFactory : WorkerFactory, KoinComponent {
+class MilewayWorkerFactory :
+    WorkerFactory,
+    KoinComponent {
     override fun createWorker(workerClassName: String): Worker? =
         when (workerClassName) {
             MileageMaintenanceTask.WORKER_CLASS ->

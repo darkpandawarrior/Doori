@@ -8,7 +8,9 @@ import android.content.Context
 import android.content.Intent
 import com.mileway.feature.tracking.TrackMilesActivity
 
-class TrackingNotificationManager(private val context: Context) {
+class TrackingNotificationManager(
+    private val context: Context,
+) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -105,26 +107,29 @@ class TrackingNotificationManager(private val context: Context) {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        return Notification.Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
+        return Notification
+            .Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(text)
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)
             .setContentIntent(openIntent)
             .addAction(
-                Notification.Action.Builder(
-                    android.graphics.drawable.Icon.createWithResource(context, android.R.drawable.ic_media_pause),
-                    if (isPaused) "Resume" else "Pause",
-                    pauseResumeIntent,
-                ).build(),
-            )
-            .addAction(
-                Notification.Action.Builder(
-                    android.graphics.drawable.Icon.createWithResource(context, android.R.drawable.ic_delete),
-                    "Stop",
-                    stopIntent,
-                ).build(),
-            )
-            .setCategory(Notification.CATEGORY_SERVICE)
+                Notification.Action
+                    .Builder(
+                        android.graphics.drawable.Icon
+                            .createWithResource(context, android.R.drawable.ic_media_pause),
+                        if (isPaused) "Resume" else "Pause",
+                        pauseResumeIntent,
+                    ).build(),
+            ).addAction(
+                Notification.Action
+                    .Builder(
+                        android.graphics.drawable.Icon
+                            .createWithResource(context, android.R.drawable.ic_delete),
+                        "Stop",
+                        stopIntent,
+                    ).build(),
+            ).setCategory(Notification.CATEGORY_SERVICE)
             .build()
     }
 }

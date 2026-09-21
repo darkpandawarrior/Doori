@@ -49,7 +49,10 @@ class WhatsNewDetailViewModel(
      * but the pager is the caller, not us) can never desync the "Step X of N" header.
      */
     fun selectMedia(index: Int) {
-        val mediaCount = _uiState.value.entry?.media?.size ?: return
+        val mediaCount =
+            _uiState.value.entry
+                ?.media
+                ?.size ?: return
         if (mediaCount == 0) return
         _uiState.update { it.copy(selectedMediaIndex = index.coerceIn(0, mediaCount - 1)) }
     }

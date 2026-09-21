@@ -46,7 +46,9 @@ data class TrackingState(
  * Consumes the simulated drive through the production Kalman smoother (`com.siddharth.kmp:location`,
  * the same class the Android tracking service runs) and accumulates haversine distance.
  */
-class DemoTrackingEngine(private val scope: CoroutineScope) {
+class DemoTrackingEngine(
+    private val scope: CoroutineScope,
+) {
     private val _state = MutableStateFlow(TrackingState())
     val state: StateFlow<TrackingState> = _state.asStateFlow()
 
@@ -209,7 +211,11 @@ fun formatInr(amount: Double): String {
         } else {
             val head = digits.dropLast(3)
             val tail = digits.takeLast(3)
-            head.reversed().chunked(2).joinToString(",").reversed() + "," + tail
+            head
+                .reversed()
+                .chunked(2)
+                .joinToString(",")
+                .reversed() + "," + tail
         }
     return "₹$grouped.$fraction"
 }

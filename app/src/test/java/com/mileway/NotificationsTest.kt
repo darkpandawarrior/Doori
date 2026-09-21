@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class NotificationsTest {
-
     @Test
     fun `all has 8 deterministic entries`() {
         assertEquals(8, NotificationData.all.size)
@@ -76,7 +75,7 @@ class NotificationsTest {
         sys.forEach { notif ->
             assertTrue(
                 notif.type == NotifType.SYSTEM || notif.type == NotifType.APP_UPDATE,
-                "Unexpected type ${notif.type} for ${notif.id}"
+                "Unexpected type ${notif.type} for ${notif.id}",
             )
         }
     }

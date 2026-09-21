@@ -41,7 +41,7 @@ fun realHardwareEventSend(
                 throw e
             } catch (e: ClientRequestException) {
                 if (e.response.status in PERMANENT_HTTP_STATUSES) SendOutcome.PERMANENT_FAILURE else SendOutcome.RETRYABLE_FAILURE
-            } catch (e: Exception) {
+            } catch (ignored: Exception) {
                 // ServerResponseException (5xx), connect/read timeouts, host unreachable, etc.
                 SendOutcome.RETRYABLE_FAILURE
             }

@@ -14,8 +14,7 @@ import kotlinx.coroutines.flow.map
 class FakeSupportTicketDao : SupportTicketDao {
     private val rows = MutableStateFlow<Map<String, SupportTicketEntity>>(emptyMap())
 
-    override fun observeAll(): Flow<List<SupportTicketEntity>> =
-        rows.map { it.values.sortedByDescending { row -> row.createdAtMs } }
+    override fun observeAll(): Flow<List<SupportTicketEntity>> = rows.map { it.values.sortedByDescending { row -> row.createdAtMs } }
 
     override suspend fun upsert(entity: SupportTicketEntity) {
         rows.value = rows.value + (entity.id to entity)

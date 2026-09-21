@@ -11,7 +11,9 @@ import kotlin.time.Clock
  * exercise every segment. Built relative to a [Clock]-supplied `now` (no `Math.random`), in the SP.1/SP.2
  * `VoucherHistoryRepository` style. Also the single source the PB.5 `PayablesSearchProvider` searches over.
  */
-class PayablesHistoryRepository(private val clock: Clock = Clock.System) {
+class PayablesHistoryRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
 
     private fun all(): List<PayablesDoc> {

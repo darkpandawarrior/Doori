@@ -64,7 +64,8 @@ class RouteAnalyzer(
 
     private fun categorizeRoute(track: SavedTrack): String {
         val ldt =
-            Instant.fromEpochMilliseconds(track.startTime)
+            Instant
+                .fromEpochMilliseconds(track.startTime)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         val dayOfWeek = ldt.dayOfWeek
         val hour = ldt.hour

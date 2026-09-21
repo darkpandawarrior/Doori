@@ -270,10 +270,15 @@ fun HomeScreen(
                 )
             }
             if (offerPopupEnabled && bestOffer != null) {
-                add(com.mileway.core.data.popup.PopupRequest(com.mileway.core.data.popup.PopupRequest.ID_OFFER, com.mileway.core.data.popup.PopupRequest.OFFER))
+                add(
+                    com.mileway.core.data.popup
+                        .PopupRequest(com.mileway.core.data.popup.PopupRequest.ID_OFFER, com.mileway.core.data.popup.PopupRequest.OFFER),
+                )
             }
         }
-    val nextPopup = com.mileway.core.data.popup.PopupCoordinator.next(popupCandidates, acknowledgedPopups)
+    val nextPopup =
+        com.mileway.core.data.popup.PopupCoordinator
+            .next(popupCandidates, acknowledgedPopups)
     when (nextPopup?.id) {
         com.mileway.core.data.popup.PopupRequest.ID_SIGNATURE_RESIGN ->
             androidx.compose.material3.AlertDialog(
@@ -570,7 +575,12 @@ fun HomeScreenContent(
             }
         }
 
-        SnackbarHost(snackbarState, modifier = androidx.compose.ui.Modifier.align(androidx.compose.ui.Alignment.BottomCenter))
+        SnackbarHost(
+            snackbarState,
+            modifier =
+                androidx.compose.ui.Modifier
+                    .align(androidx.compose.ui.Alignment.BottomCenter),
+        )
     }
 }
 

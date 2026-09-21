@@ -23,7 +23,9 @@ class PluginRegistryTest {
     // "tracking" is a seeded CORE_MODULES TILE plugin, defaultOn = true.
     private val trackingId = "tracking"
 
-    private class FakeActiveAccount(id: String?) : ActiveAccountSource {
+    private class FakeActiveAccount(
+        id: String?,
+    ) : ActiveAccountSource {
         override val activeAccountId = MutableStateFlow(id)
 
         override suspend fun setActiveAccountId(accountId: String) {
@@ -52,7 +54,9 @@ class PluginRegistryTest {
         }
     }
 
-    private class FakePresets(overrides: Map<String, String>) : PersonaPresetProvider {
+    private class FakePresets(
+        overrides: Map<String, String>,
+    ) : PersonaPresetProvider {
         val state = MutableStateFlow(overrides)
 
         override fun presetOverrides(accountId: String?): Flow<Map<String, String>> = state

@@ -30,7 +30,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
  * MotionState fusion remains the offline stillness source. Requires the ACTIVITY_RECOGNITION
  * runtime permission to actually deliver.
  */
-class GmsActivityRecognizer(private val context: Context) : ActivityRecognizer {
+class GmsActivityRecognizer(
+    private val context: Context,
+) : ActivityRecognizer {
     override val activity: Flow<RecognizedActivity> =
         callbackFlow {
             val client = ActivityRecognition.getClient(context)

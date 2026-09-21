@@ -190,7 +190,10 @@ fun RouteReplayScreen(
                 lat = t.startLatitude,
                 lng = t.startLongitude,
                 token = t.token,
-                date = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                date =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds(),
                 batteryPercentage = 0.0,
             )
         }
@@ -311,7 +314,8 @@ fun RouteReplayUI(
             abnormalCoords = routeData.abnormalCoords.map { MapCoordinate(it.lat, it.lng) },
             startCoord = routeData.startCoord?.let { MapCoordinate(it.lat, it.lng) },
             endCoord =
-                routeData.endCoord?.takeIf { locationPoints.size > 1 }
+                routeData.endCoord
+                    ?.takeIf { locationPoints.size > 1 }
                     ?.let { MapCoordinate(it.lat, it.lng) },
             currentLat = currentLocation.lat,
             currentLng = currentLocation.lng,
@@ -610,7 +614,12 @@ fun CompactReplayControlHeader(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    val screenWidthDp = with(density) { LocalWindowInfo.current.containerSize.width.toDp().value }
+    val screenWidthDp =
+        with(density) {
+            LocalWindowInfo.current.containerSize.width
+                .toDp()
+                .value
+        }
     val isSmallScreen = screenWidthDp < 400
 
     Row(
@@ -1095,7 +1104,11 @@ fun PlaybackIndicator(
                             modifier = Modifier.size(16.dp),
                         )
                         Text(
-                            text = kotlin.math.round(currentLocation.speed * 3.6f).toInt().toString(),
+                            text =
+                                kotlin.math
+                                    .round(currentLocation.speed * 3.6f)
+                                    .toInt()
+                                    .toString(),
                             style = MaterialTheme.typography.labelLarge.dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -1148,7 +1161,12 @@ fun EnhancedCompactLiveStatsCard(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    val screenWidthDp = with(density) { LocalWindowInfo.current.containerSize.width.toDp().value }
+    val screenWidthDp =
+        with(density) {
+            LocalWindowInfo.current.containerSize.width
+                .toDp()
+                .value
+        }
     val isSmallScreen = screenWidthDp < 400
     val maxCardWidth = if (isSmallScreen) (screenWidthDp * 0.92).dp else 520.dp
 
@@ -1192,7 +1210,11 @@ fun EnhancedCompactLiveStatsCard(
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                     ) {
                         Text(
-                            text = kotlin.math.round(currentSpeed).toInt().toString(),
+                            text =
+                                kotlin.math
+                                    .round(currentSpeed)
+                                    .toInt()
+                                    .toString(),
                             style = (if (isSmallScreen) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displaySmall).dataStyle(),
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary,
@@ -1381,7 +1403,11 @@ private fun LiveMapAddressChip(
     bearing: Float,
     modifier: Modifier = Modifier,
 ) {
-    val resolver = remember { com.mileway.core.platform.OfflineLocationNameResolver() }
+    val resolver =
+        remember {
+            com.mileway.core.platform
+                .OfflineLocationNameResolver()
+        }
     val place = remember(latitude, longitude) { resolver.resolveSync(latitude, longitude) }
     val chipText = remember(place) { LiveMapOverlayData.addressChipText(place) } ?: return
 

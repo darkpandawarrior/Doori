@@ -128,4 +128,6 @@ data class AdvanceTransaction(
 )
 
 /** Result of a successful petty/QR request submission — the reference app's `permissionId`. */
-data class SubmittedRequest(val permissionId: Long)
+data class SubmittedRequest(
+    val permissionId: Long,
+)

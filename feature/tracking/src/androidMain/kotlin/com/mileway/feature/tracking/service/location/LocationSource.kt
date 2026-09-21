@@ -83,7 +83,8 @@ class FusedLocationSource(
             return
         }
         val request =
-            LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalMs)
+            LocationRequest
+                .Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalMs)
                 .setMinUpdateIntervalMillis(intervalMs / 2)
                 .build()
         val cb =

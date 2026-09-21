@@ -44,7 +44,10 @@ data class TripAttachmentEntity(
     val ocrVerified: Boolean = false,
     /** Epoch milliseconds when the photo was captured. */
     @ColumnInfo(name = "created_at")
-    val createdAt: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+    val createdAt: Long =
+        kotlin.time.Clock.System
+            .now()
+            .toEpochMilliseconds(),
     /**
      * §2.4: typed odometer-analysis snapshot (see
      * [com.mileway.core.data.model.OdometerAnalysisSnapshot]), JSON-encoded, populated for

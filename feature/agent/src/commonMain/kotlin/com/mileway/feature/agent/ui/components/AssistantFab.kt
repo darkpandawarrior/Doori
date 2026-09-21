@@ -90,11 +90,9 @@ fun AssistantFab(
                             offsetY = 0f
                         },
                     )
-                }
-                .pointerInput(Unit) {
+                }.pointerInput(Unit) {
                     detectTapGestures(onTap = { onOpen() })
-                }
-                .padding(4.dp),
+                }.padding(4.dp),
     ) {
         Icon(
             Icons.Filled.AutoAwesome,

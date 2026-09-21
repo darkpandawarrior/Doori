@@ -109,6 +109,10 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+// Hoisted out of the composable below: a local `val` reallocated this array on every
+// recomposition, and a SCREAMING_SNAKE local is a file-scope constant that lost its way.
+private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AnalyticsHomeScreen(
@@ -329,7 +333,9 @@ private fun TeamTab(
     val teamTotal = state.leaderboard.sumOf { it.amountRupees }
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
     ) {
         item {
@@ -447,8 +453,22 @@ private fun TeamMemberRow(
                 Text("₹${member.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(4.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp).clip(DesignTokens.Shape.button).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                Box(modifier = Modifier.fillMaxWidth(fraction).height(4.dp).clip(DesignTokens.Shape.button).background(categoryColor))
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(DesignTokens.Shape.button)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(fraction)
+                            .height(4.dp)
+                            .clip(DesignTokens.Shape.button)
+                            .background(categoryColor),
+                )
             }
             Spacer(Modifier.height(2.dp))
             Text(
@@ -464,7 +484,9 @@ private fun TeamMemberRow(
 private fun InsightsTab(state: AnalyticsUiState) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         item {
@@ -740,7 +762,6 @@ private fun PolicyStat(
 
 @Composable
 private fun RecentActivityRow(item: RecentActivityItem) {
-    val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -760,8 +781,7 @@ private fun RecentActivityRow(item: RecentActivityItem) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             Text(
-                "${item.subtitle} · ${Instant.fromEpochMilliseconds(item.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-                        ldt ->
+                "${item.subtitle} · ${Instant.fromEpochMilliseconds(item.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
                     "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]}"
                 }} · ${item.status}",
                 style = MaterialTheme.typography.bodySmall,

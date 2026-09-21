@@ -10,15 +10,21 @@ import kotlin.time.Instant
 object DateUtils {
     fun epochToDisplayDate(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-        val monthAbbr = local.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        val monthAbbr =
+            local.month.name
+                .take(3)
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
         return "${local.day} $monthAbbr ${local.year}"
     }
 
     fun epochToTime12h(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         val hour12 =
             if (local.hour == 0) {
@@ -34,23 +40,30 @@ object DateUtils {
 
     fun epochToTime(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${local.hour.pad2()}:${local.minute.pad2()}"
     }
 
     fun epochToTime24h(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${local.hour}:${local.minute.pad2()}:${local.second.pad2()}"
     }
 
     fun epochToDateTime(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-        val monthAbbr = local.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        val monthAbbr =
+            local.month.name
+                .take(3)
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
         val hour12 =
             if (local.hour == 0) {
                 12
@@ -67,19 +80,26 @@ object DateUtils {
 
     fun epochToDateSlash(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${local.day.pad2()}/${local.month.number.pad2()}/${local.year}"
     }
 
     fun monthStartMillis(): Long {
-        val now = kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val now =
+            kotlin.time.Clock.System
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
         val monthStart = LocalDateTime(now.year, now.month, 1, 0, 0, 0)
         return monthStart.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
     }
 
     fun getDurationDifferenceInMinutes(pastTimeInMillis: Long): Long {
-        val diffMs = kotlin.time.Clock.System.now().toEpochMilliseconds() - pastTimeInMillis
+        val diffMs =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds() - pastTimeInMillis
         return diffMs / 60_000L
     }
 
@@ -92,7 +112,10 @@ object DateUtils {
             val year = parts[2].toInt()
             val date = LocalDateTime(year, month, day, 0, 0, 0)
             date.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
-        } catch (e: Exception) {
+        } catch (ignored: IllegalArgumentException) {
+            // toInt() and LocalDateTime() both reject a malformed date with IllegalArgumentException.
+            // -1L is this function's documented sentinel for 'not a date'. Narrowed from Exception so a
+            // real programming error no longer disappears into the sentinel.
             -1L
         }
     }

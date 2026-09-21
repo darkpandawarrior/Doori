@@ -14,7 +14,9 @@ data class SettlementRecord(
 )
 
 /** Settlement lifecycle states (SP.2 tabs). */
-enum class SettlementStatus(val label: String) {
+enum class SettlementStatus(
+    val label: String,
+) {
     PENDING("Pending"),
     PROCESSING("Processing"),
     SETTLED("Settled"),
@@ -23,7 +25,9 @@ enum class SettlementStatus(val label: String) {
 /**
  * Offline fake settlement store (SP.2), a deterministic spread across [SettlementStatus]es, Clock-injected.
  */
-class SettlementHistoryRepository(private val clock: Clock = Clock.System) {
+class SettlementHistoryRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
     private val months = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun")
 

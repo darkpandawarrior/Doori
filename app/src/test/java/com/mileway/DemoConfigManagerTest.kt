@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * and correctly implements ConfigProvider.
  */
 class DemoConfigManagerTest {
-
     private lateinit var manager: DemoConfigManager
 
     @Before

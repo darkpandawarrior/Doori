@@ -6,11 +6,17 @@ package com.mileway.feature.travel.repository
  * policy-violation paths through the shared `FormSubmissionScaffold`.
  */
 sealed interface TravelSubmissionResult {
-    data class Submitted(val id: String) : TravelSubmissionResult
+    data class Submitted(
+        val id: String,
+    ) : TravelSubmissionResult
 
-    data class NeedsApproval(val id: String) : TravelSubmissionResult
+    data class NeedsApproval(
+        val id: String,
+    ) : TravelSubmissionResult
 
-    data class PolicyViolation(val messages: List<String>) : TravelSubmissionResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : TravelSubmissionResult
 }
 
 /** TR.2: a create trip-request form payload. */

@@ -38,11 +38,11 @@ class PayablesSearchProvider(
         if (q.length < 2) return emptyList()
 
         val results =
-            history.documents()
+            history
+                .documents()
                 .filter {
                     it.id.contains(q, true) || it.title.contains(q, true) || it.reference.contains(q, true)
-                }
-                .map { doc ->
+                }.map { doc ->
                     SearchResult(
                         type = entityTypeFor(doc.type),
                         id = doc.id,

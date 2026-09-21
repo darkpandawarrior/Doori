@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.map
 private val Context.savedLocationsDataStore by preferencesDataStore(name = "saved_locations")
 
 /** Android actual: persists [SavedLocationsData] as one JSON string in a Preferences DataStore. */
-class SavedLocationsStore(private val context: Context) : SavedLocationsSource {
+class SavedLocationsStore(
+    private val context: Context,
+) : SavedLocationsSource {
     private val key = stringPreferencesKey("saved_locations_json")
 
     override val data: Flow<SavedLocationsData> =

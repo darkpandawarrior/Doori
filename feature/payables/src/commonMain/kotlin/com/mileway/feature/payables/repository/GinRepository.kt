@@ -6,11 +6,17 @@ package com.mileway.feature.payables.repository
  * policy-violation paths through the shared `FormSubmissionScaffold`.
  */
 sealed interface PayablesSubmissionResult {
-    data class Submitted(val id: String) : PayablesSubmissionResult
+    data class Submitted(
+        val id: String,
+    ) : PayablesSubmissionResult
 
-    data class NeedsApproval(val id: String) : PayablesSubmissionResult
+    data class NeedsApproval(
+        val id: String,
+    ) : PayablesSubmissionResult
 
-    data class PolicyViolation(val messages: List<String>) : PayablesSubmissionResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : PayablesSubmissionResult
 }
 
 /** A create-GIN (Goods Inward Note) form payload (PB.2). */

@@ -101,4 +101,9 @@ private fun ReadingRow(
 }
 
 /** `String.format("%,d", ...)` is JVM-only — commonMain needs its own thousands-grouping. */
-private fun Int.withThousandsSeparators(): String = toString().reversed().chunked(3).joinToString(",").reversed()
+private fun Int.withThousandsSeparators(): String =
+    toString()
+        .reversed()
+        .chunked(3)
+        .joinToString(",")
+        .reversed()

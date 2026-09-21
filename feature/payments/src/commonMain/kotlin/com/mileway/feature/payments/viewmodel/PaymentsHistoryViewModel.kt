@@ -18,9 +18,13 @@ data class PaymentsHistoryUiState(
 sealed interface PaymentsHistoryAction {
     data object Refresh : PaymentsHistoryAction
 
-    data class SelectTab(val index: Int) : PaymentsHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : PaymentsHistoryAction
 
-    data class SetQuery(val query: String) : PaymentsHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : PaymentsHistoryAction
 }
 
 sealed interface PaymentsHistoryEffect

@@ -819,8 +819,7 @@ private fun OnboardingSlideContent(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onTap,
-                )
-                .semantics { contentDescription = "$title. $caption" },
+                ).semantics { contentDescription = "$title. $caption" },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(

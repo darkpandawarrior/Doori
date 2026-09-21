@@ -17,10 +17,17 @@ class SessionReconciliationPolicy(
 ) {
     sealed class Outcome {
         /** A clean, ongoing session — service should resume without user interaction. */
-        data class Resume(val token: String, val session: CurrentTrackData) : Outcome()
+        data class Resume(
+            val token: String,
+            val session: CurrentTrackData,
+        ) : Outcome()
 
         /** Session was interrupted (app-killed / FGS-terminated / shutdown) — show restore sheet. */
-        data class NeedsDecision(val token: String, val session: CurrentTrackData, val reason: String) : Outcome()
+        data class NeedsDecision(
+            val token: String,
+            val session: CurrentTrackData,
+            val reason: String,
+        ) : Outcome()
 
         /** DataStore says "tracking" but the DB row is completed/discarded/missing — clear ghost. */
         data object DiscardStale : Outcome()

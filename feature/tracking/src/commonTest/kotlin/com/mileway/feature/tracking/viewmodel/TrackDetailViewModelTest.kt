@@ -38,11 +38,16 @@ class TrackDetailViewModelTest {
         SavedTrack(
             routeId = routeId,
             name = "Journey $routeId",
-            startLatitude = 0.0, startLongitude = 0.0,
-            endLatitude = 0.0, endLongitude = 0.0,
-            pausedLatitude = 0.0, pausedLongitude = 0.0,
-            startTime = 1_000L, endTime = 2_000L,
-            distance = 4_200.0, duration = 1_000L,
+            startLatitude = 0.0,
+            startLongitude = 0.0,
+            endLatitude = 0.0,
+            endLongitude = 0.0,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = 1_000L,
+            endTime = 2_000L,
+            distance = 4_200.0,
+            duration = 1_000L,
             startedAtTimestamp = 1_000L,
         )
 
@@ -62,7 +67,11 @@ class TrackDetailViewModelTest {
 
             vm.onAction(TrackDetailAction.EditDistance(12.5))
 
-            assertEquals(12.5, vm.state.value.track?.distanceKm)
+            assertEquals(
+                12.5,
+                vm.state.value.track
+                    ?.distanceKm,
+            )
             assertEquals(12_500.0, dao.getSavedTrackById("r1")?.distance)
         }
 

@@ -14,7 +14,10 @@ const val MAX_EMERGENCY_CONTACTS = 5
  * Lives in core:data so both the profile management screen (feature:profile) and the SOS sheet
  * (feature:tracking) can reach it without a feature→feature dependency.
  */
-class EmergencyContactsRepository(private val dao: EmergencyContactDao, private val clock: Clock = Clock.System) {
+class EmergencyContactsRepository(
+    private val dao: EmergencyContactDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, creation-ordered list of the user's emergency contacts. */
     fun observeAll(): Flow<List<EmergencyContact>> = dao.observeAll().map { rows -> rows.map { it.toContact() } }
 

@@ -80,6 +80,10 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+// Hoisted out of the composable below: a local `val` reallocated this array on every
+// recomposition, and a SCREAMING_SNAKE local is a file-scope constant that lost its way.
+private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
 @Composable
 fun PayablesHomeScreen(
     onNewRequest: () -> Unit,
@@ -297,7 +301,6 @@ private fun InvoiceCard(invoice: Invoice) {
             InvoiceStatus.MATCHED -> Triple(Icons.Filled.Receipt, stringResource(Res.string.payables_invoice_status_matched), MilewayRoles.informational)
             InvoiceStatus.PAID -> Triple(Icons.Filled.CheckCircle, stringResource(Res.string.payables_invoice_status_paid), MilewayRoles.approved)
         }
-    val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -321,8 +324,7 @@ private fun InvoiceCard(invoice: Invoice) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    Instant.fromEpochMilliseconds(invoice.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-                            ldt ->
+                    Instant.fromEpochMilliseconds(invoice.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
                         "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
                     },
                     style = MaterialTheme.typography.bodySmall,

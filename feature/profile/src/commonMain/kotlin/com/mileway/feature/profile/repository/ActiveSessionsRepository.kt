@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.map
  * `ProfileRepository.sessions()` into the read-only `SessionsDialog`) so a per-session revoke or
  * the "Sign out all other sessions" bulk action actually persists across app kill/relaunch.
  */
-class ActiveSessionsRepository(private val dao: SessionDao) {
+class ActiveSessionsRepository(
+    private val dao: SessionDao,
+) {
     /** Live, most-recently-active-first list of this account's device sessions. */
     fun observeAll(): Flow<List<ActiveSession>> = dao.observeAll().map { rows -> rows.map { it.toActiveSession() } }
 

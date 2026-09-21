@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * the rotating completed / pending / failed result paths through the FormSubmissionScaffold contract.
  */
 class CreatePaymentViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -46,19 +45,20 @@ class CreatePaymentViewModelTest {
     // (each stage a genuine delay()) instead of one flat synchronous result; `PaymentResult.Pending`
     // resolves into a SUCCESS after one extra polling round rather than surfacing its own effect.
     @Test
-    fun `submits rotate through completed (twice, one via the pending-polling path) then failed`() = runTest {
-        val vm = viewModel()
-        vm.onAction(CreatePaymentAction.SetCounterparty("chai@stall"))
-        vm.onAction(CreatePaymentAction.SetAmount("60"))
+    fun `submits rotate through completed (twice, one via the pending-polling path) then failed`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(CreatePaymentAction.SetCounterparty("chai@stall"))
+            vm.onAction(CreatePaymentAction.SetAmount("60"))
 
-        vm.effect.test {
-            vm.onAction(CreatePaymentAction.Submit)
-            assertTrue(awaitItem() is CreatePaymentEffect.Completed)
-            vm.onAction(CreatePaymentAction.Submit)
-            assertTrue(awaitItem() is CreatePaymentEffect.Completed) // resolved via the Pending/polling path
-            vm.onAction(CreatePaymentAction.Submit)
-            assertTrue(awaitItem() is CreatePaymentEffect.Failed)
+            vm.effect.test {
+                vm.onAction(CreatePaymentAction.Submit)
+                assertTrue(awaitItem() is CreatePaymentEffect.Completed)
+                vm.onAction(CreatePaymentAction.Submit)
+                assertTrue(awaitItem() is CreatePaymentEffect.Completed) // resolved via the Pending/polling path
+                vm.onAction(CreatePaymentAction.Submit)
+                assertTrue(awaitItem() is CreatePaymentEffect.Failed)
+            }
+            assertFalse(vm.state.value.isSubmitting)
         }
-        assertFalse(vm.state.value.isSubmitting)
-    }
 }

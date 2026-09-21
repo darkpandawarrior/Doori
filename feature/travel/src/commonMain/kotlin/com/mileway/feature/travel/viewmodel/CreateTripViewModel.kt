@@ -21,17 +21,29 @@ data class CreateTripUiState(
 }
 
 sealed interface CreateTripAction {
-    data class SetPurpose(val value: String) : CreateTripAction
+    data class SetPurpose(
+        val value: String,
+    ) : CreateTripAction
 
-    data class SetFromCity(val value: String) : CreateTripAction
+    data class SetFromCity(
+        val value: String,
+    ) : CreateTripAction
 
-    data class SetToCity(val value: String) : CreateTripAction
+    data class SetToCity(
+        val value: String,
+    ) : CreateTripAction
 
-    data class SetStartDate(val value: String) : CreateTripAction
+    data class SetStartDate(
+        val value: String,
+    ) : CreateTripAction
 
-    data class SetEndDate(val value: String) : CreateTripAction
+    data class SetEndDate(
+        val value: String,
+    ) : CreateTripAction
 
-    data class SetAdvanceRequired(val value: Boolean) : CreateTripAction
+    data class SetAdvanceRequired(
+        val value: Boolean,
+    ) : CreateTripAction
 
     data object Submit : CreateTripAction
 }

@@ -618,8 +618,7 @@ fun DraggableFloatingFab(
                             elevation = shadowElevation,
                             shape = DesignTokens.Shape.button,
                             clip = false,
-                        )
-                        .clip(DesignTokens.Shape.button)
+                        ).clip(DesignTokens.Shape.button)
                         .background(primaryColor)
                         .clickable(
                             interactionSource = interactionSource,
@@ -712,9 +711,10 @@ fun CollapsedBottomPuck(
                         (COLLAPSED_WHEEL_END_ANGLE_DEGREES - COLLAPSED_WHEEL_START_ANGLE_DEGREES) /
                             (wheelItemIndexes.size - 1).toFloat()
                     }
-                wheelItemIndexes.mapIndexed { index, itemIndex ->
-                    itemIndex to (COLLAPSED_WHEEL_START_ANGLE_DEGREES + (index * step))
-                }.toMap()
+                wheelItemIndexes
+                    .mapIndexed { index, itemIndex ->
+                        itemIndex to (COLLAPSED_WHEEL_START_ANGLE_DEGREES + (index * step))
+                    }.toMap()
             }
         }
     val puckSize = 56.dp
@@ -758,9 +758,10 @@ fun CollapsedBottomPuck(
             } else {
                 val angle = normalizeAngle(radiansToDegrees(atan2(deltaY, deltaX)))
                 val nextHoveredIndex =
-                    wheelItemAngles.minByOrNull { (_, targetAngle) ->
-                        angleDistanceDegrees(angle, targetAngle)
-                    }?.key
+                    wheelItemAngles
+                        .minByOrNull { (_, targetAngle) ->
+                            angleDistanceDegrees(angle, targetAngle)
+                        }?.key
                 if (nextHoveredIndex != hoveredItemIndex) {
                     hoveredItemIndex = nextHoveredIndex
                     if (nextHoveredIndex != null && nextHoveredIndex != lastHapticItemIndex) {
@@ -905,8 +906,7 @@ fun CollapsedBottomPuck(
                                                     )
                                                 },
                                         ),
-                                )
-                                .border(
+                                ).border(
                                     width = 1.dp,
                                     color =
                                         if (isHovered) {
@@ -915,8 +915,7 @@ fun CollapsedBottomPuck(
                                             MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
                                         },
                                     shape = DesignTokens.Shape.button,
-                                )
-                                .clickable(
+                                ).clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                     onClick = {
@@ -984,8 +983,7 @@ fun CollapsedBottomPuck(
                                 closeWheel()
                             },
                         )
-                    }
-                    .combinedClickable(
+                    }.combinedClickable(
                         interactionSource = interactionSource,
                         indication = null,
                         onClick = {
@@ -1150,12 +1148,10 @@ fun DynamicNavItem(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
-                )
-                .padding(
+                ).padding(
                     horizontal = if (hasLotsOfItems) 1.dp else 2.dp,
                     vertical = if (hasLotsOfItems) 5.dp else 6.dp,
-                )
-                .width(itemWidth),
+                ).width(itemWidth),
     ) {
         BadgedBox(
             badge = {

@@ -36,7 +36,9 @@ data class DemoSettings(
 /** Sentinel for "no prior odometer reading" so the start capture falls back to its own default. */
 const val LAST_ODOMETER_NONE: Int = -1
 
-class DemoSettingsRepository(private val context: Context) {
+class DemoSettingsRepository(
+    private val context: Context,
+) {
     private val simulateRootKey = booleanPreferencesKey("demo_simulate_root")
     private val simulateOfflineKey = booleanPreferencesKey("demo_simulate_offline")
     private val biometricGuardKey = booleanPreferencesKey("demo_biometric_guard")

@@ -77,6 +77,10 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+// Hoisted out of the composable below: a local `val` reallocated this array on every
+// recomposition, and a SCREAMING_SNAKE local is a file-scope constant that lost its way.
+private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
 @Composable
 fun AdvanceHistoryScreen(
     onBack: () -> Unit,
@@ -128,7 +132,11 @@ fun AdvanceHistoryScreen(
                             color = Color.White,
                         )
                         Text(
-                            stringResource(Res.string.profile_advance_records_count, ui.list.records.dataOrNull?.size ?: 0),
+                            stringResource(
+                                Res.string.profile_advance_records_count,
+                                ui.list.records.dataOrNull
+                                    ?.size ?: 0,
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.85f),
                         )
@@ -212,7 +220,6 @@ private fun AdvanceCard(
             AdvanceStatus.DISBURSED -> stringResource(Res.string.profile_advance_status_disbursed) to StatusColors.info
             AdvanceStatus.REJECTED -> stringResource(Res.string.profile_advance_status_rejected) to StatusColors.error
         }
-    val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
     Card(
         onClick = onClick,
@@ -250,8 +257,7 @@ private fun AdvanceCard(
                     )
                 }
                 Text(
-                    Instant.fromEpochMilliseconds(record.requestedDateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-                            ldt ->
+                    Instant.fromEpochMilliseconds(record.requestedDateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
                         "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
                     },
                     style = MaterialTheme.typography.bodySmall,

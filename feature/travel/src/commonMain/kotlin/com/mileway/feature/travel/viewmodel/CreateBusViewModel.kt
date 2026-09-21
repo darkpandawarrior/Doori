@@ -20,15 +20,25 @@ data class CreateBusUiState(
 }
 
 sealed interface CreateBusAction {
-    data class SetFromCity(val value: String) : CreateBusAction
+    data class SetFromCity(
+        val value: String,
+    ) : CreateBusAction
 
-    data class SetToCity(val value: String) : CreateBusAction
+    data class SetToCity(
+        val value: String,
+    ) : CreateBusAction
 
-    data class SetTravelDate(val value: String) : CreateBusAction
+    data class SetTravelDate(
+        val value: String,
+    ) : CreateBusAction
 
-    data class SetOperator(val value: String) : CreateBusAction
+    data class SetOperator(
+        val value: String,
+    ) : CreateBusAction
 
-    data class SetSeatPreference(val value: String) : CreateBusAction
+    data class SetSeatPreference(
+        val value: String,
+    ) : CreateBusAction
 
     data object Submit : CreateBusAction
 }

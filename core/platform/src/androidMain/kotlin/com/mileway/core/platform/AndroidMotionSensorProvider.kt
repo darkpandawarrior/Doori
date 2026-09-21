@@ -15,7 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger
  * stream. Each fresh accelerometer sample emits a reading carrying the last-seen gyro axes (and vice-versa),
  * so downstream [MotionFusion] always has both. Degrades to no emissions on devices without the sensors.
  */
-class AndroidMotionSensorProvider(context: Context) : MotionSensorProvider, SensorEventListener {
+class AndroidMotionSensorProvider(
+    context: Context,
+) : MotionSensorProvider,
+    SensorEventListener {
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
     private val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     private val gyroscope = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)

@@ -17,7 +17,9 @@ data class SettlementHistoryUiState(
 sealed interface SettlementHistoryAction {
     data object Refresh : SettlementHistoryAction
 
-    data class SelectTab(val index: Int) : SettlementHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : SettlementHistoryAction
 }
 
 sealed interface SettlementHistoryEffect

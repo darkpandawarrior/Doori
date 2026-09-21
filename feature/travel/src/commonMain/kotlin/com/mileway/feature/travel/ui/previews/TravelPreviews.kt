@@ -52,8 +52,8 @@ private fun Double.fmt2(): String {
 
 // ── Sample data ──────────────────────────────────────────────────────────────
 
-private val BASE_MS = 1_781_654_400_000L
-private val DAY_MS = 86_400_000L
+private const val BASE_MS = 1_781_654_400_000L
+private const val DAY_MS = 86_400_000L
 
 private val sampleFlightActive =
     BookingRecord(

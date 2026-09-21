@@ -533,10 +533,9 @@ private data class DotWindowInfo(
     val hasLeadingEdge: Boolean,
     val hasTrailingEdge: Boolean,
 ) {
-    fun isEdgeDot(displayIndex: Int): Boolean {
-        return (displayIndex == 0 && hasLeadingEdge) ||
+    fun isEdgeDot(displayIndex: Int): Boolean =
+        (displayIndex == 0 && hasLeadingEdge) ||
             (displayIndex == visibleIndices.lastIndex && hasTrailingEdge)
-    }
 }
 
 /**

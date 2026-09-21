@@ -20,11 +20,17 @@ data class PayablesHistoryUiState(
 sealed interface PayablesHistoryAction {
     data object Refresh : PayablesHistoryAction
 
-    data class SelectTab(val index: Int) : PayablesHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : PayablesHistoryAction
 
-    data class SetStatusFilter(val status: PayablesDocStatus?) : PayablesHistoryAction
+    data class SetStatusFilter(
+        val status: PayablesDocStatus?,
+    ) : PayablesHistoryAction
 
-    data class SetQuery(val query: String) : PayablesHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : PayablesHistoryAction
 }
 
 sealed interface PayablesHistoryEffect

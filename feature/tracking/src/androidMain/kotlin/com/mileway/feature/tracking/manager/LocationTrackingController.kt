@@ -9,7 +9,9 @@ import com.mileway.feature.tracking.service.LocationTrackingService
  * Android implementation of [TrackingController]: drives [LocationTrackingService] via Intent
  * dispatch without exposing Context to the ViewModel. Held as a Koin singleton.
  */
-class LocationTrackingController(private val context: Context) : TrackingController {
+class LocationTrackingController(
+    private val context: Context,
+) : TrackingController {
     override fun start(token: String) = send(LocationTrackingService.ACTION_START, token, foreground = true)
 
     override fun pause(token: String) = send(LocationTrackingService.ACTION_PAUSE, token)

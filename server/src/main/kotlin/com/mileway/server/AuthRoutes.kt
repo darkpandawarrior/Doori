@@ -109,7 +109,8 @@ fun Route.authRoutes() {
 private fun issueTokenPair(email: String): AuthResponse {
     val now = System.currentTimeMillis()
     val accessToken =
-        JWT.create()
+        JWT
+            .create()
             .withIssuer(JWT_ISSUER)
             .withAudience(JWT_AUDIENCE)
             .withClaim("email", email)

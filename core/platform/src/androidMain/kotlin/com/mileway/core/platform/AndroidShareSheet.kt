@@ -9,7 +9,9 @@ import android.net.Uri
  * stream. Launched from the application context, so the chooser carries `FLAG_ACTIVITY_NEW_TASK`; a file
  * stream also grants read permission to the receiving app.
  */
-class AndroidShareSheet(private val context: Context) : ShareSheet {
+class AndroidShareSheet(
+    private val context: Context,
+) : ShareSheet {
     override fun share(
         text: String,
         subject: String?,

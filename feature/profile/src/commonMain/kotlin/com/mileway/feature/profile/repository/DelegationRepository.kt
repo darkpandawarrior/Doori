@@ -13,7 +13,10 @@ import kotlin.time.Clock
  * the account-switch/session-delegate concept (see PLAN_V22 §2's Architecture note; not merged
  * here). Replaces the screen's `mutableStateListOf` seed, which reset on navigation away.
  */
-class DelegationRepository(private val dao: DelegationDao, private val clock: Clock = Clock.System) {
+class DelegationRepository(
+    private val dao: DelegationDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, creation-ordered list of this user's outgoing delegations. */
     fun observeAll(): Flow<List<Delegation>> = dao.observeAll().map { rows -> rows.map { it.toDelegation() } }
 

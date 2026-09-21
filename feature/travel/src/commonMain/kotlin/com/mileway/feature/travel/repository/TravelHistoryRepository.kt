@@ -12,7 +12,9 @@ import kotlin.time.Clock
  * `Math.random`). Backs the trip-history and booking-history surfaces; also the TR.9 `TravelSearchProvider`
  * source.
  */
-class TravelHistoryRepository(private val clock: Clock = Clock.System) {
+class TravelHistoryRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
 
     private fun trip(

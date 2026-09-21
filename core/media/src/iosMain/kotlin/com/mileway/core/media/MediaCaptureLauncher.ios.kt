@@ -191,7 +191,8 @@ private fun scanBarcode(bytes: ByteArray): String? =
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private class DocumentScanDelegate(
     private val onScanned: (List<ByteArray>) -> Unit,
-) : NSObject(), VNDocumentCameraViewControllerDelegateProtocol {
+) : NSObject(),
+    VNDocumentCameraViewControllerDelegateProtocol {
     override fun documentCameraViewController(
         controller: VNDocumentCameraViewController,
         didFinishWithScan: VNDocumentCameraScan,

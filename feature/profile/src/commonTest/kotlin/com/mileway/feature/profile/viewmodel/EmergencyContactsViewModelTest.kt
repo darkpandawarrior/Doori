@@ -54,9 +54,19 @@ class EmergencyContactsViewModelTest {
 
             assertTrue(accepted)
             assertEquals(1, vm.state.value.contacts.size)
-            assertEquals("Priya", vm.state.value.contacts.single().name)
+            assertEquals(
+                "Priya",
+                vm.state.value.contacts
+                    .single()
+                    .name,
+            )
             // leading 0 dropped, non-digits stripped -> 10 digits.
-            assertEquals("9876543210", vm.state.value.contacts.single().phoneNo)
+            assertEquals(
+                "9876543210",
+                vm.state.value.contacts
+                    .single()
+                    .phoneNo,
+            )
         }
 
     @Test
@@ -68,7 +78,10 @@ class EmergencyContactsViewModelTest {
             advanceUntilIdle()
 
             assertTrue(!accepted)
-            assertTrue(vm.state.value.contacts.isEmpty())
+            assertTrue(
+                vm.state.value.contacts
+                    .isEmpty(),
+            )
             assertTrue(vm.state.value.submitError != null)
         }
 
@@ -81,7 +94,10 @@ class EmergencyContactsViewModelTest {
             advanceUntilIdle()
 
             assertTrue(!accepted)
-            assertTrue(vm.state.value.contacts.isEmpty())
+            assertTrue(
+                vm.state.value.contacts
+                    .isEmpty(),
+            )
         }
 
     @Test
@@ -90,13 +106,21 @@ class EmergencyContactsViewModelTest {
             val vm = newViewModel()
             vm.save(id = "", name = "Priya", phone = "9876543210", countryCode = "+91")
             advanceUntilIdle()
-            val id = vm.state.value.contacts.single().id
+            val id =
+                vm.state.value.contacts
+                    .single()
+                    .id
 
             vm.save(id = id, name = "Priya Sharma", phone = "9876543210", countryCode = "+91")
             advanceUntilIdle()
 
             assertEquals(1, vm.state.value.contacts.size)
-            assertEquals("Priya Sharma", vm.state.value.contacts.single().name)
+            assertEquals(
+                "Priya Sharma",
+                vm.state.value.contacts
+                    .single()
+                    .name,
+            )
         }
 
     @Test
@@ -123,12 +147,18 @@ class EmergencyContactsViewModelTest {
             val vm = newViewModel()
             vm.save(id = "", name = "Priya", phone = "9876543210", countryCode = "+91")
             advanceUntilIdle()
-            val id = vm.state.value.contacts.single().id
+            val id =
+                vm.state.value.contacts
+                    .single()
+                    .id
 
             vm.delete(id)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.contacts.isEmpty())
+            assertTrue(
+                vm.state.value.contacts
+                    .isEmpty(),
+            )
         }
 
     @Test
@@ -146,7 +176,9 @@ class EmergencyContactsViewModelTest {
 }
 
 /** Monotonic clock: each [now] is one millisecond later, so minted contact ids never collide. */
-private class IncrementingClock(private var ms: Long = 1_700_000_000_000L) : Clock {
+private class IncrementingClock(
+    private var ms: Long = 1_700_000_000_000L,
+) : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(ms++)
 }
 

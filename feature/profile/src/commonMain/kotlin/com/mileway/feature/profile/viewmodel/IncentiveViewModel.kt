@@ -18,15 +18,17 @@ data class IncentiveUiState(
     val expired: List<IncentiveProgram> = emptyList(),
 )
 
-class IncentiveViewModel(savedTrackDao: SavedTrackDao) : ViewModel() {
+class IncentiveViewModel(
+    savedTrackDao: SavedTrackDao,
+) : ViewModel() {
     val state: StateFlow<IncentiveUiState> =
-        savedTrackDao.getCompletedTracks()
+        savedTrackDao
+            .getCompletedTracks()
             .map { completed ->
                 val programs = IncentiveCatalog.build(completed.size)
                 IncentiveUiState(
                     active = programs.filter { !it.expired },
                     expired = programs.filter { it.expired },
                 )
-            }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, IncentiveUiState())
+            }.stateIn(viewModelScope, SharingStarted.Eagerly, IncentiveUiState())
 }

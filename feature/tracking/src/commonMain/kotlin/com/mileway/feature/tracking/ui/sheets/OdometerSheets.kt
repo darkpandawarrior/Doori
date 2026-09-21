@@ -120,7 +120,8 @@ fun OdometerReadingConfirmSheet(
                 ocrService.analyzeAi(capturedUri)
             } catch (cancellation: CancellationException) {
                 throw cancellation
-            } catch (failure: Exception) {
+            } catch (ignored: Exception) {
+                // An unreadable reading is simply absent; null IS the handling.
                 null
             }
         val reading =

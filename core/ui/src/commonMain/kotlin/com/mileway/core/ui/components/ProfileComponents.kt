@@ -235,8 +235,7 @@ fun GridProfileTile(
                 .clickable(enabled = item.isEnabled && item.status != ProfileItemStatus.UPDATING) {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     item.action()
-                }
-                .border(
+                }.border(
                     width = if (item.status == ProfileItemStatus.INCOMPLETE) 2.dp else 1.dp,
                     color = borderColor,
                     shape = DesignTokens.Shape.roundedMd,
@@ -754,8 +753,7 @@ fun ProfileCompletionBanner(
                                         } else {
                                             MaterialTheme.colorScheme.error.copy(alpha = 0.2f)
                                         },
-                                    )
-                                    .clickable { onExpandToggle() },
+                                    ).clickable { onExpandToggle() },
                             contentAlignment = Alignment.Center,
                         ) {
                             Icon(

@@ -26,13 +26,21 @@ data class PettyCardDetailUiState(
 }
 
 sealed interface PettyCardDetailAction {
-    data class Load(val cardId: Long) : PettyCardDetailAction
+    data class Load(
+        val cardId: Long,
+    ) : PettyCardDetailAction
 
-    data class SelectTab(val tab: AdvanceDetailTab) : PettyCardDetailAction
+    data class SelectTab(
+        val tab: AdvanceDetailTab,
+    ) : PettyCardDetailAction
 
-    data class SetQuery(val query: String) : PettyCardDetailAction
+    data class SetQuery(
+        val query: String,
+    ) : PettyCardDetailAction
 
-    data class SetVoucherFilter(val filter: VoucherFilter) : PettyCardDetailAction
+    data class SetVoucherFilter(
+        val filter: VoucherFilter,
+    ) : PettyCardDetailAction
 }
 
 sealed interface PettyCardDetailEffect

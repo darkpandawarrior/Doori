@@ -95,13 +95,11 @@ fun AgentMessageBubble(
                         .background(
                             Color(0xFF0B0806),
                             DesignTokens.Shape.button,
-                        )
-                        .border(
+                        ).border(
                             1.dp,
                             TERMINAL_BORDER,
                             DesignTokens.Shape.button,
-                        )
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        ).padding(horizontal = 12.dp, vertical = 8.dp),
             ) {
                 // System prompt line
                 Text(

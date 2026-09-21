@@ -280,7 +280,8 @@ private fun WalletOtpSheet(
                 singleLine = true,
                 isError = flow.wrongCode,
                 keyboardOptions =
-                    androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    androidx.compose.foundation.text
+                        .KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                 modifier = Modifier.fillMaxWidth(),
             )
             if (flow.wrongCode) {

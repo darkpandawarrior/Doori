@@ -26,13 +26,21 @@ data class QrCardDetailUiState(
 }
 
 sealed interface QrCardDetailAction {
-    data class Load(val cardId: Long) : QrCardDetailAction
+    data class Load(
+        val cardId: Long,
+    ) : QrCardDetailAction
 
-    data class SelectTab(val tab: AdvanceDetailTab) : QrCardDetailAction
+    data class SelectTab(
+        val tab: AdvanceDetailTab,
+    ) : QrCardDetailAction
 
-    data class SetQuery(val query: String) : QrCardDetailAction
+    data class SetQuery(
+        val query: String,
+    ) : QrCardDetailAction
 
-    data class SetVoucherFilter(val filter: VoucherFilter) : QrCardDetailAction
+    data class SetVoucherFilter(
+        val filter: VoucherFilter,
+    ) : QrCardDetailAction
 }
 
 sealed interface QrCardDetailEffect

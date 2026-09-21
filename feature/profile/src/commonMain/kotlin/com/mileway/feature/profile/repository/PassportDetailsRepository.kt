@@ -11,7 +11,10 @@ import kotlin.time.Clock
  * P6.2: reads/writes the profile's linked [PassportDetails] from the Room-backed
  * [PassportDetailsDao] singleton row. `null` means no passport has been added yet.
  */
-class PassportDetailsRepository(private val dao: PassportDetailsDao, private val clock: Clock = Clock.System) {
+class PassportDetailsRepository(
+    private val dao: PassportDetailsDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live passport details, or null while none is on file. */
     fun observe(): Flow<PassportDetails?> = dao.observe().map { it?.toPassportDetails() }
 

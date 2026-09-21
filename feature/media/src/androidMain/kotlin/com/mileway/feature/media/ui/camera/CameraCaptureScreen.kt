@@ -444,8 +444,12 @@ private fun OdometerAlignmentOverlay(modifier: Modifier = Modifier) {
             Canvas(modifier = Modifier.matchParentSize()) {
                 drawRoundRect(
                     color = accent,
-                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(24f, 24f),
-                    style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f),
+                    cornerRadius =
+                        androidx.compose.ui.geometry
+                            .CornerRadius(24f, 24f),
+                    style =
+                        androidx.compose.ui.graphics.drawscope
+                            .Stroke(width = 4f),
                 )
             }
         }
@@ -466,9 +470,15 @@ private fun FocusRing(
         drawRoundRect(
             color = accent,
             topLeft = topLeft,
-            size = androidx.compose.ui.geometry.Size(sidePx, sidePx),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(12f, 12f),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 4f),
+            size =
+                androidx.compose.ui.geometry
+                    .Size(sidePx, sidePx),
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(12f, 12f),
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = 4f),
         )
     }
 }

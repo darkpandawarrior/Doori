@@ -12,23 +12,25 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.common.deeplink.DeepLinkRouter
 import com.mileway.core.common.deeplink.DeepLinkValidator
+import com.mileway.core.data.otp.LocalOtpEngine
+import com.mileway.core.data.otp.OtpPurpose
 import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.session.SessionState
@@ -43,9 +45,6 @@ import com.mileway.core.ui.theme.AppLocaleEnvironment
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.ui.MilewayAppRoot
-import com.mileway.core.data.otp.LocalOtpEngine
-import com.mileway.core.data.otp.OtpPurpose
-import com.mileway.ui.auth.rememberPermissionsController
 import com.mileway.ui.auth.CheckPinScreen
 import com.mileway.ui.auth.LoginScreen
 import com.mileway.ui.auth.OnboardingFormConfig
@@ -53,6 +52,7 @@ import com.mileway.ui.auth.OtpVerificationScreen
 import com.mileway.ui.auth.SetPinScreen
 import com.mileway.ui.auth.SignupOnboardingScreen
 import com.mileway.ui.auth.SplashScreen
+import com.mileway.ui.auth.rememberPermissionsController
 import com.mileway.ui.toAppRoute
 import com.siddharth.kmp.appshell.AnalyticsEvent
 import kotlinx.coroutines.launch
@@ -76,13 +76,15 @@ private enum class AppStage { SPLASH, LOGIN, MFA, PIN, ONBOARDING, APP }
  * forwarding it to [MilewayAppRoot] as [initialRoute].
  */
 class LauncherActivity : ComponentActivity() {
-
     // PLAN_V35: ActivityResult bridge for the KMP PermissionsProvider — the shared tracking
     // screens request runtime permissions through it. One in-flight request at a time (the
     // system dialog is modal anyway).
     private var pendingGrants: kotlinx.coroutines.CompletableDeferred<Map<String, Boolean>>? = null
     private val permissionLauncher =
-        registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+        registerForActivityResult(
+            androidx.activity.result.contract.ActivityResultContracts
+                .RequestMultiplePermissions(),
+        ) { grants ->
             pendingGrants?.complete(grants)
             pendingGrants = null
         }
@@ -149,6 +151,7 @@ private fun Intent.deepLinkRoute(): String? {
  *
  * @return the stage [AppEntry] should move to, or `null` if [currentStage] already reflects [session].
  */
+
 /**
  * P1.3: true when a signed-in session still owes its MFA step (not yet done, and not already past
  * it via a set PIN). Extracted so [nextStageForSession] stays under the complexity budget.
@@ -159,8 +162,7 @@ private fun sessionOwesMfa(
 ): Boolean = session.isSignedIn && mfaRequired && !session.mfaDone && !session.hasPin
 
 /** A stage the app only reaches after login — used to bounce a signed-out session back to LOGIN. */
-private fun AppStage.isPastLogin(): Boolean =
-    this == AppStage.PIN || this == AppStage.APP || this == AppStage.MFA || this == AppStage.ONBOARDING
+private fun AppStage.isPastLogin(): Boolean = this == AppStage.PIN || this == AppStage.APP || this == AppStage.MFA || this == AppStage.ONBOARDING
 
 /** Stages where the "signed-in + has PIN → go to APP" reconciliation must NOT yank the user out. */
 private fun AppStage.isMidAuthFlow(): Boolean = this == AppStage.PIN || this == AppStage.APP || this == AppStage.ONBOARDING

@@ -84,9 +84,9 @@ class MileageAppFunctions(
      *
      * @param appFunctionContext The execution context.
      *
- * ponytail: appFunctionContext is unused here but mandated by the AppFunctions contract — it
- * MUST be the first parameter of every @AppFunction method (see the appfunctions skill).
- */
+     * ponytail: appFunctionContext is unused here but mandated by the AppFunctions contract — it
+     * MUST be the first parameter of every @AppFunction method (see the appfunctions skill).
+     */
     @Suppress("UnusedParameter")
     @AppFunction(isDescribedByKDoc = true)
     suspend fun startTrackingTrip(appFunctionContext: AppFunctionContext) {
@@ -196,5 +196,9 @@ private fun String.toExpenseCategory(): ExpenseCategory =
 
 private fun todayStartEpochMs(): Long {
     val zone = ZoneId.systemDefault()
-    return LocalDate.now(zone).atStartOfDay(zone).toInstant().toEpochMilli()
+    return LocalDate
+        .now(zone)
+        .atStartOfDay(zone)
+        .toInstant()
+        .toEpochMilli()
 }

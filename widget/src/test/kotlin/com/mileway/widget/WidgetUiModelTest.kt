@@ -16,7 +16,6 @@ import org.junit.Test
  * render side of [WidgetUiModel] separately.
  */
 class WidgetUiModelTest {
-
     private val now = 1_000_000L
 
     @Test

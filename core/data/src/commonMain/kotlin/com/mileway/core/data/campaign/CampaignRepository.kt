@@ -11,7 +11,10 @@ import kotlin.time.Clock
  * profile marketing hub and the HomeScreen marketing strip (hence core:data, not a feature module).
  * [captureInterest] is the one-shot "Get in touch" — flips the flag; the UI disables the CTA after.
  */
-class CampaignRepository(private val dao: CampaignDao, private val clock: Clock = Clock.System) {
+class CampaignRepository(
+    private val dao: CampaignDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, newest-first campaigns (source: `startedOn` desc). */
     fun observeAll(): Flow<List<Campaign>> = dao.observeAll().map { rows -> rows.map { it.toCampaign() } }
 

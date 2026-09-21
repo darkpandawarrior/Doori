@@ -60,9 +60,10 @@ internal fun hueBlend(
     val a = from.hct()
     val b = to.hct()
     val delta = ((b.hue - a.hue + 540.0).mod(360.0)) - 180.0
-    return Hct.from(
-        (a.hue + delta * fraction).mod(360.0),
-        a.chroma + (b.chroma - a.chroma) * fraction,
-        a.tone,
-    ).toColor()
+    return Hct
+        .from(
+            (a.hue + delta * fraction).mod(360.0),
+            a.chroma + (b.chroma - a.chroma) * fraction,
+            a.tone,
+        ).toColor()
 }

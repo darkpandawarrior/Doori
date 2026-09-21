@@ -104,7 +104,9 @@ fun CouponsScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+                contentPadding =
+                    androidx.compose.foundation.layout
+                        .PaddingValues(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 item { ApplyCodeCard(state.code, state.canApply, state.applyResult, viewModel::onCodeChange, viewModel::applyCode) }

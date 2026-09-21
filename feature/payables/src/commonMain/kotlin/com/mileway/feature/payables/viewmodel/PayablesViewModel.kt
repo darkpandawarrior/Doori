@@ -31,11 +31,17 @@ data class PayablesUiState(
 sealed interface PayablesAction {
     data object Refresh : PayablesAction
 
-    data class SetVendorName(val name: String) : PayablesAction
+    data class SetVendorName(
+        val name: String,
+    ) : PayablesAction
 
-    data class SetDeliveryDate(val date: String) : PayablesAction
+    data class SetDeliveryDate(
+        val date: String,
+    ) : PayablesAction
 
-    data class SetOfficeLocation(val location: String) : PayablesAction
+    data class SetOfficeLocation(
+        val location: String,
+    ) : PayablesAction
 
     data object GoToStep1 : PayablesAction
 
@@ -43,23 +49,36 @@ sealed interface PayablesAction {
 
     data object AddLineItem : PayablesAction
 
-    data class RemoveLineItem(val index: Int) : PayablesAction
+    data class RemoveLineItem(
+        val index: Int,
+    ) : PayablesAction
 
-    data class UpdateLineItem(val index: Int, val item: NewLineItemDraft) : PayablesAction
+    data class UpdateLineItem(
+        val index: Int,
+        val item: NewLineItemDraft,
+    ) : PayablesAction
 
     data object SubmitPo : PayablesAction
 
     data object ResetForm : PayablesAction
 
-    data class OpenDetail(val id: String) : PayablesAction
+    data class OpenDetail(
+        val id: String,
+    ) : PayablesAction
 
-    data class ShowMessage(val message: String) : PayablesAction
+    data class ShowMessage(
+        val message: String,
+    ) : PayablesAction
 }
 
 sealed interface PayablesEffect {
-    data class ShowToast(val message: UiText) : PayablesEffect
+    data class ShowToast(
+        val message: UiText,
+    ) : PayablesEffect
 
-    data class NavigateToSuccess(val poId: String) : PayablesEffect
+    data class NavigateToSuccess(
+        val poId: String,
+    ) : PayablesEffect
 
     data object NavigateBack : PayablesEffect
 }

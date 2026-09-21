@@ -21,13 +21,17 @@ import kotlin.time.Clock
  * `violationCount`) are deterministic display data derived here from the entity, exactly as the
  * old hardcoded spec derived them from an index, never persisted into unrelated columns.
  */
-class VoucherHistoryRepository(private val dao: VoucherDao, private val clock: Clock = Clock.System) {
+class VoucherHistoryRepository(
+    private val dao: VoucherDao,
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
 
     /** All vouchers (newest-first), or just those in [status] when non-null, as a live [Flow]. */
     fun observeVouchers(status: VoucherStatus? = null): Flow<List<SubmittedVoucher>> =
         dao.observeAll().map { rows ->
-            rows.mapIndexed { index, row -> row.toSubmittedVoucher(index) }
+            rows
+                .mapIndexed { index, row -> row.toSubmittedVoucher(index) }
                 .filter { status == null || it.voucherState == status.label }
         }
 

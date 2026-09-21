@@ -70,7 +70,9 @@ sealed interface TrackingSuccessEffect {
      * here (not by the nav layer) so feature:tracking never depends on feature:logging — see
      * [ExpenseSourceContext]'s kdoc for why the context type itself lives in core:data.
      */
-    data class NavigateToAddExpense(val context: ExpenseSourceContext) : TrackingSuccessEffect
+    data class NavigateToAddExpense(
+        val context: ExpenseSourceContext,
+    ) : TrackingSuccessEffect
 }
 
 /**

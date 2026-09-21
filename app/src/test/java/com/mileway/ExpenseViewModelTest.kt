@@ -28,7 +28,6 @@ import kotlin.test.assertTrue
  * The repository is a concrete in-memory mock (no deps).
  */
 class ExpenseViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -82,7 +81,10 @@ class ExpenseViewModelTest {
         val vm = viewModel()
         vm.onAction(ExpenseAction.AdvanceStep)
         assertEquals(1, vm.state.value.form.step)
-        assertTrue(vm.state.value.form.errors.containsKey(ExpenseFormValidator.FIELD_CATEGORY))
+        assertTrue(
+            vm.state.value.form.errors
+                .containsKey(ExpenseFormValidator.FIELD_CATEGORY),
+        )
     }
 
     @Test
@@ -91,7 +93,10 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
         vm.onAction(ExpenseAction.AdvanceStep)
         assertEquals(2, vm.state.value.form.step)
-        assertTrue(vm.state.value.form.errors.isEmpty())
+        assertTrue(
+            vm.state.value.form.errors
+                .isEmpty(),
+        )
     }
 
     @Test
@@ -108,46 +113,55 @@ class ExpenseViewModelTest {
     @Test
     fun `SetFormValue records a custom-form field value`() {
         val vm = viewModel()
-        vm.onAction(ExpenseAction.SetFormValue("gstInvoiceNumber", com.mileway.core.forms.FormFieldValue.Text("GST-123")))
+        vm.onAction(
+            ExpenseAction.SetFormValue(
+                "gstInvoiceNumber",
+                com.mileway.core.forms.FormFieldValue
+                    .Text("GST-123"),
+            ),
+        )
         assertEquals(
-            com.mileway.core.forms.FormFieldValue.Text("GST-123"),
+            com.mileway.core.forms.FormFieldValue
+                .Text("GST-123"),
             vm.state.value.form.formValues["gstInvoiceNumber"],
         )
     }
 
     @Test
-    fun `SubmitExpense records the amount and navigates to success`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            val effect = awaitItem()
-            assertTrue(effect is ExpenseEffect.NavigateToSuccess)
-            assertEquals((effect as ExpenseEffect.NavigateToSuccess).id, vm.state.value.lastSubmittedId)
+    fun `SubmitExpense records the amount and navigates to success`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                val effect = awaitItem()
+                assertTrue(effect is ExpenseEffect.NavigateToSuccess)
+                assertEquals((effect as ExpenseEffect.NavigateToSuccess).id, vm.state.value.lastSubmittedId)
+            }
+            assertEquals(249.50, vm.state.value.lastSubmittedAmount)
         }
-        assertEquals(249.50, vm.state.value.lastSubmittedAmount)
-    }
 
     @Test
-    fun `SubmitExpense appends the new record to the repository`() = runTest {
-        val repository = ExpenseRepository()
-        val vm = ExpenseViewModel(repository)
-        val before = repository.getAll().size
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense appends the new record to the repository`() =
+        runTest {
+            val repository = ExpenseRepository()
+            val vm = ExpenseViewModel(repository)
+            val before = repository.getAll().size
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            assertEquals(before + 1, repository.getAll().size)
+            val inserted = repository.getById(vm.state.value.lastSubmittedId)
+            assertNotNull(inserted)
+            assertEquals("Cafe Coffee Day", inserted.merchantName)
+            assertEquals(ExpenseCategory.FOOD, inserted.category)
         }
-        assertEquals(before + 1, repository.getAll().size)
-        val inserted = repository.getById(vm.state.value.lastSubmittedId)
-        assertNotNull(inserted)
-        assertEquals("Cafe Coffee Day", inserted.merchantName)
-        assertEquals(ExpenseCategory.FOOD, inserted.category)
-    }
 
     @Test
     fun `SubmitExpense with a blank merchant name sets a field error instead of submitting`() {
@@ -156,7 +170,10 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SetAmount("249.50"))
         vm.onAction(ExpenseAction.SubmitExpense)
         assertEquals("", vm.state.value.lastSubmittedId)
-        assertTrue(vm.state.value.form.errors.containsKey(ExpenseFormValidator.FIELD_MERCHANT_NAME))
+        assertTrue(
+            vm.state.value.form.errors
+                .containsKey(ExpenseFormValidator.FIELD_MERCHANT_NAME),
+        )
     }
 
     @Test
@@ -169,37 +186,39 @@ class ExpenseViewModelTest {
     }
 
     @Test
-    fun `SubmitExpense persists the attached receipt image path to the repository`() = runTest {
-        val repository = ExpenseRepository()
-        val vm = ExpenseViewModel(repository)
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.onAction(ExpenseAction.SetReceiptImage("content://media/picked/2"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense persists the attached receipt image path to the repository`() =
+        runTest {
+            val repository = ExpenseRepository()
+            val vm = ExpenseViewModel(repository)
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.onAction(ExpenseAction.SetReceiptImage("content://media/picked/2"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            val inserted = repository.getById(vm.state.value.lastSubmittedId)
+            assertNotNull(inserted)
+            assertEquals("content://media/picked/2", inserted.receiptImagePath)
         }
-        val inserted = repository.getById(vm.state.value.lastSubmittedId)
-        assertNotNull(inserted)
-        assertEquals("content://media/picked/2", inserted.receiptImagePath)
-    }
 
     @Test
-    fun `SubmitExpense with no receipt attached persists a null receiptImagePath`() = runTest {
-        val repository = ExpenseRepository()
-        val vm = ExpenseViewModel(repository)
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense with no receipt attached persists a null receiptImagePath`() =
+        runTest {
+            val repository = ExpenseRepository()
+            val vm = ExpenseViewModel(repository)
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            val inserted = repository.getById(vm.state.value.lastSubmittedId)
+            assertNotNull(inserted)
+            assertEquals(null, inserted.receiptImagePath)
         }
-        val inserted = repository.getById(vm.state.value.lastSubmittedId)
-        assertNotNull(inserted)
-        assertEquals(null, inserted.receiptImagePath)
-    }
 
     // ── P1.7: project/cost-center tagging via stub Office picker ───────────────
 
@@ -220,41 +239,46 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SetAmount("500"))
         vm.onAction(ExpenseAction.SubmitExpense)
         assertEquals("", vm.state.value.lastSubmittedId)
-        assertTrue(vm.state.value.form.errors.containsKey(ExpenseFormValidator.FIELD_OFFICE_CODE))
+        assertTrue(
+            vm.state.value.form.errors
+                .containsKey(ExpenseFormValidator.FIELD_OFFICE_CODE),
+        )
     }
 
     @Test
-    fun `SubmitExpense on a cost-center-gated category persists the selected officeCode`() = runTest {
-        val repository = ExpenseRepository()
-        val vm = ExpenseViewModel(repository)
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
-        vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
-        vm.onAction(ExpenseAction.SetAmount("500"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense on a cost-center-gated category persists the selected officeCode`() =
+        runTest {
+            val repository = ExpenseRepository()
+            val vm = ExpenseViewModel(repository)
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+            vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
+            vm.onAction(ExpenseAction.SetAmount("500"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            val inserted = repository.getById(vm.state.value.lastSubmittedId)
+            assertNotNull(inserted)
+            assertEquals("1345", inserted.officeCode)
         }
-        val inserted = repository.getById(vm.state.value.lastSubmittedId)
-        assertNotNull(inserted)
-        assertEquals("1345", inserted.officeCode)
-    }
 
     @Test
-    fun `SubmitExpense on a category that does not require a cost center persists a null officeCode`() = runTest {
-        val repository = ExpenseRepository()
-        val vm = ExpenseViewModel(repository)
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense on a category that does not require a cost center persists a null officeCode`() =
+        runTest {
+            val repository = ExpenseRepository()
+            val vm = ExpenseViewModel(repository)
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            val inserted = repository.getById(vm.state.value.lastSubmittedId)
+            assertNotNull(inserted)
+            assertEquals(null, inserted.officeCode)
         }
-        val inserted = repository.getById(vm.state.value.lastSubmittedId)
-        assertNotNull(inserted)
-        assertEquals(null, inserted.officeCode)
-    }
 
     // ── V27 P27.E.1: step-2 custom form (ExpenseCustomFormCatalog, requiresGst categories) ──
 
@@ -267,37 +291,60 @@ class ExpenseViewModelTest {
         vm.onAction(ExpenseAction.SetOfficeCode("1345"))
         vm.onAction(ExpenseAction.SubmitExpense)
         assertEquals("", vm.state.value.lastSubmittedId)
-        assertTrue(vm.state.value.form.errors.containsKey("gstInvoiceNumber"))
+        assertTrue(
+            vm.state.value.form.errors
+                .containsKey("gstInvoiceNumber"),
+        )
     }
 
     @Test
-    fun `SubmitExpense on a GST-required category with the custom form filled in submits`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.ACCOMMODATION))
-        vm.onAction(ExpenseAction.SetMerchant("Taj Hotel"))
-        vm.onAction(ExpenseAction.SetAmount("2000.0"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.onAction(ExpenseAction.SetFormValue("gstInvoiceNumber", com.mileway.core.forms.FormFieldValue.Text("GST-INV-1")))
-        vm.onAction(ExpenseAction.SetFormValue("gstDeclaration", com.mileway.core.forms.FormFieldValue.Declaration(true)))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+    fun `SubmitExpense on a GST-required category with the custom form filled in submits`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.ACCOMMODATION))
+            vm.onAction(ExpenseAction.SetMerchant("Taj Hotel"))
+            vm.onAction(ExpenseAction.SetAmount("2000.0"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.onAction(
+                ExpenseAction.SetFormValue(
+                    "gstInvoiceNumber",
+                    com.mileway.core.forms.FormFieldValue
+                        .Text("GST-INV-1"),
+                ),
+            )
+            vm.onAction(
+                ExpenseAction.SetFormValue(
+                    "gstDeclaration",
+                    com.mileway.core.forms.FormFieldValue
+                        .Declaration(true),
+                ),
+            )
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+            }
+            assertTrue(
+                vm.state.value.lastSubmittedId
+                    .isNotEmpty(),
+            )
         }
-        assertTrue(vm.state.value.lastSubmittedId.isNotEmpty())
-    }
 
     @Test
-    fun `SubmitExpense on a category with no requiresGst flag never demands the custom form`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+    fun `SubmitExpense on a category with no requiresGst flag never demands the custom form`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+            }
+            assertTrue(
+                vm.state.value.form.errors
+                    .isEmpty(),
+            )
         }
-        assertTrue(vm.state.value.form.errors.isEmpty())
-    }
 
     @Test
     fun `OpenDetail resolves a known id and falls back to Empty for an unknown one`() {
@@ -356,7 +403,11 @@ class ExpenseViewModelTest {
             )
             val vm = ExpenseViewModel(ExpenseRepository(dao))
             advanceUntilIdle()
-            assertEquals("Cafe Coffee Day", vm.state.value.resumableDraft?.merchantName)
+            assertEquals(
+                "Cafe Coffee Day",
+                vm.state.value.resumableDraft
+                    ?.merchantName,
+            )
         }
 
     @Test
@@ -431,32 +482,40 @@ class ExpenseViewModelTest {
     // ── P1.6: tiered policy engine (PolicyMockData.outcomeForExpenseAmount) ────
 
     @Test
-    fun `SubmitExpense below 1000 resolves to SUCCESS with no violations`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("249.50"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense below 1000 resolves to SUCCESS with no violations`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("249.50"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus)
+            assertTrue(
+                vm.state.value.lastSubmissionViolations
+                    .isEmpty(),
+            )
         }
-        assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus)
-        assertTrue(vm.state.value.lastSubmissionViolations.isEmpty())
-    }
 
     @Test
-    fun `SubmitExpense between 1000 and 5000 resolves to REIMBURSABLE_ADJUSTED`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
-        vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
-        vm.onAction(ExpenseAction.SetAmount("1500.0"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            awaitItem()
+    fun `SubmitExpense between 1000 and 5000 resolves to REIMBURSABLE_ADJUSTED`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetMerchant("Cafe Coffee Day"))
+            vm.onAction(ExpenseAction.SetAmount("1500.0"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                awaitItem()
+            }
+            assertEquals(SubmissionStatus.REIMBURSABLE_ADJUSTED, vm.state.value.lastSubmissionStatus)
+            assertTrue(
+                vm.state.value.lastSubmissionViolations
+                    .isEmpty(),
+            )
         }
-        assertEquals(SubmissionStatus.REIMBURSABLE_ADJUSTED, vm.state.value.lastSubmissionStatus)
-        assertTrue(vm.state.value.lastSubmissionViolations.isEmpty())
-    }
 
     // V27 P27.E.3: a tiered-policy-blocking outcome no longer submits straight through — the
     // first SubmitExpense emits ShowPolicySheet and leaves lastSubmissionStatus untouched;
@@ -464,91 +523,102 @@ class ExpenseViewModelTest {
     // submit and updates state, mirroring the ModalBottomSheet flow the real screen drives.
 
     @Test
-    fun `SubmitExpense between 5000 and 10000 shows the policy sheet with a violation`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
-        vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
-        vm.onAction(ExpenseAction.SetAmount("7500.0"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            val effect = awaitItem()
-            assertTrue(effect is ExpenseEffect.ShowPolicySheet)
-            assertEquals(1, (effect as ExpenseEffect.ShowPolicySheet).violations.size)
+    fun `SubmitExpense between 5000 and 10000 shows the policy sheet with a violation`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+            vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
+            vm.onAction(ExpenseAction.SetAmount("7500.0"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                val effect = awaitItem()
+                assertTrue(effect is ExpenseEffect.ShowPolicySheet)
+                assertEquals(1, (effect as ExpenseEffect.ShowPolicySheet).violations.size)
+            }
+            assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus) // untouched until confirmed
         }
-        assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus) // untouched until confirmed
-    }
 
     @Test
-    fun `ConfirmSubmitDespitePolicy after a POLICY_VIOLATION sheet performs the submit`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
-        vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
-        vm.onAction(ExpenseAction.SetAmount("7500.0"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
-            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
-            assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+    fun `ConfirmSubmitDespitePolicy after a POLICY_VIOLATION sheet performs the submit`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+            vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
+            vm.onAction(ExpenseAction.SetAmount("7500.0"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+                vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
+                assertTrue(awaitItem() is ExpenseEffect.NavigateToSuccess)
+            }
+            assertEquals(SubmissionStatus.POLICY_VIOLATION, vm.state.value.lastSubmissionStatus)
+            assertEquals(1, vm.state.value.lastSubmissionViolations.size)
         }
-        assertEquals(SubmissionStatus.POLICY_VIOLATION, vm.state.value.lastSubmissionStatus)
-        assertEquals(1, vm.state.value.lastSubmissionViolations.size)
-    }
 
     @Test
-    fun `SubmitExpense between 10000 and 25000 resolves to NEEDS_APPROVAL once confirmed`() = runTest {
-        // TRAVEL (not ACCOMMODATION/OFFICE_SUPPLIES) so this doesn't also need the requiresGst
-        // custom form filled in — that gate is covered separately below.
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
-        vm.onAction(ExpenseAction.SetMerchant("Taj Travels"))
-        vm.onAction(ExpenseAction.SetAmount("15000.0"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
-            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
-            awaitItem()
+    fun `SubmitExpense between 10000 and 25000 resolves to NEEDS_APPROVAL once confirmed`() =
+        runTest {
+            // TRAVEL (not ACCOMMODATION/OFFICE_SUPPLIES) so this doesn't also need the requiresGst
+            // custom form filled in — that gate is covered separately below.
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+            vm.onAction(ExpenseAction.SetMerchant("Taj Travels"))
+            vm.onAction(ExpenseAction.SetAmount("15000.0"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+                vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
+                awaitItem()
+            }
+            assertEquals(SubmissionStatus.NEEDS_APPROVAL, vm.state.value.lastSubmissionStatus)
+            assertTrue(
+                vm.state.value.lastSubmissionViolations
+                    .isEmpty(),
+            )
         }
-        assertEquals(SubmissionStatus.NEEDS_APPROVAL, vm.state.value.lastSubmissionStatus)
-        assertTrue(vm.state.value.lastSubmissionViolations.isEmpty())
-    }
 
     @Test
-    fun `SubmitExpense above 25000 resolves to HARD_STOP once confirmed`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
-        vm.onAction(ExpenseAction.SetMerchant("IndiGo Airlines"))
-        vm.onAction(ExpenseAction.SetAmount("30000.0"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
-            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
-            awaitItem()
+    fun `SubmitExpense above 25000 resolves to HARD_STOP once confirmed`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+            vm.onAction(ExpenseAction.SetMerchant("IndiGo Airlines"))
+            vm.onAction(ExpenseAction.SetAmount("30000.0"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+                vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
+                awaitItem()
+            }
+            assertEquals(SubmissionStatus.HARD_STOP, vm.state.value.lastSubmissionStatus)
+            assertEquals(1, vm.state.value.lastSubmissionViolations.size)
         }
-        assertEquals(SubmissionStatus.HARD_STOP, vm.state.value.lastSubmissionStatus)
-        assertEquals(1, vm.state.value.lastSubmissionViolations.size)
-    }
 
     @Test
-    fun `ResetForm clears the last submission status and violations`() = runTest {
-        val vm = viewModel()
-        vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
-        vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
-        vm.onAction(ExpenseAction.SetAmount("7500.0"))
-        vm.onAction(ExpenseAction.SetOfficeCode("1345"))
-        vm.effect.test {
-            vm.onAction(ExpenseAction.SubmitExpense)
-            assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
-            vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
-            awaitItem()
+    fun `ResetForm clears the last submission status and violations`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.TRAVEL))
+            vm.onAction(ExpenseAction.SetMerchant("Ola Cabs"))
+            vm.onAction(ExpenseAction.SetAmount("7500.0"))
+            vm.onAction(ExpenseAction.SetOfficeCode("1345"))
+            vm.effect.test {
+                vm.onAction(ExpenseAction.SubmitExpense)
+                assertTrue(awaitItem() is ExpenseEffect.ShowPolicySheet)
+                vm.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
+                awaitItem()
+            }
+            vm.onAction(ExpenseAction.ResetForm)
+            assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus)
+            assertTrue(
+                vm.state.value.lastSubmissionViolations
+                    .isEmpty(),
+            )
         }
-        vm.onAction(ExpenseAction.ResetForm)
-        assertEquals(SubmissionStatus.SUCCESS, vm.state.value.lastSubmissionStatus)
-        assertTrue(vm.state.value.lastSubmissionViolations.isEmpty())
-    }
 
     // ── P1.8: edit-after-submit / resubmit flow ────────────────────────────────
 
@@ -619,7 +689,10 @@ class ExpenseViewModelTest {
                 vm.onAction(ExpenseAction.SubmitExpense)
                 awaitItem()
             }
-            assertTrue(vm.state.value.lastSubmittedId.startsWith("EXP-NEW-"))
+            assertTrue(
+                vm.state.value.lastSubmittedId
+                    .startsWith("EXP-NEW-"),
+            )
         }
 
     @Test

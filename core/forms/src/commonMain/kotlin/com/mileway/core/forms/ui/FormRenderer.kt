@@ -466,7 +466,8 @@ private fun EnterpriseControl(
                     }
                 Row(
                     modifier =
-                        Modifier.fillMaxWidth()
+                        Modifier
+                            .fillMaxWidth()
                             .clickable {
                                 if (isMulti) {
                                     val current = value.values
@@ -475,8 +476,7 @@ private fun EnterpriseControl(
                                     onValueChange(FormFieldValue.Select(option))
                                     showSheet = false
                                 }
-                            }
-                            .padding(vertical = DesignTokens.Spacing.s),
+                            }.padding(vertical = DesignTokens.Spacing.s),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -645,7 +645,12 @@ private fun Double.toDisplayString(): String = if (this == kotlin.math.floor(thi
 private fun isoDateToMillis(iso: String?): Long? =
     iso?.let { runCatching { LocalDate.parse(it).atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds() }.getOrNull() }
 
-private fun millisToIsoDate(millis: Long): String = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+private fun millisToIsoDate(millis: Long): String =
+    Instant
+        .fromEpochMilliseconds(millis)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
+        .toString()
 
 private fun timeStringToMinutes(value: String?): Int {
     val parts = value?.split(":") ?: return 9 * 60

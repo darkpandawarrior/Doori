@@ -6,7 +6,9 @@ import com.mileway.core.data.model.db.EventType
 import com.mileway.core.data.model.db.HardwareEvent
 import kotlinx.coroutines.flow.Flow
 
-class HardwareEventRepository(private val dao: HardwareEventDao) {
+class HardwareEventRepository(
+    private val dao: HardwareEventDao,
+) {
     suspend fun insert(event: HardwareEvent): Result<Long> = runCatching { dao.insert(event) }
 
     suspend fun insertAll(events: List<HardwareEvent>): Result<List<Long>> = runCatching { dao.insertAll(events) }

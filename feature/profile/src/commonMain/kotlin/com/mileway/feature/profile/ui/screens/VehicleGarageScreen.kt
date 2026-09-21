@@ -262,7 +262,15 @@ private fun AvailabilityEditor(
     val existing = vehicle.availability
     var start by remember(vehicle.id) { mutableStateOf(existing?.startMinute?.let(::minutesToHhmm) ?: "09:00") }
     var end by remember(vehicle.id) { mutableStateOf(existing?.endMinute?.let(::minutesToHhmm) ?: "18:00") }
-    var rate by remember(vehicle.id) { mutableStateOf(existing?.ratePerHour?.takeIf { it >= 0 }?.toInt()?.toString() ?: "80") }
+    var rate by remember(vehicle.id) {
+        mutableStateOf(
+            existing
+                ?.ratePerHour
+                ?.takeIf { it >= 0 }
+                ?.toInt()
+                ?.toString() ?: "80",
+        )
+    }
 
     Spacer(Modifier.padding(top = DesignTokens.Spacing.s))
     Text(grv("garage_availability", "Availability (rentable)"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

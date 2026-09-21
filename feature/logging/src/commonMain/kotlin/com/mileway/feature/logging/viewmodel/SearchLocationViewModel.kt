@@ -35,17 +35,30 @@ data class SearchLocationState(
 )
 
 sealed interface SearchLocationAction {
-    data class QueryChanged(val query: String) : SearchLocationAction
+    data class QueryChanged(
+        val query: String,
+    ) : SearchLocationAction
 
-    data class Select(val entry: LocationEntry) : SearchLocationAction
+    data class Select(
+        val entry: LocationEntry,
+    ) : SearchLocationAction
 
-    data class ToggleFavorite(val entry: LocationEntry) : SearchLocationAction
+    data class ToggleFavorite(
+        val entry: LocationEntry,
+    ) : SearchLocationAction
 
-    data class SaveAs(val entry: LocationEntry, val label: String) : SearchLocationAction
+    data class SaveAs(
+        val entry: LocationEntry,
+        val label: String,
+    ) : SearchLocationAction
 
-    data class RemoveRecent(val entry: LocationEntry) : SearchLocationAction
+    data class RemoveRecent(
+        val entry: LocationEntry,
+    ) : SearchLocationAction
 
-    data class RemoveSaved(val label: String) : SearchLocationAction
+    data class RemoveSaved(
+        val label: String,
+    ) : SearchLocationAction
 
     data object ClearRecent : SearchLocationAction
 
@@ -54,7 +67,9 @@ sealed interface SearchLocationAction {
 
 sealed interface SearchLocationEffect {
     /** A place was chosen — the host screen inserts it into the itinerary and dismisses the sheet. */
-    data class Picked(val entry: LocationEntry) : SearchLocationEffect
+    data class Picked(
+        val entry: LocationEntry,
+    ) : SearchLocationEffect
 }
 
 /**

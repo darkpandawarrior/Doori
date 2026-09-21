@@ -81,8 +81,14 @@ class DriveReviewPhaseTest {
             ExpenseSubmissionResponse(
                 transId = "TXN-9",
                 reimbursableAmount = 99.5,
-                violations = listOf(com.mileway.core.data.model.network.PolicyViolation(message = "over limit")),
-                issuedVoucher = com.mileway.core.data.model.network.Voucher(number = "V-1", amount = 50.0),
+                violations =
+                    listOf(
+                        com.mileway.core.data.model.network
+                            .PolicyViolation(message = "over limit"),
+                    ),
+                issuedVoucher =
+                    com.mileway.core.data.model.network
+                        .Voucher(number = "V-1", amount = 50.0),
             )
         val result = response.toSubmissionResult(distanceKm = 12.0, vehicleKey = "car-1", vehicleName = "", startTime = 1L, endTime = 2L)
         assertEquals(12.0, result.distanceKm)
@@ -182,4 +188,5 @@ private fun buildSubmitActionForTest(
     vehicleKey: String,
     startTime: Long,
     endTime: Long,
-) = com.mileway.feature.tracking.viewmodel.MileageSubmissionAction.Submit(routeId, distanceKm, vehicleKey, startTime, endTime)
+) = com.mileway.feature.tracking.viewmodel.MileageSubmissionAction
+    .Submit(routeId, distanceKm, vehicleKey, startTime, endTime)

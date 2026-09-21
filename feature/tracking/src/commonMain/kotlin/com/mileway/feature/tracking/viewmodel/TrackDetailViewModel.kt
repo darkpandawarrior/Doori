@@ -29,10 +29,14 @@ data class TrackDetailUiState(
 )
 
 sealed interface TrackDetailAction {
-    data class Load(val routeId: String) : TrackDetailAction
+    data class Load(
+        val routeId: String,
+    ) : TrackDetailAction
 
     /** Corrects the recorded distance (e.g. GPS drift added a stray km). Rejects <= 0. */
-    data class EditDistance(val distanceKm: Double) : TrackDetailAction
+    data class EditDistance(
+        val distanceKm: Double,
+    ) : TrackDetailAction
 
     /** Flips the business/personal classification (see [SavedTrackRepository.setPersonal]). */
     data object TogglePersonal : TrackDetailAction
@@ -45,7 +49,9 @@ sealed interface TrackDetailEffect {
     /** The journey was deleted — the screen has nothing left to show, so it should navigate back. */
     data object Discarded : TrackDetailEffect
 
-    data class ActionFailed(val message: String) : TrackDetailEffect
+    data class ActionFailed(
+        val message: String,
+    ) : TrackDetailEffect
 }
 
 class TrackDetailViewModel(
@@ -70,12 +76,14 @@ class TrackDetailViewModel(
             val track = trackRepository.getByRouteId(id)
             setState { copy(track = track?.toDisplayData(), rawTrack = track, isLoading = false) }
         }
-        locationRepository.locationsForToken(id)
+        locationRepository
+            .locationsForToken(id)
             .onEach { locs -> setState { copy(locations = locs) } }
             .catch { e -> setState { copy(error = e.message) } }
             .launchIn(viewModelScope)
 
-        attachmentRepository.attachmentsForTrack(id)
+        attachmentRepository
+            .attachmentsForTrack(id)
             .onEach { attachments -> setState { copy(attachments = attachments) } }
             .catch { e -> setState { copy(error = e.message) } }
             .launchIn(viewModelScope)

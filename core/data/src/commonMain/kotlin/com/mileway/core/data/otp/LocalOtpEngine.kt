@@ -31,7 +31,9 @@ data class OtpDelivery(
 sealed interface OtpVerifyResult {
     data object Success : OtpVerifyResult
 
-    data class WrongCode(val attemptsRemaining: Int) : OtpVerifyResult
+    data class WrongCode(
+        val attemptsRemaining: Int,
+    ) : OtpVerifyResult
 
     data object Expired : OtpVerifyResult
 
@@ -41,8 +43,13 @@ sealed interface OtpVerifyResult {
     data object NoChallenge : OtpVerifyResult
 }
 
-class LocalOtpEngine(private val clock: Clock = Clock.System) {
-    private data class Key(val purpose: OtpPurpose, val target: String)
+class LocalOtpEngine(
+    private val clock: Clock = Clock.System,
+) {
+    private data class Key(
+        val purpose: OtpPurpose,
+        val target: String,
+    )
 
     private data class Challenge(
         val code: String,

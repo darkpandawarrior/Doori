@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.map
 private val Context.vehiclePricingCacheDataStore by preferencesDataStore(name = "vehicle_pricing_cache")
 
 /** Android actual for [VehiclePricingCache] (PLAN_V33 A6) — mirrors `SnapshotCacheStore`'s idiom. */
-class VehiclePricingCacheStore(private val context: Context) : VehiclePricingCache {
+class VehiclePricingCacheStore(
+    private val context: Context,
+) : VehiclePricingCache {
     private val payloadKey = stringPreferencesKey("vehicle_pricing_snapshot_json")
 
     override val snapshot: Flow<VehiclePricingSnapshot?> =

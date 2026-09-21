@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
  * subtraction, and movement threshold are verified directly.
  */
 class MotionFusionTest {
-
     @Test
     fun `gravity estimate converges toward a steady 1g on the z axis`() {
         val steady = MotionReading(accelX = 0f, accelY = 0f, accelZ = 9.81f)

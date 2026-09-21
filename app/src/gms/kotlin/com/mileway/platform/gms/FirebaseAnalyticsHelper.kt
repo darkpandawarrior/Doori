@@ -10,7 +10,9 @@ import com.siddharth.kmp.appshell.AnalyticsHelper
  * CF.3: gms analytics impl backed by Firebase Analytics. Events are already self-clamped by
  * [AnalyticsEvent]; without a real google-services config Firebase silently drops them (never crashes).
  */
-class FirebaseAnalyticsHelper(context: Context) : AnalyticsHelper {
+class FirebaseAnalyticsHelper(
+    context: Context,
+) : AnalyticsHelper {
     private val analytics = FirebaseAnalytics.getInstance(context)
 
     override fun log(event: AnalyticsEvent) {

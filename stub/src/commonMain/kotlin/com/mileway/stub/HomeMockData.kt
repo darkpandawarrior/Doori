@@ -83,7 +83,7 @@ object HomeMockData {
             ),
         )
 
-    fun notificationCount(): Int = 4
+    const val notificationCount: Int = 4
 
     fun authTokens(): DemoAuthTokens =
         DemoAuthTokens(

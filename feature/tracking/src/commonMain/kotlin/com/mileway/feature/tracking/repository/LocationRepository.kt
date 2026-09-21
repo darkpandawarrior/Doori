@@ -4,7 +4,9 @@ import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.model.db.LocationData
 import kotlinx.coroutines.flow.Flow
 
-class LocationRepository(private val dao: LocationDao) {
+class LocationRepository(
+    private val dao: LocationDao,
+) {
     fun locationsForToken(token: String): Flow<List<LocationData>> = dao.getLocationsByToken(token)
 
     /** All check-in points across every trip (CheckInHistoryScreen), newest first. */

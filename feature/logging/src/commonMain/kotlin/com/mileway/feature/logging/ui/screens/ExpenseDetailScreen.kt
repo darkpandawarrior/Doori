@@ -413,7 +413,11 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
     return listOf(submitted, underReview, terminal)
 }
 
-private data class LineItem(val description: String, val qty: Int, val amount: Double)
+private data class LineItem(
+    val description: String,
+    val qty: Int,
+    val amount: Double,
+)
 
 private fun mockLineItems(expense: ExpenseRecord): List<LineItem> {
     val total = expense.amountRupees

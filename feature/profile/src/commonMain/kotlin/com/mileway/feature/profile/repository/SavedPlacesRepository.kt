@@ -18,7 +18,10 @@ import kotlin.time.Clock
  * and write-back to `EmployeeProfile.homeLocation` is deferred until a real profile write path
  * exists. See [observeHomeAddress] for the read seam callers should use.
  */
-class SavedPlacesRepository(private val dao: SavedPlaceDao, private val clock: Clock = Clock.System) {
+class SavedPlacesRepository(
+    private val dao: SavedPlaceDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live list of all saved places, most-recently-updated first. */
     fun observeAll(): Flow<List<SavedPlace>> = dao.observeAll().map { rows -> rows.map { it.toSavedPlace() } }
 

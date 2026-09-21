@@ -38,7 +38,10 @@ val generateVersionResource =
         val fingerprint = milewayFingerprint
         outputs.dir(outputDir)
         doLast {
-            outputDir.get().asFile.apply { mkdirs() }
+            outputDir
+                .get()
+                .asFile
+                .apply { mkdirs() }
                 .resolve("version.properties")
                 .writeText("fingerprint=$fingerprint\n")
         }

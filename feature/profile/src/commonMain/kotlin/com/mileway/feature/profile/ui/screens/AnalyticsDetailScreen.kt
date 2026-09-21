@@ -231,7 +231,8 @@ fun AnalyticsDetailScreen(
                             if (i > 0) HorizontalDivider(modifier = Modifier.padding(vertical = DesignTokens.Spacing.xs))
                             Row(
                                 modifier =
-                                    Modifier.fillMaxWidth()
+                                    Modifier
+                                        .fillMaxWidth()
                                         .clickable {
                                             viewModel.onAction(
                                                 AnalyticsAction.SelectMerchant(

@@ -16,7 +16,9 @@ import kotlinx.serialization.json.Json
  * into real Room persistence, plus the [LogMilesUiState] <-> [LogMilesDraftEntity] mapper the
  * viewmodel needs to save/load a draft's full form state (not just the summary shown in history).
  */
-class LogMilesDraftRepository(private val dao: LogMilesDraftDao) {
+class LogMilesDraftRepository(
+    private val dao: LogMilesDraftDao,
+) {
     fun allDrafts(): Flow<List<LogMilesDraftEntity>> = dao.getAllDrafts()
 
     suspend fun save(draft: LogMilesDraftEntity) = dao.upsertDraft(draft)
@@ -118,7 +120,12 @@ class LogMilesDraftRepository(private val dao: LogMilesDraftDao) {
 
 /** Minimal JSON payload for [LogMilesDraftEntity.processorFormDataJson] (P5.1: invoice date only, so far). */
 @Serializable
-private data class InvoiceDatePayload(val invoiceDateMillis: Long)
+private data class InvoiceDatePayload(
+    val invoiceDateMillis: Long,
+)
 
 /** Result of [LogMilesDraftRepository.loadDraft]: the rehydrated form state plus the persisted vehicle key. */
-data class LoadedLogMilesDraft(val uiState: LogMilesUiState, val vehicleKey: String?)
+data class LoadedLogMilesDraft(
+    val uiState: LogMilesUiState,
+    val vehicleKey: String?,
+)

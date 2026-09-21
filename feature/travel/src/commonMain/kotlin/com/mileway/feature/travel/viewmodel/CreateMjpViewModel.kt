@@ -27,17 +27,30 @@ data class CreateMjpUiState(
 }
 
 sealed interface CreateMjpAction {
-    data class SetPurpose(val value: String) : CreateMjpAction
+    data class SetPurpose(
+        val value: String,
+    ) : CreateMjpAction
 
     data object AddLeg : CreateMjpAction
 
-    data class RemoveLeg(val index: Int) : CreateMjpAction
+    data class RemoveLeg(
+        val index: Int,
+    ) : CreateMjpAction
 
-    data class SetLegFrom(val index: Int, val value: String) : CreateMjpAction
+    data class SetLegFrom(
+        val index: Int,
+        val value: String,
+    ) : CreateMjpAction
 
-    data class SetLegTo(val index: Int, val value: String) : CreateMjpAction
+    data class SetLegTo(
+        val index: Int,
+        val value: String,
+    ) : CreateMjpAction
 
-    data class SetLegDate(val index: Int, val value: String) : CreateMjpAction
+    data class SetLegDate(
+        val index: Int,
+        val value: String,
+    ) : CreateMjpAction
 
     data object Submit : CreateMjpAction
 }

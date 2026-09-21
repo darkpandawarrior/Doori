@@ -213,7 +213,9 @@ fun DelegationScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+                contentPadding =
+                    androidx.compose.foundation.layout
+                        .PaddingValues(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
                 item {

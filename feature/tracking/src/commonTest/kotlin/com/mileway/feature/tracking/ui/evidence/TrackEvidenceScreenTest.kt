@@ -94,7 +94,11 @@ class TrackEvidenceScreenTest {
 
         val spec = trackEvidenceDetailSpec(track)
 
-        val dateField = spec.sections.single { it.id == "compliance" }.fields.single { it.id == "compliance_date" } as DetailField.DateField
+        val dateField =
+            spec.sections
+                .single { it.id == "compliance" }
+                .fields
+                .single { it.id == "compliance_date" } as DetailField.DateField
         assertTrue(dateField.value.text() != "—")
     }
 
@@ -102,7 +106,11 @@ class TrackEvidenceScreenTest {
     fun `edit history is always rendered honestly rather than invented`() {
         val spec = trackEvidenceDetailSpec(sampleEvidenceTrack())
 
-        val row = spec.sections.single { it.id == "edit_history" }.fields.single() as DetailField.KeyValue
+        val row =
+            spec.sections
+                .single { it.id == "edit_history" }
+                .fields
+                .single() as DetailField.KeyValue
         assertTrue(row.value.text().contains("No edits recorded"))
     }
 
@@ -124,7 +132,10 @@ class TrackEvidenceScreenTest {
         val spec = trackEvidenceDetailSpec(sampleEvidenceTrack())
 
         val attachmentsField =
-            spec.sections.single { it.id == "evidence" }.fields.single { it.id == "evidence_attachments" } as DetailField.AttachmentList
+            spec.sections
+                .single { it.id == "evidence" }
+                .fields
+                .single { it.id == "evidence_attachments" } as DetailField.AttachmentList
         assertEquals(2, attachmentsField.attachments.size)
     }
 }

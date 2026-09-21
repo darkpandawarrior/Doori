@@ -16,7 +16,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-private class FakeCurrentTrackDataSource(initial: CurrentTrackData = CurrentTrackData.empty()) : CurrentTrackDataSource {
+private class FakeCurrentTrackDataSource(
+    initial: CurrentTrackData = CurrentTrackData.empty(),
+) : CurrentTrackDataSource {
     val flow = MutableStateFlow(initial)
     var clearCalls = 0
         private set
@@ -288,11 +290,16 @@ private fun track(
     name = "Journey $routeId",
     isCompleted = isCompleted,
     startedByEmployeeCode = employeeCode,
-    startLatitude = 0.0, startLongitude = 0.0,
-    endLatitude = 0.0, endLongitude = 0.0,
-    pausedLatitude = 0.0, pausedLongitude = 0.0,
-    startTime = 0L, endTime = if (isCompleted) 1L else -1L,
-    distance = 100.0, duration = 1_000L,
+    startLatitude = 0.0,
+    startLongitude = 0.0,
+    endLatitude = 0.0,
+    endLongitude = 0.0,
+    pausedLatitude = 0.0,
+    pausedLongitude = 0.0,
+    startTime = 0L,
+    endTime = if (isCompleted) 1L else -1L,
+    distance = 100.0,
+    duration = 1_000L,
 )
 
 /**

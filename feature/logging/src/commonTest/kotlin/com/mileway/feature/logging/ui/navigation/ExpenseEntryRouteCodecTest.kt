@@ -18,7 +18,8 @@ class ExpenseEntryRouteCodecTest {
         key: String,
     ): String {
         val query = route.substringAfter('?', "")
-        return query.split('&')
+        return query
+            .split('&')
             .firstOrNull { it.startsWith("$key=") }
             ?.substringAfter('=')
             .orEmpty()

@@ -18,6 +18,7 @@ class ReviewTrackerTest {
 
     private class CountingReviewManager : AppReviewManager {
         var prompts = 0
+
         override suspend fun promptForReview() {
             prompts++
         }

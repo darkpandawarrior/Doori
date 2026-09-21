@@ -1,14 +1,14 @@
 package com.mileway
 
+import com.mileway.core.data.dao.LocationDao
+import com.mileway.core.data.dao.SavedTrackDao
+import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.feature.tracking.repository.VehiclePricingCache
 import com.mileway.feature.tracking.repository.VehiclePricingSnapshot
 import com.mileway.seeder.DatabaseSeeder
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import com.mileway.core.data.dao.LocationDao
-import com.mileway.core.data.dao.SavedTrackDao
-import com.mileway.core.data.model.db.SavedTrack
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -18,7 +18,6 @@ import org.junit.Test
  * Verifies DatabaseSeeder only seeds when the DB is empty and seeds exactly 5 tracks.
  */
 class DatabaseSeederTest {
-
     private lateinit var trackDao: SavedTrackDao
     private lateinit var locationDao: LocationDao
     private lateinit var vehicleCache: VehiclePricingCache
@@ -33,48 +32,54 @@ class DatabaseSeederTest {
     }
 
     @Test
-    fun `does not seed when db is non-empty`() = runTest {
-        coEvery { trackDao.count() } returns 3L
-        seeder.seedIfEmpty()
-        coVerify(exactly = 0) { trackDao.insertSavedTrack(any()) }
-    }
+    fun `does not seed when db is non-empty`() =
+        runTest {
+            coEvery { trackDao.count() } returns 3L
+            seeder.seedIfEmpty()
+            coVerify(exactly = 0) { trackDao.insertSavedTrack(any()) }
+        }
 
     @Test
-    fun `seeds exactly 5 tracks when db is empty`() = runTest {
-        coEvery { trackDao.count() } returns 0L
-        seeder.seedIfEmpty()
-        coVerify(exactly = 5) { trackDao.insertSavedTrack(any<SavedTrack>()) }
-    }
+    fun `seeds exactly 5 tracks when db is empty`() =
+        runTest {
+            coEvery { trackDao.count() } returns 0L
+            seeder.seedIfEmpty()
+            coVerify(exactly = 5) { trackDao.insertSavedTrack(any<SavedTrack>()) }
+        }
 
     @Test
-    fun `seeds at least 12 locations per track`() = runTest {
-        coEvery { trackDao.count() } returns 0L
-        seeder.seedIfEmpty()
-        // Each of 5 tracks gets 13 locations (0..12 inclusive)
-        coVerify(atLeast = 5 * 13) { locationDao.insertLocation(any()) }
-    }
+    fun `seeds at least 12 locations per track`() =
+        runTest {
+            coEvery { trackDao.count() } returns 0L
+            seeder.seedIfEmpty()
+            // Each of 5 tracks gets 13 locations (0..12 inclusive)
+            coVerify(atLeast = 5 * 13) { locationDao.insertLocation(any()) }
+        }
 
     @Test
-    fun `seeded tracks have unique routeIds`() = runTest {
-        coEvery { trackDao.count() } returns 0L
-        val inserted = mutableListOf<SavedTrack>()
-        coEvery { trackDao.insertSavedTrack(capture(inserted)) } returns Unit
-        seeder.seedIfEmpty()
-        val uniqueIds = inserted.map { it.routeId }.toSet()
-        assert(uniqueIds.size == 5) { "Expected 5 unique routeIds, got $uniqueIds" }
-    }
+    fun `seeded tracks have unique routeIds`() =
+        runTest {
+            coEvery { trackDao.count() } returns 0L
+            val inserted = mutableListOf<SavedTrack>()
+            coEvery { trackDao.insertSavedTrack(capture(inserted)) } returns Unit
+            seeder.seedIfEmpty()
+            val uniqueIds = inserted.map { it.routeId }.toSet()
+            assert(uniqueIds.size == 5) { "Expected 5 unique routeIds, got $uniqueIds" }
+        }
 
     @Test
-    fun `seeds demo vehicles when cache is cold`() = runTest {
-        coEvery { vehicleCache.snapshot } returns flowOf(null)
-        seeder.seedVehiclesIfEmpty()
-        coVerify(exactly = 1) { vehicleCache.write(match { it.vehicles.isNotEmpty() }) }
-    }
+    fun `seeds demo vehicles when cache is cold`() =
+        runTest {
+            coEvery { vehicleCache.snapshot } returns flowOf(null)
+            seeder.seedVehiclesIfEmpty()
+            coVerify(exactly = 1) { vehicleCache.write(match { it.vehicles.isNotEmpty() }) }
+        }
 
     @Test
-    fun `does not overwrite an already-cached vehicle snapshot`() = runTest {
-        coEvery { vehicleCache.snapshot } returns flowOf(VehiclePricingSnapshot(vehicles = emptyList()))
-        seeder.seedVehiclesIfEmpty()
-        coVerify(exactly = 0) { vehicleCache.write(any()) }
-    }
+    fun `does not overwrite an already-cached vehicle snapshot`() =
+        runTest {
+            coEvery { vehicleCache.snapshot } returns flowOf(VehiclePricingSnapshot(vehicles = emptyList()))
+            seeder.seedVehiclesIfEmpty()
+            coVerify(exactly = 0) { vehicleCache.write(any()) }
+        }
 }

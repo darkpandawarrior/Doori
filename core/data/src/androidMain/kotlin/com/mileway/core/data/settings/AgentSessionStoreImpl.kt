@@ -10,16 +10,19 @@ import kotlinx.coroutines.flow.map
 
 private val Context.agentSessionDataStore by preferencesDataStore(name = "agent_session")
 
-class AgentSessionStoreImpl(private val context: Context) : AgentSessionStore {
+class AgentSessionStoreImpl(
+    private val context: Context,
+) : AgentSessionStore {
     private val threadIdKey = stringPreferencesKey("agent_active_thread_id")
     private val lastActiveKey = longPreferencesKey("agent_last_active_ms")
 
     override suspend fun getActiveThread(): Pair<String, Long>? =
-        context.agentSessionDataStore.data.map { prefs ->
-            val id = prefs[threadIdKey] ?: return@map null
-            val ms = prefs[lastActiveKey] ?: return@map null
-            id to ms
-        }.firstOrNull()
+        context.agentSessionDataStore.data
+            .map { prefs ->
+                val id = prefs[threadIdKey] ?: return@map null
+                val ms = prefs[lastActiveKey] ?: return@map null
+                id to ms
+            }.firstOrNull()
 
     override suspend fun setActiveThread(
         threadId: String,

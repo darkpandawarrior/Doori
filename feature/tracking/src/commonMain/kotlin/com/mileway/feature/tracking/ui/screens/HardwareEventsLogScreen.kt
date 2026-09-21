@@ -199,7 +199,9 @@ fun HardwareEventsLogScreen(
             // Audience filter chips
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
+                contentPadding =
+                    androidx.compose.foundation.layout
+                        .PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(EventAudience.entries.filter { it != EventAudience.UNKNOWN }) { audience ->

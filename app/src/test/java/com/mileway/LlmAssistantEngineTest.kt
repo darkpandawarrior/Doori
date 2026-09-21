@@ -14,69 +14,80 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class LlmAssistantEngineTest {
-
     @Test
-    fun `streams tokens from gateway and finalises with Done`() = runTest {
-        val fakeGateway = object : LlmGateway {
-            override fun isAvailable(): Boolean = true
+    fun `streams tokens from gateway and finalises with Done`() =
+        runTest {
+            val fakeGateway =
+                object : LlmGateway {
+                    override fun isAvailable(): Boolean = true
 
-            override fun stream(prompt: String): Flow<String> = flowOf("Hello", " world")
-        }
-        val engine = LlmAssistantEngine(fakeGateway)
-        var streamedText = ""
-        var doneText = ""
-        engine.respond("conv-1", "hi", 0).test {
-            assertTrue(awaitItem() is AssistantChunk.Thinking)
-            while (true) {
-                when (val item = awaitItem()) {
-                    is AssistantChunk.Token -> streamedText += item.text
-                    is AssistantChunk.Done -> { doneText = item.fullText; break }
-                    else -> {}
+                    override fun stream(prompt: String): Flow<String> = flowOf("Hello", " world")
                 }
+            val engine = LlmAssistantEngine(fakeGateway)
+            var streamedText = ""
+            var doneText = ""
+            engine.respond("conv-1", "hi", 0).test {
+                assertTrue(awaitItem() is AssistantChunk.Thinking)
+                while (true) {
+                    when (val item = awaitItem()) {
+                        is AssistantChunk.Token -> streamedText += item.text
+                        is AssistantChunk.Done -> {
+                            doneText = item.fullText
+                            break
+                        }
+                        else -> {}
+                    }
+                }
+                awaitComplete()
             }
-            awaitComplete()
+            assertEquals("Hello world", streamedText)
+            assertEquals("Hello world", doneText)
         }
-        assertEquals("Hello world", streamedText)
-        assertEquals("Hello world", doneText)
-    }
 
     @Test
-    fun `NoOpLlmGateway emits empty flow`() = runTest {
-        NoOpLlmGateway().stream("test").test {
-            awaitComplete()
+    fun `NoOpLlmGateway emits empty flow`() =
+        runTest {
+            NoOpLlmGateway().stream("test").test {
+                awaitComplete()
+            }
         }
-    }
 
     // Was "LlmAssistantEngine with NoOp gateway emits Done with empty text" — that was the exact
     // silently-dropped-reply bug this streaming lane closes. An empty stream now ends in a typed
     // AiFailure.EmptyReply error instead of a blank Done.
     @Test
-    fun `LlmAssistantEngine with NoOp gateway (empty stream) emits an EmptyReply error, not a blank Done`() = runTest {
-        val engine = LlmAssistantEngine(NoOpLlmGateway())
-        engine.respond("conv-1", "hi", 0).test {
-            assertTrue(awaitItem() is AssistantChunk.Thinking)
-            val error = awaitItem() as AssistantChunk.Error
-            assertEquals(AiFailure.EmptyReply, error.reason)
-            awaitComplete()
+    fun `LlmAssistantEngine with NoOp gateway (empty stream) emits an EmptyReply error, not a blank Done`() =
+        runTest {
+            val engine = LlmAssistantEngine(NoOpLlmGateway())
+            engine.respond("conv-1", "hi", 0).test {
+                assertTrue(awaitItem() is AssistantChunk.Thinking)
+                val error = awaitItem() as AssistantChunk.Error
+                assertEquals(AiFailure.EmptyReply, error.reason)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun `title suggestion set on first message`() = runTest {
-        val fakeGateway = object : LlmGateway {
-            override fun isAvailable(): Boolean = true
+    fun `title suggestion set on first message`() =
+        runTest {
+            val fakeGateway =
+                object : LlmGateway {
+                    override fun isAvailable(): Boolean = true
 
-            override fun stream(prompt: String): Flow<String> = flowOf("The rate is 8 per km.")
-        }
-        val engine = LlmAssistantEngine(fakeGateway)
-        var title: String? = null
-        engine.respond("conv-1", "What is the rate?", 0).test {
-            while (true) {
-                val item = awaitItem()
-                if (item is AssistantChunk.Done) { title = item.titleSuggestion; break }
+                    override fun stream(prompt: String): Flow<String> = flowOf("The rate is 8 per km.")
+                }
+            val engine = LlmAssistantEngine(fakeGateway)
+            var title: String? = null
+            engine.respond("conv-1", "What is the rate?", 0).test {
+                while (true) {
+                    val item = awaitItem()
+                    if (item is AssistantChunk.Done) {
+                        title = item.titleSuggestion
+                        break
+                    }
+                }
+                awaitComplete()
             }
-            awaitComplete()
+            assertTrue(title != null)
         }
-        assertTrue(title != null)
-    }
 }

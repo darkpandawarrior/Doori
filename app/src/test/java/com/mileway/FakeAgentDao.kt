@@ -26,7 +26,11 @@ class FakeAgentDao : AgentDao {
 
     override fun observeConversations(): Flow<List<AgentConversationEntity>> = _convFlow.asStateFlow()
 
-    override suspend fun updateConversationMeta(id: String, title: String, lastMessageMs: Long) {
+    override suspend fun updateConversationMeta(
+        id: String,
+        title: String,
+        lastMessageMs: Long,
+    ) {
         conversations[id]?.let { conversations[id] = it.copy(title = title, lastMessageMs = lastMessageMs) }
         flush()
     }
@@ -53,12 +57,19 @@ class FakeAgentDao : AgentDao {
         flush()
     }
 
-    override suspend fun updateFeedback(messageId: String, rating: Int, comment: String?) {
+    override suspend fun updateFeedback(
+        messageId: String,
+        rating: Int,
+        comment: String?,
+    ) {
         messages[messageId]?.let { messages[messageId] = it.copy(feedbackRating = rating, feedbackComment = comment) }
         flush()
     }
 
-    override suspend fun updateLastMessageTime(id: String, lastMessageMs: Long) {
+    override suspend fun updateLastMessageTime(
+        id: String,
+        lastMessageMs: Long,
+    ) {
         conversations[id]?.let { conversations[id] = it.copy(lastMessageMs = lastMessageMs) }
         flush()
     }

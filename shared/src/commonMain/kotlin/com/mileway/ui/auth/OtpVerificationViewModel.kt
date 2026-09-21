@@ -33,7 +33,9 @@ data class OtpUiState(
  * truth for the code, expiry and resend cooldown; this VM only mirrors its state and the entered
  * digits, and ticks the resend countdown.
  */
-class OtpVerificationViewModel(private val engine: LocalOtpEngine) : ViewModel() {
+class OtpVerificationViewModel(
+    private val engine: LocalOtpEngine,
+) : ViewModel() {
     private var purpose: OtpPurpose = OtpPurpose.LOGIN
     private var target: String = ""
 
@@ -66,7 +68,9 @@ class OtpVerificationViewModel(private val engine: LocalOtpEngine) : ViewModel()
 
     /** Autofill the demo code (offline convenience — the delivery already carries it). */
     fun autofillDemoCode() {
-        _state.value.delivery?.code?.let { onCodeChange(it) }
+        _state.value.delivery
+            ?.code
+            ?.let { onCodeChange(it) }
     }
 
     fun verify() {

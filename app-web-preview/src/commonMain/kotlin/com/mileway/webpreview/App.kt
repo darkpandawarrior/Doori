@@ -22,7 +22,13 @@ import com.mileway.webpreview.screens.DashboardScreen
 import com.mileway.webpreview.screens.ExpensesScreen
 import com.mileway.webpreview.screens.TrackingScreen
 
-private enum class Tab(val label: String) { DASHBOARD("Home"), TRACKING("Track"), EXPENSES("Expenses") }
+private enum class Tab(
+    val label: String,
+) {
+    DASHBOARD("Home"),
+    TRACKING("Track"),
+    EXPENSES("Expenses"),
+}
 
 /**
  * The web preview shell: the real MilewayTheme (compiled from core:ui's theme sources) wrapping a

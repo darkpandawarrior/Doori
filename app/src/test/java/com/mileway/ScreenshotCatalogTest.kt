@@ -76,7 +76,6 @@ import java.io.File
 @Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotCatalogTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -104,7 +103,8 @@ class ScreenshotCatalogTest {
     @Before
     fun installDeterministicImageLoader() {
         SingletonImageLoader.setUnsafe(
-            ImageLoader.Builder(ApplicationProvider.getApplicationContext())
+            ImageLoader
+                .Builder(ApplicationProvider.getApplicationContext())
                 .coroutineContext(Dispatchers.Unconfined)
                 .build(),
         )

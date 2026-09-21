@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
+import com.mileway.core.ui.theme.direction.LedgerTypography
+import com.mileway.core.ui.theme.direction.PaperTypography
+import com.mileway.core.ui.theme.direction.SignalTypography
 
 /**
  * Android 12+ wallpaper-derived dynamic colour scheme, or null when unsupported

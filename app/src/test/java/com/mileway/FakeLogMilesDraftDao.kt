@@ -15,8 +15,7 @@ import kotlinx.coroutines.flow.map
 class FakeLogMilesDraftDao : LogMilesDraftDao {
     private val drafts = MutableStateFlow<Map<String, LogMilesDraftEntity>>(emptyMap())
 
-    override fun getAllDrafts(): Flow<List<LogMilesDraftEntity>> =
-        drafts.map { it.values.sortedByDescending { d -> d.updatedAt } }
+    override fun getAllDrafts(): Flow<List<LogMilesDraftEntity>> = drafts.map { it.values.sortedByDescending { d -> d.updatedAt } }
 
     override suspend fun getDraftById(draftId: String): LogMilesDraftEntity? = drafts.value[draftId]
 

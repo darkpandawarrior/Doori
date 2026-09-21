@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * used elsewhere in this test suite. [seed] pre-populates the pointer, e.g. to simulate a
  * persisted value surviving process death across a fresh `ProfileViewModel` instance.
  */
-class FakeActiveAccountSource(seed: String? = null) : ActiveAccountSource {
+class FakeActiveAccountSource(
+    seed: String? = null,
+) : ActiveAccountSource {
     private val current = MutableStateFlow(seed)
 
     override val activeAccountId: Flow<String?> = current

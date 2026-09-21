@@ -23,7 +23,9 @@ data class VoucherRecord(
  * only writer of the `status` column past creation: legal transitions gated by
  * [VoucherTransitions], since `VoucherStatus` is a real enum but nothing ever changed it before.
  */
-class VoucherRepository(private val dao: VoucherDao) {
+class VoucherRepository(
+    private val dao: VoucherDao,
+) {
     suspend fun save(record: VoucherRecord) {
         dao.insert(
             VoucherEntity(

@@ -91,7 +91,11 @@ fun IncentiveProgramsScreen(
 
             Column(
                 modifier =
-                    Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(DesignTokens.Spacing.l),
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .navigationBarsPadding()
+                        .padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 if (state.active.isNotEmpty()) {

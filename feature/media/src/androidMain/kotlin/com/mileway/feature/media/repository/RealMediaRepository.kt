@@ -31,7 +31,13 @@ import kotlinx.coroutines.tasks.await
  * `isVerified` flag (>=2 passes agreed). Falls back to a "no reading" result on any failure so the user
  * can type the value — the app never crashes.
  */
-class RealMediaRepository(private val context: Context) : MediaRepository {
+class RealMediaRepository(
+    private val context: Context,
+) : MediaRepository {
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun runOcr(uri: String): OcrResult {
         return try {
             val source =
@@ -178,10 +184,26 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
             val translate = (1f - c) / 2f * 255f
             return ColorMatrix(
                 floatArrayOf(
-                    c, 0f, 0f, 0f, translate,
-                    0f, c, 0f, 0f, translate,
-                    0f, 0f, c, 0f, translate,
-                    0f, 0f, 0f, 1f, 0f,
+                    c,
+                    0f,
+                    0f,
+                    0f,
+                    translate,
+                    0f,
+                    c,
+                    0f,
+                    0f,
+                    translate,
+                    0f,
+                    0f,
+                    c,
+                    0f,
+                    translate,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f,
                 ),
             )
         }
@@ -190,10 +212,26 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
         fun brightnessMatrix(b: Float): ColorMatrix =
             ColorMatrix(
                 floatArrayOf(
-                    b, 0f, 0f, 0f, 0f,
-                    0f, b, 0f, 0f, 0f,
-                    0f, 0f, b, 0f, 0f,
-                    0f, 0f, 0f, 1f, 0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f,
                 ),
             )
     }

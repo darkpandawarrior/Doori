@@ -96,7 +96,9 @@ fun PluginManagerScreen(
                 Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = DesignTokens.Spacing.xl),
+            contentPadding =
+                androidx.compose.foundation.layout
+                    .PaddingValues(bottom = DesignTokens.Spacing.xl),
         ) {
             item {
                 OutlinedTextField(

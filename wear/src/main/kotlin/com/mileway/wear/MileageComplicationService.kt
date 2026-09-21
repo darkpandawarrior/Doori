@@ -29,7 +29,6 @@ import org.koin.mp.KoinPlatform
  * the tile). RANGED_VALUE renders this week's progress toward [SurfaceSnapshot.weekGoalKm].
  */
 class MileageComplicationService : SuspendingComplicationDataSourceService() {
-
     override fun getPreviewData(type: ComplicationType): ComplicationData? {
         val preview = SurfaceSnapshot(todayDistanceKm = 3.2, weekDistanceKm = 32.0, weekGoalKm = 100.0)
         return renderComplication(type, preview)
@@ -38,7 +37,10 @@ class MileageComplicationService : SuspendingComplicationDataSourceService() {
     override suspend fun onComplicationRequest(request: ComplicationRequest): ComplicationData? =
         renderComplication(request.complicationType, readCachedSnapshot(this))
 
-    private fun renderComplication(type: ComplicationType, snapshot: SurfaceSnapshot): ComplicationData? =
+    private fun renderComplication(
+        type: ComplicationType,
+        snapshot: SurfaceSnapshot,
+    ): ComplicationData? =
         when (type) {
             ComplicationType.SHORT_TEXT -> shortText(WearPresentation.toTodayDistanceLabel(snapshot))
             ComplicationType.RANGED_VALUE ->
@@ -60,11 +62,11 @@ class MileageComplicationService : SuspendingComplicationDataSourceService() {
         )
 
     private fun shortText(text: String): ShortTextComplicationData =
-        ShortTextComplicationData.Builder(
-            text = PlainComplicationText.Builder(text).build(),
-            contentDescription = PlainComplicationText.Builder("Today's mileage").build(),
-        )
-            .setTapAction(tapAction())
+        ShortTextComplicationData
+            .Builder(
+                text = PlainComplicationText.Builder(text).build(),
+                contentDescription = PlainComplicationText.Builder("Today's mileage").build(),
+            ).setTapAction(tapAction())
             .build()
 
     private fun rangedValue(
@@ -73,13 +75,13 @@ class MileageComplicationService : SuspendingComplicationDataSourceService() {
         max: Float,
         text: String,
     ): RangedValueComplicationData =
-        RangedValueComplicationData.Builder(
-            value = value,
-            min = min,
-            max = max,
-            contentDescription = PlainComplicationText.Builder("Week goal progress").build(),
-        )
-            .setText(PlainComplicationText.Builder(text).build())
+        RangedValueComplicationData
+            .Builder(
+                value = value,
+                min = min,
+                max = max,
+                contentDescription = PlainComplicationText.Builder("Week goal progress").build(),
+            ).setText(PlainComplicationText.Builder(text).build())
             .setTapAction(tapAction())
             .build()
 

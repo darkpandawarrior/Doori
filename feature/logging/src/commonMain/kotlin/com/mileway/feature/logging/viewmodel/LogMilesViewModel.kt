@@ -105,7 +105,11 @@ data class LogMilesUiState(
     // ── History ───────────────────────────────────────────────────────────────
     val drafts: List<LogMilesDraftUi> = emptyList(),
     val submitted: List<SubmittedVoucher> =
-        SubmittedVoucherSamples.sample(kotlin.time.Clock.System.now().toEpochMilliseconds()),
+        SubmittedVoucherSamples.sample(
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds(),
+        ),
 ) {
     /**
      * Validation error for the current odometer capture, or null when capture is disabled,
@@ -144,7 +148,8 @@ data class LogMilesUiState(
      */
     val canProceedToStep2: Boolean
         get() =
-            stops.size >= 2 && selectedVehicle != null &&
+            stops.size >= 2 &&
+                selectedVehicle != null &&
                 (!odometerCaptureEnabled || odometerCaptureComplete) &&
                 (services.size <= 1 || selectedService != null)
 
@@ -217,62 +222,115 @@ fun ExpenseSubmissionResponse.needsViolationDialog(): Boolean =
 sealed interface LogMilesAction {
     data object Refresh : LogMilesAction
 
-    data class SelectVehicle(val vehicle: ApprovedVehicle) : LogMilesAction
+    data class SelectVehicle(
+        val vehicle: ApprovedVehicle,
+    ) : LogMilesAction
 
-    data class SelectService(val service: LogMilesService) : LogMilesAction
+    data class SelectService(
+        val service: LogMilesService,
+    ) : LogMilesAction
 
-    data class SetJourneyDate(val millis: Long?) : LogMilesAction
+    data class SetJourneyDate(
+        val millis: Long?,
+    ) : LogMilesAction
 
-    data class SetJourneyTime(val hour: Int, val minute: Int) : LogMilesAction
+    data class SetJourneyTime(
+        val hour: Int,
+        val minute: Int,
+    ) : LogMilesAction
 
-    data class SetRoundTrip(val enabled: Boolean) : LogMilesAction
+    data class SetRoundTrip(
+        val enabled: Boolean,
+    ) : LogMilesAction
 
-    data class SetSaveAsDraft(val enabled: Boolean) : LogMilesAction
+    data class SetSaveAsDraft(
+        val enabled: Boolean,
+    ) : LogMilesAction
 
-    data class AddStop(val entry: LocationEntry) : LogMilesAction
+    data class AddStop(
+        val entry: LocationEntry,
+    ) : LogMilesAction
 
-    data class InsertStopAfter(val afterIndex: Int, val entry: LocationEntry) : LogMilesAction
+    data class InsertStopAfter(
+        val afterIndex: Int,
+        val entry: LocationEntry,
+    ) : LogMilesAction
 
-    data class EditStop(val stopId: Long, val entry: LocationEntry) : LogMilesAction
+    data class EditStop(
+        val stopId: Long,
+        val entry: LocationEntry,
+    ) : LogMilesAction
 
-    data class RemoveStop(val stopId: Long) : LogMilesAction
+    data class RemoveStop(
+        val stopId: Long,
+    ) : LogMilesAction
 
-    data class MoveStopUp(val index: Int) : LogMilesAction
+    data class MoveStopUp(
+        val index: Int,
+    ) : LogMilesAction
 
-    data class MoveStopDown(val index: Int) : LogMilesAction
+    data class MoveStopDown(
+        val index: Int,
+    ) : LogMilesAction
 
     /** Wave 3: pre-fills the form's stops from a cached [LogMilesFrequentRoute] (one-tap retrace). */
-    data class RetraceRoute(val routeKey: String) : LogMilesAction
+    data class RetraceRoute(
+        val routeKey: String,
+    ) : LogMilesAction
 
-    data class OverrideDistance(val km: Double) : LogMilesAction
+    data class OverrideDistance(
+        val km: Double,
+    ) : LogMilesAction
 
     /** Reflects the persisted `DemoSettingsRepository` flag into state (P5.3); read by the screen. */
-    data class SetOdometerCaptureEnabled(val enabled: Boolean) : LogMilesAction
+    data class SetOdometerCaptureEnabled(
+        val enabled: Boolean,
+    ) : LogMilesAction
 
     /** Records a start or end odometer reading captured via [com.mileway.feature.logging.ui.sheets
      * .OdometerCaptureSheet] (P5.3). */
-    data class CaptureOdometerReading(val result: OdometerCaptureResult) : LogMilesAction
+    data class CaptureOdometerReading(
+        val result: OdometerCaptureResult,
+    ) : LogMilesAction
 
-    data class SetInvoiceDate(val millis: Long?) : LogMilesAction
+    data class SetInvoiceDate(
+        val millis: Long?,
+    ) : LogMilesAction
 
-    data class SetLogMilesNote(val text: String) : LogMilesAction
+    data class SetLogMilesNote(
+        val text: String,
+    ) : LogMilesAction
 
-    data class SetPurposeOfTravel(val text: String) : LogMilesAction
+    data class SetPurposeOfTravel(
+        val text: String,
+    ) : LogMilesAction
 
-    data class SetCostCenter(val text: String) : LogMilesAction
+    data class SetCostCenter(
+        val text: String,
+    ) : LogMilesAction
 
-    data class SetTaggedEmployees(val names: List<String>) : LogMilesAction
+    data class SetTaggedEmployees(
+        val names: List<String>,
+    ) : LogMilesAction
 
-    data class AddAttachment(val path: String) : LogMilesAction
+    data class AddAttachment(
+        val path: String,
+    ) : LogMilesAction
 
-    data class RemoveAttachment(val path: String) : LogMilesAction
+    data class RemoveAttachment(
+        val path: String,
+    ) : LogMilesAction
 
     data object SaveDraft : LogMilesAction
 
-    data class DeleteDraft(val draftId: String) : LogMilesAction
+    data class DeleteDraft(
+        val draftId: String,
+    ) : LogMilesAction
 
     /** Rehydrates [LogMilesUiState] from a previously saved draft (P5.1). */
-    data class LoadDraft(val draftId: String) : LogMilesAction
+    data class LoadDraft(
+        val draftId: String,
+    ) : LogMilesAction
 
     data object Submit : LogMilesAction
 
@@ -283,13 +341,17 @@ sealed interface LogMilesAction {
      * .dialog.ViolationDialog] (P5.4). [notes] is blank for a `REIMBURSABLE_ADJUSTED` accept and
      * required (validated by the dialog) for a `POLICY_VIOLATION` resubmit.
      */
-    data class ResubmitInPolicy(val notes: String) : LogMilesAction
+    data class ResubmitInPolicy(
+        val notes: String,
+    ) : LogMilesAction
 
     data object ResetSubmission : LogMilesAction
 }
 
 sealed interface LogMilesEffect {
-    data class ShowError(val message: UiText) : LogMilesEffect
+    data class ShowError(
+        val message: UiText,
+    ) : LogMilesEffect
 }
 
 /**
@@ -345,8 +407,12 @@ class LogMilesViewModel(
                         LogMilesDraftUi(
                             id = e.draftId,
                             title =
-                                LogMilesDraftRepository.decodeStops(e.locationsJson)
-                                    .firstOrNull()?.entry?.name?.substringBefore(",")
+                                LogMilesDraftRepository
+                                    .decodeStops(e.locationsJson)
+                                    .firstOrNull()
+                                    ?.entry
+                                    ?.name
+                                    ?.substringBefore(",")
                                     ?: "Log Miles draft",
                             stopCount = LogMilesDraftRepository.decodeStops(e.locationsJson).size,
                             distanceKm = e.totalDistance,
@@ -422,8 +488,7 @@ class LogMilesViewModel(
             runCatching { serviceRepo.getServices() }
                 .onSuccess { s ->
                     setState { copy(services = s, selectedService = s.firstOrNull(), isLoadingServices = false) }
-                }
-                .onFailure { setState { copy(isLoadingServices = false) } }
+                }.onFailure { setState { copy(isLoadingServices = false) } }
         }
     }
 
@@ -520,7 +585,10 @@ class LogMilesViewModel(
     private fun saveDraft() {
         val s = currentState
         if (s.stops.isEmpty()) return
-        val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+        val now =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds()
         val draftId = activeDraftId ?: "draft-$now"
         activeDraftId = draftId
         val createdAt = draftCreatedAt.getOrPut(draftId) { now }
@@ -591,7 +659,10 @@ class LogMilesViewModel(
                 frequentRouteRepo.recordSubmission(
                     stops = s.stops,
                     distanceKm = s.distanceKm,
-                    nowMillis = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                    nowMillis =
+                        kotlin.time.Clock.System
+                            .now()
+                            .toEpochMilliseconds(),
                 )
             }.onFailure { e ->
                 setState { copy(isSubmitting = false) }

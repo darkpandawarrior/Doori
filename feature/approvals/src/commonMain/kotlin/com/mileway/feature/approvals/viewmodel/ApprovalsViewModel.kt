@@ -33,9 +33,13 @@ enum class ApprovalTabFilter { ALL, PENDING, APPROVED, REJECTED }
 sealed interface ApprovalsAction {
     data object Refresh : ApprovalsAction
 
-    data class SetTab(val tab: ApprovalTabFilter) : ApprovalsAction
+    data class SetTab(
+        val tab: ApprovalTabFilter,
+    ) : ApprovalsAction
 
-    data class OpenDetail(val id: String) : ApprovalsAction
+    data class OpenDetail(
+        val id: String,
+    ) : ApprovalsAction
 
     data object Approve : ApprovalsAction
 
@@ -43,13 +47,20 @@ sealed interface ApprovalsAction {
      * approval's permanent comment audit trail — a manager's rejection reason is exactly what
      * finance/the requester needs, not just a terminal REJECTED status.
      */
-    data class RejectWithReason(val reason: String) : ApprovalsAction
+    data class RejectWithReason(
+        val reason: String,
+    ) : ApprovalsAction
 
     /** The bulk-selection bar's "Approve All" — same FSM guard as a single [Approve], applied per id. */
-    data class BulkApprove(val ids: Set<String>) : ApprovalsAction
+    data class BulkApprove(
+        val ids: Set<String>,
+    ) : ApprovalsAction
 
     /** The bulk-selection bar's "Reject All" — [reason] is posted once per id to that approval's comment thread. */
-    data class BulkReject(val ids: Set<String>, val reason: String) : ApprovalsAction
+    data class BulkReject(
+        val ids: Set<String>,
+        val reason: String,
+    ) : ApprovalsAction
 
     /** P28.9: withdraws the current (own, still-PENDING) request — gated by `DetailActionFlags.canWithdraw`. */
     data object Withdraw : ApprovalsAction
@@ -61,10 +72,14 @@ sealed interface ApprovalsAction {
 
     data object CloseClarificationSheet : ApprovalsAction
 
-    data class UpdateDraftMessage(val text: String) : ApprovalsAction
+    data class UpdateDraftMessage(
+        val text: String,
+    ) : ApprovalsAction
 
     /** P28.6: a picked core:media attachment's local URI for the in-flight draft, or null to clear it. */
-    data class UpdateDraftAttachment(val url: String?) : ApprovalsAction
+    data class UpdateDraftAttachment(
+        val url: String?,
+    ) : ApprovalsAction
 
     data object SendClarification : ApprovalsAction
 
@@ -84,7 +99,9 @@ sealed interface ApprovalsAction {
     data object ToggleSavedFilter : ApprovalsAction
 
     /** P28.7: the permanent comments tab's composer draft + post action. */
-    data class UpdateCommentDraft(val text: String) : ApprovalsAction
+    data class UpdateCommentDraft(
+        val text: String,
+    ) : ApprovalsAction
 
     data object PostComment : ApprovalsAction
 
@@ -93,9 +110,13 @@ sealed interface ApprovalsAction {
 }
 
 sealed interface ApprovalsEffect {
-    data class ShowToast(val message: UiText) : ApprovalsEffect
+    data class ShowToast(
+        val message: UiText,
+    ) : ApprovalsEffect
 
-    data class NavigateToDetail(val id: String) : ApprovalsEffect
+    data class NavigateToDetail(
+        val id: String,
+    ) : ApprovalsEffect
 
     data object NavigateBack : ApprovalsEffect
 }

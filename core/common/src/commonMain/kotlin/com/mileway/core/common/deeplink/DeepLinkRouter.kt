@@ -27,16 +27,26 @@ sealed interface DeepLinkTarget {
 
     // V29 P29.H.5: parameterized detail targets — the section-level links above land on a list;
     // these land directly on one record's existing `{id}`-routed detail screen.
-    data class TrackDetail(val routeId: String) : DeepLinkTarget
+    data class TrackDetail(
+        val routeId: String,
+    ) : DeepLinkTarget
 
-    data class ApprovalDetail(val id: String) : DeepLinkTarget
+    data class ApprovalDetail(
+        val id: String,
+    ) : DeepLinkTarget
 
-    data class PayablesDetail(val id: String) : DeepLinkTarget
+    data class PayablesDetail(
+        val id: String,
+    ) : DeepLinkTarget
 
-    data class Referral(val code: String?) : DeepLinkTarget
+    data class Referral(
+        val code: String?,
+    ) : DeepLinkTarget
 
     /** Unrecognised link; callers typically ignore it or fall back to Home. */
-    data class Unknown(val raw: String) : DeepLinkTarget
+    data class Unknown(
+        val raw: String,
+    ) : DeepLinkTarget
 }
 
 /** A minimally-parsed URI (commonMain-pure, no java.net.URI / NSURL). */

@@ -260,6 +260,8 @@ private fun DrawScope.drawCloud(cloudColor: Color) {
     drawRect(
         color = cloudColor,
         topLeft = Offset(w * 0.78f, h * 0.30f),
-        size = androidx.compose.ui.geometry.Size(w * 0.16f, r * 0.9f),
+        size =
+            androidx.compose.ui.geometry
+                .Size(w * 0.16f, r * 0.9f),
     )
 }

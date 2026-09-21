@@ -38,8 +38,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
     override suspend fun vehicles(trackMiles: Boolean): PolicyApprovedVehiclesResponse = DemoMockData.vehicles(trackMiles)
 
     /** Same rate table the server's `/api/pricing` serves — see [DemoMockData.rateTable]. */
-    override suspend fun pricing(): ApprovedVehiclePricingResponse =
-        ApprovedVehiclePricingResponse(data = DemoMockData.rateTable.rates)
+    override suspend fun pricing(): ApprovedVehiclePricingResponse = ApprovedVehiclePricingResponse(data = DemoMockData.rateTable.rates)
 
     override suspend fun submitMilesEvent(request: PostMileageEventRequestK) { /* no-op */ }
 
@@ -52,8 +51,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
             token = request.vehicleType,
         )
 
-    override suspend fun fetchLogMilesServices(isInsideTrip: Boolean): LogMilesServicesResponse =
-        DemoMockData.logMilesServices(isInsideTrip)
+    override suspend fun fetchLogMilesServices(isInsideTrip: Boolean): LogMilesServicesResponse = DemoMockData.logMilesServices(isInsideTrip)
 
     override suspend fun logMilesRoutes(): LogMilesRoutesResponse = DemoMockData.logMilesRoutes()
 
@@ -115,8 +113,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         lng: String,
     ): MapResponse = MapResponse(address = "Demo Location", lat = lat.toDoubleOrNull(), lng = lng.toDoubleOrNull())
 
-    override suspend fun geoTypeById(typeId: Long): CheckInDetailsResponseV2 =
-        CheckInDetailsResponseV2(id = typeId, name = "Office", radius = 200.0)
+    override suspend fun geoTypeById(typeId: Long): CheckInDetailsResponseV2 = CheckInDetailsResponseV2(id = typeId, name = "Office", radius = 200.0)
 
     override suspend fun submittedCheckins(token: String): SubmittedCheckInResponseV2 = SubmittedCheckInResponseV2()
 

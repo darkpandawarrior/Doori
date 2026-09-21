@@ -33,21 +33,33 @@ data class NetworkLogUiState(
 )
 
 sealed interface NetworkLogAction {
-    data class SelectEntry(val entry: NetworkLogEntry?) : NetworkLogAction
+    data class SelectEntry(
+        val entry: NetworkLogEntry?,
+    ) : NetworkLogAction
 
     data object ClearLog : NetworkLogAction
 
-    data class TesterMethodChanged(val method: String) : NetworkLogAction
+    data class TesterMethodChanged(
+        val method: String,
+    ) : NetworkLogAction
 
-    data class TesterUrlChanged(val url: String) : NetworkLogAction
+    data class TesterUrlChanged(
+        val url: String,
+    ) : NetworkLogAction
 
-    data class TesterBodyChanged(val body: String) : NetworkLogAction
+    data class TesterBodyChanged(
+        val body: String,
+    ) : NetworkLogAction
 
     data object TesterSend : NetworkLogAction
 
-    data class UseRealBackendChanged(val enabled: Boolean) : NetworkLogAction
+    data class UseRealBackendChanged(
+        val enabled: Boolean,
+    ) : NetworkLogAction
 
-    data class BaseUrlChanged(val url: String) : NetworkLogAction
+    data class BaseUrlChanged(
+        val url: String,
+    ) : NetworkLogAction
 
     data object SaveBaseUrl : NetworkLogAction
 }

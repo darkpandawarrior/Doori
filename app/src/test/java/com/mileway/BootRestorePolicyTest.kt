@@ -11,18 +11,17 @@ import kotlin.test.assertEquals
  * Pure Kotlin, no device needed.
  */
 class BootRestorePolicyTest {
-
     private fun session(
         token: String = "trip-123",
         isTracking: Boolean = true,
-        startTime: Long = 1_700_000_000_000L
+        startTime: Long = 1_700_000_000_000L,
     ) = CurrentTrackData(token = token, isTracking = isTracking, startTime = startTime)
 
     @Test
     fun `live session with both permissions resumes the service`() {
         assertEquals(
             BootRestoreAction.RESUME_SERVICE,
-            BootRestorePolicy.decide(session(), hasFineLocation = true, hasBackgroundLocation = true)
+            BootRestorePolicy.decide(session(), hasFineLocation = true, hasBackgroundLocation = true),
         )
     }
 
@@ -30,7 +29,7 @@ class BootRestorePolicyTest {
     fun `missing fine location clears the stale session`() {
         assertEquals(
             BootRestoreAction.CLEAR_STALE_SESSION,
-            BootRestorePolicy.decide(session(), hasFineLocation = false, hasBackgroundLocation = true)
+            BootRestorePolicy.decide(session(), hasFineLocation = false, hasBackgroundLocation = true),
         )
     }
 
@@ -40,7 +39,7 @@ class BootRestorePolicyTest {
         // ACCESS_BACKGROUND_LOCATION it can't track, so the session must not auto-resume.
         assertEquals(
             BootRestoreAction.CLEAR_STALE_SESSION,
-            BootRestorePolicy.decide(session(), hasFineLocation = true, hasBackgroundLocation = false)
+            BootRestorePolicy.decide(session(), hasFineLocation = true, hasBackgroundLocation = false),
         )
     }
 
@@ -48,7 +47,7 @@ class BootRestorePolicyTest {
     fun `session not tracking does nothing`() {
         assertEquals(
             BootRestoreAction.NONE,
-            BootRestorePolicy.decide(session(isTracking = false), hasFineLocation = true, hasBackgroundLocation = true)
+            BootRestorePolicy.decide(session(isTracking = false), hasFineLocation = true, hasBackgroundLocation = true),
         )
     }
 
@@ -56,7 +55,7 @@ class BootRestorePolicyTest {
     fun `tracking flag with empty token is corrupt and gets cleared`() {
         assertEquals(
             BootRestoreAction.CLEAR_STALE_SESSION,
-            BootRestorePolicy.decide(session(token = ""), hasFineLocation = true, hasBackgroundLocation = true)
+            BootRestorePolicy.decide(session(token = ""), hasFineLocation = true, hasBackgroundLocation = true),
         )
     }
 
@@ -64,7 +63,7 @@ class BootRestorePolicyTest {
     fun `tracking flag with no start time is corrupt and gets cleared`() {
         assertEquals(
             BootRestoreAction.CLEAR_STALE_SESSION,
-            BootRestorePolicy.decide(session(startTime = 0L), hasFineLocation = true, hasBackgroundLocation = true)
+            BootRestorePolicy.decide(session(startTime = 0L), hasFineLocation = true, hasBackgroundLocation = true),
         )
     }
 
@@ -72,7 +71,7 @@ class BootRestorePolicyTest {
     fun `empty session does nothing regardless of permissions`() {
         assertEquals(
             BootRestoreAction.NONE,
-            BootRestorePolicy.decide(CurrentTrackData.empty(), hasFineLocation = false, hasBackgroundLocation = false)
+            BootRestorePolicy.decide(CurrentTrackData.empty(), hasFineLocation = false, hasBackgroundLocation = false),
         )
     }
 }

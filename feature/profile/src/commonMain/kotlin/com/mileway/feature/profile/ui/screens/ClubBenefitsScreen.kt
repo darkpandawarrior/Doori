@@ -114,7 +114,12 @@ fun ClubBenefitsScreen(
             }
 
             Column(
-                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(DesignTokens.Spacing.l),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .navigationBarsPadding()
+                        .padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 if (celebrate) {
@@ -144,7 +149,9 @@ fun ClubBenefitsScreen(
                 } else {
                     MemberCard(activatedAtMs = state.activatedAtMs)
                     Text(cb("club_benefits_heading", "Your benefits"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                    (1..4).forEach { i -> BenefitRow(cb("club_benefit_${i}_title", "Benefit"), cb("club_benefit_${i}_desc", "")) }
+                    for (i in 1..4) {
+                        BenefitRow(cb("club_benefit_${i}_title", "Benefit"), cb("club_benefit_${i}_desc", ""))
+                    }
                 }
             }
         }

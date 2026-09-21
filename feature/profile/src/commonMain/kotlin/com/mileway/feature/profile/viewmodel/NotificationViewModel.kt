@@ -30,10 +30,14 @@ data class NotificationUiState(
 
 /** One-shot navigation effect fired when a notification card is tapped. */
 sealed interface NotificationEffect {
-    data class OpenDeepLink(val deeplink: String) : NotificationEffect
+    data class OpenDeepLink(
+        val deeplink: String,
+    ) : NotificationEffect
 }
 
-class NotificationViewModel(private val repository: NotificationRepository) : ViewModel() {
+class NotificationViewModel(
+    private val repository: NotificationRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(NotificationUiState())
     val state: StateFlow<NotificationUiState> = _state.asStateFlow()
 

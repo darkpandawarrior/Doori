@@ -12,7 +12,9 @@ import kotlin.time.Instant
  * lockout, and the resend countdown.
  */
 class LocalOtpEngineTest {
-    private class MutableClock(var millis: Long) : Clock {
+    private class MutableClock(
+        var millis: Long,
+    ) : Clock {
         override fun now(): Instant = Instant.fromEpochMilliseconds(millis)
     }
 

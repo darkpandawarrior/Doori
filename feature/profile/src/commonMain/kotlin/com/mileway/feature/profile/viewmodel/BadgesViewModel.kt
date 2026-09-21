@@ -22,22 +22,28 @@ import kotlinx.coroutines.flow.stateIn
  * shows earned on next open (no persisted "already-celebrated" set). Enough for the demo; add a
  * DataStore celebrated-set if confetti must survive process death.
  */
-class BadgesViewModel(badgeRepository: BadgeRepository) : ViewModel() {
+class BadgesViewModel(
+    badgeRepository: BadgeRepository,
+) : ViewModel() {
     private var known: Set<BadgeId>? = null
     private val _justEarned = MutableStateFlow(false)
     val justEarned: StateFlow<Boolean> = _justEarned.asStateFlow()
 
     val state: StateFlow<BadgeBoard> =
-        badgeRepository.observeBoard()
+        badgeRepository
+            .observeBoard()
             .onEach { board ->
-                val earnedNow = board.badges.filter { it.earned }.map { it.id }.toSet()
+                val earnedNow =
+                    board.badges
+                        .filter { it.earned }
+                        .map { it.id }
+                        .toSet()
                 val previous = known
                 if (previous != null && (earnedNow - previous).isNotEmpty()) {
                     _justEarned.value = true
                 }
                 known = earnedNow
-            }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, BadgeBoard())
+            }.stateIn(viewModelScope, SharingStarted.Eagerly, BadgeBoard())
 
     fun consumeConfetti() {
         _justEarned.value = false

@@ -399,7 +399,9 @@ private fun InvoiceAttachSection(
 }
 
 @Composable
-private fun Spacer() = androidx.compose.foundation.layout.Spacer(Modifier.size(8.dp))
+private fun Spacer() =
+    androidx.compose.foundation.layout
+        .Spacer(Modifier.size(8.dp))
 
 /**
  * [MockFormSchema.fieldKey]s for [paymentFormSchema] — also the keys `PaymentFormScreen` reads
