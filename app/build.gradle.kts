@@ -257,6 +257,11 @@ android {
                     "--add-opens=java.base/java.lang=ALL-UNNAMED",
                     "--add-opens=java.base/java.util=ALL-UNNAMED",
                     "--add-opens=java.base/java.io=ALL-UNNAMED",
+                    // Robolectric 4.17 reaches ApplicationSharedMemory.create, whose
+                    // FileDescriptorInterceptor touches jdk.internal.access.SharedSecrets. That is an
+                    // INTERNAL package, so it needs --add-exports, not --add-opens: without it the
+                    // JDK throws IllegalAccessException before any test body runs.
+                    "--add-exports=java.base/jdk.internal.access=ALL-UNNAMED",
                     "-XX:+EnableDynamicAgentLoading",
                 )
             }
