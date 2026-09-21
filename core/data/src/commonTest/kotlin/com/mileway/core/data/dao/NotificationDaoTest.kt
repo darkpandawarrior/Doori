@@ -99,16 +99,15 @@ class NotificationDaoTest {
 private class FakeNotificationDao : NotificationDao {
     private val rows = LinkedHashMap<String, NotificationEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _all = MutableStateFlow<List<NotificationEntity>>(emptyList())
+    private val allRows = MutableStateFlow<List<NotificationEntity>>(emptyList())
 
     private fun flush() {
-        _all.value = rows.values.sortedByDescending { it.createdAtMs }
+        allRows.value = rows.values.sortedByDescending { it.createdAtMs }
     }
 
-    fun snapshot(): List<NotificationEntity> = _all.value
+    fun snapshot(): List<NotificationEntity> = allRows.value
 
-    override fun observeAll(): Flow<List<NotificationEntity>> = _all.asStateFlow()
+    override fun observeAll(): Flow<List<NotificationEntity>> = allRows.asStateFlow()
 
     override suspend fun count(): Int = rows.size
 

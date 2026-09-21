@@ -9,6 +9,12 @@ import com.mileway.core.ui.di.iosAppModule
 import com.mileway.core.ui.platform.LocalManagerProvider
 import platform.UIKit.UIViewController
 
+/**
+ * iOS entry point. The PascalCase name is on purpose: Swift calls this as
+ * `MainViewControllerKt.MainViewController()` and it reads there as a type constructor.
+ * Renaming it camelCase changes the published Objective-C symbol Swift binds to.
+ */
+@Suppress("ktlint:standard:function-naming")
 fun MainViewController(): UIViewController {
     AppLog.init()
     // KOIN.1: start the shared Koin graph on iOS (platformModule() + core data/ui + the iOS app module)

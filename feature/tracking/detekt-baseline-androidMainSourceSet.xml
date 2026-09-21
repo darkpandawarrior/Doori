@@ -3,7 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:TrackingNavigation.kt:fun NavGraphBuilder.trackingGraph</ID>
-    <ID>FunctionOnlyReturningConstant:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$private fun getReferralParams</ID>
     <ID>LargeClass:LocationTrackingService.kt:LocationTrackingService : Service</ID>
     <ID>LongMethod:LocationTrackingService.kt:LocationTrackingService$private fun onFix</ID>
     <ID>LongMethod:TrackingNavigation.kt:fun NavGraphBuilder.trackingGraph</ID>
@@ -21,13 +20,6 @@
     <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$60</ID>
     <ID>MagicNumber:TrackingContextReceiver.kt:TrackingContextReceiver$10</ID>
     <ID>MagicNumber:TrackingNavigation.kt:45_000</ID>
-    <ID>SwallowedException:AppRestartUtils.kt:AppRestartUtils$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:AppRestartUtils.kt:AppRestartUtils$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:FloatingBubbleManager.kt:FloatingBubbleManager$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:FloatingBubbleService.kt:FloatingBubbleService$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:LocationTrackingBootReceiver.kt:LocationTrackingBootReceiver$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:LocationTrackingService.kt:LocationTrackingService$e: Exception</ID>
     <ID>TooManyFunctions:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel : BaseViewModel</ID>
     <ID>TooManyFunctions:LocationTrackingService.kt:LocationTrackingService : Service</ID>
     <ID>UnusedParameter:LocationTrackingService.kt:LocationTrackingService$battery: Double</ID>

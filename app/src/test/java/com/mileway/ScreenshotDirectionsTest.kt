@@ -691,12 +691,11 @@ class ScreenshotDirectionsTest {
      * fall through to Robolectric's undecorated white canvas. None of the 8 screens below
      * actually need it (each owns its own Scaffold/Surface, same as their ScreenshotGalleryTest
      * captures) but it costs nothing to apply uniformly and removes the failure mode entirely.
+     *
+     * PAPER, NIGHT: Paper's hand-built dark counterpart follows. Captured as a pair with the
+     * light face so the site can wipe between them: same layout, same content, only luminance
+     * differs, which is exactly the comparison a drag-divider is good at.
      */
-
-    // ── PAPER, NIGHT ────────────────────────────────────────────────────────────────────
-    // Paper's hand-built dark counterpart. Captured as a pair with the light face so the site
-    // can wipe between them: same layout, same content, only luminance differs, which is
-    // exactly the comparison a drag-divider is good at.
 
     @Test
     fun dirPaperNightApprovals() {

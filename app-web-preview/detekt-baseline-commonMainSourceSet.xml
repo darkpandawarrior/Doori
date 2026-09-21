@@ -2,9 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>InvalidPackageDeclaration:LedgerDirection.kt:package com.mileway.core.ui.theme</ID>
-    <ID>InvalidPackageDeclaration:PaperDirection.kt:package com.mileway.core.ui.theme</ID>
-    <ID>InvalidPackageDeclaration:SignalDirection.kt:package com.mileway.core.ui.theme</ID>
     <ID>MagicNumber:Color.kt:0xFF000000L</ID>
     <ID>MagicNumber:Color.kt:6</ID>
     <ID>MagicNumber:Color.kt:8</ID>

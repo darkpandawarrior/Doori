@@ -425,8 +425,8 @@ internal class FakeLocationDao : LocationDao {
 // ── CurrentTrackDataSource fake ───────────────────────────────────────────────
 
 internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
-    private val _flow = MutableStateFlow(CurrentTrackData(token = ""))
-    override val currentTrackFlow: Flow<CurrentTrackData> = _flow
+    private val mutableCurrentTrackFlow = MutableStateFlow(CurrentTrackData(token = ""))
+    override val currentTrackFlow: Flow<CurrentTrackData> = mutableCurrentTrackFlow
 
     override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
         MutableStateFlow(null)
@@ -434,7 +434,7 @@ internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
     override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) {}
 
     override suspend fun saveSession(data: CurrentTrackData) {
-        _flow.value = data
+        mutableCurrentTrackFlow.value = data
     }
 
     override suspend fun updateDistance(
@@ -465,7 +465,7 @@ internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
     ) {}
 
     override suspend fun clearSession() {
-        _flow.value = CurrentTrackData(token = "")
+        mutableCurrentTrackFlow.value = CurrentTrackData(token = "")
     }
 
     override suspend fun updateLastHardwareEvent(

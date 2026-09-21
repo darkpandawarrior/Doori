@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.map
 class FakeAgentDao : AgentDao {
     private val conversations = LinkedHashMap<String, AgentConversationEntity>()
     private val messages = LinkedHashMap<String, AgentMessageEntity>()
-    private val _convFlow = MutableStateFlow<List<AgentConversationEntity>>(emptyList())
-    private val _msgFlow = MutableStateFlow<List<AgentMessageEntity>>(emptyList())
+    private val conversationFlow = MutableStateFlow<List<AgentConversationEntity>>(emptyList())
+    private val messageFlow = MutableStateFlow<List<AgentMessageEntity>>(emptyList())
 
     private fun flush() {
-        _convFlow.value = conversations.values.sortedByDescending { it.lastMessageMs }
-        _msgFlow.value = messages.values.toList()
+        conversationFlow.value = conversations.values.sortedByDescending { it.lastMessageMs }
+        messageFlow.value = messages.values.toList()
     }
 
     override suspend fun insertConversation(conversation: AgentConversationEntity) {
@@ -24,7 +24,7 @@ class FakeAgentDao : AgentDao {
         flush()
     }
 
-    override fun observeConversations(): Flow<List<AgentConversationEntity>> = _convFlow.asStateFlow()
+    override fun observeConversations(): Flow<List<AgentConversationEntity>> = conversationFlow.asStateFlow()
 
     override suspend fun updateConversationMeta(
         id: String,
@@ -48,7 +48,7 @@ class FakeAgentDao : AgentDao {
     }
 
     override fun observeMessages(conversationId: String): Flow<List<AgentMessageEntity>> =
-        _msgFlow.map { list ->
+        messageFlow.map { list ->
             list.filter { it.conversationId == conversationId }.sortedBy { it.timestampMs }
         }
 

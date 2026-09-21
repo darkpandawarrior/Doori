@@ -14,7 +14,12 @@ private val RequestBodyKey = AttributeKey<String>("NetworkLogRequestBody")
  * Ktor `HttpClient` plugin: records every request/response into [store] as a [NetworkLogEntry].
  * Install on the app's `HttpClient(...)` via `install(NetworkLogPlugin(store))`. Purely local/
  * in-memory observability — never itself makes a network call.
+ *
+ * The PascalCase name is on purpose: this is a plugin factory, and Ktor's own plugins
+ * (ContentNegotiation, Logging, HttpTimeout) read as types at the install site. ktlint's
+ * function-naming rule exempts factory methods but cannot recognise this one.
  */
+@Suppress("ktlint:standard:function-naming")
 @OptIn(ExperimentalTime::class)
 fun NetworkLogPlugin(store: NetworkLogStore) =
     createClientPlugin("NetworkLogPlugin") {

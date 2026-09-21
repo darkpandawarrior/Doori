@@ -48,6 +48,10 @@ object DemoMockData {
                 ),
         )
 
+    // `trackMiles` mirrors MilewayNetworkApi.vehicles(), which every caller and every fake must
+    // match. The demo fixture returns the same list either way; the real endpoint does not.
+    // Dropping the parameter would break the interface this stub exists to stand in for.
+    @Suppress("UnusedParameter")
     fun vehicles(trackMiles: Boolean = true): PolicyApprovedVehiclesResponse =
         PolicyApprovedVehiclesResponse(
             vehicles =
@@ -66,6 +70,8 @@ object DemoMockData {
                 ),
         )
 
+    // Same as vehicles() above: `isInsideTrip` is part of the API contract this fake implements.
+    @Suppress("UnusedParameter")
     fun logMilesServices(isInsideTrip: Boolean = false): LogMilesServicesResponse =
         LogMilesServicesResponse(
             services =

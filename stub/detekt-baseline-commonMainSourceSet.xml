@@ -3,20 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexCondition:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi$a.lat != null &amp;&amp; a.lng != null &amp;&amp; b.lat != null &amp;&amp; b.lng != null</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun getDefaultGeoCheckInRadiusMeters: Double</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun getMileageTimeThreshold: Int</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isAutoDiscardEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isCalculateDistanceOnBackend: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isDraftTrackMilesEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isGeoCheckInEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isInterOfficeEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isManualCheckInEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isMultiServiceLogMiles: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isOdometerMandatory: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isOdometerUploadEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isOfficeSelectionOnExpenseEnabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:DemoConfigManager.kt:DemoConfigManager$fun isTrackMilesV2Enabled: Boolean</ID>
-    <ID>FunctionOnlyReturningConstant:HomeMockData.kt:HomeMockData$fun notificationCount: Int</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$15000.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$1600.0</ID>
     <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$1800.0</ID>
@@ -58,15 +44,7 @@
     <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$5_000.0</ID>
     <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$6</ID>
     <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$9</ID>
-    <ID>MayBeConstant:AnalyticsMockData.kt:AnalyticsMockData$val compliancePercent: Int = 87</ID>
-    <ID>MayBeConstant:AnalyticsMockData.kt:AnalyticsMockData$val hardStopCount: Int = 1</ID>
-    <ID>MayBeConstant:AnalyticsMockData.kt:AnalyticsMockData$val slaBreachThresholdDays: Int = 5</ID>
-    <ID>MayBeConstant:AnalyticsMockData.kt:AnalyticsMockData$val violationCount: Int = 3</ID>
     <ID>TooManyFunctions:DemoConfigManager.kt:DemoConfigManager : ConfigProvider</ID>
     <ID>TooManyFunctions:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi : MilewayNetworkApi</ID>
-    <ID>UnusedParameter:DemoConfigManager.kt:DemoConfigManager$source: String</ID>
-    <ID>UnusedParameter:DemoMockData.kt:DemoMockData$isInsideTrip: Boolean = false</ID>
-    <ID>UnusedParameter:DemoMockData.kt:DemoMockData$trackMiles: Boolean = true</ID>
-    <ID>UnusedParameter:PolicyMockData.kt:PolicyMockData$category: String</ID>
   </CurrentIssues>
 </SmellBaseline>

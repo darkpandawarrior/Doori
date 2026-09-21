@@ -5,6 +5,5 @@
     <ID>MagicNumber:AgentViewModel.kt:AgentViewModel$50</ID>
     <ID>MagicNumber:ConversationTitler.kt:ConversationTitler$47</ID>
     <ID>MagicNumber:ConversationTitler.kt:ConversationTitler$50</ID>
-    <ID>TooGenericExceptionCaught:LlmAssistantEngine.kt:LlmAssistantEngine$failure: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

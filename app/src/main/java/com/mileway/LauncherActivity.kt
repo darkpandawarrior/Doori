@@ -150,11 +150,10 @@ private fun Intent.deepLinkRoute(): String? {
  * falls back to [AppStage.LOGIN].
  *
  * @return the stage [AppEntry] should move to, or `null` if [currentStage] already reflects [session].
- */
-
-/**
- * P1.3: true when a signed-in session still owes its MFA step (not yet done, and not already past
- * it via a set PIN). Extracted so [nextStageForSession] stays under the complexity budget.
+ *
+ * P1.3: [sessionOwesMfa] below decides whether a signed-in session still owes its MFA step (not yet done, and not already past
+ * (not yet done, and not already past it via a set PIN). It is extracted so this function stays
+ * under the complexity budget.
  */
 private fun sessionOwesMfa(
     session: SessionState,

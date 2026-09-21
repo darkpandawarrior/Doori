@@ -30,15 +30,14 @@ import kotlin.time.Clock
 private class FakeSavedTrackDao(
     tracks: List<SavedTrack> = emptyList(),
 ) : SavedTrackDao {
-    @Suppress("ktlint:standard:property-naming")
-    private val _flow = MutableStateFlow(tracks)
+    private val mutableTracks = MutableStateFlow(tracks)
 
-    override fun getCompletedTracks(): Flow<List<SavedTrack>> = _flow
+    override fun getCompletedTracks(): Flow<List<SavedTrack>> = mutableTracks
 
-    override fun getAllSavedTracks(): Flow<List<SavedTrack>> = _flow
+    override fun getAllSavedTracks(): Flow<List<SavedTrack>> = mutableTracks
 
     override fun getAllSavedTracksByAccount(accountId: String): Flow<List<SavedTrack>> =
-        MutableStateFlow(_flow.value.filter { it.startedByAccountId == accountId })
+        MutableStateFlow(mutableTracks.value.filter { it.startedByAccountId == accountId })
 
     override suspend fun insertSavedTrack(savedTrack: SavedTrack) = Unit
 
@@ -57,7 +56,7 @@ private class FakeSavedTrackDao(
 
     override suspend fun deleteTracksByAccount(employeeCode: String): Int = 0
 
-    override suspend fun count(): Long = _flow.value.size.toLong()
+    override suspend fun count(): Long = mutableTracks.value.size.toLong()
 
     override suspend fun getActiveTrack(): SavedTrack? = null
 

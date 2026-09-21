@@ -82,7 +82,14 @@ data class VisaDraft(
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
  * repeated submits, for every TR create flow. No backend; one shared rotating counter (demo theater). Mirrors
  * the PB `InvoiceRepository` / `GinRepository` pattern, consolidated to one repo for the six travel flows.
+ *
+ * The six submit* functions take a typed draft they do not read. That is deliberate and it is the
+ * point of the fake: the signature is the one the real endpoint takes, every call site already
+ * builds the draft, and the only thing missing is a backend to send it to. Dropping the parameter
+ * would make swapping in the real repository a signature change at six call sites instead of a
+ * one-line DI swap.
  */
+@Suppress("UnusedParameter")
 class TravelCreateRepository {
     private val submittedCount = mutableMapOf<String, Int>()
     private var counter = 0

@@ -3,8 +3,5 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>MagicNumber:Watermark.android.kt:92</ID>
-    <ID>SwallowedException:Watermark.android.kt:e: Exception</ID>
-    <ID>TooGenericExceptionCaught:MediaCaptureLauncher.android.kt:failure: Exception</ID>
-    <ID>TooGenericExceptionCaught:Watermark.android.kt:e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

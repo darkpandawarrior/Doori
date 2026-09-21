@@ -2,8 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:FormLogic.kt:fun computedFields: Map&lt;FieldId, FormFieldValue&gt;</ID>
-    <ID>LoopWithTooManyJumpStatements:FormLogic.kt:for</ID>
     <ID>MagicNumber:FormRenderer.kt:60</ID>
     <ID>ReturnCount:FormLogic.kt:private fun fieldError: UiText?</ID>
   </CurrentIssues>

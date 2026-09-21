@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>TooGenericExceptionCaught:MlKitGenAiAnalyzer.kt:MlKitGenAiAnalyzer$failure: Exception</ID>
-  </CurrentIssues>
-</SmellBaseline>

@@ -9,8 +9,6 @@
     <ID>CyclomaticComplexMethod:TrackDetailScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun TrackDetailScreen</ID>
     <ID>CyclomaticComplexMethod:TrackMilesScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun TrackMilesScreen</ID>
     <ID>CyclomaticComplexMethod:TrackingPipeline.kt:LocationProcessor$fun process: ProcessResult?</ID>
-    <ID>FunctionNaming:SubmissionComponents.kt:private fun Modifier.androidx_drawBehindDashed: Modifier</ID>
-    <ID>FunctionOnlyReturningConstant:DebugMenuUtils.kt:DebugMenuUtils$fun getReferralParams: String</ID>
     <ID>LongMethod:HardwareEventsViewModel.kt:HardwareEventsViewModel.Companion$private fun demoEvents: List&lt;HardwareEvent&gt;</ID>
     <ID>LongMethod:MileageSubmissionViewModel.kt:MileageSubmissionViewModel$override fun onAction</ID>
     <ID>LongMethod:SavedTracksScreen.kt:private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection</ID>
@@ -111,22 +109,7 @@
     <ID>MagicNumber:TrackLoadingScreen.kt:0.9f</ID>
     <ID>MagicNumber:TrackMilesScreen.kt:50</ID>
     <ID>MagicNumber:TrackMilesScreen.kt:80</ID>
-    <ID>ReturnCount:ImportRepository.kt:ImportRepository$suspend fun import: ImportResult</ID>
-    <ID>SwallowedException:CheckInViewModel.kt:CheckInViewModel$e: Exception</ID>
-    <ID>SwallowedException:RealHardwareEventSend.kt:e: Exception</ID>
-    <ID>SwallowedException:RealLocationSend.kt:e: Exception</ID>
-    <ID>SwallowedException:RealMilesSubmitSend.kt:e: Exception</ID>
-    <ID>TooGenericExceptionCaught:CheckInViewModel.kt:CheckInViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:CreateVoucherViewModel.kt:CreateVoucherViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ExportViewModel.kt:ExportViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ImportRepository.kt:ImportRepository$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:LiveTrackViewModel.kt:LiveTrackViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:LocationPagingSource.kt:LocationPagingSource$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:OdometerSheets.kt:failure: Exception</ID>
-    <ID>TooGenericExceptionCaught:RealHardwareEventSend.kt:e: Exception</ID>
-    <ID>TooGenericExceptionCaught:RealLocationSend.kt:e: Exception</ID>
-    <ID>TooGenericExceptionCaught:RealMilesSubmitSend.kt:e: Exception</ID>
-    <ID>TooGenericExceptionCaught:TrackInsightsViewModel.kt:TrackInsightsViewModel$e: Exception</ID>
+    <ID>ReturnCount:ImportRepository.kt:ImportRepository$@Suppress("TooGenericExceptionCaught") suspend fun import: ImportResult</ID>
     <ID>TooManyFunctions:SavedTrackRepository.kt:SavedTrackRepository</ID>
     <ID>TooManyFunctions:TrackMilesViewModel.kt:TrackMilesViewModel : BaseViewModel</ID>
     <ID>UnusedParameter:LiveTrackingComponents.kt:unsyncedCount: Long</ID>

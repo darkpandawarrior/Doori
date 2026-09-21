@@ -153,7 +153,15 @@ object PolicyMockData {
     /** Amounts above this cannot be submitted at all (HARD_STOP), mirroring [HARD_STOP_KM]. */
     const val EXPENSE_HARD_STOP_RUPEES = 25_000.0
 
-    /** Maps a submitted expense amount to a [SubmissionStatus] using the buckets documented above. */
+    /**
+     * Maps a submitted expense amount to a [SubmissionStatus] using the buckets documented above.
+     *
+     * `category` is deliberately not read yet: the demo policy is amount-only, and
+     * PolicyMockDataTest asserts FOOD and TRAVEL give the same answer at the same amount. It
+     * stays in the signature because a per-category policy is the next thing this grows, and
+     * every call site already has the category to hand.
+     */
+    @Suppress("UnusedParameter")
     fun outcomeForExpenseAmount(
         amountRupees: Double,
         category: String,

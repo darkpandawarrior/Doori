@@ -69,8 +69,6 @@ class WearViewModel(
                 initialValue = OngoingActivityUi(),
             )
 
-    /** Dashboard → trip list. */
-
     /**
      * Start the trip, or stop the one already running.
      *

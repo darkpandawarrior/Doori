@@ -6,6 +6,5 @@
     <ID>MagicNumber:InvoiceRepository.kt:InvoiceRepository$3</ID>
     <ID>MagicNumber:ParkingRepository.kt:ParkingRepository$3</ID>
     <ID>MagicNumber:PayablesHistoryRepository.kt:PayablesHistoryRepository$9000</ID>
-    <ID>VariableNaming:PayablesHomeScreen.kt:val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")</ID>
   </CurrentIssues>
 </SmellBaseline>
