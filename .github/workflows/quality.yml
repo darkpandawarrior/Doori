@@ -43,6 +43,26 @@ jobs:
           java-version: '25'
           distribution: 'temurin'
 
+      # Obj-C category / CEnum import guard. Pure text analysis over iosMain sources, so it runs
+      # here on Linux in under a second instead of surfacing minutes into a Mac Kotlin/Native link.
+      # The defect it catches hit nine times across four repos between 2026-07 and 2026-09; the
+      # ninth was found in Gaddi on 2026-09-22 by running this exact script, which already existed
+      # in kmp-toolkit and had simply never been pointed at the consumers.
+      #
+      # Skips loudly, never silently: the script arrived in kmp-toolkit after some consumers pinned
+      # their submodule, so a repo on an older pin has no script to run. A silent skip would read as
+      # a pass, which is the failure mode this repo's own doctrine calls "green because it read
+      # nothing". The warning disappears by itself on the next toolkit bump.
+      - name: Obj-C category import guard
+        run: |
+          guard=external/kmp-toolkit/scripts/objc-category-guard.py
+          if [ -f "$guard" ]; then
+            python3 "$guard" --self-test
+            python3 "$guard" --root .
+          else
+            echo "::warning::$guard is absent at the pinned kmp-toolkit commit — the Obj-C category guard did NOT run. Bump the toolkit to enable it."
+          fi
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
