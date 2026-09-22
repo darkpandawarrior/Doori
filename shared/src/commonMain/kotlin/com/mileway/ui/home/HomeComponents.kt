@@ -37,7 +37,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.AttachFile
-import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
@@ -1022,7 +1021,7 @@ fun BannerCarousel(
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
         Box(modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal)) {
-            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits), leadingIcon = Icons.Filled.CardGiftcard)
+            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits))
         }
         LazyRow(
             state = listState,
@@ -1041,11 +1040,15 @@ fun BannerCarousel(
 
 private const val BANNER_CAROUSEL_ADVANCE_MS = 4000L
 
-/** Shared section heading used between the home sections. Terminal `//` prefix style. */
+/**
+ * Shared section heading used between the home sections. Terminal `//` prefix style.
+ *
+ * Took a `leadingIcon: ImageVector` until this pass. It was never drawn — the `//` prefix IS the
+ * marker in this design language — while eight call sites resolved and passed an icon for nothing.
+ */
 @Composable
 fun HomeSectionHeader(
     title: String,
-    leadingIcon: ImageVector,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -1342,7 +1345,7 @@ fun MyCardsSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader(stringResource(Res.string.shared_home_my_cards), Icons.Filled.CreditCard)
+            HomeSectionHeader(stringResource(Res.string.shared_home_my_cards))
             TextButton(onClick = { scope.launch { onSnackbar() } }) {
                 Text(stringResource(Res.string.shared_home_request_card), style = MaterialTheme.typography.labelMedium)
             }
@@ -1447,7 +1450,7 @@ fun RecentActivitySection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader(stringResource(Res.string.shared_home_recent_activity), Icons.Filled.CheckCircle)
+            HomeSectionHeader(stringResource(Res.string.shared_home_recent_activity))
             TextButton(onClick = { scope.launch { onSnackbar() } }) {
                 Text(stringResource(Res.string.shared_home_view_all), style = MaterialTheme.typography.labelMedium)
             }
@@ -1854,9 +1857,6 @@ private fun PreviewHomeProfileHeader() {
 @Composable
 private fun PreviewHomeSectionHeader() {
     PreviewSurface {
-        HomeSectionHeader(
-            title = "Recent Trips",
-            leadingIcon = androidx.compose.material.icons.Icons.Default.DirectionsCar,
-        )
+        HomeSectionHeader(title = "Recent Trips")
     }
 }

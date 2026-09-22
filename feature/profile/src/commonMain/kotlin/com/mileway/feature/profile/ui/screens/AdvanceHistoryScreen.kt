@@ -62,6 +62,7 @@ import com.mileway.core.ui.resources.profile_advance_type_client_onboarding
 import com.mileway.core.ui.resources.profile_advance_type_field_visit
 import com.mileway.core.ui.resources.profile_advance_type_training
 import com.mileway.core.ui.resources.profile_advance_type_travel
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.core.ui.theme.dataStyle
@@ -76,10 +77,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-// Hoisted out of the composable below: a local `val` reallocated this array on every
-// recomposition, and a SCREAMING_SNAKE local is a file-scope constant that lost its way.
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 @Composable
 fun AdvanceHistoryScreen(
@@ -258,7 +255,7 @@ private fun AdvanceCard(
                 }
                 Text(
                     Instant.fromEpochMilliseconds(record.requestedDateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-                        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+                        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

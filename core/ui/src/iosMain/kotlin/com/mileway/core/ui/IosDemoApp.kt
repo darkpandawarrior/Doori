@@ -128,7 +128,7 @@ private fun DemoHeader() {
                 .background(
                     // Raw literal is intentional: this is a demo-harness header, not product UI —
                     // LAYERS.md lists IosDemoApp.kt as a harness allowed to pin a colour on purpose.
-                    Brush.verticalGradient(listOf(Color(0xFF1A1A2E), MaterialTheme.colorScheme.primary)),
+                    Brush.verticalGradient(listOf(DemoHeaderGradientTop, MaterialTheme.colorScheme.primary)),
                 ).padding(horizontal = 24.dp, vertical = 36.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -239,3 +239,10 @@ private fun TechStackCard() {
         }
     }
 }
+
+/**
+ * Gradient top for the iOS demo header. Named here rather than inlined: a raw hex in a screen is a
+ * token that escaped the design system. It stays local to this file because it is demo-host chrome,
+ * not a role any product surface may read — product colour comes from `MilewayRoles`.
+ */
+private val DemoHeaderGradientTop = Color(0xFF1A1A2E)

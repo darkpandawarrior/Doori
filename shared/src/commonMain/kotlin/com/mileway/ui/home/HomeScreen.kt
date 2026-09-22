@@ -15,9 +15,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Insights
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -469,7 +466,7 @@ fun HomeScreenContent(
 
                     // 3. Quick Actions.
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                        HomeSectionHeader(title = stringResource(Res.string.shared_home_quick_actions), leadingIcon = Icons.Filled.Bolt)
+                        HomeSectionHeader(title = stringResource(Res.string.shared_home_quick_actions))
                         QuickActionsRow(
                             actions =
                                 quickActions(
@@ -516,7 +513,7 @@ fun HomeScreenContent(
 
                     // 6. At A Glance 2×2 grid — each cell now routes to a distinct destination (Bug 5).
                     Column(verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
-                        HomeSectionHeader(title = stringResource(Res.string.shared_home_at_a_glance), leadingIcon = Icons.Filled.Insights)
+                        HomeSectionHeader(title = stringResource(Res.string.shared_home_at_a_glance))
                         AtAGlanceGrid(
                             counts = state.atAGlance,
                             onPendingExpenses = onAddExpense,

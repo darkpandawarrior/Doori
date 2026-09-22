@@ -106,6 +106,7 @@ import com.mileway.core.ui.resources.detail_section_comments_post
 import com.mileway.core.ui.resources.shared_status_submitted
 import com.mileway.core.ui.resources.shared_status_under_review
 import com.mileway.core.ui.text.getText
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.MilewayRoles
@@ -634,9 +635,7 @@ private fun typeLabel(type: ApprovalType) =
         ApprovalType.ADVANCE -> stringResource(Res.string.approvals_type_advance)
     }
 
-private val TIMELINE_MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private fun formatSubmittedDate(ms: Long): String {
     val ldt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${ldt.dayOfMonth} ${TIMELINE_MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+    return "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
 }

@@ -135,10 +135,15 @@ fun LiveTrackingOverviewCard(
     }
 }
 
+/**
+ * GPS / points / battery health strip.
+ *
+ * Took an `unsyncedCount: Long` it never rendered; sync state is [LiveSyncStatusCard]'s job and that
+ * card already shows it, so the parameter was duplicate surface that no caller could use.
+ */
 @Composable
 fun LiveHealthMonitorCard(
     locationCount: Int,
-    unsyncedCount: Long,
     modifier: Modifier = Modifier,
 ) {
     Card(

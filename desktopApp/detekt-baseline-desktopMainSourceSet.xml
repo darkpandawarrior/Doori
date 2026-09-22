@@ -1,9 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:GalleryMockData.kt:0.15f</ID>
-    <ID>MagicNumber:GalleryMockData.kt:0.23f</ID>
-    <ID>MagicNumber:GalleryMockData.kt:0.62f</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

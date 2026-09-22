@@ -35,6 +35,7 @@ import com.mileway.core.ui.resources.profile_passport_expiry_title
 import com.mileway.core.ui.resources.profile_passport_number
 import com.mileway.core.ui.resources.profile_passport_title
 import com.mileway.core.ui.resources.profile_vehicle_save
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.model.PassportDetails
 import kotlinx.datetime.Instant
@@ -42,14 +43,12 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private fun formatDate(ms: Long): String =
     if (ms <= 0L) {
         "Select expiry date"
     } else {
         Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-            "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+            "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
         }
     }
 

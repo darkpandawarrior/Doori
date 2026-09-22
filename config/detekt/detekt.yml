@@ -247,6 +247,10 @@ style:
       # lambdas, which carry no annotation. Those are NOT artefacts and are fixed in code.
       - 'Preview'
       - 'androidx.compose.ui.tooling.preview.Preview'
+      # Compose Multiplatform ships its own @Preview under a different FQN. Listed so the
+      # ignore cannot silently fail on shared UI if a module switches to it; no call site
+      # uses it today (0 imports at the time of writing, 21 for the androidx one).
+      - 'org.jetbrains.compose.ui.tooling.preview.Preview'
       # This project's own preview annotations, kept from the previous config:
       - 'PreviewLightDark'
       - 'com.mileway.core.ui.previews.PreviewLightDark'
@@ -318,6 +322,10 @@ style:
       # application code. Prescribed by detekt's Compose guide.
       - 'Preview'
       - 'androidx.compose.ui.tooling.preview.Preview'
+      # Compose Multiplatform ships its own @Preview under a different FQN. Listed so the
+      # ignore cannot silently fail on shared UI if a module switches to it; no call site
+      # uses it today (0 imports at the time of writing, 21 for the androidx one).
+      - 'org.jetbrains.compose.ui.tooling.preview.Preview'
       - 'PreviewLightDark'
       - 'com.mileway.core.ui.previews.PreviewLightDark'
       - 'PreviewMatrix'

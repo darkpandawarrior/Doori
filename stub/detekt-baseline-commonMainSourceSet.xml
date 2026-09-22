@@ -3,47 +3,7 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexCondition:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi$a.lat != null &amp;&amp; a.lng != null &amp;&amp; b.lat != null &amp;&amp; b.lng != null</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$15000.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$1600.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$1800.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$2100.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$25000.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$2900.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$3</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$3800.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$4200.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$4500.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$5500.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$6200.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$650.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$800.0</ID>
-    <ID>MagicNumber:AnalyticsMockData.kt:AnalyticsMockData$8000.0</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$10.0</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$16.0</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$3L</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$4.0</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$4L</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$5L</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$6.0</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$6L</ID>
-    <ID>MagicNumber:DemoMockData.kt:DemoMockData$8.0</ID>
     <ID>MagicNumber:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi$1_000.0</ID>
-    <ID>MagicNumber:OcrMockData.kt:OcrMockData$0x7FFFFFFF</ID>
-    <ID>MagicNumber:OcrMockData.kt:OcrMockData$10</ID>
-    <ID>MagicNumber:OcrMockData.kt:OcrMockData$31</ID>
-    <ID>MagicNumber:OcrMockData.kt:OcrMockData$7</ID>
-    <ID>MagicNumber:OcrMockData.kt:OcrMockData$8</ID>
-    <ID>MagicNumber:OcrMockData.kt:OcrMockData$9</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$0x7FFF_FFFF_FFFF_FFFFL</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$10.0</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$10_000.0</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$15.0</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$1_000.0</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$31</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$5.0</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$5_000.0</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$6</ID>
-    <ID>MagicNumber:PolicyMockData.kt:PolicyMockData$9</ID>
     <ID>TooManyFunctions:DemoConfigManager.kt:DemoConfigManager : ConfigProvider</ID>
     <ID>TooManyFunctions:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi : MilewayNetworkApi</ID>
   </CurrentIssues>

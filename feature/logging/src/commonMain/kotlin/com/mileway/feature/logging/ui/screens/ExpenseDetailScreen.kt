@@ -72,6 +72,7 @@ import com.mileway.core.ui.resources.logging_timeline_sent_to_manager
 import com.mileway.core.ui.resources.logging_timeline_submitted
 import com.mileway.core.ui.resources.logging_timeline_under_review
 import com.mileway.core.ui.resources.logging_total
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
@@ -447,11 +448,9 @@ private fun mockLineItems(expense: ExpenseRecord): List<LineItem> {
     }
 }
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private fun formatFullDate(ms: Long): String {
     val ldt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
     val amPm = if (ldt.hour < 12) "AM" else "PM"
     val h = if (ldt.hour % 12 == 0) 12 else ldt.hour % 12
-    return "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}, $h:${ldt.minute.toString().padStart(2, '0')} $amPm"
+    return "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}, $h:${ldt.minute.toString().padStart(2, '0')} $amPm"
 }

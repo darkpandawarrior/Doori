@@ -1,5 +1,6 @@
 package com.mileway.feature.advances.ui.components
 
+import com.mileway.core.ui.text.monthName
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -20,10 +21,8 @@ internal fun formatMoney(amount: Double): String {
         .reversed()
 }
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 /** "d MMM yyyy", e.g. "12 Oct 2026". */
 internal fun formatDate(ms: Long): String {
     val dt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${dt.dayOfMonth} ${MONTHS[dt.monthNumber - 1]} ${dt.year}"
+    return "${dt.dayOfMonth} ${monthName(dt.monthNumber)} ${dt.year}"
 }

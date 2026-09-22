@@ -10,7 +10,6 @@
     <ID>MagicNumber:OtpVerificationViewModel.kt:OtpVerificationViewModel$1_000</ID>
     <ID>MagicNumber:PinViewModel.kt:PinViewModel$1000</ID>
     <ID>MagicNumber:PinViewModel.kt:PinViewModel$1_000</ID>
-    <ID>UnusedParameter:HomeComponents.kt:leadingIcon: ImageVector</ID>
     <ID>UnusedParameter:MasterSearchScreen.kt:onClearFilters: () -&gt; Unit</ID>
   </CurrentIssues>
 </SmellBaseline>

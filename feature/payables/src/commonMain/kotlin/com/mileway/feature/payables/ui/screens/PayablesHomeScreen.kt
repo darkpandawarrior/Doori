@@ -65,6 +65,7 @@ import com.mileway.core.ui.resources.payables_section_purchase_requests
 import com.mileway.core.ui.resources.payables_section_recent_invoices
 import com.mileway.core.ui.resources.payables_subtitle
 import com.mileway.core.ui.resources.payables_title
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.payables.model.Invoice
@@ -79,10 +80,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-// Hoisted out of the composable below: a local `val` reallocated this array on every
-// recomposition, and a SCREAMING_SNAKE local is a file-scope constant that lost its way.
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 @Composable
 fun PayablesHomeScreen(
@@ -325,7 +322,7 @@ private fun InvoiceCard(invoice: Invoice) {
                 )
                 Text(
                     Instant.fromEpochMilliseconds(invoice.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-                        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+                        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

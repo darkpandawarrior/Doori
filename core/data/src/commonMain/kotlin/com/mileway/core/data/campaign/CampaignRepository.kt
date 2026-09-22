@@ -2,6 +2,7 @@ package com.mileway.core.data.campaign
 
 import com.mileway.core.data.dao.CampaignDao
 import com.mileway.core.data.model.db.CampaignEntity
+import com.mileway.core.data.util.MillisPerDay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
@@ -22,7 +23,7 @@ class CampaignRepository(
     suspend fun seedIfEmpty() {
         if (dao.count() > 0) return
         val now = clock.now().toEpochMilliseconds()
-        dao.upsertAll(CampaignMockData.campaigns.mapIndexed { index, c -> c.toEntity(now - index * 86_400_000L) })
+        dao.upsertAll(CampaignMockData.campaigns.mapIndexed { index, c -> c.toEntity(now - index * MillisPerDay) })
     }
 
     /** Records interest in [id] (one-shot). A no-op if already captured or unknown. */

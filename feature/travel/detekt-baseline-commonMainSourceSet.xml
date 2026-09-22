@@ -2,31 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$3</ID>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$4400</ID>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$5100</ID>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$6200</ID>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$7300</ID>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$8400</ID>
-    <ID>MagicNumber:TravelCreateRepository.kt:TravelCreateRepository$9500</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$12L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$1400.0</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$14L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$18L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$21L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$21_000.0</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$3</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$3L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$4</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$4400</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$5</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$5000</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$5L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$6</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$6200.0</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$6L</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$7800.0</ID>
-    <ID>MagicNumber:TravelHistoryRepository.kt:TravelHistoryRepository$9L</ID>
     <ID>MagicNumber:TravelHomeScreen.kt:0xFF00695C</ID>
     <ID>MagicNumber:TravelHomeScreen.kt:0xFF1565C0</ID>
     <ID>MagicNumber:TravelHomeScreen.kt:0xFF6A1B9A</ID>

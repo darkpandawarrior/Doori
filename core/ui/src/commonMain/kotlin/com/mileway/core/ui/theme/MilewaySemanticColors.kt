@@ -6,7 +6,6 @@ import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import kotlin.math.pow
 
 /**
  * Design Language v2 colours that don't fit Material's role slots — the accent glow ramp, the
@@ -120,10 +119,4 @@ object MilewayColors {
     val glow: Color
         @Composable @ReadOnlyComposable
         get() = MaterialTheme.colorScheme.primary.copy(alpha = if (isLightSurface) 0.20f else 0.32f)
-}
-
-/** WCAG relative luminance (sRGB), multiplatform-safe (no android.graphics). */
-private fun Color.relativeLuminance(): Float {
-    fun lin(c: Float): Float = if (c <= 0.03928f) c / 12.92f else ((c + 0.055f) / 1.055f).toDouble().pow(2.4).toFloat()
-    return 0.2126f * lin(red) + 0.7152f * lin(green) + 0.0722f * lin(blue)
 }

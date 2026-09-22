@@ -8,9 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalanceWallet
-import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -59,7 +56,7 @@ fun AdvanceCardsHomeSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader(stringResource(Res.string.shared_home_advance_cards), Icons.Filled.AccountBalanceWallet)
+            HomeSectionHeader(stringResource(Res.string.shared_home_advance_cards))
             TextButton(onClick = onRequestAdvance) {
                 Text(stringResource(Res.string.shared_home_request_card), style = MaterialTheme.typography.labelMedium)
             }
@@ -101,7 +98,7 @@ fun QrCardsHomeSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader(stringResource(Res.string.shared_home_qr_cards), Icons.Filled.QrCode)
+            HomeSectionHeader(stringResource(Res.string.shared_home_qr_cards))
             TextButton(onClick = onRequestQrCard) {
                 Text(stringResource(Res.string.shared_home_request_card), style = MaterialTheme.typography.labelMedium)
             }

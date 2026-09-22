@@ -77,6 +77,9 @@ data class VisaDraft(
     val visaType: String,
 )
 
+/** Submitted -> NeedsApproval -> PolicyViolation, then round again. */
+private const val OutcomeCycleLength = 3
+
 /**
  * Offline fake travel-create store (TR.2+), persists submitted drafts in-memory and returns a **rotating**
  * [TravelSubmissionResult] so the confirmed / approval / policy-violation paths are all exercised across
@@ -103,7 +106,7 @@ class TravelCreateRepository {
         val n = (submittedCount[idPrefix] ?: 0) + 1
         submittedCount[idPrefix] = n
         val id = "$idPrefix-${base + n}"
-        return when (counter++ % 3) {
+        return when (counter++ % OutcomeCycleLength) {
             0 -> TravelSubmissionResult.Submitted(id)
             1 -> TravelSubmissionResult.NeedsApproval(id)
             else -> TravelSubmissionResult.PolicyViolation(violations)
@@ -112,43 +115,43 @@ class TravelCreateRepository {
 
     fun submitTrip(draft: TripDraft): TravelSubmissionResult =
         rotate(
-            "TRP",
-            4400,
+            idPrefix = "TRP",
+            base = 4400,
             listOf("Trip dates overlap an existing request", "Destination requires travel-desk approval"),
         )
 
     fun submitFlight(draft: FlightDraft): TravelSubmissionResult =
         rotate(
-            "FLT",
-            5100,
+            idPrefix = "FLT",
+            base = 5100,
             listOf("Fare exceeds the cabin-class cap", "Business class needs grade-L4+ approval"),
         )
 
     fun submitBus(draft: BusDraft): TravelSubmissionResult =
         rotate(
-            "BUS",
-            6200,
+            idPrefix = "BUS",
+            base = 6200,
             listOf("Operator not on the approved panel", "Sleeper class needs overnight-travel approval"),
         )
 
     fun submitHotel(draft: HotelDraft): TravelSubmissionResult =
         rotate(
-            "HTL",
-            7300,
+            idPrefix = "HTL",
+            base = 7300,
             listOf("Nightly rate exceeds the city tariff cap", "Stay over 3 nights needs manager approval"),
         )
 
     fun submitMjp(draft: MjpDraft): TravelSubmissionResult =
         rotate(
-            "MJP",
-            8400,
+            idPrefix = "MJP",
+            base = 8400,
             listOf("A leg has overlapping dates", "Multi-city plans over 4 legs need travel-desk approval"),
         )
 
     fun submitVisa(draft: VisaDraft): TravelSubmissionResult =
         rotate(
-            "VSA",
-            9500,
+            idPrefix = "VSA",
+            base = 9500,
             listOf("Passport expires within 6 months", "Visa request needs HR and travel-desk sign-off"),
         )
 }

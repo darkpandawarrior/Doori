@@ -1,9 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:NetworkModels.kt:TrackMileageStatusResponse$200</ID>
-    <ID>MagicNumber:NetworkModels.kt:TrackMileageStatusResponse$504</ID>
-    <ID>MagicNumber:NetworkModels.kt:TrackMileageStatusResponse$505</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

@@ -37,6 +37,7 @@ import com.mileway.core.ui.resources.profile_ticket_status_resolved
 import com.mileway.core.ui.resources.profile_tickets_back
 import com.mileway.core.ui.resources.profile_tickets_empty
 import com.mileway.core.ui.resources.profile_tickets_title
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.profile.model.SupportTicket
@@ -49,11 +50,9 @@ import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private fun formatTicketDate(ms: Long): String =
     Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
     }
 
 private fun SupportTicketStatus.tone(): StatusTone =

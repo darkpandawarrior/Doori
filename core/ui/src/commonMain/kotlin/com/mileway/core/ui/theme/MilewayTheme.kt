@@ -167,10 +167,10 @@ private fun derivedSemanticColors(
     isDark: Boolean,
 ): MilewaySemanticColors =
     MilewaySemanticColors(
-        warning = if (isDark) Color(0xFFF2C14E) else Color(0xFFB8860B),
+        warning = if (isDark) FallbackWarningDark else FallbackWarningLight,
         danger = scheme.error,
-        info = if (isDark) Color(0xFF5BA8F5) else Color(0xFF1C6FD6),
-        success = if (isDark) Color(0xFF46C46B) else Color(0xFF1C8F52),
+        info = if (isDark) FallbackInfoDark else FallbackInfoLight,
+        success = if (isDark) FallbackSuccessDark else FallbackSuccessLight,
         accentGlow = scheme.primary,
         accentDim = scheme.inversePrimary,
         border = scheme.outline,

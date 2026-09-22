@@ -286,7 +286,7 @@ data class MilewaySchemeSpec(
             onError = if (isLight) Color.White else canvas,
             errorContainer = danger.copy(alpha = if (isLight) 0.16f else 0.22f),
             onErrorContainer = if (isLight) danger else danger,
-            scrim = Color(0xCC000000),
+            scrim = ScrimBlack,
         )
     }
 }
@@ -410,3 +410,6 @@ internal val DaybreakSpec =
         success = Color(0xFF1C8F52),
         useGlow = false,
     )
+
+/** Material's scrim: black at 80% alpha. One value, shared by every generated scheme. */
+private val ScrimBlack = Color(0xCC000000)

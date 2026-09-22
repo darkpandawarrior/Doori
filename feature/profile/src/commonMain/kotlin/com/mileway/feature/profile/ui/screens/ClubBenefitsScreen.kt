@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.MembershipViewModel
@@ -59,8 +60,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 /**
  * PLAN_V24 P6.1: "Mileway Club" surface. Non-members see the join pitch → a real consent sheet
@@ -254,7 +253,7 @@ private fun ConsentContent(
 
 private fun formatJoinDate(ms: Long): String =
     Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
     }
 
 @Composable

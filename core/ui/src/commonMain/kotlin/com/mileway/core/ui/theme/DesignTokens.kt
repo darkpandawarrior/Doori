@@ -10,7 +10,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlin.math.pow
 
 /**
  * Design tokens for Compose UI.
@@ -338,7 +337,7 @@ object DesignTokens {
 }
 
 /** Returns whether the current Material color scheme is considered light. */
-private fun androidx.compose.material3.ColorScheme.isLight(): Boolean = this.surface.luminance() > this.onSurface.luminance()
+private fun androidx.compose.material3.ColorScheme.isLight(): Boolean = this.surface.relativeLuminance() > this.onSurface.relativeLuminance()
 
 /** Linear interpolate two colors (ARGB). */
 private fun lerpColor(
@@ -351,15 +350,4 @@ private fun lerpColor(
     val g = start.green + (end.green - start.green) * fraction
     val b = start.blue + (end.blue - start.blue) * fraction
     return Color(r, g, b, a)
-}
-
-/** Compute relative luminance roughly for the light/dark heuristic. */
-private fun Color.luminance(): Float {
-    fun channel(c: Float): Float =
-        if (c <= 0.03928f) {
-            c / 12.92f
-        } else {
-            ((c + 0.055f) / 1.055f).toDouble().pow(2.4).toFloat()
-        }
-    return 0.2126f * channel(this.red) + 0.7152f * channel(this.green) + 0.0722f * channel(this.blue)
 }
