@@ -114,8 +114,20 @@ jobs:
       - name: Open baseline-refresh PR
         if: github.event_name == 'push'
         env:
-          GH_TOKEN: ${{ github.token }}
+          # A PUSH made with GITHUB_TOKEN fires no workflows, so the refresh commit landed on the
+          # bot branch with no checks and the PR sat BLOCKED forever (Doori #208, 2026-09-22).
+          # CONSUMER_DISPATCH_TOKEN is a PAT, and a PAT-authored push does trigger them.
+          # Deliberately NOT set as `token:` on actions/checkout: that persists the PAT in
+          # .git/config for every later step, including a full Gradle build with third-party
+          # plugins. Scoping it to this one step keeps the credential out of the build.
+          GH_TOKEN: ${{ secrets.CONSUMER_DISPATCH_TOKEN }}
+          PUSH_TOKEN: ${{ secrets.CONSUMER_DISPATCH_TOKEN }}
         run: |
+          if [ -z "${PUSH_TOKEN:-}" ]; then
+            echo "::warning::CONSUMER_DISPATCH_TOKEN is not set — falling back to GITHUB_TOKEN. The"
+            echo "::warning::refresh PR will open but its checks will not run; approve them by hand."
+            PUSH_TOKEN="${{ github.token }}"
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/screenshots
@@ -130,7 +142,7 @@ jobs:
           branch="bot/refresh-screenshot-baselines"
           git checkout -b "$branch"
           git commit -m "chore(screenshots): refresh baselines for ${GITHUB_SHA::7}"
-          git push --force origin "$branch"
+          git push --force "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$branch"
           if ! gh pr list --head "$branch" --state open --json number --jq '.[0].number' | grep -q .; then
             # PR creation needs Settings→Actions→"Allow GitHub Actions to create and approve pull
             # requests". If that's off, don't fail the pipeline — the refresh branch is already
