@@ -179,6 +179,41 @@ subprojects {
 }
 
 // --------------------------------------------------------------------------
+// Test execution: run forks in parallel.
+//
+// Measured 2026-09-21 on this tree. `:app:testNoGmsDebugUnitTest` sets forkEvery(1) — one JVM per
+// test class, see the Z.5b block in app/build.gradle.kts for why — and Gradle's `maxParallelForks`
+// default of 1 then runs those 125 Robolectric JVM cold starts strictly one after another. The
+// bill is startup, not assertions: 930 tests in 14m12s, i.e. ~6.8s per class before a single
+// assertion runs.
+//
+// forkEvery(1) is precisely what makes parallelism safe here. Z.5b was native state accumulating
+// INSIDE one JVM across two classes; separate JVMs share no native state, so running several at
+// once cannot reintroduce it.
+//
+// The ceiling is memory, not CPU. Each fork loads android-all plus a Compose/Skia runtime on a
+// 16 GB host that also carries a 4 GB Gradle daemon and a 3 GB Kotlin daemon — hence cores/2 with
+// a hard cap of 4, not one fork per core. If the machine starts swapping, lower this before
+// touching anything else.
+//
+// Screenshot-writing test tasks stay serial on purpose:
+//   - :app:screenshotTestNoGmsDebug pre-loads the ByteBuddy agent *because* concurrent test JVMs
+//     lose the MockK self-attach race (its own comment in app/build.gradle.kts says so).
+//   - :widget, :wear and :desktopApp write Roborazzi captures into the shared docs/screenshots
+//     tree. They hold ~3 test classes each, so serialising them costs nothing worth measuring.
+// --------------------------------------------------------------------------
+val serialTestProjects = setOf(":widget", ":wear", ":desktopApp")
+
+subprojects {
+    tasks.withType<Test>().configureEach {
+        if (name.startsWith("screenshotTest") || project.path in serialTestProjects) {
+            return@configureEach
+        }
+        maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceIn(1, 4)
+    }
+}
+
+// --------------------------------------------------------------------------
 // Gradle Doctor, catches common build health issues (Rosetta, JDK mismatch,
 // Kotlin daemon fallback, Jetifier still on, etc.)
 // --------------------------------------------------------------------------
