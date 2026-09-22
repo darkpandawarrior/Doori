@@ -628,9 +628,15 @@ dependencies {
     ksp(libs.compose.nav.graph.annotations)
 
     // Roborazzi: JVM screenshot tests (no device needed)
-    // preview-scanner auto-discovers all @Preview functions across all feature modules
     testImplementation(libs.roborazzi.core)
     testImplementation(libs.roborazzi.compose)
+    // preview-scanner is on the classpath but NOTHING USES IT. Turning it on needs a
+    // `roborazzi { generateComposePreviewRobolectricTests { .. } }` block, which this repo does
+    // not have — grep: zero matches for generateComposePreview anywhere. The comment that used to
+    // sit here claimed it "auto-discovers all @Preview functions across all feature modules"; it
+    // does not, and ScreenshotCatalogTest hand-maintains ~45 preview imports precisely because of
+    // that. Kept deliberately for now: autodiscovery would gate every preview rather than the
+    // curated set, and renames the goldens, so switching it on is its own change.
     testImplementation(libs.roborazzi.preview.scanner)
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)

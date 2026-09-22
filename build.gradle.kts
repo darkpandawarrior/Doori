@@ -316,7 +316,12 @@ tasks.register("screenshotFreshnessCheck") {
                     appendLine("${stale.size} screenshot(s) haven't been re-recorded in $maxAgeDays days:")
                     stale.sortedByDescending { it.second }.forEach { (name, days) -> appendLine("  $name (${days}d old)") }
                     appendLine()
-                    appendLine("Re-record with: ./gradlew screenshotTest -Proborazzi.test.record=true")
+                    // Env var, not -P. Every capture site in this repo gates on
+                    // System.getenv("ROBORAZZI_RECORD"); a -P property does not reach the forked
+                    // test JVM :app:screenshotTestNoGmsDebug runs in. Measured 2026-09-22: with
+                    // -Proborazzi.test.record=true and a golden deleted, the run reported BUILD
+                    // SUCCESSFUL and recorded nothing. This message used to print that flag.
+                    appendLine("Re-record with: ROBORAZZI_RECORD=true ./gradlew screenshotTest")
                     appendLine("(or pass -PscreenshotMaxAgeDays=N if $maxAgeDays days is intentionally tight for this run)")
                 },
             )
@@ -372,7 +377,7 @@ tasks.register("composeMetrics") {
 // :app:screenshotTestNoGmsDebug is deliberately forked out of the main suite.
 //
 //   ./gradlew screenshotTest                              # verify against baselines
-//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//   ROBORAZZI_RECORD=true ./gradlew screenshotTest        # re-record them (env var, NOT -P)
 //
 // NOT covered here, and deliberately not faked as if it were:
 //   - iOS  (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot
@@ -388,7 +393,7 @@ tasks.register("composeMetrics") {
 // One task that runs EVERY screenshot harness in the repo.
 //
 //   ./gradlew screenshotTest                              # verify against baselines
-//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//   ROBORAZZI_RECORD=true ./gradlew screenshotTest        # re-record them (env var, NOT -P)
 //
 // The gap this closes: :app, :wear and :widget each had a working Roborazzi suite, on three
 // different task names, with no single command running them. On 2026-08-09 injecting
