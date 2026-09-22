@@ -84,10 +84,13 @@ data class MarketingVersion(
     override fun toString(): String = "$year.$month.$milestone"
 
     companion object {
+        /** A marketing version is year.month.milestone - exactly three dot-separated parts. */
+        private const val MarketingVersionParts = 3
+
         /** Null on anything that isn't exactly 3 dot-separated integers. */
         fun parse(marketing: String): MarketingVersion? {
             val parts = marketing.trim().split(".")
-            if (parts.size != 3) return null
+            if (parts.size != MarketingVersionParts) return null
             val year = parts[0].toIntOrNull() ?: return null
             val month = parts[1].toIntOrNull() ?: return null
             val milestone = parts[2].toIntOrNull() ?: return null

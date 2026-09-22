@@ -1,8 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:CardKycViewModel.kt:CardKycViewModel$4</ID>
-    <ID>MagicNumber:CardKycViewModel.kt:CardKycViewModel$6</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

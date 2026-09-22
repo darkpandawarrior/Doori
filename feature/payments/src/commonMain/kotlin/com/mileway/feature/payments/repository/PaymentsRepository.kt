@@ -10,6 +10,9 @@ import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
 import kotlin.time.Clock
 
+/** Fake submissions rotate through the three `PaymentResult` outcomes in order. */
+private const val SubmissionOutcomeCount = 3
+
 /** A QR/UPI pay-or-request form payload (PM). */
 data class PaymentDraft(
     val direction: PaymentDirection,
@@ -59,7 +62,7 @@ class PaymentsRepository(
     fun submit(draft: PaymentDraft): PaymentResult {
         submitted += draft
         val id = "PAY-${4100 + submitted.size}"
-        return when (counter++ % 3) {
+        return when (counter++ % SubmissionOutcomeCount) {
             0 -> PaymentResult.Completed(id)
             1 -> PaymentResult.Pending(id)
             else -> PaymentResult.Failed("Beneficiary bank declined the collect request")

@@ -3,8 +3,5 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexCondition:PettyRequestValidator.kt:PettyRequestValidator$requireDateRange &amp;&amp; (dateRangeStartMs == null || dateRangeEndMs == null || dateRangeStartMs &gt; dateRangeEndMs)</ID>
-    <ID>MagicNumber:AdvanceModels.kt:0.2</ID>
-    <ID>MagicNumber:AdvanceModels.kt:0.5</ID>
-    <ID>MagicNumber:AdvancesFormatting.kt:3</ID>
   </CurrentIssues>
 </SmellBaseline>

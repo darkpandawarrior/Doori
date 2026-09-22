@@ -14,6 +14,18 @@ private const val PHONE_LENGTH = 10
 /** Simulated "back-office is processing your KYC" spinner duration (source: the reference app, ~2s). */
 private const val KYC_PROCESSING_MILLIS = 2_000L
 
+/** Wizard step 2: the CARD_KYC one-time code. */
+private const val STEP_OTP = 2
+
+/** Wizard step 3: attaching the identity document. */
+private const val STEP_DOCUMENT_UPLOAD = 3
+
+/** Wizard step 4: the selfie capture, after which "Next" submits. */
+private const val STEP_SELFIE = 4
+
+/** The CARD_KYC one-time code is six digits, as issued by [LocalOtpEngine]. */
+private const val OTP_LENGTH = 6
+
 /**
  * PLAN_V24 P4.3: the 5-step Card-KYC wizard (per the reference app's KYC wizard) — (0) Intro,
  * (1) Personal info, (2) OTP, (3) Document upload, (4) Selfie → Success. OTP goes through the
@@ -47,9 +59,9 @@ data class CardKycUiState(
         get() =
             when (step) {
                 1 -> fullName.isNotBlank() && idNumber.isNotBlank() && phoneNumber.filter { it.isDigit() }.length == PHONE_LENGTH
-                2 -> otpCode.length == 6
-                3 -> documentAttached
-                4 -> selfieAttached
+                STEP_OTP -> otpCode.length == OTP_LENGTH
+                STEP_DOCUMENT_UPLOAD -> documentAttached
+                STEP_SELFIE -> selfieAttached
                 else -> true
             }
 }
@@ -96,7 +108,7 @@ class CardKycViewModel(
             is CardKycAction.SetFullName -> setState { copy(fullName = action.value) }
             is CardKycAction.SetIdNumber -> setState { copy(idNumber = action.value) }
             is CardKycAction.SetPhone -> setState { copy(phoneNumber = action.value) }
-            is CardKycAction.SetOtp -> setState { copy(otpCode = action.value.filter { it.isDigit() }.take(6), otpError = false) }
+            is CardKycAction.SetOtp -> setState { copy(otpCode = action.value.filter { it.isDigit() }.take(OTP_LENGTH), otpError = false) }
             is CardKycAction.AttachDocument -> setState { copy(documentUri = action.uri) }
             CardKycAction.AttachSelfie -> setState { copy(selfieAttached = true) }
         }
@@ -116,12 +128,12 @@ class CardKycViewModel(
                 // Verify before leaving the OTP step.
                 val target = s.otpSentTo ?: s.phoneNumber.filter { it.isDigit() }
                 if (otpEngine.verify(OtpPurpose.CARD_KYC, target, s.otpCode) == OtpVerifyResult.Success) {
-                    setState { copy(step = 3, otpError = false) }
+                    setState { copy(step = STEP_DOCUMENT_UPLOAD, otpError = false) }
                 } else {
                     setState { copy(otpError = true) }
                 }
             }
-            4 -> submit()
+            STEP_SELFIE -> submit()
             else -> setState { copy(step = (step + 1).coerceAtMost(totalSteps - 1)) }
         }
     }

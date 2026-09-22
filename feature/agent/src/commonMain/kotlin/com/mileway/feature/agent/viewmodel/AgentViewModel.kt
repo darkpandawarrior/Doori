@@ -5,6 +5,7 @@ import com.mileway.core.platform.ShareSheet
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.engine.AssistantChunk
 import com.mileway.feature.agent.engine.AssistantEngine
+import com.mileway.feature.agent.engine.ConversationTitler
 import com.mileway.feature.agent.model.AgentConversation
 import com.mileway.feature.agent.model.AgentMessage
 import com.mileway.feature.agent.repository.AgentRepository
@@ -118,7 +119,7 @@ class AgentViewModel(
             viewModelScope.launch {
                 analytics.recordQuestion(text.trim())
                 if (isNewThread) {
-                    repository.createThread(threadId, text.trim().take(50), nowMs)
+                    repository.createThread(threadId, text.trim().take(ConversationTitler.MaxTitleLength), nowMs)
                     setState { copy(activeThreadId = threadId) }
                 }
                 repository.setActiveThread(threadId, Clock.System.now().toEpochMilliseconds())

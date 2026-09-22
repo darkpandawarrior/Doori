@@ -56,6 +56,12 @@ data class AdvanceType(
 /** Card-face health badge, derived from remaining balance against the card's total. */
 enum class CardHealth { ACTIVE, LOW_BALANCE, CRITICAL }
 
+/** A card whose remaining balance is at least half its total still counts as healthy. */
+private const val ActiveBalanceRatio = 0.5
+
+/** Below a fifth of the total the card is critical; between the two it reads as low. */
+private const val LowBalanceRatio = 0.2
+
 /**
  * Active: balance >= 50% of total. LowBalance: >= 20%. Critical: below 20% (also covers a
  * zero/negative total, which can't sustain any spend).
@@ -67,8 +73,8 @@ fun cardHealth(
     if (total <= 0.0) return CardHealth.CRITICAL
     val ratio = balance / total
     return when {
-        ratio >= 0.5 -> CardHealth.ACTIVE
-        ratio >= 0.2 -> CardHealth.LOW_BALANCE
+        ratio >= ActiveBalanceRatio -> CardHealth.ACTIVE
+        ratio >= LowBalanceRatio -> CardHealth.LOW_BALANCE
         else -> CardHealth.CRITICAL
     }
 }

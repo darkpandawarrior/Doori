@@ -46,6 +46,9 @@ class EventsRepository(
     private val dayMs = 86_400_000L
     private var counter = 0
 
+    /** Fake submissions rotate through the three `EventResult` outcomes in order. */
+    private val submissionOutcomeCount = 3
+
     /** Small local pool of not-yet-linked expenses, for the P29.E.8 bulk-link picker. */
     private val expensePool: List<LinkedExpense> by lazy {
         val now = clock.now().toEpochMilliseconds()
@@ -62,7 +65,7 @@ class EventsRepository(
 
     fun submit(draft: EventDraft): EventResult {
         val id = "EVT-${3300 + events.size + 1}"
-        return when (counter++ % 3) {
+        return when (counter++ % submissionOutcomeCount) {
             0 -> {
                 events.add(0, recordFrom(id, draft, EventStatus.PUBLISHED))
                 EventResult.Submitted(id)

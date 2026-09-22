@@ -1,7 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:ApprovalsScreen.kt:7</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

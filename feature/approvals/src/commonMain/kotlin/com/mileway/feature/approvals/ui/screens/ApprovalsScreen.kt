@@ -690,7 +690,7 @@ private fun dateBucket(ms: Long): String {
     val days = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
     val months = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     return Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-        "${days[ldt.dayOfWeek.ordinal % 7]}, ${ldt.dayOfMonth.toString().padStart(2, '0')} ${months[ldt.monthNumber - 1]} ${ldt.year}"
+        "${days[ldt.dayOfWeek.ordinal % days.size]}, ${ldt.dayOfMonth.toString().padStart(2, '0')} ${months[ldt.monthNumber - 1]} ${ldt.year}"
     }
 }
 

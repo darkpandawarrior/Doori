@@ -10,13 +10,16 @@ import kotlinx.datetime.toLocalDateTime
  * java.text/android.* — mirrors feature/cards's formatMoney idiom).
  */
 
+/** Thousands grouping puts a comma after every third digit, counting from the right. */
+private const val ThousandsGroupSize = 3
+
 /** Thousands-grouped rupee amount, e.g. 3200.0 -> "3,200". */
 internal fun formatMoney(amount: Double): String {
     val whole = amount.toLong()
     return whole
         .toString()
         .reversed()
-        .chunked(3)
+        .chunked(ThousandsGroupSize)
         .joinToString(",")
         .reversed()
 }
