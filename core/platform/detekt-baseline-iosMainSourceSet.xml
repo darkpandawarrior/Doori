@@ -1,7 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:IosMotionSensorProvider.kt:IosMotionSensorProvider$30.0</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

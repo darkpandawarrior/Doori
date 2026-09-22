@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import platform.CoreMotion.CMMotionManager
 import platform.Foundation.NSOperationQueue
 
+/** Device-motion sampling rate in Hz; CoreMotion wants the interval, which is its reciprocal. */
+private const val MotionSampleRateHz = 30.0
+
 /**
  * iOS motion sensors (O) via CoreMotion. Uses device-motion updates (gravity-compensated userAcceleration +
  * rotationRate) at ~30 Hz on the main queue, mapped to the shared [MotionReading] stream. Compiles + links
@@ -29,7 +32,7 @@ class IosMotionSensorProvider : MotionSensorProvider {
     override fun start() {
         if (activeStarts++ != 0) return
         if (!manager.deviceMotionAvailable) return
-        manager.deviceMotionUpdateInterval = 1.0 / 30.0
+        manager.deviceMotionUpdateInterval = 1.0 / MotionSampleRateHz
         manager.startDeviceMotionUpdatesToQueue(NSOperationQueue.mainQueue) { motion, _ ->
             if (motion == null) return@startDeviceMotionUpdatesToQueue
             val accel = motion.userAcceleration.useContents { Triple(x, y, z) }

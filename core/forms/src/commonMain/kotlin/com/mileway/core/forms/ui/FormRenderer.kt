@@ -652,11 +652,17 @@ private fun millisToIsoDate(millis: Long): String =
         .date
         .toString()
 
+/** Minutes in an hour — a "HH:mm" value is stored as minutes past midnight. */
+private const val MinutesPerHour = 60
+
+/** A time field with no value, or an unparseable one, falls back to 09:00. */
+private const val DefaultTimeHour = 9
+
 private fun timeStringToMinutes(value: String?): Int {
-    val parts = value?.split(":") ?: return 9 * 60
-    val hour = parts.getOrNull(0)?.toIntOrNull() ?: 9
+    val parts = value?.split(":") ?: return DefaultTimeHour * MinutesPerHour
+    val hour = parts.getOrNull(0)?.toIntOrNull() ?: DefaultTimeHour
     val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
-    return hour * 60 + minute
+    return hour * MinutesPerHour + minute
 }
 
 private fun minutesToTimeString(

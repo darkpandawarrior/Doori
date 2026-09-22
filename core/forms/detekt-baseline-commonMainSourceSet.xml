@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>MagicNumber:FormRenderer.kt:60</ID>
     <ID>ReturnCount:FormLogic.kt:private fun fieldError: UiText?</ID>
   </CurrentIssues>
 </SmellBaseline>
