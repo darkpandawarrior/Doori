@@ -5,11 +5,11 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.TravelExplore
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -27,17 +27,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mileway.core.platform.SystemSettingsOpener
-import com.mileway.core.data.model.db.VoucherCategory
-import com.mileway.core.data.model.db.VoucherEntity
-import com.mileway.core.data.model.display.TrackingSystemFlags
-import com.mileway.core.data.model.network.PolicyViolation
-import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
-import com.mileway.feature.tracking.ui.live.LiveDriveActions
-import com.mileway.feature.tracking.ui.live.LiveDriveScreen
-import com.mileway.feature.tracking.ui.live.LiveDriveState
-import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
-import com.mileway.feature.tracking.viewmodel.TrackSignal
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ConnectedAccountDao
@@ -60,6 +49,10 @@ import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
 import com.mileway.core.data.model.db.SavedTrack
+import com.mileway.core.data.model.db.VoucherCategory
+import com.mileway.core.data.model.db.VoucherEntity
+import com.mileway.core.data.model.display.TrackingSystemFlags
+import com.mileway.core.data.model.network.PolicyViolation
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.core.data.session.CurrentTrackDataStore
@@ -74,11 +67,14 @@ import com.mileway.core.network.model.Office
 import com.mileway.core.platform.ReferralData
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
+import com.mileway.core.platform.SystemSettingsOpener
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.platform.defaultPermissionTiers
 import com.mileway.core.ui.components.CriticalErrorDialog
 import com.mileway.core.ui.components.LanguageSelectionSheet
 import com.mileway.core.ui.components.dialog.ColorWheelDialog
+import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
+import com.mileway.core.ui.components.pickers.WheelTimePickerDialog
 import com.mileway.core.ui.components.sheet.ActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.ActionConfirmationToneType
 import com.mileway.core.ui.components.sheet.DetailInfoBottomSheet
@@ -90,8 +86,6 @@ import com.mileway.core.ui.components.sheet.FilterSection
 import com.mileway.core.ui.components.sheet.FilterSelectionMode
 import com.mileway.core.ui.components.sheet.OdometerDiscrepancySheet
 import com.mileway.core.ui.components.sheet.OdometerRejectionSheet
-import com.mileway.core.ui.components.pickers.WheelDatePickerDialog
-import com.mileway.core.ui.components.pickers.WheelTimePickerDialog
 import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.support.BugReportSheet
@@ -123,13 +117,13 @@ import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.events.ui.screens.CreateEventScreen
 import com.mileway.feature.events.ui.screens.EventsHistoryScreen
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.logging.ui.screens.CardsTxnHistoryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
 import com.mileway.feature.logging.ui.screens.ExpenseHistoryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseScreen
 import com.mileway.feature.logging.ui.screens.LogMilesHistoryScreen
 import com.mileway.feature.logging.ui.screens.LogMilesScreen
 import com.mileway.feature.logging.ui.screens.LogMilesStep2Screen
-import com.mileway.feature.logging.ui.screens.CardsTxnHistoryScreen
 import com.mileway.feature.logging.ui.screens.SettlementHistoryScreen
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.logging.ui.screens.VoucherDetailsScreen
@@ -201,6 +195,10 @@ import com.mileway.feature.tracking.debug.DebugMenuScreen
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.ui.components.DiscardJourneyDialog
 import com.mileway.feature.tracking.ui.components.ExportOptionsDialog
+import com.mileway.feature.tracking.ui.evidence.TrackEvidenceScreen
+import com.mileway.feature.tracking.ui.live.LiveDriveActions
+import com.mileway.feature.tracking.ui.live.LiveDriveScreen
+import com.mileway.feature.tracking.ui.live.LiveDriveState
 import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerController
 import com.mileway.feature.tracking.ui.onboarding.PermissionPrimerSheet
 import com.mileway.feature.tracking.ui.review.DriveReviewSheet
@@ -209,8 +207,8 @@ import com.mileway.feature.tracking.ui.screens.CheckInHistoryScreen
 import com.mileway.feature.tracking.ui.screens.CreateVoucherScreen
 import com.mileway.feature.tracking.ui.screens.GeoCheckInScreen
 import com.mileway.feature.tracking.ui.screens.HardwareEventsLogScreen
-import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.ManualCheckInScreen
+import com.mileway.feature.tracking.ui.screens.RouteReplayScreen
 import com.mileway.feature.tracking.ui.screens.SavedTracksScreen
 import com.mileway.feature.tracking.ui.screens.SetupGuideScreen
 import com.mileway.feature.tracking.ui.screens.TrackCustomizationScreen
@@ -230,8 +228,8 @@ import com.mileway.feature.tracking.ui.sheets.OfficePickerSheet
 import com.mileway.feature.tracking.ui.sheets.PauseReasonSheet
 import com.mileway.feature.tracking.ui.sheets.PermissionOnboardingSheet
 import com.mileway.feature.tracking.ui.sheets.PolicyViolationSheet
-import com.mileway.feature.tracking.ui.sheets.ResumeTrackingSheet
 import com.mileway.feature.tracking.ui.sheets.RestorableSession
+import com.mileway.feature.tracking.ui.sheets.ResumeTrackingSheet
 import com.mileway.feature.tracking.ui.sheets.SessionRestoreSheet
 import com.mileway.feature.tracking.ui.sheets.SmartDistanceSheet
 import com.mileway.feature.tracking.ui.sheets.SosBottomSheet
@@ -241,6 +239,8 @@ import com.mileway.feature.tracking.ui.sheets.VehicleOption
 import com.mileway.feature.tracking.ui.sheets.VehiclePickerSheet
 import com.mileway.feature.tracking.ui.sheets.VendorPickerSheet
 import com.mileway.feature.tracking.viewmodel.StrangerSessionConfig
+import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
+import com.mileway.feature.tracking.viewmodel.TrackSignal
 import com.mileway.feature.travel.di.travelModule
 import com.mileway.feature.travel.ui.screens.BookingHistoryScreen
 import com.mileway.feature.travel.ui.screens.CreateMjpScreen
@@ -277,7 +277,6 @@ import dev.tmapps.konnection.Konnection
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -294,6 +293,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.io.File
 
 // ---------------------------------------------------------------------------
 // Full Roborazzi screen gallery for the docs/ screenshot catalogue.
@@ -330,7 +330,6 @@ class ScreenshotGalleryTest {
      */
     private val screenshotNowMs = 1_767_268_800_000L
 
-
     companion object {
         private val screenshotsDir: File by lazy {
             val moduleDir = File(System.getProperty("user.dir") ?: ".")
@@ -349,47 +348,69 @@ class ScreenshotGalleryTest {
         // Pre-seeded SavedTrackDao shared by SavedTracks / TrackDetail / TrackInsights /
         // MileageSubmission / CreateVoucher VMs. FakeSavedTrackDao is a public top-level
         // test class (TrackMilesViewModelTest.kt); reuse it rather than redefine.
-        private val seededDao = FakeSavedTrackDao().also { dao ->
-            val baseMs = 1_700_000_000_000L
-            dao.preload(completedTrack("route-j1", "Pune → Hinjewadi", 12_400.0, baseMs - 86_400_000L))
-            dao.preload(completedTrack("route-j2", "FC Road → Koregaon Park", 3_800.0, baseMs - 172_800_000L))
-            dao.preload(completedTrack("route-j3", "Camp → Hadapsar", 7_100.0, baseMs - 259_200_000L))
-            dao.preload(submittedTrack("route-s1", "Kothrud → Baner", 9_200.0, baseMs - 432_000_000L))
-        }
+        private val seededDao =
+            FakeSavedTrackDao().also { dao ->
+                val baseMs = 1_700_000_000_000L
+                dao.preload(completedTrack("route-j1", "Pune → Hinjewadi", 12_400.0, baseMs - 86_400_000L))
+                dao.preload(completedTrack("route-j2", "FC Road → Koregaon Park", 3_800.0, baseMs - 172_800_000L))
+                dao.preload(completedTrack("route-j3", "Camp → Hadapsar", 7_100.0, baseMs - 259_200_000L))
+                dao.preload(submittedTrack("route-s1", "Kothrud → Baner", 9_200.0, baseMs - 432_000_000L))
+            }
 
-        private fun completedTrack(routeId: String, name: String, distanceMeters: Double, startMs: Long) =
-            SavedTrack(
-                routeId = routeId, name = name, isCompleted = true,
-                startLatitude = 18.5204, startLongitude = 73.8567,
-                endLatitude = 18.5500, endLongitude = 73.8800,
-                pausedLatitude = 0.0, pausedLongitude = 0.0,
-                startTime = startMs, endTime = startMs + 3_600_000L,
-                distance = distanceMeters, duration = 3_600_000L,
-                selectedVehicleType = "fourWheelerPetrol", vehiclePricing = 10.0,
-                createdAt = startMs, startedAtTimestamp = startMs,
-                startedByEmployeeCode = "EMP001"
-            )
+        private fun completedTrack(
+            routeId: String,
+            name: String,
+            distanceMeters: Double,
+            startMs: Long,
+        ) = SavedTrack(
+            routeId = routeId,
+            name = name,
+            isCompleted = true,
+            startLatitude = 18.5204,
+            startLongitude = 73.8567,
+            endLatitude = 18.5500,
+            endLongitude = 73.8800,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = startMs,
+            endTime = startMs + 3_600_000L,
+            distance = distanceMeters,
+            duration = 3_600_000L,
+            selectedVehicleType = "fourWheelerPetrol",
+            vehiclePricing = 10.0,
+            createdAt = startMs,
+            startedAtTimestamp = startMs,
+            startedByEmployeeCode = "EMP001",
+        )
 
-        private fun submittedTrack(routeId: String, name: String, distanceMeters: Double, startMs: Long) =
-            completedTrack(routeId, name, distanceMeters, startMs).copy(
-                serverUploaded = true, submittedAmount = distanceMeters / 1000.0 * 10.0,
-                submissionTime = startMs + 3_600_000L + 600_000L, pettyId = 9001L
-            )
+        private fun submittedTrack(
+            routeId: String,
+            name: String,
+            distanceMeters: Double,
+            startMs: Long,
+        ) = completedTrack(routeId, name, distanceMeters, startMs).copy(
+            serverUploaded = true,
+            submittedAmount = distanceMeters / 1000.0 * 10.0,
+            submissionTime = startMs + 3_600_000L + 600_000L,
+            pettyId = 9001L,
+        )
 
         // Seeded MediaLibraryDao so CloudLibraryScreen renders a populated grid rather
         // than the empty state. observeAll() emits a fixed list of demo entries.
-        private val mediaLibraryDao = mockk<MediaLibraryDao>(relaxed = true).also { dao ->
-            val baseMs = 1_700_000_000_000L
-            val entries = listOf(
-                MediaLibraryEntry("m1", "file:///demo/odometer.jpg", "image/jpeg", "Odometer: Pune", "CAMERA", baseMs - 3_600_000L),
-                MediaLibraryEntry("m2", "file:///demo/fuel.jpg", "image/jpeg", "Fuel receipt: Hinjewadi", "GALLERY", baseMs - 7_200_000L),
-                MediaLibraryEntry("m3", "file:///demo/toll.jpg", "image/jpeg", "Toll receipt: Mumbai Expressway", "CAMERA", baseMs - 10_800_000L),
-                MediaLibraryEntry("m4", "file:///demo/parking.jpg", "image/jpeg", "Parking: Magarpatta", "GALLERY", baseMs - 14_400_000L),
-                MediaLibraryEntry("m5", "file:///demo/invoice.jpg", "image/jpeg", "Cab invoice: Koregaon Park", "CAMERA", baseMs - 18_000_000L),
-                MediaLibraryEntry("m6", "file:///demo/meal.jpg", "image/jpeg", "Meal receipt: FC Road", "GALLERY", baseMs - 21_600_000L),
-            )
-            every { dao.observeAll() } returns MutableStateFlow(entries)
-        }
+        private val mediaLibraryDao =
+            mockk<MediaLibraryDao>(relaxed = true).also { dao ->
+                val baseMs = 1_700_000_000_000L
+                val entries =
+                    listOf(
+                        MediaLibraryEntry("m1", "file:///demo/odometer.jpg", "image/jpeg", "Odometer: Pune", "CAMERA", baseMs - 3_600_000L),
+                        MediaLibraryEntry("m2", "file:///demo/fuel.jpg", "image/jpeg", "Fuel receipt: Hinjewadi", "GALLERY", baseMs - 7_200_000L),
+                        MediaLibraryEntry("m3", "file:///demo/toll.jpg", "image/jpeg", "Toll receipt: Mumbai Expressway", "CAMERA", baseMs - 10_800_000L),
+                        MediaLibraryEntry("m4", "file:///demo/parking.jpg", "image/jpeg", "Parking: Magarpatta", "GALLERY", baseMs - 14_400_000L),
+                        MediaLibraryEntry("m5", "file:///demo/invoice.jpg", "image/jpeg", "Cab invoice: Koregaon Park", "CAMERA", baseMs - 18_000_000L),
+                        MediaLibraryEntry("m6", "file:///demo/meal.jpg", "image/jpeg", "Meal receipt: FC Road", "GALLERY", baseMs - 21_600_000L),
+                    )
+                every { dao.observeAll() } returns MutableStateFlow(entries)
+            }
 
         // P3.1: a deterministic in-memory fake (not a mockk) so VoucherHistoryScreen and
         // CreateVoucherScreen's screenshots keep rendering the same rows they always did — a bare
@@ -397,276 +418,361 @@ class ScreenshotGalleryTest {
         // VoucherHistoryViewModel's collector (memory: screenshot Koin needs deterministic fakes).
         private val voucherDao = FakeVoucherDao()
 
-        private val fakeRoomLayer = module {
-            single<SavedTrackDao> { seededDao }
-            single<LocationDao> { mockk(relaxed = true) }
-            single<HardwareEventDao> { mockk(relaxed = true) }
-            // P5.1: LogMilesViewModel.init now collectLatest's getAllDrafts(); a relaxed mockk
-            // returns a null-backed Flow that crashes that collector (memory: screenshot Koin
-            // needs deterministic fakes, same reason FakeVoucherDao exists below).
-            single<LogMilesDraftDao> { FakeLogMilesDraftDao() }
-            // Wave 3: LogMilesViewModel.init now also collectLatest's observeAllRoutes(); same
-            // relaxed-mockk-null-Flow trap as LogMilesDraftDao above.
-            single<LogMilesFrequentRouteDao> { FakeLogMilesFrequentRouteDao() }
-            single<com.siddharth.kmp.offlineoutbox.SubmitOutbox<com.mileway.core.data.model.network.LogMilesSubmitRequestV2>> {
-                mockk(relaxed = true)
-            }
-            single<TripAttachmentDao> { mockk(relaxed = true) }
-            single<DraftExpenseDao> { mockk(relaxed = true) }
-            single<VoucherDao> { voucherDao }
-            single<MediaLibraryDao> { mediaLibraryDao }
-            single<AgentDao> { FakeAgentDao() }
-            single<MockAccountDao> { FakeMockAccountDao() }
-            // PLAN_V33 A5/A6 LANDMINE: SyncStatusViewModel.init() eagerly calls MilesSubmitSyncer.drain(),
-            // which does `outbox.drafts(FORM_KEY).first()`. TripDraftOutbox (SubmitOutbox<TripDraft>) is
-            // normally bound in the excluded CoreDataModule; without a binding here it falls through to
-            // whatever relaxed mockk<SubmitOutbox<*>> is in scope, whose Flow-returning drafts() never
-            // emits — .first() then throws NoSuchElementException. Deterministic fake keeps that resolving.
-            single<com.mileway.core.data.outbox.TripDraftOutbox> { FakeTripDraftOutbox() }
-            // P6.2: PersonalDetailsViewModel collects both of these in init(); a relaxed mockk
-            // would return a null-backed Flow and crash the collector (memory: screenshot Koin
-            // needs deterministic fakes, same reason FakeVoucherDao exists above).
-            single<VehicleDetailsDao> { FakeVehicleDetailsDao() }
-            single<PassportDetailsDao> { FakePassportDetailsDao() }
-            // P12.7: SignatureViewModel combines SignatureDao.observe() with the plugin registry;
-            // a relaxed mockk would return a null-backed Flow and crash the collector (memory:
-            // screenshot Koin needs deterministic fakes, same null-collector trap as above).
-            single<SignatureDao> { FakeSignatureDao() }
-            // P6.3: DelegationViewModel collects this in init(); same null-collector trap as above.
-            single<DelegationDao> { FakeDelegationDao() }
-            // P6.4: ActiveSessionsViewModel collects this in init(); same null-collector trap as above.
-            single<SessionDao> { FakeSessionDao() }
-            // P6.5: NotificationViewModel collects this in init(); same null-collector trap as above.
-            single<NotificationDao> { FakeNotificationDao() }
-            // P6.6: ConnectedAccountsViewModel collects this in init(); same null-collector trap as above.
-            single<ConnectedAccountDao> { FakeConnectedAccountDao() }
-            // PLAN_V24 P8.1: ConnectedAccountsViewModel now also seeds/collects the wallet DAO + uses
-            // the OTP engine (wallet link flow). Section hidden by default (walletLinkingEnabled off).
-            single<com.mileway.core.data.dao.PaymentWalletDao> { FakePaymentWalletDao() }
-            single { com.mileway.core.data.otp.LocalOtpEngine() }
-            // PLAN_V24 super-profile screens (Plugins / Verification / Referral / Coupons / Rewards /
-            // Marketing / Membership / Subscription / Incentives / Account-deletion / Saved-places /
-            // Emergency-contacts / Manager-reportees). The real CoreDataModule isn't loaded here, so
-            // supply each Room DAO fake + the core:data repositories the VMs collect in init(). These
-            // mirror KoinGraphTest's fake layer 1:1.
-            single { com.mileway.core.data.review.SimulatedReviewEngine() }
-            single<com.mileway.core.data.dao.SavedPlaceDao> { FakeSavedPlaceDao() }
-            single<com.mileway.core.data.dao.EmergencyContactDao> { FakeEmergencyContactDao() }
-            single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
-            single<com.mileway.core.data.dao.DocumentDao> { FakeDocumentDao() }
-            single<com.mileway.core.data.dao.ReferralTxnDao> { FakeReferralTxnDao() }
-            single<com.mileway.core.data.dao.CouponDao> { FakeCouponDao() }
-            single<com.mileway.core.data.dao.RewardCardDao> { FakeRewardCardDao() }
-            single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
-            single { com.mileway.core.data.campaign.CampaignRepository(get()) }
-            // PLAN_V28 P28.2: ApprovalDetailsScreen's ApprovalsViewModel.openDetail eagerly
-            // combine/collects ClarificationRepository Flows during Compose render — approvalsModule
-            // itself binds the real ClarificationRepository(get<ClarificationDao>()), so only the
-            // DAO fake is needed here (a relaxed mockk would hand back a null-backed Flow and crash).
-            single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
-            // PLAN_V28 P28.7: same eager-collect trap as ClarificationDao above, for
-            // ApprovalCommentRepository's observeComments(...).
-            single<com.mileway.core.data.dao.ApprovalCommentDao> { FakeApprovalCommentDao() }
-            single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
-            single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
-            single<com.mileway.core.data.dao.DeletionRequestDao> { FakeDeletionRequestDao() }
-            single { com.mileway.core.data.lifecycle.DeletionRequestRepository(get(), get()) }
-            // PinViewModel (Set/Check-PIN screens) now takes a PinLockoutSource + Clock, and
-            // SearchLocationViewModel (LogMiles step-1 location sheet) a SavedLocationsSource — both
-            // normally bound in the excluded CoreDataModule. In-memory/no-op fakes (a relaxed mockk's
-            // null Flow would crash the collectors) mirroring KoinGraphTest's bindings.
-            single<kotlin.time.Clock> { kotlin.time.Clock.System }
-            single<com.mileway.core.data.session.PinLockoutSource> {
-                object : com.mileway.core.data.session.PinLockoutSource {
-                    override suspend fun getState(accountId: String) =
-                        com.mileway.core.data.session.PinLockoutState()
+        private val fakeRoomLayer =
+            module {
+                single<SavedTrackDao> { seededDao }
+                single<LocationDao> { mockk(relaxed = true) }
+                single<HardwareEventDao> { mockk(relaxed = true) }
+                // P5.1: LogMilesViewModel.init now collectLatest's getAllDrafts(); a relaxed mockk
+                // returns a null-backed Flow that crashes that collector (memory: screenshot Koin
+                // needs deterministic fakes, same reason FakeVoucherDao exists below).
+                single<LogMilesDraftDao> { FakeLogMilesDraftDao() }
+                // Wave 3: LogMilesViewModel.init now also collectLatest's observeAllRoutes(); same
+                // relaxed-mockk-null-Flow trap as LogMilesDraftDao above.
+                single<LogMilesFrequentRouteDao> { FakeLogMilesFrequentRouteDao() }
+                single<com.siddharth.kmp.offlineoutbox.SubmitOutbox<com.mileway.core.data.model.network.LogMilesSubmitRequestV2>> {
+                    mockk(relaxed = true)
+                }
+                single<TripAttachmentDao> { mockk(relaxed = true) }
+                single<DraftExpenseDao> { mockk(relaxed = true) }
+                single<VoucherDao> { voucherDao }
+                single<MediaLibraryDao> { mediaLibraryDao }
+                single<AgentDao> { FakeAgentDao() }
+                single<MockAccountDao> { FakeMockAccountDao() }
+                // PLAN_V33 A5/A6 LANDMINE: SyncStatusViewModel.init() eagerly calls MilesSubmitSyncer.drain(),
+                // which does `outbox.drafts(FORM_KEY).first()`. TripDraftOutbox (SubmitOutbox<TripDraft>) is
+                // normally bound in the excluded CoreDataModule; without a binding here it falls through to
+                // whatever relaxed mockk<SubmitOutbox<*>> is in scope, whose Flow-returning drafts() never
+                // emits — .first() then throws NoSuchElementException. Deterministic fake keeps that resolving.
+                single<com.mileway.core.data.outbox.TripDraftOutbox> { FakeTripDraftOutbox() }
+                // P6.2: PersonalDetailsViewModel collects both of these in init(); a relaxed mockk
+                // would return a null-backed Flow and crash the collector (memory: screenshot Koin
+                // needs deterministic fakes, same reason FakeVoucherDao exists above).
+                single<VehicleDetailsDao> { FakeVehicleDetailsDao() }
+                single<PassportDetailsDao> { FakePassportDetailsDao() }
+                // P12.7: SignatureViewModel combines SignatureDao.observe() with the plugin registry;
+                // a relaxed mockk would return a null-backed Flow and crash the collector (memory:
+                // screenshot Koin needs deterministic fakes, same null-collector trap as above).
+                single<SignatureDao> { FakeSignatureDao() }
+                // P6.3: DelegationViewModel collects this in init(); same null-collector trap as above.
+                single<DelegationDao> { FakeDelegationDao() }
+                // P6.4: ActiveSessionsViewModel collects this in init(); same null-collector trap as above.
+                single<SessionDao> { FakeSessionDao() }
+                // P6.5: NotificationViewModel collects this in init(); same null-collector trap as above.
+                single<NotificationDao> { FakeNotificationDao() }
+                // P6.6: ConnectedAccountsViewModel collects this in init(); same null-collector trap as above.
+                single<ConnectedAccountDao> { FakeConnectedAccountDao() }
+                // PLAN_V24 P8.1: ConnectedAccountsViewModel now also seeds/collects the wallet DAO + uses
+                // the OTP engine (wallet link flow). Section hidden by default (walletLinkingEnabled off).
+                single<com.mileway.core.data.dao.PaymentWalletDao> { FakePaymentWalletDao() }
+                single {
+                    com.mileway.core.data.otp
+                        .LocalOtpEngine()
+                }
+                // PLAN_V24 super-profile screens (Plugins / Verification / Referral / Coupons / Rewards /
+                // Marketing / Membership / Subscription / Incentives / Account-deletion / Saved-places /
+                // Emergency-contacts / Manager-reportees). The real CoreDataModule isn't loaded here, so
+                // supply each Room DAO fake + the core:data repositories the VMs collect in init(). These
+                // mirror KoinGraphTest's fake layer 1:1.
+                single {
+                    com.mileway.core.data.review
+                        .SimulatedReviewEngine()
+                }
+                single<com.mileway.core.data.dao.SavedPlaceDao> { FakeSavedPlaceDao() }
+                single<com.mileway.core.data.dao.EmergencyContactDao> { FakeEmergencyContactDao() }
+                single {
+                    com.mileway.core.data.emergency
+                        .EmergencyContactsRepository(get())
+                }
+                single<com.mileway.core.data.dao.DocumentDao> { FakeDocumentDao() }
+                single<com.mileway.core.data.dao.ReferralTxnDao> { FakeReferralTxnDao() }
+                single<com.mileway.core.data.dao.CouponDao> { FakeCouponDao() }
+                single<com.mileway.core.data.dao.RewardCardDao> { FakeRewardCardDao() }
+                single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
+                single {
+                    com.mileway.core.data.campaign
+                        .CampaignRepository(get())
+                }
+                // PLAN_V28 P28.2: ApprovalDetailsScreen's ApprovalsViewModel.openDetail eagerly
+                // combine/collects ClarificationRepository Flows during Compose render — approvalsModule
+                // itself binds the real ClarificationRepository(get<ClarificationDao>()), so only the
+                // DAO fake is needed here (a relaxed mockk would hand back a null-backed Flow and crash).
+                single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
+                // PLAN_V28 P28.7: same eager-collect trap as ClarificationDao above, for
+                // ApprovalCommentRepository's observeComments(...).
+                single<com.mileway.core.data.dao.ApprovalCommentDao> { FakeApprovalCommentDao() }
+                single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
+                single {
+                    com.mileway.core.data.subscription
+                        .SubscriptionRepository(get())
+                }
+                single<com.mileway.core.data.dao.DeletionRequestDao> { FakeDeletionRequestDao() }
+                single {
+                    com.mileway.core.data.lifecycle
+                        .DeletionRequestRepository(get(), get())
+                }
+                // PinViewModel (Set/Check-PIN screens) now takes a PinLockoutSource + Clock, and
+                // SearchLocationViewModel (LogMiles step-1 location sheet) a SavedLocationsSource — both
+                // normally bound in the excluded CoreDataModule. In-memory/no-op fakes (a relaxed mockk's
+                // null Flow would crash the collectors) mirroring KoinGraphTest's bindings.
+                single<kotlin.time.Clock> { kotlin.time.Clock.System }
+                single<com.mileway.core.data.session.PinLockoutSource> {
+                    object : com.mileway.core.data.session.PinLockoutSource {
+                        override suspend fun getState(accountId: String) =
+                            com.mileway.core.data.session
+                                .PinLockoutState()
 
-                    override suspend fun setState(
-                        accountId: String,
-                        state: com.mileway.core.data.session.PinLockoutState,
-                    ) = Unit
+                        override suspend fun setState(
+                            accountId: String,
+                            state: com.mileway.core.data.session.PinLockoutState,
+                        ) = Unit
 
-                    override suspend fun clear(accountId: String) = Unit
-                }
-            }
-            single<com.mileway.core.data.location.SavedLocationsSource> {
-                object : com.mileway.core.data.location.SavedLocationsSource {
-                    override val data = MutableStateFlow(com.mileway.core.data.location.SavedLocationsData())
-
-                    override suspend fun addRecent(place: com.mileway.core.data.location.SavedPlace) = Unit
-
-                    override suspend fun removeRecent(name: String) = Unit
-
-                    override suspend fun clearRecent() = Unit
-
-                    override suspend fun toggleFavorite(place: com.mileway.core.data.location.SavedPlace) = Unit
-
-                    override suspend fun saveAs(
-                        place: com.mileway.core.data.location.SavedPlace,
-                        label: String,
-                    ) = Unit
-
-                    override suspend fun removeSaved(label: String) = Unit
-                }
-            }
-            // P6.8: SupportTicketViewModel collects this in init() (HelpScreen + MyTicketsScreen);
-            // same null-collector trap as above.
-            single<SupportTicketDao> { FakeSupportTicketDao() }
-            single<AgentSessionStore> { FakeAgentSessionStore() }
-            single<AssistantEngine> { FakeAssistantEngine() }
-            single<SpeechToText> { FakeSpeechToText() }
-            single<TextToSpeech> { FakeTextToSpeech() }
-            single<CurrentTrackDataStore> { mockk(relaxed = true) }
-            single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
-            // P2.1: ProfileViewModel reads this in init; a real in-memory fake avoids the
-            // Flow<String?>-from-relaxed-mockk null-collector trap (memory: screenshot Koin
-            // needs deterministic fakes, same reason FakeVoucherDao exists above).
-            single<ActiveAccountSource> { FakeActiveAccountSource() }
-            // PLAN_V24 P7.3: DelegationScreen/ProfileScreen resolve the session-delegation overlay +
-            // (via DelegateSessionViewModel) the PluginRegistry. FakeActiveAccountSource emits a null
-            // active account, so PluginRegistry never touches the relaxed-mockk override DAO.
-            single<com.mileway.core.data.session.DelegationSessionSource> {
-                com.mileway.core.data.session.InMemoryDelegationSessionSource()
-            }
-            single<com.mileway.core.data.dao.PluginOverrideDao> { mockk(relaxed = true) }
-            single<com.mileway.core.data.plugin.PluginDebugForceSource> {
-                com.mileway.core.data.plugin.InMemoryPluginDebugForceSource()
-            }
-            single {
-                com.mileway.core.data.plugin.PluginRegistry(
-                    overrideDao = get(),
-                    activeAccount = get(),
-                    presets = get(),
-                    debugForce = get(),
-                )
-            }
-            // P2.3: SwitchAccountViewModel.verify() reads this; a real in-memory fake avoids the
-            // suspend-fun-on-a-relaxed-mockk trap (memory: screenshot Koin needs deterministic fakes).
-            single<PinHashSource> { FakePinHashSource() }
-            // P6.5: ProfileViewModel now collects `settings` eagerly in init() (Notification
-            // Center channel toggles); a relaxed mockk's auto-generated Flow<DemoSettings> is not
-            // guaranteed to behave like a real Flow under `.onEach{}.launchIn()` (memory:
-            // screenshot Koin needs deterministic fakes), so a real MutableStateFlow-backed stub
-            // is used instead.
-            single<DemoSettingsRepository> {
-                mockk {
-                    every { settings } returns MutableStateFlow(com.mileway.core.data.settings.DemoSettings())
-                }
-            }
-            // Wave-2 AbnormalDetectionConfig: trackingModule's TrackingConfigManager resolves this
-            // DataStore-backed source; bind a DEFAULT-only fake like the other data-layer stubs here.
-            single<com.mileway.core.data.settings.AbnormalDetectionSettingsSource> {
-                mockk {
-                    every { overrides } returns
-                        MutableStateFlow(com.mileway.core.data.settings.AbnormalDetectionOverrides())
-                }
-            }
-            // P2.4: ProfileViewModel now depends on SessionRepository (SignOut's global-fallback path).
-            // P3.2: ProfileViewModel now also collects `sessionState.first()` in init() for the
-            // staleness check; a relaxed mockk's auto-generated Flow<SessionState> never emits
-            // (memory: screenshot Koin needs deterministic fakes, same null-collector trap as
-            // ActiveAccountSource above), so `sessionState` is stubbed with a real MutableStateFlow.
-            single<SessionRepository> {
-                mockk(relaxed = true) {
-                    every { sessionState } returns MutableStateFlow(com.mileway.core.data.session.SessionState())
-                }
-            }
-            // P3.4: ProfileViewModel now depends on MockAccountSessionCoordinator (pause/restore hook).
-            single { MockAccountSessionCoordinator(get(), get(), get()) }
-            // Map screens (GeoCheckIn, LocationMap, LiveTrack, LogMiles thumbnail) inject
-            // MapSurface; the real flavor surfaces need GMS / MapLibre native, so use a
-            // no-op fake on the JVM. mapsKoinModule() is deliberately excluded.
-            single<MapSurface> { FakeMapSurface() }
-            // TrackMilesScreen koinInject()s this for the permission primer. platformServices
-            // KoinModule() is deliberately excluded here (it builds GMS/MapLibre against a mock
-            // Context), so bind a no-op the same way MapSurface is faked.
-            single<SystemSettingsOpener> { object : SystemSettingsOpener { override fun openAppSettings() = Unit } }
-            // BugReportSheet (core:ui) resolves BugReportViewModel(BugReportRepository) — the
-            // repository is normally bound in the excluded CoreDataModule; same null-collector-free
-            // relaxed-mockk pattern as the other DAOs above (submit() is a fire-and-forget suspend
-            // call, never awaited by the sheet, so a relaxed no-op DAO is enough).
-            single<com.mileway.core.data.dao.BugReportDao> { mockk(relaxed = true) }
-            single { com.mileway.core.data.support.BugReportRepository(get()) }
-            // FavouriteRoutesScreen: FavouriteRoutesRepository combines both flows in its VM's
-            // init{} — a relaxed mockk's null-backed Flow would crash the collector (memory:
-            // screenshot Koin needs deterministic fakes), so both are seeded MutableStateFlows.
-            single<com.mileway.core.data.dao.FavouriteRouteDao> {
-                mockk(relaxed = true) {
-                    every { observeAll() } returns
-                        MutableStateFlow(
-                            listOf(
-                                com.mileway.core.data.model.db.FavouriteRouteEntity(
-                                    id = "fav-1", sourceTrackId = "route-j1", name = "Home to Office",
-                                    purpose = "Business", distanceKm = 12.4, createdAtMs = 1_700_000_000_000L,
-                                ),
-                            ),
-                        )
-                }
-            }
-            single { com.mileway.core.data.favourite.FavouriteRoutesRepository(get(), get()) }
-            // VehicleGarageScreen / SelfAuditScreen: GarageRepository.observeAll() is combine()'d
-            // in both VMs' init{} — same null-collector trap as above, seeded with two demo vehicles.
-            single<com.mileway.core.data.dao.VehicleDao> {
-                mockk(relaxed = true) {
-                    every { observeAll() } returns
-                        MutableStateFlow(
-                            listOf(
-                                com.mileway.core.data.model.db.VehicleEntity(
-                                    id = "veh_seed_1", brand = "Honda", model = "Activa",
-                                    registrationNumber = "MH12AB1234", year = 2022, color = "Grey",
-                                    seats = 2, vehicleTypeKey = "twoWheeler", isActive = true,
-                                ),
-                                com.mileway.core.data.model.db.VehicleEntity(
-                                    id = "veh_seed_2", brand = "Maruti Suzuki", model = "Swift",
-                                    registrationNumber = "MH12CD5678", year = 2021, color = "White",
-                                    seats = 5, vehicleTypeKey = "fourWheelerPetrol", isActive = false,
-                                ),
-                            ),
-                        )
-                    every { observeActive() } returns MutableStateFlow(null)
-                }
-            }
-            single { com.mileway.core.data.vehicle.GarageRepository(get()) }
-            single<com.mileway.core.data.dao.VehicleAuditDao> {
-                mockk(relaxed = true) {
-                    every { observeForVehicle(any()) } returns MutableStateFlow(emptyList())
-                }
-            }
-            single { com.mileway.core.data.vehicle.SelfAuditRepository(get(), get()) }
-            // SavedTrackDao already seeded above (seededDao) — EcometerRepository derives its
-            // totals from real completed tracks, no extra binding needed.
-            single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
-            // TrainingTourScreen: TourRepository.observe() is stateIn()'d in the VM — same
-            // null-collector trap as above.
-            single<com.mileway.core.data.dao.TourProgressDao> {
-                mockk(relaxed = true) {
-                    every { observe(any()) } returns MutableStateFlow(null)
-                }
-            }
-            single { com.mileway.core.data.engagement.TourRepository(get(), get()) }
-            // StorageManagementScreen: StorageRepository(Context) reads real getDatabasePath()/
-            // cacheDir sizes. Not bound against Robolectric's real ApplicationProvider context or the
-            // graph's relaxed mockk<Context> — StorageRepositoryTest's own doc records that real
-            // cacheDir I/O against a Robolectric-managed Context corrupted its temp-dir bookkeeping on
-            // Linux CI (Z.5b). Same fix that test uses: a mockk<Context> answering into real
-            // java.io.File temp dirs this JVM owns outright, so I/O is real (a populated, non-empty
-            // list renders) without touching Robolectric's managed sandbox. Deliberately NOT bound as
-            // `single<Context>` — that type is already the graph-wide relaxed mockk from
-            // androidContext() above; declaring a second one here would override it for every other
-            // test in this class, not just this screen.
-            single {
-                val cache = kotlin.io.path.createTempDirectory("mileway-screenshot-cache").toFile()
-                val databases = kotlin.io.path.createTempDirectory("mileway-screenshot-db").toFile()
-                val files = kotlin.io.path.createTempDirectory("mileway-screenshot-files").toFile()
-                val storageContext =
-                    mockk<Context> {
-                        every { cacheDir } returns cache
-                        every { filesDir } returns files
-                        every { getDatabasePath(any()) } answers { File(databases, firstArg()) }
+                        override suspend fun clear(accountId: String) = Unit
                     }
-                com.mileway.core.data.settings.StorageRepository(storageContext)
+                }
+                single<com.mileway.core.data.location.SavedLocationsSource> {
+                    object : com.mileway.core.data.location.SavedLocationsSource {
+                        override val data =
+                            MutableStateFlow(
+                                com.mileway.core.data.location
+                                    .SavedLocationsData(),
+                            )
+
+                        override suspend fun addRecent(place: com.mileway.core.data.location.SavedPlace) = Unit
+
+                        override suspend fun removeRecent(name: String) = Unit
+
+                        override suspend fun clearRecent() = Unit
+
+                        override suspend fun toggleFavorite(place: com.mileway.core.data.location.SavedPlace) = Unit
+
+                        override suspend fun saveAs(
+                            place: com.mileway.core.data.location.SavedPlace,
+                            label: String,
+                        ) = Unit
+
+                        override suspend fun removeSaved(label: String) = Unit
+                    }
+                }
+                // P6.8: SupportTicketViewModel collects this in init() (HelpScreen + MyTicketsScreen);
+                // same null-collector trap as above.
+                single<SupportTicketDao> { FakeSupportTicketDao() }
+                single<AgentSessionStore> { FakeAgentSessionStore() }
+                single<AssistantEngine> { FakeAssistantEngine() }
+                single<SpeechToText> { FakeSpeechToText() }
+                single<TextToSpeech> { FakeTextToSpeech() }
+                single<CurrentTrackDataStore> { mockk(relaxed = true) }
+                single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
+                // P2.1: ProfileViewModel reads this in init; a real in-memory fake avoids the
+                // Flow<String?>-from-relaxed-mockk null-collector trap (memory: screenshot Koin
+                // needs deterministic fakes, same reason FakeVoucherDao exists above).
+                single<ActiveAccountSource> { FakeActiveAccountSource() }
+                // PLAN_V24 P7.3: DelegationScreen/ProfileScreen resolve the session-delegation overlay +
+                // (via DelegateSessionViewModel) the PluginRegistry. FakeActiveAccountSource emits a null
+                // active account, so PluginRegistry never touches the relaxed-mockk override DAO.
+                single<com.mileway.core.data.session.DelegationSessionSource> {
+                    com.mileway.core.data.session
+                        .InMemoryDelegationSessionSource()
+                }
+                single<com.mileway.core.data.dao.PluginOverrideDao> { mockk(relaxed = true) }
+                single<com.mileway.core.data.plugin.PluginDebugForceSource> {
+                    com.mileway.core.data.plugin
+                        .InMemoryPluginDebugForceSource()
+                }
+                single {
+                    com.mileway.core.data.plugin.PluginRegistry(
+                        overrideDao = get(),
+                        activeAccount = get(),
+                        presets = get(),
+                        debugForce = get(),
+                    )
+                }
+                // P2.3: SwitchAccountViewModel.verify() reads this; a real in-memory fake avoids the
+                // suspend-fun-on-a-relaxed-mockk trap (memory: screenshot Koin needs deterministic fakes).
+                single<PinHashSource> { FakePinHashSource() }
+                // P6.5: ProfileViewModel now collects `settings` eagerly in init() (Notification
+                // Center channel toggles); a relaxed mockk's auto-generated Flow<DemoSettings> is not
+                // guaranteed to behave like a real Flow under `.onEach{}.launchIn()` (memory:
+                // screenshot Koin needs deterministic fakes), so a real MutableStateFlow-backed stub
+                // is used instead.
+                single<DemoSettingsRepository> {
+                    mockk {
+                        every { settings } returns
+                            MutableStateFlow(
+                                com.mileway.core.data.settings
+                                    .DemoSettings(),
+                            )
+                    }
+                }
+                // Wave-2 AbnormalDetectionConfig: trackingModule's TrackingConfigManager resolves this
+                // DataStore-backed source; bind a DEFAULT-only fake like the other data-layer stubs here.
+                single<com.mileway.core.data.settings.AbnormalDetectionSettingsSource> {
+                    mockk {
+                        every { overrides } returns
+                            MutableStateFlow(
+                                com.mileway.core.data.settings
+                                    .AbnormalDetectionOverrides(),
+                            )
+                    }
+                }
+                // P2.4: ProfileViewModel now depends on SessionRepository (SignOut's global-fallback path).
+                // P3.2: ProfileViewModel now also collects `sessionState.first()` in init() for the
+                // staleness check; a relaxed mockk's auto-generated Flow<SessionState> never emits
+                // (memory: screenshot Koin needs deterministic fakes, same null-collector trap as
+                // ActiveAccountSource above), so `sessionState` is stubbed with a real MutableStateFlow.
+                single<SessionRepository> {
+                    mockk(relaxed = true) {
+                        every { sessionState } returns
+                            MutableStateFlow(
+                                com.mileway.core.data.session
+                                    .SessionState(),
+                            )
+                    }
+                }
+                // P3.4: ProfileViewModel now depends on MockAccountSessionCoordinator (pause/restore hook).
+                single { MockAccountSessionCoordinator(get(), get(), get()) }
+                // Map screens (GeoCheckIn, LocationMap, LiveTrack, LogMiles thumbnail) inject
+                // MapSurface; the real flavor surfaces need GMS / MapLibre native, so use a
+                // no-op fake on the JVM. mapsKoinModule() is deliberately excluded.
+                single<MapSurface> { FakeMapSurface() }
+                // TrackMilesScreen koinInject()s this for the permission primer. platformServices
+                // KoinModule() is deliberately excluded here (it builds GMS/MapLibre against a mock
+                // Context), so bind a no-op the same way MapSurface is faked.
+                single<SystemSettingsOpener> {
+                    object : SystemSettingsOpener {
+                        override fun openAppSettings() = Unit
+                    }
+                }
+                // BugReportSheet (core:ui) resolves BugReportViewModel(BugReportRepository) — the
+                // repository is normally bound in the excluded CoreDataModule; same null-collector-free
+                // relaxed-mockk pattern as the other DAOs above (submit() is a fire-and-forget suspend
+                // call, never awaited by the sheet, so a relaxed no-op DAO is enough).
+                single<com.mileway.core.data.dao.BugReportDao> { mockk(relaxed = true) }
+                single {
+                    com.mileway.core.data.support
+                        .BugReportRepository(get())
+                }
+                // FavouriteRoutesScreen: FavouriteRoutesRepository combines both flows in its VM's
+                // init{} — a relaxed mockk's null-backed Flow would crash the collector (memory:
+                // screenshot Koin needs deterministic fakes), so both are seeded MutableStateFlows.
+                single<com.mileway.core.data.dao.FavouriteRouteDao> {
+                    mockk(relaxed = true) {
+                        every { observeAll() } returns
+                            MutableStateFlow(
+                                listOf(
+                                    com.mileway.core.data.model.db.FavouriteRouteEntity(
+                                        id = "fav-1",
+                                        sourceTrackId = "route-j1",
+                                        name = "Home to Office",
+                                        purpose = "Business",
+                                        distanceKm = 12.4,
+                                        createdAtMs = 1_700_000_000_000L,
+                                    ),
+                                ),
+                            )
+                    }
+                }
+                single {
+                    com.mileway.core.data.favourite
+                        .FavouriteRoutesRepository(get(), get())
+                }
+                // VehicleGarageScreen / SelfAuditScreen: GarageRepository.observeAll() is combine()'d
+                // in both VMs' init{} — same null-collector trap as above, seeded with two demo vehicles.
+                single<com.mileway.core.data.dao.VehicleDao> {
+                    mockk(relaxed = true) {
+                        every { observeAll() } returns
+                            MutableStateFlow(
+                                listOf(
+                                    com.mileway.core.data.model.db.VehicleEntity(
+                                        id = "veh_seed_1",
+                                        brand = "Honda",
+                                        model = "Activa",
+                                        registrationNumber = "MH12AB1234",
+                                        year = 2022,
+                                        color = "Grey",
+                                        seats = 2,
+                                        vehicleTypeKey = "twoWheeler",
+                                        isActive = true,
+                                    ),
+                                    com.mileway.core.data.model.db.VehicleEntity(
+                                        id = "veh_seed_2",
+                                        brand = "Maruti Suzuki",
+                                        model = "Swift",
+                                        registrationNumber = "MH12CD5678",
+                                        year = 2021,
+                                        color = "White",
+                                        seats = 5,
+                                        vehicleTypeKey = "fourWheelerPetrol",
+                                        isActive = false,
+                                    ),
+                                ),
+                            )
+                        every { observeActive() } returns MutableStateFlow(null)
+                    }
+                }
+                single {
+                    com.mileway.core.data.vehicle
+                        .GarageRepository(get())
+                }
+                single<com.mileway.core.data.dao.VehicleAuditDao> {
+                    mockk(relaxed = true) {
+                        every { observeForVehicle(any()) } returns MutableStateFlow(emptyList())
+                    }
+                }
+                single {
+                    com.mileway.core.data.vehicle
+                        .SelfAuditRepository(get(), get())
+                }
+                // SavedTrackDao already seeded above (seededDao) — EcometerRepository derives its
+                // totals from real completed tracks, no extra binding needed.
+                single {
+                    com.mileway.core.data.vehicle
+                        .EcometerRepository(get())
+                }
+                // TrainingTourScreen: TourRepository.observe() is stateIn()'d in the VM — same
+                // null-collector trap as above.
+                single<com.mileway.core.data.dao.TourProgressDao> {
+                    mockk(relaxed = true) {
+                        every { observe(any()) } returns MutableStateFlow(null)
+                    }
+                }
+                single {
+                    com.mileway.core.data.engagement
+                        .TourRepository(get(), get())
+                }
+                // StorageManagementScreen: StorageRepository(Context) reads real getDatabasePath()/
+                // cacheDir sizes. Not bound against Robolectric's real ApplicationProvider context or the
+                // graph's relaxed mockk<Context> — StorageRepositoryTest's own doc records that real
+                // cacheDir I/O against a Robolectric-managed Context corrupted its temp-dir bookkeeping on
+                // Linux CI (Z.5b). Same fix that test uses: a mockk<Context> answering into real
+                // java.io.File temp dirs this JVM owns outright, so I/O is real (a populated, non-empty
+                // list renders) without touching Robolectric's managed sandbox. Deliberately NOT bound as
+                // `single<Context>` — that type is already the graph-wide relaxed mockk from
+                // androidContext() above; declaring a second one here would override it for every other
+                // test in this class, not just this screen.
+                single {
+                    val cache =
+                        kotlin.io.path
+                            .createTempDirectory("mileway-screenshot-cache")
+                            .toFile()
+                    val databases =
+                        kotlin.io.path
+                            .createTempDirectory("mileway-screenshot-db")
+                            .toFile()
+                    val files =
+                        kotlin.io.path
+                            .createTempDirectory("mileway-screenshot-files")
+                            .toFile()
+                    val storageContext =
+                        mockk<Context> {
+                            every { cacheDir } returns cache
+                            every { filesDir } returns files
+                            every { getDatabasePath(any()) } answers { File(databases, firstArg()) }
+                        }
+                    com.mileway.core.data.settings
+                        .StorageRepository(storageContext)
+                }
             }
-        }
 
         // Stand-ins for the platform-service graph (platformModule +
         // platformServicesKoinModule) that is deliberately excluded because its real
@@ -680,62 +786,65 @@ class ScreenshotGalleryTest {
         //  - the rest are safety-net binds so any update/review/analytics surface that
         //    scrolls into view resolves instead of throwing NoDefinitionFound.
         // Listed LAST in modules(...) so Koin's last-definition-wins override picks them.
-        private val fakeOverrides = module {
-            // PLAN_V33 A6 LANDMINE: trackingModule's real binding is VehiclePricingCacheStore(androidContext()),
-            // a DataStore-Preferences store — it needs a working Context.filesDir, but this harness's Koin
-            // androidContext() is a fully relaxed mockk (no real files dir), so DataStore throws a
-            // NullPointerException the first time TrackMilesViewModel.loadVehicles() reads the cache.
-            // InMemoryVehiclePricingCache is VehiclePricingRepository's own gallery/test-safe default; override
-            // TrackingModule's real store with it here rather than touching production DI.
-            single<com.mileway.feature.tracking.repository.VehiclePricingCache> {
-                com.mileway.feature.tracking.repository.InMemoryVehiclePricingCache()
-            }
-            single<NotificationScheduler> { mockk(relaxed = true) }
-            // CheckPinScreen koinInjects this (biometric-unlock affordance); the real impl is bound by
-            // the excluded platformModule. Relaxed mockk → isAvailable()=false, so the screen renders
-            // its PIN-entry state.
-            single<com.mileway.core.platform.BiometricAuthenticator> { mockk(relaxed = true) }
-            single<ReferralManager> {
-                object : ReferralManager {
-                    override suspend fun myReferralCode(): String = "MILEWAY-SID-9F2K"
-                    override fun pendingReferral(): kotlinx.coroutines.flow.Flow<ReferralData?> =
-                        kotlinx.coroutines.flow.emptyFlow()
-                    override suspend fun redeem(code: String): Boolean = true
+        private val fakeOverrides =
+            module {
+                // PLAN_V33 A6 LANDMINE: trackingModule's real binding is VehiclePricingCacheStore(androidContext()),
+                // a DataStore-Preferences store — it needs a working Context.filesDir, but this harness's Koin
+                // androidContext() is a fully relaxed mockk (no real files dir), so DataStore throws a
+                // NullPointerException the first time TrackMilesViewModel.loadVehicles() reads the cache.
+                // InMemoryVehiclePricingCache is VehiclePricingRepository's own gallery/test-safe default; override
+                // TrackingModule's real store with it here rather than touching production DI.
+                single<com.mileway.feature.tracking.repository.VehiclePricingCache> {
+                    com.mileway.feature.tracking.repository
+                        .InMemoryVehiclePricingCache()
+                }
+                single<NotificationScheduler> { mockk(relaxed = true) }
+                // CheckPinScreen koinInjects this (biometric-unlock affordance); the real impl is bound by
+                // the excluded platformModule. Relaxed mockk → isAvailable()=false, so the screen renders
+                // its PIN-entry state.
+                single<com.mileway.core.platform.BiometricAuthenticator> { mockk(relaxed = true) }
+                single<ReferralManager> {
+                    object : ReferralManager {
+                        override suspend fun myReferralCode(): String = "MILEWAY-SID-9F2K"
+
+                        override fun pendingReferral(): kotlinx.coroutines.flow.Flow<ReferralData?> = kotlinx.coroutines.flow.emptyFlow()
+
+                        override suspend fun redeem(code: String): Boolean = true
+                    }
+                }
+                single<AnalyticsHelper> { LoggingAnalyticsHelper() }
+                single<CrashReporter> { mockk(relaxed = true) }
+                single<AppUpdateManagerFactory> { mockk(relaxed = true) }
+                single<AppReviewManagerFactory> { mockk(relaxed = true) }
+                single<ShareSheet> { mockk(relaxed = true) }
+                single<PermissionsProvider> { mockk(relaxed = true) }
+                single<UrlOpener> { mockk(relaxed = true) }
+                single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() }
+                // LANDMINE (settingsScreen, added with the AI settings card): profileModule's real
+                // AiSettingsState pulls two Context-touching real impls, both fatal under Robolectric's
+                // relaxed mockk<Context>:
+                //  - SecureKeyStore(androidContext()) is EncryptedSharedPreferences over a
+                //    MasterKey.AES256_GCM, which needs the "AndroidKeyStore" JCA provider Robolectric
+                //    never registers — the FIRST getKey() call (inside AiSettingsState's own
+                //    constructor, building its initial provider rows) throws NoSuchAlgorithmException.
+                //  - MediaPipeModelManager(androidContext()) reads context.filesDir in its own
+                //    constructor (via snapshot()/isReady()); the relaxed mock's filesDir is null, so
+                //    `File(null, ...)` NPEs immediately.
+                // Both throw before a single pixel renders. Override with the same shape but the
+                // toolkit's own safe no-op defaults (NoModelManager, UnavailableOnDeviceLlm) and an
+                // in-memory key map — same fix pattern as the VehiclePricingCache landmine above.
+                single<AiSettingsState> {
+                    val inMemoryKeys = mutableMapOf<ProviderId, String>()
+                    AiSettingsState(
+                        modelManager = NoModelManager,
+                        manifest = listOf(MediaPipeModelManager.GEMMA_3_1B),
+                        onDeviceLlm = UnavailableOnDeviceLlm,
+                        getKey = { inMemoryKeys[it] },
+                        setKey = { id, key -> if (key.isNullOrBlank()) inMemoryKeys.remove(id) else inMemoryKeys[id] = key },
+                        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+                    )
                 }
             }
-            single<AnalyticsHelper> { LoggingAnalyticsHelper() }
-            single<CrashReporter> { mockk(relaxed = true) }
-            single<AppUpdateManagerFactory> { mockk(relaxed = true) }
-            single<AppReviewManagerFactory> { mockk(relaxed = true) }
-            single<ShareSheet> { mockk(relaxed = true) }
-            single<PermissionsProvider> { mockk(relaxed = true) }
-            single<UrlOpener> { mockk(relaxed = true) }
-            single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() }
-            // LANDMINE (settingsScreen, added with the AI settings card): profileModule's real
-            // AiSettingsState pulls two Context-touching real impls, both fatal under Robolectric's
-            // relaxed mockk<Context>:
-            //  - SecureKeyStore(androidContext()) is EncryptedSharedPreferences over a
-            //    MasterKey.AES256_GCM, which needs the "AndroidKeyStore" JCA provider Robolectric
-            //    never registers — the FIRST getKey() call (inside AiSettingsState's own
-            //    constructor, building its initial provider rows) throws NoSuchAlgorithmException.
-            //  - MediaPipeModelManager(androidContext()) reads context.filesDir in its own
-            //    constructor (via snapshot()/isReady()); the relaxed mock's filesDir is null, so
-            //    `File(null, ...)` NPEs immediately.
-            // Both throw before a single pixel renders. Override with the same shape but the
-            // toolkit's own safe no-op defaults (NoModelManager, UnavailableOnDeviceLlm) and an
-            // in-memory key map — same fix pattern as the VehiclePricingCache landmine above.
-            single<AiSettingsState> {
-                val inMemoryKeys = mutableMapOf<ProviderId, String>()
-                AiSettingsState(
-                    modelManager = NoModelManager,
-                    manifest = listOf(MediaPipeModelManager.GEMMA_3_1B),
-                    onDeviceLlm = UnavailableOnDeviceLlm,
-                    getKey = { inMemoryKeys[it] },
-                    setKey = { id, key -> if (key.isNullOrBlank()) inMemoryKeys.remove(id) else inMemoryKeys[id] = key },
-                    scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
-                )
-            }
-        }
 
         @BeforeClass @JvmStatic
         fun setup() {
@@ -779,7 +888,10 @@ class ScreenshotGalleryTest {
             } else {
                 System.setProperty("roborazzi.test.verify", "true")
             }
-            try { stopKoin() } catch (_: Exception) {}
+            try {
+                stopKoin()
+            } catch (_: Exception) {
+            }
             startKoin {
                 androidContext(mockk<Context>(relaxed = true))
                 modules(
@@ -815,7 +927,10 @@ class ScreenshotGalleryTest {
 
         @AfterClass @JvmStatic
         fun teardown() {
-            try { stopKoin() } catch (_: Exception) {}
+            try {
+                stopKoin()
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -890,7 +1005,9 @@ class ScreenshotGalleryTest {
                     onStartNew = {},
                     viewModel =
                         com.mileway.feature.tracking.viewmodel.SavedTracksViewModel(
-                            repository = com.mileway.feature.tracking.repository.SavedTrackRepository(FakeSavedTrackDao()),
+                            repository =
+                                com.mileway.feature.tracking.repository
+                                    .SavedTrackRepository(FakeSavedTrackDao()),
                             activeAccountSource = FakeActiveAccountSource(),
                         ),
                 )
@@ -1042,7 +1159,10 @@ class ScreenshotGalleryTest {
             MilewayTheme {
                 val viewModel: com.mileway.feature.tracking.viewmodel.TrackDetailViewModel = koinViewModel()
                 LaunchedEffect(Unit) {
-                    viewModel.onAction(com.mileway.feature.tracking.viewmodel.TrackDetailAction.Load("route-does-not-exist"))
+                    viewModel.onAction(
+                        com.mileway.feature.tracking.viewmodel.TrackDetailAction
+                            .Load("route-does-not-exist"),
+                    )
                 }
                 val state by viewModel.state.collectAsState()
                 // The real nav route sits inside a Scaffold that paints the themed background;
@@ -1124,7 +1244,8 @@ class ScreenshotGalleryTest {
                 GeoCheckInScreen(
                     onBack = {},
                     hardwareEventRepository =
-                        com.mileway.feature.tracking.repository.HardwareEventRepository(brokenDao),
+                        com.mileway.feature.tracking.repository
+                            .HardwareEventRepository(brokenDao),
                 )
             }
         }
@@ -1171,7 +1292,8 @@ class ScreenshotGalleryTest {
                 ManualCheckInScreen(
                     onBack = {},
                     hardwareEventRepository =
-                        com.mileway.feature.tracking.repository.HardwareEventRepository(brokenDao),
+                        com.mileway.feature.tracking.repository
+                            .HardwareEventRepository(brokenDao),
                 )
             }
         }
@@ -1187,11 +1309,12 @@ class ScreenshotGalleryTest {
     @Test
     fun checkInHistoryScreen() {
         val baseMs = 1_700_000_000_000L
-        val events = listOf(
-            CheckInHistoryItem("c1", "Hinjewadi IT Park", "Geo check-in confirmed", baseMs - 3_600_000L, 18.5904, 73.7394, "GEO", false),
-            CheckInHistoryItem("c2", "FC Road Cafe", "Manual check-in", baseMs - 10_800_000L, 18.5285, 73.8434, "MANUAL", true),
-            CheckInHistoryItem("c3", "Magarpatta Office", "Geo check-in confirmed", baseMs - 25_200_000L, 18.5152, 73.9262, "GEO", false),
-        )
+        val events =
+            listOf(
+                CheckInHistoryItem("c1", "Hinjewadi IT Park", "Geo check-in confirmed", baseMs - 3_600_000L, 18.5904, 73.7394, "GEO", false),
+                CheckInHistoryItem("c2", "FC Road Cafe", "Manual check-in", baseMs - 10_800_000L, 18.5285, 73.8434, "MANUAL", true),
+                CheckInHistoryItem("c3", "Magarpatta Office", "Geo check-in confirmed", baseMs - 25_200_000L, 18.5152, 73.9262, "GEO", false),
+            )
         composeRule.setContent {
             MilewayTheme {
                 CheckInHistoryScreen(events = events, onBack = {})
@@ -1199,7 +1322,6 @@ class ScreenshotGalleryTest {
         }
         capture("check_in_history_screen")
     }
-
 
     @Test
     fun trackingSuccessScreen() {
@@ -1290,8 +1412,12 @@ class ScreenshotGalleryTest {
         coEvery { brokenDao.insert(any()) } throws RuntimeException("Disk full")
         val viewModel =
             com.mileway.feature.tracking.viewmodel.CreateVoucherViewModel(
-                savedTrackRepository = com.mileway.feature.tracking.repository.SavedTrackRepository(seededDao),
-                voucherRepository = com.mileway.feature.tracking.repository.VoucherRepository(brokenDao),
+                savedTrackRepository =
+                    com.mileway.feature.tracking.repository
+                        .SavedTrackRepository(seededDao),
+                voucherRepository =
+                    com.mileway.feature.tracking.repository
+                        .VoucherRepository(brokenDao),
             )
         composeRule.setContent {
             MilewayTheme {
@@ -1299,11 +1425,26 @@ class ScreenshotGalleryTest {
             }
         }
         composeRule.waitForIdle()
-        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.ToggleSelection("route-s1"))
-        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.GoToStep(1))
-        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.SetTitle("Voucher: Test"))
-        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.GoToStep(2))
-        viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.ToggleDeclaration(true))
+        viewModel.onAction(
+            com.mileway.feature.tracking.viewmodel.CreateVoucherAction
+                .ToggleSelection("route-s1"),
+        )
+        viewModel.onAction(
+            com.mileway.feature.tracking.viewmodel.CreateVoucherAction
+                .GoToStep(1),
+        )
+        viewModel.onAction(
+            com.mileway.feature.tracking.viewmodel.CreateVoucherAction
+                .SetTitle("Voucher: Test"),
+        )
+        viewModel.onAction(
+            com.mileway.feature.tracking.viewmodel.CreateVoucherAction
+                .GoToStep(2),
+        )
+        viewModel.onAction(
+            com.mileway.feature.tracking.viewmodel.CreateVoucherAction
+                .ToggleDeclaration(true),
+        )
         composeRule.waitForIdle()
         viewModel.onAction(com.mileway.feature.tracking.viewmodel.CreateVoucherAction.Submit)
         composeRule.waitForIdle()
@@ -1667,12 +1808,42 @@ class ScreenshotGalleryTest {
                     requesterName = "Priya Sharma",
                     items =
                         listOf(
-                            ApprovalItem("A001", ApprovalType.MILEAGE, "Priya Sharma", "Client visit – 48 km trip", 576.0, ApprovalStatus.PENDING, 1_781_654_400_000L - 3_600_000L),
-                            ApprovalItem("A101", ApprovalType.EXPENSE, "Priya Sharma", "Business dinner – ₹3,200", 3200.0, ApprovalStatus.APPROVED, 1_781_654_400_000L - 86_400_000L),
-                            ApprovalItem("A102", ApprovalType.TRAVEL, "Priya Sharma", "Pune–Mumbai cab", 1450.0, ApprovalStatus.REJECTED, 1_781_654_400_000L - 5 * 86_400_000L),
                             ApprovalItem(
-                                "A103", ApprovalType.EXPENSE, "Priya Sharma", "Client gift – ₹1,800", 1800.0, ApprovalStatus.APPROVED,
-                                1_781_654_400_000L - 9 * 86_400_000L, policyViolation = true,
+                                "A001",
+                                ApprovalType.MILEAGE,
+                                "Priya Sharma",
+                                "Client visit – 48 km trip",
+                                576.0,
+                                ApprovalStatus.PENDING,
+                                1_781_654_400_000L - 3_600_000L,
+                            ),
+                            ApprovalItem(
+                                "A101",
+                                ApprovalType.EXPENSE,
+                                "Priya Sharma",
+                                "Business dinner – ₹3,200",
+                                3200.0,
+                                ApprovalStatus.APPROVED,
+                                1_781_654_400_000L - 86_400_000L,
+                            ),
+                            ApprovalItem(
+                                "A102",
+                                ApprovalType.TRAVEL,
+                                "Priya Sharma",
+                                "Pune–Mumbai cab",
+                                1450.0,
+                                ApprovalStatus.REJECTED,
+                                1_781_654_400_000L - 5 * 86_400_000L,
+                            ),
+                            ApprovalItem(
+                                "A103",
+                                ApprovalType.EXPENSE,
+                                "Priya Sharma",
+                                "Client gift – ₹1,800",
+                                1800.0,
+                                ApprovalStatus.APPROVED,
+                                1_781_654_400_000L - 9 * 86_400_000L,
+                                policyViolation = true,
                             ),
                         ),
                     onDismiss = {},
@@ -2201,7 +2372,8 @@ class ScreenshotGalleryTest {
     fun setPinScreen() {
         composeRule.setContent {
             MilewayTheme {
-                com.mileway.ui.auth.SetPinScreen(onCompleted = {}, onSkip = {})
+                com.mileway.ui.auth
+                    .SetPinScreen(onCompleted = {}, onSkip = {})
             }
         }
         capture("set_pin_screen")
@@ -2211,7 +2383,8 @@ class ScreenshotGalleryTest {
     fun checkPinScreen() {
         composeRule.setContent {
             MilewayTheme {
-                com.mileway.ui.auth.CheckPinScreen(onUnlocked = {})
+                com.mileway.ui.auth
+                    .CheckPinScreen(onUnlocked = {})
             }
         }
         capture("check_pin_screen")
@@ -2493,14 +2666,23 @@ class ScreenshotGalleryTest {
                 TrackEvidenceScreen(
                     track =
                         SavedTrack(
-                            routeId = "route-e1", name = "Kothrud to Hinjewadi", isCompleted = true,
-                            startLatitude = 18.5074, startLongitude = 73.8077,
-                            endLatitude = 18.5913, endLongitude = 73.7389,
-                            pausedLatitude = 0.0, pausedLongitude = 0.0,
-                            startTime = 1_767_268_800_000L, endTime = 1_767_272_400_000L,
-                            distance = 14_900.0, duration = 3_600_000L,
-                            selectedVehicleType = "fourWheelerPetrol", vehiclePricing = 10.0,
-                            createdAt = 1_767_268_800_000L, startedAtTimestamp = 1_767_268_800_000L,
+                            routeId = "route-e1",
+                            name = "Kothrud to Hinjewadi",
+                            isCompleted = true,
+                            startLatitude = 18.5074,
+                            startLongitude = 73.8077,
+                            endLatitude = 18.5913,
+                            endLongitude = 73.7389,
+                            pausedLatitude = 0.0,
+                            pausedLongitude = 0.0,
+                            startTime = 1_767_268_800_000L,
+                            endTime = 1_767_272_400_000L,
+                            distance = 14_900.0,
+                            duration = 3_600_000L,
+                            selectedVehicleType = "fourWheelerPetrol",
+                            vehiclePricing = 10.0,
+                            createdAt = 1_767_268_800_000L,
+                            startedAtTimestamp = 1_767_268_800_000L,
                             startedByEmployeeCode = "EMP001",
                         ),
                 )
@@ -3372,7 +3554,10 @@ class ScreenshotGalleryTest {
     private fun ThemedBackground(content: @Composable () -> Unit) {
         MilewayTheme {
             androidx.compose.foundation.layout.Box(
-                modifier = androidx.compose.ui.Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+                modifier =
+                    androidx.compose.ui.Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
             ) {
                 content()
             }

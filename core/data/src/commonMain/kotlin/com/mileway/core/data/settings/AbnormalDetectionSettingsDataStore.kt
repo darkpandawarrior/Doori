@@ -65,7 +65,8 @@ class RegistryAbnormalDetectionSource(
     private val registry: PluginRegistry,
 ) : AbnormalDetectionSettingsSource {
     override val overrides: Flow<AbnormalDetectionOverrides> =
-        registry.observeResolved()
+        registry
+            .observeResolved()
             .map { resolved ->
                 val byId = resolved.associateBy { it.descriptor.id }
 
@@ -93,8 +94,7 @@ class RegistryAbnormalDetectionSource(
                     gapTier1hMps = dbl(KEY_GAP_TIER_1H_MPS),
                     gapTier6hMps = dbl(KEY_GAP_TIER_6H_MPS),
                 )
-            }
-            .distinctUntilChanged()
+            }.distinctUntilChanged()
 
     companion object {
         // Plugin ids — must match the descriptors registered in PluginCatalog.abnormalTuningPlugins.

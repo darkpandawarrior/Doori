@@ -84,13 +84,21 @@ sealed interface PluginValueSpec {
  * representation is what lets one resolution path serve TILE, CAPABILITY, and VALUE plugins.
  */
 sealed interface PluginValue {
-    data class Bool(val value: Boolean) : PluginValue
+    data class Bool(
+        val value: Boolean,
+    ) : PluginValue
 
-    data class IntVal(val value: Int) : PluginValue
+    data class IntVal(
+        val value: Int,
+    ) : PluginValue
 
-    data class DoubleVal(val value: Double) : PluginValue
+    data class DoubleVal(
+        val value: Double,
+    ) : PluginValue
 
-    data class Str(val value: String) : PluginValue
+    data class Str(
+        val value: String,
+    ) : PluginValue
 
     fun toRaw(): String =
         when (this) {

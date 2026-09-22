@@ -43,6 +43,9 @@ const val HUNDRED_KM_THRESHOLD_KM: Double = 100.0
 /** Consecutive tracked days that earn the [BadgeId.WEEK_STREAK] badge. */
 const val WEEK_STREAK_DAYS: Int = 7
 
+/** The TEN_TRIPS badge unlocks on the tenth completed trip. */
+const val TEN_TRIPS_THRESHOLD_TRIPS: Int = 10
+
 /** Seeded compliments (feedback badges). Fixed local content; the reference app's API-fed equivalent. */
 val SEEDED_COMPLIMENTS: List<Compliment> =
     listOf(
@@ -63,7 +66,7 @@ const val SEEDED_RATING: Double = 4.8
 fun computeEarnedBadges(trips: List<BadgeTrip>): Set<BadgeId> {
     val earned = mutableSetOf<BadgeId>()
     if (trips.isNotEmpty()) earned += BadgeId.FIRST_TRIP
-    if (trips.size >= 10) earned += BadgeId.TEN_TRIPS
+    if (trips.size >= TEN_TRIPS_THRESHOLD_TRIPS) earned += BadgeId.TEN_TRIPS
     val totalKm = trips.sumOf { it.distanceKm.coerceAtLeast(0.0) }
     if (totalKm >= HUNDRED_KM_THRESHOLD_KM) earned += BadgeId.HUNDRED_KM
     if (longestDayStreak(trips.map { it.dayEpoch }) >= WEEK_STREAK_DAYS) earned += BadgeId.WEEK_STREAK

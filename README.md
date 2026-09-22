@@ -11,8 +11,12 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 
 [![CI](https://github.com/darkpandawarrior/Doori/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Doori/actions/workflows/ci.yml)
 [![Quality](https://github.com/darkpandawarrior/Doori/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Doori/actions/workflows/quality.yml)
+<!-- AUTOGEN:badges -->
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.13.0--alpha01-4285F4?logo=jetpackcompose&logoColor=white)
+![AGP](https://img.shields.io/badge/AGP-9.5.0--alpha06-3DDC84?logo=android&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-9.8.0--rc--2-02303A?logo=gradle&logoColor=white)
+<!-- /AUTOGEN:badges -->
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop%20preview-3DDC84)
 ![Backend](https://img.shields.io/badge/backend-Kotlin%2FKtor%20(opt--in)-success)
 
@@ -48,7 +52,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance**, **49-module** clean architecture: **36 local** (13 feature · 12 core) + **13 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **368** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance**, **49-module** clean architecture: **36 local** (13 feature · 12 core) + **13 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v48**, **372** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why Doori
@@ -222,9 +226,15 @@ in-progress trip, driven by the phone's `TrackingLiveActivityController`.
 the same shared `SurfaceSnapshot`, today/week distance with a live "Tracking now" indicator and an
 interactive App-Intent Start/Stop button on iOS.
 
-| Android Glance | iOS home | iOS Lock Screen |
-|:---:|:---:|:---:|
-| ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) | ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) | ![iOS Lock Screen accessory widget with today's distance](docs/screenshots/widget_ios_lockscreen.png) |
+| Android Glance | iOS home |
+|:---:|:---:|
+| ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) | ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) |
+
+<!-- The iOS Lock Screen accessory widget had a third column here pointing at
+     docs/screenshots/widget_ios_lockscreen.png, which has never existed in this repo — it
+     rendered as a broken image. Capturing it needs the watchOS/iOS XCTest suite under Xcode,
+     which no CI job runs today (see docs/ARTEFACT_INDEX.md). Restore the column with the
+     screenshot, not before it. -->
 
 #### Compose Desktop (dashboard preview)
 

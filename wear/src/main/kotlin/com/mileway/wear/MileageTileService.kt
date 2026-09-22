@@ -27,31 +27,27 @@ import org.koin.mp.KoinPlatform
  * [WearActivity] process is already warm.
  */
 class MileageTileService : TileService() {
-
-    override fun onTileRequest(
-        requestParams: RequestBuilders.TileRequest
-    ): ListenableFuture<TileBuilders.Tile> =
+    override fun onTileRequest(requestParams: RequestBuilders.TileRequest): ListenableFuture<TileBuilders.Tile> =
         Futures.immediateFuture(buildTile(readCachedSnapshot(this)))
 
     @Deprecated("Migrate to onTileResourcesRequest", ReplaceWith("onTileResourcesRequest"))
     @Suppress("DEPRECATION")
-    override fun onResourcesRequest(
-        requestParams: RequestBuilders.ResourcesRequest
-    ): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> =
+    override fun onResourcesRequest(requestParams: RequestBuilders.ResourcesRequest): ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> =
         Futures.immediateFuture(
-            androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+            androidx.wear.tiles.ResourceBuilders.Resources
+                .Builder()
                 .setVersion(RESOURCES_VERSION)
-                .build()
+                .build(),
         )
 
     private fun buildTile(snapshot: SurfaceSnapshot): TileBuilders.Tile =
-        TileBuilders.Tile.Builder()
+        TileBuilders.Tile
+            .Builder()
             .setResourcesVersion(RESOURCES_VERSION)
             .setFreshnessIntervalMillis(FRESHNESS_INTERVAL_MILLIS)
             .setTileTimeline(
-                TimelineBuilders.Timeline.fromLayoutElement(buildLayout(snapshot))
-            )
-            .build()
+                TimelineBuilders.Timeline.fromLayoutElement(buildLayout(snapshot)),
+            ).build()
 
     private fun buildLayout(snapshot: SurfaceSnapshot): LayoutElementBuilders.LayoutElement {
         // AMBIENT.1: the cached snapshot going stale (publisher/sync stalled) matters more to the
@@ -64,57 +60,60 @@ class MileageTileService : TileService() {
                 WearPresentation.toTileStatusLabel(snapshot)
             }
         val columnBuilder =
-            LayoutElementBuilders.Column.Builder()
+            LayoutElementBuilders.Column
+                .Builder()
                 .setModifiers(
-                    ModifiersBuilders.Modifiers.Builder()
+                    ModifiersBuilders.Modifiers
+                        .Builder()
                         .setClickable(openWearActivityClickable())
-                        .build()
-                )
-                .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                        .build(),
+                ).setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                 .addContent(
-                    LayoutElementBuilders.Text.Builder()
+                    LayoutElementBuilders.Text
+                        .Builder()
                         .setText(WearPresentation.toTodayDistanceLabel(snapshot))
                         .setFontStyle(
-                            LayoutElementBuilders.FontStyle.Builder()
+                            LayoutElementBuilders.FontStyle
+                                .Builder()
                                 .setSize(DimensionBuilders.sp(28f))
                                 .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
-                                .build()
-                        )
-                        .build()
-                )
-                .addContent(
-                    LayoutElementBuilders.Text.Builder()
+                                .build(),
+                        ).build(),
+                ).addContent(
+                    LayoutElementBuilders.Text
+                        .Builder()
                         .setText("Doori")
                         .setFontStyle(
-                            LayoutElementBuilders.FontStyle.Builder()
+                            LayoutElementBuilders.FontStyle
+                                .Builder()
                                 .setSize(DimensionBuilders.sp(12f))
-                                .build()
-                        )
-                        .build()
+                                .build(),
+                        ).build(),
                 )
         if (statusLabel != null) {
             columnBuilder.addContent(
-                LayoutElementBuilders.Text.Builder()
+                LayoutElementBuilders.Text
+                    .Builder()
                     .setText(statusLabel)
                     .setFontStyle(
-                        LayoutElementBuilders.FontStyle.Builder()
+                        LayoutElementBuilders.FontStyle
+                            .Builder()
                             .setSize(DimensionBuilders.sp(STATUS_LABEL_SP))
                             .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
-                            .build()
-                    )
-                    .build()
+                            .build(),
+                    ).build(),
             )
         }
         return columnBuilder.build()
     }
 
     private fun openWearActivityClickable(): ModifiersBuilders.Clickable =
-        ModifiersBuilders.Clickable.Builder()
+        ModifiersBuilders.Clickable
+            .Builder()
             .setId(LAUNCH_ACTIVITY_CLICKABLE_ID)
             .setOnClick(
-                ActionBuilders.launchAction(ComponentName(this, WearActivity::class.java))
-            )
-            .build()
+                ActionBuilders.launchAction(ComponentName(this, WearActivity::class.java)),
+            ).build()
 
     companion object {
         private const val RESOURCES_VERSION = "1"

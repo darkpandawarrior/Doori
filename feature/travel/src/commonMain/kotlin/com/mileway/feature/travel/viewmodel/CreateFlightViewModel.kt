@@ -20,15 +20,25 @@ data class CreateFlightUiState(
 }
 
 sealed interface CreateFlightAction {
-    data class SetFromCity(val value: String) : CreateFlightAction
+    data class SetFromCity(
+        val value: String,
+    ) : CreateFlightAction
 
-    data class SetToCity(val value: String) : CreateFlightAction
+    data class SetToCity(
+        val value: String,
+    ) : CreateFlightAction
 
-    data class SetTravelDate(val value: String) : CreateFlightAction
+    data class SetTravelDate(
+        val value: String,
+    ) : CreateFlightAction
 
-    data class SetPreferredAirline(val value: String) : CreateFlightAction
+    data class SetPreferredAirline(
+        val value: String,
+    ) : CreateFlightAction
 
-    data class SetCabinClass(val value: String) : CreateFlightAction
+    data class SetCabinClass(
+        val value: String,
+    ) : CreateFlightAction
 
     data object Submit : CreateFlightAction
 }

@@ -59,9 +59,7 @@ class CheckInHistoryQueryTest {
 internal class FakeCheckInLocationDao : LocationDao {
     val rows = mutableListOf<LocationData>()
 
-    override fun getAllCheckInPoints(): Flow<List<LocationData>> {
-        return MutableStateFlow(rows.filter { it.wasCheckInPoint }.sortedByDescending { it.date })
-    }
+    override fun getAllCheckInPoints(): Flow<List<LocationData>> = MutableStateFlow(rows.filter { it.wasCheckInPoint }.sortedByDescending { it.date })
 
     // ── Everything else unused ─────────────────────────────────────────────
     override fun getLocationsByToken(token: String): Flow<List<LocationData>> = MutableStateFlow(emptyList())

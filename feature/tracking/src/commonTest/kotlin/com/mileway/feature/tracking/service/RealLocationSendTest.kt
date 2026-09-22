@@ -115,7 +115,9 @@ class RealLocationSendTest {
         }
 }
 
-private class FakeIdLookupDao(rows: List<LocationData>) : LocationDao by UnimplementedLocationDao {
+private class FakeIdLookupDao(
+    rows: List<LocationData>,
+) : LocationDao by UnimplementedLocationDao {
     private val byId = rows.associateBy { it.id }
 
     override suspend fun getLocationsByIds(ids: List<Long>): List<LocationData> = ids.mapNotNull { byId[it] }

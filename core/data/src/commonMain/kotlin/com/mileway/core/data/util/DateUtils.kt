@@ -7,18 +7,30 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
+/** "JANUARY".take(MonthAbbreviationLength) is "Jan" — the three-letter month abbreviation these formatters print. */
+private const val MonthAbbreviationLength = 3
+
+/** A "dd-MM-yyyy" string splits into exactly three parts; anything else is not a date. */
+private const val DateStringParts = 3
+
 object DateUtils {
     fun epochToDisplayDate(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-        val monthAbbr = local.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        val monthAbbr =
+            local.month.name
+                .take(MonthAbbreviationLength)
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
         return "${local.day} $monthAbbr ${local.year}"
     }
 
     fun epochToTime12h(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         val hour12 =
             if (local.hour == 0) {
@@ -34,23 +46,30 @@ object DateUtils {
 
     fun epochToTime(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${local.hour.pad2()}:${local.minute.pad2()}"
     }
 
     fun epochToTime24h(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${local.hour}:${local.minute.pad2()}:${local.second.pad2()}"
     }
 
     fun epochToDateTime(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
-        val monthAbbr = local.month.name.take(3).lowercase().replaceFirstChar { it.uppercase() }
+        val monthAbbr =
+            local.month.name
+                .take(MonthAbbreviationLength)
+                .lowercase()
+                .replaceFirstChar { it.uppercase() }
         val hour12 =
             if (local.hour == 0) {
                 12
@@ -67,32 +86,42 @@ object DateUtils {
 
     fun epochToDateSlash(epochMs: Long): String {
         val local =
-            Instant.fromEpochMilliseconds(epochMs)
+            Instant
+                .fromEpochMilliseconds(epochMs)
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         return "${local.day.pad2()}/${local.month.number.pad2()}/${local.year}"
     }
 
     fun monthStartMillis(): Long {
-        val now = kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val now =
+            kotlin.time.Clock.System
+                .now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
         val monthStart = LocalDateTime(now.year, now.month, 1, 0, 0, 0)
         return monthStart.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
     }
 
     fun getDurationDifferenceInMinutes(pastTimeInMillis: Long): Long {
-        val diffMs = kotlin.time.Clock.System.now().toEpochMilliseconds() - pastTimeInMillis
-        return diffMs / 60_000L
+        val diffMs =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds() - pastTimeInMillis
+        return diffMs / MillisPerMinute
     }
 
     fun dateStringToMilliseconds(dateString: String): Long {
         return try {
             val parts = dateString.split("-")
-            if (parts.size != 3) return -1L
+            if (parts.size != DateStringParts) return -1L
             val day = parts[0].toInt()
             val month = parts[1].toInt()
             val year = parts[2].toInt()
             val date = LocalDateTime(year, month, day, 0, 0, 0)
             date.toInstant(TimeZone.currentSystemDefault()).toEpochMilliseconds()
-        } catch (e: Exception) {
+        } catch (ignored: IllegalArgumentException) {
+            // toInt() and LocalDateTime() both reject a malformed date with IllegalArgumentException.
+            // -1L is this function's documented sentinel for 'not a date'. Narrowed from Exception so a
+            // real programming error no longer disappears into the sentinel.
             -1L
         }
     }

@@ -16,7 +16,10 @@ sealed interface SyncStatus {
 
     data object Syncing : SyncStatus
 
-    data class Synced(val lastSyncedAtMs: Long, val backlogCount: Int) : SyncStatus
+    data class Synced(
+        val lastSyncedAtMs: Long,
+        val backlogCount: Int,
+    ) : SyncStatus
 }
 
 /** A batch send outcome — mirrors the reference app's outbox retry decision surface. */

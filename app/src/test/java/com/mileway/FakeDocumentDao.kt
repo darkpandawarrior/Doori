@@ -14,8 +14,7 @@ import kotlinx.coroutines.flow.map
 class FakeDocumentDao : DocumentDao {
     private val rows = MutableStateFlow<Map<String, DocumentEntity>>(emptyMap())
 
-    override fun observeAll(): Flow<List<DocumentEntity>> =
-        rows.map { it.values.sortedWith(compareBy({ row -> row.category }, { row -> row.docType })) }
+    override fun observeAll(): Flow<List<DocumentEntity>> = rows.map { it.values.sortedWith(compareBy({ row -> row.category }, { row -> row.docType })) }
 
     override suspend fun count(): Int = rows.value.size
 

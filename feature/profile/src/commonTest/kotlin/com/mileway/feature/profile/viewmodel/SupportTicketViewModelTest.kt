@@ -52,7 +52,12 @@ class SupportTicketViewModelTest {
             advanceUntilIdle()
 
             assertEquals(1, vm.state.value.tickets.size)
-            assertEquals("Can't submit expense", vm.state.value.tickets.single().subject)
+            assertEquals(
+                "Can't submit expense",
+                vm.state.value.tickets
+                    .single()
+                    .subject,
+            )
         }
 
     @Test
@@ -68,7 +73,12 @@ class SupportTicketViewModelTest {
             advanceUntilIdle()
 
             assertEquals(1, relaunched.state.value.tickets.size)
-            assertEquals("GPS drift", relaunched.state.value.tickets.single().subject)
+            assertEquals(
+                "GPS drift",
+                relaunched.state.value.tickets
+                    .single()
+                    .subject,
+            )
         }
 
     @Test
@@ -79,7 +89,10 @@ class SupportTicketViewModelTest {
             vm.submit(subject = "", body = "Something is broken")
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.tickets.isEmpty())
+            assertTrue(
+                vm.state.value.tickets
+                    .isEmpty(),
+            )
             assertTrue(vm.state.value.submitError != null)
         }
 
@@ -91,7 +104,10 @@ class SupportTicketViewModelTest {
             vm.submit(subject = "Bug report", body = "")
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.tickets.isEmpty())
+            assertTrue(
+                vm.state.value.tickets
+                    .isEmpty(),
+            )
             assertTrue(vm.state.value.submitError != null)
         }
 

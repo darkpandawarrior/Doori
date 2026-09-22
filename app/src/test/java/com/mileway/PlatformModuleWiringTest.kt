@@ -24,10 +24,12 @@ import kotlin.test.assertNotNull
  * (needs real Play-services init), so it is exercised by `assemble` + the iOS framework link instead.
  */
 class PlatformModuleWiringTest : KoinTest {
-
     @Before
     fun setUp() {
-        try { stopKoin() } catch (_: Exception) {}
+        try {
+            stopKoin()
+        } catch (_: Exception) {
+        }
         startKoin {
             androidContext(mockk<Context>(relaxed = true))
             modules(platformModule())
@@ -36,7 +38,10 @@ class PlatformModuleWiringTest : KoinTest {
 
     @After
     fun tearDown() {
-        try { stopKoin() } catch (_: Exception) {}
+        try {
+            stopKoin()
+        } catch (_: Exception) {
+        }
     }
 
     @Test

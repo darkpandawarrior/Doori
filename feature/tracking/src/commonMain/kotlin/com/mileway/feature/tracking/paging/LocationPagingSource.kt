@@ -22,6 +22,10 @@ class LocationPagingSource(
     private val token: String,
     private val repository: LocationRepository,
 ) : PagingSource<Int, LocationData>() {
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LocationData> {
         val offset = params.key ?: 0
         return try {

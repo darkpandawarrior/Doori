@@ -8,12 +8,18 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
+/** Generated ids carry the last eight digits of the creation timestamp - unique enough offline. */
+private const val ID_SUFFIX_DIGITS = 8
+
 /**
  * PLAN_V22 P6.8: Room-backed store for `HelpScreen`'s "Contact Support" form, replacing its
  * previous fire-and-forget `snackbarHostState.showSnackbar(...)`-only tap with a real, persisted
  * ticket visible afterward in "My Tickets".
  */
-class SupportTicketRepository(private val dao: SupportTicketDao, private val clock: Clock = Clock.System) {
+class SupportTicketRepository(
+    private val dao: SupportTicketDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, most-recent-first list of this account's submitted tickets. */
     fun observeAll(): Flow<List<SupportTicket>> = dao.observeAll().map { rows -> rows.map { it.toTicket() } }
 
@@ -30,7 +36,7 @@ class SupportTicketRepository(private val dao: SupportTicketDao, private val clo
         val now = clock.now().toEpochMilliseconds()
         dao.upsert(
             SupportTicketEntity(
-                id = "TCK-" + now.toString().takeLast(8),
+                id = "TCK-" + now.toString().takeLast(ID_SUFFIX_DIGITS),
                 subject = subject,
                 body = body,
                 createdAtMs = now,

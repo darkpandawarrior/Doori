@@ -13,7 +13,9 @@ import kotlin.time.Instant
  * extraction, and per-call delay override.
  */
 class SimulatedReviewEngineTest {
-    private class MutableClock(var millis: Long) : Clock {
+    private class MutableClock(
+        var millis: Long,
+    ) : Clock {
         override fun now(): Instant = Instant.fromEpochMilliseconds(millis)
     }
 

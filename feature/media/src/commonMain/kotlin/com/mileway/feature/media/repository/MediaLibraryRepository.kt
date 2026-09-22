@@ -7,7 +7,9 @@ import com.mileway.feature.media.model.AttachmentItem
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 
-class MediaLibraryRepository(private val dao: MediaLibraryDao) {
+class MediaLibraryRepository(
+    private val dao: MediaLibraryDao,
+) {
     fun observeLibrary(): Flow<List<MediaLibraryEntry>> = dao.observeAll()
 
     suspend fun save(item: AttachmentItem) {

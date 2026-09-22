@@ -31,11 +31,15 @@ val DEFAULT_COUNTRY_CODE: CountryDialCode = LOGIN_COUNTRY_CODES.first()
 
 sealed interface PhoneValidation {
     /** The normalized 10-digit national number, ready to prefix with a dial code. */
-    data class Valid(val nationalNumber: String) : PhoneValidation
+    data class Valid(
+        val nationalNumber: String,
+    ) : PhoneValidation
 
     data object Empty : PhoneValidation
 
-    data class WrongLength(val normalized: String) : PhoneValidation
+    data class WrongLength(
+        val normalized: String,
+    ) : PhoneValidation
 }
 
 object PhoneNumberValidator {

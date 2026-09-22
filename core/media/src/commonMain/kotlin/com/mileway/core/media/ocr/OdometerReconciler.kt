@@ -26,7 +26,9 @@ object OdometerReconciler {
 
     sealed interface Verdict {
         /** Sources agree (or only one exists) — safe to use [reading] without prompting the user. */
-        data class Accepted(val reading: Int) : Verdict
+        data class Accepted(
+            val reading: Int,
+        ) : Verdict
 
         /** Sources disagree beyond [TOLERANCE] but not wildly — let the user pick or retake. */
         data class Discrepancy(
@@ -37,7 +39,9 @@ object OdometerReconciler {
         ) : Verdict
 
         /** No usable reading, or the readings are too far apart to arbitrate — must retake. */
-        data class Rejected(val reason: String) : Verdict
+        data class Rejected(
+            val reason: String,
+        ) : Verdict
     }
 
     fun reconcile(reading: OdometerReading): Verdict {

@@ -38,8 +38,12 @@ val iosAppModule: Module =
         // PLAN_V24 P12.3: NSUserDefaults-backed review counters + the plan's 7-day account-age gate.
         single {
             ReviewTracker(
-                store = com.mileway.core.ui.review.IosReviewStateStore(),
-                config = com.siddharth.kmp.appshell.ReviewGateConfig(minAccountAgeDays = 7),
+                store =
+                    com.mileway.core.ui.review
+                        .IosReviewStateStore(),
+                config =
+                    com.siddharth.kmp.appshell
+                        .ReviewGateConfig(minAccountAgeDays = 7),
             )
         }
     }

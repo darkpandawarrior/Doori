@@ -30,7 +30,9 @@ data class AgentUiState(
 )
 
 sealed interface AgentAction {
-    data class SendMessage(val text: String) : AgentAction
+    data class SendMessage(
+        val text: String,
+    ) : AgentAction
 
     /** Cancels the in-flight [LlmAssistantEngine][com.mileway.feature.agent.engine.llm.LlmAssistantEngine]
      * (or offline) reply. Whatever streamed so far is discarded, not kept as a partial message. */
@@ -39,26 +41,40 @@ sealed interface AgentAction {
     /** Re-sends the last user question after an [AssistantChunk.Error][com.mileway.feature.agent.engine.AssistantChunk.Error]. */
     data object RetryLastMessage : AgentAction
 
-    data class LoadConversation(val conversation: AgentConversation) : AgentAction
+    data class LoadConversation(
+        val conversation: AgentConversation,
+    ) : AgentAction
 
     // P0.3 additions — handled in later phases
-    data class ResumeThread(val threadId: String) : AgentAction
+    data class ResumeThread(
+        val threadId: String,
+    ) : AgentAction
 
     data object StartNewConversation : AgentAction
 
-    data class SubmitFeedback(val messageId: String, val rating: Int, val comment: String? = null) : AgentAction
+    data class SubmitFeedback(
+        val messageId: String,
+        val rating: Int,
+        val comment: String? = null,
+    ) : AgentAction
 
     data object StartVoice : AgentAction
 
     data object StopVoice : AgentAction
 
-    data class SpeakMessage(val messageId: String) : AgentAction
+    data class SpeakMessage(
+        val messageId: String,
+    ) : AgentAction
 
     data object ToggleVoiceConversation : AgentAction
 
-    data class ExportConversation(val threadId: String) : AgentAction
+    data class ExportConversation(
+        val threadId: String,
+    ) : AgentAction
 
-    data class SubmitUnanswered(val question: String) : AgentAction
+    data class SubmitUnanswered(
+        val question: String,
+    ) : AgentAction
 
     data object LoadAnalytics : AgentAction
 
@@ -68,9 +84,15 @@ sealed interface AgentAction {
 sealed interface AgentEffect {
     data object ScrollToBottom : AgentEffect
 
-    data class ShareTranscript(val path: String) : AgentEffect
+    data class ShareTranscript(
+        val path: String,
+    ) : AgentEffect
 
-    data class ShowSnackbar(val text: String) : AgentEffect
+    data class ShowSnackbar(
+        val text: String,
+    ) : AgentEffect
 
-    data class FillInput(val text: String) : AgentEffect
+    data class FillInput(
+        val text: String,
+    ) : AgentEffect
 }

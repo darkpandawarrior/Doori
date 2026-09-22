@@ -19,7 +19,13 @@ class DetailSpecTest {
         assertTrue(metrics.all { it is DetailField.MetricGrid })
         assertEquals(2, (metrics[0] as DetailField.MetricGrid).metrics.size, "each grid row is 2-column")
 
-        val actions = (spec.sections.single { it.id == "actions" }.fields.single() as DetailField.ActionRow).actions
+        val actions =
+            (
+                spec.sections
+                    .single { it.id == "actions" }
+                    .fields
+                    .single() as DetailField.ActionRow
+            ).actions
         assertEquals(5, actions.size, "TrackDetailScreen has 5 action buttons")
     }
 
@@ -28,7 +34,12 @@ class DetailSpecTest {
         val withAmount = sampleTrackDetailSpec(hasReimbursableAmount = true)
         val withoutAmount = sampleTrackDetailSpec(hasReimbursableAmount = false)
 
-        val amountRow = { spec: DetailSpec -> spec.sections.single { it.id == "metrics" }.fields.single { it.id == "metrics_amount_vehicle" } }
+        val amountRow = { spec: DetailSpec ->
+            spec.sections
+                .single { it.id == "metrics" }
+                .fields
+                .single { it.id == "metrics_amount_vehicle" }
+        }
         assertTrue(amountRow(withAmount).visible)
         assertFalse(amountRow(withoutAmount).visible)
     }
@@ -56,7 +67,11 @@ class DetailSpecTest {
                 }
             }
 
-        val expandable = spec.sections.single().fields.single() as DetailField.Expandable
+        val expandable =
+            spec.sections
+                .single()
+                .fields
+                .single() as DetailField.Expandable
         assertEquals(listOf("nested1", "nested2"), expandable.fields.map { it.id })
     }
 
@@ -77,7 +92,11 @@ class DetailSpecTest {
 
         val result = spec.applyConfig(config)
 
-        val fieldIds = result.sections.single { it.id == "metrics" }.fields.map { it.id }
+        val fieldIds =
+            result.sections
+                .single { it.id == "metrics" }
+                .fields
+                .map { it.id }
         assertEquals(listOf("metrics_distance_duration", "metrics_speed_gps"), fieldIds)
     }
 
@@ -126,7 +145,11 @@ class DetailSpecTest {
                 }
             }
 
-        val status = spec.sections.single().fields.single() as DetailField.Status
+        val status =
+            spec.sections
+                .single()
+                .fields
+                .single() as DetailField.Status
         assertEquals(StatusTone.Success, status.tone)
         assertEquals(null, status.label)
     }

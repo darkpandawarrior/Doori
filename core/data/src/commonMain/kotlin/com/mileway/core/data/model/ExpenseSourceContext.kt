@@ -20,7 +20,9 @@ sealed class ExpenseSourceContext {
     data object Regular : ExpenseSourceContext()
 
     /** Re-opening an already-submitted expense for editing. */
-    data class Edit(val expenseId: String) : ExpenseSourceContext()
+    data class Edit(
+        val expenseId: String,
+    ) : ExpenseSourceContext()
 
     /**
      * Logging an expense against a completed trip. [tripLabel] is an optional caller-supplied
@@ -28,13 +30,23 @@ sealed class ExpenseSourceContext {
      * loaded when it builds this context, so it's cheaper to carry the label here than to give
      * feature:logging a new feature→feature dependency just to re-resolve it (see V27 P27.E.4).
      */
-    data class Trip(val tripId: String, val tripLabel: String? = null) : ExpenseSourceContext()
+    data class Trip(
+        val tripId: String,
+        val tripLabel: String? = null,
+    ) : ExpenseSourceContext()
 
     /** Logging an expense that draws down a trip's advance. [tripLabel] mirrors [Trip.tripLabel]. */
-    data class TripAdvance(val tripId: String, val advanceId: String, val tripLabel: String? = null) : ExpenseSourceContext()
+    data class TripAdvance(
+        val tripId: String,
+        val advanceId: String,
+        val tripLabel: String? = null,
+    ) : ExpenseSourceContext()
 
     /** Logging an expense against an event. [eventLabel] mirrors [Trip.tripLabel]'s caller-supplied convention. */
-    data class Event(val eventId: String, val eventLabel: String? = null) : ExpenseSourceContext()
+    data class Event(
+        val eventId: String,
+        val eventLabel: String? = null,
+    ) : ExpenseSourceContext()
 
     /**
      * Claiming a card transaction as an expense — most fields get locked and the entered amount is
@@ -50,13 +62,21 @@ sealed class ExpenseSourceContext {
     ) : ExpenseSourceContext()
 
     /** Logging an expense against a standalone (non-trip) advance. [advanceLabel] mirrors [Trip.tripLabel]. */
-    data class Advance(val advanceId: String, val advanceLabel: String? = null) : ExpenseSourceContext()
+    data class Advance(
+        val advanceId: String,
+        val advanceLabel: String? = null,
+    ) : ExpenseSourceContext()
 
     /** Creating an expense from an attachment on an approval clarification chat message. */
-    data class Message(val clarificationId: String, val attachmentUrl: String) : ExpenseSourceContext()
+    data class Message(
+        val clarificationId: String,
+        val attachmentUrl: String,
+    ) : ExpenseSourceContext()
 
     /** Creating an expense from a scanned document's OCR result. */
-    data class Scanner(val prefill: ScannerPrefill) : ExpenseSourceContext()
+    data class Scanner(
+        val prefill: ScannerPrefill,
+    ) : ExpenseSourceContext()
 }
 
 /**

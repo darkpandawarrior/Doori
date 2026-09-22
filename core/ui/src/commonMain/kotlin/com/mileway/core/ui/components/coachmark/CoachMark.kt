@@ -121,8 +121,7 @@ fun CoachMarkOverlay(
                 .semantics {
                     isTraversalGroup = true
                     traversalIndex = -1f
-                }
-                .onGloballyPositioned { overlayOrigin = it.positionInRoot() }
+                }.onGloballyPositioned { overlayOrigin = it.positionInRoot() }
                 // Consume all gestures so the underlying screen cannot be tapped during the tour.
                 .pointerInput(Unit) { awaitPointerEventScopeConsumeAll() },
     ) {
@@ -176,7 +175,15 @@ fun CoachMarkOverlay(
                 skipLabel = skipLabel,
                 onNext = controller.onNext,
                 onSkip = controller.onSkip,
-                modifier = if (hole == null) Modifier else Modifier.offset { androidx.compose.ui.unit.IntOffset(0, tooltipOffsetY) },
+                modifier =
+                    if (hole == null) {
+                        Modifier
+                    } else {
+                        Modifier.offset {
+                            androidx.compose.ui.unit
+                                .IntOffset(0, tooltipOffsetY)
+                        }
+                    },
             )
         }
     }

@@ -62,7 +62,10 @@ class AuthApi(
                     }.body()
             tokenStore.store(response.accessToken, response.refreshToken)
             response.accessToken
-        } catch (e: ResponseException) {
+        } catch (ignored: ResponseException) {
+            // Any non-2xx on refresh means this refresh token is spent: clear the store and
+            // report 'no token' so the caller routes to login. The status code changes nothing
+            // about that decision, which is why the exception is not read.
             tokenStore.clear()
             null
         }

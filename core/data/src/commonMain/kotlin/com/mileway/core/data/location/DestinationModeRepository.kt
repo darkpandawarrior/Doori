@@ -21,7 +21,10 @@ const val DESTINATION_GUEST_KEY: String = "guest"
  * ponytail: preference store only — there is no region-based routing/dispatch engine to feed, so
  * these are stored and shown as chips and nothing more (ceiling noted in PROGRESS).
  */
-data class DestinationRegion(val id: String, val name: String)
+data class DestinationRegion(
+    val id: String,
+    val name: String,
+)
 
 val DESTINATION_REGIONS: List<DestinationRegion> =
     listOf(
@@ -48,7 +51,12 @@ fun isDestinationActive(
 ): Boolean = expiresAt != null && expiresAt > now
 
 /** Parse the comma-separated region-id set stored on [DestinationModeEntity.selectedRegionsCsv]. */
-fun parseSelectedRegions(csv: String): Set<String> = csv.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+fun parseSelectedRegions(csv: String): Set<String> =
+    csv
+        .split(",")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+        .toSet()
 
 /** The resolved head-home state a UI observes: address + live remaining time + region preference set. */
 data class DestinationState(

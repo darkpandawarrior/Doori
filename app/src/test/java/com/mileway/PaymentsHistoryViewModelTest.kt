@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
 
 /** PM (V17): the payments-history reducer, All loads everything, a status tab narrows, and the query filters. */
 class PaymentsHistoryViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 

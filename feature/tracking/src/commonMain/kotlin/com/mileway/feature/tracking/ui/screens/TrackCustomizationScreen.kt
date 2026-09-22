@@ -180,8 +180,7 @@ fun TrackCustomizationScreen(
                         .background(
                             color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f),
                             shape = DesignTokens.Shape.roundedSm,
-                        )
-                        .padding(DesignTokens.Spacing.m),
+                        ).padding(DesignTokens.Spacing.m),
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 verticalAlignment = Alignment.Top,
             ) {

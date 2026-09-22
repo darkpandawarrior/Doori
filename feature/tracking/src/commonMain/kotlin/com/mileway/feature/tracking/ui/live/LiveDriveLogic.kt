@@ -90,7 +90,10 @@ fun zoomForSpeed(speedKmh: Double): Float {
 /** Below this speed GPS course-over-ground is noise, not a real heading. */
 const val BEARING_FREEZE_THRESHOLD_KMH = 5.0
 
-data class BearingDisplay(val degrees: Float, val isFrozen: Boolean)
+data class BearingDisplay(
+    val degrees: Float,
+    val isFrozen: Boolean,
+)
 
 /** Freeze the last valid heading (and mark it dimmed) below [BEARING_FREEZE_THRESHOLD_KMH]. */
 fun deriveBearingDisplay(
@@ -138,7 +141,10 @@ fun deriveDegradedState(inputs: DegradedInputs): DegradedState =
     }
 
 /** What is happening, and what (if anything) the user can do about it. */
-data class DegradedMessage(val title: String, val action: String?)
+data class DegradedMessage(
+    val title: String,
+    val action: String?,
+)
 
 fun DegradedState.message(): DegradedMessage? =
     when (this) {

@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+/** Voucher numbers are eight zero-padded digits, e.g. V-00481203. */
+private const val VoucherNumberDigits = 8
+
 /**
  * Top-level tab of the Saved Tracks screen.
  *
@@ -114,15 +117,13 @@ data class SavedTracksUiState(
                     SubmissionFilter.UNCLAIMED -> item.isUnclaimed
                     SubmissionFilter.FILED -> item.voucherCreated
                 }
-            }
-            .filter { item ->
+            }.filter { item ->
                 when (submissionSource) {
                     SubmissionSource.ALL -> true
                     SubmissionSource.NEW_TRACKER -> item.isNewTracker
                     SubmissionSource.OTHER -> !item.isNewTracker
                 }
-            }
-            .filter { item ->
+            }.filter { item ->
                 submissionSearch.isBlank() ||
                     item.transId.contains(submissionSearch, ignoreCase = true)
             }
@@ -171,28 +172,46 @@ private fun TrackDisplayData.toSubmissionItem(): SubmissionItem {
                 2L -> "Reimbursed"
                 else -> "Pending Approval"
             },
-        voucherNumber = if (hash % 4 == 0) "V-${((hash.toLong() and 0x7FFFFFFFL) % 100_000_000).toString().padStart(8, '0')}" else null,
+        voucherNumber = if (hash % 4 == 0) "V-${((hash.toLong() and 0x7FFFFFFFL) % 100_000_000).toString().padStart(VoucherNumberDigits, '0')}" else null,
     )
 }
 
 sealed interface SavedTracksAction {
-    data class TabSelected(val tab: SavedTracksTab) : SavedTracksAction
+    data class TabSelected(
+        val tab: SavedTracksTab,
+    ) : SavedTracksAction
 
-    data class JourneySearchChanged(val query: String) : SavedTracksAction
+    data class JourneySearchChanged(
+        val query: String,
+    ) : SavedTracksAction
 
-    data class SubmissionSearchChanged(val query: String) : SavedTracksAction
+    data class SubmissionSearchChanged(
+        val query: String,
+    ) : SavedTracksAction
 
-    data class JourneyFilterSelected(val filter: JourneyFilter) : SavedTracksAction
+    data class JourneyFilterSelected(
+        val filter: JourneyFilter,
+    ) : SavedTracksAction
 
-    data class SubmissionFilterSelected(val filter: SubmissionFilter) : SavedTracksAction
+    data class SubmissionFilterSelected(
+        val filter: SubmissionFilter,
+    ) : SavedTracksAction
 
-    data class SubmissionSourceSelected(val source: SubmissionSource) : SavedTracksAction
+    data class SubmissionSourceSelected(
+        val source: SubmissionSource,
+    ) : SavedTracksAction
 
-    data class SubmissionLongPressed(val id: String) : SavedTracksAction
+    data class SubmissionLongPressed(
+        val id: String,
+    ) : SavedTracksAction
 
-    data class SubmissionSelectionToggled(val id: String) : SavedTracksAction
+    data class SubmissionSelectionToggled(
+        val id: String,
+    ) : SavedTracksAction
 
-    data class SubmissionTapped(val id: String) : SavedTracksAction
+    data class SubmissionTapped(
+        val id: String,
+    ) : SavedTracksAction
 
     data object ClearSelection : SavedTracksAction
 
@@ -226,8 +245,7 @@ class SavedTracksViewModel(
                         selectionMode = selectionMode && prunedSelection.isNotEmpty(),
                     )
                 }
-            }
-            .catch { e -> setState { copy(isLoading = false, error = e.message) } }
+            }.catch { e -> setState { copy(isLoading = false, error = e.message) } }
             .launchIn(viewModelScope)
     }
 

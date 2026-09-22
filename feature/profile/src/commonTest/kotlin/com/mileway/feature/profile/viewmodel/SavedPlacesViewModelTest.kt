@@ -50,9 +50,23 @@ class SavedPlacesViewModelTest {
 
             assertTrue(accepted)
             assertEquals(1, vm.state.value.places.size)
-            assertEquals("Home", vm.state.value.places.single().label)
-            assertEquals(SavedPlaceType.HOME, vm.state.value.places.single().type)
-            assertNull(vm.state.value.places.single().lat)
+            assertEquals(
+                "Home",
+                vm.state.value.places
+                    .single()
+                    .label,
+            )
+            assertEquals(
+                SavedPlaceType.HOME,
+                vm.state.value.places
+                    .single()
+                    .type,
+            )
+            assertNull(
+                vm.state.value.places
+                    .single()
+                    .lat,
+            )
         }
 
     @Test
@@ -63,8 +77,18 @@ class SavedPlacesViewModelTest {
             vm.save(id = "", type = SavedPlaceType.WORK, label = "Office", address = "Tower B", latText = "18.52", lngText = "73.85")
             advanceUntilIdle()
 
-            assertEquals(18.52, vm.state.value.places.single().lat)
-            assertEquals(73.85, vm.state.value.places.single().lng)
+            assertEquals(
+                18.52,
+                vm.state.value.places
+                    .single()
+                    .lat,
+            )
+            assertEquals(
+                73.85,
+                vm.state.value.places
+                    .single()
+                    .lng,
+            )
         }
 
     @Test
@@ -79,7 +103,12 @@ class SavedPlacesViewModelTest {
             advanceUntilIdle()
 
             assertEquals(1, relaunched.state.value.places.size)
-            assertEquals("Gym", relaunched.state.value.places.single().label)
+            assertEquals(
+                "Gym",
+                relaunched.state.value.places
+                    .single()
+                    .label,
+            )
         }
 
     @Test
@@ -91,7 +120,10 @@ class SavedPlacesViewModelTest {
             advanceUntilIdle()
 
             assertTrue(!accepted)
-            assertTrue(vm.state.value.places.isEmpty())
+            assertTrue(
+                vm.state.value.places
+                    .isEmpty(),
+            )
             assertTrue(vm.state.value.submitError != null)
         }
 
@@ -106,7 +138,10 @@ class SavedPlacesViewModelTest {
             assertTrue(!vm.save(id = "", type = SavedPlaceType.HOME, label = "Home", address = "A", latText = "120", lngText = "70"))
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.places.isEmpty())
+            assertTrue(
+                vm.state.value.places
+                    .isEmpty(),
+            )
         }
 
     @Test
@@ -115,13 +150,21 @@ class SavedPlacesViewModelTest {
             val vm = newViewModel()
             vm.save(id = "", type = SavedPlaceType.HOME, label = "Home", address = "Old", latText = "", lngText = "")
             advanceUntilIdle()
-            val id = vm.state.value.places.single().id
+            val id =
+                vm.state.value.places
+                    .single()
+                    .id
 
             vm.save(id = id, type = SavedPlaceType.HOME, label = "Home", address = "New address", latText = "", lngText = "")
             advanceUntilIdle()
 
             assertEquals(1, vm.state.value.places.size)
-            assertEquals("New address", vm.state.value.places.single().address)
+            assertEquals(
+                "New address",
+                vm.state.value.places
+                    .single()
+                    .address,
+            )
         }
 
     @Test
@@ -130,12 +173,18 @@ class SavedPlacesViewModelTest {
             val vm = newViewModel()
             vm.save(id = "", type = SavedPlaceType.HOME, label = "Home", address = "12 MG Road", latText = "", lngText = "")
             advanceUntilIdle()
-            val id = vm.state.value.places.single().id
+            val id =
+                vm.state.value.places
+                    .single()
+                    .id
 
             vm.delete(id)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.places.isEmpty())
+            assertTrue(
+                vm.state.value.places
+                    .isEmpty(),
+            )
         }
 
     @Test

@@ -45,13 +45,30 @@ class WalletRepositoryTest {
         runTest {
             val r = repo()
             r.seedIfEmpty()
-            val id = r.observeAll().first().first().id
+            val id =
+                r
+                    .observeAll()
+                    .first()
+                    .first()
+                    .id
 
             r.setLinked(id, true)
-            assertTrue(r.observeAll().first().first { it.id == id }.isLinked)
+            assertTrue(
+                r
+                    .observeAll()
+                    .first()
+                    .first { it.id == id }
+                    .isLinked,
+            )
 
             r.setLinked(id, false)
-            assertFalse(r.observeAll().first().first { it.id == id }.isLinked)
+            assertFalse(
+                r
+                    .observeAll()
+                    .first()
+                    .first { it.id == id }
+                    .isLinked,
+            )
         }
 
     @Test

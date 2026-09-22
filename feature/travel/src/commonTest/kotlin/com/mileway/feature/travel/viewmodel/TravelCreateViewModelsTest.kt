@@ -243,7 +243,11 @@ class CreateMjpViewModelTest {
 
         completeLeg(vm, 1, "Delhi", "Mumbai", "03-08-2026")
         assertTrue(vm.state.value.canSubmit)
-        assertEquals("Pune", vm.state.value.legs[0].fromCity) // untouched by editing leg 1
+        assertEquals(
+            "Pune",
+            vm.state.value.legs[0]
+                .fromCity,
+        ) // untouched by editing leg 1
     }
 
     @Test

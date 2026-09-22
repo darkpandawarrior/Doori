@@ -19,7 +19,10 @@ data class QualityResult(
     val scoreFactors: List<ScoreFactor>,
 )
 
-data class ScoreFactor(val label: String, val deduction: Int)
+data class ScoreFactor(
+    val label: String,
+    val deduction: Int,
+)
 
 // ---------------------------------------------------------------------------
 

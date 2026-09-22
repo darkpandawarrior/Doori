@@ -17,11 +17,17 @@ data class EventDraft(
 
 /** Rotating submission outcome for the create-event flow (EV). */
 sealed interface EventResult {
-    data class Submitted(val id: String) : EventResult
+    data class Submitted(
+        val id: String,
+    ) : EventResult
 
-    data class NeedsApproval(val id: String) : EventResult
+    data class NeedsApproval(
+        val id: String,
+    ) : EventResult
 
-    data class PolicyViolation(val messages: List<String>) : EventResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : EventResult
 }
 
 /**
@@ -34,9 +40,14 @@ sealed interface EventResult {
  * something to approve/reject. A `Submitted` outcome persists at [EventStatus.PUBLISHED].
  * `PolicyViolation` persists nothing, mirroring the pre-existing "rejected outright" behavior.
  */
-class EventsRepository(private val clock: Clock = Clock.System) {
+class EventsRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
     private var counter = 0
+
+    /** Fake submissions rotate through the three `EventResult` outcomes in order. */
+    private val submissionOutcomeCount = 3
 
     /** Small local pool of not-yet-linked expenses, for the P29.E.8 bulk-link picker. */
     private val expensePool: List<LinkedExpense> by lazy {
@@ -54,7 +65,7 @@ class EventsRepository(private val clock: Clock = Clock.System) {
 
     fun submit(draft: EventDraft): EventResult {
         val id = "EVT-${3300 + events.size + 1}"
-        return when (counter++ % 3) {
+        return when (counter++ % submissionOutcomeCount) {
             0 -> {
                 events.add(0, recordFrom(id, draft, EventStatus.PUBLISHED))
                 EventResult.Submitted(id)
@@ -99,7 +110,12 @@ class EventsRepository(private val clock: Clock = Clock.System) {
 
     /** Expenses not yet linked to [eventId], for the P29.E.8 bulk-link sheet. */
     fun availableExpensesToLink(eventId: String): List<LinkedExpense> {
-        val linkedIds = get(eventId)?.linkedExpenses.orEmpty().map { it.id }.toSet()
+        val linkedIds =
+            get(eventId)
+                ?.linkedExpenses
+                .orEmpty()
+                .map { it.id }
+                .toSet()
         return expensePool.filter { it.id !in linkedIds }
     }
 

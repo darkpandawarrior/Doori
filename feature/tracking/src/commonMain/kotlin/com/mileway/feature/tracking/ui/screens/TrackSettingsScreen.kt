@@ -244,7 +244,9 @@ private fun SettingToggleRow(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = androidx.compose.ui.Modifier.padding(end = 0.dp),
+                modifier =
+                    androidx.compose.ui.Modifier
+                        .padding(end = 0.dp),
             )
             Column {
                 Text(

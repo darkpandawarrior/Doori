@@ -10,7 +10,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ApprovalsTest {
-
     @Test
     fun `all has 12 deterministic entries`() {
         assertEquals(12, ApprovalsRepository.all.size)

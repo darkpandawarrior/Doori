@@ -38,7 +38,9 @@ class TrackingSearchProvider(
 
         val results = mutableListOf<SearchResult>()
 
-        savedTracks.allTracksFlow().first()
+        savedTracks
+            .allTracksFlow()
+            .first()
             .filter { it.token.contains(q, true) || it.name?.contains(q, true) == true || it.service.contains(q, true) }
             .forEach { track ->
                 results +=
@@ -54,7 +56,9 @@ class TrackingSearchProvider(
                     )
             }
 
-        locations.allCheckInPoints().first()
+        locations
+            .allCheckInPoints()
+            .first()
             .filter { it.miscellaneous.contains(q, true) || it.reason?.contains(q, true) == true || it.checkInType.contains(q, true) }
             .forEach { point ->
                 results +=

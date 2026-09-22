@@ -3,11 +3,9 @@ package com.mileway
 import com.mileway.stub.AnalyticsMockData
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AnalyticsMockDataTest {
-
     @Test
     fun `dailySeries has exactly 30 entries`() {
         assertEquals(30, AnalyticsMockData.dailySeries.size)
@@ -22,7 +20,7 @@ class AnalyticsMockDataTest {
     fun `weeklySeries is the last 7 entries of dailySeries`() {
         assertEquals(
             AnalyticsMockData.dailySeries.takeLast(7),
-            AnalyticsMockData.weeklySeries
+            AnalyticsMockData.weeklySeries,
         )
     }
 

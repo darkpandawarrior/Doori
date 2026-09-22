@@ -19,16 +19,26 @@ data class CloudLibraryUiState(
 )
 
 sealed interface CloudLibraryAction {
-    data class Delete(val entry: MediaLibraryEntry) : CloudLibraryAction
+    data class Delete(
+        val entry: MediaLibraryEntry,
+    ) : CloudLibraryAction
 
-    data class ToggleFavorite(val entry: MediaLibraryEntry) : CloudLibraryAction
+    data class ToggleFavorite(
+        val entry: MediaLibraryEntry,
+    ) : CloudLibraryAction
 
-    data class SetFilter(val filter: MediaLibraryFilter) : CloudLibraryAction
+    data class SetFilter(
+        val filter: MediaLibraryFilter,
+    ) : CloudLibraryAction
 
-    data class SetSort(val sort: MediaLibrarySort) : CloudLibraryAction
+    data class SetSort(
+        val sort: MediaLibrarySort,
+    ) : CloudLibraryAction
 
     /** Fired when an entry is opened full-screen — updates [MediaLibraryEntry.lastAccessedAt]. */
-    data class Viewed(val entry: MediaLibraryEntry) : CloudLibraryAction
+    data class Viewed(
+        val entry: MediaLibraryEntry,
+    ) : CloudLibraryAction
 }
 
 /** No one-shot effects. Present to satisfy the MVI contract. */

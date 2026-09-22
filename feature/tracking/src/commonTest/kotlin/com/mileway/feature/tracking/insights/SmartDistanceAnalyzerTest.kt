@@ -105,7 +105,11 @@ class SmartDistanceAnalyzerTest {
 
     // -- discrepancy direction -------------------------------------------------------------
 
-    private data class DirectionCase(val gps: Double, val odo: Double, val expected: DiscrepancyDirection)
+    private data class DirectionCase(
+        val gps: Double,
+        val odo: Double,
+        val expected: DiscrepancyDirection,
+    )
 
     @Test
     fun `discrepancy direction reflects which distance is higher`() {

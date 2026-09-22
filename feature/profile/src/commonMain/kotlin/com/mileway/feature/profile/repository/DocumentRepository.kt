@@ -19,7 +19,10 @@ import kotlin.time.Clock
  * demo's "sent for review" step — no network; [com.mileway.core.data.review.SimulatedReviewEngine]
  * (P0.5) later flips APPROVAL_PENDING → VERIFIED/REJECTED (wired in P4.2).
  */
-class DocumentRepository(private val dao: DocumentDao, private val clock: Clock = Clock.System) {
+class DocumentRepository(
+    private val dao: DocumentDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, category-then-type ordered list of verification documents. */
     fun observeAll(): Flow<List<VerificationDocument>> = dao.observeAll().map { rows -> rows.map { it.toDocument() } }
 

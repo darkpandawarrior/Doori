@@ -10,7 +10,6 @@ import kotlin.test.assertEquals
  * unknown-tag fallback to English.
  */
 class LocaleControllerTest {
-
     @Test
     fun `defaults to English`() {
         val controller = LocaleController()

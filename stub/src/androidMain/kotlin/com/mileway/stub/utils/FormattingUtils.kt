@@ -4,9 +4,18 @@ import java.util.Locale
 
 private val CURRENCY_SYMBOLS =
     mapOf(
-        "INR" to "₹", "USD" to "$", "EUR" to "€", "GBP" to "£",
-        "JPY" to "¥", "CNY" to "¥", "AUD" to "A$", "CAD" to "C$",
-        "SGD" to "S$", "AED" to "د.إ", "SAR" to "﷼", "MYR" to "RM",
+        "INR" to "₹",
+        "USD" to "$",
+        "EUR" to "€",
+        "GBP" to "£",
+        "JPY" to "¥",
+        "CNY" to "¥",
+        "AUD" to "A$",
+        "CAD" to "C$",
+        "SGD" to "S$",
+        "AED" to "د.إ",
+        "SAR" to "﷼",
+        "MYR" to "RM",
     )
 
 object FormattingUtils {
@@ -15,7 +24,8 @@ object FormattingUtils {
     fun formatAmount(amount: Double): String =
         try {
             String.format(Locale.getDefault(), "%,.0f", amount)
-        } catch (e: Exception) {
+        } catch (ignored: IllegalArgumentException) {
+            // String.format rejects a bad pattern with IllegalArgumentException; the raw number is the fallback.
             amount.toString()
         }
 
@@ -25,7 +35,8 @@ object FormattingUtils {
     ): String =
         try {
             String.format(Locale.getDefault(), "%,.${decimals}f", amount)
-        } catch (e: Exception) {
+        } catch (ignored: IllegalArgumentException) {
+            // Same fallback as above: a bad decimal count must not cost the caller its number.
             amount.toString()
         }
 

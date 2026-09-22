@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
  * the query filters. Proves the F0 HistoryListScaffold MVI contract for trip requests.
  */
 class TripHistoryViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 

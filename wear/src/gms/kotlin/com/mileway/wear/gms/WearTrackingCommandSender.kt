@@ -6,8 +6,8 @@ import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.NodeClient
 import com.google.android.gms.wearable.Wearable
 import com.mileway.core.data.watch.TrackingCommand
-import com.mileway.core.data.watch.TrackingCommandSender
 import com.mileway.core.data.watch.TrackingCommandCodec
+import com.mileway.core.data.watch.TrackingCommandSender
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.tasks.await
 
@@ -33,7 +33,9 @@ internal const val PHONE_TRACK_CAPABILITY = "mileway_phone_track"
  * phone's `WearTrackingCommandService` (`app/src/gms`, a `WearableListenerService`) decodes and
  * dispatches to `TrackingController.start`/`stop`.
  */
-class WearTrackingCommandSender(context: Context) : TrackingCommandSender {
+class WearTrackingCommandSender(
+    context: Context,
+) : TrackingCommandSender {
     private val messageClient: MessageClient = Wearable.getMessageClient(context.applicationContext)
     private val capabilityClient: CapabilityClient = Wearable.getCapabilityClient(context.applicationContext)
     private val nodeClient: NodeClient = Wearable.getNodeClient(context.applicationContext)

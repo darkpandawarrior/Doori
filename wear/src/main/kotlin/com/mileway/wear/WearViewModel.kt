@@ -3,7 +3,6 @@ package com.mileway.wear
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.watch.TrackingCommandSender
-import kotlinx.coroutines.launch
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.watch.WatchFacade
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 /**
  * P2.4: the Wear app's single-activity ViewModel (biciradar pattern — one `ViewModel` per
@@ -69,7 +69,6 @@ class WearViewModel(
                 initialValue = OngoingActivityUi(),
             )
 
-    /** Dashboard → trip list. */
     /**
      * Start the trip, or stop the one already running.
      *

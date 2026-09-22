@@ -37,10 +37,14 @@ sealed interface ProfileAction {
      * [SwitchAccountPinSheet][com.mileway.feature.profile.ui.screens.SwitchAccountPinSheet]. Either
      * path calls [CommitAccountSwitch] on success.
      */
-    data class SwitchAccount(val id: String) : ProfileAction
+    data class SwitchAccount(
+        val id: String,
+    ) : ProfileAction
 
     /** The gate ([SwitchAccount]'s biometric or PIN path) succeeded; performs the real switch. */
-    data class CommitAccountSwitch(val id: String) : ProfileAction
+    data class CommitAccountSwitch(
+        val id: String,
+    ) : ProfileAction
 
     /** The PIN sheet or biometric prompt was dismissed/cancelled without switching. */
     data object CancelAccountSwitch : ProfileAction
@@ -49,7 +53,9 @@ sealed interface ProfileAction {
      * Biometric guard is enabled but no usable biometric hardware/enrolment exists on-device —
      * falls back to the PIN sheet instead of silently committing the switch unconfirmed.
      */
-    data class FallBackToPinGate(val id: String) : ProfileAction
+    data class FallBackToPinGate(
+        val id: String,
+    ) : ProfileAction
 
     data object TogglePushNotifications : ProfileAction
 
@@ -62,18 +68,28 @@ sealed interface ProfileAction {
 
     data object ToggleSlackChannel : ProfileAction
 
-    data class RaisePreferenceMessage(val message: String) : ProfileAction
+    data class RaisePreferenceMessage(
+        val message: String,
+    ) : ProfileAction
 
     data object ClearPreferenceMessage : ProfileAction
 
     /** P1.3: adds a new switchable persona (never active on creation). */
-    data class AddDemoAccount(val displayName: String, val employeeCode: String, val organization: String) : ProfileAction
+    data class AddDemoAccount(
+        val displayName: String,
+        val employeeCode: String,
+        val organization: String,
+    ) : ProfileAction
 
     /** P1.3: removes a persona; a no-op + [RaisePreferenceMessage] when it's active or the last remaining one. */
-    data class RemoveDemoAccount(val accountId: String) : ProfileAction
+    data class RemoveDemoAccount(
+        val accountId: String,
+    ) : ProfileAction
 
     /** P1.3: opens [AccountDetailsSheet][com.mileway.feature.profile.ui.screens.AccountDetailsSheet] for a persona. */
-    data class ViewAccountDetails(val accountId: String) : ProfileAction
+    data class ViewAccountDetails(
+        val accountId: String,
+    ) : ProfileAction
 
     /** P1.3: dismisses the details sheet opened by [ViewAccountDetails]. */
     data object DismissAccountDetails : ProfileAction
@@ -85,7 +101,9 @@ sealed interface ProfileAction {
      * [accountId] is the last remaining persona, this clears the whole local session via
      * [SessionRepository.signOut] and emits [ProfileEffect.NavigateToLogin] instead.
      */
-    data class SignOut(val accountId: String) : ProfileAction
+    data class SignOut(
+        val accountId: String,
+    ) : ProfileAction
 
     /**
      * P3.4: dismisses the "Trip in progress — pause and switch?" notice
@@ -109,7 +127,9 @@ sealed interface ProfileEffect {
      * is on. `ProfileScreen` (Android-only, since `BiometricPrompt` needs a `FragmentActivity`) runs
      * `BiometricGuard.showPrompt` and dispatches [ProfileAction.CommitAccountSwitch] on success.
      */
-    data class RequestBiometricGate(val accountId: String) : ProfileEffect
+    data class RequestBiometricGate(
+        val accountId: String,
+    ) : ProfileEffect
 
     /**
      * P2.4: the last persona was just signed out of (no personas remain). `LauncherActivity`
@@ -370,7 +390,8 @@ class ProfileViewModel(
     // Null pluginRegistry (test-only) falls back to an in-memory flag = the pre-P10.1 behavior.
     private val fallbackNotifications = MutableStateFlow(true)
     val notificationsEnabled: StateFlow<Boolean> =
-        pluginRegistry?.observe("notificationsEnabled")
+        pluginRegistry
+            ?.observe("notificationsEnabled")
             ?.stateIn(viewModelScope, SharingStarted.Eagerly, true)
             ?: fallbackNotifications.asStateFlow()
 
@@ -387,7 +408,8 @@ class ProfileViewModel(
         viewModelScope.launch {
             registry.setUserOverride(
                 "notificationsEnabled",
-                com.mileway.core.data.plugin.PluginValue.Bool(!notificationsEnabled.value),
+                com.mileway.core.data.plugin.PluginValue
+                    .Bool(!notificationsEnabled.value),
             )
         }
     }
@@ -435,7 +457,11 @@ class ProfileViewModel(
         }
         val next = !current(experimentalFlags.value)
         viewModelScope.launch {
-            registry.setUserOverride(id, com.mileway.core.data.plugin.PluginValue.Bool(next))
+            registry.setUserOverride(
+                id,
+                com.mileway.core.data.plugin.PluginValue
+                    .Bool(next),
+            )
         }
     }
 

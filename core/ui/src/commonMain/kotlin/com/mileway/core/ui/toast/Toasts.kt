@@ -7,7 +7,10 @@ import kotlinx.coroutines.flow.asSharedFlow
 enum class ToastType { Success, Error, Info, Warning }
 
 /** Optional action button shown on a toast. */
-data class ToastAction(val label: String, val onClick: () -> Unit)
+data class ToastAction(
+    val label: String,
+    val onClick: () -> Unit,
+)
 
 /** A toast payload rendered by [AppToast] / [AppToastHost]. */
 data class ToastData(

@@ -52,7 +52,10 @@ class QrRequestViewModelTest {
         runTest {
             val vm = newViewModel()
             advanceUntilIdle()
-            val firstCardId = vm.state.value.cards.first().id
+            val firstCardId =
+                vm.state.value.cards
+                    .first()
+                    .id
 
             vm.onAction(QrRequestAction.SelectType("Fuel QR"))
             vm.onAction(QrRequestAction.SetAmount("300"))

@@ -154,7 +154,9 @@ fun VerificationCentreScreen(
 
             LazyColumn(
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = DesignTokens.Spacing.l),
+                contentPadding =
+                    androidx.compose.foundation.layout
+                        .PaddingValues(horizontal = DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 items(uiState.documents) { doc ->

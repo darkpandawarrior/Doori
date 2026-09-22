@@ -47,7 +47,9 @@ object CheckInHistory : TrackMilesAction
 
 object OutletsList : TrackMilesAction
 
-data class OpenTrackDetail(val token: String) : TrackMilesAction
+data class OpenTrackDetail(
+    val token: String,
+) : TrackMilesAction
 
 data class OpenTrackSubmissionWithContext(
     val routeId: String,
@@ -56,4 +58,6 @@ data class OpenTrackSubmissionWithContext(
 ) : TrackMilesAction
 
 // ── Vehicle selection ─────────────────────────────────────────────────────────
-data class SelectVehicle(val vehicleType: Any?) : TrackMilesAction
+data class SelectVehicle(
+    val vehicleType: Any?,
+) : TrackMilesAction

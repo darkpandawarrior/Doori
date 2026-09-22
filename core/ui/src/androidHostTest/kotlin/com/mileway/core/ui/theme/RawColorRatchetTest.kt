@@ -49,7 +49,8 @@ class RawColorRatchetTest {
         val root = repoRoot() ?: return // Not running from a checkout; nothing to assert.
 
         val offenders =
-            root.walkTopDown()
+            root
+                .walkTopDown()
                 .filter { it.isFile && it.extension == "kt" }
                 .map { it to it.path.replace(File.separatorChar, '/') }
                 .filter { (_, path) -> "/src/" in path }
@@ -58,8 +59,7 @@ class RawColorRatchetTest {
                 .mapNotNull { (file, path) ->
                     val count = file.readText().windowedCount(NEEDLE)
                     if (count > 0) path.removePrefix(root.path.replace(File.separatorChar, '/')) to count else null
-                }
-                .sortedByDescending { it.second }
+                }.sortedByDescending { it.second }
                 .toList()
 
         val total = offenders.sumOf { it.second }

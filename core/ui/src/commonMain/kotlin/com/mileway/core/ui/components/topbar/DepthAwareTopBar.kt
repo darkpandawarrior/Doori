@@ -199,16 +199,17 @@ fun DepthAwareTopBar(
     val titleIconScale =
         if (titleIcon != null && animateTitleIcon) {
             val transition = rememberInfiniteTransition(label = "topBarIcon")
-            transition.animateFloat(
-                initialValue = 1f,
-                targetValue = 1.08f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse,
-                    ),
-                label = "topBarIconScale",
-            ).value
+            transition
+                .animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.08f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    label = "topBarIconScale",
+                ).value
         } else {
             1f
         }
@@ -393,8 +394,7 @@ private fun AnimatedSearchAction(
                         .background(
                             color = MaterialTheme.colorScheme.primary.copy(alpha = glowAlpha * 0.25f),
                             shape = DesignTokens.Shape.button,
-                        )
-                        .blur(12.dp),
+                        ).blur(12.dp),
             )
         }
 

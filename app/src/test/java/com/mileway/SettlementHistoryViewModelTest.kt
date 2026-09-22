@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
 
 /** SP.2 (V17): settlement-history reducer over the offline fake. */
 class SettlementHistoryViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 

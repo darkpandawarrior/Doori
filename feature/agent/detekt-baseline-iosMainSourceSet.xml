@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>EmptyFunctionBlock:IosSpeechToText.kt:IosSpeechToText${}</ID>
-    <ID>EmptyFunctionBlock:IosTextToSpeech.kt:IosTextToSpeech${}</ID>
-  </CurrentIssues>
-</SmellBaseline>

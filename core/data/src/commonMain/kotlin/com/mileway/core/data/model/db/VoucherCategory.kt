@@ -15,7 +15,9 @@ package com.mileway.core.data.model.db
  * [label] preserves the exact strings the 4 original hardcoded categories used, so existing
  * behavior/labels are unchanged.
  */
-enum class VoucherCategory(val label: String) {
+enum class VoucherCategory(
+    val label: String,
+) {
     MILEAGE("Travel"),
     FUEL("Fuel"),
     MAINTENANCE("Maintenance"),

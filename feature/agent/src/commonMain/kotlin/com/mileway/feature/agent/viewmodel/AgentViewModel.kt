@@ -5,6 +5,7 @@ import com.mileway.core.platform.ShareSheet
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.engine.AssistantChunk
 import com.mileway.feature.agent.engine.AssistantEngine
+import com.mileway.feature.agent.engine.ConversationTitler
 import com.mileway.feature.agent.model.AgentConversation
 import com.mileway.feature.agent.model.AgentMessage
 import com.mileway.feature.agent.repository.AgentRepository
@@ -118,7 +119,7 @@ class AgentViewModel(
             viewModelScope.launch {
                 analytics.recordQuestion(text.trim())
                 if (isNewThread) {
-                    repository.createThread(threadId, text.trim().take(50), nowMs)
+                    repository.createThread(threadId, text.trim().take(ConversationTitler.MaxTitleLength), nowMs)
                     setState { copy(activeThreadId = threadId) }
                 }
                 repository.setActiveThread(threadId, Clock.System.now().toEpochMilliseconds())
@@ -152,7 +153,10 @@ class AgentViewModel(
     /** Re-runs the last user question through [sendMessage] after an [AssistantChunk.Error] — a
      * plain resend, same as the user retyping it, rather than a special "regenerate in place" path. */
     private fun retryLastMessage() {
-        val lastUserText = state.value.messages.lastOrNull { it.isUser }?.text ?: return
+        val lastUserText =
+            state.value.messages
+                .lastOrNull { it.isUser }
+                ?.text ?: return
         sendMessage(lastUserText)
     }
 
@@ -220,7 +224,10 @@ class AgentViewModel(
         if (messages.isEmpty()) return
         val transcript =
             buildString {
-                val title = state.value.history.firstOrNull { it.id == threadId }?.title ?: "Conversation"
+                val title =
+                    state.value.history
+                        .firstOrNull { it.id == threadId }
+                        ?.title ?: "Conversation"
                 appendLine("# $title")
                 appendLine()
                 messages.forEach { msg ->

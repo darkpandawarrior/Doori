@@ -46,7 +46,10 @@ data class FieldSuggestion(
  * vs `totalAmount` are both NUMBER/CURRENCY). No keyword match -> no suggestion for that DocField,
  * rather than guessing at the wrong field.
  */
-private data class DocFieldTarget(val types: Set<FormFieldType>, val keywords: List<String>)
+private data class DocFieldTarget(
+    val types: Set<FormFieldType>,
+    val keywords: List<String>,
+)
 
 private val DOC_FIELD_TARGETS: Map<DocField, DocFieldTarget> =
     mapOf(

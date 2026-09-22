@@ -14,7 +14,9 @@ import com.siddharth.kmp.appshell.AppReviewManagerFactory
  * declines (quota, no Play services, sideloaded demo) it falls back to opening the Play Store listing.
  * Both paths are wrapped in runCatching → never crashes.
  */
-class PlayAppReviewManager(private val activity: Activity) : AppReviewManager {
+class PlayAppReviewManager(
+    private val activity: Activity,
+) : AppReviewManager {
     private val manager = ReviewManagerFactory.create(activity)
 
     override suspend fun promptForReview() {

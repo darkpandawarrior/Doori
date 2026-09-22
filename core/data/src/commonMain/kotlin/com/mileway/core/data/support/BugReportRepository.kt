@@ -15,7 +15,9 @@ object BugReportAppVersion {
 }
 
 /** P31.MISC.1: the persisted shake-to-report store — see [BugReportEntity]. */
-class BugReportRepository(private val dao: BugReportDao) {
+class BugReportRepository(
+    private val dao: BugReportDao,
+) {
     fun observeAll(): Flow<List<BugReportEntity>> = dao.observeAll()
 
     @OptIn(ExperimentalUuidApi::class)

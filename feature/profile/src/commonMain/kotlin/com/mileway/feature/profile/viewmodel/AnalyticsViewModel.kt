@@ -55,31 +55,56 @@ data class AnalyticsUiState(
 )
 
 sealed interface AnalyticsAction {
-    data class DateRangeChanged(val preset: DateRangePreset) : AnalyticsAction
+    data class DateRangeChanged(
+        val preset: DateRangePreset,
+    ) : AnalyticsAction
 
-    data class CustomRangeChanged(val start: Long, val end: Long) : AnalyticsAction
+    data class CustomRangeChanged(
+        val start: Long,
+        val end: Long,
+    ) : AnalyticsAction
 
-    data class CategoryToggled(val category: String) : AnalyticsAction
+    data class CategoryToggled(
+        val category: String,
+    ) : AnalyticsAction
 
-    data class StatusToggled(val status: String) : AnalyticsAction
+    data class StatusToggled(
+        val status: String,
+    ) : AnalyticsAction
 
-    data class PaymentMethodToggled(val method: String) : AnalyticsAction
+    data class PaymentMethodToggled(
+        val method: String,
+    ) : AnalyticsAction
 
     data object ClearFilters : AnalyticsAction
 
-    data class MetricChanged(val metric: AnalyticsMetric) : AnalyticsAction
+    data class MetricChanged(
+        val metric: AnalyticsMetric,
+    ) : AnalyticsAction
 
-    data class LeaderboardSortChanged(val sort: LeaderboardSort) : AnalyticsAction
+    data class LeaderboardSortChanged(
+        val sort: LeaderboardSort,
+    ) : AnalyticsAction
 
-    data class LeaderboardQueryChanged(val query: String) : AnalyticsAction
+    data class LeaderboardQueryChanged(
+        val query: String,
+    ) : AnalyticsAction
 
-    data class OpenCategoryDetail(val category: String) : AnalyticsAction
+    data class OpenCategoryDetail(
+        val category: String,
+    ) : AnalyticsAction
 
-    data class SelectMerchant(val merchant: String?) : AnalyticsAction
+    data class SelectMerchant(
+        val merchant: String?,
+    ) : AnalyticsAction
 
-    data class MerchantSearchQueryChanged(val query: String) : AnalyticsAction
+    data class MerchantSearchQueryChanged(
+        val query: String,
+    ) : AnalyticsAction
 
-    data class Export(val category: String) : AnalyticsAction
+    data class Export(
+        val category: String,
+    ) : AnalyticsAction
 
     data object ExportErrorCleared : AnalyticsAction
 }
@@ -119,6 +144,10 @@ class AnalyticsViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun export(category: String) {
         setState { copy(isExporting = true, exportError = null) }
         viewModelScope.launch {

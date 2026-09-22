@@ -15,7 +15,9 @@ import kotlin.math.abs
 /** Outcome of one submit attempt — mirrors [SendOutcome], but SUCCESS carries the server response
  * so the online-submit path can read amount/transId/voucher/violations straight off it. */
 sealed interface SubmitOutcome {
-    data class Success(val response: ExpenseSubmissionResponse) : SubmitOutcome
+    data class Success(
+        val response: ExpenseSubmissionResponse,
+    ) : SubmitOutcome
 
     data object RetryableFailure : SubmitOutcome
 

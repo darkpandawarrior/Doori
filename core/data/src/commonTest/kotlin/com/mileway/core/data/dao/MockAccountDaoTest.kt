@@ -123,17 +123,16 @@ class MockAccountDaoTest {
 private class FakeMockAccountDao : MockAccountDao {
     private val rows = LinkedHashMap<String, MockAccountEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _all = MutableStateFlow<List<MockAccountEntity>>(emptyList())
+    private val allRows = MutableStateFlow<List<MockAccountEntity>>(emptyList())
 
     private fun flush() {
-        _all.value = rows.values.sortedBy { it.createdAtMs }
+        allRows.value = rows.values.sortedBy { it.createdAtMs }
     }
 
     /** Test-only convenience: the current emitted list, without collecting the [Flow]. */
-    fun snapshot(): List<MockAccountEntity> = _all.value
+    fun snapshot(): List<MockAccountEntity> = allRows.value
 
-    override fun observeAll(): Flow<List<MockAccountEntity>> = _all.asStateFlow()
+    override fun observeAll(): Flow<List<MockAccountEntity>> = allRows.asStateFlow()
 
     override suspend fun count(): Int = rows.size
 

@@ -12,7 +12,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.stub.PolicyMockData
 
-enum class ExpenseCategory(val label: String, val icon: ImageVector) {
+enum class ExpenseCategory(
+    val label: String,
+    val icon: ImageVector,
+) {
     FOOD("Food", Icons.Filled.Restaurant),
     TRAVEL("Travel", Icons.Filled.DirectionsCar),
     ACCOMMODATION("Accommodation", Icons.Filled.Hotel),

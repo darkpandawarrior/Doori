@@ -1,10 +1,10 @@
 package com.mileway.wear.gms
 
+import com.mileway.core.data.watch.TrackingCommandSender
 import com.mileway.core.data.watch.WatchSyncBridge
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import com.mileway.core.data.watch.TrackingCommandSender
 
 /**
  * P2.9: gms flavor — binds the real Data Layer [WatchSyncBridge]. Mirrors `:app`'s per-flavor

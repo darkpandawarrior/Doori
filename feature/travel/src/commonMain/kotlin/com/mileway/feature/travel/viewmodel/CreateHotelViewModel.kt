@@ -22,15 +22,25 @@ data class CreateHotelUiState(
 }
 
 sealed interface CreateHotelAction {
-    data class SetCity(val value: String) : CreateHotelAction
+    data class SetCity(
+        val value: String,
+    ) : CreateHotelAction
 
-    data class SetCheckInDate(val value: String) : CreateHotelAction
+    data class SetCheckInDate(
+        val value: String,
+    ) : CreateHotelAction
 
-    data class SetCheckOutDate(val value: String) : CreateHotelAction
+    data class SetCheckOutDate(
+        val value: String,
+    ) : CreateHotelAction
 
-    data class SetGuests(val value: String) : CreateHotelAction
+    data class SetGuests(
+        val value: String,
+    ) : CreateHotelAction
 
-    data class SetRoomPreference(val value: String) : CreateHotelAction
+    data class SetRoomPreference(
+        val value: String,
+    ) : CreateHotelAction
 
     data object Submit : CreateHotelAction
 }

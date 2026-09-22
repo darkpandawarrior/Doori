@@ -79,16 +79,18 @@ class KtorMilewayNetworkApi(
     }
 
     override suspend fun logMilesLimit(request: LogMilesRequestV2): LogMilesResponseV2 =
-        client.post(url("/api/miles/log/limit")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/miles/log/limit")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun logMiles(request: LogMilesSubmitRequestV2): ExpenseSubmissionResponse =
-        client.post(url("/api/miles/log")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/miles/log")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun fetchLogMilesServices(isInsideTrip: Boolean): LogMilesServicesResponse =
         client.get(url("/api/log-miles/services")) { parameter("insideTrip", isInsideTrip) }.body()
@@ -103,16 +105,18 @@ class KtorMilewayNetworkApi(
     }
 
     override suspend fun distance(request: DistanceRequestV2): DistanceResponseV2 =
-        client.post(url("/api/distance")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/distance")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun submitMiles(request: SubmitMilesRequestK): ExpenseSubmissionResponse =
-        client.post(url("/api/miles/submit")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/miles/submit")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun getTrackMileageStatus(trackingToken: String): TrackMileageStatusResponse =
         client.get(url("/api/miles/status")) { parameter("token", trackingToken) }.body()
@@ -181,31 +185,34 @@ class KtorMilewayNetworkApi(
         startTime: Long,
         endTime: Long,
     ): LocationResponseV2 =
-        client.get(url("/api/location")) {
-            parameter("token", token)
-            parameter("start", startTime)
-            parameter("end", endTime)
-        }.body()
+        client
+            .get(url("/api/location")) {
+                parameter("token", token)
+                parameter("start", startTime)
+                parameter("end", endTime)
+            }.body()
 
     override suspend fun getEventsV2(
         token: String,
         startTime: Long,
         endTime: Long,
     ): EventResponseV2 =
-        client.get(url("/api/events")) {
-            parameter("token", token)
-            parameter("start", startTime)
-            parameter("end", endTime)
-        }.body()
+        client
+            .get(url("/api/events")) {
+                parameter("token", token)
+                parameter("start", startTime)
+                parameter("end", endTime)
+            }.body()
 
     override suspend fun fetchMap(
         lat: String,
         lng: String,
     ): MapResponse =
-        client.get(url("/api/map")) {
-            parameter("lat", lat)
-            parameter("lng", lng)
-        }.body()
+        client
+            .get(url("/api/map")) {
+                parameter("lat", lat)
+                parameter("lng", lng)
+            }.body()
 
     override suspend fun geoTypeById(typeId: Long): CheckInDetailsResponseV2 = client.get(url("/api/checkin/types/$typeId")).body()
 
@@ -215,41 +222,46 @@ class KtorMilewayNetworkApi(
     override suspend fun geoTypes(): AllTypesResponseV2 = client.get(url("/api/checkin/types")).body()
 
     override suspend fun updateCenterLocation(request: CheckInRequestV2): SuccessResponseV2 =
-        client.post(url("/api/checkin/center")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/checkin/center")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun resetMilesLocation(
         contactId: Long,
         request: EmptyRequest,
     ): SuccessResponseV2 =
-        client.post(url("/api/miles/reset/$contactId")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/miles/reset/$contactId")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun submitCheckIn(request: CheckInRequestV2): SuccessResponseV2 =
-        client.post(url("/api/checkin")) {
-            contentType(ContentType.Application.Json)
-            setBody(request)
-        }.body()
+        client
+            .post(url("/api/checkin")) {
+                contentType(ContentType.Application.Json)
+                setBody(request)
+            }.body()
 
     override suspend fun allTaggedExpenses(
         start: Long,
         end: Long,
     ): AllTaggedExpenseResponse =
-        client.get(url("/api/expenses/tagged")) {
-            parameter("start", start)
-            parameter("end", end)
-        }.body()
+        client
+            .get(url("/api/expenses/tagged")) {
+                parameter("start", start)
+                parameter("end", end)
+            }.body()
 
     override suspend fun pendingTaggedExpenses(
         start: Long,
         end: Long,
     ): AllTaggedExpenseResponse =
-        client.get(url("/api/expenses/pending")) {
-            parameter("start", start)
-            parameter("end", end)
-        }.body()
+        client
+            .get(url("/api/expenses/pending")) {
+                parameter("start", start)
+                parameter("end", end)
+            }.body()
 }

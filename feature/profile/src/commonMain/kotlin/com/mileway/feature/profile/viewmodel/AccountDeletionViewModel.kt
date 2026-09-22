@@ -43,12 +43,12 @@ class AccountDeletionViewModel(
     private var completing = false
 
     init {
-        repository.observe()
+        repository
+            .observe()
             .onEach { st ->
                 _state.update { it.copy(status = st.status, reason = st.reason) }
                 if (st.status == DeletionStatus.PROCESSING) complete()
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
 
         viewModelScope.launch {
             while (isActive) {

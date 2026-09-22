@@ -23,13 +23,16 @@ data class RewardsUiState(
     val totalCredits: Int get() = cards.filter { it.status == RewardStatus.SCRATCHED }.sumOf { it.credits }
 }
 
-class RewardsViewModel(private val repository: RewardsRepository) : ViewModel() {
+class RewardsViewModel(
+    private val repository: RewardsRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(RewardsUiState())
     val state: StateFlow<RewardsUiState> = _state.asStateFlow()
 
     init {
         viewModelScope.launch { repository.seedIfEmpty() }
-        repository.observeAll()
+        repository
+            .observeAll()
             .onEach { cards -> _state.update { it.copy(cards = cards) } }
             .launchIn(viewModelScope)
     }

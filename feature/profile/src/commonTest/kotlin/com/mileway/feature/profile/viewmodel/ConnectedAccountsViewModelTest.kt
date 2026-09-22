@@ -71,14 +71,24 @@ class ConnectedAccountsViewModelTest {
         runTest {
             val vm = newVm()
             advanceUntilIdle()
-            val wallet = vm.state.value.wallets.first()
+            val wallet =
+                vm.state.value.wallets
+                    .first()
 
             vm.startLink(wallet)
             vm.onLinkCodeChange("000000") // deterministic wrong code (real code is a stable hash)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.linkFlow?.wrongCode == true, "wrong code flags the flow, keeps it open")
-            assertFalse(vm.state.value.wallets.first { it.id == wallet.id }.isLinked)
+            assertTrue(
+                vm.state.value.linkFlow
+                    ?.wrongCode == true,
+                "wrong code flags the flow, keeps it open",
+            )
+            assertFalse(
+                vm.state.value.wallets
+                    .first { it.id == wallet.id }
+                    .isLinked,
+            )
         }
 
     @Test
@@ -86,14 +96,20 @@ class ConnectedAccountsViewModelTest {
         runTest {
             val vm = newVm()
             advanceUntilIdle()
-            val wallet = vm.state.value.wallets.first()
+            val wallet =
+                vm.state.value.wallets
+                    .first()
 
             vm.startLink(wallet)
             vm.onLinkCodeChange(otp.codeFor(OtpPurpose.WALLET_LINK, wallet.mobile))
             advanceUntilIdle()
 
             assertNull(vm.state.value.linkFlow, "flow closes on success")
-            assertTrue(vm.state.value.wallets.first { it.id == wallet.id }.isLinked)
+            assertTrue(
+                vm.state.value.wallets
+                    .first { it.id == wallet.id }
+                    .isLinked,
+            )
         }
 
     @Test
@@ -101,16 +117,26 @@ class ConnectedAccountsViewModelTest {
         runTest {
             val vm = newVm()
             advanceUntilIdle()
-            val wallet = vm.state.value.wallets.first()
+            val wallet =
+                vm.state.value.wallets
+                    .first()
 
             vm.startLink(wallet)
             vm.onLinkCodeChange(otp.codeFor(OtpPurpose.WALLET_LINK, wallet.mobile))
             advanceUntilIdle()
-            assertTrue(vm.state.value.wallets.first { it.id == wallet.id }.isLinked)
+            assertTrue(
+                vm.state.value.wallets
+                    .first { it.id == wallet.id }
+                    .isLinked,
+            )
 
             vm.unlink(wallet.id)
             advanceUntilIdle()
-            assertFalse(vm.state.value.wallets.first { it.id == wallet.id }.isLinked)
+            assertFalse(
+                vm.state.value.wallets
+                    .first { it.id == wallet.id }
+                    .isLinked,
+            )
         }
 }
 

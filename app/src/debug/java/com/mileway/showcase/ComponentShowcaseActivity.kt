@@ -12,7 +12,6 @@ import com.mileway.core.ui.theme.MilewayTheme
  * the launcher shortcut registered in the debug manifest.
  */
 class ComponentShowcaseActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

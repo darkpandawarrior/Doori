@@ -18,7 +18,9 @@ data object TrackMiles : AppKey
 data object LogMiles : AppKey
 
 @Serializable
-data class TripDetail(val routeId: String) : AppKey
+data class TripDetail(
+    val routeId: String,
+) : AppKey
 
 @Serializable
 data object CheckInHistory : AppKey

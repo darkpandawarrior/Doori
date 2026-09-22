@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
  * approval / violation result paths through the shared FormSubmissionScaffold contract.
  */
 class CreateBusViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -34,20 +33,21 @@ class CreateBusViewModelTest {
     }
 
     @Test
-    fun `submits rotate through success, approval and violation`() = runTest {
-        val vm = viewModel()
-        vm.onAction(CreateBusAction.SetFromCity("Pune"))
-        vm.onAction(CreateBusAction.SetToCity("Goa"))
-        vm.onAction(CreateBusAction.SetTravelDate("01-08-2026"))
+    fun `submits rotate through success, approval and violation`() =
+        runTest {
+            val vm = viewModel()
+            vm.onAction(CreateBusAction.SetFromCity("Pune"))
+            vm.onAction(CreateBusAction.SetToCity("Goa"))
+            vm.onAction(CreateBusAction.SetTravelDate("01-08-2026"))
 
-        vm.effect.test {
-            vm.onAction(CreateBusAction.Submit)
-            assertTrue(awaitItem() is TravelCreateEffect.Success)
-            vm.onAction(CreateBusAction.Submit)
-            assertTrue(awaitItem() is TravelCreateEffect.NeedsApproval)
-            vm.onAction(CreateBusAction.Submit)
-            assertTrue(awaitItem() is TravelCreateEffect.Violation)
+            vm.effect.test {
+                vm.onAction(CreateBusAction.Submit)
+                assertTrue(awaitItem() is TravelCreateEffect.Success)
+                vm.onAction(CreateBusAction.Submit)
+                assertTrue(awaitItem() is TravelCreateEffect.NeedsApproval)
+                vm.onAction(CreateBusAction.Submit)
+                assertTrue(awaitItem() is TravelCreateEffect.Violation)
+            }
+            assertFalse(vm.state.value.isSubmitting)
         }
-        assertFalse(vm.state.value.isSubmitting)
-    }
 }

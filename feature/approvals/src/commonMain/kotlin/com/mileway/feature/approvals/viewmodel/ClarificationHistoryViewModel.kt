@@ -22,7 +22,9 @@ data class ClarificationRoomListItem(
 enum class ClarificationHistoryTab { ACTIVE, CLOSED, SAVED }
 
 /** P28.5: a coarse date-range filter on `updatedAtMs`, applied via the scaffold's filter-chip row (no new date-picker dependency needed for four fixed buckets). */
-enum class ClarificationDateRange(val windowMs: Long?) {
+enum class ClarificationDateRange(
+    val windowMs: Long?,
+) {
     ALL(null),
     TODAY(24 * 3_600_000L),
     WEEK(7 * 24 * 3_600_000L),
@@ -37,17 +39,27 @@ data class ClarificationHistoryUiState(
 )
 
 sealed interface ClarificationHistoryAction {
-    data class OpenRoom(val approvalId: String) : ClarificationHistoryAction
+    data class OpenRoom(
+        val approvalId: String,
+    ) : ClarificationHistoryAction
 
-    data class SelectTab(val tab: ClarificationHistoryTab) : ClarificationHistoryAction
+    data class SelectTab(
+        val tab: ClarificationHistoryTab,
+    ) : ClarificationHistoryAction
 
-    data class SetQuery(val query: String) : ClarificationHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : ClarificationHistoryAction
 
-    data class SetDateRange(val range: ClarificationDateRange) : ClarificationHistoryAction
+    data class SetDateRange(
+        val range: ClarificationDateRange,
+    ) : ClarificationHistoryAction
 }
 
 sealed interface ClarificationHistoryEffect {
-    data class NavigateToApproval(val approvalId: String) : ClarificationHistoryEffect
+    data class NavigateToApproval(
+        val approvalId: String,
+    ) : ClarificationHistoryEffect
 }
 
 /**
@@ -111,7 +123,10 @@ class ClarificationHistoryViewModel(
                 byTab.filter { it.requesterName.contains(query, ignoreCase = true) || it.summary.contains(query, ignoreCase = true) }
             }
         val windowMs = dateRange.windowMs ?: return byQuery
-        val cutoff = kotlin.time.Clock.System.now().toEpochMilliseconds() - windowMs
+        val cutoff =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds() - windowMs
         return byQuery.filter { it.room.updatedAtMs >= cutoff }
     }
 }

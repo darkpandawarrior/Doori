@@ -155,7 +155,10 @@ val trackingModule =
         }
 
         // C.2b/C.3: live tracking telemetry shared from the foreground service to the ViewModel.
-        single { com.mileway.feature.tracking.service.TrackingStatePublisher() }
+        single {
+            com.mileway.feature.tracking.service
+                .TrackingStatePublisher()
+        }
         single<com.mileway.feature.tracking.service.TrackingServiceApi> {
             get<com.mileway.feature.tracking.service.TrackingStatePublisher>()
         }
@@ -197,7 +200,9 @@ val trackingModule =
                 hardwareEventRepo = get(),
                 geoCheckInLocations = getOrNull() ?: emptyList(),
                 trackingServiceApi = get(),
-                locationNameResolver = getOrNull() ?: com.mileway.core.platform.OfflineLocationNameResolver(),
+                locationNameResolver =
+                    getOrNull() ?: com.mileway.core.platform
+                        .OfflineLocationNameResolver(),
                 reconciliationHolder = get(),
                 // P3.3: bound by coreDataModule (SessionRepository -> SessionSource); omitted graphs
                 // (e.g. the screenshot Koin harness) fall back to the VM's own default.

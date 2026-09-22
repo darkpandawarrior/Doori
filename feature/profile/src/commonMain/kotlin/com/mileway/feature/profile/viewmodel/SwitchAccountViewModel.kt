@@ -43,7 +43,9 @@ data class SwitchAccountUiState(
  * `ProfileScreen`/`ProfileViewModel` layer instead of here, since `BiometricPrompt` needs a
  * `FragmentActivity` this `commonMain` class can't reference.
  */
-class SwitchAccountViewModel(private val pinHashSource: PinHashSource) : ViewModel() {
+class SwitchAccountViewModel(
+    private val pinHashSource: PinHashSource,
+) : ViewModel() {
     private val _state = MutableStateFlow(SwitchAccountUiState())
     val state: StateFlow<SwitchAccountUiState> = _state.asStateFlow()
 

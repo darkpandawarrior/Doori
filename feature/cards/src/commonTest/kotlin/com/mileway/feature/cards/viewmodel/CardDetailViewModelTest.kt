@@ -91,7 +91,10 @@ class CardDetailViewModelTest {
     fun `card actions accumulate into the local audit log`() {
         val vm = CardDetailViewModel(CardsMockDataProviderFactory.provider("en"))
         vm.onAction(CardDetailAction.Load(1L))
-        assertTrue(vm.state.value.auditLog.isEmpty())
+        assertTrue(
+            vm.state.value.auditLog
+                .isEmpty(),
+        )
 
         vm.onAction(CardDetailAction.ToggleFreeze)
         vm.onAction(CardDetailAction.SetLimit(LimitKind.DAILY, 2000.0))

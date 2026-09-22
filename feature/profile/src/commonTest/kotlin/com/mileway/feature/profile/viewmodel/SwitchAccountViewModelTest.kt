@@ -159,7 +159,9 @@ class SwitchAccountViewModelTest {
 }
 
 /** In-memory fake for [PinHashSource] — mirrors [FakeMockAccountDao]'s in-memory shape. */
-private class FakePinHashSource(seed: Map<String, String> = emptyMap()) : PinHashSource {
+private class FakePinHashSource(
+    seed: Map<String, String> = emptyMap(),
+) : PinHashSource {
     private val hashes = seed.toMutableMap()
 
     override suspend fun getPinHash(accountId: String): String? = hashes[accountId]

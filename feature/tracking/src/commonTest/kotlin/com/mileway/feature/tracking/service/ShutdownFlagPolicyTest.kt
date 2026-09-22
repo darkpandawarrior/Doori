@@ -76,7 +76,9 @@ class ShutdownFlagPolicyTest {
 
 // ── Fakes ─────────────────────────────────────────────────────────────────────
 
-private class FakeShutdownFlagStore(var isPending: Boolean) : ShutdownFlagStore {
+private class FakeShutdownFlagStore(
+    var isPending: Boolean,
+) : ShutdownFlagStore {
     override fun set() {
         isPending = true
     }

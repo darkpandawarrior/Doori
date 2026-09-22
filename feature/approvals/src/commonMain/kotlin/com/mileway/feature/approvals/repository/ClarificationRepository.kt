@@ -82,7 +82,11 @@ interface ClarificationRepository {
 
 class RoomClarificationRepository(
     private val dao: ClarificationDao,
-    private val nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() },
+    private val nowMs: () -> Long = {
+        kotlin.time.Clock.System
+            .now()
+            .toEpochMilliseconds()
+    },
 ) : ClarificationRepository {
     override fun observeRoom(approvalId: String): Flow<ClarificationRoom?> = dao.observeRoomByApproval(approvalId).map { it?.toDomain() }
 

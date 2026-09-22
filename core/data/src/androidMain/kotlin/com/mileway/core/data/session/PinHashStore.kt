@@ -15,7 +15,9 @@ private val Context.pinHashDataStore by preferencesDataStore(name = "pin_hash")
  * shape (per-key `stringPreferencesKey`, suspend read/write) rather than inventing a new DataStore
  * idiom for this task.
  */
-class PinHashStore(private val context: Context) : PinHashSource {
+class PinHashStore(
+    private val context: Context,
+) : PinHashSource {
     override suspend fun getPinHash(accountId: String): String? =
         context.pinHashDataStore.data
             .map { prefs -> prefs[keyFor(accountId)] }

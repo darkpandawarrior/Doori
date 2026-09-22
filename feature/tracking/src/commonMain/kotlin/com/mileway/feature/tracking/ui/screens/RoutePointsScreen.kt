@@ -141,7 +141,9 @@ fun RoutePointsScreen(
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.m),
+                        contentPadding =
+                            androidx.compose.foundation.layout
+                                .PaddingValues(DesignTokens.Spacing.m),
                         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
                     ) {
                         items(

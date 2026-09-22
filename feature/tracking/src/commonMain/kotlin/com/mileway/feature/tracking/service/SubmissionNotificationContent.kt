@@ -6,6 +6,16 @@ import com.mileway.feature.tracking.insights.DistanceQualityAnalyzer
 import kotlin.math.roundToLong
 
 /**
+ * Floors of the six quality bands on [DistanceQualityAnalyzer]'s 0-100 score, kept in lock-step
+ * with its own `getAssessment` so the notification and the insights screen never disagree.
+ */
+private const val ExcellentScore = 90
+private const val GoodScore = 75
+private const val AcceptableScore = 60
+private const val FairScore = 40
+private const val PoorScore = 20
+
+/**
  * Wave-3 notification depth (parity §3): quality band derived from [DistanceQualityAnalyzer]'s
  * existing 0–100 score — same thresholds as [DistanceQualityAnalyzer.getAssessment] so the
  * notification and the insights screen never disagree on where a track sits.
@@ -14,11 +24,11 @@ enum class QualityBand { EXCELLENT, GOOD, ACCEPTABLE, FAIR, POOR, VERY_POOR }
 
 private fun bandFor(score: Int): QualityBand =
     when {
-        score >= 90 -> QualityBand.EXCELLENT
-        score >= 75 -> QualityBand.GOOD
-        score >= 60 -> QualityBand.ACCEPTABLE
-        score >= 40 -> QualityBand.FAIR
-        score >= 20 -> QualityBand.POOR
+        score >= ExcellentScore -> QualityBand.EXCELLENT
+        score >= GoodScore -> QualityBand.GOOD
+        score >= AcceptableScore -> QualityBand.ACCEPTABLE
+        score >= FairScore -> QualityBand.FAIR
+        score >= PoorScore -> QualityBand.POOR
         else -> QualityBand.VERY_POOR
     }
 

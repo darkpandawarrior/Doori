@@ -21,6 +21,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+/** Session tokens are logged by their first eight characters only, never in full. */
+private const val TOKEN_LOG_PREFIX = 8
+
 /**
  * Resumes an interrupted tracking session after a reboot or app update.
  *
@@ -33,7 +36,9 @@ import org.koin.core.component.inject
  * startForegroundService call below will throw and we fall back to a notification the user
  * taps to resume manually.
  */
-class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
+class LocationTrackingBootReceiver :
+    BroadcastReceiver(),
+    KoinComponent {
     private val currentTrackDataStore: CurrentTrackDataStore by inject()
 
     companion object {
@@ -41,6 +46,10 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
         private const val RESUME_NOTIFICATION_ID = 1002
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     override fun onReceive(
         context: Context,
         intent: Intent,
@@ -69,6 +78,10 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun checkAndRestore(context: Context) {
         val dataStore = currentTrackDataStore
         val session = dataStore.currentTrackFlow.first()
@@ -80,7 +93,7 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
             )
         when (action) {
             BootRestoreAction.RESUME_SERVICE -> {
-                Napier.i("Active session found (${session.token.take(8)}…): restarting service", tag = TAG)
+                Napier.i("Active session found (${session.token.take(TOKEN_LOG_PREFIX)}…): restarting service", tag = TAG)
                 val serviceIntent =
                     Intent(context, LocationTrackingService::class.java).apply {
                         this.action = LocationTrackingService.ACTION_RESTORE
@@ -129,7 +142,8 @@ class LocationTrackingBootReceiver : BroadcastReceiver(), KoinComponent {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         val notification =
-            Notification.Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
+            Notification
+                .Builder(context, LocationTrackingConstants.NOTIFICATION_CHANNEL_ID)
                 .setContentTitle("Trip tracking was interrupted")
                 .setContentText("Tap to reopen Doori and resume your trip")
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)

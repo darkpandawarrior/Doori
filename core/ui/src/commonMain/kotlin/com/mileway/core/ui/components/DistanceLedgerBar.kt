@@ -204,7 +204,11 @@ data class DistanceLedger(
     val odometerKm: Double? = null,
     val odometerTolerancePercent: Double = 5.0,
 ) {
-    internal data class Deduction(val label: String, val km: Double, val tone: StatusTone)
+    internal data class Deduction(
+        val label: String,
+        val km: Double,
+        val tone: StatusTone,
+    )
 
     internal fun deductions(): List<Deduction> =
         listOf(

@@ -54,7 +54,15 @@ class AnalysisCombiner {
                 if (aiExtraction != null) add(AnalyzerSource.ON_DEVICE_AI)
             }
 
-        val overallConfidence = if (fields.isEmpty()) 0f else fields.values.map { it.confidence }.average().toFloat()
+        val overallConfidence =
+            if (fields.isEmpty()) {
+                0f
+            } else {
+                fields.values
+                    .map { it.confidence }
+                    .average()
+                    .toFloat()
+            }
 
         return CombinedAnalysis(
             docType = docType,

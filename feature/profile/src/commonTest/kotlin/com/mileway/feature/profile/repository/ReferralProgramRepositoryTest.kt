@@ -61,9 +61,16 @@ class ReferralProgramRepositoryTest {
             val dao = FakeReferralTxnDao()
             dao.upsert(
                 ReferralTxnEntity(
-                    id = "REF-001", refereeName = "R", status = ReferralStatus.PENDING.name,
-                    taskMessage = "reject: fraud check", processedMoney = 0.0, processedCredits = 0,
-                    userNumRides = 0, nextTargetRides = 1, nextTargetMoney = 0.0, nextTargetCredits = 0,
+                    id = "REF-001",
+                    refereeName = "R",
+                    status = ReferralStatus.PENDING.name,
+                    taskMessage = "reject: fraud check",
+                    processedMoney = 0.0,
+                    processedCredits = 0,
+                    userNumRides = 0,
+                    nextTargetRides = 1,
+                    nextTargetMoney = 0.0,
+                    nextTargetCredits = 0,
                     submittedAtMillis = 0L,
                 ),
             )
@@ -71,7 +78,14 @@ class ReferralProgramRepositoryTest {
 
             r.resolveReviewablePending()
 
-            assertEquals(ReferralStatus.FAILED, r.observeAll().first().single().status)
+            assertEquals(
+                ReferralStatus.FAILED,
+                r
+                    .observeAll()
+                    .first()
+                    .single()
+                    .status,
+            )
         }
 
     @Test

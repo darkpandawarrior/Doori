@@ -1,7 +1,9 @@
 package com.mileway.feature.payables.model
 
 /** The five payables document families surfaced in the unified history (PB.4). */
-enum class PayablesDocType(val label: String) {
+enum class PayablesDocType(
+    val label: String,
+) {
     INVOICE("Invoice"),
     PURCHASE_REQUEST("PR"),
     GIN("GIN"),
@@ -10,7 +12,9 @@ enum class PayablesDocType(val label: String) {
 }
 
 /** A unified payables-document lifecycle status used for the history StatusChip + filter chips (PB.4). */
-enum class PayablesDocStatus(val label: String) {
+enum class PayablesDocStatus(
+    val label: String,
+) {
     DRAFT("Draft"),
     PENDING("Pending"),
     APPROVED("Approved"),

@@ -204,7 +204,9 @@ private fun OtpBoxes(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword, imeAction = ImeAction.Done),
             // Fully transparent: the boxes above are the visible affordance.
             textStyle = LocalTextStyle.current.merge(TextStyle(color = androidx.compose.ui.graphics.Color.Transparent)),
-            cursorBrush = androidx.compose.ui.graphics.SolidColor(androidx.compose.ui.graphics.Color.Transparent),
+            cursorBrush =
+                androidx.compose.ui.graphics
+                    .SolidColor(androidx.compose.ui.graphics.Color.Transparent),
         )
     }
 }

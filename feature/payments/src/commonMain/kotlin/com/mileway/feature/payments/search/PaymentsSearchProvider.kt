@@ -29,7 +29,8 @@ class PaymentsSearchProvider(
         if (q.length < 2) return emptyList()
 
         val results =
-            repository.payments()
+            repository
+                .payments()
                 .filter { it.id.contains(q, true) || it.counterparty.contains(q, true) || it.note.contains(q, true) }
                 .map {
                     SearchResult(

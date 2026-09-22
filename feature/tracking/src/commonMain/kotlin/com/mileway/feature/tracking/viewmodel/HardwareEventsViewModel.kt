@@ -53,11 +53,17 @@ private fun HardwareEventsUiState.withRecomputed(): HardwareEventsUiState {
 }
 
 sealed interface HardwareEventsAction {
-    data class LoadByToken(val token: String) : HardwareEventsAction
+    data class LoadByToken(
+        val token: String,
+    ) : HardwareEventsAction
 
-    data class SetSearchQuery(val query: String) : HardwareEventsAction
+    data class SetSearchQuery(
+        val query: String,
+    ) : HardwareEventsAction
 
-    data class ToggleAudienceFilter(val audience: EventAudience) : HardwareEventsAction
+    data class ToggleAudienceFilter(
+        val audience: EventAudience,
+    ) : HardwareEventsAction
 
     data object ClearFilters : HardwareEventsAction
 }
@@ -93,7 +99,17 @@ class HardwareEventsViewModel(
                     audience = EventAudience.USER,
                     battery = 86.5,
                 ),
-                HardwareEvent(id = 3, token = token, eventType = EventType.GPS_REGAINED, event = "GPS signal strong: accuracy 6 m", time = base + 2 * min, audience = EventAudience.USER, lat = 18.5204, lng = 73.8567, speed = 0f),
+                HardwareEvent(
+                    id = 3,
+                    token = token,
+                    eventType = EventType.GPS_REGAINED,
+                    event = "GPS signal strong: accuracy 6 m",
+                    time = base + 2 * min,
+                    audience = EventAudience.USER,
+                    lat = 18.5204,
+                    lng = 73.8567,
+                    speed = 0f,
+                ),
                 HardwareEvent(
                     id = 4,
                     token = token,
@@ -123,7 +139,17 @@ class HardwareEventsViewModel(
                     lat = 18.5420,
                     lng = 73.8012,
                 ),
-                HardwareEvent(id = 7, token = token, eventType = EventType.GPS_REGAINED, event = "GPS regained: accuracy 9 m", time = base + 14 * min, audience = EventAudience.USER, lat = 18.5501, lng = 73.8150, speed = 28f),
+                HardwareEvent(
+                    id = 7,
+                    token = token,
+                    eventType = EventType.GPS_REGAINED,
+                    event = "GPS regained: accuracy 9 m",
+                    time = base + 14 * min,
+                    audience = EventAudience.USER,
+                    lat = 18.5501,
+                    lng = 73.8150,
+                    speed = 28f,
+                ),
                 HardwareEvent(
                     id = 8,
                     token = token,
@@ -143,7 +169,19 @@ class HardwareEventsViewModel(
                     audience = EventAudience.USER,
                     battery = 78.0,
                 ),
-                HardwareEvent(id = 10, token = token, eventType = EventType.TRACKING_STOPPED, event = "Tracking stopped: Viman Nagar, Pune", time = base + 45 * min, audience = EventAudience.USER, lat = 18.5679, lng = 73.9143, speed = 0f, battery = 77.5),
+                HardwareEvent(
+                    id = 10,
+                    token = token,
+                    eventType = EventType.TRACKING_STOPPED,
+                    event = "Tracking stopped: Viman Nagar, Pune",
+                    time =
+                        base + 45 * min,
+                    audience = EventAudience.USER,
+                    lat = 18.5679,
+                    lng = 73.9143,
+                    speed = 0f,
+                    battery = 77.5,
+                ),
                 HardwareEvent(
                     id = 11,
                     token = token,
@@ -204,8 +242,8 @@ class HardwareEventsViewModel(
     private fun buildPayload(
         events: List<HardwareEvent>,
         format: ExportFormat,
-    ): Pair<String, String> {
-        return when (format) {
+    ): Pair<String, String> =
+        when (format) {
             ExportFormat.CSV -> {
                 val sb = StringBuilder("id,token,eventType,event,time,audience,battery,activity\n")
                 events.forEach { e ->
@@ -229,5 +267,4 @@ class HardwareEventsViewModel(
                 Pair(sb.toString(), "hardware_events.json")
             }
         }
-    }
 }

@@ -476,7 +476,9 @@ private fun ChatTab(
             state = listState,
             modifier = Modifier.weight(1f).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            contentPadding =
+                androidx.compose.foundation.layout
+                    .PaddingValues(16.dp),
         ) {
             if (messages.isEmpty() && !isStreaming) {
                 item {
@@ -662,7 +664,9 @@ private fun PopularTab(
     val grouped = questions.groupBy { it.module }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(vertical = 8.dp),
     ) {
         grouped.forEach { (module, items) ->
             item {
@@ -713,7 +717,9 @@ private fun UnansweredTab(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 8.dp),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(vertical = 8.dp),
     ) {
         items(questions) { question ->
             ListItem(

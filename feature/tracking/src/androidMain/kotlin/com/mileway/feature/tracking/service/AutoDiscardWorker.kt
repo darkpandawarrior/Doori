@@ -19,7 +19,8 @@ import org.koin.core.component.inject
 class AutoDiscardWorker(
     appContext: Context,
     params: WorkerParameters,
-) : CoroutineWorker(appContext, params), KoinComponent {
+) : CoroutineWorker(appContext, params),
+    KoinComponent {
     private val demoSettingsRepository: DemoSettingsRepository by inject()
     private val currentTrackRepository: CurrentTrackRepository by inject()
     private val savedTrackRepository: SavedTrackRepository by inject()

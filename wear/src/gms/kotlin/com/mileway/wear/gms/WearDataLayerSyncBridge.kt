@@ -35,7 +35,9 @@ private const val PAYLOAD_JSON_KEY = "payload_json"
  * already round-trips and unit-tests — this bridge adds only the DataLayer transport around that
  * already-tested codec, not a second one.
  */
-class WearDataLayerSyncBridge(context: Context) : WatchSyncBridge {
+class WearDataLayerSyncBridge(
+    context: Context,
+) : WatchSyncBridge {
     private val dataClient: DataClient = Wearable.getDataClient(context.applicationContext)
 
     override suspend fun push(payload: WatchSyncPayload) {
@@ -53,7 +55,8 @@ class WearDataLayerSyncBridge(context: Context) : WatchSyncBridge {
     override suspend fun latest(): WatchSyncPayload? =
         runCatching {
             dataClient.dataItems.await().use { buffer ->
-                buffer.asSequence()
+                buffer
+                    .asSequence()
                     .firstOrNull { it.uri.path == SNAPSHOT_SYNC_PATH }
                     ?.let { it.decodePayload() }
             }

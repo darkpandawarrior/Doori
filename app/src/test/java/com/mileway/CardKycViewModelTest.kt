@@ -44,7 +44,10 @@ class CardKycViewModelTest {
 
             assertEquals(2, vm.state.value.step)
             assertEquals("9876543210", vm.state.value.otpSentTo)
-            assertTrue(vm.state.value.demoCode?.length == 6)
+            assertTrue(
+                vm.state.value.demoCode
+                    ?.length == 6,
+            )
         }
 
     @Test

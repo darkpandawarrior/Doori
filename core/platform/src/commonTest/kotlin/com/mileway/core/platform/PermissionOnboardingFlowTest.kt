@@ -74,7 +74,11 @@ class PermissionOnboardingFlowTest {
 
             flow.skipAlreadyGranted()
 
-            assertEquals(PermissionTierId.BACKGROUND_LOCATION, flow.state.value.current?.id)
+            assertEquals(
+                PermissionTierId.BACKGROUND_LOCATION,
+                flow.state.value.current
+                    ?.id,
+            )
             assertTrue(flow.state.value.requiredSatisfied)
         }
 
@@ -88,7 +92,11 @@ class PermissionOnboardingFlowTest {
             flow.skipCurrent()
 
             assertEquals(TierOutcome.Skipped, flow.state.value.outcomes[PermissionTierId.BACKGROUND_LOCATION])
-            assertEquals(PermissionTierId.NOTIFICATIONS, flow.state.value.current?.id)
+            assertEquals(
+                PermissionTierId.NOTIFICATIONS,
+                flow.state.value.current
+                    ?.id,
+            )
         }
 
     @Test
@@ -99,8 +107,15 @@ class PermissionOnboardingFlowTest {
 
             flow.skipCurrent()
 
-            assertEquals(PermissionTierId.LOCATION_FINE, flow.state.value.current?.id)
-            assertTrue(flow.state.value.outcomes.isEmpty())
+            assertEquals(
+                PermissionTierId.LOCATION_FINE,
+                flow.state.value.current
+                    ?.id,
+            )
+            assertTrue(
+                flow.state.value.outcomes
+                    .isEmpty(),
+            )
         }
 
     @Test
@@ -113,7 +128,11 @@ class PermissionOnboardingFlowTest {
 
             assertEquals(TierOutcome.Denied, outcome)
             assertFalse(flow.state.value.requiredSatisfied)
-            assertEquals(PermissionTierId.BACKGROUND_LOCATION, flow.state.value.current?.id)
+            assertEquals(
+                PermissionTierId.BACKGROUND_LOCATION,
+                flow.state.value.current
+                    ?.id,
+            )
         }
 
     @Test
@@ -130,7 +149,11 @@ class PermissionOnboardingFlowTest {
 
             assertEquals(TierOutcome.Granted, flow.state.value.outcomes[PermissionTierId.BACKGROUND_LOCATION])
             // NOTIFICATIONS still undecided, so the ladder resumes exactly there.
-            assertEquals(PermissionTierId.NOTIFICATIONS, flow.state.value.current?.id)
+            assertEquals(
+                PermissionTierId.NOTIFICATIONS,
+                flow.state.value.current
+                    ?.id,
+            )
         }
 
     @Test

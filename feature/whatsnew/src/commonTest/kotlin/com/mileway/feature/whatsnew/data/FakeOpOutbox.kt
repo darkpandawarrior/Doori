@@ -11,7 +11,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * [requeue] are unused by this feature's tests, so they're stubbed rather than modelled.
  */
 class FakeOpOutbox : OpOutbox {
-    data class Enqueued(val type: String, val payload: String)
+    data class Enqueued(
+        val type: String,
+        val payload: String,
+    )
 
     val enqueued = mutableListOf<Enqueued>()
 

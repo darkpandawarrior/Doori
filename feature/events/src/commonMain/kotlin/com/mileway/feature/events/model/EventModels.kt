@@ -6,7 +6,9 @@ package com.mileway.feature.events.model
  * row at this status, and the event-detail screen exposes a mock approve/reject action that flips it
  * to [PUBLISHED]/[CANCELLED].
  */
-enum class EventStatus(val label: String) {
+enum class EventStatus(
+    val label: String,
+) {
     DRAFT("Draft"),
     PENDING_APPROVAL("Pending approval"),
     PUBLISHED("Published"),
@@ -15,7 +17,9 @@ enum class EventStatus(val label: String) {
 }
 
 /** V29 P29.E.4: fixed category taxonomy, replaces the old free-text `category: String` field. */
-enum class EventCategory(val label: String) {
+enum class EventCategory(
+    val label: String,
+) {
     ALL_HANDS("All-hands"),
     TECH("Tech"),
     CULTURE("Culture"),

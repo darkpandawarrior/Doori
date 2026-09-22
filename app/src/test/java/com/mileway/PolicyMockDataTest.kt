@@ -20,7 +20,6 @@ import kotlin.test.assertTrue
  * violation gating, and id format stability.
  */
 class PolicyMockDataTest {
-
     private val transactionIdFormat = Regex("^O-INDIAN-\\d{9}$")
     private val voucherNumberFormat = Regex("^VCH-\\d{6}$")
     private val gstinFormat = Regex("^\\d{2}[A-Z]{5}\\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]$")
@@ -81,7 +80,7 @@ class PolicyMockDataTest {
     fun `null and blank token fall back to the same default seed`() {
         assertEquals(
             PolicyMockData.transactionFor(7.0, null),
-            PolicyMockData.transactionFor(7.0, "")
+            PolicyMockData.transactionFor(7.0, ""),
         )
     }
 
@@ -98,7 +97,7 @@ class PolicyMockDataTest {
             assertEquals(
                 isViolationStatus,
                 violations.isNotEmpty(),
-                "distance=$distance status=$status should ${if (isViolationStatus) "" else "not "}carry violations"
+                "distance=$distance status=$status should ${if (isViolationStatus) "" else "not "}carry violations",
             )
         }
     }
@@ -143,14 +142,14 @@ class PolicyMockDataTest {
         assertNotNull(transaction)
         assertTrue(
             transactionIdFormat.matches(transaction.id),
-            "transaction id '${transaction.id}' should match $transactionIdFormat"
+            "transaction id '${transaction.id}' should match $transactionIdFormat",
         )
 
         val voucher = PolicyMockData.voucherFor(12.4, "token-alpha")
         assertNotNull(voucher)
         assertTrue(
             voucherNumberFormat.matches(voucher.number),
-            "voucher number '${voucher.number}' should match $voucherNumberFormat"
+            "voucher number '${voucher.number}' should match $voucherNumberFormat",
         )
         assertTrue(voucher.id > 0L)
     }
@@ -166,7 +165,7 @@ class PolicyMockDataTest {
         assertEquals(
             PolicyMockData.MAX_REIMBURSABLE_KM_PER_DAY * PolicyMockData.RATE_PER_KM,
             aboveCap.amount,
-            0.001
+            0.001,
         )
     }
 
@@ -191,7 +190,7 @@ class PolicyMockDataTest {
             assertTrue(office.name.isNotBlank())
             assertTrue(
                 gstinFormat.matches(office.gstin),
-                "gstin '${office.gstin}' should match $gstinFormat"
+                "gstin '${office.gstin}' should match $gstinFormat",
             )
         }
     }
@@ -243,7 +242,7 @@ class PolicyMockDataTest {
             assertEquals(
                 isViolationStatus,
                 violations.isNotEmpty(),
-                "amount=$amount status=$status should ${if (isViolationStatus) "" else "not "}carry violations"
+                "amount=$amount status=$status should ${if (isViolationStatus) "" else "not "}carry violations",
             )
         }
     }
@@ -270,7 +269,7 @@ class PolicyMockDataTest {
     fun `expense outcome does not depend on category`() {
         assertEquals(
             PolicyMockData.outcomeForExpenseAmount(7_500.0, "FOOD"),
-            PolicyMockData.outcomeForExpenseAmount(7_500.0, "TRAVEL")
+            PolicyMockData.outcomeForExpenseAmount(7_500.0, "TRAVEL"),
         )
     }
 
@@ -285,13 +284,14 @@ class PolicyMockDataTest {
 
     @Test
     fun `enrich preserves all base fields and populates policy fields`() {
-        val base = ExpenseSubmissionResponse(
-            status = 1,
-            reimbursableAmount = 124.0,
-            distance = 12.4,
-            message = "Journey submitted successfully",
-            transId = "TXN-FIXED"
-        )
+        val base =
+            ExpenseSubmissionResponse(
+                status = 1,
+                reimbursableAmount = 124.0,
+                distance = 12.4,
+                message = "Journey submitted successfully",
+                transId = "TXN-FIXED",
+            )
         val enriched = PolicyMockData.enrich(base, distanceKm = 12.4, token = "token-alpha")
 
         assertEquals(base.status, enriched.status)
@@ -317,31 +317,33 @@ class PolicyMockDataTest {
     // ── Fake API wiring ───────────────────────────────────────────────────────
 
     @Test
-    fun `submitMiles enriches response by distance bucket`() = runTest {
-        val api = FakeTrackingNetworkApi()
+    fun `submitMiles enriches response by distance bucket`() =
+        runTest {
+            val api = FakeTrackingNetworkApi()
 
-        val success = api.submitMiles(SubmitMilesRequestK(token = "tok", distance = 2.0))
-        assertEquals(SubmissionStatus.SUCCESS, success.submissionStatus)
-        assertNotNull(success.issuedVoucher)
-        assertNotNull(success.transaction)
-        assertTrue(transactionIdFormat.matches(success.transaction!!.id))
+            val success = api.submitMiles(SubmitMilesRequestK(token = "tok", distance = 2.0))
+            assertEquals(SubmissionStatus.SUCCESS, success.submissionStatus)
+            assertNotNull(success.issuedVoucher)
+            assertNotNull(success.transaction)
+            assertTrue(transactionIdFormat.matches(success.transaction!!.id))
 
-        val hardStop = api.submitMiles(SubmitMilesRequestK(token = "tok", distance = 50.0))
-        assertEquals(SubmissionStatus.HARD_STOP, hardStop.submissionStatus)
-        assertTrue(hardStop.violations.isNotEmpty())
-        assertNull(hardStop.issuedVoucher)
-        assertNull(hardStop.transaction)
-    }
+            val hardStop = api.submitMiles(SubmitMilesRequestK(token = "tok", distance = 50.0))
+            assertEquals(SubmissionStatus.HARD_STOP, hardStop.submissionStatus)
+            assertTrue(hardStop.violations.isNotEmpty())
+            assertNull(hardStop.issuedVoucher)
+            assertNull(hardStop.transaction)
+        }
 
     @Test
-    fun `logMiles enriches response by distance bucket`() = runTest {
-        val api = FakeTrackingNetworkApi()
-        val adjusted = api.logMiles(LogMilesSubmitRequestV2(vehicleType = "twoWheeler", distance = 7.0))
-        assertEquals(SubmissionStatus.REIMBURSABLE_ADJUSTED, adjusted.submissionStatus)
-        assertTrue(adjusted.violations.isEmpty())
-        assertNotNull(adjusted.issuedVoucher)
-        // Existing behaviour untouched: legacy fields still populated by DemoMockData.
-        assertEquals(1, adjusted.status)
-        assertEquals(7.0, adjusted.distance, 0.001)
-    }
+    fun `logMiles enriches response by distance bucket`() =
+        runTest {
+            val api = FakeTrackingNetworkApi()
+            val adjusted = api.logMiles(LogMilesSubmitRequestV2(vehicleType = "twoWheeler", distance = 7.0))
+            assertEquals(SubmissionStatus.REIMBURSABLE_ADJUSTED, adjusted.submissionStatus)
+            assertTrue(adjusted.violations.isEmpty())
+            assertNotNull(adjusted.issuedVoucher)
+            // Existing behaviour untouched: legacy fields still populated by DemoMockData.
+            assertEquals(1, adjusted.status)
+            assertEquals(7.0, adjusted.distance, 0.001)
+        }
 }

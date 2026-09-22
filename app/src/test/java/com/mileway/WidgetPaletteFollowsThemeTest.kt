@@ -16,7 +16,6 @@ import kotlin.test.assertNotEquals
  * the next default change carries automatically instead of leaving the widget a theme behind.
  */
 class WidgetPaletteFollowsThemeTest {
-
     private fun sourceFor(variant: MilewayThemeVariant): ThemeWidgetPaletteSource {
         val controller = ThemeController()
         controller.setMilewayTheme(variant)
@@ -44,7 +43,11 @@ class WidgetPaletteFollowsThemeTest {
         val default = sourceFor(MilewayThemeVariant.DEFAULT).current()
         val ember = sourceFor(MilewayThemeVariant.EMBER).current()
         assertNotEquals(ember.surface, default.surface)
-        assertEquals(MilewayThemeVariant.PAPER.spec.canvas.argb(), default.surface)
+        assertEquals(
+            MilewayThemeVariant.PAPER.spec.canvas
+                .argb(),
+            default.surface,
+        )
     }
 
     @Test

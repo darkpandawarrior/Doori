@@ -19,7 +19,9 @@ data class BugReportUiState(
     val didSubmit: Boolean = false,
 )
 
-class BugReportViewModel(private val repository: BugReportRepository) : ViewModel() {
+class BugReportViewModel(
+    private val repository: BugReportRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(BugReportUiState())
     val state: StateFlow<BugReportUiState> = _state.asStateFlow()
 

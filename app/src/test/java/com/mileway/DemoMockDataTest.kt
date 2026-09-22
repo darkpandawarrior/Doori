@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * Validates all hardcoded demo data is well-formed.
  */
 class DemoMockDataTest {
-
     @Test
     fun `userConfig is well-formed`() {
         val config = DemoMockData.userConfig()

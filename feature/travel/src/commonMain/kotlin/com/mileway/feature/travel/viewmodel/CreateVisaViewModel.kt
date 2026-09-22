@@ -19,13 +19,21 @@ data class CreateVisaUiState(
 }
 
 sealed interface CreateVisaAction {
-    data class SetCountry(val value: String) : CreateVisaAction
+    data class SetCountry(
+        val value: String,
+    ) : CreateVisaAction
 
-    data class SetTravelDate(val value: String) : CreateVisaAction
+    data class SetTravelDate(
+        val value: String,
+    ) : CreateVisaAction
 
-    data class SetPassportNumber(val value: String) : CreateVisaAction
+    data class SetPassportNumber(
+        val value: String,
+    ) : CreateVisaAction
 
-    data class SetVisaType(val value: String) : CreateVisaAction
+    data class SetVisaType(
+        val value: String,
+    ) : CreateVisaAction
 
     data object Submit : CreateVisaAction
 }

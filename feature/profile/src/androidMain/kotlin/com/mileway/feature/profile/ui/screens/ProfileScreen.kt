@@ -255,12 +255,18 @@ fun ProfileScreen(
     // it lives here (like Settings' permission launcher) rather than a core:platform expect/actual —
     // the picked image is copied into the app's files dir and its path persisted in the session.
     val sessionRepository = org.koin.compose.koinInject<com.mileway.core.data.session.SessionRepository>()
-    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(initialValue = com.mileway.core.data.session.SessionState())
+    val session by sessionRepository.sessionState.collectAsStateWithLifecycle(
+        initialValue =
+            com.mileway.core.data.session
+                .SessionState(),
+    )
 
     // PLAN_V24 P7.3: surface the acting identity on the hub while a session delegation is active.
     val delegationSource = org.koin.compose.koinInject<com.mileway.core.data.session.DelegationSessionSource>()
     val delegation by delegationSource.delegationState.collectAsStateWithLifecycle(
-        initialValue = com.mileway.core.data.session.DelegationState(),
+        initialValue =
+            com.mileway.core.data.session
+                .DelegationState(),
     )
     val delegationScope = rememberCoroutineScope()
     // PLAN_V24 P12.1: the earned-badges + compliments hub section. Gated at the item level so the
@@ -282,7 +288,9 @@ fun ProfileScreen(
     // CameraCaptureScreen by design; same deviation P26.SITE.1 documented for OdometerCameraScreen).
     val avatarPickerLauncher =
         com.mileway.core.media.rememberMediaCaptureLauncher(
-            config = com.mileway.core.media.model.MediaCaptureConfig(allowedModes = setOf(com.mileway.core.media.model.CaptureMode.Gallery)),
+            config =
+                com.mileway.core.media.model
+                    .MediaCaptureConfig(allowedModes = setOf(com.mileway.core.media.model.CaptureMode.Gallery)),
             onResult = { result ->
                 if (result is com.mileway.core.media.model.MediaCaptureResult.Attachments) {
                     result.items.firstOrNull()?.let { item ->
@@ -794,45 +802,60 @@ private fun AccountTileGrid(
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = koinInject(),
 ) {
     // PLAN_V24 P3.4/P3.5/P4.2/P5.1: the depth tiles are each plugin-gated (zero hardcoded visibility).
-    val savedPlacesEnabled by pluginRegistry.observe("savedPlacesEnabled")
+    val savedPlacesEnabled by pluginRegistry
+        .observe("savedPlacesEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val emergencyEnabled by pluginRegistry.observe("emergencyContactsEnabled")
+    val emergencyEnabled by pluginRegistry
+        .observe("emergencyContactsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val verificationEnabled by pluginRegistry.observe("verificationCentreEnabled")
+    val verificationEnabled by pluginRegistry
+        .observe("verificationCentreEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val referralHubEnabled by pluginRegistry.observe("referralProgramEnabled")
+    val referralHubEnabled by pluginRegistry
+        .observe("referralProgramEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val couponsEnabled by pluginRegistry.observe("couponsEnabled")
+    val couponsEnabled by pluginRegistry
+        .observe("couponsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val rewardsEnabled by pluginRegistry.observe("scratchRewardsEnabled")
+    val rewardsEnabled by pluginRegistry
+        .observe("scratchRewardsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val campaignsEnabled by pluginRegistry.observe("campaignMarketingEnabled")
+    val campaignsEnabled by pluginRegistry
+        .observe("campaignMarketingEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val clubEnabled by pluginRegistry.observe("clubEnabled")
+    val clubEnabled by pluginRegistry
+        .observe("clubEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val subscriptionsEnabled by pluginRegistry.observe("subscriptionsEnabled")
+    val subscriptionsEnabled by pluginRegistry
+        .observe("subscriptionsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
-    val incentivesEnabled by pluginRegistry.observe("incentiveProgramsEnabled")
+    val incentivesEnabled by pluginRegistry
+        .observe("incentiveProgramsEnabled")
         .collectAsStateWithLifecycle(initialValue = true)
     // PLAN_V24 P10.6: manager-only view. initialValue=false + defaultOn=false keep the profile-hub
     // gallery golden byte-identical; only the Corporate Commuter persona flips it on.
-    val managerViewEnabled by pluginRegistry.observe("trackMileageManagerView")
+    val managerViewEnabled by pluginRegistry
+        .observe("trackMileageManagerView")
         .collectAsStateWithLifecycle(initialValue = false)
     // PLAN_V24 P11.2: vehicle garage tile. initialValue=false + defaultOn=false keep the hub gallery
     // golden byte-identical; only the Gig Driver persona flips it on.
-    val garageEnabled by pluginRegistry.observe("vehicleGarage")
+    val garageEnabled by pluginRegistry
+        .observe("vehicleGarage")
         .collectAsStateWithLifecycle(initialValue = false)
     // PLAN_V24 P11.4: Ecometer tile. initialValue=false + defaultOn=false keep the hub gallery golden
     // byte-identical; only the Consumer + Gig Driver personas flip it on.
-    val ecometerEnabled by pluginRegistry.observe("ecometerEnabled")
+    val ecometerEnabled by pluginRegistry
+        .observe("ecometerEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
     // PLAN_V24 P12.8: favourite-routes tile. initialValue=false + defaultOn=false keep the hub gallery
     // golden byte-identical; only the Gig Driver persona flips it on.
-    val favouritesEnabled by pluginRegistry.observe("favourites")
+    val favouritesEnabled by pluginRegistry
+        .observe("favourites")
         .collectAsStateWithLifecycle(initialValue = false)
     // PLAN_V24 P12.9: offers-hub tile. initialValue=false + defaultOn=false keep the hub gallery golden
     // byte-identical; only the Super-App Consumer persona flips it on.
-    val offersHubEnabled by pluginRegistry.observe("offersHubEnabled")
+    val offersHubEnabled by pluginRegistry
+        .observe("offersHubEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
     // LAYERS.md migration map: menu-tile icons are chrome, not product meaning — a settings row
     // does not need its own identity colour. Was 10 hand-picked hues (the 290-colour problem in
@@ -1861,7 +1884,9 @@ private fun TrainingTourOfferItem(
 ) {
     val tourRepository = org.koin.compose.koinInject<com.mileway.core.data.engagement.TourRepository>()
     val tourState by tourRepository.observe().collectAsStateWithLifecycle(
-        initialValue = com.mileway.core.data.engagement.TourState(),
+        initialValue =
+            com.mileway.core.data.engagement
+                .TourState(),
     )
     if (tourState.status != com.mileway.core.data.engagement.TourStatus.IN_PROGRESS) return
 

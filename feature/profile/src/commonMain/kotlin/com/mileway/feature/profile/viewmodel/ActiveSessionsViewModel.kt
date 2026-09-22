@@ -20,7 +20,9 @@ data class ActiveSessionsUiState(
     val sessions: List<ActiveSession> = emptyList(),
 )
 
-class ActiveSessionsViewModel(private val repository: ActiveSessionsRepository) : ViewModel() {
+class ActiveSessionsViewModel(
+    private val repository: ActiveSessionsRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(ActiveSessionsUiState())
     val state: StateFlow<ActiveSessionsUiState> = _state.asStateFlow()
 

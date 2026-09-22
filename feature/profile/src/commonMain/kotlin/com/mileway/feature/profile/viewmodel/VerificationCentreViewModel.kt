@@ -44,7 +44,8 @@ class VerificationCentreViewModel(
 
     init {
         viewModelScope.launch { repository.seedIfEmpty() }
-        repository.observeAll()
+        repository
+            .observeAll()
             .onEach { docs -> _state.update { it.copy(documents = docs) } }
             .launchIn(viewModelScope)
         // Resolve anything already reviewable (e.g. a submit from a previous, killed session).

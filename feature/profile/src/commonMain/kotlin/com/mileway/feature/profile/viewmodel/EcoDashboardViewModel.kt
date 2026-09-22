@@ -13,8 +13,11 @@ import kotlinx.coroutines.flow.stateIn
  * count computed from the user's REAL completed trips ([EcometerRepository], a shared core:data
  * source — no feature-to-feature dependency), never fabricated totals.
  */
-class EcoDashboardViewModel(ecometerRepository: EcometerRepository) : ViewModel() {
+class EcoDashboardViewModel(
+    ecometerRepository: EcometerRepository,
+) : ViewModel() {
     val state: StateFlow<EcometerTotals> =
-        ecometerRepository.observeTotals()
+        ecometerRepository
+            .observeTotals()
             .stateIn(viewModelScope, SharingStarted.Eagerly, EcometerTotals())
 }

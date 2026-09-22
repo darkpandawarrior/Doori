@@ -124,7 +124,12 @@ private val INVOICE_DATE_FIELD =
 private val LOG_MILES_NOTE_FIELD = MockFormSchema(id = "note", fieldKey = "note", label = "Note", type = FormFieldType.TEXTAREA, rank = 1)
 private val STEP2_ADDITIONAL_DETAILS_SCHEMA = listOf(INVOICE_DATE_FIELD, LOG_MILES_NOTE_FIELD)
 
-private fun millisToIsoDate(millis: Long): String = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+private fun millisToIsoDate(millis: Long): String =
+    Instant
+        .fromEpochMilliseconds(millis)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
+        .toString()
 
 private fun isoDateToMillis(iso: String?): Long? =
     iso?.let { runCatching { LocalDate.parse(it).atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds() }.getOrNull() }

@@ -17,7 +17,9 @@ data class CardsHomeUiState(
 )
 
 sealed interface CardsHomeAction {
-    data class SelectTab(val index: Int) : CardsHomeAction
+    data class SelectTab(
+        val index: Int,
+    ) : CardsHomeAction
 
     data object Refresh : CardsHomeAction
 }

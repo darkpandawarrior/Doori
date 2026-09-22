@@ -13,7 +13,10 @@ import kotlin.time.Clock
  * [ConnectedAccountsRepository]'s seed-once-then-observe shape. Linking/unlinking only flips the
  * persisted [PaymentWalletEntity.isLinked] flag — there is no real payment SDK or network call.
  */
-class WalletRepository(private val dao: PaymentWalletDao, private val clock: Clock = Clock.System) {
+class WalletRepository(
+    private val dao: PaymentWalletDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, provider-name-ordered wallet list. */
     fun observeAll(): Flow<List<PaymentWallet>> = dao.observeAll().map { rows -> rows.map { it.toModel() } }
 
@@ -64,7 +67,8 @@ class WalletRepository(private val dao: PaymentWalletDao, private val clock: Clo
             val whole = minor / 100
             val paise = (minor % 100).toInt()
             val grouped =
-                whole.toString()
+                whole
+                    .toString()
                     .reversed()
                     .chunked(3)
                     .joinToString(",")

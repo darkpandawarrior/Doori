@@ -49,9 +49,13 @@ sealed class SubmissionUiState {
     // connectivity offline->online edge fires (or the next time this trip is submitted while online).
     object Queued : SubmissionUiState()
 
-    data class Success(val response: ExpenseSubmissionResponse) : SubmissionUiState()
+    data class Success(
+        val response: ExpenseSubmissionResponse,
+    ) : SubmissionUiState()
 
-    data class Error(val message: String) : SubmissionUiState()
+    data class Error(
+        val message: String,
+    ) : SubmissionUiState()
 }
 
 /**
@@ -163,53 +167,97 @@ data class MileageSubmissionUiState(
 )
 
 sealed interface MileageSubmissionAction {
-    data class AddReceipt(val uri: String) : MileageSubmissionAction
+    data class AddReceipt(
+        val uri: String,
+    ) : MileageSubmissionAction
 
-    data class RemoveReceipt(val uri: String) : MileageSubmissionAction
+    data class RemoveReceipt(
+        val uri: String,
+    ) : MileageSubmissionAction
 
-    data class SetOdometerStart(val uri: String, val ocrText: String?) : MileageSubmissionAction
+    data class SetOdometerStart(
+        val uri: String,
+        val ocrText: String?,
+    ) : MileageSubmissionAction
 
-    data class SetOdometerEnd(val uri: String, val ocrText: String?) : MileageSubmissionAction
+    data class SetOdometerEnd(
+        val uri: String,
+        val ocrText: String?,
+    ) : MileageSubmissionAction
 
-    data class SetFormValue(val id: String, val value: String) : MileageSubmissionAction
+    data class SetFormValue(
+        val id: String,
+        val value: String,
+    ) : MileageSubmissionAction
 
-    data class ToggleDraft(val enabled: Boolean) : MileageSubmissionAction
+    data class ToggleDraft(
+        val enabled: Boolean,
+    ) : MileageSubmissionAction
 
     // P6.1: user declares the odometer is unreadable/broken — when config allows it, submission
     // proceeds without an odometer capture and sources distance from GPS instead.
-    data class SetOdometerNotWorking(val enabled: Boolean) : MileageSubmissionAction
+    data class SetOdometerNotWorking(
+        val enabled: Boolean,
+    ) : MileageSubmissionAction
 
     data object OpenOfficePicker : MileageSubmissionAction
 
     data object OpenEntityPicker : MileageSubmissionAction
 
-    data class SetOfficeQuery(val q: String) : MileageSubmissionAction
+    data class SetOfficeQuery(
+        val q: String,
+    ) : MileageSubmissionAction
 
-    data class SetEntityQuery(val q: String) : MileageSubmissionAction
+    data class SetEntityQuery(
+        val q: String,
+    ) : MileageSubmissionAction
 
-    data class SelectOffice(val code: String) : MileageSubmissionAction
+    data class SelectOffice(
+        val code: String,
+    ) : MileageSubmissionAction
 
-    data class SelectEntity(val name: String) : MileageSubmissionAction
+    data class SelectEntity(
+        val name: String,
+    ) : MileageSubmissionAction
 
     data object OpenSubmitConfirm : MileageSubmissionAction
 
-    data class OpenSmartDistanceSheet(val trackedKm: Double, val odometerKm: Double) : MileageSubmissionAction
+    data class OpenSmartDistanceSheet(
+        val trackedKm: Double,
+        val odometerKm: Double,
+    ) : MileageSubmissionAction
 
     data object DismissSheet : MileageSubmissionAction
 
-    data class SetAskAuthorities(val enabled: Boolean) : MileageSubmissionAction
+    data class SetAskAuthorities(
+        val enabled: Boolean,
+    ) : MileageSubmissionAction
 
-    data class SetViolationNote(val note: String) : MileageSubmissionAction
+    data class SetViolationNote(
+        val note: String,
+    ) : MileageSubmissionAction
 
-    data class LoadTrackInfo(val routeId: String, val vehicleKey: String, val distanceKm: Double) : MileageSubmissionAction
+    data class LoadTrackInfo(
+        val routeId: String,
+        val vehicleKey: String,
+        val distanceKm: Double,
+    ) : MileageSubmissionAction
 
-    data class SimulateCaptureStartOdo(val distanceKm: Double) : MileageSubmissionAction
+    data class SimulateCaptureStartOdo(
+        val distanceKm: Double,
+    ) : MileageSubmissionAction
 
-    data class SimulateCaptureEndOdo(val distanceKm: Double) : MileageSubmissionAction
+    data class SimulateCaptureEndOdo(
+        val distanceKm: Double,
+    ) : MileageSubmissionAction
 
-    data class CaptureOdometerStart(val result: OdometerCaptureResult) : MileageSubmissionAction
+    data class CaptureOdometerStart(
+        val result: OdometerCaptureResult,
+    ) : MileageSubmissionAction
 
-    data class CaptureOdometerEnd(val result: OdometerCaptureResult) : MileageSubmissionAction
+    data class CaptureOdometerEnd(
+        val result: OdometerCaptureResult,
+    ) : MileageSubmissionAction
 
     data class Submit(
         val routeId: String,
@@ -272,7 +320,10 @@ class MileageSubmissionViewModel(
     ) {
     private var pendingFinalize: PendingFinalize? = null
 
-    private data class PendingFinalize(val routeId: String, val response: ExpenseSubmissionResponse)
+    private data class PendingFinalize(
+        val routeId: String,
+        val response: ExpenseSubmissionResponse,
+    )
 
     init {
         setState {

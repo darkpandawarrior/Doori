@@ -9,7 +9,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TravelTest {
-
     private val repo = TravelRepository()
 
     @Test
@@ -56,25 +55,28 @@ class TravelTest {
 
     @Test
     fun `upcoming bookings include BOM-DEL flight`() {
-        val found = repo.upcomingBookings().any {
-            it.origin == "BOM" && it.destination == "DEL" && it.carrier == "Air India"
-        }
+        val found =
+            repo.upcomingBookings().any {
+                it.origin == "BOM" && it.destination == "DEL" && it.carrier == "Air India"
+            }
         assertTrue(found)
     }
 
     @Test
     fun `upcoming bookings include PNQ-BLR train`() {
-        val found = repo.upcomingBookings().any {
-            it.origin == "PNQ" && it.destination == "BLR" && it.mode == TransportMode.TRAIN
-        }
+        val found =
+            repo.upcomingBookings().any {
+                it.origin == "PNQ" && it.destination == "BLR" && it.mode == TransportMode.TRAIN
+            }
         assertTrue(found)
     }
 
     @Test
     fun `upcoming bookings include DEL-PNQ IndiGo flight`() {
-        val found = repo.upcomingBookings().any {
-            it.origin == "DEL" && it.destination == "PNQ" && it.carrier == "IndiGo"
-        }
+        val found =
+            repo.upcomingBookings().any {
+                it.origin == "DEL" && it.destination == "PNQ" && it.carrier == "IndiGo"
+            }
         assertTrue(found)
     }
 

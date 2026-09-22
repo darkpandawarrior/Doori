@@ -106,7 +106,10 @@ internal fun QuickActionsRow(
     }
 }
 
-data class SummaryField(val label: String, val value: String)
+data class SummaryField(
+    val label: String,
+    val value: String,
+)
 
 @Composable
 internal fun SummarySection(

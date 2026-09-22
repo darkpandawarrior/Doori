@@ -2,6 +2,7 @@ package com.mileway.feature.profile.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.ui.text.monthName
 import com.mileway.feature.profile.model.Delegation
 import com.mileway.feature.profile.repository.DelegationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +16,10 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 /** Same day/month/year format `AccountDetailsSheet` already uses for persisted timestamps. */
 fun formatDelegationExpiry(ms: Long): String =
     Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
     }
 
 /**
@@ -35,7 +34,9 @@ data class DelegationUiState(
     val submitError: String? = null,
 )
 
-class DelegationViewModel(private val repository: DelegationRepository) : ViewModel() {
+class DelegationViewModel(
+    private val repository: DelegationRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(DelegationUiState())
     val state: StateFlow<DelegationUiState> = _state.asStateFlow()
 

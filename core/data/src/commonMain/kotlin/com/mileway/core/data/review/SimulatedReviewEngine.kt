@@ -17,7 +17,9 @@ sealed interface ReviewResult {
 
     data object Approved : ReviewResult
 
-    data class Rejected(val reason: String) : ReviewResult
+    data class Rejected(
+        val reason: String,
+    ) : ReviewResult
 }
 
 class SimulatedReviewEngine(

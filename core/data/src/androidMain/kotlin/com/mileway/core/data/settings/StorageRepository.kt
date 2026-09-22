@@ -24,7 +24,9 @@ data class StorageArea(
  * cache), and [clearCache] only ever deletes [Context.cacheDir]'s contents, matching
  * `DebugMenuComposeViewModel.clearAppCache`'s existing pattern.
  */
-class StorageRepository(private val context: Context) {
+class StorageRepository(
+    private val context: Context,
+) {
     /** Bytes used by the Room database file (`mileway.db` + its `-wal`/`-shm`/`-journal` siblings, if present). */
     fun databaseBytes(): Long {
         val dbFile = context.getDatabasePath(DATABASE_NAME)

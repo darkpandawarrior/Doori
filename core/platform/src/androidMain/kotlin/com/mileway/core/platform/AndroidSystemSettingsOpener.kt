@@ -5,7 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
 
-class AndroidSystemSettingsOpener(private val context: Context) : SystemSettingsOpener {
+class AndroidSystemSettingsOpener(
+    private val context: Context,
+) : SystemSettingsOpener {
     override fun openAppSettings() {
         // ACTION_APPLICATION_DETAILS_SETTINGS with a package: URI — not ACTION_VIEW, which cannot
         // resolve this and is why UrlOpener could not be reused here.

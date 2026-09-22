@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
-class SavedTrackRepository(private val dao: SavedTrackDao) {
+class SavedTrackRepository(
+    private val dao: SavedTrackDao,
+) {
     /**
      * P2.2: when [accountId] is `null` (the default), every trip is returned — unchanged
      * behavior for existing call sites. When non-null, only trips started by that persona
@@ -159,11 +161,15 @@ class SavedTrackRepository(private val dao: SavedTrackDao) {
 
 /** Result of [SavedTrackRepository.resolveLocalData]. */
 sealed interface LocalDataResolution {
-    data class Local(val routeId: String) : LocalDataResolution
+    data class Local(
+        val routeId: String,
+    ) : LocalDataResolution
 
     // ponytail: no real backend yet — this is the honest stub the "has_local_data" flag exists to
     // enable; the future server-fetch call slots in here without touching any caller.
-    data class WouldFetchFromServer(val routeId: String) : LocalDataResolution
+    data class WouldFetchFromServer(
+        val routeId: String,
+    ) : LocalDataResolution
 
     data object NotFound : LocalDataResolution
 }

@@ -53,14 +53,15 @@ class ApprovalsSearchProvider(
             }
 
         val approvalsById = ApprovalsRepository.all.associateBy { it.id }
-        clarifications.observeAllRooms().first()
+        clarifications
+            .observeAllRooms()
+            .first()
             .filter { room ->
                 val approval = approvalsById[room.approvalId]
                 room.approvalId.contains(q, true) ||
                     room.participants.any { it.contains(q, true) } ||
                     approval?.requesterName?.contains(q, true) == true
-            }
-            .forEach { room ->
+            }.forEach { room ->
                 val approval = approvalsById[room.approvalId]
                 results +=
                     SearchResult(

@@ -81,7 +81,8 @@ kotlin {
             }
         }
 
-        val screenshotTest by getting {
+        // getByName, not `by getting`: Gradle 10 removes the delegate form.
+        getByName("screenshotTest") {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(compose.desktop.uiTestJUnit4)

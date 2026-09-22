@@ -15,8 +15,7 @@ import kotlinx.coroutines.flow.map
 class FakeEmergencyContactDao : EmergencyContactDao {
     private val rows = MutableStateFlow<Map<String, EmergencyContactEntity>>(emptyMap())
 
-    override fun observeAll(): Flow<List<EmergencyContactEntity>> =
-        rows.map { it.values.sortedBy { row -> row.createdAtMs } }
+    override fun observeAll(): Flow<List<EmergencyContactEntity>> = rows.map { it.values.sortedBy { row -> row.createdAtMs } }
 
     override suspend fun count(): Int = rows.value.size
 

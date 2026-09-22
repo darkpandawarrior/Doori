@@ -140,6 +140,25 @@ subprojects {
         baseline = file("detekt-baseline.xml")
     }
 
+    // The same hole as `detekt` below, in the other tool. `./gradlew ktlintCheck` on :app and
+    // :wear ran ONLY ktlintKotlinScriptCheck — the per-source-set check tasks that see
+    // src/main/kotlin and the variant source sets were never attached to the aggregate. The gate
+    // was reading the build scripts and nothing else, so "ktlint passed" meant nothing on the
+    // Android modules. Verified: :wear:ktlintMainSourceSetCheck run directly reports 68
+    // violations on a tree the aggregate called clean.
+    // *Format tasks are excluded: the gate checks, it does not rewrite.
+    tasks.matching { it.name == "ktlintCheck" }.configureEach {
+        dependsOn(
+            tasks.matching {
+                it.name.startsWith("ktlint") &&
+                    it.name.endsWith("SourceSetCheck") &&
+                    // Same reasoning as the native-leaf skip below: per-architecture source sets
+                    // re-lint what iosMain/watchosMain already cover.
+                    !archLeafPattern.containsMatchIn(it.name)
+            },
+        )
+    }
+
     // `./gradlew detekt` analyses nothing on a KMP module: the per-module `detekt` task looks for
     // src/main/kotlin, which KMP does not have. The tasks that see the code are per-source-set, and
     // were never attached to it — so every "detekt passed" on a KMP module was vacuous.
@@ -194,9 +213,12 @@ tasks.register("quickBuild") {
 tasks.register("fullCheck") {
     description = "ktlint + detekt + tests + kover coverage floor: all quality gates."
     // noGms is the JVM-safe unit-test variant; kover floor verified on the same variant.
+    // NOT "ktlintCheck"/"detekt" as bare names. At the root project those resolve to :ktlintCheck
+    // and :detekt, and the root project holds no Kotlin source: the gate logged
+    // `> Task :detekt NO-SOURCE` and a :ktlintCheck that read the root build scripts only. Every
+    // module's static analysis was outside the gate. The real tasks are wired in below, once every
+    // subproject is configured, the same way testAndroidHostTest already is (Z.5a).
     dependsOn(
-        "ktlintCheck",
-        "detekt",
         ":app:testNoGmsDebugUnitTest",
         // Z.5b: the @GraphicsMode(NATIVE) Roborazzi screenshot tests are excluded from the task above
         // (native Skia + forkEvery restart boundaries crash the JVM); they run in their own isolated
@@ -222,8 +244,16 @@ tasks.register("fullCheck") {
 // config-cache-safe way to wire this in — no `Project` reference is captured for execution.
 gradle.projectsEvaluated {
     tasks.named("fullCheck") {
+        val external = rootDir.resolve("external")
         subprojects.forEach { sub ->
             sub.tasks.findByName("testAndroidHostTest")?.let { dependsOn(it) }
+            // Same derive-don't-list reasoning for the two static-analysis gates. Skipped for the
+            // external/ git submodules: those are separate repositories with their own gates and
+            // their own baselines, and this build has no business failing on their code.
+            if (!sub.projectDir.startsWith(external)) {
+                sub.tasks.findByName("ktlintCheck")?.let { dependsOn(it) }
+                sub.tasks.findByName("detekt")?.let { dependsOn(it) }
+            }
         }
     }
 }
@@ -269,7 +299,12 @@ tasks.register("screenshotFreshnessCheck") {
                         .directory(repoRoot)
                         .redirectErrorStream(true)
                         .start()
-                val commitEpoch = proc.inputStream.bufferedReader().readText().trim().toLongOrNull()
+                val commitEpoch =
+                    proc.inputStream
+                        .bufferedReader()
+                        .readText()
+                        .trim()
+                        .toLongOrNull()
                 proc.waitFor()
                 // No git history for the file (freshly added, not yet committed) -> not stale.
                 val ageSeconds = commitEpoch?.let { nowSeconds - it } ?: return@mapNotNull null
@@ -281,7 +316,12 @@ tasks.register("screenshotFreshnessCheck") {
                     appendLine("${stale.size} screenshot(s) haven't been re-recorded in $maxAgeDays days:")
                     stale.sortedByDescending { it.second }.forEach { (name, days) -> appendLine("  $name (${days}d old)") }
                     appendLine()
-                    appendLine("Re-record with: ./gradlew screenshotTest -Proborazzi.test.record=true")
+                    // Env var, not -P. Every capture site in this repo gates on
+                    // System.getenv("ROBORAZZI_RECORD"); a -P property does not reach the forked
+                    // test JVM :app:screenshotTestNoGmsDebug runs in. Measured 2026-09-22: with
+                    // -Proborazzi.test.record=true and a golden deleted, the run reported BUILD
+                    // SUCCESSFUL and recorded nothing. This message used to print that flag.
+                    appendLine("Re-record with: ROBORAZZI_RECORD=true ./gradlew screenshotTest")
                     appendLine("(or pass -PscreenshotMaxAgeDays=N if $maxAgeDays days is intentionally tight for this run)")
                 },
             )
@@ -337,7 +377,7 @@ tasks.register("composeMetrics") {
 // :app:screenshotTestNoGmsDebug is deliberately forked out of the main suite.
 //
 //   ./gradlew screenshotTest                              # verify against baselines
-//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//   ROBORAZZI_RECORD=true ./gradlew screenshotTest        # re-record them (env var, NOT -P)
 //
 // NOT covered here, and deliberately not faked as if it were:
 //   - iOS  (iosApp/MilewayWidgetsTests, MilewayWatchTests) — Swift snapshot
@@ -353,7 +393,7 @@ tasks.register("composeMetrics") {
 // One task that runs EVERY screenshot harness in the repo.
 //
 //   ./gradlew screenshotTest                              # verify against baselines
-//   ./gradlew screenshotTest -Proborazzi.test.record=true # re-record them
+//   ROBORAZZI_RECORD=true ./gradlew screenshotTest        # re-record them (env var, NOT -P)
 //
 // The gap this closes: :app, :wear and :widget each had a working Roborazzi suite, on three
 // different task names, with no single command running them. On 2026-08-09 injecting
@@ -389,7 +429,9 @@ gradle.projectsEvaluated {
             // :desktopApp use a custom-named source set (src/desktopTest). Walking the whole
             // src/ dir covers either without hardcoding which module uses which.
             val hasCaptures =
-                sub.projectDir.resolve("src").walkTopDown()
+                sub.projectDir
+                    .resolve("src")
+                    .walkTopDown()
                     .filter { it.isFile && it.extension == "kt" }
                     // Two capture mechanisms in this repo: Roborazzi on the Android/Wear/widget
                     // side, and plain ImageIO writes from Compose Desktop's renderComposeScene.
@@ -397,22 +439,23 @@ gradle.projectsEvaluated {
                     // which library it happens to use.
                     .any { f -> f.readText().let { it.contains("captureRoboImage") || it.contains("ImageIO") } }
             if (!hasCaptures) return@forEach
-            sub.tasks.matching {
-                // :desktopApp's test task is "desktopTest", not "test*UnitTest".
-                // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
-                // variant here would make the unified task fail for a reason that has nothing to do
-                // with the screenshots it is meant to guard.
-                (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&
-                    // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
-                    !(it.name.contains("Gms") && !it.name.contains("NoGms"))
-            }.forEach { t ->
-                dependsOn(t)
-                // Ordered, not just aggregated. :app's screenshot suite runs @GraphicsMode(NATIVE)
-                // Skia in its own single fork precisely because it is fragile about sharing a build
-                // with other test JVMs — running these concurrently reproducibly kills its class
-                // init. Sequencing costs a few seconds and buys a task that does not flake.
-                t.mustRunAfter(":app:screenshotTestNoGmsDebug")
-            }
+            sub.tasks
+                .matching {
+                    // :desktopApp's test task is "desktopTest", not "test*UnitTest".
+                    // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
+                    // variant here would make the unified task fail for a reason that has nothing to do
+                    // with the screenshots it is meant to guard.
+                    (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&
+                        // "NoGmsDebug" contains "Gms", so match the flavour, not the substring.
+                        !(it.name.contains("Gms") && !it.name.contains("NoGms"))
+                }.forEach { t ->
+                    dependsOn(t)
+                    // Ordered, not just aggregated. :app's screenshot suite runs @GraphicsMode(NATIVE)
+                    // Skia in its own single fork precisely because it is fragile about sharing a build
+                    // with other test JVMs — running these concurrently reproducibly kills its class
+                    // init. Sequencing costs a few seconds and buys a task that does not flake.
+                    t.mustRunAfter(":app:screenshotTestNoGmsDebug")
+                }
         }
     }
 }

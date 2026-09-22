@@ -4,8 +4,14 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import com.mileway.core.ui.theme.direction.LedgerSpec
+import com.mileway.core.ui.theme.direction.LedgerSpecNight
+import com.mileway.core.ui.theme.direction.PaperNightSpec
+import com.mileway.core.ui.theme.direction.PaperSpec
 import com.mileway.core.ui.theme.direction.RefinedEmberSpec
 import com.mileway.core.ui.theme.direction.RefinedEmberSpecDay
+import com.mileway.core.ui.theme.direction.SignalSpec
+import com.mileway.core.ui.theme.direction.SignalSpecDay
 
 /**
  * Design Language v2 — the five curated, hand-tuned theme schemes.
@@ -280,7 +286,7 @@ data class MilewaySchemeSpec(
             onError = if (isLight) Color.White else canvas,
             errorContainer = danger.copy(alpha = if (isLight) 0.16f else 0.22f),
             onErrorContainer = if (isLight) danger else danger,
-            scrim = Color(0xCC000000),
+            scrim = ScrimBlack,
         )
     }
 }
@@ -404,3 +410,6 @@ internal val DaybreakSpec =
         success = Color(0xFF1C8F52),
         useGlow = false,
     )
+
+/** Material's scrim: black at 80% alpha. One value, shared by every generated scheme. */
+private val ScrimBlack = Color(0xCC000000)

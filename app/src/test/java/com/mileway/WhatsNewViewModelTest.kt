@@ -58,7 +58,10 @@ class WhatsNewViewModelTest {
             val vm = WhatsNewViewModel(repo(lastSeen = 0), whatsNewRepository, engagementRecorder)
             advanceUntilIdle()
             assertTrue(vm.uiState.value.isVisible)
-            assertTrue(vm.uiState.value.entries.isNotEmpty())
+            assertTrue(
+                vm.uiState.value.entries
+                    .isNotEmpty(),
+            )
         }
 
     @Test

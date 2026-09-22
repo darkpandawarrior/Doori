@@ -29,23 +29,42 @@ data class DebugMenuComposeUiState(
 )
 
 sealed interface DebugMenuComposeAction {
-    data class UpdateSearchQuery(val query: String) : DebugMenuComposeAction
+    data class UpdateSearchQuery(
+        val query: String,
+    ) : DebugMenuComposeAction
 
-    data class ToggleSection(val section: DebugSection) : DebugMenuComposeAction
+    data class ToggleSection(
+        val section: DebugSection,
+    ) : DebugMenuComposeAction
 
-    data class ToggleCoreOption(val name: String) : DebugMenuComposeAction
+    data class ToggleCoreOption(
+        val name: String,
+    ) : DebugMenuComposeAction
 
-    data class ToggleOriginOption(val name: String) : DebugMenuComposeAction
+    data class ToggleOriginOption(
+        val name: String,
+    ) : DebugMenuComposeAction
 
-    data class ToggleAuthOption(val name: String) : DebugMenuComposeAction
+    data class ToggleAuthOption(
+        val name: String,
+    ) : DebugMenuComposeAction
 
-    data class ToggleFeatureOption(val name: String) : DebugMenuComposeAction
+    data class ToggleFeatureOption(
+        val name: String,
+    ) : DebugMenuComposeAction
 
-    data class ToggleTrackingOption(val name: String) : DebugMenuComposeAction
+    data class ToggleTrackingOption(
+        val name: String,
+    ) : DebugMenuComposeAction
 
-    data class UpdateCustomValue(val key: String, val value: String) : DebugMenuComposeAction
+    data class UpdateCustomValue(
+        val key: String,
+        val value: String,
+    ) : DebugMenuComposeAction
 
-    data class SelectProfile(val profile: DebugProfile) : DebugMenuComposeAction
+    data class SelectProfile(
+        val profile: DebugProfile,
+    ) : DebugMenuComposeAction
 
     data object ClearAllDebugSettings : DebugMenuComposeAction
 
@@ -120,6 +139,10 @@ class DebugMenuComposeViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     override fun onAction(action: DebugMenuComposeAction) {
         when (action) {
             is DebugMenuComposeAction.UpdateSearchQuery ->
@@ -229,6 +252,10 @@ class DebugMenuComposeViewModel(
         AppRestartUtils.performAppRestart(context)
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     fun clearAppCache(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -241,6 +268,10 @@ class DebugMenuComposeViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     fun exportMostRecentTrack(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -298,11 +329,17 @@ class DebugMenuComposeViewModel(
     private suspend fun loadAbnormalConfigValues() {
         val registry = pluginRegistry ?: return
         mutableAbnormalConfig.value =
-            registry.observeResolved().first()
+            registry
+                .observeResolved()
+                .first()
                 .filter { it.descriptor.category == PluginCategory.TRACKING_TUNING }
                 .associate { it.descriptor.id to it.value.toRaw() }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun loadDebugOptions() {
         viewModelScope.launch {
             try {
@@ -324,7 +361,7 @@ class DebugMenuComposeViewModel(
                                 DebugSection.PROFILES to false,
                             ),
                         apiOrigin = "Not set",
-                        referralParams = getReferralParams(),
+                        referralParams = referralParams,
                         isLoggedIn = false,
                         hasSavedConfig = false,
                         savedConfigSummary = "",
@@ -342,10 +379,11 @@ class DebugMenuComposeViewModel(
             copy(
                 loginStatus = loggedIn,
                 debugMenuUiState =
-                    debugMenuUiState.copy(
-                        isLoggedIn = loggedIn,
-                        apiOrigin = if (loggedIn) "Not set" else "Not logged in",
-                    ).withUpdatedCount(),
+                    debugMenuUiState
+                        .copy(
+                            isLoggedIn = loggedIn,
+                            apiOrigin = if (loggedIn) "Not set" else "Not logged in",
+                        ).withUpdatedCount(),
             )
         }
     }
@@ -393,7 +431,7 @@ class DebugMenuComposeViewModel(
 
     private fun DebugMenuUiState.withUpdatedCount(): DebugMenuUiState = copy(enabledOptionsCount = countEnabledOptions(this))
 
-    private fun getReferralParams() = "client_code=-, login_mode=-, region_code=-"
+    private val referralParams = "client_code=-, login_mode=-, region_code=-"
 
     private fun loadCoreOptions(): Map<String, Boolean> =
         mapOf(

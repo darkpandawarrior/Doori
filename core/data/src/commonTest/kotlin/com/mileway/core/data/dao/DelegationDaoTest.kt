@@ -80,16 +80,15 @@ class DelegationDaoTest {
 private class FakeDelegationDao : DelegationDao {
     private val rows = LinkedHashMap<String, DelegationEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _all = MutableStateFlow<List<DelegationEntity>>(emptyList())
+    private val allRows = MutableStateFlow<List<DelegationEntity>>(emptyList())
 
     private fun flush() {
-        _all.value = rows.values.sortedBy { it.createdAt }
+        allRows.value = rows.values.sortedBy { it.createdAt }
     }
 
-    fun snapshot(): List<DelegationEntity> = _all.value
+    fun snapshot(): List<DelegationEntity> = allRows.value
 
-    override fun observeAll(): Flow<List<DelegationEntity>> = _all.asStateFlow()
+    override fun observeAll(): Flow<List<DelegationEntity>> = allRows.asStateFlow()
 
     override suspend fun upsert(entity: DelegationEntity) {
         rows[entity.id] = entity

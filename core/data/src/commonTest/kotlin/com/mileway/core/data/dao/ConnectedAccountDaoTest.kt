@@ -83,16 +83,15 @@ class ConnectedAccountDaoTest {
 private class FakeConnectedAccountDao : ConnectedAccountDao {
     private val rows = LinkedHashMap<String, ConnectedAccountEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _all = MutableStateFlow<List<ConnectedAccountEntity>>(emptyList())
+    private val allRows = MutableStateFlow<List<ConnectedAccountEntity>>(emptyList())
 
     private fun flush() {
-        _all.value = rows.values.sortedBy { it.providerName }
+        allRows.value = rows.values.sortedBy { it.providerName }
     }
 
-    fun snapshot(): List<ConnectedAccountEntity> = _all.value
+    fun snapshot(): List<ConnectedAccountEntity> = allRows.value
 
-    override fun observeAll(): Flow<List<ConnectedAccountEntity>> = _all.asStateFlow()
+    override fun observeAll(): Flow<List<ConnectedAccountEntity>> = allRows.asStateFlow()
 
     override suspend fun count(): Int = rows.size
 

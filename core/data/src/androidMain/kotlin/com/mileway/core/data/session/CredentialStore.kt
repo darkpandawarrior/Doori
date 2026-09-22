@@ -13,7 +13,9 @@ private val Context.credentialDataStore by preferencesDataStore(name = "login_cr
  * PLAN_V24 P1.5: DataStore-backed [CredentialSource] keyed by account id. Stores only the
  * salted-hash digest ([hashPassword]); the raw password is never persisted.
  */
-class CredentialStore(private val context: Context) : CredentialSource {
+class CredentialStore(
+    private val context: Context,
+) : CredentialSource {
     override suspend fun ensureSeeded(accountId: String) {
         val existing =
             context.credentialDataStore.data

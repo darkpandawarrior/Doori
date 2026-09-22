@@ -282,18 +282,19 @@ actual fun rememberMediaCaptureLauncher(
                         documentFallbackLauncher.launch(FILES_MIME_TYPES)
                     } else {
                         val options =
-                            GmsDocumentScannerOptions.Builder()
+                            GmsDocumentScannerOptions
+                                .Builder()
                                 .setGalleryImportAllowed(true)
                                 .setPageLimit(if (config.multiple) config.maxCount.coerceAtLeast(1) else 1)
                                 .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
                                 .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
                                 .build()
-                        GmsDocumentScanning.getClient(options)
+                        GmsDocumentScanning
+                            .getClient(options)
                             .getStartScanIntent(activity)
                             .addOnSuccessListener { intentSender ->
                                 documentScanLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                            }
-                            .addOnFailureListener {
+                            }.addOnFailureListener {
                                 // ponytail: scanner unavailable (no Play Services / unsupported
                                 // device) — fall back to the file picker instead of no-op.
                                 documentFallbackLauncher.launch(FILES_MIME_TYPES)
@@ -398,6 +399,7 @@ private suspend fun DocumentIntelligence.analyzeOrNull(
         analyze(uri, prompt)
     } catch (cancellation: CancellationException) {
         throw cancellation
-    } catch (failure: Exception) {
+    } catch (ignored: Exception) {
+        // A capture that fails for any reason yields no media; null IS the handling.
         null
     }

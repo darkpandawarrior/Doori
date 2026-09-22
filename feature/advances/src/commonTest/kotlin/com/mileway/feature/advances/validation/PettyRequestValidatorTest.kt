@@ -19,7 +19,15 @@ class PettyRequestValidatorTest {
         dateRangeEndMs: Long? = null,
         declarationAccepted: Boolean = true,
     ) = PettyRequestValidator.validate(
-        type, types, amount, title, description, requireDateRange, dateRangeStartMs, dateRangeEndMs, declarationAccepted,
+        type,
+        types,
+        amount,
+        title,
+        description,
+        requireDateRange,
+        dateRangeStartMs,
+        dateRangeEndMs,
+        declarationAccepted,
     )
 
     @Test

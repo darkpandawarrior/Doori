@@ -42,13 +42,15 @@ fun rememberDocumentScanLauncher(
             val activity = context as? Activity
             if (activity != null) {
                 val options =
-                    GmsDocumentScannerOptions.Builder()
+                    GmsDocumentScannerOptions
+                        .Builder()
                         .setGalleryImportAllowed(true)
                         .setPageLimit(pageLimit)
                         .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
                         .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
                         .build()
-                GmsDocumentScanning.getClient(options)
+                GmsDocumentScanning
+                    .getClient(options)
                     .getStartScanIntent(activity)
                     .addOnSuccessListener { intentSender ->
                         resultLauncher.launch(IntentSenderRequest.Builder(intentSender).build())

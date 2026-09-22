@@ -23,23 +23,38 @@ object DistanceValidator {
         val odometer: Double? = null,
     )
 
-    sealed class ValidationError(val message: String) {
-        data class NegativeDistance(val field: String, val value: Double) :
-            ValidationError("Negative distance not allowed: $field = $value")
+    sealed class ValidationError(
+        val message: String,
+    ) {
+        data class NegativeDistance(
+            val field: String,
+            val value: Double,
+        ) : ValidationError("Negative distance not allowed: $field = $value")
 
-        data class ComponentMismatch(val expected: Double, val actual: Double, val difference: Double) :
-            ValidationError("Distance components don't sum to total: expected=$expected, actual=$actual, diff=$difference")
+        data class ComponentMismatch(
+            val expected: Double,
+            val actual: Double,
+            val difference: Double,
+        ) : ValidationError("Distance components don't sum to total: expected=$expected, actual=$actual, diff=$difference")
 
-        data class CleanedExceedsTotal(val cleaned: Double, val total: Double) :
-            ValidationError("Cleaned distance ($cleaned) exceeds total distance ($total)")
+        data class CleanedExceedsTotal(
+            val cleaned: Double,
+            val total: Double,
+        ) : ValidationError("Cleaned distance ($cleaned) exceeds total distance ($total)")
     }
 
-    sealed class ValidationWarning(val message: String) {
-        data class UnusualRatio(val field: String, val ratio: Double) :
-            ValidationWarning("$field is ${(ratio * 100).toInt()}% of total")
+    sealed class ValidationWarning(
+        val message: String,
+    ) {
+        data class UnusualRatio(
+            val field: String,
+            val ratio: Double,
+        ) : ValidationWarning("$field is ${(ratio * 100).toInt()}% of total")
 
-        data class LargeDiscrepancy(val field: String, val ratio: Double) :
-            ValidationWarning("$field discrepancy is ${(ratio * 100).toInt()}%")
+        data class LargeDiscrepancy(
+            val field: String,
+            val ratio: Double,
+        ) : ValidationWarning("$field discrepancy is ${(ratio * 100).toInt()}%")
     }
 
     data class ValidationResult(

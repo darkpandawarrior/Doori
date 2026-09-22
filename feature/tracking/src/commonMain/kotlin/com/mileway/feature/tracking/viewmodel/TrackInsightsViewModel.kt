@@ -17,6 +17,9 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
+/** More abnormal fixes than this and the GPS-signal hint is worth showing. */
+private const val AbnormalPointsForHint = 5
+
 /**
  * UI state for the Track Insights screen.
  *
@@ -55,7 +58,9 @@ data class TrackInsightsUiState(
 )
 
 sealed interface TrackInsightsAction {
-    data class Load(val routeId: String) : TrackInsightsAction
+    data class Load(
+        val routeId: String,
+    ) : TrackInsightsAction
 }
 
 sealed interface TrackInsightsEffect
@@ -72,6 +77,10 @@ class TrackInsightsViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun loadInsights(routeId: String) {
         viewModelScope.launch {
             setState { copy(isLoading = true, error = null) }
@@ -140,7 +149,7 @@ class TrackInsightsViewModel(
     ): List<String> {
         val recs = mutableListOf<String>()
         if (mockCount > 0) recs += "Disable mock location apps for accurate distance tracking."
-        if (abnormalCount > 5) recs += "Keep the device in an open area for better GPS signal."
+        if (abnormalCount > AbnormalPointsForHint) recs += "Keep the device in an open area for better GPS signal."
         if (track.wasBatteryOptimizationEnabled) recs += "Disable battery optimisation for Doori to avoid interruptions."
         if (track.wasPowerSaverEnabled) recs += "Turn off power saver mode while tracking for best accuracy."
         if (track.wasAppKilled) recs += "Avoid closing the app while tracking: use the pause button instead."

@@ -52,7 +52,6 @@ import kotlin.test.assertTrue
  */
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class TrackMilesViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -75,220 +74,237 @@ class TrackMilesViewModelTest {
     // ── C.3: live service telemetry feed ─────────────────────────────────────
 
     @Test
-    fun `surfaces adaptive GPS cadence and battery from the tracking service feed`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        assertEquals(0L, vm.uiState.value.gpsIntervalMs)
+    fun `surfaces adaptive GPS cadence and battery from the tracking service feed`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
+            assertEquals(0L, vm.uiState.value.gpsIntervalMs)
 
-        trackingPublisher.update { it.copy(currentIntervalMs = 8_000L, batteryPct = 42, isCharging = true) }
-        advanceUntilIdle()
+            trackingPublisher.update { it.copy(currentIntervalMs = 8_000L, batteryPct = 42, isCharging = true) }
+            advanceUntilIdle()
 
-        assertEquals(8_000L, vm.uiState.value.gpsIntervalMs)
-        assertEquals(42, vm.uiState.value.batteryPct)
-        assertTrue(vm.uiState.value.isCharging)
-    }
+            assertEquals(8_000L, vm.uiState.value.gpsIntervalMs)
+            assertEquals(42, vm.uiState.value.batteryPct)
+            assertTrue(vm.uiState.value.isCharging)
+        }
 
     @Test
-    fun `C3 - surfaces quality score, spike distance and system flags from the service feed`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        assertEquals(100, vm.uiState.value.qualityScore) // ideal default
+    fun `C3 - surfaces quality score, spike distance and system flags from the service feed`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
+            assertEquals(100, vm.uiState.value.qualityScore) // ideal default
 
-        trackingPublisher.update {
-            it.copy(
-                qualityScore = 60,
-                spikeDistanceM = 30.0,
-                systemFlags = TrackingSystemFlags(powerSaverOn = true, mockLocationDetected = true),
-            )
+            trackingPublisher.update {
+                it.copy(
+                    qualityScore = 60,
+                    spikeDistanceM = 30.0,
+                    systemFlags = TrackingSystemFlags(powerSaverOn = true, mockLocationDetected = true),
+                )
+            }
+            advanceUntilIdle()
+
+            assertEquals(60, vm.uiState.value.qualityScore)
+            assertEquals(30.0, vm.uiState.value.spikeDistanceM, 0.0)
+            assertTrue(vm.uiState.value.systemFlags.hasIssue)
         }
-        advanceUntilIdle()
-
-        assertEquals(60, vm.uiState.value.qualityScore)
-        assertEquals(30.0, vm.uiState.value.spikeDistanceM, 0.0)
-        assertTrue(vm.uiState.value.systemFlags.hasIssue)
-    }
 
     // ── Initialisation ───────────────────────────────────────────────────────
 
     @Test
-    fun `init loads vehicle policy and auto-selects the first vehicle`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
+    fun `init loads vehicle policy and auto-selects the first vehicle`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
 
-        val state = vm.uiState.value
-        assertTrue(state.vehicles.isNotEmpty())
-        assertEquals("fourWheelerPetrol", state.selectedVehicle?.vehicleKey)
-        assertTrue(state.config.isTrackMilesEnabled)
-    }
+            val state = vm.uiState.value
+            assertTrue(state.vehicles.isNotEmpty())
+            assertEquals("fourWheelerPetrol", state.selectedVehicle?.vehicleKey)
+            assertTrue(state.config.isTrackMilesEnabled)
+        }
 
     // ── G4: consolidated, VM-owned start-flow step ───────────────────────────
 
     @Test
-    fun `journeyStep is VM-owned and derives from vehicle selection`() = runTest {
-        // No vehicle yet → the stepper sits on the VEHICLE step.
-        assertEquals(JourneyGuideStep.VEHICLE, TrackMilesUiState().journeyStep)
+    fun `journeyStep is VM-owned and derives from vehicle selection`() =
+        runTest {
+            // No vehicle yet → the stepper sits on the VEHICLE step.
+            assertEquals(JourneyGuideStep.VEHICLE, TrackMilesUiState().journeyStep)
 
-        // After init auto-selects a vehicle, the VM-owned step advances to TRACKING
-        // (the screen no longer derives this inline — G4 consolidation).
-        val vm = viewModel()
-        advanceUntilIdle()
-        val state = vm.uiState.value
-        assertNotNull(state.selectedVehicle)
-        assertEquals(JourneyGuideStep.TRACKING, state.journeyStep)
-    }
-
-    @Test
-    fun `vehicle policy failure degrades gracefully instead of crashing the screen`() = runTest {
-        val failingApi = object : MilewayNetworkApi by FakeTrackingNetworkApi() {
-            override suspend fun vehicles(trackMiles: Boolean) =
-                throw IOException("airplane mode")
+            // After init auto-selects a vehicle, the VM-owned step advances to TRACKING
+            // (the screen no longer derives this inline — G4 consolidation).
+            val vm = viewModel()
+            advanceUntilIdle()
+            val state = vm.uiState.value
+            assertNotNull(state.selectedVehicle)
+            assertEquals(JourneyGuideStep.TRACKING, state.journeyStep)
         }
 
-        val vm = viewModel(api = failingApi)
-        advanceUntilIdle()
+    @Test
+    fun `vehicle policy failure degrades gracefully instead of crashing the screen`() =
+        runTest {
+            val failingApi =
+                object : MilewayNetworkApi by FakeTrackingNetworkApi() {
+                    override suspend fun vehicles(trackMiles: Boolean) = throw IOException("airplane mode")
+                }
 
-        val state = vm.uiState.value
-        assertTrue(state.vehicles.isEmpty())
-        assertNull(state.selectedVehicle)
-        // Config still loads, the screen renders, it just can't start a paid journey.
-        assertTrue(state.config.isTrackMilesEnabled)
-    }
+            val vm = viewModel(api = failingApi)
+            advanceUntilIdle()
+
+            val state = vm.uiState.value
+            assertTrue(state.vehicles.isEmpty())
+            assertNull(state.selectedVehicle)
+            // Config still loads, the screen renders, it just can't start a paid journey.
+            assertTrue(state.config.isTrackMilesEnabled)
+        }
 
     @Test
-    fun `init restores an in-flight track after process death`() = runTest {
-        dao.preload(
-            track(routeId = "route-restored", distanceMeters = 4_200.0, startTime = 1_000L)
-        )
+    fun `init restores an in-flight track after process death`() =
+        runTest {
+            dao.preload(
+                track(routeId = "route-restored", distanceMeters = 4_200.0, startTime = 1_000L),
+            )
 
-        val vm = viewModel()
-        advanceUntilIdle()
+            val vm = viewModel()
+            advanceUntilIdle()
 
-        val state = vm.uiState.value
-        assertEquals(TrackMilesPhase.TRACKING, state.phase)
-        assertEquals("route-restored", state.currentRouteId)
-        assertEquals(4.2, state.distanceKm, 1e-9)
-        assertEquals(1_000L, state.startTime)
-    }
+            val state = vm.uiState.value
+            assertEquals(TrackMilesPhase.TRACKING, state.phase)
+            assertEquals("route-restored", state.currentRouteId)
+            assertEquals(4.2, state.distanceKm, 1e-9)
+            assertEquals(1_000L, state.startTime)
+        }
 
     // ── Tracking lifecycle ───────────────────────────────────────────────────
 
     @Test
-    fun `startTracking persists an active track and starts the foreground service`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-
-        vm.startTracking()
-        advanceUntilIdle()
-
-        val state = vm.uiState.value
-        assertEquals(TrackMilesPhase.TRACKING, state.phase)
-        val routeId = assertNotNull(state.currentRouteId)
-
-        // The track must be durably persisted BEFORE the service starts writing to it.
-        val persisted = assertNotNull(dao.getSavedTrackById(routeId))
-        assertEquals("fourWheelerPetrol", persisted.selectedVehicleType)
-        verify(exactly = 1) { trackingController.start(routeId) }
-    }
-
-    @Test
-    fun `live service writes stream distance and reimbursement into ui state`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.startTracking()
-        advanceUntilIdle()
-        val routeId = vm.uiState.value.currentRouteId!!
-
-        vm.uiState.map { it.distanceKm to it.reimbursableAmount }.test {
-            assertEquals(0.0 to 0.0, awaitItem())
-
-            dao.serviceWrites(routeId, distanceMeters = 12_500.0, durationMs = 900_000L)
+    fun `startTracking persists an active track and starts the foreground service`() =
+        runTest {
+            val vm = viewModel()
             advanceUntilIdle()
 
-            // 12.5 km × ₹10/km (fourWheelerPetrol demo pricing) = ₹125
-            assertEquals(12.5 to 125.0, awaitItem())
-            assertEquals(900_000L, vm.uiState.value.durationMs)
+            vm.startTracking()
+            advanceUntilIdle()
+
+            val state = vm.uiState.value
+            assertEquals(TrackMilesPhase.TRACKING, state.phase)
+            val routeId = assertNotNull(state.currentRouteId)
+
+            // The track must be durably persisted BEFORE the service starts writing to it.
+            val persisted = assertNotNull(dao.getSavedTrackById(routeId))
+            assertEquals("fourWheelerPetrol", persisted.selectedVehicleType)
+            verify(exactly = 1) { trackingController.start(routeId) }
         }
-    }
 
     @Test
-    fun `pause and resume forward to the service and flip the phase`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.startTracking()
-        advanceUntilIdle()
-        val routeId = vm.uiState.value.currentRouteId!!
+    fun `live service writes stream distance and reimbursement into ui state`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
+            vm.startTracking()
+            advanceUntilIdle()
+            val routeId = vm.uiState.value.currentRouteId!!
 
-        vm.pauseTracking()
-        assertEquals(TrackMilesPhase.PAUSED, vm.uiState.value.phase)
-        verify(exactly = 1) { trackingController.pause(routeId) }
+            vm.uiState.map { it.distanceKm to it.reimbursableAmount }.test {
+                assertEquals(0.0 to 0.0, awaitItem())
 
-        vm.resumeTracking()
-        assertEquals(TrackMilesPhase.TRACKING, vm.uiState.value.phase)
-        verify(exactly = 1) { trackingController.resume(routeId) }
-    }
+                dao.serviceWrites(routeId, distanceMeters = 12_500.0, durationMs = 900_000L)
+                advanceUntilIdle()
 
-    @Test
-    fun `stopTracking stops the service and freezes the live stream`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.startTracking()
-        advanceUntilIdle()
-        val routeId = vm.uiState.value.currentRouteId!!
-
-        dao.serviceWrites(routeId, distanceMeters = 8_000.0, durationMs = 600_000L)
-        advanceUntilIdle()
-        assertEquals(8.0, vm.uiState.value.distanceKm, 1e-9)
-
-        vm.stopTracking()
-        verify(exactly = 1) { trackingController.stop(routeId) }
-        assertEquals(TrackMilesPhase.STOPPED, vm.uiState.value.phase)
-
-        // A straggler write from the (now stopping) service must not mutate the
-        // stopped summary the user is looking at.
-        dao.serviceWrites(routeId, distanceMeters = 99_000.0, durationMs = 999_999L)
-        advanceUntilIdle()
-        assertEquals(8.0, vm.uiState.value.distanceKm, 1e-9)
-    }
+                // 12.5 km × ₹10/km (fourWheelerPetrol demo pricing) = ₹125
+                assertEquals(12.5 to 125.0, awaitItem())
+                assertEquals(900_000L, vm.uiState.value.durationMs)
+            }
+        }
 
     @Test
-    fun `discardTracking resets the session but keeps config and vehicle policy`() = runTest {
-        val vm = viewModel()
-        advanceUntilIdle()
-        vm.startTracking()
-        advanceUntilIdle()
-        val routeId = vm.uiState.value.currentRouteId!!
+    fun `pause and resume forward to the service and flip the phase`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
+            vm.startTracking()
+            advanceUntilIdle()
+            val routeId = vm.uiState.value.currentRouteId!!
 
-        vm.discardTracking()
-        advanceUntilIdle()
+            vm.pauseTracking()
+            assertEquals(TrackMilesPhase.PAUSED, vm.uiState.value.phase)
+            verify(exactly = 1) { trackingController.pause(routeId) }
 
-        val state = vm.uiState.value
-        verify(exactly = 1) { trackingController.stop(routeId) }
-        assertEquals(TrackMilesPhase.IDLE, state.phase)
-        assertNull(state.currentRouteId)
-        assertEquals(0.0, state.distanceKm, 1e-9)
-        // Discard ends the journey, not the screen: policy data survives the reset.
-        assertTrue(state.vehicles.isNotEmpty())
-        assertTrue(state.config.isTrackMilesEnabled)
-    }
+            vm.resumeTracking()
+            assertEquals(TrackMilesPhase.TRACKING, vm.uiState.value.phase)
+            verify(exactly = 1) { trackingController.resume(routeId) }
+        }
+
+    @Test
+    fun `stopTracking stops the service and freezes the live stream`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
+            vm.startTracking()
+            advanceUntilIdle()
+            val routeId = vm.uiState.value.currentRouteId!!
+
+            dao.serviceWrites(routeId, distanceMeters = 8_000.0, durationMs = 600_000L)
+            advanceUntilIdle()
+            assertEquals(8.0, vm.uiState.value.distanceKm, 1e-9)
+
+            vm.stopTracking()
+            verify(exactly = 1) { trackingController.stop(routeId) }
+            assertEquals(TrackMilesPhase.STOPPED, vm.uiState.value.phase)
+
+            // A straggler write from the (now stopping) service must not mutate the
+            // stopped summary the user is looking at.
+            dao.serviceWrites(routeId, distanceMeters = 99_000.0, durationMs = 999_999L)
+            advanceUntilIdle()
+            assertEquals(8.0, vm.uiState.value.distanceKm, 1e-9)
+        }
+
+    @Test
+    fun `discardTracking resets the session but keeps config and vehicle policy`() =
+        runTest {
+            val vm = viewModel()
+            advanceUntilIdle()
+            vm.startTracking()
+            advanceUntilIdle()
+            val routeId = vm.uiState.value.currentRouteId!!
+
+            vm.discardTracking()
+            advanceUntilIdle()
+
+            val state = vm.uiState.value
+            verify(exactly = 1) { trackingController.stop(routeId) }
+            assertEquals(TrackMilesPhase.IDLE, state.phase)
+            assertNull(state.currentRouteId)
+            assertEquals(0.0, state.distanceKm, 1e-9)
+            // Discard ends the journey, not the screen: policy data survives the reset.
+            assertTrue(state.vehicles.isNotEmpty())
+            assertTrue(state.config.isTrackMilesEnabled)
+        }
 
     // ── Test fixtures ────────────────────────────────────────────────────────
 
     private fun track(
         routeId: String,
         distanceMeters: Double,
-        startTime: Long
+        startTime: Long,
     ) = SavedTrack(
         routeId = routeId,
         name = "Test journey",
-        startLatitude = 18.5204, startLongitude = 73.8567,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = startTime, endTime = -1L,
-        distance = distanceMeters, duration = 0L,
+        startLatitude = 18.5204,
+        startLongitude = 73.8567,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = startTime,
+        endTime = -1L,
+        distance = distanceMeters,
+        duration = 0L,
         selectedVehicleType = "fourWheelerPetrol",
         vehiclePricing = 10.0,
-        createdAt = startTime, startedAtTimestamp = startTime,
-        startedByEmployeeCode = "EMP001"
+        createdAt = startTime,
+        startedAtTimestamp = startTime,
+        startedByEmployeeCode = "EMP001",
     )
 }
 
@@ -302,9 +318,8 @@ class TrackMilesViewModelTest {
  * unexpected DAO call fails the test loudly instead of silently returning defaults.
  */
 class FakeSavedTrackDao(
-    unusedSurface: SavedTrackDao = mockk(relaxed = true)
+    unusedSurface: SavedTrackDao = mockk(relaxed = true),
 ) : SavedTrackDao by unusedSurface {
-
     private val tracks = MutableStateFlow<Map<String, SavedTrack>>(emptyMap())
 
     fun preload(track: SavedTrack) {
@@ -317,7 +332,11 @@ class FakeSavedTrackDao(
     }
 
     /** Simulates the foreground service's periodic live write to `saved_tracks`. */
-    fun serviceWrites(routeId: String, distanceMeters: Double, durationMs: Long) {
+    fun serviceWrites(
+        routeId: String,
+        distanceMeters: Double,
+        durationMs: Long,
+    ) {
         tracks.update { current ->
             val track = requireNotNull(current[routeId]) { "no track $routeId" }
             current + (routeId to track.copy(distance = distanceMeters, duration = durationMs))
@@ -326,20 +345,15 @@ class FakeSavedTrackDao(
 
     override suspend fun insertSavedTrack(savedTrack: SavedTrack) = preload(savedTrack)
 
-    override suspend fun getSavedTrackById(routeId: String): SavedTrack? =
-        tracks.value[routeId]
+    override suspend fun getSavedTrackById(routeId: String): SavedTrack? = tracks.value[routeId]
 
-    override fun observeTrackById(routeId: String): Flow<SavedTrack?> =
-        tracks.map { it[routeId] }
+    override fun observeTrackById(routeId: String): Flow<SavedTrack?> = tracks.map { it[routeId] }
 
-    override suspend fun getActiveTrack(): SavedTrack? =
-        tracks.value.values.firstOrNull { !it.isCompleted }
+    override suspend fun getActiveTrack(): SavedTrack? = tracks.value.values.firstOrNull { !it.isCompleted }
 
-    override fun getCompletedTracks(): Flow<List<SavedTrack>> =
-        tracks.map { it.values.filter { t -> t.isCompleted }.toList() }
+    override fun getCompletedTracks(): Flow<List<SavedTrack>> = tracks.map { it.values.filter { t -> t.isCompleted }.toList() }
 
-    override fun getAllSavedTracks(): Flow<List<SavedTrack>> =
-        tracks.map { it.values.toList() }
+    override fun getAllSavedTracks(): Flow<List<SavedTrack>> = tracks.map { it.values.toList() }
 
     override fun getAllSavedTracksByAccount(accountId: String): Flow<List<SavedTrack>> =
         tracks.map { it.values.filter { t -> t.startedByAccountId == accountId } }

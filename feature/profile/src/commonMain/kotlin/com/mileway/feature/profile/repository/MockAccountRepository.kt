@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
+/** Generated ids carry the last eight digits of the creation timestamp - unique enough offline. */
+private const val ID_SUFFIX_DIGITS = 8
+
 /**
  * P1.2: reads the switchable-persona list from the shared, Room-backed [MockAccountDao] (P1.1)
  * instead of the static `stub.ProfileMockData.accounts()` list. [DemoAccount] stays the
@@ -17,7 +20,10 @@ import kotlin.time.Clock
  * preserved (`AgentRepository`'s `seedIfEmpty()` pattern from PLAN_V20 P1.2, also used by
  * `VoucherHistoryRepository` in PLAN_V21 P3.1).
  */
-class MockAccountRepository(private val dao: MockAccountDao, private val clock: Clock = Clock.System) {
+class MockAccountRepository(
+    private val dao: MockAccountDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, DAO-ordered (`createdAtMs ASC`) list of switchable personas. */
     fun observeAll(): Flow<List<DemoAccount>> = dao.observeAll().map { rows -> rows.map { it.toDemoAccount() } }
 
@@ -47,7 +53,7 @@ class MockAccountRepository(private val dao: MockAccountDao, private val clock: 
         val now = clock.now().toEpochMilliseconds()
         dao.upsert(
             MockAccountEntity(
-                accountId = "ACC-" + now.toString().takeLast(8),
+                accountId = "ACC-" + now.toString().takeLast(ID_SUFFIX_DIGITS),
                 displayName = displayName,
                 employeeCode = employeeCode,
                 organization = organization,

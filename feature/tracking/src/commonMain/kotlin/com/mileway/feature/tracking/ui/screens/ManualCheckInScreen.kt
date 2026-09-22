@@ -135,7 +135,10 @@ fun ManualCheckInScreen(
                     HardwareEvent(
                         token = "manual_checkin_${kotlin.time.Clock.System.now().toEpochMilliseconds()}",
                         eventType = EventType.CHECK_IN,
-                        time = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                        time =
+                            kotlin.time.Clock.System
+                                .now()
+                                .toEpochMilliseconds(),
                         lat = demoLat,
                         lng = demoLng,
                         event = "Manual check-in${if (selectedType != null) " ($selectedType)" else ""}: $reason",

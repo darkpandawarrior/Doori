@@ -408,8 +408,7 @@ private fun AddMoreTile(onClick: () -> Unit) {
                     width = 1.5.dp,
                     color = MaterialTheme.colorScheme.outline,
                     shape = DesignTokens.Shape.roundedMd,
-                )
-                .clickable(onClick = onClick),
+                ).clickable(onClick = onClick),
     ) {
         Column(
             modifier =

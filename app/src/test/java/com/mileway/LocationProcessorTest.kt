@@ -15,9 +15,14 @@ import kotlin.test.assertTrue
  * Unit tests for the advanced location-tracking pipeline. Pure Kotlin, no device needed.
  */
 class LocationProcessorTest {
-
-    private fun fix(lat: Double, lng: Double, t: Long, speed: Float = 11f, mock: Boolean = false, accuracy: Float = 10f) =
-        GpsFix(lat = lat, lng = lng, timeMs = t, speedMps = speed, isMock = mock, accuracyM = accuracy)
+    private fun fix(
+        lat: Double,
+        lng: Double,
+        t: Long,
+        speed: Float = 11f,
+        mock: Boolean = false,
+        accuracy: Float = 10f,
+    ) = GpsFix(lat = lat, lng = lng, timeMs = t, speedMps = speed, isMock = mock, accuracyM = accuracy)
 
     @Test
     fun `haversine matches known distance`() {
@@ -111,17 +116,19 @@ class LocationProcessorTest {
 
     @Test
     fun `seeded processor reports persisted totals before any new fix`() {
-        val proc = LocationProcessor(
-            initialStats = TrackStats(
-                totalPoints = 40,
-                originalDistanceM = 5_000.0,
-                cleanedDistanceM = 5_000.0,
-                abnormalDistanceM = 0.0,
-                mockDistanceM = 0.0,
-                avgSpeedMps = 10.0,
-                maxSpeedMps = 18.0
+        val proc =
+            LocationProcessor(
+                initialStats =
+                    TrackStats(
+                        totalPoints = 40,
+                        originalDistanceM = 5_000.0,
+                        cleanedDistanceM = 5_000.0,
+                        abnormalDistanceM = 0.0,
+                        mockDistanceM = 0.0,
+                        avgSpeedMps = 10.0,
+                        maxSpeedMps = 18.0,
+                    ),
             )
-        )
         assertEquals(5_000.0, proc.cleanedDistanceM, 0.001)
         assertEquals(40, proc.totalPoints)
         assertEquals(10.0, proc.avgSpeedMps, 0.001)
@@ -130,18 +137,20 @@ class LocationProcessorTest {
 
     @Test
     fun `seeded processor accumulates new movement on top of persisted distance`() {
-        val proc = LocationProcessor(
-            enableKalman = false,
-            initialStats = TrackStats(
-                totalPoints = 40,
-                originalDistanceM = 5_000.0,
-                cleanedDistanceM = 5_000.0,
-                abnormalDistanceM = 0.0,
-                mockDistanceM = 0.0,
-                avgSpeedMps = 10.0,
-                maxSpeedMps = 18.0
+        val proc =
+            LocationProcessor(
+                enableKalman = false,
+                initialStats =
+                    TrackStats(
+                        totalPoints = 40,
+                        originalDistanceM = 5_000.0,
+                        cleanedDistanceM = 5_000.0,
+                        abnormalDistanceM = 0.0,
+                        mockDistanceM = 0.0,
+                        avgSpeedMps = 10.0,
+                        maxSpeedMps = 18.0,
+                    ),
             )
-        )
         // First fix after a restore is only an anchor: the gap travelled while the service
         // was dead must not count as distance, even if it is kilometres from the last point.
         val anchor = proc.process(fix(18.5000, 73.8, 0), isPaused = false)

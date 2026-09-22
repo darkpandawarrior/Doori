@@ -3,6 +3,9 @@ package com.mileway.core.data.session
 import com.mileway.core.data.model.db.CurrentTrackData
 import kotlinx.coroutines.flow.Flow
 
+/** How many comma-separated fields [SyncSessionOverride.encode] writes, and [SyncSessionOverride.decode] expects. */
+private const val EncodedFieldCount = 5
+
 /**
  * PLAN_V24 P10.2 — a current-journey-only override of the mileage-sync settings. When set (and a
  * track is active), it wins over the persisted defaults (the sync-settings plugins in the registry)
@@ -21,7 +24,7 @@ data class SyncSessionOverride(
     companion object {
         fun decode(raw: String?): SyncSessionOverride? {
             val parts = raw?.split(",") ?: return null
-            if (parts.size != 5) return null
+            if (parts.size != EncodedFieldCount) return null
             val interval = parts[4].toIntOrNull() ?: return null
             return SyncSessionOverride(
                 locationEnabled = parts[0].toBooleanStrictOrNull() ?: return null,

@@ -17,9 +17,15 @@ data class OdometerReading(
 
 /** Terminal result of a media-capture flow launched via `rememberMediaCaptureLauncher` (V25 P25.A1.1/.2). */
 sealed interface MediaCaptureResult {
-    data class Attachments(val items: List<AttachmentItem>) : MediaCaptureResult
+    data class Attachments(
+        val items: List<AttachmentItem>,
+    ) : MediaCaptureResult
 
-    data class Odometer(val reading: OdometerReading) : MediaCaptureResult
+    data class Odometer(
+        val reading: OdometerReading,
+    ) : MediaCaptureResult
 
-    data class QrPayload(val value: String) : MediaCaptureResult
+    data class QrPayload(
+        val value: String,
+    ) : MediaCaptureResult
 }

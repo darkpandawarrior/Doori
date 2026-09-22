@@ -7,7 +7,9 @@ import java.util.Locale
 import kotlin.coroutines.resume
 import android.speech.tts.TextToSpeech as AndroidTts
 
-class AndroidTextToSpeech(context: Context) : TextToSpeech {
+class AndroidTextToSpeech(
+    context: Context,
+) : TextToSpeech {
     private var tts: AndroidTts? = null
     private val appContext = context.applicationContext
 

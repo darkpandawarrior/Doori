@@ -466,7 +466,8 @@ private fun EnterpriseControl(
                     }
                 Row(
                     modifier =
-                        Modifier.fillMaxWidth()
+                        Modifier
+                            .fillMaxWidth()
                             .clickable {
                                 if (isMulti) {
                                     val current = value.values
@@ -475,8 +476,7 @@ private fun EnterpriseControl(
                                     onValueChange(FormFieldValue.Select(option))
                                     showSheet = false
                                 }
-                            }
-                            .padding(vertical = DesignTokens.Spacing.s),
+                            }.padding(vertical = DesignTokens.Spacing.s),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -645,13 +645,24 @@ private fun Double.toDisplayString(): String = if (this == kotlin.math.floor(thi
 private fun isoDateToMillis(iso: String?): Long? =
     iso?.let { runCatching { LocalDate.parse(it).atStartOfDayIn(TimeZone.currentSystemDefault()).toEpochMilliseconds() }.getOrNull() }
 
-private fun millisToIsoDate(millis: Long): String = Instant.fromEpochMilliseconds(millis).toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+private fun millisToIsoDate(millis: Long): String =
+    Instant
+        .fromEpochMilliseconds(millis)
+        .toLocalDateTime(TimeZone.currentSystemDefault())
+        .date
+        .toString()
+
+/** Minutes in an hour — a "HH:mm" value is stored as minutes past midnight. */
+private const val MinutesPerHour = 60
+
+/** A time field with no value, or an unparseable one, falls back to 09:00. */
+private const val DefaultTimeHour = 9
 
 private fun timeStringToMinutes(value: String?): Int {
-    val parts = value?.split(":") ?: return 9 * 60
-    val hour = parts.getOrNull(0)?.toIntOrNull() ?: 9
+    val parts = value?.split(":") ?: return DefaultTimeHour * MinutesPerHour
+    val hour = parts.getOrNull(0)?.toIntOrNull() ?: DefaultTimeHour
     val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
-    return hour * 60 + minute
+    return hour * MinutesPerHour + minute
 }
 
 private fun minutesToTimeString(

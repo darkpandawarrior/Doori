@@ -15,7 +15,6 @@ import kotlin.test.assertNull
  * platform concern, not a JVM-testable one.
  */
 class SnapshotCacheTest {
-
     @Test
     fun `nothing cached yet returns null`() =
         runTest {

@@ -3,6 +3,9 @@ package com.mileway.feature.logging.ui.model
 import com.mileway.core.data.util.haversineMeters
 import kotlinx.serialization.Serializable
 
+/** Metres in a kilometre - [haversineMeters] returns metres, this file's callers want km. */
+private const val MetresPerKm = 1_000.0
+
 /** Category for a POI, drives the icon shown in the search result row. */
 @Serializable
 enum class PoiCategory { OFFICE, CLIENT, RESTAURANT, HOME, TRANSIT, LANDMARK, OTHER }
@@ -115,7 +118,7 @@ fun haversineKm(
     lng1: Double,
     lat2: Double,
     lng2: Double,
-): Double = haversineMeters(lat1, lng1, lat2, lng2) / 1_000.0
+): Double = haversineMeters(lat1, lng1, lat2, lng2) / MetresPerKm
 
 /**
  * Total great-circle distance across an ordered list of stops (sum of consecutive

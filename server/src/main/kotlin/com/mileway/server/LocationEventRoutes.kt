@@ -123,13 +123,13 @@ private fun locationResponse(call: ApplicationCall): LocationResponseV2 {
     val (token, start, end) = rangeParams(call)
     return transaction {
         val rows =
-            LocationPointsTable.selectAll()
+            LocationPointsTable
+                .selectAll()
                 .where {
                     (LocationPointsTable.token eq token) and
                         (LocationPointsTable.date greaterEq start) and
                         (LocationPointsTable.date lessEq end)
-                }
-                .orderBy(LocationPointsTable.date to SortOrder.ASC)
+                }.orderBy(LocationPointsTable.date to SortOrder.ASC)
                 .map(::locationRowToPayload)
         LocationResponseV2(status = 200, count = rows.size, data = rows)
     }
@@ -139,13 +139,13 @@ private fun eventResponse(call: ApplicationCall): EventResponseV2 {
     val (token, start, end) = rangeParams(call)
     return transaction {
         val rows =
-            EventsTable.selectAll()
+            EventsTable
+                .selectAll()
                 .where {
                     (EventsTable.token eq token) and
                         (EventsTable.time greaterEq start) and
                         (EventsTable.time lessEq end)
-                }
-                .orderBy(EventsTable.time to SortOrder.ASC)
+                }.orderBy(EventsTable.time to SortOrder.ASC)
                 .map(::eventRowToPayload)
         EventResponseV2(status = 200, count = rows.size, data = rows)
     }

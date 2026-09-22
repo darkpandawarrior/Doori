@@ -32,25 +32,27 @@ internal object ComposeResourcesTestFixture {
     }
 
     fun install() {
-        val src = File(
-            repoRoot,
-            "core/ui/build/generated/compose/resourceGenerator/preparedResources/commonMain/composeResources",
-        )
+        val src =
+            File(
+                repoRoot,
+                "core/ui/build/generated/compose/resourceGenerator/preparedResources/commonMain/composeResources",
+            )
         if (!src.isDirectory) return
 
         // Classpath-resources root the unit-test runtime classloader scans (last-resort lookup), and
         // the Robolectric merged-assets dir (first lookup). Writing to whichever exists is enough.
-        val targets = listOf(
-            File(
-                repoRoot,
-                "app/build/intermediates/java_res/noGmsDebugUnitTest/processNoGmsDebugUnitTestJavaRes/" +
-                    "out/composeResources/$RES_NAMESPACE",
-            ),
-            File(
-                repoRoot,
-                "app/build/intermediates/assets/noGmsDebug/mergeNoGmsDebugAssets/composeResources/$RES_NAMESPACE",
-            ),
-        )
+        val targets =
+            listOf(
+                File(
+                    repoRoot,
+                    "app/build/intermediates/java_res/noGmsDebugUnitTest/processNoGmsDebugUnitTestJavaRes/" +
+                        "out/composeResources/$RES_NAMESPACE",
+                ),
+                File(
+                    repoRoot,
+                    "app/build/intermediates/assets/noGmsDebug/mergeNoGmsDebugAssets/composeResources/$RES_NAMESPACE",
+                ),
+            )
         for (target in targets) {
             if (target.exists() && File(target, "values/strings.commonMain.cvr").exists()) continue
             target.parentFile?.mkdirs()

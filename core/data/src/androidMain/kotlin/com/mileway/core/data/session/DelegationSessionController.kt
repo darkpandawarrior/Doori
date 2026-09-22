@@ -18,7 +18,9 @@ private val Context.delegationSessionDataStore by preferencesDataStore(name = "d
  * the nested-block/state logic are documented on [DelegationSessionSource] /
  * [InMemoryDelegationSessionSource].
  */
-class DelegationSessionController(private val context: Context) : DelegationSessionSource {
+class DelegationSessionController(
+    private val context: Context,
+) : DelegationSessionSource {
     private val actingKey = booleanPreferencesKey("delegation_is_acting")
     private val nameKey = stringPreferencesKey("delegation_acting_name")
     private val emailKey = stringPreferencesKey("delegation_acting_email")

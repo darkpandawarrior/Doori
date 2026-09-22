@@ -15,7 +15,10 @@ import kotlin.time.Clock
  * source's invalid/expired/already-used/success outcome. Redeem-notification logging is done by the
  * ViewModel (localized strings resolved in the composable).
  */
-class CouponsRepository(private val dao: CouponDao, private val clock: Clock = Clock.System) {
+class CouponsRepository(
+    private val dao: CouponDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live coupons, active first (status ASC puts ACTIVE before EXPIRED/REDEEMED alphabetically). */
     fun observeAll(): Flow<List<Coupon>> = dao.observeAll().map { rows -> rows.map { it.toCoupon() } }
 
@@ -23,7 +26,10 @@ class CouponsRepository(private val dao: CouponDao, private val clock: Clock = C
     suspend fun seedIfEmpty() {
         if (dao.count() > 0) return
         val now = clock.now().toEpochMilliseconds()
-        dao.upsertAll(com.mileway.feature.profile.data.CouponsMockData.coupons.map { it.toEntity(now) })
+        dao.upsertAll(
+            com.mileway.feature.profile.data.CouponsMockData.coupons
+                .map { it.toEntity(now) },
+        )
     }
 
     /**

@@ -65,11 +65,20 @@ class PettyCardDetailViewModelTest {
             val vm = newViewModel()
             vm.onAction(PettyCardDetailAction.Load(1L))
             advanceUntilIdle()
-            val title = vm.state.value.filteredTransactions.first().title
+            val title =
+                vm.state.value.filteredTransactions
+                    .first()
+                    .title
 
             vm.onAction(PettyCardDetailAction.SetQuery(title))
 
-            assertTrue(vm.state.value.filteredTransactions.all { it.title.contains(title, ignoreCase = true) })
-            assertTrue(vm.state.value.filteredTransactions.isNotEmpty())
+            assertTrue(
+                vm.state.value.filteredTransactions
+                    .all { it.title.contains(title, ignoreCase = true) },
+            )
+            assertTrue(
+                vm.state.value.filteredTransactions
+                    .isNotEmpty(),
+            )
         }
 }

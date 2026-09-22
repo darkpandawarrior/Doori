@@ -47,15 +47,14 @@ import org.jetbrains.compose.resources.stringResource
 private fun vehicleIcon(
     key: String?,
     name: String?,
-): ImageVector {
-    return when (VehicleCatalog.iconKeyFor(key)) {
+): ImageVector =
+    when (VehicleCatalog.iconKeyFor(key)) {
         VehicleCatalog.ICON_BIKE -> Icons.Filled.DirectionsBike
         VehicleCatalog.ICON_TAXI -> Icons.Filled.LocalTaxi
         VehicleCatalog.ICON_AUTO -> Icons.Filled.LocalTaxi
         VehicleCatalog.ICON_BUS -> Icons.Filled.DirectionsBus
         else -> vehicleIconByName(name)
     }
-}
 
 /** Fallback name heuristic for a vehicle whose key isn't in the catalog. */
 private fun vehicleIconByName(name: String?): ImageVector {

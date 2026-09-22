@@ -91,8 +91,7 @@ fun ZoomImageViewer(
                                 }
                             },
                         )
-                    }
-                    .pointerInput(Unit) {
+                    }.pointerInput(Unit) {
                         detectTransformGestures(
                             onGesture = { _, pan, zoom, _ ->
                                 // Apply zoom constraints (min 1x, max 5x)

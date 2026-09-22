@@ -18,7 +18,9 @@ import kotlin.time.Clock
  * [SyncConfig], and the config's interval sets `nextSyncDueMs`. A fixed new batch of "captured since
  * last sync" rows is re-staged each run so the button stays meaningful across taps.
  */
-class SyncDiagnosticsRepository(private val clock: Clock = Clock.System) {
+class SyncDiagnosticsRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val _metrics =
         MutableStateFlow(
             SyncMetrics(

@@ -24,12 +24,18 @@ data class VoucherHistoryUiState(
 sealed interface VoucherHistoryAction {
     data object Refresh : VoucherHistoryAction
 
-    data class SelectTab(val index: Int) : VoucherHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : VoucherHistoryAction
 
-    data class SetQuery(val query: String) : VoucherHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : VoucherHistoryAction
 
     /** P3.6: withdraws a DRAFT voucher (gated by [VoucherRepository.withdraw]); a no-op for any other status. */
-    data class Withdraw(val voucherNumber: String) : VoucherHistoryAction
+    data class Withdraw(
+        val voucherNumber: String,
+    ) : VoucherHistoryAction
 }
 
 sealed interface VoucherHistoryEffect {
@@ -39,7 +45,9 @@ sealed interface VoucherHistoryEffect {
      * would either crash silently or leave the voucher looking withdrawn when it wasn't. Named the
      * same way the check-in/log-miles/expense submit flows already surface a local-write failure.
      */
-    data class ShowError(val message: UiText) : VoucherHistoryEffect
+    data class ShowError(
+        val message: UiText,
+    ) : VoucherHistoryEffect
 }
 
 /**

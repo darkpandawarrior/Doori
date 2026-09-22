@@ -29,7 +29,8 @@ internal fun formatMoney(
 ): String {
     val whole = amount.toLong()
     val grouped =
-        whole.toString()
+        whole
+            .toString()
             .reversed()
             .chunked(3)
             .joinToString(",")

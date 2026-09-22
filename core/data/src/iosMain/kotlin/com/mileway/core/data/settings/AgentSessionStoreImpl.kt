@@ -21,11 +21,12 @@ class AgentSessionStoreImpl : AgentSessionStore {
         )
 
     override suspend fun getActiveThread(): Pair<String, Long>? =
-        store.data.map { prefs ->
-            val id = prefs[threadIdKey] ?: return@map null
-            val ms = prefs[lastActiveKey] ?: return@map null
-            id to ms
-        }.firstOrNull()
+        store.data
+            .map { prefs ->
+                val id = prefs[threadIdKey] ?: return@map null
+                val ms = prefs[lastActiveKey] ?: return@map null
+                id to ms
+            }.firstOrNull()
 
     override suspend fun setActiveThread(
         threadId: String,

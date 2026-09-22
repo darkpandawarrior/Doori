@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.first
 private val Context.agentAnalyticsDs by preferencesDataStore("agent_analytics")
 private val KEY_HITS = stringPreferencesKey("intent_hits")
 
-class DataStoreAgentAnalyticsStore(private val context: Context) : AgentAnalyticsStore {
+class DataStoreAgentAnalyticsStore(
+    private val context: Context,
+) : AgentAnalyticsStore {
     override suspend fun recordQuestion(intent: String) {
         context.agentAnalyticsDs.edit { prefs ->
             val current = prefs[KEY_HITS].parseHits()

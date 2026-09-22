@@ -14,7 +14,6 @@ import kotlin.test.assertTrue
  * (skipping PENDING entirely) is rejected.
  */
 class VoucherTransitionsTest {
-
     @Test
     fun `DRAFT allows only PENDING`() {
         assertEquals(setOf(VoucherStatus.PENDING), VoucherTransitions.allowed(VoucherStatus.DRAFT))

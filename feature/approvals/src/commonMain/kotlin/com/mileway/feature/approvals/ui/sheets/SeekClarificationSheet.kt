@@ -271,11 +271,16 @@ fun SeekClarificationSheet(
 private sealed interface ChatRow {
     val key: String
 
-    data class DateSeparator(val label: String, val dayEpoch: Long) : ChatRow {
+    data class DateSeparator(
+        val label: String,
+        val dayEpoch: Long,
+    ) : ChatRow {
         override val key get() = "sep_$dayEpoch"
     }
 
-    data class Message(val message: ClarificationMessage) : ChatRow {
+    data class Message(
+        val message: ClarificationMessage,
+    ) : ChatRow {
         override val key get() = message.id
     }
 }

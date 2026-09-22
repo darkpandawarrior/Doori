@@ -44,8 +44,14 @@ private val intentClassifier =
         mapOf(
             Intent.MILEAGE_WEEK to
                 listOf(
-                    "km this week", "km last week", "mileage this week", "distance this week",
-                    "trips this week", "how many km", "km did i", "tracked",
+                    "km this week",
+                    "km last week",
+                    "mileage this week",
+                    "distance this week",
+                    "trips this week",
+                    "how many km",
+                    "km did i",
+                    "tracked",
                 ),
             Intent.MILEAGE_RATE to listOf("reimbursement rate", "per km", "rate per km", "mileage rate"),
             Intent.EXPENSE_REJECTION to listOf("expense", "rejected", "rejection", "exp-"),

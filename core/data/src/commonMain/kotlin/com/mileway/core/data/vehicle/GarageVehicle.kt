@@ -54,7 +54,12 @@ internal fun VehicleEntity.toDomain(): GarageVehicle =
         vehicleTypeKey = vehicleTypeKey,
         photoUri = photoUri,
         isActive = isActive,
-        services = servicesCsv.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet(),
+        services =
+            servicesCsv
+                .split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toSet(),
         availability =
             if (availabilityStartMinute >= 0 && availabilityEndMinute >= 0) {
                 AvailabilityWindow(availabilityStartMinute, availabilityEndMinute, availabilityRatePerHour.coerceAtLeast(0.0))

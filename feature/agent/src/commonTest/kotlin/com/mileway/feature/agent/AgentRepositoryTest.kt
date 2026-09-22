@@ -23,15 +23,13 @@ private class FakeAgentDao : AgentDao {
     val conversations = LinkedHashMap<String, AgentConversationEntity>()
     val messages = LinkedHashMap<String, AgentMessageEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _convFlow = MutableStateFlow<List<AgentConversationEntity>>(emptyList())
+    private val conversationFlow = MutableStateFlow<List<AgentConversationEntity>>(emptyList())
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _msgFlow = MutableStateFlow<List<AgentMessageEntity>>(emptyList())
+    private val messageFlow = MutableStateFlow<List<AgentMessageEntity>>(emptyList())
 
     private fun flush() {
-        _convFlow.value = conversations.values.sortedByDescending { it.lastMessageMs }
-        _msgFlow.value = messages.values.toList()
+        conversationFlow.value = conversations.values.sortedByDescending { it.lastMessageMs }
+        messageFlow.value = messages.values.toList()
     }
 
     override suspend fun insertConversation(conversation: AgentConversationEntity) {
@@ -39,7 +37,7 @@ private class FakeAgentDao : AgentDao {
         flush()
     }
 
-    override fun observeConversations(): Flow<List<AgentConversationEntity>> = _convFlow.asStateFlow()
+    override fun observeConversations(): Flow<List<AgentConversationEntity>> = conversationFlow.asStateFlow()
 
     override suspend fun updateConversationMeta(
         id: String,
@@ -63,7 +61,7 @@ private class FakeAgentDao : AgentDao {
     }
 
     override fun observeMessages(conversationId: String): Flow<List<AgentMessageEntity>> =
-        _msgFlow.map { list -> list.filter { it.conversationId == conversationId }.sortedBy { it.timestampMs } }
+        messageFlow.map { list -> list.filter { it.conversationId == conversationId }.sortedBy { it.timestampMs } }
 
     override suspend fun updateMessage(message: AgentMessageEntity) {
         messages[message.messageId] = message

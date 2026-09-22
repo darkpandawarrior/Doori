@@ -34,7 +34,9 @@ private const val PAYLOAD_JSON_KEY = "payload_json"
  *
  * gms flavor ONLY — confined to `app/src/gms` per the flavor-isolation gotcha in PLAN_V23 §7.
  */
-class WearDataLayerWatchSyncBridge(context: Context) : WatchSyncBridge {
+class WearDataLayerWatchSyncBridge(
+    context: Context,
+) : WatchSyncBridge {
     private val dataClient: DataClient = Wearable.getDataClient(context.applicationContext)
 
     override suspend fun push(payload: WatchSyncPayload) {
@@ -52,7 +54,8 @@ class WearDataLayerWatchSyncBridge(context: Context) : WatchSyncBridge {
     override suspend fun latest(): WatchSyncPayload? =
         runCatching {
             dataClient.dataItems.await().use { buffer ->
-                buffer.asSequence()
+                buffer
+                    .asSequence()
                     .firstOrNull { it.uri.path == SNAPSHOT_SYNC_PATH }
                     ?.let { it.decodePayload() }
             }

@@ -2,6 +2,7 @@ package com.mileway.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 import com.materialkolor.hct.Hct
+import kotlin.math.pow
 
 /*
  * Perceptual colour maths in HCT (hue / chroma / **tone**), the space Material 3 itself uses.
@@ -21,9 +22,15 @@ import com.materialkolor.hct.Hct
  * Compose Multiplatform targets and this is four lines. Upgrade path: delete in favour of
  * `toArgb()` once it is common on every target Mileway ships.
  */
+private const val ChannelMax = 255f
+private const val RoundHalf = 0.5f
+private const val AlphaShift = 24
+private const val RedShift = 16
+private const val GreenShift = 8
+
 private fun Color.toArgbInt(): Int {
-    fun ch(v: Float): Int = (v.coerceIn(0f, 1f) * 255f + 0.5f).toInt()
-    return (ch(alpha) shl 24) or (ch(red) shl 16) or (ch(green) shl 8) or ch(blue)
+    fun ch(v: Float): Int = (v.coerceIn(0f, 1f) * ChannelMax + RoundHalf).toInt()
+    return (ch(alpha) shl AlphaShift) or (ch(red) shl RedShift) or (ch(green) shl GreenShift) or ch(blue)
 }
 
 internal fun Color.hct(): Hct = Hct.fromInt(toArgbInt())
@@ -60,9 +67,38 @@ internal fun hueBlend(
     val a = from.hct()
     val b = to.hct()
     val delta = ((b.hue - a.hue + 540.0).mod(360.0)) - 180.0
-    return Hct.from(
-        (a.hue + delta * fraction).mod(360.0),
-        a.chroma + (b.chroma - a.chroma) * fraction,
-        a.tone,
-    ).toColor()
+    return Hct
+        .from(
+            (a.hue + delta * fraction).mod(360.0),
+            a.chroma + (b.chroma - a.chroma) * fraction,
+            a.tone,
+        ).toColor()
+}
+
+// WCAG 2.x relative-luminance coefficients (sRGB). These are the specification's numbers, not
+// tuning knobs: https://www.w3.org/TR/WCAG21/#dfn-relative-luminance
+private const val SrgbLinearCutoff = 0.03928f
+private const val SrgbLinearDivisor = 12.92f
+private const val SrgbGammaOffset = 0.055f
+private const val SrgbGammaDivisor = 1.055f
+private const val SrgbGammaExponent = 2.4
+private const val LuminanceWeightRed = 0.2126f
+private const val LuminanceWeightGreen = 0.7152f
+private const val LuminanceWeightBlue = 0.0722f
+
+/**
+ * WCAG relative luminance (sRGB), multiplatform-safe (no `android.graphics`).
+ *
+ * The single copy. It previously existed three times — [DesignTokens]' light/dark heuristic,
+ * [MilewaySemanticColors]' surface probe, and a test — which is three places for one formula to
+ * drift.
+ */
+internal fun Color.relativeLuminance(): Float {
+    fun lin(c: Float): Float =
+        if (c <= SrgbLinearCutoff) {
+            c / SrgbLinearDivisor
+        } else {
+            ((c + SrgbGammaOffset) / SrgbGammaDivisor).toDouble().pow(SrgbGammaExponent).toFloat()
+        }
+    return LuminanceWeightRed * lin(red) + LuminanceWeightGreen * lin(green) + LuminanceWeightBlue * lin(blue)
 }

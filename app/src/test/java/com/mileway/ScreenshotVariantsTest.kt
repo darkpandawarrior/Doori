@@ -37,6 +37,7 @@ import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
 import com.mileway.core.data.model.db.SavedTrack
+import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.core.data.session.CurrentTrackDataStore
@@ -88,7 +89,6 @@ import com.mileway.feature.tracking.ui.sheets.JourneyGuideState
 import com.mileway.feature.tracking.ui.sheets.JourneyGuideStep
 import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.viewmodel.TrackSignal
-import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.feature.travel.di.travelModule
 import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
 import com.mileway.stub.di.stubModule
@@ -104,7 +104,6 @@ import com.siddharth.kmp.common.CrashReporter
 import dev.tmapps.konnection.Konnection
 import io.mockk.every
 import io.mockk.mockk
-import java.io.File
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -117,6 +116,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.io.File
 
 // ---------------------------------------------------------------------------
 // Cross-direction comparison gallery: the SAME ten key screens, rendered once per new
@@ -140,7 +140,6 @@ import org.robolectric.annotation.GraphicsMode
 @Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotVariantsTest {
-
     private val screenshotNowMs = 1_767_268_800_000L
 
     companion object {
@@ -177,22 +176,36 @@ class ScreenshotVariantsTest {
                 dao.preload(completedTrack("route-j2", "FC Road → Koregaon Park", 3_800.0, baseMs - 172_800_000L))
             }
 
-        private fun completedTrack(routeId: String, name: String, distanceMeters: Double, startMs: Long) =
-            SavedTrack(
-                routeId = routeId, name = name, isCompleted = true,
-                startLatitude = 18.5204, startLongitude = 73.8567,
-                endLatitude = 18.5500, endLongitude = 73.8800,
-                pausedLatitude = 0.0, pausedLongitude = 0.0,
-                startTime = startMs, endTime = startMs + 3_600_000L,
-                distance = distanceMeters, duration = 3_600_000L,
-                selectedVehicleType = "fourWheelerPetrol", vehiclePricing = 10.0,
-                createdAt = startMs, startedAtTimestamp = startMs,
-                startedByEmployeeCode = "EMP001",
-            )
+        private fun completedTrack(
+            routeId: String,
+            name: String,
+            distanceMeters: Double,
+            startMs: Long,
+        ) = SavedTrack(
+            routeId = routeId,
+            name = name,
+            isCompleted = true,
+            startLatitude = 18.5204,
+            startLongitude = 73.8567,
+            endLatitude = 18.5500,
+            endLongitude = 73.8800,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = startMs,
+            endTime = startMs + 3_600_000L,
+            distance = distanceMeters,
+            duration = 3_600_000L,
+            selectedVehicleType = "fourWheelerPetrol",
+            vehiclePricing = 10.0,
+            createdAt = startMs,
+            startedAtTimestamp = startMs,
+            startedByEmployeeCode = "EMP001",
+        )
 
-        private val mediaLibraryDao = mockk<MediaLibraryDao>(relaxed = true).also { dao ->
-            every { dao.observeAll() } returns MutableStateFlow(emptyList<MediaLibraryEntry>())
-        }
+        private val mediaLibraryDao =
+            mockk<MediaLibraryDao>(relaxed = true).also { dao ->
+                every { dao.observeAll() } returns MutableStateFlow(emptyList<MediaLibraryEntry>())
+            }
 
         private val voucherDao = FakeVoucherDao()
 
@@ -226,28 +239,47 @@ class ScreenshotVariantsTest {
                 single<NotificationDao> { FakeNotificationDao() }
                 single<ConnectedAccountDao> { FakeConnectedAccountDao() }
                 single<com.mileway.core.data.dao.PaymentWalletDao> { FakePaymentWalletDao() }
-                single { com.mileway.core.data.otp.LocalOtpEngine() }
-                single { com.mileway.core.data.review.SimulatedReviewEngine() }
+                single {
+                    com.mileway.core.data.otp
+                        .LocalOtpEngine()
+                }
+                single {
+                    com.mileway.core.data.review
+                        .SimulatedReviewEngine()
+                }
                 single<com.mileway.core.data.dao.SavedPlaceDao> { FakeSavedPlaceDao() }
                 single<com.mileway.core.data.dao.EmergencyContactDao> { FakeEmergencyContactDao() }
-                single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
+                single {
+                    com.mileway.core.data.emergency
+                        .EmergencyContactsRepository(get())
+                }
                 single<com.mileway.core.data.dao.DocumentDao> { FakeDocumentDao() }
                 single<com.mileway.core.data.dao.ReferralTxnDao> { FakeReferralTxnDao() }
                 single<com.mileway.core.data.dao.CouponDao> { FakeCouponDao() }
                 single<com.mileway.core.data.dao.RewardCardDao> { FakeRewardCardDao() }
                 single<com.mileway.core.data.dao.CampaignDao> { FakeCampaignDao() }
-                single { com.mileway.core.data.campaign.CampaignRepository(get()) }
+                single {
+                    com.mileway.core.data.campaign
+                        .CampaignRepository(get())
+                }
                 single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
                 single<com.mileway.core.data.dao.ApprovalCommentDao> { FakeApprovalCommentDao() }
                 single<com.mileway.core.data.dao.SubscriptionDao> { FakeSubscriptionDao() }
-                single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
+                single {
+                    com.mileway.core.data.subscription
+                        .SubscriptionRepository(get())
+                }
                 single<com.mileway.core.data.dao.DeletionRequestDao> { FakeDeletionRequestDao() }
-                single { com.mileway.core.data.lifecycle.DeletionRequestRepository(get(), get()) }
+                single {
+                    com.mileway.core.data.lifecycle
+                        .DeletionRequestRepository(get(), get())
+                }
                 single<kotlin.time.Clock> { kotlin.time.Clock.System }
                 single<com.mileway.core.data.session.PinLockoutSource> {
                     object : com.mileway.core.data.session.PinLockoutSource {
                         override suspend fun getState(accountId: String) =
-                            com.mileway.core.data.session.PinLockoutState()
+                            com.mileway.core.data.session
+                                .PinLockoutState()
 
                         override suspend fun setState(
                             accountId: String,
@@ -259,7 +291,11 @@ class ScreenshotVariantsTest {
                 }
                 single<com.mileway.core.data.location.SavedLocationsSource> {
                     object : com.mileway.core.data.location.SavedLocationsSource {
-                        override val data = MutableStateFlow(com.mileway.core.data.location.SavedLocationsData())
+                        override val data =
+                            MutableStateFlow(
+                                com.mileway.core.data.location
+                                    .SavedLocationsData(),
+                            )
 
                         override suspend fun addRecent(place: com.mileway.core.data.location.SavedPlace) = Unit
 
@@ -286,11 +322,13 @@ class ScreenshotVariantsTest {
                 single<CurrentTrackDataSource> { get<CurrentTrackDataStore>() }
                 single<ActiveAccountSource> { FakeActiveAccountSource() }
                 single<com.mileway.core.data.session.DelegationSessionSource> {
-                    com.mileway.core.data.session.InMemoryDelegationSessionSource()
+                    com.mileway.core.data.session
+                        .InMemoryDelegationSessionSource()
                 }
                 single<com.mileway.core.data.dao.PluginOverrideDao> { mockk(relaxed = true) }
                 single<com.mileway.core.data.plugin.PluginDebugForceSource> {
-                    com.mileway.core.data.plugin.InMemoryPluginDebugForceSource()
+                    com.mileway.core.data.plugin
+                        .InMemoryPluginDebugForceSource()
                 }
                 single {
                     com.mileway.core.data.plugin.PluginRegistry(
@@ -303,43 +341,76 @@ class ScreenshotVariantsTest {
                 single<PinHashSource> { FakePinHashSource() }
                 single<DemoSettingsRepository> {
                     mockk {
-                        every { settings } returns MutableStateFlow(com.mileway.core.data.settings.DemoSettings())
+                        every { settings } returns
+                            MutableStateFlow(
+                                com.mileway.core.data.settings
+                                    .DemoSettings(),
+                            )
                     }
                 }
                 single<com.mileway.core.data.settings.AbnormalDetectionSettingsSource> {
                     mockk {
                         every { overrides } returns
-                            MutableStateFlow(com.mileway.core.data.settings.AbnormalDetectionOverrides())
+                            MutableStateFlow(
+                                com.mileway.core.data.settings
+                                    .AbnormalDetectionOverrides(),
+                            )
                     }
                 }
                 single<SessionRepository> {
                     mockk(relaxed = true) {
-                        every { sessionState } returns MutableStateFlow(com.mileway.core.data.session.SessionState())
+                        every { sessionState } returns
+                            MutableStateFlow(
+                                com.mileway.core.data.session
+                                    .SessionState(),
+                            )
                     }
                 }
                 single { MockAccountSessionCoordinator(get(), get(), get()) }
                 single<MapSurface> { FakeMapSurface() }
-                single<SystemSettingsOpener> { object : SystemSettingsOpener { override fun openAppSettings() = Unit } }
+                single<SystemSettingsOpener> {
+                    object : SystemSettingsOpener {
+                        override fun openAppSettings() = Unit
+                    }
+                }
                 single<com.mileway.core.data.dao.BugReportDao> { mockk(relaxed = true) }
-                single { com.mileway.core.data.support.BugReportRepository(get()) }
+                single {
+                    com.mileway.core.data.support
+                        .BugReportRepository(get())
+                }
                 single<com.mileway.core.data.dao.FavouriteRouteDao> { mockk(relaxed = true) { every { observeAll() } returns MutableStateFlow(emptyList()) } }
-                single { com.mileway.core.data.favourite.FavouriteRoutesRepository(get(), get()) }
+                single {
+                    com.mileway.core.data.favourite
+                        .FavouriteRoutesRepository(get(), get())
+                }
                 single<com.mileway.core.data.dao.VehicleDao> {
                     mockk(relaxed = true) {
                         every { observeAll() } returns MutableStateFlow(emptyList())
                         every { observeActive() } returns MutableStateFlow(null)
                     }
                 }
-                single { com.mileway.core.data.vehicle.GarageRepository(get()) }
+                single {
+                    com.mileway.core.data.vehicle
+                        .GarageRepository(get())
+                }
                 single<com.mileway.core.data.dao.VehicleAuditDao> {
                     mockk(relaxed = true) { every { observeForVehicle(any()) } returns MutableStateFlow(emptyList()) }
                 }
-                single { com.mileway.core.data.vehicle.SelfAuditRepository(get(), get()) }
-                single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
+                single {
+                    com.mileway.core.data.vehicle
+                        .SelfAuditRepository(get(), get())
+                }
+                single {
+                    com.mileway.core.data.vehicle
+                        .EcometerRepository(get())
+                }
                 single<com.mileway.core.data.dao.TourProgressDao> {
                     mockk(relaxed = true) { every { observe(any()) } returns MutableStateFlow(null) }
                 }
-                single { com.mileway.core.data.engagement.TourRepository(get(), get()) }
+                single {
+                    com.mileway.core.data.engagement
+                        .TourRepository(get(), get())
+                }
             }
 
         private val fakeOverrides =
@@ -348,7 +419,8 @@ class ScreenshotVariantsTest {
                 // (PLAN_V33 A6 landmine): TrackingModule's real VehiclePricingCacheStore needs a
                 // working Context.filesDir the mock androidContext() here doesn't provide.
                 single<com.mileway.feature.tracking.repository.VehiclePricingCache> {
-                    com.mileway.feature.tracking.repository.InMemoryVehiclePricingCache()
+                    com.mileway.feature.tracking.repository
+                        .InMemoryVehiclePricingCache()
                 }
                 single<NotificationScheduler> { mockk(relaxed = true) }
                 single<com.mileway.core.platform.BiometricAuthenticator> { mockk(relaxed = true) }
@@ -356,8 +428,7 @@ class ScreenshotVariantsTest {
                     object : ReferralManager {
                         override suspend fun myReferralCode(): String = "MILEWAY-SID-9F2K"
 
-                        override fun pendingReferral(): kotlinx.coroutines.flow.Flow<ReferralData?> =
-                            kotlinx.coroutines.flow.emptyFlow()
+                        override fun pendingReferral(): kotlinx.coroutines.flow.Flow<ReferralData?> = kotlinx.coroutines.flow.emptyFlow()
 
                         override suspend fun redeem(code: String): Boolean = true
                     }
@@ -544,14 +615,23 @@ class ScreenshotVariantsTest {
             TrackEvidenceScreen(
                 track =
                     SavedTrack(
-                        routeId = "route-e1", name = "Kothrud to Hinjewadi", isCompleted = true,
-                        startLatitude = 18.5074, startLongitude = 73.8077,
-                        endLatitude = 18.5913, endLongitude = 73.7389,
-                        pausedLatitude = 0.0, pausedLongitude = 0.0,
-                        startTime = 1_767_268_800_000L, endTime = 1_767_272_400_000L,
-                        distance = 14_900.0, duration = 3_600_000L,
-                        selectedVehicleType = "fourWheelerPetrol", vehiclePricing = 10.0,
-                        createdAt = 1_767_268_800_000L, startedAtTimestamp = 1_767_268_800_000L,
+                        routeId = "route-e1",
+                        name = "Kothrud to Hinjewadi",
+                        isCompleted = true,
+                        startLatitude = 18.5074,
+                        startLongitude = 73.8077,
+                        endLatitude = 18.5913,
+                        endLongitude = 73.7389,
+                        pausedLatitude = 0.0,
+                        pausedLongitude = 0.0,
+                        startTime = 1_767_268_800_000L,
+                        endTime = 1_767_272_400_000L,
+                        distance = 14_900.0,
+                        duration = 3_600_000L,
+                        selectedVehicleType = "fourWheelerPetrol",
+                        vehiclePricing = 10.0,
+                        createdAt = 1_767_268_800_000L,
+                        startedAtTimestamp = 1_767_268_800_000L,
                         startedByEmployeeCode = "EMP001",
                     ),
             )
@@ -953,5 +1033,4 @@ class ScreenshotVariantsTest {
         composeRule.setContent { DistanceLedgerContent(MilewayThemeVariant.REFINED_EMBER) }
         capture("variant_refined_ember_distance_ledger")
     }
-
 }

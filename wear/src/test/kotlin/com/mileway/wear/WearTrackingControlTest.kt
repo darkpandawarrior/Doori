@@ -1,8 +1,8 @@
 package com.mileway.wear
 
 import com.mileway.core.data.model.display.SurfaceSnapshot
-import com.mileway.core.data.watch.TrackingCommandSender
 import com.mileway.core.data.model.display.SurfaceSnapshotProducer
+import com.mileway.core.data.watch.TrackingCommandSender
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -16,7 +16,6 @@ import org.junit.Test
  * the watch must stop with the token the *phone* started with — never one it made up.
  */
 class WearTrackingControlTest {
-
     private class RecordingSender : TrackingCommandSender {
         val sent = mutableListOf<Pair<String, String>>()
 
@@ -31,9 +30,10 @@ class WearTrackingControlTest {
 
     @Test
     fun `the live token reaches the watch through the snapshot`() {
-        val ui = WearPresentation.toUiState(
-            SurfaceSnapshot(isTracking = true, activeToken = "phone-42"),
-        )
+        val ui =
+            WearPresentation.toUiState(
+                SurfaceSnapshot(isTracking = true, activeToken = "phone-42"),
+            )
         assertEquals("phone-42", ui.activeToken)
         assertTrue(ui.isTracking)
     }
@@ -42,24 +42,26 @@ class WearTrackingControlTest {
     // trip that already ended, and the phone would ignore it.
     @Test
     fun `an idle snapshot drops the token`() {
-        val snapshot = SurfaceSnapshotProducer.produce(
-            completedTracks = emptyList(),
-            isTracking = false,
-            nowEpochMs = 1_000L,
-            activeToken = "left-over",
-        )
+        val snapshot =
+            SurfaceSnapshotProducer.produce(
+                completedTracks = emptyList(),
+                isTracking = false,
+                nowEpochMs = 1_000L,
+                activeToken = "left-over",
+            )
         assertNull(snapshot.activeToken)
         assertNull(WearPresentation.toUiState(snapshot).activeToken)
     }
 
     @Test
     fun `a live snapshot keeps the token`() {
-        val snapshot = SurfaceSnapshotProducer.produce(
-            completedTracks = emptyList(),
-            isTracking = true,
-            nowEpochMs = 1_000L,
-            activeToken = "live-7",
-        )
+        val snapshot =
+            SurfaceSnapshotProducer.produce(
+                completedTracks = emptyList(),
+                isTracking = true,
+                nowEpochMs = 1_000L,
+                activeToken = "live-7",
+            )
         assertEquals("live-7", snapshot.activeToken)
     }
 
@@ -85,10 +87,11 @@ class WearTrackingControlTest {
     // Guards the actual send decision without spinning up a ViewModel: stopping must reuse the
     // phone's token verbatim, and starting must mint one.
     @Test
-    fun `stop reuses the phone token and start mints a new one`() = runTest {
-        val sender = RecordingSender()
-        sender.sendStop(WearRootUiState(isTracking = true, activeToken = "phone-99").activeToken!!)
-        sender.sendStart("wear-1234")
-        assertEquals(listOf("STOP" to "phone-99", "START" to "wear-1234"), sender.sent)
-    }
+    fun `stop reuses the phone token and start mints a new one`() =
+        runTest {
+            val sender = RecordingSender()
+            sender.sendStop(WearRootUiState(isTracking = true, activeToken = "phone-99").activeToken!!)
+            sender.sendStart("wear-1234")
+            assertEquals(listOf("STOP" to "phone-99", "START" to "wear-1234"), sender.sent)
+        }
 }

@@ -60,7 +60,9 @@ class NotificationViewModelTest {
             val vm = newViewModel()
             advanceUntilIdle()
 
-            val expectedUnread = vm.state.value.notifications.count { it.isUnread }
+            val expectedUnread =
+                vm.state.value.notifications
+                    .count { it.isUnread }
             assertEquals(expectedUnread, vm.state.value.unreadCount)
             assertTrue(vm.state.value.unreadCount < 174, "unreadCount must reflect real state, never the old hardcoded 174")
         }
@@ -71,7 +73,9 @@ class NotificationViewModelTest {
             val dao = FakeNotificationDao()
             val vm = newViewModel(dao)
             advanceUntilIdle()
-            val target = vm.state.value.notifications.first { it.isUnread }
+            val target =
+                vm.state.value.notifications
+                    .first { it.isUnread }
 
             vm.setUnread(target.id, isUnread = false)
             advanceUntilIdle()
@@ -80,7 +84,12 @@ class NotificationViewModelTest {
             val relaunched = newViewModel(dao)
             advanceUntilIdle()
 
-            assertEquals(false, relaunched.state.value.notifications.first { it.id == target.id }.isUnread)
+            assertEquals(
+                false,
+                relaunched.state.value.notifications
+                    .first { it.id == target.id }
+                    .isUnread,
+            )
         }
 
     @Test
@@ -94,7 +103,10 @@ class NotificationViewModelTest {
             advanceUntilIdle()
 
             assertEquals(0, vm.state.value.unreadCount)
-            assertTrue(vm.state.value.notifications.none { it.isUnread })
+            assertTrue(
+                vm.state.value.notifications
+                    .none { it.isUnread },
+            )
         }
 
     @Test
@@ -102,7 +114,9 @@ class NotificationViewModelTest {
         runTest {
             val vm = newViewModel()
             advanceUntilIdle()
-            val target = vm.state.value.notifications.first { it.isUnread }
+            val target =
+                vm.state.value.notifications
+                    .first { it.isUnread }
             assertTrue(target.deeplink.isNotBlank(), "every seeded notification carries a real deeplink now")
 
             val effects = mutableListOf<NotificationEffect>()
@@ -112,7 +126,12 @@ class NotificationViewModelTest {
             job.join()
 
             assertEquals(NotificationEffect.OpenDeepLink(target.deeplink), effects.single())
-            assertEquals(false, vm.state.value.notifications.first { it.id == target.id }.isUnread)
+            assertEquals(
+                false,
+                vm.state.value.notifications
+                    .first { it.id == target.id }
+                    .isUnread,
+            )
         }
 }
 

@@ -99,7 +99,8 @@ class ExpenseContextSummaryGateTest {
     @Test
     fun `Card renders merchant, amount ceiling, card id and transaction id when all known`() {
         val rows =
-            ExpenseSourceContext.Card("card-1", "txn-1", merchantName = "Indigo Airlines", transactionAmountRupees = 4500.0)
+            ExpenseSourceContext
+                .Card("card-1", "txn-1", merchantName = "Indigo Airlines", transactionAmountRupees = 4500.0)
                 .summaryRows()
         assertEquals(4, rows.size)
         assertTrue(rows.any { it.second == "Indigo Airlines" })

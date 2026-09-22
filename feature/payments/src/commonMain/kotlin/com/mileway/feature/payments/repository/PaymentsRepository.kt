@@ -10,6 +10,9 @@ import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
 import kotlin.time.Clock
 
+/** Fake submissions rotate through the three `PaymentResult` outcomes in order. */
+private const val SubmissionOutcomeCount = 3
+
 /** A QR/UPI pay-or-request form payload (PM). */
 data class PaymentDraft(
     val direction: PaymentDirection,
@@ -20,11 +23,17 @@ data class PaymentDraft(
 
 /** Rotating submission outcome for the QR/UPI flow (PM). */
 sealed interface PaymentResult {
-    data class Completed(val id: String) : PaymentResult
+    data class Completed(
+        val id: String,
+    ) : PaymentResult
 
-    data class Pending(val id: String) : PaymentResult
+    data class Pending(
+        val id: String,
+    ) : PaymentResult
 
-    data class Failed(val reason: String) : PaymentResult
+    data class Failed(
+        val reason: String,
+    ) : PaymentResult
 }
 
 /**
@@ -32,7 +41,9 @@ sealed interface PaymentResult {
  * and returns a **rotating** [PaymentResult] (completed / pending / failed) across repeated submits. Every UPI
  * call is mocked theater; no real PSP. Mirrors the PB/TR fake-repo pattern.
  */
-class PaymentsRepository(private val clock: Clock = Clock.System) {
+class PaymentsRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
     private val submitted = mutableListOf<PaymentDraft>()
     private var counter = 0
@@ -51,7 +62,7 @@ class PaymentsRepository(private val clock: Clock = Clock.System) {
     fun submit(draft: PaymentDraft): PaymentResult {
         submitted += draft
         val id = "PAY-${4100 + submitted.size}"
-        return when (counter++ % 3) {
+        return when (counter++ % SubmissionOutcomeCount) {
             0 -> PaymentResult.Completed(id)
             1 -> PaymentResult.Pending(id)
             else -> PaymentResult.Failed("Beneficiary bank declined the collect request")

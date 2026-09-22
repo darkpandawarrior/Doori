@@ -20,7 +20,10 @@ import kotlinx.coroutines.launch
  * chosen seed (see [MilewayThemeVariant]); these are just convenient starting points, a fully
  * custom seed can be picked with the colour wheel and is stored in [ThemeController.customSeedHex].
  */
-enum class AccentPalette(val label: String, val seedHex: String) {
+enum class AccentPalette(
+    val label: String,
+    val seedHex: String,
+) {
     DEFAULT("Default", ThemeDefaults.BASE_COLOR),
     TEAL("Teal", "#00897B"),
     INDIGO("Indigo", "#3F51B5"),
@@ -32,7 +35,10 @@ enum class AccentPalette(val label: String, val seedHex: String) {
  * Full string translation is out of scope for the demo; the mechanism (AppCompatDelegate
  * per-app locales) is wired and a couple of UI strings use localized overrides.
  */
-enum class AppLanguage(val tag: String, val displayName: String) {
+enum class AppLanguage(
+    val tag: String,
+    val displayName: String,
+) {
     ENGLISH("en", "English"),
     HINDI("hi", "हिन्दी (Hindi)"),
 }
@@ -141,7 +147,8 @@ class ThemeController(
                     }
                 snap[ThemePreferenceKeys.USE_DARK_THEME]?.let { _darkThemeOverride.value = it }
                 snap[ThemePreferenceKeys.ACCENT_PALETTE]?.let { name ->
-                    AccentPalette.entries.firstOrNull { it.name == name }
+                    AccentPalette.entries
+                        .firstOrNull { it.name == name }
                         ?.let { _accentPalette.value = it }
                 }
                 snap[ThemePreferenceKeys.CUSTOM_THEME]?.let { _customSeedHex.value = it }
@@ -153,7 +160,8 @@ class ThemeController(
                 }
                 snap[ThemePreferenceKeys.MAP_PROVIDER]?.let { _mapProvider.value = MapProvider.fromName(it) }
                 snap[ThemePreferenceKeys.LANGUAGE]?.let { tag ->
-                    AppLanguage.entries.firstOrNull { it.tag == tag }
+                    AppLanguage.entries
+                        .firstOrNull { it.tag == tag }
                         ?.let { _language.value = it }
                 }
             }

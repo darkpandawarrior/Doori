@@ -529,7 +529,12 @@ private fun LimitSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -574,7 +579,12 @@ private fun PhysicalCardSheet(
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding().imePadding().padding(horizontal = 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .imePadding()
+                    .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(stringResource(Res.string.cards_add_address_details), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -645,7 +655,12 @@ private fun TransactionDetailSheet(
             DetailInfoRow(stringResource(Res.string.cards_transaction_no), txn.txnNumber)
             DetailInfoRow(stringResource(Res.string.cards_category), txn.category)
             DetailInfoRow(stringResource(Res.string.cards_amount), formatMoney(txn.amount, txn.currency))
-            DetailInfoRow(stringResource(Res.string.cards_status), txn.claimStatus.name.lowercase().replaceFirstChar { it.uppercase() })
+            DetailInfoRow(
+                stringResource(Res.string.cards_status),
+                txn.claimStatus.name
+                    .lowercase()
+                    .replaceFirstChar { it.uppercase() },
+            )
             txn.disputeReason?.let { DetailInfoRow(stringResource(Res.string.cards_dispute), it) }
         }
         if (txn.claimStatus == CardTxnClaimStatus.UNCLAIMED) {

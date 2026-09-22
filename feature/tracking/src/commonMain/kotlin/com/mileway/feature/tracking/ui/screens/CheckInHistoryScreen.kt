@@ -114,7 +114,9 @@ data class CheckInHistoryItem(
 )
 
 /** Time-window filter applied to the timestamp of each [CheckInHistoryItem]. */
-private enum class TimeFilter(val label: String) {
+private enum class TimeFilter(
+    val label: String,
+) {
     All("All"),
     Today("Today"),
     ThisWeek("This Week"),
@@ -729,7 +731,11 @@ private fun matchesTimeFilter(
 
     val tz = TimeZone.currentSystemDefault()
     val date = Instant.fromEpochMilliseconds(timestampMillis).toLocalDateTime(tz).date
-    val today = kotlin.time.Clock.System.now().toLocalDateTime(tz).date
+    val today =
+        kotlin.time.Clock.System
+            .now()
+            .toLocalDateTime(tz)
+            .date
 
     return when (filter) {
         TimeFilter.All -> true
@@ -763,13 +769,25 @@ private fun friendlyDateHeader(timestampMillis: Long): String {
     if (timestampMillis <= 0L) return "Unknown"
     val tz = TimeZone.currentSystemDefault()
     val date = Instant.fromEpochMilliseconds(timestampMillis).toLocalDateTime(tz).date
-    val today = kotlin.time.Clock.System.now().toLocalDateTime(tz).date
+    val today =
+        kotlin.time.Clock.System
+            .now()
+            .toLocalDateTime(tz)
+            .date
     return when (date) {
         today -> "Today"
         today.minus(1, DateTimeUnit.DAY) -> "Yesterday"
         else -> {
-            val dow = date.dayOfWeek.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
-            val mon = date.month.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+            val dow =
+                date.dayOfWeek.name
+                    .take(3)
+                    .lowercase()
+                    .replaceFirstChar { it.uppercaseChar() }
+            val mon =
+                date.month.name
+                    .take(3)
+                    .lowercase()
+                    .replaceFirstChar { it.uppercaseChar() }
             "$dow, $mon ${date.dayOfMonth}"
         }
     }
@@ -790,7 +808,11 @@ private fun formatTime(timestampMillis: Long): String {
     if (timestampMillis <= 0L) return ""
     val tz = TimeZone.currentSystemDefault()
     val ldt = Instant.fromEpochMilliseconds(timestampMillis).toLocalDateTime(tz)
-    val mon = ldt.month.name.take(3).lowercase().replaceFirstChar { it.uppercaseChar() }
+    val mon =
+        ldt.month.name
+            .take(3)
+            .lowercase()
+            .replaceFirstChar { it.uppercaseChar() }
     val h24 = ldt.hour
     val h12 = if (h24 % 12 == 0) 12 else h24 % 12
     val ampm = if (h24 < 12) "AM" else "PM"

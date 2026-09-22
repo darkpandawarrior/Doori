@@ -46,6 +46,12 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import org.jetbrains.compose.resources.stringResource
 
+/** Floor of the green band on the 0-100 track quality score. */
+private const val GoodScore = 75
+
+/** Floor of the amber band; below it the score reads as danger. */
+private const val FairScore = 35
+
 enum class TrendDirection { UP, DOWN, STABLE }
 
 @Composable
@@ -162,8 +168,8 @@ fun QualityDot(
 ) {
     val color =
         when {
-            score >= 75 -> MilewayColors.success
-            score >= 35 -> MilewayColors.warning
+            score >= GoodScore -> MilewayColors.success
+            score >= FairScore -> MilewayColors.warning
             else -> MilewayColors.danger
         }
     Box(
@@ -181,8 +187,8 @@ fun QualityDot(
  */
 fun qualityColor(score: Int): Color =
     when {
-        score >= 75 -> com.mileway.core.ui.theme.DesignTokens.StatusColors.success
-        score >= 35 -> com.mileway.core.ui.theme.DesignTokens.StatusColors.warning
+        score >= GoodScore -> com.mileway.core.ui.theme.DesignTokens.StatusColors.success
+        score >= FairScore -> com.mileway.core.ui.theme.DesignTokens.StatusColors.warning
         else -> com.mileway.core.ui.theme.DesignTokens.StatusColors.error
     }
 

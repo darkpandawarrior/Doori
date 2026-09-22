@@ -29,7 +29,8 @@ class EventsSearchProvider(
         if (q.length < 2) return emptyList()
 
         val results =
-            repository.events()
+            repository
+                .events()
                 .filter { it.id.contains(q, true) || it.title.contains(q, true) || it.venue.contains(q, true) }
                 .map {
                     SearchResult(

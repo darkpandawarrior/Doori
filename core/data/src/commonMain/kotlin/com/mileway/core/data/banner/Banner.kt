@@ -34,14 +34,18 @@ sealed interface Banner {
     }
 
     /** A per-persona operator message (maintenance window, policy change, …). Dismissible. */
-    data class Custom(val text: String) : Banner {
+    data class Custom(
+        val text: String,
+    ) : Banner {
         override val id = "banner_custom"
         override val priority = 20
         override val isDismissible = true
     }
 
     /** "Acting as <name>" while a session delegation is active. Non-dismissible (end it instead). */
-    data class Delegate(val name: String) : Banner {
+    data class Delegate(
+        val name: String,
+    ) : Banner {
         override val id = "banner_delegate"
         override val priority = 30
         override val isDismissible = false
@@ -55,14 +59,18 @@ sealed interface Banner {
     }
 
     /** [count] verification documents still need attention. Dismissible. */
-    data class DocumentExpiry(val count: Int) : Banner {
+    data class DocumentExpiry(
+        val count: Int,
+    ) : Banner {
         override val id = "banner_document_expiry"
         override val priority = 50
         override val isDismissible = true
     }
 
     /** The active subscription renews/expires in [daysLeft] days. Dismissible. */
-    data class SubscriptionExpiry(val daysLeft: Int) : Banner {
+    data class SubscriptionExpiry(
+        val daysLeft: Int,
+    ) : Banner {
         override val id = "banner_subscription_expiry"
         override val priority = 60
         override val isDismissible = true

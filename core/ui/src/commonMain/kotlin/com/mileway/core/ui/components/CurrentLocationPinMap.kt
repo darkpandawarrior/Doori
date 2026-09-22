@@ -131,8 +131,7 @@ fun CurrentLocationPinMap(
                 .offset {
                     val half = hotspot.toPx() / 2f
                     IntOffset((center.x - half).roundToInt(), (center.y - half).roundToInt())
-                }
-                .size(hotspot)
+                }.size(hotspot)
                 .clip(DesignTokens.Shape.button)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },

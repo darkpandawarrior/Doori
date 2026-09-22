@@ -32,9 +32,27 @@ object OdometerOcrParser {
     // Words that indicate a number is NOT an odometer (dates, times, prices, etc.).
     private val NOISE_PREFIXES =
         setOf(
-            "$", "€", "£", "₹", "rs", "price", "total", "fuel",
-            "litres", "liters", "ltr", "l", "gal", "gallons", "tax", "receipt", "date", "time",
-            "trip a", "trip b", "trip",
+            "$",
+            "€",
+            "£",
+            "₹",
+            "rs",
+            "price",
+            "total",
+            "fuel",
+            "litres",
+            "liters",
+            "ltr",
+            "l",
+            "gal",
+            "gallons",
+            "tax",
+            "receipt",
+            "date",
+            "time",
+            "trip a",
+            "trip b",
+            "trip",
         )
 
     // Regex: a sequence of 4 to 7 consecutive digits, optionally with comma/period as
@@ -99,7 +117,8 @@ object OdometerOcrParser {
         var s = raw.replace(Regex("\\s+"), " ").trim()
         // Replace lookalike when preceded OR followed by a digit.
         s =
-            s.replace(Regex("(?<=\\d)[Oo]|[Oo](?=\\d)"), "0")
+            s
+                .replace(Regex("(?<=\\d)[Oo]|[Oo](?=\\d)"), "0")
                 .replace(Regex("(?<=\\d)[Il]|[Il](?=\\d)"), "1")
                 .replace(Regex("(?<=\\d)[Ss]|[Ss](?=\\d)"), "5")
                 .replace(Regex("(?<=\\d)[Bb]|[Bb](?=\\d)"), "8")
@@ -125,7 +144,8 @@ object OdometerOcrParser {
      */
     private fun extractDigitGroup(line: String): String? {
         val matches =
-            DIGIT_GROUP.findAll(line)
+            DIGIT_GROUP
+                .findAll(line)
                 .map { it.groupValues[1].replace(Regex("[,._]"), "") }
                 .filter { it.length in 4..7 && it.all { c -> c.isDigit() } }
                 .toList()

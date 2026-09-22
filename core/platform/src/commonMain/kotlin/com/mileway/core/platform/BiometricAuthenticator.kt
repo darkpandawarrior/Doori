@@ -7,7 +7,9 @@ sealed interface BiometricResult {
 
     data object Unavailable : BiometricResult
 
-    data class Error(val message: String) : BiometricResult
+    data class Error(
+        val message: String,
+    ) : BiometricResult
 }
 
 /** Biometric auth. Android: BiometricPrompt; iOS: LocalAuthentication (LAContext). */

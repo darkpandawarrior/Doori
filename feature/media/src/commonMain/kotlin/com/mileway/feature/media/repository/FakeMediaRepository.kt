@@ -5,6 +5,12 @@ import com.mileway.feature.media.model.AttachmentItem
 import com.mileway.feature.media.model.OcrResult
 import kotlinx.coroutines.delay
 
+/** Simulated on-device OCR latency, long enough for the UI to show its progress affordance. */
+private const val OcrDelayMillis = 1_100L
+
+/** Simulated attachment-upload latency. */
+private const val UploadDelayMillis = 900L
+
 /**
  * Fully offline, deterministic [MediaRepository]. Mirrors the tone of
  * `FakeTrackingNetworkApi` in the :stub module: no network, canned values,
@@ -12,7 +18,7 @@ import kotlinx.coroutines.delay
  */
 class FakeMediaRepository : MediaRepository {
     override suspend fun runOcr(uri: String): OcrResult {
-        delay(1100)
+        delay(OcrDelayMillis)
         return OcrResult(
             rawText =
                 buildString {
@@ -28,7 +34,7 @@ class FakeMediaRepository : MediaRepository {
     }
 
     override suspend fun upload(item: AttachmentItem): UploadState.Done {
-        delay(900)
+        delay(UploadDelayMillis)
         // URI is the canonical URL in this offline demo, no server upload needed.
         return UploadState.Done(remoteUrl = item.uri)
     }

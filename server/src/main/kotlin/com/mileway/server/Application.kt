@@ -61,7 +61,10 @@ private const val DEFAULT_PORT = 8080
  */
 private fun readFingerprint(): String =
     object {}.javaClass.getResourceAsStream("/version.properties")?.use { stream ->
-        java.util.Properties().apply { load(stream) }.getProperty("fingerprint")
+        java.util
+            .Properties()
+            .apply { load(stream) }
+            .getProperty("fingerprint")
     } ?: "unknown"
 
 fun main() {

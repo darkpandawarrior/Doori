@@ -1,4 +1,4 @@
-package com.mileway.core.ui.theme
+package com.mileway.core.ui.theme.direction
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +12,12 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.theme.DesignTokens
+import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.ui.theme.MilewaySchemeSpec
+import com.mileway.core.ui.theme.MilewayThemeVariant
+import com.mileway.core.ui.theme.MilewayType
+import com.mileway.core.ui.theme.MilewayTypography
 
 /*
  * Design direction: **Ledger** — a financial instrument (Stripe dashboard / a well-set annual

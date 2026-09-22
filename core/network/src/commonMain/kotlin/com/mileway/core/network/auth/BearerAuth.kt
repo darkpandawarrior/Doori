@@ -33,7 +33,12 @@ fun HttpClient.withBearerAuth(
                     val newAccess = authApi.refresh() ?: return@refreshTokens null
                     BearerTokens(accessToken = newAccess, refreshToken = tokenStore.refreshToken().orEmpty())
                 }
-                sendWithoutRequest { request -> !request.url.build().encodedPath.contains("/auth/") }
+                sendWithoutRequest { request ->
+                    !request.url
+                        .build()
+                        .encodedPath
+                        .contains("/auth/")
+                }
             }
         }
     }

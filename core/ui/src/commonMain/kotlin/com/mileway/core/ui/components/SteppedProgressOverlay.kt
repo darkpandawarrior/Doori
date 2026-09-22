@@ -32,7 +32,9 @@ import com.mileway.core.ui.theme.DesignTokens
 /**
  * One step in a [SteppedProgressOverlay] sequence (e.g. "Validating", "Uploading", "Processing").
  */
-data class ProgressStep(val label: String)
+data class ProgressStep(
+    val label: String,
+)
 
 /** Derived visual status of a step relative to the overlay's current step index. */
 enum class StepStatus { PENDING, ACTIVE, DONE }

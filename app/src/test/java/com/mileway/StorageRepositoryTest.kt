@@ -41,7 +41,8 @@ class StorageRepositoryTest {
                 every { filesDir } returns this@StorageRepositoryTest.filesDir
                 every { getDatabasePath(any()) } answers { File(dbDir, firstArg()) }
                 every { deleteDatabase(any()) } answers {
-                    dbDir.listFiles { file -> file.name.startsWith(firstArg<String>()) }
+                    dbDir
+                        .listFiles { file -> file.name.startsWith(firstArg<String>()) }
                         ?.forEach { it.delete() }
                     true
                 }

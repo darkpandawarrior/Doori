@@ -35,12 +35,18 @@ import org.jetbrains.compose.resources.stringResource
 // ---------------------------------------------------------------------------
 
 /** Geographic position used for map markers. */
-data class MapPosition(val latitude: Double, val longitude: Double)
+data class MapPosition(
+    val latitude: Double,
+    val longitude: Double,
+)
 
 /**
  * Severity levels for visual prioritization and filtering.
  */
-enum class MarkerSeverity(val label: String, val color: Color) {
+enum class MarkerSeverity(
+    val label: String,
+    val color: Color,
+) {
     INFO("Info", DesignTokens.StatusColors.info),
     WARNING("Warning", DesignTokens.StatusColors.warning),
     ERROR("Error", DesignTokens.StatusColors.error),

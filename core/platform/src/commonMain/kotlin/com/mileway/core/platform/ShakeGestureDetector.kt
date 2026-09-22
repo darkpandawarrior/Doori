@@ -81,6 +81,8 @@ fun Flow<MotionReading>.toShakeEvents(
  * start/stop the sensor itself — whatever already starts [MotionSensorProvider] for tracking/motion
  * state also drives this.
  */
-class ShakeGestureDetector(private val motionSensorProvider: MotionSensorProvider) {
+class ShakeGestureDetector(
+    private val motionSensorProvider: MotionSensorProvider,
+) {
     val shakeEvents: Flow<Unit> get() = motionSensorProvider.readings.toShakeEvents()
 }

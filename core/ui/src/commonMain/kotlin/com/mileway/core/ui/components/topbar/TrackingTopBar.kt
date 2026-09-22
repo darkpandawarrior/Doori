@@ -92,16 +92,17 @@ fun TrackingStatusPill(
     val pulseAlpha =
         if (status == TrackingStatus.TRACKING) {
             val transition = rememberInfiniteTransition(label = "pillPulse")
-            transition.animateFloat(
-                initialValue = 1f,
-                targetValue = 0.72f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
-                        repeatMode = RepeatMode.Reverse,
-                    ),
-                label = "pillPulseAlpha",
-            ).value
+            transition
+                .animateFloat(
+                    initialValue = 1f,
+                    targetValue = 0.72f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    label = "pillPulseAlpha",
+                ).value
         } else {
             1f
         }
@@ -194,8 +195,12 @@ fun TrackingTopBar(
             modifier.drawBehind {
                 drawRect(
                     color = borderColor,
-                    topLeft = androidx.compose.ui.geometry.Offset(0f, size.height - 1.dp.toPx()),
-                    size = androidx.compose.ui.geometry.Size(size.width, 1.dp.toPx()),
+                    topLeft =
+                        androidx.compose.ui.geometry
+                            .Offset(0f, size.height - 1.dp.toPx()),
+                    size =
+                        androidx.compose.ui.geometry
+                            .Size(size.width, 1.dp.toPx()),
                 )
             },
         colors =

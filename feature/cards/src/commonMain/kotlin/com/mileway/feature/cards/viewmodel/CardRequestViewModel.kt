@@ -33,17 +33,25 @@ sealed interface CardRequestAction {
 
     data object Back : CardRequestAction
 
-    data class SelectType(val id: Long) : CardRequestAction
+    data class SelectType(
+        val id: Long,
+    ) : CardRequestAction
 
-    data class SetReason(val text: String) : CardRequestAction
+    data class SetReason(
+        val text: String,
+    ) : CardRequestAction
 
-    data class SetAgree(val agree: Boolean) : CardRequestAction
+    data class SetAgree(
+        val agree: Boolean,
+    ) : CardRequestAction
 
     data object Submit : CardRequestAction
 }
 
 sealed interface CardRequestEffect {
-    data class ShowToast(val message: UiText) : CardRequestEffect
+    data class ShowToast(
+        val message: UiText,
+    ) : CardRequestEffect
 }
 
 class CardRequestViewModel(

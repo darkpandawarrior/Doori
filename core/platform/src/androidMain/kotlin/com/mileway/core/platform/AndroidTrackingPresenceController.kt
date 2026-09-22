@@ -15,7 +15,9 @@ private const val NOTIFICATION_ID = 1001
  * Constants mirror LocationTrackingConstants (in :feature:tracking) — kept as literals here to
  * avoid a circular dependency (core:platform ← feature:tracking).
  */
-class AndroidTrackingPresenceController(private val context: Context) : TrackingPresenceController {
+class AndroidTrackingPresenceController(
+    private val context: Context,
+) : TrackingPresenceController {
     private val notifManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -36,7 +38,8 @@ class AndroidTrackingPresenceController(private val context: Context) : Tracking
                 "${snapshot.distanceKm.fmt2()} km · ${snapshot.speedKmh.toLong()} km/h · ${snapshot.activityLabel}"
             }
         val notification =
-            Notification.Builder(context, CHANNEL_ID)
+            Notification
+                .Builder(context, CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)

@@ -21,13 +21,16 @@ data class MarketingHubUiState(
     val campaigns: List<Campaign> = emptyList(),
 )
 
-class MarketingHubViewModel(private val repository: CampaignRepository) : ViewModel() {
+class MarketingHubViewModel(
+    private val repository: CampaignRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(MarketingHubUiState())
     val state: StateFlow<MarketingHubUiState> = _state.asStateFlow()
 
     init {
         viewModelScope.launch { repository.seedIfEmpty() }
-        repository.observeAll()
+        repository
+            .observeAll()
             .onEach { campaigns -> _state.update { it.copy(campaigns = campaigns) } }
             .launchIn(viewModelScope)
     }

@@ -53,8 +53,14 @@ class AnalyticsViewModelTest {
     fun `initial state is pre-populated from mock data, not empty`() {
         val vm = AnalyticsViewModel(FakeShareSheet())
         assertEquals(AnalyticsMockData.totalSpend, vm.state.value.totalSpend)
-        assertTrue(vm.state.value.leaderboard.isNotEmpty())
-        assertTrue(vm.state.value.insights.isNotEmpty())
+        assertTrue(
+            vm.state.value.leaderboard
+                .isNotEmpty(),
+        )
+        assertTrue(
+            vm.state.value.insights
+                .isNotEmpty(),
+        )
     }
 
     @Test
@@ -88,12 +94,18 @@ class AnalyticsViewModelTest {
             val vm = AnalyticsViewModel(FakeShareSheet())
             vm.onAction(AnalyticsAction.LeaderboardSortChanged(LeaderboardSort.ALPHABETICAL))
             advanceUntilIdle()
-            val names = vm.state.value.leaderboard.map { it.name }
+            val names =
+                vm.state.value.leaderboard
+                    .map { it.name }
             assertEquals(names.sorted(), names)
 
             vm.onAction(AnalyticsAction.LeaderboardQueryChanged("Aisha"))
             advanceUntilIdle()
-            assertEquals(listOf("Aisha Khan"), vm.state.value.leaderboard.map { it.name })
+            assertEquals(
+                listOf("Aisha Khan"),
+                vm.state.value.leaderboard
+                    .map { it.name },
+            )
         }
 
     @Test
@@ -102,8 +114,14 @@ class AnalyticsViewModelTest {
             val vm = AnalyticsViewModel(FakeShareSheet())
             vm.onAction(AnalyticsAction.OpenCategoryDetail("Travel"))
             advanceUntilIdle()
-            assertTrue(vm.state.value.detailSeries.isNotEmpty())
-            assertTrue(vm.state.value.detailMerchants.isNotEmpty())
+            assertTrue(
+                vm.state.value.detailSeries
+                    .isNotEmpty(),
+            )
+            assertTrue(
+                vm.state.value.detailMerchants
+                    .isNotEmpty(),
+            )
         }
 
     @Test
@@ -112,7 +130,10 @@ class AnalyticsViewModelTest {
             val vm = AnalyticsViewModel(FakeShareSheet())
             vm.onAction(AnalyticsAction.OpenCategoryDetail("Travel"))
             advanceUntilIdle()
-            val merchant = vm.state.value.detailMerchants.first().name
+            val merchant =
+                vm.state.value.detailMerchants
+                    .first()
+                    .name
             vm.onAction(AnalyticsAction.SelectMerchant(merchant))
             advanceUntilIdle()
             val all = vm.state.value.merchantTransactions
@@ -120,7 +141,10 @@ class AnalyticsViewModelTest {
 
             vm.onAction(AnalyticsAction.MerchantSearchQueryChanged("no-such-id-xyz"))
             advanceUntilIdle()
-            assertTrue(vm.state.value.merchantTransactions.isEmpty())
+            assertTrue(
+                vm.state.value.merchantTransactions
+                    .isEmpty(),
+            )
         }
 
     @Test
@@ -132,7 +156,10 @@ class AnalyticsViewModelTest {
             advanceUntilIdle()
 
             assertEquals("Mileage", vm.state.value.exportedForCategory)
-            assertTrue(vm.state.value.isExporting.not())
+            assertTrue(
+                vm.state.value.isExporting
+                    .not(),
+            )
             assertNull(vm.state.value.exportError)
             assertTrue(shareSheet.lastText!!.contains("Mileage analytics export"))
             assertEquals("Mileage analytics export", shareSheet.lastSubject)

@@ -35,7 +35,8 @@ class ManagerReporteesViewModel(
     val state: StateFlow<ManagerReporteesUiState> = _state.asStateFlow()
 
     init {
-        pluginRegistry.observe("trackMileageManagerView")
+        pluginRegistry
+            .observe("trackMileageManagerView")
             .onEach { enabled -> _state.update { it.copy(enabled = enabled) } }
             .launchIn(viewModelScope)
     }

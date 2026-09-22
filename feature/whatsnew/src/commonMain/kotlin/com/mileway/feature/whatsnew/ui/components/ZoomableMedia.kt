@@ -65,8 +65,7 @@ fun ZoomableMedia(
                     detectTapGestures(
                         onDoubleTap = { applyScale(if (scale > MIN_SCALE) MIN_SCALE else DOUBLE_TAP_SCALE) },
                     )
-                }
-                .pointerInput(resetKey) {
+                }.pointerInput(resetKey) {
                     detectTransformGestures { _, pan, zoom, _ ->
                         applyScale(scale * zoom)
                         if (scale > MIN_SCALE) {

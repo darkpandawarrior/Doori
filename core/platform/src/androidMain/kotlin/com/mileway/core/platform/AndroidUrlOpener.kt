@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 
-class AndroidUrlOpener(private val context: Context) : UrlOpener {
+class AndroidUrlOpener(
+    private val context: Context,
+) : UrlOpener {
     override fun open(url: String) {
         val intent =
             Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {

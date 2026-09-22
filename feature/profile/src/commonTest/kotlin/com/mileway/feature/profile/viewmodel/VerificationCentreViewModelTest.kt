@@ -106,7 +106,9 @@ class VerificationCentreViewModelTest {
             v.submit()
             advanceUntilIdle()
 
-            val corporate = v.state.value.documents.single { it.docType == "corporate_id" }
+            val corporate =
+                v.state.value.documents
+                    .single { it.docType == "corporate_id" }
             assertEquals(DocStatus.REJECTED, corporate.status)
             assertTrue(corporate.reason.isNotBlank())
         }

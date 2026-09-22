@@ -29,7 +29,9 @@ data class EmergencyContactsUiState(
     val isAtCapacity: Boolean get() = contacts.size >= MAX_EMERGENCY_CONTACTS
 }
 
-class EmergencyContactsViewModel(private val repository: EmergencyContactsRepository) : ViewModel() {
+class EmergencyContactsViewModel(
+    private val repository: EmergencyContactsRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(EmergencyContactsUiState())
     val state: StateFlow<EmergencyContactsUiState> = _state.asStateFlow()
 

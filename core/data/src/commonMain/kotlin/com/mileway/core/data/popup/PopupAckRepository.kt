@@ -17,7 +17,11 @@ import kotlinx.coroutines.flow.map
 class PopupAckRepository(
     private val dao: PopupAckDao,
     private val activeAccount: ActiveAccountSource,
-    private val nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() },
+    private val nowMs: () -> Long = {
+        kotlin.time.Clock.System
+            .now()
+            .toEpochMilliseconds()
+    },
 ) {
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     fun observeAcknowledged(): Flow<Set<String>> =

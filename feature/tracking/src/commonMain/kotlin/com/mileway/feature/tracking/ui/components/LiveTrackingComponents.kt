@@ -67,6 +67,15 @@ import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
+/** Seconds in a minute. */
+private const val SecondsPerMinute = 60
+
+/** Minutes in an hour. */
+private const val MinutesPerHour = 60
+
+/** Seconds in an hour. */
+private const val SecondsPerHour = SecondsPerMinute * MinutesPerHour
+
 @Composable
 fun LiveTrackingOverviewCard(
     trackData: CurrentTrackData,
@@ -135,10 +144,15 @@ fun LiveTrackingOverviewCard(
     }
 }
 
+/**
+ * GPS / points / battery health strip.
+ *
+ * Took an `unsyncedCount: Long` it never rendered; sync state is [LiveSyncStatusCard]'s job and that
+ * card already shows it, so the parameter was duplicate surface that no caller could use.
+ */
 @Composable
 fun LiveHealthMonitorCard(
     locationCount: Int,
-    unsyncedCount: Long,
     modifier: Modifier = Modifier,
 ) {
     Card(
@@ -291,10 +305,10 @@ fun LiveIndicatorBadge(isPaused: Boolean) {
 fun formatDuration(ms: Long): String {
     if (ms <= 0) return "0m"
     val seconds = ms / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
+    val minutes = seconds / SecondsPerMinute
+    val hours = minutes / MinutesPerHour
     return when {
-        hours > 0 -> "${hours}h ${minutes % 60}m"
+        hours > 0 -> "${hours}h ${minutes % MinutesPerHour}m"
         else -> "${minutes}m"
     }
 }
@@ -302,8 +316,8 @@ fun formatDuration(ms: Long): String {
 private fun timeAgo(timestampMs: Long): String {
     val diffSec = (Clock.System.now().toEpochMilliseconds() - timestampMs) / 1000
     return when {
-        diffSec < 60 -> "${diffSec}s ago"
-        diffSec < 3600 -> "${diffSec / 60}m ago"
-        else -> "${diffSec / 3600}h ago"
+        diffSec < SecondsPerMinute -> "${diffSec}s ago"
+        diffSec < SecondsPerHour -> "${diffSec / SecondsPerMinute}m ago"
+        else -> "${diffSec / SecondsPerHour}h ago"
     }
 }

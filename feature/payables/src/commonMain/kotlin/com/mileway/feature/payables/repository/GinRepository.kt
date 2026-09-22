@@ -6,11 +6,17 @@ package com.mileway.feature.payables.repository
  * policy-violation paths through the shared `FormSubmissionScaffold`.
  */
 sealed interface PayablesSubmissionResult {
-    data class Submitted(val id: String) : PayablesSubmissionResult
+    data class Submitted(
+        val id: String,
+    ) : PayablesSubmissionResult
 
-    data class NeedsApproval(val id: String) : PayablesSubmissionResult
+    data class NeedsApproval(
+        val id: String,
+    ) : PayablesSubmissionResult
 
-    data class PolicyViolation(val messages: List<String>) : PayablesSubmissionResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : PayablesSubmissionResult
 }
 
 /** A create-GIN (Goods Inward Note) form payload (PB.2). */
@@ -32,10 +38,13 @@ class GinRepository {
     private val submitted = mutableListOf<GinDraft>()
     private var counter = 0
 
+    /** Fake submissions rotate through the three result outcomes in order. */
+    private val submissionOutcomeCount = 3
+
     fun submit(draft: GinDraft): PayablesSubmissionResult {
         submitted += draft
         val id = "GIN-${5200 + submitted.size}"
-        return when (counter++ % 3) {
+        return when (counter++ % submissionOutcomeCount) {
             0 -> PayablesSubmissionResult.Submitted(id)
             1 -> PayablesSubmissionResult.NeedsApproval(id)
             else ->

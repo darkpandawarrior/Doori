@@ -323,7 +323,11 @@ fun LoginScreen(
                 Spacer(Modifier.height(DesignTokens.Spacing.l))
             }
 
-            if (phoneLoginEnabled && usePhoneMode && showOtpEntry && lastLoginOtp != null) {
+            // Phone sign-in is only reachable when the build enables it AND the toggle is on it;
+            // naming the pair keeps both branches below down to what actually differs between them.
+            val onPhoneSignIn = phoneLoginEnabled && usePhoneMode
+
+            if (onPhoneSignIn && showOtpEntry && lastLoginOtp != null) {
                 OtpVerificationScreen(
                     purpose = OtpPurpose.LOGIN,
                     target = lastLoginOtp!!.target,
@@ -343,7 +347,7 @@ fun LoginScreen(
                     },
                     onChangeNumber = { showOtpEntry = false },
                 )
-            } else if (phoneLoginEnabled && usePhoneMode) {
+            } else if (onPhoneSignIn) {
                 PhoneLoginFields(
                     country = selectedCountry,
                     onCountryChange = { selectedCountry = it },
@@ -819,8 +823,7 @@ private fun OnboardingSlideContent(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
                     onClick = onTap,
-                )
-                .semantics { contentDescription = "$title. $caption" },
+                ).semantics { contentDescription = "$title. $caption" },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Surface(

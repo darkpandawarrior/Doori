@@ -16,4 +16,6 @@ data class DetailSectionSpec(
  * `spec.applyConfig(config)`. Nothing in here is domain-specific; every field carries only [UiText]
  * (locale-resolved at the UI edge) and pre-formatted display values, never a raw domain type.
  */
-data class DetailSpec(val sections: List<DetailSectionSpec>)
+data class DetailSpec(
+    val sections: List<DetailSectionSpec>,
+)

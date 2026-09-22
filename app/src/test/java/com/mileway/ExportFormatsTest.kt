@@ -20,22 +20,25 @@ import kotlin.test.assertTrue
  * Pure JVM, no Android framework needed.
  */
 class ExportFormatsTest {
-
     // -------------------------------------------------------------------------
     // Shared test data builders
     // -------------------------------------------------------------------------
 
-    private fun makeTrack(): SavedTrack = SavedTrack(
-        routeId = "route-abc-123",
-        name = "Morning Commute",
-        startLatitude = 18.5200, startLongitude = 73.8560,
-        endLatitude = 18.5400, endLongitude = 73.8900,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = 1_700_000_000_000L,
-        endTime   = 1_700_003_600_000L,
-        distance  = 5_250.0,
-        duration  = 3_600_000L
-    )
+    private fun makeTrack(): SavedTrack =
+        SavedTrack(
+            routeId = "route-abc-123",
+            name = "Morning Commute",
+            startLatitude = 18.5200,
+            startLongitude = 73.8560,
+            endLatitude = 18.5400,
+            endLongitude = 73.8900,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = 1_700_000_000_000L,
+            endTime = 1_700_003_600_000L,
+            distance = 5_250.0,
+            duration = 3_600_000L,
+        )
 
     private fun makeLocations(count: Int = 5): List<LocationData> =
         (0 until count).map { i ->
@@ -51,28 +54,29 @@ class ExportFormatsTest {
                 altitude = 570.0 + i,
                 batteryPercentage = 80.0 - i,
                 isMock = false,
-                isAbnormal = false
+                isAbnormal = false,
             )
         }
 
-    private fun makeEvents(): List<HardwareEvent> = listOf(
-        HardwareEvent(
-            id = 1L,
-            token = "route-abc-123",
-            event = "Tracking Started",
-            eventType = EventType.TRACKING_STARTED,
-            time = 1_700_000_000_000L,
-            audience = EventAudience.USER
-        ),
-        HardwareEvent(
-            id = 2L,
-            token = "route-abc-123",
-            event = "Tracking Stopped",
-            eventType = EventType.TRACKING_STOPPED,
-            time = 1_700_003_600_000L,
-            audience = EventAudience.USER
+    private fun makeEvents(): List<HardwareEvent> =
+        listOf(
+            HardwareEvent(
+                id = 1L,
+                token = "route-abc-123",
+                event = "Tracking Started",
+                eventType = EventType.TRACKING_STARTED,
+                time = 1_700_000_000_000L,
+                audience = EventAudience.USER,
+            ),
+            HardwareEvent(
+                id = 2L,
+                token = "route-abc-123",
+                event = "Tracking Stopped",
+                eventType = EventType.TRACKING_STOPPED,
+                time = 1_700_003_600_000L,
+                audience = EventAudience.USER,
+            ),
         )
-    )
 
     // -------------------------------------------------------------------------
     // CSV tests
@@ -93,9 +97,11 @@ class ExportFormatsTest {
     fun `csv output has one row per location`() {
         val locations = makeLocations(7)
         val csv = CsvExporter.export(makeTrack(), locations, makeEvents())
-        val dataLines = csv.lines()
-            .filter { it.isNotBlank() && !it.startsWith("#") }
-            .drop(1) // skip header
+        val dataLines =
+            csv
+                .lines()
+                .filter { it.isNotBlank() && !it.startsWith("#") }
+                .drop(1) // skip header
         assertEquals(7, dataLines.size, "Expected 7 data rows, got ${dataLines.size}")
     }
 
@@ -190,7 +196,7 @@ class ExportFormatsTest {
         // first point: lat=18.52, lng=73.856, alt=570.0
         assertTrue(
             kml.contains("73.856,18.52,570.0"),
-            "KML coordinates should be lng,lat,alt order. KML was:\n$kml"
+            "KML coordinates should be lng,lat,alt order. KML was:\n$kml",
         )
     }
 
@@ -239,7 +245,7 @@ class ExportFormatsTest {
         // first point: lat=18.52, lng=73.856
         assertTrue(
             geo.contains("[73.856,18.52") || geo.contains("[73.856, 18.52"),
-            "GeoJSON coordinates should be [lng, lat]. Output:\n$geo"
+            "GeoJSON coordinates should be [lng, lat]. Output:\n$geo",
         )
     }
 

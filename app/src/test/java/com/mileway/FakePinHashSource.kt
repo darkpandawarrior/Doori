@@ -7,7 +7,9 @@ import com.mileway.core.data.session.PinHashSource
  * without a DataStore-backed `Context`, mirroring [FakeActiveAccountSource]'s shape. [seed]
  * pre-populates per-account hashes, e.g. to simulate a PIN set on a prior run.
  */
-class FakePinHashSource(seed: Map<String, String> = emptyMap()) : PinHashSource {
+class FakePinHashSource(
+    seed: Map<String, String> = emptyMap(),
+) : PinHashSource {
     private val hashes = seed.toMutableMap()
 
     override suspend fun getPinHash(accountId: String): String? = hashes[accountId]

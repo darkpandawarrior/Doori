@@ -124,7 +124,9 @@ class SessionReconciliationPolicyTest {
 
 // ── Fakes ─────────────────────────────────────────────────────────────────────
 
-private class FakeReconcileDao(private val track: SavedTrack?) : SavedTrackDao {
+private class FakeReconcileDao(
+    private val track: SavedTrack?,
+) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
     // SmartDistance commit without updating these test fakes; no-op override so this test source
     // set compiles (pre-existing breakage, incidental to P10.1).

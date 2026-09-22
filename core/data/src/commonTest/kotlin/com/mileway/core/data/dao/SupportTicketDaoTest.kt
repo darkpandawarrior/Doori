@@ -65,16 +65,15 @@ class SupportTicketDaoTest {
 private class FakeSupportTicketDao : SupportTicketDao {
     private val rows = LinkedHashMap<String, SupportTicketEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _all = MutableStateFlow<List<SupportTicketEntity>>(emptyList())
+    private val allRows = MutableStateFlow<List<SupportTicketEntity>>(emptyList())
 
     private fun flush() {
-        _all.value = rows.values.sortedByDescending { it.createdAtMs }
+        allRows.value = rows.values.sortedByDescending { it.createdAtMs }
     }
 
-    fun snapshot(): List<SupportTicketEntity> = _all.value
+    fun snapshot(): List<SupportTicketEntity> = allRows.value
 
-    override fun observeAll(): Flow<List<SupportTicketEntity>> = _all.asStateFlow()
+    override fun observeAll(): Flow<List<SupportTicketEntity>> = allRows.asStateFlow()
 
     override suspend fun upsert(entity: SupportTicketEntity) {
         rows[entity.id] = entity

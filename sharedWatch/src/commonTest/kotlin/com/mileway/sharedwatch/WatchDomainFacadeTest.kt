@@ -69,16 +69,23 @@ class WatchDomainFacadeTest {
         routeId = routeId,
         name = name,
         isCompleted = true,
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = endTime - 1_000L, endTime = endTime,
-        distance = distanceM, duration = 1_000L,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = endTime - 1_000L,
+        endTime = endTime,
+        distance = distanceM,
+        duration = 1_000L,
         createdAt = endTime,
     )
 }
 
-private class FakeSavedTrackDao(seed: List<SavedTrack> = emptyList()) : SavedTrackDao {
+private class FakeSavedTrackDao(
+    seed: List<SavedTrack> = emptyList(),
+) : SavedTrackDao {
     private val tracks = seed.toMutableList()
 
     override suspend fun getSavedTrackById(routeId: String): SavedTrack? = tracks.firstOrNull { it.routeId == routeId }

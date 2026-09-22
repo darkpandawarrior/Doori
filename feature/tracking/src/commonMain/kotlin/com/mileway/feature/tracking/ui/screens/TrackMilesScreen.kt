@@ -148,6 +148,12 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Floor of the OK band on the 0-100 track quality score. */
+private const val GoodQualityScore = 80
+
+/** Floor of the WARN band; below it the chip reads BAD. */
+private const val FairQualityScore = 50
+
 /** Quick-action ids dispatched from the FAB grid. */
 private object Qa {
     const val MAP = "map"
@@ -194,10 +200,12 @@ fun TrackMilesScreen(
 
     // PLAN_V24 P3.5: the emergency SOS action is plugin-gated (driverEmergencyModeEnabled).
     val pluginRegistry = koinInject<com.mileway.core.data.plugin.PluginRegistry>()
-    val emergencyModeEnabled by pluginRegistry.observe("driverEmergencyModeEnabled")
+    val emergencyModeEnabled by pluginRegistry
+        .observe("driverEmergencyModeEnabled")
         .collectAsStateWithLifecycle(initialValue = false)
     // PLAN_V24 P11.3: the head-home destination panel, gated by destinationMode (default off).
-    val destinationModeEnabled by pluginRegistry.observe("destinationMode")
+    val destinationModeEnabled by pluginRegistry
+        .observe("destinationMode")
         .collectAsStateWithLifecycle(initialValue = false)
     var showSos by remember { mutableStateOf(false) }
 
@@ -367,7 +375,8 @@ fun TrackMilesScreen(
 
                 // PLAN_V24 P11.3: head-home destination panel — idle only, gated by destinationMode.
                 if (!isActive && destinationModeEnabled) {
-                    com.mileway.feature.tracking.ui.components.DestinationModePanel()
+                    com.mileway.feature.tracking.ui.components
+                        .DestinationModePanel()
                 }
 
                 // Live system-status chips while active; a calm "All systems OK" banner otherwise.
@@ -565,7 +574,8 @@ fun TrackMilesScreen(
 
     // PLAN_V24 P3.5: emergency SOS sheet — local state, gated by driverEmergencyModeEnabled above.
     if (showSos) {
-        com.mileway.feature.tracking.ui.sheets.SosBottomSheet(onDismiss = { showSos = false })
+        com.mileway.feature.tracking.ui.sheets
+            .SosBottomSheet(onDismiss = { showSos = false })
     }
 
     // Wave-4 §2.1: multi-session restore — shown instead of the single-session SESSION_RESTORE/
@@ -740,8 +750,8 @@ private fun TrackSignal.toLevel(): StatusLevel =
 /** C.3: bucket the 0..100 quality score into the chip severity levels. */
 private fun Int.toQualityLevel(): StatusLevel =
     when {
-        this >= 80 -> StatusLevel.OK
-        this >= 50 -> StatusLevel.WARN
+        this >= GoodQualityScore -> StatusLevel.OK
+        this >= FairQualityScore -> StatusLevel.WARN
         else -> StatusLevel.BAD
     }
 
@@ -798,7 +808,11 @@ private fun statItemsFor(uiState: TrackMilesUiState): List<StatItem> =
 private fun liveElapsedMs(uiState: TrackMilesUiState): Long =
     when {
         uiState.startTime > 0 && uiState.phase == TrackMilesPhase.TRACKING ->
-            (kotlin.time.Clock.System.now().toEpochMilliseconds() - uiState.startTime).coerceAtLeast(uiState.durationMs)
+            (
+                kotlin.time.Clock.System
+                    .now()
+                    .toEpochMilliseconds() - uiState.startTime
+            ).coerceAtLeast(uiState.durationMs)
         else -> uiState.durationMs
     }.coerceAtLeast(0L)
 

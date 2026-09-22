@@ -11,11 +11,17 @@ data class InvoiceDraft(
 
 /** Rotating submission outcome, exercises the success / approval / violation result paths (PB.1). */
 sealed interface InvoiceSubmissionResult {
-    data class Submitted(val id: String) : InvoiceSubmissionResult
+    data class Submitted(
+        val id: String,
+    ) : InvoiceSubmissionResult
 
-    data class NeedsApproval(val id: String) : InvoiceSubmissionResult
+    data class NeedsApproval(
+        val id: String,
+    ) : InvoiceSubmissionResult
 
-    data class PolicyViolation(val messages: List<String>) : InvoiceSubmissionResult
+    data class PolicyViolation(
+        val messages: List<String>,
+    ) : InvoiceSubmissionResult
 }
 
 /**
@@ -27,10 +33,13 @@ class InvoiceRepository {
     private val submitted = mutableListOf<InvoiceDraft>()
     private var counter = 0
 
+    /** Fake submissions rotate through the three result outcomes in order. */
+    private val submissionOutcomeCount = 3
+
     fun submit(draft: InvoiceDraft): InvoiceSubmissionResult {
         submitted += draft
         val id = "INV-${7000 + submitted.size}"
-        return when (counter++ % 3) {
+        return when (counter++ % submissionOutcomeCount) {
             0 -> InvoiceSubmissionResult.Submitted(id)
             1 -> InvoiceSubmissionResult.NeedsApproval(id)
             else ->

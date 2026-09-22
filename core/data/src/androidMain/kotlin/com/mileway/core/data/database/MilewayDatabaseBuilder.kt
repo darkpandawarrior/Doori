@@ -6,11 +6,11 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import kotlinx.coroutines.Dispatchers
 
 fun buildMilewayDatabase(context: Context): MilewayDatabase =
-    Room.databaseBuilder<MilewayDatabase>(
-        context = context.applicationContext,
-        name = "mileway.db",
-    )
-        .setDriver(BundledSQLiteDriver())
+    Room
+        .databaseBuilder<MilewayDatabase>(
+            context = context.applicationContext,
+            name = "mileway.db",
+        ).setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
         .addMigrations(
             MIGRATION_1_2,
@@ -60,5 +60,4 @@ fun buildMilewayDatabase(context: Context): MilewayDatabase =
             MIGRATION_45_46,
             MIGRATION_46_47,
             MIGRATION_47_48,
-        )
-        .build()
+        ).build()

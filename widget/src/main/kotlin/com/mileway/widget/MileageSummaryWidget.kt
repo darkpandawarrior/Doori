@@ -33,18 +33,19 @@ import androidx.glance.unit.ColorProvider
 import com.mileway.core.data.model.display.TrackingState
 import com.mileway.core.data.watch.SnapshotCache
 import com.mileway.core.data.watch.WatchSyncPayload
+import com.mileway.core.data.widget.WidgetPalette
+import com.mileway.core.data.widget.WidgetPaletteSource
 import com.mileway.feature.tracking.service.TrackingNotificationMapper
 import com.mileway.feature.tracking.service.TrackingServiceApi
 import com.mileway.feature.tracking.service.TrackingSnapshot
 import com.mileway.feature.tracking.watch.WatchFacade
-import kotlin.math.round
-import com.mileway.core.data.widget.WidgetPalette
-import com.mileway.core.data.widget.WidgetPaletteSource
 import org.koin.mp.KoinPlatform
+import kotlin.math.round
 
 // Fixed palette (T.2: mirrors core:ui's Ember spec — warm-dark surface + amber accent) — plain
 // Glance colors keep the widget free of the Material-You/glance-material3 surface so it renders
 // identically across hosts.
+
 /**
  * The widget's five colours, resolved from the app's live theme.
  *
@@ -74,7 +75,6 @@ data class WidgetColors(
         val Fallback = from(WidgetPalette())
     }
 }
-
 
 /**
  * P6.2/AMBIENT.1: state a widget renders — a pure projection of [WatchSyncPayload] (the same wire
@@ -265,7 +265,16 @@ fun MileageSummaryContent(
                 text = statusText,
                 style =
                     TextStyle(
-                        color = ColorProvider(if (model.isStale) colors.stale else if (model.isTracking) colors.live else colors.accent),
+                        color =
+                            ColorProvider(
+                                if (model.isStale) {
+                                    colors.stale
+                                } else if (model.isTracking) {
+                                    colors.live
+                                } else {
+                                    colors.accent
+                                },
+                            ),
                         fontWeight = FontWeight.Medium,
                         fontSize = 13.sp,
                     ),
@@ -282,8 +291,7 @@ fun MileageSummaryContent(
                             actionRunCallback<ToggleTrackingAction>(
                                 actionParametersOf(IsTrackingKey.to(model.isTracking)),
                             ),
-                        )
-                        .semantics {
+                        ).semantics {
                             contentDescription = if (model.isTracking) "Stop tracking" else "Start tracking"
                         },
             )

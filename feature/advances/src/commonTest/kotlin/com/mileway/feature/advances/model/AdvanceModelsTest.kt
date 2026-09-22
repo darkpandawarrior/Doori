@@ -32,8 +32,17 @@ class AdvanceModelsTest {
     fun `PettyCard totalBalance sums balance and pending transaction amount`() {
         val card =
             PettyCard(
-                id = 1L, kitNo = "PC-1", amount = 1000.0, balance = 300.0, createdAtMs = 0L, dueOnMs = 0L,
-                description = "d", title = "t", type = "Travel", colorSeed = "blue", txnPendingAmount = 50.0,
+                id = 1L,
+                kitNo = "PC-1",
+                amount = 1000.0,
+                balance = 300.0,
+                createdAtMs = 0L,
+                dueOnMs = 0L,
+                description = "d",
+                title = "t",
+                type = "Travel",
+                colorSeed = "blue",
+                txnPendingAmount = 50.0,
             )
         assertEquals(350.0, card.totalBalance)
     }

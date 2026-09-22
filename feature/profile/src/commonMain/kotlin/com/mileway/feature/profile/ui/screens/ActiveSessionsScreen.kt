@@ -60,6 +60,7 @@ import com.mileway.core.ui.resources.profile_sessions_status_idle
 import com.mileway.core.ui.resources.profile_sessions_status_recent
 import com.mileway.core.ui.resources.profile_sessions_this_device
 import com.mileway.core.ui.resources.profile_sessions_title
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.core.ui.theme.MilewayColors
@@ -238,8 +239,6 @@ private fun SessionRow(
     }
 }
 
-private val SESSION_MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 /**
  * PLAN_V24 P7.2: device-details sheet (source: the reference app's session-details sheet). Opened by tapping a
  * row; shows the enriched device fields (type/os/app version/ip), last-activity and the derived
@@ -285,7 +284,7 @@ private fun DetailLine(
 
 private fun formatSessionDate(ms: Long): String =
     Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-        "${ldt.dayOfMonth} ${SESSION_MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
     }
 
 @Composable

@@ -2,22 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:AssistantHomeSheet.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun AssistantHomeSheet</ID>
-    <ID>EmptyFunctionBlock:FakeShareSheet.kt:FakeShareSheet${}</ID>
-    <ID>EmptyFunctionBlock:FakeSpeechToText.kt:FakeSpeechToText${}</ID>
-    <ID>EmptyFunctionBlock:FakeTextToSpeech.kt:FakeTextToSpeech${}</ID>
-    <ID>LargeClass:ScreenshotGalleryTest.kt:ScreenshotGalleryTest</ID>
     <ID>LongMethod:DatabaseSeeder.kt:DatabaseSeeder$private fun demoTracks: List&lt;SavedTrack&gt;</ID>
-    <ID>MagicNumber:HomeComponents.kt:0.7f</ID>
-    <ID>MagicNumber:HomeComponents.kt:3</ID>
-    <ID>MagicNumber:HomeComponents.kt:4000L</ID>
-    <ID>MagicNumber:HomeComponents.kt:50</ID>
-    <ID>MagicNumber:LoginScreen.kt:0.9f</ID>
-    <ID>MagicNumber:SplashScreen.kt:220</ID>
-    <ID>ReturnCount:LauncherActivity.kt:private fun Intent.deepLinkRoute: String?</ID>
-    <ID>TooManyFunctions:HomeComponents.kt:com.mileway.ui.home.HomeComponents.kt</ID>
-    <ID>TooManyFunctions:NavGraphScreens.kt:com.mileway.navgraph.NavGraphScreens.kt</ID>
-    <ID>UnusedParameter:HomeComponents.kt:leadingIcon: ImageVector</ID>
-    <ID>UnusedParameter:MasterSearchScreen.kt:onClearFilters: () -&gt; Unit</ID>
   </CurrentIssues>
 </SmellBaseline>

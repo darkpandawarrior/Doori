@@ -44,7 +44,9 @@ class PluginManagerViewModelTest {
 
     private val account = "ACC-001"
 
-    private class FakeActiveAccount(id: String?) : ActiveAccountSource {
+    private class FakeActiveAccount(
+        id: String?,
+    ) : ActiveAccountSource {
         override val activeAccountId = MutableStateFlow(id)
 
         override suspend fun setActiveAccountId(accountId: String) {
@@ -114,7 +116,10 @@ class PluginManagerViewModelTest {
                     "P12.9 +2 GROWTH offers hub tile + offer popup; " +
                     "P13.1 +4 BANNERS custom/update-ready/document-expiry/subscription-expiry-days)",
             )
-            assertTrue(vm.state.value.plugins.all { it.source.name == "DEFAULT" })
+            assertTrue(
+                vm.state.value.plugins
+                    .all { it.source.name == "DEFAULT" },
+            )
         }
 
     @Test
@@ -126,7 +131,9 @@ class PluginManagerViewModelTest {
             vm.onAction(PluginManagerAction.SetToggle("cards", false))
             advanceUntilIdle()
 
-            val cards = vm.state.value.plugins.single { it.descriptor.id == "cards" }
+            val cards =
+                vm.state.value.plugins
+                    .single { it.descriptor.id == "cards" }
             assertEquals(PluginValue.Bool(false), cards.value)
             assertEquals("USER", cards.source.name)
         }
@@ -141,7 +148,9 @@ class PluginManagerViewModelTest {
             vm.onAction(PluginManagerAction.ApplyPersona(presets.availablePersonas().single(), clearFirst = true))
             advanceUntilIdle()
 
-            val cards = vm.state.value.plugins.single { it.descriptor.id == "cards" }
+            val cards =
+                vm.state.value.plugins
+                    .single { it.descriptor.id == "cards" }
             assertEquals(PluginValue.Bool(false), cards.value)
         }
 
@@ -156,7 +165,9 @@ class PluginManagerViewModelTest {
             vm.onAction(PluginManagerAction.ResetToPreset)
             advanceUntilIdle()
 
-            val cards = vm.state.value.plugins.single { it.descriptor.id == "cards" }
+            val cards =
+                vm.state.value.plugins
+                    .single { it.descriptor.id == "cards" }
             assertEquals(PluginValue.Bool(true), cards.value, "back to descriptor default (on)")
             assertEquals("DEFAULT", cards.source.name)
         }

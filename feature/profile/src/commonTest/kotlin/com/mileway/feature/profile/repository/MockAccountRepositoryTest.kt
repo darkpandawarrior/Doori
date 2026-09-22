@@ -70,7 +70,14 @@ class MockAccountRepositoryTest {
             repository.setActive("ACC-002")
 
             assertEquals(true, dao.getById("ACC-002")?.isActive)
-            assertEquals(listOf("ACC-002"), dao.observeAll().first().filter { it.isActive }.map { it.accountId })
+            assertEquals(
+                listOf("ACC-002"),
+                dao
+                    .observeAll()
+                    .first()
+                    .filter { it.isActive }
+                    .map { it.accountId },
+            )
         }
 
     @Test

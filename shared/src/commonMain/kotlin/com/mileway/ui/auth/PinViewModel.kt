@@ -19,6 +19,9 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import kotlin.time.Clock
 
+/** The lockout countdown is stored and displayed in whole seconds; the policy returns millis. */
+private const val MillisPerSecond = 1_000L
+
 /** PIN length `SetPinScreen`/`CheckPinScreen` accept; matches P2.3's switch-account PIN length. */
 const val LOGIN_PIN_LENGTH: Int = 4
 
@@ -147,7 +150,7 @@ class PinViewModel(
                 val until = if (lockMillis > 0) now + lockMillis else 0L
                 pinLockoutSource.setState(PIN_GATE_ACCOUNT_ID, PinLockoutState(attempts, until))
                 if (lockMillis > 0) {
-                    enterLockout((lockMillis / 1000).toInt())
+                    enterLockout((lockMillis / MillisPerSecond).toInt())
                 } else {
                     val free = (PinLockoutPolicy.FREE_ATTEMPTS - attempts).coerceAtLeast(0)
                     _state.value =
@@ -169,7 +172,7 @@ class PinViewModel(
             viewModelScope.launch {
                 var remaining = seconds
                 while (remaining > 0) {
-                    delay(1_000)
+                    delay(MillisPerSecond)
                     remaining -= 1
                     _state.value = _state.value.copy(lockoutRemainingSeconds = remaining)
                 }

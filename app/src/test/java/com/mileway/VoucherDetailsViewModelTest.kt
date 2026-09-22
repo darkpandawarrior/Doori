@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * [ScreenState.Empty] rather than crashing or erroring for a stale/withdrawn id.
  */
 class VoucherDetailsViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -41,23 +40,25 @@ class VoucherDetailsViewModelTest {
         }
 
     @Test
-    fun `Load resolves an existing voucher by number`() = runTest {
-        val vm = VoucherDetailsViewModel(seeded())
-        vm.onAction(VoucherDetailsAction.Load("VCH-9001"))
-        advanceUntilIdle()
+    fun `Load resolves an existing voucher by number`() =
+        runTest {
+            val vm = VoucherDetailsViewModel(seeded())
+            vm.onAction(VoucherDetailsAction.Load("VCH-9001"))
+            advanceUntilIdle()
 
-        val state = vm.state.value.voucher
-        assertTrue(state is ScreenState.Content)
-        assertEquals("Client Visit", state.data.title)
-        assertEquals(1_250.0, state.data.totalAmount)
-    }
+            val state = vm.state.value.voucher
+            assertTrue(state is ScreenState.Content)
+            assertEquals("Client Visit", state.data.title)
+            assertEquals(1_250.0, state.data.totalAmount)
+        }
 
     @Test
-    fun `Load resolves to Empty for an unknown voucher number`() = runTest {
-        val vm = VoucherDetailsViewModel(seeded())
-        vm.onAction(VoucherDetailsAction.Load("VCH-DOES-NOT-EXIST"))
-        advanceUntilIdle()
+    fun `Load resolves to Empty for an unknown voucher number`() =
+        runTest {
+            val vm = VoucherDetailsViewModel(seeded())
+            vm.onAction(VoucherDetailsAction.Load("VCH-DOES-NOT-EXIST"))
+            advanceUntilIdle()
 
-        assertEquals(ScreenState.Empty, vm.state.value.voucher)
-    }
+            assertEquals(ScreenState.Empty, vm.state.value.voucher)
+        }
 }

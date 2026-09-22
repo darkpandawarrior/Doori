@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
  * commonMain logic, alongside DynamicIntervalCalculatorTest) so it runs under testNoGmsDebugUnitTest.
  */
 class TrackingStatePublisherTest {
-
     @Test
     fun `starts in READY with an empty snapshot`() {
         val publisher = TrackingStatePublisher()
