@@ -15,6 +15,17 @@ permissions:
 jobs:
   sentinel:
     runs-on: ubuntu-latest
+    # Twice on 2026-09-22 (runs 35736143707 and 35738505604) this job stalled on step 5,
+    # `ROBORAZZI_RECORD=true ./gradlew screenshotTest --no-daemon`, still running at 27+ minutes with
+    # steps 6-8 never started. Measured over the five most recent successful runs, the whole job
+    # takes 11-15 minutes, so a stall is well outside normal variance rather than a slow day.
+    #
+    # Root cause is not diagnosable from the API - the step simply never reports completion. Until
+    # it is, this caps the damage: without a timeout the job inherits GitHub's 360-minute default,
+    # and because `sentinel` reports as a check, every open PR shows an in-progress gate for as long
+    # as it hangs. 25 minutes is ~65% clear of the slowest healthy run, so a genuine build still
+    # finishes while a stall fails loudly instead of blocking merges for six hours.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
         with:
