@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
+/** Generated ids carry the last eight digits of the creation timestamp - unique enough offline. */
+private const val ID_SUFFIX_DIGITS = 8
+
 /**
  * P1.2: reads the switchable-persona list from the shared, Room-backed [MockAccountDao] (P1.1)
  * instead of the static `stub.ProfileMockData.accounts()` list. [DemoAccount] stays the
@@ -50,7 +53,7 @@ class MockAccountRepository(
         val now = clock.now().toEpochMilliseconds()
         dao.upsert(
             MockAccountEntity(
-                accountId = "ACC-" + now.toString().takeLast(8),
+                accountId = "ACC-" + now.toString().takeLast(ID_SUFFIX_DIGITS),
                 displayName = displayName,
                 employeeCode = employeeCode,
                 organization = organization,

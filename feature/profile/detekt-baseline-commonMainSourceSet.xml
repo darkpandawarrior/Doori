@@ -3,31 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ComplexCondition:AnalyticsAggregation.kt:AnalyticsAggregator$preset == DateRangePreset.CUSTOM &amp;&amp; customStart != null &amp;&amp; customEnd != null &amp;&amp; customEnd &gt;= customStart</ID>
-    <ID>MagicNumber:AdvanceViewModel.kt:AdvanceViewModel$4</ID>
-    <ID>MagicNumber:BadgesSection.kt:10</ID>
-    <ID>MagicNumber:ConnectedAccountsViewModel.kt:ConnectedAccountsViewModel$6</ID>
-    <ID>MagicNumber:CorporateVerificationViewModel.kt:CorporateVerificationViewModel$6</ID>
-    <ID>MagicNumber:DelegationRepository.kt:DelegationRepository$8</ID>
-    <ID>MagicNumber:DelegationScreen.kt:6</ID>
-    <ID>MagicNumber:EcoDashboardScreen.kt:0.5</ID>
-    <ID>MagicNumber:EcoDashboardScreen.kt:10</ID>
-    <ID>MagicNumber:EcoDashboardScreen.kt:10.0</ID>
-    <ID>MagicNumber:MockAccountRepository.kt:MockAccountRepository$8</ID>
-    <ID>MagicNumber:PhoneChangeViewModel.kt:PhoneChangeViewModel$6</ID>
-    <ID>MagicNumber:QrHomeScreen.kt:0.5f</ID>
-    <ID>MagicNumber:QrHomeScreen.kt:3</ID>
-    <ID>MagicNumber:QrHomeScreen.kt:5</ID>
-    <ID>MagicNumber:QrHomeScreen.kt:6</ID>
-    <ID>MagicNumber:QrHomeScreen.kt:7</ID>
-    <ID>MagicNumber:RewardsRepository.kt:RewardsRepository$1_000L</ID>
-    <ID>MagicNumber:SavedPlacesRepository.kt:SavedPlacesRepository$10</ID>
-    <ID>MagicNumber:SavedPlacesViewModel.kt:180.0</ID>
-    <ID>MagicNumber:SavedPlacesViewModel.kt:90.0</ID>
-    <ID>MagicNumber:SupportTicketRepository.kt:SupportTicketRepository$8</ID>
-    <ID>MagicNumber:TrainingTourScreen.kt:10</ID>
-    <ID>MagicNumber:VehicleGarageScreen.kt:23</ID>
-    <ID>MagicNumber:VehicleGarageScreen.kt:59</ID>
-    <ID>MagicNumber:VehicleGarageScreen.kt:60</ID>
     <ID>TooManyFunctions:ProfileViewModel.kt:ProfileViewModel : BaseViewModel</ID>
     <ID>UnusedParameter:AnalyticsHomeScreen.kt:state: AnalyticsUiState</ID>
     <ID>UnusedParameter:AskAdvanceFormScreen.kt:onSubmitted: () -&gt; Unit</ID>

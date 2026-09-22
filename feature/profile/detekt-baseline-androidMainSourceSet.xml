@@ -4,10 +4,5 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:SettingsScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen</ID>
     <ID>LongMethod:ProfileGraph.kt:fun NavGraphBuilder.profileGraph</ID>
-    <ID>MagicNumber:ProfileDetailsScreen.kt:0.15f</ID>
-    <ID>MagicNumber:ProfileDetailsScreen.kt:0.5f</ID>
-    <ID>MagicNumber:ProfileDetailsScreen.kt:3</ID>
-    <ID>MagicNumber:ProfileDetailsScreen.kt:4</ID>
-    <ID>MagicNumber:ProfileDetailsScreen.kt:6</ID>
   </CurrentIssues>
 </SmellBaseline>

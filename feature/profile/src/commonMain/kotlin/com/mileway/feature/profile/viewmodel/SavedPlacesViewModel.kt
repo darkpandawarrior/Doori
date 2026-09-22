@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** Latitude runs -90..90 degrees. */
+private const val MAX_LATITUDE = 90.0
+
+/** Longitude runs -180..180 degrees. */
+private const val MAX_LONGITUDE = 180.0
+
 /**
  * PLAN_V24 P3.4: state for `SavedPlacesScreen`. The list is Room-backed (survives navigation and
  * process death). [submitError] surfaces the blank-label/blank-address and bad-coordinate
@@ -92,6 +98,6 @@ internal fun parseCoordinates(
     if (latText.isBlank() || lngText.isBlank()) return null
     val lat = latText.toDoubleOrNull() ?: return null
     val lng = lngText.toDoubleOrNull() ?: return null
-    if (lat !in -90.0..90.0 || lng !in -180.0..180.0) return null
+    if (lat !in -MAX_LATITUDE..MAX_LATITUDE || lng !in -MAX_LONGITUDE..MAX_LONGITUDE) return null
     return lat to lng
 }

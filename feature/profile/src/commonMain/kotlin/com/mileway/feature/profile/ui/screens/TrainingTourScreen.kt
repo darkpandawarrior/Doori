@@ -78,6 +78,9 @@ import com.mileway.feature.profile.viewmodel.TrainingTourViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Scale-and-truncate factor for one decimal place. */
+private const val ONE_DECIMAL_FACTOR = 10
+
 /**
  * PLAN_V24 P12.5 — the interactive training tour surface. A self-contained mock tracking screen
  * (Mileway design language) whose Start/HUD/Pause/Stop/Classify/Submit elements are the anchors for
@@ -277,8 +280,8 @@ private fun tourCoachSteps(): List<CoachStep> {
 }
 
 private fun oneDecimal(v: Double): String {
-    val scaled = (v * 10).toLong()
-    return "${scaled / 10}.${scaled % 10}"
+    val scaled = (v * ONE_DECIMAL_FACTOR).toLong()
+    return "${scaled / ONE_DECIMAL_FACTOR}.${scaled % ONE_DECIMAL_FACTOR}"
 }
 
 private fun formatDuration(totalSec: Int): String {

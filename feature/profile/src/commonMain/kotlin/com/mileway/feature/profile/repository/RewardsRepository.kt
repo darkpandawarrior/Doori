@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
+/** Seeded reward cards are stamped a second apart so the list has a stable newest-first order. */
+private const val SEED_SPACING_MILLIS = 1_000L
+
 /**
  * PLAN_V24 P5.3: Room-backed scratch-card store. Seeded once from [RewardsMockData]. [scratch]
  * flips an UNSCRATCHED card to SCRATCHED (the reveal) and returns the credits it granted.
@@ -27,7 +30,7 @@ class RewardsRepository(
     suspend fun seedIfEmpty() {
         if (dao.count() > 0) return
         val now = clock.now().toEpochMilliseconds()
-        dao.upsertAll(RewardsMockData.cards.mapIndexed { index, card -> card.toEntity(now - index * 1_000L) })
+        dao.upsertAll(RewardsMockData.cards.mapIndexed { index, card -> card.toEntity(now - index * SEED_SPACING_MILLIS) })
     }
 
     /** Reveals [id] (marks it SCRATCHED). Returns the credits granted, or 0 if already scratched/unknown. */

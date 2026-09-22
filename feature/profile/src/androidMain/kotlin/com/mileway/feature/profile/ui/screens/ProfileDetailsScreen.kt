@@ -647,6 +647,19 @@ private fun UpiQrCanvas(
     }
 }
 
+/** A QR finder pattern is seven modules square, repeated in three of the four corners. */
+private const val FINDER_SIZE = 7
+
+/** Last module index inside a finder pattern. */
+private const val FINDER_LAST = FINDER_SIZE - 1
+
+/** The finder's solid 3x3 core spans these module positions, inset one light ring from the edge. */
+private const val FINDER_CORE_FIRST = 2
+private const val FINDER_CORE_LAST = 4
+
+/** Which bit of the position hash decides a module - a middling one, so neighbours differ. */
+private const val PATTERN_BIT_SHIFT = 3
+
 private fun payoutQrBit(
     row: Int,
     col: Int,
@@ -655,17 +668,27 @@ private fun payoutQrBit(
 ): Boolean {
     val last = n - 1
     val inFinder =
-        (row in 0..6 && col in 0..6) ||
-            (row in 0..6 && col in (last - 6)..last) ||
-            (row in (last - 6)..last && col in 0..6)
+        (row in 0..FINDER_LAST && col in 0..FINDER_LAST) ||
+            (row in 0..FINDER_LAST && col in (last - FINDER_LAST)..last) ||
+            (row in (last - FINDER_LAST)..last && col in 0..FINDER_LAST)
     if (inFinder) {
-        val r = if (row <= 6) row else row - (last - 6)
-        val c = if (col <= 6) col else col - (last - 6)
-        return r == 0 || r == 6 || c == 0 || c == 6 || (r in 2..4 && c in 2..4)
+        val r = if (row <= FINDER_LAST) row else row - (last - FINDER_LAST)
+        val c = if (col <= FINDER_LAST) col else col - (last - FINDER_LAST)
+        return r == 0 ||
+            r == FINDER_LAST ||
+            c == 0 ||
+            c == FINDER_LAST ||
+            (r in FINDER_CORE_FIRST..FINDER_CORE_LAST && c in FINDER_CORE_FIRST..FINDER_CORE_LAST)
     }
     val h = (row * 73856093) xor (col * 19349663) xor seed
-    return (h ushr 3) and 1 == 1
+    return (h ushr PATTERN_BIT_SHIFT) and 1 == 1
 }
+
+/** Half-pixel inset so neighbouring modules do not bleed into one another. */
+private const val MODULE_INSET_PX = 0.5f
+
+/** Module corner radius, as a fraction of the module's own size. */
+private const val MODULE_CORNER_FRACTION = 0.15f
 
 private fun DrawScope.drawPayoutQrModule(
     row: Int,
@@ -675,9 +698,9 @@ private fun DrawScope.drawPayoutQrModule(
 ) {
     drawRoundRect(
         color = color,
-        topLeft = Offset(col * cell + 0.5f, row * cell + 0.5f),
+        topLeft = Offset(col * cell + MODULE_INSET_PX, row * cell + MODULE_INSET_PX),
         size = Size(cell - 1f, cell - 1f),
-        cornerRadius = CornerRadius(cell * 0.15f, cell * 0.15f),
+        cornerRadius = CornerRadius(cell * MODULE_CORNER_FRACTION, cell * MODULE_CORNER_FRACTION),
     )
 }
 

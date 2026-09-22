@@ -61,6 +61,9 @@ import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Scale-and-truncate factor for one decimal place. */
+private const val ONE_DECIMAL_FACTOR = 10
+
 /**
  * PLAN_V24 P12.1: the profile-hub badges + compliments section (Driver-shaped horizontal rows).
  * Earned badges come from real trip milestones ([BadgesViewModel] → BadgeRepository); the rating
@@ -231,6 +234,6 @@ private fun complimentLabel(id: String): String =
     }
 
 private fun oneDecimal(v: Double): String {
-    val scaled = (v * 10).toLong()
-    return "${scaled / 10}.${scaled % 10}"
+    val scaled = (v * ONE_DECIMAL_FACTOR).toLong()
+    return "${scaled / ONE_DECIMAL_FACTOR}.${scaled % ONE_DECIMAL_FACTOR}"
 }

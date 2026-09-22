@@ -14,6 +14,9 @@ import com.siddharth.kmp.mvi.BaseViewModel
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+/** Cards are referred to by their last four digits, the way a statement prints them. */
+private const val CARD_TAIL_DIGITS = 4
+
 enum class AdvanceTabFilter { ALL, PENDING, SETTLED }
 
 data class AdvanceListData(
@@ -236,7 +239,7 @@ class AdvanceViewModel(
                     },
             )
         }
-        emitEffect(AdvanceEffect.ShowToast(UiText.Dynamic("Card ${cardId.takeLast(4)} status updated")))
+        emitEffect(AdvanceEffect.ShowToast(UiText.Dynamic("Card ${cardId.takeLast(CARD_TAIL_DIGITS)} status updated")))
     }
 
     fun getCardById(id: String) = repository.getCardById(id)

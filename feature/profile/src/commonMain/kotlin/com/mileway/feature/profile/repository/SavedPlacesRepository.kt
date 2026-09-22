@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
+/** Generated place ids carry the last ten digits of the creation timestamp. */
+private const val ID_SUFFIX_DIGITS = 10
+
 /**
  * PLAN_V24 P3.4: Room-backed store for `SavedPlacesScreen`'s home/work/other places. Persists
  * across navigation and process death (unlike a `mutableStateListOf` seed).
@@ -47,7 +50,7 @@ class SavedPlacesRepository(
         val now = clock.now().toEpochMilliseconds()
         dao.upsert(
             SavedPlaceEntity(
-                id = id.ifBlank { "PLACE-" + now.toString().takeLast(10) },
+                id = id.ifBlank { "PLACE-" + now.toString().takeLast(ID_SUFFIX_DIGITS) },
                 type = type.name,
                 label = label,
                 address = address,
