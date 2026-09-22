@@ -192,12 +192,24 @@ private val ITINERARY =
         ),
     )
 
+/** Itinerary accent, flights: the same blue the flight leg uses on the timeline rail. */
+private val FlightAccent = Color(0xFF1565C0)
+
+/** Itinerary accent, hotel stays. */
+private val HotelAccent = Color(0xFF6A1B9A)
+
+/** Itinerary accent, meetings - the deep teal the travel header gradient starts from. */
+private val MeetingAccent = Color(0xFF00695C)
+
+/** Itinerary accent, dining. */
+private val DiningAccent = Color(0xFFE65100)
+
 private fun itineraryTypeColor(type: ItineraryType): Color =
     when (type) {
-        ItineraryType.FLIGHT -> Color(0xFF1565C0)
-        ItineraryType.HOTEL -> Color(0xFF6A1B9A)
-        ItineraryType.MEETING -> Color(0xFF00695C)
-        ItineraryType.DINING -> Color(0xFFE65100)
+        ItineraryType.FLIGHT -> FlightAccent
+        ItineraryType.HOTEL -> HotelAccent
+        ItineraryType.MEETING -> MeetingAccent
+        ItineraryType.DINING -> DiningAccent
     }
 
 // ==========================================

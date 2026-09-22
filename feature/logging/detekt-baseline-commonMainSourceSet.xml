@@ -4,12 +4,6 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:LogMilesScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun LogMilesScreen</ID>
     <ID>LongMethod:LoggingNavigation.kt:fun NavGraphBuilder.loggingGraph</ID>
-    <ID>MagicNumber:LogMilesHistoryScreen.kt:86_400_000L</ID>
-    <ID>MagicNumber:LogMilesModels.kt:1_000.0</ID>
-    <ID>MagicNumber:LoggingNavigation.kt:16</ID>
-    <ID>MagicNumber:LoggingNavigation.kt:3</ID>
-    <ID>MagicNumber:LoggingNavigation.kt:4</ID>
-    <ID>MagicNumber:VoucherHistoryRepository.kt:VoucherHistoryRepository$48700</ID>
     <ID>TooManyFunctions:ExpenseViewModel.kt:ExpenseViewModel : BaseViewModel</ID>
   </CurrentIssues>
 </SmellBaseline>

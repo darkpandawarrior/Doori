@@ -192,14 +192,23 @@ private fun encodeRouteArg(s: String): String =
         }
     }
 
+/** A percent-escape is three characters: `%` plus two hex digits. */
+private const val PercentEscapeLength = 3
+
+/** Those two digits are base 16. */
+private const val HexRadix = 16
+
+/** A byte is two hex nibbles; shifting by this many bits selects the high one. */
+private const val HexNibbleBits = 4
+
 private fun decodeRouteArg(s: String): String {
     val bytes = mutableListOf<Byte>()
     var i = 0
     while (i < s.length) {
         val c = s[i]
         if (c == '%' && i + 2 < s.length) {
-            bytes.add(s.substring(i + 1, i + 3).toInt(16).toByte())
-            i += 3
+            bytes.add(s.substring(i + 1, i + PercentEscapeLength).toInt(HexRadix).toByte())
+            i += PercentEscapeLength
         } else {
             bytes.add(c.code.toByte())
             i += 1
@@ -210,7 +219,7 @@ private fun decodeRouteArg(s: String): String {
 
 private fun Int.toHex2(): String {
     val hex = "0123456789ABCDEF"
-    return "" + hex[(this shr 4) and 0xF] + hex[this and 0xF]
+    return "" + hex[(this shr HexNibbleBits) and 0xF] + hex[this and 0xF]
 }
 
 /**

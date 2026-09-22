@@ -27,11 +27,14 @@ class ParkingRepository {
     private val submitted = mutableListOf<ParkingDraft>()
     private var counter = 0
 
+    /** Fake submissions rotate through the three result outcomes in order. */
+    private val submissionOutcomeCount = 3
+
     fun submit(draft: ParkingDraft): PayablesSubmissionResult {
         submitted += draft
         val prefix = if (draft.mode == ParkMode.IN) "PIN" else "POUT"
         val id = "$prefix-${3100 + submitted.size}"
-        return when (counter++ % 3) {
+        return when (counter++ % submissionOutcomeCount) {
             0 -> PayablesSubmissionResult.Submitted(id)
             1 -> PayablesSubmissionResult.NeedsApproval(id)
             else ->

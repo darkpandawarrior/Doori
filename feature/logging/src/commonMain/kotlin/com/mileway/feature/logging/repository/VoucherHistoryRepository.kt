@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
+/** Seeded demo vouchers count their linked expense ids up from here. */
+private const val SeedExpenseIdBase = 48_700
+
 /**
  * P3.1: reads from the shared [VoucherDao] (`core/data`) instead of regenerating a hardcoded
  * 8-row spec on every call — the same store `feature/tracking`'s `VoucherRepository` writes to,
@@ -71,7 +74,7 @@ class VoucherHistoryRepository(
                 category = VoucherCategory.MILEAGE,
                 totalAmount = s.amount,
                 notes = if (s.violations > 0) "$VIOLATIONS_PREFIX${s.violations}" else "",
-                expenseRouteIdsJson = VoucherEntity.encodeExpenseRouteIds(listOf("EXP-${48700 + index}")),
+                expenseRouteIdsJson = VoucherEntity.encodeExpenseRouteIds(listOf("EXP-${SeedExpenseIdBase + index}")),
                 status = s.status.label,
                 createdAtMs = now - s.daysAgo * dayMs,
             )

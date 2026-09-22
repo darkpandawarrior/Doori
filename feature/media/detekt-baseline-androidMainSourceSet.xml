@@ -1,9 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:RealMediaRepository.kt:RealMediaRepository$180f</ID>
-    <ID>MagicNumber:RealMediaRepository.kt:RealMediaRepository$270f</ID>
-    <ID>MagicNumber:RealMediaRepository.kt:RealMediaRepository$90f</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

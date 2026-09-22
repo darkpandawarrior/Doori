@@ -13,6 +13,9 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 import kotlin.time.Clock
 
+/** Attachment ids are base-36 (0-9 then a-z), which keeps a millisecond timestamp short. */
+private const val IdRadix = 36
+
 /**
  * Single immutable UI state for the whole media-capture flow. Shared across the
  * selection -> camera/gallery -> preview -> OCR-sheet journey via a nav-graph
@@ -85,7 +88,7 @@ class MediaViewModel(
         Clock.System
             .now()
             .toEpochMilliseconds()
-            .toString(36) + "_" + Random.nextLong().toString(36)
+            .toString(IdRadix) + "_" + Random.nextLong().toString(IdRadix)
 
     /** Cycle the camera flash mode AUTO -> ON -> OFF -> AUTO. */
     private fun cycleFlashMode() {

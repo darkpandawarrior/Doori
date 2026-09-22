@@ -1,10 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:TravelHomeScreen.kt:0xFF00695C</ID>
-    <ID>MagicNumber:TravelHomeScreen.kt:0xFF1565C0</ID>
-    <ID>MagicNumber:TravelHomeScreen.kt:0xFF6A1B9A</ID>
-    <ID>MagicNumber:TravelHomeScreen.kt:0xFFE65100</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

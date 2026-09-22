@@ -5,6 +5,9 @@ import com.mileway.feature.payables.model.PayablesDocStatus
 import com.mileway.feature.payables.model.PayablesDocType
 import kotlin.time.Clock
 
+/** Demo document numbers count up from here, so every seeded reference is a plausible 4-digit id. */
+private const val DocNumberBase = 9000
+
 /**
  * Offline fake payables-history store (PB.4), a deterministic spread of [PayablesDoc]s across all five
  * [PayablesDocType] families and all [PayablesDocStatus]es so the type-tabbed history + status filter chips
@@ -59,7 +62,7 @@ class PayablesHistoryRepository(
                 PayablesDocType.PARK_IN_OUT -> "PRK"
                 PayablesDocType.ASN -> "ASN"
             }
-        return "$prefix-${9000 + index}"
+        return "$prefix-${DocNumberBase + index}"
     }
 
     /** All documents, optionally narrowed to [type] and/or [status], newest first. */
