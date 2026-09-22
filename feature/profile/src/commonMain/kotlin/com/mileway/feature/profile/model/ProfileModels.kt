@@ -72,6 +72,12 @@ data class AccountAnalyticsSnapshot(
     val sparkline: List<Float>,
 ) {
     companion object {
+        /**
+         * One normalised point per day of the demo week, hoisted out of [demo] so the seven values
+         * are a named series rather than seven unexplained floats in an argument list.
+         */
+        private val DemoWeekSparkline = listOf(0.30f, 0.42f, 0.38f, 0.55f, 0.48f, 0.70f, 0.62f)
+
         /** Deterministic demo snapshot mirroring the reference "last 7 days" widget. */
         fun demo(): AccountAnalyticsSnapshot =
             AccountAnalyticsSnapshot(
@@ -79,7 +85,7 @@ data class AccountAnalyticsSnapshot(
                 transactions = 1,
                 window = "last 7 days",
                 updatedAt = "02:54 AM",
-                sparkline = listOf(0.30f, 0.42f, 0.38f, 0.55f, 0.48f, 0.70f, 0.62f),
+                sparkline = DemoWeekSparkline,
             )
     }
 }

@@ -198,6 +198,17 @@ private fun FloatingPaperPlane(
     }
 }
 
+// Paper-plane anchor points, as fractions of the canvas.
+private const val PlaneNoseX = 0.74f
+private const val PlaneNoseY = 0.42f
+private const val PlaneTailTopX = 0.30f
+private const val PlaneTailTopY = 0.40f
+private const val PlaneTailBottomX = 0.34f
+private const val PlaneTailBottomY = 0.66f
+private const val PlaneBellyX = 0.46f
+private const val PlaneBellyY = 0.56f
+private const val PlaneSpineAlpha = 0.85f
+
 /**
  * Draws a stylised paper plane pointing up-right, occupying roughly the
  * lower-left of the canvas. Two triangular wings plus a darker fold give it the
@@ -211,10 +222,10 @@ private fun DrawScope.drawPaperPlane(
     val h = size.height
 
     // Anchor points expressed as fractions of the canvas so the plane scales.
-    val nose = Offset(w * 0.74f, h * 0.42f) // tip, up and to the right
-    val tailTop = Offset(w * 0.30f, h * 0.40f) // upper rear corner
-    val tailBottom = Offset(w * 0.34f, h * 0.66f) // lower rear corner
-    val belly = Offset(w * 0.46f, h * 0.56f) // centre crease point
+    val nose = Offset(w * PlaneNoseX, h * PlaneNoseY) // tip, up and to the right
+    val tailTop = Offset(w * PlaneTailTopX, h * PlaneTailTopY) // upper rear corner
+    val tailBottom = Offset(w * PlaneTailBottomX, h * PlaneTailBottomY) // lower rear corner
+    val belly = Offset(w * PlaneBellyX, h * PlaneBellyY) // centre crease point
 
     // Upper wing (lighter underside catches the light).
     val upperWing =
@@ -244,24 +255,43 @@ private fun DrawScope.drawPaperPlane(
             lineTo((tailTop.x + tailBottom.x) / 2f, (tailTop.y + tailBottom.y) / 2f)
             close()
         }
-    drawPath(spine, color = planeColor.copy(alpha = 0.85f), style = Fill)
+    drawPath(spine, color = planeColor.copy(alpha = PlaneSpineAlpha), style = Fill)
 }
+
+// Cloud geometry, as fractions of the canvas. Named because a DrawScope extension carries no
+// @Composable annotation, so no ignore reaches these — and the left lobe's centre is reused as the
+// base rectangle's top-left, which only a shared name makes visible.
+private const val CloudLobeRadiusFraction = 0.06f
+private const val CloudLeftLobeX = 0.78f
+private const val CloudLeftLobeY = 0.30f
+private const val CloudMiddleLobeX = 0.86f
+private const val CloudMiddleLobeY = 0.27f
+private const val CloudMiddleLobeScale = 1.3f
+private const val CloudRightLobeX = 0.93f
+private const val CloudRightLobeY = 0.31f
+private const val CloudBaseWidthFraction = 0.16f
+private const val CloudBaseHeightScale = 0.9f
 
 /** Draws a small, soft three-lobe grey cloud in the upper-right of the canvas. */
 private fun DrawScope.drawCloud(cloudColor: Color) {
     val w = size.width
     val h = size.height
-    val r = w * 0.06f
+    val r = w * CloudLobeRadiusFraction
+    val leftLobe = Offset(w * CloudLeftLobeX, h * CloudLeftLobeY)
 
-    drawCircle(cloudColor, radius = r, center = Offset(w * 0.78f, h * 0.30f))
-    drawCircle(cloudColor, radius = r * 1.3f, center = Offset(w * 0.86f, h * 0.27f))
-    drawCircle(cloudColor, radius = r, center = Offset(w * 0.93f, h * 0.31f))
+    drawCircle(cloudColor, radius = r, center = leftLobe)
+    drawCircle(
+        cloudColor,
+        radius = r * CloudMiddleLobeScale,
+        center = Offset(w * CloudMiddleLobeX, h * CloudMiddleLobeY),
+    )
+    drawCircle(cloudColor, radius = r, center = Offset(w * CloudRightLobeX, h * CloudRightLobeY))
     // Flat base so the lobes read as one cloud.
     drawRect(
         color = cloudColor,
-        topLeft = Offset(w * 0.78f, h * 0.30f),
+        topLeft = leftLobe,
         size =
             androidx.compose.ui.geometry
-                .Size(w * 0.16f, r * 0.9f),
+                .Size(w * CloudBaseWidthFraction, r * CloudBaseHeightScale),
     )
 }

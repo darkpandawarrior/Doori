@@ -1,6 +1,10 @@
 package com.mileway.feature.cards.security
 
+import com.mileway.core.data.util.MillisPerMinute
 import kotlin.time.Clock
+
+/** How long a successful PIN entry stays good for before the user is asked again. */
+private const val DefaultVerificationWindowMillis = 5L * MillisPerMinute
 
 /**
  * Q.5: gates sensitive card actions (reveal full PAN, controls) behind a PIN, with a verification window
@@ -9,7 +13,7 @@ import kotlin.time.Clock
  */
 class CardSecurityManager(
     private val demoPin: String = "1234",
-    private val windowMillis: Long = 5L * 60L * 1000L,
+    private val windowMillis: Long = DefaultVerificationWindowMillis,
     private val now: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) {
     private var lastVerifiedAtMs: Long = 0L

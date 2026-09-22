@@ -4,14 +4,6 @@
   <CurrentIssues>
     <ID>CyclomaticComplexMethod:LogMilesScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun LogMilesScreen</ID>
     <ID>LongMethod:LoggingNavigation.kt:fun NavGraphBuilder.loggingGraph</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.05</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.08</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.1</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.12</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.80</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.85</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.88</ID>
-    <ID>MagicNumber:ExpenseDetailScreen.kt:0.9</ID>
     <ID>MagicNumber:LogMilesHistoryScreen.kt:86_400_000L</ID>
     <ID>MagicNumber:LogMilesModels.kt:1_000.0</ID>
     <ID>MagicNumber:LoggingNavigation.kt:16</ID>

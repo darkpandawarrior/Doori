@@ -4,11 +4,6 @@
   <CurrentIssues>
     <ID>LargeClass:PluginCatalog.kt:PluginCatalog</ID>
     <ID>MagicNumber:BadgeCatalog.kt:10</ID>
-    <ID>MagicNumber:CommonUtils.kt:CommonUtils$1000</ID>
-    <ID>MagicNumber:CommonUtils.kt:CommonUtils$1000.0</ID>
-    <ID>MagicNumber:CommonUtils.kt:CommonUtils$180.0</ID>
-    <ID>MagicNumber:CommonUtils.kt:CommonUtils$60</ID>
-    <ID>MagicNumber:CommonUtils.kt:CommonUtils$90.0</ID>
     <ID>MagicNumber:CredentialSource.kt:PasswordPolicy$12</ID>
     <ID>MagicNumber:CredentialSource.kt:PasswordPolicy$4</ID>
     <ID>MagicNumber:CurrentTrackData.kt:CurrentTrackData$1000.0</ID>
@@ -17,9 +12,6 @@
     <ID>MagicNumber:DateUtils.kt:DateUtils$3</ID>
     <ID>MagicNumber:DateUtils.kt:DateUtils$60_000L</ID>
     <ID>MagicNumber:EmergencyContactsRepository.kt:EmergencyContactsRepository$10</ID>
-    <ID>MagicNumber:LocalOtpEngine.kt:LocalOtpEngine$16777619u</ID>
-    <ID>MagicNumber:LocalOtpEngine.kt:LocalOtpEngine$1_000_000u</ID>
-    <ID>MagicNumber:LocalOtpEngine.kt:LocalOtpEngine$6</ID>
     <ID>MagicNumber:SessionState.kt:4</ID>
     <ID>ReturnCount:CurrentTrackDataSource.kt:SyncSessionOverride.Companion$fun decode: SyncSessionOverride?</ID>
     <ID>TooManyFunctions:HardwareEventDao.kt:HardwareEventDao</ID>

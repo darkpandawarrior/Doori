@@ -1458,34 +1458,56 @@ fun calculateTotalDistance(locations: List<LocationData>): Float {
     return locations.map { it.displacement }.sum().toFloat()
 }
 
-fun calculateDataQualityScore(locations: List<LocationData>): Int {
-    if (locations.isEmpty()) return 0
+// Data-quality scoring. Each band and each penalty is named because this is a business rule that
+// someone will want to retune, and a tuning pass that has to count bare integers in a `when` is
+// exactly how one of them gets changed by accident.
+private const val QualityPerfectScore = 100
+private const val QualityWorstScore = 0
 
-    var score = 100
+private const val PoorAccuracyMetres = 50
+private const val FairAccuracyMetres = 20
+private const val GoodAccuracyMetres = 10
+private const val PoorAccuracyPenalty = 30
+private const val FairAccuracyPenalty = 15
+private const val GoodAccuracyPenalty = 5
+
+/** A pause longer than this between two fixes counts as a gap in the trace. */
+private const val FixGapMillis = 10_000
+private const val PerGapPenalty = 5
+private const val MaxGapPenalty = 20
+
+private const val MockLocationPenalty = 25
+private const val PerAbnormalPenalty = 10
+private const val MaxAbnormalPenalty = 40
+
+fun calculateDataQualityScore(locations: List<LocationData>): Int {
+    if (locations.isEmpty()) return QualityWorstScore
+
+    var score = QualityPerfectScore
 
     val avgAccuracy = locations.map { it.accuracy }.average().toFloat()
     when {
-        avgAccuracy > 50 -> score -= 30
-        avgAccuracy > 20 -> score -= 15
-        avgAccuracy > 10 -> score -= 5
+        avgAccuracy > PoorAccuracyMetres -> score -= PoorAccuracyPenalty
+        avgAccuracy > FairAccuracyMetres -> score -= FairAccuracyPenalty
+        avgAccuracy > GoodAccuracyMetres -> score -= GoodAccuracyPenalty
     }
 
     if (locations.size > 1) {
         var gapCount = 0
         for (i in 1 until locations.size) {
             val timeDiff = locations[i].date - locations[i - 1].date
-            if (timeDiff > 10000) gapCount++
+            if (timeDiff > FixGapMillis) gapCount++
         }
-        score -= (gapCount * 5).coerceAtMost(20)
+        score -= (gapCount * PerGapPenalty).coerceAtMost(MaxGapPenalty)
     }
 
     val mockCount = locations.count { it.isMock }
-    if (mockCount > 0) score -= 25
+    if (mockCount > 0) score -= MockLocationPenalty
 
     val abnormalCount = locations.count { it.isAbnormal }
-    score -= (abnormalCount * 10).coerceAtMost(40)
+    score -= (abnormalCount * PerAbnormalPenalty).coerceAtMost(MaxAbnormalPenalty)
 
-    return score.coerceIn(0, 100)
+    return score.coerceIn(QualityWorstScore, QualityPerfectScore)
 }
 
 fun formatLiveDuration(durationMillis: Long): String {

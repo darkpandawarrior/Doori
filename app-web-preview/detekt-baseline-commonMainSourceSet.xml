@@ -1,12 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>MagicNumber:DemoEngine.kt:10</ID>
-    <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$0.5</ID>
-    <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$111_320.0</ID>
-    <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$180.0</ID>
-    <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$20.0</ID>
-    <ID>MagicNumber:DemoEngine.kt:DemoTrackingEngine$45.0</ID>
-  </CurrentIssues>
+  <CurrentIssues/>
 </SmellBaseline>

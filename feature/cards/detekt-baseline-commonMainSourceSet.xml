@@ -4,8 +4,5 @@
   <CurrentIssues>
     <ID>MagicNumber:CardKycViewModel.kt:CardKycViewModel$4</ID>
     <ID>MagicNumber:CardKycViewModel.kt:CardKycViewModel$6</ID>
-    <ID>MagicNumber:CardSecurityManager.kt:CardSecurityManager$1000L</ID>
-    <ID>MagicNumber:CardSecurityManager.kt:CardSecurityManager$5L</ID>
-    <ID>MagicNumber:CardSecurityManager.kt:CardSecurityManager$60L</ID>
   </CurrentIssues>
 </SmellBaseline>

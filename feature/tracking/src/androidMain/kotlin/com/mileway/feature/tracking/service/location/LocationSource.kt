@@ -21,6 +21,21 @@ import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.sin
 
+/** Re-registering the provider below this much of a cadence change churns it for no benefit. */
+private const val MinIntervalChangeMs = 1_000L
+
+/** Positional jitter per fix, in degrees — about 2 m. */
+private const val JitterDegrees = 0.00002
+
+/** Metres per degree of latitude — the flat-earth step the simulator walks with. */
+private const val MetresPerDegreeLatitude = 111_320.0
+
+/** `Math.random()` is 0..1; subtracting this centres it on zero. */
+private const val RandomCentre = 0.5
+
+/** Heading wanders by up to ±10° per fix, which is `(random - 0.5) * 20`. */
+private const val BearingDriftSpanDegrees = 20.0
+
 /** Abstracts the stream of GPS fixes so the service can use real GPS or a simulated drive. */
 interface LocationSource {
     fun start(onFix: (GpsFix) -> Unit)
@@ -70,7 +85,7 @@ class FusedLocationSource(
      */
     override fun updateInterval(intervalMs: Long) {
         if (onFix == null) return // not started
-        if (kotlin.math.abs(intervalMs - currentIntervalMs) < 1_000L) return
+        if (kotlin.math.abs(intervalMs - currentIntervalMs) < MinIntervalChangeMs) return
         currentIntervalMs = intervalMs
         removeUpdates()
         register(intervalMs)
@@ -182,8 +197,8 @@ class SimulatedLocationSource(
                 val isMock = step > 0 && step % 20 == 0 // periodic mock-sourced point
                 onFix(
                     GpsFix(
-                        lat = lat + (Math.random() - 0.5) * 0.00002,
-                        lng = lng + (Math.random() - 0.5) * 0.00002,
+                        lat = lat + (Math.random() - RandomCentre) * JitterDegrees,
+                        lng = lng + (Math.random() - RandomCentre) * JitterDegrees,
                         timeMs = now,
                         speedMps = speed.toFloat(),
                         accuracyM = (4.0 + Math.random() * 4.0).toFloat(),
@@ -196,9 +211,9 @@ class SimulatedLocationSource(
                 // Advance along the current bearing by speed * dt.
                 val distanceM = speed * (intervalMs / 1000.0)
                 val bearingRad = Math.toRadians(bearing)
-                lat += (distanceM * cos(bearingRad)) / 111_320.0
-                lng += (distanceM * sin(bearingRad)) / (111_320.0 * cos(Math.toRadians(lat)))
-                bearing += (Math.random() - 0.5) * 20.0 // gentle curve
+                lat += (distanceM * cos(bearingRad)) / MetresPerDegreeLatitude
+                lng += (distanceM * sin(bearingRad)) / (MetresPerDegreeLatitude * cos(Math.toRadians(lat)))
+                bearing += (Math.random() - RandomCentre) * BearingDriftSpanDegrees // gentle curve
                 step++
                 delay(intervalMs)
             }

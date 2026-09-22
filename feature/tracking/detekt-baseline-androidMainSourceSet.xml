@@ -10,10 +10,6 @@
     <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$0.3f</ID>
     <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$1.15f</ID>
     <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$50</ID>
-    <ID>MagicNumber:LocationSource.kt:FusedLocationSource$1_000L</ID>
-    <ID>MagicNumber:LocationSource.kt:SimulatedLocationSource$0.5</ID>
-    <ID>MagicNumber:LocationSource.kt:SimulatedLocationSource$111_320.0</ID>
-    <ID>MagicNumber:LocationSource.kt:SimulatedLocationSource$20.0</ID>
     <ID>MagicNumber:LocationTrackingBootReceiver.kt:LocationTrackingBootReceiver$8</ID>
     <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$1000L</ID>
     <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$1_000L</ID>
