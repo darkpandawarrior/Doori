@@ -9,6 +9,9 @@ import kotlin.time.Clock
 /** The most emergency contacts the reference app allows a user to register. */
 const val MAX_EMERGENCY_CONTACTS = 5
 
+/** A new contact's synthetic id keeps this many trailing digits of the epoch-millis stamp. */
+private const val CONTACT_ID_STAMP_DIGITS = 10
+
 /**
  * PLAN_V24 P3.5: Room-backed store for emergency contacts, capped at [MAX_EMERGENCY_CONTACTS].
  * Lives in core:data so both the profile management screen (feature:profile) and the SOS sheet
@@ -37,7 +40,7 @@ class EmergencyContactsRepository(
         val now = clock.now().toEpochMilliseconds()
         dao.upsert(
             EmergencyContactEntity(
-                id = id.ifBlank { "EC-" + now.toString().takeLast(10) },
+                id = id.ifBlank { "EC-" + now.toString().takeLast(CONTACT_ID_STAMP_DIGITS) },
                 name = name,
                 phoneNo = phoneNo,
                 countryCode = countryCode,

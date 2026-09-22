@@ -3,16 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>LargeClass:PluginCatalog.kt:PluginCatalog</ID>
-    <ID>MagicNumber:BadgeCatalog.kt:10</ID>
-    <ID>MagicNumber:CredentialSource.kt:PasswordPolicy$12</ID>
-    <ID>MagicNumber:CredentialSource.kt:PasswordPolicy$4</ID>
-    <ID>MagicNumber:CurrentTrackData.kt:CurrentTrackData$1000.0</ID>
-    <ID>MagicNumber:CurrentTrackData.kt:CurrentTrackData$3.6</ID>
-    <ID>MagicNumber:CurrentTrackDataSource.kt:SyncSessionOverride.Companion$5</ID>
-    <ID>MagicNumber:DateUtils.kt:DateUtils$3</ID>
-    <ID>MagicNumber:DateUtils.kt:DateUtils$60_000L</ID>
-    <ID>MagicNumber:EmergencyContactsRepository.kt:EmergencyContactsRepository$10</ID>
-    <ID>MagicNumber:SessionState.kt:4</ID>
     <ID>ReturnCount:CurrentTrackDataSource.kt:SyncSessionOverride.Companion$fun decode: SyncSessionOverride?</ID>
     <ID>TooManyFunctions:HardwareEventDao.kt:HardwareEventDao</ID>
     <ID>TooManyFunctions:LocationDao.kt:LocationDao</ID>

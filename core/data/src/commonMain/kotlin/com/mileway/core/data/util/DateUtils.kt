@@ -7,6 +7,12 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Instant
 
+/** "JANUARY".take(MonthAbbreviationLength) is "Jan" — the three-letter month abbreviation these formatters print. */
+private const val MonthAbbreviationLength = 3
+
+/** A "dd-MM-yyyy" string splits into exactly three parts; anything else is not a date. */
+private const val DateStringParts = 3
+
 object DateUtils {
     fun epochToDisplayDate(epochMs: Long): String {
         val local =
@@ -15,7 +21,7 @@ object DateUtils {
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         val monthAbbr =
             local.month.name
-                .take(3)
+                .take(MonthAbbreviationLength)
                 .lowercase()
                 .replaceFirstChar { it.uppercase() }
         return "${local.day} $monthAbbr ${local.year}"
@@ -61,7 +67,7 @@ object DateUtils {
                 .toLocalDateTime(TimeZone.currentSystemDefault())
         val monthAbbr =
             local.month.name
-                .take(3)
+                .take(MonthAbbreviationLength)
                 .lowercase()
                 .replaceFirstChar { it.uppercase() }
         val hour12 =
@@ -100,13 +106,13 @@ object DateUtils {
             kotlin.time.Clock.System
                 .now()
                 .toEpochMilliseconds() - pastTimeInMillis
-        return diffMs / 60_000L
+        return diffMs / MillisPerMinute
     }
 
     fun dateStringToMilliseconds(dateString: String): Long {
         return try {
             val parts = dateString.split("-")
-            if (parts.size != 3) return -1L
+            if (parts.size != DateStringParts) return -1L
             val day = parts[0].toInt()
             val month = parts[1].toInt()
             val year = parts[2].toInt()

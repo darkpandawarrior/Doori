@@ -8,7 +8,8 @@ import kotlin.math.roundToInt
 private const val MaxLatitude = 90.0
 private const val MaxLongitude = 180.0
 
-private const val MetresPerKm = 1_000.0
+/** Metres in a kilometre. Shared across core:data so each file does not spell 1000 again. */
+internal const val MetresPerKm = 1_000.0
 private const val MinutesPerHour = 60
 
 /** `roundToTwoDecimals` scales by this, rounds, and scales back. */
