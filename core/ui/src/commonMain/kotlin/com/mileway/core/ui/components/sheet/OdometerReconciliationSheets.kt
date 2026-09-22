@@ -100,10 +100,13 @@ private fun ReadingRow(
     }
 }
 
+/** Digits per group when grouping thousands: 1234567 reads as 1,234,567. */
+private const val ThousandsGroupSize = 3
+
 /** `String.format("%,d", ...)` is JVM-only — commonMain needs its own thousands-grouping. */
 private fun Int.withThousandsSeparators(): String =
     toString()
         .reversed()
-        .chunked(3)
+        .chunked(ThousandsGroupSize)
         .joinToString(",")
         .reversed()

@@ -84,13 +84,15 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.mileway.core.ui.geometry.DegreesPerHalfTurn
+import com.mileway.core.ui.geometry.toDegrees
+import com.mileway.core.ui.geometry.toRadians
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_cd_collapse_nav
 import com.mileway.core.ui.resources.core_cd_collapsed_nav_for
 import com.mileway.core.ui.resources.core_cd_switch_to
 import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
-import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -121,12 +123,8 @@ private fun angleDistanceDegrees(
     second: Float,
 ): Float {
     val delta = abs(normalizeAngle(first) - normalizeAngle(second))
-    return if (delta > 180f) 360f - delta else delta
+    return if (delta > DegreesPerHalfTurn) 360f - delta else delta
 }
-
-private fun radiansToDegrees(radians: Float): Float = radians * 180f / PI.toFloat()
-
-private fun degreesToRadians(degrees: Float): Float = degrees * PI.toFloat() / 180f
 
 /**
  * Navigation item for the bubble bottom bar with badge support.
@@ -756,7 +754,7 @@ fun CollapsedBottomPuck(
             if (distance < hoverActivationRadiusPx) {
                 hoveredItemIndex = null
             } else {
-                val angle = normalizeAngle(radiansToDegrees(atan2(deltaY, deltaX)))
+                val angle = normalizeAngle(atan2(deltaY, deltaX).toDegrees())
                 val nextHoveredIndex =
                     wheelItemAngles
                         .minByOrNull { (_, targetAngle) ->
@@ -868,7 +866,7 @@ fun CollapsedBottomPuck(
                 }
                 wheelItemIndexes.forEach { itemIndex ->
                     val angle = wheelItemAngles[itemIndex] ?: return@forEach
-                    val angleInRadians = degreesToRadians(angle)
+                    val angleInRadians = angle.toRadians()
                     val x = (cos(angleInRadians) * wheelRadiusPx).roundToInt()
                     val y = (sin(angleInRadians) * wheelRadiusPx).roundToInt()
                     val item = items[itemIndex]

@@ -8,9 +8,6 @@
     <ID>CyclomaticComplexMethod:BubbleBottomBar.kt:@Composable fun DynamicNavItem</ID>
     <ID>CyclomaticComplexMethod:ProfileComponents.kt:@Composable fun GridProfileTile</ID>
     <ID>CyclomaticComplexMethod:ProfileComponents.kt:@OptIn(ExperimentalLayoutApi::class) @Composable fun ProfileCompletionBanner</ID>
-    <ID>MagicNumber:BubbleBottomBar.kt:180f</ID>
-    <ID>MagicNumber:CompassGaugeHero.kt:180.0</ID>
-    <ID>MagicNumber:OdometerReconciliationSheets.kt:3</ID>
     <ID>UnusedParameter:CompassGaugeHero.kt:speedKmh: Float?</ID>
   </CurrentIssues>
 </SmellBaseline>
