@@ -385,6 +385,47 @@ today*. Only `stats` is wired up; if a future prose block wants the same treatme
 
 ---
 
+## Docs tooling that is deliberately NOT here
+
+Recorded so the next pass does not re-derive it.
+
+### Dokka — rejected for Mileway
+
+Mileway is an application. Measured 2026-09-22: **no module in this repo applies `maven-publish`,
+`mavenPublishing` or `publishToMavenCentral`** — every hit for those is under `external/`, i.e. the
+`kmp-toolkit` and `kmp-build-logic` submodules, which are separate repositories with their own
+builds. Nothing here is consumed as a library by anything, so there is no public API surface for a
+generated reference to describe, and no reader who would open one.
+
+`kmp-toolkit` is the repo that needs published API docs, and it already has them: Dokka 2.3.0-Beta
+is applied across its subprojects with HTML aggregation, in `external/kmp-toolkit/build.gradle.kts`.
+That is the right place for it. Adding Dokka to Mileway's 36 modules would produce a CI job, a Pages
+deployment and a rot surface, for a reference of an app's internals.
+
+What a reader actually opens for an app is the README, the screenshots and the module map. Those
+exist, and — unlike a Dokka site — they are generated from source of truth and gated:
+`scripts/gen-readme.sh` regenerates the module counts, screenshot count and toolchain badges, and
+`.github/workflows/readme.yml` fails a PR when regenerating produces a diff.
+
+### Link checking — the one real gap, left open on purpose
+
+There is no link checker in this repo, and on 2026-09-22 the README did contain one broken relative
+link: `docs/screenshots/widget_ios_lockscreen.png`, referenced in the widget table, has never
+existed. It rendered as a broken image above the fold. The column was removed rather than faked; the
+comment in `README.md` says what would restore it.
+
+The rest of the README's relative links and anchors resolve. A `lychee` workflow would catch the
+next one, and is roughly fifteen lines — but it is nine copies across the family, or one scheduled
+job in a hub repo, and it needs a story for third-party outages that would otherwise turn green PRs
+red. That is a family-level decision, not a Mileway one. Until then, the cheap local check is:
+
+```bash
+grep -oE '\]\(([^)#h][^)]*)\)' README.md | sed -E 's/^\]\(//; s/\)$//' | sed 's/#.*//' \
+  | sort -u | while read -r f; do [ -e "$f" ] || echo "BROKEN: $f"; done
+```
+
+---
+
 ## Verification log
 
 Everything above a command was checked one of these ways, stated per section rather than repeated

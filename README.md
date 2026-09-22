@@ -226,9 +226,15 @@ in-progress trip, driven by the phone's `TrackingLiveActivityController`.
 the same shared `SurfaceSnapshot`, today/week distance with a live "Tracking now" indicator and an
 interactive App-Intent Start/Stop button on iOS.
 
-| Android Glance | iOS home | iOS Lock Screen |
-|:---:|:---:|:---:|
-| ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) | ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) | ![iOS Lock Screen accessory widget with today's distance](docs/screenshots/widget_ios_lockscreen.png) |
+| Android Glance | iOS home |
+|:---:|:---:|
+| ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) | ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) |
+
+<!-- The iOS Lock Screen accessory widget had a third column here pointing at
+     docs/screenshots/widget_ios_lockscreen.png, which has never existed in this repo — it
+     rendered as a broken image. Capturing it needs the watchOS/iOS XCTest suite under Xcode,
+     which no CI job runs today (see docs/ARTEFACT_INDEX.md). Restore the column with the
+     screenshot, not before it. -->
 
 #### Compose Desktop (dashboard preview)
 
