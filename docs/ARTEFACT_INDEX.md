@@ -56,6 +56,11 @@ screenshots did. An index that says *how to regenerate it* and *how you'd know i
 
 ## Screenshot surfaces, in detail
 
+> **Copying this setup to another repo?** Read
+> [`docs/SCREENSHOT_TESTING.md`](SCREENSHOT_TESTING.md) instead of this section. That file is
+> the portable house pattern — the gotchas, the two-gate design and the minimum viable port,
+> in the order you need them. This section is the Mileway-specific inventory.
+
 ### App — `:app:screenshotTestNoGmsDebug`
 
 Roborazzi captures under `app/src/test/java/com/mileway/` matching the class-name filter
