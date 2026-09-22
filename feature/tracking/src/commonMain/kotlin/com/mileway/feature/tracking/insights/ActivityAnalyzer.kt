@@ -3,6 +3,9 @@ package com.mileway.feature.tracking.insights
 import com.mileway.core.data.model.db.LocationData
 import kotlin.math.abs
 
+/** Speed and acceleration need two intervals, so a profile needs at least three fixes. */
+private const val MIN_POINTS_FOR_PROFILE = 3
+
 /**
  * Pure-Kotlin activity-pattern analyzer.
  *
@@ -117,7 +120,7 @@ class ActivityAnalyzer {
         }
 
     private fun calculateSpeedConsistency(points: List<LocationData>): Double {
-        if (points.size < 3) return 1.0
+        if (points.size < MIN_POINTS_FOR_PROFILE) return 1.0
 
         var totalVariation = 0.0
         var prevSpeed = points.first().speed
@@ -134,7 +137,7 @@ class ActivityAnalyzer {
     }
 
     private fun analyzeAccelerationBehavior(points: List<LocationData>): AccelerationProfile {
-        if (points.size < 3) return emptyProfile()
+        if (points.size < MIN_POINTS_FOR_PROFILE) return emptyProfile()
 
         var smoothAccelCount = 0
         var harshAccelCount = 0

@@ -21,6 +21,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
+/** Session tokens are logged by their first eight characters only, never in full. */
+private const val TOKEN_LOG_PREFIX = 8
+
 /**
  * Resumes an interrupted tracking session after a reboot or app update.
  *
@@ -90,7 +93,7 @@ class LocationTrackingBootReceiver :
             )
         when (action) {
             BootRestoreAction.RESUME_SERVICE -> {
-                Napier.i("Active session found (${session.token.take(8)}…): restarting service", tag = TAG)
+                Napier.i("Active session found (${session.token.take(TOKEN_LOG_PREFIX)}…): restarting service", tag = TAG)
                 val serviceIntent =
                     Intent(context, LocationTrackingService::class.java).apply {
                         this.action = LocationTrackingService.ACTION_RESTORE

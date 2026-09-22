@@ -148,6 +148,12 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Floor of the OK band on the 0-100 track quality score. */
+private const val GoodQualityScore = 80
+
+/** Floor of the WARN band; below it the chip reads BAD. */
+private const val FairQualityScore = 50
+
 /** Quick-action ids dispatched from the FAB grid. */
 private object Qa {
     const val MAP = "map"
@@ -744,8 +750,8 @@ private fun TrackSignal.toLevel(): StatusLevel =
 /** C.3: bucket the 0..100 quality score into the chip severity levels. */
 private fun Int.toQualityLevel(): StatusLevel =
     when {
-        this >= 80 -> StatusLevel.OK
-        this >= 50 -> StatusLevel.WARN
+        this >= GoodQualityScore -> StatusLevel.OK
+        this >= FairQualityScore -> StatusLevel.WARN
         else -> StatusLevel.BAD
     }
 

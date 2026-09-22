@@ -6,16 +6,6 @@
     <ID>LargeClass:LocationTrackingService.kt:LocationTrackingService : Service</ID>
     <ID>LongMethod:LocationTrackingService.kt:LocationTrackingService$private fun onFix</ID>
     <ID>LongMethod:TrackingNavigation.kt:fun NavGraphBuilder.trackingGraph</ID>
-    <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$0.2f</ID>
-    <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$0.3f</ID>
-    <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$1.15f</ID>
-    <ID>MagicNumber:FloatingBubbleManager.kt:FloatingBubbleManager$50</ID>
-    <ID>MagicNumber:LocationTrackingBootReceiver.kt:LocationTrackingBootReceiver$8</ID>
-    <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$1000L</ID>
-    <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$1_000L</ID>
-    <ID>MagicNumber:LocationTrackingService.kt:LocationTrackingService$60</ID>
-    <ID>MagicNumber:TrackingContextReceiver.kt:TrackingContextReceiver$10</ID>
-    <ID>MagicNumber:TrackingNavigation.kt:45_000</ID>
     <ID>TooManyFunctions:DebugMenuComposeViewModel.kt:DebugMenuComposeViewModel : BaseViewModel</ID>
     <ID>TooManyFunctions:LocationTrackingService.kt:LocationTrackingService : Service</ID>
     <ID>UnusedParameter:LocationTrackingService.kt:LocationTrackingService$battery: Double</ID>

@@ -17,6 +17,18 @@ import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
 import io.github.aakira.napier.Napier
 
+/** The bubble grows in from three-tenths of full size. */
+private const val ENTRY_SCALE = 0.3f
+
+/** ...and shrinks to a fifth on its way out. */
+private const val EXIT_SCALE = 0.2f
+
+/** The attention pulse overshoots full size by fifteen percent. */
+private const val PULSE_PEAK_SCALE = 1.15f
+
+/** Haptic tick length, in milliseconds. */
+private const val HAPTIC_MILLIS = 50L
+
 class FloatingBubbleManager(
     private val context: Context,
 ) {
@@ -60,8 +72,8 @@ class FloatingBubbleManager(
                 setBackgroundResource(android.R.drawable.dialog_holo_light_frame)
                 setOnClickListener { onTap() }
                 alpha = 0f
-                scaleX = 0.3f
-                scaleY = 0.3f
+                scaleX = ENTRY_SCALE
+                scaleY = ENTRY_SCALE
             }
 
         val params =
@@ -94,11 +106,11 @@ class FloatingBubbleManager(
             AnimatorSet().apply {
                 playTogether(
                     ObjectAnimator.ofFloat(view, "alpha", 0f, 1f).setDuration(ANIM_ENTER_MS),
-                    ObjectAnimator.ofFloat(view, "scaleX", 0.3f, 1f).apply {
+                    ObjectAnimator.ofFloat(view, "scaleX", ENTRY_SCALE, 1f).apply {
                         interpolator = OvershootInterpolator()
                         duration = ANIM_ENTER_MS
                     },
-                    ObjectAnimator.ofFloat(view, "scaleY", 0.3f, 1f).apply {
+                    ObjectAnimator.ofFloat(view, "scaleY", ENTRY_SCALE, 1f).apply {
                         interpolator = OvershootInterpolator()
                         duration = ANIM_ENTER_MS
                     },
@@ -132,11 +144,11 @@ class FloatingBubbleManager(
         AnimatorSet().apply {
             playTogether(
                 ObjectAnimator.ofFloat(view, "alpha", 1f, 0f).setDuration(ANIM_EXIT_MS),
-                ObjectAnimator.ofFloat(view, "scaleX", 1f, 0.2f).apply {
+                ObjectAnimator.ofFloat(view, "scaleX", 1f, EXIT_SCALE).apply {
                     interpolator = DecelerateInterpolator()
                     duration = ANIM_EXIT_MS
                 },
-                ObjectAnimator.ofFloat(view, "scaleY", 1f, 0.2f).apply {
+                ObjectAnimator.ofFloat(view, "scaleY", 1f, EXIT_SCALE).apply {
                     interpolator = DecelerateInterpolator()
                     duration = ANIM_EXIT_MS
                 },
@@ -177,7 +189,7 @@ class FloatingBubbleManager(
     private fun startPulse(view: View) {
         stopPulse()
         pulseAnimator =
-            ValueAnimator.ofFloat(1f, 1.15f, 1f).apply {
+            ValueAnimator.ofFloat(1f, PULSE_PEAK_SCALE, 1f).apply {
                 duration = ANIM_PULSE_MS
                 repeatCount = ValueAnimator.INFINITE
                 repeatMode = ValueAnimator.RESTART
@@ -209,10 +221,10 @@ class FloatingBubbleManager(
                 context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
             } ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+            vibrator.vibrate(VibrationEffect.createOneShot(HAPTIC_MILLIS, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(50)
+            vibrator.vibrate(HAPTIC_MILLIS)
         }
     }
 

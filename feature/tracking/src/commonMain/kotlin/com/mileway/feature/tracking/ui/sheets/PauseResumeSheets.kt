@@ -92,6 +92,9 @@ import com.mileway.core.ui.resources.tracking_resume_you_paused_for
 import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
+/** Tokens are shown abbreviated to their first seven characters. */
+private const val ShortTokenLength = 7
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Pause / Resume / Restore sheet bodies (STATELESS)
 //
@@ -819,4 +822,4 @@ private fun RestorableSessionRow(
 }
 
 /** Returns the first 7 characters of a token (or the whole token if shorter). */
-private fun shortToken(token: String): String = if (token.length <= 7) token else token.take(7)
+private fun shortToken(token: String): String = if (token.length <= ShortTokenLength) token else token.take(ShortTokenLength)

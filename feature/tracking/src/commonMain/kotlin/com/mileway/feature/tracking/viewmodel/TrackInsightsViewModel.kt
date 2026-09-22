@@ -17,6 +17,9 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import kotlin.math.max
 
+/** More abnormal fixes than this and the GPS-signal hint is worth showing. */
+private const val AbnormalPointsForHint = 5
+
 /**
  * UI state for the Track Insights screen.
  *
@@ -146,7 +149,7 @@ class TrackInsightsViewModel(
     ): List<String> {
         val recs = mutableListOf<String>()
         if (mockCount > 0) recs += "Disable mock location apps for accurate distance tracking."
-        if (abnormalCount > 5) recs += "Keep the device in an open area for better GPS signal."
+        if (abnormalCount > AbnormalPointsForHint) recs += "Keep the device in an open area for better GPS signal."
         if (track.wasBatteryOptimizationEnabled) recs += "Disable battery optimisation for Doori to avoid interruptions."
         if (track.wasPowerSaverEnabled) recs += "Turn off power saver mode while tracking for best accuracy."
         if (track.wasAppKilled) recs += "Avoid closing the app while tracking: use the pause button instead."

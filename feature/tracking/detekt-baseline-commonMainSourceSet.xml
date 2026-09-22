@@ -15,31 +15,6 @@
     <ID>LongMethod:SystemImpactAnalyzer.kt:SystemImpactAnalyzer$fun analyze: SystemImpactResult</ID>
     <ID>LongMethod:TrackEvidenceScreen.kt:fun trackEvidenceDetailSpec: DetailSpec</ID>
     <ID>LongMethod:TrackingPipeline.kt:LocationProcessor$fun process: ProcessResult?</ID>
-    <ID>MagicNumber:ActivityAnalyzer.kt:ActivityAnalyzer$3</ID>
-    <ID>MagicNumber:CheckInViewModel.kt:CheckInViewModel$8</ID>
-    <ID>MagicNumber:CsvExporter.kt:CsvExporter$1000.0</ID>
-    <ID>MagicNumber:CsvExporter.kt:CsvExporter$3</ID>
-    <ID>MagicNumber:DebugMenuUtils.kt:DebugMenuUtils$3</ID>
-    <ID>MagicNumber:DebugMenuUtils.kt:DebugMenuUtils$4</ID>
-    <ID>MagicNumber:LiveTrackingComponents.kt:3600</ID>
-    <ID>MagicNumber:LiveTrackingComponents.kt:60</ID>
-    <ID>MagicNumber:PauseResumeSheets.kt:7</ID>
-    <ID>MagicNumber:SavedTrackComponents.kt:15.0</ID>
-    <ID>MagicNumber:SavedTrackComponents.kt:30.0</ID>
-    <ID>MagicNumber:SavedTracksViewModel.kt:8</ID>
-    <ID>MagicNumber:SharedTrackComponents.kt:35</ID>
-    <ID>MagicNumber:SharedTrackComponents.kt:75</ID>
-    <ID>MagicNumber:SubmissionNotificationContent.kt:20</ID>
-    <ID>MagicNumber:SubmissionNotificationContent.kt:40</ID>
-    <ID>MagicNumber:SubmissionNotificationContent.kt:60</ID>
-    <ID>MagicNumber:SubmissionNotificationContent.kt:75</ID>
-    <ID>MagicNumber:SubmissionNotificationContent.kt:90</ID>
-    <ID>MagicNumber:TrackEvidenceScreen.kt:1000</ID>
-    <ID>MagicNumber:TrackEvidenceScreen.kt:1000.0</ID>
-    <ID>MagicNumber:TrackEvidenceScreen.kt:4</ID>
-    <ID>MagicNumber:TrackInsightsViewModel.kt:TrackInsightsViewModel$5</ID>
-    <ID>MagicNumber:TrackMilesScreen.kt:50</ID>
-    <ID>MagicNumber:TrackMilesScreen.kt:80</ID>
     <ID>ReturnCount:ImportRepository.kt:ImportRepository$@Suppress("TooGenericExceptionCaught") suspend fun import: ImportResult</ID>
     <ID>TooManyFunctions:SavedTrackRepository.kt:SavedTrackRepository</ID>
     <ID>TooManyFunctions:TrackMilesViewModel.kt:TrackMilesViewModel : BaseViewModel</ID>

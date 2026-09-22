@@ -53,6 +53,9 @@ import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
+/** Odometer reading the Track Miles form starts from when the route carries none. */
+private const val DEFAULT_START_READING = 45_000
+
 object TrackingRoutes {
     const val SAVED_TRACKS = "saved_tracks"
     const val LIVE_TRACK = "live_track/{routeId}"
@@ -107,7 +110,7 @@ object TrackingRoutes {
     fun odometerCamera(
         purpose: String,
         distanceKm: Double = 0.0,
-        startReading: Int = 45_000,
+        startReading: Int = DEFAULT_START_READING,
     ) = "odometer_camera/$purpose?distanceKm=$distanceKm&startReading=$startReading"
 
     fun success(r: SubmissionResult): String {
@@ -317,7 +320,7 @@ fun NavGraphBuilder.trackingGraph(
         val odoEndReading by sh.getStateFlow("odo_end_reading", -1).collectAsState()
 
         // G7: persisted last-trip end-odometer reading; seeds the next trip's start capture so the
-        // reading rolls over (the physical odometer keeps its value) instead of resetting to 45_000.
+        // reading rolls over (the physical odometer keeps its value) instead of resetting to DEFAULT_START_READING.
         val demoSettings = koinInject<DemoSettingsRepository>()
         val demoSettingsState by demoSettings.settings.collectAsState(initial = DemoSettings())
         val lastOdometerEnd = demoSettingsState.lastOdometerEndReading
@@ -382,7 +385,7 @@ fun NavGraphBuilder.trackingGraph(
                 val startReading =
                     viewModel.state.value.form.simulatedStartOdo
                         ?: lastOdometerEnd.takeIf { it != LAST_ODOMETER_NONE }
-                        ?: 45_000
+                        ?: DEFAULT_START_READING
                 navController.navigate(
                     TrackingRoutes.odometerCamera("START", distKm, startReading),
                 )
@@ -391,7 +394,7 @@ fun NavGraphBuilder.trackingGraph(
                 val startReading =
                     viewModel.state.value.form.simulatedStartOdo
                         ?: lastOdometerEnd.takeIf { it != LAST_ODOMETER_NONE }
-                        ?: 45_000
+                        ?: DEFAULT_START_READING
                 navController.navigate(
                     TrackingRoutes.odometerCamera("END", distKm, startReading),
                 )
@@ -411,7 +414,7 @@ fun NavGraphBuilder.trackingGraph(
                 },
                 navArgument("startReading") {
                     type = NavType.IntType
-                    defaultValue = 45_000
+                    defaultValue = DEFAULT_START_READING
                 },
             ),
     ) { backStack ->
@@ -420,7 +423,7 @@ fun NavGraphBuilder.trackingGraph(
                 backStack.arguments?.getString("purpose") ?: "START",
             )
         val distKm = backStack.arguments?.getFloat("distanceKm")?.toDouble() ?: 0.0
-        val startReading = backStack.arguments?.getInt("startReading") ?: 45_000
+        val startReading = backStack.arguments?.getInt("startReading") ?: DEFAULT_START_READING
         OdometerCameraScreen(
             purpose = purpose,
             existingReading = startReading,

@@ -29,6 +29,18 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.math.abs
 import kotlin.math.round
 
+/** Milliseconds in a second - tracker timings are stored in millis, shown in seconds. */
+private const val MillisPerSecond = 1000
+
+/** The same conversion where the result has to stay fractional. */
+private const val MillisPerSecondD = 1000.0
+
+/** Metres in a kilometre - distances are stored in metres, shown in km. */
+private const val MetresPerKm = 1000.0
+
+/** Decimal places the four-digit fractional part of a formatted figure carries. */
+private const val FractionDigits = 4
+
 /**
  * The surface that makes a reimbursement claim defensible months later: renders [SavedTrack] as a
  * [DetailSpec] through the existing [DetailScreen] renderer (P28.DETAIL.1) — no bespoke composable,
@@ -67,7 +79,7 @@ fun trackEvidenceDetailSpec(track: SavedTrack): DetailSpec =
                 value =
                     UiText.of(
                         "min ${track.minimumTrackerDistance.toInt()} m / " +
-                            "${track.minimumTrackerTime / 1000} s, max ${track.maximumTrackerTime / 1000} s",
+                            "${track.minimumTrackerTime / MillisPerSecond} s, max ${track.maximumTrackerTime / MillisPerSecond} s",
                     ),
             )
             keyValue(
@@ -170,20 +182,20 @@ fun trackEvidenceDetailSpec(track: SavedTrack): DetailSpec =
             amount(
                 id = "compliance_distance",
                 label = UiText.of("Claimed distance"),
-                value = UiText.of("${fmt2(track.distance / 1000.0)} km"),
+                value = UiText.of("${fmt2(track.distance / MetresPerKm)} km"),
             )
         }
     }
 
 internal fun SavedTrack.toDistanceLedger(): DistanceLedger =
     DistanceLedger(
-        rawKm = originalDistance / 1000.0,
-        cleanedKm = (if (cleanedDistance > 0.0) cleanedDistance else distance) / 1000.0,
-        claimedKm = distance / 1000.0,
-        abnormalKm = abnormalDistance / 1000.0,
-        mockKm = mockDistance / 1000.0,
-        spikeKm = spikeDistance / 1000.0,
-        odometerKm = (odometerDistance / 1000.0).takeIf { useOdometer && odometerDistance > 0.0 },
+        rawKm = originalDistance / MetresPerKm,
+        cleanedKm = (if (cleanedDistance > 0.0) cleanedDistance else distance) / MetresPerKm,
+        claimedKm = distance / MetresPerKm,
+        abnormalKm = abnormalDistance / MetresPerKm,
+        mockKm = mockDistance / MetresPerKm,
+        spikeKm = spikeDistance / MetresPerKm,
+        odometerKm = (odometerDistance / MetresPerKm).takeIf { useOdometer && odometerDistance > 0.0 },
     )
 
 private fun odometerAttachments(track: SavedTrack): List<DetailField.AttachmentList.Attachment> =
@@ -244,7 +256,7 @@ private fun interruptionsSummary(track: SavedTrack): String {
 
 private fun meanSamplingInterval(track: SavedTrack): String {
     if (track.totalLocationPoints <= 0L || track.duration <= 0L) return "—"
-    val seconds = (track.duration / 1000.0) / track.totalLocationPoints
+    val seconds = (track.duration / MillisPerSecondD) / track.totalLocationPoints
     return "${fmt1(seconds)} s"
 }
 
@@ -299,7 +311,7 @@ private fun fmt4(v: Double): String {
     val r = round(v * 10000.0) / 10000.0
     val whole = r.toLong()
     val frac = round(abs(r - whole) * 10000.0).toLong()
-    return "$whole.${frac.toString().padStart(4, '0')}"
+    return "$whole.${frac.toString().padStart(FractionDigits, '0')}"
 }
 
 internal fun sampleEvidenceTrack(): SavedTrack =

@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+/** Voucher numbers are eight zero-padded digits, e.g. V-00481203. */
+private const val VoucherNumberDigits = 8
+
 /**
  * Top-level tab of the Saved Tracks screen.
  *
@@ -169,7 +172,7 @@ private fun TrackDisplayData.toSubmissionItem(): SubmissionItem {
                 2L -> "Reimbursed"
                 else -> "Pending Approval"
             },
-        voucherNumber = if (hash % 4 == 0) "V-${((hash.toLong() and 0x7FFFFFFFL) % 100_000_000).toString().padStart(8, '0')}" else null,
+        voucherNumber = if (hash % 4 == 0) "V-${((hash.toLong() and 0x7FFFFFFFL) % 100_000_000).toString().padStart(VoucherNumberDigits, '0')}" else null,
     )
 }
 

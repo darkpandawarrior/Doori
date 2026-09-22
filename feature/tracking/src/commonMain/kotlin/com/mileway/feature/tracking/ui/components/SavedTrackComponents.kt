@@ -71,6 +71,12 @@ import com.mileway.feature.tracking.insights.SystemImpactType
 import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 
+/** A system impact costing this share of the track or more is shown as an error. */
+private const val SevereImpactPct = 30.0
+
+/** Below that, anything from this share up is shown as a warning. */
+private const val ModerateImpactPct = 15.0
+
 @Composable
 fun SavedTrackOverviewCard(
     track: TrackDisplayData,
@@ -548,7 +554,7 @@ private fun SystemImpactType.displayName(): String =
 
 private fun impactColor(pct: Double): Color =
     when {
-        pct >= 30.0 -> DesignTokens.StatusColors.error
-        pct >= 15.0 -> DesignTokens.StatusColors.warning
+        pct >= SevereImpactPct -> DesignTokens.StatusColors.error
+        pct >= ModerateImpactPct -> DesignTokens.StatusColors.warning
         else -> DesignTokens.StatusColors.warning
     }

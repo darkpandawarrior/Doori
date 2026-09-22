@@ -9,6 +9,15 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+/** Metres in a kilometre - tracks store distance in metres, the export header prints km. */
+private const val MetresPerKm = 1000.0
+
+/** Decimal places the km figure in the header carries. */
+private const val KmDecimals = 3
+
+/** Milliseconds are always printed as three zero-padded digits. */
+private const val MillisDigits = 3
+
 /**
  * Pure-Kotlin CSV exporter. No Android deps, fully unit-testable on the JVM.
  * Returns a String that the caller writes to a file.
@@ -28,7 +37,7 @@ object CsvExporter {
     ): String =
         buildString {
             appendLine("# Track: ${track.name}  routeId: ${track.routeId}")
-            appendLine("# Distance: ${(track.distance / 1000.0).formatDecimal(3)} km  Duration: ${track.duration} ms")
+            appendLine("# Distance: ${(track.distance / MetresPerKm).formatDecimal(KmDecimals)} km  Duration: ${track.duration} ms")
             appendLine(HEADER)
             for (loc in locations) {
                 appendLine(rowFor(loc))
@@ -39,7 +48,7 @@ object CsvExporter {
         val ldt = Instant.fromEpochMilliseconds(epochMs).toLocalDateTime(TimeZone.UTC)
         val ms = epochMs % 1000
         return "${ldt.year}-${ldt.monthNumber.pad2()}-${ldt.dayOfMonth.pad2()} " +
-            "${ldt.hour.pad2()}:${ldt.minute.pad2()}:${ldt.second.pad2()}.${ms.toString().padStart(3, '0')}"
+            "${ldt.hour.pad2()}:${ldt.minute.pad2()}:${ldt.second.pad2()}.${ms.toString().padStart(MillisDigits, '0')}"
     }
 
     private fun rowFor(loc: LocationData): String =

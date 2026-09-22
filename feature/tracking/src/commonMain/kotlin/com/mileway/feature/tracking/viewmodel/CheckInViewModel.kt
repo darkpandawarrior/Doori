@@ -15,6 +15,9 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/** Check-in tokens are logged by their first eight characters only, never in full. */
+private const val TOKEN_LOG_PREFIX = 8
+
 data class CheckInUiState(
     val isSubmitting: Boolean = false,
     val checkInSuccess: Boolean = false,
@@ -176,7 +179,7 @@ class CheckInViewModel(
                     )
                 hardwareEventRepo.insert(hwEvent)
 
-                Napier.i("Manual check-in saved for token=${token.take(8)}…", tag = "CheckInViewModel")
+                Napier.i("Manual check-in saved for token=${token.take(TOKEN_LOG_PREFIX)}…", tag = "CheckInViewModel")
                 setState {
                     copy(
                         isSubmitting = false,
@@ -297,7 +300,11 @@ class CheckInViewModel(
                     )
                 hardwareEventRepo.insert(hwEvent)
 
-                Napier.i("Geo check-in ($checkInType) saved for token=${token.take(8)}… at ${result.nearestLocation.name}", tag = "CheckInViewModel")
+                val loggedToken = token.take(TOKEN_LOG_PREFIX)
+                Napier.i(
+                    "Geo check-in ($checkInType) saved for token=$loggedToken… at ${result.nearestLocation.name}",
+                    tag = "CheckInViewModel",
+                )
                 setState {
                     copy(
                         isSubmitting = false,

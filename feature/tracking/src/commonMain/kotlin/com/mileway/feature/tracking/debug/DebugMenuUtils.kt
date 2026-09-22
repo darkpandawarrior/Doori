@@ -4,6 +4,13 @@ package com.mileway.feature.tracking.debug
  * Utility class for debug menu operations that need to be shared between implementations
  */
 object DebugMenuUtils {
+    /** Origin-override codes, as returned by [determineInitialOriginOverride]. */
+    private const val ORIGIN_NONE = 0
+    private const val ORIGIN_UAT = 1
+    private const val ORIGIN_PROD = 2
+    private const val ORIGIN_CUSTOM = 3
+    private const val ORIGIN_DEV = 4
+
     /**
      * Determine the initial origin override based on debug settings
      * Returns:
@@ -15,10 +22,10 @@ object DebugMenuUtils {
      */
     fun determineInitialOriginOverride(debugSettings: Map<String, Boolean>): Int =
         when {
-            debugSettings["Force UAT"] == true -> 1
-            debugSettings["Force Prod"] == true -> 2
-            debugSettings["Force Custom Origin"] == true -> 3
-            debugSettings["Force Dev Environment"] == true -> 4
-            else -> 0
+            debugSettings["Force UAT"] == true -> ORIGIN_UAT
+            debugSettings["Force Prod"] == true -> ORIGIN_PROD
+            debugSettings["Force Custom Origin"] == true -> ORIGIN_CUSTOM
+            debugSettings["Force Dev Environment"] == true -> ORIGIN_DEV
+            else -> ORIGIN_NONE
         }
 }

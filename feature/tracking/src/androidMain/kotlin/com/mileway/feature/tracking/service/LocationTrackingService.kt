@@ -64,6 +64,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
+/** Milliseconds in a second - the plugin supplies the interval floor in seconds. */
+private const val MILLIS_PER_SECOND = 1_000L
+
+/** Safety cap on the tracking wake lock: one hour, in milliseconds. */
+private const val WAKE_LOCK_TIMEOUT_MS = 60 * 60 * 1000L
+
 /**
  * Advanced foreground location-tracking service.
  *
@@ -253,7 +259,7 @@ class LocationTrackingService : Service() {
         }
         scope.launch {
             pluginRegistry.observeValue("track_location_interval_s").collect {
-                intervalFloorMs = ((it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value ?: 0).toLong() * 1_000L
+                intervalFloorMs = ((it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value ?: 0).toLong() * MILLIS_PER_SECOND
             }
         }
         scope.launch { pluginRegistry.observe("track_force_gps_only").collect { forceGpsOnly = it } }
@@ -856,7 +862,7 @@ class LocationTrackingService : Service() {
         wakeLock =
             pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mileway:tracking").apply {
                 setReferenceCounted(false)
-                acquire(60 * 60 * 1000L) // 1h safety cap
+                acquire(WAKE_LOCK_TIMEOUT_MS)
             }
     }
 
