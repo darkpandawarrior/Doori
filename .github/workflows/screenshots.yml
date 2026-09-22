@@ -120,14 +120,15 @@ jobs:
           # Deliberately NOT set as `token:` on actions/checkout: that persists the PAT in
           # .git/config for every later step, including a full Gradle build with third-party
           # plugins. Scoping it to this one step keeps the credential out of the build.
+          #
+          # NO `|| github.token` fallback here, matching bump-toolkit.yml: a fallback guards the
+          # wrong failure. It engages on an UNSET secret (empty, falsy) while a WRONG value is
+          # truthy and wins, so the one case it cannot catch is the one that actually happened —
+          # this secret once held an unsubstituted placeholder and checkout died with
+          # "could not read Username" in all four repos. A hard reference fails loudly instead.
           GH_TOKEN: ${{ secrets.CONSUMER_DISPATCH_TOKEN }}
           PUSH_TOKEN: ${{ secrets.CONSUMER_DISPATCH_TOKEN }}
         run: |
-          if [ -z "${PUSH_TOKEN:-}" ]; then
-            echo "::warning::CONSUMER_DISPATCH_TOKEN is not set — falling back to GITHUB_TOKEN. The"
-            echo "::warning::refresh PR will open but its checks will not run; approve them by hand."
-            PUSH_TOKEN="${{ github.token }}"
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/screenshots
