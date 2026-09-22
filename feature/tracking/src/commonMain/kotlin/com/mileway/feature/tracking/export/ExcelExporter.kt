@@ -81,7 +81,8 @@ object ExcelExporter {
 
     /** Escape the five XML predefined entities so cell text can't break the document. */
     private fun xml(s: String): String =
-        s.replace("&", "&amp;")
+        s
+            .replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
             .replace("\"", "&quot;")

@@ -47,6 +47,7 @@ import com.mileway.core.data.subscription.SubscriptionStatus
 import com.mileway.core.data.util.CommonUtils
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.allStringResources
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.profile.viewmodel.SubscriptionViewModel
@@ -55,8 +56,6 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-
-private val SUB_MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 /**
  * PLAN_V24 P6.2: active subscription detail (source: the reference app's active-subscription screen). Shows plan,
@@ -122,7 +121,11 @@ fun MySubscriptionScreen(
 
             Column(
                 modifier =
-                    Modifier.fillMaxSize().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(DesignTokens.Spacing.l),
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .navigationBarsPadding()
+                        .padding(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             ) {
                 Card(
@@ -258,7 +261,7 @@ private fun statusColor(status: SubscriptionStatus): Color =
 
 private fun formatSubDate(ms: Long): String =
     Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-        "${ldt.dayOfMonth} ${SUB_MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
     }
 
 @Composable

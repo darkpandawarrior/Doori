@@ -70,7 +70,8 @@ object SurfaceSnapshotProducer {
         activeToken: String? = null,
     ): SurfaceSnapshot {
         val todayStart =
-            Instant.fromEpochMilliseconds(nowEpochMs)
+            Instant
+                .fromEpochMilliseconds(nowEpochMs)
                 .toLocalDateTime(timeZone)
                 .date
                 .atStartOfDayIn(timeZone)

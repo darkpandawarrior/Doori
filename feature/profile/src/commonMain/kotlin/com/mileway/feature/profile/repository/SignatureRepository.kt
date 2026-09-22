@@ -11,7 +11,10 @@ import kotlin.time.Clock
  * [SignatureDao] singleton row. The bitmap itself is rasterised and saved to the app files dir by
  * the platform screen; only the file path is persisted here. `null` means no signature on file.
  */
-class SignatureRepository(private val dao: SignatureDao, private val clock: Clock = Clock.System) {
+class SignatureRepository(
+    private val dao: SignatureDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live signature PNG path, or null while none is on file. */
     fun observe(): Flow<String?> = dao.observe().map { it?.imagePath }
 

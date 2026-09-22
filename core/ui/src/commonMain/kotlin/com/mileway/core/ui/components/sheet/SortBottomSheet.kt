@@ -54,8 +54,7 @@ fun <T> SortBottomSheet(
                             selected = isSelected,
                             role = Role.RadioButton,
                             onClick = { onSelect(option.value) },
-                        )
-                        .padding(vertical = 12.dp),
+                        ).padding(vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {

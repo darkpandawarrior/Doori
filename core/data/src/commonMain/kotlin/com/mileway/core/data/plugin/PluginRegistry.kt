@@ -68,7 +68,8 @@ class PluginRegistry(
     /** Resolved on/off for a TILE/CAPABILITY plugin (false for an unknown or VALUE id). */
     fun observe(id: String): Flow<Boolean> {
         val descriptor = catalog.byId(id) ?: return flowOf(false)
-        return layers.map { resolveValue(descriptor, it) }
+        return layers
+            .map { resolveValue(descriptor, it) }
             .map { (it as? PluginValue.Bool)?.value ?: descriptor.defaultOn }
             .distinctUntilChanged()
     }
@@ -106,7 +107,8 @@ class PluginRegistry(
             if (accountId == null) {
                 flowOf(false)
             } else {
-                overrideDao.observeForAccount(accountId)
+                overrideDao
+                    .observeForAccount(accountId)
                     .map { rows -> rows.any { it.pluginId == EXPERIMENTAL_UNLOCK_ID && it.value == "true" } }
                     .distinctUntilChanged()
             }

@@ -11,6 +11,8 @@ import com.github.takahirom.roborazzi.captureRoboImage
 import com.mileway.core.ui.previews.PreviewHeroTrackingCardActive
 import com.mileway.core.ui.previews.PreviewHeroTrackingCardActiveIon
 import com.mileway.core.ui.previews.PreviewHeroTrackingCardIdle
+import com.mileway.core.ui.previews.PreviewSectionCardHeaderVariants
+import com.mileway.core.ui.previews.PreviewStatusChipTones
 import com.mileway.core.ui.previews.PreviewThemePickerAmoled
 import com.mileway.core.ui.previews.PreviewThemePickerDaybreak
 import com.mileway.core.ui.previews.PreviewThemePickerIon
@@ -20,6 +22,8 @@ import com.mileway.core.ui.previews.PreviewTrackingTopBarActive
 import com.mileway.core.ui.previews.PreviewTrackingTopBarActiveDaybreak
 import com.mileway.core.ui.previews.PreviewTrackingTopBarIdle
 import com.mileway.core.ui.previews.PreviewTrackingTopBarPaused
+import com.mileway.feature.advances.ui.previews.PreviewPettyAdvanceCardFaceHealthLadder
+import com.mileway.feature.advances.ui.previews.PreviewQrCardFaceStates
 import com.mileway.feature.approvals.ui.previews.PreviewApprovalItemApproved
 import com.mileway.feature.approvals.ui.previews.PreviewApprovalItemPending
 import com.mileway.feature.approvals.ui.previews.PreviewApprovalItemRejected
@@ -76,7 +80,6 @@ import java.io.File
 @Config(sdk = [33], application = Application::class, qualifiers = "w411dp-h891dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ScreenshotCatalogTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -104,7 +107,8 @@ class ScreenshotCatalogTest {
     @Before
     fun installDeterministicImageLoader() {
         SingletonImageLoader.setUnsafe(
-            ImageLoader.Builder(ApplicationProvider.getApplicationContext())
+            ImageLoader
+                .Builder(ApplicationProvider.getApplicationContext())
                 .coroutineContext(Dispatchers.Unconfined)
                 .build(),
         )
@@ -367,6 +371,34 @@ class ScreenshotCatalogTest {
     fun tracking_heroCard_active_ion() {
         composeRule.setContent { PreviewHeroTrackingCardActiveIon() }
         capture("tracking_heroCard_active_ion")
+    }
+
+    // ── core:ui — the two most-imported primitives (SectionCard 21, StatusChip 17) ──
+
+    @Test
+    fun coreui_statusChip_tones() {
+        composeRule.setContent { PreviewStatusChipTones() }
+        capture("coreui_statusChip_tones")
+    }
+
+    @Test
+    fun coreui_sectionCard_headerVariants() {
+        composeRule.setContent { PreviewSectionCardHeaderVariants() }
+        capture("coreui_sectionCard_headerVariants")
+    }
+
+    // ── feature:advances — petty + QR card faces ─────────────────────────────
+
+    @Test
+    fun advances_pettyCardFace_healthLadder() {
+        composeRule.setContent { PreviewPettyAdvanceCardFaceHealthLadder() }
+        capture("advances_pettyCardFace_healthLadder")
+    }
+
+    @Test
+    fun advances_qrCardFace_states() {
+        composeRule.setContent { PreviewQrCardFaceStates() }
+        capture("advances_qrCardFace_states")
     }
 
     companion object {

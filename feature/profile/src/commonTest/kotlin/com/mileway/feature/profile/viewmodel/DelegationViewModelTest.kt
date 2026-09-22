@@ -51,8 +51,17 @@ class DelegationViewModelTest {
             advanceUntilIdle()
 
             assertEquals(1, vm.state.value.delegations.size)
-            assertEquals("Priya Sharma", vm.state.value.delegations.single().delegateName)
-            assertTrue(vm.state.value.delegations.single().isActive)
+            assertEquals(
+                "Priya Sharma",
+                vm.state.value.delegations
+                    .single()
+                    .delegateName,
+            )
+            assertTrue(
+                vm.state.value.delegations
+                    .single()
+                    .isActive,
+            )
         }
 
     @Test
@@ -68,7 +77,12 @@ class DelegationViewModelTest {
             advanceUntilIdle()
 
             assertEquals(1, relaunched.state.value.delegations.size)
-            assertEquals("Rahul Mehra", relaunched.state.value.delegations.single().delegateName)
+            assertEquals(
+                "Rahul Mehra",
+                relaunched.state.value.delegations
+                    .single()
+                    .delegateName,
+            )
         }
 
     @Test
@@ -79,7 +93,10 @@ class DelegationViewModelTest {
             vm.add(delegateName = "", scope = "Mileage & Expense", expiresAtMillis = 1_800_000_000_000L)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.delegations.isEmpty())
+            assertTrue(
+                vm.state.value.delegations
+                    .isEmpty(),
+            )
             assertTrue(vm.state.value.submitError != null)
         }
 
@@ -91,7 +108,10 @@ class DelegationViewModelTest {
             vm.add(delegateName = "Priya Sharma", scope = "", expiresAtMillis = 1_800_000_000_000L)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.delegations.isEmpty())
+            assertTrue(
+                vm.state.value.delegations
+                    .isEmpty(),
+            )
             assertTrue(vm.state.value.submitError != null)
         }
 
@@ -114,12 +134,18 @@ class DelegationViewModelTest {
             val vm = newViewModel()
             vm.add(delegateName = "Priya Sharma", scope = "Mileage & Expense", expiresAtMillis = 1_800_000_000_000L)
             advanceUntilIdle()
-            val id = vm.state.value.delegations.single().id
+            val id =
+                vm.state.value.delegations
+                    .single()
+                    .id
 
             vm.revoke(id)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.delegations.isEmpty())
+            assertTrue(
+                vm.state.value.delegations
+                    .isEmpty(),
+            )
         }
 
     @Test
@@ -128,13 +154,21 @@ class DelegationViewModelTest {
             val vm = newViewModel()
             vm.add(delegateName = "Priya Sharma", scope = "Mileage & Expense", expiresAtMillis = 1_800_000_000_000L)
             advanceUntilIdle()
-            val id = vm.state.value.delegations.single().id
+            val id =
+                vm.state.value.delegations
+                    .single()
+                    .id
 
             vm.setActive(id, false)
             advanceUntilIdle()
 
             assertEquals(1, vm.state.value.delegations.size)
-            assertEquals(false, vm.state.value.delegations.single().isActive)
+            assertEquals(
+                false,
+                vm.state.value.delegations
+                    .single()
+                    .isActive,
+            )
         }
 }
 

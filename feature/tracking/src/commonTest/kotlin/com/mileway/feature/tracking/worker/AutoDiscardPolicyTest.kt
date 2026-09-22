@@ -87,7 +87,9 @@ class AutoDiscardPolicyTest {
 
 // ── Fakes ─────────────────────────────────────────────────────────────────────
 
-private class FakeDiscardSavedTrackDao(private val active: SavedTrack?) : SavedTrackDao {
+private class FakeDiscardSavedTrackDao(
+    private val active: SavedTrack?,
+) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
     // SmartDistance commit without updating these test fakes; no-op override so this test source
     // set compiles (pre-existing breakage, incidental to P10.1).

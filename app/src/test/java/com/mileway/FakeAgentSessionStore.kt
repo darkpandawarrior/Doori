@@ -7,7 +7,10 @@ class FakeAgentSessionStore : AgentSessionStore {
 
     override suspend fun getActiveThread(): Pair<String, Long>? = stored
 
-    override suspend fun setActiveThread(threadId: String, nowMs: Long) {
+    override suspend fun setActiveThread(
+        threadId: String,
+        nowMs: Long,
+    ) {
         stored = threadId to nowMs
     }
 

@@ -146,10 +146,11 @@ fun WearMilewayTheme(content: @Composable () -> Unit) {
 private fun WearMilewayThemePreview() {
     WearMilewayTheme {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(

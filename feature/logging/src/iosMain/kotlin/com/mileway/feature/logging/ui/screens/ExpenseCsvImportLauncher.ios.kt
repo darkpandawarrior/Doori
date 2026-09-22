@@ -56,7 +56,8 @@ actual fun rememberExpenseCsvImportLauncher(onPicked: (String) -> Unit): () -> U
 @OptIn(ExperimentalForeignApi::class)
 private class CsvDocumentPickerDelegate(
     private val onPicked: (String) -> Unit,
-) : NSObject(), UIDocumentPickerDelegateProtocol {
+) : NSObject(),
+    UIDocumentPickerDelegateProtocol {
     override fun documentPicker(
         controller: UIDocumentPickerViewController,
         didPickDocumentsAtURLs: List<*>,

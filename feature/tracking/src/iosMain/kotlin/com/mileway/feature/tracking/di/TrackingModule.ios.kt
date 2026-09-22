@@ -191,7 +191,9 @@ val trackingModule =
                 hardwareEventRepo = get(),
                 geoCheckInLocations = getOrNull() ?: emptyList(),
                 trackingServiceApi = get(),
-                locationNameResolver = getOrNull() ?: com.mileway.core.platform.OfflineLocationNameResolver(),
+                locationNameResolver =
+                    getOrNull() ?: com.mileway.core.platform
+                        .OfflineLocationNameResolver(),
                 reconciliationHolder = get(),
                 // P3.3: bound by coreDataModule (SessionRepository -> SessionSource).
                 sessionSource = getOrNull() ?: com.mileway.feature.tracking.viewmodel.NoSessionSource,

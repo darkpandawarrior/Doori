@@ -23,9 +23,15 @@ class MaintenancePurgeTest {
         runTest {
             val fake = FakeLocationDao()
             val task = MileageMaintenanceTask(fake)
-            val before = kotlin.time.Clock.System.now().toEpochMilliseconds()
+            val before =
+                kotlin.time.Clock.System
+                    .now()
+                    .toEpochMilliseconds()
             task.doWork(null, fakeEnv)
-            val after = kotlin.time.Clock.System.now().toEpochMilliseconds()
+            val after =
+                kotlin.time.Clock.System
+                    .now()
+                    .toEpochMilliseconds()
 
             val cutoff = fake.lastDeleteOlderThanTimestamp
             assertNotNull(cutoff)
@@ -56,7 +62,9 @@ class MaintenancePurgeTest {
         }
 }
 
-private class FakeEligibleSavedTrackDao(private val eligibleRouteIds: List<String>) : SavedTrackDao {
+private class FakeEligibleSavedTrackDao(
+    private val eligibleRouteIds: List<String>,
+) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
     // SmartDistance commit without updating these test fakes; no-op override so this test source
     // set compiles (pre-existing breakage, incidental to P10.1).

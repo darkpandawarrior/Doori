@@ -15,7 +15,6 @@ import com.azikar24.wormaceptor.api.WormaCeptorApi
  * Note: this app is fully offline (no OkHttp clients), so no request interceptor is wired.
  */
 object WormaCeptorHelper {
-
     fun init(context: Context) {
         WormaCeptorApi.init(
             context = context,
@@ -25,6 +24,5 @@ object WormaCeptorHelper {
         )
     }
 
-    fun getLaunchIntent(context: Context): Intent? =
-        WormaCeptorApi.getLaunchIntent(context)
+    fun getLaunchIntent(context: Context): Intent? = WormaCeptorApi.getLaunchIntent(context)
 }

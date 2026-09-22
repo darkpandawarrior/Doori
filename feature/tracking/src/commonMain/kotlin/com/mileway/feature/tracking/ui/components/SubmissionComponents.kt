@@ -762,8 +762,7 @@ fun AttachmentsSection(
                         .dashedBorder(
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                             shape = DesignTokens.Shape.roundedSm,
-                        )
-                        .clickable(onClick = onAdd),
+                        ).clickable(onClick = onAdd),
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -981,7 +980,7 @@ private fun Modifier.dashedBorder(
     gapLength: Float = 8f,
 ): Modifier =
     this.then(
-        Modifier.androidx_drawBehindDashed(color, shape, strokeWidth, dashLength, gapLength),
+        Modifier.drawBehindDashed(color, shape, strokeWidth, dashLength, gapLength),
     )
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1043,7 +1042,7 @@ fun VehicleSummaryCard(
 }
 
 /** Backing draw modifier for [dashedBorder]. */
-private fun Modifier.androidx_drawBehindDashed(
+private fun Modifier.drawBehindDashed(
     color: Color,
     shape: androidx.compose.ui.graphics.Shape,
     strokeWidth: androidx.compose.ui.unit.Dp,
@@ -1056,9 +1055,13 @@ private fun Modifier.androidx_drawBehindDashed(
             when (outline) {
                 is androidx.compose.ui.graphics.Outline.Generic -> outline.path
                 is androidx.compose.ui.graphics.Outline.Rounded ->
-                    androidx.compose.ui.graphics.Path().apply { addRoundRect(outline.roundRect) }
+                    androidx.compose.ui.graphics
+                        .Path()
+                        .apply { addRoundRect(outline.roundRect) }
                 is androidx.compose.ui.graphics.Outline.Rectangle ->
-                    androidx.compose.ui.graphics.Path().apply { addRect(outline.rect) }
+                    androidx.compose.ui.graphics
+                        .Path()
+                        .apply { addRect(outline.rect) }
             }
         drawPath(
             path = path,

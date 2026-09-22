@@ -9,7 +9,6 @@ import kotlin.test.assertEquals
  * Unit tests for [TrackingQualityScorer]. Pure Kotlin, no device needed.
  */
 class TrackingQualityScorerTest {
-
     @Test
     fun `perfect conditions score 100`() {
         assertEquals(100, TrackingQualityScorer.score(QualityInputs(accuracyM = 8f)))
@@ -47,26 +46,28 @@ class TrackingQualityScorerTest {
     @Test
     fun `deductions stack`() {
         // power-saver -15, battery-opt -15, poor accuracy -20 → 50
-        val s = TrackingQualityScorer.score(
-            QualityInputs(isPowerSaver = true, isBatteryOptimized = true, accuracyM = 120f),
-        )
+        val s =
+            TrackingQualityScorer.score(
+                QualityInputs(isPowerSaver = true, isBatteryOptimized = true, accuracyM = 120f),
+            )
         assertEquals(50, s)
     }
 
     @Test
     fun `worst case clamps to zero`() {
-        val s = TrackingQualityScorer.score(
-            QualityInputs(
-                isMock = true, // -25
-                isBatteryOptimized = true, // -15
-                isPowerSaver = true, // -15
-                wasAppKilled = true, // -20
-                wasRestarted = true, // -20
-                isPermissionMissing = true, // -30
-                isGpsOff = true, // -20
-                accuracyM = 200f, // -20
-            ),
-        )
+        val s =
+            TrackingQualityScorer.score(
+                QualityInputs(
+                    isMock = true, // -25
+                    isBatteryOptimized = true, // -15
+                    isPowerSaver = true, // -15
+                    wasAppKilled = true, // -20
+                    wasRestarted = true, // -20
+                    isPermissionMissing = true, // -30
+                    isGpsOff = true, // -20
+                    accuracyM = 200f, // -20
+                ),
+            )
         assertEquals(0, s)
     }
 }

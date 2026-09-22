@@ -11,9 +11,14 @@ data class ExtractedValue(
 sealed interface DuplicateVerdict {
     data object Unique : DuplicateVerdict
 
-    data class Possible(val ref: String, val reason: String) : DuplicateVerdict
+    data class Possible(
+        val ref: String,
+        val reason: String,
+    ) : DuplicateVerdict
 
-    data class Confirmed(val ref: String) : DuplicateVerdict
+    data class Confirmed(
+        val ref: String,
+    ) : DuplicateVerdict
 }
 
 /**

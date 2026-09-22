@@ -91,13 +91,19 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private const val QR_SIZE = 21
 
+/** A QR finder pattern is seven modules square, repeated in three of the four corners. */
+private const val FINDER_SIZE = 7
+
+/** Last module index inside a finder pattern. */
+private const val FINDER_LAST = FINDER_SIZE - 1
+
 private fun finderBit(
     row: Int,
     col: Int,
 ): Boolean =
     when {
-        row == 0 || row == 6 || col == 0 || col == 6 -> true
-        row == 1 || row == 5 || col == 1 || col == 5 -> false
+        row == 0 || row == FINDER_LAST || col == 0 || col == FINDER_LAST -> true
+        row == 1 || row == FINDER_LAST - 1 || col == 1 || col == FINDER_LAST - 1 -> false
         else -> true
     }
 
@@ -106,9 +112,9 @@ private fun isFinderRegion(
     col: Int,
 ): Boolean {
     val last = QR_SIZE - 1
-    return (row in 0..6 && col in 0..6) ||
-        (row in 0..6 && col in (last - 6)..last) ||
-        (row in (last - 6)..last && col in 0..6)
+    return (row in 0..FINDER_LAST && col in 0..FINDER_LAST) ||
+        (row in 0..FINDER_LAST && col in (last - FINDER_LAST)..last) ||
+        (row in (last - FINDER_LAST)..last && col in 0..FINDER_LAST)
 }
 
 private fun finderBitAt(
@@ -117,12 +123,26 @@ private fun finderBitAt(
 ): Boolean {
     val last = QR_SIZE - 1
     return when {
-        row in 0..6 && col in 0..6 -> finderBit(row, col)
-        row in 0..6 && col in (last - 6)..last -> finderBit(row, col - (last - 6))
-        row in (last - 6)..last && col in 0..6 -> finderBit(row - (last - 6), col)
+        row in 0..FINDER_LAST && col in 0..FINDER_LAST -> finderBit(row, col)
+        row in 0..FINDER_LAST && col in (last - FINDER_LAST)..last -> finderBit(row, col - (last - FINDER_LAST))
+        row in (last - FINDER_LAST)..last && col in 0..FINDER_LAST -> finderBit(row - (last - FINDER_LAST), col)
         else -> false
     }
 }
+
+/*
+ * The non-finder modules are decorative, not an encoding: two cheap hashes of the module
+ * position, mixed so the block density reads like a real QR at a glance. The weights and
+ * periods are arbitrary - only the resulting density matters.
+ */
+private const val PATTERN_ROW_WEIGHT = 3
+private const val PATTERN_COL_WEIGHT = 5
+private const val PATTERN_PERIOD = 7
+private const val PATTERN_ON_BELOW = 3
+private const val PATTERN_DIAGONAL_PERIOD = 5
+
+/** Half-pixel inset so neighbouring modules do not bleed into one another. */
+private const val MODULE_INSET_PX = 0.5f
 
 private fun isDataModule(
     row: Int,
@@ -130,7 +150,8 @@ private fun isDataModule(
 ): Boolean {
     if (isFinderRegion(row, col)) return finderBitAt(row, col)
     // Deterministic data pattern, no Random()
-    return ((row * 3 + col * 5) % 7 < 3) || ((row xor col) % 5 == 0)
+    return ((row * PATTERN_ROW_WEIGHT + col * PATTERN_COL_WEIGHT) % PATTERN_PERIOD < PATTERN_ON_BELOW) ||
+        ((row xor col) % PATTERN_DIAGONAL_PERIOD == 0)
 }
 
 private fun DrawScope.drawQrModule(
@@ -144,7 +165,7 @@ private fun DrawScope.drawQrModule(
     val r = cellPx * 0.15f
     drawRoundRect(
         color = color,
-        topLeft = Offset(x + 0.5f, y + 0.5f),
+        topLeft = Offset(x + MODULE_INSET_PX, y + MODULE_INSET_PX),
         size = Size(cellPx - 1f, cellPx - 1f),
         cornerRadius = CornerRadius(r, r),
     )
@@ -453,7 +474,9 @@ private fun QrRequestSheet(
                 prefix = { Text("₹ ") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                keyboardOptions =
+                    androidx.compose.foundation.text
+                        .KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
 
             OutlinedTextField(

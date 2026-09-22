@@ -103,57 +103,79 @@ fun DebugMenuNavScreen() {
 @NavPreview(route = Home::class, primary = true)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewHome() { HomeNavScreen() }
+internal fun PreviewHome() {
+    HomeNavScreen()
+}
 
 @NavPreview(route = TrackMiles::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewTrackMiles() { TrackMilesNavScreen() }
+internal fun PreviewTrackMiles() {
+    TrackMilesNavScreen()
+}
 
 @NavPreview(route = LogMiles::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewLogMiles() { LogMilesNavScreen() }
+internal fun PreviewLogMiles() {
+    LogMilesNavScreen()
+}
 
 @NavPreview(route = TripDetail::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewTripDetail() { TripDetailNavScreen() }
+internal fun PreviewTripDetail() {
+    TripDetailNavScreen()
+}
 
 @NavPreview(route = CheckInHistory::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewCheckInHistory() { CheckInHistoryNavScreen() }
+internal fun PreviewCheckInHistory() {
+    CheckInHistoryNavScreen()
+}
 
 @NavPreview(route = Approvals::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewApprovals() { ApprovalsNavScreen() }
+internal fun PreviewApprovals() {
+    ApprovalsNavScreen()
+}
 
 @NavPreview(route = Payables::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewPayables() { PayablesNavScreen() }
+internal fun PreviewPayables() {
+    PayablesNavScreen()
+}
 
 @NavPreview(route = Travel::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewTravel() { TravelNavScreen() }
+internal fun PreviewTravel() {
+    TravelNavScreen()
+}
 
 @NavPreview(route = Profile::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewProfile() { ProfileNavScreen() }
+internal fun PreviewProfile() {
+    ProfileNavScreen()
+}
 
 @NavPreview(route = AgentChat::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewAgentChat() { AgentChatNavScreen() }
+internal fun PreviewAgentChat() {
+    AgentChatNavScreen()
+}
 
 @NavPreview(route = DebugMenu::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 640)
 @Composable
-internal fun PreviewDebugMenu() { DebugMenuNavScreen() }
+internal fun PreviewDebugMenu() {
+    DebugMenuNavScreen()
+}
 
 // ---------------------------------------------------------------------------
 // Shared placeholder composable used by all stand-ins above.

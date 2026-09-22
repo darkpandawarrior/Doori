@@ -9,9 +9,14 @@ sealed interface ReadState<out T> {
     data object Loading : ReadState<Nothing>
 
     /** [isStale] is true when this came from [cache] with no successful online refresh backing it. */
-    data class Content<T>(val data: T, val isStale: Boolean) : ReadState<T>
+    data class Content<T>(
+        val data: T,
+        val isStale: Boolean,
+    ) : ReadState<T>
 
-    data class Error(val message: String?) : ReadState<Nothing>
+    data class Error(
+        val message: String?,
+    ) : ReadState<Nothing>
 }
 
 /**

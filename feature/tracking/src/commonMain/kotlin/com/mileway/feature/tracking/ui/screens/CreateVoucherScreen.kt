@@ -291,11 +291,14 @@ private fun ExpenseRow(
             Text(
                 run {
                     val ldt =
-                        Instant.fromEpochMilliseconds(expense.startTime)
+                        Instant
+                            .fromEpochMilliseconds(expense.startTime)
                             .toLocalDateTime(TimeZone.currentSystemDefault())
                     val monthName =
-                        ldt.month.name.lowercase()
-                            .replaceFirstChar { it.uppercase() }.take(3)
+                        ldt.month.name
+                            .lowercase()
+                            .replaceFirstChar { it.uppercase() }
+                            .take(3)
                     "${ldt.dayOfMonth} $monthName ${ldt.year}"
                 },
                 style = MaterialTheme.typography.bodySmall,

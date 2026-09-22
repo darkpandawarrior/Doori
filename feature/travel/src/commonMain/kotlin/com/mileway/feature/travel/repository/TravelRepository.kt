@@ -4,8 +4,8 @@ import com.mileway.feature.travel.model.BookingRecord
 import com.mileway.feature.travel.model.TransportMode
 import com.mileway.feature.travel.model.TripStatus
 
-private val BASE_MS = 1_781_654_400_000L
-private val DAY_MS = 86_400_000L
+private const val BASE_MS = 1_781_654_400_000L
+private const val DAY_MS = 86_400_000L
 
 class TravelRepository {
     val bookings: List<BookingRecord> =

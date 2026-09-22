@@ -39,11 +39,23 @@ class CampaignRepositoryTest {
         runTest {
             val r = repo()
             r.seedIfEmpty()
-            assertFalse(r.observeAll().first().single { it.id == "CMP-A" }.interestCaptured)
+            assertFalse(
+                r
+                    .observeAll()
+                    .first()
+                    .single { it.id == "CMP-A" }
+                    .interestCaptured,
+            )
 
             r.captureInterest("CMP-A")
 
-            assertTrue(r.observeAll().first().single { it.id == "CMP-A" }.interestCaptured)
+            assertTrue(
+                r
+                    .observeAll()
+                    .first()
+                    .single { it.id == "CMP-A" }
+                    .interestCaptured,
+            )
         }
 
     @Test

@@ -300,7 +300,10 @@ fun LiveDriveScreen(
     }
 }
 
-private fun nowMs(): Long = kotlin.time.Clock.System.now().toEpochMilliseconds()
+private fun nowMs(): Long =
+    kotlin.time.Clock.System
+        .now()
+        .toEpochMilliseconds()
 
 private fun DegradedState.toTone(): StatusTone =
     when (this) {
@@ -594,8 +597,7 @@ private fun RoundIconButton(
                             onClick()
                         },
                     )
-                }
-                .semantics { this.contentDescription = contentDescription },
+                }.semantics { this.contentDescription = contentDescription },
         shape = CircleShape,
         color = containerColor,
     ) {
@@ -647,8 +649,7 @@ private fun HoldToStopButton(
                             }
                         },
                     )
-                }
-                .semantics { contentDescription = "Hold to stop tracking" },
+                }.semantics { contentDescription = "Hold to stop tracking" },
         contentAlignment = Alignment.Center,
     ) {
         androidx.compose.foundation.Canvas(modifier = Modifier.size(StopButtonSize)) {

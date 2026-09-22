@@ -45,6 +45,7 @@ import com.mileway.core.ui.resources.profile_sync_toggle_debug
 import com.mileway.core.ui.resources.profile_sync_toggle_events
 import com.mileway.core.ui.resources.profile_sync_toggle_location
 import com.mileway.core.ui.resources.profile_sync_toggle_v2
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.feature.profile.model.SyncMetrics
 import com.mileway.feature.profile.viewmodel.SyncDiagnosticsViewModel
@@ -56,8 +57,6 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private const val INTERVAL_MIN = 5
 private const val INTERVAL_MAX = 60
 private const val INTERVAL_STEP = 5
@@ -67,7 +66,7 @@ private fun formatLastSync(ms: Long?): String {
     val ldt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
     val hour = ldt.hour.toString().padStart(2, '0')
     val minute = ldt.minute.toString().padStart(2, '0')
-    return "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]}, $hour:$minute"
+    return "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)}, $hour:$minute"
 }
 
 /**

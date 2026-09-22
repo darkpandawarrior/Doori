@@ -37,21 +37,33 @@ data class VoucherDeclaration(
 )
 
 sealed interface CreateVoucherAction {
-    data class ToggleSelection(val token: String) : CreateVoucherAction
+    data class ToggleSelection(
+        val token: String,
+    ) : CreateVoucherAction
 
     data object SelectAll : CreateVoucherAction
 
     data object DeselectAll : CreateVoucherAction
 
-    data class SetTitle(val value: String) : CreateVoucherAction
+    data class SetTitle(
+        val value: String,
+    ) : CreateVoucherAction
 
-    data class SetCategory(val value: VoucherCategory) : CreateVoucherAction
+    data class SetCategory(
+        val value: VoucherCategory,
+    ) : CreateVoucherAction
 
-    data class SetNotes(val value: String) : CreateVoucherAction
+    data class SetNotes(
+        val value: String,
+    ) : CreateVoucherAction
 
-    data class GoToStep(val step: Int) : CreateVoucherAction
+    data class GoToStep(
+        val step: Int,
+    ) : CreateVoucherAction
 
-    data class ToggleDeclaration(val checked: Boolean) : CreateVoucherAction
+    data class ToggleDeclaration(
+        val checked: Boolean,
+    ) : CreateVoucherAction
 
     data object Submit : CreateVoucherAction
 }
@@ -101,20 +113,30 @@ class CreateVoucherViewModel(
     private fun loadExpenses() {
         viewModelScope.launch {
             val tracks =
-                savedTrackRepository.completedTracksFlow().first()
+                savedTrackRepository
+                    .completedTracksFlow()
+                    .first()
                     // P3.3: already-claimed guard — a trip already inside a voucher can't fund
                     // a second one (mirrors a common server-side remaining-voucher-count check).
                     .filter { it.isSubmitted && it.reimbursableAmount > 0 && it.claimedByVoucherNumber == null }
             val defaultTitle =
                 run {
                     val ldt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                    val monthName = ldt.month.name.lowercase().replaceFirstChar { it.uppercase() }.take(3)
+                    val monthName =
+                        ldt.month.name
+                            .lowercase()
+                            .replaceFirstChar { it.uppercase() }
+                            .take(3)
                     "Voucher: $monthName ${ldt.year}"
                 }
             setState { copy(expenses = tracks, title = defaultTitle, isLoading = false) }
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun submit() {
         val state = currentState
         // P3.5: the declaration checkbox is now MVI state, not local Compose `remember` — gate

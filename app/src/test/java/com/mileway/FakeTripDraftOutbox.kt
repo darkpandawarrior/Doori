@@ -18,8 +18,7 @@ import kotlinx.coroutines.flow.map
 class FakeTripDraftOutbox : TripDraftOutbox {
     private val entries = MutableStateFlow<Map<String, DraftEntry<TripDraft>>>(emptyMap())
 
-    override fun drafts(formKey: String): Flow<List<DraftEntry<TripDraft>>> =
-        entries.map { it.values.filter { e -> e.formKey == formKey } }
+    override fun drafts(formKey: String): Flow<List<DraftEntry<TripDraft>>> = entries.map { it.values.filter { e -> e.formKey == formKey } }
 
     override suspend fun enqueue(
         formKey: String,

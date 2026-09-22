@@ -109,10 +109,14 @@ private sealed interface LocationTarget {
     data object Append : LocationTarget
 
     /** Insert a stop immediately after [index]. */
-    data class InsertAfter(val index: Int) : LocationTarget
+    data class InsertAfter(
+        val index: Int,
+    ) : LocationTarget
 
     /** Replace the place backing the stop with [stopId]. */
-    data class Edit(val stopId: Long) : LocationTarget
+    data class Edit(
+        val stopId: Long,
+    ) : LocationTarget
 }
 
 /**
@@ -487,8 +491,18 @@ private fun FrequentRoutesRow(
                 AssistChip(
                     onClick = { onRetrace(route.routeKey) },
                     label = {
-                        val from = route.stops.firstOrNull()?.entry?.name.orEmpty()
-                        val to = route.stops.lastOrNull()?.entry?.name.orEmpty()
+                        val from =
+                            route.stops
+                                .firstOrNull()
+                                ?.entry
+                                ?.name
+                                .orEmpty()
+                        val to =
+                            route.stops
+                                .lastOrNull()
+                                ?.entry
+                                ?.name
+                                .orEmpty()
                         Text("$from → $to")
                     },
                 )

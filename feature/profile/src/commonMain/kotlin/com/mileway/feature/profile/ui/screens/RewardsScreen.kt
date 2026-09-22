@@ -118,7 +118,9 @@ fun RewardsScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+                    contentPadding =
+                        androidx.compose.foundation.layout
+                            .PaddingValues(DesignTokens.Spacing.l),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                     verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                 ) {
@@ -168,8 +170,7 @@ private fun RewardCardCell(
                                 Brush.linearGradient(
                                     listOf(MilewayRoles.inactive, MilewayRoles.inactive.copy(alpha = 0.7f)),
                                 ),
-                            )
-                            .pointerInput(card.id) {
+                            ).pointerInput(card.id) {
                                 detectDragGestures { change, _ ->
                                     change.consume()
                                     scratched += 0.05f

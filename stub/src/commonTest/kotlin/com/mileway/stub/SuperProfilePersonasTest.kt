@@ -20,7 +20,9 @@ import kotlin.test.assertTrue
  * descriptors today, so assertions target those.
  */
 class SuperProfilePersonasTest {
-    private class FakeActiveAccount(id: String?) : ActiveAccountSource {
+    private class FakeActiveAccount(
+        id: String?,
+    ) : ActiveAccountSource {
         override val activeAccountId = MutableStateFlow(id)
 
         override suspend fun setActiveAccountId(accountId: String) {

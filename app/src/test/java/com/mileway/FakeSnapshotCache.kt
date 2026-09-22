@@ -11,7 +11,9 @@ import com.mileway.core.data.watch.WatchSyncPayload
  * the real platform actuals ([com.mileway.core.data.watch.SnapshotCacheStore]) are what actually
  * cross the process boundary; this fake only proves the write-then-read contract shape.
  */
-class FakeSnapshotCache(seed: WatchSyncPayload? = null) : SnapshotCache {
+class FakeSnapshotCache(
+    seed: WatchSyncPayload? = null,
+) : SnapshotCache {
     private var stored: WatchSyncPayload? = seed
 
     override suspend fun write(payload: WatchSyncPayload) {

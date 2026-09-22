@@ -199,7 +199,9 @@ fun SettingsScreen(
     // PLAN_V24 P12.4: compact "What's new" indicator — pulses while this release is unseen.
     val sessionRepository = koinInject<com.mileway.core.data.session.SessionRepository>()
     val session by sessionRepository.sessionState.collectAsStateWithLifecycle(
-        initialValue = com.mileway.core.data.session.SessionState(),
+        initialValue =
+            com.mileway.core.data.session
+                .SessionState(),
     )
     // PLAN_V36 P2: the badge comparand now comes from :feature:whatsnew's repository via this
     // core:data contract — Settings never depends on the feature module directly.

@@ -46,6 +46,7 @@ import com.mileway.core.ui.resources.tracking_voucher_category_fuel
 import com.mileway.core.ui.resources.tracking_voucher_category_maintenance
 import com.mileway.core.ui.resources.tracking_voucher_category_mileage
 import com.mileway.core.ui.resources.tracking_voucher_category_other
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.viewmodel.VoucherDetailsAction
@@ -185,9 +186,7 @@ private fun VoucherCategory.localizedLabel(): String =
         VoucherCategory.OTHER -> stringResource(Res.string.tracking_voucher_category_other)
     }
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private fun formatFullDate(ms: Long): String {
     val ldt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
-    return "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+    return "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
 }

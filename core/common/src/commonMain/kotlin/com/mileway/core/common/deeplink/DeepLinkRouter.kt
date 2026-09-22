@@ -27,16 +27,26 @@ sealed interface DeepLinkTarget {
 
     // V29 P29.H.5: parameterized detail targets — the section-level links above land on a list;
     // these land directly on one record's existing `{id}`-routed detail screen.
-    data class TrackDetail(val routeId: String) : DeepLinkTarget
+    data class TrackDetail(
+        val routeId: String,
+    ) : DeepLinkTarget
 
-    data class ApprovalDetail(val id: String) : DeepLinkTarget
+    data class ApprovalDetail(
+        val id: String,
+    ) : DeepLinkTarget
 
-    data class PayablesDetail(val id: String) : DeepLinkTarget
+    data class PayablesDetail(
+        val id: String,
+    ) : DeepLinkTarget
 
-    data class Referral(val code: String?) : DeepLinkTarget
+    data class Referral(
+        val code: String?,
+    ) : DeepLinkTarget
 
     /** Unrecognised link; callers typically ignore it or fall back to Home. */
-    data class Unknown(val raw: String) : DeepLinkTarget
+    data class Unknown(
+        val raw: String,
+    ) : DeepLinkTarget
 }
 
 /** A minimally-parsed URI (commonMain-pure, no java.net.URI / NSURL). */
@@ -46,6 +56,12 @@ internal data class ParsedUri(
     val path: String,
     val query: Map<String, String>,
 )
+
+/** A parameterized detail link is three segments: section, "detail", record id. */
+private const val DetailLinkSegments = 3
+
+/** What separates the scheme from the rest of a uri; [DeepLinkRouter.parse] splits on it. */
+private const val SchemeSeparator = "://"
 
 /**
  * Pure URI → [DeepLinkTarget] resolver. Handles BOTH the custom `mileway://<section>/…` scheme (where
@@ -71,19 +87,19 @@ object DeepLinkRouter {
             segments == listOf("profile", "settings") -> DeepLinkTarget.ProfileSettings
             segments == listOf("approvals") -> DeepLinkTarget.Approvals
             segments == listOf("payables") -> DeepLinkTarget.Payables
-            segments.size == 3 && segments[0] == "track" && segments[1] == "detail" -> DeepLinkTarget.TrackDetail(segments[2])
-            segments.size == 3 && segments[0] == "approvals" && segments[1] == "detail" -> DeepLinkTarget.ApprovalDetail(segments[2])
-            segments.size == 3 && segments[0] == "payables" && segments[1] == "detail" -> DeepLinkTarget.PayablesDetail(segments[2])
+            segments.size == DetailLinkSegments && segments[0] == "track" && segments[1] == "detail" -> DeepLinkTarget.TrackDetail(segments[2])
+            segments.size == DetailLinkSegments && segments[0] == "approvals" && segments[1] == "detail" -> DeepLinkTarget.ApprovalDetail(segments[2])
+            segments.size == DetailLinkSegments && segments[0] == "payables" && segments[1] == "detail" -> DeepLinkTarget.PayablesDetail(segments[2])
             segments.firstOrNull() == "referral" -> DeepLinkTarget.Referral(parsed.query["code"])
             else -> DeepLinkTarget.Unknown(uri)
         }
     }
 
     internal fun parse(uri: String): ParsedUri? {
-        val schemeSplit = uri.indexOf("://")
+        val schemeSplit = uri.indexOf(SchemeSeparator)
         if (schemeSplit <= 0) return null
         val scheme = uri.substring(0, schemeSplit).lowercase()
-        val rest = uri.substring(schemeSplit + 3)
+        val rest = uri.substring(schemeSplit + SchemeSeparator.length)
 
         val queryStart = rest.indexOf('?')
         val beforeQuery = if (queryStart >= 0) rest.substring(0, queryStart) else rest

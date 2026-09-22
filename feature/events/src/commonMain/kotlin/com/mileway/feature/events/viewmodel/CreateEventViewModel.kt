@@ -23,25 +23,41 @@ data class CreateEventUiState(
 }
 
 sealed interface CreateEventAction {
-    data class SetTitle(val value: String) : CreateEventAction
+    data class SetTitle(
+        val value: String,
+    ) : CreateEventAction
 
-    data class SetVenue(val value: String) : CreateEventAction
+    data class SetVenue(
+        val value: String,
+    ) : CreateEventAction
 
-    data class SetDate(val value: String) : CreateEventAction
+    data class SetDate(
+        val value: String,
+    ) : CreateEventAction
 
-    data class SetCapacity(val value: String) : CreateEventAction
+    data class SetCapacity(
+        val value: String,
+    ) : CreateEventAction
 
-    data class SetCategory(val value: EventCategory) : CreateEventAction
+    data class SetCategory(
+        val value: EventCategory,
+    ) : CreateEventAction
 
     data object Submit : CreateEventAction
 }
 
 sealed interface CreateEventEffect {
-    data class Success(val id: String) : CreateEventEffect
+    data class Success(
+        val id: String,
+    ) : CreateEventEffect
 
-    data class NeedsApproval(val id: String) : CreateEventEffect
+    data class NeedsApproval(
+        val id: String,
+    ) : CreateEventEffect
 
-    data class Violation(val messages: List<String>) : CreateEventEffect
+    data class Violation(
+        val messages: List<String>,
+    ) : CreateEventEffect
 }
 
 /** EV: create-event reducer on the shared `FormSubmissionScaffold`. */

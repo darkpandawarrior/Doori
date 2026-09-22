@@ -1,14 +1,14 @@
 package com.mileway
 
 import app.cash.turbine.test
-import com.siddharth.kmp.common.UiText
-import com.siddharth.kmp.mvi.BaseViewModel
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.contentOrElse
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.mvi.isLoading
 import com.mileway.core.ui.mvi.map
 import com.mileway.core.ui.mvi.onContent
+import com.siddharth.kmp.common.UiText
+import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -72,10 +72,14 @@ class MviInfraTest {
     }
 
     private class CounterVm : BaseViewModel<CounterVm.S, CounterVm.E, CounterVm.A>(S()) {
-        data class S(val count: Int = 0)
+        data class S(
+            val count: Int = 0,
+        )
 
         sealed interface E {
-            data class Toast(val msg: String) : E
+            data class Toast(
+                val msg: String,
+            ) : E
         }
 
         sealed interface A {

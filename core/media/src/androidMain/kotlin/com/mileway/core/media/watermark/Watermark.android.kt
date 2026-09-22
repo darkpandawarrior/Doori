@@ -13,6 +13,9 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 
+/** JPEG quality for the watermarked copy: high enough to keep the burnt-in text crisp. */
+private const val WatermarkJpegQuality = 92
+
 /**
  * Android actual (V26 P26.WM.1): draws a semi-transparent legibility strip across the bottom of
  * the image and burns [text] onto it (white, bold, right-aligned) via `Canvas`/`Paint`. Writes the
@@ -34,7 +37,8 @@ actual suspend fun burnWatermark(
     return try {
         val watermarked = source.drawLegibilityStripAndText(text)
         writeToCacheFile(context, watermarked)
-    } catch (e: Exception) {
+    } catch (ignored: Exception) {
+        // Watermarking is cosmetic: on any failure the caller gets the unmodified image back.
         imageUri
     } finally {
         source.recycle()
@@ -75,7 +79,7 @@ private fun writeToCacheFile(
     bitmap: Bitmap,
 ): String {
     val file = File(context.cacheDir, "watermark_${UUID.randomUUID()}.jpg")
-    FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.JPEG, 92, it) }
+    FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.JPEG, WatermarkJpegQuality, it) }
     bitmap.recycle()
     return Uri.fromFile(file).toString()
 }

@@ -87,31 +87,52 @@ val coreDataModule =
         single { get<MilewayDatabase>().destinationModeDao() }
         single { get<MilewayDatabase>().bannerDismissalDao() }
         // PLAN_V24 P13.1: the per-account persisted banner-dismissal store (priority banner stack).
-        single { com.mileway.core.data.banner.BannerDismissalRepository(get(), get()) }
+        single {
+            com.mileway.core.data.banner
+                .BannerDismissalRepository(get(), get())
+        }
         single { get<MilewayDatabase>().popupAckDao() }
         // PLAN_V24 P13.3: the per-account persisted forced-popup acknowledgement store (coordinator).
-        single { com.mileway.core.data.popup.PopupAckRepository(get(), get()) }
+        single {
+            com.mileway.core.data.popup
+                .PopupAckRepository(get(), get())
+        }
         single { get<MilewayDatabase>().clarificationDao() }
         single { get<MilewayDatabase>().approvalCommentDao() }
         single { get<MilewayDatabase>().bugReportDao() }
         // P31.MISC.1: shake-to-report capture store (local only, no backend).
-        single { com.mileway.core.data.support.BugReportRepository(get()) }
+        single {
+            com.mileway.core.data.support
+                .BugReportRepository(get())
+        }
         single { get<MilewayDatabase>().emergencyContactDao() }
         // PLAN_V24 P3.5: shared by the profile management screen and the tracking SOS sheet.
-        single { com.mileway.core.data.emergency.EmergencyContactsRepository(get()) }
+        single {
+            com.mileway.core.data.emergency
+                .EmergencyContactsRepository(get())
+        }
         single { get<MilewayDatabase>().documentDao() }
         single { get<MilewayDatabase>().referralTxnDao() }
         single { get<MilewayDatabase>().couponDao() }
         single { get<MilewayDatabase>().rewardCardDao() }
         single { get<MilewayDatabase>().campaignDao() }
         // PLAN_V24 P5.4: shared by the profile marketing hub and the HomeScreen marketing strip.
-        single { com.mileway.core.data.campaign.CampaignRepository(get()) }
+        single {
+            com.mileway.core.data.campaign
+                .CampaignRepository(get())
+        }
         single { get<MilewayDatabase>().subscriptionDao() }
         // PLAN_V24 P6.2: subscription plans + single active-subscription lifecycle (mock purchase).
-        single { com.mileway.core.data.subscription.SubscriptionRepository(get()) }
+        single {
+            com.mileway.core.data.subscription
+                .SubscriptionRepository(get())
+        }
         single { get<MilewayDatabase>().deletionRequestDao() }
         // PLAN_V24 P7.1: account-deletion lifecycle (REQUESTED→PROCESSING via SimulatedReviewEngine).
-        single { com.mileway.core.data.lifecycle.DeletionRequestRepository(get(), get()) }
+        single {
+            com.mileway.core.data.lifecycle
+                .DeletionRequestRepository(get(), get())
+        }
         // PLAN_V24 P0.1: the Plugin Registry — single feature-composition mechanism. The PRESET
         // layer binds to EmptyPersonaPresetProvider until P0.2 supplies the real personas.
         single { PluginDebugForceStore() }
@@ -130,21 +151,45 @@ val coreDataModule =
             )
         }
         // PLAN_V24 P11.1: per-km policy-rate source (persona-gated by the registry).
-        single { com.mileway.core.data.vehicle.VehicleRateRepository(get()) }
+        single {
+            com.mileway.core.data.vehicle
+                .VehicleRateRepository(get())
+        }
         // PLAN_V24 P11.2: the multi-vehicle garage store (shared by profile UI + tracking default).
-        single { com.mileway.core.data.vehicle.GarageRepository(get()) }
+        single {
+            com.mileway.core.data.vehicle
+                .GarageRepository(get())
+        }
         // PLAN_V24 P12.6: per-vehicle self-audit history (verdict via the shared SimulatedReviewEngine).
-        single { com.mileway.core.data.vehicle.SelfAuditRepository(get(), get()) }
+        single {
+            com.mileway.core.data.vehicle
+                .SelfAuditRepository(get(), get())
+        }
         // PLAN_V24 P12.8: favourite routes pinned from completed trips (reads the shared SavedTrackDao).
-        single { com.mileway.core.data.favourite.FavouriteRoutesRepository(get(), get()) }
+        single {
+            com.mileway.core.data.favourite
+                .FavouriteRoutesRepository(get(), get())
+        }
         // PLAN_V24 P11.3: the per-account head-home destination store (tracking panel + trip tag).
-        single { com.mileway.core.data.location.DestinationModeRepository(get()) }
+        single {
+            com.mileway.core.data.location
+                .DestinationModeRepository(get())
+        }
         // PLAN_V24 P11.4: the Ecometer aggregation source (real completed-trip distances × factors).
-        single { com.mileway.core.data.vehicle.EcometerRepository(get()) }
+        single {
+            com.mileway.core.data.vehicle
+                .EcometerRepository(get())
+        }
         // PLAN_V24 P12.5: the per-account training-tour progress store (drives the tour + the completion badge).
-        single { com.mileway.core.data.engagement.TourRepository(get(), get()) }
+        single {
+            com.mileway.core.data.engagement
+                .TourRepository(get(), get())
+        }
         // PLAN_V24 P12.1: the badge board — earned milestones + seeded compliments + the P12.5 tour-complete badge.
-        single { com.mileway.core.data.engagement.BadgeRepository(get(), get()) }
+        single {
+            com.mileway.core.data.engagement
+                .BadgeRepository(get(), get())
+        }
         // P7.1: local, no-network post-login profile bootstrap (see MockPostLoginInitializer doc).
         single { MockPostLoginInitializer(get()) }
         single { SessionRepository(get()) }

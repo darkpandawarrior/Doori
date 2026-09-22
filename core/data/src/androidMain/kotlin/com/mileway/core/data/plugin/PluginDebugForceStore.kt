@@ -15,10 +15,13 @@ private const val PREFIX = "force_"
  * forces survive account switch, mirroring the reference app's debug store. Each force is one string pref
  * keyed `force_<pluginId>`.
  */
-class PluginDebugForceStore(private val context: Context) : PluginDebugForceSource {
+class PluginDebugForceStore(
+    private val context: Context,
+) : PluginDebugForceSource {
     override val overrides: Flow<Map<String, String>> =
         context.pluginForceDataStore.data.map { prefs ->
-            prefs.asMap()
+            prefs
+                .asMap()
                 .filterKeys { it.name.startsWith(PREFIX) }
                 .entries
                 .associate { (key, value) -> key.name.removePrefix(PREFIX) to value.toString() }
@@ -36,7 +39,11 @@ class PluginDebugForceStore(private val context: Context) : PluginDebugForceSour
 
     override suspend fun clearAll() {
         context.pluginForceDataStore.edit { prefs ->
-            prefs.asMap().keys.filter { it.name.startsWith(PREFIX) }.forEach { prefs.remove(it) }
+            prefs
+                .asMap()
+                .keys
+                .filter { it.name.startsWith(PREFIX) }
+                .forEach { prefs.remove(it) }
         }
     }
 }

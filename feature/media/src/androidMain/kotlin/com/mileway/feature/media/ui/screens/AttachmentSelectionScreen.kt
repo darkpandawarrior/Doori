@@ -276,7 +276,10 @@ fun AttachmentSelectionScreen(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
-            item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+            item(span = {
+                androidx.compose.foundation.lazy.grid
+                    .GridItemSpan(maxLineSpan)
+            }) {
                 Text(
                     text = stringResource(Res.string.media_select_source_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -323,7 +326,10 @@ fun AttachmentSelectionScreen(
             }
 
             if (state.attachments.isNotEmpty()) {
-                item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
+                item(span = {
+                    androidx.compose.foundation.lazy.grid
+                        .GridItemSpan(maxLineSpan)
+                }) {
                     Column {
                         Spacer(Modifier.height(DesignTokens.Spacing.l))
                         Text(
@@ -452,8 +458,7 @@ private fun AttachmentThumbnail(item: AttachmentItem) {
                                 } else {
                                     Color.Black.copy(alpha = 0.55f)
                                 },
-                            )
-                            .padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
+                            ).padding(horizontal = DesignTokens.Spacing.s, vertical = 2.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(

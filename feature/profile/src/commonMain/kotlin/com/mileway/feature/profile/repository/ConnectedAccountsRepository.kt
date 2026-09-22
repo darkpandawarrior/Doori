@@ -14,7 +14,10 @@ import kotlin.time.Clock
  * mirroring [com.mileway.feature.profile.repository.NotificationRepository]'s
  * seed-once-then-observe shape.
  */
-class ConnectedAccountsRepository(private val dao: ConnectedAccountDao, private val clock: Clock = Clock.System) {
+class ConnectedAccountsRepository(
+    private val dao: ConnectedAccountDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, provider-name-ordered list of connected-account rows. */
     fun observeAll(): Flow<List<ConnectedAccount>> = dao.observeAll().map { rows -> rows.map { it.toModel() } }
 

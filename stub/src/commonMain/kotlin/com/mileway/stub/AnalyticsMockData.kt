@@ -1,3 +1,14 @@
+// MagicNumber is suppressed for this file, and only for files shaped like this one.
+//
+// This is a hand-written fixture dataset: amounts, distances, counts and day offsets that ARE the
+// sample record, not a threshold or policy any code branches on. `MagicNumber` exists to catch an
+// unexplained constant steering business logic; there is none here, and naming eighty fixture
+// literals would add eighty names that carry no more information than the literal did.
+//
+// The line this draws: a number a caller compares against, divides by, or sleeps for is debt and
+// gets a name wherever it lives — including in this file. Only the dataset itself is excused.
+@file:Suppress("MagicNumber")
+
 package com.mileway.stub
 
 private const val BASE_MS = 1_781_654_400_000L
@@ -20,7 +31,10 @@ data class RecentActivityItem(
     val paymentMethod: String = "Card",
 )
 
-data class MerchantTotal(val name: String, val amountRupees: Double)
+data class MerchantTotal(
+    val name: String,
+    val amountRupees: Double,
+)
 
 data class MerchantTransaction(
     val id: String,
@@ -30,17 +44,47 @@ data class MerchantTransaction(
     val status: String,
 )
 
-data class TeamMember(val name: String, val amountRupees: Double, val claimCount: Int, val topCategory: String)
+data class TeamMember(
+    val name: String,
+    val amountRupees: Double,
+    val claimCount: Int,
+    val topCategory: String,
+)
 
 private val DAY_LABELS = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
 
 private val RAW_AMOUNTS =
     listOf(
-        1200.0, 3400.0, 800.0, 5600.0, 2100.0, 900.0, 4300.0,
-        1800.0, 7200.0, 600.0, 3100.0, 4800.0, 2200.0, 1500.0,
-        8900.0, 400.0, 3700.0, 2600.0, 5500.0, 1100.0, 6800.0,
-        900.0, 2400.0, 3300.0, 7100.0, 1700.0, 4200.0, 2800.0,
-        5900.0, 3600.0,
+        1200.0,
+        3400.0,
+        800.0,
+        5600.0,
+        2100.0,
+        900.0,
+        4300.0,
+        1800.0,
+        7200.0,
+        600.0,
+        3100.0,
+        4800.0,
+        2200.0,
+        1500.0,
+        8900.0,
+        400.0,
+        3700.0,
+        2600.0,
+        5500.0,
+        1100.0,
+        6800.0,
+        900.0,
+        2400.0,
+        3300.0,
+        7100.0,
+        1700.0,
+        4200.0,
+        2800.0,
+        5900.0,
+        3600.0,
     )
 
 // PLAN_V29 P29.AN.6: baseline for period-over-period comparison — a distinct 30-day window
@@ -83,14 +127,14 @@ object AnalyticsMockData {
 
     val totalSpend: Double = categoryTotals.values.sum()
 
-    val compliancePercent: Int = 87
-    val violationCount: Int = 3
-    val hardStopCount: Int = 1
+    const val compliancePercent: Int = 87
+    const val violationCount: Int = 3
+    const val hardStopCount: Int = 1
 
     // PLAN_V29 P29.AN.9: backs the "SLA Breach Risk" insight card with a real threshold check
     // instead of a hardcoded "3 claims" string.
     val pendingApprovalDays: List<Int> = listOf(2, 6, 7, 1)
-    val slaBreachThresholdDays: Int = 5
+    const val slaBreachThresholdDays: Int = 5
 
     val topMerchants: List<MerchantTotal> =
         listOf(

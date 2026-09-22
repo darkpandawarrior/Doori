@@ -26,7 +26,9 @@ import kotlinx.coroutines.flow.map
 // MilesSubmitSyncerTest and SessionReconciliationPolicyTest so AppSyncTriggerTest (and future sync
 // tests) reuse them instead of adding yet another per-file SavedTrackDao/LocationDao fake.
 
-internal class FakeSyncLocationDao(unsynced: List<LocationData>) : LocationDao {
+internal class FakeSyncLocationDao(
+    unsynced: List<LocationData>,
+) : LocationDao {
     val unsynced = unsynced.toMutableList()
     val markedSynced = mutableListOf<Long>()
 
@@ -115,7 +117,10 @@ internal class FakeLocationBatchOutbox : LocationBatchOutbox {
 
     val enqueued: List<LocationBatch> get() = entries.value.values.map { it.payload }
 
-    fun statusFor(batch: LocationBatch): DraftStatus = entries.value.values.first { it.payload == batch }.status
+    fun statusFor(batch: LocationBatch): DraftStatus =
+        entries.value.values
+            .first { it.payload == batch }
+            .status
 
     override fun drafts(formKey: String): Flow<List<DraftEntry<LocationBatch>>> = entries.map { it.values.filter { e -> e.formKey == formKey } }
 
@@ -342,7 +347,9 @@ internal class FakeMilesSubmitDao : SavedTrackDao {
     ): Int = 0
 }
 
-internal class FakeCurrentTrackSource(private val initial: CurrentTrackData) : CurrentTrackDataSource {
+internal class FakeCurrentTrackSource(
+    private val initial: CurrentTrackData,
+) : CurrentTrackDataSource {
     override val currentTrackFlow: Flow<CurrentTrackData> = MutableStateFlow(initial)
 
     override suspend fun saveSession(data: CurrentTrackData) {}
@@ -389,7 +396,9 @@ internal class FakeCurrentTrackSource(private val initial: CurrentTrackData) : C
 }
 
 /** In-memory [HardwareEventDao] fake for [HardwareEventSyncer]/[realHardwareEventSend] tests. */
-internal class FakeUnsyncedHardwareEventDao(unsynced: List<HardwareEvent>) : HardwareEventDao {
+internal class FakeUnsyncedHardwareEventDao(
+    unsynced: List<HardwareEvent>,
+) : HardwareEventDao {
     val unsynced = unsynced.toMutableList()
     val markedSynced = mutableListOf<Long>()
 
@@ -460,7 +469,10 @@ internal class FakeHardwareEventBatchOutbox : HardwareEventBatchOutbox {
 
     val enqueued: List<HardwareEventBatch> get() = entries.value.values.map { it.payload }
 
-    fun statusFor(batch: HardwareEventBatch): DraftStatus = entries.value.values.first { it.payload == batch }.status
+    fun statusFor(batch: HardwareEventBatch): DraftStatus =
+        entries.value.values
+            .first { it.payload == batch }
+            .status
 
     override fun drafts(formKey: String): Flow<List<DraftEntry<HardwareEventBatch>>> = entries.map { it.values.filter { e -> e.formKey == formKey } }
 

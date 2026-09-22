@@ -20,7 +20,6 @@ import kotlin.test.assertTrue
  * Unit tests for the profile/settings ViewModel, driven through a fake repository.
  */
 class ProfileViewModelTest {
-
     private fun viewModel() =
         ProfileViewModel(
             FakeProfileRepository(MockAccountRepository(FakeMockAccountDao())),
@@ -57,9 +56,18 @@ class ProfileViewModelTest {
     @Test
     fun `header is populated from the repository`() {
         val vm = viewModel()
-        assertTrue(vm.uiState.value.header.name.isNotBlank())
+        assertTrue(
+            vm.uiState.value.header.name
+                .isNotBlank(),
+        )
         // The rich profile + completion are populated from the repository.
-        assertTrue(vm.uiState.value.profile.name.isNotBlank())
-        assertTrue(vm.uiState.value.completion.categories.isNotEmpty())
+        assertTrue(
+            vm.uiState.value.profile.name
+                .isNotBlank(),
+        )
+        assertTrue(
+            vm.uiState.value.completion.categories
+                .isNotEmpty(),
+        )
     }
 }

@@ -72,7 +72,8 @@ object ExpenseCsvImporter {
     private fun resolveCategory(rawValue: String): ExpenseCategory {
         if (rawValue.isBlank()) return ExpenseCategory.OTHER
         val normalized = rawValue.trim()
-        return ExpenseCategoryCatalog.default()
+        return ExpenseCategoryCatalog
+            .default()
             .map { it.category }
             .firstOrNull { it.name.equals(normalized, ignoreCase = true) || it.label.equals(normalized, ignoreCase = true) }
             ?: ExpenseCategory.OTHER

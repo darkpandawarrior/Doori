@@ -48,7 +48,8 @@ class ReferralHubViewModel(
             repository.resolveReviewablePending()
             _state.update { it.copy(code = referralManager.myReferralCode()) }
         }
-        repository.observeAll()
+        repository
+            .observeAll()
             .onEach { txns ->
                 _state.update { current ->
                     current.copy(
@@ -58,7 +59,6 @@ class ReferralHubViewModel(
                         totalMoney = txns.sumOf { it.processedMoney },
                     )
                 }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 }

@@ -32,13 +32,11 @@ class SignOutTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun fakeDemoSettingsRepository() =
-        mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
+    private fun fakeDemoSettingsRepository() = mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
 
     // P3.2: ProfileViewModel now collects `sessionState.first()` in init(); a relaxed mockk's
     // auto-generated Flow<SessionState> never emits (null-collector trap), so it's stubbed here.
-    private fun fakeSessionRepository() =
-        mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
+    private fun fakeSessionRepository() = mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
 
     private fun viewModel(
         mockAccountRepository: MockAccountRepository = MockAccountRepository(FakeMockAccountDao()),
@@ -87,12 +85,19 @@ class SignOutTest {
             advanceUntilIdle()
             vm.onAction(ProfileAction.SignOut("ACC-002"))
             advanceUntilIdle()
-            val onlyRemaining = vm.uiState.value.accounts.single().id
+            val onlyRemaining =
+                vm.uiState.value.accounts
+                    .single()
+                    .id
 
             vm.onAction(ProfileAction.SignOut(onlyRemaining))
             advanceUntilIdle()
 
-            assertTrue(vm.uiState.value.accounts.isEmpty(), "the last persona must actually be removed")
+            assertTrue(
+                vm.uiState.value.accounts
+                    .isEmpty(),
+                "the last persona must actually be removed",
+            )
             coVerify(exactly = 1) { sessionRepository.signOut() }
             assertEquals(ProfileEffect.NavigateToLogin, vm.effect.first())
         }

@@ -38,13 +38,11 @@ class SwitchAccountReScopeTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun fakeDemoSettingsRepository() =
-        mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
+    private fun fakeDemoSettingsRepository() = mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
 
     // P3.2: ProfileViewModel now collects `sessionState.first()` in init(); a relaxed mockk's
     // auto-generated Flow<SessionState> never emits (null-collector trap), so it's stubbed here.
-    private fun fakeSessionRepository() =
-        mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
+    private fun fakeSessionRepository() = mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
 
     private fun track(
         routeId: String,
@@ -53,11 +51,16 @@ class SwitchAccountReScopeTest {
         routeId = routeId,
         name = "Track $routeId",
         startedByAccountId = accountId,
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = 0L, endTime = 1L,
-        distance = 1_000.0, duration = 60_000L,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = 0L,
+        endTime = 1L,
+        distance = 1_000.0,
+        duration = 60_000L,
     )
 
     @Test
@@ -120,12 +123,22 @@ class SwitchAccountReScopeTest {
             val savedTracksVm = SavedTracksViewModel(SavedTrackRepository(trackDao), activeAccountSource)
             advanceUntilIdle()
 
-            assertEquals(setOf("t1", "t2"), savedTracksVm.state.value.tracks.map { it.token }.toSet())
+            assertEquals(
+                setOf("t1", "t2"),
+                savedTracksVm.state.value.tracks
+                    .map { it.token }
+                    .toSet(),
+            )
 
             // Simulate ProfileViewModel.SwitchAccount's write-through to the shared store.
             activeAccountSource.setActiveAccountId("ACC-002")
             advanceUntilIdle()
 
-            assertEquals(setOf("t3"), savedTracksVm.state.value.tracks.map { it.token }.toSet())
+            assertEquals(
+                setOf("t3"),
+                savedTracksVm.state.value.tracks
+                    .map { it.token }
+                    .toSet(),
+            )
         }
 }

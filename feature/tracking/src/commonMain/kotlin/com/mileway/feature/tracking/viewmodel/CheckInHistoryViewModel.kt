@@ -24,7 +24,8 @@ class CheckInHistoryViewModel(
     val items: StateFlow<List<CheckInHistoryItem>> = _items.asStateFlow()
 
     init {
-        locationRepository.allCheckInPoints()
+        locationRepository
+            .allCheckInPoints()
             .map { points -> points.map { it.toCheckInHistoryItem() } }
             .onEach { _items.value = it }
             .launchIn(viewModelScope)

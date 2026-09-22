@@ -20,11 +20,17 @@ data class BookingHistoryUiState(
 sealed interface BookingHistoryAction {
     data object Refresh : BookingHistoryAction
 
-    data class SelectTab(val index: Int) : BookingHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : BookingHistoryAction
 
-    data class SetStatusFilter(val status: TravelReqStatus?) : BookingHistoryAction
+    data class SetStatusFilter(
+        val status: TravelReqStatus?,
+    ) : BookingHistoryAction
 
-    data class SetQuery(val query: String) : BookingHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : BookingHistoryAction
 }
 
 sealed interface BookingHistoryEffect

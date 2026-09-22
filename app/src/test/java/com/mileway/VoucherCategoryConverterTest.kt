@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
  * of crashing.
  */
 class VoucherCategoryConverterTest {
-
     @Test
     fun `every VoucherCategory round-trips through the TypeConverter`() {
         VoucherCategory.entries.forEach { category ->

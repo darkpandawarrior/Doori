@@ -146,11 +146,20 @@ data class TrackMileageStatusResponse(
     @SerialName("statusCode") val statusCode: Int = 0,
     @SerialName("description") val description: String = "",
 ) {
-    fun isActive(): Boolean = statusCode == 200
+    fun isActive(): Boolean = statusCode == STATUS_ACTIVE
 
-    fun isCancelledDueToConfig(): Boolean = statusCode == 505
+    fun isCancelledDueToConfig(): Boolean = statusCode == STATUS_CANCELLED_BY_CONFIG
 
-    fun isDeactivatedByUser(): Boolean = statusCode == 504
+    fun isDeactivatedByUser(): Boolean = statusCode == STATUS_DEACTIVATED_BY_USER
+
+    companion object {
+        // Backend track-mileage status codes. They are shaped like HTTP codes and are not:
+        // this is the tracking service's own enumeration carried in the `statusCode` field of
+        // a 200 response, so 504/505 mean what the names below say, not "gateway timeout".
+        const val STATUS_ACTIVE = 200
+        const val STATUS_DEACTIVATED_BY_USER = 504
+        const val STATUS_CANCELLED_BY_CONFIG = 505
+    }
 }
 
 // ── Log Miles services ────────────────────────────────────────────────────────

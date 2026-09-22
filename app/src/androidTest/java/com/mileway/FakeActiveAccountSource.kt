@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * DataStore-backed `Context`. Duplicated into androidTest (the JVM `src/test` copy is not visible
  * to the instrumented source set). [seed] pre-populates the pointer.
  */
-class FakeActiveAccountSource(seed: String? = null) : ActiveAccountSource {
+class FakeActiveAccountSource(
+    seed: String? = null,
+) : ActiveAccountSource {
     private val current = MutableStateFlow(seed)
 
     override val activeAccountId: Flow<String?> = current

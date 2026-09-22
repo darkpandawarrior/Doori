@@ -432,4 +432,11 @@ private suspend fun HttpClient.submitMiles(
 }
 
 /** There is no GET for trips, so the dedup assertions read the table straight off the test H2 instance. */
-private fun tripRowCount(requestToken: String): Int = transaction { TripsTable.selectAll().where { TripsTable.token eq requestToken }.count().toInt() }
+private fun tripRowCount(requestToken: String): Int =
+    transaction {
+        TripsTable
+            .selectAll()
+            .where { TripsTable.token eq requestToken }
+            .count()
+            .toInt()
+    }

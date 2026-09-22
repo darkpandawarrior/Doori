@@ -10,9 +10,9 @@ import com.mileway.stub.di.stubModule
 import com.mileway.wear.gms.watchSyncKoinModule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.logger.Level
@@ -70,7 +70,6 @@ private val wearModule =
  * (`wear/src/gms`'s real Data Layer bridge, `wear/src/noGms`'s [com.mileway.core.data.watch.NoopWatchSyncBridge]).
  */
 object WearAppGraph {
-
     /** Idempotent: Activity, tile and complication processes may all call this before touching Koin. */
     fun start(context: Context) {
         val alreadyStarted = runCatching { KoinPlatform.getKoin() }.isSuccess

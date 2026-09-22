@@ -10,7 +10,9 @@ import kotlin.time.Instant
 
 private const val NOW_MS = 1_700_000_000_000L
 
-private class FixedClock(private val ms: Long) : Clock {
+private class FixedClock(
+    private val ms: Long,
+) : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(ms)
 }
 

@@ -29,15 +29,16 @@ class FirstLoginBannerViewModelTest {
     @Test
     fun `banner is visible and carries the synthesized profile when isFirstLoginPending is true`() =
         runTest {
-            val sessionFlow = MutableStateFlow(
-                SessionState(
-                    kind = SessionKind.CREDENTIALS,
-                    email = "demo@mileway.app",
-                    displayName = "Demo User",
-                    officeName = "Demo HQ",
-                    isFirstLoginPending = true,
-                ),
-            )
+            val sessionFlow =
+                MutableStateFlow(
+                    SessionState(
+                        kind = SessionKind.CREDENTIALS,
+                        email = "demo@mileway.app",
+                        displayName = "Demo User",
+                        officeName = "Demo HQ",
+                        isFirstLoginPending = true,
+                    ),
+                )
             val sessionRepository = mockk<SessionRepository> { every { sessionState } returns sessionFlow }
             val vm = FirstLoginBannerViewModel(sessionRepository)
             advanceUntilIdle()

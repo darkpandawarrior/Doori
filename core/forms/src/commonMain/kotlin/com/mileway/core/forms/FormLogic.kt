@@ -3,6 +3,15 @@ package com.mileway.core.forms
 import com.siddharth.kmp.common.UiText
 import kotlin.math.round
 
+/** GST rates are stored as percentages, so a rate divides by this to become a fraction. */
+private const val PercentDivisor = 100.0
+
+/** Money fields carry two decimal places; `round2` scales by this to round at that precision. */
+private const val Round2Scale = 100.0
+
+/** The one currency this app bills in today. Named so a second currency has somewhere to land. */
+private const val DefaultCurrencyCode = "INR"
+
 private val COMPARISON_RELATIONS =
     setOf(
         RelationType.EQUALS,
@@ -27,7 +36,11 @@ private fun isVisible(
     field: MockFormSchema,
     values: Map<FieldId, FormFieldValue>,
 ): Boolean {
-    val keys = field.dependentFieldKey?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: return true
+    val keys =
+        field.dependentFieldKey
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() } ?: return true
     if (keys.isEmpty()) return true
     val expectedGroups = field.dependentExpectedValue?.split(",")?.map { it.trim() } ?: return false
     return keys.indices.all { i ->
@@ -146,23 +159,13 @@ fun computedFields(
     val computed = linkedMapOf<FieldId, FormFieldValue>()
 
     for (field in schema) {
-        when (field.relationType) {
-            RelationType.GST_RATE -> {
-                val baseKey = field.relatedFieldKey ?: continue
-                val base = numericValueOf(values[baseKey]) ?: continue
-                val rate = field.defaultValue?.toDoubleOrNull() ?: continue
-                computed[field.fieldKey] = FormFieldValue.Number(round2(base * rate / 100.0))
+        val derived =
+            when (field.relationType) {
+                RelationType.GST_RATE -> gstRateOf(field, values)
+                RelationType.GST_TOTAL -> gstTotalOf(field, schema, values, computed)
+                else -> null
             }
-            RelationType.GST_TOTAL -> {
-                val baseKey = field.relatedFieldKey ?: continue
-                val base = numericValueOf(values[baseKey]) ?: continue
-                val taxField = schema.firstOrNull { it.relationType == RelationType.GST_RATE && it.relatedFieldKey == baseKey }
-                val tax = taxField?.let { tf -> numericValueOf(computed[tf.fieldKey]) ?: numericValueOf(values[tf.fieldKey]) } ?: 0.0
-                val currencyCode = (values[field.fieldKey] as? FormFieldValue.Currency)?.currencyCode ?: "INR"
-                computed[field.fieldKey] = FormFieldValue.Currency(round2(base + tax), currencyCode)
-            }
-            else -> Unit
-        }
+        if (derived != null) computed[field.fieldKey] = derived
     }
 
     for (field in schema) {
@@ -187,7 +190,7 @@ private fun defaultValueFor(field: MockFormSchema): FormFieldValue {
     return when (field.type) {
         FormFieldType.TEXT, FormFieldType.TEXTAREA, FormFieldType.EMAIL -> FormFieldValue.Text(raw.orEmpty())
         FormFieldType.NUMBER -> FormFieldValue.Number(raw?.toDoubleOrNull())
-        FormFieldType.CURRENCY -> FormFieldValue.Currency(raw?.toDoubleOrNull(), "INR")
+        FormFieldType.CURRENCY -> FormFieldValue.Currency(raw?.toDoubleOrNull(), DefaultCurrencyCode)
         FormFieldType.SELECT, FormFieldType.CITY_AIRPORT, FormFieldType.IRN, FormFieldType.MASTER, FormFieldType.EMPLOYEE_DEPARTMENT ->
             FormFieldValue.Select(raw)
         FormFieldType.RATING -> FormFieldValue.Rating(raw?.toIntOrNull() ?: 0)
@@ -237,10 +240,40 @@ private fun stringValueOf(value: FormFieldValue?): String? =
         else -> null
     }
 
-private fun round2(value: Double): Double = round(value * 100.0) / 100.0
+private fun round2(value: Double): Double = round(value * Round2Scale) / Round2Scale
 
 private fun approximatelyEquals(
     a: Double,
     b: Double,
     epsilon: Double = 0.01,
 ): Boolean = kotlin.math.abs(a - b) <= epsilon
+
+/**
+ * The GST rate component of [field], or null when the field it derives from is absent or
+ * non-numeric. Extracted from [computedFields] so each missing input is one `return null` in a
+ * function that does one thing, rather than one `continue` in a loop that does two.
+ */
+private fun gstRateOf(
+    field: MockFormSchema,
+    values: Map<FieldId, FormFieldValue>,
+): FormFieldValue? {
+    val baseKey = field.relatedFieldKey ?: return null
+    val base = numericValueOf(values[baseKey]) ?: return null
+    val rate = field.defaultValue?.toDoubleOrNull() ?: return null
+    return FormFieldValue.Number(round2(base * rate / PercentDivisor))
+}
+
+/** The `base + tax` total for [field], or null when the field it derives from is absent. */
+private fun gstTotalOf(
+    field: MockFormSchema,
+    schema: List<MockFormSchema>,
+    values: Map<FieldId, FormFieldValue>,
+    computed: Map<FieldId, FormFieldValue>,
+): FormFieldValue? {
+    val baseKey = field.relatedFieldKey ?: return null
+    val base = numericValueOf(values[baseKey]) ?: return null
+    val taxField = schema.firstOrNull { it.relationType == RelationType.GST_RATE && it.relatedFieldKey == baseKey }
+    val tax = taxField?.let { tf -> numericValueOf(computed[tf.fieldKey]) ?: numericValueOf(values[tf.fieldKey]) } ?: 0.0
+    val currencyCode = (values[field.fieldKey] as? FormFieldValue.Currency)?.currencyCode ?: DefaultCurrencyCode
+    return FormFieldValue.Currency(round2(base + tax), currencyCode)
+}

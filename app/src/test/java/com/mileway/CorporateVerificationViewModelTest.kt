@@ -51,7 +51,11 @@ class CorporateVerificationViewModelTest {
             advanceUntilIdle()
 
             assertEquals(CorporateStep.VERIFY, vm.state.value.step)
-            assertEquals(6, vm.state.value.demoCode?.length)
+            assertEquals(
+                6,
+                vm.state.value.demoCode
+                    ?.length,
+            )
         }
 
     @Test

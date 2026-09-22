@@ -92,11 +92,16 @@ class AccountBindingTest {
                 startedByEmployeeCode = "EMP-1234",
                 startedByAccountEmail = "demo@mileway.app",
                 startedByTenant = "DEMO-TENANT",
-                startLatitude = 0.0, startLongitude = 0.0,
-                endLatitude = 0.0, endLongitude = 0.0,
-                pausedLatitude = 0.0, pausedLongitude = 0.0,
-                startTime = 0L, endTime = -1L,
-                distance = 0.0, duration = 0L,
+                startLatitude = 0.0,
+                startLongitude = 0.0,
+                endLatitude = 0.0,
+                endLongitude = 0.0,
+                pausedLatitude = 0.0,
+                pausedLongitude = 0.0,
+                startTime = 0L,
+                endTime = -1L,
+                distance = 0.0,
+                duration = 0L,
             )
 
         val binding = TripOwnershipBinding.from(track)

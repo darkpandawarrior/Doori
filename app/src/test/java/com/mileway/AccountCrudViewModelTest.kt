@@ -83,8 +83,15 @@ class AccountCrudViewModelTest {
             advanceUntilIdle()
 
             assertEquals(3, vm.uiState.value.accounts.size, "active persona must not be removed")
-            assertTrue(vm.uiState.value.accounts.any { it.id == activeId })
-            assertTrue(vm.uiState.value.preferenceMessage.orEmpty().isNotBlank())
+            assertTrue(
+                vm.uiState.value.accounts
+                    .any { it.id == activeId },
+            )
+            assertTrue(
+                vm.uiState.value.preferenceMessage
+                    .orEmpty()
+                    .isNotBlank(),
+            )
         }
 
     @Test
@@ -106,7 +113,11 @@ class AccountCrudViewModelTest {
             advanceUntilIdle()
 
             assertEquals(1, vm.uiState.value.accounts.size, "the only remaining persona must not be removed")
-            assertTrue(vm.uiState.value.preferenceMessage.orEmpty().isNotBlank())
+            assertTrue(
+                vm.uiState.value.preferenceMessage
+                    .orEmpty()
+                    .isNotBlank(),
+            )
         }
 
     @Test
@@ -114,10 +125,17 @@ class AccountCrudViewModelTest {
         runTest {
             val vm = viewModel()
             advanceUntilIdle()
-            val id = vm.uiState.value.accounts.first().id
+            val id =
+                vm.uiState.value.accounts
+                    .first()
+                    .id
 
             vm.onAction(ProfileAction.ViewAccountDetails(id))
-            assertEquals(id, vm.uiState.value.accountDetailsSheet?.id)
+            assertEquals(
+                id,
+                vm.uiState.value.accountDetailsSheet
+                    ?.id,
+            )
 
             vm.onAction(ProfileAction.DismissAccountDetails)
             assertNull(vm.uiState.value.accountDetailsSheet)

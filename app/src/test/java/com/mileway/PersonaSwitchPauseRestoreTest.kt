@@ -37,13 +37,11 @@ class PersonaSwitchPauseRestoreTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun fakeDemoSettingsRepository() =
-        mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
+    private fun fakeDemoSettingsRepository() = mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
 
     // P3.2: ProfileViewModel now collects `sessionState.first()` in init(); a relaxed mockk's
     // auto-generated Flow<SessionState> never emits (null-collector trap), so it's stubbed here.
-    private fun fakeSessionRepository() =
-        mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
+    private fun fakeSessionRepository() = mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
 
     private class FakeSessionTrackDao : SavedTrackDao by mockk(relaxed = true) {
         val tracks = mutableMapOf<String, SavedTrack>()
@@ -59,7 +57,9 @@ class PersonaSwitchPauseRestoreTest {
             tracks.values.firstOrNull { it.startedByEmployeeCode == employeeCode && !it.isCompleted && !it.isDiscarded && !it.isDraft }
     }
 
-    private class FakeLiveSession(initial: CurrentTrackData) : CurrentTrackDataSource {
+    private class FakeLiveSession(
+        initial: CurrentTrackData,
+    ) : CurrentTrackDataSource {
         val flow = MutableStateFlow(initial)
         var clearCalls = 0
             private set
@@ -120,11 +120,16 @@ class PersonaSwitchPauseRestoreTest {
         routeId = routeId,
         name = "Journey $routeId",
         startedByEmployeeCode = employeeCode,
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = 0L, endTime = -1L,
-        distance = 500.0, duration = 5_000L,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = 0L,
+        endTime = -1L,
+        distance = 500.0,
+        duration = 5_000L,
     )
 
     private fun viewModel(

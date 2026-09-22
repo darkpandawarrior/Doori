@@ -13,7 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import kotlin.time.Clock
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
@@ -33,8 +32,9 @@ import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import com.mileway.wear.theme.WearMilewayTheme
-import kotlin.math.roundToInt
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.math.roundToInt
+import kotlin.time.Clock
 
 /**
  * P2.4/P2.5: the Wear app's single screen surface — dashboard, trip list ([TripListScreen]) and
@@ -184,8 +184,7 @@ private fun TripsEntryCard(
                 .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "$tripCount trips, open trip list"
-                }
-                .padding(CARD_PADDING_DP.dp),
+                }.padding(CARD_PADDING_DP.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(CARD_SPACING_DP.dp),
     ) {

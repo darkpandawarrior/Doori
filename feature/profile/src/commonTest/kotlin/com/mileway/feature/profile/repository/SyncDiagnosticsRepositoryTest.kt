@@ -8,7 +8,9 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-private class FixedClock(private val epochMs: Long) : Clock {
+private class FixedClock(
+    private val epochMs: Long,
+) : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(epochMs)
 }
 

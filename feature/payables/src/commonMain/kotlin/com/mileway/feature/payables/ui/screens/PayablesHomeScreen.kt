@@ -65,6 +65,7 @@ import com.mileway.core.ui.resources.payables_section_purchase_requests
 import com.mileway.core.ui.resources.payables_section_recent_invoices
 import com.mileway.core.ui.resources.payables_subtitle
 import com.mileway.core.ui.resources.payables_title
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.payables.model.Invoice
@@ -297,7 +298,6 @@ private fun InvoiceCard(invoice: Invoice) {
             InvoiceStatus.MATCHED -> Triple(Icons.Filled.Receipt, stringResource(Res.string.payables_invoice_status_matched), MilewayRoles.informational)
             InvoiceStatus.PAID -> Triple(Icons.Filled.CheckCircle, stringResource(Res.string.payables_invoice_status_paid), MilewayRoles.approved)
         }
-    val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -321,9 +321,8 @@ private fun InvoiceCard(invoice: Invoice) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    Instant.fromEpochMilliseconds(invoice.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-                            ldt ->
-                        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+                    Instant.fromEpochMilliseconds(invoice.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
+                        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

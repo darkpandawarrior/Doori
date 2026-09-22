@@ -16,7 +16,9 @@ private val Context.snapshotCacheDataStore by preferencesDataStore(name = "snaps
  * location: any component holding this same `Context` (the widget's `provideGlance`, a future
  * `GlanceAppWidgetReceiver.onUpdate`) can construct the same [SnapshotCacheStore] and read it.
  */
-class SnapshotCacheStore(private val context: Context) : SnapshotCache {
+class SnapshotCacheStore(
+    private val context: Context,
+) : SnapshotCache {
     private val payloadKey = stringPreferencesKey("watch_sync_payload_json")
 
     override suspend fun write(payload: WatchSyncPayload) {

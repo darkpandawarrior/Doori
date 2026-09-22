@@ -15,7 +15,10 @@ import kotlin.time.Clock
  * `remember { mutableStateOf(NOTIFICATIONS) }` seed, which reset on navigation away and left the
  * topbar's "174 unread" subtitle permanently hardcoded regardless of actual state.
  */
-class NotificationRepository(private val dao: NotificationDao, private val clock: Clock = Clock.System) {
+class NotificationRepository(
+    private val dao: NotificationDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, most-recent-first list of Notification Centre entries. */
     fun observeAll(): Flow<List<NotificationRecord>> = dao.observeAll().map { rows -> rows.map { it.toRecord() } }
 

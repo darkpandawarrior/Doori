@@ -28,7 +28,9 @@ data class StorageManagementUiState(
 /** P31.MISC.2: state for the storage-management screen — [StorageRepository.storageAreas] tiered
  * Safe/Caution/Danger, each with a working clear action. Caution/Danger clears are gated by a
  * confirmation sheet in the UI layer; this ViewModel only performs the clear once confirmed. */
-class StorageManagementViewModel(private val repository: StorageRepository) : ViewModel() {
+class StorageManagementViewModel(
+    private val repository: StorageRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(StorageManagementUiState())
     val state: StateFlow<StorageManagementUiState> = _state.asStateFlow()
 

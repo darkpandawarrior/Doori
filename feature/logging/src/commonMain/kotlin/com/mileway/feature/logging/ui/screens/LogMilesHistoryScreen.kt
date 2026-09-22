@@ -537,5 +537,8 @@ private fun LabelValue(
     }
 }
 
+/** One calendar day in milliseconds - the bucket width the history list groups by. */
+private const val MillisPerDay = 86_400_000L
+
 /** Bucket key for grouping vouchers by calendar day. */
-private fun dayKey(millis: Long): Long = millis / 86_400_000L
+private fun dayKey(millis: Long): Long = millis / MillisPerDay

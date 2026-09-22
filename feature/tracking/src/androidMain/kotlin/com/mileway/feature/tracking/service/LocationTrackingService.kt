@@ -64,6 +64,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
+/** Milliseconds in a second - the plugin supplies the interval floor in seconds. */
+private const val MILLIS_PER_SECOND = 1_000L
+
+/** Safety cap on the tracking wake lock: one hour, in milliseconds. */
+private const val WAKE_LOCK_TIMEOUT_MS = 60 * 60 * 1000L
+
 /**
  * Advanced foreground location-tracking service.
  *
@@ -253,7 +259,7 @@ class LocationTrackingService : Service() {
         }
         scope.launch {
             pluginRegistry.observeValue("track_location_interval_s").collect {
-                intervalFloorMs = ((it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value ?: 0).toLong() * 1_000L
+                intervalFloorMs = ((it as? com.mileway.core.data.plugin.PluginValue.IntVal)?.value ?: 0).toLong() * MILLIS_PER_SECOND
             }
         }
         scope.launch { pluginRegistry.observe("track_force_gps_only").collect { forceGpsOnly = it } }
@@ -305,7 +311,14 @@ class LocationTrackingService : Service() {
         return START_STICKY
     }
 
-    /** Calls startForeground defensively. Returns false (and stops self) on failure. */
+    /**
+     * Calls startForeground defensively. Returns false (and stops self) on failure.
+     *
+     * Boundary catch-all: this is the edge between the app and a platform or backend call that
+     * fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+     * and surfaced to the caller, never swallowed — crashing the process is the alternative.
+     */
+    @Suppress("TooGenericExceptionCaught")
     private fun enterForeground(): Boolean =
         try {
             startForeground(NOTIFICATION_ID, buildNotification(TrackingNotificationMapper.fromSnapshot(TrackingSnapshot())))
@@ -492,7 +505,8 @@ class LocationTrackingService : Service() {
                 !MotionFusion.isMoving(reading, motionGravity)
             } else {
                 false
-            } || recognizedActivity == RecognizedActivity.STILL // O.2: activity recognition also signals stillness
+            } ||
+                recognizedActivity == RecognizedActivity.STILL // O.2: activity recognition also signals stillness
         // Wave-2 IMU polish: harsh-accel/gyro-spin read off the raw snapshot, plus pausing gyro
         // consumption while confirmed stationary (battery win — resumed the instant motion returns).
         val imuAnalysis = ImuAnalyzer.analyze(sensors, motionStill)
@@ -525,14 +539,15 @@ class LocationTrackingService : Service() {
             persistSession(token, fix, stats, battery)
             // Wave-2: periodic drift check — in-memory point count vs Room's authoritative count.
             // A no-op (null) on most fixes; fires every 120s and self-corrects via DataStore.
-            driftReconciler.maybeReconcile(
-                inMemoryCount = stats.totalPoints.toLong(),
-                dbCount = locationDao.countLocationsByToken(token).toLong(),
-            )?.let { result ->
-                if (result.isDiverged) {
-                    currentTrackRepository.updateLocationCount(token, result.dbCount, result.dbCount)
+            driftReconciler
+                .maybeReconcile(
+                    inMemoryCount = stats.totalPoints.toLong(),
+                    dbCount = locationDao.countLocationsByToken(token).toLong(),
+                )?.let { result ->
+                    if (result.isDiverged) {
+                        currentTrackRepository.updateLocationCount(token, result.dbCount, result.dbCount)
+                    }
                 }
-            }
         }
 
         if (result.isMock) logEvent(token, EventType.MOCK_LOCATION, "Mock Location detected", fix)
@@ -847,7 +862,7 @@ class LocationTrackingService : Service() {
         wakeLock =
             pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mileway:tracking").apply {
                 setReferenceCounted(false)
-                acquire(60 * 60 * 1000L) // 1h safety cap
+                acquire(WAKE_LOCK_TIMEOUT_MS)
             }
     }
 
@@ -886,7 +901,8 @@ class LocationTrackingService : Service() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         val builder =
-            Notification.Builder(this, CHANNEL_ID)
+            Notification
+                .Builder(this, CHANNEL_ID)
                 .setContentTitle(content.title)
                 .setContentText(content.text)
                 .setSmallIcon(android.R.drawable.ic_menu_mylocation)
@@ -912,11 +928,13 @@ class LocationTrackingService : Service() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                 )
             builder.addAction(
-                Notification.Action.Builder(
-                    android.graphics.drawable.Icon.createWithResource(this, icon),
-                    label,
-                    pi,
-                ).build(),
+                Notification.Action
+                    .Builder(
+                        android.graphics.drawable.Icon
+                            .createWithResource(this, icon),
+                        label,
+                        pi,
+                    ).build(),
             )
         }
         return builder.build()

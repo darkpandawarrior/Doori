@@ -6,10 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import java.io.File
 
 fun buildMilewayDatabase(): MilewayDatabase =
-    Room.databaseBuilder<MilewayDatabase>(
-        name = File(System.getProperty("user.home"), ".mileway/mileway.db").also { it.parentFile.mkdirs() }.path,
-    )
-        .setDriver(BundledSQLiteDriver())
+    Room
+        .databaseBuilder<MilewayDatabase>(
+            name = File(System.getProperty("user.home"), ".mileway/mileway.db").also { it.parentFile.mkdirs() }.path,
+        ).setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.Default)
         .addMigrations(
             MIGRATION_1_2,
@@ -59,5 +59,4 @@ fun buildMilewayDatabase(): MilewayDatabase =
             MIGRATION_45_46,
             MIGRATION_46_47,
             MIGRATION_47_48,
-        )
-        .build()
+        ).build()

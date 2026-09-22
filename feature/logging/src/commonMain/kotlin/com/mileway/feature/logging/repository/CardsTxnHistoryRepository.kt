@@ -14,7 +14,9 @@ data class CardExpenseTxn(
 )
 
 /** Reconciliation states (SP.3 tabs). */
-enum class CardTxnStatus(val label: String) {
+enum class CardTxnStatus(
+    val label: String,
+) {
     UNRECONCILED("Unreconciled"),
     RECONCILED("Reconciled"),
     DISPUTED("Disputed"),
@@ -24,7 +26,9 @@ enum class CardTxnStatus(val label: String) {
  * Offline fake of corporate-card expense transactions (SP.3), distinct from the corporate-card detail txns
  * in `feature:cards`; these are the spend records that flow into expense reconciliation. Clock-injected.
  */
-class CardsTxnHistoryRepository(private val clock: Clock = Clock.System) {
+class CardsTxnHistoryRepository(
+    private val clock: Clock = Clock.System,
+) {
     private val dayMs = 86_400_000L
 
     private fun all(): List<CardExpenseTxn> {

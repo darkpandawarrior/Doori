@@ -26,7 +26,9 @@ import kotlin.time.Instant
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class OtpVerificationViewModelTest {
-    private class MutableClock(var millis: Long) : Clock {
+    private class MutableClock(
+        var millis: Long,
+    ) : Clock {
         override fun now(): Instant = Instant.fromEpochMilliseconds(millis)
     }
 

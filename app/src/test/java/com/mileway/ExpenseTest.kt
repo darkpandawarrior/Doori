@@ -14,7 +14,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ExpenseTest {
-
     private val repo = ExpenseRepository()
 
     @Test

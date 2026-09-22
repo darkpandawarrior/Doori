@@ -27,18 +27,25 @@ enum class TripClassification { BUSINESS, PERSONAL }
 sealed interface DriveReviewPhase {
     data object Review : DriveReviewPhase
 
-    data class Editing(val field: ReviewField) : DriveReviewPhase
+    data class Editing(
+        val field: ReviewField,
+    ) : DriveReviewPhase
 
     data object Submitting : DriveReviewPhase
 
-    data class Success(val result: SubmissionResult) : DriveReviewPhase
+    data class Success(
+        val result: SubmissionResult,
+    ) : DriveReviewPhase
 
     /**
      * @param queued True when this is an offline submission durably queued for auto-sync
      *   ([SubmissionUiState.Queued]) — must read as "saved, will sync", never as an error. False
      *   for a real [SubmissionUiState.Error].
      */
-    data class Failed(val message: String, val queued: Boolean) : DriveReviewPhase
+    data class Failed(
+        val message: String,
+        val queued: Boolean,
+    ) : DriveReviewPhase
 }
 
 /** Copy shown for a durably-queued offline submission — deliberately not error language. */

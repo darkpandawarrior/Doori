@@ -30,13 +30,11 @@ class ActiveAccountStoreTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun fakeDemoSettingsRepository() =
-        mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
+    private fun fakeDemoSettingsRepository() = mockk<DemoSettingsRepository> { every { settings } returns MutableStateFlow(DemoSettings()) }
 
     // P3.2: ProfileViewModel now collects `sessionState.first()` in init(); a relaxed mockk's
     // auto-generated Flow<SessionState> never emits (null-collector trap), so it's stubbed here.
-    private fun fakeSessionRepository() =
-        mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
+    private fun fakeSessionRepository() = mockk<SessionRepository>(relaxed = true) { every { sessionState } returns MutableStateFlow(SessionState()) }
 
     @Test
     fun `get-set round-trip is empty until a value is persisted`() =

@@ -8,7 +8,9 @@ import com.mileway.core.data.model.display.OdometerReadingSource
 import kotlinx.coroutines.flow.Flow
 import kotlin.time.Clock
 
-class TripAttachmentRepository(private val dao: TripAttachmentDao) {
+class TripAttachmentRepository(
+    private val dao: TripAttachmentDao,
+) {
     /** Observe all attachments for a trip, ordered by capture time. */
     fun attachmentsForTrack(trackToken: String): Flow<List<TripAttachmentEntity>> = dao.observeForTrack(trackToken)
 

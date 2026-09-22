@@ -18,7 +18,9 @@ import org.junit.Test
  * the recognizer must emit a *changing* signal and own the sensor's start/stop.
  */
 class HeuristicActivityRecognizerTest {
-    private class FakeMotionSensorProvider(samples: List<MotionReading>) : MotionSensorProvider {
+    private class FakeMotionSensorProvider(
+        samples: List<MotionReading>,
+    ) : MotionSensorProvider {
         var started = false
         var stopped = false
 

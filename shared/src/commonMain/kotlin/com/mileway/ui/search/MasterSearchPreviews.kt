@@ -85,7 +85,6 @@ fun PreviewMasterSearchResults() {
             onQueryChange = {},
             onSelectScope = {},
             onToggleType = {},
-            onClearFilters = {},
             onResultClick = {},
         )
     }
@@ -102,7 +101,6 @@ fun PreviewMasterSearchEmpty() {
             onQueryChange = {},
             onSelectScope = {},
             onToggleType = {},
-            onClearFilters = {},
             onResultClick = {},
         )
     }

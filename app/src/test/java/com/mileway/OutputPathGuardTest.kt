@@ -22,7 +22,6 @@ import kotlin.io.path.createTempDirectory
  * the build's working directory), never a literal absolute path baked into source.
  */
 class OutputPathGuardTest {
-
     private val absolutePathPattern = Regex("""/Users/[^"'\s]+""")
     private val sourceExtensions = setOf("kt", "kts", "swift", "java")
     private val excludedDirNames = setOf("build", ".git", "external")
@@ -77,10 +76,15 @@ class OutputPathGuardTest {
         }
     }
 
-    private data class Violation(val file: String, val line: Int, val text: String)
+    private data class Violation(
+        val file: String,
+        val line: Int,
+        val text: String,
+    )
 
     private fun scan(root: File): List<Violation> =
-        root.walkTopDown()
+        root
+            .walkTopDown()
             .onEnter { it.name !in excludedDirNames }
             .filter { it.isFile && it.extension in sourceExtensions }
             .flatMap { file ->
@@ -91,8 +95,7 @@ class OutputPathGuardTest {
                         null
                     }
                 }
-            }
-            .toList()
+            }.toList()
 
     private fun withTempDir(block: (File) -> Unit) {
         val dir = createTempDirectory(prefix = "output-path-guard-fixture-").toFile()

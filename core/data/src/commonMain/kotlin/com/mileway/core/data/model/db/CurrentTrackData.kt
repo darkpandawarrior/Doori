@@ -1,7 +1,11 @@
 package com.mileway.core.data.model.db
 
+import com.mileway.core.data.util.MetresPerKm
 import com.mileway.core.data.util.fmt1d
 import com.mileway.core.data.util.fmt2d
+
+/** 1 m/s is 3.6 km/h: 3600 seconds in an hour over 1000 metres in a kilometre. */
+private const val KmPerHourPerMetrePerSecond = 3.6
 
 data class CurrentTrackData(
     val token: String,
@@ -43,9 +47,9 @@ data class CurrentTrackData(
 ) {
     fun isEmpty(): Boolean = token.isEmpty()
 
-    fun getFormattedDistance(): String = "${(distance / 1000.0).fmt2d()} km"
+    fun getFormattedDistance(): String = "${(distance / MetresPerKm).fmt2d()} km"
 
-    fun getFormattedSpeed(): String = "${(speed * 3.6).fmt1d()} km/h"
+    fun getFormattedSpeed(): String = "${(speed * KmPerHourPerMetrePerSecond).fmt1d()} km/h"
 
     companion object {
         fun empty() = CurrentTrackData(token = "")

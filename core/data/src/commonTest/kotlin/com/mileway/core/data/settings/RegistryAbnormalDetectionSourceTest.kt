@@ -21,7 +21,9 @@ import kotlin.test.assertEquals
  * tracking math silently changes — this test fails first.
  */
 class RegistryAbnormalDetectionSourceTest {
-    private class FakeActiveAccount(id: String?) : ActiveAccountSource {
+    private class FakeActiveAccount(
+        id: String?,
+    ) : ActiveAccountSource {
         override val activeAccountId = MutableStateFlow(id)
 
         override suspend fun setActiveAccountId(accountId: String) {

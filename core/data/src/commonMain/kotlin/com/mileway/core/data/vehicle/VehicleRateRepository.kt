@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.Flow
  * one implementation swap away from a real pricing API — the caller only asks "what's the rate for
  * this key", the source is opaque.
  */
-class VehicleRateRepository(private val registry: PluginRegistry) {
+class VehicleRateRepository(
+    private val registry: PluginRegistry,
+) {
     /** Live per-persona toggle: true when policy rates apply for the active account. */
     fun observeRatesEnabled(): Flow<Boolean> = registry.observe(PER_KM_RATES)
 

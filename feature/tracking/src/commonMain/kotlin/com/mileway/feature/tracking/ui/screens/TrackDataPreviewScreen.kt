@@ -178,7 +178,8 @@ private fun HealthLevel.color(): Color =
     }
 
 private fun HealthLevel.label(): String =
-    name.lowercase()
+    name
+        .lowercase()
         .replaceFirstChar { it.uppercase() }
 
 // ── Screen ───────────────────────────────────────────────────────────────────
@@ -415,7 +416,12 @@ private fun TelemetrySeriesRow(
 
 // ── Tab 2: Quality ───────────────────────────────────────────────────────────
 
-private data class IssueRow(val icon: ImageVector, val title: String, val impact: String, val severity: IssueSeverity)
+private data class IssueRow(
+    val icon: ImageVector,
+    val title: String,
+    val impact: String,
+    val severity: IssueSeverity,
+)
 
 private enum class IssueSeverity { LOW, MEDIUM, HIGH, CRITICAL }
 

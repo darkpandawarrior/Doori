@@ -9,7 +9,9 @@ import kotlin.test.Test
 import kotlin.test.assertIs
 
 class AgentModuleTest {
-    private class FakeGateway(private val available: Boolean) : LlmGateway {
+    private class FakeGateway(
+        private val available: Boolean,
+    ) : LlmGateway {
         override fun isAvailable(): Boolean = available
 
         override fun stream(prompt: String): Flow<String> = emptyFlow()

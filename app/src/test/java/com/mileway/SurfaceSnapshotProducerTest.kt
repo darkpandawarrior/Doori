@@ -11,7 +11,6 @@ import kotlin.test.assertEquals
  * deterministically with a fixed clock in UTC.
  */
 class SurfaceSnapshotProducerTest {
-
     // Fixed "now": 2026-06-21T12:00:00Z.
     private val nowMs = 1_781_956_800_000L
     private val dayMs = 86_400_000L
@@ -24,12 +23,18 @@ class SurfaceSnapshotProducerTest {
         SavedTrack(
             routeId = id,
             name = id,
-            startLatitude = 0.0, startLongitude = 0.0,
-            endLatitude = 0.0, endLongitude = 0.0,
-            pausedLatitude = 0.0, pausedLongitude = 0.0,
-            startTime = endMs - 600_000, endTime = endMs,
-            distance = distanceMeters, duration = 600_000,
-            createdAt = endMs, startedAtTimestamp = endMs,
+            startLatitude = 0.0,
+            startLongitude = 0.0,
+            endLatitude = 0.0,
+            endLongitude = 0.0,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = endMs - 600_000,
+            endTime = endMs,
+            distance = distanceMeters,
+            duration = 600_000,
+            createdAt = endMs,
+            startedAtTimestamp = endMs,
         )
 
     @Test

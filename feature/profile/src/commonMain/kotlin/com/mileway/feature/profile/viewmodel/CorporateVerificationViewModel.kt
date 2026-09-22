@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** One-time codes in this flow are six digits, as issued by the shared OTP engine. */
+private const val OTP_LENGTH = 6
+
 /** Steps of the corporate-email verification flow. */
 enum class CorporateStep { ENTER_EMAIL, VERIFY }
 
@@ -57,9 +60,9 @@ class CorporateVerificationViewModel(
     }
 
     fun onCodeChange(value: String) {
-        val digits = value.filter { it.isDigit() }.take(6)
+        val digits = value.filter { it.isDigit() }.take(OTP_LENGTH)
         _state.update { it.copy(code = digits, error = null) }
-        if (digits.length == 6) verify()
+        if (digits.length == OTP_LENGTH) verify()
     }
 
     /** Validates the domain, then dispatches the OTP and moves to the verify step. */

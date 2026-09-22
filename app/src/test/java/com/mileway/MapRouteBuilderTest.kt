@@ -21,7 +21,6 @@ import kotlin.test.assertTrue
  * - Mixed-category inputs
  */
 class MapRouteBuilderTest {
-
     // -----------------------------------------------------------------------
     // Helpers
     // -----------------------------------------------------------------------
@@ -31,7 +30,7 @@ class MapRouteBuilderTest {
         lng: Double,
         isAbnormal: Boolean = false,
         isMock: Boolean = false,
-        isPaused: Boolean = false
+        isPaused: Boolean = false,
     ) = LocationData(
         activity = "DRIVING",
         speed = 10f,
@@ -41,7 +40,7 @@ class MapRouteBuilderTest {
         batteryPercentage = 80.0,
         isAbnormal = isAbnormal,
         isMock = isMock,
-        isPaused = isPaused
+        isPaused = isPaused,
     )
 
     // -----------------------------------------------------------------------
@@ -66,11 +65,12 @@ class MapRouteBuilderTest {
 
     @Test
     fun `normal points appear in route in original list order`() {
-        val points = listOf(
-            loc(1.0, 10.0),
-            loc(2.0, 20.0),
-            loc(3.0, 30.0)
-        )
+        val points =
+            listOf(
+                loc(1.0, 10.0),
+                loc(2.0, 20.0),
+                loc(3.0, 30.0),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertEquals(3, result.routeCoords.size)
@@ -85,11 +85,12 @@ class MapRouteBuilderTest {
 
     @Test
     fun `start is first normal point and end is last normal point`() {
-        val points = listOf(
-            loc(1.0, 10.0),
-            loc(2.0, 20.0),
-            loc(3.0, 30.0)
-        )
+        val points =
+            listOf(
+                loc(1.0, 10.0),
+                loc(2.0, 20.0),
+                loc(3.0, 30.0),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertEquals(MapRouteBuilder.LatLng(1.0, 10.0), result.startCoord)
@@ -111,10 +112,11 @@ class MapRouteBuilderTest {
 
     @Test
     fun `when all points are abnormal start falls back to first point`() {
-        val points = listOf(
-            loc(1.0, 10.0, isAbnormal = true),
-            loc(2.0, 20.0, isAbnormal = true)
-        )
+        val points =
+            listOf(
+                loc(1.0, 10.0, isAbnormal = true),
+                loc(2.0, 20.0, isAbnormal = true),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertTrue(result.routeCoords.isEmpty())
@@ -124,10 +126,11 @@ class MapRouteBuilderTest {
 
     @Test
     fun `when all points are mock start falls back to first point`() {
-        val points = listOf(
-            loc(3.0, 30.0, isMock = true),
-            loc(4.0, 40.0, isMock = true)
-        )
+        val points =
+            listOf(
+                loc(3.0, 30.0, isMock = true),
+                loc(4.0, 40.0, isMock = true),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertTrue(result.routeCoords.isEmpty())
@@ -141,11 +144,12 @@ class MapRouteBuilderTest {
 
     @Test
     fun `abnormal points go to abnormalCoords not routeCoords`() {
-        val points = listOf(
-            loc(1.0, 10.0),
-            loc(2.0, 20.0, isAbnormal = true),
-            loc(3.0, 30.0)
-        )
+        val points =
+            listOf(
+                loc(1.0, 10.0),
+                loc(2.0, 20.0, isAbnormal = true),
+                loc(3.0, 30.0),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertEquals(2, result.routeCoords.size)
@@ -163,11 +167,12 @@ class MapRouteBuilderTest {
 
     @Test
     fun `mock points go to filteredCoords not routeCoords`() {
-        val points = listOf(
-            loc(1.0, 10.0),
-            loc(2.0, 20.0, isMock = true),
-            loc(3.0, 30.0)
-        )
+        val points =
+            listOf(
+                loc(1.0, 10.0),
+                loc(2.0, 20.0, isMock = true),
+                loc(3.0, 30.0),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertEquals(2, result.routeCoords.size)
@@ -179,10 +184,11 @@ class MapRouteBuilderTest {
 
     @Test
     fun `paused points go to filteredCoords`() {
-        val points = listOf(
-            loc(1.0, 10.0),
-            loc(2.0, 20.0, isPaused = true)
-        )
+        val points =
+            listOf(
+                loc(1.0, 10.0),
+                loc(2.0, 20.0, isPaused = true),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertEquals(1, result.routeCoords.size)
@@ -196,11 +202,12 @@ class MapRouteBuilderTest {
 
     @Test
     fun `bounds cover all normal points`() {
-        val points = listOf(
-            loc(10.0, 20.0),
-            loc(15.0, 25.0),
-            loc(12.0, 22.0)
-        )
+        val points =
+            listOf(
+                loc(10.0, 20.0),
+                loc(15.0, 25.0),
+                loc(12.0, 22.0),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertFalse(result.bounds.isEmpty)
@@ -212,15 +219,16 @@ class MapRouteBuilderTest {
 
     @Test
     fun `bounds include abnormal and filtered points`() {
-        val points = listOf(
-            loc(10.0, 20.0),
-            loc(50.0, 80.0, isAbnormal = true),   // extreme outlier: still included in bounds
-            loc(5.0,  15.0, isMock = true)
-        )
+        val points =
+            listOf(
+                loc(10.0, 20.0),
+                loc(50.0, 80.0, isAbnormal = true), // extreme outlier: still included in bounds
+                loc(5.0, 15.0, isMock = true),
+            )
         val result = MapRouteBuilder.build(points)
 
         assertFalse(result.bounds.isEmpty)
-        assertEquals(5.0,  result.bounds.minLat, 1e-9)
+        assertEquals(5.0, result.bounds.minLat, 1e-9)
         assertEquals(50.0, result.bounds.maxLat, 1e-9)
         assertEquals(15.0, result.bounds.minLng, 1e-9)
         assertEquals(80.0, result.bounds.maxLng, 1e-9)
@@ -242,17 +250,18 @@ class MapRouteBuilderTest {
 
     @Test
     fun `mixed normal abnormal mock points partition correctly`() {
-        val points = listOf(
-            loc(1.0, 1.0),                          // normal
-            loc(2.0, 2.0, isAbnormal = true),       // abnormal
-            loc(3.0, 3.0, isMock = true),           // filtered
-            loc(4.0, 4.0),                          // normal
-            loc(5.0, 5.0, isPaused = true),         // filtered
-            loc(6.0, 6.0, isAbnormal = true)        // abnormal
-        )
+        val points =
+            listOf(
+                loc(1.0, 1.0), // normal
+                loc(2.0, 2.0, isAbnormal = true), // abnormal
+                loc(3.0, 3.0, isMock = true), // filtered
+                loc(4.0, 4.0), // normal
+                loc(5.0, 5.0, isPaused = true), // filtered
+                loc(6.0, 6.0, isAbnormal = true), // abnormal
+            )
         val result = MapRouteBuilder.build(points)
 
-        assertEquals(2, result.routeCoords.size,    "Expected 2 normal points")
+        assertEquals(2, result.routeCoords.size, "Expected 2 normal points")
         assertEquals(2, result.abnormalCoords.size, "Expected 2 abnormal points")
         assertEquals(2, result.filteredCoords.size, "Expected 2 filtered points")
 
@@ -277,14 +286,15 @@ class MapRouteBuilderTest {
 
     @Test
     fun `computeBounds handles negative coordinates`() {
-        val coords = listOf(
-            MapRouteBuilder.LatLng(-10.0, -20.0),
-            MapRouteBuilder.LatLng(-5.0,  -15.0)
-        )
+        val coords =
+            listOf(
+                MapRouteBuilder.LatLng(-10.0, -20.0),
+                MapRouteBuilder.LatLng(-5.0, -15.0),
+            )
         val bounds = MapRouteBuilder.computeBounds(coords)
 
         assertEquals(-10.0, bounds.minLat, 1e-9)
-        assertEquals(-5.0,  bounds.maxLat, 1e-9)
+        assertEquals(-5.0, bounds.maxLat, 1e-9)
         assertEquals(-20.0, bounds.minLng, 1e-9)
         assertEquals(-15.0, bounds.maxLng, 1e-9)
     }

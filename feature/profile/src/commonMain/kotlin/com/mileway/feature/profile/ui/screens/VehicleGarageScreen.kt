@@ -72,6 +72,15 @@ import com.mileway.feature.profile.viewmodel.VehicleGarageViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Minutes in an hour - the garage stores service windows as minutes past midnight. */
+private const val MINUTES_PER_HOUR = 60
+
+/** Last hour of a 24-hour clock. */
+private const val LAST_HOUR = 23
+
+/** Last minute of an hour. */
+private const val LAST_MINUTE = 59
+
 /**
  * PLAN_V24 P11.2: the vehicle garage — vehicle list with an active-vehicle switch, per-vehicle
  * service-set checkboxes, an aggregate verification chip (VEHICLE-category documents), an
@@ -262,7 +271,15 @@ private fun AvailabilityEditor(
     val existing = vehicle.availability
     var start by remember(vehicle.id) { mutableStateOf(existing?.startMinute?.let(::minutesToHhmm) ?: "09:00") }
     var end by remember(vehicle.id) { mutableStateOf(existing?.endMinute?.let(::minutesToHhmm) ?: "18:00") }
-    var rate by remember(vehicle.id) { mutableStateOf(existing?.ratePerHour?.takeIf { it >= 0 }?.toInt()?.toString() ?: "80") }
+    var rate by remember(vehicle.id) {
+        mutableStateOf(
+            existing
+                ?.ratePerHour
+                ?.takeIf { it >= 0 }
+                ?.toInt()
+                ?.toString() ?: "80",
+        )
+    }
 
     Spacer(Modifier.padding(top = DesignTokens.Spacing.s))
     Text(grv("garage_availability", "Availability (rentable)"), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -456,8 +473,8 @@ private fun serviceLabel(service: String): String =
 private fun vehicleTypeLabel(key: String): String = key.replace(Regex("([a-z])([A-Z])"), "$1 $2").replaceFirstChar { it.uppercase() }
 
 private fun minutesToHhmm(minutes: Int): String {
-    val h = (minutes / 60).coerceIn(0, 23)
-    val m = (minutes % 60).coerceIn(0, 59)
+    val h = (minutes / MINUTES_PER_HOUR).coerceIn(0, LAST_HOUR)
+    val m = (minutes % MINUTES_PER_HOUR).coerceIn(0, LAST_MINUTE)
     return "${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}"
 }
 
@@ -466,8 +483,8 @@ private fun hhmmToMinutes(value: String): Int? {
     if (parts.size != 2) return null
     val h = parts[0].toIntOrNull() ?: return null
     val m = parts[1].toIntOrNull() ?: return null
-    if (h !in 0..23 || m !in 0..59) return null
-    return h * 60 + m
+    if (h !in 0..LAST_HOUR || m !in 0..LAST_MINUTE) return null
+    return h * MINUTES_PER_HOUR + m
 }
 
 /** Screen-internal labels via the dynamic resolver with an English fallback (no generated symbols). */

@@ -14,7 +14,9 @@ private val Context.pinLockoutDataStore by preferencesDataStore(name = "pin_lock
  * survives process death. Two prefs per account: cumulative failed attempts + the lockout-until
  * epoch millis.
  */
-class PinLockoutStore(private val context: Context) : PinLockoutSource {
+class PinLockoutStore(
+    private val context: Context,
+) : PinLockoutSource {
     override suspend fun getState(accountId: String): PinLockoutState {
         val prefs = context.pinLockoutDataStore.data.firstOrNull() ?: return PinLockoutState()
         return PinLockoutState(

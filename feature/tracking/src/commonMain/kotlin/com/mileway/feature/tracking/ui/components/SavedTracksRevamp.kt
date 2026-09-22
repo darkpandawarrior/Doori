@@ -380,8 +380,7 @@ fun SubmissionCard(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }
-                .combinedClickable(onClick = onClick, onLongClick = onLongClick),
+                }.combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = DesignTokens.Shape.roundedMd,
         color =
             if (isSelected) {
@@ -458,7 +457,10 @@ fun SubmissionCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "₹${data.amount.formatDecimal(2)}",
-                    style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp).dataStyle(),
+                    style =
+                        MaterialTheme.typography.titleLarge
+                            .copy(fontSize = 18.sp)
+                            .dataStyle(),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                 )

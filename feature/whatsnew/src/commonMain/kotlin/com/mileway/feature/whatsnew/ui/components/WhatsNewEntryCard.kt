@@ -108,8 +108,7 @@ fun WhatsNewEntryCard(
                 .graphicsLayer {
                     scaleX = scale
                     scaleY = scale
-                }
-                .clickable(interactionSource = interactionSource, indication = LocalIndication.current) {
+                }.clickable(interactionSource = interactionSource, indication = LocalIndication.current) {
                     haptic.performHapticFeedback(HapticFeedbackType.VirtualKey)
                     onClick()
                 },

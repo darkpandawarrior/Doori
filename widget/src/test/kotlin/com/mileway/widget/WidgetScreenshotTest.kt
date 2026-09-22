@@ -10,8 +10,8 @@ import androidx.glance.appwidget.ExperimentalGlanceRemoteViewsApi
 import androidx.glance.appwidget.GlanceRemoteViews
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.mileway.core.data.widget.WidgetPalette
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.mileway.core.data.widget.WidgetPalette
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,7 +32,6 @@ import java.io.File
 @Config(sdk = [33], application = Application::class, qualifiers = "w320dp-h180dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class WidgetScreenshotTest {
-
     @Test
     fun mileageSummaryWidget() {
         // D2 FIX (2026-08-09): this line used to be
@@ -66,8 +65,7 @@ class WidgetScreenshotTest {
                         // the Ember fallback and the gallery would keep advertising a widget
                         // nobody has, which is the drift this whole change removes.
                         MileageSummaryContent(model, shippedWidgetColors())
-                    }
-                    .remoteViews
+                    }.remoteViews
             }
 
         // captureRoboImage requires a View attached to an Activity's window; a bare host Activity

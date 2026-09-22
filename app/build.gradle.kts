@@ -113,7 +113,9 @@ val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 // Resolved as its own configuration so the agent jar has a stable path to hand to -javaagent;
 // it is already on the test runtime classpath transitively via MockK, pinned here to the same
 // version so the two can never drift apart.
-val mockkAgent: Configuration by configurations.creating
+// configurations.create(name), not `by configurations.creating`: Gradle 10 removes the
+// property-delegate form.
+val mockkAgent: Configuration = configurations.create("mockkAgent")
 
 android {
     namespace = "com.mileway"
@@ -626,9 +628,15 @@ dependencies {
     ksp(libs.compose.nav.graph.annotations)
 
     // Roborazzi: JVM screenshot tests (no device needed)
-    // preview-scanner auto-discovers all @Preview functions across all feature modules
     testImplementation(libs.roborazzi.core)
     testImplementation(libs.roborazzi.compose)
+    // preview-scanner is on the classpath but NOTHING USES IT. Turning it on needs a
+    // `roborazzi { generateComposePreviewRobolectricTests { .. } }` block, which this repo does
+    // not have — grep: zero matches for generateComposePreview anywhere. The comment that used to
+    // sit here claimed it "auto-discovers all @Preview functions across all feature modules"; it
+    // does not, and ScreenshotCatalogTest hand-maintains ~45 preview imports precisely because of
+    // that. Kept deliberately for now: autodiscovery would gate every preview rather than the
+    // curated set, and renames the goldens, so switching it on is its own change.
     testImplementation(libs.roborazzi.preview.scanner)
     testImplementation(platform(libs.compose.bom))
     testImplementation(libs.compose.ui.test.junit4)
@@ -718,7 +726,9 @@ afterEvaluate {
     // wired into `assembleNoGmsRelease`, the next F-Droid release build would have failed here.
     // Nothing in routine CI runs `check` or `assembleNoGmsRelease`, so it was latent, not red.
     val noGmsRootComponent =
-        configurations.getByName("noGmsReleaseRuntimeClasspath").incoming.resolutionResult.rootComponent
+        configurations
+            .getByName("noGmsReleaseRuntimeClasspath")
+            .incoming.resolutionResult.rootComponent
     val verifyTask =
         tasks.register("verifyNoGmsDependencyPrefixes") {
             group = "verification"

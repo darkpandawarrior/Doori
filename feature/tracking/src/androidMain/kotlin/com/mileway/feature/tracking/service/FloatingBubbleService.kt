@@ -83,7 +83,14 @@ class FloatingBubbleService : Service() {
         return START_STICKY
     }
 
-    /** Calls startForeground defensively. Returns false (and stops self) on failure. */
+    /**
+     * Calls startForeground defensively. Returns false (and stops self) on failure.
+     *
+     * Boundary catch-all: this is the edge between the app and a platform or backend call that
+     * fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+     * and surfaced to the caller, never swallowed — crashing the process is the alternative.
+     */
+    @Suppress("TooGenericExceptionCaught")
     private fun enterForeground(): Boolean =
         try {
             startForeground(
@@ -134,7 +141,8 @@ class FloatingBubbleService : Service() {
             NotificationChannel(CHANNEL_ID, "Floating Bubble", NotificationManager.IMPORTANCE_MIN)
                 .apply { setShowBadge(false) },
         )
-        return Notification.Builder(this, CHANNEL_ID)
+        return Notification
+            .Builder(this, CHANNEL_ID)
             .setContentTitle("Doori")
             .setContentText("Live tracking bubble active")
             .setSmallIcon(android.R.drawable.ic_menu_mylocation)

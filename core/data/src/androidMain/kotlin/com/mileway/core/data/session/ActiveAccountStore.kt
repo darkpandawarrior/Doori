@@ -16,7 +16,9 @@ private val Context.activeAccountDataStore by preferencesDataStore(name = "activ
  * every fresh process — mirrors [SessionRepository]'s exact shape (`Flow<String?>` + suspend
  * setter) rather than inventing a new DataStore idiom.
  */
-class ActiveAccountStore(private val context: Context) : ActiveAccountSource {
+class ActiveAccountStore(
+    private val context: Context,
+) : ActiveAccountSource {
     private val activeAccountIdKey = stringPreferencesKey("active_account_id")
 
     override val activeAccountId: Flow<String?> =

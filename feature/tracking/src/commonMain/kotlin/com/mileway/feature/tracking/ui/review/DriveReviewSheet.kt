@@ -366,7 +366,10 @@ private fun ReviewContent(
         ExpandableReviewRow(
             field = ReviewField.CLASSIFICATION,
             label = "Trip type",
-            valueText = local.classification.name.lowercase().replaceFirstChar { it.uppercase() },
+            valueText =
+                local.classification.name
+                    .lowercase()
+                    .replaceFirstChar { it.uppercase() },
             local = local,
             onLocalChange = onLocalChange,
         ) {

@@ -1,5 +1,8 @@
 package com.mileway.core.data.session
 
+import com.mileway.core.data.util.MillisPerMinute
+import com.mileway.core.data.util.MillisPerSecond
+
 /**
  * PLAN_V24 P1.4 — tiered PIN lockout, reimplementing the reference app's failed-attempt escalation:
  * the first few wrong attempts are free, then each further wrong attempt locks the PIN for an
@@ -17,19 +20,27 @@ package com.mileway.core.data.session
 object PinLockoutPolicy {
     const val FREE_ATTEMPTS: Int = 4
 
-    private const val SECOND = 1_000L
-    private const val MINUTE = 60_000L
+    /**
+     * The escalation ladder itself, one entry per attempt past [FREE_ATTEMPTS]. It replaced a
+     * `when` whose arms compared against bare 5/6/7/8 — the attempt numbers were implied by the
+     * arm order anyway, so spelling them out only gave two places to disagree with the KDoc table.
+     * Attempts past the end of the ladder hold at its last step.
+     */
+    private val LockoutLadder =
+        listOf(
+            30 * MillisPerSecond,
+            1 * MillisPerMinute,
+            5 * MillisPerMinute,
+            15 * MillisPerMinute,
+            30 * MillisPerMinute,
+        )
 
     /** Milliseconds the PIN is locked for after [failedAttempts] cumulative wrong entries (0 = not locked). */
-    fun lockoutMillisFor(failedAttempts: Int): Long =
-        when {
-            failedAttempts <= FREE_ATTEMPTS -> 0L
-            failedAttempts == 5 -> 30 * SECOND
-            failedAttempts == 6 -> 1 * MINUTE
-            failedAttempts == 7 -> 5 * MINUTE
-            failedAttempts == 8 -> 15 * MINUTE
-            else -> 30 * MINUTE
-        }
+    fun lockoutMillisFor(failedAttempts: Int): Long {
+        if (failedAttempts <= FREE_ATTEMPTS) return 0L
+        val step = (failedAttempts - FREE_ATTEMPTS - 1).coerceAtMost(LockoutLadder.lastIndex)
+        return LockoutLadder[step]
+    }
 }
 
 /** Persisted per-account lockout counters (see [PinLockoutSource]). */
@@ -40,7 +51,12 @@ data class PinLockoutState(
     /** True when [nowMillis] is still inside the lockout window. */
     fun isLocked(nowMillis: Long): Boolean = nowMillis < lockoutUntilMillis
 
-    fun remainingSeconds(nowMillis: Long): Int = (((lockoutUntilMillis - nowMillis) + 999) / 1000).coerceAtLeast(0).toInt()
+    /** Whole seconds left, rounded **up** — 0.5s remaining must still read as "1", never "0". */
+    fun remainingSeconds(nowMillis: Long): Int {
+        val remainingMillis = lockoutUntilMillis - nowMillis
+        if (remainingMillis <= 0L) return 0
+        return ((remainingMillis + MillisPerSecond - 1) / MillisPerSecond).toInt()
+    }
 }
 
 /**

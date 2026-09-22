@@ -55,7 +55,8 @@ class MilewayFirebaseMessagingService : FirebaseMessagingService() {
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         val notification =
-            NotificationCompat.Builder(this, NotificationChannels.GENERAL)
+            NotificationCompat
+                .Builder(this, NotificationChannels.GENERAL)
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(title)
                 .setContentText(body)

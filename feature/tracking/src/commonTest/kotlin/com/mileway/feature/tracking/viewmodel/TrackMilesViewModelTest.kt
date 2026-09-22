@@ -178,11 +178,16 @@ class TrackMilesViewModelTest {
     ) = SavedTrack(
         routeId = routeId,
         name = "Journey $routeId",
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = 1_000L, endTime = -1L,
-        distance = 4_200.0, duration = 0L,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = 1_000L,
+        endTime = -1L,
+        distance = 4_200.0,
+        duration = 0L,
         startedAtTimestamp = 1_000L,
         startedByAccountId = accountId,
         startedByEmployeeCode = employeeCode,
@@ -339,7 +344,5 @@ class TrackMilesViewModelTest {
         createdAtMs = 0L,
     )
 
-    private fun buildVm(controller: TrackingController = FakeTrackingController()): TrackMilesViewModel {
-        return TrackMilesViewModelTestHarness.build(controller)
-    }
+    private fun buildVm(controller: TrackingController = FakeTrackingController()): TrackMilesViewModel = TrackMilesViewModelTestHarness.build(controller)
 }

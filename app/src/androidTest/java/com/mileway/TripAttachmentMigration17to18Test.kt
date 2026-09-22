@@ -78,11 +78,12 @@ class TripAttachmentMigration17to18Test {
             assertEquals(2, count)
 
             var preExistingSnapshot: String? = "not-read"
-            connection.prepare(
-                "SELECT `odometerAnalysisJson` FROM `trip_attachments` WHERE `track_token` = 't1' AND `type` = 'ODOMETER_START'",
-            ).use { stmt ->
-                if (stmt.step()) preExistingSnapshot = if (stmt.isNull(0)) null else stmt.getText(0)
-            }
+            connection
+                .prepare(
+                    "SELECT `odometerAnalysisJson` FROM `trip_attachments` WHERE `track_token` = 't1' AND `type` = 'ODOMETER_START'",
+                ).use { stmt ->
+                    if (stmt.step()) preExistingSnapshot = if (stmt.isNull(0)) null else stmt.getText(0)
+                }
             assertEquals(null, preExistingSnapshot)
         } finally {
             connection.close()

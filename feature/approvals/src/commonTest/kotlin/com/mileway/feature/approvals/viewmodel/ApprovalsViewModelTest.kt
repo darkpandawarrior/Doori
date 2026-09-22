@@ -49,13 +49,19 @@ class ApprovalsViewModelTest {
 
             vm.onAction(ApprovalsAction.OpenDetail("A001"))
             advanceUntilIdle()
-            val firstRoomId = vm.state.value.detailState.dataOrNull?.room?.roomId
+            val firstRoomId =
+                vm.state.value.detailState.dataOrNull
+                    ?.room
+                    ?.roomId
 
             vm.onAction(ApprovalsAction.OpenDetail("A002"))
             advanceUntilIdle()
             vm.onAction(ApprovalsAction.OpenDetail("A001"))
             advanceUntilIdle()
-            val secondRoomId = vm.state.value.detailState.dataOrNull?.room?.roomId
+            val secondRoomId =
+                vm.state.value.detailState.dataOrNull
+                    ?.room
+                    ?.roomId
 
             assertTrue(firstRoomId != null)
             assertEquals(firstRoomId, secondRoomId)
@@ -86,19 +92,34 @@ class ApprovalsViewModelTest {
             advanceUntilIdle()
 
             vm.onAction(ApprovalsAction.RequestCloseRoom)
-            assertTrue(vm.state.value.detailState.dataOrNull?.showCloseRoomConfirmation == true)
+            assertTrue(
+                vm.state.value.detailState.dataOrNull
+                    ?.showCloseRoomConfirmation == true,
+            )
 
             vm.onAction(ApprovalsAction.ConfirmCloseRoom)
             advanceUntilIdle()
-            assertEquals(ClarificationRoomStatus.CLOSED, vm.state.value.detailState.dataOrNull?.room?.status)
-            assertTrue(vm.state.value.detailState.dataOrNull?.showCloseRoomConfirmation == false)
+            assertEquals(
+                ClarificationRoomStatus.CLOSED,
+                vm.state.value.detailState.dataOrNull
+                    ?.room
+                    ?.status,
+            )
+            assertTrue(
+                vm.state.value.detailState.dataOrNull
+                    ?.showCloseRoomConfirmation == false,
+            )
 
             vm.onAction(ApprovalsAction.UpdateDraftMessage("still trying to send"))
             vm.onAction(ApprovalsAction.SendClarification)
             advanceUntilIdle()
 
             // Guarded in the ViewModel: a CLOSED room's SendClarification is a no-op.
-            assertTrue(vm.state.value.detailState.dataOrNull?.thread.isNullOrEmpty())
+            assertTrue(
+                vm.state.value.detailState.dataOrNull
+                    ?.thread
+                    .isNullOrEmpty(),
+            )
         }
 
     @Test
@@ -108,13 +129,21 @@ class ApprovalsViewModelTest {
             vm.onAction(ApprovalsAction.OpenDetail("A001"))
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.detailState.dataOrNull?.roomMeta?.isSaved != true)
+            assertTrue(
+                vm.state.value.detailState.dataOrNull
+                    ?.roomMeta
+                    ?.isSaved != true,
+            )
             assertTrue("A001" !in vm.state.value.savedApprovalIds)
 
             vm.onAction(ApprovalsAction.ToggleRoomSaved)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.detailState.dataOrNull?.roomMeta?.isSaved == true)
+            assertTrue(
+                vm.state.value.detailState.dataOrNull
+                    ?.roomMeta
+                    ?.isSaved == true,
+            )
             assertTrue("A001" in vm.state.value.savedApprovalIds)
         }
 
@@ -136,7 +165,9 @@ class ApprovalsViewModelTest {
             vm.onAction(ApprovalsAction.RejectWithReason("Missing receipt"))
             advanceUntilIdle()
 
-            val list = vm.state.value.listState.dataOrNull.orEmpty()
+            val list =
+                vm.state.value.listState.dataOrNull
+                    .orEmpty()
             assertEquals(ApprovalStatus.APPROVED, list.first { it.id == "A001" }.status)
             assertEquals(ApprovalStatus.REJECTED, list.first { it.id == "A002" }.status)
         }
@@ -164,7 +195,9 @@ class ApprovalsViewModelTest {
             vm.onAction(ApprovalsAction.BulkApprove(setOf("A001", "A002")))
             advanceUntilIdle()
 
-            val list = vm.state.value.listState.dataOrNull.orEmpty()
+            val list =
+                vm.state.value.listState.dataOrNull
+                    .orEmpty()
             assertEquals(ApprovalStatus.APPROVED, list.first { it.id == "A001" }.status)
             assertEquals(ApprovalStatus.APPROVED, list.first { it.id == "A002" }.status)
             // A004 started APPROVED in the seed data — untouched by a bulk action that didn't select it.
@@ -180,11 +213,27 @@ class ApprovalsViewModelTest {
             vm.onAction(ApprovalsAction.BulkReject(setOf("A001", "A002"), "Duplicate submission"))
             advanceUntilIdle()
 
-            val list = vm.state.value.listState.dataOrNull.orEmpty()
+            val list =
+                vm.state.value.listState.dataOrNull
+                    .orEmpty()
             assertEquals(ApprovalStatus.REJECTED, list.first { it.id == "A001" }.status)
             assertEquals(ApprovalStatus.REJECTED, list.first { it.id == "A002" }.status)
-            assertTrue(commentRepo.observeComments("A001").first().single().message.contains("Duplicate submission"))
-            assertTrue(commentRepo.observeComments("A002").first().single().message.contains("Duplicate submission"))
+            assertTrue(
+                commentRepo
+                    .observeComments("A001")
+                    .first()
+                    .single()
+                    .message
+                    .contains("Duplicate submission"),
+            )
+            assertTrue(
+                commentRepo
+                    .observeComments("A002")
+                    .first()
+                    .single()
+                    .message
+                    .contains("Duplicate submission"),
+            )
         }
 
     @Test

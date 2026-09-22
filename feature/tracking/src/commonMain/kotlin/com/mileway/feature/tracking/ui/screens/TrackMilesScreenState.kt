@@ -16,7 +16,10 @@ data class ContactV2(
 )
 
 /** Coordinates attached to a contact. */
-data class ContactCoords(val lat: Double? = null, val lng: Double? = null)
+data class ContactCoords(
+    val lat: Double? = null,
+    val lng: Double? = null,
+)
 
 /** Permission categories the tracking screen can prompt for. */
 enum class PermissionType {

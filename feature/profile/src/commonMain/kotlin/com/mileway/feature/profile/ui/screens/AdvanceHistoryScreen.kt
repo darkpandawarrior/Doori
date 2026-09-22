@@ -62,6 +62,7 @@ import com.mileway.core.ui.resources.profile_advance_type_client_onboarding
 import com.mileway.core.ui.resources.profile_advance_type_field_visit
 import com.mileway.core.ui.resources.profile_advance_type_training
 import com.mileway.core.ui.resources.profile_advance_type_travel
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.StatusColors
 import com.mileway.core.ui.theme.dataStyle
@@ -128,7 +129,11 @@ fun AdvanceHistoryScreen(
                             color = Color.White,
                         )
                         Text(
-                            stringResource(Res.string.profile_advance_records_count, ui.list.records.dataOrNull?.size ?: 0),
+                            stringResource(
+                                Res.string.profile_advance_records_count,
+                                ui.list.records.dataOrNull
+                                    ?.size ?: 0,
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.White.copy(alpha = 0.85f),
                         )
@@ -212,7 +217,6 @@ private fun AdvanceCard(
             AdvanceStatus.DISBURSED -> stringResource(Res.string.profile_advance_status_disbursed) to StatusColors.info
             AdvanceStatus.REJECTED -> stringResource(Res.string.profile_advance_status_rejected) to StatusColors.error
         }
-    val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
     Card(
         onClick = onClick,
@@ -250,9 +254,8 @@ private fun AdvanceCard(
                     )
                 }
                 Text(
-                    Instant.fromEpochMilliseconds(record.requestedDateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-                            ldt ->
-                        "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+                    Instant.fromEpochMilliseconds(record.requestedDateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
+                        "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

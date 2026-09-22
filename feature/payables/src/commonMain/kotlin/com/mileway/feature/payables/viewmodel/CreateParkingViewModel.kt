@@ -22,27 +22,45 @@ data class CreateParkingUiState(
 }
 
 sealed interface CreateParkingAction {
-    data class SetMode(val value: ParkMode) : CreateParkingAction
+    data class SetMode(
+        val value: ParkMode,
+    ) : CreateParkingAction
 
-    data class SetVehicleNumber(val value: String) : CreateParkingAction
+    data class SetVehicleNumber(
+        val value: String,
+    ) : CreateParkingAction
 
-    data class SetDriverName(val value: String) : CreateParkingAction
+    data class SetDriverName(
+        val value: String,
+    ) : CreateParkingAction
 
-    data class SetGate(val value: String) : CreateParkingAction
+    data class SetGate(
+        val value: String,
+    ) : CreateParkingAction
 
-    data class SetPoReference(val value: String) : CreateParkingAction
+    data class SetPoReference(
+        val value: String,
+    ) : CreateParkingAction
 
-    data class SetRemarks(val value: String) : CreateParkingAction
+    data class SetRemarks(
+        val value: String,
+    ) : CreateParkingAction
 
     data object Submit : CreateParkingAction
 }
 
 sealed interface CreateParkingEffect {
-    data class Success(val id: String) : CreateParkingEffect
+    data class Success(
+        val id: String,
+    ) : CreateParkingEffect
 
-    data class NeedsApproval(val id: String) : CreateParkingEffect
+    data class NeedsApproval(
+        val id: String,
+    ) : CreateParkingEffect
 
-    data class Violation(val messages: List<String>) : CreateParkingEffect
+    data class Violation(
+        val messages: List<String>,
+    ) : CreateParkingEffect
 }
 
 /**

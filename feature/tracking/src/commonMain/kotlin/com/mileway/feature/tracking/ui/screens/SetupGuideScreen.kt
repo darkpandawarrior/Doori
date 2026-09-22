@@ -114,8 +114,7 @@ fun SetupGuideScreen(
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = DesignTokens.Shape.roundedSm,
-                            )
-                            .padding(DesignTokens.Spacing.m),
+                            ).padding(DesignTokens.Spacing.m),
                     horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {

@@ -30,7 +30,9 @@ import kotlin.math.roundToInt
  * [ConfidenceMeter] exists rather than just a progress bar.
  */
 sealed interface Confidence {
-    data class Known(val value: Float) : Confidence {
+    data class Known(
+        val value: Float,
+    ) : Confidence {
         init {
             require(value in 0f..1f) { "confidence must be in 0f..1f, was $value" }
         }

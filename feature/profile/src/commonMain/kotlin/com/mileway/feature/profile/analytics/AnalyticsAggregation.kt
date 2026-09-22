@@ -7,7 +7,9 @@ import com.mileway.stub.TeamMember
 import kotlin.math.roundToInt
 
 /** PLAN_V29 P29.AN.2: date-range presets driving both the overview and detail-screen charts. */
-enum class DateRangePreset(val days: Int) {
+enum class DateRangePreset(
+    val days: Int,
+) {
     LAST_7(7),
     LAST_30(30),
     LAST_90(90),
@@ -23,9 +25,19 @@ enum class LeaderboardSort { HIGHEST_SPEND, MOST_CLAIMS, ALPHABETICAL }
 /** PLAN_V29 P29.AN.9: kept richer than DiCE's two-type system (gap: "none" — do not shrink). */
 enum class InsightType { ANOMALY, BREACH_RISK, PATTERN, SAVINGS }
 
-data class InsightCard(val id: String, val title: String, val body: String, val type: InsightType)
+data class InsightCard(
+    val id: String,
+    val title: String,
+    val body: String,
+    val type: InsightType,
+)
 
-data class PeriodDelta(val currentTotal: Double, val previousTotal: Double, val percentChange: Double, val isIncrease: Boolean)
+data class PeriodDelta(
+    val currentTotal: Double,
+    val previousTotal: Double,
+    val percentChange: Double,
+    val isIncrease: Boolean,
+)
 
 // ponytail: String.format is JVM-only; commonMain needs its own fixed-decimal formatter.
 internal fun Double.toFixed(decimals: Int): String {

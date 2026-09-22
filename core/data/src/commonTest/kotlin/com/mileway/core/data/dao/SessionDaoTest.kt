@@ -93,16 +93,15 @@ class SessionDaoTest {
 private class FakeSessionDao : SessionDao {
     private val rows = LinkedHashMap<String, SessionEntity>()
 
-    @Suppress("ktlint:standard:property-naming")
-    private val _all = MutableStateFlow<List<SessionEntity>>(emptyList())
+    private val allRows = MutableStateFlow<List<SessionEntity>>(emptyList())
 
     private fun flush() {
-        _all.value = rows.values.sortedByDescending { it.lastActiveMillis }
+        allRows.value = rows.values.sortedByDescending { it.lastActiveMillis }
     }
 
-    fun snapshot(): List<SessionEntity> = _all.value
+    fun snapshot(): List<SessionEntity> = allRows.value
 
-    override fun observeAll(): Flow<List<SessionEntity>> = _all.asStateFlow()
+    override fun observeAll(): Flow<List<SessionEntity>> = allRows.asStateFlow()
 
     override suspend fun count(): Int = rows.size
 

@@ -14,7 +14,9 @@ import kotlin.test.assertEquals
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-private class MutableClock(var ms: Long) : Clock {
+private class MutableClock(
+    var ms: Long,
+) : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(ms)
 }
 

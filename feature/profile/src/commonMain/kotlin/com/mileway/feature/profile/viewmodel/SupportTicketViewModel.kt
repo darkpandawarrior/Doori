@@ -24,7 +24,9 @@ data class SupportTicketUiState(
     val submitError: String? = null,
 )
 
-class SupportTicketViewModel(private val repository: SupportTicketRepository) : ViewModel() {
+class SupportTicketViewModel(
+    private val repository: SupportTicketRepository,
+) : ViewModel() {
     private val _state = MutableStateFlow(SupportTicketUiState())
     val state: StateFlow<SupportTicketUiState> = _state.asStateFlow()
 

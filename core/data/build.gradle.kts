@@ -62,7 +62,8 @@ kotlin {
             // watchOS target.
             implementation("com.siddharth.kmp:network:1.0.0")
         }
-        val desktopMain by getting {
+        // getByName, not `by getting`: Gradle 10 removes the delegate form.
+        getByName("desktopMain") {
             dependencies {
                 implementation(libs.sqlite.bundled)
             }

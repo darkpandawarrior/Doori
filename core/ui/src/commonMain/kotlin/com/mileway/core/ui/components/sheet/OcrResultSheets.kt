@@ -78,7 +78,10 @@ import org.jetbrains.compose.resources.stringResource
 enum class BatchOcrStatus { Success, Duplicate, Failed }
 
 /** One row of [OcrBatchResultsSheet] — a file label plus its OCR/dedup outcome. */
-data class BatchOcrItem(val label: String, val status: BatchOcrStatus)
+data class BatchOcrItem(
+    val label: String,
+    val status: BatchOcrStatus,
+)
 
 /**
  * Duplicate / not-a-receipt confirmation. Shown instead of [OcrReviewSheet] when

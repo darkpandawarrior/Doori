@@ -75,8 +75,7 @@ fun <T> MilewayPickerSheet(
                             selected = isSelected,
                             role = Role.RadioButton,
                             onClick = { selectAndDismiss(option, onSelect, onDismiss) },
-                        )
-                        .padding(vertical = DesignTokens.Spacing.s),
+                        ).padding(vertical = DesignTokens.Spacing.s),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {

@@ -35,17 +35,30 @@ data class AskAdvanceUiState(
 }
 
 sealed interface AskAdvanceAction {
-    data class SelectType(val type: String) : AskAdvanceAction
+    data class SelectType(
+        val type: String,
+    ) : AskAdvanceAction
 
-    data class SetAmount(val text: String) : AskAdvanceAction
+    data class SetAmount(
+        val text: String,
+    ) : AskAdvanceAction
 
-    data class SetTitle(val value: String) : AskAdvanceAction
+    data class SetTitle(
+        val value: String,
+    ) : AskAdvanceAction
 
-    data class SetDescription(val value: String) : AskAdvanceAction
+    data class SetDescription(
+        val value: String,
+    ) : AskAdvanceAction
 
-    data class SetDateRange(val startMs: Long?, val endMs: Long?) : AskAdvanceAction
+    data class SetDateRange(
+        val startMs: Long?,
+        val endMs: Long?,
+    ) : AskAdvanceAction
 
-    data class SetDeclaration(val accepted: Boolean) : AskAdvanceAction
+    data class SetDeclaration(
+        val accepted: Boolean,
+    ) : AskAdvanceAction
 
     data object Submit : AskAdvanceAction
 }

@@ -16,7 +16,15 @@ class QrRequestValidatorTest {
         cardsExist: Boolean = true,
         declarationAccepted: Boolean = true,
     ) = QrRequestValidator.validate(
-        amount, title, description, type, typeEnabled, cardSelected, mandatoryCardSelection, cardsExist, declarationAccepted,
+        amount,
+        title,
+        description,
+        type,
+        typeEnabled,
+        cardSelected,
+        mandatoryCardSelection,
+        cardsExist,
+        declarationAccepted,
     )
 
     @Test

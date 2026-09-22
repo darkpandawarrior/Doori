@@ -10,9 +10,7 @@ import kotlin.test.assertNull
 
 /** F0.5: search-result → section-graph mapping used when a result row is tapped. */
 class SearchResultRoutingTest {
-
-    private fun resultOf(type: SearchEntityType) =
-        SearchResult(type = type, id = "x", title = "t", subtitle = "s", deeplink = "mileway://x")
+    private fun resultOf(type: SearchEntityType) = SearchResult(type = type, id = "x", title = "t", subtitle = "s", deeplink = "mileway://x")
 
     @Test
     fun `payments QR routes to the payments graph`() {

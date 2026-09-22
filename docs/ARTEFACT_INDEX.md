@@ -56,6 +56,11 @@ screenshots did. An index that says *how to regenerate it* and *how you'd know i
 
 ## Screenshot surfaces, in detail
 
+> **Copying this setup to another repo?** Read
+> [`docs/SCREENSHOT_TESTING.md`](SCREENSHOT_TESTING.md) instead of this section. That file is
+> the portable house pattern — the gotchas, the two-gate design and the minimum viable port,
+> in the order you need them. This section is the Mileway-specific inventory.
+
 ### App — `:app:screenshotTestNoGmsDebug`
 
 Roborazzi captures under `app/src/test/java/com/mileway/` matching the class-name filter
@@ -70,9 +75,29 @@ at the repo root.
 Verify vs. record:
 ```bash
 ./gradlew :app:screenshotTestNoGmsDebug                              # compares against the committed PNGs, fails on pixel diff
-./gradlew :app:screenshotTestNoGmsDebug -Proborazzi.test.record=true # overwrites the committed PNGs
+ROBORAZZI_RECORD=true ./gradlew :app:screenshotTestNoGmsDebug        # overwrites the committed PNGs
 ```
-This is real, verified Roborazzi Gradle-plugin behavior (`:app` applies `alias(libs.plugins.roborazzi)`), not an assumption.
+**Record is an environment variable, not `-P`.** This paragraph used to assert that
+`-Proborazzi.test.record=true` records here and that this was "real, verified Roborazzi
+Gradle-plugin behavior … not an assumption". It was an assumption, and it is wrong. Measured
+2026-09-22: `docs/screenshots/coreui_statusChip_tones.png` was deleted, then
+`:app:screenshotTestNoGmsDebug --tests "..coreui_statusChip_tones" -Proborazzi.test.record=true`
+was run with `ROBORAZZI_RECORD` unset. The test executed (`tests="1"` in the JUnit XML), the build
+reported `BUILD SUCCESSFUL`, and the golden was **not** recreated.
+
+The cause is structural, not a Roborazzi bug. The plugin injects `roborazzi.test.*` as system
+properties onto the per-variant unit-test tasks it knows about. `screenshotTestNoGmsDebug` is a
+hand-registered `Test` task that copies `systemProperties` from `testNoGmsDebugUnitTest` inside
+`afterEvaluate`, so it never sees them. Every capture site in the repo therefore gates on
+`System.getenv("ROBORAZZI_RECORD")` instead, which does cross the fork boundary. `-P` reaches
+`:wear` and `:widget` (plugin-wired variant tasks); it does not reach `:app`, which is where 368 of
+the PNGs come from.
+
+Second measured consequence, worth knowing before trusting the gate: **a deleted golden passes
+verify.** Roborazzi has no baseline to compare against and reports success. The check that catches
+a removed capture is `design-sentinel.mjs`, whose `regressed` condition includes `removed.length > 0`
+and which runs on `pull_request` as well as nightly. Two gates, one hole each, and they cover each
+other — that is the design, but it only holds while both run.
 
 ### Wear — `:wear:testNoGmsDebugUnitTest`
 
@@ -86,13 +111,13 @@ also a top-level module).
 ### Widget — `:widget:testDebugUnitTest`
 
 `widget/src/test/kotlin/com/mileway/widget/WidgetScreenshotTest.kt` calls `captureRoboImage`
-directly, but **`:widget`'s `build.gradle.kts` does not apply the `roborazzi` Gradle plugin** — it
-only pulls in `libs.roborazzi.core` as a raw test dependency. Verified by reading the file: no
-`alias(libs.plugins.roborazzi)` line. That means `-Proborazzi.test.record=true` is not wired for
-this module the way it is for `:app`/`:wear` — regenerating widget PNGs means running the plain
-unit-test task and relying on Roborazzi's own library-default behavior, not a project-configured
-verify/record switch. This is the kind of asymmetry that's easy to miss by reading only `:app`'s
-comments and assuming the other modules work the same way.
+directly. This section used to say `:widget` does **not** apply the `roborazzi` Gradle plugin and
+therefore has no project-configured verify/record switch. That was fixed on 2026-08-09 and the text
+was never updated: `widget/build.gradle.kts:10` now carries `alias(libs.plugins.roborazzi)`, with a
+comment recording that the missing plugin was the bug (the plugin is what translates
+`roborazzi.test.*` into system properties for the test JVM). `:widget` behaves like `:wear` today.
+Recording still goes through `ROBORAZZI_RECORD=true`, as everywhere else — `WidgetScreenshotTest`
+gates on the env var like every other capture site.
 
 ### Desktop — `:desktopApp:desktopTest`
 
@@ -200,7 +225,7 @@ see the verified gap above for the one place that discovery currently misses
 
 ```bash
 ./gradlew screenshotTest                              # verify against baselines
-./gradlew screenshotTest -Proborazzi.test.record=true  # re-record app+wear (widget/desktop always overwrite regardless of this flag)
+ROBORAZZI_RECORD=true ./gradlew screenshotTest        # re-record (env var, NOT -P — see above)
 ```
 
 Not covered by this task, by design, and not faked as if it were: iOS/watchOS (Swift, needs
@@ -357,6 +382,47 @@ today*. Only `stats` is wired up; if a future prose block wants the same treatme
    help if CI keeps running the old, narrower step list — check whether `verifyAll` is actually
    wired into `.github/workflows/*.yml` before trusting that this failure mode is closed; as of this
    writing (see the aggregate-tasks section above) it is not yet.
+
+---
+
+## Docs tooling that is deliberately NOT here
+
+Recorded so the next pass does not re-derive it.
+
+### Dokka — rejected for Mileway
+
+Mileway is an application. Measured 2026-09-22: **no module in this repo applies `maven-publish`,
+`mavenPublishing` or `publishToMavenCentral`** — every hit for those is under `external/`, i.e. the
+`kmp-toolkit` and `kmp-build-logic` submodules, which are separate repositories with their own
+builds. Nothing here is consumed as a library by anything, so there is no public API surface for a
+generated reference to describe, and no reader who would open one.
+
+`kmp-toolkit` is the repo that needs published API docs, and it already has them: Dokka 2.3.0-Beta
+is applied across its subprojects with HTML aggregation, in `external/kmp-toolkit/build.gradle.kts`.
+That is the right place for it. Adding Dokka to Mileway's 36 modules would produce a CI job, a Pages
+deployment and a rot surface, for a reference of an app's internals.
+
+What a reader actually opens for an app is the README, the screenshots and the module map. Those
+exist, and — unlike a Dokka site — they are generated from source of truth and gated:
+`scripts/gen-readme.sh` regenerates the module counts, screenshot count and toolchain badges, and
+`.github/workflows/readme.yml` fails a PR when regenerating produces a diff.
+
+### Link checking — the one real gap, left open on purpose
+
+There is no link checker in this repo, and on 2026-09-22 the README did contain one broken relative
+link: `docs/screenshots/widget_ios_lockscreen.png`, referenced in the widget table, has never
+existed. It rendered as a broken image above the fold. The column was removed rather than faked; the
+comment in `README.md` says what would restore it.
+
+The rest of the README's relative links and anchors resolve. A `lychee` workflow would catch the
+next one, and is roughly fifteen lines — but it is nine copies across the family, or one scheduled
+job in a hub repo, and it needs a story for third-party outages that would otherwise turn green PRs
+red. That is a family-level decision, not a Mileway one. Until then, the cheap local check is:
+
+```bash
+grep -oE '\]\(([^)#h][^)]*)\)' README.md | sed -E 's/^\]\(//; s/\)$//' | sed 's/#.*//' \
+  | sort -u | while read -r f; do [ -e "$f" ] || echo "BROKEN: $f"; done
+```
 
 ---
 

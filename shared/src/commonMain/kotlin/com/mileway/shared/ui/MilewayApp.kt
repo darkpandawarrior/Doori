@@ -98,7 +98,10 @@ import com.mileway.ui.home.HomeScreen
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-private data class ShellTab(val label: StringResource, val icon: ImageVector)
+private data class ShellTab(
+    val label: StringResource,
+    val icon: ImageVector,
+)
 
 /**
  * PLAN_V36 P8 (spec §10) — the overlay state for the reduced iOS shell, which has no Navigation-3
@@ -123,7 +126,10 @@ private sealed interface ShellScreen {
 
     data object WhatsNew : ShellScreen
 
-    data class WhatsNewEntry(val entryId: String, val cameFromList: Boolean) : ShellScreen
+    data class WhatsNewEntry(
+        val entryId: String,
+        val cameFromList: Boolean,
+    ) : ShellScreen
 
     data object Advances : ShellScreen
 
@@ -155,11 +161,16 @@ private sealed interface ShellScreen {
 
     data object VehicleGarage : ShellScreen
 
-    data class VehicleSelfAudit(val vehicleId: String) : ShellScreen
+    data class VehicleSelfAudit(
+        val vehicleId: String,
+    ) : ShellScreen
 }
 
 /** One openable row on the More tab. */
-private data class MoreEntry(val label: StringResource, val screen: ShellScreen)
+private data class MoreEntry(
+    val label: StringResource,
+    val screen: ShellScreen,
+)
 
 /**
  * One row on the More tab for a screen that genuinely cannot run here, kept visible with its reason
@@ -168,7 +179,10 @@ private data class MoreEntry(val label: StringResource, val screen: ShellScreen)
  * settings), CameraX and ML Kit (capture and document scan), the Android cache and database
  * directories (storage management and the debug menu), the Android bitmap encoder (signature pad).
  */
-private data class AndroidOnlyEntry(val label: StringResource, val reason: StringResource)
+private data class AndroidOnlyEntry(
+    val label: StringResource,
+    val reason: StringResource,
+)
 
 private val shellTabs =
     listOf(

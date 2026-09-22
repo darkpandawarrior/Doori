@@ -69,7 +69,10 @@ object IosIntentEntry {
                 merchantName = merchantName.ifBlank { "Unspecified merchant" },
                 amountRupees = amountRupees,
                 status = ExpenseStatus.PENDING,
-                dateMs = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                dateMs =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds(),
                 note = note,
             )
         KoinPlatform.getKoin().get<ExpenseRepository>().insert(record)

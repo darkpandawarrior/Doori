@@ -96,14 +96,12 @@ private fun ThemeSwatchCard(
                     selected = isSelected,
                     role = Role.RadioButton,
                     onClick = onSelect,
-                )
-                .clearAndSetSemantics {
+                ).clearAndSetSemantics {
                     this.selected = isSelected
                     contentDescription =
                         "${theme.label} theme. ${theme.description}" +
                         if (isSelected) " Selected." else ""
-                }
-                .padding(DesignTokens.Spacing.m),
+                }.padding(DesignTokens.Spacing.m),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
     ) {
         // Mini preview "card" stacked on the canvas, with an accent dot and faux text rows.

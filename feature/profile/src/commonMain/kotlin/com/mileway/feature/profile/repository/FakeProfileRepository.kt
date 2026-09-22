@@ -17,7 +17,9 @@ import kotlinx.coroutines.flow.Flow
  * [MockAccountDao][com.mileway.core.data.dao.MockAccountDao]) instead of the static
  * `ProfileMockData.accounts()` list — the other surfaces here stay deterministic mock data.
  */
-class FakeProfileRepository(private val mockAccountRepository: MockAccountRepository) : ProfileRepository {
+class FakeProfileRepository(
+    private val mockAccountRepository: MockAccountRepository,
+) : ProfileRepository {
     override fun richProfile(): EmployeeProfile = ProfileMockData.primaryProfile()
 
     override fun completion(): ProfileCompletion = ProfileMockData.completion()
@@ -52,7 +54,8 @@ class FakeProfileRepository(private val mockAccountRepository: MockAccountReposi
     }
 
     private fun initialsFrom(name: String): String =
-        name.trim()
+        name
+            .trim()
             .split(Regex("\\s+"))
             .filter { it.isNotBlank() }
             .take(2)

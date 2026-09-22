@@ -20,7 +20,9 @@ data class MembershipUiState(
     val confettiShown: Boolean = false,
 )
 
-class MembershipViewModel(private val sessionRepository: SessionRepository) : ViewModel() {
+class MembershipViewModel(
+    private val sessionRepository: SessionRepository,
+) : ViewModel() {
     val state: StateFlow<MembershipUiState> =
         sessionRepository.sessionState
             .map { s -> MembershipUiState(isMember = s.isClubMember, activatedAtMs = s.clubActivatedAtMs, confettiShown = s.clubConfettiShown) }

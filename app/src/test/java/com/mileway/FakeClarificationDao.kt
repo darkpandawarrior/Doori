@@ -67,7 +67,10 @@ class FakeClarificationDao : ClarificationDao {
         kotlinx.coroutines.flow.combine(rooms, messages) { roomMap, messageMap ->
             roomMap.values.count { r ->
                 r.status == "ACTIVE" &&
-                    messageMap.values.filter { m -> m.roomId == r.roomId }.maxByOrNull { m -> m.timestampMs }?.isFromRequester == true
+                    messageMap.values
+                        .filter { m -> m.roomId == r.roomId }
+                        .maxByOrNull { m -> m.timestampMs }
+                        ?.isFromRequester == true
             }
         }
 }

@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * end to end, already-granted skipping, sequential requesting, and the terminal allGranted / denied summary.
  */
 class PermissionOrchestratorTest {
-
     private class FakeProvider(
         val granted: MutableSet<AppPermission> = mutableSetOf(),
         val requestResults: Map<AppPermission, PermissionResult> = emptyMap(),
@@ -34,57 +33,69 @@ class PermissionOrchestratorTest {
     private val sequence = listOf(AppPermission.LOCATION, AppPermission.NOTIFICATIONS, AppPermission.CAMERA)
 
     @Test
-    fun `runAll grants the whole sequence when the provider grants each request`() = runTest {
-        val provider = FakeProvider(requestResults = sequence.associateWith { PermissionResult.Granted })
-        val orchestrator = PermissionOrchestrator(provider, sequence)
+    fun `runAll grants the whole sequence when the provider grants each request`() =
+        runTest {
+            val provider = FakeProvider(requestResults = sequence.associateWith { PermissionResult.Granted })
+            val orchestrator = PermissionOrchestrator(provider, sequence)
 
-        orchestrator.runAll()
+            orchestrator.runAll()
 
-        val state = orchestrator.state.value
-        assertTrue(state.isComplete)
-        assertTrue(state.allGranted)
-        assertEquals(sequence, provider.requested)
-    }
-
-    @Test
-    fun `skipAlreadyGranted advances past granted permissions without prompting`() = runTest {
-        val provider = FakeProvider(granted = mutableSetOf(AppPermission.LOCATION))
-        val orchestrator = PermissionOrchestrator(provider, sequence)
-
-        orchestrator.skipAlreadyGranted()
-
-        // LOCATION recorded as granted (no prompt); flow now parked on NOTIFICATIONS.
-        assertEquals(AppPermission.NOTIFICATIONS, orchestrator.state.value.current?.permission)
-        assertTrue(provider.requested.isEmpty())
-    }
+            val state = orchestrator.state.value
+            assertTrue(state.isComplete)
+            assertTrue(state.allGranted)
+            assertEquals(sequence, provider.requested)
+        }
 
     @Test
-    fun `requestCurrent records a denial and advances`() = runTest {
-        val provider = FakeProvider(requestResults = mapOf(AppPermission.LOCATION to PermissionResult.DeniedAlways))
-        val orchestrator = PermissionOrchestrator(provider, sequence)
+    fun `skipAlreadyGranted advances past granted permissions without prompting`() =
+        runTest {
+            val provider = FakeProvider(granted = mutableSetOf(AppPermission.LOCATION))
+            val orchestrator = PermissionOrchestrator(provider, sequence)
 
-        val result = orchestrator.requestCurrent()
+            orchestrator.skipAlreadyGranted()
 
-        assertEquals(PermissionResult.DeniedAlways, result)
-        assertEquals(AppPermission.NOTIFICATIONS, orchestrator.state.value.current?.permission)
-    }
-
-    @Test
-    fun `denied summary lists the ungranted permissions after runAll`() = runTest {
-        val provider =
-            FakeProvider(
-                requestResults =
-                    mapOf(
-                        AppPermission.LOCATION to PermissionResult.Granted,
-                        AppPermission.NOTIFICATIONS to PermissionResult.Denied,
-                        AppPermission.CAMERA to PermissionResult.DeniedAlways,
-                    ),
+            // LOCATION recorded as granted (no prompt); flow now parked on NOTIFICATIONS.
+            assertEquals(
+                AppPermission.NOTIFICATIONS,
+                orchestrator.state.value.current
+                    ?.permission,
             )
-        val orchestrator = PermissionOrchestrator(provider, sequence)
+            assertTrue(provider.requested.isEmpty())
+        }
 
-        orchestrator.runAll()
+    @Test
+    fun `requestCurrent records a denial and advances`() =
+        runTest {
+            val provider = FakeProvider(requestResults = mapOf(AppPermission.LOCATION to PermissionResult.DeniedAlways))
+            val orchestrator = PermissionOrchestrator(provider, sequence)
 
-        assertFalse(orchestrator.state.value.allGranted)
-        assertEquals(listOf(AppPermission.NOTIFICATIONS, AppPermission.CAMERA), orchestrator.state.value.denied)
-    }
+            val result = orchestrator.requestCurrent()
+
+            assertEquals(PermissionResult.DeniedAlways, result)
+            assertEquals(
+                AppPermission.NOTIFICATIONS,
+                orchestrator.state.value.current
+                    ?.permission,
+            )
+        }
+
+    @Test
+    fun `denied summary lists the ungranted permissions after runAll`() =
+        runTest {
+            val provider =
+                FakeProvider(
+                    requestResults =
+                        mapOf(
+                            AppPermission.LOCATION to PermissionResult.Granted,
+                            AppPermission.NOTIFICATIONS to PermissionResult.Denied,
+                            AppPermission.CAMERA to PermissionResult.DeniedAlways,
+                        ),
+                )
+            val orchestrator = PermissionOrchestrator(provider, sequence)
+
+            orchestrator.runAll()
+
+            assertFalse(orchestrator.state.value.allGranted)
+            assertEquals(listOf(AppPermission.NOTIFICATIONS, AppPermission.CAMERA), orchestrator.state.value.denied)
+        }
 }

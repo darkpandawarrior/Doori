@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** One countdown tick: the resend timer is displayed in whole seconds. */
+private const val TickMillis = 1_000L
+
 /** Which failure to surface on the OTP screen. */
 enum class OtpError { WRONG, EXPIRED, LOCKED }
 
@@ -33,7 +36,9 @@ data class OtpUiState(
  * truth for the code, expiry and resend cooldown; this VM only mirrors its state and the entered
  * digits, and ticks the resend countdown.
  */
-class OtpVerificationViewModel(private val engine: LocalOtpEngine) : ViewModel() {
+class OtpVerificationViewModel(
+    private val engine: LocalOtpEngine,
+) : ViewModel() {
     private var purpose: OtpPurpose = OtpPurpose.LOGIN
     private var target: String = ""
 
@@ -66,7 +71,9 @@ class OtpVerificationViewModel(private val engine: LocalOtpEngine) : ViewModel()
 
     /** Autofill the demo code (offline convenience — the delivery already carries it). */
     fun autofillDemoCode() {
-        _state.value.delivery?.code?.let { onCodeChange(it) }
+        _state.value.delivery
+            ?.code
+            ?.let { onCodeChange(it) }
     }
 
     fun verify() {
@@ -103,7 +110,7 @@ class OtpVerificationViewModel(private val engine: LocalOtpEngine) : ViewModel()
                 var remaining = engine.resendAvailableInSeconds(purpose, target)
                 _state.update { it.copy(resendInSeconds = remaining) }
                 while (remaining > 0) {
-                    delay(1_000)
+                    delay(TickMillis)
                     remaining -= 1
                     _state.update { it.copy(resendInSeconds = remaining) }
                 }

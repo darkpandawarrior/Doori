@@ -56,7 +56,10 @@ import com.mileway.feature.profile.support.SupportChatResponder
 import com.mileway.feature.profile.support.SupportChatTopic
 import org.jetbrains.compose.resources.stringResource
 
-private data class ChatMessage(val text: String, val fromUser: Boolean)
+private data class ChatMessage(
+    val text: String,
+    val fromUser: Boolean,
+)
 
 /**
  * PLAN_V24 P12.2: the in-app support chat channel. A deterministic canned-response bot — the user's
@@ -127,7 +130,9 @@ fun SupportChatScreen(
             LazyColumn(
                 state = listState,
                 modifier = Modifier.weight(1f).fillMaxWidth(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+                contentPadding =
+                    androidx.compose.foundation.layout
+                        .PaddingValues(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
             ) {
                 items(messages.size) { index -> ChatBubble(messages[index]) }

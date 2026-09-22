@@ -13,13 +13,21 @@ import com.mileway.core.data.model.display.TrackDisplayData
  * a couple of ID columns.
  */
 sealed interface LinkedContextKind {
-    data class Voucher(val number: String) : LinkedContextKind
+    data class Voucher(
+        val number: String,
+    ) : LinkedContextKind
 
-    data class Trip(val id: String) : LinkedContextKind
+    data class Trip(
+        val id: String,
+    ) : LinkedContextKind
 
-    data class Booking(val id: String) : LinkedContextKind
+    data class Booking(
+        val id: String,
+    ) : LinkedContextKind
 
-    data class Event(val id: String) : LinkedContextKind
+    data class Event(
+        val id: String,
+    ) : LinkedContextKind
 }
 
 data class LinkedContext(

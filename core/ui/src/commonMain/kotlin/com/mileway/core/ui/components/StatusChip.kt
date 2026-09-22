@@ -29,7 +29,9 @@ import com.mileway.core.ui.theme.MilewayRoles
  * use [roleColor] instead — it resolves to the real Layer-2 role, so it follows the active design
  * direction; [color] renders identically under all ten. [StatusChip] itself already does this.
  */
-enum class StatusTone(val color: Color) {
+enum class StatusTone(
+    val color: Color,
+) {
     // Values delegate to DesignTokens.StatusColors — the single declared home for this static
     // fallback — rather than repeating the hexes here.
     Success(DesignTokens.StatusColors.success),
@@ -88,7 +90,9 @@ fun WizardProgressBar(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp),
+        horizontalArrangement =
+            androidx.compose.foundation.layout.Arrangement
+                .spacedBy(6.dp),
     ) {
         repeat(total) { index ->
             val active = index < step

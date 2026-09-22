@@ -3,16 +3,16 @@ package com.mileway
 import com.mileway.core.data.watch.NoopWatchSyncBridge
 import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
-import com.siddharth.kmp.common.CrashReporter
 import com.mileway.core.platform.LocalReferralManager
-import com.mileway.feature.tracking.service.location.ActivityRecognizer
-import com.siddharth.kmp.common.NapierCrashReporter
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
+import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
 import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
+import com.siddharth.kmp.common.CrashReporter
+import com.siddharth.kmp.common.NapierCrashReporter
 import org.koin.core.module.Module
 import org.koin.dsl.module
 

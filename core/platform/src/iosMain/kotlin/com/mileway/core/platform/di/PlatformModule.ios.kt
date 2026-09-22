@@ -39,17 +39,38 @@ actual fun platformModule(): Module =
         // V15 RV.3: iOS in-app review (SKStoreReviewController window-scene variant).
         single<AppReviewManager> { IosAppReviewManager() }
         // SH.1: iOS share via UIActivityViewController (LocalManagerProvider resolves it via Koin).
-        single<com.mileway.core.platform.ShareSheet> { com.mileway.core.platform.IosShareSheet() }
-        single<com.mileway.core.platform.UrlOpener> { com.mileway.core.platform.IosUrlOpener() }
-        single<com.mileway.core.platform.SystemSettingsOpener> { com.mileway.core.platform.IosSystemSettingsOpener() }
+        single<com.mileway.core.platform.ShareSheet> {
+            com.mileway.core.platform
+                .IosShareSheet()
+        }
+        single<com.mileway.core.platform.UrlOpener> {
+            com.mileway.core.platform
+                .IosUrlOpener()
+        }
+        single<com.mileway.core.platform.SystemSettingsOpener> {
+            com.mileway.core.platform
+                .IosSystemSettingsOpener()
+        }
         // SH.3: app shortcuts contract (iOS impl is a documented no-op, see IosAppShortcuts).
-        single<com.mileway.core.platform.AppShortcuts> { com.mileway.core.platform.IosAppShortcuts() }
+        single<com.mileway.core.platform.AppShortcuts> {
+            com.mileway.core.platform
+                .IosAppShortcuts()
+        }
         // UX.2: haptic feedback via UIFeedbackGenerator.
-        single<com.mileway.core.platform.Haptics> { com.mileway.core.platform.IosHaptics() }
+        single<com.mileway.core.platform.Haptics> {
+            com.mileway.core.platform
+                .IosHaptics()
+        }
         // O: cross-platform motion sensors via CoreMotion.
-        single<com.mileway.core.platform.MotionSensorProvider> { com.mileway.core.platform.IosMotionSensorProvider() }
+        single<com.mileway.core.platform.MotionSensorProvider> {
+            com.mileway.core.platform
+                .IosMotionSensorProvider()
+        }
         // P31.MISC.1: shake-to-report, layered on the same accelerometer stream as motion state.
-        single { com.mileway.core.platform.ShakeGestureDetector(get()) }
+        single {
+            com.mileway.core.platform
+                .ShakeGestureDetector(get())
+        }
         // P-D.2: live presence surface (documented no-op on iOS — ActivityKit is driven from Swift,
         // see IosTrackingPresenceController).
         single<com.mileway.core.platform.TrackingPresenceController> { IosTrackingPresenceController() }
@@ -57,5 +78,8 @@ actual fun platformModule(): Module =
         // is already bound in iosAppModule (core/ui) — not duplicated here.
         single<com.siddharth.kmp.common.CrashReporter> { NapierCrashReporter() }
         // PLAN_V33 C6: battery preflight gate before a trip can start.
-        single<com.mileway.core.platform.BatteryStatusReader> { com.mileway.core.platform.IosBatteryStatusReader() }
+        single<com.mileway.core.platform.BatteryStatusReader> {
+            com.mileway.core.platform
+                .IosBatteryStatusReader()
+        }
     }

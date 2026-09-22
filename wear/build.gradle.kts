@@ -160,7 +160,8 @@ afterEvaluate {
             notCompatibleWithConfigurationCache("Resolves the noGmsReleaseRuntimeClasspath component graph")
             doLast {
                 val deps =
-                    configurations.getByName("noGmsReleaseRuntimeClasspath")
+                    configurations
+                        .getByName("noGmsReleaseRuntimeClasspath")
                         .incoming.resolutionResult.allComponents
                         .mapNotNull { it.id as? ModuleComponentIdentifier }
                         .map { "${it.group}:${it.module}" }

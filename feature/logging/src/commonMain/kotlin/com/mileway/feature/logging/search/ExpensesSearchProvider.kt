@@ -37,7 +37,8 @@ class ExpensesSearchProvider(
 
         val results = mutableListOf<SearchResult>()
 
-        expenses.getAll()
+        expenses
+            .getAll()
             .filter { it.merchantName.contains(q, true) || it.id.contains(q, true) || it.category.label.contains(q, true) }
             .forEach {
                 results +=
@@ -53,7 +54,8 @@ class ExpensesSearchProvider(
                     )
             }
 
-        vouchers.vouchers()
+        vouchers
+            .vouchers()
             .filter { it.id.contains(q, true) || it.serviceTag.contains(q, true) || it.office.contains(q, true) }
             .forEach {
                 results +=
@@ -69,7 +71,8 @@ class ExpensesSearchProvider(
                     )
             }
 
-        settlements.settlements()
+        settlements
+            .settlements()
             .filter { it.id.contains(q, true) || it.periodLabel.contains(q, true) || it.method.contains(q, true) }
             .forEach {
                 results +=
@@ -85,7 +88,8 @@ class ExpensesSearchProvider(
                     )
             }
 
-        cardTxns.transactions()
+        cardTxns
+            .transactions()
             .filter { it.id.contains(q, true) || it.merchant.contains(q, true) || it.category.contains(q, true) }
             .forEach {
                 results +=

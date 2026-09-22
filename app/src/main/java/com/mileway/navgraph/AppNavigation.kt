@@ -3,7 +3,6 @@ package com.mileway.navgraph
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mileway.core.ui.AppHost
 import com.mileway.feature.approvals.ui.navigation.approvalsGraph
@@ -21,7 +20,6 @@ import com.mileway.feature.tracking.ui.navigation.trackingGraph
 fun AppNavigation(navController: NavHostController = rememberNavController()) {
     AppHost {
         NavHost(navController = navController, startDestination = "saved_tracks") {
-
             // --- Tracking feature ---
             trackingGraph(
                 navController = navController,

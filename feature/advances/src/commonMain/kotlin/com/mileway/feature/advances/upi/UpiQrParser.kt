@@ -16,6 +16,14 @@ data class UpiPayment(
     val tn: String? = null,
 )
 
+/** `%` plus two hex digits. */
+private const val PercentEscapeLength = 3
+private const val HexRadix = 16
+
+/** EMVCo TLV framing: a two-character tag followed by a two-character decimal length. */
+private const val TlvTagLength = 2
+private const val TlvHeaderLength = 4
+
 object UpiQrParser {
     /** Returns null if [text] is neither a valid `upi://pay` link nor an EMV TLV blob with a `pa`. */
     fun parse(text: String): UpiPayment? {
@@ -60,10 +68,16 @@ object UpiQrParser {
                     i++
                 }
                 '%' -> {
-                    val code = if (i + 3 <= s.length) s.substring(i + 1, i + 3).toIntOrNull(16) else null
+                    // A percent-escape is three characters: '%' plus two hex digits.
+                    val code =
+                        if (i + PercentEscapeLength <= s.length) {
+                            s.substring(i + 1, i + PercentEscapeLength).toIntOrNull(HexRadix)
+                        } else {
+                            null
+                        }
                     if (code != null) {
                         sb.append(code.toChar())
-                        i += 3
+                        i += PercentEscapeLength
                     } else {
                         sb.append(c)
                         i++
@@ -97,10 +111,11 @@ object UpiQrParser {
     private fun parseTlv(text: String): Map<String, String>? {
         val result = mutableMapOf<String, String>()
         var i = 0
-        while (i + 4 <= text.length) {
-            val tag = text.substring(i, i + 2)
-            val len = text.substring(i + 2, i + 4).toIntOrNull() ?: break
-            val valueStart = i + 4
+        // EMVCo TLV: a two-character tag, then a two-character decimal length, then the value.
+        while (i + TlvHeaderLength <= text.length) {
+            val tag = text.substring(i, i + TlvTagLength)
+            val len = text.substring(i + TlvTagLength, i + TlvHeaderLength).toIntOrNull() ?: break
+            val valueStart = i + TlvHeaderLength
             val valueEnd = valueStart + len
             if (valueEnd > text.length) break
             result[tag] = text.substring(valueStart, valueEnd)

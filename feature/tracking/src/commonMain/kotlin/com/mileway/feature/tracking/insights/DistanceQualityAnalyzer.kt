@@ -3,6 +3,43 @@ package com.mileway.feature.tracking.insights
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
 
+// The scoring rule stated in DistanceQualityAnalyzer's KDoc below, as constants. Every one of these
+// was a bare literal in the arithmetic, so the doc and the code could drift with nothing noticing.
+private const val PerfectScore = 100
+private const val WorstScore = 0
+
+/** Weight and cap for the share of DISTANCE that came from mock or abnormal points. */
+private const val ProblematicDistanceWeight = 0.5
+private const val ProblematicDistanceMaxDeduction = 50
+
+/** Weight and cap for the share of POINTS that were mock or abnormal. */
+private const val ProblemPointWeight = 0.3
+private const val ProblemPointMaxDeduction = 30
+
+/** Mock pollution past this share of the distance is severe enough for a flat extra deduction. */
+private const val SevereMockPct = 30.0
+private const val SevereMockDeduction = 10
+
+/** Likewise for abnormal (jump) distance, which is the milder of the two signals. */
+private const val SignificantAbnormalPct = 20.0
+private const val SignificantAbnormalDeduction = 5
+
+/** A trip is safe to claim on expenses only above this score and this much surviving distance. */
+private const val BusinessReliableScore = 70
+private const val BusinessReliableCleanedRatio = 0.8
+
+// Assessment bands, highest first.
+private const val ExcellentScore = 90
+private const val GoodScore = 75
+private const val AcceptableScore = 60
+private const val FairScore = 40
+private const val PoorScore = 20
+
+/** Guards the divide when a track recorded no distance at all. */
+private const val MinDivisorMetres = 0.001
+
+private const val PctScale = 100.0
+
 /**
  * Pure-Kotlin distance-quality analyzer.
  *
@@ -35,16 +72,16 @@ object DistanceQualityAnalyzer {
                 totalCount = totalCount,
             )
 
-        val totalDist = (track.originalDistance.takeIf { it > 0 } ?: track.distance).coerceAtLeast(0.001)
-        val mockPct = (track.mockDistance / totalDist) * 100.0
-        val abnormalPct = (track.abnormalDistance / totalDist) * 100.0
+        val totalDist = (track.originalDistance.takeIf { it > 0 } ?: track.distance).coerceAtLeast(MinDivisorMetres)
+        val mockPct = (track.mockDistance / totalDist) * PctScale
+        val abnormalPct = (track.abnormalDistance / totalDist) * PctScale
         val cleanedRatio = getCleanedDistanceRatio(track.cleanedDistance, totalDist)
 
         return DistanceQualityResult(
             score = score,
             assessment = getAssessment(score),
             cleanedDistanceRatio = cleanedRatio,
-            isReliableForBusiness = score >= 70 && cleanedRatio >= 0.8,
+            isReliableForBusiness = score >= BusinessReliableScore && cleanedRatio >= BusinessReliableCleanedRatio,
             mockPct = mockPct,
             abnormalPct = abnormalPct,
         )
@@ -59,31 +96,31 @@ object DistanceQualityAnalyzer {
         totalCount: Int,
     ): Int {
         if (totalDistance <= 0 || totalCount <= 0) {
-            return if (mockCount > 0 || abnormalCount > 0) 0 else 100
+            return if (mockCount > 0 || abnormalCount > 0) WorstScore else PerfectScore
         }
 
-        val mockPct = (mockDistance / totalDistance) * 100.0
-        val abnormalPct = (abnormalDistance / totalDistance) * 100.0
+        val mockPct = (mockDistance / totalDistance) * PctScale
+        val abnormalPct = (abnormalDistance / totalDistance) * PctScale
         val problematicPct = mockPct + abnormalPct
 
-        val problemPointPct = ((mockCount + abnormalCount) / totalCount.toDouble()) * 100.0
+        val problemPointPct = ((mockCount + abnormalCount) / totalCount.toDouble()) * PctScale
 
-        var score = 100
-        score -= (problematicPct * 0.5).toInt().coerceAtMost(50)
-        score -= (problemPointPct * 0.3).toInt().coerceAtMost(30)
-        if (mockPct > 30.0) score -= 10
-        if (abnormalPct > 20.0) score -= 5
+        var score = PerfectScore
+        score -= (problematicPct * ProblematicDistanceWeight).toInt().coerceAtMost(ProblematicDistanceMaxDeduction)
+        score -= (problemPointPct * ProblemPointWeight).toInt().coerceAtMost(ProblemPointMaxDeduction)
+        if (mockPct > SevereMockPct) score -= SevereMockDeduction
+        if (abnormalPct > SignificantAbnormalPct) score -= SignificantAbnormalDeduction
 
-        return score.coerceIn(0, 100)
+        return score.coerceIn(WorstScore, PerfectScore)
     }
 
     fun getAssessment(score: Int): String =
         when {
-            score >= 90 -> "Excellent quality tracking data"
-            score >= 75 -> "Good quality tracking data"
-            score >= 60 -> "Acceptable tracking data with minor issues"
-            score >= 40 -> "Fair tracking data with some quality issues"
-            score >= 20 -> "Poor tracking data with significant issues"
+            score >= ExcellentScore -> "Excellent quality tracking data"
+            score >= GoodScore -> "Good quality tracking data"
+            score >= AcceptableScore -> "Acceptable tracking data with minor issues"
+            score >= FairScore -> "Fair tracking data with some quality issues"
+            score >= PoorScore -> "Poor tracking data with significant issues"
             else -> "Very poor tracking data quality"
         }
 

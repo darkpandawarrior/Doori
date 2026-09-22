@@ -55,7 +55,9 @@ data class RoutePointsUiState(
 sealed interface RoutePointsEffect
 
 sealed interface RoutePointsAction {
-    data class Load(val routeId: String) : RoutePointsAction
+    data class Load(
+        val routeId: String,
+    ) : RoutePointsAction
 }
 
 /**
@@ -84,8 +86,7 @@ class RoutePointsViewModel(
                         ),
                     pagingSourceFactory = { LocationPagingSource(token, locationRepository) },
                 ).flow.map { data -> data.map { it.toRoutePointUi() } }
-            }
-            .cachedIn(viewModelScope)
+            }.cachedIn(viewModelScope)
 
     override fun onAction(action: RoutePointsAction) {
         when (action) {

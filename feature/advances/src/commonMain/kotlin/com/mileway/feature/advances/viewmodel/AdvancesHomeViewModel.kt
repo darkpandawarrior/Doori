@@ -21,7 +21,9 @@ data class AdvancesHomeUiState(
 )
 
 sealed interface AdvancesHomeAction {
-    data class SelectTab(val index: Int) : AdvancesHomeAction
+    data class SelectTab(
+        val index: Int,
+    ) : AdvancesHomeAction
 
     data object Refresh : AdvancesHomeAction
 }

@@ -19,10 +19,12 @@ import kotlin.test.assertTrue
  * Verifies that Koin stub module wires together without definition errors.
  */
 class KoinModulesTest : KoinTest {
-
     @Before
     fun setUp() {
-        try { stopKoin() } catch (_: Exception) {}
+        try {
+            stopKoin()
+        } catch (_: Exception) {
+        }
         startKoin {
             androidContext(mockk<Context>(relaxed = true))
             modules(stubModule)
@@ -31,7 +33,10 @@ class KoinModulesTest : KoinTest {
 
     @After
     fun tearDown() {
-        try { stopKoin() } catch (_: Exception) {}
+        try {
+            stopKoin()
+        } catch (_: Exception) {
+        }
     }
 
     @Test

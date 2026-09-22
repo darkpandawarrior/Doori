@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * Unit tests for [DynamicIntervalCalculator]. Pure Kotlin, no device needed.
  */
 class DynamicIntervalCalculatorTest {
-
     private fun inputs(
         speed: Double = 11.0,
         battery: Int = 100,

@@ -19,7 +19,9 @@ import kotlinx.coroutines.flow.asStateFlow
  * service) — a battery win, since the gyro is the more power-hungry of the two sensors and is
  * useless while genuinely parked.
  */
-class TrackingSensorMonitor(context: Context) : SensorEventListener {
+class TrackingSensorMonitor(
+    context: Context,
+) : SensorEventListener {
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager
     private val accelerometer = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     private val gyroscope = sensorManager?.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
@@ -77,11 +79,15 @@ class TrackingSensorMonitor(context: Context) : SensorEventListener {
             when (event.sensor.type) {
                 Sensor.TYPE_ACCELEROMETER ->
                     snapshot.copy(
-                        accelX = event.values[0], accelY = event.values[1], accelZ = event.values[2],
+                        accelX = event.values[0],
+                        accelY = event.values[1],
+                        accelZ = event.values[2],
                     )
                 Sensor.TYPE_GYROSCOPE ->
                     snapshot.copy(
-                        gyroX = event.values[0], gyroY = event.values[1], gyroZ = event.values[2],
+                        gyroX = event.values[0],
+                        gyroY = event.values[1],
+                        gyroZ = event.values[2],
                     )
                 else -> snapshot
             }

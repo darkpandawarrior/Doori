@@ -58,12 +58,13 @@ class TrackingNotificationMapperTest {
 
     @Test
     fun `completion takes priority over an active system flag`() {
-        val c = map(
-            TrackingSnapshot(
-                state = TrackingState.COMPLETED,
-                systemFlags = TrackingSystemFlags(permissionMissing = true),
-            ),
-        )
+        val c =
+            map(
+                TrackingSnapshot(
+                    state = TrackingState.COMPLETED,
+                    systemFlags = TrackingSystemFlags(permissionMissing = true),
+                ),
+            )
         assertEquals(TrackingNotificationType.TRIP_COMPLETE, c.type)
     }
 

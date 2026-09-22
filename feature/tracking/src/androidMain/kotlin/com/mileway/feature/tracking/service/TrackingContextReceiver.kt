@@ -9,6 +9,9 @@ import android.os.BatteryManager
 import android.os.PowerManager
 import io.github.aakira.napier.Napier
 
+/** Battery level is logged once per ten-percent step, not on every broadcast. */
+private const val BATTERY_LOG_STEP_PCT = 10
+
 class TrackingContextReceiver : BroadcastReceiver() {
     companion object {
         private const val TAG = "TrackingContextReceiver"
@@ -49,7 +52,7 @@ class TrackingContextReceiver : BroadcastReceiver() {
                 val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
                 if (level >= 0) {
                     val pct = (level * 100f / scale).toInt()
-                    if (pct % 10 == 0) Napier.d("Battery: $pct%", tag = TAG)
+                    if (pct % BATTERY_LOG_STEP_PCT == 0) Napier.d("Battery: $pct%", tag = TAG)
                 }
             }
 

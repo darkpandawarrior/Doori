@@ -15,7 +15,9 @@ sealed interface OdometerValidation {
         val synthetic: Boolean,
     ) : OdometerValidation
 
-    data class Invalid(val reason: OdometerError) : OdometerValidation
+    data class Invalid(
+        val reason: OdometerError,
+    ) : OdometerValidation
 }
 
 enum class OdometerError { BELOW_BOUNDS, ABOVE_BOUNDS, DECREMENT, IMPLAUSIBLE_JUMP }

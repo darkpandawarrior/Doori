@@ -26,5 +26,7 @@ sealed interface TravelAction {
 }
 
 sealed interface TravelEffect {
-    data class ShowMessage(val message: UiText) : TravelEffect
+    data class ShowMessage(
+        val message: UiText,
+    ) : TravelEffect
 }

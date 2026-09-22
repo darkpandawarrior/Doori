@@ -80,9 +80,12 @@ data class SessionState(
     val isClubMember: Boolean get() = clubActivatedAtMs != null
 }
 
+/** How many trailing hash digits the synthesized "EMP-xxxx" code carries. */
+private const val EMPLOYEE_CODE_DIGITS = 4
+
 /**
  * Deterministically derives a mock employee code from a sign-in email. Deterministic (not
  * random) so the same email always synthesizes the same identity across sign-ins, which
  * downstream ownership-pointer matching (e.g. `AccountBinding`, P3.3) depends on.
  */
-fun deriveEmployeeCode(email: String): String = "EMP-" + email.hashCode().toString().takeLast(4)
+fun deriveEmployeeCode(email: String): String = "EMP-" + email.hashCode().toString().takeLast(EMPLOYEE_CODE_DIGITS)

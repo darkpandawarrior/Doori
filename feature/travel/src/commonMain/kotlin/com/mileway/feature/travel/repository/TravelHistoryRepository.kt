@@ -1,10 +1,17 @@
 package com.mileway.feature.travel.repository
 
+import com.mileway.core.data.util.MillisPerDay
 import com.mileway.feature.travel.model.BookingRequest
 import com.mileway.feature.travel.model.BookingType
 import com.mileway.feature.travel.model.TravelReqStatus
 import com.mileway.feature.travel.model.TripRecord
 import kotlin.time.Clock
+
+/** First trip reference number; fixture ids read `TRP-4401`, `TRP-4402`, … */
+private const val TripRefBase = 4_400
+
+/** First booking reference number; fixture ids read `FLT-5001`, `HTL-5004`, … */
+private const val BookingRefBase = 5_000
 
 /**
  * Offline fake travel-history store (TR.8), a deterministic spread of submitted trip requests and booking
@@ -12,9 +19,9 @@ import kotlin.time.Clock
  * `Math.random`). Backs the trip-history and booking-history surfaces; also the TR.9 `TravelSearchProvider`
  * source.
  */
-class TravelHistoryRepository(private val clock: Clock = Clock.System) {
-    private val dayMs = 86_400_000L
-
+class TravelHistoryRepository(
+    private val clock: Clock = Clock.System,
+) {
     private fun trip(
         index: Int,
         purpose: String,
@@ -23,7 +30,7 @@ class TravelHistoryRepository(private val clock: Clock = Clock.System) {
         daysAgo: Long,
     ): TripRecord {
         val now = clock.now().toEpochMilliseconds()
-        return TripRecord("TRP-${4400 + index}", purpose, route, status, now - daysAgo * dayMs)
+        return TripRecord("TRP-${TripRefBase + index}", purpose, route, status, now - daysAgo * MillisPerDay)
     }
 
     private fun booking(
@@ -43,25 +50,77 @@ class TravelHistoryRepository(private val clock: Clock = Clock.System) {
                 BookingType.MJP -> "MJP"
                 BookingType.VISA -> "VSA"
             }
-        return BookingRequest("$prefix-${5000 + index}", type, summary, status, amount, now - daysAgo * dayMs)
+        return BookingRequest(
+            "$prefix-${BookingRefBase + index}",
+            type,
+            summary,
+            status,
+            amount,
+            now - daysAgo * MillisPerDay,
+        )
     }
 
+    // Fixture rows are written with named arguments: `daysAgo = 21L` and `amount = 7800.0` say what the
+    // number is at the only place a reader meets it, which is what extracting a constant per row would
+    // otherwise have to do twenty-two times over.
     private fun allTrips(): List<TripRecord> =
         listOf(
-            trip(1, "Client visit", "Pune → Mumbai", TravelReqStatus.PENDING, 1L),
-            trip(2, "Conference", "Pune → Delhi", TravelReqStatus.APPROVED, 6L),
-            trip(3, "Site audit", "Pune → Bengaluru", TravelReqStatus.COMPLETED, 21L),
-            trip(4, "Vendor meet", "Mumbai → Chennai", TravelReqStatus.REJECTED, 14L),
+            trip(index = 1, purpose = "Client visit", route = "Pune → Mumbai", status = TravelReqStatus.PENDING, daysAgo = 1L),
+            trip(index = 2, purpose = "Conference", route = "Pune → Delhi", status = TravelReqStatus.APPROVED, daysAgo = 6L),
+            trip(index = 3, purpose = "Site audit", route = "Pune → Bengaluru", status = TravelReqStatus.COMPLETED, daysAgo = 21L),
+            trip(index = 4, purpose = "Vendor meet", route = "Mumbai → Chennai", status = TravelReqStatus.REJECTED, daysAgo = 14L),
         )
 
     private fun allBookings(): List<BookingRequest> =
         listOf(
-            booking(1, BookingType.FLIGHT, "PNQ → DEL · IndiGo", TravelReqStatus.PENDING, 7800.0, 2L),
-            booking(2, BookingType.FLIGHT, "BOM → BLR · Air India", TravelReqStatus.APPROVED, 6200.0, 9L),
-            booking(3, BookingType.BUS, "PNQ → Goa · sleeper", TravelReqStatus.COMPLETED, 1400.0, 18L),
-            booking(4, BookingType.HOTEL, "Trident BKC · 3 nights", TravelReqStatus.APPROVED, 21_000.0, 5L),
-            booking(5, BookingType.MJP, "Pune → Delhi → Jaipur", TravelReqStatus.PENDING, null, 3L),
-            booking(6, BookingType.VISA, "Singapore · Business", TravelReqStatus.REJECTED, null, 12L),
+            booking(
+                index = 1,
+                type = BookingType.FLIGHT,
+                summary = "PNQ → DEL · IndiGo",
+                status = TravelReqStatus.PENDING,
+                amount = 7800.0,
+                daysAgo = 2L,
+            ),
+            booking(
+                index = 2,
+                type = BookingType.FLIGHT,
+                summary = "BOM → BLR · Air India",
+                status = TravelReqStatus.APPROVED,
+                amount = 6200.0,
+                daysAgo = 9L,
+            ),
+            booking(
+                index = 3,
+                type = BookingType.BUS,
+                summary = "PNQ → Goa · sleeper",
+                status = TravelReqStatus.COMPLETED,
+                amount = 1400.0,
+                daysAgo = 18L,
+            ),
+            booking(
+                index = 4,
+                type = BookingType.HOTEL,
+                summary = "Trident BKC · 3 nights",
+                status = TravelReqStatus.APPROVED,
+                amount = 21_000.0,
+                daysAgo = 5L,
+            ),
+            booking(
+                index = 5,
+                type = BookingType.MJP,
+                summary = "Pune → Delhi → Jaipur",
+                status = TravelReqStatus.PENDING,
+                amount = null,
+                daysAgo = 3L,
+            ),
+            booking(
+                index = 6,
+                type = BookingType.VISA,
+                summary = "Singapore · Business",
+                status = TravelReqStatus.REJECTED,
+                amount = null,
+                daysAgo = 12L,
+            ),
         )
 
     /** All trips, or just those in [status] when non-null, newest first. */

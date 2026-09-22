@@ -14,8 +14,7 @@ import kotlinx.coroutines.flow.map
 class FakeReferralTxnDao : ReferralTxnDao {
     private val rows = MutableStateFlow<Map<String, ReferralTxnEntity>>(emptyMap())
 
-    override fun observeAll(): Flow<List<ReferralTxnEntity>> =
-        rows.map { it.values.sortedByDescending { row -> row.submittedAtMillis } }
+    override fun observeAll(): Flow<List<ReferralTxnEntity>> = rows.map { it.values.sortedByDescending { row -> row.submittedAtMillis } }
 
     override suspend fun count(): Int = rows.value.size
 

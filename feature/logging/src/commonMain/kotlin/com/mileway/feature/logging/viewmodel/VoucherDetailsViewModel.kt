@@ -12,7 +12,9 @@ data class VoucherDetailsUiState(
 )
 
 sealed interface VoucherDetailsAction {
-    data class Load(val voucherNumber: String) : VoucherDetailsAction
+    data class Load(
+        val voucherNumber: String,
+    ) : VoucherDetailsAction
 }
 
 sealed interface VoucherDetailsEffect

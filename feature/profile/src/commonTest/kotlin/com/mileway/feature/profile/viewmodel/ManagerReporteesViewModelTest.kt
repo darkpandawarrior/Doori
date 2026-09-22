@@ -42,7 +42,9 @@ class ManagerReporteesViewModelTest {
 
     private val account = "ACC-001"
 
-    private class FakeActiveAccount(id: String?) : ActiveAccountSource {
+    private class FakeActiveAccount(
+        id: String?,
+    ) : ActiveAccountSource {
         override val activeAccountId = MutableStateFlow(id)
 
         override suspend fun setActiveAccountId(accountId: String) {
@@ -50,7 +52,9 @@ class ManagerReporteesViewModelTest {
         }
     }
 
-    private class FakeOverrideDao(rows: List<PluginOverrideEntity> = emptyList()) : PluginOverrideDao {
+    private class FakeOverrideDao(
+        rows: List<PluginOverrideEntity> = emptyList(),
+    ) : PluginOverrideDao {
         val state = MutableStateFlow(rows)
 
         override fun observeForAccount(accountId: String): Flow<List<PluginOverrideEntity>> = state.map { list -> list.filter { it.accountId == accountId } }

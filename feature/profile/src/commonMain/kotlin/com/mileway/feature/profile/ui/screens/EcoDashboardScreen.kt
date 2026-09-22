@@ -44,6 +44,12 @@ import com.mileway.feature.profile.viewmodel.EcoDashboardViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+/** Scale-and-truncate factor for one decimal place. */
+private const val ONE_DECIMAL_FACTOR = 10
+
+/** Rounding a positive value to the nearest whole unit: add a half, then truncate. */
+private const val ROUNDING_HALF = 0.5
+
 /**
  * PLAN_V24 P11.4: the Ecometer dashboard. Mileway-styled stat cards over totals computed from the
  * user's REAL completed trips × seeded per-vehicle-type emission/fuel factors (see
@@ -158,6 +164,6 @@ private fun EcoStatCard(
     }
 }
 
-private fun round1(v: Double): Double = (v * 10).toLong() / 10.0
+private fun round1(v: Double): Double = (v * ONE_DECIMAL_FACTOR).toLong() / ONE_DECIMAL_FACTOR.toDouble()
 
-private fun round0(v: Double): Long = (v + 0.5).toLong()
+private fun round0(v: Double): Long = (v + ROUNDING_HALF).toLong()

@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.emptyFlow
 
 class FakeSpeechToText : SpeechToText {
     override fun listen(): Flow<SpeechEvent> = emptyFlow()
+
     override fun stop() {}
 }

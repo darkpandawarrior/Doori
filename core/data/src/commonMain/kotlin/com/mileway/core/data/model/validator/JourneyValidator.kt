@@ -89,7 +89,10 @@ object JourneyValidator {
     fun validateBeforeSubmission(
         currentTrack: CurrentTrackData,
         savedTrack: SavedTrack? = null,
-        nowMs: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+        nowMs: Long =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds(),
     ): JourneyValidationResult {
         val errors = mutableListOf<JourneyValidationError>()
 
@@ -216,8 +219,10 @@ object JourneyValidator {
 
     private fun validateLocation(savedTrack: SavedTrack): List<JourneyValidationError> {
         val outOfBounds =
-            savedTrack.startLatitude < MIN_LATITUDE || savedTrack.startLatitude > MAX_LATITUDE ||
-                savedTrack.startLongitude < MIN_LONGITUDE || savedTrack.startLongitude > MAX_LONGITUDE
+            savedTrack.startLatitude < MIN_LATITUDE ||
+                savedTrack.startLatitude > MAX_LATITUDE ||
+                savedTrack.startLongitude < MIN_LONGITUDE ||
+                savedTrack.startLongitude > MAX_LONGITUDE
         if (!outOfBounds) return emptyList()
 
         return listOf(
@@ -260,7 +265,10 @@ object JourneyValidator {
     /** Guards restoring a persisted [savedTrack] back into the live tracking session. */
     fun validateForRestoration(
         savedTrack: SavedTrack,
-        nowMs: Long = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+        nowMs: Long =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds(),
     ): JourneyValidationResult {
         val errors = mutableListOf<JourneyValidationError>()
 

@@ -77,17 +77,18 @@ class MediaLibraryMigration39to40Test {
             var deletedAt: Long? = -1L
             var lastAccessedAt: Long? = -1L
             var hasOcr = -1L
-            connection.prepare(
-                "SELECT `isFavorite`,`isDeleted`,`deletedAt`,`lastAccessedAt`,`hasOcr` FROM `media_library` WHERE `id` = 'm1'",
-            ).use { stmt ->
-                if (stmt.step()) {
-                    isFavorite = stmt.getLong(0)
-                    isDeleted = stmt.getLong(1)
-                    deletedAt = if (stmt.isNull(2)) null else stmt.getLong(2)
-                    lastAccessedAt = if (stmt.isNull(3)) null else stmt.getLong(3)
-                    hasOcr = stmt.getLong(4)
+            connection
+                .prepare(
+                    "SELECT `isFavorite`,`isDeleted`,`deletedAt`,`lastAccessedAt`,`hasOcr` FROM `media_library` WHERE `id` = 'm1'",
+                ).use { stmt ->
+                    if (stmt.step()) {
+                        isFavorite = stmt.getLong(0)
+                        isDeleted = stmt.getLong(1)
+                        deletedAt = if (stmt.isNull(2)) null else stmt.getLong(2)
+                        lastAccessedAt = if (stmt.isNull(3)) null else stmt.getLong(3)
+                        hasOcr = stmt.getLong(4)
+                    }
                 }
-            }
             assertEquals(0L, isFavorite)
             assertEquals(0L, isDeleted)
             assertEquals(null, deletedAt)

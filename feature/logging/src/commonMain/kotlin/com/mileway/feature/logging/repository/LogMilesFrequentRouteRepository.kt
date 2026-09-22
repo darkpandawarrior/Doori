@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.map
  * commutes surface for one-tap retrace. Mirrors [LogMilesDraftRepository]'s stop encode/decode so
  * both stores share one JSON shape for [LocationStop] lists.
  */
-class LogMilesFrequentRouteRepository(private val dao: LogMilesFrequentRouteDao) {
+class LogMilesFrequentRouteRepository(
+    private val dao: LogMilesFrequentRouteDao,
+) {
     /** Frequent routes, most-used first — the source for a one-tap retrace list. */
     fun topRoutes(limit: Int = 5): Flow<List<LogMilesFrequentRoute>> =
         dao.observeAllRoutes().map { rows ->

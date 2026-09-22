@@ -471,8 +471,7 @@ private fun filterJourneys(uiState: SavedTracksUiState): List<TrackDisplayData> 
                 JourneyFilter.KEPT -> track.isSubmitted
                 JourneyFilter.ALL -> true
             }
-        }
-        .filter { track ->
+        }.filter { track ->
             uiState.journeySearch.isBlank() ||
                 (track.name?.contains(uiState.journeySearch, ignoreCase = true) == true) ||
                 track.token.contains(uiState.journeySearch, ignoreCase = true)
@@ -757,7 +756,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.submissionsSection(
                 // VI.3: Crossfade count animation on the Create Voucher CTA
                 AnimatedContent(
                     targetState = voucherCount,
-                    transitionSpec = { fadeIn(tween(150)) togetherWith fadeOut(tween(150)) },
+                    transitionSpec = { fadeIn(tween(CrossfadeMillis)) togetherWith fadeOut(tween(CrossfadeMillis)) },
                     label = "voucherCount",
                 ) { count ->
                     CreateVoucherButton(count = count, onClick = { viewModel.onAction(SavedTracksAction.CreateVoucher) })
@@ -834,22 +833,48 @@ private fun SubmissionItem.toCardData() =
         voucherNumber = voucherNumber,
     )
 
+/** Crossfade between the two states of the header count. */
+private const val CrossfadeMillis = 150
+
+// Health-score bands and adjustments for the journey card.
+private const val HealthBaseScore = 70
+private const val HealthMinScore = 0
+private const val HealthMaxScore = 100
+
+// Fixes per kilometre, and what each density band is worth.
+private const val DenseFixesPerKm = 20
+private const val GoodFixesPerKm = 10
+private const val ThinFixesPerKm = 5
+private const val SparseFixesPerKm = 2
+private const val DenseBonus = 20
+private const val GoodBonus = 12
+private const val ThinBonus = 5
+private const val SparseNeutral = 0
+private const val VerySparsePenalty = -15
+
+private const val TooFewFixes = 5
+private const val TooFewFixesPenalty = 20
+private const val ManyFixes = 50
+private const val ManyFixesBonus = 10
+private const val LongTripKm = 5
+private const val LongTripBonus = 5
+
 /** VI.1: Pseudo health score (0–100) for a journey card, derived from available fields. */
 private fun TrackDisplayData.healthScore(): Int {
-    var score = 70
+    var score = HealthBaseScore
     val pointDensity = if (distanceKm > 0) locationCount / distanceKm else 0.0
     score +=
         when {
-            pointDensity >= 20 -> 20
-            pointDensity >= 10 -> 12
-            pointDensity >= 5 -> 5
-            pointDensity >= 2 -> 0
-            else -> -15
+            pointDensity >= DenseFixesPerKm -> DenseBonus
+            pointDensity >= GoodFixesPerKm -> GoodBonus
+            pointDensity >= ThinFixesPerKm -> ThinBonus
+            pointDensity >= SparseFixesPerKm -> SparseNeutral
+            else -> VerySparsePenalty
         }
-    if (locationCount < 5) score -= 20
-    if (locationCount >= 50) score += 10
-    if (distanceKm > 5) score += 5
-    return score.coerceIn(0, 100)
+    if (locationCount < TooFewFixes) score -= TooFewFixesPenalty
+    if (locationCount >= ManyFixes) score += ManyFixesBonus
+    if (distanceKm > LongTripKm) score += LongTripBonus
+    return score.coerceIn(HealthMinScore, HealthMaxScore)
 }
 
 /** VI.4: Collapsible weekly-insights banner above the submissions list. */

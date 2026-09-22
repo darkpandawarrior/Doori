@@ -11,25 +11,37 @@ sealed interface TrackingKey
 data object SavedTracks : TrackingKey
 
 @Serializable
-data class LiveTrack(val routeId: String) : TrackingKey
+data class LiveTrack(
+    val routeId: String,
+) : TrackingKey
 
 @Serializable
-data class LiveMap(val routeId: String) : TrackingKey
+data class LiveMap(
+    val routeId: String,
+) : TrackingKey
 
 @Serializable
-data class TrackDetail(val routeId: String) : TrackingKey
+data class TrackDetail(
+    val routeId: String,
+) : TrackingKey
 
 @Serializable
-data class TrackInsights(val routeId: String) : TrackingKey
+data class TrackInsights(
+    val routeId: String,
+) : TrackingKey
 
 @Serializable
-data class HwEvents(val routeId: String) : TrackingKey
+data class HwEvents(
+    val routeId: String,
+) : TrackingKey
 
 @Serializable
 data object CheckInHistory : TrackingKey
 
 @Serializable
-data class RouteMap(val routeId: String) : TrackingKey
+data class RouteMap(
+    val routeId: String,
+) : TrackingKey
 
 @Serializable
 data class TrackSubmit(
@@ -81,4 +93,6 @@ data object GeoCheckIn : TrackingKey
 data object ManualCheckIn : TrackingKey
 
 @Serializable
-data class TrackDataPreview(val routeId: String) : TrackingKey
+data class TrackDataPreview(
+    val routeId: String,
+) : TrackingKey

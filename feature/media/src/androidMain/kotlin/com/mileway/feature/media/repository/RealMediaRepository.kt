@@ -20,6 +20,11 @@ import com.mileway.feature.media.ocr.OdometerOcrAggregator
 import com.mileway.feature.media.ocr.OdometerOcrParser
 import kotlinx.coroutines.tasks.await
 
+/** EXIF orientations are quarter turns clockwise; these are the three non-zero ones, in degrees. */
+private const val QuarterTurnDegrees = 90f
+private const val HalfTurnDegrees = 180f
+private const val ThreeQuarterTurnDegrees = 270f
+
 /**
  * Production [MediaRepository] running on-device ML Kit text recognition (bundled Latin model, no
  * network, no Play Store download — works in both flavors).
@@ -31,7 +36,13 @@ import kotlinx.coroutines.tasks.await
  * `isVerified` flag (>=2 passes agreed). Falls back to a "no reading" result on any failure so the user
  * can type the value — the app never crashes.
  */
-class RealMediaRepository(private val context: Context) : MediaRepository {
+class RealMediaRepository(
+    private val context: Context,
+) : MediaRepository {
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun runOcr(uri: String): OcrResult {
         return try {
             val source =
@@ -127,18 +138,18 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
     ): Bitmap {
         val matrix = Matrix()
         when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(QuarterTurnDegrees)
+            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(HalfTurnDegrees)
+            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(ThreeQuarterTurnDegrees)
             ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
             ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
             ExifInterface.ORIENTATION_TRANSPOSE -> {
                 matrix.preScale(-1f, 1f)
-                matrix.postRotate(270f)
+                matrix.postRotate(ThreeQuarterTurnDegrees)
             }
             ExifInterface.ORIENTATION_TRANSVERSE -> {
                 matrix.preScale(-1f, 1f)
-                matrix.postRotate(90f)
+                matrix.postRotate(QuarterTurnDegrees)
             }
             else -> return bitmap
         }
@@ -178,10 +189,26 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
             val translate = (1f - c) / 2f * 255f
             return ColorMatrix(
                 floatArrayOf(
-                    c, 0f, 0f, 0f, translate,
-                    0f, c, 0f, 0f, translate,
-                    0f, 0f, c, 0f, translate,
-                    0f, 0f, 0f, 1f, 0f,
+                    c,
+                    0f,
+                    0f,
+                    0f,
+                    translate,
+                    0f,
+                    c,
+                    0f,
+                    0f,
+                    translate,
+                    0f,
+                    0f,
+                    c,
+                    0f,
+                    translate,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f,
                 ),
             )
         }
@@ -190,10 +217,26 @@ class RealMediaRepository(private val context: Context) : MediaRepository {
         fun brightnessMatrix(b: Float): ColorMatrix =
             ColorMatrix(
                 floatArrayOf(
-                    b, 0f, 0f, 0f, 0f,
-                    0f, b, 0f, 0f, 0f,
-                    0f, 0f, b, 0f, 0f,
-                    0f, 0f, 0f, 1f, 0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    b,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    0f,
+                    1f,
+                    0f,
                 ),
             )
     }

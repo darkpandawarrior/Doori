@@ -13,7 +13,9 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 /** A [Clock] pinned to the start of [date] (in the system-default zone) — deterministic "today". */
-private class FixedClock(date: LocalDate) : Clock {
+private class FixedClock(
+    date: LocalDate,
+) : Clock {
     private val instant = date.atStartOfDayIn(TimeZone.currentSystemDefault())
 
     override fun now(): Instant = instant

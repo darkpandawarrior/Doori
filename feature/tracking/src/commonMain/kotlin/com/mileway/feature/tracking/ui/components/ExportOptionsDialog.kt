@@ -258,8 +258,7 @@ fun ExportOptionsDialog(
                                     selected = selectedFormat == format,
                                     onClick = { selectedFormat = format },
                                     role = Role.RadioButton,
-                                )
-                                .padding(vertical = 4.dp),
+                                ).padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         RadioButton(

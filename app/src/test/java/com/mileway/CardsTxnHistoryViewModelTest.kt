@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
 
 /** SP.3 (V17): cards-expense-txn history reducer over the offline fake. */
 class CardsTxnHistoryViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 

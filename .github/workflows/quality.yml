@@ -104,10 +104,10 @@ jobs:
       # depends on both; running them twice in one job would just cost minutes for a redundant
       # UP-TO-DATE re-check.
       #
-      # Verify mode by default (no -Proborazzi.test.record=true), so this genuinely gates: a captured
-      # PNG that no longer matches docs/screenshots/*.png fails the job. Re-recording accepted changes
-      # is a SEPARATE, explicit action — screenshots.yml on push to main, or `-Proborazzi.test.record`
-      # by hand — never silently rewritten by this check. That split is deliberate: a workflow that
+      # Re-recording accepted changes is a SEPARATE, explicit action — screenshots.yml on push to
+      # main, or `ROBORAZZI_RECORD=true ./gradlew screenshotTest` by hand — never silently
+      # rewritten by this check. (This block used to say `-Proborazzi.test.record`; that flag does
+      # not reach :app's forked test JVM and records nothing. See docs/SCREENSHOT_TESTING.md.) That split is deliberate: a workflow that
       # auto-commits regenerated baselines on the same run that verifies them could mask a real
       # regression by rewriting the evidence out from under itself.
       #

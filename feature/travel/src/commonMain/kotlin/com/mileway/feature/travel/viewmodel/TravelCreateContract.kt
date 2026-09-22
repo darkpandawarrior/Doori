@@ -7,11 +7,17 @@ import com.mileway.feature.travel.repository.TravelSubmissionResult
  * or toasts on it. Shared because the three rotating outcomes are identical across the travel create suite.
  */
 sealed interface TravelCreateEffect {
-    data class Success(val id: String) : TravelCreateEffect
+    data class Success(
+        val id: String,
+    ) : TravelCreateEffect
 
-    data class NeedsApproval(val id: String) : TravelCreateEffect
+    data class NeedsApproval(
+        val id: String,
+    ) : TravelCreateEffect
 
-    data class Violation(val messages: List<String>) : TravelCreateEffect
+    data class Violation(
+        val messages: List<String>,
+    ) : TravelCreateEffect
 }
 
 /** Maps a repository [TravelSubmissionResult] to the shared one-shot [TravelCreateEffect]. */

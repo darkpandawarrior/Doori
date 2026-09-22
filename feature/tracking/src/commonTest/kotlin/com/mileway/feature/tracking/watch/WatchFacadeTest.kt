@@ -134,11 +134,16 @@ class WatchFacadeTest {
         routeId = routeId,
         name = name,
         isCompleted = true,
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = endTime - 1_000L, endTime = endTime,
-        distance = distanceM, duration = 1_000L,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = endTime - 1_000L,
+        endTime = endTime,
+        distance = distanceM,
+        duration = 1_000L,
         createdAt = endTime,
     )
 
@@ -146,11 +151,16 @@ class WatchFacadeTest {
         SavedTrack(
             routeId = routeId,
             name = "Active",
-            startLatitude = 0.0, startLongitude = 0.0,
-            endLatitude = 0.0, endLongitude = 0.0,
-            pausedLatitude = 0.0, pausedLongitude = 0.0,
-            startTime = 1_000L, endTime = -1L,
-            distance = 0.0, duration = 0L,
+            startLatitude = 0.0,
+            startLongitude = 0.0,
+            endLatitude = 0.0,
+            endLongitude = 0.0,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = 1_000L,
+            endTime = -1L,
+            distance = 0.0,
+            duration = 0L,
             createdAt = 1_000L,
         )
 }
@@ -177,7 +187,9 @@ private class RecordingTrackingController : TrackingController {
     }
 }
 
-private class FakeWatchDao(seed: List<SavedTrack> = emptyList()) : SavedTrackDao {
+private class FakeWatchDao(
+    seed: List<SavedTrack> = emptyList(),
+) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
     // SmartDistance commit without updating these test fakes; no-op override so this test source
     // set compiles (pre-existing breakage, incidental to P10.1).

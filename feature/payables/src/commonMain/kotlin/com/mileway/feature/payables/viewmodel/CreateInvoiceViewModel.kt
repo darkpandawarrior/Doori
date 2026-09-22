@@ -22,25 +22,41 @@ data class CreateInvoiceUiState(
 }
 
 sealed interface CreateInvoiceAction {
-    data class SetInvoiceNumber(val value: String) : CreateInvoiceAction
+    data class SetInvoiceNumber(
+        val value: String,
+    ) : CreateInvoiceAction
 
-    data class SetVendor(val value: String) : CreateInvoiceAction
+    data class SetVendor(
+        val value: String,
+    ) : CreateInvoiceAction
 
-    data class SetAmount(val value: String) : CreateInvoiceAction
+    data class SetAmount(
+        val value: String,
+    ) : CreateInvoiceAction
 
-    data class SetTax(val value: String) : CreateInvoiceAction
+    data class SetTax(
+        val value: String,
+    ) : CreateInvoiceAction
 
-    data class SetGlCode(val value: String) : CreateInvoiceAction
+    data class SetGlCode(
+        val value: String,
+    ) : CreateInvoiceAction
 
     data object Submit : CreateInvoiceAction
 }
 
 sealed interface CreateInvoiceEffect {
-    data class Success(val id: String) : CreateInvoiceEffect
+    data class Success(
+        val id: String,
+    ) : CreateInvoiceEffect
 
-    data class NeedsApproval(val id: String) : CreateInvoiceEffect
+    data class NeedsApproval(
+        val id: String,
+    ) : CreateInvoiceEffect
 
-    data class Violation(val messages: List<String>) : CreateInvoiceEffect
+    data class Violation(
+        val messages: List<String>,
+    ) : CreateInvoiceEffect
 }
 
 /**

@@ -88,6 +88,7 @@ import com.mileway.core.ui.resources.profile_analytics_title
 import com.mileway.core.ui.resources.profile_analytics_total
 import com.mileway.core.ui.resources.profile_analytics_total_spend
 import com.mileway.core.ui.resources.profile_analytics_violations
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.MilewayRoles
@@ -329,7 +330,9 @@ private fun TeamTab(
     val teamTotal = state.leaderboard.sumOf { it.amountRupees }
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
     ) {
         item {
@@ -447,8 +450,22 @@ private fun TeamMemberRow(
                 Text("₹${member.amountRupees.toLong()}", style = MaterialTheme.typography.bodyMedium.dataStyle(), fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(4.dp))
-            Box(modifier = Modifier.fillMaxWidth().height(4.dp).clip(DesignTokens.Shape.button).background(MaterialTheme.colorScheme.surfaceVariant)) {
-                Box(modifier = Modifier.fillMaxWidth(fraction).height(4.dp).clip(DesignTokens.Shape.button).background(categoryColor))
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .clip(DesignTokens.Shape.button)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(fraction)
+                            .height(4.dp)
+                            .clip(DesignTokens.Shape.button)
+                            .background(categoryColor),
+                )
             }
             Spacer(Modifier.height(2.dp))
             Text(
@@ -464,7 +481,9 @@ private fun TeamMemberRow(
 private fun InsightsTab(state: AnalyticsUiState) {
     LazyColumn(
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(DesignTokens.Spacing.l),
         verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
         item {
@@ -740,7 +759,6 @@ private fun PolicyStat(
 
 @Composable
 private fun RecentActivityRow(item: RecentActivityItem) {
-    val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = DesignTokens.Spacing.xs),
         verticalAlignment = Alignment.CenterVertically,
@@ -760,9 +778,8 @@ private fun RecentActivityRow(item: RecentActivityItem) {
         Column(modifier = Modifier.weight(1f)) {
             Text(item.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             Text(
-                "${item.subtitle} · ${Instant.fromEpochMilliseconds(item.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let {
-                        ldt ->
-                    "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]}"
+                "${item.subtitle} · ${Instant.fromEpochMilliseconds(item.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
+                    "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)}"
                 }} · ${item.status}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

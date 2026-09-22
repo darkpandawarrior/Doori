@@ -31,6 +31,13 @@ object ThemeDefaults {
  */
 val PaletteStyleNames: List<String> =
     listOf(
-        "TonalSpot", "Neutral", "Vibrant", "Expressive",
-        "Rainbow", "FruitSalad", "Monochrome", "Fidelity", "Content",
+        "TonalSpot",
+        "Neutral",
+        "Vibrant",
+        "Expressive",
+        "Rainbow",
+        "FruitSalad",
+        "Monochrome",
+        "Fidelity",
+        "Content",
     )

@@ -1,3 +1,14 @@
+// MagicNumber is suppressed for this file, and only for files shaped like this one.
+//
+// This is a hand-written fixture dataset: amounts, distances, counts and day offsets that ARE the
+// sample record, not a threshold or policy any code branches on. `MagicNumber` exists to catch an
+// unexplained constant steering business logic; there is none here, and naming eighty fixture
+// literals would add eighty names that carry no more information than the literal did.
+//
+// The line this draws: a number a caller compares against, divides by, or sleeps for is debt and
+// gets a name wherever it lives — including in this file. Only the dataset itself is excused.
+@file:Suppress("MagicNumber")
+
 package com.mileway.stub
 
 import com.mileway.core.data.ledger.PolicyRateEngine
@@ -48,6 +59,10 @@ object DemoMockData {
                 ),
         )
 
+    // `trackMiles` mirrors MilewayNetworkApi.vehicles(), which every caller and every fake must
+    // match. The demo fixture returns the same list either way; the real endpoint does not.
+    // Dropping the parameter would break the interface this stub exists to stand in for.
+    @Suppress("UnusedParameter")
     fun vehicles(trackMiles: Boolean = true): PolicyApprovedVehiclesResponse =
         PolicyApprovedVehiclesResponse(
             vehicles =
@@ -66,6 +81,8 @@ object DemoMockData {
                 ),
         )
 
+    // Same as vehicles() above: `isInsideTrip` is part of the API contract this fake implements.
+    @Suppress("UnusedParameter")
     fun logMilesServices(isInsideTrip: Boolean = false): LogMilesServicesResponse =
         LogMilesServicesResponse(
             services =

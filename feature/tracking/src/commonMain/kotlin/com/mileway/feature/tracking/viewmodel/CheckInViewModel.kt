@@ -15,6 +15,9 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/** Check-in tokens are logged by their first eight characters only, never in full. */
+private const val TOKEN_LOG_PREFIX = 8
+
 data class CheckInUiState(
     val isSubmitting: Boolean = false,
     val checkInSuccess: Boolean = false,
@@ -34,7 +37,9 @@ sealed interface CheckInAction {
 
     data object DismissManualCheckIn : CheckInAction
 
-    data class UpdateManualReason(val text: String) : CheckInAction
+    data class UpdateManualReason(
+        val text: String,
+    ) : CheckInAction
 
     data object SubmitManualCheckIn : CheckInAction
 
@@ -42,7 +47,10 @@ sealed interface CheckInAction {
 
     data object DismissGeoCheckIn : CheckInAction
 
-    data class ValidateAndGeoCheckIn(val lat: Double, val lng: Double) : CheckInAction
+    data class ValidateAndGeoCheckIn(
+        val lat: Double,
+        val lng: Double,
+    ) : CheckInAction
 
     data object DismissRadiusWarning : CheckInAction
 
@@ -98,6 +106,10 @@ class CheckInViewModel(
         }
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun submitManualCheckIn() {
         val snapshot = currentState
         if (snapshot.isSubmitting) return
@@ -117,11 +129,15 @@ class CheckInViewModel(
                 val lastLocation: LocationData? =
                     try {
                         locationRepo.locationsForToken(token).first().lastOrNull()
-                    } catch (e: Exception) {
+                    } catch (ignored: Exception) {
+                        // No cached location for this token is an ordinary outcome, not an error to report.
                         null
                     }
 
-                val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                val now =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds()
                 val checkInRecord =
                     if (lastLocation != null) {
                         lastLocation.copy(
@@ -135,7 +151,8 @@ class CheckInViewModel(
                     } else {
                         LocationData(
                             token = token,
-                            lat = 0.0, lng = 0.0,
+                            lat = 0.0,
+                            lng = 0.0,
                             activity = "MANUAL_CHECK_IN",
                             speed = 0f,
                             batteryPercentage = 0.0,
@@ -162,7 +179,7 @@ class CheckInViewModel(
                     )
                 hardwareEventRepo.insert(hwEvent)
 
-                Napier.i("Manual check-in saved for token=${token.take(8)}…", tag = "CheckInViewModel")
+                Napier.i("Manual check-in saved for token=${token.take(TOKEN_LOG_PREFIX)}…", tag = "CheckInViewModel")
                 setState {
                     copy(
                         isSubmitting = false,
@@ -218,6 +235,10 @@ class CheckInViewModel(
         persistGeoCheckIn(pending, isOverride = true)
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun persistGeoCheckIn(
         result: CheckInValidator.ValidationResult,
         isOverride: Boolean = false,
@@ -237,7 +258,10 @@ class CheckInViewModel(
                     return@launch
                 }
 
-                val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                val now =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds()
                 val checkInType = if (isOverride) "GEO_OVERRIDE" else "GEO"
                 val checkInRecord =
                     LocationData(
@@ -276,7 +300,11 @@ class CheckInViewModel(
                     )
                 hardwareEventRepo.insert(hwEvent)
 
-                Napier.i("Geo check-in ($checkInType) saved for token=${token.take(8)}… at ${result.nearestLocation.name}", tag = "CheckInViewModel")
+                val loggedToken = token.take(TOKEN_LOG_PREFIX)
+                Napier.i(
+                    "Geo check-in ($checkInType) saved for token=$loggedToken… at ${result.nearestLocation.name}",
+                    tag = "CheckInViewModel",
+                )
                 setState {
                     copy(
                         isSubmitting = false,

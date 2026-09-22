@@ -107,6 +107,9 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Clock
 
+/** Default new-delegation grant window, in months. */
+private const val DEFAULT_GRANT_MONTHS = 6
+
 private val DELEGATION_TYPES = listOf("View Only", "Approve", "Full Access")
 
 private val TEAM_MEMBERS =
@@ -145,7 +148,7 @@ private fun defaultExpiryMillis(): Long =
         .now()
         .toLocalDateTime(TimeZone.currentSystemDefault())
         .date
-        .plus(6, DateTimeUnit.MONTH)
+        .plus(DEFAULT_GRANT_MONTHS, DateTimeUnit.MONTH)
         .atStartOfDayIn(TimeZone.currentSystemDefault())
         .toEpochMilliseconds()
 
@@ -213,7 +216,9 @@ fun DelegationScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(DesignTokens.Spacing.l),
+                contentPadding =
+                    androidx.compose.foundation.layout
+                        .PaddingValues(DesignTokens.Spacing.l),
                 verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
             ) {
                 item {

@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+/** One-time codes in this flow are six digits, as issued by the shared OTP engine. */
+private const val OTP_LENGTH = 6
+
 enum class PhoneChangeStep { ENTER_PHONE, VERIFY }
 
 enum class PhoneChangeError { INVALID_PHONE, WRONG_CODE, EXPIRED }
@@ -61,9 +64,9 @@ class PhoneChangeViewModel(
     }
 
     fun onCodeChange(value: String) {
-        val digits = value.filter { it.isDigit() }.take(6)
+        val digits = value.filter { it.isDigit() }.take(OTP_LENGTH)
         _state.value = _state.value.copy(code = digits, error = null)
-        if (digits.length == 6) verify()
+        if (digits.length == OTP_LENGTH) verify()
     }
 
     fun requestOtp() {
@@ -95,7 +98,9 @@ class PhoneChangeViewModel(
     }
 
     fun autofillDemoCode() {
-        _state.value.delivery?.code?.let { onCodeChange(it) }
+        _state.value.delivery
+            ?.code
+            ?.let { onCodeChange(it) }
     }
 
     fun cancel() {

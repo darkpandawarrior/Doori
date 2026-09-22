@@ -146,7 +146,10 @@ class HardwareEventsViewModelTest {
             vm.onAction(HardwareEventsAction.LoadByToken(TOKEN))
 
             // Deliberate product behaviour: an empty log renders the demo seed, not a blank screen.
-            assertTrue(vm.state.value.allEvents.isNotEmpty())
+            assertTrue(
+                vm.state.value.allEvents
+                    .isNotEmpty(),
+            )
         }
 
     @Test
@@ -169,7 +172,11 @@ class HardwareEventsViewModelTest {
 
             vm.onAction(HardwareEventsAction.SetSearchQuery("started"))
 
-            assertEquals(listOf(1L), vm.state.value.filteredEvents.map { it.id })
+            assertEquals(
+                listOf(1L),
+                vm.state.value.filteredEvents
+                    .map { it.id },
+            )
         }
 
     @Test
@@ -186,7 +193,11 @@ class HardwareEventsViewModelTest {
 
             vm.onAction(HardwareEventsAction.SetSearchQuery("vehicle"))
 
-            assertEquals(listOf(1L), vm.state.value.filteredEvents.map { it.id })
+            assertEquals(
+                listOf(1L),
+                vm.state.value.filteredEvents
+                    .map { it.id },
+            )
         }
 
     @Test
@@ -202,7 +213,11 @@ class HardwareEventsViewModelTest {
 
             vm.onAction(HardwareEventsAction.LoadByToken(TOKEN))
 
-            assertEquals(listOf(1L), vm.state.value.filteredEvents.map { it.id })
+            assertEquals(
+                listOf(1L),
+                vm.state.value.filteredEvents
+                    .map { it.id },
+            )
         }
 
     @Test
@@ -223,7 +238,11 @@ class HardwareEventsViewModelTest {
             vm.onAction(HardwareEventsAction.ToggleAudienceFilter(EventAudience.USER))
 
             assertEquals(setOf<EventAudience>(), vm.state.value.selectedAudiences)
-            assertEquals(listOf(1L, 2L), vm.state.value.filteredEvents.map { it.id })
+            assertEquals(
+                listOf(1L, 2L),
+                vm.state.value.filteredEvents
+                    .map { it.id },
+            )
         }
 
     @Test

@@ -104,6 +104,10 @@ class PayablesHistoryViewModelTest {
         vm.onAction(PayablesHistoryAction.Refresh)
 
         assertEquals(invoiceTabIndex, vm.state.value.tabIndex)
-        assertEquals(3, vm.state.value.list.dataOrNull?.size)
+        assertEquals(
+            3,
+            vm.state.value.list.dataOrNull
+                ?.size,
+        )
     }
 }

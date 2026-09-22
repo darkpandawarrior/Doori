@@ -9,6 +9,7 @@ import com.mileway.core.data.model.network.BulkLocationRequest
 import com.mileway.core.data.model.network.BulkLocationRequestV2
 import com.mileway.core.data.model.network.CheckInDetailsResponseV2
 import com.mileway.core.data.model.network.CheckInRequestV2
+import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.DistanceRequestV2
 import com.mileway.core.data.model.network.DistanceResponseV2
 import com.mileway.core.data.model.network.EmptyRequest
@@ -38,8 +39,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
     override suspend fun vehicles(trackMiles: Boolean): PolicyApprovedVehiclesResponse = DemoMockData.vehicles(trackMiles)
 
     /** Same rate table the server's `/api/pricing` serves — see [DemoMockData.rateTable]. */
-    override suspend fun pricing(): ApprovedVehiclePricingResponse =
-        ApprovedVehiclePricingResponse(data = DemoMockData.rateTable.rates)
+    override suspend fun pricing(): ApprovedVehiclePricingResponse = ApprovedVehiclePricingResponse(data = DemoMockData.rateTable.rates)
 
     override suspend fun submitMilesEvent(request: PostMileageEventRequestK) { /* no-op */ }
 
@@ -52,8 +52,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
             token = request.vehicleType,
         )
 
-    override suspend fun fetchLogMilesServices(isInsideTrip: Boolean): LogMilesServicesResponse =
-        DemoMockData.logMilesServices(isInsideTrip)
+    override suspend fun fetchLogMilesServices(isInsideTrip: Boolean): LogMilesServicesResponse = DemoMockData.logMilesServices(isInsideTrip)
 
     override suspend fun logMilesRoutes(): LogMilesRoutesResponse = DemoMockData.logMilesRoutes()
 
@@ -66,7 +65,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         for (i in 0 until coords.size - 1) {
             val a = coords[i]
             val b = coords[i + 1]
-            if (a.lat != null && a.lng != null && b.lat != null && b.lng != null) {
+            if (a.hasFix() && b.hasFix()) {
                 totalKm += haversineKm(a.lat!!, a.lng!!, b.lat!!, b.lng!!)
             }
         }
@@ -115,8 +114,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         lng: String,
     ): MapResponse = MapResponse(address = "Demo Location", lat = lat.toDoubleOrNull(), lng = lng.toDoubleOrNull())
 
-    override suspend fun geoTypeById(typeId: Long): CheckInDetailsResponseV2 =
-        CheckInDetailsResponseV2(id = typeId, name = "Office", radius = 200.0)
+    override suspend fun geoTypeById(typeId: Long): CheckInDetailsResponseV2 = CheckInDetailsResponseV2(id = typeId, name = "Office", radius = 200.0)
 
     override suspend fun submittedCheckins(token: String): SubmittedCheckInResponseV2 = SubmittedCheckInResponseV2()
 
@@ -157,5 +155,11 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         lon1: Double,
         lat2: Double,
         lon2: Double,
-    ): Double = haversineMeters(lat1, lon1, lat2, lon2) / 1_000.0
+    ): Double = haversineMeters(lat1, lon1, lat2, lon2) / MetresPerKm
 }
+
+/** Metres in a kilometre — [haversineMeters] answers in metres, [DistanceResponseV2] is kilometres. */
+private const val MetresPerKm = 1_000.0
+
+/** A leg only contributes distance when both of its ends carry a complete fix. */
+private fun CoordsV2.hasFix(): Boolean = lat != null && lng != null

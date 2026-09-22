@@ -36,20 +36,19 @@ import com.mileway.core.ui.resources.profile_accounts_employee_code
 import com.mileway.core.ui.resources.profile_accounts_last_login
 import com.mileway.core.ui.resources.profile_accounts_organization
 import com.mileway.core.ui.resources.profile_sessions_status_active
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-
 private fun formatTimestamp(ms: Long): String =
     if (ms <= 0L) {
         "—"
     } else {
         Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault()).let { ldt ->
-            "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}"
+            "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}"
         }
     }
 

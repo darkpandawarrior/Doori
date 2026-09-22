@@ -1,8 +1,0 @@
-<?xml version="1.0" ?>
-<SmellBaseline>
-  <ManuallySuppressedIssues/>
-  <CurrentIssues>
-    <ID>ReturnCount:OcrAggregator.kt:OcrAggregator$fun aggregate: AggregateResult</ID>
-    <ID>ReturnCount:OdometerReconciler.kt:OdometerReconciler$fun reconcile: Verdict</ID>
-  </CurrentIssues>
-</SmellBaseline>

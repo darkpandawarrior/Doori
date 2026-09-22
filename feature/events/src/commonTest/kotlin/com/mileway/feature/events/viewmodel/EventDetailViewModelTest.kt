@@ -23,7 +23,9 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 
-private class FixedClock(private val epochMs: Long) : Clock {
+private class FixedClock(
+    private val epochMs: Long,
+) : Clock {
     override fun now(): Instant = Instant.fromEpochMilliseconds(epochMs)
 }
 
@@ -126,7 +128,9 @@ class EventDetailViewModelTest {
             val vm = EventDetailViewModel(event.id, repository)
 
             vm.onAction(EventDetailAction.OpenLinkSheet)
-            val candidate = vm.state.value.availableToLink.first()
+            val candidate =
+                vm.state.value.availableToLink
+                    .first()
             vm.onAction(EventDetailAction.ToggleLinkSelection(candidate.id))
             vm.onAction(EventDetailAction.ConfirmLink)
 

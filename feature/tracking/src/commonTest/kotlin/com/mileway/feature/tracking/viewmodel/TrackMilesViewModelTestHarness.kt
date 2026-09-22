@@ -160,7 +160,9 @@ internal open class FakeNetworkApi(
 
 // `internal` (not `private`) so PLAN_V29 P29.S.1's MileageSearchProviderTest can reuse it instead
 // of duplicating another full SavedTrackDao fake.
-internal class FakeSavedTrackDao(seed: List<SavedTrack> = emptyList()) : SavedTrackDao {
+internal class FakeSavedTrackDao(
+    seed: List<SavedTrack> = emptyList(),
+) : SavedTrackDao {
     // P10.1: stale-fake catch-up — SavedTrackDao.updateSmartDistanceFinal was added by the
     // SmartDistance commit without updating these test fakes; no-op override so this test source
     // set compiles (pre-existing breakage, incidental to P10.1).
@@ -423,8 +425,8 @@ internal class FakeLocationDao : LocationDao {
 // ── CurrentTrackDataSource fake ───────────────────────────────────────────────
 
 internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
-    private val _flow = MutableStateFlow(CurrentTrackData(token = ""))
-    override val currentTrackFlow: Flow<CurrentTrackData> = _flow
+    private val mutableCurrentTrackFlow = MutableStateFlow(CurrentTrackData(token = ""))
+    override val currentTrackFlow: Flow<CurrentTrackData> = mutableCurrentTrackFlow
 
     override val syncSessionOverrideFlow: Flow<com.mileway.core.data.session.SyncSessionOverride?> =
         MutableStateFlow(null)
@@ -432,7 +434,7 @@ internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
     override suspend fun setSyncSessionOverride(override: com.mileway.core.data.session.SyncSessionOverride?) {}
 
     override suspend fun saveSession(data: CurrentTrackData) {
-        _flow.value = data
+        mutableCurrentTrackFlow.value = data
     }
 
     override suspend fun updateDistance(
@@ -463,7 +465,7 @@ internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
     ) {}
 
     override suspend fun clearSession() {
-        _flow.value = CurrentTrackData(token = "")
+        mutableCurrentTrackFlow.value = CurrentTrackData(token = "")
     }
 
     override suspend fun updateLastHardwareEvent(
@@ -474,17 +476,23 @@ internal object FakeCurrentTrackDataSource : CurrentTrackDataSource {
 
 // ── ActiveAccountSource / MockAccountDao / SessionSource fakes (P3.5) ─────────
 
-internal class FakeActiveAccountSource(activeAccountId: String? = null) : com.mileway.core.data.session.ActiveAccountSource {
+internal class FakeActiveAccountSource(
+    activeAccountId: String? = null,
+) : com.mileway.core.data.session.ActiveAccountSource {
     override val activeAccountId: Flow<String?> = flowOf(activeAccountId)
 
     override suspend fun setActiveAccountId(accountId: String) = Unit
 }
 
-internal class FakeSessionSource(sessionState: com.mileway.core.data.session.SessionState) : com.mileway.core.data.session.SessionSource {
+internal class FakeSessionSource(
+    sessionState: com.mileway.core.data.session.SessionState,
+) : com.mileway.core.data.session.SessionSource {
     override val sessionState: Flow<com.mileway.core.data.session.SessionState> = flowOf(sessionState)
 }
 
-private class FakeMockAccountDao(accounts: List<MockAccountEntity> = emptyList()) : MockAccountDao {
+private class FakeMockAccountDao(
+    accounts: List<MockAccountEntity> = emptyList(),
+) : MockAccountDao {
     private val byId = accounts.associateBy { it.accountId }.toMutableMap()
 
     override fun observeAll(): Flow<List<MockAccountEntity>> = flowOf(byId.values.toList())
@@ -543,7 +551,9 @@ internal object TrackMilesViewModelTestHarness {
 
 // ── PermissionsProvider fake (C4: permissionsSatisfied wiring) ───────────────
 
-internal class FakePermissionsProvider(var granted: Boolean) : com.siddharth.kmp.appshell.PermissionsProvider {
+internal class FakePermissionsProvider(
+    var granted: Boolean,
+) : com.siddharth.kmp.appshell.PermissionsProvider {
     override suspend fun isGranted(permission: com.siddharth.kmp.appshell.AppPermission) = granted
 
     override suspend fun request(permission: com.siddharth.kmp.appshell.AppPermission) =

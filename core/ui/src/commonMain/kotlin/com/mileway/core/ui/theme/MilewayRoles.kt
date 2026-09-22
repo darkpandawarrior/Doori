@@ -86,10 +86,10 @@ internal fun roleColorsFrom(
         rejected = danger,
         // Between amber and red, at amber's tone: reads as "stop and look" without claiming a
         // decision has been made. Derived so a direction retuning warning/danger retunes this too.
-        policyViolation = hueBlend(warning, danger, 0.5),
+        policyViolation = hueBlend(warning, danger, PolicyViolationHueBlend),
         // Queued is informational, not alarming: info's hue at low chroma so it recedes but stays
         // distinguishable from plain disabled text.
-        offlineQueued = info.scaleChroma(0.42),
+        offlineQueued = info.scaleChroma(OfflineQueuedChromaScale),
         // The live/recording state is the direction's glow ramp — this is the token every direction
         // already tunes for "alive". Stopping is not this; stopping is `destructive`.
         activeTracking = accentGlow,
@@ -97,7 +97,7 @@ internal fun roleColorsFrom(
         informational = info,
         inactive = muted,
         // A shifted, intensified accent: unmistakably "special" while still inside the direction.
-        premium = accent.rotateHue(42.0).scaleChroma(1.18),
+        premium = accent.rotateHue(PremiumHueRotation).scaleChroma(PremiumChromaScale),
     )
 
 /** Roles for a curated design direction (Ledger / Signal / Paper / Instrument / Refined Ember / …). */
@@ -197,9 +197,35 @@ object MilewayRoles {
      * Contrast-driven, not theme-driven: black-on-light / white-on-dark is the correct answer on
      * every design direction, so this deliberately does not consult the scheme.
      */
-    fun onFilled(role: Color): Color = if (role.tone() > 60.0) Color(0xFF101010) else Color(0xFFFFFFFF)
+    fun onFilled(role: Color): Color = if (role.tone() > OnFilledTonePivot) OnFilledInkDark else OnFilledInkLight
 }
 
 @Composable
 @ReadOnlyComposable
 private fun isLightSurface(): Boolean = MaterialTheme.colorScheme.surface.tone() > MaterialTheme.colorScheme.onSurface.tone()
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// Derivation constants for the roles above. They are the design system's tuning, so they live
+// beside the derivation rather than inline in it, where a reader cannot tell 0.42 (chroma) from
+// 0.5 (hue arc fraction).
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+
+/** Halfway along the warning -> danger hue arc: "stop and look", not "rejected". */
+private const val PolicyViolationHueBlend = 0.5
+
+/** Low enough that a queued row recedes, high enough to stay distinguishable from disabled text. */
+private const val OfflineQueuedChromaScale = 0.42
+
+/** Degrees off the accent hue, and the chroma boost, that make "premium" read as special. */
+private const val PremiumHueRotation = 42.0
+private const val PremiumChromaScale = 1.18
+
+/**
+ * HCT tone above which a filled role is light enough to need dark ink. 60 is the Material 3
+ * tone boundary; see theme/LAYERS.md.
+ */
+private const val OnFilledTonePivot = 60.0
+
+/** Near-black and pure white ink for [MilewayRoles.onFilled]. Contrast-driven, not theme-driven. */
+private val OnFilledInkDark = Color(0xFF101010)
+private val OnFilledInkLight = Color(0xFFFFFFFF)

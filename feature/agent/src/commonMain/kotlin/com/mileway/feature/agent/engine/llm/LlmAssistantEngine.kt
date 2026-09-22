@@ -8,7 +8,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class LlmAssistantEngine(private val gateway: LlmGateway) : AssistantEngine {
+class LlmAssistantEngine(
+    private val gateway: LlmGateway,
+) : AssistantEngine {
     // SwallowedException: AiFailure (design-frozen, see AGENTS.md) has no free-text/cause slot to
     // carry `failure` into — the catch below already explains why Network is the closest reason.
     @Suppress("SwallowedException")
@@ -29,7 +31,7 @@ class LlmAssistantEngine(private val gateway: LlmGateway) : AssistantEngine {
                 // Stop button (or navigating away) cancels the collecting coroutine — let that
                 // propagate as a real cancellation, never rewrite it into an Error chunk.
                 throw cancellation
-            } catch (failure: Exception) {
+            } catch (ignored: Exception) {
                 // gateway.stream() itself isn't documented to throw (every real backend already
                 // catches its own mid-stream hiccups — see MlKitGenAiOnDeviceLlm.generateStream),
                 // but a silently-dropped reply on any future backend that does throw is exactly the

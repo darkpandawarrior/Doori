@@ -31,7 +31,9 @@ data class OtpDelivery(
 sealed interface OtpVerifyResult {
     data object Success : OtpVerifyResult
 
-    data class WrongCode(val attemptsRemaining: Int) : OtpVerifyResult
+    data class WrongCode(
+        val attemptsRemaining: Int,
+    ) : OtpVerifyResult
 
     data object Expired : OtpVerifyResult
 
@@ -41,8 +43,13 @@ sealed interface OtpVerifyResult {
     data object NoChallenge : OtpVerifyResult
 }
 
-class LocalOtpEngine(private val clock: Clock = Clock.System) {
-    private data class Key(val purpose: OtpPurpose, val target: String)
+class LocalOtpEngine(
+    private val clock: Clock = Clock.System,
+) {
+    private data class Key(
+        val purpose: OtpPurpose,
+        val target: String,
+    )
 
     private data class Challenge(
         val code: String,
@@ -65,7 +72,7 @@ class LocalOtpEngine(private val clock: Clock = Clock.System) {
         target: String,
     ): String {
         val hash = fnv1a("${purpose.name}:${target.trim()}")
-        return (hash % 1_000_000u).toString().padStart(6, '0')
+        return (hash % CODE_MODULUS).toString().padStart(CODE_DIGITS, '0')
     }
 
     /**
@@ -138,10 +145,10 @@ class LocalOtpEngine(private val clock: Clock = Clock.System) {
 
     /** FNV-1a over UTF-16 code units — a small, platform-stable hash (String.hashCode isn't spec-stable). */
     private fun fnv1a(input: String): UInt {
-        var hash = 2166136261u
+        var hash = FNV_OFFSET_BASIS_32
         for (char in input) {
             hash = hash xor char.code.toUInt()
-            hash *= 16777619u
+            hash *= FNV_PRIME_32
         }
         return hash
     }
@@ -150,5 +157,14 @@ class LocalOtpEngine(private val clock: Clock = Clock.System) {
         const val VALIDITY_MILLIS = 10 * 60 * 1000L // 10 minutes (per the reference app)
         const val RESEND_COOLDOWN_SECONDS = 10 // reference app resend countdown
         const val MAX_ATTEMPTS = 3
+
+        /** Code length, and the modulus that produces it. */
+        const val CODE_DIGITS = 6
+        const val CODE_MODULUS = 1_000_000u
+
+        // The two published FNV-1a 32-bit parameters. Named because a bare 16777619 in a loop body
+        // reads as arbitrary, and getting either one wrong silently changes every code this issues.
+        const val FNV_OFFSET_BASIS_32 = 2166136261u
+        const val FNV_PRIME_32 = 16777619u
     }
 }

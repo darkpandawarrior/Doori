@@ -27,16 +27,17 @@ import kotlin.time.Clock
 
 // ── Fake DAO ──────────────────────────────────────────────────────────────────
 
-private class FakeSavedTrackDao(tracks: List<SavedTrack> = emptyList()) : SavedTrackDao {
-    @Suppress("ktlint:standard:property-naming")
-    private val _flow = MutableStateFlow(tracks)
+private class FakeSavedTrackDao(
+    tracks: List<SavedTrack> = emptyList(),
+) : SavedTrackDao {
+    private val mutableTracks = MutableStateFlow(tracks)
 
-    override fun getCompletedTracks(): Flow<List<SavedTrack>> = _flow
+    override fun getCompletedTracks(): Flow<List<SavedTrack>> = mutableTracks
 
-    override fun getAllSavedTracks(): Flow<List<SavedTrack>> = _flow
+    override fun getAllSavedTracks(): Flow<List<SavedTrack>> = mutableTracks
 
     override fun getAllSavedTracksByAccount(accountId: String): Flow<List<SavedTrack>> =
-        MutableStateFlow(_flow.value.filter { it.startedByAccountId == accountId })
+        MutableStateFlow(mutableTracks.value.filter { it.startedByAccountId == accountId })
 
     override suspend fun insertSavedTrack(savedTrack: SavedTrack) = Unit
 
@@ -55,7 +56,7 @@ private class FakeSavedTrackDao(tracks: List<SavedTrack> = emptyList()) : SavedT
 
     override suspend fun deleteTracksByAccount(employeeCode: String): Int = 0
 
-    override suspend fun count(): Long = _flow.value.size.toLong()
+    override suspend fun count(): Long = mutableTracks.value.size.toLong()
 
     override suspend fun getActiveTrack(): SavedTrack? = null
 
@@ -194,9 +195,12 @@ private fun fakeTrack(
         routeId = routeId,
         name = routeId,
         isCompleted = true,
-        startLatitude = 0.0, startLongitude = 0.0,
-        endLatitude = 0.0, endLongitude = 0.0,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
+        startLatitude = 0.0,
+        startLongitude = 0.0,
+        endLatitude = 0.0,
+        endLongitude = 0.0,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
         startTime = endTimeMs - 60_000L,
         endTime = endTimeMs,
         distance = distanceKm,

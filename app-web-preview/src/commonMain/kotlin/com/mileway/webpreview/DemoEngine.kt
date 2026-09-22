@@ -17,6 +17,33 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlin.random.Random
 
+/** Metres per degree of latitude — the flat-earth step used by both simulators. */
+private const val MetresPerDegreeLatitude = 111_320.0
+
+private const val DegreesPerHalfTurn = 180.0
+
+/** Heading wanders by up to ±10° per tick, which is `(rnd - 0.5) * 20`. */
+private const val BearingDriftSpanDegrees = 20.0
+
+/** `rnd.nextDouble()` is 0..1; subtracting this centres it on zero. */
+private const val RandomCentre = 0.5
+
+private const val MillisPerSecond = 1_000L
+private const val MillisPerSecondD = 1_000.0
+
+/** Rounding a positive value to the nearest whole unit: add a half, then truncate. */
+private const val RoundingHalf = 0.5
+
+private const val PaisePerRupee = 100
+private const val TenthsPerKm = 10
+
+/** Indian digit grouping: the last three digits, then pairs. */
+private const val InrTailDigits = 3
+private const val InrGroupDigits = 2
+
+/** Mean Earth radius, metres. */
+private const val EarthRadiusMetres = 6_371_000.0
+
 /**
  * Web-preview port of `feature:tracking`'s `SimulatedLocationSource` (androidMain): same ~22 m
  * steps with gentle heading drift and positional jitter from the same Pune origin — but fully
@@ -46,7 +73,9 @@ data class TrackingState(
  * Consumes the simulated drive through the production Kalman smoother (`com.siddharth.kmp:location`,
  * the same class the Android tracking service runs) and accumulates haversine distance.
  */
-class DemoTrackingEngine(private val scope: CoroutineScope) {
+class DemoTrackingEngine(
+    private val scope: CoroutineScope,
+) {
     private val _state = MutableStateFlow(TrackingState())
     val state: StateFlow<TrackingState> = _state.asStateFlow()
 
@@ -55,7 +84,7 @@ class DemoTrackingEngine(private val scope: CoroutineScope) {
     private var rnd = Random(SEED)
     private var lat = START_LAT
     private var lng = START_LNG
-    private var bearing = 45.0
+    private var bearing = StartBearingDegrees
     private var timeMs = 0L
 
     fun start() {
@@ -83,7 +112,7 @@ class DemoTrackingEngine(private val scope: CoroutineScope) {
         rnd = Random(SEED)
         lat = START_LAT
         lng = START_LNG
-        bearing = 45.0
+        bearing = StartBearingDegrees
         timeMs = 0L
         _state.value = TrackingState()
     }
@@ -93,8 +122,8 @@ class DemoTrackingEngine(private val scope: CoroutineScope) {
         val accuracy = 4.0 + rnd.nextDouble() * 4.0
         val fix =
             DemoFix(
-                lat = lat + (rnd.nextDouble() - 0.5) * 0.00002,
-                lng = lng + (rnd.nextDouble() - 0.5) * 0.00002,
+                lat = lat + (rnd.nextDouble() - RandomCentre) * JITTER_DEGREES,
+                lng = lng + (rnd.nextDouble() - RandomCentre) * JITTER_DEGREES,
                 timeMs = timeMs,
                 speedMps = speedMps,
                 accuracyM = accuracy,
@@ -107,17 +136,17 @@ class DemoTrackingEngine(private val scope: CoroutineScope) {
                 distanceKm = s.distanceKm + deltaM / 1000.0,
                 speedKmh = fix.speedMps * 3.6,
                 accuracyM = fix.accuracyM,
-                elapsedSec = s.elapsedSec + TICK_MS / 1000,
+                elapsedSec = s.elapsedSec + TICK_MS / MillisPerSecond,
                 path = s.path + (sLat to sLng),
             )
         }
         // Advance along the current bearing by speed * dt (same math as the Android simulator,
         // scaled by SIM_SPEEDUP so a short demo session covers a believable trip).
-        val distanceM = speedMps * (TICK_MS / 1000.0) * SIM_SPEEDUP
-        val bearingRad = bearing * PI / 180.0
-        lat += (distanceM * cos(bearingRad)) / 111_320.0
-        lng += (distanceM * sin(bearingRad)) / (111_320.0 * cos(lat * PI / 180.0))
-        bearing += (rnd.nextDouble() - 0.5) * 20.0
+        val distanceM = speedMps * (TICK_MS / MillisPerSecondD) * SIM_SPEEDUP
+        val bearingRad = bearing * PI / DegreesPerHalfTurn
+        lat += (distanceM * cos(bearingRad)) / MetresPerDegreeLatitude
+        lng += (distanceM * sin(bearingRad)) / (MetresPerDegreeLatitude * cos(lat * PI / DegreesPerHalfTurn))
+        bearing += (rnd.nextDouble() - RandomCentre) * BearingDriftSpanDegrees
         timeMs += TICK_MS
     }
 
@@ -127,6 +156,12 @@ class DemoTrackingEngine(private val scope: CoroutineScope) {
         const val START_LNG = 73.8567
         const val TICK_MS = 1_000L
         const val SIM_SPEEDUP = 4.0
+
+        /** North-east, matching the Android simulator's opening heading. */
+        const val StartBearingDegrees = 45.0
+
+        /** Positional jitter per fix, in degrees — about 2 m, same as the Android simulator. */
+        const val JITTER_DEGREES = 0.00002
     }
 }
 
@@ -137,13 +172,12 @@ fun haversineMeters(
     lat2: Double,
     lng2: Double,
 ): Double {
-    val r = 6_371_000.0
-    val dLat = (lat2 - lat1) * PI / 180.0
-    val dLng = (lng2 - lng1) * PI / 180.0
+    val dLat = (lat2 - lat1) * PI / DegreesPerHalfTurn
+    val dLng = (lng2 - lng1) * PI / DegreesPerHalfTurn
     val a =
         sin(dLat / 2) * sin(dLat / 2) +
-            cos(lat1 * PI / 180.0) * cos(lat2 * PI / 180.0) * sin(dLng / 2) * sin(dLng / 2)
-    return 2 * r * atan2(sqrt(a), sqrt(1 - a))
+            cos(lat1 * PI / DegreesPerHalfTurn) * cos(lat2 * PI / DegreesPerHalfTurn) * sin(dLng / 2) * sin(dLng / 2)
+    return 2 * EarthRadiusMetres * atan2(sqrt(a), sqrt(1 - a))
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -199,22 +233,26 @@ class DemoExpenseStore {
 
 /** ₹ with Indian digit grouping (1,23,456) — mirrors the app's INR formatting. */
 fun formatInr(amount: Double): String {
-    val paise = (amount * 100 + 0.5).toLong()
-    val rupees = paise / 100
-    val fraction = (paise % 100).toString().padStart(2, '0')
+    val paise = (amount * PaisePerRupee + RoundingHalf).toLong()
+    val rupees = paise / PaisePerRupee
+    val fraction = (paise % PaisePerRupee).toString().padStart(InrGroupDigits, '0')
     val digits = rupees.toString()
     val grouped =
-        if (digits.length <= 3) {
+        if (digits.length <= InrTailDigits) {
             digits
         } else {
-            val head = digits.dropLast(3)
-            val tail = digits.takeLast(3)
-            head.reversed().chunked(2).joinToString(",").reversed() + "," + tail
+            val head = digits.dropLast(InrTailDigits)
+            val tail = digits.takeLast(InrTailDigits)
+            head
+                .reversed()
+                .chunked(InrGroupDigits)
+                .joinToString(",")
+                .reversed() + "," + tail
         }
     return "₹$grouped.$fraction"
 }
 
 fun formatKm(km: Double): String {
-    val tenths = (km * 10 + 0.5).toLong()
-    return "${tenths / 10}.${tenths % 10} km"
+    val tenths = (km * TenthsPerKm + RoundingHalf).toLong()
+    return "${tenths / TenthsPerKm}.${tenths % TenthsPerKm} km"
 }

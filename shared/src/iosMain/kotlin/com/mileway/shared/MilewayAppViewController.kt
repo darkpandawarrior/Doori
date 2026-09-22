@@ -93,7 +93,7 @@ private val iosCheckInModule =
                 hardwareEventRepo = get(),
                 currentTrackRepository = get(),
                 geoCheckInLocations = get<List<CheckInLocation>>(),
-                defaultRadiusMeters = get<DemoConfigManager>().getDefaultGeoCheckInRadiusMeters(),
+                defaultRadiusMeters = get<DemoConfigManager>().defaultGeoCheckInRadiusMeters,
             )
         }
     }
@@ -103,7 +103,13 @@ private val iosCheckInModule =
  * home dashboard + core feature screens under a bottom-tab bar — instead of the old component
  * showcase. Boots the shared Koin graph with every module the shell's screens resolve. Swift's
  * `ContentView` should call `MilewayAppViewControllerKt.MilewayAppViewController()`.
+ *
+ * The PascalCase name is on purpose: Swift calls this as
+ * `MilewayAppViewControllerKt.MilewayAppViewController()` and it reads there as a type
+ * constructor, which is the whole point of the entry point. Renaming it camelCase would change
+ * the published Objective-C symbol every Swift call site binds to.
  */
+@Suppress("ktlint:standard:function-naming")
 fun MilewayAppViewController(): UIViewController {
     AppLog.init()
     initKoin(

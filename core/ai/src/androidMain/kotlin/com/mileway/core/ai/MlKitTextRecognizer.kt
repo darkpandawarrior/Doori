@@ -20,7 +20,9 @@ import kotlin.coroutines.resume
  * Never throws: any decode or recognition failure resolves to "", which [DocumentIntelligence]
  * treats as "nothing to contribute" rather than a crash.
  */
-class MlKitTextRecognizer(private val context: Context) : TextRecognizer {
+class MlKitTextRecognizer(
+    private val context: Context,
+) : TextRecognizer {
     // ponytail: lazy, not eager — this class is constructed unconditionally at Compose
     // composition time by every rememberMediaCaptureLauncher call (core:media), whether or not
     // OCR is ever used. TextRecognition.getClient() touches MlKitContext.getInstance(), which

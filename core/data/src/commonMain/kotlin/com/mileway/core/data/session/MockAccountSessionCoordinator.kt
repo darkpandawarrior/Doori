@@ -32,7 +32,10 @@ class MockAccountSessionCoordinator(
         data object NoActiveTrip : Outcome
 
         /** The outgoing persona's trip was paused+persisted; [restoredRouteId] is set if the incoming persona had one of its own paused/ongoing. */
-        data class Paused(val pausedRouteId: String, val restoredRouteId: String?) : Outcome
+        data class Paused(
+            val pausedRouteId: String,
+            val restoredRouteId: String?,
+        ) : Outcome
     }
 
     /**

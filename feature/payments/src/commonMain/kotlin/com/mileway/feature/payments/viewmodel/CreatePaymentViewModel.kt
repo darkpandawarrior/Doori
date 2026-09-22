@@ -54,19 +54,31 @@ data class CreatePaymentUiState(
 }
 
 sealed interface CreatePaymentAction {
-    data class SetDirection(val value: PaymentDirection) : CreatePaymentAction
+    data class SetDirection(
+        val value: PaymentDirection,
+    ) : CreatePaymentAction
 
-    data class SetCounterparty(val value: String) : CreatePaymentAction
+    data class SetCounterparty(
+        val value: String,
+    ) : CreatePaymentAction
 
-    data class SetAmount(val value: String) : CreatePaymentAction
+    data class SetAmount(
+        val value: String,
+    ) : CreatePaymentAction
 
-    data class SetNote(val value: String) : CreatePaymentAction
+    data class SetNote(
+        val value: String,
+    ) : CreatePaymentAction
 
-    data class SetDeclarationAccepted(val value: Boolean) : CreatePaymentAction
+    data class SetDeclarationAccepted(
+        val value: Boolean,
+    ) : CreatePaymentAction
 
     data object Submit : CreatePaymentAction
 
-    data class SetPinDigits(val value: String) : CreatePaymentAction
+    data class SetPinDigits(
+        val value: String,
+    ) : CreatePaymentAction
 
     data object ConfirmPin : CreatePaymentAction
 
@@ -76,7 +88,10 @@ sealed interface CreatePaymentAction {
 
     /** P29.C.7: fired once the shared OCR pipeline (core:media's rememberMediaCaptureLauncher +
      * core:ai's DocumentIntelligence) finishes analyzing a picked invoice image. */
-    data class AttachInvoice(val analysis: DocumentAnalysis, val uri: String) : CreatePaymentAction
+    data class AttachInvoice(
+        val analysis: DocumentAnalysis,
+        val uri: String,
+    ) : CreatePaymentAction
 
     data object ConfirmDuplicateAttach : CreatePaymentAction
 
@@ -84,9 +99,13 @@ sealed interface CreatePaymentAction {
 }
 
 sealed interface CreatePaymentEffect {
-    data class Completed(val id: String) : CreatePaymentEffect
+    data class Completed(
+        val id: String,
+    ) : CreatePaymentEffect
 
-    data class Failed(val reason: String) : CreatePaymentEffect
+    data class Failed(
+        val reason: String,
+    ) : CreatePaymentEffect
 
     data object InvoiceAttached : CreatePaymentEffect
 
@@ -110,7 +129,11 @@ class CreatePaymentViewModel(
 ) : BaseViewModel<CreatePaymentUiState, CreatePaymentEffect, CreatePaymentAction>(CreatePaymentUiState()) {
     private var pendingAttachment: PendingAttachment? = null
 
-    private data class PendingAttachment(val analysis: DocumentAnalysis, val uri: String, val timestampMillis: Long)
+    private data class PendingAttachment(
+        val analysis: DocumentAnalysis,
+        val uri: String,
+        val timestampMillis: Long,
+    )
 
     override fun onAction(action: CreatePaymentAction) {
         when (action) {

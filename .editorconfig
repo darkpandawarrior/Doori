@@ -1,7 +1,18 @@
+# =============================================================================
+# .editorconfig — repo root. ktlint owns formatting AND line length.
+#
+# Every `disabled` here is HALF A PAIR. detekt turns the same rule off in
+# config/detekt/detekt.yml. Change one side without the other and the two tools start
+# contradicting each other — which is how this repo ended up with 38 MatchingDeclarationName
+# findings (detekt enforcing it, ktlint not) and a WildcardImport split where detekt excused
+# what ktlint still enforced.
+# =============================================================================
+
 root = true
 
-# Generated code from KSP/Room/KotlinPoet, never lint
-[**/build/**/*.kt]
+# ARTEFACT. Room/KSP/Compose-resources output. Same exclusion as detekt's
+# `**/build/generated/**`: machine-written, rewritten on every build, unformattable.
+[**/build/**]
 ktlint = disabled
 
 [*]
@@ -12,13 +23,49 @@ indent_style = space
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[*.kt]
+[*.{kt,kts}]
+# ONE number, one owner. It was 160 here while detekt separately enforced its own 120 default
+# — two numbers for one rule, with the baseline absorbing the disagreement (235 dead entries).
+# detekt's style.MaxLineLength stays `active: false` so this line is the only place the number
+# lives. THAT is the fix; the specific number is secondary.
+#
+# The family standard asks for 140. Measured here, 140 is not a line-length change, it is a
+# whole-repo reformat: `ktlintFormat` rewrote 760 files / 14,270 lines, because a narrower limit
+# cascades into argument-list-wrapping, chain-method-continuation and indent. Worse, ktlint could
+# not converge — "Format was not able to resolve all violations ... in 3 consecutive runs" on 9
+# files (app-web-preview/App.kt, core/ui theme/direction/*.kt, Type.kt, AnalyticsHomeScreen.kt,
+# MileageSubmissionViewModel.kt) and 12 ktlint tasks still failed afterwards.
+# Shipping an unconverged 14k-line reformat to buy 20 characters is not a quality improvement.
+# 160 stays until 140 can be landed as its own reviewed pass with the wrapping rules settled.
 max_line_length = 160
-# Composable functions use PascalCase by convention, disable the naming rule globally.
-ktlint_standard_function-naming = disabled
 
-[*.kts]
-max_line_length = 160
+# @Composable functions are PascalCase by Compose convention.
+# The previous `ktlint_standard_function-naming = disabled` ALSO stopped ktlint checking the
+# naming of every ordinary function in the repo. This exempts exactly the composables and
+# keeps the rule working everywhere else.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+# PAIRED WITH detekt naming.MatchingDeclarationName: active: false.
+# Deliberate idiom: small related declarations are grouped per file (a composable plus its UI
+# enum, a catalog plus its item type, a mapper plus its DTO).
+ktlint_standard_filename = disabled
+
+# PAIRED WITH detekt style.WildcardImport: active: false.
+# Compose and the design-system modules pull dozens of symbols per file and the IDE collapses
+# the imports automatically.
+ktlint_standard_no-wildcard-imports = disabled
+
+# PAIRED WITH detekt naming.TopLevelPropertyNaming: constantPattern: '[A-Z][A-Za-z0-9]*'.
+# Compose's API guidelines specify PascalCase for top-level constants. ktlint's property-naming
+# rule demands SCREAMING_SNAKE for `const val` and has no ignore-when-annotated escape, so it
+# has to come off wholesale.
+ktlint_standard_property-naming = disabled
 
 [*.{yml,yaml}]
 indent_size = 2
+
+[*.{xml,svg}]
+indent_size = 4
+
+[*.toml]
+indent_size = 4

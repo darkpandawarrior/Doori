@@ -66,7 +66,8 @@ private fun allGeoTypes(): AllTypesResponseV2 =
 
 private fun geoTypeById(typeId: Long?): CheckInDetailsResponseV2 =
     transaction {
-        GeoTypesTable.selectAll()
+        GeoTypesTable
+            .selectAll()
             .where { GeoTypesTable.id eq (typeId ?: -1L) }
             .map(::geoTypeRowToResponse)
             .firstOrNull() ?: CheckInDetailsResponseV2()
@@ -90,7 +91,8 @@ private fun submittedCheckIns(): SubmittedCheckInResponseV2 =
         val typeNamesById = GeoTypesTable.selectAll().associate { it[GeoTypesTable.id] to it[GeoTypesTable.name] }
         SubmittedCheckInResponseV2(
             checkIns =
-                CheckInsTable.selectAll()
+                CheckInsTable
+                    .selectAll()
                     .orderBy(CheckInsTable.time to SortOrder.DESC)
                     .map { row ->
                         CheckInItem(
@@ -115,13 +117,13 @@ private fun taggedExpenses(
     return transaction {
         AllTaggedExpenseResponse(
             data =
-                TaggedExpensesTable.selectAll()
+                TaggedExpensesTable
+                    .selectAll()
                     .where {
                         (TaggedExpensesTable.pending eq pending) and
                             (TaggedExpensesTable.submittedAt greaterEq start) and
                             (TaggedExpensesTable.submittedAt lessEq end)
-                    }
-                    .map { row ->
+                    }.map { row ->
                         TaggedExpenseItem(
                             id = row[TaggedExpensesTable.id],
                             title = row[TaggedExpensesTable.title],

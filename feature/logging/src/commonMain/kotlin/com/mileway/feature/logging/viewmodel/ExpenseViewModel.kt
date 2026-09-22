@@ -116,13 +116,21 @@ data class ExpenseUiState(
 sealed interface ExpenseAction {
     data object Refresh : ExpenseAction
 
-    data class SetFilter(val filter: ExpenseFilter) : ExpenseAction
+    data class SetFilter(
+        val filter: ExpenseFilter,
+    ) : ExpenseAction
 
-    data class SetSort(val sort: ExpenseSort) : ExpenseAction
+    data class SetSort(
+        val sort: ExpenseSort,
+    ) : ExpenseAction
 
-    data class SetCategories(val categories: Set<ExpenseCategory>) : ExpenseAction
+    data class SetCategories(
+        val categories: Set<ExpenseCategory>,
+    ) : ExpenseAction
 
-    data class SelectCategory(val category: ExpenseCategory) : ExpenseAction
+    data class SelectCategory(
+        val category: ExpenseCategory,
+    ) : ExpenseAction
 
     /**
      * V27 P27.E.1: advances the in-place wizard from step 1 to step 2, gated on
@@ -135,22 +143,37 @@ sealed interface ExpenseAction {
     data object RetreatStep : ExpenseAction
 
     /** V27 P27.E.1: sets one custom-form field's value, rendered via `core:forms`' `FormRenderer`. */
-    data class SetFormValue(val key: FieldId, val value: FormFieldValue) : ExpenseAction
+    data class SetFormValue(
+        val key: FieldId,
+        val value: FormFieldValue,
+    ) : ExpenseAction
 
-    data class SetAmount(val text: String) : ExpenseAction
+    data class SetAmount(
+        val text: String,
+    ) : ExpenseAction
 
     /** P27.E.15: sets the currency the amount is entered in (defaults to INR). */
-    data class SetCurrency(val code: String) : ExpenseAction
+    data class SetCurrency(
+        val code: String,
+    ) : ExpenseAction
 
-    data class SetMerchant(val name: String) : ExpenseAction
+    data class SetMerchant(
+        val name: String,
+    ) : ExpenseAction
 
-    data class SetNote(val note: String) : ExpenseAction
+    data class SetNote(
+        val note: String,
+    ) : ExpenseAction
 
     /** Attaches (or clears, when [path] is null) an optional local receipt photo (P1.4). */
-    data class SetReceiptImage(val path: String?) : ExpenseAction
+    data class SetReceiptImage(
+        val path: String?,
+    ) : ExpenseAction
 
     /** P1.7: sets (or clears, when [code] is null) the project/cost-center office for the form. */
-    data class SetOfficeCode(val code: String?) : ExpenseAction
+    data class SetOfficeCode(
+        val code: String?,
+    ) : ExpenseAction
 
     data object SubmitExpense : ExpenseAction
 
@@ -164,13 +187,17 @@ sealed interface ExpenseAction {
 
     data object ResetForm : ExpenseAction
 
-    data class OpenDetail(val id: String) : ExpenseAction
+    data class OpenDetail(
+        val id: String,
+    ) : ExpenseAction
 
     /**
      * P1.8: loads the existing record [id] into the form for editing (e.g. resubmitting a
      * REJECTED expense). A no-op if [id] doesn't resolve to a known record.
      */
-    data class OpenEdit(val id: String) : ExpenseAction
+    data class OpenEdit(
+        val id: String,
+    ) : ExpenseAction
 
     /**
      * P27.E.4: opens the entry form pre-filled per [context] — Trip/TripAdvance/Event/Advance link
@@ -179,7 +206,9 @@ sealed interface ExpenseAction {
      * merchant/amount/category/date from its OCR result, and [ExpenseSourceContext.Edit] delegates
      * to the existing [OpenEdit] load-by-id path.
      */
-    data class OpenWithContext(val context: ExpenseSourceContext) : ExpenseAction
+    data class OpenWithContext(
+        val context: ExpenseSourceContext,
+    ) : ExpenseAction
 
     /** P1.5: persists the current form as a draft (Room-backed, survives kill/relaunch). */
     data object SaveDraft : ExpenseAction
@@ -199,18 +228,27 @@ sealed interface ExpenseAction {
     data object AddDraftRow : ExpenseAction
 
     /** Appends a copy of row [id] (same field values, fresh row id, status reset to PENDING). */
-    data class DuplicateDraftRow(val id: String) : ExpenseAction
+    data class DuplicateDraftRow(
+        val id: String,
+    ) : ExpenseAction
 
     /** Removes row [id] from the grid; a no-op when it's the grid's last remaining row. */
-    data class RemoveDraftRow(val id: String) : ExpenseAction
+    data class RemoveDraftRow(
+        val id: String,
+    ) : ExpenseAction
 
     /** Applies [transform] to row [id] only, leaving every other row untouched. */
-    data class UpdateDraftRow(val id: String, val transform: (ExpenseDraftRow) -> ExpenseDraftRow) : ExpenseAction
+    data class UpdateDraftRow(
+        val id: String,
+        val transform: (ExpenseDraftRow) -> ExpenseDraftRow,
+    ) : ExpenseAction
 
     // ── P2.2: carry-over defaults + apply-category-to-all for bulk rows ────────
 
     /** Sets [category] on every row still [DraftStatus.PENDING], leaving submitted/error rows untouched. */
-    data class ApplyCategoryToAll(val category: ExpenseCategory) : ExpenseAction
+    data class ApplyCategoryToAll(
+        val category: ExpenseCategory,
+    ) : ExpenseAction
 
     // ── P2.3: local batch submit + per-row outcome + retry-failed ──────────────
 
@@ -232,13 +270,19 @@ sealed interface ExpenseAction {
      * caller) via [ExpenseCsvImporter] and appends the resulting rows to the bulk-entry grid
      * alongside whatever [ExpenseUiState.rows] already has.
      */
-    data class ImportCsv(val text: String) : ExpenseAction
+    data class ImportCsv(
+        val text: String,
+    ) : ExpenseAction
 }
 
 sealed interface ExpenseEffect {
-    data class ShowToast(val message: UiText) : ExpenseEffect
+    data class ShowToast(
+        val message: UiText,
+    ) : ExpenseEffect
 
-    data class NavigateToSuccess(val id: String) : ExpenseEffect
+    data class NavigateToSuccess(
+        val id: String,
+    ) : ExpenseEffect
 
     data object NavigateBack : ExpenseEffect
 
@@ -248,7 +292,9 @@ sealed interface ExpenseEffect {
      * distinct from the inline per-field errors the form already renders. [ExpenseAction
      * .ConfirmSubmitDespitePolicy] proceeds; dismissing the sheet returns to the form unchanged.
      */
-    data class ShowPolicySheet(val violations: List<PolicyViolation>) : ExpenseEffect
+    data class ShowPolicySheet(
+        val violations: List<PolicyViolation>,
+    ) : ExpenseEffect
 }
 
 /** Local, offline round-trip between [ExpenseFormState] and its persisted Room shape (P1.5). */
@@ -428,7 +474,10 @@ class ExpenseViewModel(
                 status = ExpenseStatus.PENDING,
                 // P27.E.4: a Scanner-context form carries the OCR-detected date; every other source
                 // stamps the actual submit time, same as before this task.
-                dateMs = form.dateMs ?: kotlin.time.Clock.System.now().toEpochMilliseconds(),
+                dateMs =
+                    form.dateMs ?: kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds(),
                 note = form.note,
                 receiptImagePath = form.receiptImagePath,
                 officeCode = form.officeCode,
@@ -539,7 +588,10 @@ class ExpenseViewModel(
     private fun saveDraft() {
         val form = currentState.form
         viewModelScope.launch {
-            val updatedAt = kotlin.time.Clock.System.now().toEpochMilliseconds()
+            val updatedAt =
+                kotlin.time.Clock.System
+                    .now()
+                    .toEpochMilliseconds()
             repository.saveDraft(form.toDraftEntity(updatedAt))
             emitEffect(ExpenseEffect.ShowToast(UiText.of("Draft saved")))
         }
@@ -629,7 +681,10 @@ class ExpenseViewModel(
             merchantName = merchantName,
             amountRupees = amount,
             status = ExpenseStatus.PENDING,
-            dateMs = kotlin.time.Clock.System.now().toEpochMilliseconds(),
+            dateMs =
+                kotlin.time.Clock.System
+                    .now()
+                    .toEpochMilliseconds(),
             note = note,
             // P2.5: this row's own receipt attachment (if any) carries through to the resulting
             // record, mirroring the single-entry form's receiptImagePath but scoped per row.
@@ -692,7 +747,11 @@ class ExpenseViewModel(
 
     /** Submits every row still [DraftStatus.PENDING]; a no-op batch (empty summary) when none are. */
     private fun submitAllDrafts() {
-        val pendingIds = currentState.rows.filter { it.status == DraftStatus.PENDING }.map { it.id }.toSet()
+        val pendingIds =
+            currentState.rows
+                .filter { it.status == DraftStatus.PENDING }
+                .map { it.id }
+                .toSet()
         if (pendingIds.isEmpty()) {
             setState { copy(submissionSummary = emptyList<ExpenseDraftRow>() to emptyList()) }
             return
@@ -702,7 +761,11 @@ class ExpenseViewModel(
 
     /** Resubmits only rows currently [DraftStatus.ERROR]; a no-op batch when there are none. */
     private fun retryFailedDrafts() {
-        val errorIds = currentState.rows.filter { it.status == DraftStatus.ERROR }.map { it.id }.toSet()
+        val errorIds =
+            currentState.rows
+                .filter { it.status == DraftStatus.ERROR }
+                .map { it.id }
+                .toSet()
         if (errorIds.isEmpty()) {
             setState { copy(submissionSummary = emptyList<ExpenseDraftRow>() to emptyList()) }
             return

@@ -14,6 +14,9 @@ import com.siddharth.kmp.mvi.BaseViewModel
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+/** Cards are referred to by their last four digits, the way a statement prints them. */
+private const val CARD_TAIL_DIGITS = 4
+
 enum class AdvanceTabFilter { ALL, PENDING, SETTLED }
 
 data class AdvanceListData(
@@ -45,58 +48,91 @@ data class AdvanceUiState(
 sealed interface AdvanceAction {
     data object Refresh : AdvanceAction
 
-    data class SetTab(val tab: AdvanceTabFilter) : AdvanceAction
+    data class SetTab(
+        val tab: AdvanceTabFilter,
+    ) : AdvanceAction
 
-    data class LoadDetail(val advanceId: String) : AdvanceAction
+    data class LoadDetail(
+        val advanceId: String,
+    ) : AdvanceAction
 
-    data class SetMode(val mode: AdvanceMode) : AdvanceAction
+    data class SetMode(
+        val mode: AdvanceMode,
+    ) : AdvanceAction
 
-    data class SelectCard(val cardId: String) : AdvanceAction
+    data class SelectCard(
+        val cardId: String,
+    ) : AdvanceAction
 
-    data class SetAmount(val text: String) : AdvanceAction
+    data class SetAmount(
+        val text: String,
+    ) : AdvanceAction
 
-    data class SetPurpose(val text: String) : AdvanceAction
+    data class SetPurpose(
+        val text: String,
+    ) : AdvanceAction
 
-    data class SetType(val type: AdvanceType?) : AdvanceAction
+    data class SetType(
+        val type: AdvanceType?,
+    ) : AdvanceAction
 
-    data class SetRequiredByDate(val date: String) : AdvanceAction
+    data class SetRequiredByDate(
+        val date: String,
+    ) : AdvanceAction
 
-    data class SetDeclaration(val checked: Boolean) : AdvanceAction
+    data class SetDeclaration(
+        val checked: Boolean,
+    ) : AdvanceAction
 
-    data class GoToStep(val step: Int) : AdvanceAction
+    data class GoToStep(
+        val step: Int,
+    ) : AdvanceAction
 
     data object SubmitAdvance : AdvanceAction
 
     data object ResetForm : AdvanceAction
 
-    data class ToggleCardBlock(val cardId: String) : AdvanceAction
+    data class ToggleCardBlock(
+        val cardId: String,
+    ) : AdvanceAction
 
     /** "Start Trip Against This Advance" CTA on [com.mileway.feature.profile.ui.screens.AdvanceRequestDetailsScreen]. */
-    data class StartTripAgainstAdvance(val advanceId: String) : AdvanceAction
+    data class StartTripAgainstAdvance(
+        val advanceId: String,
+    ) : AdvanceAction
 
     /**
      * P27.E.8: "Log expense against this advance" CTA on
      * [com.mileway.feature.profile.ui.screens.AdvanceRequestDetailsScreen].
      */
-    data class LogExpenseAgainstAdvance(val advanceId: String) : AdvanceAction
+    data class LogExpenseAgainstAdvance(
+        val advanceId: String,
+    ) : AdvanceAction
 }
 
 sealed interface AdvanceEffect {
-    data class ShowToast(val message: UiText) : AdvanceEffect
+    data class ShowToast(
+        val message: UiText,
+    ) : AdvanceEffect
 
     /**
      * Navigate into `feature/tracking`'s trip-start flow, carrying the advance id so the new
      * trip can be linked back to it. [tripId] is the fresh route id the trip-start flow should
      * use, mirroring how `SavedTracksScreen.onStartNew` mints a new route id at the nav call site.
      */
-    data class NavigateToTripStart(val advanceId: String, val tripId: String) : AdvanceEffect
+    data class NavigateToTripStart(
+        val advanceId: String,
+        val tripId: String,
+    ) : AdvanceEffect
 
     /**
      * P27.E.8: navigate into the expense-entry flow carrying this advance's
      * [ExpenseSourceContext.Advance]. Built here (not by the nav layer) so feature:profile never
      * depends on feature:logging — mirrors [NavigateToTripStart]'s existing direction.
      */
-    data class NavigateToExpenseEntry(val context: ExpenseSourceContext) : AdvanceEffect
+    data class NavigateToExpenseEntry(
+        val context: ExpenseSourceContext,
+    ) : AdvanceEffect
 }
 
 class AdvanceViewModel(
@@ -203,7 +239,7 @@ class AdvanceViewModel(
                     },
             )
         }
-        emitEffect(AdvanceEffect.ShowToast(UiText.Dynamic("Card ${cardId.takeLast(4)} status updated")))
+        emitEffect(AdvanceEffect.ShowToast(UiText.Dynamic("Card ${cardId.takeLast(CARD_TAIL_DIGITS)} status updated")))
     }
 
     fun getCardById(id: String) = repository.getCardById(id)

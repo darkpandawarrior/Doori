@@ -16,7 +16,9 @@ private val Context.reviewDataStore by preferencesDataStore(name = "review_state
  * (the demo previously used the in-memory default, which reset every launch). Keys mirror the plan's
  * sim-friendly store names: `first_open_time`, `review_interaction_count`, `review_last_prompt_time`.
  */
-class DataStoreReviewStateStore(private val context: Context) : ReviewStateStore {
+class DataStoreReviewStateStore(
+    private val context: Context,
+) : ReviewStateStore {
     private val firstOpenKey = longPreferencesKey("first_open_time")
     private val interactionKey = intPreferencesKey("review_interaction_count")
     private val lastPromptKey = longPreferencesKey("review_last_prompt_time")

@@ -11,7 +11,9 @@ import android.os.BatteryManager
  * diagnostics snapshot — `registerReceiver(null, filter)` returns the last sticky intent without
  * registering a real receiver.
  */
-class AndroidBatteryStatusReader(private val context: Context) : BatteryStatusReader {
+class AndroidBatteryStatusReader(
+    private val context: Context,
+) : BatteryStatusReader {
     override fun current(): BatteryStatus {
         val sticky = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val level = sticky?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1

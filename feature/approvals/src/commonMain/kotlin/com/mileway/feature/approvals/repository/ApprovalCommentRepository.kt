@@ -27,7 +27,11 @@ interface ApprovalCommentRepository {
 
 class RoomApprovalCommentRepository(
     private val dao: ApprovalCommentDao,
-    private val nowMs: () -> Long = { kotlin.time.Clock.System.now().toEpochMilliseconds() },
+    private val nowMs: () -> Long = {
+        kotlin.time.Clock.System
+            .now()
+            .toEpochMilliseconds()
+    },
 ) : ApprovalCommentRepository {
     override fun observeComments(approvalId: String): Flow<List<ApprovalComment>> =
         dao.observeComments(approvalId).map { comments -> comments.map { it.toDomain() } }

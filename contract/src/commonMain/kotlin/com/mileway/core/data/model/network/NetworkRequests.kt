@@ -281,7 +281,12 @@ data class SuccessResponseV2(
 )
 
 @Serializable
-data class EmptyRequest(val _empty: String? = null)
+// A data class needs at least one parameter; this one carries no payload. `placeholder` is
+// always null and never encoded, so the request body stays `{}` on the wire. The previous
+// name `_empty` borrowed Room's generated-code underscore convention, where it means nothing.
+data class EmptyRequest(
+    val placeholder: String? = null,
+)
 
 // ── Log Miles submit ──────────────────────────────────────────────────────────
 

@@ -33,10 +33,12 @@ import kotlin.test.assertNotNull
  * dependency) is faked here for the same reason.
  */
 class NewModulesWiringTest : KoinTest {
-
     @Before
     fun setUp() {
-        try { stopKoin() } catch (_: Exception) {}
+        try {
+            stopKoin()
+        } catch (_: Exception) {
+        }
         startKoin {
             androidContext(mockk<Context>(relaxed = true))
             modules(
@@ -54,7 +56,10 @@ class NewModulesWiringTest : KoinTest {
 
     @After
     fun tearDown() {
-        try { stopKoin() } catch (_: Exception) {}
+        try {
+            stopKoin()
+        } catch (_: Exception) {
+        }
     }
 
     @Test

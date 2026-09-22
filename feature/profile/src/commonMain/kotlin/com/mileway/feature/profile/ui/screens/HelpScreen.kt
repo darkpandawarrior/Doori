@@ -91,7 +91,11 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
-private data class Faq(val q: String, val a: String, val category: String)
+private data class Faq(
+    val q: String,
+    val a: String,
+    val category: String,
+)
 
 private val ALL_FAQS =
     listOf(
@@ -452,7 +456,11 @@ private fun VideoTutorialCard(tutorial: VideoTutorial) {
     }
 }
 
-private data class SimulatedPlayback(val isPlaying: Boolean, val progress: Float, val toggle: () -> Unit)
+private data class SimulatedPlayback(
+    val isPlaying: Boolean,
+    val progress: Float,
+    val toggle: () -> Unit,
+)
 
 /**
  * Local playback-state simulation for [VideoTutorialCard]: while "playing", [progress] advances

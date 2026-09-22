@@ -72,6 +72,7 @@ import com.mileway.core.ui.resources.logging_timeline_sent_to_manager
 import com.mileway.core.ui.resources.logging_timeline_submitted
 import com.mileway.core.ui.resources.logging_timeline_under_review
 import com.mileway.core.ui.resources.logging_total
+import com.mileway.core.ui.text.monthName
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
@@ -413,41 +414,59 @@ private fun buildTimelineSteps(expense: ExpenseRecord): List<TimelineStep> {
     return listOf(submitted, underReview, terminal)
 }
 
-private data class LineItem(val description: String, val qty: Int, val amount: Double)
+private data class LineItem(
+    val description: String,
+    val qty: Int,
+    val amount: Double,
+)
+
+// The demo receipt breakdown: each category splits the claimed total into shares that sum to 1.0.
+// Named so the split is legible and so a reader can see at a glance that each set totals the whole.
+private const val FoodNetShare = 0.9
+private const val FoodGstShare = 0.1
+
+private const val TravelFareShare = 0.85
+private const val TravelTollShare = 0.1
+private const val TravelServiceFeeShare = 0.05
+
+private const val StayRoomShare = 0.80
+private const val StayGstShare = 0.12
+private const val StayServiceChargeShare = 0.08
+
+private const val OtherNetShare = 0.88
+private const val OtherTaxShare = 0.12
 
 private fun mockLineItems(expense: ExpenseRecord): List<LineItem> {
     val total = expense.amountRupees
     return when (expense.category) {
         com.mileway.feature.logging.model.ExpenseCategory.FOOD ->
             listOf(
-                LineItem("Food & Beverages", 1, total * 0.9),
-                LineItem("GST (5%)", 1, total * 0.1),
+                LineItem("Food & Beverages", 1, total * FoodNetShare),
+                LineItem("GST (5%)", 1, total * FoodGstShare),
             )
         com.mileway.feature.logging.model.ExpenseCategory.TRAVEL ->
             listOf(
-                LineItem("Transportation", 1, total * 0.85),
-                LineItem("Toll / Parking", 1, total * 0.1),
-                LineItem("Service Fee", 1, total * 0.05),
+                LineItem("Transportation", 1, total * TravelFareShare),
+                LineItem("Toll / Parking", 1, total * TravelTollShare),
+                LineItem("Service Fee", 1, total * TravelServiceFeeShare),
             )
         com.mileway.feature.logging.model.ExpenseCategory.ACCOMMODATION ->
             listOf(
-                LineItem("Room Rent", 1, total * 0.80),
-                LineItem("GST (12%)", 1, total * 0.12),
-                LineItem("Service Charge", 1, total * 0.08),
+                LineItem("Room Rent", 1, total * StayRoomShare),
+                LineItem("GST (12%)", 1, total * StayGstShare),
+                LineItem("Service Charge", 1, total * StayServiceChargeShare),
             )
         else ->
             listOf(
-                LineItem(expense.category.label, 1, total * 0.88),
-                LineItem("Tax & Charges", 1, total * 0.12),
+                LineItem(expense.category.label, 1, total * OtherNetShare),
+                LineItem("Tax & Charges", 1, total * OtherTaxShare),
             )
     }
 }
-
-private val MONTHS = arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 private fun formatFullDate(ms: Long): String {
     val ldt = Instant.fromEpochMilliseconds(ms).toLocalDateTime(TimeZone.currentSystemDefault())
     val amPm = if (ldt.hour < 12) "AM" else "PM"
     val h = if (ldt.hour % 12 == 0) 12 else ldt.hour % 12
-    return "${ldt.dayOfMonth} ${MONTHS[ldt.monthNumber - 1]} ${ldt.year}, $h:${ldt.minute.toString().padStart(2, '0')} $amPm"
+    return "${ldt.dayOfMonth} ${monthName(ldt.monthNumber)} ${ldt.year}, $h:${ldt.minute.toString().padStart(2, '0')} $amPm"
 }

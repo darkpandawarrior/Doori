@@ -12,7 +12,9 @@ import com.mileway.feature.tracking.repository.SavedTrackRepository
  * On detection, writes [SavedTrackRepository.markFgTerminated] so the journey quality scorer
  * can deduct and the UI can surface the "Tracking was interrupted" badge.
  */
-class SystemRecoveryDetector(private val trackRepository: SavedTrackRepository) {
+class SystemRecoveryDetector(
+    private val trackRepository: SavedTrackRepository,
+) {
     /**
      * If [isSystemRelaunch] is true and [token] is non-empty, records the termination and
      * returns true.  Call from the service/controller's resume path.

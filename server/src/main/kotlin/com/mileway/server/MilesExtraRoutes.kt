@@ -97,7 +97,8 @@ private fun insertMilesEventRow(
 private fun trackMileageStatus(token: String): TrackMileageStatusResponse {
     val latestEvent =
         transaction {
-            EventsTable.selectAll()
+            EventsTable
+                .selectAll()
                 .where { EventsTable.token eq token }
                 .orderBy(EventsTable.time to SortOrder.DESC)
                 .limit(1)

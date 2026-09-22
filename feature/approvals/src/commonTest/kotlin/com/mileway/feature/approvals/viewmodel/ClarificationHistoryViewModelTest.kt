@@ -37,7 +37,9 @@ class ClarificationHistoryViewModelTest {
             val vm = ClarificationHistoryViewModel(repo)
             advanceUntilIdle()
 
-            val items = vm.state.value.rooms.dataOrNull.orEmpty()
+            val items =
+                vm.state.value.rooms.dataOrNull
+                    .orEmpty()
             assertEquals(2, items.size)
             assertEquals(setOf("Priya Sharma", "Rahul Mehra"), items.map { it.requesterName }.toSet())
         }
@@ -66,13 +68,25 @@ class ClarificationHistoryViewModelTest {
             val vm = ClarificationHistoryViewModel(repo)
             advanceUntilIdle()
 
-            assertEquals(listOf("A001"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+            assertEquals(
+                listOf("A001"),
+                vm.state.value.rooms.dataOrNull
+                    ?.map { it.room.approvalId },
+            )
 
             vm.onAction(ClarificationHistoryAction.SelectTab(ClarificationHistoryTab.CLOSED))
-            assertEquals(listOf("A002"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+            assertEquals(
+                listOf("A002"),
+                vm.state.value.rooms.dataOrNull
+                    ?.map { it.room.approvalId },
+            )
 
             vm.onAction(ClarificationHistoryAction.SelectTab(ClarificationHistoryTab.SAVED))
-            assertEquals(listOf("A001"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+            assertEquals(
+                listOf("A001"),
+                vm.state.value.rooms.dataOrNull
+                    ?.map { it.room.approvalId },
+            )
         }
 
     @Test
@@ -86,6 +100,10 @@ class ClarificationHistoryViewModelTest {
             advanceUntilIdle()
             vm.onAction(ClarificationHistoryAction.SetQuery("Priya"))
 
-            assertEquals(listOf("A001"), vm.state.value.rooms.dataOrNull?.map { it.room.approvalId })
+            assertEquals(
+                listOf("A001"),
+                vm.state.value.rooms.dataOrNull
+                    ?.map { it.room.approvalId },
+            )
         }
 }

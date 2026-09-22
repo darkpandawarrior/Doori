@@ -19,7 +19,9 @@ sealed interface DeepLinkAction {
     data object CheckIn : DeepLinkAction
 
     /** Unrecognised or malformed action link; dispatch is a safe no-op. */
-    data class Unknown(val raw: String) : DeepLinkAction
+    data class Unknown(
+        val raw: String,
+    ) : DeepLinkAction
 }
 
 /**

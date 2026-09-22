@@ -1,14 +1,12 @@
 package com.mileway
 
 import com.mileway.feature.tracking.debug.DebugMenuUiState
-import com.mileway.feature.tracking.debug.DebugProfile
 import com.mileway.feature.tracking.debug.DebugProfiles
 import com.mileway.feature.tracking.debug.buildConfigSnapshot
 import com.mileway.feature.tracking.debug.searchMatches
 import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -20,7 +18,6 @@ import kotlin.test.assertTrue
  * No Android framework or Koin required, all JVM-only.
  */
 class DebugMenuTest {
-
     // -------------------------------------------------------------------------
     // DebugProfile preset structure
     // -------------------------------------------------------------------------
@@ -42,44 +39,65 @@ class DebugMenuTest {
     @Test
     fun `DEVELOPMENT profile enables Allow Mock Locations`() {
         val profile = DebugProfiles.DEVELOPMENT
-        assertEquals(true, profile.options["Allow Mock Locations"],
-            "Development profile should enable mock locations")
+        assertEquals(
+            true,
+            profile.options["Allow Mock Locations"],
+            "Development profile should enable mock locations",
+        )
     }
 
     @Test
     fun `QA_TESTING profile enables Enable Location Dump Creation`() {
         val profile = DebugProfiles.QA_TESTING
-        assertEquals(true, profile.options["Enable Location Dump Creation"],
-            "QA Testing profile should enable location dump")
+        assertEquals(
+            true,
+            profile.options["Enable Location Dump Creation"],
+            "QA Testing profile should enable location dump",
+        )
     }
 
     @Test
     fun `PERFORMANCE_TESTING profile bypasses battery checks`() {
         val profile = DebugProfiles.PERFORMANCE_TESTING
-        assertEquals(true, profile.options["Bypass Battery Level Check"],
-            "Performance profile should bypass battery level check")
-        assertEquals(true, profile.options["Bypass Battery Optimization Check"],
-            "Performance profile should bypass battery optimization check")
+        assertEquals(
+            true,
+            profile.options["Bypass Battery Level Check"],
+            "Performance profile should bypass battery level check",
+        )
+        assertEquals(
+            true,
+            profile.options["Bypass Battery Optimization Check"],
+            "Performance profile should bypass battery optimization check",
+        )
     }
 
     @Test
     fun `TRACK_MILES_DEBUGGING profile enables tracking overlay and mock locations`() {
         val profile = DebugProfiles.TRACK_MILES_DEBUGGING
-        assertTrue(profile.options["Enable Tracking Overlay"] == true,
-            "Track Miles Debug profile should enable tracking overlay")
-        assertTrue(profile.options["Allow Mock Locations"] == true,
-            "Track Miles Debug profile should allow mock locations")
+        assertTrue(
+            profile.options["Enable Tracking Overlay"] == true,
+            "Track Miles Debug profile should enable tracking overlay",
+        )
+        assertTrue(
+            profile.options["Allow Mock Locations"] == true,
+            "Track Miles Debug profile should allow mock locations",
+        )
     }
 
     @Test
     fun `applying a profile resets all other options to false`() {
         // Simulate the applyProfileToUiState logic on a populated state
-        val allTrackingKeys = setOf(
-            "Skip Odometer", "Toggle Odometer OCR", "Allow Mock Locations",
-            "Enable Location Dump Creation", "Force BE Distance Calculation",
-            "Bypass Battery Level Check", "Bypass Battery Optimization Check",
-            "Use V2 Location Sync API",
-        )
+        val allTrackingKeys =
+            setOf(
+                "Skip Odometer",
+                "Toggle Odometer OCR",
+                "Allow Mock Locations",
+                "Enable Location Dump Creation",
+                "Force BE Distance Calculation",
+                "Bypass Battery Level Check",
+                "Bypass Battery Optimization Check",
+                "Use V2 Location Sync API",
+            )
 
         val profile = DebugProfiles.DEVELOPMENT
 
@@ -101,8 +119,11 @@ class DebugMenuTest {
 
         // Keys in the profile should match profile values
         profileTrackingKeys.forEach { key ->
-            assertEquals(profile.options[key], after[key],
-                "Key '$key' should match profile value after apply")
+            assertEquals(
+                profile.options[key],
+                after[key],
+                "Key '$key' should match profile value after apply",
+            )
         }
     }
 
@@ -112,36 +133,48 @@ class DebugMenuTest {
 
     @Test
     fun `buildConfigSnapshot includes tenant key`() {
-        val snapshot = buildConfigSnapshot(
-            uiState = DebugMenuUiState(),
-            trackMilesV2 = true,
-            geoCheckIn = true,
-            manualCheckIn = true,
-            currency = "INR",
-            tenant = "DEMO",
-            service = "Own Car",
-            allowMockLocations = false,
-        )
+        val snapshot =
+            buildConfigSnapshot(
+                uiState = DebugMenuUiState(),
+                trackMilesV2 = true,
+                geoCheckIn = true,
+                manualCheckIn = true,
+                currency = "INR",
+                tenant = "DEMO",
+                service = "Own Car",
+                allowMockLocations = false,
+            )
         assertTrue(snapshot.containsKey("Tenant"), "Snapshot must have Tenant key")
         assertEquals("DEMO", snapshot["Tenant"])
     }
 
     @Test
     fun `buildConfigSnapshot reflects allowMockLocations flag correctly`() {
-        val snapshotAllowed = buildConfigSnapshot(
-            uiState = DebugMenuUiState(
-                trackingOptions = mapOf("Allow Mock Locations" to true),
-            ),
-            trackMilesV2 = true, geoCheckIn = false, manualCheckIn = false,
-            currency = "INR", tenant = "DEMO", service = "Car",
-            allowMockLocations = true,
-        )
-        val snapshotBlocked = buildConfigSnapshot(
-            uiState = DebugMenuUiState(),
-            trackMilesV2 = true, geoCheckIn = false, manualCheckIn = false,
-            currency = "INR", tenant = "DEMO", service = "Car",
-            allowMockLocations = false,
-        )
+        val snapshotAllowed =
+            buildConfigSnapshot(
+                uiState =
+                    DebugMenuUiState(
+                        trackingOptions = mapOf("Allow Mock Locations" to true),
+                    ),
+                trackMilesV2 = true,
+                geoCheckIn = false,
+                manualCheckIn = false,
+                currency = "INR",
+                tenant = "DEMO",
+                service = "Car",
+                allowMockLocations = true,
+            )
+        val snapshotBlocked =
+            buildConfigSnapshot(
+                uiState = DebugMenuUiState(),
+                trackMilesV2 = true,
+                geoCheckIn = false,
+                manualCheckIn = false,
+                currency = "INR",
+                tenant = "DEMO",
+                service = "Car",
+                allowMockLocations = false,
+            )
 
         assertEquals("allowed", snapshotAllowed["Mock locations (debug)"])
         assertEquals("blocked", snapshotBlocked["Mock locations (debug)"])
@@ -150,44 +183,77 @@ class DebugMenuTest {
     @Test
     fun `buildConfigSnapshot shows debug flags active count`() {
         val uiState = DebugMenuUiState(enabledOptionsCount = 3)
-        val snapshot = buildConfigSnapshot(
-            uiState = uiState,
-            trackMilesV2 = false, geoCheckIn = false, manualCheckIn = false,
-            currency = "USD", tenant = "T1", service = "Bike",
-            allowMockLocations = false,
-        )
+        val snapshot =
+            buildConfigSnapshot(
+                uiState = uiState,
+                trackMilesV2 = false,
+                geoCheckIn = false,
+                manualCheckIn = false,
+                currency = "USD",
+                tenant = "T1",
+                service = "Bike",
+                allowMockLocations = false,
+            )
         assertEquals("3", snapshot["Debug flags active"])
     }
 
     @Test
     fun `buildConfigSnapshot track miles v2 label`() {
-        val snapshotOn = buildConfigSnapshot(
-            uiState = DebugMenuUiState(), trackMilesV2 = true,
-            geoCheckIn = false, manualCheckIn = false, currency = "INR",
-            tenant = "T", service = "S", allowMockLocations = false,
-        )
-        val snapshotOff = buildConfigSnapshot(
-            uiState = DebugMenuUiState(), trackMilesV2 = false,
-            geoCheckIn = false, manualCheckIn = false, currency = "INR",
-            tenant = "T", service = "S", allowMockLocations = false,
-        )
+        val snapshotOn =
+            buildConfigSnapshot(
+                uiState = DebugMenuUiState(),
+                trackMilesV2 = true,
+                geoCheckIn = false,
+                manualCheckIn = false,
+                currency = "INR",
+                tenant = "T",
+                service = "S",
+                allowMockLocations = false,
+            )
+        val snapshotOff =
+            buildConfigSnapshot(
+                uiState = DebugMenuUiState(),
+                trackMilesV2 = false,
+                geoCheckIn = false,
+                manualCheckIn = false,
+                currency = "INR",
+                tenant = "T",
+                service = "S",
+                allowMockLocations = false,
+            )
         assertEquals("enabled", snapshotOn["Track Miles V2"])
         assertEquals("disabled", snapshotOff["Track Miles V2"])
     }
 
     @Test
     fun `buildConfigSnapshot has exactly the expected keys`() {
-        val snapshot = buildConfigSnapshot(
-            uiState = DebugMenuUiState(), trackMilesV2 = true,
-            geoCheckIn = true, manualCheckIn = true, currency = "INR",
-            tenant = "DEMO", service = "Car", allowMockLocations = false,
+        val snapshot =
+            buildConfigSnapshot(
+                uiState = DebugMenuUiState(),
+                trackMilesV2 = true,
+                geoCheckIn = true,
+                manualCheckIn = true,
+                currency = "INR",
+                tenant = "DEMO",
+                service = "Car",
+                allowMockLocations = false,
+            )
+        val expectedKeys =
+            setOf(
+                "Tenant",
+                "Currency",
+                "Service",
+                "Track Miles V2",
+                "Geo check-in",
+                "Manual check-in",
+                "Mock locations (debug)",
+                "Debug flags active",
+            )
+        assertEquals(
+            expectedKeys,
+            snapshot.keys.toSet(),
+            "Snapshot keys should match expected set",
         )
-        val expectedKeys = setOf(
-            "Tenant", "Currency", "Service", "Track Miles V2",
-            "Geo check-in", "Manual check-in", "Mock locations (debug)", "Debug flags active",
-        )
-        assertEquals(expectedKeys, snapshot.keys.toSet(),
-            "Snapshot keys should match expected set")
     }
 
     // -------------------------------------------------------------------------

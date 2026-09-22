@@ -9,23 +9,27 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class TrackDisplayDataTest {
-
     private fun makeTrack(
         distance: Double = 8700.0,
         startTime: Long = 1_000_000L,
         endTime: Long = 1_100_000L,
-        serverUploaded: Boolean = true
+        serverUploaded: Boolean = true,
     ) = SavedTrack(
         routeId = "test-id",
         name = "Test Track",
-        startLatitude = 18.5, startLongitude = 73.8,
-        endLatitude = 18.6, endLongitude = 73.9,
-        pausedLatitude = 0.0, pausedLongitude = 0.0,
-        startTime = startTime, endTime = endTime,
-        distance = distance, duration = endTime - startTime,
+        startLatitude = 18.5,
+        startLongitude = 73.8,
+        endLatitude = 18.6,
+        endLongitude = 73.9,
+        pausedLatitude = 0.0,
+        pausedLongitude = 0.0,
+        startTime = startTime,
+        endTime = endTime,
+        distance = distance,
+        duration = endTime - startTime,
         serverUploaded = serverUploaded,
         submittedAmount = distance / 1000.0 * 10.0,
-        submissionTime = if (serverUploaded) endTime + 10_000L else 0L
+        submissionTime = if (serverUploaded) endTime + 10_000L else 0L,
     )
 
     @Test

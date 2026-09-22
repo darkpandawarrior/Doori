@@ -46,8 +46,7 @@ class WhatsNewViewModel(
                     isVisible = session.whatsNewLastSeenVersion < whatsNewRepository.currentVersion,
                     entries = whatsNewRepository.entries().take(SHEET_DIGEST_SIZE),
                 )
-            }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, WhatsNewUiState())
+            }.stateIn(viewModelScope, SharingStarted.Eagerly, WhatsNewUiState())
 
     /** Called once the sheet has been acknowledged — advances the stored version. */
     fun acknowledge() {

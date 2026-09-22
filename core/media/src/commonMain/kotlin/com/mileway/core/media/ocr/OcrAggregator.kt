@@ -51,7 +51,8 @@ object OcrAggregator {
 
     /** Regex-fallback extractor: longest in-bounds 4-7 digit run, matching the legacy single-shot rule. */
     fun extractReading(rawText: String): Int? =
-        DIGIT_GROUP.findAll(preprocess(rawText))
+        DIGIT_GROUP
+            .findAll(preprocess(rawText))
             .mapNotNull { it.value.toIntOrNull() }
             .filter { it in bounds }
             .maxOrNull()
@@ -79,13 +80,16 @@ object OcrAggregator {
             byReading.entries.maxWith(
                 compareBy<Map.Entry<Int, List<Pair<FrameQualityAnalyzer.FrameMetrics, Boolean>>>> { entry ->
                     entry.value.sumOf { (quality, _) -> FrameQualityAnalyzer.score(quality).toDouble() }
-                }
-                    .thenBy { it.value.size }
+                }.thenBy { it.value.size }
                     .thenBy { it.key },
             )
 
         val agree = winner.value.size
-        val avgQuality = winner.value.map { (quality, _) -> FrameQualityAnalyzer.score(quality) }.average().toFloat()
+        val avgQuality =
+            winner.value
+                .map { (quality, _) -> FrameQualityAnalyzer.score(quality) }
+                .average()
+                .toFloat()
         val agreementRatio = agree.toFloat() / pool.size
         val labelledBonus = if (winner.value.any { (_, labelled) -> labelled }) LABELLED_BONUS else 0f
         val confidence = ((agreementRatio + avgQuality) / 2f + labelledBonus).coerceIn(0f, 1f)

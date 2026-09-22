@@ -21,9 +21,13 @@ import kotlinx.coroutines.flow.asStateFlow
 sealed interface PrimerStage {
     data object Intro : PrimerStage
 
-    data class Requesting(val tier: PermissionTier) : PrimerStage
+    data class Requesting(
+        val tier: PermissionTier,
+    ) : PrimerStage
 
-    data class Done(val outcome: PrimerOutcome) : PrimerStage
+    data class Done(
+        val outcome: PrimerOutcome,
+    ) : PrimerStage
 }
 
 /**

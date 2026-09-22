@@ -73,6 +73,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.geometry.toRadians
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.core_activity
 import com.mileway.core.ui.resources.core_analyzing_activity
@@ -82,7 +83,6 @@ import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.rotateHue
 import org.jetbrains.compose.resources.stringResource
-import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -357,9 +357,6 @@ private fun DrawScope.drawCardinalLabel(
     )
 }
 
-/** Degrees to radians without any `java.*` dependency (KMP-pure). */
-private fun Float.toRadians(): Float = (this * PI / 180.0).toFloat()
-
 // ---------------------------------------------------------------------------
 // 2. ActivityTimeline, segmented horizontal activity breakdown
 // ---------------------------------------------------------------------------
@@ -582,16 +579,17 @@ fun HeroTrackingCard(
     val breath =
         if (isActive) {
             val infinite = rememberInfiniteTransition(label = "heroBreath")
-            infinite.animateFloat(
-                initialValue = 0.99f,
-                targetValue = 1.01f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(durationMillis = 1400, easing = EaseOutCubic),
-                        repeatMode = RepeatMode.Reverse,
-                    ),
-                label = "heroBreathAnim",
-            ).value
+            infinite
+                .animateFloat(
+                    initialValue = 0.99f,
+                    targetValue = 1.01f,
+                    animationSpec =
+                        infiniteRepeatable(
+                            animation = tween(durationMillis = 1400, easing = EaseOutCubic),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                    label = "heroBreathAnim",
+                ).value
         } else {
             1f
         }

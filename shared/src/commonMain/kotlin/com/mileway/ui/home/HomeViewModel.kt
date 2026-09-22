@@ -134,12 +134,14 @@ class HomeViewModel(
 
         // P29.H.4: real unread count (Room-backed), replacing the static HomeMockData seed.
         viewModelScope.launch { notificationRepository.seedIfEmpty() }
-        notificationRepository.observeUnreadCount()
+        notificationRepository
+            .observeUnreadCount()
             .onEach { count -> _uiState.update { it.copy(notificationCount = count) } }
             .launchIn(viewModelScope)
 
         // P29.H.3: same manager gate as the reportee-tracking surface (ManagerReporteesViewModel).
-        pluginRegistry.observe("trackMileageManagerView")
+        pluginRegistry
+            .observe("trackMileageManagerView")
             .onEach { isManager -> _uiState.update { it.copy(isManager = isManager) } }
             .launchIn(viewModelScope)
 
@@ -202,7 +204,7 @@ class HomeViewModel(
         fun buildInitialState(): HomeUiState =
             HomeUiState(
                 greetingName = firstName(ProfileMockData.primaryProfile()),
-                notificationCount = HomeMockData.notificationCount(),
+                notificationCount = HomeMockData.notificationCount,
                 actionRequired = HomeMockData.actionRequiredBanner(),
                 atAGlance = HomeMockData.atAGlance(),
                 marketingItems = HomeMockData.carouselItems(),
@@ -217,7 +219,11 @@ class HomeViewModel(
             )
 
         /** First whitespace-delimited token of the profile name, e.g. "Demo User" -> "Demo". */
-        fun firstName(profile: EmployeeProfile): String = profile.name.trim().substringBefore(' ').ifBlank { profile.name.trim() }
+        fun firstName(profile: EmployeeProfile): String =
+            profile.name
+                .trim()
+                .substringBefore(' ')
+                .ifBlank { profile.name.trim() }
     }
 }
 

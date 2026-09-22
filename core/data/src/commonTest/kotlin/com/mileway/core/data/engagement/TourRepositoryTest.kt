@@ -109,7 +109,9 @@ class TourRepositoryTest {
 
     private fun repo(): TourRepository = TourRepository(FakeTourProgressDao(), FakeActiveAccount("ACC-1"))
 
-    private class FakeActiveAccount(id: String?) : ActiveAccountSource {
+    private class FakeActiveAccount(
+        id: String?,
+    ) : ActiveAccountSource {
         override val activeAccountId = MutableStateFlow(id)
 
         override suspend fun setActiveAccountId(accountId: String) {

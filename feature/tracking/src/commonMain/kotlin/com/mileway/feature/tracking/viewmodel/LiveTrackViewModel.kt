@@ -21,9 +21,14 @@ sealed class LiveTrackingUiState {
 
     object Loading : LiveTrackingUiState()
 
-    data class Success(val trackData: CurrentTrackData, val locationPoints: List<LocationData>) : LiveTrackingUiState()
+    data class Success(
+        val trackData: CurrentTrackData,
+        val locationPoints: List<LocationData>,
+    ) : LiveTrackingUiState()
 
-    data class Error(val message: String) : LiveTrackingUiState()
+    data class Error(
+        val message: String,
+    ) : LiveTrackingUiState()
 }
 
 data class LiveTrackUiState(
@@ -38,9 +43,14 @@ sealed interface LiveTrackAction {
     data object ClearError : LiveTrackAction
 
     /** Starts a fresh session, or resumes [token] if it's currently paused. */
-    data class StartOrResume(val token: String, val isPaused: Boolean) : LiveTrackAction
+    data class StartOrResume(
+        val token: String,
+        val isPaused: Boolean,
+    ) : LiveTrackAction
 
-    data class Pause(val token: String) : LiveTrackAction
+    data class Pause(
+        val token: String,
+    ) : LiveTrackAction
 }
 
 sealed interface LiveTrackEffect
@@ -66,6 +76,10 @@ class LiveTrackViewModel(
         setupCombinedState()
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     private fun initializeTrackingData() {
         viewModelScope.launch {
             try {
@@ -120,7 +134,8 @@ class LiveTrackViewModel(
         currentTrackRepository.getCurrentTrackDataRawAsync().fold(
             onSuccess = { trackData ->
                 mutableTrackState.value = UiState.Success(trackData)
-                currentTrackRepository.getHardwareEventQueueSnapshot()
+                currentTrackRepository
+                    .getHardwareEventQueueSnapshot()
                     .onSuccess { setState { copy(hardwareEventsState = it) } }
 
                 if (trackData.isTracking && trackData.token.isNotEmpty()) {
@@ -143,11 +158,11 @@ class LiveTrackViewModel(
         locationObserverJob =
             viewModelScope.launch {
                 mutableLocState.value = UiState.Loading
-                locationRepository.locationsForToken(token)
+                locationRepository
+                    .locationsForToken(token)
                     .catch { e ->
                         mutableLocState.value = UiState.Error("Failed to load locations: ${e.message}")
-                    }
-                    .collect { locations ->
+                    }.collect { locations ->
                         mutableLocState.value = UiState.Success(locations)
                     }
             }
@@ -193,7 +208,8 @@ class LiveTrackViewModel(
                         stopAutoRefresh()
                     }
                 }
-                currentTrackRepository.getHardwareEventQueueSnapshot()
+                currentTrackRepository
+                    .getHardwareEventQueueSnapshot()
                     .onSuccess { setState { copy(hardwareEventsState = it) } }
             },
             onFailure = { Napier.w("Refresh failed", tag = TAG) },

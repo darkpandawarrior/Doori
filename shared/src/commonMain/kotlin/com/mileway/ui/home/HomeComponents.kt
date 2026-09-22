@@ -37,7 +37,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.NoteAdd
 import androidx.compose.material.icons.filled.AttachFile
-import androidx.compose.material.icons.filled.CardGiftcard
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CreditCard
@@ -273,8 +272,7 @@ fun HomeProfileHeader(
                                 width = 1.dp,
                                 color = headerContent,
                                 shape = RoundedCornerShape(6.dp),
-                            )
-                            .clip(RoundedCornerShape(6.dp))
+                            ).clip(RoundedCornerShape(6.dp))
                             .background(
                                 headerContent.copy(alpha = 0.12f),
                                 RoundedCornerShape(6.dp),
@@ -896,8 +894,7 @@ fun AtAGlanceRowView(
                 .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "${row.count} ${row.title}, ${row.subtitle}"
-                }
-                .fillMaxWidth()
+                }.fillMaxWidth()
                 .padding(vertical = DesignTokens.Spacing.m),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l),
@@ -1024,7 +1021,7 @@ fun BannerCarousel(
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m)) {
         Box(modifier = Modifier.padding(horizontal = DesignTokens.Spacing.screenHorizontal)) {
-            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits), leadingIcon = Icons.Filled.CardGiftcard)
+            HomeSectionHeader(title = stringResource(Res.string.shared_home_benefits))
         }
         LazyRow(
             state = listState,
@@ -1043,11 +1040,15 @@ fun BannerCarousel(
 
 private const val BANNER_CAROUSEL_ADVANCE_MS = 4000L
 
-/** Shared section heading used between the home sections. Terminal `//` prefix style. */
+/**
+ * Shared section heading used between the home sections. Terminal `//` prefix style.
+ *
+ * Took a `leadingIcon: ImageVector` until this pass. It was never drawn — the `//` prefix IS the
+ * marker in this design language — while eight call sites resolved and passed an icon for nothing.
+ */
 @Composable
 fun HomeSectionHeader(
     title: String,
-    leadingIcon: ImageVector,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -1319,7 +1320,12 @@ private fun GlanceCell(
 // Phase O, My Cards carousel
 // =============================================================================
 
-private data class MockCard(val label: String, val balance: String, val last4: String, val gradient: Brush)
+private data class MockCard(
+    val label: String,
+    val balance: String,
+    val last4: String,
+    val gradient: Brush,
+)
 
 private val MOCK_CARDS =
     listOf(
@@ -1339,14 +1345,16 @@ fun MyCardsSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader(stringResource(Res.string.shared_home_my_cards), Icons.Filled.CreditCard)
+            HomeSectionHeader(stringResource(Res.string.shared_home_my_cards))
             TextButton(onClick = { scope.launch { onSnackbar() } }) {
                 Text(stringResource(Res.string.shared_home_request_card), style = MaterialTheme.typography.labelMedium)
             }
         }
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 2.dp),
+            contentPadding =
+                androidx.compose.foundation.layout
+                    .PaddingValues(horizontal = 2.dp),
         ) {
             items(MOCK_CARDS) { card ->
                 MockCardView(card = card, onAction = { scope.launch { onSnackbar() } })
@@ -1413,7 +1421,13 @@ private fun MockCardView(
 
 private enum class ActivityStatus { APPROVED, PENDING, SUBMITTED, REJECTED }
 
-private data class ActivityItem(val id: String, val title: String, val amount: String, val status: ActivityStatus, val date: String)
+private data class ActivityItem(
+    val id: String,
+    val title: String,
+    val amount: String,
+    val status: ActivityStatus,
+    val date: String,
+)
 
 private val RECENT_ACTIVITIES =
     listOf(
@@ -1436,7 +1450,7 @@ fun RecentActivitySection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            HomeSectionHeader(stringResource(Res.string.shared_home_recent_activity), Icons.Filled.CheckCircle)
+            HomeSectionHeader(stringResource(Res.string.shared_home_recent_activity))
             TextButton(onClick = { scope.launch { onSnackbar() } }) {
                 Text(stringResource(Res.string.shared_home_view_all), style = MaterialTheme.typography.labelMedium)
             }
@@ -1476,8 +1490,7 @@ private fun ActivityRow(
                 .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "${item.title}, ${item.id}, ${item.date}, ${item.amount}, $statusLabel"
-                }
-                .padding(vertical = DesignTokens.Spacing.s),
+                }.padding(vertical = DesignTokens.Spacing.s),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
     ) {
@@ -1595,7 +1608,9 @@ fun HomeMileageCard(
                             startAngle = 135f,
                             sweepAngle = 270f,
                             useCenter = false,
-                            topLeft = androidx.compose.ui.geometry.Offset(offset, offset),
+                            topLeft =
+                                androidx.compose.ui.geometry
+                                    .Offset(offset, offset),
                             size = arcSize,
                             style = stroke,
                         )
@@ -1605,7 +1620,9 @@ fun HomeMileageCard(
                             startAngle = 135f,
                             sweepAngle = 270f * progress,
                             useCenter = false,
-                            topLeft = androidx.compose.ui.geometry.Offset(offset, offset),
+                            topLeft =
+                                androidx.compose.ui.geometry
+                                    .Offset(offset, offset),
                             size = arcSize,
                             style = stroke,
                         )
@@ -1695,7 +1712,11 @@ private fun MileageStat(
 // Phase VII, HomeCheckInCard (ref 11)
 // =============================================================================
 
-private data class DemoCheckIn(val location: String, val time: String, val isIn: Boolean)
+private data class DemoCheckIn(
+    val location: String,
+    val time: String,
+    val isIn: Boolean,
+)
 
 private val DEMO_CHECK_INS =
     listOf(
@@ -1836,9 +1857,6 @@ private fun PreviewHomeProfileHeader() {
 @Composable
 private fun PreviewHomeSectionHeader() {
     PreviewSurface {
-        HomeSectionHeader(
-            title = "Recent Trips",
-            leadingIcon = androidx.compose.material.icons.Icons.Default.DirectionsCar,
-        )
+        HomeSectionHeader(title = "Recent Trips")
     }
 }

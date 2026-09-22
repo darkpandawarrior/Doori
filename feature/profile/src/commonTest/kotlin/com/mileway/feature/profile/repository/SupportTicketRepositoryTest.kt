@@ -15,7 +15,9 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 /** Advances by 1ms on every [now] call so successive [SupportTicketRepository.submit]s get distinct ids/timestamps. */
-private class IncrementingClock(startMs: Long) : Clock {
+private class IncrementingClock(
+    startMs: Long,
+) : Clock {
     private var currentMs = startMs
 
     override fun now(): Instant = Instant.fromEpochMilliseconds(currentMs++)

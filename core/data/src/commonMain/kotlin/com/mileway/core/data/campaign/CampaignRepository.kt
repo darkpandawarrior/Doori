@@ -2,6 +2,7 @@ package com.mileway.core.data.campaign
 
 import com.mileway.core.data.dao.CampaignDao
 import com.mileway.core.data.model.db.CampaignEntity
+import com.mileway.core.data.util.MillisPerDay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
@@ -11,7 +12,10 @@ import kotlin.time.Clock
  * profile marketing hub and the HomeScreen marketing strip (hence core:data, not a feature module).
  * [captureInterest] is the one-shot "Get in touch" — flips the flag; the UI disables the CTA after.
  */
-class CampaignRepository(private val dao: CampaignDao, private val clock: Clock = Clock.System) {
+class CampaignRepository(
+    private val dao: CampaignDao,
+    private val clock: Clock = Clock.System,
+) {
     /** Live, newest-first campaigns (source: `startedOn` desc). */
     fun observeAll(): Flow<List<Campaign>> = dao.observeAll().map { rows -> rows.map { it.toCampaign() } }
 
@@ -19,7 +23,7 @@ class CampaignRepository(private val dao: CampaignDao, private val clock: Clock 
     suspend fun seedIfEmpty() {
         if (dao.count() > 0) return
         val now = clock.now().toEpochMilliseconds()
-        dao.upsertAll(CampaignMockData.campaigns.mapIndexed { index, c -> c.toEntity(now - index * 86_400_000L) })
+        dao.upsertAll(CampaignMockData.campaigns.mapIndexed { index, c -> c.toEntity(now - index * MillisPerDay) })
     }
 
     /** Records interest in [id] (one-shot). A no-op if already captured or unknown. */

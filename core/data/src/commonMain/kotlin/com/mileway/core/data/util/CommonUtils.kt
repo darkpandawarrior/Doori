@@ -4,17 +4,34 @@ import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
+/** Latitude runs -90..90 and longitude -180..180; anything outside is not a coordinate. */
+private const val MaxLatitude = 90.0
+private const val MaxLongitude = 180.0
+
+/** Metres in a kilometre. Shared across core:data so each file does not spell 1000 again. */
+internal const val MetresPerKm = 1_000.0
+private const val MinutesPerHour = 60
+
+/** `roundToTwoDecimals` scales by this, rounds, and scales back. */
+private const val TwoDecimalFactor = 100.0
+
+private const val DecimalBase = 10.0
+
 object CommonUtils {
     fun formatDistance(distanceKm: Double): String = "${distanceKm.fmt1d()} km"
 
     fun formatDuration(durationMs: Long): String {
-        val minutes = durationMs / 60_000
-        return if (minutes < 60) "${minutes}m" else "${minutes / 60}h ${minutes % 60}m"
+        val minutes = durationMs / MillisPerMinute
+        return if (minutes < MinutesPerHour) {
+            "${minutes}m"
+        } else {
+            "${minutes / MinutesPerHour}h ${minutes % MinutesPerHour}m"
+        }
     }
 
     fun formatSpeed(speedKmh: Double): String = "${speedKmh.fmt1d()} km/h"
 
-    fun roundToTwoDecimals(value: Double): Double = (value * 100.0).roundToInt() / 100.0
+    fun roundToTwoDecimals(value: Double): Double = (value * TwoDecimalFactor).roundToInt() / TwoDecimalFactor
 
     fun toTitleCase(input: String): String =
         input.split(" ").joinToString(" ") { word ->
@@ -32,18 +49,18 @@ object CommonUtils {
         value: Double,
         decimalPlaces: Int = 2,
     ): Double {
-        val factor = 10.0.pow(decimalPlaces)
+        val factor = DecimalBase.pow(decimalPlaces)
         return (value * factor).roundToInt() / factor
     }
 
-    fun formatDistanceMeters(meters: Double): String = if (meters < 1000) "${meters.roundToInt()}m" else "${(meters / 1000.0).fmt1d()} km"
+    fun formatDistanceMeters(meters: Double): String = if (meters < MetresPerKm) "${meters.roundToInt()}m" else "${(meters / MetresPerKm).fmt1d()} km"
 
-    fun metersToKm(meters: Double): Double = roundToTwoDecimals(meters / 1000.0)
+    fun metersToKm(meters: Double): Double = roundToTwoDecimals(meters / MetresPerKm)
 
-    fun kmToMeters(km: Double): Double = km * 1000.0
+    fun kmToMeters(km: Double): Double = km * MetresPerKm
 
     fun isValidLatLng(
         lat: Double,
         lng: Double,
-    ): Boolean = abs(lat) <= 90.0 && abs(lng) <= 180.0 && !(lat == 0.0 && lng == 0.0)
+    ): Boolean = abs(lat) <= MaxLatitude && abs(lng) <= MaxLongitude && !(lat == 0.0 && lng == 0.0)
 }

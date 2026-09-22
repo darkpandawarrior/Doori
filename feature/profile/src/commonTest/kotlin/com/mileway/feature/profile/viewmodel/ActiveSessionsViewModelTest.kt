@@ -68,7 +68,11 @@ class ActiveSessionsViewModelTest {
             vm.revoke("S2")
             advanceUntilIdle()
 
-            assertEquals(listOf("S1", "S3"), vm.state.value.sessions.map { it.id })
+            assertEquals(
+                listOf("S1", "S3"),
+                vm.state.value.sessions
+                    .map { it.id },
+            )
         }
 
     @Test
@@ -84,7 +88,11 @@ class ActiveSessionsViewModelTest {
             val relaunched = newViewModel(dao)
             advanceUntilIdle()
 
-            assertEquals(listOf("S1", "S3"), relaunched.state.value.sessions.map { it.id })
+            assertEquals(
+                listOf("S1", "S3"),
+                relaunched.state.value.sessions
+                    .map { it.id },
+            )
         }
 
     @Test
@@ -97,7 +105,11 @@ class ActiveSessionsViewModelTest {
             vm.revoke("S1")
             advanceUntilIdle()
 
-            assertEquals(listOf("S1", "S2", "S3"), vm.state.value.sessions.map { it.id })
+            assertEquals(
+                listOf("S1", "S2", "S3"),
+                vm.state.value.sessions
+                    .map { it.id },
+            )
         }
 
     @Test
@@ -123,7 +135,10 @@ class ActiveSessionsViewModelTest {
             val vm = newViewModel(dao)
             advanceUntilIdle()
 
-            assertTrue(vm.state.value.sessions.isNotEmpty())
+            assertTrue(
+                vm.state.value.sessions
+                    .isNotEmpty(),
+            )
             val seededCount = vm.state.value.sessions.size
 
             // A second ViewModel over the same dao must not double-seed.

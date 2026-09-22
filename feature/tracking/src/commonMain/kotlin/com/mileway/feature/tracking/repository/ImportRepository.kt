@@ -43,18 +43,32 @@ class ImportRepository(
 
     sealed interface ImportResult {
         /** Track restored with [pointCount] points. */
-        data class Restored(val routeId: String, val pointCount: Int) : ImportResult
+        data class Restored(
+            val routeId: String,
+            val pointCount: Int,
+        ) : ImportResult
 
         /** A track with this routeId already existed; nothing written. */
-        data class Skipped(val routeId: String) : ImportResult
+        data class Skipped(
+            val routeId: String,
+        ) : ImportResult
 
         /** Export belongs to a different account/tenant than [CurrentAccount]; nothing written. */
-        data class AccountMismatch(val exportAccountId: String?, val exportTenant: String) : ImportResult
+        data class AccountMismatch(
+            val exportAccountId: String?,
+            val exportTenant: String,
+        ) : ImportResult
 
         /** JSON was missing required fields or otherwise unparseable. */
-        data class Malformed(val reason: String) : ImportResult
+        data class Malformed(
+            val reason: String,
+        ) : ImportResult
     }
 
+    // Boundary catch-all: this is the edge between the app and a platform or backend call that
+    // fails in ways no narrower Kotlin type covers on this source set. The failure is logged
+    // and surfaced to the caller, never swallowed — crashing the process is the alternative.
+    @Suppress("TooGenericExceptionCaught")
     suspend fun import(
         json: String,
         current: CurrentAccount,

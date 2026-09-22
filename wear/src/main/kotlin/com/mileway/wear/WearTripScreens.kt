@@ -113,8 +113,7 @@ private fun TripRow(
                 .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) {
                     contentDescription = "${trip.label}, %.1f km".format(trip.km)
-                }
-                .padding(CARD_PADDING_DP.dp),
+                }.padding(CARD_PADDING_DP.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(CARD_SPACING_DP.dp),
     ) {

@@ -13,6 +13,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicColorScheme
+import com.mileway.core.ui.theme.direction.LedgerTypography
+import com.mileway.core.ui.theme.direction.PaperTypography
+import com.mileway.core.ui.theme.direction.SignalTypography
 
 /**
  * Android 12+ wallpaper-derived dynamic colour scheme, or null when unsupported
@@ -164,10 +167,10 @@ private fun derivedSemanticColors(
     isDark: Boolean,
 ): MilewaySemanticColors =
     MilewaySemanticColors(
-        warning = if (isDark) Color(0xFFF2C14E) else Color(0xFFB8860B),
+        warning = if (isDark) FallbackWarningDark else FallbackWarningLight,
         danger = scheme.error,
-        info = if (isDark) Color(0xFF5BA8F5) else Color(0xFF1C6FD6),
-        success = if (isDark) Color(0xFF46C46B) else Color(0xFF1C8F52),
+        info = if (isDark) FallbackInfoDark else FallbackInfoLight,
+        success = if (isDark) FallbackSuccessDark else FallbackSuccessLight,
         accentGlow = scheme.primary,
         accentDim = scheme.inversePrimary,
         border = scheme.outline,

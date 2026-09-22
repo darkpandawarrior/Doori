@@ -18,9 +18,13 @@ data class EventsHistoryUiState(
 sealed interface EventsHistoryAction {
     data object Refresh : EventsHistoryAction
 
-    data class SelectTab(val index: Int) : EventsHistoryAction
+    data class SelectTab(
+        val index: Int,
+    ) : EventsHistoryAction
 
-    data class SetQuery(val query: String) : EventsHistoryAction
+    data class SetQuery(
+        val query: String,
+    ) : EventsHistoryAction
 }
 
 sealed interface EventsHistoryEffect

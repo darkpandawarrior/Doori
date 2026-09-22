@@ -34,9 +34,13 @@ sealed interface UploadState {
 
     data object Uploading : UploadState
 
-    data class Done(val remoteUrl: String) : UploadState
+    data class Done(
+        val remoteUrl: String,
+    ) : UploadState
 
-    data class Failed(val reason: String) : UploadState
+    data class Failed(
+        val reason: String,
+    ) : UploadState
 }
 
 /**

@@ -22,7 +22,7 @@ fun realMilesSubmitSend(api: MilewayNetworkApi): suspend (TripDraft) -> SubmitOu
             throw e
         } catch (e: ClientRequestException) {
             if (e.response.status in PERMANENT_HTTP_STATUSES) SubmitOutcome.PermanentFailure else SubmitOutcome.RetryableFailure
-        } catch (e: Exception) {
+        } catch (ignored: Exception) {
             // ServerResponseException (5xx), connect/read timeouts, host unreachable, etc.
             SubmitOutcome.RetryableFailure
         }

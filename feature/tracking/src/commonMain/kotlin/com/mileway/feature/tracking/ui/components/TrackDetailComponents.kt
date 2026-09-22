@@ -199,12 +199,10 @@ fun SystemIssueItem(
                     width = 1.dp,
                     color = issue.severity.color.copy(alpha = 0.3f),
                     shape = DesignTokens.Shape.button,
-                )
-                .background(
+                ).background(
                     issue.severity.color.copy(alpha = 0.1f),
                     DesignTokens.Shape.button,
-                )
-                .padding(12.dp),
+                ).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -243,8 +241,7 @@ fun SystemIssueItem(
                     .background(
                         issue.severity.color.copy(alpha = 0.2f),
                         DesignTokens.Shape.button,
-                    )
-                    .padding(horizontal = 6.dp, vertical = 2.dp),
+                    ).padding(horizontal = 6.dp, vertical = 2.dp),
         )
     }
 }

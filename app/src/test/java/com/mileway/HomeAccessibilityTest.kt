@@ -21,7 +21,6 @@ import org.robolectric.annotation.Config
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [33], application = Application::class)
 class HomeAccessibilityTest {
-
     @get:Rule
     val composeRule = createComposeRule()
 

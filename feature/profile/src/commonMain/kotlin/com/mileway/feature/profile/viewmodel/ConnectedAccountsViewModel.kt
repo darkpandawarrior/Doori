@@ -19,6 +19,9 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** One-time codes in this flow are six digits, as issued by the shared OTP engine. */
+private const val OTP_LENGTH = 6
+
 /** An in-progress "link this wallet" OTP challenge (Paytm/Mobikwik). Non-null shows the OTP sheet. */
 data class WalletLinkFlow(
     val walletId: String,
@@ -63,8 +66,7 @@ class ConnectedAccountsViewModel(
         ) { wallets, enabled -> wallets to enabled }
             .onEach { (wallets, enabled) ->
                 _state.update { it.copy(wallets = wallets, walletsEnabled = enabled) }
-            }
-            .launchIn(viewModelScope)
+            }.launchIn(viewModelScope)
     }
 
     /** Toggles a connected-account [id]'s state — a local flag flip only, never a real network call. */
@@ -94,9 +96,9 @@ class ConnectedAccountsViewModel(
     }
 
     fun onLinkCodeChange(value: String) {
-        val digits = value.filter { it.isDigit() }.take(6)
+        val digits = value.filter { it.isDigit() }.take(OTP_LENGTH)
         _state.update { it.copy(linkFlow = it.linkFlow?.copy(code = digits, wrongCode = false)) }
-        if (digits.length == 6) verifyLink()
+        if (digits.length == OTP_LENGTH) verifyLink()
     }
 
     /** Verify the entered code; on success persist the link and close the sheet. */

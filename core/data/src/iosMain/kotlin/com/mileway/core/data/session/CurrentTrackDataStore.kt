@@ -15,7 +15,9 @@ import kotlinx.coroutines.flow.map
 import okio.Path.Companion.toPath
 import platform.Foundation.NSTemporaryDirectory
 
-class CurrentTrackDataStore(private val sessionRepository: SessionRepository) : CurrentTrackDataSource {
+class CurrentTrackDataStore(
+    private val sessionRepository: SessionRepository,
+) : CurrentTrackDataSource {
     companion object {
         val KEY_TOKEN = stringPreferencesKey("token")
         val KEY_IS_TRACKING = booleanPreferencesKey("is_tracking")
@@ -185,7 +187,10 @@ class CurrentTrackDataStore(private val sessionRepository: SessionRepository) : 
                 prefs[KEY_IS_PAUSED] = false
                 prefs[KEY_END_LAT] = endLat
                 prefs[KEY_END_LNG] = endLng
-                prefs[KEY_END_TIME] = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                prefs[KEY_END_TIME] =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds()
             }
         }
     }
@@ -201,7 +206,10 @@ class CurrentTrackDataStore(private val sessionRepository: SessionRepository) : 
         store.edit { prefs ->
             if (prefs[KEY_TOKEN] == token) {
                 prefs[KEY_LAST_HW_EVENT] = eventText
-                prefs[KEY_LAST_HW_EVENT_TIME] = kotlin.time.Clock.System.now().toEpochMilliseconds()
+                prefs[KEY_LAST_HW_EVENT_TIME] =
+                    kotlin.time.Clock.System
+                        .now()
+                        .toEpochMilliseconds()
             }
         }
     }

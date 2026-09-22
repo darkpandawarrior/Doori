@@ -43,6 +43,13 @@ fun hashPassword(
 object PasswordPolicy {
     const val MIN_LENGTH: Int = 8
 
+    /** A password this long scores a second point for length alone. */
+    private const val LONG_LENGTH: Int = 12
+
+    /** Score bands: 0..2 is WEAK, 3..4 is FAIR, 5 is STRONG. */
+    private const val MAX_WEAK_SCORE: Int = 2
+    private const val MAX_FAIR_SCORE: Int = 4
+
     enum class Strength { WEAK, FAIR, STRONG }
 
     fun isValid(password: String): Boolean = password.length >= MIN_LENGTH
@@ -50,13 +57,13 @@ object PasswordPolicy {
     fun strength(password: String): Strength {
         var score = 0
         if (password.length >= MIN_LENGTH) score++
-        if (password.length >= 12) score++
+        if (password.length >= LONG_LENGTH) score++
         if (password.any { it.isDigit() }) score++
         if (password.any { it.isLetter() }) score++
         if (password.any { !it.isLetterOrDigit() }) score++
         return when {
-            score <= 2 -> Strength.WEAK
-            score <= 4 -> Strength.FAIR
+            score <= MAX_WEAK_SCORE -> Strength.WEAK
+            score <= MAX_FAIR_SCORE -> Strength.FAIR
             else -> Strength.STRONG
         }
     }

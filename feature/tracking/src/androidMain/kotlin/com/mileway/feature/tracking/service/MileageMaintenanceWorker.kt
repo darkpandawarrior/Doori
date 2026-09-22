@@ -11,7 +11,8 @@ import org.koin.core.component.inject
 class MileageMaintenanceWorker(
     appContext: Context,
     params: WorkerParameters,
-) : CoroutineWorker(appContext, params), KoinComponent {
+) : CoroutineWorker(appContext, params),
+    KoinComponent {
     private val locationDao: LocationDao by inject()
 
     override suspend fun doWork(): Result {
