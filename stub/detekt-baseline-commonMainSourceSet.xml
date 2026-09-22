@@ -2,8 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>ComplexCondition:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi$a.lat != null &amp;&amp; a.lng != null &amp;&amp; b.lat != null &amp;&amp; b.lng != null</ID>
-    <ID>MagicNumber:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi$1_000.0</ID>
     <ID>TooManyFunctions:DemoConfigManager.kt:DemoConfigManager : ConfigProvider</ID>
     <ID>TooManyFunctions:FakeTrackingNetworkApi.kt:FakeTrackingNetworkApi : MilewayNetworkApi</ID>
   </CurrentIssues>

@@ -9,6 +9,7 @@ import com.mileway.core.data.model.network.BulkLocationRequest
 import com.mileway.core.data.model.network.BulkLocationRequestV2
 import com.mileway.core.data.model.network.CheckInDetailsResponseV2
 import com.mileway.core.data.model.network.CheckInRequestV2
+import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.DistanceRequestV2
 import com.mileway.core.data.model.network.DistanceResponseV2
 import com.mileway.core.data.model.network.EmptyRequest
@@ -64,7 +65,7 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         for (i in 0 until coords.size - 1) {
             val a = coords[i]
             val b = coords[i + 1]
-            if (a.lat != null && a.lng != null && b.lat != null && b.lng != null) {
+            if (a.hasFix() && b.hasFix()) {
                 totalKm += haversineKm(a.lat!!, a.lng!!, b.lat!!, b.lng!!)
             }
         }
@@ -154,5 +155,11 @@ class FakeTrackingNetworkApi : MilewayNetworkApi {
         lon1: Double,
         lat2: Double,
         lon2: Double,
-    ): Double = haversineMeters(lat1, lon1, lat2, lon2) / 1_000.0
+    ): Double = haversineMeters(lat1, lon1, lat2, lon2) / MetresPerKm
 }
+
+/** Metres in a kilometre — [haversineMeters] answers in metres, [DistanceResponseV2] is kilometres. */
+private const val MetresPerKm = 1_000.0
+
+/** A leg only contributes distance when both of its ends carry a complete fix. */
+private fun CoordsV2.hasFix(): Boolean = lat != null && lng != null

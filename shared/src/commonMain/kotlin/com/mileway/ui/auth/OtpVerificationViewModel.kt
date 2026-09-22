@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/** One countdown tick: the resend timer is displayed in whole seconds. */
+private const val TickMillis = 1_000L
+
 /** Which failure to surface on the OTP screen. */
 enum class OtpError { WRONG, EXPIRED, LOCKED }
 
@@ -107,7 +110,7 @@ class OtpVerificationViewModel(
                 var remaining = engine.resendAvailableInSeconds(purpose, target)
                 _state.update { it.copy(resendInSeconds = remaining) }
                 while (remaining > 0) {
-                    delay(1_000)
+                    delay(TickMillis)
                     remaining -= 1
                     _state.update { it.copy(resendInSeconds = remaining) }
                 }

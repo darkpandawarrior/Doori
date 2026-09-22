@@ -26,6 +26,12 @@ val SEARCH_SCOPE_TABS: List<SearchScope> =
 
 private const val DAY_MS = 86_400_000L
 
+/** "Last 7 days" counts today as one of the seven, so the window opens six days back. */
+private const val WeekWindowDaysBack = 6L
+
+/** "Last 30 days" counts today as one of the thirty, so the window opens twenty-nine days back. */
+private const val MonthWindowDaysBack = 29L
+
 /** PLAN_V29 P29.S.3: date-range filter chip presets over [SearchResult.dateEpochDay]. */
 enum class DateRangePreset(
     val labelKey: String,
@@ -41,8 +47,8 @@ enum class DateRangePreset(
         when (this) {
             ALL -> null to null
             TODAY -> todayEpochDay to todayEpochDay
-            WEEK -> (todayEpochDay - 6) to todayEpochDay
-            MONTH -> (todayEpochDay - 29) to todayEpochDay
+            WEEK -> (todayEpochDay - WeekWindowDaysBack) to todayEpochDay
+            MONTH -> (todayEpochDay - MonthWindowDaysBack) to todayEpochDay
         }
 }
 
