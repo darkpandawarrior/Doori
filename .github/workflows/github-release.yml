@@ -65,7 +65,16 @@ jobs:
           if [ -n "${RELEASE_SCRUBLIST_B64:-}" ]; then
             echo "$RELEASE_SCRUBLIST_B64" | base64 -d > /tmp/scrublist.txt
             pat="$(grep -vE '^\s*#|^\s*$' /tmp/scrublist.txt | paste -sd'|' -)"
-            if [ -n "$pat" ] && grep -Eiq "$pat" CHANGELOG_BODY.md; then
+            # A scrublist that decodes to zero usable patterns is NOT a clean run. Previously an
+            # all-comments or malformed-base64 secret left $pat empty, the `[ -n "$pat" ]` guard
+            # short-circuited before grep ever ran, and the step printed "clean against 0 patterns"
+            # and exited 0 — a leak gate on a PUBLIC repo reporting success having checked nothing.
+            # Reproduced in isolation 2026-09-23. The only failure path used to be the secret being
+            # entirely unset; a secret that is set but useless read as a pass.
+            if [ -z "$pat" ]; then
+              echo "::error::RELEASE_SCRUBLIST_B64 decoded to zero usable patterns — refusing to publish"; exit 1
+            fi
+            if grep -Eiq "$pat" CHANGELOG_BODY.md; then
               echo "::error::release notes match a scrublist term — refusing to publish"; exit 1
             fi
           else
