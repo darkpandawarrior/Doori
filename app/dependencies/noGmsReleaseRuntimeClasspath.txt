@@ -226,11 +226,14 @@ com.google.android.datatransport:transport-backend-cct:2.3.3
 com.google.android.datatransport:transport-runtime:2.2.6
 com.google.android.gms:play-services-base:18.9.0
 com.google.android.gms:play-services-basement:18.9.0
+com.google.android.gms:play-services-identity:18.1.0
 com.google.android.gms:play-services-location:21.4.0
+com.google.android.gms:play-services-maps:18.0.2
 com.google.android.gms:play-services-mlkit-document-scanner:16.0.0
 com.google.android.gms:play-services-mlkit-text-recognition-common:19.1.0
 com.google.android.gms:play-services-mlkit-text-recognition:19.0.1
 com.google.android.gms:play-services-tasks:18.4.0
+com.google.android.gms:play-services-wallet:19.4.0
 com.google.android.material:material:1.14.0
 com.google.android.odml:image:1.0.0-beta1
 com.google.auto.service:auto-service-annotations:1.0-rc6
@@ -256,6 +259,7 @@ com.google.mlkit:text-recognition-bundled-common:17.0.0
 com.google.mlkit:text-recognition:16.0.1
 com.google.mlkit:vision-common:17.3.0
 com.google.mlkit:vision-interfaces:16.3.0
+com.google.pay.button:compose-pay-button:1.1.0
 com.google.protobuf:protobuf-javalite:4.26.1
 com.google.zxing:core:3.5.4
 com.materialkolor:material-color-utilities-android:5.0.1
