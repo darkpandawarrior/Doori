@@ -112,6 +112,17 @@ jobs:
         if: steps.move.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v8
         with:
+          # Create the PR as the PAT, not GITHUB_TOKEN. The checkout above already pushes as the
+          # PAT, so the COMMIT is authored correctly — but this step had no `token:` and defaulted
+          # to github.token, so the PR itself was opened by the Actions app. GitHub then parks every
+          # `pull_request` run on it at `action_required` (the recursion-approval gate), and the
+          # rollup reads as "no checks" rather than "checks awaiting approval". Measured
+          # 2026-09-22: Doori #213 and PaymentsLab-KMP #75 both arrived with 3-6 parked runs that
+          # had to be released by hand with
+          #   gh api -X POST repos/<repo>/actions/runs/<id>/approve
+          # Requires the PAT to carry pull_requests:write. Hard reference, no fallback — see the
+          # checkout step above for why a `|| github.token` fallback is worse than failing.
+          token: ${{ secrets.CONSUMER_DISPATCH_TOKEN }}
           # app/dependencies is load-bearing: without it the rebaseline above regenerates the
           # files and create-pull-request silently leaves them out of the commit, so the PR still
           # fails dependency-guard and the step above achieves nothing.
