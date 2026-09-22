@@ -3,7 +3,7 @@
      Durable knowledge that cannot be detected belongs in .capabilities-notes.md, which is
      spliced in verbatim below and IS hand-written. -->
 
-# Capabilities — .
+# Capabilities — Doori
 
 What is already wired here. Read this before deriving any of it yourself.
 
