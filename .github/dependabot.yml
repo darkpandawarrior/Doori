@@ -54,7 +54,7 @@ updates:
         versions: [">=13"]
       # NOTE: kotlin/ksp/compose-multiplatform are ALSO pinned in the submodule catalogs, but they
       # are deliberately NOT ignored — divergence there is tolerated in practice (compose-multiplatform
-      # already differs between Mileway and the toolkit, and a Kotlin 2.4.20-Beta2 bump was verified
+      # already differs between Doori and the toolkit, and a Kotlin 2.4.20-Beta2 bump was verified
       # to build green against Beta1 submodules). Only AGP has a hard compatibility rule.
 
   - package-ecosystem: "github-actions"

@@ -139,7 +139,7 @@ jobs:
           # Stable branch name, NOT per-SHA: the push below is a force-push, so one branch
           # and one open PR get reused for every refresh. A ${GITHUB_SHA}-suffixed branch
           # opened a fresh PR per commit to main, and they stacked up conflicting on the
-          # same PNGs (7 open at once in Kursi, 2 in Mileway on 2026-08-27).
+          # same PNGs (7 open at once in Gaddi, 2 in Doori on 2026-08-27).
           branch="bot/refresh-screenshot-baselines"
           git checkout -b "$branch"
           git commit -m "chore(screenshots): refresh baselines for ${GITHUB_SHA::7}"

@@ -17,37 +17,37 @@ val mileawayMilestone = if (milestoneFile.exists()) milestoneFile.readText().tri
 // shipped: every APK published to F-Droid carried versionCode 2, so no client could ever offer
 // an upgrade. actions/checkout defaults to fetch-depth 1, so any workflow that forgets
 // fetch-depth: 0 reintroduces it. Refuse rather than guess.
-val milewayIsShallow =
+val dooriIsShallow =
     providers.exec { commandLine("git", "rev-parse", "--is-shallow-repository") }
         .standardOutput.asText.get().trim() == "true"
 
-val milewayCommitCount =
+val dooriCommitCount =
     providers.exec { commandLine("git", "rev-list", "--count", "HEAD") }
         .standardOutput.asText.get().trim().toIntOrNull() ?: 0
 
-require(!milewayIsShallow) {
-    "Shallow clone: git rev-list reports $milewayCommitCount commits, so versionCode would be " +
-        "${1 + milewayCommitCount}. Set `fetch-depth: 0` on actions/checkout."
+require(!dooriIsShallow) {
+    "Shallow clone: git rev-list reports $dooriCommitCount commits, so versionCode would be " +
+        "${1 + dooriCommitCount}. Set `fetch-depth: 0` on actions/checkout."
 }
 
-val milewayToday = java.time.LocalDate.now()
-val milewayIsoWeek = milewayToday.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear())
+val dooriToday = java.time.LocalDate.now()
+val dooriIsoWeek = dooriToday.get(java.time.temporal.WeekFields.ISO.weekOfWeekBasedYear())
 
-val milewayVersionCodeBase = 1
+val dooriVersionCodeBase = 1
 
 extra["mileway.fingerprint"] =
     "%d.%02d.%02d.%d.%d".format(
-        milewayToday.year,
-        milewayToday.monthValue,
-        milewayIsoWeek,
+        dooriToday.year,
+        dooriToday.monthValue,
+        dooriIsoWeek,
         mileawayMilestone,
-        milewayCommitCount,
+        dooriCommitCount,
     )
-extra["mileway.marketing"] = "${milewayToday.year}.${milewayToday.monthValue}.$mileawayMilestone"
-extra["mileway.buildCode"] = milewayVersionCodeBase + milewayCommitCount
+extra["doori.marketing"] = "${dooriToday.year}.${dooriToday.monthValue}.$mileawayMilestone"
+extra["doori.buildCode"] = dooriVersionCodeBase + dooriCommitCount
 
 // ponytail: Compose Desktop validates the native-installer packageVersion at CONFIGURE time as
 // MAJOR.MINOR.BUILD with MAJOR ≤ 255 — MARKETING (YYYY.M.MILESTONE, MAJOR=year>255) throws and
-// fails ALL Mileway CI (Gradle configures every project). This desktop-only value keeps the
+// fails ALL Doori CI (Gradle configures every project). This desktop-only value keeps the
 // milestone visible while staying legal: valid until MILESTONE>255 or commitCount>65535, years out.
-extra["mileway.desktopPackageVersion"] = "$mileawayMilestone.0.$milewayCommitCount"
+extra["doori.desktopPackageVersion"] = "$mileawayMilestone.0.$dooriCommitCount"

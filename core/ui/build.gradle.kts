@@ -61,7 +61,7 @@ kotlin {
             // in commonMain; the artifact publishes common/android/ios/desktop targets.
             implementation(libs.lifecycle.viewmodel)
             // Consolidation backlog #1: BaseViewModel/StateViewModel now come from the toolkit's
-            // :mvi-core (CAS-safe setState via MutableStateFlow.update — Mileway's own fork used a
+            // :mvi-core (CAS-safe setState via MutableStateFlow.update — Doori's own fork used a
             // non-atomic `_state.value = _state.value.reducer()` race). api() so every downstream
             // feature module resolving com.mileway.core.ui.mvi... transitively sees the new package.
             api("com.siddharth.kmp:mvi-core:1.0.0")
