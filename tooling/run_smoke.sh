@@ -57,8 +57,8 @@ adb shell cmd app_function execute-app-function \
 
 echo "== ADB: invoke getTodaySummary ($SUMMARY_ID) — assert isTracking=true side effect =="
 adb shell cmd app_function execute-app-function \
-  --package "$PACKAGE" --function "$SUMMARY_ID" --parameters '{}' | tee /tmp/mileway-today-summary.json
-grep -q '"isTracking":true' /tmp/mileway-today-summary.json || {
+  --package "$PACKAGE" --function "$SUMMARY_ID" --parameters '{}' | tee /tmp/doori-today-summary.json
+grep -q '"isTracking":true' /tmp/doori-today-summary.json || {
   echo "error: getTodaySummary did not reflect the startTrackingTrip side effect" >&2
   exit 1
 }

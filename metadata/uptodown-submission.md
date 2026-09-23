@@ -1,4 +1,4 @@
-# Uptodown submission — Mileway
+# Uptodown submission — Doori
 
 ## Verdict: worth doing
 
@@ -17,7 +17,7 @@ verdict summary for the comparison.
 - A 1024×500 featured banner graphic. None exists in the repo; `featureGraphic.png` in fastlane is a
   different aspect ratio for a different store. Uptodown lists this as recommended, not mandatory.
 - Whether a privacy policy URL is mandatory on the form — not confirmed from outside the console.
-  Mileway does GPS tracking and stores expense/receipt data locally; if the form asks, point at
+  Doori does GPS tracking and stores expense/receipt data locally; if the form asks, point at
   whatever privacy policy already ships for the other stores rather than writing a new one here.
 
 ## Account setup (do this yourself)
@@ -52,7 +52,7 @@ verdict summary for the comparison.
 
 **Title**
 ```
-Mileway
+Doori
 ```
 
 **Short description**
@@ -62,7 +62,7 @@ Offline-first mileage and expense tracking, no account needed
 
 **Full description** (trim if the form enforces a shorter limit than this — not confirmed)
 ```
-Mileway is an offline-first mileage and expense tracker. Core tracking works with no account and no network connection: log a trip, record an expense, and everything is saved straight to your device.
+Doori is an offline-first mileage and expense tracker. Core tracking works with no account and no network connection: log a trip, record an expense, and everything is saved straight to your device.
 
 It targets four platforms from one Kotlin Multiplatform codebase: Android, iOS, watchOS, and Wear OS. Start a trip on your phone or your wrist, and the record lands in the same local store either way.
 
@@ -80,7 +80,7 @@ What is technically interesting: the whole app, UI included, is shared Kotlin ac
 
 Caveat, stated plainly: this build includes Google Play Services components for location (play-services-location) and on-device text recognition (Play Services ML Kit document scanner and text recognition). The noGms build flavor removes the Firebase and Google Services Gradle plugins, but the location and OCR features still pull in these proprietary runtime dependencies. If you need a build with zero proprietary dependencies, those two features are the parts to look at first.
 
-Source: https://github.com/darkpandawarrior/Mileway, GPL-3.0-or-later.
+Source: https://github.com/darkpandawarrior/Doori, GPL-3.0-or-later.
 ```
 
 ## What I could not confirm (verify in the console before relying on it)

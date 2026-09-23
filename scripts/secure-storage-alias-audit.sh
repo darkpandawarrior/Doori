@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PLAN_V21 P7.2: audits tracked Kotlin source for orphaned Android Keystore
-# secure-storage aliases. Mileway has never adopted AndroidKeyStore/
+# secure-storage aliases. Doori has never adopted AndroidKeyStore/
 # EncryptedSharedPreferences/security-crypto (grep the version catalog — no
 # such dependency exists); all "secure" persistence today is DataStore-backed
 # (PinHashStore et al. hash the PIN before it's ever written). So a "dead
