@@ -98,7 +98,7 @@ webviewMultiplatform = "2.0.3"
 # OpenGL runtime is declared below and wired in core/maps-maplibre/build.gradle.kts.
 # The 0.17 bump itself is still a day of work with a device check at the end, not a version bump,
 # and it touches the native iOS MapLibre SDK too.
-maplibreCompose = "0.15.0"
+maplibreCompose = "0.17.0"
 ktor = "3.6.0"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
