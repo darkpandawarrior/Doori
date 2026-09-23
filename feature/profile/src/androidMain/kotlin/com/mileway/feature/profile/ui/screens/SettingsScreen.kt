@@ -194,7 +194,7 @@ fun SettingsScreen(
     var showStylePicker by remember { mutableStateOf(false) }
     var showLanguagePicker by remember { mutableStateOf(false) }
     var showResetConfirm by remember { mutableStateOf(false) }
-    // PLAN_V24 P12.3: manual "Rate Mileway" sheet (ignores the auto-prompt engagement gate).
+    // PLAN_V24 P12.3: manual "Rate Doori" sheet (ignores the auto-prompt engagement gate).
     var showRateSheet by remember { mutableStateOf(false) }
     // PLAN_V24 P12.4: compact "What's new" indicator — pulses while this release is unseen.
     val sessionRepository = koinInject<com.mileway.core.data.session.SessionRepository>()
@@ -587,7 +587,7 @@ fun SettingsScreen(
                 headlineContent = { Text(stringResource(Res.string.profile_settings_app_version)) },
                 supportingContent = { Text(about.appVersion) },
             )
-            // PLAN_V24 P12.3: manual "Rate Mileway" row — always available, bypasses the auto gate.
+            // PLAN_V24 P12.3: manual "Rate Doori" row — always available, bypasses the auto gate.
             ListItem(
                 leadingContent = {
                     Icon(

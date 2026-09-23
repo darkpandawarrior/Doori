@@ -359,7 +359,7 @@ composeCompiler-gradlePlugin = { module = "org.jetbrains.kotlin:compose-compiler
 
 [plugins]
 # Desktop packaging + delta auto-update. FREE for us: Conveyor is gratis for any project under
-# an OSI-approved licence, and Mileway is GPL-3.0. Verified against hydraulic.dev/pricing, not
+# an OSI-approved licence, and Doori is GPL-3.0. Verified against hydraulic.dev/pricing, not
 # assumed - the adoption plan flagged pricing as the thing that could kill this.
 conveyor = { id = "dev.hydraulic.conveyor", version = "2.0" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }

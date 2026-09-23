@@ -221,7 +221,7 @@ class SessionRepository(
         }
     }
 
-    /** PLAN_V24 P6.1: activates "Mileway Club" — sets the join date (see androidMain doc). */
+    /** PLAN_V24 P6.1: activates "Doori Club" — sets the join date (see androidMain doc). */
     suspend fun activateClub() {
         store.edit { prefs ->
             prefs[clubConsentedKey] = true

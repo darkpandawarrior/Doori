@@ -34,7 +34,7 @@ import com.mileway.feature.whatsnew.model.WhatsNewEntry
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * PLAN_V24 P2.2 / PLAN_V36 P2 — the one-shot "What's new in Mileway" digest sheet. Shows the
+ * PLAN_V24 P2.2 / PLAN_V36 P2 — the one-shot "What's new in Doori" digest sheet. Shows the
  * top entries (a short digest, not the full catalog — see [WhatsNewViewModel]) from the bundled
  * [com.mileway.feature.whatsnew.data.WhatsNewRepository]; dismissing (button or scrim)
  * acknowledges the version so it never replays.

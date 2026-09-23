@@ -35,7 +35,7 @@ struct WatchDashboardView: View {
     var body: some View {
         ScrollView { dashboardContent }
             .background(WatchMatrixPalette.canvas)
-            .navigationTitle("Mileway")
+            .navigationTitle("Doori")
             .task { await model.refresh() }
     }
 

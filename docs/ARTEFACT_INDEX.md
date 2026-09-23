@@ -59,7 +59,7 @@ screenshots did. An index that says *how to regenerate it* and *how you'd know i
 > **Copying this setup to another repo?** Read
 > [`docs/SCREENSHOT_TESTING.md`](SCREENSHOT_TESTING.md) instead of this section. That file is
 > the portable house pattern — the gotchas, the two-gate design and the minimum viable port,
-> in the order you need them. This section is the Mileway-specific inventory.
+> in the order you need them. This section is the Doori-specific inventory.
 
 ### App — `:app:screenshotTestNoGmsDebug`
 
@@ -389,9 +389,9 @@ today*. Only `stats` is wired up; if a future prose block wants the same treatme
 
 Recorded so the next pass does not re-derive it.
 
-### Dokka — rejected for Mileway
+### Dokka — rejected for Doori
 
-Mileway is an application. Measured 2026-09-22: **no module in this repo applies `maven-publish`,
+Doori is an application. Measured 2026-09-22: **no module in this repo applies `maven-publish`,
 `mavenPublishing` or `publishToMavenCentral`** — every hit for those is under `external/`, i.e. the
 `kmp-toolkit` and `kmp-build-logic` submodules, which are separate repositories with their own
 builds. Nothing here is consumed as a library by anything, so there is no public API surface for a
@@ -399,7 +399,7 @@ generated reference to describe, and no reader who would open one.
 
 `kmp-toolkit` is the repo that needs published API docs, and it already has them: Dokka 2.3.0-Beta
 is applied across its subprojects with HTML aggregation, in `external/kmp-toolkit/build.gradle.kts`.
-That is the right place for it. Adding Dokka to Mileway's 36 modules would produce a CI job, a Pages
+That is the right place for it. Adding Dokka to Doori's 36 modules would produce a CI job, a Pages
 deployment and a rot surface, for a reference of an app's internals.
 
 What a reader actually opens for an app is the README, the screenshots and the module map. Those
@@ -417,7 +417,7 @@ comment in `README.md` says what would restore it.
 The rest of the README's relative links and anchors resolve. A `lychee` workflow would catch the
 next one, and is roughly fifteen lines — but it is nine copies across the family, or one scheduled
 job in a hub repo, and it needs a story for third-party outages that would otherwise turn green PRs
-red. That is a family-level decision, not a Mileway one. Until then, the cheap local check is:
+red. That is a family-level decision, not a Doori one. Until then, the cheap local check is:
 
 ```bash
 grep -oE '\]\(([^)#h][^)]*)\)' README.md | sed -E 's/^\]\(//; s/\)$//' | sed 's/#.*//' \

@@ -1,6 +1,6 @@
 # Screenshot testing — the house pattern
 
-This is the reference implementation for the family. Mileway has 372 committed PNGs across four
+This is the reference implementation for the family. Doori has 372 committed PNGs across four
 surfaces and two CI gates; every other repo that wants visual regression testing should copy from
 here rather than rediscover it. Everything below was read out of this repo on 2026-09-22, and the
 claims marked **measured** were run, not inferred.

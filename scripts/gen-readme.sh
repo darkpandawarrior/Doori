@@ -21,7 +21,7 @@ cores=$(grep -c '^include(":core:' "$SETTINGS" || true)
 
 # --- composed modules: substituted from includeBuild(external/kmp-toolkit) ---
 # Each `substitute(module("com.siddharth.kmp:X")).using(project(...))` is one composed module
-# (location/common/network/mvi-core/... — shared toolkit libs, not part of Mileway's own tree).
+# (location/common/network/mvi-core/... — shared toolkit libs, not part of Doori's own tree).
 composed_total=$(grep -cE 'substitute\(module\("com\.siddharth\.kmp:' "$SETTINGS" || true)
 
 modules=$(( local_total + composed_total ))

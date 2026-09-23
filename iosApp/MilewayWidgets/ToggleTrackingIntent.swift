@@ -13,7 +13,7 @@ import WidgetKit
 
 @available(iOS 17.0, *)
 struct ToggleTrackingIntent: AppIntent {
-    static var title: LocalizedStringResource = "Toggle Mileway Tracking"
+    static var title: LocalizedStringResource = "Toggle Doori Tracking"
     static var description = IntentDescription("Starts or stops mileage tracking from the widget.")
 
     func perform() async throws -> some IntentResult {

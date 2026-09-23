@@ -255,7 +255,7 @@ class SessionRepository(
         }
     }
 
-    /** PLAN_V24 P6.1: activates "Mileway Club" after the consent flow — sets the join date. */
+    /** PLAN_V24 P6.1: activates "Doori Club" after the consent flow — sets the join date. */
     suspend fun activateClub() {
         context.sessionDataStore.edit { prefs ->
             prefs[clubConsentedKey] = true

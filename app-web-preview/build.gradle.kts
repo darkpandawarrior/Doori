@@ -1,6 +1,6 @@
 /**
  * `:app-web-preview` — a wasmJs "preview shell" for the portfolio site (embedded as an iframe the
- * same way Kursi's `cmp-web` build is). Room KMP publishes no wasm target, so `:core:data` (and
+ * same way Gaddi's `cmp-web` build is). Room KMP publishes no wasm target, so `:core:data` (and
  * everything above it: `:core:ui`, the feature modules) can never compile to wasm — this module
  * instead compiles the REAL design system straight from `core/ui`'s commonMain sources (theme
  * package only, via srcDir + include filter) and rebuilds a curated demo subset of screens

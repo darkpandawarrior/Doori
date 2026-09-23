@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
- * PLAN_V24 P6.1: "Mileway Club" membership. Reads the club state from the session DataStore and
+ * PLAN_V24 P6.1: "Doori Club" membership. Reads the club state from the session DataStore and
  * drives the consent → activate flow + the one-time confetti flag. Eligibility is the `clubEnabled`
  * plugin gate (checked at the call site), so no separate eligible flag is stored.
  */

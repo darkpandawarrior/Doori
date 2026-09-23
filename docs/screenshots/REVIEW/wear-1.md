@@ -9,7 +9,7 @@ The typographic system is the single biggest problem. It's the primary reason th
 *   **Hierarchy:** There is almost no typographic hierarchy. On `wear_dashboard.png`, the "TRACKING" label is the same weight and style as the "12.4 km" data. Size is the only differentiator, and it's not enough. A user glancing at their watch should see a clear distinction between a button they can press and data they can read. Here, they are visually ambiguous.
 *   **Monospace:**
     *   **Where it helps:** The only place monospace is defensible is for the numerical data itself (`12.4 km`). The fixed width ensures that numbers align neatly in lists, which aids scannability when comparing `12.4` and `42.1`. It gives the data a factual, "ticker tape" quality which can build trust.
-    *   **Where it actively hurts:** Everywhere else. Using monospace for UI chrome (titles, button labels) is a critical error. It makes titles like "Mileway" and "RECENT TRIPS" look clunky, dated, and hard to read. Proportional fonts are designed for readability in precisely these contexts. Using a terminal font for your product's name (`wear_dashboard.png`) makes the entire experience feel like an engineering tool, not a polished app.
+    *   **Where it actively hurts:** Everywhere else. Using monospace for UI chrome (titles, button labels) is a critical error. It makes titles like "Doori" and "RECENT TRIPS" look clunky, dated, and hard to read. Proportional fonts are designed for readability in precisely these contexts. Using a terminal font for your product's name (`wear_dashboard.png`) makes the entire experience feel like an engineering tool, not a polished app.
 
 ### 2. COLOUR
 

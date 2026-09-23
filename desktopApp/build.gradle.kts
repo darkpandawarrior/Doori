@@ -26,7 +26,7 @@ apply(from = rootProject.file("gradle/versioning.gradle.kts"))
 
 // Read once at project scope — inside the compose.desktop { } DSL, `extra[...]` would resolve
 // against the DSL receiver, not the project's extra.
-val desktopPackageVersion = extra["mileway.desktopPackageVersion"] as String
+val desktopPackageVersion = extra["doori.desktopPackageVersion"] as String
 
 // Conveyor reads project.version, and every package format requires one. This is the same
 // desktop-legal MAJOR.MINOR.BUILD that Compose Desktop already validates against - NOT the

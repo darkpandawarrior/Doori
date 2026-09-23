@@ -2863,8 +2863,8 @@
 
     <!-- ===== L10n sweep: agent/approvals/logging/payables/profile/tracking/travel (parallel pass) ===== -->
     <string name="agent_history_title">Chat History</string>
-    <string name="agent_brand_label">MILEWAY_AI</string>
-    <string name="agent_terminal_prompt_label">$ mileway_ai</string>
+    <string name="agent_brand_label">DOORI_AI</string>
+    <string name="agent_terminal_prompt_label">$ doori_ai</string>
     <string name="approvals_time_just_now">Just now</string>
     <string name="approvals_toast_request_approved">Request approved</string>
     <string name="approvals_toast_request_rejected">Request rejected</string>

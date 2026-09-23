@@ -105,7 +105,7 @@ targets:
           - "$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
         # The framework is linked by flag rather than by a project file reference, because a
         # PBXFileReference cannot carry $(CONFIGURATION)/$(SDK_NAME) -- that is what pinned it to
-        # one slice before. Same shape as the MilewayWatch target below and as Kursi's iosApp.
+        # one slice before. Same shape as the MilewayWatch target below and as Gaddi's iosApp.
         OTHER_LDFLAGS:
           - "$(inherited)"
           - "-framework"

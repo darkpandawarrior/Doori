@@ -11,8 +11,8 @@ plugins {
 // build ships alongside a phone build under the same release tag, so they carry the same versions.
 // Read at project scope: inside the android { } DSL, `extra[...]` resolves against the DSL receiver.
 apply(from = rootProject.file("gradle/versioning.gradle.kts"))
-val milewayBuildCode = extra["mileway.buildCode"] as Int
-val milewayMarketing = extra["mileway.marketing"] as String
+val dooriBuildCode = extra["doori.buildCode"] as Int
+val dooriMarketing = extra["doori.marketing"] as String
 val milewayFingerprint = extra["mileway.fingerprint"] as String
 
 android {
@@ -29,8 +29,8 @@ android {
         applicationId = "com.mileway"
         minSdk = 30
         targetSdk = 36
-        versionCode = milewayBuildCode
-        versionName = milewayMarketing
+        versionCode = dooriBuildCode
+        versionName = dooriMarketing
         buildConfigField("String", "FINGERPRINT", "\"$milewayFingerprint\"")
     }
 

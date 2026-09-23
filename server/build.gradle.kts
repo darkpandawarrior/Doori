@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 // PLAN_V33 B1: :server — a plain kotlin("jvm") Ktor backend (NOT a KMP module; nothing here
-// targets Android/iOS/watchOS). Depends on exactly one Mileway project — :contract — for the
+// targets Android/iOS/watchOS). Depends on exactly one Doori project — :contract — for the
 // shared wire DTOs (SubmitMilesRequestK, ExpenseSubmissionResponse, ...), so client and server
 // serialize/deserialize the identical Kotlin classes. Scope for this task: skeleton + persistence
 // wiring + health/echo routes only — no auth, no miles/location/vehicle routes yet (later tasks).

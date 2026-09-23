@@ -57,7 +57,7 @@ fun DashboardScreen(
     ) {
         Column {
             Text(
-                text = "MILEWAY // WEB PREVIEW",
+                text = "DOORI // WEB PREVIEW",
                 style = MaterialTheme.typography.labelMedium.terminalStyle(),
                 color = MaterialTheme.colorScheme.primary,
             )

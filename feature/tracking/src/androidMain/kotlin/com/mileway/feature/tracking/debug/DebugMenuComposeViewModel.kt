@@ -321,7 +321,7 @@ class DebugMenuComposeViewModel(
         )
 
     fun performApiHealthCheck() {
-        Napier.d("API health check requested (stub in Mileway)", tag = TAG)
+        Napier.d("API health check requested (stub in Doori)", tag = TAG)
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

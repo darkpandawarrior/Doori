@@ -3,11 +3,11 @@
 // generate_brand_icons.swift
 //
 // P4.7: one source mark -> every icon size the watch (and wear) targets need, so
-// watch/widget/app icons stay in sync with Mileway's brand mark without hand-exporting PNGs.
+// watch/widget/app icons stay in sync with Doori's brand mark without hand-exporting PNGs.
 // Approach mirrors biciradar's tooling/project/generate_brand_icons.swift (public, MIT):
 // draw the mark once with Core Graphics, rasterize at every required size, emit Contents.json.
 //
-// The mark itself is Mileway's own (route trail + map pin over a blue gradient) — it is the
+// The mark itself is Doori's own (route trail + map pin over a blue gradient) — it is the
 // same glyph already shipped as app/src/main/res/drawable/ic_launcher_{foreground,background}.xml,
 // just redrawn here in Core Graphics so one script can regenerate every platform's raster set.
 //
@@ -23,7 +23,7 @@ let repoRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().delet
 
 // MARK: - Drawing the mark
 
-/// Draws the Mileway brand mark (blue gradient square + white route/pin glyph) into `size` px.
+/// Draws the Doori brand mark (blue gradient square + white route/pin glyph) into `size` px.
 func drawMark(size: Int) -> CGImage {
     let ctx = CGContext(
         data: nil,

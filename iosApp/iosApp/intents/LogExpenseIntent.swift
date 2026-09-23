@@ -7,8 +7,8 @@ import AppIntents
 import Mileway
 
 struct LogExpenseIntent: AppIntent {
-    static var title: LocalizedStringResource = "Log Mileway Expense"
-    static var description = IntentDescription("Records a new expense in Mileway.")
+    static var title: LocalizedStringResource = "Log Doori Expense"
+    static var description = IntentDescription("Records a new expense in Doori.")
 
     @Parameter(title: "Category", default: "Other")
     var category: String

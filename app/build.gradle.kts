@@ -89,9 +89,9 @@ val hasReleaseSigning =
 // existing call-site names but now return the computed MARKETING/BUILDCODE — see docs/RELEASE.md.
 apply(from = rootProject.file("gradle/versioning.gradle.kts"))
 
-fun readVersionName(): String = extra["mileway.marketing"] as String
+fun readVersionName(): String = extra["doori.marketing"] as String
 
-fun readBuildNumber(): Int = extra["mileway.buildCode"] as Int
+fun readBuildNumber(): Int = extra["doori.buildCode"] as Int
 
 fun readFingerprint(): String = extra["mileway.fingerprint"] as String
 
@@ -197,12 +197,12 @@ android {
         release {
             // FLFD.1 originally disabled R8 under -Pfdroid so F-Droid's build server could
             // rebuild from source and byte-compare against the published binary. That does not
-            // apply to Mileway: it ships play-services-location and the ML Kit OCR pipeline,
+            // apply to Doori: it ships play-services-location and the ML Kit OCR pipeline,
             // which are core features, so it is permanently ineligible for official fdroiddata
             // and reaches F-Droid only as a prebuilt Binaries entry that nobody re-builds.
             // With nothing to byte-compare against, the ~45MB of unminified dex bought nothing.
             //
-            // Kursi keeps the flag, because Kursi IS an fdroiddata candidate.
+            // Gaddi keeps the flag, because Gaddi IS an fdroiddata candidate.
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

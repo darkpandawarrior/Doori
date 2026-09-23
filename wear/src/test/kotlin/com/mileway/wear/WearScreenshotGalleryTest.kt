@@ -174,7 +174,7 @@ class WearScreenshotGalleryTest {
     }
 
     // MileageTileService renders a ProtoLayout tile, not a Composable — this approximates its
-    // content (today's distance label + the "Mileway" app label) as a Compose render so the Ember
+    // content (today's distance label + the "Doori" app label) as a Compose render so the Ember
     // tile visual is documented without a ProtoLayout renderer on the JVM.
     @Test
     fun wearTile() {
