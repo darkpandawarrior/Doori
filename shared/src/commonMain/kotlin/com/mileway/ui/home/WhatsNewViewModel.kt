@@ -30,7 +30,7 @@ data class WhatsNewUiState(
 )
 
 /**
- * PLAN_V24 P2.2 — shows the "What's new in Mileway" sheet once after login when the persisted
+ * PLAN_V24 P2.2 — shows the "What's new in Doori" sheet once after login when the persisted
  * last-seen version is behind [WhatsNewRepository.currentVersion]. Acknowledging advances the
  * stored version so it never replays for this release.
  */

@@ -84,7 +84,7 @@ These two flows are where trust is built or broken. Right now, they're weak.
 
 *   **Live-Driving Screen (`track_miles_idle_screen`, `tracking_heroCard_active`):**
     *   The **`tracking_heroCard_active`** widget is the best thing in this batch. It's clear, glanceable, and has a good information hierarchy. Speed is primary, other data is secondary. This works.
-    *   The **`track_miles_idle_screen`** is a failure of state management. It shows a generic "Waiting for location..." message, an ominous red error triangle, and a bottom sheet begging for permission. This is confusing. The user doesn't know what to focus on. If the *only* blocker is permission, the entire screen should be a single, clear state: "Mileway needs your location to work," with a single, large "Grant Permission" button. Don't show a broken-looking tracking UI behind it.
+    *   The **`track_miles_idle_screen`** is a failure of state management. It shows a generic "Waiting for location..." message, an ominous red error triangle, and a bottom sheet begging for permission. This is confusing. The user doesn't know what to focus on. If the *only* blocker is permission, the entire screen should be a single, clear state: "Doori needs your location to work," with a single, large "Grant Permission" button. Don't show a broken-looking tracking UI behind it.
 
 *   **Review-and-Submit Screen (`track_submission_screen`):**
     *   This screen is a usability disaster and must be redesigned. It's the final, critical step before a user gets paid or submits an audit record. It needs to inspire confidence.

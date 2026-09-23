@@ -481,7 +481,7 @@ class ScreenshotDirectionsTest {
                 single<com.mileway.core.platform.BiometricAuthenticator> { mockk(relaxed = true) }
                 single<ReferralManager> {
                     object : ReferralManager {
-                        override suspend fun myReferralCode(): String = "MILEWAY-SID-9F2K"
+                        override suspend fun myReferralCode(): String = "DOORI-SID-9F2K"
 
                         override fun pendingReferral(): kotlinx.coroutines.flow.Flow<ReferralData?> = kotlinx.coroutines.flow.emptyFlow()
 

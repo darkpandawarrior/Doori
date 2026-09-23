@@ -11,7 +11,7 @@ The universal use of a monospace font is the single biggest contributor to the a
     *   **Hierarchy Collapse:** The font's uniform character width gives every piece of text similar visual weight. On `advance_history_screen`, the trip title ("Field visit expenses"), the amount (`₹8000`), and the date are all fighting for attention. A good typographic system would use weight, size, and a proportional font to make the most important information pop. Here, everything is just a flat wall of text.
 
 *   **Where it Helps (and should be kept):**
-    *   **AI/Chat Interface:** On `agent_chat_screen` and its siblings, the monospace font works. It reinforces the "you are talking to a system" metaphor. The `MILEWAY_AI > SYSTEM ONLINE` aesthetic is a deliberate choice that lands correctly in this specific context.
+    *   **AI/Chat Interface:** On `agent_chat_screen` and its siblings, the monospace font works. It reinforces the "you are talking to a system" metaphor. The `DOORI_AI > SYSTEM ONLINE` aesthetic is a deliberate choice that lands correctly in this specific context.
     *   **Data Alignment:** In a list like on `analytics_detail_mileage_screen`, it can help right-align currency values perfectly. This is a valid use case.
 
 **Conclusion:** The monospace font is being overused to the detriment of the entire app. It should be reserved *only* for the AI chat context and for displaying tabular, right-aligned numerical data. All other UI chrome—titles, buttons, labels, body copy—needs a modern, proportional sans-serif font (like Inter, SF Pro, Roboto, etc.).

@@ -62,7 +62,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 /**
- * PLAN_V24 P6.1: "Mileway Club" surface. Non-members see the join pitch → a real consent sheet
+ * PLAN_V24 P6.1: "Doori Club" surface. Non-members see the join pitch → a real consent sheet
  * (accept activates, decline is a genuine path). Members see a member card (join date) + the
  * benefits list, with a one-time celebration on first activation (a scale-in banner — the confetti
  * flag persists so it never replays). Closes MASTER_GAP:68.

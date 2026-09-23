@@ -683,10 +683,10 @@ object PluginCatalog {
         )
 
     /**
-     * Review-prompter plugin (P12.3) — gates the engagement-gated auto "Rate Mileway" prompt on Home.
+     * Review-prompter plugin (P12.3) — gates the engagement-gated auto "Rate Doori" prompt on Home.
      * defaultOn=true preserves the existing behavior (the app already auto-prompted when eligible); the
      * native sheet only shows once the review gate (7-day account age, 5 interactions, 30-day cooldown)
-     * is satisfied, so it never fires in a screenshot test. The manual "Rate Mileway" row in Settings
+     * is satisfied, so it never fires in a screenshot test. The manual "Rate Doori" row in Settings
      * ignores this gate. ENGAGEMENT-category ⇒ below the Master-page fold.
      */
     val reviewPlugins: List<PluginDescriptor> =

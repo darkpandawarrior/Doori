@@ -240,7 +240,7 @@ fun HomeScreen(
         onRefresh = viewModel::refreshHome,
     )
 
-    // PLAN_V24 P12.3: the native "Rate Mileway" sheet shown when the engagement gate is satisfied.
+    // PLAN_V24 P12.3: the native "Rate Doori" sheet shown when the engagement gate is satisfied.
     if (showReviewSheet) {
         RateAppSheet(onDismiss = { showReviewSheet = false })
     }

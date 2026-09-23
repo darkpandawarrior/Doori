@@ -91,7 +91,7 @@ struct MileageAccessoryRectangularView: View {
         }
         // P8.2: Lock Screen accessories are read as a single VoiceOver stop by convention.
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Mileway distance today")
+        .accessibilityLabel("Doori distance today")
         .accessibilityValue(
             "\(formattedKm(entry.payload.todayKm)), \(entry.payload.isTracking ? "tracking" : "idle")"
         )
@@ -130,7 +130,7 @@ struct MileageHomeWidget: Widget {
                     .background(WidgetMatrixPalette.canvas)
             }
         }
-        .configurationDisplayName("Mileway")
+        .configurationDisplayName("Doori")
         .description("Today's and this week's distance, with quick start/stop.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
@@ -157,7 +157,7 @@ struct MileageLockScreenWidget: Widget {
         StaticConfiguration(kind: kind, provider: MileageWidgetProvider()) { entry in
             MileageAccessoryView(entry: entry)
         }
-        .configurationDisplayName("Mileway Today")
+        .configurationDisplayName("Doori Today")
         .description("Today's distance on your Lock Screen.")
         .supportedFamilies([.accessoryRectangular, .accessoryCircular])
     }

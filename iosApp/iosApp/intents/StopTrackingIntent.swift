@@ -6,8 +6,8 @@ import AppIntents
 import Mileway
 
 struct StopTrackingIntent: AppIntent {
-    static var title: LocalizedStringResource = "Stop Mileway Trip"
-    static var description = IntentDescription("Stops the currently active mileage trip in Mileway.")
+    static var title: LocalizedStringResource = "Stop Doori Trip"
+    static var description = IntentDescription("Stops the currently active mileage trip in Doori.")
 
     @MainActor
     func perform() async throws -> some IntentResult {

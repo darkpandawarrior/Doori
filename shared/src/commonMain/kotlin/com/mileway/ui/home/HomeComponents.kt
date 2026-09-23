@@ -335,7 +335,7 @@ fun HomeProfileHeader(
                 }
             }
 
-            // Full-width "Ask Mileway" entry — shown only when the assistant FAB was dismissed to
+            // Full-width "Ask Doori" entry — shown only when the assistant FAB was dismissed to
             // the top bar. Full width so the label is prominent and never squeezed against the
             // greeting or the action icons (the truncation this replaces).
             if (fabMode == AssistantEntryMode.TOPBAR && onOpenAgent != null) {

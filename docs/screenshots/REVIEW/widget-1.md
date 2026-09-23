@@ -1,4 +1,4 @@
-As a senior product designer, here is my visual critique of this batch of screenshots from Mileway. My feedback is blunt, as requested, to provide maximum clarity and actionable direction.
+As a senior product designer, here is my visual critique of this batch of screenshots from Doori. My feedback is blunt, as requested, to provide maximum clarity and actionable direction.
 
 ---
 

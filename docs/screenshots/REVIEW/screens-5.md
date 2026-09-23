@@ -8,7 +8,7 @@ The decision to use a monospace font for both data and UI chrome is the single l
     *   **`payables_home_screen`**: The section headers "Purchase Requests" and "Recent Invoices" are only slightly larger than the item titles like "OfficeMax Supplies Ltd.". This makes the screen hard to scan.
     *   **`purchase_request_details_screen`**: The labels ("PO Number", "Delivery Date") and their corresponding values are the same font, making the data harder to parse quickly. A user's eye has to work to separate label from value.
 *   **Where Monospace Helps:** It works in exactly two places:
-    1.  **IDs and Codes:** The referral code `MILEWAY-SID-9F2K` on `profile_account_hub` is legible and looks appropriate.
+    1.  **IDs and Codes:** The referral code `DOORI-SID-9F2K` on `profile_account_hub` is legible and looks appropriate.
     2.  **Tabular Data:** The right-aligned totals in the `Line Items` section of `purchase_request_details_screen` align perfectly. This is a good use of monospace.
 *   **Where Monospace Actively Hurts:** Everywhere else.
     *   **Titles & Headings:** `Payables History`, `Preferences`, `Profile Details`. These look like terminal output, not polished app titles. It feels cold and uninviting.

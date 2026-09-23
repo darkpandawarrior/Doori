@@ -39,7 +39,7 @@ import com.mileway.core.ui.theme.MilewayRoles
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * PLAN_V24 P12.3: the native "Rate Mileway" sheet — a self-contained star-rating bottom sheet with
+ * PLAN_V24 P12.3: the native "Rate Doori" sheet — a self-contained star-rating bottom sheet with
  * no Play In-App Review SDK dependency (the offline demo can't call Play). Purely local: a rating
  * shows a thank-you and dismisses; [onSubmit] reports the star count so the caller can log it.
  */
