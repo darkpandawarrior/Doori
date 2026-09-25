@@ -13,6 +13,7 @@ import com.mileway.core.data.domain.claim.ReportLifecycleEvent
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.domain.claim.ReportLifecycleStateMachine
 import com.mileway.core.data.domain.payout.PaymentStatus
+import com.mileway.core.data.domain.payout.PayoutBackend
 import com.mileway.core.data.domain.payout.PendingPaymentJournal
 import com.mileway.core.data.domain.payout.SimulatedPayoutBackend
 import io.ktor.http.HttpStatusCode
@@ -34,8 +35,12 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
  * applies [ReportLifecycleStateMachine.transition] before touching a table, so an illegal move
  * (e.g. approving a Draft report, reimbursing twice) is rejected with 409 before any write —
  * the state machine is the single source of truth for what's legal, not a per-route `if`.
+ *
+ * `internal var`, not `private val`: ReportRoutesTest swaps in a call-counting wrapper around a
+ * real [SimulatedPayoutBackend] to prove Y01-Y03 (journal-before-call, crash recovery,
+ * exactly-once) without a second production seam.
  */
-private val payoutBackend = SimulatedPayoutBackend()
+internal var payoutBackend: PayoutBackend = SimulatedPayoutBackend()
 
 fun Route.reportRoutes() {
     post("/api/reports/submit") {
@@ -46,7 +51,6 @@ fun Route.reportRoutes() {
         respondWithTransition(call, fromState, event) { nextState ->
             val saved = incoming.copy(state = nextState, approvalChain = current?.approvalChain ?: incoming.approvalChain)
             persistReport(saved)
-            saved
         }
     }
 
@@ -66,25 +70,47 @@ fun Route.reportRoutes() {
             return@post
         }
         respondWithTransition(call, stored.state, ReportLifecycleEvent.REIMBURSE) { nextState ->
-            // Journal to the pending table BEFORE calling the (simulator) backend, so a crash
-            // between the two leaves a recoverable PENDING row rather than a lost payout.
-            val journal =
-                PendingPaymentJournal(
-                    reportId = stored.id,
-                    amountMinor = stored.totalAmountMinor(),
-                    currency = stored.currency(),
-                    status = PaymentStatus.PENDING,
-                    createdAtMillis = System.currentTimeMillis(),
-                )
-            persistJournal(journal)
-            val paid = payoutBackend.payout(journal)
-            persistJournal(paid)
-
-            val saved = stored.copy(state = nextState)
-            persistReport(saved)
-            saved
+            completePayout(stored)
+            persistReport(stored.copy(state = nextState))
         }
     }
+}
+
+/**
+ * Journal-before-call (Y01), and idempotent against a crash landing between the journal write and
+ * the report row being persisted as PAID (Y02/Y03): a retried reimburse call for the same report
+ * first reads back whatever journal state already exists.
+ *
+ * - No journal yet -> fresh attempt: write PENDING, call [payoutBackend] once, write PAID.
+ * - Existing PENDING (crash before the backend call ran, or before its result was written) ->
+ *   resume: reuse that same row (not a new one — one row per report, `reportId` is its PK) and
+ *   call [payoutBackend] once.
+ * - Existing PAID (the backend call already completed in a prior attempt that crashed before the
+ *   *report* row was updated to PAID) -> resume WITHOUT calling [payoutBackend] again. This is the
+ *   guard that makes a retry never complete twice (Y03): the journal's own persisted status, not
+ *   the report's lifecycle state, is what decides whether the backend gets called.
+ *
+ * ponytail: exactly-once against a REAL payment rail needs the backend's own idempotency key, not
+ * just journal-state inspection — that gap doesn't exist here because [SimulatedPayoutBackend] is
+ * synchronous in-process (no network hop for a crash to land inside mid-call). Upgrade this if a
+ * real rail is ever wired in behind [PayoutBackend].
+ */
+private fun completePayout(report: Report): PendingPaymentJournal {
+    val existing = loadJournal(report.id)
+    if (existing?.status == PaymentStatus.PAID) return existing
+
+    val journal =
+        existing ?: PendingPaymentJournal(
+            reportId = report.id,
+            amountMinor = report.totalAmountMinor(),
+            currency = report.currency(),
+            status = PaymentStatus.PENDING,
+            createdAtMillis = System.currentTimeMillis(),
+        )
+    persistJournal(journal)
+    val paid = payoutBackend.payout(journal)
+    persistJournal(paid)
+    return paid
 }
 
 private suspend fun approveOrSendBack(
@@ -99,6 +125,12 @@ private suspend fun approveOrSendBack(
         return
     }
     val request = call.receive<ApprovalActionRequest>()
+    // A04: the submitter cannot approve their own report. Scoped to APPROVE only — sending a
+    // report back to its own submitter isn't the same hazard this guard exists for.
+    if (action == ApprovalAction.APPROVE && request.actedBy == stored.employeeId) {
+        call.respond(HttpStatusCode.Conflict, "Cannot approve your own report")
+        return
+    }
     respondWithTransition(call, stored.state, event) { nextState ->
         val step =
             ApprovalStep(
@@ -109,9 +141,9 @@ private suspend fun approveOrSendBack(
                 actedAtMillis = System.currentTimeMillis(),
             )
         val saved = stored.copy(state = nextState, approvalChain = ApprovalChain(steps = stored.approvalChain.steps + step))
-        persistReport(saved)
+        val persisted = persistReport(saved)
         insertApprovalStep(saved.id, step)
-        saved
+        persisted
     }
 }
 
@@ -158,19 +190,28 @@ private fun loadReport(id: String): Report? =
         )
     }
 
-/** Overwrites the report row and its claim lines — delete-then-insert, same upsert idiom as every other table here. */
-private fun persistReport(report: Report) {
+/**
+ * Overwrites the report row and its claim lines — delete-then-insert, same upsert idiom as every
+ * other table here — and returns what was actually persisted (C08: `recordVersion` bumped by
+ * exactly one on every accepted write). Callers must respond with THIS return value, not their own
+ * pre-increment `report`: the in-memory object passed in still carries the OLD version number —
+ * responding with it instead of the persisted row was a real bug caught by
+ * ReportLifecycleHardeningTest.recordVersionIncrementsOnEveryAcceptedWrite.
+ */
+private fun persistReport(report: Report): Report {
+    val persisted = report.copy(recordVersion = report.recordVersion + 1)
     transaction {
-        ReportsTable.deleteWhere { ReportsTable.id eq report.id }
+        ReportsTable.deleteWhere { ReportsTable.id eq persisted.id }
         ReportsTable.insert {
-            it[id] = report.id
-            it[employeeId] = report.employeeId
-            it[state] = report.state.name
-            it[recordVersion] = report.recordVersion + 1
+            it[id] = persisted.id
+            it[employeeId] = persisted.employeeId
+            it[state] = persisted.state.name
+            it[recordVersion] = persisted.recordVersion
         }
-        ClaimLinesTable.deleteWhere { ClaimLinesTable.reportId eq report.id }
-        report.lines.forEach { line -> insertClaimLine(report.id, line) }
+        ClaimLinesTable.deleteWhere { ClaimLinesTable.reportId eq persisted.id }
+        persisted.lines.forEach { line -> insertClaimLine(persisted.id, line) }
     }
+    return persisted
 }
 
 private fun insertClaimLine(
@@ -243,7 +284,8 @@ private fun approvalStepRowToDomain(row: ResultRow): ApprovalStep =
         actedAtMillis = row[ApprovalStepsTable.actedAtMillis],
     )
 
-private fun persistJournal(journal: PendingPaymentJournal) {
+/** `internal`, not `private`: ReportRoutesTest seeds a pre-existing journal row directly to simulate a crash mid-reimburse (Y02). */
+internal fun persistJournal(journal: PendingPaymentJournal) {
     transaction {
         PendingPaymentJournalTable.deleteWhere { PendingPaymentJournalTable.reportId eq journal.reportId }
         PendingPaymentJournalTable.insert {
@@ -255,3 +297,20 @@ private fun persistJournal(journal: PendingPaymentJournal) {
         }
     }
 }
+
+private fun loadJournal(reportId: String): PendingPaymentJournal? =
+    transaction {
+        PendingPaymentJournalTable
+            .selectAll()
+            .where { PendingPaymentJournalTable.reportId eq reportId }
+            .firstOrNull()
+            ?.let { row ->
+                PendingPaymentJournal(
+                    reportId = row[PendingPaymentJournalTable.reportId],
+                    amountMinor = row[PendingPaymentJournalTable.amountMinor],
+                    currency = row[PendingPaymentJournalTable.currency],
+                    status = PaymentStatus.valueOf(row[PendingPaymentJournalTable.status]),
+                    createdAtMillis = row[PendingPaymentJournalTable.createdAtMillis],
+                )
+            }
+    }
