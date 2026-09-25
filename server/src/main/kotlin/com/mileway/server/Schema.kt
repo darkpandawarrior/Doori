@@ -260,6 +260,60 @@ fun seedTaggedExpenses() {
     }
 }
 
+// Doori backend infra: expense-report lifecycle tables backing ReportRoutes.kt. `reports`/
+// `claim_lines`/`approval_steps`/`pending_payment_journal` mirror the shared :contract domain
+// model (Report/ClaimLine/ApprovalStep/PendingPaymentJournal) exactly, one row per record, no FK
+// constraints — same loose-coupling style as every other table above.
+object ReportsTable : Table("reports") {
+    val id = varchar("id", 128)
+    val employeeId = varchar("employee_id", 128)
+    val state = varchar("state", 32)
+    val recordVersion = long("record_version")
+    override val primaryKey = PrimaryKey(id)
+}
+
+/**
+ * One row per [com.mileway.core.data.domain.claim.ClaimLine]. `discriminator` is the sealed
+ * subtype's wire @SerialName ("expense"/"mileage"); the expense-only and mileage-only columns
+ * below are nullable and read back through [com.mileway.server.claimLineRowToDomain].
+ */
+object ClaimLinesTable : Table("claim_lines") {
+    val id = varchar("id", 128)
+    val reportId = varchar("report_id", 128)
+    val discriminator = varchar("discriminator", 16)
+    val amountMinor = long("amount_minor")
+    val currency = varchar("currency", 8)
+    val merchant = varchar("merchant", 128).nullable()
+    val category = varchar("category", 64).nullable()
+    val distanceKm = double("distance_km").nullable()
+    val vehicleKey = varchar("vehicle_key", 64).nullable()
+
+    // Composite, not `id` alone: a ClaimLine.id is only unique within its own Report (two
+    // different reports can legitimately reuse "line-1"), and every report shares this one table.
+    override val primaryKey = PrimaryKey(id, reportId)
+}
+
+object ApprovalStepsTable : Table("approval_steps") {
+    val id = long("id").autoIncrement()
+    val reportId = varchar("report_id", 128)
+    val stepIndex = integer("step_index")
+    val actedBy = varchar("acted_by", 128)
+    val action = varchar("action", 16)
+    val comment = varchar("comment", 512).nullable()
+    val actedAtMillis = long("acted_at_millis")
+    override val primaryKey = PrimaryKey(id)
+}
+
+/** One row per report — a report is journaled once, at most, the moment it reaches ApprovedForPayment-equivalent. */
+object PendingPaymentJournalTable : Table("pending_payment_journal") {
+    val reportId = varchar("report_id", 128)
+    val amountMinor = long("amount_minor")
+    val currency = varchar("currency", 8)
+    val status = varchar("status", 16)
+    val createdAtMillis = long("created_at_millis")
+    override val primaryKey = PrimaryKey(reportId)
+}
+
 /**
  * Inserts the one seeded demo login once — email/password constants (hashed, never stored
  * plaintext) live in AuthRoutes.kt (DEMO_EMAIL/DEMO_PASSWORD/sha256).

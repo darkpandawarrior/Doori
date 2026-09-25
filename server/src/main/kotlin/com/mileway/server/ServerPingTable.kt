@@ -51,6 +51,10 @@ fun connectDatabase() {
             TaggedExpensesTable,
             UsersTable,
             RefreshTokensTable,
+            ReportsTable,
+            ClaimLinesTable,
+            ApprovalStepsTable,
+            PendingPaymentJournalTable,
         )
     }
     seedVehicles()
