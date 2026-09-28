@@ -7,12 +7,14 @@ import com.mileway.core.platform.LocalReferralManager
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
+import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
 import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
 import com.siddharth.kmp.common.CrashReporter
 import com.siddharth.kmp.common.NapierCrashReporter
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -42,4 +44,12 @@ fun platformServicesKoinModule(): Module =
         // core:platform is the signal instead. See HeuristicActivityRecognizer.kt kdoc for the
         // still-vs-not-still ceiling that buys.
         single<ActivityRecognizer> { HeuristicActivityRecognizer(get()) }
+        // L13: recovered pure-GPS tracker, noGms flavor ONLY — no com.google.android.gms.* import
+        // anywhere in PlainLocationTracker.kt. forceGpsOnly is ignored: this source is already
+        // GPS-only.
+        single<RealLocationSourceFactory> {
+            RealLocationSourceFactory { _, initialIntervalMs ->
+                PlainLocationTracker(androidContext(), initialIntervalMs)
+            }
+        }
     }

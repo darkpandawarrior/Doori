@@ -4,6 +4,7 @@ import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
 import com.mileway.core.platform.ReferralManager
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
+import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.mileway.platform.gms.AndroidInstallReferrerManager
 import com.mileway.platform.gms.FirebaseAnalyticsHelper
 import com.mileway.platform.gms.FirebaseCrashReporter
@@ -44,4 +45,11 @@ fun platformServicesKoinModule(): Module =
         // PLAN_V37 Phase 1: real Play Services ActivityRecognition, gms flavor ONLY — moved out of
         // feature/tracking's shared androidMain (see GmsActivityRecognizer.kt kdoc).
         single<ActivityRecognizer> { GmsActivityRecognizer(androidContext()) }
+        // L13: real fused GPS, gms flavor ONLY — moved out of feature/tracking's shared androidMain
+        // (see GmsFusedLocationSource.kt kdoc for why).
+        single<RealLocationSourceFactory> {
+            RealLocationSourceFactory { forceGpsOnly, initialIntervalMs ->
+                GmsFusedLocationSource(androidContext(), initialIntervalMs, forceGpsOnly)
+            }
+        }
     }

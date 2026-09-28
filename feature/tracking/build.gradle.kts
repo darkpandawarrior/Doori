@@ -47,8 +47,10 @@ kotlin {
             // SnapshotCacheStore idiom).
             implementation(libs.datastore.preferences)
             implementation(libs.koin.androidx.workmanager)
-            implementation(libs.kotlinx.coroutines.play.services)
-            implementation(libs.play.services.location)
+            // L13: kotlinx.coroutines.play.services / play.services.location moved to the gms
+            // flavor's own app-level dependency (`"gmsImplementation"` in app/build.gradle.kts) —
+            // this module's androidMain no longer references com.google.android.gms.location.*
+            // unconditionally; GmsFusedLocationSource lives in app/src/gms instead.
             implementation(libs.workmanager.runtime)
             implementation(libs.mlkit.document.scanner)
             implementation(project(":feature:media"))

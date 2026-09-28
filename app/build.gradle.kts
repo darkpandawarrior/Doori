@@ -435,17 +435,27 @@ dependencyGuard {
     // with no baseline — so nothing verified what actually ships there.
     //
     // Read the committed noGms baseline with your eyes open: it currently CONTAINS play-services and
-    // ML Kit entries. That is the known, tracked leak (feature/tracking's FusedLocationSource imports
-    // com.google.android.gms.location.* unconditionally, and kmp-toolkit's app-shell pulls
-    // play-services-location), NOT a clean FOSS classpath. A green `dependencyGuard` here therefore
-    // means "nothing NEW leaked in", not "this build is GMS-free". Committing the baseline anyway is
+    // ML Kit entries, NOT a clean FOSS classpath. A green `dependencyGuard` here therefore means
+    // "nothing NEW leaked in", not "this build is GMS-free". Committing the baseline anyway is
     // deliberate: it freezes the leak at its current size and makes any growth a failing diff, which
-    // is strictly better than the previous state of no guard at all. Shrink the baseline as the leak
-    // is fixed; do not let it grow. Measured when this baseline was committed: of 427 entries,
-    // 15 are com.google.android.gms / com.google.mlkit (play-services-base, -basement, -location,
-    // the two mlkit scanners and their transitives) and a further 4 are com.google.firebase
-    // (annotations, components, encoders, encoders-json) pulled in transitively by them — 19
-    // proprietary entries in total. Those are the numbers to drive down:
+    // is strictly better than no guard at all.
+    //
+    // L13 closed the ONE leak this repo could fix on its own: feature/tracking's FusedLocationSource
+    // (now GmsFusedLocationSource, app/src/gms) no longer imports com.google.android.gms.location.*
+    // unconditionally, and feature/tracking's androidMain no longer declares play-services-location
+    // unconditionally. That did NOT shrink this baseline — the identical play-services-location/base/
+    // basement/tasks chain is still pulled in unconditionally by kmp-toolkit's :app-shell module
+    // (external/kmp-toolkit/app-shell/build.gradle.kts, androidMain.dependencies), consumed
+    // unconditionally by core:platform's `AndroidLocationTracker` binding
+    // (core/platform/.../di/PlatformModule.android.kt). That binding is EXPLICITLY guardrailed above
+    // ("don't touch the prime feature") and app-shell is vendored (external/, edit only via a pin
+    // move) — reaching zero GMS in noGms needs an upstream kmp-toolkit change (split app-shell's
+    // location dependency out, or make it flavor-conditional) followed by a pin bump here; neither is
+    // in scope for a same-repo lane. Shrink the baseline as that lands; do not let it grow. Measured
+    // when this baseline was committed: of 427 entries, 15 are com.google.android.gms / com.google.mlkit
+    // (play-services-base, -basement, -location, the two mlkit scanners and their transitives) and a
+    // further 4 are com.google.firebase (annotations, components, encoders, encoders-json) pulled in
+    // transitively by them — 19 proprietary entries in total. Those are the numbers to drive down:
     //   grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 15
     //   grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 19
     configuration("noGmsReleaseRuntimeClasspath")
