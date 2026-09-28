@@ -1,0 +1,126 @@
+package com.mileway.core.data.domain.policy
+
+import com.mileway.core.data.domain.claim.AdvanceLine
+import com.mileway.core.data.domain.claim.ClaimLine
+import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.MileageLine
+import com.mileway.core.data.domain.claim.PerDiemLine
+import com.mileway.core.data.ledger.PolicyRateEngine
+import com.mileway.core.data.ledger.PolicyRateTable
+
+/** Whether a [PolicyViolation] blocks submission outright or only warns the submitter. */
+enum class PolicySeverity {
+    HARD_BLOCK,
+    SOFT_WARN,
+}
+
+/** A single, high-confidence policy check result attached to one [ClaimLine]. */
+data class PolicyViolation(
+    val code: String,
+    val severity: PolicySeverity,
+    val message: String,
+)
+
+/**
+ * One dated version of the policy ruleset, effective from [effectiveFrom] (epoch millis,
+ * inclusive) until a later [PolicyVersion]'s [effectiveFrom] supersedes it. [rateTable] backs
+ * mileage evaluation via the existing [PolicyRateEngine]; [maxExpenseAmountMinor] is the hard
+ * ceiling on a single expense line; [receiptRequiredAboveMinor] is the soft-warn threshold above
+ * which a receipt is expected but not yet attached (attachment itself is out of scope here).
+ */
+data class PolicyVersion(
+    val effectiveFrom: Long,
+    val rateTable: PolicyRateTable,
+    val maxExpenseAmountMinor: Long? = null,
+    val receiptRequiredAboveMinor: Long? = null,
+)
+
+/**
+ * Generalizes [PolicyRateEngine]/[PolicyRateTable] (kept unchanged — other lanes depend on those
+ * symbols) into a policy check over every [ClaimLine] subtype, versioned by effective date so a
+ * rate or limit change never rewrites the evaluation of an already-submitted claim. [versions]
+ * need not be pre-sorted.
+ */
+class PolicyEngine(
+    private val versions: List<PolicyVersion>,
+) {
+    /** The version in effect at [atMillis]: the latest [PolicyVersion.effectiveFrom] <= [atMillis]. */
+    fun versionFor(atMillis: Long): PolicyVersion =
+        versions.filter { it.effectiveFrom <= atMillis }.maxByOrNull { it.effectiveFrom }
+            ?: versions.minByOrNull { it.effectiveFrom }
+            ?: error("PolicyEngine requires at least one PolicyVersion")
+
+    /** Evaluates every line against the [PolicyVersion] in effect at [submittedAtMillis], keyed by line id. */
+    fun evaluate(
+        lines: List<ClaimLine>,
+        submittedAtMillis: Long,
+    ): Map<String, List<PolicyViolation>> {
+        val version = versionFor(submittedAtMillis)
+        return lines.associate { it.id to evaluateLine(it, version) }
+    }
+
+    private fun evaluateLine(
+        line: ClaimLine,
+        version: PolicyVersion,
+    ): List<PolicyViolation> =
+        when (line) {
+            is ExpenseLine -> evaluateExpense(line, version)
+            is MileageLine -> evaluateMileage(line, version)
+            // ponytail: per-diem/advance checks are narrow by design (no high-confidence rule
+            // for them yet); wire PerDiemRateTable in here once claim capture needs it.
+            is PerDiemLine -> emptyList()
+            is AdvanceLine -> emptyList()
+        }
+
+    private fun evaluateExpense(
+        line: ExpenseLine,
+        version: PolicyVersion,
+    ): List<PolicyViolation> {
+        val violations = mutableListOf<PolicyViolation>()
+        version.maxExpenseAmountMinor?.let { max ->
+            if (line.amountMinor > max) {
+                violations +=
+                    PolicyViolation(
+                        code = "EXPENSE_OVER_MAX",
+                        severity = PolicySeverity.HARD_BLOCK,
+                        message = "Amount ${line.amountMinor} exceeds policy max $max",
+                    )
+            }
+        }
+        version.receiptRequiredAboveMinor?.let { threshold ->
+            if (line.amountMinor > threshold) {
+                violations +=
+                    PolicyViolation(
+                        code = "RECEIPT_RECOMMENDED",
+                        severity = PolicySeverity.SOFT_WARN,
+                        message = "Amount ${line.amountMinor} exceeds $threshold; attach a receipt",
+                    )
+            }
+        }
+        return violations
+    }
+
+    private fun evaluateMileage(
+        line: MileageLine,
+        version: PolicyVersion,
+    ): List<PolicyViolation> {
+        val result = PolicyRateEngine(version.rateTable).reimbursement(line.vehicleKey, line.distanceKm)
+        val violations = mutableListOf<PolicyViolation>()
+        if (line.amountMinor > result.cappedAmount) {
+            violations +=
+                PolicyViolation(
+                    code = "MILEAGE_OVER_POLICY_RATE",
+                    severity = PolicySeverity.HARD_BLOCK,
+                    message = "Claimed ${line.amountMinor} exceeds policy-computed ${result.cappedAmount}",
+                )
+        } else if (result.appliedCapReason != null) {
+            violations +=
+                PolicyViolation(
+                    code = "MILEAGE_RATE_CAPPED",
+                    severity = PolicySeverity.SOFT_WARN,
+                    message = "Policy rate capped by ${result.appliedCapReason}",
+                )
+        }
+        return violations
+    }
+}
