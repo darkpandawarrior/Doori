@@ -1,0 +1,38 @@
+[
+  {
+    "type": "expense",
+    "id": "line-expense-1",
+    "amountMinor": 45000,
+    "currency": "INR",
+    "cardMatchId": "card-9",
+    "merchant": "Cafe Mocha",
+    "category": "MEALS"
+  },
+  {
+    "type": "mileage",
+    "id": "line-mileage-1",
+    "amountMinor": 12000,
+    "currency": "INR",
+    "fxRatePinnedAt": 1700000000000,
+    "policyFlags": ["OVER_DAILY_CAP"],
+    "sourceTripId": "trip-42",
+    "distanceKm": 12.5,
+    "vehicleKey": "twoWheeler"
+  },
+  {
+    "type": "per_diem",
+    "id": "line-perdiem-1",
+    "amountMinor": 300000,
+    "currency": "INR",
+    "sourceTripId": "trip-42",
+    "days": 3,
+    "dailyRateMinor": 100000
+  },
+  {
+    "type": "advance",
+    "id": "line-advance-1",
+    "amountMinor": 500000,
+    "currency": "INR",
+    "advanceId": "adv-7"
+  }
+]
