@@ -94,6 +94,7 @@ fun Application.module() {
             locationEventRoutes()
             milesExtraRoutes()
             checkInRoutes()
+            reportRoutes()
         }
     }
 }
