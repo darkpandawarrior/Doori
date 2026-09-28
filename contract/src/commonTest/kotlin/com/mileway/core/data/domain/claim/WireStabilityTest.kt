@@ -80,7 +80,7 @@ class WireStabilityTest {
 
     @Test
     fun unknownClaimLineDiscriminatorFailsExplicitly() {
-        val badJson = """{"type":"per_diem","id":"l3","amountMinor":100,"currency":"INR"}"""
+        val badJson = """{"type":"unknown_type","id":"l3","amountMinor":100,"currency":"INR"}"""
 
         assertFailsWith<SerializationException> {
             json.decodeFromString<ClaimLine>(badJson)
@@ -90,7 +90,7 @@ class WireStabilityTest {
     @Test
     fun unknownClaimLineDiscriminatorInsideAReportFailsExplicitlyRatherThanDroppingTheLine() {
         val badJson =
-            """{"id":"r1","employeeId":"emp-1","lines":[{"type":"advance","id":"l3","amountMinor":100,"currency":"INR"}],""" +
+            """{"id":"r1","employeeId":"emp-1","lines":[{"type":"unknown_type","id":"l3","amountMinor":100,"currency":"INR"}],""" +
                 """"state":"draft","approvalChain":{"steps":[]},"recordVersion":0}"""
 
         assertFailsWith<SerializationException> {
