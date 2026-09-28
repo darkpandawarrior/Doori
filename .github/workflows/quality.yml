@@ -63,6 +63,21 @@ jobs:
             echo "::warning::$guard is absent at the pinned kmp-toolkit commit — the Obj-C category guard did NOT run. Bump the toolkit to enable it."
           fi
 
+      # One-way-door guard: MilewayDatabase versions <= 48 are frozen once the schema is exported
+      # (see core/data/schemas/.../48.json and MilewayDatabase.kt's exportSchema = true) — a real
+      # v48 database already exists on real devices, so editing a shipped Migration(N, M<=48) after
+      # the fact silently corrupts every device that already ran it. Pure git/grep, no Gradle needed,
+      # so it runs before the toolchain setup below.
+      - name: Frozen-schema migration guard (v<=48)
+        if: ${{ !cancelled() }}
+        run: |
+          case "${{ github.event_name }}" in
+            pull_request) base="${{ github.event.pull_request.base.sha }}" ;;
+            push) base="${{ github.event.before }}" ;;
+            *) base="origin/main" ;;
+          esac
+          ./scripts/check-frozen-migrations.sh "$base"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
