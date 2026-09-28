@@ -5,6 +5,199 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
+ * Migration 48 → 49 (L2 — claim-domain persistence): the single additive migration for the whole
+ * expense-claim domain (L1a's `Report`/`ClaimLine`/`ApprovalStep` contract types). Ten new tables,
+ * no shipped table or column touched — every later Doori lane (L4 auto-draft, L10 card-matching,
+ * L11 multi-level approval, payout export, ...) reads/writes these tables rather than adding its
+ * own migration, per the lane brief's "one migration for the whole domain" rule.
+ *
+ * `claim_lines.sourceTripId` carries a UNIQUE index: it is the idempotency anchor both
+ * [LegacyMileageBackfillWorker] (wrapping a completed `saved_tracks` row into a shell report) and
+ * L4's auto-draft (turning a freshly-completed trip into a claim line) key off — a second backfill
+ * or auto-draft of the same trip fails the UNIQUE constraint rather than double-inserting (SQLite
+ * treats multiple NULLs in a UNIQUE index as distinct, so manually-entered lines with no source
+ * trip are unaffected). `claim_lines.cardMatchId` is indexed for L10's card-transaction lookup.
+ */
+val MIGRATION_48_49 =
+    object : Migration(48, 49) {
+        override fun migrate(connection: SQLiteConnection) {
+            createReportsAndClaimLines(connection)
+            createApprovalAndPolicyTables(connection)
+            createRateAndDelegationTables(connection)
+            createLedgerTables(connection)
+        }
+    }
+
+// Split out of MIGRATION_48_49.migrate() to satisfy detekt's LongMethod — one function per group of
+// related tables, in the same order the class doc comment lists them; no behavioral difference from
+// one long function, this is purely to keep each function under the line-count ceiling.
+private fun createReportsAndClaimLines(connection: SQLiteConnection) {
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `reports` (
+            `id`            TEXT    NOT NULL PRIMARY KEY,
+            `employeeId`    TEXT    NOT NULL,
+            `state`         TEXT    NOT NULL,
+            `recordVersion` INTEGER NOT NULL,
+            `createdAtMs`   INTEGER NOT NULL,
+            `updatedAtMs`   INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `claim_lines` (
+            `id`             TEXT    NOT NULL PRIMARY KEY,
+            `reportId`       TEXT    NOT NULL,
+            `type`           TEXT    NOT NULL,
+            `amountMinor`    INTEGER NOT NULL,
+            `currency`       TEXT    NOT NULL,
+            `fxRatePinnedAt` INTEGER,
+            `policyFlagsCsv` TEXT    NOT NULL,
+            `cardMatchId`    TEXT,
+            `sourceTripId`   TEXT,
+            `detailsJson`    TEXT    NOT NULL,
+            `createdAtMs`    INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        "CREATE UNIQUE INDEX IF NOT EXISTS `index_claim_lines_sourceTripId` ON `claim_lines` (`sourceTripId`)",
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_claim_lines_reportId` ON `claim_lines` (`reportId`)",
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_claim_lines_cardMatchId` ON `claim_lines` (`cardMatchId`)",
+    )
+}
+
+private fun createApprovalAndPolicyTables(connection: SQLiteConnection) {
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `approval_steps` (
+            `id`              INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            `reportId`        TEXT    NOT NULL,
+            `stepIndex`       INTEGER NOT NULL,
+            `role`            TEXT    NOT NULL,
+            `thresholdMinor`  INTEGER,
+            `actedBy`         TEXT    NOT NULL,
+            `onBehalfOf`      TEXT,
+            `action`          TEXT    NOT NULL,
+            `comment`         TEXT,
+            `actedAtMillis`   INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_approval_steps_reportId` ON `approval_steps` (`reportId`)",
+    )
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `policy_violations` (
+            `id`          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            `reportId`    TEXT    NOT NULL,
+            `claimLineId` TEXT,
+            `code`        TEXT    NOT NULL,
+            `message`     TEXT    NOT NULL,
+            `createdAtMs` INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_policy_violations_reportId` ON `policy_violations` (`reportId`)",
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_policy_violations_claimLineId` ON `policy_violations` (`claimLineId`)",
+    )
+}
+
+private fun createRateAndDelegationTables(connection: SQLiteConnection) {
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `per_diem_rates` (
+            `id`              TEXT    NOT NULL PRIMARY KEY,
+            `region`          TEXT    NOT NULL,
+            `grade`           TEXT    NOT NULL,
+            `dailyRateMinor`  INTEGER NOT NULL,
+            `currency`        TEXT    NOT NULL,
+            `effectiveFromMs` INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `delegate_assignments` (
+            `id`                  TEXT    NOT NULL PRIMARY KEY,
+            `delegatorAccountId`  TEXT    NOT NULL,
+            `delegateAccountId`   TEXT    NOT NULL,
+            `scope`               TEXT    NOT NULL,
+            `startsAtMs`          INTEGER NOT NULL,
+            `expiresAtMs`         INTEGER NOT NULL,
+            `isActive`            INTEGER NOT NULL,
+            `createdAtMs`         INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_delegate_assignments_delegatorAccountId` ON `delegate_assignments` (`delegatorAccountId`)",
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_delegate_assignments_delegateAccountId` ON `delegate_assignments` (`delegateAccountId`)",
+    )
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `period_locks` (
+            `periodKey`   TEXT    NOT NULL PRIMARY KEY,
+            `lockedAtMs`  INTEGER NOT NULL,
+            `lockedBy`    TEXT    NOT NULL
+        )
+        """.trimIndent(),
+    )
+}
+
+private fun createLedgerTables(connection: SQLiteConnection) {
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `gl_mappings` (
+            `category`      TEXT    NOT NULL PRIMARY KEY,
+            `glAccountCode` TEXT    NOT NULL,
+            `costCenter`    TEXT,
+            `updatedAtMs`   INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `statement_imports` (
+            `id`           TEXT    NOT NULL PRIMARY KEY,
+            `source`       TEXT    NOT NULL,
+            `fileName`     TEXT    NOT NULL,
+            `importedAtMs` INTEGER NOT NULL,
+            `rowCount`     INTEGER NOT NULL,
+            `status`       TEXT    NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS `pending_payment_journals` (
+            `id`            TEXT    NOT NULL PRIMARY KEY,
+            `reportId`      TEXT    NOT NULL,
+            `amountMinor`   INTEGER NOT NULL,
+            `currency`      TEXT    NOT NULL,
+            `glAccountCode` TEXT,
+            `status`        TEXT    NOT NULL,
+            `createdAtMs`   INTEGER NOT NULL
+        )
+        """.trimIndent(),
+    )
+    connection.execSQL(
+        "CREATE INDEX IF NOT EXISTS `index_pending_payment_journals_reportId` ON `pending_payment_journals` (`reportId`)",
+    )
+}
+
+/**
  * Migration 47 → 48 (offline-outbox extraction): `submit_drafts` moved to its own database owned by
  * the `com.siddharth.kmp:offline-outbox` toolkit module (RoomSubmitOutbox/RoomChangeBus went with it
  * — see [com.mileway.core.data.di.coreDataModule]). Drop the now-orphaned table from MilewayDatabase;
