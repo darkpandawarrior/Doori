@@ -137,7 +137,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         BugReportEntity::class,
     ],
     version = 48,
-    exportSchema = false,
+    exportSchema = true,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
 abstract class MilewayDatabase : RoomDatabase() {
