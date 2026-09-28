@@ -6,12 +6,15 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ApprovalCommentDao
+import com.mileway.core.data.dao.ApprovalStepDao
 import com.mileway.core.data.dao.BannerDismissalDao
 import com.mileway.core.data.dao.BugReportDao
 import com.mileway.core.data.dao.CampaignDao
+import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ClarificationDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.CouponDao
+import com.mileway.core.data.dao.DelegateAssignmentDao
 import com.mileway.core.data.dao.DelegationDao
 import com.mileway.core.data.dao.DeletionRequestDao
 import com.mileway.core.data.dao.DestinationModeDao
@@ -19,6 +22,7 @@ import com.mileway.core.data.dao.DocumentDao
 import com.mileway.core.data.dao.DraftExpenseDao
 import com.mileway.core.data.dao.EmergencyContactDao
 import com.mileway.core.data.dao.FavouriteRouteDao
+import com.mileway.core.data.dao.GlMappingDao
 import com.mileway.core.data.dao.HardwareEventDao
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.LogMilesDraftDao
@@ -27,14 +31,20 @@ import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.PaymentWalletDao
+import com.mileway.core.data.dao.PendingPaymentJournalDao
+import com.mileway.core.data.dao.PerDiemRateDao
+import com.mileway.core.data.dao.PeriodLockDao
 import com.mileway.core.data.dao.PluginOverrideDao
+import com.mileway.core.data.dao.PolicyViolationDao
 import com.mileway.core.data.dao.PopupAckDao
 import com.mileway.core.data.dao.ReferralTxnDao
+import com.mileway.core.data.dao.ReportDao
 import com.mileway.core.data.dao.RewardCardDao
 import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.SignatureDao
+import com.mileway.core.data.dao.StatementImportDao
 import com.mileway.core.data.dao.SubscriptionDao
 import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TourProgressDao
@@ -49,14 +59,17 @@ import com.mileway.core.data.model.db.ActiveSubscriptionEntity
 import com.mileway.core.data.model.db.AgentConversationEntity
 import com.mileway.core.data.model.db.AgentMessageEntity
 import com.mileway.core.data.model.db.ApprovalCommentEntity
+import com.mileway.core.data.model.db.ApprovalStepEntity
 import com.mileway.core.data.model.db.BannerDismissedEntity
 import com.mileway.core.data.model.db.BugReportEntity
 import com.mileway.core.data.model.db.CampaignEntity
+import com.mileway.core.data.model.db.ClaimLineEntity
 import com.mileway.core.data.model.db.ClarificationMessageEntity
 import com.mileway.core.data.model.db.ClarificationRoomEntity
 import com.mileway.core.data.model.db.ClarificationRoomMetaEntity
 import com.mileway.core.data.model.db.ConnectedAccountEntity
 import com.mileway.core.data.model.db.CouponEntity
+import com.mileway.core.data.model.db.DelegateAssignmentEntity
 import com.mileway.core.data.model.db.DelegationEntity
 import com.mileway.core.data.model.db.DeletionRequestEntity
 import com.mileway.core.data.model.db.DestinationModeEntity
@@ -64,6 +77,7 @@ import com.mileway.core.data.model.db.DocumentEntity
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.data.model.db.EmergencyContactEntity
 import com.mileway.core.data.model.db.FavouriteRouteEntity
+import com.mileway.core.data.model.db.GlMappingEntity
 import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.LogMilesDraftEntity
@@ -72,14 +86,20 @@ import com.mileway.core.data.model.db.MockAccountEntity
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PassportDetailsEntity
 import com.mileway.core.data.model.db.PaymentWalletEntity
+import com.mileway.core.data.model.db.PendingPaymentJournalEntity
+import com.mileway.core.data.model.db.PerDiemRateEntity
+import com.mileway.core.data.model.db.PeriodLockEntity
 import com.mileway.core.data.model.db.PluginOverrideEntity
+import com.mileway.core.data.model.db.PolicyViolationEntity
 import com.mileway.core.data.model.db.PopupAckEntity
 import com.mileway.core.data.model.db.ReferralTxnEntity
+import com.mileway.core.data.model.db.ReportEntity
 import com.mileway.core.data.model.db.RewardCardEntity
 import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SessionEntity
 import com.mileway.core.data.model.db.SignatureEntity
+import com.mileway.core.data.model.db.StatementImportEntity
 import com.mileway.core.data.model.db.SubscriptionPlanEntity
 import com.mileway.core.data.model.db.SupportTicketEntity
 import com.mileway.core.data.model.db.TourProgressEntity
@@ -135,8 +155,18 @@ import com.mileway.core.data.model.db.VoucherEntity
         ClarificationRoomMetaEntity::class,
         ApprovalCommentEntity::class,
         BugReportEntity::class,
+        ReportEntity::class,
+        ClaimLineEntity::class,
+        ApprovalStepEntity::class,
+        PolicyViolationEntity::class,
+        PerDiemRateEntity::class,
+        DelegateAssignmentEntity::class,
+        PeriodLockEntity::class,
+        GlMappingEntity::class,
+        StatementImportEntity::class,
+        PendingPaymentJournalEntity::class,
     ],
-    version = 48,
+    version = 49,
     exportSchema = true,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
@@ -220,6 +250,26 @@ abstract class MilewayDatabase : RoomDatabase() {
     abstract fun approvalCommentDao(): ApprovalCommentDao
 
     abstract fun bugReportDao(): BugReportDao
+
+    abstract fun reportDao(): ReportDao
+
+    abstract fun claimLineDao(): ClaimLineDao
+
+    abstract fun approvalStepDao(): ApprovalStepDao
+
+    abstract fun policyViolationDao(): PolicyViolationDao
+
+    abstract fun perDiemRateDao(): PerDiemRateDao
+
+    abstract fun delegateAssignmentDao(): DelegateAssignmentDao
+
+    abstract fun periodLockDao(): PeriodLockDao
+
+    abstract fun glMappingDao(): GlMappingDao
+
+    abstract fun statementImportDao(): StatementImportDao
+
+    abstract fun pendingPaymentJournalDao(): PendingPaymentJournalDao
 }
 
 @Suppress("NO_ACTUAL_FOR_EXPECT")
