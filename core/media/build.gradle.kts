@@ -38,15 +38,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.activity.compose)
             implementation(libs.peekaboo.image.picker)
-            implementation(libs.mlkit.document.scanner)
-            // V26 P26.CONV: MlKitGalleryMultiPassRecognizer's real multi-pass gallery-image OCR.
-            implementation(libs.mlkit.text.recognition)
-            // V26 P26.AND.5 / FLFD.2 fix: barcode decoding is flavor-bound (BarcodeDecoder.kt,
-            // resolved via Koin), NOT a direct ML Kit dep here — a Play Services barcode dep in
-            // this shared androidMain leaked into noGmsReleaseRuntimeClasspath and failed
-            // :app:verifyNoGmsDependencyPrefixes. See app/build.gradle.kts (gmsImplementation /
-            // noGmsImplementation) and PlatformServicesKoinEntry.kt on both flavors.
-            implementation(libs.kotlinx.coroutines.play.services)
+            // OCR and scanning backends are supplied by the app flavor through Koin.
             // V26 P26.WM.1: burnWatermark's actual has no Compose scope to pull LocalContext.current
             // from, so it resolves the app's Context via Koin's global accessor (KoinPlatform.getKoin())
             // — same pattern TrackingTileService/MileageSummaryWidget use.

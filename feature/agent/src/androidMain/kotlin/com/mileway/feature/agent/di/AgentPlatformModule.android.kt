@@ -3,7 +3,7 @@ package com.mileway.feature.agent.di
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.analytics.DataStoreAgentAnalyticsStore
 import com.mileway.feature.agent.engine.llm.LlmGateway
-import com.mileway.feature.agent.engine.llm.MlKitLlmGateway
+import com.mileway.feature.agent.engine.llm.OnDeviceLlmGateway
 import com.mileway.feature.agent.voice.AndroidSpeechToText
 import com.mileway.feature.agent.voice.AndroidTextToSpeech
 import com.mileway.feature.agent.voice.SpeechToText
@@ -17,6 +17,6 @@ actual val agentPlatformModule: Module =
         single<SpeechToText> { AndroidSpeechToText(androidContext()) }
         single<TextToSpeech> { AndroidTextToSpeech(androidContext()) }
         single<AgentAnalyticsStore> { DataStoreAgentAnalyticsStore(androidContext()) }
-        // EXPERIMENTAL — ML Kit GenAI Prompt API (Gemini Nano), see MlKitLlmGateway.
-        single<LlmGateway> { MlKitLlmGateway(androidContext()) }
+        // The GMS app binds Gemini Nano; other builds retain the offline assistant.
+        single<LlmGateway> { OnDeviceLlmGateway() }
     }

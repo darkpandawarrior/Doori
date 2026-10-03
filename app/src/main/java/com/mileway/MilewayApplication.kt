@@ -211,7 +211,6 @@ class MilewayApplication :
             modules =
                 listOf(
                     mapsKoinModule(),
-                    platformServicesKoinModule(),
                     coreDataModule,
                     coreUiModule,
                     stubModule,
@@ -236,6 +235,7 @@ class MilewayApplication :
                     authModule,
                     pinModule,
                     appModule,
+                    platformServicesKoinModule(),
                 ),
             appDeclaration = {
                 androidContext(this@MilewayApplication)

@@ -1,5 +1,9 @@
 package com.mileway
 
+import com.mileway.core.ai.DocumentAiAnalyzer
+import com.mileway.core.ai.NoDocumentAiAnalyzer
+import com.mileway.core.ai.NoTextRecognizer
+import com.mileway.core.ai.TextRecognizer
 import com.mileway.core.data.watch.NoopWatchSyncBridge
 import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
@@ -7,12 +11,14 @@ import com.mileway.core.platform.LocalReferralManager
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
+import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
 import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
 import com.siddharth.kmp.common.CrashReporter
 import com.siddharth.kmp.common.NapierCrashReporter
+import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -24,6 +30,8 @@ import org.koin.dsl.module
  */
 fun platformServicesKoinModule(): Module =
     module {
+        single<TextRecognizer> { NoTextRecognizer }
+        single<DocumentAiAnalyzer> { NoDocumentAiAnalyzer }
         single<AppUpdateManagerFactory> { AppUpdateManagerFactory { PlatformBindings().appUpdateManager } }
         // F-Droid has no in-app review API → no-op (a store-listing intent could open f-droid.org later).
         single<AppReviewManagerFactory> { AppReviewManagerFactory { PlatformBindings().appReviewManager } }
@@ -42,4 +50,12 @@ fun platformServicesKoinModule(): Module =
         // core:platform is the signal instead. See HeuristicActivityRecognizer.kt kdoc for the
         // still-vs-not-still ceiling that buys.
         single<ActivityRecognizer> { HeuristicActivityRecognizer(get()) }
+        // L13: recovered pure-GPS tracker, noGms flavor ONLY — no com.google.android.gms.* import
+        // anywhere in PlainLocationTracker.kt. forceGpsOnly is ignored: this source is already
+        // GPS-only.
+        single<RealLocationSourceFactory> {
+            RealLocationSourceFactory { _, initialIntervalMs ->
+                PlainLocationTracker(androidContext(), initialIntervalMs)
+            }
+        }
     }

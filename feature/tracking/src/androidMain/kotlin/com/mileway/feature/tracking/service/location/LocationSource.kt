@@ -2,15 +2,6 @@
 
 package com.mileway.feature.tracking.service.location
 
-import android.content.Context
-import android.location.Location
-import android.os.Build
-import android.os.Looper
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -20,9 +11,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.math.cos
 import kotlin.math.sin
-
-/** Re-registering the provider below this much of a cadence change churns it for no benefit. */
-private const val MinIntervalChangeMs = 1_000L
 
 /** Positional jitter per fix, in degrees — about 2 m. */
 private const val JitterDegrees = 0.00002
@@ -51,123 +39,22 @@ interface LocationSource {
 }
 
 /**
- * Real GPS via the fused location provider.
- *
- * P10.1: [forceGpsOnly] (Track Miles "force GPS provider" setting) swaps the fused client for the
- * platform [android.location.LocationManager] GPS_PROVIDER, so fixes come straight from the GNSS
- * hardware with no Wi-Fi/cell fusion. Default false keeps the fused high-accuracy behavior.
+ * L13: builds the real (non-simulated) [LocationSource] for the current build flavor, so
+ * [LocationTrackingService] never imports a flavor-specific implementation directly. Bound in
+ * `PlatformServicesKoinEntry.kt` — gms → `GmsFusedLocationSource` (Play Services fused provider,
+ * `app/src/gms`), noGms → `PlainLocationTracker` (plain `android.location.LocationManager`
+ * GPS_PROVIDER, `app/src/noGms`). Same per-flavor split as [ActivityRecognizer] / `BarcodeDecoder`.
  */
-class FusedLocationSource(
-    private val context: Context,
-    private val initialIntervalMs: Long = 4_000L,
-    private val forceGpsOnly: Boolean = false,
-) : LocationSource {
-    private val client = LocationServices.getFusedLocationProviderClient(context)
-    private var callback: LocationCallback? = null
-    private var onFix: ((GpsFix) -> Unit)? = null
-    private var currentIntervalMs: Long = initialIntervalMs
-
-    // P10.1: raw-GPS path.
-    private val locationManager by lazy {
-        context.getSystemService(Context.LOCATION_SERVICE) as android.location.LocationManager
-    }
-    private var rawGpsListener: android.location.LocationListener? = null
-
-    override fun start(onFix: (GpsFix) -> Unit) {
-        this.onFix = onFix
-        register(currentIntervalMs)
-    }
-
+fun interface RealLocationSourceFactory {
     /**
-     * Re-register the request only when the cadence actually moves (≥1s), re-registering on
-     * every fix would churn the provider for no benefit. Removes the old callback first so a single
-     * callback is ever active.
+     * @param forceGpsOnly P10.1 Track Miles setting: swap the fused client for the raw GPS
+     * provider. Meaningful only on the gms flavor's fused implementation — the noGms
+     * implementation is already GPS-only, so it ignores this flag.
      */
-    override fun updateInterval(intervalMs: Long) {
-        if (onFix == null) return // not started
-        if (kotlin.math.abs(intervalMs - currentIntervalMs) < MinIntervalChangeMs) return
-        currentIntervalMs = intervalMs
-        removeUpdates()
-        register(intervalMs)
-    }
-
-    private fun register(intervalMs: Long) {
-        val fix = onFix ?: return
-        if (forceGpsOnly) {
-            registerRawGps(intervalMs, fix)
-            return
-        }
-        val request =
-            LocationRequest
-                .Builder(Priority.PRIORITY_HIGH_ACCURACY, intervalMs)
-                .setMinUpdateIntervalMillis(intervalMs / 2)
-                .build()
-        val cb =
-            object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult) {
-                    result.lastLocation?.let { fix(it.toGpsFix()) }
-                }
-            }
-        callback = cb
-        try {
-            client.requestLocationUpdates(request, cb, Looper.getMainLooper())
-        } catch (_: SecurityException) {
-            // Permission revoked mid-session; the service handles the empty stream.
-        }
-    }
-
-    private fun registerRawGps(
-        intervalMs: Long,
-        fix: (GpsFix) -> Unit,
-    ) {
-        val listener =
-            android.location.LocationListener { location -> fix(location.toGpsFix()) }
-        rawGpsListener = listener
-        try {
-            locationManager.requestLocationUpdates(
-                android.location.LocationManager.GPS_PROVIDER,
-                intervalMs,
-                0f,
-                listener,
-                Looper.getMainLooper(),
-            )
-        } catch (_: SecurityException) {
-            // Permission revoked mid-session; the service handles the empty stream.
-        } catch (_: IllegalArgumentException) {
-            // GPS_PROVIDER not present on this device; empty stream, service falls back.
-        }
-    }
-
-    private fun removeUpdates() {
-        callback?.let { client.removeLocationUpdates(it) }
-        callback = null
-        rawGpsListener?.let { locationManager.removeUpdates(it) }
-        rawGpsListener = null
-    }
-
-    override fun stop() {
-        removeUpdates()
-        onFix = null
-    }
-
-    private fun Location.toGpsFix(): GpsFix =
-        GpsFix(
-            lat = latitude,
-            lng = longitude,
-            timeMs = time,
-            speedMps = speed,
-            accuracyM = accuracy,
-            bearingDeg = bearing,
-            altitudeM = altitude,
-            provider = provider ?: "fused",
-            isMock =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    isMock
-                } else {
-                    @Suppress("DEPRECATION")
-                    isFromMockProvider
-                },
-        )
+    fun create(
+        forceGpsOnly: Boolean,
+        initialIntervalMs: Long,
+    ): LocationSource
 }
 
 /**

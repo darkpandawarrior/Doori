@@ -27,7 +27,7 @@ private const val ThreeQuarterTurnDegrees = 270f
 
 /**
  * Production [MediaRepository] running on-device ML Kit text recognition (bundled Latin model, no
- * network, no Play Store download — works in both flavors).
+ * network, no Play Store download — GMS flavor only).
  *
  * D.2 multi-pass OCR: a single recogniser pass over a raw photo is fragile (glare, low light, blur).
  * [runOcr] now decodes the frame once and runs the recogniser over several **enhancement variants**
