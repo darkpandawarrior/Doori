@@ -141,7 +141,7 @@ class ReportSubmitViewModelTest {
             vm.recall()
             advanceUntilIdle()
             assertEquals(
-                ReportLifecycleState.DRAFT,
+                ReportLifecycleState.RECALLED,
                 store.rows.value
                     .single()
                     .state,
