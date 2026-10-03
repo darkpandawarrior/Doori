@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Provide your Google Maps API key here, or via local.properties:
          MAPS_API_KEY=AIza...  (never commit a real key to VCS) -->
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <application>
+        <receiver
+            android:name="com.mileway.GmsDriveTransitionReceiver"
+            android:exported="false" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${MAPS_API_KEY}" />

@@ -217,7 +217,8 @@ class IosTrackingController(
             locationTracker.updates.collect { point ->
                 lastFixAtMs = nowMs()
                 val proc = processor ?: return@collect
-                val result = proc.process(point.toGpsFix(), isPaused) ?: return@collect // jitter-suppressed
+                val fix = point.toGpsFix()
+                val result = proc.process(fix, isPaused, motionStill = fix.speedMps < 0.5f) ?: return@collect // jitter-suppressed
                 locationBatcher?.add(result.location.copy(token = token))
                 val stats = proc.stats()
                 val durationMs = nowMs() - startTime

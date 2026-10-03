@@ -202,7 +202,7 @@ class LocationProcessor(
         // C.1g: smooth lat/lng up front so distance + classification use the filtered position.
         // With Kalman off, effFix === fix and the pipeline is byte-for-byte unchanged.
         val effFix =
-            if (enableKalman) {
+            if (enableKalman && !motionStill && !isPaused) {
                 val (sLat, sLng) = kalman.smooth(fix.lat, fix.lng, fix.accuracyM, fix.timeMs)
                 fix.copy(lat = sLat, lng = sLng)
             } else {
