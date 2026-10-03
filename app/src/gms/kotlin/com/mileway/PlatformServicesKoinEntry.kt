@@ -21,6 +21,21 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+import com.mileway.core.ai.DocumentAiAnalyzer
+import com.mileway.core.ai.MlKitGenAiAnalyzer
+import com.mileway.core.ai.MlKitTextRecognizer
+import com.mileway.core.ai.TextRecognizer
+import com.mileway.core.media.DocumentScanBackend
+import com.mileway.core.media.ocr.GalleryMultiPassRecognizer
+import com.mileway.core.media.ocr.MlKitGalleryMultiPassRecognizer
+import com.mileway.feature.agent.engine.llm.LlmGateway
+import com.mileway.feature.agent.engine.llm.MlKitLlmGateway
+import com.mileway.feature.media.repository.MediaRepository
+import com.mileway.feature.media.repository.RealMediaRepository
+import com.siddharth.kmp.ai.MlKitGenAiOnDeviceLlm
+import com.siddharth.kmp.ai.mlKitLlmModule
+import com.siddharth.kmp.designsystem.googlePayButtonModule
+
 /**
  * gms flavor: real Play-Core / Firebase platform services.
  *
@@ -29,6 +44,13 @@ import org.koin.dsl.module
  */
 fun platformServicesKoinModule(): Module =
     module {
+        includes(mlKitLlmModule(), googlePayButtonModule())
+        single<TextRecognizer> { MlKitTextRecognizer(androidContext()) }
+        single<DocumentAiAnalyzer> { MlKitGenAiAnalyzer(androidContext()) }
+        single<GalleryMultiPassRecognizer> { MlKitGalleryMultiPassRecognizer(androidContext()) }
+        single<DocumentScanBackend> { GmsDocumentScanBackend() }
+        single<MediaRepository> { RealMediaRepository(androidContext()) }
+        single<LlmGateway> { MlKitLlmGateway(MlKitGenAiOnDeviceLlm(androidContext())) }
         // L13: fused location on the gms flavor — overrides core:platform's default
         // AndroidLocationTracker (plain LocationManager) the same way trackingModule's
         // NotificationScheduler override works (last-registered Koin definition wins; see

@@ -18,6 +18,11 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
+import com.mileway.core.ai.DocumentAiAnalyzer
+import com.mileway.core.ai.NoDocumentAiAnalyzer
+import com.mileway.core.ai.NoTextRecognizer
+import com.mileway.core.ai.TextRecognizer
+
 /**
  * noGms (FOSS / F-Droid) flavor: no-op platform services, no proprietary deps.
  *
@@ -26,6 +31,8 @@ import org.koin.dsl.module
  */
 fun platformServicesKoinModule(): Module =
     module {
+        single<TextRecognizer> { NoTextRecognizer }
+        single<DocumentAiAnalyzer> { NoDocumentAiAnalyzer }
         single<AppUpdateManagerFactory> { AppUpdateManagerFactory { PlatformBindings().appUpdateManager } }
         // F-Droid has no in-app review API → no-op (a store-listing intent could open f-droid.org later).
         single<AppReviewManagerFactory> { AppReviewManagerFactory { PlatformBindings().appReviewManager } }

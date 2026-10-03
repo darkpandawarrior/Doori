@@ -23,9 +23,6 @@ kotlin {
             api(project(":core:media"))
         }
         androidMain.dependencies {
-            implementation(libs.kotlinx.coroutines.play.services)
-            implementation(libs.mlkit.document.scanner)
-            implementation(libs.mlkit.text.recognition)
             implementation(libs.camera.core)
             implementation(libs.camera.camera2)
             implementation(libs.camera.lifecycle)

@@ -3,6 +3,7 @@ package com.mileway.core.media
 import android.app.Activity
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
@@ -14,13 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
+import com.mileway.core.ai.TextRecognizer
 import com.mileway.core.ai.DocumentIntelligence
-import com.mileway.core.ai.KeywordHeuristicClassifier
-import com.mileway.core.ai.MlKitGenAiAnalyzer
-import com.mileway.core.ai.MlKitTextRecognizer
 import com.mileway.core.ai.model.DocPrompt
 import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentAnalysis
@@ -93,17 +89,9 @@ actual fun rememberMediaCaptureLauncher(
     val scope = rememberCoroutineScope()
     val mode = config.allowedModes.firstOrNull() ?: CaptureMode.Gallery
 
-    // P26.SHEET: real DocumentIntelligence, built the same way rememberOdometerOcrService's
-    // Android actual does (OdometerOcrService.android.kt) — real ML Kit GenAI + text recognition,
-    // no DI module needed for a Compose-scoped construction like this.
-    val documentIntelligence =
-        remember(context) {
-            DocumentIntelligence(
-                aiAnalyzer = MlKitGenAiAnalyzer(context),
-                textRecognizer = MlKitTextRecognizer(context),
-                classifier = KeywordHeuristicClassifier,
-            )
-        }
+    val documentIntelligence = remember { androidDocumentIntelligence() }
+    val textRecognizer = remember { KoinPlatform.getKoin().getOrNull<TextRecognizer>() }
+    val scanner = remember { KoinPlatform.getKoin().getOrNull<DocumentScanBackend>() }
     val expectedDocType =
         remember(config.ocrDocType) {
             config.ocrDocType?.let { runCatching { DocType.valueOf(it) }.getOrNull() } ?: DocType.RECEIPT
@@ -137,7 +125,10 @@ actual fun rememberMediaCaptureLauncher(
                     items
                 }
 
-            if (!config.enableOcr) {
+            if (config.enableOcr && textRecognizer?.isAvailable() != true) {
+                Toast.makeText(context, "OCR is not available in this build. Enter the fields manually.", Toast.LENGTH_LONG).show()
+            }
+            if (!config.enableOcr || textRecognizer?.isAvailable() != true) {
                 onResult(MediaCaptureResult.Attachments(watermarked))
                 return@launch
             }
@@ -216,8 +207,7 @@ actual fun rememberMediaCaptureLauncher(
     val documentScanLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                val scan = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
-                deliverAttachments(scan?.pages.orEmpty().map { it.imageUri.toAttachment(context) })
+                deliverAttachments(scanner?.pages(result.data).orEmpty().map { Uri.parse(it).toAttachment(context) })
             }
         }
 
@@ -276,29 +266,15 @@ actual fun rememberMediaCaptureLauncher(
 
                 CaptureMode.Document -> {
                     val activity = context as? Activity
-                    if (activity == null) {
-                        // No Activity host to launch an IntentSender from — same fallback as an
-                        // unavailable scanner.
+                    if (activity == null || scanner == null) {
                         documentFallbackLauncher.launch(FILES_MIME_TYPES)
                     } else {
-                        val options =
-                            GmsDocumentScannerOptions
-                                .Builder()
-                                .setGalleryImportAllowed(true)
-                                .setPageLimit(if (config.multiple) config.maxCount.coerceAtLeast(1) else 1)
-                                .setResultFormats(GmsDocumentScannerOptions.RESULT_FORMAT_JPEG)
-                                .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
-                                .build()
-                        GmsDocumentScanning
-                            .getClient(options)
-                            .getStartScanIntent(activity)
-                            .addOnSuccessListener { intentSender ->
-                                documentScanLauncher.launch(IntentSenderRequest.Builder(intentSender).build())
-                            }.addOnFailureListener {
-                                // ponytail: scanner unavailable (no Play Services / unsupported
-                                // device) — fall back to the file picker instead of no-op.
-                                documentFallbackLauncher.launch(FILES_MIME_TYPES)
-                            }
+                        scanner.start(
+                            activity = activity,
+                            pageLimit = if (config.multiple) config.maxCount else 1,
+                            onReady = { documentScanLauncher.launch(IntentSenderRequest.Builder(it).build()) },
+                            onUnavailable = { documentFallbackLauncher.launch(FILES_MIME_TYPES) },
+                        )
                     }
                 }
 

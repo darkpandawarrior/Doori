@@ -69,10 +69,13 @@ private val ODOMETER_PROMPT =
  * `feature:logging`'s manual-only `OdometerCaptureSheet` path).
  */
 class OdometerOcrService(
-    textRecognizer: TextRecognizer,
+    private val textRecognizer: TextRecognizer,
     private val galleryRecognizer: GalleryMultiPassRecognizer,
     private val documentIntelligence: DocumentIntelligence,
 ) {
+    /** False when this build requires manual odometer entry. */
+    val isAvailable: Boolean get() = textRecognizer.isAvailable()
+
     private val orchestrator = OdometerOcrOrchestrator(DocumentIntelligenceFrameRecognizer(textRecognizer))
 
     /** Single-shot capture (camera photo, or an already-picked photo) — the N=1 case of [analyzeFrames]. */

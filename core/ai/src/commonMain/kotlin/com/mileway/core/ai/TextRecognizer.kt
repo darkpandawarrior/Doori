@@ -8,6 +8,9 @@ import com.mileway.core.ai.model.DocumentImageRef
  * field tier in [AnalysisCombiner].
  */
 interface TextRecognizer {
+    /** Whether this build supplies OCR; false means callers must offer manual entry. */
+    fun isAvailable(): Boolean = true
+
     /** Full recognized text, line breaks preserved; empty string when nothing was read. */
     suspend fun recognize(image: DocumentImageRef): String
 }

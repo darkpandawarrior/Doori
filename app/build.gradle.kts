@@ -432,42 +432,15 @@ kover {
 // after any intentional dep change, then commit the updated baseline file.
 dependencyGuard {
     configuration("gmsReleaseRuntimeClasspath")
-    // noGms is this project's own FOSS/F-Droid build, and until now it was the ONE release classpath
-    // with no baseline — so nothing verified what actually ships there.
-    //
-    // Read the committed noGms baseline with your eyes open: it currently CONTAINS play-services and
-    // ML Kit entries, NOT a clean FOSS classpath. A green `dependencyGuard` here therefore means
-    // "nothing NEW leaked in", not "this build is GMS-free". Committing the baseline anyway is
-    // deliberate: it freezes the leak at its current size and makes any growth a failing diff, which
-    // is strictly better than no guard at all.
-    //
-    // L13 closed the two leaks this repo could fix on its own — feature/tracking's
-    // FusedLocationSource (now GmsFusedLocationSource, app/src/gms) and app-shell's own
-    // AndroidLocationTracker (upstream kmp-toolkit fix: play-services-location/coroutines-play-
-    // services moved out of app-shell's androidMain into the opt-in app-shell-location-gms
-    // module, gmsImplementation only; see that pin's commit message). play-services-location
-    // itself is GONE from this baseline as of this lane.
-    //
-    // What's LEFT, and why each is a separate, deliberately out-of-scope leak, not a location
-    // leftover:
-    //   1. core:media's androidMain declares mlkit.document.scanner / mlkit.text.recognition (+
-    //      their kotlinx-coroutines-play-services glue) unconditionally — the doc-scanner/OCR
-    //      pipeline, same "prime feature, don't touch" guardrail as above (V15 scope call), pulls
-    //      play-services-base/-basement/-tasks and the bare com.google.mlkit:* coordinates.
-    //   2. kmp-toolkit's :designsystem module depends on com.google.pay.button:compose-pay-button,
-    //      which pulls play-services-wallet (and transitively -identity, -maps, -base, -basement,
-    //      -tasks) — a Google Pay button in a design-system module, unrelated to location or OCR,
-    //      not previously called out anywhere in this file. Also an upstream kmp-toolkit fix.
-    // Reaching true zero needs both of those addressed upstream (separate lanes); shrink the
-    // baseline as they land, do not let it grow. Measured after L13's location fix: of 486
-    // entries, 17 are com.google.android.gms / com.google.mlkit / kotlinx-coroutines-play-services
-    // and a further 4 are com.google.firebase — 21 proprietary entries in total:
-    //   grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 17
-    //   grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 21
+    // L13: this snapshot must contain zero GMS and ML Kit coordinates.
     configuration("noGmsReleaseRuntimeClasspath")
 }
 
 dependencies {
+    implementation(project(":core:ai"))
+    implementation(project(":core:media"))
+    implementation("com.siddharth.kmp:result:1.0.0")
+    implementation("com.siddharth.kmp:ai:1.0.0")
     mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.13")
 
     // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
@@ -584,6 +557,11 @@ dependencies {
     // P2.9: phone->watch snapshot Data Layer sync (WearDataLayerWatchSyncBridge), gms flavor ONLY.
     // noGms binds WatchSyncBridge to NoopWatchSyncBridge instead — VerifyDependencyPrefixes (FLFD.2)
     // keeps play-services-wearable out of noGmsReleaseRuntimeClasspath.
+    "gmsImplementation"("com.siddharth.kmp:ai-mlkit:1.0.0")
+    "gmsImplementation"("com.siddharth.kmp:designsystem-wallet-gms:1.0.0")
+    "gmsImplementation"(libs.mlkit.document.scanner)
+    "gmsImplementation"(libs.mlkit.text.recognition)
+    "gmsImplementation"(libs.androidx.exifinterface)
     "gmsImplementation"(libs.play.services.wearable)
     "gmsImplementation"(libs.kotlinx.coroutines.play.services)
 
@@ -682,12 +660,7 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
 }
 
-// ─── FLFD.2, Proprietary-dependency guard for the noGms (F-Droid) release ───────────────────────────
-// Fails if a proprietary dep matching a forbidden prefix leaks into noGmsReleaseRuntimeClasspath, EXCEPT
-// the allowlisted pre-existing prime-feature deps (FusedLocation + ML Kit OCR, used by BOTH flavors,
-// making those FOSS is out of V15 scope; guardrail: don't touch the prime feature). The guard's purpose is
-// to keep V15's NEW proprietary additions (Firebase messaging/analytics/crashlytics, Play app-update,
-// Play review, Install Referrer) out of the FOSS build.
+// L13: reject every proprietary coordinate in the FOSS release, without an allowlist.
 // Inside afterEvaluate so the AGP-created variant configuration exists when we look it up.
 afterEvaluate {
     val forbiddenPrefixes =
@@ -697,53 +670,8 @@ afterEvaluate {
             "com.google.firebase",
             "com.google.maps.android",
             "com.android.installreferrer",
-            // Added 2026-08-05. The gms-namespaced ML Kit artifacts
-            // (com.google.android.gms:play-services-mlkit-*) were already caught by the
-            // "com.google.android.gms" prefix above and allowlisted below — but ML Kit also ships
-            // under its OWN bare coordinate, and nothing here matched it. Seven such artifacts sat
-            // in the noGms release classpath completely invisible to this guard.
+            // Both ML Kit coordinate namespaces are forbidden in the FOSS release.
             "com.google.mlkit",
-        )
-    val allowlist =
-        setOf(
-            // L13: play-services-location is GONE (kmp-toolkit's app-shell no longer declares it
-            // unconditionally) — removed from this allowlist, not just left stale.
-            //
-            // Pre-existing ML Kit OCR (core:media's mlkit.document.scanner / mlkit.text.recognition,
-            // androidMain — "don't touch the prime feature", same V15-scope call as above).
-            "com.google.android.gms:play-services-base",
-            "com.google.android.gms:play-services-basement",
-            "com.google.android.gms:play-services-tasks",
-            "com.google.android.gms:play-services-mlkit-document-scanner",
-            "com.google.android.gms:play-services-mlkit-text-recognition",
-            "com.google.android.gms:play-services-mlkit-text-recognition-common",
-            // Bare-coordinate ML Kit, newly VISIBLE to the guard as of 2026-08-05 (see the
-            // "com.google.mlkit" prefix above). Allowlisted, not fixed: freezing the leak at its
-            // current size is deliberate, exactly as the noGms dependencyGuard baseline does — a
-            // green guard here means "nothing NEW leaked in", not "this build is GMS-free".
-            // Removing these is gated on the ML Kit product call (make OCR FOSS, or keep it
-            // allowlisted). Shrink this list as that lands; do not let it grow.
-            // Note genai-common / genai-prompt: on-device GenAI is reaching the F-Droid build too.
-            "com.google.mlkit:common",
-            "com.google.mlkit:genai-common",
-            "com.google.mlkit:genai-prompt",
-            "com.google.mlkit:text-recognition",
-            "com.google.mlkit:text-recognition-bundled-common",
-            "com.google.mlkit:vision-common",
-            "com.google.mlkit:vision-interfaces",
-            // L13 finding: kmp-toolkit's :designsystem depends on
-            // com.google.pay.button:compose-pay-button, which pulls play-services-wallet and its own
-            // -identity/-maps chain — a Google Pay button in a design-system module, unrelated to
-            // location or OCR, never previously called out here. Also an upstream kmp-toolkit fix,
-            // out of scope for this lane; allowlisted (frozen), not fixed.
-            "com.google.android.gms:play-services-wallet",
-            "com.google.android.gms:play-services-identity",
-            "com.google.android.gms:play-services-maps",
-            // Transitive Firebase infra pulled by the play-services libs above (NOT messaging/analytics/crashlytics).
-            "com.google.firebase:firebase-annotations",
-            "com.google.firebase:firebase-components",
-            "com.google.firebase:firebase-encoders",
-            "com.google.firebase:firebase-encoders-json",
         )
     // `rootComponent` is a Provider<ResolvedComponentResult> — the configuration-cache-safe entry
     // point to the resolved graph. Captured here at CONFIGURATION time and walked at execution
@@ -769,7 +697,6 @@ afterEvaluate {
             // the Project object graph, or the configuration cache rejects it again.
             val rootProvider = noGmsRootComponent
             val forbidden = forbiddenPrefixes
-            val allowed = allowlist
             doLast {
                 // Walk the graph from the captured root. A `visited` set is load-bearing: a
                 // dependency graph is a DAG with shared nodes (and cycles are legal in Gradle's
@@ -787,7 +714,7 @@ afterEvaluate {
                 walk(rootProvider.get())
                 val violations =
                     deps
-                        .filter { dep -> forbidden.any { dep.startsWith(it) } && dep !in allowed }
+                        .filter { dep -> forbidden.any { dep.startsWith(it) } }
                         .sorted()
                 if (violations.isNotEmpty()) {
                     throw GradleException(
@@ -797,6 +724,7 @@ afterEvaluate {
             }
         }
     tasks.named("check").configure { dependsOn(verifyTask) }
+    tasks.named("dependencyGuard").configure { dependsOn(verifyTask) }
     tasks.matching { it.name == "assembleNoGmsRelease" }.configureEach { dependsOn(verifyTask) }
 }
 

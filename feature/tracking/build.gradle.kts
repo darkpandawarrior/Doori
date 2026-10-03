@@ -52,7 +52,6 @@ kotlin {
             // this module's androidMain no longer references com.google.android.gms.location.*
             // unconditionally; GmsFusedLocationSource lives in app/src/gms instead.
             implementation(libs.workmanager.runtime)
-            implementation(libs.mlkit.document.scanner)
             implementation(project(":feature:media"))
         }
         commonTest.dependencies {

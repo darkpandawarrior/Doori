@@ -68,6 +68,8 @@ includeBuild("external/kmp-toolkit") {
         // app/build.gradle.kts gmsImplementation and app/src/gms/PlatformServicesKoinEntry.kt.
         substitute(module("com.siddharth.kmp:app-shell-location-gms")).using(project(":app-shell-location-gms"))
         substitute(module("com.siddharth.kmp:ai")).using(project(":ai"))
+        substitute(module("com.siddharth.kmp:ai-mlkit")).using(project(":ai-mlkit"))
+        substitute(module("com.siddharth.kmp:designsystem-wallet-gms")).using(project(":designsystem-wallet-gms"))
         // FakeOnDeviceLlm — feature:agent's LlmAssistantEngineTest scripts streaming success/
         // failure without a real Gemini Nano/Foundation Models device.
         substitute(module("com.siddharth.kmp:ai-testing")).using(project(":ai-testing"))
