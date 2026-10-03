@@ -6,8 +6,9 @@ import kotlin.test.assertFailsWith
 
 class ReportPayoutBoundaryTest {
     @Test
-    fun unconfiguredReportPayoutFailsWithoutFallingThroughToQrOrUpi() = runTest {
-        val repository = PaymentsRepository()
-        assertFailsWith<IllegalArgumentException> { repository.payReport("report") }
-    }
+    fun unconfiguredReportPayoutFailsWithoutFallingThroughToQrOrUpi() =
+        runTest {
+            val repository = PaymentsRepository()
+            assertFailsWith<IllegalArgumentException> { repository.payReport("report") }
+        }
 }

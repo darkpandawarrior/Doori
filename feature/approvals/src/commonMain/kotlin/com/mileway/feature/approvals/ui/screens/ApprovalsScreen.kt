@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.components.sheet.BulkActionConfirmationBottomSheet
@@ -111,8 +112,6 @@ import com.mileway.core.ui.state.ShellBottomBarState
 import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
-import com.mileway.core.data.domain.claim.ReportLifecycleState
-import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
@@ -120,6 +119,7 @@ import com.mileway.feature.approvals.repository.ApprovalsRepository
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -231,13 +231,7 @@ fun ApprovalsScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             // Real claim reports sit alongside the legacy demo approvals, sharing the detail route.
-            reportQueue.filter { it.state in setOf(
-                ReportLifecycleState.SUBMITTED, ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT,
-            ) }.forEach { report ->
-                TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
-                    Text("Report ${report.id} · ${report.state.name.replace('_', ' ')}")
-                }
-            }
+            ReportApprovalQueue(reportQueue, onOpenDetail)
             PrimaryTabRow(selectedTabIndex = selectedTab) {
                 listOf(
                     stringResource(Res.string.approvals_tab_to_approve),
@@ -795,6 +789,18 @@ private fun timeAgo(ms: Long): String {
         else -> {
             val days = hours / 24
             pluralStringResource(Res.plurals.approvals_plural_days_ago, days, days)
+        }
+    }
+}
+
+@Composable
+private fun ReportApprovalQueue(
+    reports: List<Report>,
+    onOpenDetail: (String) -> Unit,
+) {
+    reports.forEach { report ->
+        TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
+            Text("Report ${report.id} · ${report.state.name.replace('_', ' ')}")
         }
     }
 }

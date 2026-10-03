@@ -10,8 +10,8 @@ import com.mileway.core.ui.theme.MilewayDomain
 import com.mileway.core.ui.theme.MilewayDomainTheme
 import com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen
 import com.mileway.feature.approvals.ui.screens.ApprovalsScreen
-import com.mileway.feature.approvals.ui.screens.ReportApprovalScreen
 import com.mileway.feature.approvals.ui.screens.ClarificationHistoryScreen
+import com.mileway.feature.approvals.ui.screens.ReportApprovalScreen
 
 object ApprovalsRoutes {
     const val HOME = "approvals_home"

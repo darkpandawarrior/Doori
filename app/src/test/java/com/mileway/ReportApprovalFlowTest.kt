@@ -31,34 +31,40 @@ class ReportApprovalFlowTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun `approve passes actor and comment then pays through existing repository`() = runTest {
-        val submitted = Report("report", "employee", state = ReportLifecycleState.SUBMITTED, recordVersion = 4)
-        val approved = submitted.copy(state = ReportLifecycleState.APPROVED, recordVersion = 5)
-        val reportFlow = MutableStateFlow<Report?>(submitted)
-        val reports = mockk<ReportRepository>()
-        every { reports.observe("report") } returns reportFlow
-        every { reports.observeAll() } returns MutableStateFlow(listOf(submitted))
-        coEvery { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", any(), any()) } answers {
-            reportFlow.value = approved
-            approved
+    fun `approve passes actor and comment then pays through existing repository`() =
+        runTest {
+            val submitted = Report("report", "employee", state = ReportLifecycleState.SUBMITTED, recordVersion = 4)
+            val approved = submitted.copy(state = ReportLifecycleState.APPROVED, recordVersion = 5)
+            val reportFlow = MutableStateFlow<Report?>(submitted)
+            val reports = mockk<ReportRepository>()
+            every { reports.observe("report") } returns reportFlow
+            every { reports.observeAll() } returns MutableStateFlow(listOf(submitted))
+            coEvery { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", any(), any()) } answers {
+                reportFlow.value = approved
+                approved
+            }
+            val payout = mockk<ReportPayoutProcessor>()
+            coEvery { payout.pay("report") } returns approved.copy(state = ReportLifecycleState.PAID)
+            val payments = PaymentsRepository(reportPayouts = payout)
+            val session =
+                object : SessionSource {
+                    override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = "manager"))
+                }
+            val viewModel =
+                ReportApprovalViewModel(
+                    reports,
+                    session,
+                    FakeClarificationRepository(),
+                    ReportPaymentRunner(payments::payReport),
+                )
+            viewModel.open("report")
+            advanceUntilIdle()
+            viewModel.comment("Reviewed")
+            viewModel.act(ApprovalAction.APPROVE)
+            advanceUntilIdle()
+            coVerify(exactly = 1) { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", any(), any()) }
+            coVerify(exactly = 1) { payout.pay("report") }
+            assertNull(viewModel.state.value.error)
+            assertEquals("", viewModel.state.value.comment)
         }
-        val payout = mockk<ReportPayoutProcessor>()
-        coEvery { payout.pay("report") } returns approved.copy(state = ReportLifecycleState.PAID)
-        val payments = PaymentsRepository(reportPayouts = payout)
-        val session = object : SessionSource {
-            override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = "manager"))
-        }
-        val viewModel = ReportApprovalViewModel(
-            reports, session, FakeClarificationRepository(), ReportPaymentRunner(payments::payReport),
-        )
-        viewModel.open("report")
-        advanceUntilIdle()
-        viewModel.comment("Reviewed")
-        viewModel.act(ApprovalAction.APPROVE)
-        advanceUntilIdle()
-        coVerify(exactly = 1) { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", any(), any()) }
-        coVerify(exactly = 1) { payout.pay("report") }
-        assertNull(viewModel.state.value.error)
-        assertEquals("", viewModel.state.value.comment)
-    }
 }

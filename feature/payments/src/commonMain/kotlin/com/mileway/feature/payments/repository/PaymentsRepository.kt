@@ -1,12 +1,12 @@
 package com.mileway.feature.payments.repository
 
-import com.mileway.core.data.claim.ReportPayoutProcessor
-import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.ai.DuplicateDetector
 import com.mileway.core.ai.model.DedupCandidate
 import com.mileway.core.ai.model.DocField
 import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
+import com.mileway.core.data.claim.ReportPayoutProcessor
+import com.mileway.core.data.domain.claim.Report
 import com.mileway.feature.payments.model.PaymentDirection
 import com.mileway.feature.payments.model.PaymentRecord
 import com.mileway.feature.payments.model.PaymentStatus
@@ -78,8 +78,7 @@ class PaymentsRepository(
     suspend fun payReport(reportId: String): Report = requireNotNull(reportPayouts) { "Report payouts are unavailable" }.pay(reportId)
 
     /** Called at launch; pending journals remain durable when a retry fails. */
-    suspend fun recoverReportPayouts(): Map<String, String> =
-        requireNotNull(reportPayouts) { "Report payouts are unavailable" }.recover()
+    suspend fun recoverReportPayouts(): Map<String, String> = requireNotNull(reportPayouts) { "Report payouts are unavailable" }.recover()
 
     /** Checks a picked invoice's OCR fields against previously-attached invoices, no network lookup. */
     fun checkInvoiceDuplicate(

@@ -21,8 +21,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Report
@@ -60,7 +60,10 @@ fun ReportApprovalScreen(
             onComment = viewModel::comment,
             onAct = viewModel::act,
             onRetry = viewModel::retryPayout,
-            onClarify = { viewModel.openClarification(); showRoom = true },
+            onClarify = {
+                viewModel.openClarification()
+                showRoom = true
+            },
         )
     }
     if (showRoom) {
@@ -99,19 +102,24 @@ private fun ReportApprovalContent(
         }
         Text("Employee: ${report.employeeId}")
         Text("Status: ${report.state.name.replace('_', ' ')}")
-        // Exact integer amounts also cover currencies with non-two-digit minor units.
-        report.lines.forEach { line -> Text("${line.id}: ${line.amountMinor} minor units (${line.currency})") }
-        Text("Total: ${report.totalAmountMinor()} minor units (${report.currency()})")
+        report.lines.forEach { line -> Text("${line.id}: ${formatReportAmount(line.amountMinor, line.currency)}") }
+        Text("Total: ${formatReportAmount(report.totalAmountMinor(), report.currency())}")
         report.approvalChain.steps.forEach { step ->
             Text("${step.action}: ${step.actedBy} (${step.role}) · ${step.comment.orEmpty()}")
         }
         OutlinedButton(onClick = onClarify, enabled = !ui.busy) { Text("Clarification room") }
         if (report.state == ReportLifecycleState.SUBMITTED) {
-            val item = ApprovalItem(
-                id = report.id, type = ApprovalType.EXPENSE, requesterName = report.employeeId,
-                summary = "Report", amountRupees = 0.0, status = ApprovalStatus.PENDING,
-                timestampMs = 0, policyViolation = report.lines.any { it.policyFlags.isNotEmpty() },
-            )
+            val item =
+                ApprovalItem(
+                    id = report.id,
+                    type = ApprovalType.EXPENSE,
+                    requesterName = report.employeeId,
+                    summary = "Report",
+                    amountRupees = 0.0,
+                    status = ApprovalStatus.PENDING,
+                    timestampMs = 0,
+                    policyViolation = report.lines.any { it.policyFlags.isNotEmpty() },
+                )
             val flags = item.toDetailActionFlags()
             if (flags.requiresAck) {
                 Row {
@@ -146,13 +154,42 @@ private fun ReportApprovalContent(
 private fun ReportApprovalPreview() {
     MaterialTheme {
         ReportApprovalContent(
-            ui = ReportApprovalViewModel.State(
-                report = Report("report-1", "employee", listOf(ExpenseLine(
-                    "receipt-1", 5000, "INR", merchant = "Cafe", category = "Meals",
-                )), state = ReportLifecycleState.SUBMITTED),
-                loading = false,
-            ),
-            onComment = {}, onAct = {}, onRetry = {}, onClarify = {},
+            ui =
+                ReportApprovalViewModel.State(
+                    report =
+                        Report(
+                            "report-1",
+                            "employee",
+                            listOf(
+                                ExpenseLine(
+                                    "receipt-1",
+                                    5000,
+                                    "INR",
+                                    merchant = "Cafe",
+                                    category = "Meals",
+                                ),
+                            ),
+                            state = ReportLifecycleState.SUBMITTED,
+                        ),
+                    loading = false,
+                ),
+            onComment = {},
+            onAct = {},
+            onRetry = {},
+            onClarify = {},
         )
     }
+}
+
+private const val ReportFractionDigits = 2
+
+// ponytail: current report currencies have two fraction digits; add currency fraction metadata
+// when zero- or three-digit currencies enter the claim flow. String math preserves every cent.
+internal fun formatReportAmount(
+    minor: Long,
+    currency: String,
+): String {
+    val digits = minor.toString().removePrefix("-").padStart(ReportFractionDigits + 1, '0')
+    val sign = if (minor < 0) "-" else ""
+    return "$currency $sign${digits.dropLast(ReportFractionDigits)}.${digits.takeLast(ReportFractionDigits)}"
 }

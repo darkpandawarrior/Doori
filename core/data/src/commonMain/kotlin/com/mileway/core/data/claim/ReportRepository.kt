@@ -1,11 +1,11 @@
 package com.mileway.core.data.claim
 
-import com.mileway.core.data.dao.ApprovalStepDao
-import com.mileway.core.data.dao.ClaimLineDao
 import androidx.room.immediateTransaction
 import androidx.room.useWriterConnection
-import com.mileway.core.data.database.MilewayDatabase
+import com.mileway.core.data.dao.ApprovalStepDao
+import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
+import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalChain
@@ -55,7 +55,6 @@ class ReportRepository(
     private val json: Json,
     private val clock: Clock = Clock.System,
     private val database: MilewayDatabase? = null,
-
 ) {
     suspend fun get(id: String): Report? {
         val entity = reportDao.get(id) ?: return null
@@ -85,8 +84,7 @@ class ReportRepository(
         }
 
     /** All persisted reports, used by the local approval queue. */
-    fun observeAll(): Flow<List<Report>> =
-        reportDao.observeAll().map { rows -> rows.mapNotNull { get(it.id) } }
+    fun observeAll(): Flow<List<Report>> = reportDao.observeAll().map { rows -> rows.mapNotNull { get(it.id) } }
 
     /** Atomically writes the report, history, lifecycle inbox row and (when ready) payout journal. */
     suspend fun save(report: Report): Report {
@@ -107,43 +105,51 @@ class ReportRepository(
     ): Report {
         require(actedBy.isNotBlank()) { "An approver identity is required" }
         require(comment.isNotBlank()) { "A comment is required" }
-        val saved = atomic {
-            val report = requireNotNull(get(reportId)) { "Report not found" }
-            require(report.recordVersion == expectedVersion) { "Report changed; reload before acting" }
-            require(actedBy != report.employeeId && onBehalfOf != report.employeeId) { "Self approval is not allowed" }
-            val event =
-                when (action) {
-                    ApprovalAction.APPROVE -> ReportLifecycleEvent.APPROVE
-                    ApprovalAction.SEND_BACK -> ReportLifecycleEvent.SEND_BACK
-                    ApprovalAction.REJECT -> ReportLifecycleEvent.REJECT
-                }
-            val step = ApprovalStep(
-                stepIndex = report.approvalChain.steps.size,
-                role = role,
-                actedBy = actedBy,
-                onBehalfOf = onBehalfOf,
-                action = action,
-                comment = comment.trim(),
-                actedAtMillis = clock.now().toEpochMilliseconds(),
-            )
-            write(report.copy(
-                state = ReportLifecycleStateMachine.transition(report.state, event),
-                approvalChain = ApprovalChain(report.approvalChain.steps + step),
-            ))
-        }
+        val saved =
+            atomic {
+                val report = requireNotNull(get(reportId)) { "Report not found" }
+                require(report.recordVersion == expectedVersion) { "Report changed; reload before acting" }
+                require(actedBy != report.employeeId && onBehalfOf != report.employeeId) { "Self approval is not allowed" }
+                val event =
+                    when (action) {
+                        ApprovalAction.APPROVE -> ReportLifecycleEvent.APPROVE
+                        ApprovalAction.SEND_BACK -> ReportLifecycleEvent.SEND_BACK
+                        ApprovalAction.REJECT -> ReportLifecycleEvent.REJECT
+                    }
+                val step =
+                    ApprovalStep(
+                        stepIndex = report.approvalChain.steps.size,
+                        role = role,
+                        actedBy = actedBy,
+                        onBehalfOf = onBehalfOf,
+                        action = action,
+                        comment = comment.trim(),
+                        actedAtMillis = clock.now().toEpochMilliseconds(),
+                    )
+                write(
+                    report.copy(
+                        state = ReportLifecycleStateMachine.transition(report.state, event),
+                        approvalChain = ApprovalChain(report.approvalChain.steps + step),
+                    ),
+                )
+            }
         enqueue(saved)
         return saved
     }
 
     /** Advances a lifecycle event; a recall is refused once an approver has acted. */
-    suspend fun transition(reportId: String, event: ReportLifecycleEvent): Report {
-        val saved = atomic {
-            val report = requireNotNull(get(reportId)) { "Report not found" }
-            require(event != ReportLifecycleEvent.RECALL || report.approvalChain.steps.isEmpty()) {
-                "A report with an approval action cannot be recalled"
+    suspend fun transition(
+        reportId: String,
+        event: ReportLifecycleEvent,
+    ): Report {
+        val saved =
+            atomic {
+                val report = requireNotNull(get(reportId)) { "Report not found" }
+                require(event != ReportLifecycleEvent.RECALL || report.approvalChain.steps.isEmpty()) {
+                    "A report with an approval action cannot be recalled"
+                }
+                write(report.copy(state = ReportLifecycleStateMachine.transition(report.state, event)))
             }
-            write(report.copy(state = ReportLifecycleStateMachine.transition(report.state, event)))
-        }
         enqueue(saved)
         return saved
     }
@@ -151,19 +157,29 @@ class ReportRepository(
     /** Commits the simulated receipt, paid report and notification in the same Room transaction. */
     suspend fun completePayment(receipt: PendingPaymentJournal): Report {
         val db = requireNotNull(database) { "Payout requires Room" }
-        val saved = atomic {
-            val report = requireNotNull(get(receipt.reportId)) { "Report not found" }
-            val journal = requireNotNull(db.pendingPaymentJournalDao().getByReport(report.id)
-                .singleOrNull { it.id == payoutJournalId(report.id) }) { "Payout was not journaled" }
-            require(receipt.status == PaymentStatus.PAID && receipt.amountMinor == journal.amountMinor &&
-                receipt.currency == journal.currency && receipt.createdAtMillis == journal.createdAtMs) {
-                "Receipt differs from the journal"
+        val saved =
+            atomic {
+                val report = requireNotNull(get(receipt.reportId)) { "Report not found" }
+                val journal =
+                    requireNotNull(
+                        db
+                            .pendingPaymentJournalDao()
+                            .getByReport(report.id)
+                            .singleOrNull { it.id == payoutJournalId(report.id) },
+                    ) { "Payout was not journaled" }
+                require(
+                    receipt.status == PaymentStatus.PAID &&
+                        receipt.amountMinor == journal.amountMinor &&
+                        receipt.currency == journal.currency &&
+                        receipt.createdAtMillis == journal.createdAtMs,
+                ) {
+                    "Receipt differs from the journal"
+                }
+                if (report.state == ReportLifecycleState.PAID) return@atomic report
+                require(report.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) { "Report is not payable" }
+                db.pendingPaymentJournalDao().upsert(journal.copy(status = PaymentStatus.PAID.name))
+                write(report.copy(state = ReportLifecycleStateMachine.transition(report.state, ReportLifecycleEvent.REIMBURSE)))
             }
-            if (report.state == ReportLifecycleState.PAID) return@atomic report
-            require(report.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) { "Report is not payable" }
-            db.pendingPaymentJournalDao().upsert(journal.copy(status = PaymentStatus.PAID.name))
-            write(report.copy(state = ReportLifecycleStateMachine.transition(report.state, ReportLifecycleEvent.REIMBURSE)))
-        }
         enqueue(saved)
         return saved
     }
@@ -172,57 +188,94 @@ class ReportRepository(
         val now = clock.now().toEpochMilliseconds()
         val existing = reportDao.get(report.id)
         require(report.recordVersion == (existing?.recordVersion ?: 0L)) { "Report changed; reload before saving" }
+        require((existing?.recordVersion ?: 0L) < Long.MAX_VALUE) { "Report version exhausted" }
         val nextVersion = (existing?.recordVersion ?: 0L) + 1
         val from = existing?.let { ReportLifecycleState.valueOf(it.state) } ?: ReportLifecycleState.DRAFT
-        require(from == report.state || ReportLifecycleEvent.entries.any {
-            runCatching { ReportLifecycleStateMachine.transition(from, it) }.getOrNull() == report.state
-        }) { "Illegal report state change" }
+        if (from in setOf(ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT, ReportLifecycleState.PAID)) {
+            require(report.lines == get(report.id)?.lines && report.employeeId == existing?.employeeId) {
+                "Approved claim lines and employee are immutable"
+            }
+        }
+        require(
+            from == report.state ||
+                ReportLifecycleEvent.entries.any {
+                    runCatching { ReportLifecycleStateMachine.transition(from, it) }.getOrNull() == report.state
+                },
+        ) { "Illegal report state change" }
         require(report.state != ReportLifecycleState.RECALLED || report.approvalChain.steps.isEmpty()) {
             "A report with an approval action cannot be recalled"
         }
-        reportDao.upsert(ReportEntity(
-            id = report.id,
-            employeeId = report.employeeId,
-            state = report.state.name,
-            recordVersion = nextVersion,
-            createdAtMs = existing?.createdAtMs ?: now,
-            updatedAtMs = now,
-        ))
+        reportDao.upsert(
+            ReportEntity(
+                id = report.id,
+                employeeId = report.employeeId,
+                state = report.state.name,
+                recordVersion = nextVersion,
+                createdAtMs = existing?.createdAtMs ?: now,
+                updatedAtMs = now,
+            ),
+        )
         claimLineDao.getByReport(report.id).forEach { claimLineDao.delete(it.id) }
         report.lines.forEach { claimLineDao.upsert(it.toEntity(report.id, now, json)) }
         approvalStepDao.deleteByReport(report.id)
         report.approvalChain.steps.forEach { approvalStepDao.insert(it.toEntity(report.id)) }
         val saved = report.copy(recordVersion = nextVersion)
+        notifyAndJournal(from, saved, now)
+        return saved
+    }
+
+    private suspend fun notifyAndJournal(
+        from: ReportLifecycleState,
+        saved: Report,
+        now: Long,
+    ) {
         database?.let { db ->
             ReportLifecycleNotifier.map(from, saved, now)?.let { row ->
-                db.notificationDao().upsertAll(listOf(NotificationEntity(
-                    id = row.id, title = row.title, body = row.body, relativeTime = "Just now",
-                    isUnread = true, type = row.type, createdAtMs = row.createdAtMs, deeplink = row.deeplink,
-                )))
+                db.notificationDao().upsertAll(
+                    listOf(
+                        NotificationEntity(
+                            id = row.id,
+                            title = row.title,
+                            body = row.body,
+                            relativeTime = "Just now",
+                            isUnread = true,
+                            type = row.type,
+                            createdAtMs = row.createdAtMs,
+                            deeplink = row.deeplink,
+                        ),
+                    ),
+                )
             }
             if (saved.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) {
                 require(saved.lines.isNotEmpty() && saved.lines.all { it.currency == saved.currency() }) {
                     "Payout needs a nonempty single-currency report"
                 }
-                val amount = saved.lines.fold(0L) { sum, line ->
-                    require(line.amountMinor >= 0 && sum <= Long.MAX_VALUE - line.amountMinor) { "Invalid payout amount" }
-                    sum + line.amountMinor
-                }
+                val amount =
+                    saved.lines.fold(0L) { sum, line ->
+                        require(line.amountMinor >= 0 && sum <= Long.MAX_VALUE - line.amountMinor) { "Invalid payout amount" }
+                        sum + line.amountMinor
+                    }
                 require(amount > 0) { "Payout must be positive" }
+                require(saved.currency().matches(Regex("[A-Z]{3}"))) { "Currency must be an ISO code" }
                 val dao = db.pendingPaymentJournalDao()
                 val prior = dao.getByReport(saved.id).singleOrNull { it.id == payoutJournalId(saved.id) }
                 if (prior == null) {
-                    dao.upsert(PendingPaymentJournalEntity(
-                        id = payoutJournalId(saved.id), reportId = saved.id, amountMinor = amount,
-                        currency = saved.currency(), glAccountCode = null, status = PaymentStatus.PENDING.name,
-                        createdAtMs = now,
-                    ))
+                    dao.upsert(
+                        PendingPaymentJournalEntity(
+                            id = payoutJournalId(saved.id),
+                            reportId = saved.id,
+                            amountMinor = amount,
+                            currency = saved.currency(),
+                            glAccountCode = null,
+                            status = PaymentStatus.PENDING.name,
+                            createdAtMs = now,
+                        ),
+                    )
                 } else {
                     require(prior.amountMinor == amount && prior.currency == saved.currency()) { "Journal is immutable" }
                 }
             }
         }
-        return saved
     }
 
     private suspend fun enqueue(report: Report) {

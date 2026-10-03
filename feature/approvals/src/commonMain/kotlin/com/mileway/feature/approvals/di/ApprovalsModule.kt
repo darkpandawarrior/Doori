@@ -8,9 +8,9 @@ import com.mileway.feature.approvals.repository.ClarificationRepository
 import com.mileway.feature.approvals.repository.RoomApprovalCommentRepository
 import com.mileway.feature.approvals.repository.RoomClarificationRepository
 import com.mileway.feature.approvals.search.ApprovalsSearchProvider
-import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
 import com.mileway.feature.approvals.viewmodel.ClarificationHistoryViewModel
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
