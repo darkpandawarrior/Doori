@@ -64,6 +64,9 @@ fun expenseReportPolicy(): PolicyEngine =
         ),
     )
 
+internal val Report.isEditable: Boolean
+    get() = state == ReportLifecycleState.DRAFT || state == ReportLifecycleState.RECALLED
+
 internal const val MinorPerRupee = 100
 private const val ReceiptWarningMinor = 100_000L
 
@@ -81,7 +84,7 @@ class ReportSubmitViewModel(
         val warningsAccepted: Boolean = false,
     ) {
         val canSubmit: Boolean
-            get() = report.state == ReportLifecycleState.DRAFT && hardFlags.isEmpty() && (softFlags.isEmpty() || warningsAccepted)
+            get() = report.isEditable && hardFlags.isEmpty() && (softFlags.isEmpty() || warningsAccepted)
         val canRecall: Boolean
             get() = report.state == ReportLifecycleState.SUBMITTED && report.approvalChain.steps.isEmpty()
     }

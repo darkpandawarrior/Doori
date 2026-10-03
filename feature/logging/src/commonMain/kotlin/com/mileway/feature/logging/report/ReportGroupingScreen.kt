@@ -28,15 +28,17 @@ fun ReportGroupingScreen(
     viewModel: ReportGroupingViewModel,
     onBack: () -> Unit,
     onOpenReport: (String) -> Unit,
+    reportId: String? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(reportId) { viewModel.load(reportId) }
     LaunchedEffect(state.createdReportId) {
         state.createdReportId?.let { id ->
             viewModel.consumeCreatedReport()
             onOpenReport(id)
         }
     }
-    ReportGroupingContent(state, onBack, viewModel::createReport, viewModel::toggle, viewModel::selectDate, onOpenReport, viewModel::load)
+    ReportGroupingContent(state, onBack, viewModel::createReport, viewModel::toggle, viewModel::selectDate, onOpenReport, { viewModel.load() })
 }
 
 @Composable
@@ -54,7 +56,7 @@ private fun ReportGroupingContent(
         subtitle = "Select at least two logged expenses",
         onBack = onBack,
         onSubmit = onCreate,
-        submitLabel = "Group and review",
+        submitLabel = if (state.screen.dataOrNull?.editingReport == null) "Group and review" else "Save grouping",
         canSubmit =
             state.screen.dataOrNull
                 ?.selectedIds
@@ -76,7 +78,7 @@ private fun ReportGroupingContent(
                             Checkbox(checked = expense.id in grouping.selectedIds, onCheckedChange = { onToggle(expense.id) }, enabled = !state.busy)
                             Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
                                 Text(expense.merchantName)
-                                Text("INR ${expense.amountRupees}", style = MaterialTheme.typography.bodySmall)
+                                Text("${expense.currencyCode} ${expense.amountRupees}", style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }

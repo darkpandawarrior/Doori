@@ -8,6 +8,7 @@ import com.mileway.core.data.session.SessionSource
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.mvi.errorState
+import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
 import com.mileway.feature.logging.repository.ExpenseRepository
@@ -38,6 +39,7 @@ class ReportGroupingViewModel(
         val suggestions: Map<String, List<ExpenseRecord>>,
         val reports: List<Report>,
         val employeeId: String,
+        val editingReport: Report? = null,
         val selectedIds: Set<String> = emptySet(),
     )
 
@@ -51,12 +53,14 @@ class ReportGroupingViewModel(
     private val mutableState = MutableStateFlow(State())
     val state = mutableState.asStateFlow()
     private var observation: Job? = null
+    private var editingId: String? = null
 
     init {
         load()
     }
 
-    fun load() {
+    fun load(reportId: String? = editingId) {
+        editingId = reportId
         observation?.cancel()
         mutableState.value = State()
         observation =
@@ -64,41 +68,24 @@ class ReportGroupingViewModel(
                 runCatching {
                     val employee = requireNotNull(session.sessionState.first().employeeCode) { "Sign in to group expenses" }
                     combine(expenses.recordsFlow, reports.observeByEmployee(employee)) { records, existing ->
-                        val claimedIds = existing.flatMap { it.lines }.map { it.id }.toSet()
-                        val loose =
-                            records.filter {
-                                it.id !in claimedIds &&
-                                    it.id != PERSISTED_DRAFT_RECORD_ID &&
-                                    it.status in setOf(ExpenseStatus.DRAFT, ExpenseStatus.PENDING) &&
-                                    it.amountRupees.isFinite() &&
-                                    it.amountRupees > 0
-                            }
-                        Grouping(
-                            loose = loose,
-                            suggestions =
-                                loose.groupBy {
-                                    Instant
-                                        .fromEpochMilliseconds(it.dateMs)
-                                        .toLocalDateTime(timeZone)
-                                        .date
-                                        .toString()
-                                },
-                            reports = existing,
-                            employeeId = employee,
-                        )
+                        buildGrouping(records, existing, employee, reportId)
                     }.collect { grouping ->
                         mutableState.update { current ->
                             val selected =
                                 current.screen.dataOrNull
                                     ?.selectedIds
-                                    .orEmpty()
-                                    .intersect(grouping.loose.map { it.id }.toSet())
+                                    ?: grouping.editingReport
+                                        ?.lines
+                                        ?.map { it.id }
+                                        ?.toSet()
+                                        .orEmpty()
+                            val availableSelection = selected.intersect(grouping.loose.map { it.id }.toSet())
                             current.copy(
                                 screen =
                                     if (grouping.loose.isEmpty() && grouping.reports.isEmpty()) {
                                         ScreenState.Empty
                                     } else {
-                                        ScreenState.Content(grouping.copy(selectedIds = selected))
+                                        ScreenState.Content(grouping.copy(selectedIds = availableSelection))
                                     },
                             )
                         }
@@ -108,6 +95,56 @@ class ReportGroupingViewModel(
                     mutableState.update { it.copy(screen = errorState(failure.message ?: "Unable to load expenses")) }
                 }
             }
+    }
+
+    private fun buildGrouping(
+        records: List<ExpenseRecord>,
+        existing: List<Report>,
+        employee: String,
+        reportId: String?,
+    ): Grouping {
+        val editing = reportId?.let { id -> requireNotNull(existing.find { it.id == id }) { "Report not found" } }
+        require(editing == null || (editing.isEditable && editing.lines.all { it is ExpenseLine })) { "Only editable expense reports can be regrouped" }
+        val claimedIds = existing.flatMap { it.lines }.map { it.id }.toSet()
+        val loose =
+            records.filter {
+                it.id !in claimedIds &&
+                    it.id != PERSISTED_DRAFT_RECORD_ID &&
+                    it.status in setOf(ExpenseStatus.DRAFT, ExpenseStatus.PENDING) &&
+                    it.amountRupees.isFinite() &&
+                    it.amountRupees > 0
+            }
+        val editedItems =
+            editing?.lines.orEmpty().filterIsInstance<ExpenseLine>().map { line ->
+                ExpenseRecord(
+                    id = line.id,
+                    category = ExpenseCategory.entries.find { it.name == line.category } ?: ExpenseCategory.OTHER,
+                    merchantName = line.merchant,
+                    amountRupees = line.amountMinor.toDouble() / MinorPerRupee,
+                    status = ExpenseStatus.DRAFT,
+                    dateMs = records.find { it.id == line.id }?.dateMs ?: 0,
+                    currencyCode = line.currency,
+                )
+            }
+        val available = editedItems + loose
+        return Grouping(
+            loose = available,
+            suggestions =
+                available.groupBy { record ->
+                    if (record.id in editedItems.map { it.id } && records.none { it.id == record.id }) {
+                        "Current report (capture date unavailable)"
+                    } else {
+                        Instant
+                            .fromEpochMilliseconds(record.dateMs)
+                            .toLocalDateTime(timeZone)
+                            .date
+                            .toString()
+                    }
+                },
+            reports = existing,
+            employeeId = employee,
+            editingReport = editing,
+        )
     }
 
     fun toggle(id: String) {
@@ -141,15 +178,22 @@ class ReportGroupingViewModel(
                     require(employee == grouping.employeeId) { "Account changed; reload before grouping expenses" }
                     val selected = grouping.loose.filter { it.id in grouping.selectedIds }
                     require(selected.size >= MinimumGroupedExpenses) { "Select at least two expenses" }
+                    val existing = reports.observeByEmployee(employee).first()
+                    val editing = grouping.editingReport
+                    if (editing != null) {
+                        val fresh = requireNotNull(existing.find { it.id == editing.id }) { "Report was removed; reload" }
+                        require(fresh.isEditable && fresh.recordVersion == editing.recordVersion) { "Report changed; reload before editing" }
+                    }
                     val claimed =
-                        reports
-                            .observeByEmployee(employee)
-                            .first()
+                        existing
+                            .filterNot { it.id == editing?.id }
                             .flatMap { it.lines }
                             .map { it.id }
                             .toSet()
                     require(selected.none { it.id in claimed }) { "An expense was already grouped; review the list" }
-                    val saved = reports.save(Report(id = Uuid.random().toString(), employeeId = employee, lines = selected.map { it.toClaimLine() }))
+                    val lines = selected.map { record -> editing?.lines?.find { it.id == record.id } ?: record.toClaimLine() }
+                    val draft = editing?.copy(lines = lines) ?: Report(id = Uuid.random().toString(), employeeId = employee, lines = lines)
+                    val saved = reports.save(draft)
                     mutableState.update { it.copy(createdReportId = saved.id) }
                 }.onFailure { failure ->
                     rethrowCancellation(failure)

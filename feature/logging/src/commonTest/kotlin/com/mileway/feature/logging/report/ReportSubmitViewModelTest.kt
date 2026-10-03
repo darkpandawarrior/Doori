@@ -23,6 +23,7 @@ import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
 import com.mileway.feature.logging.repository.ExpenseRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -42,6 +43,7 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ReportSubmitViewModelTest {
     private val dispatcher = StandardTestDispatcher()
     private val session =
@@ -145,8 +147,57 @@ class ReportSubmitViewModelTest {
                     .state,
             )
             assertEquals(2, store.inbox.size)
-            assertEquals("Report Draft", store.inbox.last().title)
+            assertEquals("Report Recalled", store.inbox.last().title)
             assertTrue(store.inbox.all { it.isUnread })
+        }
+
+    @Test
+    fun `draft and recalled reports can be regrouped and submitted without losing saved lines`() =
+        runTest(dispatcher) {
+            for (editableState in listOf(ReportLifecycleState.DRAFT, ReportLifecycleState.RECALLED)) {
+                val store = MemoryReports(listOf(report().copy(state = editableState)))
+                val expenses = ExpenseRepository()
+                val grouping = ReportGroupingViewModel(expenses, store, session, TimeZone.UTC)
+                grouping.load("report")
+                advanceUntilIdle()
+                assertEquals(
+                    setOf("line-0", "line-1"),
+                    grouping.state.value.screen.dataOrNull
+                        ?.selectedIds,
+                )
+                grouping.toggle("line-0")
+                grouping.toggle("EXP-004")
+                grouping.createReport()
+                advanceUntilIdle()
+                assertEquals(
+                    editableState,
+                    store.rows.value
+                        .single()
+                        .state,
+                )
+                assertEquals(
+                    setOf("line-1", "EXP-004"),
+                    store.rows.value
+                        .single()
+                        .lines
+                        .map { it.id }
+                        .toSet(),
+                )
+                assertTrue(store.inbox.isEmpty())
+                val vm = ReportSubmitViewModel(store, session, policy(), clock)
+                vm.open("report")
+                advanceUntilIdle()
+                vm.acceptWarnings(true)
+                vm.submit()
+                advanceUntilIdle()
+                assertEquals(
+                    ReportLifecycleState.SUBMITTED,
+                    store.rows.value
+                        .single()
+                        .state,
+                )
+                assertEquals(1, store.inbox.size)
+            }
         }
 
     @Test

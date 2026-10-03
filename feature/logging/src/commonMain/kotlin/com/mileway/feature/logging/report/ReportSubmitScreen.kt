@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,10 +29,11 @@ fun ReportSubmitScreen(
     reportId: String,
     viewModel: ReportSubmitViewModel,
     onBack: () -> Unit,
+    onEdit: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(reportId) { viewModel.open(reportId) }
-    ReportSubmitContent(state, onBack, viewModel::submit, viewModel::recall, viewModel::acceptWarnings, viewModel::retry)
+    ReportSubmitContent(state, onBack, viewModel::submit, viewModel::recall, viewModel::acceptWarnings, viewModel::retry, onEdit)
 }
 
 @Composable
@@ -42,6 +44,7 @@ private fun ReportSubmitContent(
     onRecall: () -> Unit,
     onAcceptWarnings: (Boolean) -> Unit,
     onRetry: () -> Unit,
+    onEdit: (() -> Unit)? = null,
 ) {
     val review = state.screen.dataOrNull
     val submitted = review?.report?.state == ReportLifecycleState.SUBMITTED
@@ -49,14 +52,19 @@ private fun ReportSubmitContent(
         title = "Review expense report",
         onBack = onBack,
         onSubmit = if (submitted) onRecall else onSubmit,
-        submitLabel = if (submitted) "Recall to draft" else "Submit report",
+        submitLabel = if (submitted) "Recall report" else "Submit report",
         canSubmit = if (submitted) review?.canRecall == true else review?.canSubmit == true,
         isSubmitting = state.busy,
     ) { padding ->
         ScreenStateContent(state.screen, modifier = Modifier.padding(padding).padding(16.dp), onRetry = onRetry) { content ->
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(content.report.state.name, style = MaterialTheme.typography.titleMedium)
-                Text("${content.report.lines.size} items · ${content.report.currency()} ${content.report.totalAmountMinor().toDouble() / MinorPerRupee}")
+                if (content.hardFlags.none { it.code == "INVALID_TOTAL" }) {
+                    Text("${content.report.lines.size} items · ${content.report.currency()} ${content.report.totalAmountMinor().toDouble() / MinorPerRupee}")
+                }
+                if (content.report.isEditable && content.report.lines.all { it is ExpenseLine } && onEdit != null) {
+                    TextButton(onClick = onEdit, enabled = !state.busy) { Text("Edit grouped items") }
+                }
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
                 content.report.lines.forEach { line ->
                     val label = (line as? ExpenseLine)?.merchant ?: line.id
@@ -66,7 +74,7 @@ private fun ReportSubmitContent(
                 if (content.hardFlags.isEmpty() && content.softFlags.isEmpty()) Text("No policy flags")
                 content.hardFlags.forEach { flag -> Text("Blocked: ${flag.message}", color = MaterialTheme.colorScheme.error) }
                 content.softFlags.forEach { flag -> Text("Warning: ${flag.message}") }
-                if (content.softFlags.isNotEmpty() && content.report.state == ReportLifecycleState.DRAFT) {
+                if (content.softFlags.isNotEmpty() && content.report.isEditable) {
                     Row {
                         Checkbox(checked = content.warningsAccepted, onCheckedChange = onAcceptWarnings, enabled = !state.busy)
                         Text("I have reviewed the policy warnings", modifier = Modifier.padding(top = 12.dp))

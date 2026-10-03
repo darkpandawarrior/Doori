@@ -45,7 +45,10 @@ object LoggingRoutes {
     /** Spends hub, two-card home (top-level tab destination). */
     const val HOME = "spends_home"
 
-    const val REPORT_GROUPING = "expense/reports"
+    const val REPORT_GROUPING = "expense/reports?editReportId={editReportId}"
+
+    fun reportGroupingRoute(id: String? = null) = if (id == null) "expense/reports" else "expense/reports?editReportId=$id"
+
     const val REPORT_SUBMIT = "expense/reports/{reportId}"
 
     fun reportSubmitRoute(id: String) = "expense/reports/$id"
@@ -249,15 +252,26 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
                 onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
                 onMileageHistory = { navController.navigate(LoggingRoutes.HISTORY) },
                 onExpenseHistory = { navController.navigate(LoggingRoutes.EXPENSE_HISTORY) },
-                onExpenseReports = { navController.navigate(LoggingRoutes.REPORT_GROUPING) },
+                onExpenseReports = { navController.navigate(LoggingRoutes.reportGroupingRoute()) },
             )
         }
     }
 
-    composable(LoggingRoutes.REPORT_GROUPING) {
+    composable(
+        LoggingRoutes.REPORT_GROUPING,
+        arguments =
+            listOf(
+                navArgument("editReportId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+    ) { entry ->
+        val editId = entry.arguments?.read { getString("editReportId") }?.ifBlank { null }
         MilewayDomainTheme(MilewayDomain.EXPENSES) {
             ReportGroupingScreen(
                 viewModel = koinViewModel(),
+                reportId = editId,
                 onBack = { navController.popBackStack() },
                 onOpenReport = { navController.navigate(LoggingRoutes.reportSubmitRoute(it)) },
             )
@@ -266,7 +280,12 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
     composable(LoggingRoutes.REPORT_SUBMIT, arguments = listOf(navArgument("reportId") { type = NavType.StringType })) { entry ->
         val id = entry.arguments?.read { getString("reportId") }.orEmpty()
         MilewayDomainTheme(MilewayDomain.EXPENSES) {
-            ReportSubmitScreen(reportId = id, viewModel = koinViewModel(), onBack = { navController.popBackStack() })
+            ReportSubmitScreen(
+                reportId = id,
+                viewModel = koinViewModel(),
+                onBack = { navController.popBackStack() },
+                onEdit = { navController.navigate(LoggingRoutes.reportGroupingRoute(id)) },
+            )
         }
     }
 
