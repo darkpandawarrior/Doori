@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +63,7 @@ fun SpendsHomeScreen(
     onMileageHistory: () -> Unit,
     onExpenseHistory: () -> Unit,
     modifier: Modifier = Modifier,
+    onExpenseReports: (() -> Unit)? = null,
 ) {
     val scrollState = rememberScrollState()
 
@@ -132,6 +134,10 @@ fun SpendsHomeScreen(
                     onClick = onAddExpense,
                     modifier = Modifier.weight(1f),
                 )
+            }
+
+            onExpenseReports?.let { openReports ->
+                TextButton(onClick = openReports) { Text("Group expenses into a report") }
             }
 
             Spacer(Modifier.height(DesignTokens.Spacing.s))
