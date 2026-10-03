@@ -15,8 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import com.mileway.core.ai.TextRecognizer
 import com.mileway.core.ai.DocumentIntelligence
+import com.mileway.core.ai.TextRecognizer
 import com.mileway.core.ai.model.DocPrompt
 import com.mileway.core.ai.model.DocType
 import com.mileway.core.ai.model.DocumentAnalysis
@@ -125,10 +125,7 @@ actual fun rememberMediaCaptureLauncher(
                     items
                 }
 
-            if (config.enableOcr && textRecognizer?.isAvailable() != true) {
-                Toast.makeText(context, "OCR is not available in this build. Enter the fields manually.", Toast.LENGTH_LONG).show()
-            }
-            if (!config.enableOcr || textRecognizer?.isAvailable() != true) {
+            if (!shouldRunOcr(config.enableOcr, textRecognizer, context)) {
                 onResult(MediaCaptureResult.Attachments(watermarked))
                 return@launch
             }
@@ -264,19 +261,14 @@ actual fun rememberMediaCaptureLauncher(
                 CaptureMode.Pdf ->
                     launchFilePicker(config, PDF_MIME_TYPES, singleFileLauncher, multiFileLauncher)
 
-                CaptureMode.Document -> {
-                    val activity = context as? Activity
-                    if (activity == null || scanner == null) {
-                        documentFallbackLauncher.launch(FILES_MIME_TYPES)
-                    } else {
-                        scanner.start(
-                            activity = activity,
-                            pageLimit = if (config.multiple) config.maxCount else 1,
-                            onReady = { documentScanLauncher.launch(IntentSenderRequest.Builder(it).build()) },
-                            onUnavailable = { documentFallbackLauncher.launch(FILES_MIME_TYPES) },
-                        )
-                    }
-                }
+                CaptureMode.Document ->
+                    launchDocumentScanner(
+                        context = context,
+                        scanner = scanner,
+                        config = config,
+                        scanLauncher = documentScanLauncher,
+                        fallbackLauncher = documentFallbackLauncher,
+                    )
 
                 CaptureMode.QRCode, CaptureMode.Barcode -> qrLauncher.launch()
 
@@ -379,3 +371,35 @@ private suspend fun DocumentIntelligence.analyzeOrNull(
         // A capture that fails for any reason yields no media; null IS the handling.
         null
     }
+
+private fun shouldRunOcr(
+    enableOcr: Boolean,
+    recognizer: TextRecognizer?,
+    context: Context,
+): Boolean {
+    val available = recognizer?.isAvailable() == true
+    if (enableOcr && !available) {
+        Toast.makeText(context, "OCR is not available in this build. Enter the fields manually.", Toast.LENGTH_LONG).show()
+    }
+    return enableOcr && available
+}
+
+private fun launchDocumentScanner(
+    context: Context,
+    scanner: DocumentScanBackend?,
+    config: MediaCaptureConfig,
+    scanLauncher: ActivityResultLauncher<IntentSenderRequest>,
+    fallbackLauncher: ActivityResultLauncher<Array<String>>,
+) {
+    val activity = context as? Activity
+    if (activity == null || scanner == null) {
+        fallbackLauncher.launch(FILES_MIME_TYPES)
+    } else {
+        scanner.start(
+            activity = activity,
+            pageLimit = if (config.multiple) config.maxCount else 1,
+            onReady = { scanLauncher.launch(IntentSenderRequest.Builder(it).build()) },
+            onUnavailable = { fallbackLauncher.launch(FILES_MIME_TYPES) },
+        )
+    }
+}

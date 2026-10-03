@@ -18,6 +18,9 @@ object NoTextRecognizer : TextRecognizer {
 object NoDocumentAiAnalyzer : DocumentAiAnalyzer {
     override fun isAvailable(): Boolean = false
 
-    override suspend fun extract(image: DocumentImageRef, prompt: DocPrompt, ocrText: String): AiResult<AiExtraction> =
-        Result.Failure(AiFailure.NotSupportedOnPlatform)
+    override suspend fun extract(
+        image: DocumentImageRef,
+        prompt: DocPrompt,
+        ocrText: String,
+    ): AiResult<AiExtraction> = Result.Failure(AiFailure.NotSupportedOnPlatform)
 }

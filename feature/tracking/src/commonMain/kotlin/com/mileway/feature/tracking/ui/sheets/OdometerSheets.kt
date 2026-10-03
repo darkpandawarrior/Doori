@@ -108,6 +108,12 @@ fun OdometerReadingConfirmSheet(
 
     val ocrService = rememberOdometerOcrService()
     LaunchedEffect(capturedUri) {
+        if (!ocrService.isAvailable) {
+            isProcessing = false
+            manualInput = ""
+            verdict = null
+            return@LaunchedEffect
+        }
         isProcessing = true
         val aggregate = ocrService.analyzeSingle(capturedUri)
 
@@ -185,21 +191,28 @@ fun OdometerReadingConfirmSheet(
 
             if (!isProcessing) {
                 Text(
-                    text = stringResource(Res.string.tracking_odometer_ocr_result),
+                    text =
+                        if (ocrService.isAvailable) {
+                            stringResource(Res.string.tracking_odometer_ocr_result)
+                        } else {
+                            "OCR is not available in this build. Enter the reading manually."
+                        },
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(DesignTokens.Spacing.xs))
-                Text(
-                    text = stringResource(Res.string.tracking_odometer_reading_km_value, displayedReading.toDouble().formatGrouped()),
-                    style =
-                        MaterialTheme.typography.headlineMedium.copy(
-                            fontSize = 28.sp,
-                            fontFamily = FontFamily.Monospace,
-                        ),
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                if (ocrService.isAvailable) {
+                    Text(
+                        text = stringResource(Res.string.tracking_odometer_reading_km_value, displayedReading.toDouble().formatGrouped()),
+                        style =
+                            MaterialTheme.typography.headlineMedium.copy(
+                                fontSize = 28.sp,
+                                fontFamily = FontFamily.Monospace,
+                            ),
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 TextButton(
                     shape = DesignTokens.Shape.button,
                     onClick = { showManualDialog = true },
@@ -229,7 +242,7 @@ fun OdometerReadingConfirmSheet(
                     modifier = Modifier.weight(1f),
                     // V26 P26.CONV.3: a Discrepancy/Rejected verdict must be resolved via the
                     // reconciliation sheet below, not silently confirmed with the best-effort guess.
-                    enabled = !isProcessing && !needsReconciliation,
+                    enabled = ocrService.isAvailable && !isProcessing && !needsReconciliation,
                 ) { Text(stringResource(Res.string.tracking_odometer_use_reading)) }
             }
             Spacer(Modifier.height(DesignTokens.Spacing.l))

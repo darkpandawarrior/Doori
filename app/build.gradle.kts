@@ -117,6 +117,9 @@ val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 // property-delegate form.
 val mockkAgent: Configuration = configurations.create("mockkAgent")
 
+// Combined flavor/build-type dependency scopes need an explicit placeholder (AGP).
+configurations.create("gmsDebugImplementation")
+
 android {
     namespace = "com.mileway"
 
@@ -574,9 +577,9 @@ dependencies {
     implementation(libs.coil3.gif)
     implementation(libs.coil3.svg)
 
-    // WormaCeptor: HTTP traffic inspector, DEBUG builds only (never in release; Android-only).
-    debugImplementation(libs.wormaceptor.api)
-    debugImplementation(libs.wormaceptor.impl)
+    // WormaCeptor carries Play location services: GMS DEBUG builds only.
+    "gmsDebugImplementation"(libs.wormaceptor.api)
+    "gmsDebugImplementation"(libs.wormaceptor.impl)
 
     // G15: LeakCanary, DEBUG builds only (never release, never commonMain — same rule as
     // WormaCeptor). Auto-installs on debug; watches Activities/Fragments/ViewModels for leaks.
@@ -660,7 +663,7 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
 }
 
-// L13: reject every proprietary coordinate in the FOSS release, without an allowlist.
+// L13: reject every proprietary coordinate in both FOSS variants, without an allowlist.
 // Inside afterEvaluate so the AGP-created variant configuration exists when we look it up.
 afterEvaluate {
     val forbiddenPrefixes =
@@ -685,17 +688,19 @@ afterEvaluate {
     // Because gradle.properties sets configuration-cache=true AND problems=fail, and this task is
     // wired into `assembleNoGmsRelease`, the next F-Droid release build would have failed here.
     // Nothing in routine CI runs `check` or `assembleNoGmsRelease`, so it was latent, not red.
-    val noGmsRootComponent =
-        configurations
-            .getByName("noGmsReleaseRuntimeClasspath")
-            .incoming.resolutionResult.rootComponent
+    val noGmsRootComponents =
+        listOf("noGmsDebugRuntimeClasspath", "noGmsReleaseRuntimeClasspath").map { name ->
+            configurations
+                .getByName(name)
+                .incoming.resolutionResult.rootComponent
+        }
     val verifyTask =
         tasks.register("verifyNoGmsDependencyPrefixes") {
             group = "verification"
-            description = "Fails if a proprietary dependency leaks into the noGms (F-Droid) release classpath."
+            description = "Fails if a proprietary dependency leaks into a noGms (F-Droid) classpath."
             // Locals, not `this@afterEvaluate` captures: the task action must not reach back into
             // the Project object graph, or the configuration cache rejects it again.
-            val rootProvider = noGmsRootComponent
+            val rootProviders = noGmsRootComponents
             val forbidden = forbiddenPrefixes
             doLast {
                 // Walk the graph from the captured root. A `visited` set is load-bearing: a
@@ -711,14 +716,14 @@ afterEvaluate {
                         .filterIsInstance<ResolvedDependencyResult>()
                         .forEach { walk(it.selected) }
                 }
-                walk(rootProvider.get())
+                rootProviders.forEach { walk(it.get()) }
                 val violations =
                     deps
                         .filter { dep -> forbidden.any { dep.startsWith(it) } }
                         .sorted()
                 if (violations.isNotEmpty()) {
                     throw GradleException(
-                        "noGms (F-Droid) release leaks proprietary dependencies: $violations",
+                        "noGms (F-Droid) leaks proprietary dependencies: $violations",
                     )
                 }
             }

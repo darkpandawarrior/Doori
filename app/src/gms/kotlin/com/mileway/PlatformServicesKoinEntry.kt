@@ -1,8 +1,19 @@
 package com.mileway
 
+import com.mileway.core.ai.DocumentAiAnalyzer
+import com.mileway.core.ai.MlKitGenAiAnalyzer
+import com.mileway.core.ai.MlKitTextRecognizer
+import com.mileway.core.ai.TextRecognizer
 import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
+import com.mileway.core.media.DocumentScanBackend
+import com.mileway.core.media.ocr.GalleryMultiPassRecognizer
+import com.mileway.core.media.ocr.MlKitGalleryMultiPassRecognizer
 import com.mileway.core.platform.ReferralManager
+import com.mileway.feature.agent.engine.llm.LlmGateway
+import com.mileway.feature.agent.engine.llm.OnDeviceLlmGateway
+import com.mileway.feature.media.repository.MediaRepository
+import com.mileway.feature.media.repository.RealMediaRepository
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.mileway.platform.gms.AndroidInstallReferrerManager
@@ -11,30 +22,18 @@ import com.mileway.platform.gms.FirebaseCrashReporter
 import com.mileway.platform.gms.PlayAppReviewManagerFactoryImpl
 import com.mileway.platform.gms.PlayAppUpdateManagerFactoryImpl
 import com.mileway.platform.gms.WearDataLayerWatchSyncBridge
+import com.siddharth.kmp.ai.MlKitGenAiOnDeviceLlm
+import com.siddharth.kmp.ai.mlKitLlmModule
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
 import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.appshell.gms.GmsFusedLocationTracker
 import com.siddharth.kmp.common.CrashReporter
+import com.siddharth.kmp.designsystem.googlePayButtonModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
-
-import com.mileway.core.ai.DocumentAiAnalyzer
-import com.mileway.core.ai.MlKitGenAiAnalyzer
-import com.mileway.core.ai.MlKitTextRecognizer
-import com.mileway.core.ai.TextRecognizer
-import com.mileway.core.media.DocumentScanBackend
-import com.mileway.core.media.ocr.GalleryMultiPassRecognizer
-import com.mileway.core.media.ocr.MlKitGalleryMultiPassRecognizer
-import com.mileway.feature.agent.engine.llm.LlmGateway
-import com.mileway.feature.agent.engine.llm.MlKitLlmGateway
-import com.mileway.feature.media.repository.MediaRepository
-import com.mileway.feature.media.repository.RealMediaRepository
-import com.siddharth.kmp.ai.MlKitGenAiOnDeviceLlm
-import com.siddharth.kmp.ai.mlKitLlmModule
-import com.siddharth.kmp.designsystem.googlePayButtonModule
 
 /**
  * gms flavor: real Play-Core / Firebase platform services.
@@ -50,7 +49,7 @@ fun platformServicesKoinModule(): Module =
         single<GalleryMultiPassRecognizer> { MlKitGalleryMultiPassRecognizer(androidContext()) }
         single<DocumentScanBackend> { GmsDocumentScanBackend() }
         single<MediaRepository> { RealMediaRepository(androidContext()) }
-        single<LlmGateway> { MlKitLlmGateway(MlKitGenAiOnDeviceLlm(androidContext())) }
+        single<LlmGateway> { OnDeviceLlmGateway(MlKitGenAiOnDeviceLlm(androidContext())) }
         // L13: fused location on the gms flavor — overrides core:platform's default
         // AndroidLocationTracker (plain LocationManager) the same way trackingModule's
         // NotificationScheduler override works (last-registered Koin definition wins; see

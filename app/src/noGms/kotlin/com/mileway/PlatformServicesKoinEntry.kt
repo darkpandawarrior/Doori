@@ -1,5 +1,9 @@
 package com.mileway
 
+import com.mileway.core.ai.DocumentAiAnalyzer
+import com.mileway.core.ai.NoDocumentAiAnalyzer
+import com.mileway.core.ai.NoTextRecognizer
+import com.mileway.core.ai.TextRecognizer
 import com.mileway.core.data.watch.NoopWatchSyncBridge
 import com.mileway.core.data.watch.WatchSyncBridge
 import com.mileway.core.media.BarcodeDecoder
@@ -17,11 +21,6 @@ import com.siddharth.kmp.common.NapierCrashReporter
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
-
-import com.mileway.core.ai.DocumentAiAnalyzer
-import com.mileway.core.ai.NoDocumentAiAnalyzer
-import com.mileway.core.ai.NoTextRecognizer
-import com.mileway.core.ai.TextRecognizer
 
 /**
  * noGms (FOSS / F-Droid) flavor: no-op platform services, no proprietary deps.
