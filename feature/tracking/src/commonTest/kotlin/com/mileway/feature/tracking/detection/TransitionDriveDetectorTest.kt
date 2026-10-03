@@ -17,6 +17,13 @@ class TransitionDriveDetectorTest {
     }
 
     @Test
+    fun queuedEnterExitBatchDoesNotStartAnEndedDrive() {
+        val detector = TransitionDriveDetector()
+        assertFalse(detector.acceptVehicleTransitions(listOf(DriveTransition.VEHICLE_ENTER to 1L, DriveTransition.VEHICLE_EXIT to 2L)))
+        assertTrue(detector.acceptVehicleTransitions(listOf(DriveTransition.VEHICLE_ENTER to 3L)))
+    }
+
+    @Test
     fun departureRequiresVehicleAndSurvivesProcessRecreationInEitherOrder() {
         for (first in listOf(DriveTransition.DEPARTURE, DriveTransition.VEHICLE_ENTER)) {
             val detector = TransitionDriveDetector(DriveTransitionState(requiresDeparture = true))

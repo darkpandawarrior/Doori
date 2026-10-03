@@ -142,19 +142,17 @@ class GmsDriveStartSource(
                 when (intent.action) {
                     TRANSITION -> {
                         val result = ActivityTransitionResult.extractResult(intent) ?: return@withLock
-                        result.transitionEvents.fold(false) { starts, event ->
-                            if (event.activityType != DetectedActivity.IN_VEHICLE) {
-                                starts
-                            } else {
+                        val events =
+                            result.transitionEvents.filter { it.activityType == DetectedActivity.IN_VEHICLE }.map { event ->
                                 val transition =
                                     if (event.transitionType == ActivityTransition.ACTIVITY_TRANSITION_ENTER) {
                                         DriveTransition.VEHICLE_ENTER
                                     } else {
                                         DriveTransition.VEHICLE_EXIT
                                     }
-                                detector.accept(transition, event.elapsedRealTimeNanos) || starts
+                                transition to event.elapsedRealTimeNanos
                             }
-                        }
+                        detector.acceptVehicleTransitions(events)
                     }
                     DEPARTURE -> {
                         val event = GeofencingEvent.fromIntent(intent) ?: return@withLock
@@ -169,8 +167,13 @@ class GmsDriveStartSource(
                     else -> return@withLock
                 }
             if (shouldStart) {
-                clearWait()
-                recorder.start(pending.drive)
+                consumePending()
+                try {
+                    // Start promptly while the transition's background-FGS exemption is still valid.
+                    recorder.start(pending.drive)
+                } finally {
+                    clearWait()
+                }
             } else {
                 savePending(pending.copy(detector = detector.state))
             }
@@ -189,9 +192,13 @@ class GmsDriveStartSource(
         return pending.takeIf { it.detector.armedAtNanos <= SystemClock.elapsedRealtimeNanos() }
     }
 
-    private suspend fun clearWait() {
+    private fun consumePending() {
         check(preferences.edit().remove(PENDING).commit())
         mutableWaiting.value = false
+    }
+
+    private suspend fun clearWait() {
+        consumePending()
         runCatching { activityClient.removeActivityTransitionUpdates(pendingIntent(TRANSITION)).await() }
         runCatching { geofenceClient.removeGeofences(pendingIntent(DEPARTURE)).await() }
     }

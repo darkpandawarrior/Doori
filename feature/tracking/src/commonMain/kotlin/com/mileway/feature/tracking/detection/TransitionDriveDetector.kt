@@ -20,6 +20,12 @@ data class DriveTransitionState(
 class TransitionDriveDetector(
     var state: DriveTransitionState = DriveTransitionState(),
 ) {
+    /** A queued enter/exit batch must not start a drive that has already ended. */
+    fun acceptVehicleTransitions(events: List<Pair<DriveTransition, Long>>): Boolean {
+        val latest = events.filter { it.first != DriveTransition.DEPARTURE }.maxByOrNull { it.second } ?: return false
+        return accept(latest.first, latest.second)
+    }
+
     fun accept(
         transition: DriveTransition,
         elapsedNanos: Long,
