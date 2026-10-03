@@ -4,6 +4,8 @@ import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
+import com.mileway.feature.tracking.claim.AutoDraftOnTripCompleteUseCase
+import com.mileway.feature.tracking.claim.MileageClaimPolicyProvider
 import com.mileway.feature.tracking.debug.NetworkLogViewModel
 import com.mileway.feature.tracking.insights.RouteAnalyzer
 import com.mileway.feature.tracking.manager.IosTrackingController
@@ -98,6 +100,8 @@ val trackingModule =
         single { VehiclePricingCacheStore() }
         single<VehiclePricingCache> { get<VehiclePricingCacheStore>() }
         single { VehiclePricingRepository(api = get(), cache = get(), isOnline = NetworkMonitor::isConnectedNow) }
+        single { MileageClaimPolicyProvider(get()) }
+        single { AutoDraftOnTripCompleteUseCase(get(), get(), get()) }
         single { LogMilesSubmissionRepository(get()) }
         single { CurrentTrackRepository(get()) }
         single { HardwareEventRepository(get()) }
@@ -157,6 +161,7 @@ val trackingModule =
                 syncer = get(),
                 milesSyncer = get(),
                 eventSyncer = get(),
+                mileageAutoDraft = get(),
                 currentTrackRepo = get(),
                 isConnectedFlow = NetworkMonitor.isConnectedFlow,
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
@@ -232,6 +237,7 @@ val trackingModule =
                 args = params.get(),
                 vehiclePricingRepository = get(),
                 voucherRepository = get(),
+                policyProvider = get(),
             )
         }
     }

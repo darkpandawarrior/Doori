@@ -1,5 +1,6 @@
 package com.mileway.feature.tracking.service
 
+import com.mileway.feature.tracking.claim.AutoDraftOnTripCompleteUseCase
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -34,9 +35,11 @@ class AppSyncTrigger(
     private val isConnectedFlow: Flow<Boolean>,
     private val scope: CoroutineScope,
     private val eventSyncer: HardwareEventSyncer? = null,
+    private val mileageAutoDraft: AutoDraftOnTripCompleteUseCase? = null,
 ) {
     /** Call once at app startup (after DI is up). Collects connectivity edges until [scope] dies. */
     fun start() {
+        mileageAutoDraft?.start(scope)
         scope.launch {
             isConnectedFlow
                 .distinctUntilChanged()

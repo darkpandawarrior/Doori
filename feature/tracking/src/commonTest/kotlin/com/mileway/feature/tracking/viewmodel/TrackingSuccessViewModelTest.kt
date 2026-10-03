@@ -105,6 +105,12 @@ class TrackingSuccessViewModelTest {
     }
 
     @Test
+    fun `fractional reimbursement keeps paise instead of rounding to whole rupees`() {
+        val vm = buildVm(args(distanceKm = 0.125))
+        assertEquals(1.5, vm.state.value.reimbursableAmount)
+    }
+
+    @Test
     fun `unknown vehicle falls back to the default rate`() {
         val vm = buildVm(args(vehicleKey = "spaceship", distanceKm = 10.0))
 
