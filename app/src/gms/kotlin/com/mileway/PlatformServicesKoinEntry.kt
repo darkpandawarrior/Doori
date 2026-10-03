@@ -14,6 +14,8 @@ import com.mileway.platform.gms.WearDataLayerWatchSyncBridge
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
+import com.siddharth.kmp.appshell.LocationTracker
+import com.siddharth.kmp.appshell.gms.GmsFusedLocationTracker
 import com.siddharth.kmp.common.CrashReporter
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -27,6 +29,12 @@ import org.koin.dsl.module
  */
 fun platformServicesKoinModule(): Module =
     module {
+        // L13: fused location on the gms flavor — overrides core:platform's default
+        // AndroidLocationTracker (plain LocationManager) the same way trackingModule's
+        // NotificationScheduler override works (last-registered Koin definition wins; see
+        // core:ui's initKoin kdoc). GmsFusedLocationTracker + play-services-location live in the
+        // opt-in app-shell-location-gms module (gmsImplementation only), so noGms never sees them.
+        single<LocationTracker> { GmsFusedLocationTracker(androidContext()) }
         single<AppUpdateManagerFactory> { PlayAppUpdateManagerFactoryImpl() }
         single<AppReviewManagerFactory> { PlayAppReviewManagerFactoryImpl() }
         // RF.2: wrap the shared LocalReferralManager with Install Referrer capture (fires once on creation).

@@ -197,8 +197,9 @@ android {
         release {
             // FLFD.1 originally disabled R8 under -Pfdroid so F-Droid's build server could
             // rebuild from source and byte-compare against the published binary. That does not
-            // apply to Doori: it ships play-services-location and the ML Kit OCR pipeline,
-            // which are core features, so it is permanently ineligible for official fdroiddata
+            // apply to Doori: it ships the ML Kit OCR pipeline (a core feature) and a Google Pay
+            // button pulled in by kmp-toolkit's designsystem module (see the dependencyGuard
+            // comment below), so it is permanently ineligible for official fdroiddata
             // and reaches F-Droid only as a prebuilt Binaries entry that nobody re-builds.
             // With nothing to byte-compare against, the ~45MB of unminified dex bought nothing.
             //
@@ -440,24 +441,29 @@ dependencyGuard {
     // deliberate: it freezes the leak at its current size and makes any growth a failing diff, which
     // is strictly better than no guard at all.
     //
-    // L13 closed the ONE leak this repo could fix on its own: feature/tracking's FusedLocationSource
-    // (now GmsFusedLocationSource, app/src/gms) no longer imports com.google.android.gms.location.*
-    // unconditionally, and feature/tracking's androidMain no longer declares play-services-location
-    // unconditionally. That did NOT shrink this baseline — the identical play-services-location/base/
-    // basement/tasks chain is still pulled in unconditionally by kmp-toolkit's :app-shell module
-    // (external/kmp-toolkit/app-shell/build.gradle.kts, androidMain.dependencies), consumed
-    // unconditionally by core:platform's `AndroidLocationTracker` binding
-    // (core/platform/.../di/PlatformModule.android.kt). That binding is EXPLICITLY guardrailed above
-    // ("don't touch the prime feature") and app-shell is vendored (external/, edit only via a pin
-    // move) — reaching zero GMS in noGms needs an upstream kmp-toolkit change (split app-shell's
-    // location dependency out, or make it flavor-conditional) followed by a pin bump here; neither is
-    // in scope for a same-repo lane. Shrink the baseline as that lands; do not let it grow. Measured
-    // when this baseline was committed: of 427 entries, 15 are com.google.android.gms / com.google.mlkit
-    // (play-services-base, -basement, -location, the two mlkit scanners and their transitives) and a
-    // further 4 are com.google.firebase (annotations, components, encoders, encoders-json) pulled in
-    // transitively by them — 19 proprietary entries in total. Those are the numbers to drive down:
-    //   grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 15
-    //   grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 19
+    // L13 closed the two leaks this repo could fix on its own — feature/tracking's
+    // FusedLocationSource (now GmsFusedLocationSource, app/src/gms) and app-shell's own
+    // AndroidLocationTracker (upstream kmp-toolkit fix: play-services-location/coroutines-play-
+    // services moved out of app-shell's androidMain into the opt-in app-shell-location-gms
+    // module, gmsImplementation only; see that pin's commit message). play-services-location
+    // itself is GONE from this baseline as of this lane.
+    //
+    // What's LEFT, and why each is a separate, deliberately out-of-scope leak, not a location
+    // leftover:
+    //   1. core:media's androidMain declares mlkit.document.scanner / mlkit.text.recognition (+
+    //      their kotlinx-coroutines-play-services glue) unconditionally — the doc-scanner/OCR
+    //      pipeline, same "prime feature, don't touch" guardrail as above (V15 scope call), pulls
+    //      play-services-base/-basement/-tasks and the bare com.google.mlkit:* coordinates.
+    //   2. kmp-toolkit's :designsystem module depends on com.google.pay.button:compose-pay-button,
+    //      which pulls play-services-wallet (and transitively -identity, -maps, -base, -basement,
+    //      -tasks) — a Google Pay button in a design-system module, unrelated to location or OCR,
+    //      not previously called out anywhere in this file. Also an upstream kmp-toolkit fix.
+    // Reaching true zero needs both of those addressed upstream (separate lanes); shrink the
+    // baseline as they land, do not let it grow. Measured after L13's location fix: of 486
+    // entries, 17 are com.google.android.gms / com.google.mlkit / kotlinx-coroutines-play-services
+    // and a further 4 are com.google.firebase — 21 proprietary entries in total:
+    //   grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 17
+    //   grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 21
     configuration("noGmsReleaseRuntimeClasspath")
 }
 
@@ -551,6 +557,12 @@ dependencies {
     // itself stays a feature/tracking androidMain dependency (also used by FusedLocationSource,
     // out of scope here) — this is just the app-level classpath for the moved gms-only class.
     "gmsImplementation"(libs.play.services.location)
+
+    // L13: fused LocationTracker (kmp-toolkit's app-shell-location-gms), gms flavor ONLY. app-shell's
+    // own default AndroidLocationTracker (core:platform's PlatformModule.android.kt binding) is now
+    // plain android.location.LocationManager with zero Play Services — this module supplies the real
+    // fused impl, bound in place of it by app/src/gms/PlatformServicesKoinEntry.kt.
+    "gmsImplementation"("com.siddharth.kmp:app-shell-location-gms:1.0.0")
 
     // V15 platform services, Play-Core update + review, gms flavor ONLY (proprietary).
     // noGms gets no-op impls; the VerifyDependencyPrefixes guard (FLFD.2) keeps these out of FOSS.
@@ -694,12 +706,14 @@ afterEvaluate {
         )
     val allowlist =
         setOf(
-            // Pre-existing FusedLocation chain (core:platform AndroidLocationTracker).
-            "com.google.android.gms:play-services-location",
+            // L13: play-services-location is GONE (kmp-toolkit's app-shell no longer declares it
+            // unconditionally) — removed from this allowlist, not just left stale.
+            //
+            // Pre-existing ML Kit OCR (core:media's mlkit.document.scanner / mlkit.text.recognition,
+            // androidMain — "don't touch the prime feature", same V15-scope call as above).
             "com.google.android.gms:play-services-base",
             "com.google.android.gms:play-services-basement",
             "com.google.android.gms:play-services-tasks",
-            // Pre-existing ML Kit OCR (core:platform AndroidTextRecognizer / doc scanner).
             "com.google.android.gms:play-services-mlkit-document-scanner",
             "com.google.android.gms:play-services-mlkit-text-recognition",
             "com.google.android.gms:play-services-mlkit-text-recognition-common",
@@ -717,6 +731,14 @@ afterEvaluate {
             "com.google.mlkit:text-recognition-bundled-common",
             "com.google.mlkit:vision-common",
             "com.google.mlkit:vision-interfaces",
+            // L13 finding: kmp-toolkit's :designsystem depends on
+            // com.google.pay.button:compose-pay-button, which pulls play-services-wallet and its own
+            // -identity/-maps chain — a Google Pay button in a design-system module, unrelated to
+            // location or OCR, never previously called out here. Also an upstream kmp-toolkit fix,
+            // out of scope for this lane; allowlisted (frozen), not fixed.
+            "com.google.android.gms:play-services-wallet",
+            "com.google.android.gms:play-services-identity",
+            "com.google.android.gms:play-services-maps",
             // Transitive Firebase infra pulled by the play-services libs above (NOT messaging/analytics/crashlytics).
             "com.google.firebase:firebase-annotations",
             "com.google.firebase:firebase-components",

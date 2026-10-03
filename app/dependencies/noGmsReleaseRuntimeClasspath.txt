@@ -224,15 +224,14 @@ com.google.accompanist:accompanist-drawablepainter:0.37.3
 com.google.android.datatransport:transport-api:2.2.1
 com.google.android.datatransport:transport-backend-cct:2.3.3
 com.google.android.datatransport:transport-runtime:2.2.6
-com.google.android.gms:play-services-base:18.9.0
+com.google.android.gms:play-services-base:18.5.0
 com.google.android.gms:play-services-basement:18.9.0
 com.google.android.gms:play-services-identity:18.1.0
-com.google.android.gms:play-services-location:21.4.0
 com.google.android.gms:play-services-maps:18.0.2
 com.google.android.gms:play-services-mlkit-document-scanner:16.0.0
 com.google.android.gms:play-services-mlkit-text-recognition-common:19.1.0
 com.google.android.gms:play-services-mlkit-text-recognition:19.0.1
-com.google.android.gms:play-services-tasks:18.4.0
+com.google.android.gms:play-services-tasks:18.2.0
 com.google.android.gms:play-services-wallet:19.4.0
 com.google.android.material:material:1.14.0
 com.google.android.odml:image:1.0.0-beta1

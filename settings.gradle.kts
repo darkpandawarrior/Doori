@@ -64,6 +64,9 @@ includeBuild("external/kmp-toolkit") {
         substitute(module("com.siddharth.kmp:mvi-core")).using(project(":mvi-core"))
         substitute(module("com.siddharth.kmp:result")).using(project(":result"))
         substitute(module("com.siddharth.kmp:app-shell")).using(project(":app-shell"))
+        // L13: opt-in fused-location impl (Play Services), gms flavor only — see
+        // app/build.gradle.kts gmsImplementation and app/src/gms/PlatformServicesKoinEntry.kt.
+        substitute(module("com.siddharth.kmp:app-shell-location-gms")).using(project(":app-shell-location-gms"))
         substitute(module("com.siddharth.kmp:ai")).using(project(":ai"))
         // FakeOnDeviceLlm — feature:agent's LlmAssistantEngineTest scripts streaming success/
         // failure without a real Gemini Nano/Foundation Models device.
