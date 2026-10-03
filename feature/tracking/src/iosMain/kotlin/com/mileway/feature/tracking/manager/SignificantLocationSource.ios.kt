@@ -31,6 +31,12 @@ import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationState
 import platform.darwin.NSObject
 
+private const val PENDING = "drive_wake_pending"
+private const val ARMED_AT = "drive_wake_armed_at"
+private const val ANCHOR_LAT = "drive_wake_anchor_lat"
+private const val ANCHOR_LNG = "drive_wake_anchor_lng"
+private const val ANCHOR_ACCURACY = "drive_wake_anchor_accuracy"
+
 /** Lives with tracker wiring in tracking iosMain; restored SLC waits never request permission. */
 class SignificantLocationSource(
     private val recorder: DetectedDriveRecorder,
@@ -149,13 +155,5 @@ class SignificantLocationSource(
             manager.stopMonitoringSignificantLocationChanges()
             mutableWaiting.value = false
         }
-    }
-
-    private companion object {
-        const val PENDING = "drive_wake_pending"
-        const val ARMED_AT = "drive_wake_armed_at"
-        const val ANCHOR_LAT = "drive_wake_anchor_lat"
-        const val ANCHOR_LNG = "drive_wake_anchor_lng"
-        const val ANCHOR_ACCURACY = "drive_wake_anchor_accuracy"
     }
 }
