@@ -256,4 +256,27 @@ val coreDataModule =
         // P2.9: observe+push loop over WatchSyncBridge — flavor-agnostic (see its doc comment); the
         // WatchSyncBridge binding itself is flavor-specific (gms/noGms PlatformServicesKoinEntry).
         single { PhoneSnapshotSync(get(), get()) }
+        // L2: the claim-domain persistence lane — see Migrations.MIGRATION_48_49.
+        single { get<MilewayDatabase>().reportDao() }
+        single { get<MilewayDatabase>().claimLineDao() }
+        single { get<MilewayDatabase>().approvalStepDao() }
+        single { get<MilewayDatabase>().policyViolationDao() }
+        single { get<MilewayDatabase>().perDiemRateDao() }
+        single { get<MilewayDatabase>().delegateAssignmentDao() }
+        single { get<MilewayDatabase>().periodLockDao() }
+        single { get<MilewayDatabase>().glMappingDao() }
+        single { get<MilewayDatabase>().statementImportDao() }
+        single { get<MilewayDatabase>().pendingPaymentJournalDao() }
+        single {
+            com.mileway.core.data.claim
+                .ReportRepository(get(), get(), get(), get(), get())
+        }
+        single<com.mileway.core.data.claim.BackfillMarker> {
+            com.mileway.core.data.claim
+                .DataStoreBackfillMarker(androidContext())
+        }
+        single {
+            com.mileway.core.data.claim
+                .LegacyMileageBackfillWorker(get(), get(), get(), get(), get())
+        }
     }
