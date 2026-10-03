@@ -14,7 +14,7 @@ enum class PaymentStatus {
 }
 
 /**
- * A journaled reimbursement. `:server` writes this row (status [PaymentStatus.PENDING]) before
+ * A journaled reimbursement. The caller persists this row (status [PaymentStatus.PENDING]) before
  * calling [PayoutBackend.payout] — journal-before-call is what makes a crash mid-payout
  * recoverable rather than silently lost or double-paid; see [PayoutBackend] for the simulator this
  * always runs against.

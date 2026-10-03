@@ -248,6 +248,10 @@ class MilewayApplication :
             scheduleWeeklyMaintenance()
             seedAppShortcuts()
         }
+        // Recover report reimbursements even when the approval screen is never opened.
+        appScope.launch {
+            get<com.mileway.feature.payments.repository.PaymentsRepository>().recoverReportPayouts()
+        }
         // P2.9: phone->watch snapshot sync. Harmless on noGms (WatchSyncBridge is a Noop there).
         get<PhoneSnapshotSync>().start(appScope)
         // P-C.4: run ghost-session reconciliation off the main thread immediately after Koin is up.

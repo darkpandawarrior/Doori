@@ -3,18 +3,7 @@ package com.mileway.core.data.domain.claim
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-/**
- * The expense-report lifecycle Doori's backend slice ships: Draft -> Submitted ->
- * Approved/SentBack -> Paid. Every value carries an explicit [SerialName] — this enum is shared
- * wire contract between `:server` and every client, so the wire form must never drift with a
- * Kotlin symbol rename.
- *
- * ponytail: the full Doori spec (2026-09-25 suite plan, L1a) lists nine states (PendingApproval,
- * PendingFinanceReview, ApprovedForPayment, Rejected, Recalled...) for the multi-level approval
- * chain and finance-review journeys. This backend slice ships only the four-state loop the task
- * brief names; widen the enum (additively — new entries, never a rename) when a later lane adds
- * multi-step approval or a finance review step.
- */
+/** Report states shared by local claims and the backend. Existing wire names stay stable. */
 @Serializable
 enum class ReportLifecycleState {
     @SerialName("draft")
@@ -31,6 +20,15 @@ enum class ReportLifecycleState {
 
     @SerialName("paid")
     PAID,
+
+    @SerialName("approved_for_payment")
+    APPROVED_FOR_PAYMENT,
+
+    @SerialName("rejected")
+    REJECTED,
+
+    @SerialName("recalled")
+    RECALLED,
 }
 
 /** The action driving a [ReportLifecycleState] transition. */
@@ -50,6 +48,15 @@ enum class ReportLifecycleEvent {
 
     @SerialName("reimburse")
     REIMBURSE,
+
+    @SerialName("release_for_payment")
+    RELEASE_FOR_PAYMENT,
+
+    @SerialName("reject")
+    REJECT,
+
+    @SerialName("recall")
+    RECALL,
 }
 
 /** Thrown by [ReportLifecycleStateMachine.transition] when [event] cannot fire from [from]. */

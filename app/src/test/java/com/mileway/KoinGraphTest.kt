@@ -122,6 +122,11 @@ class KoinGraphTest : KoinTest {
 
     private val fakeRoomLayer =
         module {
+            single<com.mileway.core.data.claim.ReportRepository> {
+                mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+            }
+            single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
+            single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }
             single<LocationDao> { mockk(relaxed = true) }
             single<SavedTrackDao> { mockk(relaxed = true) }
             single<HardwareEventDao> { mockk(relaxed = true) }
@@ -425,6 +430,8 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
+        assertNotNull(get<com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel>())
+        assertNotNull(get<com.mileway.core.data.domain.payout.ReportPaymentRunner>())
         assertNotNull(get<ClarificationHistoryViewModel>())
         assertNotNull(get<PayablesViewModel>())
         assertNotNull(get<AgentViewModel>())

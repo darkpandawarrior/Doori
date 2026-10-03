@@ -1,5 +1,6 @@
 package com.mileway.feature.payments.di
 
+import com.mileway.core.data.domain.payout.ReportPaymentRunner
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.payments.repository.PaymentsRepository
 import com.mileway.feature.payments.search.PaymentsSearchProvider
@@ -11,7 +12,8 @@ import org.koin.dsl.module
 
 val paymentsModule =
     module {
-        single { PaymentsRepository() }
+        single { PaymentsRepository(reportPayouts = get()) }
+        single<ReportPaymentRunner> { ReportPaymentRunner { id -> get<PaymentsRepository>().payReport(id) } }
         viewModelOf(::CreatePaymentViewModel)
         viewModelOf(::PaymentsHistoryViewModel)
         // PM: payments contribution to master search (getAll<SearchProvider>() picks it up).
