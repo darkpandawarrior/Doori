@@ -13,11 +13,14 @@ import com.mileway.core.data.model.db.ClaimLineEntity
 import com.mileway.core.data.model.db.ReportEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.network.ApprovedVehicle
+import com.mileway.core.data.model.network.PolicyApprovedVehiclesResponse
+import com.mileway.core.network.api.MilewayNetworkApi
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.viewmodel.FakeNetworkApi
 import com.mileway.feature.tracking.viewmodel.FakeSavedTrackDao
 import com.siddharth.kmp.offlineoutbox.OpEntry
 import com.siddharth.kmp.offlineoutbox.OpOutbox
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +30,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 
@@ -82,6 +86,23 @@ class AutoDraftOnTripCompleteUseCaseTest {
             assertEquals(legacy, claims.rows.values.single())
             assertEquals(emptyMap(), reports.rows)
             assertEquals(emptyList(), queued)
+        }
+
+    @Test
+    fun `offline pricing falls back but cancellation and fatal errors propagate`() =
+        runTest {
+            fun failingPolicy(failure: Throwable): MileageClaimPolicyProvider {
+                val api =
+                    object : MilewayNetworkApi by FakeNetworkApi(emptyList()) {
+                        override suspend fun vehicles(trackMiles: Boolean): PolicyApprovedVehiclesResponse = throw failure
+                    }
+                return MileageClaimPolicyProvider(VehiclePricingRepository(api))
+            }
+
+            assertFailsWith<CancellationException> { failingPolicy(CancellationException("cancelled")).mapper() }
+            assertFailsWith<AssertionError> { failingPolicy(AssertionError("fatal")).mapper() }
+            val offlineLine = requireNotNull(failingPolicy(IllegalStateException("offline")).mapper().map(completedTrip()))
+            assertEquals(8_000L, offlineLine.amountMinor)
         }
 
     @Test

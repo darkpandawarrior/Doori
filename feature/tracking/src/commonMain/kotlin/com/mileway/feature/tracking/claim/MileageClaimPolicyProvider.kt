@@ -4,6 +4,7 @@ import com.mileway.core.data.domain.policy.PolicyEngine
 import com.mileway.core.data.domain.policy.PolicyVersion
 import com.mileway.core.data.ledger.PolicyRateTable
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 
 /** Reuses the success screen's approved vehicle rates and offline fallback, expressed in paise. */
@@ -12,11 +13,9 @@ class MileageClaimPolicyProvider(
 ) {
     suspend fun mapper(): TripToClaimMapper {
         val vehicles =
-            try {
-                vehiclePricingRepository.getVehicles()
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
+            runCatching { vehiclePricingRepository.getVehicles() }.getOrElse { failure ->
+                if (failure is CancellationException || failure !is Exception) throw failure
+                Napier.w("Vehicle rates unavailable; using offline mileage fallback", failure, tag = "MileageClaimPolicy")
                 emptyList()
             }
         val rupeeTable = PolicyRateTable.fromApprovedVehicles(vehicles, defaultRatePerKm = DEFAULT_RATE_PER_KM)

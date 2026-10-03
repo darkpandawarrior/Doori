@@ -25,11 +25,8 @@ class AutoDraftOnTripCompleteUseCase(
             scope.launch {
                 savedTrackDao.getCompletedTracks().collect { tracks ->
                     for (track in tracks) {
-                        try {
-                            invoke(track)
-                        } catch (cancelled: CancellationException) {
-                            throw cancelled
-                        } catch (failure: Exception) {
+                        runCatching { invoke(track) }.onFailure { failure ->
+                            if (failure is CancellationException || failure !is Exception) throw failure
                             // The saved row stays pending for the next emission or app restart.
                             Napier.e("Mileage report auto-draft failed", failure, tag = "MileageAutoDraft")
                         }

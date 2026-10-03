@@ -19,9 +19,10 @@ class TripToClaimMapper(
 
     /** Incomplete, discarded, simulated, unowned and invalid-distance trips cannot fund a report. */
     fun map(track: SavedTrack): MileageLine? {
-        if (!track.isCompleted || track.isDiscarded || track.wasMockOn || track.wasMockLocationUsed) return null
+        if (!track.isCompleted || track.isDiscarded) return null
+        if (track.wasMockOn || track.wasMockLocationUsed) return null
         if (track.startedByEmployeeCode.isBlank() && track.startedByAccountId.isNullOrBlank()) return null
-        if (!track.distance.isFinite() || track.distance <= 0.0 || track.endTime <= 0L) return null
+        if (!track.distance.isFinite() || track.distance < 0.0 || track.endTime <= 0L) return null
         val distanceKm = track.distance / METRES_PER_KM
         val line =
             MileageLine(

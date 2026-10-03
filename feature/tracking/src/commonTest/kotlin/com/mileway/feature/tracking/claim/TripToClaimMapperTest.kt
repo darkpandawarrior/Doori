@@ -32,6 +32,9 @@ class TripToClaimMapperTest {
         val capped = requireNotNull(mapper.map(completedTrip().copy(endTime = 20_000L)))
         assertEquals(15_000L, capped.amountMinor)
         assertEquals(listOf("MILEAGE_RATE_CAPPED"), capped.policyFlags)
+
+        // A completed drive with no movement is still recorded once, with nothing reimbursable.
+        assertEquals(0L, requireNotNull(mapper.map(completedTrip().copy(distance = 0.0))).amountMinor)
     }
 
     @Test
@@ -43,7 +46,6 @@ class TripToClaimMapperTest {
             trip.copy(wasMockOn = true),
             trip.copy(wasMockLocationUsed = true),
             trip.copy(startedByEmployeeCode = ""),
-            trip.copy(distance = 0.0),
             trip.copy(distance = -1.0),
             trip.copy(distance = Double.NaN),
             trip.copy(distance = Double.POSITIVE_INFINITY),
