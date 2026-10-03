@@ -90,6 +90,7 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.support.BugReportSheet
 import com.mileway.core.ui.theme.MilewayTheme
+import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.di.agentModule
 import com.mileway.feature.agent.engine.AssistantEngine
@@ -913,6 +914,7 @@ class ScreenshotGalleryTest {
                     payablesModule,
                     travelModule,
                     cardsModule,
+                    advancesModule,
                     agentModule,
                     paymentsModule,
                     eventsModule,
