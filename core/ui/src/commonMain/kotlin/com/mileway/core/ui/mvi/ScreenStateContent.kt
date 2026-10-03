@@ -5,6 +5,7 @@ package com.mileway.core.ui.mvi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -68,7 +69,8 @@ fun <T> ScreenStateContent(
     error: @Composable (UiText) -> Unit = { DefaultErrorState(it, onRetry) },
     content: @Composable (T) -> Unit,
 ) {
-    Box(modifier = modifier) {
+    BoxWithConstraints(modifier = modifier) {
+        val hasBoundedHeight = constraints.hasBoundedHeight
         when (state) {
             is ScreenState.Loading -> loading()
             is ScreenState.Empty -> empty()
@@ -92,7 +94,9 @@ fun <T> ScreenStateContent(
                     if (state.partialError != null) {
                         PartialErrorBanner(message = state.partialError, onRetry = onRetry)
                     }
-                    Box(modifier = Modifier.weight(1f)) { content(state.data) }
+                    // A form scaffold supplies unbounded scroll constraints; weighting there
+                    // would measure the body at zero height. Bounded screens still fill the body.
+                    Box(modifier = if (hasBoundedHeight) Modifier.weight(1f) else Modifier) { content(state.data) }
                 }
         }
     }

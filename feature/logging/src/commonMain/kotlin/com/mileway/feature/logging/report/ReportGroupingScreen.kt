@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.domain.claim.Report
@@ -20,7 +21,6 @@ import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** Spends entry point for date suggestions, manual grouping and reopening persisted reports. */
 @Composable

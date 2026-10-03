@@ -273,7 +273,9 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
                 viewModel = koinViewModel(),
                 reportId = editId,
                 onBack = { navController.popBackStack() },
-                onOpenReport = { navController.navigate(LoggingRoutes.reportSubmitRoute(it)) },
+                onOpenReport = { id ->
+                    if (id == editId) navController.popBackStack() else navController.navigate(LoggingRoutes.reportSubmitRoute(id))
+                },
             )
         }
     }

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.domain.claim.ExpenseLine
@@ -21,7 +22,6 @@ import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 /** Reviews policy for the entire persisted report and exposes guarded submit/recall actions. */
 @Composable
@@ -53,7 +53,7 @@ private fun ReportSubmitContent(
         onBack = onBack,
         onSubmit = if (submitted) onRecall else onSubmit,
         submitLabel = if (submitted) "Recall report" else "Submit report",
-        canSubmit = if (submitted) review?.canRecall == true else review?.canSubmit == true,
+        canSubmit = if (submitted) review.canRecall else review?.canSubmit == true,
         isSubmitting = state.busy,
     ) { padding ->
         ScreenStateContent(state.screen, modifier = Modifier.padding(padding).padding(16.dp), onRetry = onRetry) { content ->
