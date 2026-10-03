@@ -15,5 +15,17 @@ interface PayoutBackend {
  * a runtime flag.
  */
 class SimulatedPayoutBackend : PayoutBackend {
-    override fun payout(journal: PendingPaymentJournal): PendingPaymentJournal = journal.copy(status = PaymentStatus.PAID)
+    override fun payout(journal: PendingPaymentJournal): PendingPaymentJournal {
+        require(journal.reportId.isNotBlank()) { "Report id is required" }
+        require(journal.amountMinor > 0) { "Payout must be positive" }
+        require(journal.currency.matches(Regex("[A-Z]{3}"))) { "Currency must be an ISO code" }
+        // A pure simulator has no external side effect: replay returns the same report-keyed
+        // receipt even after process death. Never replace this with a real rail.
+        return journal.copy(status = PaymentStatus.PAID)
+    }
+}
+
+/** Feature-boundary seam: approvals requests payouts through the existing payments repository. */
+fun interface ReportPaymentRunner {
+    suspend fun pay(reportId: String): com.mileway.core.data.domain.claim.Report
 }

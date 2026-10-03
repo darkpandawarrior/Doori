@@ -1,8 +1,11 @@
 package com.mileway.core.data.claim
 
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import com.mileway.core.data.dao.ApprovalStepDao
 import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
+import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalChain
@@ -12,9 +15,16 @@ import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
 import com.mileway.core.data.domain.claim.Report
+import com.mileway.core.data.domain.claim.ReportLifecycleEvent
 import com.mileway.core.data.domain.claim.ReportLifecycleState
+import com.mileway.core.data.domain.claim.ReportLifecycleStateMachine
+import com.mileway.core.data.domain.notify.ReportLifecycleNotifier
+import com.mileway.core.data.domain.payout.PaymentStatus
+import com.mileway.core.data.domain.payout.PendingPaymentJournal
 import com.mileway.core.data.model.db.ApprovalStepEntity
 import com.mileway.core.data.model.db.ClaimLineEntity
+import com.mileway.core.data.model.db.NotificationEntity
+import com.mileway.core.data.model.db.PendingPaymentJournalEntity
 import com.mileway.core.data.model.db.ReportEntity
 import com.siddharth.kmp.offlineoutbox.OpOutbox
 import kotlinx.coroutines.flow.Flow
@@ -44,6 +54,7 @@ class ReportRepository(
     private val opOutbox: OpOutbox,
     private val json: Json,
     private val clock: Clock = Clock.System,
+    private val database: MilewayDatabase? = null,
 ) {
     suspend fun get(id: String): Report? {
         val entity = reportDao.get(id) ?: return null
@@ -72,11 +83,128 @@ class ReportRepository(
             }
         }
 
-    /** Upserts [report], bumping [Report.recordVersion]; returns the saved (version-bumped) report. */
+    /** All persisted reports, used by the local approval queue. */
+    fun observeAll(): Flow<List<Report>> = reportDao.observeAll().map { rows -> rows.mapNotNull { get(it.id) } }
+
+    /** Atomically writes the report, history, lifecycle inbox row and (when ready) payout journal. */
     suspend fun save(report: Report): Report {
+        val saved = atomic { write(report) }
+        enqueue(saved)
+        return saved
+    }
+
+    /** Records an approver action and comment with optimistic concurrency and self-approval protection. */
+    suspend fun act(
+        reportId: String,
+        expectedVersion: Long,
+        actedBy: String,
+        action: ApprovalAction,
+        comment: String,
+        role: String = "manager",
+        onBehalfOf: String? = null,
+    ): Report {
+        require(actedBy.isNotBlank()) { "An approver identity is required" }
+        require(comment.isNotBlank()) { "A comment is required" }
+        val saved =
+            atomic {
+                val report = requireNotNull(get(reportId)) { "Report not found" }
+                require(report.recordVersion == expectedVersion) { "Report changed; reload before acting" }
+                require(actedBy != report.employeeId && onBehalfOf != report.employeeId) { "Self approval is not allowed" }
+                val event =
+                    when (action) {
+                        ApprovalAction.APPROVE -> ReportLifecycleEvent.APPROVE
+                        ApprovalAction.SEND_BACK -> ReportLifecycleEvent.SEND_BACK
+                        ApprovalAction.REJECT -> ReportLifecycleEvent.REJECT
+                    }
+                val step =
+                    ApprovalStep(
+                        stepIndex = report.approvalChain.steps.size,
+                        role = role,
+                        actedBy = actedBy,
+                        onBehalfOf = onBehalfOf,
+                        action = action,
+                        comment = comment.trim(),
+                        actedAtMillis = clock.now().toEpochMilliseconds(),
+                    )
+                write(
+                    report.copy(
+                        state = ReportLifecycleStateMachine.transition(report.state, event),
+                        approvalChain = ApprovalChain(report.approvalChain.steps + step),
+                    ),
+                )
+            }
+        enqueue(saved)
+        return saved
+    }
+
+    /** Advances a lifecycle event; a recall is refused once an approver has acted. */
+    suspend fun transition(
+        reportId: String,
+        event: ReportLifecycleEvent,
+    ): Report {
+        val saved =
+            atomic {
+                val report = requireNotNull(get(reportId)) { "Report not found" }
+                require(event != ReportLifecycleEvent.RECALL || report.approvalChain.steps.isEmpty()) {
+                    "A report with an approval action cannot be recalled"
+                }
+                write(report.copy(state = ReportLifecycleStateMachine.transition(report.state, event)))
+            }
+        enqueue(saved)
+        return saved
+    }
+
+    /** Commits the simulated receipt, paid report and notification in the same Room transaction. */
+    suspend fun completePayment(receipt: PendingPaymentJournal): Report {
+        val db = requireNotNull(database) { "Payout requires Room" }
+        val saved =
+            atomic {
+                val report = requireNotNull(get(receipt.reportId)) { "Report not found" }
+                val journal =
+                    requireNotNull(
+                        db
+                            .pendingPaymentJournalDao()
+                            .getByReport(report.id)
+                            .singleOrNull { it.id == payoutJournalId(report.id) },
+                    ) { "Payout was not journaled" }
+                require(
+                    receipt.status == PaymentStatus.PAID &&
+                        receipt.amountMinor == journal.amountMinor &&
+                        receipt.currency == journal.currency &&
+                        receipt.createdAtMillis == journal.createdAtMs,
+                ) {
+                    "Receipt differs from the journal"
+                }
+                if (report.state == ReportLifecycleState.PAID) return@atomic report
+                require(report.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) { "Report is not payable" }
+                db.pendingPaymentJournalDao().upsert(journal.copy(status = PaymentStatus.PAID.name))
+                write(report.copy(state = ReportLifecycleStateMachine.transition(report.state, ReportLifecycleEvent.REIMBURSE)))
+            }
+        enqueue(saved)
+        return saved
+    }
+
+    private suspend fun write(report: Report): Report {
         val now = clock.now().toEpochMilliseconds()
         val existing = reportDao.get(report.id)
+        require(report.recordVersion == (existing?.recordVersion ?: 0L)) { "Report changed; reload before saving" }
+        require((existing?.recordVersion ?: 0L) < Long.MAX_VALUE) { "Report version exhausted" }
         val nextVersion = (existing?.recordVersion ?: 0L) + 1
+        val from = existing?.let { ReportLifecycleState.valueOf(it.state) } ?: ReportLifecycleState.DRAFT
+        if (from in setOf(ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT, ReportLifecycleState.PAID)) {
+            require(report.lines == get(report.id)?.lines && report.employeeId == existing?.employeeId) {
+                "Approved claim lines and employee are immutable"
+            }
+        }
+        require(
+            from == report.state ||
+                ReportLifecycleEvent.entries.any {
+                    runCatching { ReportLifecycleStateMachine.transition(from, it) }.getOrNull() == report.state
+                },
+        ) { "Illegal report state change" }
+        require(report.state != ReportLifecycleState.RECALLED || report.approvalChain.steps.isEmpty()) {
+            "A report with an approval action cannot be recalled"
+        }
         reportDao.upsert(
             ReportEntity(
                 id = report.id,
@@ -87,16 +215,12 @@ class ReportRepository(
                 updatedAtMs = now,
             ),
         )
-        // Whole-report replace of lines/steps — the simplest correct write path for a
-        // client-authoritative Draft; line ids are caller-supplied and stable across saves, so
-        // this is a delete-then-reinsert, not a churn of new ids each time.
         claimLineDao.getByReport(report.id).forEach { claimLineDao.delete(it.id) }
         report.lines.forEach { claimLineDao.upsert(it.toEntity(report.id, now, json)) }
         approvalStepDao.deleteByReport(report.id)
         report.approvalChain.steps.forEach { approvalStepDao.insert(it.toEntity(report.id)) }
-
         val saved = report.copy(recordVersion = nextVersion)
-        opOutbox.enqueue(type = OP_TYPE_REPORT, payload = json.encodeToString(Report.serializer(), saved))
+        notifyAndJournal(from, saved, now)
         return saved
     }
 
@@ -122,6 +246,67 @@ class ReportRepository(
         opOutbox.enqueue(type = OP_TYPE_REPORT, payload = json.encodeToString(Report.serializer(), report))
         return report
     }
+
+    private suspend fun notifyAndJournal(
+        from: ReportLifecycleState,
+        saved: Report,
+        now: Long,
+    ) {
+        database?.let { db ->
+            ReportLifecycleNotifier.map(from, saved, now)?.let { row ->
+                db.notificationDao().upsertAll(
+                    listOf(
+                        NotificationEntity(
+                            id = row.id,
+                            title = row.title,
+                            body = row.body,
+                            relativeTime = "Just now",
+                            isUnread = true,
+                            type = row.type,
+                            createdAtMs = row.createdAtMs,
+                            deeplink = row.deeplink,
+                        ),
+                    ),
+                )
+            }
+            if (saved.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) {
+                require(saved.lines.isNotEmpty() && saved.lines.all { it.currency == saved.currency() }) {
+                    "Payout needs a nonempty single-currency report"
+                }
+                val amount =
+                    saved.lines.fold(0L) { sum, line ->
+                        require(line.amountMinor >= 0 && sum <= Long.MAX_VALUE - line.amountMinor) { "Invalid payout amount" }
+                        sum + line.amountMinor
+                    }
+                require(amount > 0) { "Payout must be positive" }
+                require(saved.currency().matches(Regex("[A-Z]{3}"))) { "Currency must be an ISO code" }
+                val dao = db.pendingPaymentJournalDao()
+                val prior = dao.getByReport(saved.id).singleOrNull { it.id == payoutJournalId(saved.id) }
+                if (prior == null) {
+                    dao.upsert(
+                        PendingPaymentJournalEntity(
+                            id = payoutJournalId(saved.id),
+                            reportId = saved.id,
+                            amountMinor = amount,
+                            currency = saved.currency(),
+                            glAccountCode = null,
+                            status = PaymentStatus.PENDING.name,
+                            createdAtMs = now,
+                        ),
+                    )
+                } else {
+                    require(prior.amountMinor == amount && prior.currency == saved.currency()) { "Journal is immutable" }
+                }
+            }
+        }
+    }
+
+    private suspend fun enqueue(report: Report) {
+        opOutbox.enqueue(type = OP_TYPE_REPORT, payload = json.encodeToString(Report.serializer(), report))
+    }
+
+    private suspend fun <T> atomic(block: suspend () -> T): T =
+        if (database == null) block() else database.useWriterConnection { connection -> connection.immediateTransaction { block() } }
 
     private companion object {
         const val OP_TYPE_REPORT = "report"
@@ -194,3 +379,6 @@ private fun ApprovalStepEntity.toDomain(): ApprovalStep =
         comment = comment,
         actedAtMillis = actedAtMillis,
     )
+
+/** One immutable reimbursement journal per report; retries never allocate a new payout. */
+internal fun payoutJournalId(reportId: String): String = "report-payout:$reportId"

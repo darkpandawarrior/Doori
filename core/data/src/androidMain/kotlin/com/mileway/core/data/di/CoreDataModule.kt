@@ -269,7 +269,11 @@ val coreDataModule =
         single { get<MilewayDatabase>().pendingPaymentJournalDao() }
         single {
             com.mileway.core.data.claim
-                .ReportRepository(get(), get(), get(), get(), get())
+                .ReportRepository(get(), get(), get(), get(), get(), database = get())
+        }
+        single {
+            com.mileway.core.data.claim
+                .ReportPayoutProcessor(get(), get(), get())
         }
         single<com.mileway.core.data.claim.BackfillMarker> {
             com.mileway.core.data.claim

@@ -5,6 +5,7 @@ import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.VoucherDao
+import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.di.coreDataModule
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.Report
@@ -75,6 +76,7 @@ class MileageClaimWiringTest {
                 PolicyApprovedVehiclesResponse(vehicles = listOf(ApprovedVehicle(vehicleKey = "car", vehiclePricing = 12.0)))
             val storage =
                 module {
+                    single<MilewayDatabase> { mockk(relaxed = true) }
                     single<SavedTrackDao> { tracks }
                     single<ClaimLineDao> { claims }
                     single<ReportDao> { mockk() }

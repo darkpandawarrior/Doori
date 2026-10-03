@@ -18,7 +18,7 @@ import com.siddharth.kmp.result.PromptGuard
  * repair retry; this object only maps its typed decode result onto [DocField] and builds the
  * PromptGuard-wrapped instruction text both actuals send it.
  */
-internal object DocumentExtractionMapper {
+object DocumentExtractionMapper {
     // Above AnalysisCombiner.AI_CONFIDENT_THRESHOLD (0.6) so a confident docType/field call
     // actually wins the merge; still leaves room to tune once device output is observed.
     const val RESPONSE_CONFIDENCE = 0.7f

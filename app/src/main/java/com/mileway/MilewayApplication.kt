@@ -211,7 +211,6 @@ class MilewayApplication :
             modules =
                 listOf(
                     mapsKoinModule(),
-                    platformServicesKoinModule(),
                     coreDataModule,
                     coreUiModule,
                     stubModule,
@@ -236,6 +235,7 @@ class MilewayApplication :
                     authModule,
                     pinModule,
                     appModule,
+                    platformServicesKoinModule(),
                 ),
             appDeclaration = {
                 androidContext(this@MilewayApplication)
@@ -247,6 +247,10 @@ class MilewayApplication :
             get<DatabaseSeeder>().seedVehiclesIfEmpty()
             scheduleWeeklyMaintenance()
             seedAppShortcuts()
+        }
+        // Recover report reimbursements even when the approval screen is never opened.
+        appScope.launch {
+            get<com.mileway.feature.payments.repository.PaymentsRepository>().recoverReportPayouts()
         }
         // P2.9: phone->watch snapshot sync. Harmless on noGms (WatchSyncBridge is a Noop there).
         get<PhoneSnapshotSync>().start(appScope)

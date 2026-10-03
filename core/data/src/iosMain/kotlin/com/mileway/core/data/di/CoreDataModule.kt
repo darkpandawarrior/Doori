@@ -231,12 +231,16 @@ val coreDataModule =
         // P6.1: cross-process snapshot cache for the widget/extension process.
         single { SnapshotCacheStore() }
         single<SnapshotCache> { get<SnapshotCacheStore>() }
-        // Mileage auto-drafting uses the same L2 persistence bindings as Android.
         single { get<MilewayDatabase>().reportDao() }
         single { get<MilewayDatabase>().claimLineDao() }
         single { get<MilewayDatabase>().approvalStepDao() }
+        single { get<MilewayDatabase>().pendingPaymentJournalDao() }
         single {
             com.mileway.core.data.claim
-                .ReportRepository(get(), get(), get(), get(), get())
+                .ReportRepository(get(), get(), get(), get(), get(), database = get())
+        }
+        single {
+            com.mileway.core.data.claim
+                .ReportPayoutProcessor(get(), get(), get())
         }
     }

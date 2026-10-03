@@ -11,6 +11,7 @@ import com.mileway.core.ui.theme.MilewayDomainTheme
 import com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen
 import com.mileway.feature.approvals.ui.screens.ApprovalsScreen
 import com.mileway.feature.approvals.ui.screens.ClarificationHistoryScreen
+import com.mileway.feature.approvals.ui.screens.ReportApprovalScreen
 
 object ApprovalsRoutes {
     const val HOME = "approvals_home"
@@ -41,10 +42,11 @@ fun NavGraphBuilder.approvalsGraph(navController: NavHostController) {
     ) { backStack ->
         val id = backStack.arguments?.read { getStringOrNull("id") } ?: return@composable
         MilewayDomainTheme(MilewayDomain.APPROVALS) {
-            ApprovalDetailsScreen(
-                approvalId = id,
-                onBack = { navController.popBackStack() },
-            )
+            if (id.startsWith("report:")) {
+                ReportApprovalScreen(id.removePrefix("report:"), onBack = { navController.popBackStack() })
+            } else {
+                ApprovalDetailsScreen(approvalId = id, onBack = { navController.popBackStack() })
+            }
         }
     }
 

@@ -21,6 +21,8 @@ object ReportLifecycleStateMachine {
                 when (event) {
                     ReportLifecycleEvent.APPROVE -> ReportLifecycleState.APPROVED
                     ReportLifecycleEvent.SEND_BACK -> ReportLifecycleState.SENT_BACK
+                    ReportLifecycleEvent.REJECT -> ReportLifecycleState.REJECTED
+                    ReportLifecycleEvent.RECALL -> ReportLifecycleState.RECALLED
                     else -> illegal(from, event)
                 }
             ReportLifecycleState.SENT_BACK ->
@@ -31,9 +33,20 @@ object ReportLifecycleStateMachine {
             ReportLifecycleState.APPROVED ->
                 when (event) {
                     ReportLifecycleEvent.REIMBURSE -> ReportLifecycleState.PAID
+                    ReportLifecycleEvent.RELEASE_FOR_PAYMENT -> ReportLifecycleState.APPROVED_FOR_PAYMENT
                     else -> illegal(from, event)
                 }
-            ReportLifecycleState.PAID -> illegal(from, event)
+            ReportLifecycleState.APPROVED_FOR_PAYMENT ->
+                when (event) {
+                    ReportLifecycleEvent.REIMBURSE -> ReportLifecycleState.PAID
+                    else -> illegal(from, event)
+                }
+            ReportLifecycleState.RECALLED ->
+                when (event) {
+                    ReportLifecycleEvent.SUBMIT -> ReportLifecycleState.SUBMITTED
+                    else -> illegal(from, event)
+                }
+            ReportLifecycleState.PAID, ReportLifecycleState.REJECTED -> illegal(from, event)
         }
 
     private fun illegal(

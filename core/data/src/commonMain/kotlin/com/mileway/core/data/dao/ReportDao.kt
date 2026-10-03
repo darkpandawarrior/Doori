@@ -22,6 +22,12 @@ interface ReportDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: ReportEntity)
 
+    @Query("SELECT * FROM reports ORDER BY updatedAtMs DESC")
+    fun observeAll(): Flow<List<ReportEntity>>
+
+    @Query("SELECT * FROM reports WHERE state IN ('APPROVED', 'APPROVED_FOR_PAYMENT')")
+    suspend fun awaitingPayment(): List<ReportEntity>
+
     @Query("DELETE FROM reports WHERE id = :id")
     suspend fun delete(id: String)
 }

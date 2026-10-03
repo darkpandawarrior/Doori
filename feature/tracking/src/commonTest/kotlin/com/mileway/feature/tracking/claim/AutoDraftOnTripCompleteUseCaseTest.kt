@@ -126,6 +126,13 @@ private class TestReportDao : ReportDao {
 
     override fun observeByEmployee(employeeId: String): Flow<List<ReportEntity>> = flowOf(rows.values.filter { it.employeeId == employeeId })
 
+    override fun observeAll(): Flow<List<ReportEntity>> = flowOf(rows.values.sortedByDescending { it.updatedAtMs })
+
+    override suspend fun awaitingPayment(): List<ReportEntity> =
+        rows.values.filter {
+            it.state == ReportLifecycleState.APPROVED.name || it.state == ReportLifecycleState.APPROVED_FOR_PAYMENT.name
+        }
+
     override suspend fun upsert(entity: ReportEntity) {
         rows[entity.id] = entity
     }
