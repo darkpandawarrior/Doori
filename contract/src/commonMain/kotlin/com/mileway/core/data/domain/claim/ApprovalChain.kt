@@ -11,6 +11,9 @@ enum class ApprovalAction {
 
     @SerialName("send_back")
     SEND_BACK,
+
+    @SerialName("reject")
+    REJECT,
 }
 
 /**

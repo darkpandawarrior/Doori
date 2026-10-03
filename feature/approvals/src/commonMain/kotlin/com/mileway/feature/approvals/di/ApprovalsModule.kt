@@ -8,6 +8,7 @@ import com.mileway.feature.approvals.repository.ClarificationRepository
 import com.mileway.feature.approvals.repository.RoomApprovalCommentRepository
 import com.mileway.feature.approvals.repository.RoomClarificationRepository
 import com.mileway.feature.approvals.search.ApprovalsSearchProvider
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
 import com.mileway.feature.approvals.viewmodel.ClarificationHistoryViewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -25,6 +26,7 @@ val approvalsModule =
         // PLAN_V29 P29.S.1: approvals' contribution to master search — the two of the 5
         // previously-dead SearchEntityType providers this module owns (Approval/Clarification).
         single<SearchProvider>(named("approvals")) { ApprovalsSearchProvider(get()) }
+        viewModelOf(::ReportApprovalViewModel)
         viewModelOf(::ApprovalsViewModel)
         viewModelOf(::ClarificationHistoryViewModel)
     }

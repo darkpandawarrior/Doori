@@ -111,6 +111,8 @@ import com.mileway.core.ui.state.ShellBottomBarState
 import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
+import com.mileway.core.data.domain.claim.ReportLifecycleState
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
@@ -134,8 +136,10 @@ fun ApprovalsScreen(
     onOpenClarificationHistory: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ApprovalsViewModel = koinViewModel(),
+    reportViewModel: ReportApprovalViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    val reportQueue by reportViewModel.queue.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectionMode by rememberSaveable { mutableStateOf(false) }
@@ -226,6 +230,14 @@ fun ApprovalsScreen(
         },
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            // Real claim reports sit alongside the legacy demo approvals, sharing the detail route.
+            reportQueue.filter { it.state in setOf(
+                ReportLifecycleState.SUBMITTED, ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT,
+            ) }.forEach { report ->
+                TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Report ${report.id} · ${report.state.name.replace('_', ' ')}")
+                }
+            }
             PrimaryTabRow(selectedTabIndex = selectedTab) {
                 listOf(
                     stringResource(Res.string.approvals_tab_to_approve),

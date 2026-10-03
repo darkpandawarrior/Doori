@@ -56,6 +56,11 @@ class ReportLifecycleStateMachineTest {
                 ReportLifecycleState.SUBMITTED to ReportLifecycleEvent.SEND_BACK,
                 ReportLifecycleState.SENT_BACK to ReportLifecycleEvent.RESUBMIT,
                 ReportLifecycleState.APPROVED to ReportLifecycleEvent.REIMBURSE,
+                ReportLifecycleState.APPROVED to ReportLifecycleEvent.RELEASE_FOR_PAYMENT,
+                ReportLifecycleState.APPROVED_FOR_PAYMENT to ReportLifecycleEvent.REIMBURSE,
+                ReportLifecycleState.SUBMITTED to ReportLifecycleEvent.REJECT,
+                ReportLifecycleState.SUBMITTED to ReportLifecycleEvent.RECALL,
+                ReportLifecycleState.RECALLED to ReportLifecycleEvent.SUBMIT,
             )
 
         for (state in ReportLifecycleState.entries) {

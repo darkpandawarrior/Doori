@@ -120,6 +120,12 @@ private class FakeReportDao : ReportDao {
 
     override fun observeByEmployee(employeeId: String): Flow<List<ReportEntity>> = rows.map { it.values.filter { row -> row.employeeId == employeeId } }
 
+    override fun observeAll(): Flow<List<ReportEntity>> = rows.map { it.values.toList() }
+
+    override suspend fun awaitingPayment(): List<ReportEntity> = rows.value.values.filter {
+        it.state in setOf("APPROVED", "APPROVED_FOR_PAYMENT")
+    }
+
     override suspend fun upsert(entity: ReportEntity) {
         rows.value = rows.value + (entity.id to entity)
     }
