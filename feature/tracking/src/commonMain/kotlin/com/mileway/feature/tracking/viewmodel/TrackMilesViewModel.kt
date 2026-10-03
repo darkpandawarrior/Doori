@@ -549,7 +549,7 @@ class TrackMilesViewModel(
                         snap.state == com.mileway.core.data.model.display.TrackingState.LIVE_TRACKING
                     ) {
                         val track = trackRepo.getByRouteId(snap.token)
-                        if (track != null) {
+                        if (track != null && !isStrangerSession(track)) {
                             setState { copy(phase = TrackMilesPhase.TRACKING, currentRouteId = track.routeId, startTime = track.startTime) }
                             observeLive(track.routeId)
                             observeBearing(track.routeId)
@@ -976,6 +976,7 @@ class TrackMilesViewModel(
                     destinationTag = destinationTag,
                 )
             driveStartSource?.disarm()
+            if (trackRepo.getActiveTrack() != null) return@launch
             if (waitForDrive) {
                 if (driveStartSource?.arm(pendingDrive) != true) {
                     emitEffect(

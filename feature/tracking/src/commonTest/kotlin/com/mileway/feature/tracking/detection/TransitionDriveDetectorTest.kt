@@ -62,8 +62,16 @@ class TransitionDriveDetectorTest {
         assertFalse(SignificantDriveFixPolicy.mayWake(false, 2.0, 20.0, 10.0))
         assertFalse(SignificantDriveFixPolicy.mayWake(true, 31.0, 20.0, 10.0))
         assertFalse(SignificantDriveFixPolicy.mayWake(true, 2.0, -1.0, 10.0))
-        assertFalse(SignificantDriveFixPolicy.mayWake(true, 2.0, 200.0, 10.0))
+        assertFalse(SignificantDriveFixPolicy.mayWake(true, 2.0, 2_000.0, 10.0))
         assertFalse(SignificantDriveFixPolicy.mayWake(true, 2.0, 20.0, 1.0))
+    }
+
+    @Test
+    fun coarseSlcMovementCanWakeWithoutSpeedOnlyAfterAlwaysIsGranted() {
+        assertTrue(SignificantDriveFixPolicy.mayWake(true, 2.0, 500.0, -1.0, 1_500.0, 200.0))
+        assertFalse(SignificantDriveFixPolicy.mayWake(false, 2.0, 500.0, -1.0, 1_500.0, 200.0))
+        assertFalse(SignificantDriveFixPolicy.mayWake(true, 2.0, 500.0, -1.0, 600.0, 200.0))
+        assertFalse(SignificantDriveFixPolicy.mayWake(true, 2.0, 500.0, -1.0))
     }
 
     @Test

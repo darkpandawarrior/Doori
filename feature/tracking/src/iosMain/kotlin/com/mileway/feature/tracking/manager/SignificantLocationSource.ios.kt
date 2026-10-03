@@ -2,6 +2,7 @@
 
 package com.mileway.feature.tracking.manager
 
+import com.mileway.core.data.util.haversineMeters
 import com.mileway.feature.tracking.detection.DetectedDriveRecorder
 import com.mileway.feature.tracking.detection.DriveDeparture
 import com.mileway.feature.tracking.detection.DriveStartSource
@@ -9,6 +10,7 @@ import com.mileway.feature.tracking.detection.IosDriveWakePolicy
 import com.mileway.feature.tracking.detection.PendingDrive
 import com.mileway.feature.tracking.detection.SignificantDriveFixPolicy
 import io.github.aakira.napier.Napier
+import kotlinx.cinterop.useContents
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -26,7 +28,7 @@ import platform.Foundation.NSDate
 import platform.Foundation.NSUserDefaults
 import platform.Foundation.timeIntervalSince1970
 import platform.UIKit.UIApplication
-import platform.UIKit.UIApplicationStateActive
+import platform.UIKit.UIApplicationState
 import platform.darwin.NSObject
 
 /** Lives with tracker wiring in tracking iosMain; restored SLC waits never request permission. */
@@ -41,6 +43,7 @@ class SignificantLocationSource(
     private var pending = defaults.stringForKey(PENDING)?.let { runCatching { Json.decodeFromString<PendingDrive>(it) }.getOrNull() }
     private val mutableWaiting = MutableStateFlow(false)
     override val waiting = mutableWaiting.asStateFlow()
+    override val waitLabel = "Wait for significant movement (Always location)"
 
     init {
         manager.delegate = this
@@ -53,7 +56,7 @@ class SignificantLocationSource(
         departure: DriveDeparture?,
     ): Boolean =
         withContext(Dispatchers.Main) {
-            if (UIApplication.sharedApplication.applicationState != UIApplicationStateActive || departure != null) {
+            if (UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateActive || departure != null) {
                 return@withContext false
             }
             val status = manager.authorizationStatus
@@ -63,7 +66,7 @@ class SignificantLocationSource(
                 return@withContext false
             }
             if (!IosDriveWakePolicy.mayMonitorSignificantChanges(hasAlways()) ||
-                !CLLocationManager.significantLocationChangeMonitoringAvailable()
+                (!CLLocationManager.significantLocationChangeMonitoringAvailable() || !CLLocationManager.locationServicesEnabled())
             ) {
                 return@withContext false
             }
@@ -88,6 +91,9 @@ class SignificantLocationSource(
             pending = null
             defaults.removeObjectForKey(PENDING)
             defaults.removeObjectForKey(ARMED_AT)
+            defaults.removeObjectForKey(ANCHOR_LAT)
+            defaults.removeObjectForKey(ANCHOR_LNG)
+            defaults.removeObjectForKey(ANCHOR_ACCURACY)
             mutableWaiting.value = false
         }
 
@@ -98,16 +104,36 @@ class SignificantLocationSource(
         val drive = pending ?: return
         val fix = didUpdateLocations.lastOrNull() as? CLLocation ?: return
         val timestamp = fix.timestamp.timeIntervalSince1970
-        if (timestamp <= defaults.doubleForKey(ARMED_AT) ||
-            !SignificantDriveFixPolicy.mayWake(
-                hasAlways = hasAlways(),
-                ageSeconds = NSDate().timeIntervalSince1970 - timestamp,
-                accuracyMeters = fix.horizontalAccuracy,
-                speedMetersPerSecond = fix.speed,
-            )
+        val ageSeconds = NSDate().timeIntervalSince1970 - timestamp
+        if (!hasAlways() ||
+            timestamp <= defaults.doubleForKey(ARMED_AT) ||
+            !SignificantDriveFixPolicy.acceptsFix(ageSeconds, fix.horizontalAccuracy)
         ) {
             return
         }
+        val (latitude, longitude) = fix.coordinate.useContents { latitude to longitude }
+        val hasAnchor = defaults.objectForKey(ANCHOR_LAT) != null
+        val distance =
+            if (hasAnchor) {
+                haversineMeters(defaults.doubleForKey(ANCHOR_LAT), defaults.doubleForKey(ANCHOR_LNG), latitude, longitude)
+            } else {
+                0.0
+            }
+        val shouldWake =
+            SignificantDriveFixPolicy.mayWake(
+                hasAlways = true,
+                ageSeconds = ageSeconds,
+                accuracyMeters = fix.horizontalAccuracy,
+                speedMetersPerSecond = fix.speed,
+                distanceMeters = distance,
+                previousAccuracyMeters = defaults.doubleForKey(ANCHOR_ACCURACY),
+            )
+        if (!hasAnchor) {
+            defaults.setDouble(latitude, ANCHOR_LAT)
+            defaults.setDouble(longitude, ANCHOR_LNG)
+            defaults.setDouble(fix.horizontalAccuracy, ANCHOR_ACCURACY)
+        }
+        if (!shouldWake) return
         // Clear synchronously before launching so a second callback cannot start another trip.
         pending = null
         scope.launch {
@@ -128,5 +154,8 @@ class SignificantLocationSource(
     private companion object {
         const val PENDING = "drive_wake_pending"
         const val ARMED_AT = "drive_wake_armed_at"
+        const val ANCHOR_LAT = "drive_wake_anchor_lat"
+        const val ANCHOR_LNG = "drive_wake_anchor_lng"
+        const val ANCHOR_ACCURACY = "drive_wake_anchor_accuracy"
     }
 }

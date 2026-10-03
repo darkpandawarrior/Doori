@@ -284,7 +284,7 @@ class LocationTrackingService : Service() {
         startId: Int,
     ): Int {
         val action = intent?.action
-        val isNewRecording = action == ACTION_START && !intent.getStringExtra(EXTRA_TOKEN).isNullOrEmpty()
+        val isNewRecording = action == ACTION_START && !intent?.getStringExtra(EXTRA_TOKEN).isNullOrEmpty()
         val isRestore = action == ACTION_RESTORE || intent == null
         val isActiveCommand = activeToken != null && action in setOf(ACTION_PAUSE, ACTION_RESUME, ACTION_STOP, ACTION_FIX_GPS)
         if (!isNewRecording && !isRestore && !isActiveCommand) {

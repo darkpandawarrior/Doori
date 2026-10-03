@@ -3,6 +3,7 @@ package com.mileway.feature.tracking.detection
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.feature.tracking.manager.TrackingController
 import com.mileway.feature.tracking.repository.SavedTrackRepository
+import com.mileway.feature.tracking.service.LocationTrackingConstants
 import com.siddharth.kmp.appshell.AppPermission
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
@@ -16,8 +17,8 @@ data class DriveDeparture(
     val radiusMeters: Float = 200f,
 ) {
     init {
-        require(latitude.isFinite() && latitude in -90.0..90.0)
-        require(longitude.isFinite() && longitude in -180.0..180.0)
+        require(latitude.isFinite() && latitude in LocationTrackingConstants.COORD_LAT_MIN..LocationTrackingConstants.COORD_LAT_MAX)
+        require(longitude.isFinite() && longitude in LocationTrackingConstants.COORD_LNG_MIN..LocationTrackingConstants.COORD_LNG_MAX)
         require(radiusMeters.isFinite() && radiusMeters >= 100f)
     }
 }
@@ -105,17 +106,32 @@ object IosDriveWakePolicy {
     fun mayMonitorSignificantChanges(hasAlways: Boolean): Boolean = hasAlways
 }
 
-/** SLC's initial/cached fixes and walking-speed changes must not escalate to continuous GPS. */
+/** SLC must show motion beyond location uncertainty before escalating to continuous GPS. */
 object SignificantDriveFixPolicy {
+    private const val MAX_AGE_SECONDS = 30.0
+    private const val MAX_ACCURACY_METERS = 1_500.0
+    private const val DRIVING_SPEED_MPS = 5.0
+    private const val MIN_SIGNIFICANT_DISTANCE_METERS = 500.0
+
+    fun acceptsFix(
+        ageSeconds: Double,
+        accuracyMeters: Double,
+    ): Boolean = ageSeconds in 0.0..MAX_AGE_SECONDS && accuracyMeters in 0.0..MAX_ACCURACY_METERS
+
     fun mayWake(
         hasAlways: Boolean,
         ageSeconds: Double,
         accuracyMeters: Double,
         speedMetersPerSecond: Double,
-    ): Boolean =
-        hasAlways &&
-            ageSeconds in 0.0..30.0 &&
-            accuracyMeters in 0.0..100.0 &&
-            speedMetersPerSecond.isFinite() &&
-            speedMetersPerSecond >= 5.0
+        distanceMeters: Double = 0.0,
+        previousAccuracyMeters: Double = 0.0,
+    ): Boolean {
+        val movingAtSpeed = speedMetersPerSecond.isFinite() && speedMetersPerSecond >= DRIVING_SPEED_MPS
+        // Coarse SLC fixes often have no speed. Require displacement outside both error circles.
+        val significantMovement =
+            distanceMeters.isFinite() &&
+                previousAccuracyMeters >= 0 &&
+                distanceMeters - previousAccuracyMeters - accuracyMeters >= MIN_SIGNIFICANT_DISTANCE_METERS
+        return hasAlways && acceptsFix(ageSeconds, accuracyMeters) && (movingAtSpeed || significantMovement)
+    }
 }
