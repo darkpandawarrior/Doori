@@ -716,7 +716,11 @@ afterEvaluate {
                         .filterIsInstance<ResolvedDependencyResult>()
                         .forEach { walk(it.selected) }
                 }
-                rootProviders.forEach { walk(it.get()) }
+                // Variant roots share the same :app component ID. Traverse each graph independently.
+                rootProviders.forEach {
+                    visited.clear()
+                    walk(it.get())
+                }
                 val violations =
                     deps
                         .filter { dep -> forbidden.any { dep.startsWith(it) } }
@@ -730,7 +734,7 @@ afterEvaluate {
         }
     tasks.named("check").configure { dependsOn(verifyTask) }
     tasks.named("dependencyGuard").configure { dependsOn(verifyTask) }
-    tasks.matching { it.name == "assembleNoGmsRelease" }.configureEach { dependsOn(verifyTask) }
+    tasks.matching { it.name in setOf("assembleNoGmsDebug", "assembleNoGmsRelease") }.configureEach { dependsOn(verifyTask) }
 }
 
 // AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled

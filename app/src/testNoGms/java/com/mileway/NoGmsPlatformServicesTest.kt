@@ -35,7 +35,10 @@ class NoGmsPlatformServicesTest {
                 assertTrue(recognizer.recognize("content://receipt").isEmpty())
                 assertFalse(koin.get<DocumentAiAnalyzer>().isAvailable())
                 assertNull(koin.getOrNull<DocumentScanBackend>())
-                assertNull(com.mileway.debug.WormaCeptorHelper.getLaunchIntent(mockk<Context>(relaxed = true)))
+                assertNull(
+                    com.mileway.debug.WormaCeptorHelper
+                        .getLaunchIntent(mockk<Context>(relaxed = true)),
+                )
                 val result = UnavailableOcrMediaRepository().runOcr("content://receipt")
                 assertNull(result.detectedOdometer)
                 assertTrue(result.rawText.contains("not available in this build"))
