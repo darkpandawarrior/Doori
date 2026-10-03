@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.mileway.core.data.model.db.ClaimLineEntity
+import com.mileway.core.data.model.db.ReportEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -29,6 +31,24 @@ interface ClaimLineDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(entity: ClaimLineEntity)
+
+    /** The UNIQUE sourceTripId index makes competing auto-drafts a no-op, never a replacement. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIfAbsent(entity: ClaimLineEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertDraftReport(entity: ReportEntity)
+
+    /** Atomically claims the trip and creates its report; no empty report survives a collision. */
+    @Transaction
+    suspend fun insertMileageDraft(
+        report: ReportEntity,
+        line: ClaimLineEntity,
+    ): Boolean {
+        if (insertIfAbsent(line) == -1L) return false
+        insertDraftReport(report)
+        return true
+    }
 
     @Query("DELETE FROM claim_lines WHERE id = :id")
     suspend fun delete(id: String)

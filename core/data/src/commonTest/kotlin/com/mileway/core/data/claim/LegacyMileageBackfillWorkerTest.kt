@@ -336,6 +336,14 @@ private class BackfillFakeClaimLineDao : ClaimLineDao {
         rows.value = rows.value + (entity.id to entity)
     }
 
+    override suspend fun insertIfAbsent(entity: ClaimLineEntity): Long {
+        if (rows.value.containsKey(entity.id) || (entity.sourceTripId != null && getBySourceTripId(entity.sourceTripId) != null)) return -1L
+        insert(entity)
+        return 1L
+    }
+
+    override suspend fun insertDraftReport(entity: ReportEntity) = error("unused in this fake")
+
     override suspend fun upsert(entity: ClaimLineEntity) {
         rows.value = rows.value + (entity.id to entity)
     }
