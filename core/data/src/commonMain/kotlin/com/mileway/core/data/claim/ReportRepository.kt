@@ -224,6 +224,29 @@ class ReportRepository(
         return saved
     }
 
+    /** Checks the same source-trip identity used by the legacy backfill. */
+    suspend fun hasSourceTrip(sourceTripId: String): Boolean = claimLineDao.getBySourceTripId(sourceTripId) != null
+
+    /** Creates exactly one draft per tracked trip without replacing any existing claim or report. */
+    suspend fun createMileageDraft(
+        employeeId: String,
+        line: MileageLine,
+    ): Report? {
+        require(employeeId.isNotBlank()) { "A mileage draft requires its trip owner" }
+        val tripId = requireNotNull(line.sourceTripId)
+        require(tripId.isNotBlank()) { "A mileage draft requires its source trip" }
+        val now = clock.now().toEpochMilliseconds()
+        val report = Report(id = "mileage_$tripId", employeeId = employeeId, lines = listOf(line), recordVersion = 1L)
+        val inserted =
+            claimLineDao.insertMileageDraft(
+                ReportEntity(report.id, employeeId, report.state.name, report.recordVersion, now, now),
+                line.toEntity(report.id, now, json),
+            )
+        if (!inserted) return null
+        opOutbox.enqueue(type = OP_TYPE_REPORT, payload = json.encodeToString(Report.serializer(), report))
+        return report
+    }
+
     private suspend fun notifyAndJournal(
         from: ReportLifecycleState,
         saved: Report,

@@ -2,10 +2,9 @@ package com.mileway.feature.tracking.viewmodel
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
-import com.mileway.core.data.ledger.PolicyRateEngine
-import com.mileway.core.data.ledger.PolicyRateTable
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.VoucherCategory
+import com.mileway.feature.tracking.claim.MileageClaimPolicyProvider
 import com.mileway.feature.tracking.repository.VehiclePricingRepository
 import com.mileway.feature.tracking.repository.VoucherRecord
 import com.mileway.feature.tracking.repository.VoucherRepository
@@ -15,7 +14,7 @@ import kotlin.time.Clock
 
 /**
  * The raw submission facts the success screen was navigated with. Everything except the
- * reimbursement is display-only; the reimbursement is (re)computed here from [PolicyRateEngine] so
+ * reimbursement is display-only; the reimbursement is (re)computed here from [com.mileway.core.data.domain.policy.PolicyEngine] so
  * the screen shows a real policy-rate figure rather than the mock API's `reimbursableAmount`.
  */
 data class TrackingSuccessArgs(
@@ -77,14 +76,15 @@ sealed interface TrackingSuccessEffect {
 
 /**
  * Wires the stateless `TrackingSuccessScreen` to real data: reimbursement comes from
- * [PolicyRateEngine] (rate table built from [VehiclePricingRepository]'s approved vehicles), and
+ * [com.mileway.core.data.domain.policy.PolicyEngine] (rate table built from [VehiclePricingRepository]'s approved vehicles), and
  * the "Create Voucher" CTA persists a real DRAFT voucher via [VoucherRepository] instead of a
  * navigation-only stub. Navigation intents leave as [TrackingSuccessEffect]s.
  */
 class TrackingSuccessViewModel(
     private val args: TrackingSuccessArgs,
-    private val vehiclePricingRepository: VehiclePricingRepository,
+    vehiclePricingRepository: VehiclePricingRepository,
     private val voucherRepository: VoucherRepository,
+    private val policyProvider: MileageClaimPolicyProvider = MileageClaimPolicyProvider(vehiclePricingRepository),
 ) : BaseViewModel<TrackingSuccessUiState, TrackingSuccessEffect, TrackingSuccessAction>(
         TrackingSuccessUiState(
             distanceKm = args.distanceKm,
@@ -130,23 +130,11 @@ class TrackingSuccessViewModel(
 
     private fun computeReimbursement() {
         viewModelScope.launch {
-            val vehicles = runCatching { vehiclePricingRepository.getVehicles() }.getOrElse { emptyList() }
-            val table =
-                PolicyRateTable.fromApprovedVehicles(
-                    vehicles = vehicles,
-                    // ponytail: fixed fallback rate for vehicle keys with no approved-list pricing.
-                    // Server-configurable per-tenant rates are a later (backend) phase; a constant is
-                    // fine for offline/mock today.
-                    defaultRatePerKm = DEFAULT_RATE_PER_KM,
-                    // No global min/max caps in the offline dataset yet; the engine handles nulls.
-                    minReimbursement = null,
-                    maxReimbursement = null,
-                )
-            val result = PolicyRateEngine(table).reimbursement(args.vehicleKey, args.distanceKm)
+            val result = policyProvider.mapper().reimbursement(args.vehicleKey, args.distanceKm, args.endTime)
             setState {
                 copy(
-                    ratePerKm = result.ratePerKm,
-                    reimbursableAmount = result.cappedAmount.toDouble(),
+                    ratePerKm = result.ratePerKm / MileageClaimPolicyProvider.MINOR_UNIT_SCALE,
+                    reimbursableAmount = result.cappedAmount / MileageClaimPolicyProvider.MINOR_UNIT_SCALE,
                 )
             }
         }
@@ -178,6 +166,6 @@ class TrackingSuccessViewModel(
 
     companion object {
         // ponytail: single flat fallback ₹/km until per-tenant server config lands.
-        const val DEFAULT_RATE_PER_KM = 8.0
+        const val DEFAULT_RATE_PER_KM = MileageClaimPolicyProvider.DEFAULT_RATE_PER_KM
     }
 }
