@@ -218,6 +218,11 @@ class ScreenshotDirectionsTest {
         private val fakeRoomLayer =
             module {
                 single<SavedTrackDao> { seededDao }
+                single<com.mileway.core.data.claim.ReportRepository> {
+                    mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+                }
+                single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
+                single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }
                 single<LocationDao> { mockk(relaxed = true) }
                 single<HardwareEventDao> { mockk(relaxed = true) }
                 single<LogMilesDraftDao> { FakeLogMilesDraftDao() }

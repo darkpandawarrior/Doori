@@ -112,7 +112,10 @@ class RoomClarificationRepository(
             )
         dao.upsertRoom(entity)
         val requesterName = participants.firstOrNull { it != APPROVER_SENDER_ID } ?: REQUESTER_SENDER_ID
-        seedMessages(entity.roomId, now, requesterName).forEach { dao.insertMessage(it) }
+        // Report rooms contain only actual local comments; legacy fixtures retain their demo thread.
+        if (!approvalId.startsWith("report:")) {
+            seedMessages(entity.roomId, now, requesterName).forEach { dao.insertMessage(it) }
+        }
         return entity.toDomain()
     }
 

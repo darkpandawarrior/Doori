@@ -56,6 +56,11 @@ class ReportLifecycleStateMachineTest {
                 ReportLifecycleState.SUBMITTED to ReportLifecycleEvent.SEND_BACK,
                 ReportLifecycleState.SENT_BACK to ReportLifecycleEvent.RESUBMIT,
                 ReportLifecycleState.APPROVED to ReportLifecycleEvent.REIMBURSE,
+                ReportLifecycleState.APPROVED to ReportLifecycleEvent.RELEASE_FOR_PAYMENT,
+                ReportLifecycleState.APPROVED_FOR_PAYMENT to ReportLifecycleEvent.REIMBURSE,
+                ReportLifecycleState.SUBMITTED to ReportLifecycleEvent.REJECT,
+                ReportLifecycleState.SUBMITTED to ReportLifecycleEvent.RECALL,
+                ReportLifecycleState.RECALLED to ReportLifecycleEvent.SUBMIT,
             )
 
         for (state in ReportLifecycleState.entries) {
@@ -82,15 +87,7 @@ class ReportLifecycleStateMachineTest {
         }
     }
 
-    // ── B03/B04 (backend-validation-matrix.md): recall allowed only with no recorded ApprovalStep
-    // action, blocked once one exists. This 4-state+resubmit machine does not model a Draft recall
-    // at all — there is no Submitted->Draft transition in the table for ANY event, legal or not —
-    // which is stricter than B03/B04 requires, not a gap: a report can never silently un-submit.
-    // What this machine DOES model is the resubmit half: SentBack->Submitted only fires after a
-    // SEND_BACK action was already recorded (that's how a report reaches SentBack in the first
-    // place) — the mirror-image guard of B03's "no action recorded" condition. Both directions are
-    // asserted explicitly here rather than left to be inferred from the exhaustive sweep above.
-
+    // Recall is an explicit RECALLED state; ReportRepository guards it against recorded actions.
     @Test
     fun thereIsNoDraftRecallTransitionFromSubmittedForAnyEvent() {
         for (event in ReportLifecycleEvent.entries) {

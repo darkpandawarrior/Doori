@@ -32,6 +32,9 @@ class WireStabilityTest {
                 ReportLifecycleState.APPROVED to "\"approved\"",
                 ReportLifecycleState.SENT_BACK to "\"sent_back\"",
                 ReportLifecycleState.PAID to "\"paid\"",
+                ReportLifecycleState.APPROVED_FOR_PAYMENT to "\"approved_for_payment\"",
+                ReportLifecycleState.REJECTED to "\"rejected\"",
+                ReportLifecycleState.RECALLED to "\"recalled\"",
             )
         expected.forEach { (state, wireForm) ->
             assertEquals(wireForm, json.encodeToString(ReportLifecycleState.serializer(), state))
@@ -45,6 +48,7 @@ class WireStabilityTest {
             mapOf(
                 ApprovalAction.APPROVE to "\"approve\"",
                 ApprovalAction.SEND_BACK to "\"send_back\"",
+                ApprovalAction.REJECT to "\"reject\"",
             )
         expected.forEach { (action, wireForm) ->
             assertEquals(wireForm, json.encodeToString(ApprovalAction.serializer(), action))
