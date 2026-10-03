@@ -40,9 +40,7 @@ private const val ANCHOR_ACCURACY = "drive_wake_anchor_accuracy"
 /** Lives with tracker wiring in tracking iosMain; restored SLC waits never request permission. */
 class SignificantLocationSource(
     private val recorder: DetectedDriveRecorder,
-) : NSObject(),
-    CLLocationManagerDelegateProtocol,
-    DriveStartSource {
+) : DriveStartSource {
     private val manager = CLLocationManager()
     private val defaults = NSUserDefaults.standardUserDefaults
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -50,9 +48,10 @@ class SignificantLocationSource(
     private val mutableWaiting = MutableStateFlow(false)
     override val waiting = mutableWaiting.asStateFlow()
     override val waitLabel = "Wait for significant movement (Always location)"
+    private val delegate = SignificantLocationDelegate(::onLocations, ::onAuthorizationChanged)
 
     init {
-        manager.delegate = this
+        manager.delegate = delegate
         // Eager Koin creation reattaches the significant-change delegate on a location relaunch.
         if (pending != null && IosDriveWakePolicy.mayMonitorSignificantChanges(hasAlways())) beginMonitoring()
     }
@@ -103,10 +102,7 @@ class SignificantLocationSource(
             mutableWaiting.value = false
         }
 
-    override fun locationManager(
-        manager: CLLocationManager,
-        didUpdateLocations: List<*>,
-    ) {
+    private fun onLocations(didUpdateLocations: List<*>) {
         val drive = pending ?: return
         val fix = didUpdateLocations.lastOrNull() as? CLLocation ?: return
         val timestamp = fix.timestamp.timeIntervalSince1970
@@ -150,10 +146,24 @@ class SignificantLocationSource(
         }
     }
 
-    override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) {
+    private fun onAuthorizationChanged() {
         if (!hasAlways()) {
             manager.stopMonitoringSignificantLocationChanges()
             mutableWaiting.value = false
         }
     }
+}
+
+/** Objective-C protocol adapter; it deliberately implements no Kotlin interface. */
+private class SignificantLocationDelegate(
+    private val locations: (List<*>) -> Unit,
+    private val authorizationChanged: () -> Unit,
+) : NSObject(),
+    CLLocationManagerDelegateProtocol {
+    override fun locationManager(
+        manager: CLLocationManager,
+        didUpdateLocations: List<*>,
+    ) = locations(didUpdateLocations)
+
+    override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) = authorizationChanged()
 }
