@@ -106,6 +106,41 @@ class AutoDraftOnTripCompleteUseCaseTest {
         }
 
     @Test
+    fun `ineligible emissions never fetch vehicle rates`() =
+        runTest {
+            var vehicleRequests = 0
+            val api =
+                object : MilewayNetworkApi by FakeNetworkApi(emptyList()) {
+                    override suspend fun vehicles(trackMiles: Boolean): PolicyApprovedVehiclesResponse {
+                        vehicleRequests++
+                        return PolicyApprovedVehiclesResponse(vehicles = emptyList())
+                    }
+                }
+            val observer = AutoDraftOnTripCompleteUseCase(tracks, repository, MileageClaimPolicyProvider(VehiclePricingRepository(api)))
+            val trip = completedTrip()
+            val ineligible =
+                listOf(
+                    trip.copy(isCompleted = false),
+                    trip.copy(isDiscarded = true),
+                    trip.copy(wasMockOn = true),
+                    trip.copy(wasMockLocationUsed = true),
+                    trip.copy(startedByEmployeeCode = ""),
+                    trip.copy(distance = -1.0),
+                    trip.copy(distance = Double.NaN),
+                    trip.copy(distance = Double.POSITIVE_INFINITY),
+                    trip.copy(endTime = 0L),
+                )
+            completed.value = ineligible
+            observer.start(backgroundScope)
+            runCurrent()
+            completed.value = ineligible.reversed()
+            runCurrent()
+
+            assertEquals(0, vehicleRequests)
+            assertEquals(0, claims.rows.size)
+        }
+
+    @Test
     fun `startup recovers a missed completion and ineligible rows stay unclaimed`() =
         runTest {
             completed.value = listOf(completedTrip(), completedTrip().copy(routeId = "mock", wasMockOn = true))
