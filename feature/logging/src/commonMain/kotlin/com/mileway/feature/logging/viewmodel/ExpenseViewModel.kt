@@ -505,7 +505,8 @@ class ExpenseViewModel(
             return
         }
         val manual = form.manualFxRateText.toDoubleOrNull()
-        if (form.manualFxRateText.isNotBlank() && (manual == null || !manual.isFinite() || manual <= 0)) {
+        val validManualRate = manual != null && manual.isFinite() && manual > 0
+        if (form.manualFxRateText.isNotBlank() && !validManualRate) {
             setState { copy(fxMessage = "Enter a finite manual rate greater than zero (approximate)") }
             return
         }

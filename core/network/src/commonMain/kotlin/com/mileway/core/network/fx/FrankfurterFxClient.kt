@@ -33,9 +33,9 @@ class FrankfurterFxClient(
                 }
             if (!response.status.isSuccess()) return null
             val body = json.decodeFromString<Response>(response.bodyAsText())
-            if (!isFxSourceDate(body.date)) return null
-            if (date != null && body.date > date) return null
-            FxRate(body.rate, body.base, body.quote, body.date).takeIf { it.isUsable(base, quote) }
+            FxRate(body.rate, body.base, body.quote, body.date).takeIf {
+                it.isUsable(base, quote) && (date == null || body.date <= date)
+            }
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

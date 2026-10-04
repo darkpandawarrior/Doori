@@ -69,14 +69,7 @@ private fun ReportSubmitContent(
                 content.report.lines.forEach { line ->
                     val label = (line as? ExpenseLine)?.merchant ?: line.id
                     Text("$label · ${line.currency} ${line.amountMinor.toDouble() / MinorPerRupee}")
-                    if (line is ExpenseLine && line.currency != "INR") {
-                        Text(
-                            line.fxRate?.let {
-                                it.description()
-                            }
-                                ?: "No FX pin: amount checks skipped; enter a manual rate (approximate).",
-                        )
-                    }
+                    if (line is ExpenseLine) FxRateLabel(line)
                 }
                 Text("Report policy", style = MaterialTheme.typography.titleMedium)
                 if (content.hardFlags.isEmpty() && content.softFlags.isEmpty()) Text("No policy flags")
@@ -94,6 +87,12 @@ private fun ReportSubmitContent(
             }
         }
     }
+}
+
+@Composable
+private fun FxRateLabel(line: ExpenseLine) {
+    if (line.currency == "INR") return
+    Text(line.fxRate?.description() ?: "No FX pin: amount checks skipped; enter a manual rate (approximate).")
 }
 
 @Preview
