@@ -74,7 +74,7 @@ class LegacyMileageBackfillWorker(
                 amountMinor = (track.submittedAmount * MINOR_UNIT_SCALE).toLong().coerceAtLeast(0L),
                 currency = track.submittedAmountCurrency.ifBlank { "INR" },
                 sourceTripId = sourceTripId,
-                distanceKm = track.distance,
+                distanceKm = track.distance / METRES_PER_KM,
                 vehicleKey = track.selectedVehicleType,
             )
         claimLineDao.insert(line.toEntity(reportId, now, json))
@@ -82,5 +82,6 @@ class LegacyMileageBackfillWorker(
 
     private companion object {
         const val MINOR_UNIT_SCALE = 100
+        const val METRES_PER_KM = 1_000.0
     }
 }

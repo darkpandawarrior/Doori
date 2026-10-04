@@ -3,6 +3,7 @@ package com.mileway.core.data.claim
 import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
 import com.mileway.core.data.dao.SavedTrackDao
+import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.model.db.ClaimLineEntity
 import com.mileway.core.data.model.db.ReportEntity
 import com.mileway.core.data.model.db.SavedTrack
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 /**
@@ -44,7 +46,8 @@ class LegacyMileageBackfillWorkerTest {
         pausedLongitude = 0.0,
         startTime = 0L,
         endTime = 0L,
-        distance = 10.0,
+        distance = 10_000.0,
+        submittedAmount = 120.0,
         duration = 0L,
         createdAt = 5L,
     )
@@ -66,6 +69,9 @@ class LegacyMileageBackfillWorkerTest {
             worker(savedTrackDao, reportDao, claimLineDao).run()
 
             assertEquals(2, reportDao.rows.value.size)
+            val line = assertIs<MileageLine>(claimLineDao.rows.value.getValue("legacy_line_t1").toDomain(json))
+            assertEquals(10.0, line.distanceKm)
+            assertEquals(12_000L, line.amountMinor)
             assertEquals(
                 setOf("t1", "t2"),
                 claimLineDao.rows.value.values
