@@ -44,7 +44,7 @@ class ExportHomeWiringTest {
         val locations = mockk<LocationDao>()
         val events = mockk<HardwareEventDao>()
         coEvery { tracks.getSavedTrackById("trip") } returns track
-        coEvery { locations.getLocationsByTokenOnce("trip") } returns points
+        coEvery { locations.getLocationsByTokenPaged("trip", Int.MAX_VALUE, 0) } returns points
         coEvery { events.getEventsByToken("trip") } returns emptyList()
         val savedPlaces = FakeSavedPlaceDao()
         savedPlaces.upsert(home)
