@@ -559,6 +559,7 @@ private fun Step2Content(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             OutlinedTextField(
+                readOnly = form.cardMatchedAmountMinor != null,
                 value = form.amountText,
                 onValueChange = { viewModel.onAction(ExpenseAction.SetAmount(it)) },
                 label = { Text(stringResource(Res.string.logging_amount_rupees_label)) },
@@ -571,6 +572,7 @@ private fun Step2Content(
                 modifier = Modifier.weight(1f),
             )
             CurrencyPickerField(
+                enabled = form.cardMatchedAmountMinor == null,
                 selectedCode = form.currencyCode,
                 onSelect = { code -> viewModel.onAction(ExpenseAction.SetCurrency(code)) },
                 modifier = Modifier.width(110.dp),
@@ -1114,6 +1116,7 @@ private fun OfficePickerField(
 @Composable
 private fun CurrencyPickerField(
     selectedCode: String,
+    enabled: Boolean = true,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -1121,10 +1124,11 @@ private fun CurrencyPickerField(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = { if (enabled) expanded = it },
         modifier = modifier,
     ) {
         OutlinedTextField(
+            enabled = enabled,
             value = selectedCode,
             onValueChange = {},
             readOnly = true,

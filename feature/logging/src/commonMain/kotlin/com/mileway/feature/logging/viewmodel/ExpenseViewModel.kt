@@ -396,11 +396,24 @@ class ExpenseViewModel(
             ExpenseAction.AdvanceStep -> advanceStep()
             ExpenseAction.RetreatStep -> setState { copy(form = form.copy(step = 1)) }
             is ExpenseAction.SetFormValue -> setState { copy(form = form.copy(formValues = form.formValues + (action.key to action.value))) }
-            is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
+            is ExpenseAction.SetAmount -> if (currentState.form.cardMatchedAmountMinor == null) setState { copy(form = form.copy(amountText = action.text)) }
             is ExpenseAction.SetCurrency ->
-                setState { copy(form = form.copy(currencyCode = action.code, fxRate = null, fxRatePinnedAt = null, cardFxRate = null), fxMessage = null) }
+                if (currentState.form.cardMatchedAmountMinor ==
+                    null
+                ) {
+                    setState {
+                        copy(
+                            form = form.copy(currencyCode = action.code, fxRate = null, fxRatePinnedAt = null, cardFxRate = null),
+                            fxMessage = null,
+                        )
+                    }
+                }
             is ExpenseAction.SetManualFxRate ->
-                setState { copy(form = form.copy(manualFxRateText = action.text, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
+                if (currentState.form.cardMatchedAmountMinor ==
+                    null
+                ) {
+                    setState { copy(form = form.copy(manualFxRateText = action.text, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
+                }
             is ExpenseAction.SetCardFxRate ->
                 setState { copy(form = form.copy(cardFxRate = action.rate, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
             is ExpenseAction.SetMerchant -> setState { copy(form = form.copy(merchantName = action.name)) }

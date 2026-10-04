@@ -17,6 +17,9 @@ kotlin {
             implementation(project(":core:ui"))
             // PLAN_V24 P4.3: LocalOtpEngine (CARD_KYC) + PluginRegistry for the KYC wizard + gating.
             implementation(project(":core:data"))
+            implementation(project(":core:network"))
+            implementation(project(":core:forms"))
+            implementation("com.siddharth.kmp:settings:1.0.0")
             // V26 P26.SITE.4: AttachDocument gets a real picker via the shared core:media launcher.
             implementation(project(":core:media"))
         }

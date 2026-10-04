@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -49,6 +50,7 @@ fun CardsHomeScreen(
     onOpenCard: (Long) -> Unit,
     onRequestCard: () -> Unit,
     onStartKyc: () -> Unit = {},
+    onImportStatement: (() -> Unit)? = null,
     viewModel: CardsHomeViewModel = koinViewModel(),
     pluginRegistry: com.mileway.core.data.plugin.PluginRegistry = org.koin.compose.koinInject(),
 ) {
@@ -61,6 +63,7 @@ fun CardsHomeScreen(
         onOpenCard = onOpenCard,
         onRequestCard = onRequestCard,
         onStartKyc = if (kycEnabled) onStartKyc else null,
+        onImportStatement = onImportStatement,
     )
 }
 
@@ -72,6 +75,7 @@ internal fun CardsHomeContent(
     onOpenCard: (Long) -> Unit,
     onRequestCard: () -> Unit,
     onStartKyc: (() -> Unit)? = null,
+    onImportStatement: (() -> Unit)? = null,
 ) {
     val tabs = listOf(stringResource(Res.string.cards_tab_cards), stringResource(Res.string.cards_tab_requests))
     Scaffold(
@@ -89,6 +93,9 @@ internal fun CardsHomeContent(
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            onImportStatement?.let { open ->
+                TextButton(onClick = open) { Text("Import statement / payout setup") }
+            }
             onStartKyc?.let { start ->
                 Card(
                     onClick = start,

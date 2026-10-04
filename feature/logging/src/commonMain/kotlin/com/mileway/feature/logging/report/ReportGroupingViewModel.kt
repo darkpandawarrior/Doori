@@ -231,6 +231,12 @@ internal fun ExpenseRecord.toClaimLine(): ExpenseLine {
         id = id,
         amountMinor = capturedMinor,
         currency = currencyCode,
+        incurredOn =
+            Instant
+                .fromEpochMilliseconds(dateMs)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+                .toString(),
         fxRate = fxRate,
         fxRatePinnedAt = fxRatePinnedAt,
         merchant = merchantName,

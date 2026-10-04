@@ -5,6 +5,7 @@ import androidx.room.useWriterConnection
 import com.mileway.core.data.dao.ApprovalStepDao
 import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
+import com.mileway.core.data.dao.StatementImportDao
 import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ApprovalAction
@@ -26,6 +27,7 @@ import com.mileway.core.data.model.db.ClaimLineEntity
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.PendingPaymentJournalEntity
 import com.mileway.core.data.model.db.ReportEntity
+import com.mileway.core.data.model.db.StatementImportEntity
 import com.siddharth.kmp.offlineoutbox.OpOutbox
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -96,6 +98,41 @@ class ReportRepository(
         val saved = atomic { write(report) }
         enqueue(saved)
         return saved
+    }
+
+    /** Checks the persisted batch receipt without exposing Room to feature modules. */
+    suspend fun wasStatementImported(id: String): Boolean = requireNotNull(database).statementImportDao().get(id) != null
+
+    /** Saves the import receipt and all matches in one Room transaction, with version checks. */
+    suspend fun saveStatementMatches(
+        batch: StatementImportEntity,
+        snapshots: List<Report>,
+        matches: Map<String, ExpenseLine>,
+        imports: StatementImportDao = requireNotNull(database).statementImportDao(),
+    ): Boolean {
+        val saved =
+            atomic {
+                if (imports.get(batch.id) != null) return@atomic null
+                require(matches.keys.all { id -> snapshots.any { report -> report.lines.any { it.id == id } } })
+                val used = imports.matchedTransactionIds().toSet()
+                require(
+                    matches.values
+                        .map { it.cardMatchId }
+                        .distinct()
+                        .size == matches.size,
+                )
+                require(matches.values.all { it.cardMatchId != null && it.cardMatchId !in used }) { "Statement transaction already matched" }
+                val changed =
+                    snapshots.filter { report -> report.lines.any { it.id in matches } }.map { report ->
+                        require(report.state in setOf(ReportLifecycleState.DRAFT, ReportLifecycleState.SENT_BACK, ReportLifecycleState.RECALLED))
+                        report.lines.forEach { original -> matches[original.id]?.let { validateStatementMatch(original, it) } }
+                        write(report.copy(lines = report.lines.map { matches[it.id] ?: it }))
+                    }
+                imports.upsert(batch)
+                changed
+            } ?: return false
+        saved.forEach { enqueue(it) }
+        return true
     }
 
     /** Includes booking metadata and scoped line actions without changing the report wire contract. */
@@ -291,6 +328,13 @@ class ReportRepository(
                     runCatching { ReportLifecycleStateMachine.transition(from, it) }.getOrNull() == report.state
                 },
         ) { "Illegal report state change" }
+        val priorLines = claimLineDao.getByReport(report.id)
+        priorLines.map { it.toDomain(json) }.filter { it.cardMatchId != null }.forEach { prior ->
+            val next = report.lines.find { it.id == prior.id }
+            require(next == null || (next.amountMinor == prior.amountMinor && next.currency == prior.currency && next.cardMatchId == prior.cardMatchId)) {
+                "Card-matched amount and currency are locked"
+            }
+        }
         val newlySubmitted = report.state == ReportLifecycleState.SUBMITTED && from != ReportLifecycleState.SUBMITTED
         val submittedAt = existing?.submittedAtMs ?: if (newlySubmitted) now else null
         val period = existing?.accountingPeriodKey ?: submittedAt?.let { at -> nextOpenPeriod(at) { database?.periodLockDao()?.get(it) } }
@@ -306,7 +350,6 @@ class ReportRepository(
                 accountingPeriodKey = period,
             ),
         )
-        val priorLines = claimLineDao.getByReport(report.id)
         priorLines.forEach { claimLineDao.delete(it.id) }
         report.lines.forEach { line ->
             val createdAt = priorLines.find { it.id == line.id }?.createdAtMs ?: now
