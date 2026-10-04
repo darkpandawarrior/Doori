@@ -62,7 +62,8 @@ data class MileageRateMirror(
     /** Resolves a cap only within its publication year. No unverified cap carries into another year. */
     fun favrLimitFor(submittedAtMillis: Long): FavrCostLimit {
         val year = MileageAnnualPeriod.CALENDAR_YEAR.startFor(submittedAtMillis).substringBefore('-')
-        return favrCostLimits.filter { it.effectiveFrom.substringBefore('-') == year && rateDateMillis(it.effectiveFrom) <= submittedAtMillis }
+        return favrCostLimits
+            .filter { it.effectiveFrom.substringBefore('-') == year && rateDateMillis(it.effectiveFrom) <= submittedAtMillis }
             .maxByOrNull { it.effectiveFrom }
             ?: error("No published FAVR automobile cost cap for submission year")
     }

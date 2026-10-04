@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 
 private const val ISO_DATE_LENGTH = 10
+private const val YEAR_DIGITS = 4
 private const val RATE_SCALE = 1_000L
 private const val HALF_RATE_SCALE = RATE_SCALE / 2
 
@@ -31,8 +32,9 @@ internal fun checkedRateSum(
 }
 
 /** Rounds thousandths of a minor unit half-up once, after all distance bands have been added. */
-internal fun roundRateMinor(thousandthsMinor: Long): Long =
-    thousandthsMinor / RATE_SCALE + if (thousandthsMinor % RATE_SCALE >= HALF_RATE_SCALE) 1L else 0L
+internal fun roundRateMinor(thousandthsMinor: Long): Long {
+    return thousandthsMinor / RATE_SCALE + if (thousandthsMinor % RATE_SCALE >= HALF_RATE_SCALE) 1L else 0L
+}
 
 /** Strict ISO date, represented as midnight UTC for comparison with submission epoch millis. */
 internal fun rateDateMillis(date: String): Long {
@@ -79,7 +81,9 @@ data class AnnualDistanceStepDown(
 
 /** Calendar periods used by the cited mileage mirrors. Dates are evaluated in UTC. */
 @Serializable
-enum class MileageAnnualPeriod(val startsOn: String) {
+enum class MileageAnnualPeriod(
+    val startsOn: String,
+) {
     CALENDAR_YEAR("01-01"),
     UK_TAX_YEAR("04-06"),
     ;
@@ -89,7 +93,7 @@ enum class MileageAnnualPeriod(val startsOn: String) {
         val date = Instant.fromEpochMilliseconds(submittedAtMillis).toString().substringBefore('T')
         rateDateMillis(date)
         val year = date.substringBefore('-').toInt() - if (date.substringAfter('-') < startsOn) 1 else 0
-        return "${year.toString().padStart(4, '0')}-$startsOn"
+        return "${year.toString().padStart(YEAR_DIGITS, '0')}-$startsOn"
     }
 }
 
