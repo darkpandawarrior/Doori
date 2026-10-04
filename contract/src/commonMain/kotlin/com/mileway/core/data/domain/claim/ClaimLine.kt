@@ -72,6 +72,8 @@ data class PerDiemLine(
     override val sourceTripId: String? = null,
     val days: Int,
     val dailyRateMinor: Long,
+    /** Local calendar date; older persisted lines without a date remain readable. */
+    @SerialName("incurredOn") val incurredOn: String? = null,
 ) : ClaimLine
 
 @Serializable

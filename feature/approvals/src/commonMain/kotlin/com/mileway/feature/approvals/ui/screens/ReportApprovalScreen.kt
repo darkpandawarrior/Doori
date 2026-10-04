@@ -28,6 +28,7 @@ import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
 import com.mileway.feature.approvals.delegate.DelegateBanner
@@ -37,10 +38,10 @@ import com.mileway.feature.approvals.model.ApprovalType
 import com.mileway.feature.approvals.model.toDetailActionFlags
 import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
-import kotlin.time.Instant
 
 /** Persisted report review, reached from the approvals queue and lifecycle inbox links. */
 @Composable
@@ -54,7 +55,7 @@ fun ReportApprovalScreen(
     var showRoom by remember(reportId) { mutableStateOf(false) }
     LaunchedEffect(reportId) { viewModel.open(reportId) }
     TransactionDetailScaffold(
-        title = "Report $reportId",
+        title = reportApprovalTitle(ui.review?.accountingPeriodKey),
         subtitle = "Local review · Simulated payout",
         tabs = listOf(DetailSection.Details),
         selectedTab = DetailSection.Details,
@@ -122,10 +123,10 @@ private fun ReportApprovalContent(
         report.lines.forEach { line ->
             OutlinedButton(onClick = { onLine(line.id) }, enabled = !ui.busy) {
                 val rejected = line.id in ui.review?.rejectedLineIds.orEmpty()
-                Text("${line.id}: ${formatReportAmount(line.amountMinor, line.currency)}${if (rejected) " · Rejected" else " · Review line"}")
+                Text("${line.id}: ${formatMinorCurrency(line.amountMinor, line.currency)}${if (rejected) " · Rejected" else " · Review line"}")
             }
         }
-        Text("Total: ${formatReportAmount(report.totalAmountMinor(), report.currency())}")
+        Text("Total: ${formatMinorCurrency(report.totalAmountMinor(), report.currency())}")
         report.approvalChain.steps.forEach { step ->
             Text("${step.action}: ${step.actedBy} (${step.role})${step.onBehalfOf?.let { " on behalf of $it" }.orEmpty()} · ${step.comment.orEmpty()}")
         }
@@ -197,7 +198,7 @@ private fun ReportReviewMetadata(ui: ReportApprovalViewModel.State) {
         val originalDate = review.submittedAtMs?.let { Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date }
         review.accountingPeriodKey?.let { Text("Accounting period: $it · Original submission: $originalDate") }
         Text(
-            "Payable total: ${formatReportAmount(
+            "Payable total: ${formatMinorCurrency(
                 review.payableLines.sumOf { it.amountMinor },
                 review.payableLines.firstOrNull()?.currency ?: ui.report?.currency().orEmpty(),
             )}",
@@ -237,15 +238,4 @@ private fun ReportApprovalPreview() {
     }
 }
 
-private const val ReportFractionDigits = 2
-
-// ponytail: current report currencies have two fraction digits; add currency fraction metadata
-// when zero- or three-digit currencies enter the claim flow. String math preserves every cent.
-internal fun formatReportAmount(
-    minor: Long,
-    currency: String,
-): String {
-    val digits = minor.toString().removePrefix("-").padStart(ReportFractionDigits + 1, '0')
-    val sign = if (minor < 0) "-" else ""
-    return "$currency $sign${digits.dropLast(ReportFractionDigits)}.${digits.takeLast(ReportFractionDigits)}"
-}
+internal fun reportApprovalTitle(period: String?): String = period?.let { "Report for $it" } ?: "Expense report"

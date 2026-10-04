@@ -10,6 +10,7 @@ import androidx.savedstate.read
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.theme.MilewayDomain
 import com.mileway.core.ui.theme.MilewayDomainTheme
+import com.mileway.feature.logging.perdiem.PerDiemSheet
 import com.mileway.feature.logging.report.ReportGroupingScreen
 import com.mileway.feature.logging.report.ReportSubmitScreen
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
@@ -44,6 +45,9 @@ private const val CTX_ARG_AMOUNT = "ctxAmount"
 object LoggingRoutes {
     /** Spends hub, two-card home (top-level tab destination). */
     const val HOME = "spends_home"
+
+    /** Per-diem calendar-day entry and dated rate preview. */
+    const val PER_DIEM = "per_diem"
 
     const val REPORT_GROUPING = "expense/reports?editReportId={editReportId}"
 
@@ -252,7 +256,18 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
                 onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
                 onMileageHistory = { navController.navigate(LoggingRoutes.HISTORY) },
                 onExpenseHistory = { navController.navigate(LoggingRoutes.EXPENSE_HISTORY) },
+                onPerDiem = { navController.navigate(LoggingRoutes.PER_DIEM) },
                 onExpenseReports = { navController.navigate(LoggingRoutes.reportGroupingRoute()) },
+            )
+        }
+    }
+
+    composable(LoggingRoutes.PER_DIEM) {
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            PerDiemSheet(
+                viewModel = koinViewModel(),
+                onBack = { navController.popBackStack() },
+                onOpenReport = { id -> navController.navigate(LoggingRoutes.reportSubmitRoute(id)) },
             )
         }
     }
