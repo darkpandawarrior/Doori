@@ -6,6 +6,9 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.logging_affidavit_confirm
@@ -21,10 +24,16 @@ fun AffidavitField(
     onNoteChange: (String) -> Unit,
     enabled: Boolean = true,
 ) {
+    val confirmation = stringResource(Res.string.logging_affidavit_confirm)
     Column {
         Row {
-            Checkbox(checked = accepted, onCheckedChange = onAcceptedChange, enabled = enabled)
-            Text(stringResource(Res.string.logging_affidavit_confirm))
+            Checkbox(
+                checked = accepted,
+                onCheckedChange = onAcceptedChange,
+                enabled = enabled,
+                modifier = Modifier.semantics { contentDescription = confirmation },
+            )
+            Text(confirmation)
         }
         OutlinedTextField(
             value = note,

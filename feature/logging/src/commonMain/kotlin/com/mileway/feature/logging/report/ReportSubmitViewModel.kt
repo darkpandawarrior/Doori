@@ -281,7 +281,10 @@ class ReportSubmitViewModel(
             total += line.amountMinor
         }
         return Review(
-            report = report,
+            report = report.copy(lines = report.lines.map { line ->
+                val captured = expenses?.recordsFlow?.value?.find { it.id == line.id }
+                if (line is ExpenseLine && captured != null) line.copy(receiptImagePath = captured.receiptImagePath) else line
+            }),
             requiredAffidavitIds = requiredAffidavits,
             exceptionFlagCodes = exceptionCodes,
             hardFlags = flags.filter { it.severity == PolicySeverity.HARD_BLOCK },
