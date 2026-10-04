@@ -264,6 +264,7 @@ fun ExpenseScreen(
                         } else {
                             Button(
                                 onClick = { viewModel.onAction(ExpenseAction.SubmitExpense) },
+                                enabled = !ui.fxLoading,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = DesignTokens.Shape.button,
                             ) {

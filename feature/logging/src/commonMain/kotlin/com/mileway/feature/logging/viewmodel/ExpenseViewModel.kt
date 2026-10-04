@@ -523,7 +523,7 @@ class ExpenseViewModel(
                                 .now()
                                 .toEpochMilliseconds(),
                         ).toString()
-                        .take(10)
+                        .substringBefore('T')
                 val pinned = fxPinner.pin(form.fxLine(), date, form.cardFxRate, manual)
                 // Do not apply a response to a form edited while the GET was pending.
                 if (currentState.form != form) return@launch

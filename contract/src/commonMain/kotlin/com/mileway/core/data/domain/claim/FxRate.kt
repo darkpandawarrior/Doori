@@ -2,6 +2,7 @@ package com.mileway.core.data.domain.claim
 
 import kotlinx.serialization.Serializable
 import kotlin.math.roundToLong
+import kotlin.time.Instant
 
 /** Provenance of a saved FX rate. Manual rates are always approximate. */
 @Serializable
@@ -36,7 +37,7 @@ data class FxRate(
             quoteCurrency == quote &&
             rate.isFinite() &&
             rate > 0 &&
-            (source == FxRateSource.MANUAL_APPROXIMATE || !sourceDate.isNullOrBlank())
+            (source == FxRateSource.MANUAL_APPROXIMATE || sourceDate?.let(::isFxSourceDate) == true)
 }
 
 /** Converts only the currencies offered by capture (all use two decimal minor units). */
@@ -50,3 +51,6 @@ fun ExpenseLine.amountInCurrencyMinor(target: String): Long? {
     val converted = amountMinor.toDouble() * pinned.rate
     return if (converted.isFinite() && converted >= 0 && converted < Long.MAX_VALUE.toDouble()) converted.roundToLong() else null
 }
+
+/** Strict ISO calendar date validation using the existing Kotlin time API. */
+fun isFxSourceDate(date: String): Boolean = runCatching { Instant.parse("${date}T00:00:00Z").toString().substringBefore('T') == date }.getOrDefault(false)

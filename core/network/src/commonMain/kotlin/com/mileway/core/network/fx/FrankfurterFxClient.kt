@@ -1,13 +1,14 @@
 package com.mileway.core.network.fx
 
 import com.mileway.core.data.domain.claim.FxRate
+import com.mileway.core.data.domain.claim.isFxSourceDate
 import com.siddharth.kmp.network.createHttpClient
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -25,14 +26,14 @@ class FrankfurterFxClient(
     ): FxRate? {
         if (!base.matches(Regex("[A-Z]{3}")) || !quote.matches(Regex("[A-Z]{3}")) || base == quote) return null
         return try {
-            if (date != null) LocalDate.parse(date)
+            if (date != null && !isFxSourceDate(date)) return null
             val response =
                 client.get("https://api.frankfurter.dev/v2/providers/ecb/rate/$base/$quote") {
                     date?.let { parameter("date", it) }
                 }
-            if (response.status.value !in 200..299) return null
+            if (!response.status.isSuccess()) return null
             val body = json.decodeFromString<Response>(response.bodyAsText())
-            LocalDate.parse(body.date)
+            if (!isFxSourceDate(body.date)) return null
             if (date != null && body.date > date) return null
             FxRate(body.rate, body.base, body.quote, body.date).takeIf { it.isUsable(base, quote) }
         } catch (cancelled: CancellationException) {
