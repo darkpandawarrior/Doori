@@ -124,6 +124,8 @@ class ReportGroupingViewModel(
                     status = ExpenseStatus.DRAFT,
                     dateMs = records.find { it.id == line.id }?.dateMs ?: 0,
                     currencyCode = line.currency,
+                    fxRate = line.fxRate,
+                    fxRatePinnedAt = line.fxRatePinnedAt,
                     amountMinor = line.amountMinor,
                     splits = line.splits,
                     attendees = line.attendees,
@@ -217,7 +219,7 @@ class ReportGroupingViewModel(
 
 internal const val MinimumGroupedExpenses = 2
 
-private fun ExpenseRecord.toClaimLine(): ExpenseLine {
+internal fun ExpenseRecord.toClaimLine(): ExpenseLine {
     val capturedMinor =
         amountMinor ?: run {
             val minor = amountRupees * MinorPerRupee
@@ -225,11 +227,12 @@ private fun ExpenseRecord.toClaimLine(): ExpenseLine {
             minor.roundToLong()
         }
     require(capturedMinor > 0) { "Expense amount is invalid" }
-    // Legacy records store the settled INR amount; currencyCode describes the original capture only.
     return ExpenseLine(
         id = id,
         amountMinor = capturedMinor,
-        currency = if (splits.isEmpty() && attendees.isEmpty() && itemized.isEmpty()) "INR" else currencyCode,
+        currency = currencyCode,
+        fxRate = fxRate,
+        fxRatePinnedAt = fxRatePinnedAt,
         merchant = merchantName,
         category = category.name,
         splits = splits,

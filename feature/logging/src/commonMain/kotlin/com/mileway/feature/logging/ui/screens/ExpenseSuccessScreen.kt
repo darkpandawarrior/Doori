@@ -93,7 +93,7 @@ fun ExpenseSuccessScreen(
             Spacer(Modifier.height(DesignTokens.Spacing.s))
 
             Text(
-                text = "₹${ui.lastSubmittedAmount.formatDecimal(2)}",
+                text = "${ui.form.currencyCode} ${ui.lastSubmittedAmount.formatDecimal(2)}",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,

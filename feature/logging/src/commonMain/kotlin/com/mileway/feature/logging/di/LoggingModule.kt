@@ -31,6 +31,15 @@ val loggingModule =
         single { LogMilesDraftRepository(get()) }
         single { LogMilesFrequentRouteRepository(get()) }
         single { ExpenseRepository(get()) }
+        single {
+            com.mileway.core.network.fx
+                .FrankfurterFxClient()
+        }
+        single {
+            val client = get<com.mileway.core.network.fx.FrankfurterFxClient>()
+            com.mileway.core.network.fx
+                .FxRatePinner(reference = client::rate)
+        }
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }
         viewModel { ReportSubmitViewModel(get(), get()) }
@@ -41,7 +50,7 @@ val loggingModule =
         factory { LogMilesSubmitUseCase(get(), get()) }
         viewModel { LogMilesViewModel(get(), get(), get(), get(), get()) }
         // P12.3: reviewTracker is optional (getOrNull) — bound in the app/iOS graph, absent in tests.
-        viewModel { ExpenseViewModel(get(), getOrNull()) }
+        viewModel { ExpenseViewModel(get(), getOrNull(), get()) }
         viewModel { VoucherHistoryViewModel(get(), get()) }
         // P27.E.12: voucher drill-down — VoucherDao directly (a read, no derived history fields needed).
         viewModel { VoucherDetailsViewModel(get()) }

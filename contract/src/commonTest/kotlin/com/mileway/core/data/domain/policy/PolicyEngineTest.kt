@@ -3,6 +3,8 @@ package com.mileway.core.data.domain.policy
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.Attendee
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRate
+import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
 import com.mileway.core.data.ledger.PolicyRateTable
@@ -28,6 +30,28 @@ class PolicyEngineTest {
             receiptRequiredAboveMinor = 80_00L,
         )
     private val engine = PolicyEngine(listOf(v1, v2))
+
+    @Test
+    fun foreignMoneyChecksConvertThroughThePinOrSkipWithAReason() {
+        val policy = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = 5000L)))
+        val foreign = ExpenseLine("fx", 200L, "USD", merchant = "Cafe", category = "FOOD", attendees = listOf(Attendee("Alex")))
+        assertEquals(listOf("FX_POLICY_SKIPPED"), policy.evaluate(listOf(foreign), 0)["fx"]?.map { it.code })
+        val pinned = foreign.copy(fxRate = FxRate(90.0, "USD", sourceDate = "2026-09-25"), fxRatePinnedAt = 123)
+        val flags = policy.evaluate(listOf(pinned), 0)["fx"].orEmpty().map { it.code }
+        assertTrue("EXPENSE_OVER_MAX" in flags)
+        assertTrue("EXPENSE_PER_HEAD_OVER_LIMIT" in flags)
+        val manual = pinned.copy(fxRate = FxRate(90.0, "USD", source = FxRateSource.MANUAL_APPROXIMATE))
+        assertTrue(policy.evaluate(listOf(manual), 0)["fx"].orEmpty().any { it.code == "FX_APPROXIMATE" })
+        val wrongPair = pinned.copy(fxRate = pinned.fxRate?.copy(baseCurrency = "EUR"))
+        assertEquals("FX_POLICY_SKIPPED", policy.evaluate(listOf(wrongPair), 0)["fx"]?.single()?.code)
+    }
+
+    @Test
+    fun foreignMileageNeverComparesWithAnInrRateTable() {
+        val line = MileageLine("foreign-mileage", 50000, "USD", distanceKm = 10.0, vehicleKey = "car")
+        val flags = engine.evaluate(listOf(line), 0)[line.id].orEmpty()
+        assertEquals("FX_POLICY_SKIPPED", flags.single().code)
+    }
 
     @Test
     fun `versionFor resolves the version effective at a given date, not the latest`() {

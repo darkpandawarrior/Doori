@@ -36,6 +36,7 @@ data class ExpenseLine(
     override val policyFlags: List<String> = emptyList(),
     override val cardMatchId: String? = null,
     override val sourceTripId: String? = null,
+    val fxRate: FxRate? = null,
     val merchant: String,
     val category: String,
     @SerialName("splits") val splits: List<CostSplit> = emptyList(),

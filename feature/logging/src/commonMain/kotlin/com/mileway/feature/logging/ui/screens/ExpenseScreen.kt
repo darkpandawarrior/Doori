@@ -76,6 +76,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.forms.ui.FormFieldWithSuggestions
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.PolicyViolation
@@ -148,9 +149,9 @@ import com.mileway.feature.logging.viewmodel.ExpenseFormState
 import com.mileway.feature.logging.viewmodel.ExpenseUiState
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.expenseFieldContext
+import com.mileway.feature.logging.viewmodel.fxLine
 import com.mileway.stub.PolicyMockData
 import com.siddharth.kmp.common.asString
-import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -263,6 +264,7 @@ fun ExpenseScreen(
                         } else {
                             Button(
                                 onClick = { viewModel.onAction(ExpenseAction.SubmitExpense) },
+                                enabled = !ui.fxLoading,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = DesignTokens.Shape.button,
                             ) {
@@ -575,16 +577,25 @@ private fun Step2Content(
             )
         }
 
-        // P27.E.15: local, static-table conversion preview — informational only, never applied
-        // to the amount actually stored/checked against policy (see ExpenseFormState.currencyCode).
         if (form.currencyCode != "INR") {
-            val liveAmountForConversion = form.amountText.toDoubleOrNull() ?: 0.0
-            val convertedRupees = CurrencyConverter.toRupees(liveAmountForConversion, form.currencyCode)
-            Text(
-                text = "≈ ₹${convertedRupees.formatDecimal(2)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            OutlinedTextField(
+                value = form.manualFxRateText,
+                onValueChange = { viewModel.onAction(ExpenseAction.SetManualFxRate(it)) },
+                label = { Text("Manual INR rate (approximate, used if ECB unavailable)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
             )
+            Text(
+                text =
+                    if (ui.fxLoading) {
+                        "Fetching ECB reference rate…"
+                    } else {
+                        ui.fxMessage ?: "FX rate is pinned when you save. Offline: enter a manual rate (approximate)."
+                    },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text("INR amount and per-head policy checks use the pinned rate. Without a rate, those checks are skipped.")
         }
 
         val merchantError = form.errors[ExpenseFormValidator.FIELD_MERCHANT_NAME]
@@ -644,11 +655,16 @@ private fun Step2Content(
         // the amount would resolve to on submit. Preserved unchanged from before P27.E.1/E.3: the
         // submit-time policy-violation ModalBottomSheet (see ExpenseScreen) is a second, separate
         // channel, not a replacement for this preview.
-        val liveAmount = form.amountText.toDoubleOrNull() ?: 0.0
+        val liveAmount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
         val liveCategoryName = (form.category ?: ExpenseCategory.OTHER).name
-        val liveOutcome = PolicyMockData.outcomeForExpenseAmount(liveAmount, liveCategoryName)
+        val liveOutcome = liveAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, liveCategoryName) } ?: SubmissionStatus.SUCCESS
         if (liveOutcome != SubmissionStatus.SUCCESS) {
-            val liveViolation = PolicyMockData.violationsForExpenseAmount(liveAmount, liveCategoryName).firstOrNull()
+            val liveViolation = liveAmount?.let { PolicyMockData.violationsForExpenseAmount(it, liveCategoryName).firstOrNull() }
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
                 shape = DesignTokens.Shape.roundedSm,

@@ -12,6 +12,29 @@ class ExpenseFormValidatorTest {
     private val travelDef = ExpenseCategoryCatalog.default().first { it.category == ExpenseCategory.TRAVEL }
 
     @Test
+    fun foreignCardCeilingUsesThePinnedInrAmountOrLabelsTheMissingCheck() {
+        val form =
+            ExpenseFormState(
+                category = com.mileway.feature.logging.model.ExpenseCategory.FOOD,
+                merchantName = "Cafe",
+                amountText = "10",
+                currencyCode = "USD",
+                sourceContext = ExpenseSourceContext.Card("card", "transaction", transactionAmountRupees = 500.0),
+            )
+        assertTrue(ExpenseFormValidator.validate(form, null).containsKey(ExpenseFormValidator.FIELD_AMOUNT))
+        val over =
+            form.copy(
+                fxRate =
+                    com.mileway.core.data.domain.claim
+                        .FxRate(90.0, "USD", sourceDate = "2026-09-25"),
+                fxRatePinnedAt = 123,
+            )
+        assertTrue(ExpenseFormValidator.validate(over, null).containsKey(ExpenseFormValidator.FIELD_AMOUNT))
+        val under = over.copy(amountText = "5")
+        assertTrue(ExpenseFormValidator.validate(under, null).isEmpty())
+    }
+
+    @Test
     fun `valid form has no errors`() {
         val form =
             ExpenseFormState(

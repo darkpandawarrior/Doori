@@ -343,7 +343,7 @@ private fun ExpenseCard(
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "₹${expense.amountRupees.toLong()}",
+                    text = "${expense.currencyCode} ${expense.amountRupees.toLong()}",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                 )

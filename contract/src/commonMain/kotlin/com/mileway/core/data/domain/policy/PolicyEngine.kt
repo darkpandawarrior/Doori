@@ -3,8 +3,10 @@ package com.mileway.core.data.domain.policy
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.data.ledger.PolicyRateEngine
 import com.mileway.core.data.ledger.PolicyRateTable
 
@@ -34,6 +36,7 @@ data class PolicyVersion(
     val maxExpenseAmountMinor: Long? = null,
     val receiptRequiredAboveMinor: Long? = null,
     val perHeadLimitMinor: Long? = null,
+    val currency: String = "INR",
 )
 
 /**
@@ -77,28 +80,40 @@ class PolicyEngine(
         line: ExpenseLine,
         version: PolicyVersion,
     ): List<PolicyViolation> {
+        val amount =
+            line.amountInCurrencyMinor(version.currency)
+                ?: return listOf(
+                    PolicyViolation(
+                        "FX_POLICY_SKIPPED",
+                        PolicySeverity.SOFT_WARN,
+                        "Amount checks skipped: no pinned ${line.currency} to ${version.currency} rate. Enter a manual rate (approximate).",
+                    ),
+                )
         val violations = mutableListOf<PolicyViolation>()
+        if (line.currency != version.currency && line.fxRate?.source == FxRateSource.MANUAL_APPROXIMATE) {
+            violations += PolicyViolation("FX_APPROXIMATE", PolicySeverity.SOFT_WARN, "Amount checks use an approximate manual FX rate")
+        }
         version.maxExpenseAmountMinor?.let { max ->
-            if (line.amountMinor > max) {
+            if (amount > max) {
                 violations +=
                     PolicyViolation(
                         code = "EXPENSE_OVER_MAX",
                         severity = PolicySeverity.HARD_BLOCK,
-                        message = "Amount ${line.amountMinor} exceeds policy max $max",
+                        message = "Amount $amount exceeds policy max $max",
                     )
             }
         }
         version.receiptRequiredAboveMinor?.let { threshold ->
-            if (line.amountMinor > threshold) {
+            if (amount > threshold) {
                 violations +=
                     PolicyViolation(
                         code = "RECEIPT_RECOMMENDED",
                         severity = PolicySeverity.SOFT_WARN,
-                        message = "Amount ${line.amountMinor} exceeds $threshold; attach a receipt",
+                        message = "Amount $amount exceeds $threshold; attach a receipt",
                     )
             }
         }
-        perHeadViolation(line.amountMinor, line.attendees.size, version)?.let { violations += it }
+        perHeadViolation(amount, line.attendees.size, version)?.let { violations += it }
         return violations
     }
 
@@ -130,6 +145,15 @@ class PolicyEngine(
         line: MileageLine,
         version: PolicyVersion,
     ): List<PolicyViolation> {
+        if (line.currency != version.currency) {
+            return listOf(
+                PolicyViolation(
+                    "FX_POLICY_SKIPPED",
+                    PolicySeverity.SOFT_WARN,
+                    "Mileage amount checks skipped: no pinned ${line.currency} to ${version.currency} rate",
+                ),
+            )
+        }
         val result = PolicyRateEngine(version.rateTable).reimbursement(line.vehicleKey, line.distanceKm)
         val violations = mutableListOf<PolicyViolation>()
         if (line.amountMinor > result.cappedAmount) {
