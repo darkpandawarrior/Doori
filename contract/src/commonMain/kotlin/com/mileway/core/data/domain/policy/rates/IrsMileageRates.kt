@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 object IrsMileageRates {
     /** One source of truth for each published figure, available on every commonMain target. */
     const val json =
-            """
+        """
         {
           "sourceTitle": "IRS standard mileage rates: business use",
           "sourceUrl": "https://www.irs.gov/tax-professionals/standard-mileage-rates",

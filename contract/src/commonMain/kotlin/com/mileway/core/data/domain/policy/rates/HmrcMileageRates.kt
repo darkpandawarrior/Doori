@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 object HmrcMileageRates {
     /** The first band counts cumulative business miles across all vehicles in the tax year. */
     const val json =
-            """
+        """
         {
           "sourceTitle": "HMRC Approved Mileage Allowance Payments: cars and vans",
           "sourceUrl": "https://www.gov.uk/expenses-and-benefits-business-travel-mileage/rules-for-tax",

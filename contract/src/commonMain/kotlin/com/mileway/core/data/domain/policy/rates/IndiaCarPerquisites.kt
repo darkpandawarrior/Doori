@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 object IndiaCarPerquisites {
     /** Secondary-source verification is retained verbatim; no gazette verification is claimed. */
     const val json =
-            """
+        """
         {
           "kind": "MONTHLY",
           "currency": "INR",
