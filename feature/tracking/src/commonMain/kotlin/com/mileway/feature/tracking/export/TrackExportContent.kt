@@ -18,7 +18,7 @@ object TrackExportContent {
             ExportFormat.CSV -> CsvExporter.export(track, locations, events)
             ExportFormat.GPX -> GpxExporter.export(track, locations, events)
             ExportFormat.KML -> KmlExporter.export(track, locations, events)
-            ExportFormat.GEOJSON -> GeoJsonExporter.export(track, locations, events, omitEndpointCoordinates)
+            ExportFormat.GEOJSON -> GeoJsonExporter.export(track, locations, events)
             ExportFormat.JSON -> JsonExporter.export(track, locations, events, omitEndpointCoordinates)
             ExportFormat.EXCEL -> ExcelExporter.export(track, locations, events)
         }
