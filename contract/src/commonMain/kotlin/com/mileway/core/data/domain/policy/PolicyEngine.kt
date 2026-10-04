@@ -145,6 +145,15 @@ class PolicyEngine(
         line: MileageLine,
         version: PolicyVersion,
     ): List<PolicyViolation> {
+        if (line.currency != version.currency) {
+            return listOf(
+                PolicyViolation(
+                    "FX_POLICY_SKIPPED",
+                    PolicySeverity.SOFT_WARN,
+                    "Mileage amount checks skipped: no pinned ${line.currency} to ${version.currency} rate",
+                ),
+            )
+        }
         val result = PolicyRateEngine(version.rateTable).reimbursement(line.vehicleKey, line.distanceKm)
         val violations = mutableListOf<PolicyViolation>()
         if (line.amountMinor > result.cappedAmount) {

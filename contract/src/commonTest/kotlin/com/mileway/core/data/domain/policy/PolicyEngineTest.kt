@@ -47,6 +47,13 @@ class PolicyEngineTest {
     }
 
     @Test
+    fun foreignMileageNeverComparesWithAnInrRateTable() {
+        val line = MileageLine("foreign-mileage", 50000, "USD", distanceKm = 10.0, vehicleKey = "car")
+        val flags = engine.evaluate(listOf(line), 0)[line.id].orEmpty()
+        assertEquals("FX_POLICY_SKIPPED", flags.single().code)
+    }
+
+    @Test
     fun `versionFor resolves the version effective at a given date, not the latest`() {
         assertEquals(v1, engine.versionFor(50 * DAY_MILLIS))
         assertEquals(v2, engine.versionFor(150 * DAY_MILLIS))
