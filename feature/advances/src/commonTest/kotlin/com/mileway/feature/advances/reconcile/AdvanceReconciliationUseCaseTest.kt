@@ -115,6 +115,14 @@ class AdvanceReconciliationUseCaseTest {
     }
 
     @Test
+    fun repositoryBoundaryAppliesHalfEvenBeforeReconciliation() =
+        runTest {
+            val result = useCase(1.005, 1.015)(report(1_000, "1", "2"), emptyList())
+            assertEquals(202L, result.appliedMinor)
+            assertEquals(798L, result.netMinor)
+        }
+
+    @Test
     fun invalidOrOverflowingRepositoryMoneyIsRefused() {
         listOf(Double.NaN, Double.POSITIVE_INFINITY, -0.01, Double.MAX_VALUE).forEach { amount ->
             assertFailsWith<IllegalArgumentException> { rupeesToMinorHalfEven(amount) }
