@@ -10,6 +10,7 @@ import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
+import com.mileway.feature.logging.dedup.DuplicateExpenseCheck
 import com.mileway.feature.logging.catalog.ExpenseCustomFormCatalog
 import com.mileway.feature.logging.import.ExpenseCsvImporter
 import com.mileway.feature.logging.model.DraftStatus
@@ -177,6 +178,11 @@ sealed interface ExpenseAction {
 
     data object SubmitExpense : ExpenseAction
 
+    /** Confirms only the unchanged form shown in the duplicate warning. */
+    data object ConfirmDuplicateExpense : ExpenseAction
+
+    data object DismissDuplicateWarning : ExpenseAction
+
     /**
      * V27 P27.E.3: the second validation channel — confirms submission after
      * [ExpenseEffect.ShowPolicySheet] was shown for a tiered-policy outcome the user has now
@@ -286,6 +292,9 @@ sealed interface ExpenseEffect {
 
     data object NavigateBack : ExpenseEffect
 
+    /** No repository write has happened when this warning is emitted. */
+    data class ShowDuplicateWarning(val matchingIds: List<String>) : ExpenseEffect
+
     /**
      * V27 P27.E.3: the tiered-policy outcome for the current submit attempt requires
      * acknowledgement — shown as a `ModalBottomSheet` (mirrors DiCE's `PolicyViolationBottomSheet`),
@@ -329,6 +338,8 @@ class ExpenseViewModel(
     // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
     private val reviewTracker: ReviewTracker? = null,
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
+    private var duplicateWarningForm: ExpenseFormState? = null
+
     init {
         refresh(ExpenseFilter.ALL, ExpenseSort.DATE, emptySet())
         viewModelScope.launch {
@@ -362,6 +373,16 @@ class ExpenseViewModel(
             is ExpenseAction.SetOfficeCode -> setState { copy(form = form.copy(officeCode = action.code)) }
             ExpenseAction.SubmitExpense -> submitExpense()
             ExpenseAction.ConfirmSubmitDespitePolicy -> performSubmit()
+            ExpenseAction.ConfirmDuplicateExpense -> {
+                val warnedForm = duplicateWarningForm
+                duplicateWarningForm = null
+                if (warnedForm != null && warnedForm == currentState.form) {
+                    performSubmit(duplicateConfirmed = true)
+                } else {
+                    submitExpense()
+                }
+            }
+            ExpenseAction.DismissDuplicateWarning -> duplicateWarningForm = null
             ExpenseAction.ResetForm ->
                 setState {
                     copy(
@@ -459,12 +480,23 @@ class ExpenseViewModel(
     }
 
     /** The actual insert/update + navigate-to-success, unconditional once field + policy gates have passed. */
-    private fun performSubmit() {
+    private fun performSubmit(duplicateConfirmed: Boolean = false) {
         val form = currentState.form
         val amount = form.amountText.toDoubleOrNull() ?: 0.0
         val category = form.category ?: ExpenseCategory.OTHER
+        val dateMs = form.dateMs ?: kotlin.time.Clock.System.now().toEpochMilliseconds()
+        if (!duplicateConfirmed) {
+            val matches = DuplicateExpenseCheck.matches(
+                amount, form.merchantName, dateMs, form.currencyCode, repository.getAll(), form.editingId,
+            )
+            if (matches.isNotEmpty()) {
+                duplicateWarningForm = form
+                emitEffect(ExpenseEffect.ShowDuplicateWarning(matches.map { it.id }))
+                return
+            }
+        }
         // P1.8: editing an existing record keeps its id (resubmit), instead of minting a new one.
-        val id = form.editingId ?: "EXP-NEW-${(form.merchantName.hashCode() and 0x7FFF_FFFF) % 9000 + 1000}"
+        val id = form.editingId ?: "EXP-NEW-${kotlin.random.Random.nextLong().toString(16)}"
         val record =
             ExpenseRecord(
                 id = id,
@@ -474,10 +506,7 @@ class ExpenseViewModel(
                 status = ExpenseStatus.PENDING,
                 // P27.E.4: a Scanner-context form carries the OCR-detected date; every other source
                 // stamps the actual submit time, same as before this task.
-                dateMs =
-                    form.dateMs ?: kotlin.time.Clock.System
-                        .now()
-                        .toEpochMilliseconds(),
+                dateMs = dateMs,
                 note = form.note,
                 receiptImagePath = form.receiptImagePath,
                 officeCode = form.officeCode,

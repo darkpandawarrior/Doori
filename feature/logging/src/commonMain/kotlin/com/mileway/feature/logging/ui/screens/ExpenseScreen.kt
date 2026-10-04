@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -179,6 +180,7 @@ fun ExpenseScreen(
     viewModel: ExpenseViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    var duplicateIds by remember { mutableStateOf<List<String>?>(null) }
     var bulkMode by remember { mutableStateOf(false) }
     var policyViolations by remember { mutableStateOf<List<PolicyViolation>?>(null) }
     // Whatever the step-1 receipt scan last read (core:ai's DocumentIntelligence output) — feeds
@@ -195,6 +197,7 @@ fun ExpenseScreen(
                 // Was a silent no-op — Save Draft (and a failed CSV import) fired this and the user
                 // never saw any confirmation. Same Snackbar idiom the rest of the app uses.
                 is ExpenseEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.asString())
+                is ExpenseEffect.ShowDuplicateWarning -> duplicateIds = effect.matchingIds
                 is ExpenseEffect.ShowPolicySheet -> policyViolations = effect.violations
             }
         }
@@ -308,6 +311,24 @@ fun ExpenseScreen(
         }
     }
 
+    duplicateIds?.let { ids ->
+        val dismiss = {
+            duplicateIds = null
+            viewModel.onAction(ExpenseAction.DismissDuplicateWarning)
+        }
+        AlertDialog(
+            onDismissRequest = dismiss,
+            title = { Text("Possible duplicate expense") },
+            text = { Text("The amount, merchant and date match ${ids.joinToString()}. Review before saving.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    duplicateIds = null
+                    viewModel.onAction(ExpenseAction.ConfirmDuplicateExpense)
+                }) { Text("Save anyway") }
+            },
+            dismissButton = { TextButton(onClick = dismiss) { Text("Review expense") } },
+        )
+    }
     policyViolations?.let { violations ->
         ExpensePolicyViolationSheet(
             violations = violations,
