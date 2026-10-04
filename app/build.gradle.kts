@@ -444,7 +444,7 @@ dependencies {
     implementation(project(":core:media"))
     implementation("com.siddharth.kmp:result:1.0.0")
     implementation("com.siddharth.kmp:ai:1.0.0")
-    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.13")
+    mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.14")
 
     // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
     // runtime classpath resolved (Gradle reports those as `{strictly X}` and labels them "from lock
