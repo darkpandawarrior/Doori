@@ -71,7 +71,12 @@ class LegacyMileageBackfillWorkerTest {
             worker(savedTrackDao, reportDao, claimLineDao).run()
 
             assertEquals(2, reportDao.rows.value.size)
-            val line = assertIs<MileageLine>(claimLineDao.rows.value.getValue("legacy_line_t1").toDomain(json))
+            val line =
+                assertIs<MileageLine>(
+                    claimLineDao.rows.value
+                        .getValue("legacy_line_t1")
+                        .toDomain(json),
+                )
             assertEquals(10.0, line.distanceKm)
             assertEquals(12_000L, line.amountMinor)
             assertEquals(

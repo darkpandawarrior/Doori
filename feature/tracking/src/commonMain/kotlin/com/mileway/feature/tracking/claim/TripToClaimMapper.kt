@@ -39,7 +39,11 @@ class TripToClaimMapper(
 }
 
 internal fun SavedTrack.isEligibleForMileageClaim(): Boolean =
-    isCompleted && !isDiscarded &&
-        !wasMockOn && !wasMockLocationUsed &&
+    isCompleted &&
+        !isDiscarded &&
+        !wasMockOn &&
+        !wasMockLocationUsed &&
         (startedByEmployeeCode.isNotBlank() || !startedByAccountId.isNullOrBlank()) &&
-        distance.isFinite() && distance >= 0.0 && endTime > 0L
+        distance.isFinite() &&
+        distance >= 0.0 &&
+        endTime > 0L

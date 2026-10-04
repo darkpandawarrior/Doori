@@ -247,11 +247,8 @@ class MilewayApplication :
         )
         // The worker uses the existing schemaVersionMarker_49 DataStore flag, set only on success.
         appScope.launch {
-            try {
-                get<LegacyMileageBackfillWorker>().run()
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (failure: Exception) {
+            runCatching { get<LegacyMileageBackfillWorker>().run() }.onFailure { failure ->
+                if (failure is CancellationException || failure !is Exception) throw failure
                 Log.e("LegacyMileageBackfill", "Backfill failed; will retry on next app start", failure)
             }
         }
