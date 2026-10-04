@@ -24,20 +24,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.claim.FINANCE_ROLE
-import com.mileway.feature.approvals.delegate.DelegateBanner
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
+import com.mileway.feature.approvals.delegate.DelegateBanner
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
 import com.mileway.feature.approvals.model.toDetailActionFlags
 import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
 
 /** Persisted report review, reached from the approvals queue and lifecycle inbox links. */
 @Composable
@@ -62,18 +65,18 @@ fun ReportApprovalScreen(
         if (lineId != null) {
             PerLineReviewPanel(reportId, lineId, ui.onBehalfOf, onBack = { selectedLineId = null })
         } else {
-        ReportApprovalContent(
-            ui = ui,
-            onDelegate = viewModel::delegate,
-            onLine = { selectedLineId = it },
-            onComment = viewModel::comment,
-            onAct = viewModel::act,
-            onRetry = viewModel::retryPayout,
-            onClarify = {
-                viewModel.openClarification()
-                showRoom = true
-            },
-        )
+            ReportApprovalContent(
+                ui = ui,
+                onDelegate = viewModel::delegate,
+                onLine = { selectedLineId = it },
+                onComment = viewModel::comment,
+                onAct = viewModel::act,
+                onRetry = viewModel::retryPayout,
+                onClarify = {
+                    viewModel.openClarification()
+                    showRoom = true
+                },
+            )
         }
     }
     if (showRoom) {
@@ -114,20 +117,8 @@ private fun ReportApprovalContent(
         }
         Text("Employee: ${report.employeeId}")
         Text("Status: ${report.state.name.replace('_', ' ')}")
-        ui.onBehalfOf?.let { DelegateBanner(it) }
-        if (ui.delegates.isNotEmpty()) {
-            OutlinedButton(onClick = { onDelegate(null) }, enabled = !ui.busy) { Text("Act as myself") }
-            ui.delegates.forEach { grant ->
-                OutlinedButton(onClick = { onDelegate(grant.delegatorAccountId) }, enabled = !ui.busy) {
-                    Text("Delegate for ${grant.delegatorAccountId}")
-                }
-            }
-        }
-        ui.review?.let { review ->
-            Text("Next review: ${review.nextRole}")
-            review.accountingPeriodKey?.let { Text("Accounting period: $it · Original submission: ${review.submittedAtMs}") }
-            Text("Payable total: ${formatReportAmount(review.payableLines.sumOf { it.amountMinor }, review.payableLines.firstOrNull()?.currency ?: report.currency())}")
-        }
+        ReportDelegateControls(ui, onDelegate)
+        ReportReviewMetadata(ui)
         report.lines.forEach { line ->
             OutlinedButton(onClick = { onLine(line.id) }, enabled = !ui.busy) {
                 val rejected = line.id in ui.review?.rejectedLineIds.orEmpty()
@@ -166,7 +157,10 @@ private fun ReportApprovalContent(
                 enabled = !ui.busy,
             )
             val canAct = !ui.busy && ui.comment.isNotBlank()
-            Button(onClick = { onAct(ApprovalAction.APPROVE) }, enabled = canAct && (ui.review?.canBulkApprove != false) && (!flags.requiresAck || acknowledged)) {
+            Button(
+                onClick = { onAct(ApprovalAction.APPROVE) },
+                enabled = canAct && (ui.review?.canBulkApprove != false) && (!flags.requiresAck || acknowledged),
+            ) {
                 Text(if (ui.review?.nextRole == FINANCE_ROLE) "Finance approve and simulate payout" else "Approve for finance review")
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -177,6 +171,37 @@ private fun ReportApprovalContent(
         if (report.state == ReportLifecycleState.APPROVED || report.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) {
             Button(onClick = onRetry, enabled = !ui.busy) { Text("Retry simulated payout") }
         }
+    }
+}
+
+@Composable
+private fun ReportDelegateControls(
+    ui: ReportApprovalViewModel.State,
+    onDelegate: (String?) -> Unit,
+) {
+    ui.onBehalfOf?.let { DelegateBanner(it) }
+    if (ui.delegates.isNotEmpty()) {
+        OutlinedButton(onClick = { onDelegate(null) }, enabled = !ui.busy) { Text("Act as myself") }
+        ui.delegates.forEach { grant ->
+            OutlinedButton(onClick = { onDelegate(grant.delegatorAccountId) }, enabled = !ui.busy) {
+                Text("Delegate for ${grant.delegatorAccountId}")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReportReviewMetadata(ui: ReportApprovalViewModel.State) {
+    ui.review?.let { review ->
+        Text("Next review: ${review.nextRole}")
+        val originalDate = review.submittedAtMs?.let { Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date }
+        review.accountingPeriodKey?.let { Text("Accounting period: $it · Original submission: $originalDate") }
+        Text(
+            "Payable total: ${formatReportAmount(
+                review.payableLines.sumOf { it.amountMinor },
+                review.payableLines.firstOrNull()?.currency ?: ui.report?.currency().orEmpty(),
+            )}",
+        )
     }
 }
 

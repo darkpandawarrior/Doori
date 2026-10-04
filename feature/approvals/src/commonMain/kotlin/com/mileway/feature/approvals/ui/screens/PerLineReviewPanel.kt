@@ -18,15 +18,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import com.mileway.core.maps.canvas.CanvasRouteSurface
+import androidx.compose.ui.unit.dp
 import com.mileway.core.data.claim.MANAGER_ROLE
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
+import com.mileway.core.maps.canvas.CanvasRouteSurface
 import com.mileway.feature.approvals.delegate.DelegateBanner
 import com.mileway.feature.approvals.viewmodel.PerLineReviewViewModel
 import org.koin.compose.koinInject
@@ -74,6 +74,10 @@ internal fun PerLineReviewPanel(
         onBehalfOf?.let { DelegateBanner(it) }
         line?.let { Text("${it.id}: ${formatReportAmount(it.amountMinor, it.currency)}") }
         Text(if (lineId in review?.rejectedLineIds.orEmpty()) "Rejected line, excluded from payout" else "Line remains in the payable report")
+        review?.actions?.filter { it.claimLineId == lineId }?.forEach { action ->
+            val delegate = action.onBehalfOf?.let { " on behalf of $it" }.orEmpty()
+            Text("${action.action}: ${action.actedBy}$delegate · ${action.comment.orEmpty()}")
+        }
         ui.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         if (review?.report?.state == ReportLifecycleState.SUBMITTED && review.nextRole == MANAGER_ROLE) {
             OutlinedTextField(ui.comment, viewModel::comment, label = { Text("Line review comment (required)") }, enabled = !ui.busy)

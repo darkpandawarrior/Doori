@@ -26,6 +26,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -1070,7 +1071,11 @@ class ScreenshotGalleryTest {
                 }
             }
             composeRule.onNodeWithText("Status: SUBMITTED").assertIsDisplayed()
-            composeRule.onNodeWithText("Approval comment (required)").performScrollTo().performTextInput("Reviewed the trip expenses; please retain the receipts.")
+            composeRule
+                .onNodeWithText(
+                    "Approval comment (required)",
+                ).performScrollTo()
+                .performTextInput("Reviewed the trip expenses; please retain the receipts.")
             composeRule.onNodeWithText("I reviewed the policy flags").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Approve for finance review").assertIsNotEnabled()
             capture("report_approval_screen_filled")
@@ -1104,7 +1109,11 @@ class ScreenshotGalleryTest {
                         every { observe(any()) } answers { MutableStateFlow(report?.takeIf { it.id == firstArg<String>() }) }
                         every { observeAll() } returns MutableStateFlow(listOfNotNull(report))
                         every { observeReviewQueue() } returns MutableStateFlow(emptyList())
-                        coEvery { review(any()) } returns report?.let { com.mileway.core.data.claim.ApprovalReview(it) }
+                        coEvery { review(any()) } returns
+                            report?.let {
+                                com.mileway.core.data.claim
+                                    .ApprovalReview(it)
+                            }
                         coEvery { delegates(any(), any()) } returns emptyList()
                         every { observeByEmployee(any()) } answers {
                             MutableStateFlow(listOfNotNull(report).filter { it.employeeId == firstArg<String>() })

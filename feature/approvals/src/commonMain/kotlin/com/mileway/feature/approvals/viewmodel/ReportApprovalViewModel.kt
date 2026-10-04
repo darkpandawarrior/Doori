@@ -2,13 +2,13 @@ package com.mileway.feature.approvals.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mileway.core.data.claim.ReportRepository
 import com.mileway.core.data.claim.ApprovalReview
-import com.mileway.core.data.model.db.DelegateAssignmentEntity
+import com.mileway.core.data.claim.ReportRepository
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.domain.payout.ReportPaymentRunner
+import com.mileway.core.data.model.db.DelegateAssignmentEntity
 import com.mileway.core.data.session.SessionSource
 import com.mileway.feature.approvals.model.ClarificationMessage
 import com.mileway.feature.approvals.model.ClarificationRoom
@@ -77,8 +77,13 @@ class ReportApprovalViewModel(
                     val actor = session.sessionState.first().employeeCode
                     val delegates = if (report != null && actor != null) reports.delegates(report.id, actor) else emptyList()
                     mutableState.update {
-                        it.copy(report = report, review = review, delegates = delegates, loading = false,
-                            onBehalfOf = it.onBehalfOf?.takeIf { id -> delegates.any { grant -> grant.delegatorAccountId == id } })
+                        it.copy(
+                            report = report,
+                            review = review,
+                            delegates = delegates,
+                            loading = false,
+                            onBehalfOf = it.onBehalfOf?.takeIf { id -> delegates.any { grant -> grant.delegatorAccountId == id } },
+                        )
                     }
                 }
             }

@@ -1,24 +1,24 @@
 package com.mileway.feature.approvals.di
 
 import com.mileway.core.data.claim.ReportRepository
-import com.mileway.core.data.domain.claim.ApprovalAction
-import com.mileway.core.data.session.SessionSource
 import com.mileway.core.data.dao.ApprovalCommentDao
 import com.mileway.core.data.dao.ClarificationDao
+import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.search.SearchProvider
+import com.mileway.core.data.session.SessionSource
 import com.mileway.feature.approvals.repository.ApprovalCommentRepository
 import com.mileway.feature.approvals.repository.ClarificationRepository
 import com.mileway.feature.approvals.repository.RoomApprovalCommentRepository
 import com.mileway.feature.approvals.repository.RoomClarificationRepository
 import com.mileway.feature.approvals.search.ApprovalsSearchProvider
-import com.mileway.feature.approvals.viewmodel.BulkApprovalViewModel
-import com.mileway.feature.approvals.viewmodel.PerLineReviewViewModel
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import com.mileway.feature.approvals.viewmodel.BulkApprovalViewModel
 import com.mileway.feature.approvals.viewmodel.ClarificationHistoryViewModel
+import com.mileway.feature.approvals.viewmodel.PerLineReviewViewModel
 import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
-import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.module.dsl.viewModel
 import kotlinx.coroutines.flow.first
+import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 

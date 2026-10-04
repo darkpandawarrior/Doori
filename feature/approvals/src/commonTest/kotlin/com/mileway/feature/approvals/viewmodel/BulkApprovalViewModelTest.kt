@@ -32,7 +32,10 @@ class BulkApprovalViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun review(id: String, flags: List<String> = emptyList()): ApprovalReview {
+    private fun review(
+        id: String,
+        flags: List<String> = emptyList(),
+    ): ApprovalReview {
         val line = ExpenseLine("$id-line", 100, "INR", policyFlags = flags, merchant = "Cafe", category = "Meals")
         return ApprovalReview(
             Report(id, "employee", listOf(line), ReportLifecycleState.SUBMITTED),
@@ -41,43 +44,49 @@ class BulkApprovalViewModelTest {
     }
 
     @Test
-    fun `bulk selection cannot include hard violation and removes a newly blocked selection`() = runTest {
-        val queue = MutableStateFlow(listOf(review("hard", listOf("EXPENSE_OVER_MAX")), review("soft", listOf("RECEIPT_RECOMMENDED"))))
-        val approved = mutableListOf<String>()
-        val vm = BulkApprovalViewModel(queue) { review, _ -> approved.add(review.report.id) }
-        advanceUntilIdle()
-        vm.select("hard")
-        vm.select("soft")
-        assertEquals(setOf("soft"), vm.state.value.selectedIds)
-        queue.value = listOf(review("soft", listOf("MILEAGE_OVER_POLICY_RATE")))
-        advanceUntilIdle()
-        assertTrue(vm.state.value.selectedIds.isEmpty())
-        vm.comment("Reviewed")
-        vm.approveSelected()
-        advanceUntilIdle()
-        assertTrue(approved.isEmpty())
-    }
+    fun `bulk selection cannot include hard violation and removes a newly blocked selection`() =
+        runTest {
+            val queue = MutableStateFlow(listOf(review("hard", listOf("EXPENSE_OVER_MAX")), review("soft", listOf("RECEIPT_RECOMMENDED"))))
+            val approved = mutableListOf<String>()
+            val vm = BulkApprovalViewModel(queue) { review, _ -> approved.add(review.report.id) }
+            advanceUntilIdle()
+            vm.select("hard")
+            vm.select("soft")
+            assertEquals(setOf("soft"), vm.state.value.selectedIds)
+            queue.value = listOf(review("soft", listOf("MILEAGE_OVER_POLICY_RATE")))
+            advanceUntilIdle()
+            assertTrue(
+                vm.state.value.selectedIds
+                    .isEmpty(),
+            )
+            vm.comment("Reviewed")
+            vm.approveSelected()
+            advanceUntilIdle()
+            assertTrue(approved.isEmpty())
+        }
 
     @Test
-    fun `bulk keeps failed reports selected and never retries completed reports`() = runTest {
-        val queue = MutableStateFlow(listOf(review("good"), review("stale")))
-        val writes = mutableListOf<String>()
-        val vm = BulkApprovalViewModel(queue) { review, comment ->
-            assertEquals("Checked", comment)
-            if (review.report.id == "stale") error("Report changed; reload before acting")
-            writes.add(review.report.id)
+    fun `bulk keeps failed reports selected and never retries completed reports`() =
+        runTest {
+            val queue = MutableStateFlow(listOf(review("good"), review("stale")))
+            val writes = mutableListOf<String>()
+            val vm =
+                BulkApprovalViewModel(queue) { review, comment ->
+                    assertEquals("Checked", comment)
+                    if (review.report.id == "stale") error("Report changed; reload before acting")
+                    writes.add(review.report.id)
+                }
+            advanceUntilIdle()
+            vm.select("good")
+            vm.select("stale")
+            vm.approveSelected()
+            assertFalse(vm.state.value.busy)
+            vm.comment(" Checked ")
+            vm.approveSelected()
+            vm.approveSelected()
+            advanceUntilIdle()
+            assertEquals(listOf("good"), writes)
+            assertEquals(setOf("stale"), vm.state.value.selectedIds)
+            assertEquals(setOf("stale"), vm.state.value.failures.keys)
         }
-        advanceUntilIdle()
-        vm.select("good")
-        vm.select("stale")
-        vm.approveSelected()
-        assertFalse(vm.state.value.busy)
-        vm.comment(" Checked ")
-        vm.approveSelected()
-        vm.approveSelected()
-        advanceUntilIdle()
-        assertEquals(listOf("good"), writes)
-        assertEquals(setOf("stale"), vm.state.value.selectedIds)
-        assertEquals(setOf("stale"), vm.state.value.failures.keys)
-    }
 }

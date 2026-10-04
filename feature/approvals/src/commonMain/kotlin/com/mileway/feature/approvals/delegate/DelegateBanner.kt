@@ -8,7 +8,10 @@ import androidx.compose.ui.tooling.preview.Preview
 
 /** Shows both identities before an action is persisted with dual attribution. */
 @Composable
-fun DelegateBanner(onBehalfOf: String, modifier: Modifier = Modifier) {
+fun DelegateBanner(
+    onBehalfOf: String,
+    modifier: Modifier = Modifier,
+) {
     Text("Acting on behalf of $onBehalfOf. Your identity will also be recorded.", modifier = modifier)
 }
 

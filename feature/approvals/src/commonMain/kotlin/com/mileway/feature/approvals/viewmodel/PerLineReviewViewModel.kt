@@ -35,41 +35,50 @@ class PerLineReviewViewModel(
     val state = mutableState.asStateFlow()
     private var job: Job? = null
 
-    fun open(reportId: String, lineId: String) {
+    fun open(
+        reportId: String,
+        lineId: String,
+    ) {
         job?.cancel()
         mutableState.value = State(lineId = lineId)
-        job = viewModelScope.launch {
-            try {
-                reports.observe(reportId).collect {
-                    val review = requireNotNull(reports.review(reportId)) { "Report not found" }
-                    val line = review.report.lines.single { it.id == lineId }
-                    val route = if (line is MileageLine) reports.mileageRoute(line) else emptyList()
-                    mutableState.update { it.copy(review = review, route = route, loading = false) }
+        job =
+            viewModelScope.launch {
+                runCatching {
+                    reports.observe(reportId).collect {
+                        val review = requireNotNull(reports.review(reportId)) { "Report not found" }
+                        val line = review.report.lines.single { it.id == lineId }
+                        val route = if (line is MileageLine) reports.mileageRoute(line) else emptyList()
+                        mutableState.update { it.copy(review = review, route = route, loading = false) }
+                    }
+                }.onFailure { failure ->
+                    if (failure is CancellationException || failure !is Exception) throw failure
+                    mutableState.update { it.copy(error = failure.message, loading = false) }
                 }
-            } catch (failure: Exception) {
-                if (failure is CancellationException) throw failure
-                mutableState.update { it.copy(error = failure.message, loading = false) }
             }
-        }
     }
 
     fun comment(value: String) {
         mutableState.update { it.copy(comment = value) }
     }
 
-    fun act(action: ApprovalAction, onBehalfOf: String?) {
+    fun act(
+        action: ApprovalAction,
+        onBehalfOf: String?,
+    ) {
         val ui = state.value
         if (ui.busy || ui.loading || ui.comment.isBlank()) return
         mutableState.update { it.copy(busy = true, error = null) }
         viewModelScope.launch {
             try {
-                val review = requireNotNull(ui.review)
-                val actor = requireNotNull(session.sessionState.first().employeeCode) { "Sign in before reviewing" }
-                reports.reviewLine(review.report.id, review.report.recordVersion, actor, action, ui.comment, requireNotNull(ui.lineId), onBehalfOf)
-                mutableState.update { it.copy(comment = "") }
-            } catch (failure: Exception) {
-                if (failure is CancellationException) throw failure
-                mutableState.update { it.copy(error = failure.message ?: "Review failed") }
+                runCatching {
+                    val review = requireNotNull(ui.review)
+                    val actor = requireNotNull(session.sessionState.first().employeeCode) { "Sign in before reviewing" }
+                    reports.reviewLine(review.report.id, review.report.recordVersion, actor, action, ui.comment, requireNotNull(ui.lineId), onBehalfOf)
+                    mutableState.update { it.copy(comment = "") }
+                }.onFailure { failure ->
+                    if (failure is CancellationException || failure !is Exception) throw failure
+                    mutableState.update { it.copy(error = failure.message ?: "Review failed") }
+                }
             } finally {
                 mutableState.update { it.copy(busy = false) }
             }

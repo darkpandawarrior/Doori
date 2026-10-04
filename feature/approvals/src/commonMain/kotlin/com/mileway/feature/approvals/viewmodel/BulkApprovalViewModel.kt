@@ -51,13 +51,12 @@ class BulkApprovalViewModel(
         viewModelScope.launch {
             try {
                 for (review in snapshot.queue.filter { it.report.id in snapshot.selectedIds && it.canBulkApprove }) {
-                    try {
-                        approve(review, snapshot.comment.trim())
-                        mutableState.update { it.copy(selectedIds = it.selectedIds - review.report.id) }
-                    } catch (failure: Exception) {
-                        if (failure is CancellationException) throw failure
-                        mutableState.update { it.copy(failures = it.failures + (review.report.id to (failure.message ?: "Approval failed"))) }
-                    }
+                    runCatching { approve(review, snapshot.comment.trim()) }
+                        .onSuccess { mutableState.update { it.copy(selectedIds = it.selectedIds - review.report.id) } }
+                        .onFailure { failure ->
+                            if (failure is CancellationException || failure !is Exception) throw failure
+                            mutableState.update { it.copy(failures = it.failures + (review.report.id to (failure.message ?: "Approval failed"))) }
+                        }
                 }
             } finally {
                 mutableState.update { it.copy(busy = false) }

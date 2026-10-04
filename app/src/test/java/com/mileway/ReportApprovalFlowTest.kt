@@ -1,8 +1,8 @@
 package com.mileway
 
+import com.mileway.core.data.claim.FINANCE_ROLE
 import com.mileway.core.data.claim.ReportPayoutProcessor
 import com.mileway.core.data.claim.ReportRepository
-import com.mileway.core.data.claim.FINANCE_ROLE
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalChain
 import com.mileway.core.data.domain.claim.ApprovalStep
@@ -37,9 +37,16 @@ class ReportApprovalFlowTest {
     fun `manager approval waits for finance before paying through existing repository`() =
         runTest {
             val submitted = Report("report", "employee", state = ReportLifecycleState.SUBMITTED, recordVersion = 4)
-            val manager = submitted.copy(recordVersion = 5, approvalChain = ApprovalChain(listOf(
-                ApprovalStep(0, actedBy = "manager", action = ApprovalAction.APPROVE, actedAtMillis = 1),
-            )))
+            val manager =
+                submitted.copy(
+                    recordVersion = 5,
+                    approvalChain =
+                        ApprovalChain(
+                            listOf(
+                                ApprovalStep(0, actedBy = "manager", action = ApprovalAction.APPROVE, actedAtMillis = 1),
+                            ),
+                        ),
+                )
             val approved = manager.copy(state = ReportLifecycleState.APPROVED, recordVersion = 6)
             val reportFlow = MutableStateFlow<Report?>(submitted)
             val reports = mockk<ReportRepository>()
@@ -76,7 +83,11 @@ class ReportApprovalFlowTest {
             viewModel.act(ApprovalAction.APPROVE)
             advanceUntilIdle()
             coVerify(exactly = 0) { payout.pay("report") }
-            assertEquals(ReportLifecycleState.SUBMITTED, viewModel.state.value.report?.state)
+            assertEquals(
+                ReportLifecycleState.SUBMITTED,
+                viewModel.state.value.report
+                    ?.state,
+            )
             sessionFlow.value = sessionFlow.value.copy(employeeCode = "finance")
             viewModel.comment("Finance checked")
             viewModel.act(ApprovalAction.APPROVE)

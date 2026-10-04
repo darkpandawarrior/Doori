@@ -46,8 +46,8 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -120,8 +120,8 @@ import com.mileway.feature.approvals.repository.ApprovalsRepository
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
-import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.approvals.viewmodel.BulkApprovalViewModel
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -809,16 +809,21 @@ private fun ReportApprovalQueue(
     reports.forEach { report ->
         val review = bulk.queue.find { it.report.id == report.id }
         Row(verticalAlignment = Alignment.CenterVertically) {
-        if (review != null) {
-            Checkbox(
-                checked = report.id in bulk.selectedIds,
-                onCheckedChange = { onSelect(report.id) },
-                enabled = !bulk.busy && review.canBulkApprove,
-            )
-        }
-        TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
-            Text("Report ${report.id} · ${review?.nextRole ?: report.state.name.replace('_', ' ')}${if (review?.canBulkApprove == false) " · Hard violation or no payable lines" else ""}")
-        }
+            if (review != null) {
+                Checkbox(
+                    checked = report.id in bulk.selectedIds,
+                    onCheckedChange = { onSelect(report.id) },
+                    enabled = !bulk.busy && review.canBulkApprove,
+                )
+            }
+            TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "Report ${report.id} · ${review?.nextRole ?: report.state.name.replace(
+                        '_',
+                        ' ',
+                    )}${if (review?.canBulkApprove == false) " · Hard violation or no payable lines" else ""}",
+                )
+            }
         }
     }
     if (bulk.selectedIds.isNotEmpty()) {

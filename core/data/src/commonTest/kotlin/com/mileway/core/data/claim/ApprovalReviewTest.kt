@@ -8,10 +8,11 @@ import kotlin.time.Instant
 
 class ApprovalReviewTest {
     @Test
-    fun `locked December rolls into January without changing the submitted instant`() = runTest {
-        val original = Instant.parse("2026-12-31T23:59:59Z").toEpochMilliseconds()
-        val period = nextOpenPeriod(original) { key -> if (key == "2026-12") PeriodLockEntity(key, 1, "finance") else null }
-        assertEquals("2027-01", period)
-        assertEquals(Instant.parse("2026-12-31T23:59:59Z").toEpochMilliseconds(), original)
-    }
+    fun `locked December rolls into January without changing the submitted instant`() =
+        runTest {
+            val original = Instant.parse("2026-12-31T23:59:59Z").toEpochMilliseconds()
+            val period = nextOpenPeriod(original) { key -> if (key == "2026-12") PeriodLockEntity(key, 1, "finance") else null }
+            assertEquals("2027-01", period)
+            assertEquals(Instant.parse("2026-12-31T23:59:59Z").toEpochMilliseconds(), original)
+        }
 }

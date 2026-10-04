@@ -103,7 +103,11 @@ class ReportRepository(
         val report = get(id) ?: return null
         val entity = requireNotNull(reportDao.get(id))
         val violations = database?.policyViolationDao()?.getByReport(id).orEmpty()
-        val blocked = report.lines.filter { it.hasHardViolation() }.map { it.id }.toMutableSet()
+        val blocked =
+            report.lines
+                .filter { it.hasHardViolation() }
+                .map { it.id }
+                .toMutableSet()
         violations.filter { isHardPolicyCode(it.code) }.forEach { violation ->
             if (violation.claimLineId == null) blocked.addAll(report.lines.map { it.id }) else blocked.add(violation.claimLineId)
         }
@@ -121,12 +125,18 @@ class ReportRepository(
         line.sourceTripId?.let { database?.locationDao()?.getLocationsByTokenOnce(it) }.orEmpty()
 
     /** Active, time-bounded delegation choices for this report and current step. */
-    suspend fun delegates(reportId: String, actor: String): List<com.mileway.core.data.model.db.DelegateAssignmentEntity> {
+    suspend fun delegates(
+        reportId: String,
+        actor: String,
+    ): List<com.mileway.core.data.model.db.DelegateAssignmentEntity> {
         val review = requireNotNull(review(reportId))
         val now = clock.now().toEpochMilliseconds()
         return database?.delegateAssignmentDao()?.getActiveForDelegate(actor).orEmpty().filter {
-            it.isActive && it.startsAtMs <= now && now < it.expiresAtMs &&
-                it.delegatorAccountId != review.report.employeeId && delegationScopeMatches(it.scope, reportId, review.nextRole)
+            it.isActive &&
+                it.startsAtMs <= now &&
+                now < it.expiresAtMs &&
+                it.delegatorAccountId != review.report.employeeId &&
+                delegationScopeMatches(it.scope, reportId, review.nextRole)
         }
     }
 
@@ -164,45 +174,48 @@ class ReportRepository(
     ): Report {
         require(actedBy.isNotBlank()) { "An approver identity is required" }
         require(comment.isNotBlank()) { "A comment is required" }
-        val saved = atomic {
-            val review = requireNotNull(review(reportId)) { "Report not found" }
-            val report = review.report
-            require(report.recordVersion == expectedVersion) { "Report changed; reload before acting" }
-            require(report.state == ReportLifecycleState.SUBMITTED) { "Report is not awaiting review" }
-            require(actedBy != report.employeeId && onBehalfOf != report.employeeId) { "Self approval is not allowed" }
-            require(role == review.nextRole) { "Review requires the ${review.nextRole} step" }
-            if (onBehalfOf != null) {
-                require(onBehalfOf != actedBy && delegates(reportId, actedBy).any { it.delegatorAccountId == onBehalfOf }) {
-                    "No active delegation for this report and role"
+        val saved =
+            atomic {
+                val review = requireNotNull(review(reportId)) { "Report not found" }
+                val report = review.report
+                require(report.recordVersion == expectedVersion) { "Report changed; reload before acting" }
+                require(report.state == ReportLifecycleState.SUBMITTED) { "Report is not awaiting review" }
+                require(actedBy != report.employeeId && onBehalfOf != report.employeeId) { "Self approval is not allowed" }
+                require(role == review.nextRole) { "Review requires the ${review.nextRole} step" }
+                if (onBehalfOf != null) {
+                    require(onBehalfOf != actedBy && delegates(reportId, actedBy).any { it.delegatorAccountId == onBehalfOf }) {
+                        "No active delegation for this report and role"
+                    }
                 }
+                if (lineId != null) {
+                    require(report.lines.any { it.id == lineId }) { "Claim line not found" }
+                    require(action != ApprovalAction.SEND_BACK) { "Send back applies to the whole report" }
+                }
+                if (action == ApprovalAction.APPROVE) {
+                    require(if (lineId == null) review.canBulkApprove else lineId !in review.blockedLineIds) { "Hard policy violation blocks approval" }
+                }
+                val row =
+                    ApprovalStepEntity(
+                        reportId = reportId,
+                        stepIndex = (review.actions.maxOfOrNull { it.stepIndex } ?: -1) + 1,
+                        role = role,
+                        thresholdMinor = null,
+                        actedBy = actedBy,
+                        onBehalfOf = onBehalfOf,
+                        action = action.name,
+                        comment = comment.trim(),
+                        actedAtMillis = clock.now().toEpochMilliseconds(),
+                        claimLineId = lineId,
+                    )
+                val next =
+                    when {
+                        lineId != null || (action == ApprovalAction.APPROVE && role == MANAGER_ROLE) -> report.state
+                        else -> ReportLifecycleStateMachine.transition(report.state, action.event())
+                    }
+                approvalStepDao.insert(row)
+                val chain = if (lineId == null) ApprovalChain(report.approvalChain.steps + row.toDomain()) else report.approvalChain
+                write(report.copy(state = next, approvalChain = chain), approvalAction = row)
             }
-            if (lineId != null) {
-                require(report.lines.any { it.id == lineId }) { "Claim line not found" }
-                require(action != ApprovalAction.SEND_BACK) { "Send back applies to the whole report" }
-            }
-            if (action == ApprovalAction.APPROVE) {
-                require(if (lineId == null) review.canBulkApprove else lineId !in review.blockedLineIds) { "Hard policy violation blocks approval" }
-            }
-            val row = ApprovalStepEntity(
-                reportId = reportId,
-                stepIndex = (review.actions.maxOfOrNull { it.stepIndex } ?: -1) + 1,
-                role = role,
-                thresholdMinor = null,
-                actedBy = actedBy,
-                onBehalfOf = onBehalfOf,
-                action = action.name,
-                comment = comment.trim(),
-                actedAtMillis = clock.now().toEpochMilliseconds(),
-                claimLineId = lineId,
-            )
-            val next = when {
-                lineId != null || (action == ApprovalAction.APPROVE && role == MANAGER_ROLE) -> report.state
-                else -> ReportLifecycleStateMachine.transition(report.state, action.event())
-            }
-            approvalStepDao.insert(row)
-            val chain = if (lineId == null) ApprovalChain(report.approvalChain.steps + row.toDomain()) else report.approvalChain
-            write(report.copy(state = next, approvalChain = chain), approvalAction = row)
-        }
         enqueue(saved)
         return saved
     }
@@ -263,12 +276,11 @@ class ReportRepository(
         require(report.recordVersion == (existing?.recordVersion ?: 0L)) { "Report changed; reload before saving" }
         require((existing?.recordVersion ?: 0L) < Long.MAX_VALUE) { "Report version exhausted" }
         val nextVersion = (existing?.recordVersion ?: 0L) + 1
-        val priorActions = approvalStepDao.getByReport(report.id)
-        require(approvalAction != null || report.approvalChain.steps == priorActions.filter { it.claimLineId == null }.map { it.toDomain() } || existing == null) {
-            "Approval history may only change through review actions"
-        }
+        validateReviewHistory(report, existing, approvalAction, approvalStepDao.getByReport(report.id))
         val from = existing?.let { ReportLifecycleState.valueOf(it.state) } ?: ReportLifecycleState.DRAFT
-        if (from in setOf(ReportLifecycleState.SUBMITTED, ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT, ReportLifecycleState.PAID)) {
+        if (from in
+            setOf(ReportLifecycleState.SUBMITTED, ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT, ReportLifecycleState.PAID)
+        ) {
             require(report.lines == get(report.id)?.lines && report.employeeId == existing?.employeeId) {
                 "Submitted claim lines and employee are immutable"
             }
@@ -279,15 +291,6 @@ class ReportRepository(
                     runCatching { ReportLifecycleStateMachine.transition(from, it) }.getOrNull() == report.state
                 },
         ) { "Illegal report state change" }
-        require(report.state != ReportLifecycleState.RECALLED || report.approvalChain.steps.isEmpty()) {
-            "A report with an approval action cannot be recalled"
-        }
-        if (report.state == ReportLifecycleState.APPROVED && existing?.state != ReportLifecycleState.APPROVED.name) {
-            require(approvalAction?.role == FINANCE_ROLE && approvalAction.claimLineId == null && approvalAction.action == ApprovalAction.APPROVE.name) {
-                "Final finance approval is required"
-            }
-        }
-        require(report.state != ReportLifecycleState.RECALLED || priorActions.isEmpty()) { "A reviewed report cannot be recalled" }
         val newlySubmitted = report.state == ReportLifecycleState.SUBMITTED && from != ReportLifecycleState.SUBMITTED
         val submittedAt = existing?.submittedAtMs ?: if (newlySubmitted) now else null
         val period = existing?.accountingPeriodKey ?: submittedAt?.let { at -> nextOpenPeriod(at) { database?.periodLockDao()?.get(it) } }
@@ -345,15 +348,16 @@ class ReportRepository(
         approvalAction: ApprovalStepEntity? = null,
     ) {
         database?.let { db ->
-            val notification = ReportLifecycleNotifier.map(from, saved, now)
-                ?: approvalAction?.let { action ->
-                    // A substep keeps SUBMITTED; reuse the notifier's stable id and deep link,
-                    // then label the review event rather than pretending the lifecycle changed.
-                    ReportLifecycleNotifier.map(ReportLifecycleState.DRAFT, saved, now)?.copy(
-                        title = if (action.claimLineId != null) "Claim line ${action.action.lowercase()}" else "Finance review required",
-                        body = "Report ${saved.id}: ${action.claimLineId ?: action.role} reviewed by ${action.actedBy}",
-                    )
-                }
+            val notification =
+                ReportLifecycleNotifier.map(from, saved, now)
+                    ?: approvalAction?.let { action ->
+                        // A substep keeps SUBMITTED; reuse the notifier's stable id and deep link,
+                        // then label the review event rather than pretending the lifecycle changed.
+                        ReportLifecycleNotifier.map(ReportLifecycleState.DRAFT, saved, now)?.copy(
+                            title = if (action.claimLineId != null) "Claim line ${action.action.lowercase()}" else "Finance review required",
+                            body = "Report ${saved.id}: ${action.claimLineId ?: action.role} reviewed by ${action.actedBy}",
+                        )
+                    }
             notification?.let { row ->
                 db.notificationDao().upsertAll(
                     listOf(
@@ -495,5 +499,27 @@ private fun ApprovalAction.event(): ReportLifecycleEvent =
         ApprovalAction.SEND_BACK -> ReportLifecycleEvent.SEND_BACK
     }
 
-private fun delegationScopeMatches(scope: String, reportId: String, role: String): Boolean =
-    scope in setOf("approvals", role, "report:$reportId")
+private fun delegationScopeMatches(
+    scope: String,
+    reportId: String,
+    role: String,
+): Boolean = scope in setOf("approvals", role, "report:$reportId")
+
+private fun validateReviewHistory(
+    report: Report,
+    existing: ReportEntity?,
+    approvalAction: ApprovalStepEntity?,
+    priorActions: List<ApprovalStepEntity>,
+) {
+    require(
+        approvalAction != null || report.approvalChain.steps == priorActions.filter { it.claimLineId == null }.map { it.toDomain() } || existing == null,
+    ) {
+        "Approval history may only change through review actions"
+    }
+    if (report.state == ReportLifecycleState.APPROVED && existing?.state != ReportLifecycleState.APPROVED.name) {
+        require(approvalAction?.role == FINANCE_ROLE && approvalAction.claimLineId == null && approvalAction.action == ApprovalAction.APPROVE.name) {
+            "Final finance approval is required"
+        }
+    }
+    require(report.state != ReportLifecycleState.RECALLED || priorActions.isEmpty()) { "A reviewed report cannot be recalled" }
+}

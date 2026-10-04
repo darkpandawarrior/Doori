@@ -10,9 +10,9 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.mileway.core.data.claim.FINANCE_ROLE
 import com.mileway.core.data.claim.ReportPayoutProcessor
 import com.mileway.core.data.claim.ReportRepository
-import com.mileway.core.data.claim.FINANCE_ROLE
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalChain
 import com.mileway.core.data.domain.claim.ApprovalStep
@@ -63,15 +63,22 @@ class ReportApprovalScreenTest {
                 state = ReportLifecycleState.SUBMITTED,
                 recordVersion = 4,
             )
-        val manager = submitted.copy(recordVersion = 5, approvalChain = ApprovalChain(listOf(
-            ApprovalStep(0, actedBy = "manager", action = ApprovalAction.APPROVE, actedAtMillis = 1),
-        )))
+        val manager =
+            submitted.copy(
+                recordVersion = 5,
+                approvalChain =
+                    ApprovalChain(
+                        listOf(
+                            ApprovalStep(0, actedBy = "manager", action = ApprovalAction.APPROVE, actedAtMillis = 1),
+                        ),
+                    ),
+            )
         val reportFlow = MutableStateFlow<Report?>(submitted)
         val reports = mockk<ReportRepository>()
         every { reports.observe("report") } returns reportFlow
         every { reports.observeAll() } returns MutableStateFlow(listOf(submitted))
-            coEvery { reports.review("report") } answers { reportFlow.value?.let(::approvalReviewOf) }
-            coEvery { reports.delegates("report", any()) } returns emptyList()
+        coEvery { reports.review("report") } answers { reportFlow.value?.let(::approvalReviewOf) }
+        coEvery { reports.delegates("report", any()) } returns emptyList()
         coEvery { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", "manager", null) } answers {
             manager.also { reportFlow.value = it }
         }

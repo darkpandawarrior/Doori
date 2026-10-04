@@ -31,13 +31,18 @@ data class ApprovalReview(
 
     val rejectedLineIds: Set<String>
         get() =
-            actions.filter { it.claimLineId != null }.groupBy { requireNotNull(it.claimLineId) }
-                .filterValues { it.last().action == ApprovalAction.REJECT.name }.keys
+            actions
+                .filter { it.claimLineId != null }
+                .groupBy { requireNotNull(it.claimLineId) }
+                .filterValues { it.last().action == ApprovalAction.REJECT.name }
+                .keys
 
     val payableLines: List<ClaimLine> get() = report.lines.filterNot { it.id in rejectedLineIds }
     val canBulkApprove: Boolean
-        get() = report.state == ReportLifecycleState.SUBMITTED && payableLines.isNotEmpty() &&
-            payableLines.none { it.id in blockedLineIds || it.hasHardViolation() }
+        get() =
+            report.state == ReportLifecycleState.SUBMITTED &&
+                payableLines.isNotEmpty() &&
+                payableLines.none { it.id in blockedLineIds || it.hasHardViolation() }
 }
 
 /** Unknown policy codes fail closed; only the engine's explicit soft warnings can pass bulk review. */
