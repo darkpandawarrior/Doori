@@ -17,18 +17,18 @@ class ForeignCurrencyGroupingTest {
                 "fx",
                 ExpenseCategory.FOOD,
                 "Cafe",
-                100.0,
+                300.0,
                 ExpenseStatus.PENDING,
                 0,
                 currencyCode = "USD",
-                amountMinor = 10000,
+                amountMinor = 30000,
                 fxRate = FxRate(90.0, "USD", sourceDate = "2026-09-25"),
                 fxRatePinnedAt = 123,
             )
         for (entry in listOf(record, record.copy(attendees = listOf(Attendee("Alex"))))) {
             val line = entry.toClaimLine()
             assertEquals("USD", line.currency)
-            assertEquals(10000L, line.amountMinor)
+            assertEquals(30000L, line.amountMinor)
             assertEquals(entry.fxRate, line.fxRate)
             assertEquals(123L, line.fxRatePinnedAt)
             assertTrue(expenseReportPolicy().evaluate(listOf(line), 0)[line.id].orEmpty().any { it.code == "EXPENSE_OVER_MAX" })
