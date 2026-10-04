@@ -32,6 +32,24 @@ class PolicyEngineTest {
     private val engine = PolicyEngine(listOf(v1, v2))
 
     @Test
+    fun monetaryMessagesUseThePolicyCurrencyAndMajorUnits() {
+        val policy = PolicyEngine(listOf(v1.copy(maxExpenseAmountMinor = 2500000, receiptRequiredAboveMinor = 100000)))
+        val line = ExpenseLine("over", 2600000, "INR", merchant = "Cafe", category = "FOOD")
+        val messages = policy.evaluate(listOf(line), 0).getValue(line.id).associate { it.code to it.message }
+        assertEquals("Amount ₹ 26,000.00 exceeds policy max ₹ 25,000.00", messages["EXPENSE_OVER_MAX"])
+        assertEquals("Amount ₹ 26,000.00 exceeds ₹ 1,000.00; attach a receipt", messages["RECEIPT_RECOMMENDED"])
+        val mileage = MileageLine("mileage", 50000, "INR", distanceKm = 10.0, vehicleKey = "car")
+        assertEquals(
+            "Claimed ₹ 500.00 exceeds policy-computed ₹ 1.00",
+            policy
+                .evaluate(listOf(mileage), 0)
+                .getValue(mileage.id)
+                .single()
+                .message,
+        )
+    }
+
+    @Test
     fun foreignMoneyChecksConvertThroughThePinOrSkipWithAReason() {
         val policy = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = 5000L)))
         val foreign = ExpenseLine("fx", 200L, "USD", merchant = "Cafe", category = "FOOD", attendees = listOf(Attendee("Alex")))

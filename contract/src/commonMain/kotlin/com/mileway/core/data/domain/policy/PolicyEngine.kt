@@ -7,6 +7,7 @@ import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
 import com.mileway.core.data.domain.claim.amountInCurrencyMinor
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.ledger.PolicyRateEngine
 import com.mileway.core.data.ledger.PolicyRateTable
 
@@ -99,7 +100,7 @@ class PolicyEngine(
                     PolicyViolation(
                         code = "EXPENSE_OVER_MAX",
                         severity = PolicySeverity.HARD_BLOCK,
-                        message = "Amount $amount exceeds policy max $max",
+                        message = "Amount ${formatMinorCurrency(amount, version.currency)} exceeds policy max ${formatMinorCurrency(max, version.currency)}",
                     )
             }
         }
@@ -109,7 +110,9 @@ class PolicyEngine(
                     PolicyViolation(
                         code = "RECEIPT_RECOMMENDED",
                         severity = PolicySeverity.SOFT_WARN,
-                        message = "Amount $amount exceeds $threshold; attach a receipt",
+                        message =
+                            "Amount ${formatMinorCurrency(amount, version.currency)} exceeds " +
+                                "${formatMinorCurrency(threshold, version.currency)}; attach a receipt",
                     )
             }
         }
@@ -161,7 +164,9 @@ class PolicyEngine(
                 PolicyViolation(
                     code = "MILEAGE_OVER_POLICY_RATE",
                     severity = PolicySeverity.HARD_BLOCK,
-                    message = "Claimed ${line.amountMinor} exceeds policy-computed ${result.cappedAmount}",
+                    message =
+                        "Claimed ${formatMinorCurrency(line.amountMinor, version.currency)} exceeds policy-computed " +
+                            formatMinorCurrency(result.cappedAmount, version.currency),
                 )
         } else if (result.appliedCapReason != null) {
             violations +=

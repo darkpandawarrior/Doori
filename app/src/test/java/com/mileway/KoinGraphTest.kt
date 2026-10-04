@@ -12,6 +12,7 @@ import com.mileway.core.data.dao.LogMilesFrequentRouteDao
 import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
+import com.mileway.core.data.dao.PerDiemRateDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.TripAttachmentDao
@@ -44,6 +45,7 @@ import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.events.viewmodel.CreateEventViewModel
 import com.mileway.feature.events.viewmodel.EventsHistoryViewModel
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.media.di.androidMediaModule
@@ -150,6 +152,7 @@ class KoinGraphTest : KoinTest {
             // ExpensesSearchProvider's VoucherHistoryRepository needs this to build.
             single<VoucherDao> { mockk(relaxed = true) }
             single<DraftExpenseDao> { mockk(relaxed = true) }
+            single<PerDiemRateDao> { mockk { every { observeAll() } returns MutableStateFlow(emptyList()) } }
             single<MediaLibraryDao> { mockk(relaxed = true) }
             single<AgentDao> { FakeAgentDao() }
             single<MockAccountDao> { FakeMockAccountDao() }
@@ -405,6 +408,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<DebugMenuComposeViewModel>())
         assertNotNull(get<LogMilesViewModel>())
         assertNotNull(get<ExpenseViewModel>())
+        assertNotNull(get<PerDiemEntryViewModel>())
         assertNotNull(get<MediaViewModel>())
         assertNotNull(get<CloudLibraryViewModel>())
         assertNotNull(get<ProfileViewModel>())

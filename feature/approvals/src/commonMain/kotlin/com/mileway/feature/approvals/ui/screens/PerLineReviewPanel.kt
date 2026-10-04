@@ -24,6 +24,7 @@ import com.mileway.core.data.claim.MANAGER_ROLE
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.ReportLifecycleState
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.maps.canvas.CanvasRouteSurface
@@ -72,7 +73,7 @@ internal fun PerLineReviewPanel(
             Text("${line.distanceKm} km · ${line.vehicleKey}")
         }
         onBehalfOf?.let { DelegateBanner(it) }
-        line?.let { Text("${it.id}: ${formatReportAmount(it.amountMinor, it.currency)}") }
+        line?.let { Text("${it.id}: ${formatMinorCurrency(it.amountMinor, it.currency)}") }
         Text(if (lineId in review?.rejectedLineIds.orEmpty()) "Rejected line, excluded from payout" else "Line remains in the payable report")
         review?.actions?.filter { it.claimLineId == lineId }?.forEach { action ->
             val delegate = action.onBehalfOf?.let { " on behalf of $it" }.orEmpty()

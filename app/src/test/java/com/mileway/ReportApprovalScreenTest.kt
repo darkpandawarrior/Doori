@@ -97,6 +97,8 @@ class ReportApprovalScreenTest {
             }
         val viewModel = ReportApprovalViewModel(reports, session, FakeClarificationRepository(), ReportPaymentRunner(payments::payReport))
         composeRule.setContent { MaterialTheme { ReportApprovalScreen("report", onBack = {}, viewModel = viewModel) } }
+        composeRule.onNodeWithText("Total: ₹ 50.00").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Report report").assertDoesNotExist()
         composeRule.onNodeWithText("Approval comment (required)").performScrollTo().performTextInput("Reviewed")
         composeRule.onNodeWithText("Approve for finance review").performScrollTo().performClick()
         composeRule.onNodeWithText("Next review: FINANCE").performScrollTo().assertIsDisplayed()

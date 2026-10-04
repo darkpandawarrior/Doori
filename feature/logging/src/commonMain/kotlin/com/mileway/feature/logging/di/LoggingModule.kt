@@ -2,6 +2,7 @@ package com.mileway.feature.logging.di
 
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.platform.OfflineLocationNameResolver
+import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.report.LocalReportJourneyStore
 import com.mileway.feature.logging.report.ReportGroupingViewModel
 import com.mileway.feature.logging.report.ReportJourneyStore
@@ -43,6 +44,7 @@ val loggingModule =
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }
         viewModel { ReportSubmitViewModel(get(), get()) }
+        viewModel { PerDiemEntryViewModel(get(), get(), get()) }
         // SP.1/SP.2/SP.3: voucher + settlement + cards-txn history (offline fakes + MVI VMs).
         single { VoucherHistoryRepository(get()) }
         single { SettlementHistoryRepository() }
