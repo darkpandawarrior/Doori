@@ -3,6 +3,7 @@ package com.mileway
 import com.mileway.feature.advances.data.AdvancesRepository
 import com.mileway.feature.advances.data.QrCardsRepository
 import com.mileway.feature.advances.di.advancesModule
+import com.mileway.feature.advances.reconcile.AdvanceReconciliationUseCase
 import com.mileway.feature.advances.viewmodel.AdvancesHomeViewModel
 import com.mileway.feature.advances.viewmodel.AskAdvanceViewModel
 import com.mileway.feature.advances.viewmodel.PettyCardDetailViewModel
@@ -46,6 +47,7 @@ class AdvancesModuleWiringTest : KoinTest {
     fun `advancesModule resolves the repositories the home sections inject`() {
         assertNotNull(getKoin().get<AdvancesRepository>())
         assertNotNull(getKoin().get<QrCardsRepository>())
+        assertNotNull(getKoin().get<AdvanceReconciliationUseCase>())
     }
 
     @Test

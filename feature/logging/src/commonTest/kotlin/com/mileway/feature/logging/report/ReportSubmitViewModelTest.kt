@@ -1,5 +1,6 @@
 package com.mileway.feature.logging.report
 
+import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalChain
 import com.mileway.core.data.domain.claim.ApprovalStep
@@ -18,6 +19,8 @@ import com.mileway.core.data.session.SessionSource
 import com.mileway.core.data.session.SessionState
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.feature.advances.di.advancesModule
+import com.mileway.feature.advances.reconcile.AdvanceReconciliationUseCase
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
@@ -32,6 +35,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlinx.datetime.TimeZone
+import org.koin.dsl.koinApplication
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -328,6 +332,42 @@ class ReportSubmitViewModelTest {
                     .any { it.code == "INVALID_REPORT" },
             )
             assertNull(mixedVm.state.value.error)
+        }
+
+    @Test
+    fun appliedAdvanceReviewRecomputesWhenAnotherReportReservesIt() =
+        runTest(dispatcher) {
+            val graph = koinApplication { modules(advancesModule) }
+            try {
+                val current = report(listOf(600_000)).let { it.copy(lines = it.lines + AdvanceLine("advance", 500_000, "INR", advanceId = "1")) }
+                val store = MemoryReports(listOf(current))
+                val vm = ReportSubmitViewModel(store, session, policy(max = 1_000_000), clock, graph.koin.get<AdvanceReconciliationUseCase>())
+                vm.open("report")
+                advanceUntilIdle()
+                assertEquals(
+                    100_000L,
+                    vm.state.value.screen.dataOrNull
+                        ?.reconciliation
+                        ?.netMinor,
+                )
+                store.save(Report("other", "employee", listOf(AdvanceLine("other-advance", 500_000, "INR", advanceId = "1", reconciled = true))))
+                advanceUntilIdle()
+                val result =
+                    assertNotNull(
+                        vm.state.value.screen.dataOrNull
+                            ?.reconciliation,
+                    )
+                assertEquals(0L, result.appliedMinor)
+                assertEquals(600_000L, result.netMinor)
+                assertTrue(
+                    result.excluded
+                        .single()
+                        .reason
+                        .contains("another report"),
+                )
+            } finally {
+                graph.close()
+            }
         }
 
     /** Fake local persistence uses the same transition/notifier contracts as the Room adapter. */

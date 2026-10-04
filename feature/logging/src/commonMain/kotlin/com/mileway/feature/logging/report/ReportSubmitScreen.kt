@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.PerDiemLine
@@ -25,6 +26,7 @@ import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.feature.advances.reconcile.AdvanceReconciliation
 
 /** Reviews policy for the entire persisted report and exposes guarded submit/recall actions. */
 @Composable
@@ -62,8 +64,14 @@ private fun ReportSubmitContent(
         ScreenStateContent(state.screen, modifier = Modifier.padding(padding).padding(16.dp), onRetry = onRetry) { content ->
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(content.report.state.name, style = MaterialTheme.typography.titleMedium)
-                if (content.hardFlags.none { it.code in setOf("INVALID_TOTAL", "INVALID_REPORT") }) {
+                if (content.report.lines.none { it is AdvanceLine } && content.hardFlags.none { it.code in setOf("INVALID_TOTAL", "INVALID_REPORT") }) {
                     Text(reportTotalsLabel(content.report))
+                }
+                content.reconciliation?.let { reconciliation ->
+                    Text("Reconcilable spend · ${formatMinorCurrency(reconciliation.spendMinor, reconciliation.currency)}")
+                    Text("Applied advances · ${formatMinorCurrency(reconciliation.appliedMinor, reconciliation.currency)}")
+                    Text(reconciliationLabel(reconciliation), style = MaterialTheme.typography.titleMedium)
+                    reconciliation.excluded.forEach { Text("Excluded ${it.lineId}: ${it.reason}") }
                 }
                 if (content.report.isEditable && content.report.lines.all { it is ExpenseLine } && onEdit != null) {
                     TextButton(onClick = onEdit, enabled = !state.busy) { Text("Edit grouped items") }
@@ -95,9 +103,10 @@ private fun ReportClaimItems(lines: List<ClaimLine>) {
             when (line) {
                 is ExpenseLine -> line.merchant
                 is PerDiemLine -> line.incurredOn?.let { "Per diem · $it" } ?: "Per diem"
+                is AdvanceLine -> "Advance ${line.advanceId}"
                 else -> "Claim item"
             }
-        Text("$label · ${formatMinorCurrency(line.amountMinor, line.currency)}")
+        Text(if (line is AdvanceLine) label else "$label · ${formatMinorCurrency(line.amountMinor, line.currency)}")
         if (line is ExpenseLine) FxRateLabel(line)
     }
 }
@@ -122,3 +131,15 @@ private fun ReportSubmitPreview() {
 }
 
 internal fun reportTotalsLabel(report: Report): String = "${report.lines.size} items · ${formatMinorCurrency(report.totalAmountMinor(), report.currency())}"
+
+internal fun reconciliationLabel(result: AdvanceReconciliation): String {
+    val label =
+        when {
+            result.netMinor > 0 -> "Owed to employee"
+            result.netMinor < 0 -> "Owed back"
+            else -> "Nothing owed"
+        }
+    val amount = if (result.netMinor < 0) -result.netMinor else result.netMinor
+    val partial = if (result.excluded.isEmpty()) "" else " (reconcilable lines only)"
+    return "$label$partial · ${formatMinorCurrency(amount, result.currency)}"
+}

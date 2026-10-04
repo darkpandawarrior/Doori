@@ -43,7 +43,7 @@ val loggingModule =
         }
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }
-        viewModel { ReportSubmitViewModel(get(), get()) }
+        viewModel { ReportSubmitViewModel(get(), get(), reconciliation = get()) }
         viewModel { PerDiemEntryViewModel(get(), get(), get()) }
         // SP.1/SP.2/SP.3: voucher + settlement + cards-txn history (offline fakes + MVI VMs).
         single { VoucherHistoryRepository(get()) }

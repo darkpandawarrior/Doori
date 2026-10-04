@@ -409,6 +409,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<LogMilesViewModel>())
         assertNotNull(get<ExpenseViewModel>())
         assertNotNull(get<PerDiemEntryViewModel>())
+        assertNotNull(get<com.mileway.feature.logging.report.ReportSubmitViewModel>())
         assertNotNull(get<MediaViewModel>())
         assertNotNull(get<CloudLibraryViewModel>())
         assertNotNull(get<ProfileViewModel>())

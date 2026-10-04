@@ -33,6 +33,7 @@ kotlin {
             // shared core:forms FormRenderer/validationErrors instead of a hand-rolled duplicate.
             implementation(project(":core:forms"))
             implementation(project(":feature:tracking"))
+            implementation(project(":feature:advances"))
             // P1.6: reuses PolicyMockData's tiered policy engine for expense-amount validation.
             implementation(project(":stub"))
             // P1.4: renders an optional local receipt photo on the entry form + detail screen.

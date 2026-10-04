@@ -5,6 +5,7 @@ import com.mileway.feature.advances.data.AdvancesRequestStore
 import com.mileway.feature.advances.data.MockAdvancesRepository
 import com.mileway.feature.advances.data.MockQrCardsRepository
 import com.mileway.feature.advances.data.QrCardsRepository
+import com.mileway.feature.advances.reconcile.AdvanceReconciliationUseCase
 import com.mileway.feature.advances.viewmodel.AdvancesHomeViewModel
 import com.mileway.feature.advances.viewmodel.AskAdvanceViewModel
 import com.mileway.feature.advances.viewmodel.PettyCardDetailViewModel
@@ -24,6 +25,7 @@ val advancesModule: Module =
     module {
         single { AdvancesRequestStore() }
         single<AdvancesRepository> { MockAdvancesRepository(get()) }
+        factory { AdvanceReconciliationUseCase(get()) }
         single<QrCardsRepository> { MockQrCardsRepository(get()) }
         viewModel { AdvancesHomeViewModel(get(), get()) }
         viewModel { PettyCardDetailViewModel(get()) }
