@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PolicyViolationDao {
     @Query("SELECT * FROM policy_violations WHERE reportId = :reportId ORDER BY createdAtMs ASC")
+    suspend fun getByReport(reportId: String): List<PolicyViolationEntity>
+
+    @Query("SELECT * FROM policy_violations WHERE reportId = :reportId ORDER BY createdAtMs ASC")
     fun observeByReport(reportId: String): Flow<List<PolicyViolationEntity>>
 
     @Insert

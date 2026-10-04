@@ -39,6 +39,8 @@ class ReportApprovalFlowTest {
             val reports = mockk<ReportRepository>()
             every { reports.observe("report") } returns reportFlow
             every { reports.observeAll() } returns MutableStateFlow(listOf(submitted))
+            coEvery { reports.review("report") } answers { reportFlow.value?.let { com.mileway.core.data.claim.ApprovalReview(it) } }
+            coEvery { reports.delegates("report", any()) } returns emptyList()
             coEvery { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", any(), any()) } answers {
                 reportFlow.value = approved
                 approved

@@ -46,6 +46,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
@@ -120,6 +121,7 @@ import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
 import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
+import com.mileway.feature.approvals.viewmodel.BulkApprovalViewModel
 import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -137,9 +139,11 @@ fun ApprovalsScreen(
     modifier: Modifier = Modifier,
     viewModel: ApprovalsViewModel = koinViewModel(),
     reportViewModel: ReportApprovalViewModel = koinViewModel(),
+    bulkViewModel: BulkApprovalViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
     val reportQueue by reportViewModel.queue.collectAsState()
+    val bulk by bulkViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectionMode by rememberSaveable { mutableStateOf(false) }
@@ -231,7 +235,7 @@ fun ApprovalsScreen(
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
             // Real claim reports sit alongside the legacy demo approvals, sharing the detail route.
-            ReportApprovalQueue(reportQueue, onOpenDetail)
+            ReportApprovalQueue(reportQueue, onOpenDetail, bulk, bulkViewModel::select, bulkViewModel::comment, bulkViewModel::approveSelected)
             PrimaryTabRow(selectedTabIndex = selectedTab) {
                 listOf(
                     stringResource(Res.string.approvals_tab_to_approve),
@@ -797,10 +801,29 @@ private fun timeAgo(ms: Long): String {
 private fun ReportApprovalQueue(
     reports: List<Report>,
     onOpenDetail: (String) -> Unit,
+    bulk: BulkApprovalViewModel.State,
+    onSelect: (String) -> Unit,
+    onComment: (String) -> Unit,
+    onApprove: () -> Unit,
 ) {
     reports.forEach { report ->
+        val review = bulk.queue.find { it.report.id == report.id }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+        if (review != null) {
+            Checkbox(
+                checked = report.id in bulk.selectedIds,
+                onCheckedChange = { onSelect(report.id) },
+                enabled = !bulk.busy && review.canBulkApprove,
+            )
+        }
         TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
-            Text("Report ${report.id} · ${report.state.name.replace('_', ' ')}")
+            Text("Report ${report.id} · ${review?.nextRole ?: report.state.name.replace('_', ' ')}${if (review?.canBulkApprove == false) " · Hard violation or no payable lines" else ""}")
+        }
         }
     }
+    if (bulk.selectedIds.isNotEmpty()) {
+        OutlinedTextField(bulk.comment, onComment, label = { Text("Bulk approval comment (required)") }, enabled = !bulk.busy)
+        Button(onClick = onApprove, enabled = !bulk.busy && bulk.comment.isNotBlank()) { Text("Approve ${bulk.selectedIds.size} reports") }
+    }
+    bulk.failures.forEach { (id, error) -> Text("$id: $error", color = MaterialTheme.colorScheme.error) }
 }

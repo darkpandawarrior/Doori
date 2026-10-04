@@ -441,7 +441,10 @@ class ScreenshotGalleryTest {
             module {
                 single<SavedTrackDao> { seededDao }
                 single<com.mileway.core.data.claim.ReportRepository> {
-                    mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(emptyList())
+                        every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                    }
                 }
                 single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
                 single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }
@@ -1100,6 +1103,9 @@ class ScreenshotGalleryTest {
                     mockk {
                         every { observe(any()) } answers { MutableStateFlow(report?.takeIf { it.id == firstArg<String>() }) }
                         every { observeAll() } returns MutableStateFlow(listOfNotNull(report))
+                        every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                        coEvery { review(any()) } returns report?.let { com.mileway.core.data.claim.ApprovalReview(it) }
+                        coEvery { delegates(any(), any()) } returns emptyList()
                         every { observeByEmployee(any()) } answers {
                             MutableStateFlow(listOfNotNull(report).filter { it.employeeId == firstArg<String>() })
                         }

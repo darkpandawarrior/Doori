@@ -3,6 +3,8 @@ package com.mileway.feature.approvals.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.claim.ReportRepository
+import com.mileway.core.data.claim.ApprovalReview
+import com.mileway.core.data.model.db.DelegateAssignmentEntity
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
@@ -31,6 +33,9 @@ class ReportApprovalViewModel(
 ) : ViewModel() {
     data class State(
         val report: Report? = null,
+        val review: ApprovalReview? = null,
+        val delegates: List<DelegateAssignmentEntity> = emptyList(),
+        val onBehalfOf: String? = null,
         val loading: Boolean = true,
         val busy: Boolean = false,
         val comment: String = "",
@@ -68,7 +73,13 @@ class ReportApprovalViewModel(
         reportJob =
             viewModelScope.launch {
                 reports.observe(reportId).collect { report ->
-                    mutableState.update { it.copy(report = report, loading = false) }
+                    val review = report?.let { reports.review(it.id) }
+                    val actor = session.sessionState.first().employeeCode
+                    val delegates = if (report != null && actor != null) reports.delegates(report.id, actor) else emptyList()
+                    mutableState.update {
+                        it.copy(report = report, review = review, delegates = delegates, loading = false,
+                            onBehalfOf = it.onBehalfOf?.takeIf { id -> delegates.any { grant -> grant.delegatorAccountId == id } })
+                    }
                 }
             }
     }
@@ -77,14 +88,18 @@ class ReportApprovalViewModel(
         mutableState.update { it.copy(comment = value) }
     }
 
+    fun delegate(accountId: String?) {
+        mutableState.update { it.copy(onBehalfOf = accountId) }
+    }
+
     fun act(action: ApprovalAction) =
         perform {
             val ui = state.value
             val report = requireNotNull(ui.report) { "Report not found" }
             val actor = requireNotNull(session.sessionState.first().employeeCode) { "Sign in before reviewing a report" }
-            reports.act(report.id, report.recordVersion, actor, action, ui.comment)
+            val saved = reports.act(report.id, report.recordVersion, actor, action, ui.comment, ui.review?.nextRole ?: "manager", ui.onBehalfOf)
             mutableState.update { it.copy(comment = "") }
-            if (action == ApprovalAction.APPROVE) payments.pay(report.id)
+            if (action == ApprovalAction.APPROVE && saved.state == ReportLifecycleState.APPROVED) payments.pay(report.id)
         }
 
     fun retryPayout() = perform { payments.pay(requireNotNull(state.value.report).id) }

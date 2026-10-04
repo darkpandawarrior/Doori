@@ -64,6 +64,8 @@ class ReportApprovalScreenTest {
         val reports = mockk<ReportRepository>()
         every { reports.observe("report") } returns reportFlow
         every { reports.observeAll() } returns MutableStateFlow(listOf(submitted))
+            coEvery { reports.review("report") } answers { reportFlow.value?.let { com.mileway.core.data.claim.ApprovalReview(it) } }
+            coEvery { reports.delegates("report", any()) } returns emptyList()
         coEvery { reports.act("report", 4, "manager", ApprovalAction.APPROVE, "Reviewed", any(), any()) } answers {
             submitted.copy(state = ReportLifecycleState.APPROVED).also { reportFlow.value = it }
         }
@@ -79,7 +81,7 @@ class ReportApprovalScreenTest {
         val viewModel = ReportApprovalViewModel(reports, session, FakeClarificationRepository(), ReportPaymentRunner(payments::payReport))
         composeRule.setContent { MaterialTheme { ReportApprovalScreen("report", onBack = {}, viewModel = viewModel) } }
         composeRule.onNodeWithText("Approval comment (required)").performScrollTo().performTextInput("Reviewed")
-        composeRule.onNodeWithText("Approve and simulate payout").performScrollTo().performClick()
+        composeRule.onNodeWithText("Approve for finance review").performScrollTo().performClick()
         composeRule.onNodeWithText("Status: PAID").assertIsDisplayed()
         coVerify(exactly = 1) { payouts.pay("report") }
     }
