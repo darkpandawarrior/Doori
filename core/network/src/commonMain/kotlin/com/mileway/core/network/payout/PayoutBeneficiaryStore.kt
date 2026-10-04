@@ -17,8 +17,9 @@ class PayoutBeneficiaryStore(
     fun clear() = settings.remove(Key)
 
     companion object {
+        private const val MaxVpaLength = 255
         private const val Key = "payout_beneficiary_vpa"
 
-        fun isValid(vpa: String): Boolean = vpa.length <= 255 && vpa.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]*@[A-Za-z0-9][A-Za-z0-9.-]*"))
+        fun isValid(vpa: String): Boolean = vpa.length <= MaxVpaLength && vpa.matches(Regex("[A-Za-z0-9][A-Za-z0-9._-]*@[A-Za-z0-9][A-Za-z0-9.-]*"))
     }
 }

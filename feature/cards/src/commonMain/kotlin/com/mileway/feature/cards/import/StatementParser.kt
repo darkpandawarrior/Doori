@@ -4,6 +4,11 @@ import com.mileway.core.data.domain.claim.isFxSourceDate
 import com.mileway.core.data.session.sha256Hex
 import com.mileway.core.forms.parseMinorAmount
 
+internal const val MaxStatementFieldLength = 256
+private const val OfxDateLength = 8
+private const val OfxYearEnd = 4
+private const val OfxMonthEnd = 6
+
 /** A positive purchase in billed currency, optionally retaining the original foreign amount. */
 data class StatementRow(
     val id: String,
@@ -80,13 +85,13 @@ object StatementParser {
                 val amount = tag(block, "TRNAMT")
                 // Credits and bill payments are not expense purchases.
                 if (!amount.startsWith('-') || tag(block, "TRNTYPE").uppercase() !in setOf("DEBIT", "POS")) return@mapNotNull null
-                val posted = tag(block, "DTPOSTED").take(8)
-                require(posted.length == 8 && posted.all(Char::isDigit)) { "Invalid OFX posting date" }
+                val posted = tag(block, "DTPOSTED").take(OfxDateLength)
+                require(posted.length == OfxDateLength && posted.all(Char::isDigit)) { "Invalid OFX posting date" }
                 val id = tag(block, "FITID")
                 require(id.isNotBlank()) { "OFX transaction id is required" }
                 row(
                     "ofx:${sha256Hex("$account:$id")}",
-                    "${posted.take(4)}-${posted.substring(4, 6)}-${posted.takeLast(2)}",
+                    "${posted.take(OfxYearEnd)}-${posted.substring(OfxYearEnd, OfxMonthEnd)}-${posted.takeLast(2)}",
                     tag(block, "NAME").ifBlank { tag(block, "MEMO") },
                     positiveAmount(amount.removePrefix("-")),
                     currency,
@@ -121,9 +126,9 @@ object StatementParser {
         foreign: Long?,
         foreignCurrency: String?,
     ): StatementRow {
-        require(id.isNotBlank() && id.length <= 256) { "Invalid statement transaction id" }
+        require(id.isNotBlank() && id.length <= MaxStatementFieldLength) { "Invalid statement transaction id" }
         require(isFxSourceDate(date)) { "Invalid statement date; use YYYY-MM-DD" }
-        require(merchant.isNotBlank() && merchant.length <= 256) { "Statement merchant is required" }
+        require(merchant.isNotBlank() && merchant.length <= MaxStatementFieldLength) { "Statement merchant is required" }
         require(currency in currencies && (foreignCurrency == null || foreignCurrency in currencies)) { "Unsupported statement currency" }
         require((foreign == null) == (foreignCurrency == null)) { "Foreign amount and currency must both be present" }
         return StatementRow(id, date, merchant, amount, currency, foreign, foreignCurrency)

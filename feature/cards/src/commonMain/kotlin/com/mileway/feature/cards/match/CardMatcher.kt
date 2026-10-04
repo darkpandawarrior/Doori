@@ -3,6 +3,7 @@ package com.mileway.feature.cards.match
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.data.domain.claim.isFxSourceDate
+import com.mileway.feature.cards.import.MaxStatementFieldLength
 import com.mileway.feature.cards.import.StatementRow
 import kotlin.time.Instant
 
@@ -52,7 +53,7 @@ class CardMatcher(
         row: StatementRow,
         line: ExpenseLine,
     ): Scored? {
-        if (line.merchant.length > 256 || row.merchant.length > 256) return null
+        if (line.merchant.length > MaxStatementFieldLength || row.merchant.length > MaxStatementFieldLength) return null
         val amounts = comparableAmounts(row, line) ?: return null
         val delta = if (amounts.first >= amounts.second) amounts.first - amounts.second else amounts.second - amounts.first
         if (delta > amountToleranceMinor) return null

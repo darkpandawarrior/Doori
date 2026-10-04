@@ -24,3 +24,16 @@ internal fun validateStatementMatch(
         }
     }
 }
+
+/** Rejects attempts to change a matched line's captured amount, currency or transaction identity. */
+internal fun validateCardAnchors(
+    prior: List<ClaimLine>,
+    updated: List<ClaimLine>,
+) {
+    prior.filter { it.cardMatchId != null }.forEach { line ->
+        val next = updated.find { it.id == line.id }
+        require(next == null || (next.amountMinor == line.amountMinor && next.currency == line.currency && next.cardMatchId == line.cardMatchId)) {
+            "Card-matched amount and currency are locked"
+        }
+    }
+}

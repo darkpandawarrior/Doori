@@ -380,6 +380,7 @@ class ExpenseViewModel(
     }
 
     override fun onAction(action: ExpenseAction) {
+        if (currentState.form.cardMatchedAmountMinor != null && action.isMoneyEdit()) return
         when (action) {
             ExpenseAction.Refresh ->
                 refresh(currentState.listState.activeFilter(), currentState.listState.activeSort(), currentState.listState.activeCategories())
@@ -396,24 +397,11 @@ class ExpenseViewModel(
             ExpenseAction.AdvanceStep -> advanceStep()
             ExpenseAction.RetreatStep -> setState { copy(form = form.copy(step = 1)) }
             is ExpenseAction.SetFormValue -> setState { copy(form = form.copy(formValues = form.formValues + (action.key to action.value))) }
-            is ExpenseAction.SetAmount -> if (currentState.form.cardMatchedAmountMinor == null) setState { copy(form = form.copy(amountText = action.text)) }
+            is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
             is ExpenseAction.SetCurrency ->
-                if (currentState.form.cardMatchedAmountMinor ==
-                    null
-                ) {
-                    setState {
-                        copy(
-                            form = form.copy(currencyCode = action.code, fxRate = null, fxRatePinnedAt = null, cardFxRate = null),
-                            fxMessage = null,
-                        )
-                    }
-                }
+                setState { copy(form = form.copy(currencyCode = action.code, fxRate = null, fxRatePinnedAt = null, cardFxRate = null), fxMessage = null) }
             is ExpenseAction.SetManualFxRate ->
-                if (currentState.form.cardMatchedAmountMinor ==
-                    null
-                ) {
-                    setState { copy(form = form.copy(manualFxRateText = action.text, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
-                }
+                setState { copy(form = form.copy(manualFxRateText = action.text, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
             is ExpenseAction.SetCardFxRate ->
                 setState { copy(form = form.copy(cardFxRate = action.rate, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
             is ExpenseAction.SetMerchant -> setState { copy(form = form.copy(merchantName = action.name)) }
@@ -1097,3 +1085,6 @@ internal fun ExpenseFormState.fxLine(): ExpenseLine =
         fxRatePinnedAt = fxRatePinnedAt,
         cardMatchId = (sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: cardMatchId,
     )
+
+private fun ExpenseAction.isMoneyEdit(): Boolean =
+    this is ExpenseAction.SetAmount || this is ExpenseAction.SetCurrency || this is ExpenseAction.SetManualFxRate || this is ExpenseAction.SetCardFxRate

@@ -1,6 +1,8 @@
 package com.mileway.feature.cards.di
 
 import com.mileway.core.data.claim.ReportRepository
+import com.mileway.core.data.claim.saveStatementMatches
+import com.mileway.core.data.claim.wasStatementImported
 import com.mileway.feature.cards.data.CardsMockDataProvider
 import com.mileway.feature.cards.data.CardsMockDataProviderFactory
 import com.mileway.feature.cards.import.StatementImportViewModel
