@@ -344,13 +344,27 @@ class ReportSubmitViewModelTest {
                 val vm = ReportSubmitViewModel(store, session, policy(max = 1_000_000), clock, graph.koin.get<AdvanceReconciliationUseCase>())
                 vm.open("report")
                 advanceUntilIdle()
-                assertEquals(100_000L, vm.state.value.screen.dataOrNull?.reconciliation?.netMinor)
+                assertEquals(
+                    100_000L,
+                    vm.state.value.screen.dataOrNull
+                        ?.reconciliation
+                        ?.netMinor,
+                )
                 store.save(Report("other", "employee", listOf(AdvanceLine("other-advance", 500_000, "INR", advanceId = "1", reconciled = true))))
                 advanceUntilIdle()
-                val result = assertNotNull(vm.state.value.screen.dataOrNull?.reconciliation)
+                val result =
+                    assertNotNull(
+                        vm.state.value.screen.dataOrNull
+                            ?.reconciliation,
+                    )
                 assertEquals(0L, result.appliedMinor)
                 assertEquals(600_000L, result.netMinor)
-                assertTrue(result.excluded.single().reason.contains("another report"))
+                assertTrue(
+                    result.excluded
+                        .single()
+                        .reason
+                        .contains("another report"),
+                )
             } finally {
                 graph.close()
             }

@@ -42,7 +42,12 @@ class AdvanceReconciliationUseCaseTest {
             val result = useCase(5.0)(report(1_000, "1"), listOf(other))
             assertEquals(0L, result.appliedMinor)
             assertEquals(1_000L, result.netMinor)
-            assertTrue(result.excluded.single().reason.contains("another report"))
+            assertTrue(
+                result.excluded
+                    .single()
+                    .reason
+                    .contains("another report"),
+            )
         }
 
     @Test
@@ -51,7 +56,12 @@ class AdvanceReconciliationUseCaseTest {
             val current = report(1_000, "1", "1")
             val result = useCase(5.0)(current, listOf(current))
             assertEquals(500L, result.appliedMinor)
-            assertTrue(result.excluded.single().reason.contains("more than once"))
+            assertTrue(
+                result.excluded
+                    .single()
+                    .reason
+                    .contains("more than once"),
+            )
             val other = current.copy(id = "other", lines = listOf(advance("1")))
             assertEquals(0L, useCase(5.0)(report(1_000, "1"), listOf(other)).appliedMinor)
         }
@@ -88,8 +98,18 @@ class AdvanceReconciliationUseCaseTest {
             val result = AdvanceReconciliationUseCase(repository)(report(1_000, "1", "unknown"), emptyList())
             assertEquals(0L, result.appliedMinor)
             assertEquals(2, result.excluded.size)
-            assertTrue(result.excluded.first().reason.contains("FX pin"))
-            assertTrue(result.excluded.last().reason.contains("unavailable"))
+            assertTrue(
+                result.excluded
+                    .first()
+                    .reason
+                    .contains("FX pin"),
+            )
+            assertTrue(
+                result.excluded
+                    .last()
+                    .reason
+                    .contains("unavailable"),
+            )
         }
 
     @Test
@@ -110,7 +130,19 @@ class AdvanceReconciliationUseCaseTest {
 
     @Test
     fun halfEvenUsesDecimalTiesAndHandlesScientificNotation() {
-        val cases = listOf(1.005 to 100L, 1.015 to 102L, 2.345 to 234L, 2.355 to 236L, 0.005 to 0L, 0.015 to 2L, 1.0149 to 101L, 1.0151 to 102L, 1e-7 to 0L, 1e7 to 1_000_000_000L)
+        val cases =
+            listOf(
+                1.005 to 100L,
+                1.015 to 102L,
+                2.345 to 234L,
+                2.355 to 236L,
+                0.005 to 0L,
+                0.015 to 2L,
+                1.0149 to 101L,
+                1.0151 to 102L,
+                1e-7 to 0L,
+                1e7 to 1_000_000_000L,
+            )
         cases.forEach { (rupees, minor) -> assertEquals(minor, rupeesToMinorHalfEven(rupees), "$rupees") }
     }
 

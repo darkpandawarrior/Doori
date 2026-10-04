@@ -49,7 +49,12 @@ class AdvanceReconciliationUseCase(
         currency: String = report.currency(),
     ): AdvanceReconciliation {
         val excluded = mutableListOf<UnreconciledLine>()
-        val reserved = otherReports.filter { it.id != report.id }.flatMap { it.lines.filterIsInstance<AdvanceLine>() }.map { it.advanceId }.toSet()
+        val reserved =
+            otherReports
+                .filter { it.id != report.id }
+                .flatMap { it.lines.filterIsInstance<AdvanceLine>() }
+                .map { it.advanceId }
+                .toSet()
         val byId = available.groupBy { it.advanceId }
         val seen = mutableSetOf<String>()
         var spend = 0L
