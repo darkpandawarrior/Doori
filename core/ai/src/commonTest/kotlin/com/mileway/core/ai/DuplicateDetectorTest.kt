@@ -141,8 +141,29 @@ class DuplicateDetectorTest {
     }
 
     @Test
-    fun `distant images are unique even when OCR values agree`() {
+    fun `distant images retain possible verdict when OCR values agree`() {
         val candidates = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L, imageHash = -1L))
+        assertEquals(
+            DuplicateVerdict.Possible("saved", "same merchant and amount within 5min"),
+            detector.check(fields(), 60_000L, candidates, imageHash = 0L),
+        )
+    }
+
+    @Test
+    fun `distant images retain confirmed verdict at exact timestamp when OCR values agree`() {
+        val candidates = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L, imageHash = -1L))
+        assertEquals(DuplicateVerdict.Confirmed("saved"), detector.check(fields(), 0L, candidates, imageHash = 0L))
+    }
+
+    @Test
+    fun `distant images with different merchant remain unique`() {
+        val candidates = listOf(DedupCandidate("saved", "Other Shop", "12.50", 0L, imageHash = -1L))
+        assertEquals(DuplicateVerdict.Unique, detector.check(fields(), 60_000L, candidates, imageHash = 0L))
+    }
+
+    @Test
+    fun `distant images with different total remain unique`() {
+        val candidates = listOf(DedupCandidate("saved", "Cafe Roma", "99.00", 0L, imageHash = -1L))
         assertEquals(DuplicateVerdict.Unique, detector.check(fields(), 60_000L, candidates, imageHash = 0L))
     }
 

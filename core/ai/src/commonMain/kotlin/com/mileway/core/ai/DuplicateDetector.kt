@@ -6,7 +6,7 @@ import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
 import kotlin.math.abs
 
-/** Local receipt comparison, using image evidence when available and field evidence otherwise. */
+/** Local receipt comparison, with image matches adding evidence without excluding field matches. */
 class DuplicateDetector(
     private val windowMinutes: Int = DEFAULT_WINDOW_MINUTES,
 ) {
@@ -41,7 +41,7 @@ class DuplicateDetector(
             }
         }
 
-        val fieldMatches = recent.filter { fieldsMatch(it) && (imageHash == null || it.imageHash == null) }
+        val fieldMatches = recent.filter { fieldsMatch(it) }
         fieldMatches.firstOrNull { it.timestampMillis == timestampMillis }?.let { return DuplicateVerdict.Confirmed(it.ref) }
         val nearest = fieldMatches.minByOrNull { abs(timestampMillis - it.timestampMillis) } ?: return DuplicateVerdict.Unique
         return DuplicateVerdict.Possible(nearest.ref, "same merchant and amount within ${windowMinutes}min")
