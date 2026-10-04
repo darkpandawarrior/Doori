@@ -32,8 +32,11 @@ internal fun checkedRateSum(
 }
 
 /** Rounds thousandths of a minor unit half-up once, after all distance bands have been added. */
-internal fun roundRateMinor(thousandthsMinor: Long): Long = thousandthsMinor / RATE_SCALE +
-    if (thousandthsMinor % RATE_SCALE >= HALF_RATE_SCALE) 1L else 0L
+internal fun roundRateMinor(thousandthsMinor: Long): Long {
+    val minor = thousandthsMinor / RATE_SCALE
+    val increment = if (thousandthsMinor % RATE_SCALE >= HALF_RATE_SCALE) 1L else 0L
+    return minor + increment
+}
 
 /** Strict ISO date, represented as midnight UTC for comparison with submission epoch millis. */
 internal fun rateDateMillis(date: String): Long {
