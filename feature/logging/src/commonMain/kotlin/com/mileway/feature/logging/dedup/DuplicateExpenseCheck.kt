@@ -21,16 +21,30 @@ object DuplicateExpenseCheck {
         records: List<ExpenseRecord>,
         editingId: String? = null,
         timeZone: TimeZone = TimeZone.currentSystemDefault(),
+        amountMinor: Long? = null,
     ): List<ExpenseRecord> {
-        val minor = minorUnits(amount) ?: return emptyList()
+        val minor = amountMinor ?: minorUnits(amount) ?: return emptyList()
+        if (minor <= 0) return emptyList()
         val normalizedMerchant = normalize(merchant)
         if (normalizedMerchant.isEmpty()) return emptyList()
-        val day = Instant.fromEpochMilliseconds(dateMs).toLocalDateTime(timeZone).date.toEpochDays()
+        val day =
+            Instant
+                .fromEpochMilliseconds(dateMs)
+                .toLocalDateTime(timeZone)
+                .date
+                .toEpochDays()
         return records.filter { record ->
-            val recordDay = Instant.fromEpochMilliseconds(record.dateMs).toLocalDateTime(timeZone).date.toEpochDays()
-            record.id != editingId && record.status != ExpenseStatus.DRAFT &&
+            val recordDay =
+                Instant
+                    .fromEpochMilliseconds(record.dateMs)
+                    .toLocalDateTime(timeZone)
+                    .date
+                    .toEpochDays()
+            record.id != editingId &&
+                record.status != ExpenseStatus.DRAFT &&
                 record.currencyCode.equals(currency, ignoreCase = true) &&
-                minorUnits(record.amountRupees) == minor && normalize(record.merchantName) == normalizedMerchant &&
+                (record.amountMinor ?: minorUnits(record.amountRupees)) == minor &&
+                normalize(record.merchantName) == normalizedMerchant &&
                 abs(recordDay.toLong() - day.toLong()) <= 1L
         }
     }

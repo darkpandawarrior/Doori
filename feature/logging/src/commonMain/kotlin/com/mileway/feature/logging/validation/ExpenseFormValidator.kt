@@ -46,7 +46,7 @@ object ExpenseFormValidator {
 
         val amount = form.amountText.toDoubleOrNull()
         val cardCeiling = (form.sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees
-        if (amount == null || amount <= 0.0) {
+        if (amount == null || !amount.isFinite() || amount <= 0.0) {
             errors[FIELD_AMOUNT] = UiText.of("Enter an amount greater than 0")
         } else if (cardCeiling != null && amount > cardCeiling) {
             // P27.E.4: DiCE's card-transaction ceiling — a claim can't exceed what the card actually

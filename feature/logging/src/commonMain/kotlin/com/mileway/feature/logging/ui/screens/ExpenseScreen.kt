@@ -147,6 +147,7 @@ import com.mileway.feature.logging.viewmodel.ExpenseEffect
 import com.mileway.feature.logging.viewmodel.ExpenseFormState
 import com.mileway.feature.logging.viewmodel.ExpenseUiState
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import com.mileway.feature.logging.viewmodel.expenseFieldContext
 import com.mileway.stub.PolicyMockData
 import com.siddharth.kmp.common.asString
 import com.siddharth.kmp.common.formatDecimal
@@ -635,6 +636,7 @@ private fun Step2Content(
                 values = form.formValues,
                 onValueChange = { key, value -> viewModel.onAction(ExpenseAction.SetFormValue(key, value)) },
                 analysis = scannedAnalysis,
+                expenseContext = form.expenseFieldContext(),
             )
         }
 

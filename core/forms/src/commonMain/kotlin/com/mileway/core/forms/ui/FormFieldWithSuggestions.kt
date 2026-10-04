@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.mileway.core.ai.model.AnalyzerSource
 import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.forms.ExpenseFieldContext
 import com.mileway.core.forms.FieldId
 import com.mileway.core.forms.FormFieldValue
 import com.mileway.core.forms.MockFormSchema
@@ -73,6 +74,7 @@ fun FormFieldWithSuggestions(
     analysis: DocumentAnalysis?,
     modifier: Modifier = Modifier,
     onReset: (() -> Unit)? = null,
+    expenseContext: ExpenseFieldContext? = null,
 ) {
     // Debounced snapshot of `values` the fieldSuggestions() scan runs against, so it doesn't
     // re-run on every keystroke while the user is mid-typing some other field.
@@ -109,7 +111,7 @@ fun FormFieldWithSuggestions(
         dismissal.undoableSuggestion?.let { dismissed ->
             UndoRow(fieldLabel = dismissed.label, onUndo = { dismissal = dismissal.undo() })
         }
-        FormRenderer(schema = schema, values = values, onValueChange = onValueChange, onReset = onReset)
+        FormRenderer(schema = schema, values = values, onValueChange = onValueChange, onReset = onReset, expenseContext = expenseContext)
     }
 }
 

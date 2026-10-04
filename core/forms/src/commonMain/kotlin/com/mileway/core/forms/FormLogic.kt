@@ -1,5 +1,8 @@
 package com.mileway.core.forms
 
+import com.mileway.core.forms.field.attendeeError
+import com.mileway.core.forms.field.splitError
+import com.mileway.core.forms.itemization.itemizationError
 import com.siddharth.kmp.common.UiText
 import kotlin.math.round
 
@@ -58,10 +61,11 @@ private fun isVisible(
 fun validationErrors(
     schema: List<MockFormSchema>,
     values: Map<FieldId, FormFieldValue>,
+    expenseContext: ExpenseFieldContext? = null,
 ): Map<FieldId, UiText> {
     val errors = linkedMapOf<FieldId, UiText>()
     for (field in visibleFields(schema, values)) {
-        val error = fieldError(field, values[field.fieldKey], values)
+        val error = fieldError(field, values[field.fieldKey], values, expenseContext)
         if (error != null) errors[field.fieldKey] = error
     }
     errors.putAll(gstConsistencyErrors(schema, values))
@@ -72,11 +76,39 @@ private fun fieldError(
     field: MockFormSchema,
     value: FormFieldValue?,
     allValues: Map<FieldId, FormFieldValue>,
+    expenseContext: ExpenseFieldContext?,
 ): UiText? {
     if (field.required && isFieldValueBlank(value)) {
         return UiText.of("${field.label} is required")
     }
     if (value == null) return null
+
+    val detailError =
+        when (value) {
+            is FormFieldValue.PercentageSplit ->
+                if (value.entries.isEmpty()) {
+                    null
+                } else if (expenseContext ==
+                    null
+                ) {
+                    "Enter an anchor amount"
+                } else {
+                    splitError(expenseContext.anchorAmountMinor, value.entries)
+                }
+            is FormFieldValue.AttendeeList -> attendeeError(value.names)
+            is FormFieldValue.ItemizedLines ->
+                if (value.entries.isEmpty()) {
+                    null
+                } else if (expenseContext ==
+                    null
+                ) {
+                    "Enter a receipt total"
+                } else {
+                    itemizationError(expenseContext.receiptAmountMinor, value.entries)
+                }
+            else -> null
+        }
+    if (detailError != null) return UiText.of(detailError)
 
     when (value) {
         is FormFieldValue.Text ->
@@ -199,6 +231,9 @@ private fun defaultValueFor(field: MockFormSchema): FormFieldValue {
         FormFieldType.LOCATION -> FormFieldValue.Location(lat = null, lng = null, label = raw)
         FormFieldType.DECLARATION -> FormFieldValue.Declaration(accepted = false)
         FormFieldType.FILE_PDF -> FormFieldValue.FileRef(emptyList())
+        FormFieldType.PERCENTAGE_SPLIT -> FormFieldValue.PercentageSplit(emptyList())
+        FormFieldType.ATTENDEE_LIST -> FormFieldValue.AttendeeList(emptyList())
+        FormFieldType.ITEMIZED_LINES -> FormFieldValue.ItemizedLines(emptyList())
     }
 }
 
@@ -207,6 +242,9 @@ private fun defaultValueFor(field: MockFormSchema): FormFieldValue {
  * AI suggestion chip on a field the user hasn't already filled in. */
 fun isFieldValueBlank(value: FormFieldValue?): Boolean =
     when (value) {
+        is FormFieldValue.PercentageSplit -> value.entries.isEmpty()
+        is FormFieldValue.AttendeeList -> value.names.isEmpty()
+        is FormFieldValue.ItemizedLines -> value.entries.isEmpty()
         null -> true
         is FormFieldValue.Text -> value.value.isBlank()
         is FormFieldValue.Number -> value.value == null

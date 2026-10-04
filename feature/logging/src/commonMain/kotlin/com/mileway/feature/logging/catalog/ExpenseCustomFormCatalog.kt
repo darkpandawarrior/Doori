@@ -2,15 +2,10 @@ package com.mileway.feature.logging.catalog
 
 import com.mileway.core.forms.FormFieldType
 import com.mileway.core.forms.MockFormSchema
+import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseCategoryDef
 
-/**
- * V27 P27.E.1: step-2's "custom forms" section — a per-category [MockFormSchema] list rendered
- * through `core:forms`' shared `FormRenderer`, mirroring how [ExpenseCategoryCatalog] already
- * gates the office/cost-center field. Today only [ExpenseCategoryDef.requiresGst] categories carry
- * a schema (GST invoice number + accuracy declaration) — a real, previously-unused catalog flag
- * that had no field wired to it anywhere. Categories with no custom schema render nothing extra.
- */
+/** Optional typed expense details plus the existing category-specific GST fields. */
 object ExpenseCustomFormCatalog {
     private val gstInvoiceNumberField =
         MockFormSchema(
@@ -31,6 +26,25 @@ object ExpenseCustomFormCatalog {
             rank = 1,
         )
 
-    fun schemaFor(catalogDef: ExpenseCategoryDef?): List<MockFormSchema> =
-        if (catalogDef?.requiresGst == true) listOf(gstInvoiceNumberField, gstDeclarationField) else emptyList()
+    const val SPLITS = "expenseSplits"
+    const val ATTENDEES = "expenseAttendees"
+    const val ITEMIZED = "expenseItemized"
+
+    fun schemaFor(catalogDef: ExpenseCategoryDef?): List<MockFormSchema> {
+        if (catalogDef == null) return emptyList()
+        val gst = if (catalogDef.requiresGst) listOf(gstInvoiceNumberField, gstDeclarationField) else emptyList()
+        return gst +
+            listOf(
+                MockFormSchema(SPLITS, SPLITS, "Split expense", FormFieldType.PERCENTAGE_SPLIT, rank = 2),
+                MockFormSchema(ATTENDEES, ATTENDEES, "Attendees", FormFieldType.ATTENDEE_LIST, rank = 3),
+                MockFormSchema(
+                    ITEMIZED,
+                    ITEMIZED,
+                    "Receipt itemization",
+                    FormFieldType.ITEMIZED_LINES,
+                    rank = 4,
+                    defaultValue = if (catalogDef.category == ExpenseCategory.ACCOMMODATION) "hotel" else null,
+                ),
+            )
+    }
 }

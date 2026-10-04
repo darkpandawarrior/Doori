@@ -20,7 +20,12 @@ class DuplicateExpenseCheckTest {
             assertEquals(
                 listOf(record),
                 DuplicateExpenseCheck.matches(
-                    10.01000001, " cafe\tONE ", Instant.parse(iso).toEpochMilliseconds(), "INR", listOf(record), timeZone = TimeZone.UTC,
+                    10.01000001,
+                    " cafe\tONE ",
+                    Instant.parse(iso).toEpochMilliseconds(),
+                    "INR",
+                    listOf(record),
+                    timeZone = TimeZone.UTC,
                 ),
             )
         }
@@ -28,13 +33,14 @@ class DuplicateExpenseCheckTest {
 
     @Test
     fun excludesDifferentMoneyCurrencyMerchantDatesDraftsAndSelf() {
-        val nonMatches = listOf(
-            record.copy(amountRupees = 10.02),
-            record.copy(currencyCode = "USD"),
-            record.copy(merchantName = "Other"),
-            record.copy(dateMs = Instant.parse("2026-10-06T00:00:00Z").toEpochMilliseconds()),
-            record.copy(status = ExpenseStatus.DRAFT),
-        )
+        val nonMatches =
+            listOf(
+                record.copy(amountRupees = 10.02),
+                record.copy(currencyCode = "USD"),
+                record.copy(merchantName = "Other"),
+                record.copy(dateMs = Instant.parse("2026-10-06T00:00:00Z").toEpochMilliseconds()),
+                record.copy(status = ExpenseStatus.DRAFT),
+            )
         assertTrue(DuplicateExpenseCheck.matches(10.01, "Cafe One", date, "INR", nonMatches, timeZone = TimeZone.UTC).isEmpty())
         assertTrue(DuplicateExpenseCheck.matches(10.01, "Cafe One", date, "INR", listOf(record), editingId = "old").isEmpty())
         assertTrue(DuplicateExpenseCheck.matches(Double.NaN, "Cafe One", date, "INR", listOf(record)).isEmpty())

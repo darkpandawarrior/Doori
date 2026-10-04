@@ -3,21 +3,29 @@ package com.mileway.feature.logging.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
+import com.mileway.core.forms.ExpenseFieldContext
 import com.mileway.core.forms.FieldId
 import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.field.PercentageSplitInput
+import com.mileway.core.forms.field.attendeeDetails
+import com.mileway.core.forms.field.percentageAllocations
+import com.mileway.core.forms.itemization.ItemizedLineInput
+import com.mileway.core.forms.itemization.itemizedDetails
+import com.mileway.core.forms.parseMinorAmount
 import com.mileway.core.forms.validationErrors
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
-import com.mileway.feature.logging.dedup.DuplicateExpenseCheck
 import com.mileway.feature.logging.catalog.ExpenseCustomFormCatalog
+import com.mileway.feature.logging.dedup.DuplicateExpenseCheck
 import com.mileway.feature.logging.import.ExpenseCsvImporter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseDraftRow
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.feature.logging.report.expenseReportPolicy
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.stub.PolicyMockData
@@ -82,6 +90,8 @@ data class ExpenseFormState(
     val sourceContext: ExpenseSourceContext = ExpenseSourceContext.None,
     /** P27.E.4: Scanner-context prefill of the OCR-detected date; null uses submit-time `now()`. */
     val dateMs: Long? = null,
+    val cardMatchId: String? = null,
+    val cardMatchedAmountMinor: Long? = null,
     /**
      * V27 P27.E.1: step-2's custom-form field values, keyed to whatever
      * [ExpenseCustomFormCatalog.schemaFor] returns for [category] — rendered through `core:forms`'
@@ -293,7 +303,9 @@ sealed interface ExpenseEffect {
     data object NavigateBack : ExpenseEffect
 
     /** No repository write has happened when this warning is emitted. */
-    data class ShowDuplicateWarning(val matchingIds: List<String>) : ExpenseEffect
+    data class ShowDuplicateWarning(
+        val matchingIds: List<String>,
+    ) : ExpenseEffect
 
     /**
      * V27 P27.E.3: the tiered-policy outcome for the current submit attempt requires
@@ -319,6 +331,8 @@ private fun ExpenseFormState.toDraftEntity(updatedAt: Long): DraftExpenseEntity 
     )
 
 /** Round-trips a rupee amount to its plain-text form (no trailing `.0` for whole rupees). */
+private fun Long.toAmountText(): String = "${this / 100}.${(this % 100).toString().padStart(2, '0')}"
+
 private fun Double.toAmountText(): String = if (this == toLong().toDouble()) toLong().toString() else toString()
 
 private fun DraftExpenseEntity.toFormState(): ExpenseFormState =
@@ -338,6 +352,7 @@ class ExpenseViewModel(
     // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
     private val reviewTracker: ReviewTracker? = null,
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
+    private var policyWarningForm: ExpenseFormState? = null
     private var duplicateWarningForm: ExpenseFormState? = null
 
     init {
@@ -372,7 +387,11 @@ class ExpenseViewModel(
             is ExpenseAction.SetReceiptImage -> setState { copy(form = form.copy(receiptImagePath = action.path)) }
             is ExpenseAction.SetOfficeCode -> setState { copy(form = form.copy(officeCode = action.code)) }
             ExpenseAction.SubmitExpense -> submitExpense()
-            ExpenseAction.ConfirmSubmitDespitePolicy -> performSubmit()
+            ExpenseAction.ConfirmSubmitDespitePolicy -> {
+                val warnedForm = policyWarningForm
+                policyWarningForm = null
+                submitExpense(policyConfirmed = warnedForm != null && warnedForm == currentState.form)
+            }
             ExpenseAction.ConfirmDuplicateExpense -> {
                 val warnedForm = duplicateWarningForm
                 duplicateWarningForm = null
@@ -457,12 +476,12 @@ class ExpenseViewModel(
      * "Submit Anyway" dispatches [ExpenseAction.ConfirmSubmitDespitePolicy] -> [performSubmit].
      * A SUCCESS outcome submits straight through, unchanged from before P27.E.3.
      */
-    private fun submitExpense() {
+    private fun submitExpense(policyConfirmed: Boolean = false) {
         val form = currentState.form
         val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == form.category }
         val fieldErrors = ExpenseFormValidator.validate(form, catalogDef)
-        val customFormErrors = validationErrors(ExpenseCustomFormCatalog.schemaFor(catalogDef), form.formValues)
-        val errors = fieldErrors + customFormErrors
+        val customFormErrors = validationErrors(ExpenseCustomFormCatalog.schemaFor(catalogDef), form.formValues, form.expenseFieldContext())
+        val errors = fieldErrors + customFormErrors + form.cardSplitErrors()
         if (errors.isNotEmpty()) {
             setState { copy(form = form.copy(errors = errors)) }
             return
@@ -472,8 +491,25 @@ class ExpenseViewModel(
         val outcome = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
         val blocksOnPolicy =
             outcome == SubmissionStatus.POLICY_VIOLATION || outcome == SubmissionStatus.NEEDS_APPROVAL || outcome == SubmissionStatus.HARD_STOP
-        if (blocksOnPolicy) {
-            emitEffect(ExpenseEffect.ShowPolicySheet(PolicyMockData.violationsForExpenseAmount(amount, category.name)))
+        val context = form.expenseFieldContext()
+        val attendeeCount = (form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names?.size ?: 0
+        val perHeadWarning = context?.policy?.perHeadViolation(context.anchorAmountMinor, attendeeCount, context.submittedAtMillis)
+        if (!policyConfirmed && (blocksOnPolicy || perHeadWarning != null)) {
+            policyWarningForm = form
+            val perHeadViolations =
+                if (perHeadWarning == null) {
+                    emptyList()
+                } else {
+                    listOf(
+                        PolicyViolation(
+                            id = perHeadWarning.code,
+                            title = "Per-head policy limit exceeded",
+                            message = perHeadWarning.message,
+                            severity = com.mileway.core.network.model.ViolationSeverity.VIOLATION,
+                        ),
+                    )
+                }
+            emitEffect(ExpenseEffect.ShowPolicySheet(PolicyMockData.violationsForExpenseAmount(amount, category.name) + perHeadViolations))
             return
         }
         performSubmit()
@@ -484,11 +520,21 @@ class ExpenseViewModel(
         val form = currentState.form
         val amount = form.amountText.toDoubleOrNull() ?: 0.0
         val category = form.category ?: ExpenseCategory.OTHER
-        val dateMs = form.dateMs ?: kotlin.time.Clock.System.now().toEpochMilliseconds()
+        val dateMs =
+            form.dateMs ?: kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds()
         if (!duplicateConfirmed) {
-            val matches = DuplicateExpenseCheck.matches(
-                amount, form.merchantName, dateMs, form.currencyCode, repository.getAll(), form.editingId,
-            )
+            val matches =
+                DuplicateExpenseCheck.matches(
+                    amount,
+                    form.merchantName,
+                    dateMs,
+                    form.currencyCode,
+                    repository.getAll(),
+                    form.editingId,
+                    amountMinor = parseMinorAmount(form.amountText),
+                )
             if (matches.isNotEmpty()) {
                 duplicateWarningForm = form
                 emitEffect(ExpenseEffect.ShowDuplicateWarning(matches.map { it.id }))
@@ -511,6 +557,11 @@ class ExpenseViewModel(
                 receiptImagePath = form.receiptImagePath,
                 officeCode = form.officeCode,
                 currencyCode = form.currencyCode,
+                amountMinor = parseMinorAmount(form.amountText),
+                splits = form.splitDetails(),
+                attendees = attendeeDetails((form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names.orEmpty()),
+                itemized = itemizedDetails((form.formValues[ExpenseCustomFormCatalog.ITEMIZED] as? FormFieldValue.ItemizedLines)?.entries.orEmpty()).orEmpty(),
+                cardMatchId = (form.sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: form.cardMatchId,
             )
         // P1.6: same tiered policy engine as Log Miles, keyed off the expense amount.
         val submissionStatus = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
@@ -548,7 +599,7 @@ class ExpenseViewModel(
                     ExpenseFormState(
                         step = 2,
                         category = record.category,
-                        amountText = record.amountRupees.toAmountText(),
+                        amountText = record.amountMinor?.toAmountText() ?: record.amountRupees.toAmountText(),
                         currencyCode = record.currencyCode,
                         merchantName = record.merchantName,
                         note = record.note,
@@ -556,6 +607,17 @@ class ExpenseViewModel(
                         officeCode = record.officeCode,
                         isEditing = true,
                         editingId = record.id,
+                        formValues = record.detailFormValues(),
+                        dateMs = record.dateMs,
+                        cardMatchId = record.cardMatchId,
+                        cardMatchedAmountMinor =
+                            if (record.cardMatchId ==
+                                null
+                            ) {
+                                null
+                            } else {
+                                record.amountMinor ?: parseMinorAmount(record.amountRupees.toAmountText())
+                            },
                         sourceContext = ExpenseSourceContext.Edit(record.id),
                     ),
             )
@@ -616,6 +678,17 @@ class ExpenseViewModel(
 
     private fun saveDraft() {
         val form = currentState.form
+        if (form.formValues.any { (key, value) ->
+                key in setOf(ExpenseCustomFormCatalog.SPLITS, ExpenseCustomFormCatalog.ATTENDEES, ExpenseCustomFormCatalog.ITEMIZED) &&
+                    !com.mileway.core.forms
+                        .isFieldValueBlank(value)
+            }
+        ) {
+            emitEffect(
+                ExpenseEffect.ShowToast(UiText.of("Draft storage cannot retain splits, attendees or itemization. Submit the expense or remove these details.")),
+            )
+            return
+        }
         viewModelScope.launch {
             val updatedAt =
                 kotlin.time.Clock.System
@@ -818,5 +891,50 @@ class ExpenseViewModel(
             return
         }
         setState { copy(rows = rows + imported) }
+    }
+}
+
+/** Card-matched amount is the anchor; receipt total remains separate for itemized reconciliation. */
+internal fun ExpenseFormState.expenseFieldContext(): ExpenseFieldContext? {
+    val receipt = parseMinorAmount(amountText) ?: return null
+    val cardAmount = (sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees?.let { parseMinorAmount(it.toAmountText()) }
+    return ExpenseFieldContext(
+        receiptAmountMinor = receipt,
+        currencyCode = currencyCode,
+        cardMatchedAmountMinor = cardAmount ?: cardMatchedAmountMinor,
+        policy = expenseReportPolicy(),
+        submittedAtMillis =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds(),
+    )
+}
+
+private fun ExpenseFormState.splitDetails(): List<com.mileway.core.data.domain.claim.CostSplit> {
+    val entries = (formValues[ExpenseCustomFormCatalog.SPLITS] as? FormFieldValue.PercentageSplit)?.entries.orEmpty()
+    if (entries.isEmpty()) return emptyList()
+    return requireNotNull(percentageAllocations(requireNotNull(expenseFieldContext()).anchorAmountMinor, entries))
+}
+
+private fun ExpenseRecord.detailFormValues(): Map<FieldId, FormFieldValue> =
+    mapOf(
+        ExpenseCustomFormCatalog.SPLITS to
+            FormFieldValue.PercentageSplit(
+                splits.map { PercentageSplitInput(it.target, it.targetId, it.percentageBasisPoints.toLong().toAmountText()) },
+            ),
+        ExpenseCustomFormCatalog.ATTENDEES to FormFieldValue.AttendeeList(attendees.map { it.name }),
+        ExpenseCustomFormCatalog.ITEMIZED to
+            FormFieldValue.ItemizedLines(
+                itemized.map { ItemizedLineInput(it.description, it.amountMinor.toAmountText()) },
+            ),
+    )
+
+private fun ExpenseFormState.cardSplitErrors(): Map<FieldId, UiText> {
+    val entries = (formValues[ExpenseCustomFormCatalog.SPLITS] as? FormFieldValue.PercentageSplit)?.entries.orEmpty()
+    val context = expenseFieldContext() ?: return emptyMap()
+    return if (entries.isNotEmpty() && context.cardMatchedAmountMinor != null && context.anchorAmountMinor != context.receiptAmountMinor) {
+        mapOf(ExpenseCustomFormCatalog.SPLITS to UiText.of("A split card expense must use the full matched amount"))
+    } else {
+        emptyMap()
     }
 }

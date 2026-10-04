@@ -33,6 +33,7 @@ data class PolicyVersion(
     val rateTable: PolicyRateTable,
     val maxExpenseAmountMinor: Long? = null,
     val receiptRequiredAboveMinor: Long? = null,
+    val perHeadLimitMinor: Long? = null,
 )
 
 /**
@@ -97,7 +98,32 @@ class PolicyEngine(
                     )
             }
         }
+        perHeadViolation(line.amountMinor, line.attendees.size, version)?.let { violations += it }
         return violations
+    }
+
+    /** Evaluates the live attendee divisor against the policy in effect at submission time. */
+    fun perHeadViolation(
+        amountMinor: Long,
+        attendeeCount: Int,
+        submittedAtMillis: Long,
+    ): PolicyViolation? = perHeadViolation(amountMinor, attendeeCount, versionFor(submittedAtMillis))
+
+    private fun perHeadViolation(
+        amountMinor: Long,
+        attendeeCount: Int,
+        version: PolicyVersion,
+    ): PolicyViolation? {
+        val limit = version.perHeadLimitMinor ?: return null
+        if (attendeeCount <= 0 || amountMinor < 0 || limit < 0) return null
+        // Compare the exact rational per-head amount, without overflow or rounding a cent away.
+        val quotient = amountMinor / attendeeCount
+        val overLimit = quotient > limit || (quotient == limit && amountMinor % attendeeCount != 0L)
+        return if (overLimit) {
+            PolicyViolation("EXPENSE_PER_HEAD_OVER_LIMIT", PolicySeverity.SOFT_WARN, "Per-head expense exceeds the policy limit")
+        } else {
+            null
+        }
     }
 
     private fun evaluateMileage(
