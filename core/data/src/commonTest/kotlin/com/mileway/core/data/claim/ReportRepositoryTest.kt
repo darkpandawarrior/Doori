@@ -3,6 +3,7 @@ package com.mileway.core.data.claim
 import com.mileway.core.data.dao.ApprovalStepDao
 import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
+import com.mileway.core.data.dao.StatementImportDao
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalChain
 import com.mileway.core.data.domain.claim.ApprovalStep
@@ -13,6 +14,7 @@ import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.model.db.ApprovalStepEntity
 import com.mileway.core.data.model.db.ClaimLineEntity
 import com.mileway.core.data.model.db.ReportEntity
+import com.mileway.core.data.model.db.StatementImportEntity
 import com.siddharth.kmp.offlineoutbox.OpEntry
 import com.siddharth.kmp.offlineoutbox.OpOutbox
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +26,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.uuid.ExperimentalUuidApi
@@ -108,6 +112,53 @@ class ReportRepositoryTest {
             assertEquals(1, queued.size)
             assertEquals("report", queued.single().type)
             assertTrue(queued.single().payload.contains("\"id\":\"r1\""))
+        }
+
+    @Test
+    fun `statement batch and match round-trip with locked money and outbox`() =
+        runTest {
+            val lines = FakeClaimLineDao()
+            val imports = FakeStatementImportDao(lines)
+            val outbox = FakeOpOutbox()
+            val repository = repo(claimLineDao = lines, opOutbox = outbox)
+            val initial = repository.save(report())
+            val original = initial.lines.filterIsInstance<ExpenseLine>().single()
+            val matched = original.copy(cardMatchId = "card:fixture")
+            val batch = StatementImportEntity("batch", "CSV", "fixture.csv", 42, 1, "DONE:1")
+            assertTrue(repository.saveStatementMatches(batch, listOf(initial), mapOf(matched.id to matched), imports))
+            assertEquals(batch, imports.get("batch"))
+            val row = lines.rows.value.getValue(matched.id)
+            assertEquals("card:fixture", row.cardMatchId)
+            assertEquals(matched, row.toDomain(json))
+            assertEquals(2, outbox.pending().first().size)
+            assertFalse(repository.saveStatementMatches(batch, listOf(initial), mapOf(matched.id to matched), imports))
+            val loaded = requireNotNull(repository.get(initial.id))
+            val edited = loaded.copy(lines = loaded.lines.map { if (it.id == matched.id) matched.copy(amountMinor = matched.amountMinor + 1) else it })
+            assertFailsWith<IllegalArgumentException> { repository.save(edited) }
+            assertEquals(loaded, repository.get(initial.id))
+        }
+
+    @Test
+    fun `stale statement snapshot and changing captured money are rejected`() =
+        runTest {
+            val lines = FakeClaimLineDao()
+            val imports = FakeStatementImportDao(lines)
+            val repository = repo(claimLineDao = lines)
+            val initial = repository.save(report())
+            val original = initial.lines.filterIsInstance<ExpenseLine>().single()
+            val matched = original.copy(cardMatchId = "card:fixture")
+            val batch = StatementImportEntity("batch", "CSV", "fixture.csv", 42, 1, "DONE:1")
+            assertFailsWith<IllegalArgumentException> {
+                repository.saveStatementMatches(batch, listOf(initial), mapOf(matched.id to matched.copy(amountMinor = 1)), imports)
+            }
+            repository.save(initial)
+            assertFailsWith<IllegalArgumentException> { repository.saveStatementMatches(batch, listOf(initial), mapOf(matched.id to matched), imports) }
+            assertNull(imports.get(batch.id))
+            assertNull(
+                lines.rows.value
+                    .getValue(matched.id)
+                    .cardMatchId,
+            )
         }
 }
 
@@ -220,4 +271,22 @@ private class FakeOpOutbox : OpOutbox {
     ) = Unit
 
     override suspend fun requeue(id: String) = Unit
+}
+
+private class FakeStatementImportDao(
+    private val lines: FakeClaimLineDao,
+) : StatementImportDao {
+    private val batches = MutableStateFlow<Map<String, StatementImportEntity>>(emptyMap())
+
+    override fun observeAll(): Flow<List<StatementImportEntity>> = batches.map { it.values.toList() }
+
+    override suspend fun get(id: String): StatementImportEntity? = batches.value[id]
+
+    override suspend fun matchedTransactionIds(): List<String> =
+        lines.rows.value.values
+            .mapNotNull { it.cardMatchId }
+
+    override suspend fun upsert(entity: StatementImportEntity) {
+        batches.value = batches.value + (entity.id to entity)
+    }
 }

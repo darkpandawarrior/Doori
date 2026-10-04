@@ -42,6 +42,8 @@ data class ExpenseLine(
     @SerialName("splits") val splits: List<CostSplit> = emptyList(),
     @SerialName("attendees") val attendees: List<Attendee> = emptyList(),
     @SerialName("itemized") val itemized: List<ItemizedLine> = emptyList(),
+    /** ISO capture date. Older claims without a date cannot be automatically card matched. */
+    @SerialName("incurredOn") val incurredOn: String? = null,
 ) : ClaimLine
 
 @Serializable

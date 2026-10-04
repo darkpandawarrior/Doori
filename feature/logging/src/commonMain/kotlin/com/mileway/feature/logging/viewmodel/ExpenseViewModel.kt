@@ -380,6 +380,7 @@ class ExpenseViewModel(
     }
 
     override fun onAction(action: ExpenseAction) {
+        if (currentState.form.cardMatchedAmountMinor != null && action.isMoneyEdit()) return
         when (action) {
             ExpenseAction.Refresh ->
                 refresh(currentState.listState.activeFilter(), currentState.listState.activeSort(), currentState.listState.activeCategories())
@@ -1084,3 +1085,6 @@ internal fun ExpenseFormState.fxLine(): ExpenseLine =
         fxRatePinnedAt = fxRatePinnedAt,
         cardMatchId = (sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: cardMatchId,
     )
+
+private fun ExpenseAction.isMoneyEdit(): Boolean =
+    this is ExpenseAction.SetAmount || this is ExpenseAction.SetCurrency || this is ExpenseAction.SetManualFxRate || this is ExpenseAction.SetCardFxRate

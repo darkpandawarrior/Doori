@@ -29,12 +29,14 @@ class ClaimLineSerializationTest {
     fun typedExpenseDetailsRoundTripAndOldPayloadDefaultsStayEmpty() {
         val oldJson = """{"type":"expense","id":"old","amountMinor":1001,"currency":"INR","merchant":"Cafe","category":"FOOD"}"""
         val old = json.decodeFromString<ClaimLine>(oldJson) as ExpenseLine
+        assertEquals(null, old.incurredOn)
         assertEquals(emptyList(), old.splits)
         assertEquals(emptyList(), old.attendees)
         assertEquals(emptyList(), old.itemized)
         val detailed: ClaimLine =
             old.copy(
                 splits = listOf(CostSplit(SplitTarget.PROJECT, "A", 10000, 1001)),
+                incurredOn = "2026-09-25",
                 attendees = listOf(Attendee("Alex")),
                 itemized = listOf(ItemizedLine("Meals", 1001)),
             )

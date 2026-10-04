@@ -370,7 +370,12 @@ class KoinGraphTest : KoinTest {
                 authModule,
                 pinModule,
                 // Override platform-backed agent services last so fakes win over agentPlatformModule
-                module { single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() } },
+                module {
+                    single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() }
+                    single<com.mileway.core.network.payout.PayoutBeneficiaryStore> {
+                        mockk { every { read() } returns null }
+                    }
+                },
             )
         }
     }
@@ -431,6 +436,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.IncentiveViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.AccountDeletionViewModel>())
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
+        assertNotNull(get<com.mileway.feature.cards.import.StatementImportViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel>())

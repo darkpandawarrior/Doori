@@ -5,6 +5,7 @@ import androidx.room.useWriterConnection
 import com.mileway.core.data.dao.ApprovalStepDao
 import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
+import com.mileway.core.data.dao.StatementImportDao
 import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ApprovalAction
@@ -60,6 +61,7 @@ class ReportRepository(
     private val database: MilewayDatabase? = null,
 ) {
     private val mutex = Mutex()
+    internal val statementImports: StatementImportDao get() = requireNotNull(database).statementImportDao()
 
     suspend fun get(id: String): Report? {
         val entity = reportDao.get(id) ?: return null
@@ -267,7 +269,7 @@ class ReportRepository(
         return saved
     }
 
-    private suspend fun write(
+    internal suspend fun write(
         report: Report,
         approvalAction: ApprovalStepEntity? = null,
     ): Report {
@@ -291,6 +293,8 @@ class ReportRepository(
                     runCatching { ReportLifecycleStateMachine.transition(from, it) }.getOrNull() == report.state
                 },
         ) { "Illegal report state change" }
+        val priorLines = claimLineDao.getByReport(report.id)
+        validateCardAnchors(priorLines.map { it.toDomain(json) }, report.lines)
         val newlySubmitted = report.state == ReportLifecycleState.SUBMITTED && from != ReportLifecycleState.SUBMITTED
         val submittedAt = existing?.submittedAtMs ?: if (newlySubmitted) now else null
         val period = existing?.accountingPeriodKey ?: submittedAt?.let { at -> nextOpenPeriod(at) { database?.periodLockDao()?.get(it) } }
@@ -306,7 +310,6 @@ class ReportRepository(
                 accountingPeriodKey = period,
             ),
         )
-        val priorLines = claimLineDao.getByReport(report.id)
         priorLines.forEach { claimLineDao.delete(it.id) }
         report.lines.forEach { line ->
             val createdAt = priorLines.find { it.id == line.id }?.createdAtMs ?: now
@@ -408,11 +411,11 @@ class ReportRepository(
         }
     }
 
-    private suspend fun enqueue(report: Report) {
+    internal suspend fun enqueue(report: Report) {
         opOutbox.enqueue(type = OP_TYPE_REPORT, payload = json.encodeToString(Report.serializer(), report))
     }
 
-    private suspend fun <T> atomic(block: suspend () -> T): T =
+    internal suspend fun <T> atomic(block: suspend () -> T): T =
         mutex.withLock {
             if (database == null) block() else database.useWriterConnection { connection -> connection.immediateTransaction { block() } }
         }
