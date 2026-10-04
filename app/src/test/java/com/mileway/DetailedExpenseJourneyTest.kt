@@ -39,6 +39,40 @@ class DetailedExpenseJourneyTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
+    fun cardSplitsRejectAClaimBelowTheMatchedAnchor() =
+        runTest {
+            val vm = ExpenseViewModel(ExpenseRepository())
+            vm.onAction(
+                ExpenseAction.OpenWithContext(
+                    com.mileway.core.data.model.ExpenseSourceContext.Card(
+                        "card",
+                        "match",
+                        merchantName = "Cafe",
+                        transactionAmountRupees = 100.0,
+                    ),
+                ),
+            )
+            vm.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+            vm.onAction(ExpenseAction.SetAmount("50.00"))
+            vm.onAction(
+                ExpenseAction.SetFormValue(
+                    ExpenseCustomFormCatalog.SPLITS,
+                    FormFieldValue.PercentageSplit(
+                        listOf(
+                            PercentageSplitInput(SplitTarget.PROJECT, "A", "100"),
+                        ),
+                    ),
+                ),
+            )
+            vm.onAction(ExpenseAction.SubmitExpense)
+            assertTrue(
+                vm.state.value.form.errors
+                    .containsKey(com.mileway.feature.logging.validation.ExpenseFormValidator.FIELD_AMOUNT),
+            )
+            assertEquals("", vm.state.value.lastSubmittedId)
+        }
+
+    @Test
     fun detailsSurviveSubmitEditGroupingAndThePersistedReportCodec() =
         runTest {
             val repository = ExpenseRepository()

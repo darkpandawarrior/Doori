@@ -805,7 +805,19 @@ class ExpenseViewModel(
         if (errors.isNotEmpty()) {
             return DraftStatus.ERROR to errors.values.joinToString("; ") { it.asString() }
         }
-        return runCatching { repository.insert(row.toRecord()) }
+        val record = row.toRecord()
+        val matches =
+            DuplicateExpenseCheck.matches(
+                record.amountRupees,
+                record.merchantName,
+                record.dateMs,
+                record.currencyCode,
+                repository.getAll(),
+            )
+        if (matches.isNotEmpty()) {
+            return DraftStatus.ERROR to "Possible duplicate of ${matches.joinToString { it.id }}. Review or save through single expense entry."
+        }
+        return runCatching { repository.insert(record) }
             .fold(
                 onSuccess = { DraftStatus.SUCCESS to null },
                 onFailure = { DraftStatus.ERROR to "Couldn't save this row — try again" },
@@ -933,7 +945,7 @@ private fun ExpenseFormState.cardSplitErrors(): Map<FieldId, UiText> {
     val entries = (formValues[ExpenseCustomFormCatalog.SPLITS] as? FormFieldValue.PercentageSplit)?.entries.orEmpty()
     val context = expenseFieldContext() ?: return emptyMap()
     return if (entries.isNotEmpty() && context.cardMatchedAmountMinor != null && context.anchorAmountMinor != context.receiptAmountMinor) {
-        mapOf(ExpenseCustomFormCatalog.SPLITS to UiText.of("A split card expense must use the full matched amount"))
+        mapOf(ExpenseFormValidator.FIELD_AMOUNT to UiText.of("A split card expense must use the full matched amount"))
     } else {
         emptyMap()
     }

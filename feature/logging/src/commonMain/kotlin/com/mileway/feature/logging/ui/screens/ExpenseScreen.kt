@@ -354,7 +354,7 @@ private fun Step1Content(
     modifier: Modifier = Modifier,
 ) {
     val form = ui.form
-    val categoryLocked = ExpenseFormValidator.FIELD_CATEGORY in ExpenseFormValidator.lockedFieldKeys(form.sourceContext)
+    val categoryLocked = form.category != null && ExpenseFormValidator.FIELD_CATEGORY in ExpenseFormValidator.lockedFieldKeys(form.sourceContext)
     // Scoped to this composable (not hoisted to ExpenseScreen) so it's only composed while step 1
     // is actually on screen — mirrors how the bulk-grid's per-row launcher is scoped to each row.
     val launchReceiptPicker =
