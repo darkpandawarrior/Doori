@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.Flow
 /** L2: the persisted [PolicyViolationEntity] store — a later lane's policy engine is the writer. */
 @Dao
 interface PolicyViolationDao {
+    @Query("SELECT * FROM policy_violations ORDER BY createdAtMs ASC")
+    fun observeAll(): Flow<List<PolicyViolationEntity>>
+
+    @Query("SELECT * FROM policy_violations WHERE reportId = :reportId ORDER BY createdAtMs ASC")
+    suspend fun getByReport(reportId: String): List<PolicyViolationEntity>
+
     @Query("SELECT * FROM policy_violations WHERE reportId = :reportId ORDER BY createdAtMs ASC")
     fun observeByReport(reportId: String): Flow<List<PolicyViolationEntity>>
 

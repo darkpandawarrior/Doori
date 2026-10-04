@@ -218,7 +218,10 @@ class ScreenshotVariantsTest {
             module {
                 single<SavedTrackDao> { seededDao }
                 single<com.mileway.core.data.claim.ReportRepository> {
-                    mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(emptyList())
+                        every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                    }
                 }
                 single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
                 single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }

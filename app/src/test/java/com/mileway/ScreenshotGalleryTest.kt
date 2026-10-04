@@ -26,6 +26,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -441,7 +442,10 @@ class ScreenshotGalleryTest {
             module {
                 single<SavedTrackDao> { seededDao }
                 single<com.mileway.core.data.claim.ReportRepository> {
-                    mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(emptyList())
+                        every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                    }
                 }
                 single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
                 single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }
@@ -1067,9 +1071,13 @@ class ScreenshotGalleryTest {
                 }
             }
             composeRule.onNodeWithText("Status: SUBMITTED").assertIsDisplayed()
-            composeRule.onNodeWithText("Approval comment (required)").performTextInput("Reviewed the trip expenses; please retain the receipts.")
-            composeRule.onNodeWithText("I reviewed the policy flags").assertIsDisplayed()
-            composeRule.onNodeWithText("Approve and simulate payout").assertIsNotEnabled()
+            composeRule
+                .onNodeWithText(
+                    "Approval comment (required)",
+                ).performScrollTo()
+                .performTextInput("Reviewed the trip expenses; please retain the receipts.")
+            composeRule.onNodeWithText("I reviewed the policy flags").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Approve for finance review").assertIsNotEnabled()
             capture("report_approval_screen_filled")
         } finally {
             application.close()
@@ -1100,6 +1108,13 @@ class ScreenshotGalleryTest {
                     mockk {
                         every { observe(any()) } answers { MutableStateFlow(report?.takeIf { it.id == firstArg<String>() }) }
                         every { observeAll() } returns MutableStateFlow(listOfNotNull(report))
+                        every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                        coEvery { review(any()) } returns
+                            report?.let {
+                                com.mileway.core.data.claim
+                                    .ApprovalReview(it)
+                            }
+                        coEvery { delegates(any(), any()) } returns emptyList()
                         every { observeByEmployee(any()) } answers {
                             MutableStateFlow(listOfNotNull(report).filter { it.employeeId == firstArg<String>() })
                         }

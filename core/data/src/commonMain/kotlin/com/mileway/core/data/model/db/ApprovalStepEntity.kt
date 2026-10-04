@@ -26,4 +26,5 @@ data class ApprovalStepEntity(
     val action: String,
     val comment: String?,
     val actedAtMillis: Long,
+    val claimLineId: String? = null,
 )

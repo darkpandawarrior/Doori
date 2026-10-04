@@ -166,7 +166,7 @@ import com.mileway.core.data.model.db.VoucherEntity
         StatementImportEntity::class,
         PendingPaymentJournalEntity::class,
     ],
-    version = 49,
+    version = 50,
     exportSchema = true,
 )
 @ConstructedBy(MilewayDatabaseConstructor::class)
