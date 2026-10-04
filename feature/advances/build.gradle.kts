@@ -15,6 +15,7 @@ kotlin {
         // PLAN_V35.P4: screens/ViewModels land here, so :core:ui (DesignTokens, scaffolds,
         // resources) and :core:common (UiText) are now real dependencies.
         commonMain.dependencies {
+            implementation(project(":contract"))
             implementation(project(":core:common"))
             implementation(project(":core:ui"))
             implementation(libs.kotlinx.datetime)

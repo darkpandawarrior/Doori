@@ -3,6 +3,7 @@ package com.mileway.feature.logging.report
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.claim.ReportRepository
+import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleEvent
@@ -17,12 +18,15 @@ import com.mileway.core.data.session.SessionSource
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.mvi.errorState
+import com.mileway.feature.advances.reconcile.AdvanceReconciliation
+import com.mileway.feature.advances.reconcile.AdvanceReconciliationUseCase
 import com.mileway.stub.PolicyMockData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -80,12 +84,14 @@ class ReportSubmitViewModel(
     private val session: SessionSource,
     private val policy: PolicyEngine = expenseReportPolicy(),
     private val clock: Clock = Clock.System,
+    private val reconciliation: AdvanceReconciliationUseCase? = null,
 ) : ViewModel() {
     data class Review(
         val report: Report,
         val hardFlags: List<PolicyViolation>,
         val softFlags: List<PolicyViolation>,
         val warningsAccepted: Boolean = false,
+        val reconciliation: AdvanceReconciliation? = null,
     ) {
         val canSubmit: Boolean
             get() = report.isEditable && hardFlags.isEmpty() && (softFlags.isEmpty() || warningsAccepted)
@@ -113,10 +119,10 @@ class ReportSubmitViewModel(
             viewModelScope.launch {
                 runCatching {
                     val employee = requireNotNull(session.sessionState.first().employeeCode) { "Sign in to review reports" }
-                    reports.observe(id).collect { report ->
+                    combine(reports.observe(id), reports.observeByEmployee(employee)) { report, _ -> report }.collect { report ->
                         require(report == null || report.employeeId == employee) { "This report belongs to another employee" }
+                        val review = report?.let { review(it) }
                         mutableState.update { current ->
-                            val review = report?.let { review(it) }
                             current.copy(screen = review?.let { ScreenState.Content(it) } ?: ScreenState.Empty)
                         }
                     }
@@ -164,7 +170,7 @@ class ReportSubmitViewModel(
             reports.recall(review.report.id)
         }
 
-    private fun review(
+    private suspend fun review(
         report: Report,
         atMillis: Long = clock.now().toEpochMilliseconds(),
     ): Review {
@@ -195,6 +201,12 @@ class ReportSubmitViewModel(
             report = report,
             hardFlags = flags.filter { it.severity == PolicySeverity.HARD_BLOCK },
             softFlags = flags.filter { it.severity == PolicySeverity.SOFT_WARN },
+            reconciliation =
+                if (report.lines.any { it is AdvanceLine }) {
+                    reconciliation?.invoke(report, reports.observeByEmployee(report.employeeId).first())
+                } else {
+                    null
+                },
         )
     }
 
@@ -207,7 +219,8 @@ class ReportSubmitViewModel(
                 runCatching {
                     require(session.sessionState.first().employeeCode == previous.report.employeeId) { "Sign in as the report owner" }
                     val saved = action(previous)
-                    mutableState.update { it.copy(screen = ScreenState.Content(review(saved))) }
+                    val review = review(saved)
+                    mutableState.update { it.copy(screen = ScreenState.Content(review)) }
                 }.onFailure { failure ->
                     rethrowCancellation(failure)
                     mutableState.update { it.copy(error = failure.message ?: "Report action failed; retry") }
