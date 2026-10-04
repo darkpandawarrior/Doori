@@ -15,6 +15,7 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class DuplicateExpenseSubmitTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
