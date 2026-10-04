@@ -19,6 +19,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.mileway.core.maps.canvas.CanvasRouteSurface
 import com.mileway.core.data.claim.MANAGER_ROLE
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.MileageLine
@@ -86,5 +88,30 @@ internal fun PerLineReviewPanel(
             }
         }
         OutlinedButton(onClick = onBack) { Text("Back to report") }
+    }
+}
+
+@Preview
+@Composable
+private fun MileageReviewMapPreview() {
+    MaterialTheme {
+        Column {
+            CanvasRouteSurface().LiveTrackMap(
+                routeCoords = listOf(MapCoordinate(18.52, 73.85), MapCoordinate(18.53, 73.86)),
+                filteredCoords = emptyList(),
+                abnormalCoords = emptyList(),
+                startCoord = MapCoordinate(18.52, 73.85),
+                endCoord = MapCoordinate(18.53, 73.86),
+                currentLat = 18.52,
+                currentLng = 73.85,
+                bearing = 0f,
+                autoCenterEnabled = false,
+                playbackCoord = null,
+                showIssueMarkers = true,
+                modifier = Modifier.fillMaxWidth().height(240.dp),
+            )
+            Text("Mileage line review")
+            Text("Rejecting one line leaves the rest approvable")
+        }
     }
 }

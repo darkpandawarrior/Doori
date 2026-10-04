@@ -3,6 +3,7 @@ package com.mileway.core.data.claim
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.Report
+import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.model.db.ApprovalStepEntity
 import com.mileway.core.data.model.db.PeriodLockEntity
 import kotlinx.datetime.TimeZone
@@ -34,7 +35,9 @@ data class ApprovalReview(
                 .filterValues { it.last().action == ApprovalAction.REJECT.name }.keys
 
     val payableLines: List<ClaimLine> get() = report.lines.filterNot { it.id in rejectedLineIds }
-    val canBulkApprove: Boolean get() = payableLines.isNotEmpty() && payableLines.none { it.id in blockedLineIds }
+    val canBulkApprove: Boolean
+        get() = report.state == ReportLifecycleState.SUBMITTED && payableLines.isNotEmpty() &&
+            payableLines.none { it.id in blockedLineIds || it.hasHardViolation() }
 }
 
 /** Unknown policy codes fail closed; only the engine's explicit soft warnings can pass bulk review. */

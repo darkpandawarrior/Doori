@@ -1070,9 +1070,9 @@ class ScreenshotGalleryTest {
                 }
             }
             composeRule.onNodeWithText("Status: SUBMITTED").assertIsDisplayed()
-            composeRule.onNodeWithText("Approval comment (required)").performTextInput("Reviewed the trip expenses; please retain the receipts.")
-            composeRule.onNodeWithText("I reviewed the policy flags").assertIsDisplayed()
-            composeRule.onNodeWithText("Approve and simulate payout").assertIsNotEnabled()
+            composeRule.onNodeWithText("Approval comment (required)").performScrollTo().performTextInput("Reviewed the trip expenses; please retain the receipts.")
+            composeRule.onNodeWithText("I reviewed the policy flags").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Approve for finance review").assertIsNotEnabled()
             capture("report_approval_screen_filled")
         } finally {
             application.close()

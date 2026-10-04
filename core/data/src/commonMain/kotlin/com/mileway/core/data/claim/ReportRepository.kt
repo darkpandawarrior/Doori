@@ -29,6 +29,7 @@ import com.mileway.core.data.model.db.ReportEntity
 import com.siddharth.kmp.offlineoutbox.OpOutbox
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -111,7 +112,7 @@ class ReportRepository(
 
     /** The same persisted queue drives single-report and bulk review. */
     fun observeReviewQueue(): Flow<List<ApprovalReview>> =
-        observeAll().map { reports ->
+        combine(observeAll(), database?.policyViolationDao()?.observeAll() ?: flowOf(emptyList())) { reports, _ ->
             reports.filter { it.state == ReportLifecycleState.SUBMITTED }.mapNotNull { review(it.id) }
         }
 
@@ -267,9 +268,9 @@ class ReportRepository(
             "Approval history may only change through review actions"
         }
         val from = existing?.let { ReportLifecycleState.valueOf(it.state) } ?: ReportLifecycleState.DRAFT
-        if (from in setOf(ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT, ReportLifecycleState.PAID)) {
+        if (from in setOf(ReportLifecycleState.SUBMITTED, ReportLifecycleState.APPROVED, ReportLifecycleState.APPROVED_FOR_PAYMENT, ReportLifecycleState.PAID)) {
             require(report.lines == get(report.id)?.lines && report.employeeId == existing?.employeeId) {
-                "Approved claim lines and employee are immutable"
+                "Submitted claim lines and employee are immutable"
             }
         }
         require(
@@ -287,7 +288,8 @@ class ReportRepository(
             }
         }
         require(report.state != ReportLifecycleState.RECALLED || priorActions.isEmpty()) { "A reviewed report cannot be recalled" }
-        val submittedAt = existing?.submittedAtMs ?: if (report.state == ReportLifecycleState.SUBMITTED) now else null
+        val newlySubmitted = report.state == ReportLifecycleState.SUBMITTED && from != ReportLifecycleState.SUBMITTED
+        val submittedAt = existing?.submittedAtMs ?: if (newlySubmitted) now else null
         val period = existing?.accountingPeriodKey ?: submittedAt?.let { at -> nextOpenPeriod(at) { database?.periodLockDao()?.get(it) } }
         reportDao.upsert(
             ReportEntity(
@@ -301,8 +303,12 @@ class ReportRepository(
                 accountingPeriodKey = period,
             ),
         )
-        claimLineDao.getByReport(report.id).forEach { claimLineDao.delete(it.id) }
-        report.lines.forEach { claimLineDao.upsert(it.toEntity(report.id, now, json)) }
+        val priorLines = claimLineDao.getByReport(report.id)
+        priorLines.forEach { claimLineDao.delete(it.id) }
+        report.lines.forEach { line ->
+            val createdAt = priorLines.find { it.id == line.id }?.createdAtMs ?: now
+            claimLineDao.upsert(line.toEntity(report.id, createdAt, json))
+        }
         if (existing == null) report.approvalChain.steps.forEach { approvalStepDao.insert(it.toEntity(report.id)) }
         val saved = report.copy(recordVersion = nextVersion)
         notifyAndJournal(from, saved, now, approvalAction)
