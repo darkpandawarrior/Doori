@@ -19,7 +19,7 @@ class ReportTotalsLabelTest {
         val owed = AdvanceReconciliation("INR", 1_000, 500, 500, emptyList())
         assertEquals("Owed to employee · ₹ 5.00", reconciliationLabel(owed))
         assertEquals("Owed back · ₹ 5.00", reconciliationLabel(owed.copy(appliedMinor = 1_500, netMinor = -500)))
-        assertEquals("Settled · ₹ 0.00", reconciliationLabel(owed.copy(appliedMinor = 1_000, netMinor = 0)))
+        assertEquals("Nothing owed · ₹ 0.00", reconciliationLabel(owed.copy(appliedMinor = 1_000, netMinor = 0)))
         assertEquals("Owed to employee (reconcilable lines only) · ₹ 5.00", reconciliationLabel(owed.copy(excluded = listOf(UnreconciledLine("usd", "Missing pin")))))
     }
 }

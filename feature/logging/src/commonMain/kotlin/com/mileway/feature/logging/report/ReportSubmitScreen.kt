@@ -106,7 +106,7 @@ private fun ReportClaimItems(lines: List<ClaimLine>) {
                 is AdvanceLine -> "Advance ${line.advanceId}"
                 else -> "Claim item"
             }
-        Text("$label · ${formatMinorCurrency(line.amountMinor, line.currency)}")
+        Text(if (line is AdvanceLine) label else "$label · ${formatMinorCurrency(line.amountMinor, line.currency)}")
         if (line is ExpenseLine) FxRateLabel(line)
     }
 }
@@ -137,7 +137,7 @@ internal fun reconciliationLabel(result: AdvanceReconciliation): String {
         when {
             result.netMinor > 0 -> "Owed to employee"
             result.netMinor < 0 -> "Owed back"
-            else -> "Settled"
+            else -> "Nothing owed"
         }
     val amount = if (result.netMinor < 0) -result.netMinor else result.netMinor
     val partial = if (result.excluded.isEmpty()) "" else " (reconcilable lines only)"
