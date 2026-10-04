@@ -562,6 +562,7 @@ class ExpenseViewModel(
                 attendees = attendeeDetails((form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names.orEmpty()),
                 itemized = itemizedDetails((form.formValues[ExpenseCustomFormCatalog.ITEMIZED] as? FormFieldValue.ItemizedLines)?.entries.orEmpty()).orEmpty(),
                 cardMatchId = (form.sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: form.cardMatchId,
+                cardMatchedAmountMinor = form.expenseFieldContext()?.cardMatchedAmountMinor,
             )
         // P1.6: same tiered policy engine as Log Miles, keyed off the expense amount.
         val submissionStatus = PolicyMockData.outcomeForExpenseAmount(amount, category.name)

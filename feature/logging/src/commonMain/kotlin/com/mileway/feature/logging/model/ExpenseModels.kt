@@ -107,6 +107,7 @@ data class ExpenseRecord(
     val attendees: List<Attendee> = emptyList(),
     val itemized: List<ItemizedLine> = emptyList(),
     val cardMatchId: String? = null,
+    val cardMatchedAmountMinor: Long? = null,
 ) {
     /**
      * P27.E.14: computed from [com.mileway.stub.PolicyMockData]'s tiered expense-amount policy

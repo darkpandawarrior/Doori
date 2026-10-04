@@ -58,6 +58,28 @@ class DuplicateExpenseSubmitTest {
         }
 
     @Test
+    fun bulkDuplicatesWarnWithoutWritingTheRepeatedRow() =
+        runTest {
+            val repository = ExpenseRepository()
+            val vm = ExpenseViewModel(repository)
+            val row =
+                vm.state.value.rows
+                    .single()
+                    .id
+            vm.onAction(ExpenseAction.UpdateDraftRow(row) { it.copy(category = ExpenseCategory.FOOD, merchantName = "Batch Cafe", amountText = "10") })
+            vm.onAction(ExpenseAction.DuplicateDraftRow(row))
+            advanceUntilIdle()
+            val count = repository.getAll().size
+            vm.onAction(ExpenseAction.SubmitAllDrafts)
+            advanceUntilIdle()
+            assertEquals(count + 1, repository.getAll().size)
+            val warned =
+                vm.state.value.rows
+                    .single { it.status == com.mileway.feature.logging.model.DraftStatus.ERROR }
+            assertTrue(warned.errorMessage!!.contains("Possible duplicate"))
+        }
+
+    @Test
     fun staleConfirmationCannotSaveAnInvalidEditedForm() =
         runTest {
             val repository = ExpenseRepository()
