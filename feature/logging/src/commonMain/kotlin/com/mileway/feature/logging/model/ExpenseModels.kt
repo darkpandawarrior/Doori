@@ -9,6 +9,9 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.mileway.core.data.domain.claim.Attendee
+import com.mileway.core.data.domain.claim.CostSplit
+import com.mileway.core.data.domain.claim.ItemizedLine
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.stub.PolicyMockData
 
@@ -99,6 +102,12 @@ data class ExpenseRecord(
      * settlement/policy checks unchanged from before this field existed; this is display metadata.
      */
     val currencyCode: String = "INR",
+    val amountMinor: Long? = null,
+    val splits: List<CostSplit> = emptyList(),
+    val attendees: List<Attendee> = emptyList(),
+    val itemized: List<ItemizedLine> = emptyList(),
+    val cardMatchId: String? = null,
+    val cardMatchedAmountMinor: Long? = null,
 ) {
     /**
      * P27.E.14: computed from [com.mileway.stub.PolicyMockData]'s tiered expense-amount policy

@@ -124,6 +124,11 @@ class ReportGroupingViewModel(
                     status = ExpenseStatus.DRAFT,
                     dateMs = records.find { it.id == line.id }?.dateMs ?: 0,
                     currencyCode = line.currency,
+                    amountMinor = line.amountMinor,
+                    splits = line.splits,
+                    attendees = line.attendees,
+                    itemized = line.itemized,
+                    cardMatchId = line.cardMatchId,
                 )
             }
         val available = editedItems + loose
@@ -213,8 +218,23 @@ class ReportGroupingViewModel(
 internal const val MinimumGroupedExpenses = 2
 
 private fun ExpenseRecord.toClaimLine(): ExpenseLine {
-    val minor = amountRupees * MinorPerRupee
-    require(minor.isFinite() && minor > 0 && minor < Long.MAX_VALUE.toDouble() && minor.roundToLong() > 0) { "Expense amount is invalid" }
+    val capturedMinor =
+        amountMinor ?: run {
+            val minor = amountRupees * MinorPerRupee
+            require(minor.isFinite() && minor > 0 && minor < Long.MAX_VALUE.toDouble()) { "Expense amount is invalid" }
+            minor.roundToLong()
+        }
+    require(capturedMinor > 0) { "Expense amount is invalid" }
     // Legacy records store the settled INR amount; currencyCode describes the original capture only.
-    return ExpenseLine(id = id, amountMinor = minor.roundToLong(), currency = "INR", merchant = merchantName, category = category.name)
+    return ExpenseLine(
+        id = id,
+        amountMinor = capturedMinor,
+        currency = if (splits.isEmpty() && attendees.isEmpty() && itemized.isEmpty()) "INR" else currencyCode,
+        merchant = merchantName,
+        category = category.name,
+        splits = splits,
+        attendees = attendees,
+        itemized = itemized,
+        cardMatchId = cardMatchId,
+    )
 }

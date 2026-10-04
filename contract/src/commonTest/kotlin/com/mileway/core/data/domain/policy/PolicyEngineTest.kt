@@ -1,6 +1,7 @@
 package com.mileway.core.data.domain.policy
 
 import com.mileway.core.data.domain.claim.AdvanceLine
+import com.mileway.core.data.domain.claim.Attendee
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
@@ -84,6 +85,20 @@ class PolicyEngineTest {
         val violations = engine.evaluate(listOf(line), submittedAtMillis = 50 * DAY_MILLIS)["m3"].orEmpty()
 
         assertEquals(emptyList(), violations)
+    }
+
+    @Test
+    fun `per-head check uses dated limit exact fractions and attendee count`() {
+        val policy = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = 500), v2.copy(perHeadLimitMinor = 1000)))
+        val line = ExpenseLine("meal", 1001, "INR", merchant = "Cafe", category = "FOOD", attendees = listOf(Attendee("Alex"), Attendee("Jordan")))
+        val first = policy.evaluate(listOf(line), 0).getValue("meal").single { it.code == "EXPENSE_PER_HEAD_OVER_LIMIT" }
+        assertEquals(PolicySeverity.SOFT_WARN, first.severity)
+        assertTrue(policy.evaluate(listOf(line), 150 * DAY_MILLIS).getValue("meal").none { it.code == first.code })
+        assertEquals(null, policy.perHeadViolation(1000, 2, 0))
+        assertEquals(null, policy.perHeadViolation(1001, 3, 0))
+        assertEquals(null, policy.perHeadViolation(1001, 0, 0))
+        val huge = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = Long.MAX_VALUE)))
+        assertEquals(null, huge.perHeadViolation(Long.MAX_VALUE, 2, 0))
     }
 
     @Test

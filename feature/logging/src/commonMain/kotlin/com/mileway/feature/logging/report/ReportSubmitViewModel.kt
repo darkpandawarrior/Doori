@@ -60,6 +60,7 @@ fun expenseReportPolicy(): PolicyEngine =
                 rateTable = PolicyRateTable(emptyMap()),
                 maxExpenseAmountMinor = (PolicyMockData.EXPENSE_HARD_STOP_RUPEES * MinorPerRupee).toLong(),
                 receiptRequiredAboveMinor = ReceiptWarningMinor,
+                perHeadLimitMinor = DemoPerHeadLimitMinor,
             ),
         ),
     )
@@ -69,6 +70,9 @@ internal val Report.isEditable: Boolean
 
 internal const val MinorPerRupee = 100
 private const val ReceiptWarningMinor = 100_000L
+
+// Local demonstration policy, not a remotely configured organisation limit.
+private const val DemoPerHeadLimitMinor = 300_000L
 
 /** Policy is evaluated over all report lines; a hard flag anywhere blocks the whole report. */
 class ReportSubmitViewModel(

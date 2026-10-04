@@ -1,7 +1,22 @@
 package com.mileway.core.forms
 
+import com.mileway.core.forms.field.PercentageSplitInput
+import com.mileway.core.forms.itemization.ItemizedLineInput
+
 /** The value a user has entered/selected for one [MockFormSchema] field. */
 sealed interface FormFieldValue {
+    data class PercentageSplit(
+        val entries: List<PercentageSplitInput>,
+    ) : FormFieldValue
+
+    data class AttendeeList(
+        val names: List<String>,
+    ) : FormFieldValue
+
+    data class ItemizedLines(
+        val entries: List<ItemizedLineInput>,
+    ) : FormFieldValue
+
     data class Text(
         val value: String,
     ) : FormFieldValue
