@@ -22,7 +22,10 @@ internal object FieldConfidence {
     private val date = Regex("""(\d{1,4})[/-](\d{1,2})[/-](\d{2,4})""")
     private val currency = Regex("[A-Z]{3}")
 
-    fun valid(field: DocField, value: String): Boolean =
+    fun valid(
+        field: DocField,
+        value: String,
+    ): Boolean =
         when (field) {
             DocField.MERCHANT -> value.any { it.isLetter() }
             DocField.TOTAL, DocField.TAX -> amount.matches(value.trim())
@@ -31,7 +34,12 @@ internal object FieldConfidence {
             else -> true
         }
 
-    fun score(field: DocField, candidate: ExtractedValue, rawText: String, agreement: Boolean): Float {
+    fun score(
+        field: DocField,
+        candidate: ExtractedValue,
+        rawText: String,
+        agreement: Boolean,
+    ): Float {
         if (field !in receiptFields) return candidate.confidence
         if (!valid(field, candidate.value)) return minOf(candidate.confidence, INVALID_CONFIDENCE)
         val value = normalized(candidate.value)

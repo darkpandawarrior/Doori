@@ -7,7 +7,11 @@ object ReceiptDedupHasher {
     private const val MAX_LUMA = 255
 
     /** Hashes a row-major luma image, resampling larger synthetic grids to [WIDTH] by [HEIGHT]. */
-    fun hash(luma: IntArray, width: Int = WIDTH, height: Int = HEIGHT): Long {
+    fun hash(
+        luma: IntArray,
+        width: Int = WIDTH,
+        height: Int = HEIGHT,
+    ): Long {
         require(width >= WIDTH && height >= HEIGHT && luma.size == width * height)
         require(luma.all { it in 0..MAX_LUMA })
         var hash = 0L

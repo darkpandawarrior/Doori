@@ -11,8 +11,8 @@ import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.ui.components.ExportFormat
 import com.mileway.feature.tracking.ui.components.LocationDataFilter
 import com.siddharth.kmp.mvi.BaseViewModel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 data class ExportUiState(
     val isExporting: Boolean = false,
@@ -69,9 +69,12 @@ class ExportViewModel(
 
                 val events = hardwareEventRepository.getEventsForRoute(routeId).getOrElse { emptyList() }
 
-                val home = if (filter.redactHome) {
-                    savedPlaceDao.observeAll().first().firstOrNull { it.type == RedactionDefaults.HOME_TYPE }
-                } else null
+                val home =
+                    if (filter.redactHome) {
+                        savedPlaceDao.observeAll().first().firstOrNull { it.type == RedactionDefaults.HOME_TYPE }
+                    } else {
+                        null
+                    }
                 val redactedLocations = RedactionDefaults.locations(locations, home, filter.redactHome)
                 val redactedTrack = RedactionDefaults.track(track, redactedLocations, home, filter.redactHome)
                 val redactedEvents = RedactionDefaults.events(events, home, filter.redactHome)

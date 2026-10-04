@@ -6,11 +6,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class ReceiptDedupHasherTest {
-    private fun receipt(width: Int = 9, height: Int = 8): IntArray = IntArray(width * height) { index ->
-        val x = index % width
-        val y = index / width
-        if (y < height / 2) 40 + x * 8 else 160 - x * 8
-    }
+    private fun receipt(
+        width: Int = 9,
+        height: Int = 8,
+    ): IntArray =
+        IntArray(width * height) { index ->
+            val x = index % width
+            val y = index / width
+            if (y < height / 2) 40 + x * 8 else 160 - x * 8
+        }
 
     @Test
     fun `identical receipt has distance zero`() {

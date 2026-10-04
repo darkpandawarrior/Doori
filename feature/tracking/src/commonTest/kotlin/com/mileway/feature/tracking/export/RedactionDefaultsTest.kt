@@ -17,8 +17,16 @@ class RedactionDefaultsTest {
     private val near = point(18.5205, 73.8567)
     private val far = point(18.53, 73.86)
 
-    private fun point(lat: Double, lng: Double) = LocationData(
-        activity = "walking", speed = 0f, lat = lat, lng = lng, token = "r1", batteryPercentage = 90.0,
+    private fun point(
+        lat: Double,
+        lng: Double,
+    ) = LocationData(
+        activity = "walking",
+        speed = 0f,
+        lat = lat,
+        lng = lng,
+        token = "r1",
+        batteryPercentage = 90.0,
     )
 
     @Test
@@ -51,12 +59,21 @@ class RedactionDefaultsTest {
 
     @Test
     fun `every format excludes the Home point and address including JSON endpoints and events`() {
-        val track = SavedTrack(
-            routeId = "r1", name = home.address,
-            startLatitude = near.lat, startLongitude = near.lng, endLatitude = far.lat, endLongitude = far.lng,
-            pausedLatitude = 0.0, pausedLongitude = 0.0,
-            startTime = 0L, endTime = 1000L, distance = 1000.0, duration = 1000L,
-        )
+        val track =
+            SavedTrack(
+                routeId = "r1",
+                name = home.address,
+                startLatitude = near.lat,
+                startLongitude = near.lng,
+                endLatitude = far.lat,
+                endLongitude = far.lng,
+                pausedLatitude = 0.0,
+                pausedLongitude = 0.0,
+                startTime = 0L,
+                endTime = 1000L,
+                distance = 1000.0,
+                duration = 1000L,
+            )
         val points = RedactionDefaults.locations(listOf(near, far), home)
         val cleanTrack = RedactionDefaults.track(track, points, home)
         val cleanEvents = RedactionDefaults.events(listOf(HardwareEvent(token = "r1", event = home.address, lat = near.lat, lng = near.lng)), home)

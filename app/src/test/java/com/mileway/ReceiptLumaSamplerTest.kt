@@ -35,24 +35,26 @@ class ReceiptLumaSamplerTest {
     fun tearDown() = stopKoin()
 
     @Test
-    fun `large local image is sampled and bounds decode does not return a false null`() = runTest {
-        val file = File.createTempFile("receipt", ".png", RuntimeEnvironment.getApplication().cacheDir)
-        val bitmap = Bitmap.createBitmap(1800, 1600, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(Color.WHITE)
-        try {
-            file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            val luma = assertNotNull(sampleReceiptLuma(file.toURI().toString()))
-            assertEquals(ReceiptDedupHasher.WIDTH * ReceiptDedupHasher.HEIGHT, luma.size)
-            assertTrue(luma.all { it == 255 })
-        } finally {
-            bitmap.recycle()
-            file.delete()
+    fun `large local image is sampled and bounds decode does not return a false null`() =
+        runTest {
+            val file = File.createTempFile("receipt", ".png", RuntimeEnvironment.getApplication().cacheDir)
+            val bitmap = Bitmap.createBitmap(1800, 1600, Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(Color.WHITE)
+            try {
+                file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                val luma = assertNotNull(sampleReceiptLuma(file.toURI().toString()))
+                assertEquals(ReceiptDedupHasher.WIDTH * ReceiptDedupHasher.HEIGHT, luma.size)
+                assertTrue(luma.all { it == 255 })
+            } finally {
+                bitmap.recycle()
+                file.delete()
+            }
         }
-    }
 
     @Test
-    fun `unreadable local images and remote URIs skip image comparison`() = runTest {
-        assertNull(sampleReceiptLuma("file:///nonexistent/receipt.png"))
-        assertNull(sampleReceiptLuma("https://example.invalid/receipt.png"))
-    }
+    fun `unreadable local images and remote URIs skip image comparison`() =
+        runTest {
+            assertNull(sampleReceiptLuma("file:///nonexistent/receipt.png"))
+            assertNull(sampleReceiptLuma("https://example.invalid/receipt.png"))
+        }
 }

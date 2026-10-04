@@ -12,27 +12,54 @@ object RedactionDefaults {
     const val HOME_TYPE = "HOME"
 
     /** Removes points at or within the Home radius. Address-only Home rows retain all points. */
-    fun locations(points: List<LocationData>, home: SavedPlaceEntity?, enabled: Boolean = true): List<LocationData> =
-        if (!enabled || home == null) points else points.filterNot { nearHome(it.lat, it.lng, home) }.map { point ->
-            point.copy(reason = point.reason?.let { address(it, home) })
+    fun locations(
+        points: List<LocationData>,
+        home: SavedPlaceEntity?,
+        enabled: Boolean = true,
+    ): List<LocationData> =
+        if (!enabled || home == null) {
+            points
+        } else {
+            points.filterNot { nearHome(it.lat, it.lng, home) }.map { point ->
+                point.copy(reason = point.reason?.let { address(it, home) })
+            }
         }
 
     /** Exact address text becomes the Home label; unrelated text remains unchanged. */
-    fun address(text: String, home: SavedPlaceEntity?, enabled: Boolean = true): String =
-        if (enabled && home?.type == HOME_TYPE && home.address.isNotBlank() && text == home.address) "Home" else text
+    fun address(
+        text: String,
+        home: SavedPlaceEntity?,
+        enabled: Boolean = true,
+    ): String {
+        if (!enabled || home?.type != HOME_TYPE) return text
+        return if (home.address.isNotBlank() && text == home.address) "Home" else text
+    }
 
     /** Scrubs event coordinates too, since JSON/CSV can export them independently of track points. */
-    fun events(events: List<HardwareEvent>, home: SavedPlaceEntity?, enabled: Boolean = true): List<HardwareEvent> =
-        if (!enabled || home == null) events else events.map { event ->
-            event.copy(
-                event = address(event.event, home),
-                lat = event.lat.takeUnless { nearHome(event.lat, event.lng, home) },
-                lng = event.lng.takeUnless { nearHome(event.lat, event.lng, home) },
-            )
+    fun events(
+        events: List<HardwareEvent>,
+        home: SavedPlaceEntity?,
+        enabled: Boolean = true,
+    ): List<HardwareEvent> =
+        if (!enabled || home == null) {
+            events
+        } else {
+            events.map { event ->
+                event.copy(
+                    event = address(event.event, home),
+                    lat = event.lat.takeUnless { nearHome(event.lat, event.lng, home) },
+                    lng = event.lng.takeUnless { nearHome(event.lat, event.lng, home) },
+                )
+            }
         }
 
     /** JSON exports endpoints from track metadata; replace hidden endpoints with retained points. */
-    fun track(track: SavedTrack, points: List<LocationData>, home: SavedPlaceEntity?, enabled: Boolean = true): SavedTrack {
+    fun track(
+        track: SavedTrack,
+        points: List<LocationData>,
+        home: SavedPlaceEntity?,
+        enabled: Boolean = true,
+    ): SavedTrack {
         if (!enabled || home == null) return track
         val hideStart = nearHome(track.startLatitude, track.startLongitude, home)
         val hideEnd = nearHome(track.endLatitude, track.endLongitude, home)
@@ -45,7 +72,11 @@ object RedactionDefaults {
         )
     }
 
-    private fun nearHome(lat: Double?, lng: Double?, home: SavedPlaceEntity): Boolean {
+    private fun nearHome(
+        lat: Double?,
+        lng: Double?,
+        home: SavedPlaceEntity,
+    ): Boolean {
         if (home.type != HOME_TYPE) return false
         val homeLat = home.latitude ?: return false
         val homeLng = home.longitude ?: return false

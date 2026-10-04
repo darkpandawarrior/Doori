@@ -19,16 +19,18 @@ class AiExtractionConfidenceTest {
 
     @Test
     fun `each receipt field uses its own evidence`() {
-        val mapped = DocumentExtractionMapper.toFields(
-            DocumentExtractionFields(merchant = "Cafe Roma", date = "2026-10-05", total = "12.50", currency = "INR"),
-        )
+        val mapped =
+            DocumentExtractionMapper.toFields(
+                DocumentExtractionFields(merchant = "Cafe Roma", date = "2026-10-05", total = "12.50", currency = "INR"),
+            )
         val text = RawTextFieldExtractor.extract("TOTAL 12.50 TAX 1.25 USD 05/10/2026")
-        val result = combiner.combine(
-            AiExtraction(DocType.RECEIPT, mapped, "", 0.99f),
-            DocType.RECEIPT,
-            "Cafe Roma TOTAL 12.50 TAX 1.25 USD 05/10/2026",
-            textFields = text,
-        )
+        val result =
+            combiner.combine(
+                AiExtraction(DocType.RECEIPT, mapped, "", 0.99f),
+                DocType.RECEIPT,
+                "Cafe Roma TOTAL 12.50 TAX 1.25 USD 05/10/2026",
+                textFields = text,
+            )
         val fields = result.fields
         assertEquals(setOf(DocField.MERCHANT, DocField.DATE, DocField.TOTAL, DocField.TAX, DocField.CURRENCY), fields.keys)
         assertTrue(fields.getValue(DocField.TOTAL).confidence > fields.getValue(DocField.MERCHANT).confidence)
@@ -49,22 +51,26 @@ class AiExtractionConfidenceTest {
     @Test
     fun `valid supported fallback beats malformed high confidence AI`() {
         val ai = mapOf(DocField.TOTAL to ExtractedValue("12.OO", 0.99f, AnalyzerSource.ON_DEVICE_AI))
-        val result = combiner.combine(
-            AiExtraction(DocType.RECEIPT, ai, "", 0.99f), DocType.RECEIPT, "TOTAL 12.50",
-            textFields = RawTextFieldExtractor.extract("TOTAL 12.50"),
-        )
+        val result =
+            combiner.combine(
+                AiExtraction(DocType.RECEIPT, ai, "", 0.99f),
+                DocType.RECEIPT,
+                "TOTAL 12.50",
+                textFields = RawTextFieldExtractor.extract("TOTAL 12.50"),
+            )
         assertEquals("12.50", result.fields.getValue(DocField.TOTAL).value)
     }
 
     @Test
     fun `low confidence fields returns exactly those below the threshold`() {
-        val fields = mapOf(
-            DocField.MERCHANT to ExtractedValue("Cafe", 0.9f, AnalyzerSource.ON_DEVICE_AI),
-            DocField.DATE to ExtractedValue("bad date", 0.2f, AnalyzerSource.ON_DEVICE_AI),
-            DocField.TOTAL to ExtractedValue("12.50", LOW_CONFIDENCE_THRESHOLD, AnalyzerSource.ON_DEVICE_AI),
-            DocField.TAX to ExtractedValue("1.25", 0.4f, AnalyzerSource.TEXT_RECOGNITION),
-            DocField.CURRENCY to ExtractedValue("INR", 0.55f, AnalyzerSource.ON_DEVICE_AI),
-        )
+        val fields =
+            mapOf(
+                DocField.MERCHANT to ExtractedValue("Cafe", 0.9f, AnalyzerSource.ON_DEVICE_AI),
+                DocField.DATE to ExtractedValue("bad date", 0.2f, AnalyzerSource.ON_DEVICE_AI),
+                DocField.TOTAL to ExtractedValue("12.50", LOW_CONFIDENCE_THRESHOLD, AnalyzerSource.ON_DEVICE_AI),
+                DocField.TAX to ExtractedValue("1.25", 0.4f, AnalyzerSource.TEXT_RECOGNITION),
+                DocField.CURRENCY to ExtractedValue("INR", 0.55f, AnalyzerSource.ON_DEVICE_AI),
+            )
         val analysis = DocumentAnalysis(DocType.RECEIPT, fields, "", DuplicateVerdict.Unique, 0.5f, emptySet())
         assertEquals(setOf(DocField.DATE, DocField.TAX, DocField.CURRENCY), analysis.lowConfidenceFields())
         assertEquals(setOf(DocField.DATE), analysis.lowConfidenceFields(0.3f))

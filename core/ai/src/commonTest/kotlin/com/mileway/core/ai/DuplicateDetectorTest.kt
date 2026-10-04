@@ -104,6 +104,7 @@ class DuplicateDetectorTest {
 
         assertEquals(DuplicateVerdict.Confirmed("ref-1"), verdict)
     }
+
     @Test
     fun `image match catches changed OCR and names the image reason`() {
         val candidates = listOf(DedupCandidate("saved", "Other Shop", "99.00", 0L, imageHash = 42L))
@@ -153,5 +154,4 @@ class DuplicateDetectorTest {
         val far = listOf(DedupCandidate("far", null, null, 0L, imageHash = 511L))
         assertEquals(DuplicateVerdict.Unique, detector.check(emptyMap(), 1L, far, imageHash = 0L))
     }
-
 }

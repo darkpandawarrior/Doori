@@ -63,5 +63,4 @@ data class DocumentAnalysis(
 const val LOW_CONFIDENCE_THRESHOLD = 0.6f
 
 /** Returns only extracted fields below [threshold]; missing fields have no score. */
-fun DocumentAnalysis.lowConfidenceFields(threshold: Float = LOW_CONFIDENCE_THRESHOLD): Set<DocField> =
-    fields.filterValues { it.confidence < threshold }.keys
+fun DocumentAnalysis.lowConfidenceFields(threshold: Float = LOW_CONFIDENCE_THRESHOLD): Set<DocField> = fields.filterValues { it.confidence < threshold }.keys

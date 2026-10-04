@@ -25,9 +25,9 @@ import com.mileway.core.media.model.AttachmentItem
 import com.mileway.core.media.model.AttachmentSource
 import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.ocr.ReceiptHistorySource
 import com.mileway.core.media.ocr.analyzeReceiptCapture
-import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.watermark.burnWatermark
 import com.mileway.core.media.watermark.shouldWatermark
 import com.mileway.core.media.watermark.watermarkText

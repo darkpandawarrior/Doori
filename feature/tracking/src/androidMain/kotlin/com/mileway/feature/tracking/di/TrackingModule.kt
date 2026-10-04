@@ -2,7 +2,6 @@ package com.mileway.feature.tracking.di
 
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.media.ocr.ReceiptHistorySource
-import com.mileway.feature.tracking.repository.RecentReceiptHistory
 import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
@@ -19,6 +18,7 @@ import com.mileway.feature.tracking.repository.CurrentTrackRepository
 import com.mileway.feature.tracking.repository.HardwareEventRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.LogMilesSubmissionRepository
+import com.mileway.feature.tracking.repository.RecentReceiptHistory
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.repository.TripAttachmentRepository
 import com.mileway.feature.tracking.repository.VehiclePricingCache

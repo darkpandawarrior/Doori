@@ -17,7 +17,10 @@ data class SavedReceipt(
 
 /** Reads receipts saved inside an inclusive capture-time window. */
 fun interface ReceiptHistorySource {
-    suspend fun recent(sinceMillis: Long, untilMillis: Long): List<SavedReceipt>
+    suspend fun recent(
+        sinceMillis: Long,
+        untilMillis: Long,
+    ): List<SavedReceipt>
 }
 
 /** Shared capture seam: reads real history and computes hashes before the duplicate verdict. */
@@ -29,15 +32,16 @@ suspend fun analyzeReceiptCapture(
     history: ReceiptHistorySource,
     sampler: suspend (String) -> IntArray? = ::sampleReceiptLuma,
 ): DocumentAnalysis {
-    val candidates = history.recent(timestampMillis - DuplicateDetector.WINDOW_MILLIS, timestampMillis).map { receipt ->
-        DedupCandidate(
-            ref = receipt.ref,
-            merchant = receipt.merchant,
-            total = receipt.total,
-            timestampMillis = receipt.timestampMillis,
-            imageHash = sampler(receipt.uri)?.let { ReceiptDedupHasher.hash(it) },
-        )
-    }
+    val candidates =
+        history.recent(timestampMillis - DuplicateDetector.WINDOW_MILLIS, timestampMillis).map { receipt ->
+            DedupCandidate(
+                ref = receipt.ref,
+                merchant = receipt.merchant,
+                total = receipt.total,
+                timestampMillis = receipt.timestampMillis,
+                imageHash = sampler(receipt.uri)?.let { ReceiptDedupHasher.hash(it) },
+            )
+        }
     return intelligence.analyze(
         image = uri,
         prompt = prompt,

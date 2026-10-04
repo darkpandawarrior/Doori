@@ -19,16 +19,26 @@ class DuplicateDetector(
         val merchant = fields[DocField.MERCHANT]?.value?.trim()?.lowercase()
         val total = fields[DocField.TOTAL]?.value?.trim()
         val recent = candidates.filter { abs(timestampMillis - it.timestampMillis) <= windowMinutes * MILLIS_PER_MINUTE }
-        fun fieldsMatch(candidate: DedupCandidate): Boolean =
-            !merchant.isNullOrEmpty() && !total.isNullOrEmpty() &&
-                candidate.merchant?.trim()?.lowercase() == merchant && candidate.total?.trim() == total
 
-        val imageMatches = recent.filter { candidate ->
-            imageHash != null && candidate.imageHash?.let { hammingDistance(imageHash, it) <= IMAGE_MATCH_THRESHOLD } == true
-        }
-        imageMatches.firstOrNull { fieldsMatch(it) }?.let { return DuplicateVerdict.Confirmed(it.ref) }
-        imageMatches.minByOrNull { abs(timestampMillis - it.timestampMillis) }?.let {
-            return DuplicateVerdict.Possible(it.ref, "receipt image match within ${windowMinutes}min")
+        fun fieldsMatch(candidate: DedupCandidate): Boolean =
+            !merchant.isNullOrEmpty() &&
+                !total.isNullOrEmpty() &&
+                candidate.merchant?.trim()?.lowercase() == merchant &&
+                candidate.total?.trim() == total
+
+        val imageMatches =
+            recent.filter { candidate ->
+                imageHash != null && candidate.imageHash?.let { hammingDistance(imageHash, it) <= IMAGE_MATCH_THRESHOLD } == true
+            }
+        val imageMatch =
+            imageMatches.firstOrNull { fieldsMatch(it) }
+                ?: imageMatches.minByOrNull { abs(timestampMillis - it.timestampMillis) }
+        if (imageMatch != null) {
+            return if (fieldsMatch(imageMatch)) {
+                DuplicateVerdict.Confirmed(imageMatch.ref)
+            } else {
+                DuplicateVerdict.Possible(imageMatch.ref, "receipt image match within ${windowMinutes}min")
+            }
         }
 
         val fieldMatches = recent.filter { fieldsMatch(it) && (imageHash == null || it.imageHash == null) }
@@ -44,6 +54,9 @@ class DuplicateDetector(
         const val IMAGE_MATCH_THRESHOLD = 8
 
         /** Number of differing bits in two 64-bit receipt dHashes. */
-        fun hammingDistance(first: Long, second: Long): Int = (first xor second).countOneBits()
+        fun hammingDistance(
+            first: Long,
+            second: Long,
+        ): Int = (first xor second).countOneBits()
     }
 }

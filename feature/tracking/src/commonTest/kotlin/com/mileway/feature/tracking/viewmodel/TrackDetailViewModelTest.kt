@@ -130,7 +130,10 @@ class TrackDetailViewModelTest {
 
 /** Minimal no-op fake — [TrackDetailViewModel] only ever observes an empty attachment stream here. */
 private class StubTripAttachmentDao : TripAttachmentDao {
-    override suspend fun getRecentReceipts(sinceMillis: Long, untilMillis: Long): List<TripAttachmentEntity> = emptyList()
+    override suspend fun getRecentReceipts(
+        sinceMillis: Long,
+        untilMillis: Long,
+    ): List<TripAttachmentEntity> = emptyList()
 
     override suspend fun insert(attachment: TripAttachmentEntity): Long = 0L
 
