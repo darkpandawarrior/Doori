@@ -1,5 +1,6 @@
 package com.mileway.server
 
+import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ApprovalActionRequest
 import com.mileway.core.data.domain.claim.ApprovalChain
@@ -8,6 +9,7 @@ import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.IllegalReportTransitionException
 import com.mileway.core.data.domain.claim.MileageLine
+import com.mileway.core.data.domain.claim.PerDiemLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleEvent
 import com.mileway.core.data.domain.claim.ReportLifecycleState
@@ -234,6 +236,13 @@ private fun insertClaimLine(
                 it[distanceKm] = line.distanceKm
                 it[vehicleKey] = line.vehicleKey
             }
+            // ponytail: PerDiemLine/AdvanceLine are new in L1a (contract-only so far); no feature
+            // module or route constructs one yet, and ClaimLinesTable has no columns for their
+            // fields. Persisting them is a real schema change (Room/Exposed migration territory,
+            // out of this lane's file list) — fail loudly instead of silently dropping fields the
+            // instant a caller does start sending one.
+            is PerDiemLine, is AdvanceLine ->
+                error("Persisting ${line::class.simpleName} is not yet implemented")
         }
     }
 }

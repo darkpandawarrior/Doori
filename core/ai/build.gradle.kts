@@ -43,10 +43,6 @@ kotlin {
             // buildProviderChain/loadAiProviderConfig all live here.
             implementation("com.siddharth.kmp:llm-chat:1.0.0")
         }
-        androidMain.dependencies {
-            // TextRecognizer actual: ML Kit on-device Latin text recognition.
-            implementation(libs.mlkit.text.recognition)
-        }
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)

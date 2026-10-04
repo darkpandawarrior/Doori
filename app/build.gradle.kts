@@ -117,6 +117,9 @@ val fdroidBuild = providers.gradleProperty("fdroid").isPresent
 // property-delegate form.
 val mockkAgent: Configuration = configurations.create("mockkAgent")
 
+// Combined flavor/build-type dependency scopes need an explicit placeholder (AGP).
+configurations.create("gmsDebugImplementation")
+
 android {
     namespace = "com.mileway"
 
@@ -197,8 +200,9 @@ android {
         release {
             // FLFD.1 originally disabled R8 under -Pfdroid so F-Droid's build server could
             // rebuild from source and byte-compare against the published binary. That does not
-            // apply to Doori: it ships play-services-location and the ML Kit OCR pipeline,
-            // which are core features, so it is permanently ineligible for official fdroiddata
+            // apply to Doori: it ships the ML Kit OCR pipeline (a core feature) and a Google Pay
+            // button pulled in by kmp-toolkit's designsystem module (see the dependencyGuard
+            // comment below), so it is permanently ineligible for official fdroiddata
             // and reaches F-Droid only as a prebuilt Binaries entry that nobody re-builds.
             // With nothing to byte-compare against, the ~45MB of unminified dex bought nothing.
             //
@@ -431,27 +435,15 @@ kover {
 // after any intentional dep change, then commit the updated baseline file.
 dependencyGuard {
     configuration("gmsReleaseRuntimeClasspath")
-    // noGms is this project's own FOSS/F-Droid build, and until now it was the ONE release classpath
-    // with no baseline — so nothing verified what actually ships there.
-    //
-    // Read the committed noGms baseline with your eyes open: it currently CONTAINS play-services and
-    // ML Kit entries. That is the known, tracked leak (feature/tracking's FusedLocationSource imports
-    // com.google.android.gms.location.* unconditionally, and kmp-toolkit's app-shell pulls
-    // play-services-location), NOT a clean FOSS classpath. A green `dependencyGuard` here therefore
-    // means "nothing NEW leaked in", not "this build is GMS-free". Committing the baseline anyway is
-    // deliberate: it freezes the leak at its current size and makes any growth a failing diff, which
-    // is strictly better than the previous state of no guard at all. Shrink the baseline as the leak
-    // is fixed; do not let it grow. Measured when this baseline was committed: of 427 entries,
-    // 15 are com.google.android.gms / com.google.mlkit (play-services-base, -basement, -location,
-    // the two mlkit scanners and their transitives) and a further 4 are com.google.firebase
-    // (annotations, components, encoders, encoders-json) pulled in transitively by them — 19
-    // proprietary entries in total. Those are the numbers to drive down:
-    //   grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt   # 15
-    //   grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsReleaseRuntimeClasspath.txt  # 19
+    // L13: this snapshot must contain zero GMS and ML Kit coordinates.
     configuration("noGmsReleaseRuntimeClasspath")
 }
 
 dependencies {
+    implementation(project(":core:ai"))
+    implementation(project(":core:media"))
+    implementation("com.siddharth.kmp:result:1.0.0")
+    implementation("com.siddharth.kmp:ai:1.0.0")
     mockkAgent("net.bytebuddy:byte-buddy-agent:1.18.13")
 
     // G9 fix: AGP's "consistent resolution" pins the androidTest classpath to whatever the MAIN
@@ -542,6 +534,12 @@ dependencies {
     // out of scope here) — this is just the app-level classpath for the moved gms-only class.
     "gmsImplementation"(libs.play.services.location)
 
+    // L13: fused LocationTracker (kmp-toolkit's app-shell-location-gms), gms flavor ONLY. app-shell's
+    // own default AndroidLocationTracker (core:platform's PlatformModule.android.kt binding) is now
+    // plain android.location.LocationManager with zero Play Services — this module supplies the real
+    // fused impl, bound in place of it by app/src/gms/PlatformServicesKoinEntry.kt.
+    "gmsImplementation"("com.siddharth.kmp:app-shell-location-gms:1.0.0")
+
     // V15 platform services, Play-Core update + review, gms flavor ONLY (proprietary).
     // noGms gets no-op impls; the VerifyDependencyPrefixes guard (FLFD.2) keeps these out of FOSS.
     "gmsImplementation"(libs.play.app.update)
@@ -562,6 +560,11 @@ dependencies {
     // P2.9: phone->watch snapshot Data Layer sync (WearDataLayerWatchSyncBridge), gms flavor ONLY.
     // noGms binds WatchSyncBridge to NoopWatchSyncBridge instead — VerifyDependencyPrefixes (FLFD.2)
     // keeps play-services-wearable out of noGmsReleaseRuntimeClasspath.
+    "gmsImplementation"("com.siddharth.kmp:ai-mlkit:1.0.0")
+    "gmsImplementation"("com.siddharth.kmp:designsystem-wallet-gms:1.0.0")
+    "gmsImplementation"(libs.mlkit.document.scanner)
+    "gmsImplementation"(libs.mlkit.text.recognition)
+    "gmsImplementation"(libs.androidx.exifinterface)
     "gmsImplementation"(libs.play.services.wearable)
     "gmsImplementation"(libs.kotlinx.coroutines.play.services)
 
@@ -574,9 +577,9 @@ dependencies {
     implementation(libs.coil3.gif)
     implementation(libs.coil3.svg)
 
-    // WormaCeptor: HTTP traffic inspector, DEBUG builds only (never in release; Android-only).
-    debugImplementation(libs.wormaceptor.api)
-    debugImplementation(libs.wormaceptor.impl)
+    // WormaCeptor carries Play location services: GMS DEBUG builds only.
+    "gmsDebugImplementation"(libs.wormaceptor.api)
+    "gmsDebugImplementation"(libs.wormaceptor.impl)
 
     // G15: LeakCanary, DEBUG builds only (never release, never commonMain — same rule as
     // WormaCeptor). Auto-installs on debug; watches Activities/Fragments/ViewModels for leaks.
@@ -660,12 +663,7 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
 }
 
-// ─── FLFD.2, Proprietary-dependency guard for the noGms (F-Droid) release ───────────────────────────
-// Fails if a proprietary dep matching a forbidden prefix leaks into noGmsReleaseRuntimeClasspath, EXCEPT
-// the allowlisted pre-existing prime-feature deps (FusedLocation + ML Kit OCR, used by BOTH flavors,
-// making those FOSS is out of V15 scope; guardrail: don't touch the prime feature). The guard's purpose is
-// to keep V15's NEW proprietary additions (Firebase messaging/analytics/crashlytics, Play app-update,
-// Play review, Install Referrer) out of the FOSS build.
+// L13: reject every proprietary coordinate in both FOSS variants, without an allowlist.
 // Inside afterEvaluate so the AGP-created variant configuration exists when we look it up.
 afterEvaluate {
     val forbiddenPrefixes =
@@ -675,43 +673,8 @@ afterEvaluate {
             "com.google.firebase",
             "com.google.maps.android",
             "com.android.installreferrer",
-            // Added 2026-08-05. The gms-namespaced ML Kit artifacts
-            // (com.google.android.gms:play-services-mlkit-*) were already caught by the
-            // "com.google.android.gms" prefix above and allowlisted below — but ML Kit also ships
-            // under its OWN bare coordinate, and nothing here matched it. Seven such artifacts sat
-            // in the noGms release classpath completely invisible to this guard.
+            // Both ML Kit coordinate namespaces are forbidden in the FOSS release.
             "com.google.mlkit",
-        )
-    val allowlist =
-        setOf(
-            // Pre-existing FusedLocation chain (core:platform AndroidLocationTracker).
-            "com.google.android.gms:play-services-location",
-            "com.google.android.gms:play-services-base",
-            "com.google.android.gms:play-services-basement",
-            "com.google.android.gms:play-services-tasks",
-            // Pre-existing ML Kit OCR (core:platform AndroidTextRecognizer / doc scanner).
-            "com.google.android.gms:play-services-mlkit-document-scanner",
-            "com.google.android.gms:play-services-mlkit-text-recognition",
-            "com.google.android.gms:play-services-mlkit-text-recognition-common",
-            // Bare-coordinate ML Kit, newly VISIBLE to the guard as of 2026-08-05 (see the
-            // "com.google.mlkit" prefix above). Allowlisted, not fixed: freezing the leak at its
-            // current size is deliberate, exactly as the noGms dependencyGuard baseline does — a
-            // green guard here means "nothing NEW leaked in", not "this build is GMS-free".
-            // Removing these is gated on the ML Kit product call (make OCR FOSS, or keep it
-            // allowlisted). Shrink this list as that lands; do not let it grow.
-            // Note genai-common / genai-prompt: on-device GenAI is reaching the F-Droid build too.
-            "com.google.mlkit:common",
-            "com.google.mlkit:genai-common",
-            "com.google.mlkit:genai-prompt",
-            "com.google.mlkit:text-recognition",
-            "com.google.mlkit:text-recognition-bundled-common",
-            "com.google.mlkit:vision-common",
-            "com.google.mlkit:vision-interfaces",
-            // Transitive Firebase infra pulled by the play-services libs above (NOT messaging/analytics/crashlytics).
-            "com.google.firebase:firebase-annotations",
-            "com.google.firebase:firebase-components",
-            "com.google.firebase:firebase-encoders",
-            "com.google.firebase:firebase-encoders-json",
         )
     // `rootComponent` is a Provider<ResolvedComponentResult> — the configuration-cache-safe entry
     // point to the resolved graph. Captured here at CONFIGURATION time and walked at execution
@@ -725,19 +688,20 @@ afterEvaluate {
     // Because gradle.properties sets configuration-cache=true AND problems=fail, and this task is
     // wired into `assembleNoGmsRelease`, the next F-Droid release build would have failed here.
     // Nothing in routine CI runs `check` or `assembleNoGmsRelease`, so it was latent, not red.
-    val noGmsRootComponent =
-        configurations
-            .getByName("noGmsReleaseRuntimeClasspath")
-            .incoming.resolutionResult.rootComponent
+    val noGmsRootComponents =
+        listOf("noGmsDebugRuntimeClasspath", "noGmsReleaseRuntimeClasspath").map { name ->
+            configurations
+                .getByName(name)
+                .incoming.resolutionResult.rootComponent
+        }
     val verifyTask =
         tasks.register("verifyNoGmsDependencyPrefixes") {
             group = "verification"
-            description = "Fails if a proprietary dependency leaks into the noGms (F-Droid) release classpath."
+            description = "Fails if a proprietary dependency leaks into a noGms (F-Droid) classpath."
             // Locals, not `this@afterEvaluate` captures: the task action must not reach back into
             // the Project object graph, or the configuration cache rejects it again.
-            val rootProvider = noGmsRootComponent
+            val rootProviders = noGmsRootComponents
             val forbidden = forbiddenPrefixes
-            val allowed = allowlist
             doLast {
                 // Walk the graph from the captured root. A `visited` set is load-bearing: a
                 // dependency graph is a DAG with shared nodes (and cycles are legal in Gradle's
@@ -752,20 +716,25 @@ afterEvaluate {
                         .filterIsInstance<ResolvedDependencyResult>()
                         .forEach { walk(it.selected) }
                 }
-                walk(rootProvider.get())
+                // Variant roots share the same :app component ID. Traverse each graph independently.
+                rootProviders.forEach {
+                    visited.clear()
+                    walk(it.get())
+                }
                 val violations =
                     deps
-                        .filter { dep -> forbidden.any { dep.startsWith(it) } && dep !in allowed }
+                        .filter { dep -> forbidden.any { dep.startsWith(it) } }
                         .sorted()
                 if (violations.isNotEmpty()) {
                     throw GradleException(
-                        "noGms (F-Droid) release leaks proprietary dependencies: $violations",
+                        "noGms (F-Droid) leaks proprietary dependencies: $violations",
                     )
                 }
             }
         }
     tasks.named("check").configure { dependsOn(verifyTask) }
-    tasks.matching { it.name == "assembleNoGmsRelease" }.configureEach { dependsOn(verifyTask) }
+    tasks.named("dependencyGuard").configure { dependsOn(verifyTask) }
+    tasks.matching { it.name in setOf("assembleNoGmsDebug", "assembleNoGmsRelease") }.configureEach { dependsOn(verifyTask) }
 }
 
 // AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled

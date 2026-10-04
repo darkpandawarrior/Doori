@@ -73,6 +73,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.ExpandableText
 import com.mileway.core.ui.components.sheet.BulkActionConfirmationBottomSheet
@@ -118,6 +119,7 @@ import com.mileway.feature.approvals.repository.ApprovalsRepository
 import com.mileway.feature.approvals.viewmodel.ApprovalsAction
 import com.mileway.feature.approvals.viewmodel.ApprovalsEffect
 import com.mileway.feature.approvals.viewmodel.ApprovalsViewModel
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -134,8 +136,10 @@ fun ApprovalsScreen(
     onOpenClarificationHistory: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: ApprovalsViewModel = koinViewModel(),
+    reportViewModel: ReportApprovalViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    val reportQueue by reportViewModel.queue.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var selectedTab by remember { mutableIntStateOf(0) }
     var selectionMode by rememberSaveable { mutableStateOf(false) }
@@ -226,6 +230,8 @@ fun ApprovalsScreen(
         },
     ) { innerPadding ->
         Column(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+            // Real claim reports sit alongside the legacy demo approvals, sharing the detail route.
+            ReportApprovalQueue(reportQueue, onOpenDetail)
             PrimaryTabRow(selectedTabIndex = selectedTab) {
                 listOf(
                     stringResource(Res.string.approvals_tab_to_approve),
@@ -783,6 +789,18 @@ private fun timeAgo(ms: Long): String {
         else -> {
             val days = hours / 24
             pluralStringResource(Res.plurals.approvals_plural_days_ago, days, days)
+        }
+    }
+}
+
+@Composable
+private fun ReportApprovalQueue(
+    reports: List<Report>,
+    onOpenDetail: (String) -> Unit,
+) {
+    reports.forEach { report ->
+        TextButton(onClick = { onOpenDetail("report:${report.id}") }, modifier = Modifier.fillMaxWidth()) {
+            Text("Report ${report.id} · ${report.state.name.replace('_', ' ')}")
         }
     }
 }

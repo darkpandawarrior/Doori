@@ -170,6 +170,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: ./gradlew testAndroidHostTest
 
+      # Room's MigrationTestHelper cannot run on androidHostTest.
+      # The 48→49 migration tests live in :core:data:desktopTest, so the host step misses them.
+      - name: Room migration tests (desktop)
+        if: ${{ !cancelled() }}
+        run: ./gradlew :core:data:desktopTest
+
       # Coverage measured + verified on the noGms variant (JVM-safe). The floor
       # (minBound 30% line) fails the build on regression, see app/build.gradle.kts.
       - name: Coverage report + floor

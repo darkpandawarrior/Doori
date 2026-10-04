@@ -16,6 +16,21 @@ class TrackingPipelineAccuracyTest {
         mock: Boolean = false,
     ) = GpsFix(lat = lat, lng = lng, timeMs = t, speedMps = speed, accuracyM = accuracy, isMock = mock)
 
+    @Test
+    fun `stationary fixes bypass Kalman escalation`() {
+        val raw = LocationProcessor(enableKalman = false)
+        val smoothed = LocationProcessor(enableKalman = true)
+        val first = fix(t = 1_000L)
+        val second = fix(lat = 18.5020, t = 11_000L)
+        raw.process(first, isPaused = false, motionStill = true)
+        smoothed.process(first, isPaused = false, motionStill = true)
+        val expected = raw.process(second, isPaused = false, motionStill = true)
+        val actual = smoothed.process(second, isPaused = false, motionStill = true)
+        assertNotNull(expected)
+        assertNotNull(actual)
+        kotlin.test.assertEquals(expected.location, actual.location)
+    }
+
     // ── Coordinate hard gate ──────────────────────────────────────────────────
 
     @Test

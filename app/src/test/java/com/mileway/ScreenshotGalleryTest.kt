@@ -17,6 +17,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -28,6 +30,8 @@ import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
+import com.mileway.core.data.claim.ReportPayoutProcessor
+import com.mileway.core.data.claim.ReportRepository
 import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.DelegationDao
@@ -46,6 +50,9 @@ import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TripAttachmentDao
 import com.mileway.core.data.dao.VehicleDetailsDao
 import com.mileway.core.data.dao.VoucherDao
+import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.Report
+import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
 import com.mileway.core.data.model.db.SavedTrack
@@ -58,7 +65,10 @@ import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.core.data.session.CurrentTrackDataStore
 import com.mileway.core.data.session.MockAccountSessionCoordinator
 import com.mileway.core.data.session.PinHashSource
+import com.mileway.core.data.session.SessionKind
 import com.mileway.core.data.session.SessionRepository
+import com.mileway.core.data.session.SessionSource
+import com.mileway.core.data.session.SessionState
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
@@ -90,6 +100,7 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.support.BugReportSheet
 import com.mileway.core.ui.theme.MilewayTheme
+import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.di.agentModule
 import com.mileway.feature.agent.engine.AssistantEngine
@@ -108,7 +119,9 @@ import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
 import com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen
 import com.mileway.feature.approvals.ui.screens.ApprovalsScreen
+import com.mileway.feature.approvals.ui.screens.ReportApprovalScreen
 import com.mileway.feature.approvals.ui.sheets.ClaimantHistorySheet
+import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.cards.di.cardsModule
 import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
@@ -117,6 +130,11 @@ import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.events.ui.screens.CreateEventScreen
 import com.mileway.feature.events.ui.screens.EventsHistoryScreen
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.logging.report.ReportGroupingScreen
+import com.mileway.feature.logging.report.ReportGroupingViewModel
+import com.mileway.feature.logging.report.ReportSubmitScreen
+import com.mileway.feature.logging.report.ReportSubmitViewModel
+import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.ui.screens.CardsTxnHistoryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
 import com.mileway.feature.logging.ui.screens.ExpenseHistoryScreen
@@ -290,6 +308,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
+import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
@@ -421,6 +440,11 @@ class ScreenshotGalleryTest {
         private val fakeRoomLayer =
             module {
                 single<SavedTrackDao> { seededDao }
+                single<com.mileway.core.data.claim.ReportRepository> {
+                    mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+                }
+                single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
+                single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }
                 single<LocationDao> { mockk(relaxed = true) }
                 single<HardwareEventDao> { mockk(relaxed = true) }
                 // P5.1: LogMilesViewModel.init now collectLatest's getAllDrafts(); a relaxed mockk
@@ -908,6 +932,7 @@ class ScreenshotGalleryTest {
                     payablesModule,
                     travelModule,
                     cardsModule,
+                    advancesModule,
                     agentModule,
                     paymentsModule,
                     eventsModule,
@@ -956,6 +981,139 @@ class ScreenshotGalleryTest {
             Konnection.createInstance(ApplicationProvider.getApplicationContext())
             konnectionInitialized = true
         }
+    }
+
+    // ── Phase-1 reports ────────────────────────────────────────────────────────
+
+    @Test
+    fun phase1ReportGroupingFilled() {
+        val application = phase1ReportApplication()
+        val viewModel = application.koin.get<ReportGroupingViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme {
+                    ReportGroupingScreen(viewModel = viewModel, onBack = {}, onOpenReport = {})
+                }
+            }
+            composeRule.onNodeWithText("Ola Cabs: Airport").assertIsDisplayed()
+            composeRule.runOnIdle {
+                viewModel.toggle("EXP-002")
+                viewModel.toggle("EXP-004")
+            }
+            capture("report_grouping_screen_filled")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase1ReportGroupingEmpty() {
+        val expenses = mockk<ExpenseRepository> { every { recordsFlow } returns MutableStateFlow(emptyList()) }
+        val application = phase1ReportApplication(expenses = expenses)
+        val viewModel = application.koin.get<ReportGroupingViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme {
+                    ReportGroupingScreen(viewModel = viewModel, onBack = {}, onOpenReport = {})
+                }
+            }
+            composeRule.onNodeWithText("Nothing here yet").assertIsDisplayed()
+            composeRule.onNodeWithText("Group and review").assertIsNotEnabled()
+            capture("report_grouping_screen_empty")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase1ReportSubmitFilled() {
+        val draft = phase1ExpenseReport()
+        // Keep the seeded merchants; raise the flight above the real demo policy's hard limit.
+        val report =
+            draft.copy(
+                lines = draft.lines.map { if (it.id == "EXP-008") (it as ExpenseLine).copy(amountMinor = 2_600_000) else it },
+            )
+        val application = phase1ReportApplication(report = report)
+        val viewModel = application.koin.get<ReportSubmitViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme {
+                    ReportSubmitScreen(report.id, viewModel = viewModel, onBack = {}, onEdit = {})
+                }
+            }
+            composeRule.onNodeWithText("Blocked: Amount 2600000 exceeds policy max 2500000").assertIsDisplayed()
+            composeRule.onNodeWithText("Warning: Amount 185000 exceeds 100000; attach a receipt").assertIsDisplayed()
+            composeRule.onNodeWithText("Submit report").assertIsNotEnabled()
+            capture("report_submit_screen_filled")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase1ReportApprovalFilled() {
+        val draft = phase1ExpenseReport()
+        val report =
+            draft.copy(
+                state = ReportLifecycleState.SUBMITTED,
+                lines = draft.lines.map { (it as ExpenseLine).copy(policyFlags = listOf("RECEIPT_RECOMMENDED")) },
+            )
+        val application = phase1ReportApplication(report = report)
+        val viewModel = application.koin.get<ReportApprovalViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme {
+                    ReportApprovalScreen(report.id, onBack = {}, viewModel = viewModel)
+                }
+            }
+            composeRule.onNodeWithText("Status: SUBMITTED").assertIsDisplayed()
+            composeRule.onNodeWithText("Approval comment (required)").performTextInput("Reviewed the trip expenses; please retain the receipts.")
+            composeRule.onNodeWithText("I reviewed the policy flags").assertIsDisplayed()
+            composeRule.onNodeWithText("Approve and simulate payout").assertIsNotEnabled()
+            capture("report_approval_screen_filled")
+        } finally {
+            application.close()
+        }
+    }
+
+    private fun phase1ExpenseReport(): Report {
+        val lines =
+            ExpenseRepository().getAll().filter { it.id in setOf("EXP-001", "EXP-008") }.map { expense ->
+                ExpenseLine(expense.id, (expense.amountRupees * 100).toLong(), "INR", merchant = expense.merchantName, category = expense.category.name)
+            }
+        return Report("report-demo", "employee", lines)
+    }
+
+    // Isolated feature graph: the real state holders and adapters consume deterministic boundary
+    // Flows, without changing the shared gallery fixtures or constructing a Room database.
+    private fun phase1ReportApplication(
+        expenses: ExpenseRepository = ExpenseRepository(FakeDraftExpenseDao()),
+        report: Report? = null,
+    ) = koinApplication {
+        modules(
+            loggingModule,
+            approvalsModule,
+            paymentsModule,
+            module {
+                single { expenses }
+                single<ReportRepository> {
+                    mockk {
+                        every { observe(any()) } answers { MutableStateFlow(report?.takeIf { it.id == firstArg<String>() }) }
+                        every { observeAll() } returns MutableStateFlow(listOfNotNull(report))
+                        every { observeByEmployee(any()) } answers {
+                            MutableStateFlow(listOfNotNull(report).filter { it.employeeId == firstArg<String>() })
+                        }
+                    }
+                }
+                single<SessionSource> {
+                    object : SessionSource {
+                        override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = "employee"))
+                    }
+                }
+                single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
+                single<ReportPayoutProcessor> { mockk(relaxed = true) }
+            },
+        )
     }
 
     // ── Tracking ───────────────────────────────────────────────────────────────

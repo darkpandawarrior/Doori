@@ -42,7 +42,10 @@ class NewModulesWiringTest : KoinTest {
         startKoin {
             androidContext(mockk<Context>(relaxed = true))
             modules(
-                module { single<MockAccountDao> { FakeMockAccountDao() } },
+                module {
+                    single<MockAccountDao> { FakeMockAccountDao() }
+                    single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
+                },
                 coreUiModule,
                 mediaModule,
                 androidMediaModule,

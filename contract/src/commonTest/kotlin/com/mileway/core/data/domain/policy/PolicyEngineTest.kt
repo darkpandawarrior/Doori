@@ -1,0 +1,126 @@
+package com.mileway.core.data.domain.policy
+
+import com.mileway.core.data.domain.claim.AdvanceLine
+import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.MileageLine
+import com.mileway.core.data.domain.claim.PerDiemLine
+import com.mileway.core.data.ledger.PolicyRateTable
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+private const val DAY_MILLIS = 86_400_000L
+
+class PolicyEngineTest {
+    private val v1 =
+        PolicyVersion(
+            effectiveFrom = 0L,
+            rateTable = PolicyRateTable(rates = mapOf("car" to 10.0)),
+            maxExpenseAmountMinor = 100_00L,
+            receiptRequiredAboveMinor = 50_00L,
+        )
+    private val v2 =
+        PolicyVersion(
+            effectiveFrom = 100 * DAY_MILLIS,
+            rateTable = PolicyRateTable(rates = mapOf("car" to 20.0), maxReimbursement = 500.0),
+            maxExpenseAmountMinor = 200_00L,
+            receiptRequiredAboveMinor = 80_00L,
+        )
+    private val engine = PolicyEngine(listOf(v1, v2))
+
+    @Test
+    fun `versionFor resolves the version effective at a given date, not the latest`() {
+        assertEquals(v1, engine.versionFor(50 * DAY_MILLIS))
+        assertEquals(v2, engine.versionFor(150 * DAY_MILLIS))
+        assertEquals(v2, engine.versionFor(100 * DAY_MILLIS))
+    }
+
+    @Test
+    fun `expense over the dated max is a hard block against v1, not v2`() {
+        val line = ExpenseLine(id = "e1", amountMinor = 150_00L, currency = "INR", merchant = "m", category = "c")
+
+        val underV1 = engine.evaluate(listOf(line), submittedAtMillis = 50 * DAY_MILLIS)["e1"].orEmpty()
+        val underV2 = engine.evaluate(listOf(line), submittedAtMillis = 150 * DAY_MILLIS)["e1"].orEmpty()
+
+        assertTrue(underV1.any { it.code == "EXPENSE_OVER_MAX" && it.severity == PolicySeverity.HARD_BLOCK })
+        assertTrue(underV2.none { it.code == "EXPENSE_OVER_MAX" })
+    }
+
+    @Test
+    fun `expense above the receipt threshold but under the max is a soft warn only`() {
+        val line = ExpenseLine(id = "e2", amountMinor = 60_00L, currency = "INR", merchant = "m", category = "c")
+
+        val violations = engine.evaluate(listOf(line), submittedAtMillis = 50 * DAY_MILLIS)["e2"].orEmpty()
+
+        assertEquals(1, violations.size)
+        assertEquals(PolicySeverity.SOFT_WARN, violations.single().severity)
+        assertEquals("RECEIPT_RECOMMENDED", violations.single().code)
+    }
+
+    @Test
+    fun `mileage claimed above the dated policy rate is a hard block`() {
+        val line = MileageLine(id = "m1", amountMinor = 500_00L, currency = "INR", distanceKm = 10.0, vehicleKey = "car")
+
+        // v1 rate 10.0/km * 10km = 100.0 -> 100 minor units payable; claimed 500 minor is over.
+        val violations = engine.evaluate(listOf(line), submittedAtMillis = 50 * DAY_MILLIS)["m1"].orEmpty()
+
+        assertTrue(violations.any { it.code == "MILEAGE_OVER_POLICY_RATE" && it.severity == PolicySeverity.HARD_BLOCK })
+    }
+
+    @Test
+    fun `mileage capped by the dated table's max reimbursement is a soft warn`() {
+        val line = MileageLine(id = "m2", amountMinor = 500L, currency = "INR", distanceKm = 50.0, vehicleKey = "car")
+
+        // v2 rate 20.0/km * 50km = 1000 gross, capped to 500 by v2's maxReimbursement.
+        val violations = engine.evaluate(listOf(line), submittedAtMillis = 150 * DAY_MILLIS)["m2"].orEmpty()
+
+        assertTrue(violations.any { it.code == "MILEAGE_RATE_CAPPED" && it.severity == PolicySeverity.SOFT_WARN })
+    }
+
+    @Test
+    fun `mileage within the policy rate raises no violation`() {
+        val line = MileageLine(id = "m3", amountMinor = 50L, currency = "INR", distanceKm = 10.0, vehicleKey = "car")
+
+        val violations = engine.evaluate(listOf(line), submittedAtMillis = 50 * DAY_MILLIS)["m3"].orEmpty()
+
+        assertEquals(emptyList(), violations)
+    }
+
+    @Test
+    fun `every ClaimLine subtype is evaluated without throwing`() {
+        val lines =
+            listOf(
+                ExpenseLine(id = "e", amountMinor = 10L, currency = "INR", merchant = "m", category = "c"),
+                MileageLine(id = "mi", amountMinor = 10L, currency = "INR", distanceKm = 1.0, vehicleKey = "car"),
+                PerDiemLine(id = "pd", amountMinor = 10L, currency = "INR", days = 1, dailyRateMinor = 10L),
+                AdvanceLine(id = "ad", amountMinor = 10L, currency = "INR", advanceId = "adv1"),
+            )
+
+        val result = engine.evaluate(lines, submittedAtMillis = 50 * DAY_MILLIS)
+
+        assertEquals(setOf("e", "mi", "pd", "ad"), result.keys)
+    }
+}
+
+class PerDiemRateTableTest {
+    private val table =
+        PerDiemRateTable(
+            rates =
+                listOf(
+                    PerDiemRate(effectiveFrom = 0L, dailyRateMinor = 100_00L),
+                    PerDiemRate(effectiveFrom = 100 * DAY_MILLIS, dailyRateMinor = 150_00L),
+                ),
+        )
+
+    @Test
+    fun `rateFor resolves the rate effective at a given date, not the latest`() {
+        assertEquals(100_00L, table.rateFor(50 * DAY_MILLIS))
+        assertEquals(150_00L, table.rateFor(150 * DAY_MILLIS))
+        assertEquals(150_00L, table.rateFor(100 * DAY_MILLIS))
+    }
+
+    @Test
+    fun `rateFor before the earliest version falls back to the earliest known rate`() {
+        assertEquals(100_00L, table.rateFor(-DAY_MILLIS))
+    }
+}

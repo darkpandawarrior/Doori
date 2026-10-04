@@ -102,6 +102,9 @@ fun OdometerCaptureSheet(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (!ocrService.isAvailable) {
+            Text("OCR is not available in this build. Enter the reading manually.")
+        }
         OutlinedTextField(
             value = reading,
             onValueChange = { text ->

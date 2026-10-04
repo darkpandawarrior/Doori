@@ -51,6 +51,12 @@ sourceSets {
     main {
         resources.srcDir(generateVersionResource)
     }
+    // L1a: reads :contract's committed golden fixtures directly off disk (not a copy), so
+    // GoldenFixtureTest and :contract's GoldenFixtureRoundTripTest are provably reading the same
+    // bytes — a wire-drift guard from day one.
+    test {
+        resources.srcDir(rootProject.file("contract/src/commonTest/resources"))
+    }
 }
 
 dependencies {

@@ -5,6 +5,8 @@ import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
 import com.mileway.core.platform.NotificationChannels
+import com.mileway.feature.tracking.claim.AutoDraftOnTripCompleteUseCase
+import com.mileway.feature.tracking.claim.MileageClaimPolicyProvider
 import com.mileway.feature.tracking.debug.DebugMenuComposeViewModel
 import com.mileway.feature.tracking.debug.NetworkLogViewModel
 import com.mileway.feature.tracking.insights.RouteAnalyzer
@@ -82,6 +84,8 @@ val trackingModule =
         single { VehiclePricingCacheStore(androidContext()) }
         single<VehiclePricingCache> { get<VehiclePricingCacheStore>() }
         single { VehiclePricingRepository(api = get(), cache = get(), isOnline = NetworkMonitor::isConnectedNow) }
+        single { MileageClaimPolicyProvider(get()) }
+        single { AutoDraftOnTripCompleteUseCase(get(), get(), get()) }
         single { LogMilesSubmissionRepository(get()) }
         single { CurrentTrackRepository(get()) }
         single { HardwareEventRepository(get()) }
@@ -140,6 +144,7 @@ val trackingModule =
                 syncer = get(),
                 milesSyncer = get(),
                 eventSyncer = get(),
+                mileageAutoDraft = get(),
                 currentTrackRepo = get(),
                 isConnectedFlow = NetworkMonitor.isConnectedFlow,
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
@@ -223,6 +228,8 @@ val trackingModule =
                 // PLAN_V33 C6: bound by platformModule; getOrNull() keeps graphs that omit it (e.g. the
                 // screenshot harness) on the VM's own unknown-battery default (never blocks a start).
                 batteryStatusReader = getOrNull() ?: com.mileway.feature.tracking.viewmodel.UnknownBatteryStatusReader,
+                driveStartSource = getOrNull(),
+                permissionsProvider = getOrNull() ?: com.mileway.feature.tracking.viewmodel.AlwaysGrantedPermissionsProvider,
             )
         }
         viewModelOf(::MileageSubmissionViewModel)
@@ -248,6 +255,7 @@ val trackingModule =
                 args = params.get(),
                 vehiclePricingRepository = get(),
                 voucherRepository = get(),
+                policyProvider = get(),
             )
         }
 

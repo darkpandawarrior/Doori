@@ -533,6 +533,7 @@ internal object TrackMilesViewModelTestHarness {
         activeAccountSource: com.mileway.core.data.session.ActiveAccountSource = FakeActiveAccountSource(),
         mockAccounts: List<MockAccountEntity> = emptyList(),
         permissionsProvider: com.siddharth.kmp.appshell.PermissionsProvider = AlwaysGrantedPermissionsProvider,
+        driveStartSource: com.mileway.feature.tracking.detection.DriveStartSource? = null,
     ): TrackMilesViewModel =
         TrackMilesViewModel(
             configManager = TrackingConfigManager(FakeConfigProvider),
@@ -546,6 +547,7 @@ internal object TrackMilesViewModelTestHarness {
             activeAccountSource = activeAccountSource,
             mockAccountDao = FakeMockAccountDao(mockAccounts),
             permissionsProvider = permissionsProvider,
+            driveStartSource = driveStartSource,
         )
 }
 

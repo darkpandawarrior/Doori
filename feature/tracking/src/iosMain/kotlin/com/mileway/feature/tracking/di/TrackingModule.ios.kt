@@ -4,9 +4,14 @@ import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
+import com.mileway.feature.tracking.claim.AutoDraftOnTripCompleteUseCase
+import com.mileway.feature.tracking.claim.MileageClaimPolicyProvider
 import com.mileway.feature.tracking.debug.NetworkLogViewModel
+import com.mileway.feature.tracking.detection.DetectedDriveRecorder
+import com.mileway.feature.tracking.detection.DriveStartSource
 import com.mileway.feature.tracking.insights.RouteAnalyzer
 import com.mileway.feature.tracking.manager.IosTrackingController
+import com.mileway.feature.tracking.manager.SignificantLocationSource
 import com.mileway.feature.tracking.manager.TrackingConfigManager
 import com.mileway.feature.tracking.manager.TrackingController
 import com.mileway.feature.tracking.repository.CurrentTrackRepository
@@ -69,6 +74,9 @@ val trackingModule =
                 abnormalDetectionOverrides = get<com.mileway.core.data.settings.AbnormalDetectionSettingsSource>().overrides,
             )
         }
+        single { DetectedDriveRecorder(get(), get()) }
+        single(createdAtStart = true) { SignificantLocationSource(get()) }
+        single<DriveStartSource> { get<SignificantLocationSource>() }
         single { TrackingStatePublisher() }
         single<TrackingServiceApi> { get<TrackingStatePublisher>() }
         single<TrackingController> {
@@ -98,6 +106,8 @@ val trackingModule =
         single { VehiclePricingCacheStore() }
         single<VehiclePricingCache> { get<VehiclePricingCacheStore>() }
         single { VehiclePricingRepository(api = get(), cache = get(), isOnline = NetworkMonitor::isConnectedNow) }
+        single { MileageClaimPolicyProvider(get()) }
+        single { AutoDraftOnTripCompleteUseCase(get(), get(), get()) }
         single { LogMilesSubmissionRepository(get()) }
         single { CurrentTrackRepository(get()) }
         single { HardwareEventRepository(get()) }
@@ -157,6 +167,7 @@ val trackingModule =
                 syncer = get(),
                 milesSyncer = get(),
                 eventSyncer = get(),
+                mileageAutoDraft = get(),
                 currentTrackRepo = get(),
                 isConnectedFlow = NetworkMonitor.isConnectedFlow,
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
@@ -212,6 +223,8 @@ val trackingModule =
                 // PLAN_V33 C6: bound by platformModule; getOrNull() keeps graphs that omit it on the
                 // VM's own unknown-battery default (never blocks a start).
                 batteryStatusReader = getOrNull() ?: com.mileway.feature.tracking.viewmodel.UnknownBatteryStatusReader,
+                driveStartSource = getOrNull(),
+                permissionsProvider = getOrNull() ?: com.mileway.feature.tracking.viewmodel.AlwaysGrantedPermissionsProvider,
             )
         }
         viewModelOf(::MileageSubmissionViewModel)
@@ -232,6 +245,7 @@ val trackingModule =
                 args = params.get(),
                 vehiclePricingRepository = get(),
                 voucherRepository = get(),
+                policyProvider = get(),
             )
         }
     }

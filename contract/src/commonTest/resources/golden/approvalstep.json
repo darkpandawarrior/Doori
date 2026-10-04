@@ -1,0 +1,19 @@
+[
+  {
+    "stepIndex": 0,
+    "role": "manager",
+    "actedBy": "emp-mgr-1",
+    "action": "approve",
+    "comment": "Looks good",
+    "actedAtMillis": 1700000100000
+  },
+  {
+    "stepIndex": 1,
+    "role": "finance",
+    "thresholdMinor": 1000000,
+    "actedBy": "emp-fin-2",
+    "onBehalfOf": "emp-fin-1",
+    "action": "approve",
+    "actedAtMillis": 1700000200000
+  }
+]

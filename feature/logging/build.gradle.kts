@@ -9,7 +9,7 @@ kotlin {
         compileSdk = 37
         minSdk = 30
         // Enable JVM host execution of commonTest so catalog/validator tests run in the gradle gate.
-        withHostTest {}
+        withHostTest { isIncludeAndroidResources = true }
     }
 
     sourceSets {
@@ -37,6 +37,13 @@ kotlin {
             implementation(project(":stub"))
             // P1.4: renders an optional local receipt photo on the entry form + detail screen.
             implementation(libs.coil3.compose)
+        }
+        getByName("androidHostTest").dependencies {
+            implementation(project.dependencies.platform(libs.compose.bom))
+            implementation(libs.robolectric)
+            implementation(libs.androidx.test.core)
+            implementation(libs.compose.ui.test.junit4)
+            implementation(libs.compose.ui.test.manifest)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

@@ -1,0 +1,4 @@
+<resources>
+    <!-- The tracking dependency names the app theme; this host test has no app module. -->
+    <style name="Theme.Mileway" parent="android:style/Theme.Material.Light.NoActionBar" />
+</resources>

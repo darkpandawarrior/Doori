@@ -37,10 +37,10 @@ import com.mileway.feature.tracking.repository.HardwareEventRepository
 import com.mileway.feature.tracking.repository.LocationRepository
 import com.mileway.feature.tracking.repository.SavedTrackRepository
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
-import com.mileway.feature.tracking.service.location.FusedLocationSource
 import com.mileway.feature.tracking.service.location.GpsFix
 import com.mileway.feature.tracking.service.location.LocationProcessor
 import com.mileway.feature.tracking.service.location.LocationSource
+import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.mileway.feature.tracking.service.location.RecognizedActivity
 import com.mileway.feature.tracking.service.location.SimulatedLocationSource
 import com.mileway.feature.tracking.service.location.TrackStats
@@ -175,6 +175,11 @@ class LocationTrackingService : Service() {
     // GmsActivityRecognizer/Play Services directly.
     private val activityRecognizer: ActivityRecognizer by inject()
 
+    // L13: Koin-bound (gms -> GmsFusedLocationSource, noGms -> PlainLocationTracker, both in
+    // :app's flavor source sets) instead of constructed inline — this class no longer imports
+    // GmsFusedLocationSource/Play Services directly.
+    private val realLocationSourceFactory: RealLocationSourceFactory by inject()
+
     @Volatile
     private var recognizedActivity: RecognizedActivity = RecognizedActivity.UNKNOWN
 
@@ -278,6 +283,14 @@ class LocationTrackingService : Service() {
         flags: Int,
         startId: Int,
     ): Int {
+        val action = intent?.action
+        val isNewRecording = action == ACTION_START && !intent?.getStringExtra(EXTRA_TOKEN).isNullOrEmpty()
+        val isRestore = action == ACTION_RESTORE || intent == null
+        val isActiveCommand = activeToken != null && action in setOf(ACTION_PAUSE, ACTION_RESUME, ACTION_STOP, ACTION_FIX_GPS)
+        if (!isNewRecording && !isRestore && !isActiveCommand) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         // A startForegroundService() launch that doesn't reach startForeground() within the
         // ANR window kills the whole process (ForegroundServiceDidNotStartInTimeException),
         // so promote to foreground before ANY other work, especially before the suspendable
@@ -427,8 +440,14 @@ class LocationTrackingService : Service() {
         }
 
         firstFixSeen = false
-        // P10.1: forceGpsOnly (Track Miles setting) selects the raw-GPS provider inside FusedLocationSource.
-        source = if (SIMULATE_LOCATION) SimulatedLocationSource() else FusedLocationSource(this, forceGpsOnly = forceGpsOnly)
+        // P10.1: forceGpsOnly (Track Miles setting) selects the raw-GPS provider inside the gms
+        // flavor's real source; the noGms flavor's PlainLocationTracker ignores it (already GPS-only).
+        source =
+            if (SIMULATE_LOCATION) {
+                SimulatedLocationSource()
+            } else {
+                realLocationSourceFactory.create(forceGpsOnly = forceGpsOnly, initialIntervalMs = 4_000L)
+            }
         source?.start { fix -> onFix(token, fix) }
         // A.2: arm the no-fix watchdog for the real-GPS path only.
         if (!SIMULATE_LOCATION) armFirstFixWatchdog(token)
@@ -558,13 +577,13 @@ class LocationTrackingService : Service() {
         val interval =
             DynamicIntervalCalculator.intervalMs(
                 IntervalInputs(
-                    speedMps = fix.speedMps.toDouble(),
+                    speedMps = if (motionStill) 0.0 else fix.speedMps.toDouble(),
                     batteryPct = battery.toInt(),
                     isCharging = isCharging(),
                     isPowerSaver = isPowerSaver(),
                     elapsedMs = durationMs,
                     tierMultiplier = tierIntervalMultiplier,
-                    harshAccel = imuAnalysis.harshAccel,
+                    harshAccel = !motionStill && imuAnalysis.harshAccel,
                     // P10.1: user-set minimum-interval floor (Track Miles setting); 0 = no floor.
                     userFloorMs = intervalFloorMs,
                 ),
