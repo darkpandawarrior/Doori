@@ -44,6 +44,12 @@ data class ExpenseLine(
     @SerialName("itemized") val itemized: List<ItemizedLine> = emptyList(),
     /** ISO capture date. Older claims without a date cannot be automatically card matched. */
     @SerialName("incurredOn") val incurredOn: String? = null,
+    /** Receipt evidence copied from capture so report review survives an app restart. */
+    @SerialName("receiptImagePath") val receiptImagePath: String? = null,
+    @SerialName("affidavitAccepted") val affidavitAccepted: Boolean = false,
+    @SerialName("affidavitNote") val affidavitNote: String = "",
+    @SerialName("justificationReason") val justificationReason: JustificationReason? = null,
+    @SerialName("justificationNote") val justificationNote: String = "",
 ) : ClaimLine
 
 @Serializable
@@ -124,3 +130,21 @@ data class ItemizedLine(
     @SerialName("description") val description: String,
     @SerialName("amountMinor") val amountMinor: Long,
 )
+
+/** Stable expense-exception codes. A reason records context and never overrides hard policy. */
+@Serializable
+enum class JustificationReason(
+    val wireName: String,
+) {
+    @SerialName("business_necessity")
+    BUSINESS_NECESSITY("business_necessity"),
+
+    @SerialName("client_request")
+    CLIENT_REQUEST("client_request"),
+
+    @SerialName("no_alternative")
+    NO_ALTERNATIVE("no_alternative"),
+
+    @SerialName("other")
+    OTHER("other"),
+}

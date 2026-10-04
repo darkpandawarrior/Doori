@@ -241,6 +241,7 @@ internal fun ExpenseRecord.toClaimLine(): ExpenseLine {
         fxRatePinnedAt = fxRatePinnedAt,
         merchant = merchantName,
         category = category.name,
+        receiptImagePath = receiptImagePath,
         splits = splits,
         attendees = attendees,
         itemized = itemized,

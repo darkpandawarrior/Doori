@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mileway.core.data.claim.ReportRepository
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.JustificationReason
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleEvent
 import com.mileway.core.data.domain.claim.ReportLifecycleState
@@ -15,11 +16,17 @@ import com.mileway.core.data.domain.policy.PolicyVersion
 import com.mileway.core.data.domain.policy.PolicyViolation
 import com.mileway.core.data.ledger.PolicyRateTable
 import com.mileway.core.data.session.SessionSource
+import com.mileway.core.forms.hasCompleteAffidavit
+import com.mileway.core.forms.hasValidJustification
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.core.ui.mvi.errorState
 import com.mileway.feature.advances.reconcile.AdvanceReconciliation
 import com.mileway.feature.advances.reconcile.AdvanceReconciliationUseCase
+import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
+import com.mileway.feature.logging.justification.JustificationReasonSuggester
+import com.mileway.feature.logging.model.ExpenseCategory
+import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.stub.PolicyMockData
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -28,6 +35,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -85,6 +93,8 @@ class ReportSubmitViewModel(
     private val policy: PolicyEngine = expenseReportPolicy(),
     private val clock: Clock = Clock.System,
     private val reconciliation: AdvanceReconciliationUseCase? = null,
+    private val reasonSuggester: JustificationReasonSuggester? = null,
+    private val expenses: ExpenseRepository? = null,
 ) : ViewModel() {
     data class Review(
         val report: Report,
@@ -92,6 +102,8 @@ class ReportSubmitViewModel(
         val softFlags: List<PolicyViolation>,
         val warningsAccepted: Boolean = false,
         val reconciliation: AdvanceReconciliation? = null,
+        val requiredAffidavitIds: Set<String> = emptySet(),
+        val exceptionFlagCodes: Map<String, List<String>> = emptyMap(),
     ) {
         val canSubmit: Boolean
             get() = report.isEditable && hardFlags.isEmpty() && (softFlags.isEmpty() || warningsAccepted)
@@ -103,12 +115,15 @@ class ReportSubmitViewModel(
         val screen: ScreenState<Review> = ScreenState.Loading,
         val busy: Boolean = false,
         val error: String? = null,
+        val suggestions: Map<String, JustificationReason> = emptyMap(),
+        val pendingExceptionIds: Set<String> = emptySet(),
     )
 
     private val mutableState = MutableStateFlow(State())
     val state = mutableState.asStateFlow()
     private var observation: Job? = null
     private var openedId: String? = null
+    private val attemptedSuggestions = mutableSetOf<String>()
 
     fun open(id: String) {
         if (openedId == id && observation?.isActive == true) return
@@ -119,7 +134,7 @@ class ReportSubmitViewModel(
             viewModelScope.launch {
                 runCatching {
                     val employee = requireNotNull(session.sessionState.first().employeeCode) { "Sign in to review reports" }
-                    combine(reports.observe(id), reports.observeByEmployee(employee)) { report, _ -> report }.collect { report ->
+                    combine(reports.observe(id), reports.observeByEmployee(employee), expenses?.recordsFlow ?: flowOf(emptyList())) { report, _, _ -> report }.collect { report ->
                         require(report == null || report.employeeId == employee) { "This report belongs to another employee" }
                         val review = report?.let { review(it) }
                         mutableState.update { current ->
@@ -145,8 +160,60 @@ class ReportSubmitViewModel(
         mutableState.update { it.copy(screen = ScreenState.Content(review.copy(warningsAccepted = accepted)), error = null) }
     }
 
+    fun markExceptionChanged(lineId: String) {
+        mutableState.update { it.copy(pendingExceptionIds = it.pendingExceptionIds + lineId) }
+    }
+
+    /** Saves draft exception details through the report's existing versioned JSON persistence. */
+    fun saveExceptionDetails(
+        lineId: String,
+        accepted: Boolean,
+        affidavitNote: String,
+        reason: JustificationReason?,
+        justificationNote: String,
+    ) = perform { review ->
+        require(review.report.isEditable) { "EXCEPTIONS_EDITABLE_ONLY" }
+        val saved = reports.save(
+            review.report.copy(
+                lines = review.report.lines.map { line ->
+                    if (line is ExpenseLine && line.id == lineId) {
+                        line.copy(
+                            affidavitAccepted = accepted,
+                            affidavitNote = affidavitNote,
+                            justificationReason = reason,
+                            justificationNote = justificationNote,
+                        )
+                    } else {
+                        line
+                    }
+                },
+            ),
+        )
+        mutableState.update { it.copy(pendingExceptionIds = it.pendingExceptionIds - lineId) }
+        saved
+    }
+
+    /** One optional request per line per opened report; hints never modify the saved selection. */
+    fun suggestReasons() {
+        val review = state.value.screen.dataOrNull ?: return
+        val suggester = reasonSuggester ?: return
+        if (!review.report.isEditable) return
+        review.report.lines.filterIsInstance<ExpenseLine>().forEach { line ->
+            val codes = review.exceptionFlagCodes[line.id].orEmpty()
+            if ((codes.isEmpty() && line.id !in review.requiredAffidavitIds) || !attemptedSuggestions.add("${review.report.id}/${line.id}")) return@forEach
+            viewModelScope.launch {
+                val category = ExpenseCategory.entries.find { it.name == line.category } ?: ExpenseCategory.OTHER
+                val hint = suggester.suggest(category.name, line.amountMinor, codes) ?: return@launch
+                if (openedId == review.report.id) {
+                    mutableState.update { it.copy(suggestions = it.suggestions + (line.id to hint)) }
+                }
+            }
+        }
+    }
+
     fun submit() =
         perform { previous ->
+            require(state.value.pendingExceptionIds.isEmpty()) { "EXCEPTIONS_UNSAVED" }
             val atMillis = clock.now().toEpochMilliseconds()
             val fresh = review(previous.report, atMillis).copy(warningsAccepted = previous.warningsAccepted)
             mutableState.update { it.copy(screen = ScreenState.Content(fresh)) }
@@ -174,12 +241,28 @@ class ReportSubmitViewModel(
         report: Report,
         atMillis: Long = clock.now().toEpochMilliseconds(),
     ): Review {
-        val flags =
-            policy
-                .evaluate(report.lines, atMillis)
-                .values
-                .flatten()
-                .toMutableList()
+        val evaluated = policy.evaluate(report.lines, atMillis)
+        val flags = evaluated.values.flatten().toMutableList()
+        val requiredAffidavits = mutableSetOf<String>()
+        val exceptionCodes = mutableMapOf<String, List<String>>()
+        report.lines.filterIsInstance<ExpenseLine>().forEach { line ->
+            val codes = evaluated[line.id].orEmpty().map { it.code }
+            val receiptFlag = "RECEIPT_RECOMMENDED" in codes || "RECEIPT_RECOMMENDED" in line.policyFlags
+            val requiresReceipt = ExpenseCategoryCatalog.default().any { it.category.name == line.category && it.requiresReceipt }
+            // Older report JSON has no receipt snapshot; consult its original capture when present.
+            val captured = expenses?.recordsFlow?.value?.find { it.id == line.id }
+            val receipt = if (captured != null) captured.receiptImagePath else line.receiptImagePath
+            if ((requiresReceipt || receiptFlag) && receipt == null) {
+                requiredAffidavits += line.id
+                if (!line.hasCompleteAffidavit()) {
+                    flags += PolicyViolation("AFFIDAVIT_REQUIRED", PolicySeverity.HARD_BLOCK, line.merchant)
+                }
+            }
+            if (!line.hasValidJustification()) {
+                flags += PolicyViolation("JUSTIFICATION_REQUIRED", PolicySeverity.HARD_BLOCK, line.merchant)
+            }
+            exceptionCodes[line.id] = codes + if (receiptFlag && "RECEIPT_RECOMMENDED" !in codes) listOf("RECEIPT_RECOMMENDED") else emptyList()
+        }
         if (report.lines.isEmpty() ||
             report.lines.any { it.amountMinor <= 0 } ||
             report.lines
@@ -199,6 +282,8 @@ class ReportSubmitViewModel(
         }
         return Review(
             report = report,
+            requiredAffidavitIds = requiredAffidavits,
+            exceptionFlagCodes = exceptionCodes,
             hardFlags = flags.filter { it.severity == PolicySeverity.HARD_BLOCK },
             softFlags = flags.filter { it.severity == PolicySeverity.SOFT_WARN },
             reconciliation =
