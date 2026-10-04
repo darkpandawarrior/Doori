@@ -3,10 +3,12 @@ package com.mileway.core.data.claim
 import com.mileway.core.data.dao.ClaimLineDao
 import com.mileway.core.data.dao.ReportDao
 import com.mileway.core.data.dao.SavedTrackDao
+import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.model.db.ClaimLineEntity
 import com.mileway.core.data.model.db.ReportEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.TrackMetrics
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -14,6 +16,10 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertIs
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 
 /**
@@ -44,28 +50,36 @@ class LegacyMileageBackfillWorkerTest {
         pausedLongitude = 0.0,
         startTime = 0L,
         endTime = 0L,
-        distance = 10.0,
+        distance = 10_000.0,
+        submittedAmount = 120.0,
         duration = 0L,
         createdAt = 5L,
     )
 
     private fun worker(
         savedTrackDao: FakeSavedTrackDao,
-        reportDao: BackfillFakeReportDao,
         claimLineDao: BackfillFakeClaimLineDao,
         marker: InMemoryBackfillMarker = InMemoryBackfillMarker(),
-    ) = LegacyMileageBackfillWorker(savedTrackDao, reportDao, claimLineDao, marker, json)
+    ) = LegacyMileageBackfillWorker(savedTrackDao, claimLineDao, marker, json)
 
     @Test
     fun `wraps each completed trip into a shell report and mileage line`() =
         runTest {
             val savedTrackDao = FakeSavedTrackDao(listOf(track("t1"), track("t2")))
             val reportDao = BackfillFakeReportDao()
-            val claimLineDao = BackfillFakeClaimLineDao()
+            val claimLineDao = BackfillFakeClaimLineDao(reportDao)
 
-            worker(savedTrackDao, reportDao, claimLineDao).run()
+            worker(savedTrackDao, claimLineDao).run()
 
             assertEquals(2, reportDao.rows.value.size)
+            val line =
+                assertIs<MileageLine>(
+                    claimLineDao.rows.value
+                        .getValue("legacy_line_t1")
+                        .toDomain(json),
+                )
+            assertEquals(10.0, line.distanceKm)
+            assertEquals(12_000L, line.amountMinor)
             assertEquals(
                 setOf("t1", "t2"),
                 claimLineDao.rows.value.values
@@ -75,12 +89,58 @@ class LegacyMileageBackfillWorkerTest {
         }
 
     @Test
+    fun `one throwing row does not stop later imports and retry avoids duplicates`() =
+        runTest {
+            val savedTrackDao = FakeSavedTrackDao(listOf(track("bad"), track("t1"), track("t2")))
+            val reportDao = BackfillFakeReportDao()
+            val claimLineDao = BackfillFakeClaimLineDao(reportDao)
+            val marker = InMemoryBackfillMarker()
+            val backfill = worker(savedTrackDao, claimLineDao, marker)
+            claimLineDao.failOnSourceTripId = "bad"
+
+            val failedTrips = mutableListOf<String>()
+            assertEquals(1, backfill.run { tripId, _ -> failedTrips += tripId })
+            assertEquals(listOf("bad"), failedTrips)
+            assertFalse(marker.isDone())
+            assertEquals(setOf("legacy_line_t1", "legacy_line_t2"), claimLineDao.rows.value.keys)
+            assertEquals(setOf("legacy_t1", "legacy_t2"), reportDao.rows.value.keys)
+
+            claimLineDao.failOnSourceTripId = null
+            assertEquals(0, backfill.run())
+            assertTrue(marker.isDone())
+            assertEquals(3, reportDao.rows.value.size)
+            assertEquals(3, claimLineDao.rows.value.size)
+        }
+
+    @Test
+    fun `cancellation and fatal errors propagate before later rows`() =
+        runTest {
+            for (failure in listOf(CancellationException("cancelled"), AssertionError("fatal"))) {
+                val reportDao = BackfillFakeReportDao()
+                val claimLineDao = BackfillFakeClaimLineDao(reportDao)
+                val marker = InMemoryBackfillMarker()
+                claimLineDao.failOnSourceTripId = "bad"
+                claimLineDao.insertFailure = failure
+
+                assertSame(
+                    failure,
+                    assertFailsWith<Throwable> {
+                        worker(FakeSavedTrackDao(listOf(track("bad"), track("t1"))), claimLineDao, marker).run()
+                    },
+                )
+                assertFalse(marker.isDone())
+                assertTrue(claimLineDao.rows.value.isEmpty())
+                assertTrue(reportDao.rows.value.isEmpty())
+            }
+        }
+
+    @Test
     fun `discarded trips are not backfilled`() =
         runTest {
             val savedTrackDao = FakeSavedTrackDao(listOf(track("t1", isDiscarded = true)))
             val claimLineDao = BackfillFakeClaimLineDao()
 
-            worker(savedTrackDao, BackfillFakeReportDao(), claimLineDao).run()
+            worker(savedTrackDao, claimLineDao).run()
 
             assertTrue(claimLineDao.rows.value.isEmpty())
         }
@@ -92,11 +152,11 @@ class LegacyMileageBackfillWorkerTest {
             val claimLineDao = BackfillFakeClaimLineDao()
             val marker = InMemoryBackfillMarker()
 
-            worker(savedTrackDao, BackfillFakeReportDao(), claimLineDao, marker).run()
+            worker(savedTrackDao, claimLineDao, marker).run()
             assertEquals(1, claimLineDao.rows.value.size)
 
             savedTrackDao.rows.value = savedTrackDao.rows.value + track("t2")
-            worker(savedTrackDao, BackfillFakeReportDao(), claimLineDao, marker).run()
+            worker(savedTrackDao, claimLineDao, marker).run()
 
             // marker already set by the first run — t2 is never picked up by this second call.
             assertEquals(1, claimLineDao.rows.value.size)
@@ -106,7 +166,8 @@ class LegacyMileageBackfillWorkerTest {
     fun `a trip already claimed by sourceTripId is skipped even without the marker`() =
         runTest {
             val savedTrackDao = FakeSavedTrackDao(listOf(track("t1")))
-            val claimLineDao = BackfillFakeClaimLineDao()
+            val reportDao = BackfillFakeReportDao()
+            val claimLineDao = BackfillFakeClaimLineDao(reportDao)
             claimLineDao.rows.value =
                 mapOf(
                     "existing" to
@@ -128,9 +189,26 @@ class LegacyMileageBackfillWorkerTest {
             // Marker never set (isDone() = false), so run() attempts every completed track again —
             // this is the "L4 auto-draft already claimed it first" idempotency case, not the
             // marker-gated repeat-run case above.
-            worker(savedTrackDao, BackfillFakeReportDao(), claimLineDao).run()
+            worker(savedTrackDao, claimLineDao).run()
 
             assertEquals(1, claimLineDao.rows.value.size)
+            assertTrue(reportDao.rows.value.isEmpty())
+        }
+
+    @Test
+    fun `auto-draft claiming a trip just before reservation leaves no legacy report`() =
+        runTest {
+            val reportDao = BackfillFakeReportDao()
+            val claimLineDao = BackfillFakeClaimLineDao(reportDao)
+            val marker = InMemoryBackfillMarker()
+            val existing = ClaimLineEntity("auto_line", "auto_report", "mileage", 12_000L, "INR", null, "", null, "t1", "{}", 0L)
+            claimLineDao.competingLine = existing
+
+            worker(FakeSavedTrackDao(listOf(track("t1"))), claimLineDao, marker).run()
+
+            assertEquals(mapOf(existing.id to existing), claimLineDao.rows.value)
+            assertTrue(reportDao.rows.value.isEmpty())
+            assertTrue(marker.isDone())
         }
 }
 
@@ -327,8 +405,18 @@ private class BackfillFakeReportDao : ReportDao {
     }
 }
 
-private class BackfillFakeClaimLineDao : ClaimLineDao {
+private class BackfillFakeClaimLineDao(
+    private val reportDao: BackfillFakeReportDao = BackfillFakeReportDao(),
+) : ClaimLineDao {
     val rows = MutableStateFlow<Map<String, ClaimLineEntity>>(emptyMap())
+    var failOnSourceTripId: String? = null
+    var insertFailure: Throwable = IllegalStateException("storage unavailable")
+    var competingLine: ClaimLineEntity? = null
+
+    private fun insertCompetingLine() {
+        competingLine?.let { rows.value = rows.value + (it.id to it) }
+        competingLine = null
+    }
 
     override fun observeByReport(reportId: String): Flow<List<ClaimLineEntity>> = rows.map { it.values.filter { row -> row.reportId == reportId } }
 
@@ -337,6 +425,8 @@ private class BackfillFakeClaimLineDao : ClaimLineDao {
     override suspend fun getBySourceTripId(sourceTripId: String): ClaimLineEntity? = rows.value.values.firstOrNull { it.sourceTripId == sourceTripId }
 
     override suspend fun insert(entity: ClaimLineEntity) {
+        insertCompetingLine()
+        if (entity.sourceTripId == failOnSourceTripId) throw insertFailure
         check(entity.sourceTripId == null || rows.value.values.none { it.sourceTripId == entity.sourceTripId }) {
             "UNIQUE constraint failed: claim_lines.sourceTripId"
         }
@@ -344,12 +434,16 @@ private class BackfillFakeClaimLineDao : ClaimLineDao {
     }
 
     override suspend fun insertIfAbsent(entity: ClaimLineEntity): Long {
+        insertCompetingLine()
         if (rows.value.containsKey(entity.id) || (entity.sourceTripId != null && getBySourceTripId(entity.sourceTripId) != null)) return -1L
         insert(entity)
         return 1L
     }
 
-    override suspend fun insertDraftReport(entity: ReportEntity) = error("unused in this fake")
+    override suspend fun insertDraftReport(entity: ReportEntity) {
+        check(reportDao.get(entity.id) == null) { "report already exists" }
+        reportDao.upsert(entity)
+    }
 
     override suspend fun upsert(entity: ClaimLineEntity) {
         rows.value = rows.value + (entity.id to entity)

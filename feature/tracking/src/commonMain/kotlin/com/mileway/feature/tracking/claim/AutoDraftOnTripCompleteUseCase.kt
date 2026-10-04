@@ -37,6 +37,7 @@ class AutoDraftOnTripCompleteUseCase(
 
     /** Returns a new draft, or null if the row is ineligible or its trip was already imported. */
     suspend operator fun invoke(track: SavedTrack): Report? {
+        if (!track.isEligibleForMileageClaim()) return null
         if (reportRepository.hasSourceTrip(track.routeId)) return null
         val line = policyProvider.mapper().map(track) ?: return null
         val employeeId = track.startedByEmployeeCode.ifBlank { track.startedByAccountId.orEmpty() }

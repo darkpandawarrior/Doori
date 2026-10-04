@@ -12,7 +12,11 @@ import com.mileway.feature.tracking.service.LocationTrackingService
 class LocationTrackingController(
     private val context: Context,
 ) : TrackingController {
-    override fun start(token: String) = send(LocationTrackingService.ACTION_START, token, foreground = true)
+    override fun start(token: String) {
+        // A rejected START never promotes the service, so reject it before starting the FGS timer.
+        if (token.isBlank()) return
+        send(LocationTrackingService.ACTION_START, token, foreground = true)
+    }
 
     override fun pause(token: String) = send(LocationTrackingService.ACTION_PAUSE, token)
 

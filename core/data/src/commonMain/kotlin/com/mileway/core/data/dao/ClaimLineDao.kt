@@ -10,10 +10,8 @@ import com.mileway.core.data.model.db.ReportEntity
 import kotlinx.coroutines.flow.Flow
 
 /**
- * L2: the persisted [ClaimLineEntity] store. [getBySourceTripId] is the idempotency check
- * [LegacyMileageBackfillWorker] and L4's auto-draft both call before inserting — the UNIQUE index
- * on `sourceTripId` would reject a duplicate insert anyway, but checking first avoids relying on a
- * caught constraint-violation exception as control flow.
+ * The persisted [ClaimLineEntity] store. [insertMileageDraft] atomically reserves sourceTripId
+ * for legacy backfill and auto-draft imports; a UNIQUE-index collision writes no report.
  */
 @Dao
 interface ClaimLineDao {
