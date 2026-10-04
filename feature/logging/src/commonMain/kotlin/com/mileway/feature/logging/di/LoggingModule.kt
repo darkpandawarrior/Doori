@@ -1,6 +1,5 @@
 package com.mileway.feature.logging.di
 
-import com.mileway.core.data.database.MilewayDatabase
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
@@ -45,7 +44,7 @@ val loggingModule =
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }
         viewModel { ReportSubmitViewModel(get(), get()) }
-        viewModel { PerDiemEntryViewModel(get<MilewayDatabase>().perDiemRateDao(), get(), get()) }
+        viewModel { PerDiemEntryViewModel(get(), get(), get()) }
         // SP.1/SP.2/SP.3: voucher + settlement + cards-txn history (offline fakes + MVI VMs).
         single { VoucherHistoryRepository(get()) }
         single { SettlementHistoryRepository() }

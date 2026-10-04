@@ -20,7 +20,13 @@ fun formatMinorCurrency(
             else -> currency
         }
     // Divide before taking abs so Long.MIN_VALUE is also representable.
-    val whole = abs(amountMinor / MinorUnitsPerMajor).toString().reversed().chunked(CurrencyGroupDigits).joinToString(",").reversed()
+    val whole =
+        abs(amountMinor / MinorUnitsPerMajor)
+            .toString()
+            .reversed()
+            .chunked(CurrencyGroupDigits)
+            .joinToString(",")
+            .reversed()
     val fraction = abs(amountMinor % MinorUnitsPerMajor).toString().padStart(CurrencyFractionDigits, '0')
     val sign = if (amountMinor < 0) "-" else ""
     return "$symbol $sign$whole.$fraction"

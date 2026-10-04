@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.PerDiemLine
 import com.mileway.core.data.domain.claim.Report
@@ -68,11 +69,7 @@ private fun ReportSubmitContent(
                     TextButton(onClick = onEdit, enabled = !state.busy) { Text("Edit grouped items") }
                 }
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-                content.report.lines.forEach { line ->
-                    val label = (line as? ExpenseLine)?.merchant ?: (line as? PerDiemLine)?.incurredOn?.let { "Per diem · $it" } ?: "Claim item"
-                    Text("$label · ${formatMinorCurrency(line.amountMinor, line.currency)}")
-                    if (line is ExpenseLine) FxRateLabel(line)
-                }
+                ReportClaimItems(content.report.lines)
                 Text("Report policy", style = MaterialTheme.typography.titleMedium)
                 if (content.hardFlags.isEmpty() && content.softFlags.isEmpty()) Text("No policy flags")
                 content.hardFlags.forEach { flag -> Text("Blocked: ${flag.message}", color = MaterialTheme.colorScheme.error) }
@@ -88,6 +85,20 @@ private fun ReportSubmitContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ReportClaimItems(lines: List<ClaimLine>) {
+    lines.forEach { line ->
+        val label =
+            when (line) {
+                is ExpenseLine -> line.merchant
+                is PerDiemLine -> line.incurredOn?.let { "Per diem · $it" } ?: "Per diem"
+                else -> "Claim item"
+            }
+        Text("$label · ${formatMinorCurrency(line.amountMinor, line.currency)}")
+        if (line is ExpenseLine) FxRateLabel(line)
     }
 }
 
@@ -110,5 +121,4 @@ private fun ReportSubmitPreview() {
     )
 }
 
-internal fun reportTotalsLabel(report: Report): String =
-    "${report.lines.size} items · ${formatMinorCurrency(report.totalAmountMinor(), report.currency())}"
+internal fun reportTotalsLabel(report: Report): String = "${report.lines.size} items · ${formatMinorCurrency(report.totalAmountMinor(), report.currency())}"

@@ -22,10 +22,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -37,6 +33,10 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.serialization.json.Json
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PerDiemEntryFlowTest {
@@ -51,8 +51,11 @@ class PerDiemEntryFlowTest {
             override val sessionState = sessionRows
         }
 
-    private fun rate(id: String, date: String, amount: Long) =
-        PerDiemRateEntity(id, "Pune", "Standard", amount, "INR", LocalDate.parse(date).atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds())
+    private fun rate(
+        id: String,
+        date: String,
+        amount: Long,
+    ) = PerDiemRateEntity(id, "Pune", "Standard", amount, "INR", LocalDate.parse(date).atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds())
 
     private fun viewModel(store: com.mileway.feature.logging.report.ReportJourneyStore): PerDiemEntryViewModel {
         every { rateDao.observeAll() } returns rateRows
@@ -92,7 +95,11 @@ class PerDiemEntryFlowTest {
             advanceUntilIdle()
             val id = assertNotNull(entry.state.value.createdReportId)
             val loaded = assertNotNull(repository.get(id))
-            assertEquals(entry.state.value.preview.lines.map { it.copy(id = "$id:${it.incurredOn}") }, loaded.lines)
+            assertEquals(
+                entry.state.value.preview.lines
+                    .map { it.copy(id = "$id:${it.incurredOn}") },
+                loaded.lines,
+            )
             assertTrue(lineRows.value.all { it.type == "per_diem" })
             assertEquals(listOf(10000L, 10000L, 15000L), loaded.lines.map { it.amountMinor })
             assertEquals(listOf("2026-09-01", "2026-09-02", "2026-09-03"), loaded.lines.filterIsInstance<PerDiemLine>().map { it.incurredOn })

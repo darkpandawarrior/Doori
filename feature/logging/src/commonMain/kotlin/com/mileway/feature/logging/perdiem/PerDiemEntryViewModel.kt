@@ -10,8 +10,6 @@ import com.mileway.core.data.model.db.PerDiemRateEntity
 import com.mileway.core.data.session.SessionSource
 import com.mileway.feature.logging.report.ReportJourneyStore
 import com.mileway.feature.logging.report.rethrowCancellation
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +18,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 /** Captures per-diem days from persisted rate cards into the existing report write path. */
 class PerDiemEntryViewModel(
@@ -86,20 +86,28 @@ class PerDiemEntryViewModel(
         refreshPreview()
     }
 
-    fun dates(start: String, end: String) {
+    fun dates(
+        start: String,
+        end: String,
+    ) {
         if (state.value.busy) return
         mutableState.update { it.copy(start = start, end = end, error = null) }
         refreshPreview()
     }
 
-    private fun generate(current: State, rates: List<PerDiemRateEntity>, batchId: String): BatchDayRangeGenerator.Result {
+    private fun generate(
+        current: State,
+        rates: List<PerDiemRateEntity>,
+        batchId: String,
+    ): BatchDayRangeGenerator.Result {
         val card = current.selected ?: return BatchDayRangeGenerator.Result(error = "No per-diem rate cards available")
         val start = runCatching { LocalDate.parse(current.start) }.getOrNull()
         val end = runCatching { LocalDate.parse(current.end) }.getOrNull()
         if (start == null || end == null) return BatchDayRangeGenerator.Result(error = "Enter dates as YYYY-MM-DD")
         val table =
             PerDiemRateTable(
-                rates.filter { it.region == card.region && it.grade == card.grade && it.currency == card.currency }
+                rates
+                    .filter { it.region == card.region && it.grade == card.grade && it.currency == card.currency }
                     .map { PerDiemRate(it.effectiveFromMs, it.dailyRateMinor) },
             )
         return BatchDayRangeGenerator.generate(start, end, table, card.currency, timeZone, batchId)
@@ -123,8 +131,9 @@ class PerDiemEntryViewModel(
                     val generated = generate(current, rateDao.observeAll().first(), id)
                     require(generated.error == null) { generated.error.orEmpty() }
                     require(generated.lines.isNotEmpty()) { "No eligible days in this range" }
-                    require(generated.lines == current.preview.lines.map { it.copy(id = "$id:${it.incurredOn}") } &&
-                        generated.skipped == current.preview.skipped
+                    require(
+                        generated.lines == current.preview.lines.map { it.copy(id = "$id:${it.incurredOn}") } &&
+                            generated.skipped == current.preview.skipped,
                     ) { "Rates changed; review the updated preview" }
                     val saved = reports.save(Report(id, employee, generated.lines))
                     mutableState.update { it.copy(createdReportId = saved.id) }

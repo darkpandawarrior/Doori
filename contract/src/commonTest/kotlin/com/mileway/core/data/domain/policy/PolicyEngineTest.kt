@@ -41,7 +41,11 @@ class PolicyEngineTest {
         val mileage = MileageLine("mileage", 50000, "INR", distanceKm = 10.0, vehicleKey = "car")
         assertEquals(
             "Claimed ₹ 500.00 exceeds policy-computed ₹ 1.00",
-            policy.evaluate(listOf(mileage), 0).getValue(mileage.id).single().message,
+            policy
+                .evaluate(listOf(mileage), 0)
+                .getValue(mileage.id)
+                .single()
+                .message,
         )
     }
 

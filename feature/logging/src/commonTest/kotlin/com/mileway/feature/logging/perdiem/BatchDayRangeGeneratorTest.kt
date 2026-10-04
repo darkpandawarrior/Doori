@@ -2,20 +2,26 @@ package com.mileway.feature.logging.perdiem
 
 import com.mileway.core.data.domain.policy.PerDiemRate
 import com.mileway.core.data.domain.policy.PerDiemRateTable
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class BatchDayRangeGeneratorTest {
     private val zone = TimeZone.of("America/New_York")
 
-    private fun rate(date: String, amount: Long) = PerDiemRate(LocalDate.parse(date).atStartOfDayIn(zone).toEpochMilliseconds(), amount)
+    private fun rate(
+        date: String,
+        amount: Long,
+    ) = PerDiemRate(LocalDate.parse(date).atStartOfDayIn(zone).toEpochMilliseconds(), amount)
 
-    private fun generate(start: String, end: String, rates: List<PerDiemRate>) =
-        BatchDayRangeGenerator.generate(LocalDate.parse(start), LocalDate.parse(end), PerDiemRateTable(rates), "INR", zone, "batch")
+    private fun generate(
+        start: String,
+        end: String,
+        rates: List<PerDiemRate>,
+    ) = BatchDayRangeGenerator.generate(LocalDate.parse(start), LocalDate.parse(end), PerDiemRateTable(rates), "INR", zone, "batch")
 
     @Test
     fun inclusiveRangeCrossesDatedRateChangeAndDstWithoutLosingDays() {
@@ -23,7 +29,13 @@ class BatchDayRangeGeneratorTest {
         assertEquals(listOf("2026-03-07", "2026-03-08", "2026-03-09", "2026-03-10"), result.lines.map { it.incurredOn })
         assertEquals(listOf(10000L, 10000L, 15000L, 15000L), result.lines.map { it.amountMinor })
         assertTrue(result.lines.all { it.days == 1 && it.dailyRateMinor == it.amountMinor })
-        assertEquals(4, result.lines.map { it.id }.distinct().size)
+        assertEquals(
+            4,
+            result.lines
+                .map { it.id }
+                .distinct()
+                .size,
+        )
         assertTrue(result.skipped.isEmpty())
     }
 
