@@ -1,8 +1,10 @@
 package com.mileway.feature.logging.validation
 
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.logging.model.ExpenseCategoryDef
 import com.mileway.feature.logging.viewmodel.ExpenseFormState
+import com.mileway.feature.logging.viewmodel.fxLine
 import com.siddharth.kmp.common.UiText
 
 /**
@@ -46,9 +48,21 @@ object ExpenseFormValidator {
 
         val amount = form.amountText.toDoubleOrNull()
         val cardCeiling = (form.sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees
+        val comparableCardAmount =
+            if (form.currencyCode == "INR") {
+                amount
+            } else {
+                form
+                    .fxLine()
+                    .amountInCurrencyMinor("INR")
+                    ?.toDouble()
+                    ?.div(100)
+            }
         if (amount == null || !amount.isFinite() || amount <= 0.0) {
             errors[FIELD_AMOUNT] = UiText.of("Enter an amount greater than 0")
-        } else if (cardCeiling != null && amount > cardCeiling) {
+        } else if (cardCeiling != null && comparableCardAmount == null) {
+            errors[FIELD_AMOUNT] = UiText.of("Card amount check unavailable without an FX pin. Enter a manual rate (approximate).")
+        } else if (cardCeiling != null && comparableCardAmount != null && comparableCardAmount > cardCeiling) {
             // P27.E.4: DiCE's card-transaction ceiling — a claim can't exceed what the card actually
             // charged. Capped via validation (rejected on submit) rather than blocking keystrokes,
             // so the field stays a normal editable text input.

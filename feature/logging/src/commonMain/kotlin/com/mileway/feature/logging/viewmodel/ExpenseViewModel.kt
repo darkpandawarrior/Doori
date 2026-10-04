@@ -1021,7 +1021,15 @@ class ExpenseViewModel(
 /** Card-matched amount is the anchor; receipt total remains separate for itemized reconciliation. */
 internal fun ExpenseFormState.expenseFieldContext(): ExpenseFieldContext? {
     val receipt = parseMinorAmount(amountText) ?: return null
-    val cardAmount = (sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees?.let { parseMinorAmount(it.toAmountText()) }
+    val cardInrMinor = (sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees?.let { parseMinorAmount(it.toAmountText()) }
+    val cardAmount =
+        if (currencyCode == "INR") {
+            cardInrMinor
+        } else {
+            val rate = fxRate?.takeIf { fxLine().amountInCurrencyMinor("INR") != null }?.rate
+            val converted = cardInrMinor?.let { minor -> rate?.let { minor.toDouble() / it } }
+            converted?.takeIf { it.isFinite() && it > 0 && it < Long.MAX_VALUE.toDouble() }?.let { kotlin.math.round(it).toLong() }
+        }
     return ExpenseFieldContext(
         receiptAmountMinor = receipt,
         currencyCode = currencyCode,
