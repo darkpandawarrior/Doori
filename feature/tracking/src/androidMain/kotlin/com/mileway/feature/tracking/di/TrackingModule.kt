@@ -228,6 +228,8 @@ val trackingModule =
                 // PLAN_V33 C6: bound by platformModule; getOrNull() keeps graphs that omit it (e.g. the
                 // screenshot harness) on the VM's own unknown-battery default (never blocks a start).
                 batteryStatusReader = getOrNull() ?: com.mileway.feature.tracking.viewmodel.UnknownBatteryStatusReader,
+                driveStartSource = getOrNull(),
+                permissionsProvider = getOrNull() ?: com.mileway.feature.tracking.viewmodel.AlwaysGrantedPermissionsProvider,
             )
         }
         viewModelOf(::MileageSubmissionViewModel)

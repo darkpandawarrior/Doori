@@ -1,0 +1,169 @@
+@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+
+package com.mileway.feature.tracking.manager
+
+import com.mileway.core.data.util.haversineMeters
+import com.mileway.feature.tracking.detection.DetectedDriveRecorder
+import com.mileway.feature.tracking.detection.DriveDeparture
+import com.mileway.feature.tracking.detection.DriveStartSource
+import com.mileway.feature.tracking.detection.IosDriveWakePolicy
+import com.mileway.feature.tracking.detection.PendingDrive
+import com.mileway.feature.tracking.detection.SignificantDriveFixPolicy
+import io.github.aakira.napier.Napier
+import kotlinx.cinterop.useContents
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import platform.CoreLocation.CLLocation
+import platform.CoreLocation.CLLocationManager
+import platform.CoreLocation.CLLocationManagerDelegateProtocol
+import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
+import platform.CoreLocation.kCLAuthorizationStatusAuthorizedWhenInUse
+import platform.Foundation.NSDate
+import platform.Foundation.NSUserDefaults
+import platform.Foundation.timeIntervalSince1970
+import platform.UIKit.UIApplication
+import platform.UIKit.UIApplicationState
+import platform.darwin.NSObject
+
+private const val PENDING = "drive_wake_pending"
+private const val ARMED_AT = "drive_wake_armed_at"
+private const val ANCHOR_LAT = "drive_wake_anchor_lat"
+private const val ANCHOR_LNG = "drive_wake_anchor_lng"
+private const val ANCHOR_ACCURACY = "drive_wake_anchor_accuracy"
+
+/** Lives with tracker wiring in tracking iosMain; restored SLC waits never request permission. */
+class SignificantLocationSource(
+    private val recorder: DetectedDriveRecorder,
+) : DriveStartSource {
+    private val manager = CLLocationManager()
+    private val defaults = NSUserDefaults.standardUserDefaults
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var pending = defaults.stringForKey(PENDING)?.let { runCatching { Json.decodeFromString<PendingDrive>(it) }.getOrNull() }
+    private val mutableWaiting = MutableStateFlow(false)
+    override val waiting = mutableWaiting.asStateFlow()
+    override val waitLabel = "Wait for significant movement (Always location)"
+    private val delegate = SignificantLocationDelegate(::onLocations, ::onAuthorizationChanged)
+
+    init {
+        manager.delegate = delegate
+        // Eager Koin creation reattaches the significant-change delegate on a location relaunch.
+        if (pending != null && IosDriveWakePolicy.mayMonitorSignificantChanges(hasAlways())) beginMonitoring()
+    }
+
+    override suspend fun arm(
+        drive: PendingDrive,
+        departure: DriveDeparture?,
+    ): Boolean =
+        withContext(Dispatchers.Main) {
+            if (UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateActive || departure != null) {
+                return@withContext false
+            }
+            val status = manager.authorizationStatus
+            if (IosDriveWakePolicy.mayRequestAlways(true, status == kCLAuthorizationStatusAuthorizedWhenInUse)) {
+                // The trip screen invokes arm while visible. SLC is never used to obtain Always.
+                manager.requestAlwaysAuthorization()
+                return@withContext false
+            }
+            if (!IosDriveWakePolicy.mayMonitorSignificantChanges(hasAlways()) ||
+                (!CLLocationManager.significantLocationChangeMonitoringAvailable() || !CLLocationManager.locationServicesEnabled())
+            ) {
+                return@withContext false
+            }
+            disarm()
+            defaults.setObject(Json.encodeToString(drive), PENDING)
+            defaults.setDouble(NSDate().timeIntervalSince1970, ARMED_AT)
+            pending = drive
+            beginMonitoring()
+            true
+        }
+
+    private fun hasAlways(): Boolean = manager.authorizationStatus == kCLAuthorizationStatusAuthorizedAlways
+
+    private fun beginMonitoring() {
+        manager.startMonitoringSignificantLocationChanges()
+        mutableWaiting.value = true
+    }
+
+    override suspend fun disarm() =
+        withContext(Dispatchers.Main) {
+            manager.stopMonitoringSignificantLocationChanges()
+            pending = null
+            defaults.removeObjectForKey(PENDING)
+            defaults.removeObjectForKey(ARMED_AT)
+            defaults.removeObjectForKey(ANCHOR_LAT)
+            defaults.removeObjectForKey(ANCHOR_LNG)
+            defaults.removeObjectForKey(ANCHOR_ACCURACY)
+            mutableWaiting.value = false
+        }
+
+    private fun onLocations(didUpdateLocations: List<*>) {
+        val drive = pending ?: return
+        val fix = didUpdateLocations.lastOrNull() as? CLLocation ?: return
+        val timestamp = fix.timestamp.timeIntervalSince1970
+        val ageSeconds = NSDate().timeIntervalSince1970 - timestamp
+        if (!hasAlways() ||
+            timestamp <= defaults.doubleForKey(ARMED_AT) ||
+            !SignificantDriveFixPolicy.acceptsFix(ageSeconds, fix.horizontalAccuracy)
+        ) {
+            return
+        }
+        val (latitude, longitude) = fix.coordinate.useContents { latitude to longitude }
+        val hasAnchor = defaults.objectForKey(ANCHOR_LAT) != null
+        val distance =
+            if (hasAnchor) {
+                haversineMeters(defaults.doubleForKey(ANCHOR_LAT), defaults.doubleForKey(ANCHOR_LNG), latitude, longitude)
+            } else {
+                0.0
+            }
+        val shouldWake =
+            SignificantDriveFixPolicy.mayWake(
+                hasAlways = true,
+                ageSeconds = ageSeconds,
+                accuracyMeters = fix.horizontalAccuracy,
+                speedMetersPerSecond = fix.speed,
+                distanceMeters = distance,
+                previousAccuracyMeters = defaults.doubleForKey(ANCHOR_ACCURACY),
+            )
+        if (!hasAnchor) {
+            defaults.setDouble(latitude, ANCHOR_LAT)
+            defaults.setDouble(longitude, ANCHOR_LNG)
+            defaults.setDouble(fix.horizontalAccuracy, ANCHOR_ACCURACY)
+        }
+        if (!shouldWake) return
+        // Clear synchronously before launching so a second callback cannot start another trip.
+        pending = null
+        scope.launch {
+            disarm()
+            runCatching { recorder.start(drive) }.onFailure {
+                Napier.w("Significant-location recording failed", it, tag = "DriveWake")
+            }
+        }
+    }
+
+    private fun onAuthorizationChanged() {
+        if (!hasAlways()) {
+            manager.stopMonitoringSignificantLocationChanges()
+            mutableWaiting.value = false
+        }
+    }
+}
+
+/** Objective-C protocol adapter; it deliberately implements no Kotlin interface. */
+private class SignificantLocationDelegate(
+    private val locations: (List<*>) -> Unit,
+    private val authorizationChanged: () -> Unit,
+) : NSObject(),
+    CLLocationManagerDelegateProtocol {
+    override fun locationManager(
+        manager: CLLocationManager,
+        didUpdateLocations: List<*>,
+    ) = locations(didUpdateLocations)
+
+    override fun locationManagerDidChangeAuthorization(manager: CLLocationManager) = authorizationChanged()
+}

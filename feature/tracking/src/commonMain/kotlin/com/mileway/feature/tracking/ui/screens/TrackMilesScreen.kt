@@ -393,6 +393,25 @@ fun TrackMilesScreen(
                     )
                 }
 
+                if (!isActive && viewModel.driveWaitLabel != null) {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            if (uiState.waitingForDrive) {
+                                viewModel.cancelDriveWait()
+                            } else {
+                                scope.launch {
+                                    for (permission in viewModel.driveWaitPermissions) {
+                                        if (!permissionsProvider.isGranted(permission)) permissionsProvider.request(permission)
+                                    }
+                                    viewModel.requestStartTracking(waitForDrive = true)
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(if (uiState.waitingForDrive) "Cancel drive wait" else viewModel.driveWaitLabel.orEmpty())
+                    }
+                }
                 // Journey Guide text link, tappable hint shown when idle.
                 if (!isActive) {
                     androidx.compose.material3.TextButton(

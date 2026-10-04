@@ -14,6 +14,8 @@ import com.mileway.feature.agent.engine.llm.LlmGateway
 import com.mileway.feature.agent.engine.llm.OnDeviceLlmGateway
 import com.mileway.feature.media.repository.MediaRepository
 import com.mileway.feature.media.repository.RealMediaRepository
+import com.mileway.feature.tracking.detection.DetectedDriveRecorder
+import com.mileway.feature.tracking.detection.DriveStartSource
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.mileway.platform.gms.AndroidInstallReferrerManager
@@ -73,6 +75,9 @@ fun platformServicesKoinModule(): Module =
         single<BarcodeDecoder> { MlKitBarcodeDecoder() }
         // PLAN_V37 Phase 1: real Play Services ActivityRecognition, gms flavor ONLY — moved out of
         // feature/tracking's shared androidMain (see GmsActivityRecognizer.kt kdoc).
+        single { DetectedDriveRecorder(get(), get()) }
+        single { GmsDriveStartSource(androidContext(), get()) }
+        single<DriveStartSource> { get<GmsDriveStartSource>() }
         single<ActivityRecognizer> { GmsActivityRecognizer(androidContext()) }
         // L13: real fused GPS, gms flavor ONLY — moved out of feature/tracking's shared androidMain
         // (see GmsFusedLocationSource.kt kdoc for why).

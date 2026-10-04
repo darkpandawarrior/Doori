@@ -30,6 +30,8 @@ import com.mileway.core.platform.BatteryStatus
 import com.mileway.core.platform.BatteryStatusReader
 import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.feature.tracking.checkin.CheckInValidator.CheckInLocation
+import com.mileway.feature.tracking.detection.DriveStartSource
+import com.mileway.feature.tracking.detection.PendingDrive
 import com.mileway.feature.tracking.manager.PreflightChecks
 import com.mileway.feature.tracking.manager.StartCheckResult
 import com.mileway.feature.tracking.manager.TrackingConfigManager
@@ -195,6 +197,7 @@ data class OdometerState(
 @Stable
 data class TrackMilesUiState(
     val phase: TrackMilesPhase = TrackMilesPhase.IDLE,
+    val waitingForDrive: Boolean = false,
     val config: TrackMilesPluginConfig = TrackMilesPluginConfig(),
     val vehicles: List<ApprovedVehicle> = emptyList(),
     val selectedVehicle: ApprovedVehicle? = null,
@@ -411,9 +414,14 @@ class TrackMilesViewModel(
     // so JVM tests/graphs that omit the app-shell PermissionsProvider binding behave exactly as
     // before; Koin injects the real per-platform provider in production.
     private val permissionsProvider: PermissionsProvider = AlwaysGrantedPermissionsProvider,
+    private val driveStartSource: DriveStartSource? = null,
 ) : BaseViewModel<TrackMilesUiState, TrackMilesEffect, TrackMilesAction>(TrackMilesUiState()) {
     /** Backwards-compatible alias; screens read [state]. */
     val uiState: StateFlow<TrackMilesUiState> = state
+
+    val driveWaitLabel: String? get() = driveStartSource?.waitLabel
+    val driveWaitPermissions: List<AppPermission> get() = driveStartSource?.requiredPermissions.orEmpty()
+    private var startAfterDrive = false
 
     private var liveObserveJob: Job? = null
     private var sessionObserveJob: Job? = null
@@ -432,6 +440,11 @@ class TrackMilesViewModel(
         loadWeekSummary()
         observeReconciliationResult()
         refreshPermissionsSatisfied()
+        driveStartSource
+            ?.waiting
+            ?.onEach { waiting ->
+                setState { copy(waitingForDrive = waiting) }
+            }?.launchIn(viewModelScope)
     }
 
     /**
@@ -531,6 +544,17 @@ class TrackMilesViewModel(
         trackingStateObserveJob =
             trackingServiceApi.trackingState
                 .onEach { snap ->
+                    if (snap.token != null &&
+                        snap.token != currentState.currentRouteId &&
+                        snap.state == com.mileway.core.data.model.display.TrackingState.LIVE_TRACKING
+                    ) {
+                        val track = trackRepo.getByRouteId(snap.token)
+                        if (track != null && !isStrangerSession(track)) {
+                            setState { copy(phase = TrackMilesPhase.TRACKING, currentRouteId = track.routeId, startTime = track.startTime) }
+                            observeLive(track.routeId)
+                            observeBearing(track.routeId)
+                        }
+                    }
                     setState {
                         copy(
                             gpsIntervalMs = snap.currentIntervalMs,
@@ -685,7 +709,8 @@ class TrackMilesViewModel(
     fun toggleDraft(enabled: Boolean) = setState { copy(draftEnabled = enabled) }
 
     /** "Start Tracking" pressed in the guide: show consent if configured, else start now. */
-    fun requestStartTracking() {
+    fun requestStartTracking(waitForDrive: Boolean = false) {
+        startAfterDrive = waitForDrive
         refreshPermissionsSatisfied()
         val disclaimer = configManager.getJourneyDisclaimer()
         if (!disclaimer.isNullOrBlank()) {
@@ -699,7 +724,8 @@ class TrackMilesViewModel(
 
     private fun beginTracking() {
         setState { copy(activeSheet = TrackSheet.NONE) }
-        startTracking()
+        if (startAfterDrive) waitForDrive() else startTracking()
+        startAfterDrive = false
     }
 
     // Pause / resume sheets
@@ -899,7 +925,18 @@ class TrackMilesViewModel(
     }
 
     @OptIn(ExperimentalUuidApi::class)
-    fun startTracking() {
+    fun startTracking() = createTrip(waitForDrive = false)
+
+    /** Called after foreground permission/consent checks, before any recording service exists. */
+    fun waitForDrive() = createTrip(waitForDrive = true)
+
+    fun cancelDriveWait() {
+        viewModelScope.launch { driveStartSource?.disarm() }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private fun createTrip(waitForDrive: Boolean) {
+        if (currentState.phase == TrackMilesPhase.TRACKING || currentState.phase == TrackMilesPhase.PAUSED) return
         val vehicle = currentState.selectedVehicle ?: return
         if (!runStartPreflight()) return
         val routeId = Uuid.random().toString()
@@ -927,29 +964,30 @@ class TrackMilesViewModel(
                 destinationModeRepo?.activeTag(
                     activeAccountSource.activeAccountId.first() ?: DESTINATION_GUEST_KEY,
                 )
-            val track =
-                SavedTrack(
+            val pendingDrive =
+                PendingDrive(
                     routeId = routeId,
                     name = "Journey ${dt.dayOfMonth} $mon $hhmm",
-                    startLatitude = 0.0,
-                    startLongitude = 0.0,
-                    endLatitude = 0.0,
-                    endLongitude = 0.0,
-                    pausedLatitude = 0.0,
-                    pausedLongitude = 0.0,
-                    startTime = now,
-                    endTime = -1L,
-                    distance = 0.0,
-                    duration = 0L,
-                    selectedVehicleType = vehicle.vehicleKey ?: "",
+                    vehicleType = vehicle.vehicleKey.orEmpty(),
                     vehiclePricing = vehicle.vehiclePricing ?: 0.0,
-                    createdAt = now,
-                    startedAtTimestamp = now,
-                    startedByEmployeeCode = stampIdentity.employeeCode ?: "EMP001",
-                    startedByAccountEmail = stampIdentity.accountEmail.orEmpty(),
-                    startedByTenant = stampIdentity.tenant,
+                    employeeCode = stampIdentity.employeeCode ?: "EMP001",
+                    accountEmail = stampIdentity.accountEmail.orEmpty(),
+                    tenant = stampIdentity.tenant,
                     destinationTag = destinationTag,
                 )
+            driveStartSource?.disarm()
+            if (trackRepo.getActiveTrack() != null) return@launch
+            if (waitForDrive) {
+                if (driveStartSource?.arm(pendingDrive) != true) {
+                    emitEffect(
+                        TrackMilesEffect.ShowToast(
+                            UiText.Dynamic("Drive wait needs background location and motion access. On iOS, allow Always then tap again."),
+                        ),
+                    )
+                }
+                return@launch
+            }
+            val track = pendingDrive.recordingAt(now)
             trackRepo.insert(track)
             setState {
                 copy(phase = TrackMilesPhase.TRACKING, currentRouteId = routeId, distanceKm = 0.0, startTime = now)

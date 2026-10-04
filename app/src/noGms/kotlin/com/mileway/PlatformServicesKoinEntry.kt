@@ -10,6 +10,8 @@ import com.mileway.core.media.BarcodeDecoder
 import com.mileway.core.platform.LocalReferralManager
 import com.mileway.core.platform.PlatformBindings
 import com.mileway.core.platform.ReferralManager
+import com.mileway.feature.tracking.detection.DetectedDriveRecorder
+import com.mileway.feature.tracking.detection.DriveStartSource
 import com.mileway.feature.tracking.service.location.ActivityRecognizer
 import com.mileway.feature.tracking.service.location.RealLocationSourceFactory
 import com.siddharth.kmp.appshell.AnalyticsHelper
@@ -49,6 +51,9 @@ fun platformServicesKoinModule(): Module =
         // PLAN_V37 Phase 1: no Play Services on this flavor — the IMU accelerometer fusion in
         // core:platform is the signal instead. See HeuristicActivityRecognizer.kt kdoc for the
         // still-vs-not-still ceiling that buys.
+        single { DetectedDriveRecorder(get(), get()) }
+        single { HeuristicDriveStartSource(get(), get()) }
+        single<DriveStartSource> { get<HeuristicDriveStartSource>() }
         single<ActivityRecognizer> { HeuristicActivityRecognizer(get()) }
         // L13: recovered pure-GPS tracker, noGms flavor ONLY — no com.google.android.gms.* import
         // anywhere in PlainLocationTracker.kt. forceGpsOnly is ignored: this source is already
