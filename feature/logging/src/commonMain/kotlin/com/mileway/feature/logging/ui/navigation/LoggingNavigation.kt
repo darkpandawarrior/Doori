@@ -10,6 +10,8 @@ import androidx.savedstate.read
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.theme.MilewayDomain
 import com.mileway.core.ui.theme.MilewayDomainTheme
+import com.mileway.feature.logging.report.ReportGroupingScreen
+import com.mileway.feature.logging.report.ReportSubmitScreen
 import com.mileway.feature.logging.ui.screens.ExpenseDetailScreen
 import com.mileway.feature.logging.ui.screens.ExpenseHistoryScreen
 import com.mileway.feature.logging.ui.screens.ExpenseScreen
@@ -42,6 +44,14 @@ private const val CTX_ARG_AMOUNT = "ctxAmount"
 object LoggingRoutes {
     /** Spends hub, two-card home (top-level tab destination). */
     const val HOME = "spends_home"
+
+    const val REPORT_GROUPING = "expense/reports?editReportId={editReportId}"
+
+    fun reportGroupingRoute(id: String? = null) = if (id == null) "expense/reports" else "expense/reports?editReportId=$id"
+
+    const val REPORT_SUBMIT = "expense/reports/{reportId}"
+
+    fun reportSubmitRoute(id: String) = "expense/reports/$id"
 
     /** Log Miles Step 1, journey basics + travelled locations. */
     const val LOG_MILES = "log_miles"
@@ -242,6 +252,41 @@ fun NavGraphBuilder.loggingGraph(navController: NavHostController) {
                 onAddExpense = { navController.navigate(LoggingRoutes.expenseEntryRoute()) },
                 onMileageHistory = { navController.navigate(LoggingRoutes.HISTORY) },
                 onExpenseHistory = { navController.navigate(LoggingRoutes.EXPENSE_HISTORY) },
+                onExpenseReports = { navController.navigate(LoggingRoutes.reportGroupingRoute()) },
+            )
+        }
+    }
+
+    composable(
+        LoggingRoutes.REPORT_GROUPING,
+        arguments =
+            listOf(
+                navArgument("editReportId") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                },
+            ),
+    ) { entry ->
+        val editId = entry.arguments?.read { getString("editReportId") }?.ifBlank { null }
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            ReportGroupingScreen(
+                viewModel = koinViewModel(),
+                reportId = editId,
+                onBack = { navController.popBackStack() },
+                onOpenReport = { id ->
+                    if (id == editId) navController.popBackStack() else navController.navigate(LoggingRoutes.reportSubmitRoute(id))
+                },
+            )
+        }
+    }
+    composable(LoggingRoutes.REPORT_SUBMIT, arguments = listOf(navArgument("reportId") { type = NavType.StringType })) { entry ->
+        val id = entry.arguments?.read { getString("reportId") }.orEmpty()
+        MilewayDomainTheme(MilewayDomain.EXPENSES) {
+            ReportSubmitScreen(
+                reportId = id,
+                viewModel = koinViewModel(),
+                onBack = { navController.popBackStack() },
+                onEdit = { navController.navigate(LoggingRoutes.reportGroupingRoute(id)) },
             )
         }
     }
