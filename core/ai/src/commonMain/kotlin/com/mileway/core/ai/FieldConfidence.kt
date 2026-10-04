@@ -34,7 +34,8 @@ internal object FieldConfidence {
     fun score(field: DocField, candidate: ExtractedValue, rawText: String, agreement: Boolean): Float {
         if (field !in receiptFields) return candidate.confidence
         if (!valid(field, candidate.value)) return minOf(candidate.confidence, INVALID_CONFIDENCE)
-        val supported = normalized(candidate.value).isNotEmpty() && normalized(rawText).contains(normalized(candidate.value))
+        val value = normalized(candidate.value)
+        val supported = value.isNotEmpty() && Regex("(?<![A-Za-z0-9])${Regex.escape(value)}(?![A-Za-z0-9])").containsMatchIn(normalized(rawText))
         val grounded = if (supported) candidate.confidence + EVIDENCE_BONUS else minOf(candidate.confidence, UNGROUNDED_CONFIDENCE)
         return (grounded + if (agreement) EVIDENCE_BONUS else 0f).coerceIn(0f, 1f)
     }
@@ -49,7 +50,7 @@ internal object FieldConfidence {
         val month = parts[1]
         val day = if (iso) parts[2] else parts[0]
         if (year !in MIN_YEAR..MAX_YEAR || month !in 1..MONTHS_IN_YEAR) return false
-        val leap = year % LEAP_CYCLE == 0 && (year % CENTURY_CYCLE != 0 || year % LEAP_CYCLE00 == 0)
+        val leap = year % LEAP_CYCLE == 0 && (year % CENTURY_CYCLE != 0 || year % LEAP_CENTURY_CYCLE == 0)
         val days = listOf(31, if (leap) 29 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
         return day in 1..days[month - 1]
     }

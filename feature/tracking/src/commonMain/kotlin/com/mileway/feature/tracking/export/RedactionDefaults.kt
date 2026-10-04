@@ -13,7 +13,9 @@ object RedactionDefaults {
 
     /** Removes points at or within the Home radius. Address-only Home rows retain all points. */
     fun locations(points: List<LocationData>, home: SavedPlaceEntity?, enabled: Boolean = true): List<LocationData> =
-        if (!enabled || home == null) points else points.filterNot { nearHome(it.lat, it.lng, home) }
+        if (!enabled || home == null) points else points.filterNot { nearHome(it.lat, it.lng, home) }.map { point ->
+            point.copy(reason = point.reason?.let { address(it, home) })
+        }
 
     /** Exact address text becomes the Home label; unrelated text remains unchanged. */
     fun address(text: String, home: SavedPlaceEntity?, enabled: Boolean = true): String =
