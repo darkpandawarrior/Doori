@@ -26,6 +26,7 @@ import com.mileway.core.data.session.PinHashSource
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
+import com.mileway.core.media.ocr.ReceiptHistorySource
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.ui.di.coreUiModule
@@ -400,6 +401,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<HardwareEventsViewModel>())
         assertNotNull(get<TrackInsightsViewModel>())
         assertNotNull(get<ExportViewModel>())
+        assertNotNull(get<ReceiptHistorySource>())
         assertNotNull(get<DebugMenuComposeViewModel>())
         assertNotNull(get<LogMilesViewModel>())
         assertNotNull(get<ExpenseViewModel>())

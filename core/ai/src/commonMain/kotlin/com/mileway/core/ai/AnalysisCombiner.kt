@@ -41,7 +41,7 @@ class AnalysisCombiner {
         heuristicFields: Map<DocField, ExtractedValue> = emptyMap(),
         textFields: Map<DocField, ExtractedValue> = emptyMap(),
     ): CombinedAnalysis {
-        val fields = mergeFields(aiExtraction?.fields.orEmpty(), heuristicFields, textFields)
+        val fields = mergeFields(rawText, aiExtraction?.fields.orEmpty(), heuristicFields, textFields)
 
         val aiDocType =
             aiExtraction?.docType?.takeIf { aiExtraction.confidence >= AI_CONFIDENT_THRESHOLD }
@@ -74,10 +74,21 @@ class AnalysisCombiner {
     }
 
     /** Per field: highest confidence wins; ties broken by [SOURCE_PRIORITY]. */
-    private fun mergeFields(vararg tiers: Map<DocField, ExtractedValue>): Map<DocField, ExtractedValue> {
+    private fun mergeFields(
+        rawText: String,
+        vararg tiers: Map<DocField, ExtractedValue>,
+    ): Map<DocField, ExtractedValue> {
         val byField = mutableMapOf<DocField, ExtractedValue>()
         for (tier in tiers) {
-            for ((field, candidate) in tier) {
+            for ((field, extracted) in tier) {
+                val agreement =
+                    tiers.any { other ->
+                        val peer = other[field]
+                        peer != null &&
+                            peer.source != extracted.source &&
+                            FieldConfidence.normalized(peer.value) == FieldConfidence.normalized(extracted.value)
+                    }
+                val candidate = extracted.copy(confidence = FieldConfidence.score(field, extracted, rawText, agreement))
                 val current = byField[field]
                 if (current == null || isBetter(candidate, current)) {
                     byField[field] = candidate

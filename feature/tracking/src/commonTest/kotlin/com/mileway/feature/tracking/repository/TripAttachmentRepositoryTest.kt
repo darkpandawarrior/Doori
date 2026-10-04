@@ -17,6 +17,11 @@ private class FakeTripAttachmentDao : TripAttachmentDao {
     private var nextId = 1L
     val inserted = mutableListOf<TripAttachmentEntity>()
 
+    override suspend fun getRecentReceipts(
+        sinceMillis: Long,
+        untilMillis: Long,
+    ): List<TripAttachmentEntity> = inserted.filter { it.type == AttachmentType.RECEIPT && it.createdAt in sinceMillis..untilMillis }
+
     override suspend fun insert(attachment: TripAttachmentEntity): Long {
         val withId = attachment.copy(id = nextId++)
         inserted += withId
