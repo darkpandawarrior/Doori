@@ -79,6 +79,12 @@ class ExportHomeWiringTest {
             assertFalse(shared.contains("18.5205"))
             assertFalse(shared.contains(home.address))
             assertTrue(sharedSubject?.contains("Home") == true)
+            coEvery { locations.getLocationsByTokenPaged("trip", Int.MAX_VALUE, 0) } returns listOf(points.first())
+            vm.export("trip", ExportFormat.JSON, LocationDataFilter())
+            runCurrent()
+            assertTrue(shared.contains("\"startLat\": null"))
+            assertTrue(shared.contains("\"endLat\": null"))
+            coEvery { locations.getLocationsByTokenPaged("trip", Int.MAX_VALUE, 0) } returns points
             vm.export("trip", ExportFormat.JSON, LocationDataFilter(redactHome = false))
             runCurrent()
             assertTrue(shared.contains("18.5205"))

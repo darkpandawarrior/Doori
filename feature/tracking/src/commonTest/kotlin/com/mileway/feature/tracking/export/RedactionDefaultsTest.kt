@@ -92,4 +92,30 @@ class RedactionDefaultsTest {
     fun `all Home points can be redacted without retaining Home endpoint coordinates`() {
         assertEquals(emptyList(), RedactionDefaults.locations(listOf(near), home))
     }
+
+    @Test
+    fun `empty redacted route omits JSON endpoint coordinates instead of inventing a location`() {
+        val track =
+            SavedTrack(
+                routeId = "r1",
+                name = "Home",
+                startLatitude = 0.0,
+                startLongitude = 0.0,
+                endLatitude = 0.0,
+                endLongitude = 0.0,
+                pausedLatitude = 0.0,
+                pausedLongitude = 0.0,
+                startTime = 0L,
+                endTime = 1000L,
+                distance = 0.0,
+                duration = 1000L,
+            )
+        val content = TrackExportContent.build(ExportFormat.JSON, track, emptyList(), emptyList(), omitEndpointCoordinates = true)
+        assertTrue(content.contains("\"startLat\": null"))
+        assertTrue(content.contains("\"startLng\": null"))
+        assertTrue(content.contains("\"endLat\": null"))
+        assertTrue(content.contains("\"endLng\": null"))
+        val unchanged = TrackExportContent.build(ExportFormat.JSON, track, emptyList(), emptyList())
+        assertTrue(unchanged.contains("\"startLat\": 0.0"))
+    }
 }

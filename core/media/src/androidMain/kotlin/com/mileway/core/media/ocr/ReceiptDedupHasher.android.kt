@@ -31,7 +31,7 @@ actual suspend fun sampleReceiptLuma(uri: String): IntArray? =
             boundsStream.use { BitmapFactory.decodeStream(it, null, options) }
             if (options.outWidth <= 0 || options.outHeight <= 0) return@withContext null
             options.inJustDecodeBounds = false
-            options.inSampleSize = 1
+            options.inSampleSize = MIN_SAMPLE_SIZE
             while (maxOf(options.outWidth, options.outHeight) / options.inSampleSize > MAX_DECODE_EDGE) {
                 options.inSampleSize *= 2
             }
@@ -58,6 +58,7 @@ actual suspend fun sampleReceiptLuma(uri: String): IntArray? =
     }
 
 private const val MAX_DECODE_EDGE = 256
+private const val MIN_SAMPLE_SIZE = 2
 
 private const val RED_WEIGHT = 299
 private const val GREEN_WEIGHT = 587

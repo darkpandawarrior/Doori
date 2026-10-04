@@ -78,7 +78,14 @@ class ExportViewModel(
                 val redactedLocations = RedactionDefaults.locations(locations, home, filter.redactHome)
                 val redactedTrack = RedactionDefaults.track(track, redactedLocations, home, filter.redactHome)
                 val redactedEvents = RedactionDefaults.events(events, home, filter.redactHome)
-                val content = TrackExportContent.build(format, redactedTrack, redactedLocations, redactedEvents)
+                val content =
+                    TrackExportContent.build(
+                        format,
+                        redactedTrack,
+                        redactedLocations,
+                        redactedEvents,
+                        omitEndpointCoordinates = filter.redactHome && home != null && redactedLocations.isEmpty(),
+                    )
                 val subject = "Track export: ${redactedTrack.name}"
 
                 shareSheet.share(text = content, subject = subject)
