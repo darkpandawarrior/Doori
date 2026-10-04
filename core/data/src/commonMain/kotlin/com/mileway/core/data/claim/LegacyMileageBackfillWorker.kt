@@ -1,12 +1,12 @@
 package com.mileway.core.data.claim
 
 import com.mileway.core.data.dao.ClaimLineDao
-import com.mileway.core.data.dao.ReportDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.model.db.ReportEntity
 import com.mileway.core.data.model.db.SavedTrack
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlin.time.Clock
@@ -24,38 +24,52 @@ import kotlin.time.Clock
  * reading [com.mileway.core.data.database.Migrations].
  *
  * Idempotency is anchored on [ClaimLineEntity.sourceTripId]'s UNIQUE index (= the trip's
- * [SavedTrack.routeId]): [backfillOne] checks [ClaimLineDao.getBySourceTripId] before inserting, so
- * re-running [run] — or L4's auto-draft later claiming the same trip — is a no-op for a trip already
+ * [SavedTrack.routeId]): [backfillOne] uses [ClaimLineDao.insertMileageDraft] to reserve the line and
+ * write its report in one transaction. Re-running [run] — or L4's auto-draft later claiming the same
+ * trip — is a no-op for a trip already
  * wrapped, without relying on a caught constraint-violation exception as control flow. [marker]
  * additionally short-circuits [run] entirely once the one-time pass has completed.
  */
 class LegacyMileageBackfillWorker(
     private val savedTrackDao: SavedTrackDao,
-    private val reportDao: ReportDao,
     private val claimLineDao: ClaimLineDao,
     private val marker: BackfillMarker,
     private val json: Json,
     private val clock: Clock = Clock.System,
 ) {
-    suspend fun run() {
-        if (marker.isDone()) return
+    /** Returns the retryable failure count; callers can route row failures to their platform logger. */
+    suspend fun run(
+        logFailure: (String, Exception) -> Unit = { tripId, failure ->
+            println("Legacy mileage backfill failed for trip $tripId: ${failure.stackTraceToString()}")
+        },
+    ): Int {
+        if (marker.isDone()) return 0
+        var failedRows = 0
         savedTrackDao
             .getCompletedTracks()
             .first()
             .filter { !it.isDiscarded }
-            .forEach { backfillOne(it) }
-        marker.markDone()
+            .forEach { track ->
+                runCatching { backfillOne(track) }.onFailure { failure ->
+                    if (failure is CancellationException || failure !is Exception) throw failure
+                    failedRows++
+                    logFailure(track.routeId, failure)
+                }
+            }
+        if (failedRows == 0) {
+            marker.markDone()
+        }
+        return failedRows
     }
 
     private suspend fun backfillOne(track: SavedTrack) {
         val sourceTripId = track.routeId
-        if (claimLineDao.getBySourceTripId(sourceTripId) != null) return
 
         val now = clock.now().toEpochMilliseconds()
         val reportId = "legacy_$sourceTripId"
         val employeeId = track.startedByEmployeeCode.ifBlank { track.startedByAccountId.orEmpty() }
 
-        reportDao.upsert(
+        val report =
             ReportEntity(
                 id = reportId,
                 employeeId = employeeId,
@@ -63,8 +77,7 @@ class LegacyMileageBackfillWorker(
                 recordVersion = 1L,
                 createdAtMs = track.createdAt.takeIf { it > 0 } ?: now,
                 updatedAtMs = now,
-            ),
-        )
+            )
         // ponytail: amountMinor is a crude rupees->paise cast of whatever was recorded at
         // submission time (often 0 for older rows that predate a reliable submittedAmount write) —
         // good enough for a shell record a later lane can re-price; not a payout-accurate figure.
@@ -77,7 +90,7 @@ class LegacyMileageBackfillWorker(
                 distanceKm = track.distance / METRES_PER_KM,
                 vehicleKey = track.selectedVehicleType,
             )
-        claimLineDao.insert(line.toEntity(reportId, now, json))
+        claimLineDao.insertMileageDraft(report, line.toEntity(reportId, now, json))
     }
 
     private companion object {

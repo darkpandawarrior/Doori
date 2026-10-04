@@ -281,6 +281,6 @@ val coreDataModule =
         }
         single {
             com.mileway.core.data.claim
-                .LegacyMileageBackfillWorker(get(), get(), get(), get(), get())
+                .LegacyMileageBackfillWorker(get(), get(), get(), get())
         }
     }

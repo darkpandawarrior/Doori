@@ -2,7 +2,6 @@ package com.mileway
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
-import android.util.Log
 import androidx.appfunctions.service.AppFunctionConfiguration
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -51,6 +50,7 @@ import com.mileway.ui.home.whatsNewModule
 import dev.brewkits.kmpworkmanager.KmpWorkManager
 import dev.brewkits.kmpworkmanager.background.domain.enqueuePeriodic
 import dev.tmapps.konnection.Konnection
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -247,9 +247,17 @@ class MilewayApplication :
         )
         // The worker uses the existing schemaVersionMarker_49 DataStore flag, set only on success.
         appScope.launch {
-            runCatching { get<LegacyMileageBackfillWorker>().run() }.onFailure { failure ->
+            runCatching {
+                val failedRows =
+                    get<LegacyMileageBackfillWorker>().run { tripId, failure ->
+                        Napier.e("Legacy mileage backfill failed for trip $tripId", failure, tag = "LegacyMileageBackfill")
+                    }
+                if (failedRows > 0) {
+                    Napier.w("Legacy mileage backfill: $failedRows rows failed; will retry on next app start", tag = "LegacyMileageBackfill")
+                }
+            }.onFailure { failure ->
                 if (failure is CancellationException || failure !is Exception) throw failure
-                Log.e("LegacyMileageBackfill", "Backfill failed; will retry on next app start", failure)
+                Napier.e("Backfill failed; will retry on next app start", failure, tag = "LegacyMileageBackfill")
             }
         }
         appScope.launch {
