@@ -2,6 +2,7 @@ package com.mileway
 
 import android.app.Application
 import android.content.pm.ApplicationInfo
+import android.util.Log
 import androidx.appfunctions.service.AppFunctionConfiguration
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -10,6 +11,7 @@ import coil3.gif.GifDecoder
 import coil3.svg.SvgDecoder
 import com.mileway.appfunctions.MileageAppFunctions
 import com.mileway.core.common.AppLog
+import com.mileway.core.data.claim.LegacyMileageBackfillWorker
 import com.mileway.core.data.di.coreDataModule
 import com.mileway.core.data.watch.PhoneSnapshotSync
 import com.mileway.core.ui.di.coreUiModule
@@ -49,6 +51,7 @@ import com.mileway.ui.home.whatsNewModule
 import dev.brewkits.kmpworkmanager.KmpWorkManager
 import dev.brewkits.kmpworkmanager.background.domain.enqueuePeriodic
 import dev.tmapps.konnection.Konnection
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -242,6 +245,16 @@ class MilewayApplication :
                 androidLogger(Level.ERROR)
             },
         )
+        // The worker uses the existing schemaVersionMarker_49 DataStore flag, set only on success.
+        appScope.launch {
+            try {
+                get<LegacyMileageBackfillWorker>().run()
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (failure: Exception) {
+                Log.e("LegacyMileageBackfill", "Backfill failed; will retry on next app start", failure)
+            }
+        }
         appScope.launch {
             get<DatabaseSeeder>().seedIfEmpty()
             get<DatabaseSeeder>().seedVehiclesIfEmpty()

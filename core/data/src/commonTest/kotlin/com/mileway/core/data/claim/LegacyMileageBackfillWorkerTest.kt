@@ -15,6 +15,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
@@ -78,6 +80,27 @@ class LegacyMileageBackfillWorkerTest {
                     .mapNotNull { it.sourceTripId }
                     .toSet(),
             )
+        }
+
+    @Test
+    fun `failed pass leaves marker unset and retries without duplicating completed imports`() =
+        runTest {
+            val savedTrackDao = FakeSavedTrackDao(listOf(track("t1"), track("t2")))
+            val reportDao = BackfillFakeReportDao()
+            val claimLineDao = BackfillFakeClaimLineDao()
+            val marker = InMemoryBackfillMarker()
+            val backfill = worker(savedTrackDao, reportDao, claimLineDao, marker)
+            claimLineDao.failOnSourceTripId = "t2"
+
+            assertFailsWith<IllegalStateException> { backfill.run() }
+            assertFalse(marker.isDone())
+            assertEquals(1, claimLineDao.rows.value.size)
+
+            claimLineDao.failOnSourceTripId = null
+            backfill.run()
+            assertTrue(marker.isDone())
+            assertEquals(2, reportDao.rows.value.size)
+            assertEquals(2, claimLineDao.rows.value.size)
         }
 
     @Test
@@ -335,6 +358,7 @@ private class BackfillFakeReportDao : ReportDao {
 
 private class BackfillFakeClaimLineDao : ClaimLineDao {
     val rows = MutableStateFlow<Map<String, ClaimLineEntity>>(emptyMap())
+    var failOnSourceTripId: String? = null
 
     override fun observeByReport(reportId: String): Flow<List<ClaimLineEntity>> = rows.map { it.values.filter { row -> row.reportId == reportId } }
 
@@ -343,6 +367,7 @@ private class BackfillFakeClaimLineDao : ClaimLineDao {
     override suspend fun getBySourceTripId(sourceTripId: String): ClaimLineEntity? = rows.value.values.firstOrNull { it.sourceTripId == sourceTripId }
 
     override suspend fun insert(entity: ClaimLineEntity) {
+        check(entity.sourceTripId != failOnSourceTripId) { "storage unavailable" }
         check(entity.sourceTripId == null || rows.value.values.none { it.sourceTripId == entity.sourceTripId }) {
             "UNIQUE constraint failed: claim_lines.sourceTripId"
         }
