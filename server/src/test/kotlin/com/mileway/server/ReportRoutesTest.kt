@@ -1,8 +1,8 @@
 package com.mileway.server
 
 import com.mileway.core.data.domain.claim.ApprovalActionRequest
-import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Attendee
+import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
@@ -102,21 +102,23 @@ class ReportRoutesTest {
             val plain = newReport()
             val line = (plain.lines.first() as ExpenseLine).copy(attendees = listOf(Attendee("Alex")))
             val detailed = plain.copy(lines = listOf(line))
-            val rejected = client.post("/api/reports/submit") {
-                bearerAuth(token)
-                contentType(ContentType.Application.Json)
-                setBody(serverJson.encodeToString(detailed))
-            }
+            val rejected =
+                client.post("/api/reports/submit") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(serverJson.encodeToString(detailed))
+                }
             assertEquals(HttpStatusCode.InternalServerError, rejected.status)
             transaction {
                 assertEquals(0L, ReportsTable.selectAll().where { ReportsTable.id eq detailed.id }.count())
                 assertEquals(0L, ClaimLinesTable.selectAll().where { ClaimLinesTable.reportId eq detailed.id }.count())
             }
-            val accepted = client.post("/api/reports/submit") {
-                bearerAuth(token)
-                contentType(ContentType.Application.Json)
-                setBody(serverJson.encodeToString(plain))
-            }
+            val accepted =
+                client.post("/api/reports/submit") {
+                    bearerAuth(token)
+                    contentType(ContentType.Application.Json)
+                    setBody(serverJson.encodeToString(plain))
+                }
             assertEquals(HttpStatusCode.OK, accepted.status)
             transaction {
                 assertEquals(1L, ReportsTable.selectAll().where { ReportsTable.id eq plain.id }.count())

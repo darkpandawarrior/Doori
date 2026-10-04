@@ -9,11 +9,11 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.mileway.core.data.domain.claim.ExpenseLine
-import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.data.domain.claim.Attendee
 import com.mileway.core.data.domain.claim.CostSplit
+import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.ItemizedLine
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.stub.PolicyMockData
 
@@ -117,10 +117,16 @@ data class ExpenseRecord(
      */
     val requiresApproval: Boolean
         get() {
-            val policyAmount = ExpenseLine(
-                id, amountMinor ?: (amountRupees * 100).toLong(), currencyCode,
-                fxRatePinnedAt = fxRatePinnedAt, fxRate = fxRate, merchant = merchantName, category = category.name,
-            ).amountInCurrencyMinor("INR") ?: return true
+            val policyAmount =
+                ExpenseLine(
+                    id,
+                    amountMinor ?: (amountRupees * 100).toLong(),
+                    currencyCode,
+                    fxRatePinnedAt = fxRatePinnedAt,
+                    fxRate = fxRate,
+                    merchant = merchantName,
+                    category = category.name,
+                ).amountInCurrencyMinor("INR") ?: return true
             val outcome = PolicyMockData.outcomeForExpenseAmount(policyAmount.toDouble() / 100, category.name)
             return outcome == SubmissionStatus.POLICY_VIOLATION ||
                 outcome == SubmissionStatus.NEEDS_APPROVAL ||

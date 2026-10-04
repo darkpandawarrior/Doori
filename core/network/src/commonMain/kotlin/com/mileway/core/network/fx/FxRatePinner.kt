@@ -20,12 +20,14 @@ class FxRatePinner(
         if (line.currency == "INR") return line.copy(fxRate = null, fxRatePinnedAt = null)
         val card = cardRate?.takeIf { line.cardMatchId != null && it.source == FxRateSource.CARD_MATCHED && it.isUsable(line.currency, "INR") }
         if (card == null && line.fxRatePinnedAt != null && line.fxRate?.isUsable(line.currency, "INR") == true) return line
-        val rate = card
-            ?: reference(line.currency, "INR", sourceDate)?.takeIf {
-                it.source == FxRateSource.ECB_REFERENCE && it.isUsable(line.currency, "INR")
-            }
-            ?: manualRate?.let { FxRate(it, line.currency, source = FxRateSource.MANUAL_APPROXIMATE) }
-                ?.takeIf { it.isUsable(line.currency, "INR") }
+        val rate =
+            card
+                ?: reference(line.currency, "INR", sourceDate)?.takeIf {
+                    it.source == FxRateSource.ECB_REFERENCE && it.isUsable(line.currency, "INR")
+                }
+                ?: manualRate
+                    ?.let { FxRate(it, line.currency, source = FxRateSource.MANUAL_APPROXIMATE) }
+                    ?.takeIf { it.isUsable(line.currency, "INR") }
         return line.copy(fxRate = rate, fxRatePinnedAt = rate?.let { nowMillis() })
     }
 }

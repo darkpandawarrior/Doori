@@ -16,9 +16,26 @@ data class FxRate(
     val sourceDate: String? = null,
     val source: FxRateSource = FxRateSource.ECB_REFERENCE,
 ) {
+    /** User-facing provenance; manual estimates never claim a provider observation date. */
+    fun description(): String {
+        val label =
+            when (source) {
+                FxRateSource.ECB_REFERENCE -> "ECB reference (Frankfurter)"
+                FxRateSource.CARD_MATCHED -> "Card matched"
+                FxRateSource.MANUAL_APPROXIMATE -> "Manual (approximate)"
+            }
+        return "$label: 1 $baseCurrency = $rate $quoteCurrency; rate date ${sourceDate ?: "unavailable (manual)"}"
+    }
+
     /** Invalid or undated reference rates must never enter policy money math. */
-    fun isUsable(base: String, quote: String): Boolean =
-        baseCurrency == base && quoteCurrency == quote && rate.isFinite() && rate > 0 &&
+    fun isUsable(
+        base: String,
+        quote: String,
+    ): Boolean =
+        baseCurrency == base &&
+            quoteCurrency == quote &&
+            rate.isFinite() &&
+            rate > 0 &&
             (source == FxRateSource.MANUAL_APPROXIMATE || !sourceDate.isNullOrBlank())
 }
 

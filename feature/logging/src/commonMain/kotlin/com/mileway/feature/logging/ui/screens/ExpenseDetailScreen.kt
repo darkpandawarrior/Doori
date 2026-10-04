@@ -273,8 +273,12 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                 color = MaterialTheme.colorScheme.primary,
             )
             if (expense.currencyCode != "INR") {
-                Text(expense.fxRate?.let { "${it.source}: 1 ${expense.currencyCode} = ${it.rate} INR; rate date ${it.sourceDate ?: "unavailable (manual, approximate)"}" }
-                    ?: "No FX pin: amount policy checks skipped. Manual rates are approximate.")
+                Text(
+                    expense.fxRate?.let {
+                        it.description()
+                    }
+                        ?: "No FX pin: amount policy checks skipped. Manual rates are approximate.",
+                )
             }
             Text(
                 text = formatFullDate(expense.dateMs),
@@ -358,7 +362,11 @@ private fun LineItemsCard(expense: ExpenseRecord) {
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(stringResource(Res.string.logging_total), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
-                Text("${expense.currencyCode} ${expense.amountRupees.formatDecimal(2)}", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    "${expense.currencyCode} ${expense.amountRupees.formatDecimal(2)}",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                )
             }
         }
     }

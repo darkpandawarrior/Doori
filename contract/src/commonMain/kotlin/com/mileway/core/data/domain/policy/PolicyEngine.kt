@@ -3,9 +3,9 @@ package com.mileway.core.data.domain.policy
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
-import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.data.ledger.PolicyRateEngine
 import com.mileway.core.data.ledger.PolicyRateTable
@@ -80,13 +80,15 @@ class PolicyEngine(
         line: ExpenseLine,
         version: PolicyVersion,
     ): List<PolicyViolation> {
-        val amount = line.amountInCurrencyMinor(version.currency)
-            ?: return listOf(
-                PolicyViolation(
-                    "FX_POLICY_SKIPPED", PolicySeverity.SOFT_WARN,
-                    "Amount checks skipped: no pinned ${line.currency} to ${version.currency} rate. Enter a manual rate (approximate).",
-                ),
-            )
+        val amount =
+            line.amountInCurrencyMinor(version.currency)
+                ?: return listOf(
+                    PolicyViolation(
+                        "FX_POLICY_SKIPPED",
+                        PolicySeverity.SOFT_WARN,
+                        "Amount checks skipped: no pinned ${line.currency} to ${version.currency} rate. Enter a manual rate (approximate).",
+                    ),
+                )
         val violations = mutableListOf<PolicyViolation>()
         if (line.currency != version.currency && line.fxRate?.source == FxRateSource.MANUAL_APPROXIMATE) {
             violations += PolicyViolation("FX_APPROXIMATE", PolicySeverity.SOFT_WARN, "Amount checks use an approximate manual FX rate")
@@ -97,7 +99,7 @@ class PolicyEngine(
                     PolicyViolation(
                         code = "EXPENSE_OVER_MAX",
                         severity = PolicySeverity.HARD_BLOCK,
-                        message = "Amount ${amount} exceeds policy max $max",
+                        message = "Amount $amount exceeds policy max $max",
                     )
             }
         }
@@ -107,7 +109,7 @@ class PolicyEngine(
                     PolicyViolation(
                         code = "RECEIPT_RECOMMENDED",
                         severity = PolicySeverity.SOFT_WARN,
-                        message = "Amount ${amount} exceeds $threshold; attach a receipt",
+                        message = "Amount $amount exceeds $threshold; attach a receipt",
                     )
             }
         }

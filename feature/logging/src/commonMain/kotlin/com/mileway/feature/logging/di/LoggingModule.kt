@@ -31,10 +31,14 @@ val loggingModule =
         single { LogMilesDraftRepository(get()) }
         single { LogMilesFrequentRouteRepository(get()) }
         single { ExpenseRepository(get()) }
-        single { com.mileway.core.network.fx.FrankfurterFxClient() }
+        single {
+            com.mileway.core.network.fx
+                .FrankfurterFxClient()
+        }
         single {
             val client = get<com.mileway.core.network.fx.FrankfurterFxClient>()
-            com.mileway.core.network.fx.FxRatePinner(reference = client::rate)
+            com.mileway.core.network.fx
+                .FxRatePinner(reference = client::rate)
         }
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }

@@ -12,9 +12,19 @@ import kotlin.test.assertTrue
 class ForeignCurrencyGroupingTest {
     @Test
     fun foreignLineRetainsCurrencyAndUsesThePinWithAndWithoutDetails() {
-        val record = ExpenseRecord("fx", ExpenseCategory.FOOD, "Cafe", 100.0, ExpenseStatus.PENDING, 0,
-            currencyCode = "USD", amountMinor = 10000,
-            fxRate = FxRate(90.0, "USD", sourceDate = "2026-09-25"), fxRatePinnedAt = 123)
+        val record =
+            ExpenseRecord(
+                "fx",
+                ExpenseCategory.FOOD,
+                "Cafe",
+                100.0,
+                ExpenseStatus.PENDING,
+                0,
+                currencyCode = "USD",
+                amountMinor = 10000,
+                fxRate = FxRate(90.0, "USD", sourceDate = "2026-09-25"),
+                fxRatePinnedAt = 123,
+            )
         for (entry in listOf(record, record.copy(attendees = listOf(Attendee("Alex"))))) {
             val line = entry.toClaimLine()
             assertEquals("USD", line.currency)

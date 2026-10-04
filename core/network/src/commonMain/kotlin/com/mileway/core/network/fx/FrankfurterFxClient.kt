@@ -18,13 +18,18 @@ class FrankfurterFxClient(
     private val json = Json { ignoreUnknownKeys = true }
 
     /** Keeps the provider's actual rate date, including the preceding business day on holidays. */
-    suspend fun rate(base: String, quote: String = "INR", date: String? = null): FxRate? {
+    suspend fun rate(
+        base: String,
+        quote: String = "INR",
+        date: String? = null,
+    ): FxRate? {
         if (!base.matches(Regex("[A-Z]{3}")) || !quote.matches(Regex("[A-Z]{3}")) || base == quote) return null
         return try {
             if (date != null) LocalDate.parse(date)
-            val response = client.get("https://api.frankfurter.dev/v2/providers/ecb/rate/$base/$quote") {
-                date?.let { parameter("date", it) }
-            }
+            val response =
+                client.get("https://api.frankfurter.dev/v2/providers/ecb/rate/$base/$quote") {
+                    date?.let { parameter("date", it) }
+                }
             if (response.status.value !in 200..299) return null
             val body = json.decodeFromString<Response>(response.bodyAsText())
             LocalDate.parse(body.date)
@@ -38,5 +43,10 @@ class FrankfurterFxClient(
     }
 
     @Serializable
-    private data class Response(val date: String, val base: String, val quote: String, val rate: Double)
+    private data class Response(
+        val date: String,
+        val base: String,
+        val quote: String,
+        val rate: Double,
+    )
 }

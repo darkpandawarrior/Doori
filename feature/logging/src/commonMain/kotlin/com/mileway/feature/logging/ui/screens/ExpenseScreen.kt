@@ -76,6 +76,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.forms.ui.FormFieldWithSuggestions
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.PolicyViolation
@@ -136,8 +137,6 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
 import com.mileway.feature.logging.catalog.ExpenseCustomFormCatalog
-import com.mileway.core.data.domain.claim.amountInCurrencyMinor
-import com.mileway.feature.logging.viewmodel.fxLine
 import com.mileway.feature.logging.currency.CurrencyConverter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
@@ -150,9 +149,9 @@ import com.mileway.feature.logging.viewmodel.ExpenseFormState
 import com.mileway.feature.logging.viewmodel.ExpenseUiState
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.expenseFieldContext
+import com.mileway.feature.logging.viewmodel.fxLine
 import com.mileway.stub.PolicyMockData
 import com.siddharth.kmp.common.asString
-import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -587,8 +586,12 @@ private fun Step2Content(
                 modifier = Modifier.fillMaxWidth(),
             )
             Text(
-                text = if (ui.fxLoading) "Fetching ECB reference rate…" else
-                    ui.fxMessage ?: "FX rate is pinned when you save. Offline: enter a manual rate (approximate).",
+                text =
+                    if (ui.fxLoading) {
+                        "Fetching ECB reference rate…"
+                    } else {
+                        ui.fxMessage ?: "FX rate is pinned when you save. Offline: enter a manual rate (approximate)."
+                    },
                 style = MaterialTheme.typography.bodySmall,
             )
             Text("INR amount and per-head policy checks use the pinned rate. Without a rate, those checks are skipped.")
@@ -651,7 +654,12 @@ private fun Step2Content(
         // the amount would resolve to on submit. Preserved unchanged from before P27.E.1/E.3: the
         // submit-time policy-violation ModalBottomSheet (see ExpenseScreen) is a second, separate
         // channel, not a replacement for this preview.
-        val liveAmount = form.fxLine().amountInCurrencyMinor("INR")?.toDouble()?.div(100)
+        val liveAmount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
         val liveCategoryName = (form.category ?: ExpenseCategory.OTHER).name
         val liveOutcome = liveAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, liveCategoryName) } ?: SubmissionStatus.SUCCESS
         if (liveOutcome != SubmissionStatus.SUCCESS) {

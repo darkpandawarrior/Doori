@@ -5,7 +5,6 @@ import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.FxRate
 import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.amountInCurrencyMinor
-import com.mileway.core.network.fx.FxRatePinner
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.forms.ExpenseFieldContext
@@ -18,6 +17,7 @@ import com.mileway.core.forms.itemization.ItemizedLineInput
 import com.mileway.core.forms.itemization.itemizedDetails
 import com.mileway.core.forms.parseMinorAmount
 import com.mileway.core.forms.validationErrors
+import com.mileway.core.network.fx.FxRatePinner
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.mvi.ScreenState
@@ -174,10 +174,14 @@ sealed interface ExpenseAction {
         val code: String,
     ) : ExpenseAction
 
-    data class SetManualFxRate(val text: String) : ExpenseAction
+    data class SetManualFxRate(
+        val text: String,
+    ) : ExpenseAction
 
     /** The card importer supplies the matched pair and statement date. */
-    data class SetCardFxRate(val rate: FxRate) : ExpenseAction
+    data class SetCardFxRate(
+        val rate: FxRate,
+    ) : ExpenseAction
 
     data class SetMerchant(
         val name: String,
@@ -512,16 +516,23 @@ class ExpenseViewModel(
         setState { copy(fxLoading = true) }
         viewModelScope.launch {
             try {
-                val date = kotlin.time.Instant.fromEpochMilliseconds(form.dateMs ?: kotlin.time.Clock.System.now().toEpochMilliseconds())
-                    .toString().take(10)
+                val date =
+                    kotlin.time.Instant
+                        .fromEpochMilliseconds(
+                            form.dateMs ?: kotlin.time.Clock.System
+                                .now()
+                                .toEpochMilliseconds(),
+                        ).toString()
+                        .take(10)
                 val pinned = fxPinner.pin(form.fxLine(), date, form.cardFxRate, manual)
                 // Do not apply a response to a form edited while the GET was pending.
                 if (currentState.form != form) return@launch
                 setState {
                     copy(
                         form = form.copy(fxRate = pinned.fxRate, fxRatePinnedAt = pinned.fxRatePinnedAt),
-                        fxMessage = pinned.fxRate?.let { "${it.source}: 1 ${form.currencyCode} = ${it.rate} INR; rate date ${it.sourceDate ?: "unavailable (manual)"}" }
-                            ?: "No FX rate available. Enter a manual INR rate (approximate). Amount policy checks are skipped.",
+                        fxMessage =
+                            pinned.fxRate?.let { it.description() }
+                                ?: "No FX rate available. Enter a manual INR rate (approximate). Amount policy checks are skipped.",
                     )
                 }
                 validateAndSubmit(policyConfirmed)
@@ -541,7 +552,12 @@ class ExpenseViewModel(
             setState { copy(form = form.copy(errors = errors)) }
             return
         }
-        val amount = form.fxLine().amountInCurrencyMinor("INR")?.toDouble()?.div(100)
+        val amount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
         val category = form.category ?: ExpenseCategory.OTHER
         val outcome = amount?.let { PolicyMockData.outcomeForExpenseAmount(it, category.name) } ?: SubmissionStatus.NEEDS_APPROVAL
         val blocksOnPolicy =
@@ -565,8 +581,16 @@ class ExpenseViewModel(
                         ),
                     )
                 }
-            val amountViolations = amount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
-                ?: listOf(PolicyViolation("FX_POLICY_SKIPPED", "FX rate unavailable", "Amount checks skipped; enter a manual rate (approximate)", com.mileway.core.network.model.ViolationSeverity.VIOLATION))
+            val amountViolations =
+                amount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
+                    ?: listOf(
+                        PolicyViolation(
+                            "FX_POLICY_SKIPPED",
+                            "FX rate unavailable",
+                            "Amount checks skipped; enter a manual rate (approximate)",
+                            com.mileway.core.network.model.ViolationSeverity.VIOLATION,
+                        ),
+                    )
             emitEffect(ExpenseEffect.ShowPolicySheet(amountViolations + perHeadViolations))
             return
         }
@@ -625,10 +649,23 @@ class ExpenseViewModel(
                 cardMatchedAmountMinor = form.expenseFieldContext()?.cardMatchedAmountMinor,
             )
         // P1.6: same tiered policy engine as Log Miles, keyed off the expense amount.
-        val policyAmount = form.fxLine().amountInCurrencyMinor("INR")?.toDouble()?.div(100)
+        val policyAmount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
         val submissionStatus = policyAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, category.name) } ?: SubmissionStatus.NEEDS_APPROVAL
-        val violations = policyAmount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
-            ?: listOf(PolicyViolation("FX_POLICY_SKIPPED", "FX rate unavailable", "Amount checks skipped; manual FX is approximate", com.mileway.core.network.model.ViolationSeverity.VIOLATION))
+        val violations =
+            policyAmount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
+                ?: listOf(
+                    PolicyViolation(
+                        "FX_POLICY_SKIPPED",
+                        "FX rate unavailable",
+                        "Amount checks skipped; manual FX is approximate",
+                        com.mileway.core.network.model.ViolationSeverity.VIOLATION,
+                    ),
+                )
         viewModelScope.launch {
             if (form.isEditing) repository.update(record) else repository.insert(record)
             reviewTracker?.recordInteraction()
@@ -666,7 +703,12 @@ class ExpenseViewModel(
                         currencyCode = record.currencyCode,
                         fxRate = record.fxRate,
                         fxRatePinnedAt = record.fxRatePinnedAt,
-                        manualFxRateText = record.fxRate?.takeIf { it.source == FxRateSource.MANUAL_APPROXIMATE }?.rate?.toString().orEmpty(),
+                        manualFxRateText =
+                            record.fxRate
+                                ?.takeIf { it.source == FxRateSource.MANUAL_APPROXIMATE }
+                                ?.rate
+                                ?.toString()
+                                .orEmpty(),
                         merchantName = record.merchantName,
                         note = record.note,
                         receiptImagePath = record.receiptImagePath,
@@ -1024,8 +1066,12 @@ private fun ExpenseFormState.cardSplitErrors(): Map<FieldId, UiText> {
 /** Policy conversion uses the captured amount and the saved pin, never the static preview table. */
 internal fun ExpenseFormState.fxLine(): ExpenseLine =
     ExpenseLine(
-        id = editingId ?: "capture", amountMinor = parseMinorAmount(amountText) ?: 0,
-        currency = currencyCode, merchant = merchantName, category = category?.name.orEmpty(),
-        fxRate = fxRate, fxRatePinnedAt = fxRatePinnedAt,
+        id = editingId ?: "capture",
+        amountMinor = parseMinorAmount(amountText) ?: 0,
+        currency = currencyCode,
+        merchant = merchantName,
+        category = category?.name.orEmpty(),
+        fxRate = fxRate,
+        fxRatePinnedAt = fxRatePinnedAt,
         cardMatchId = (sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: cardMatchId,
     )

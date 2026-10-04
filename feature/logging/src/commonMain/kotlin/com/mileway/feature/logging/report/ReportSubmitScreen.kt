@@ -70,8 +70,12 @@ private fun ReportSubmitContent(
                     val label = (line as? ExpenseLine)?.merchant ?: line.id
                     Text("$label · ${line.currency} ${line.amountMinor.toDouble() / MinorPerRupee}")
                     if (line is ExpenseLine && line.currency != "INR") {
-                        Text(line.fxRate?.let { "${it.source}: 1 ${line.currency} = ${it.rate} INR; rate date ${it.sourceDate ?: "unavailable (manual, approximate)"}" }
-                            ?: "No FX pin: amount checks skipped; enter a manual rate (approximate).")
+                        Text(
+                            line.fxRate?.let {
+                                it.description()
+                            }
+                                ?: "No FX pin: amount checks skipped; enter a manual rate (approximate).",
+                        )
                     }
                 }
                 Text("Report policy", style = MaterialTheme.typography.titleMedium)
