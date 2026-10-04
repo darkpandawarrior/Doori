@@ -136,6 +136,8 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.DesignTokens.NavigationDepth
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
 import com.mileway.feature.logging.catalog.ExpenseCustomFormCatalog
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
+import com.mileway.feature.logging.viewmodel.fxLine
 import com.mileway.feature.logging.currency.CurrencyConverter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
@@ -575,16 +577,21 @@ private fun Step2Content(
             )
         }
 
-        // P27.E.15: local, static-table conversion preview — informational only, never applied
-        // to the amount actually stored/checked against policy (see ExpenseFormState.currencyCode).
         if (form.currencyCode != "INR") {
-            val liveAmountForConversion = form.amountText.toDoubleOrNull() ?: 0.0
-            val convertedRupees = CurrencyConverter.toRupees(liveAmountForConversion, form.currencyCode)
-            Text(
-                text = "≈ ₹${convertedRupees.formatDecimal(2)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            OutlinedTextField(
+                value = form.manualFxRateText,
+                onValueChange = { viewModel.onAction(ExpenseAction.SetManualFxRate(it)) },
+                label = { Text("Manual INR rate (approximate, used if ECB unavailable)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
             )
+            Text(
+                text = if (ui.fxLoading) "Fetching ECB reference rate…" else
+                    ui.fxMessage ?: "FX rate is pinned when you save. Offline: enter a manual rate (approximate).",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text("INR amount and per-head policy checks use the pinned rate. Without a rate, those checks are skipped.")
         }
 
         val merchantError = form.errors[ExpenseFormValidator.FIELD_MERCHANT_NAME]
@@ -644,11 +651,11 @@ private fun Step2Content(
         // the amount would resolve to on submit. Preserved unchanged from before P27.E.1/E.3: the
         // submit-time policy-violation ModalBottomSheet (see ExpenseScreen) is a second, separate
         // channel, not a replacement for this preview.
-        val liveAmount = form.amountText.toDoubleOrNull() ?: 0.0
+        val liveAmount = form.fxLine().amountInCurrencyMinor("INR")?.toDouble()?.div(100)
         val liveCategoryName = (form.category ?: ExpenseCategory.OTHER).name
-        val liveOutcome = PolicyMockData.outcomeForExpenseAmount(liveAmount, liveCategoryName)
+        val liveOutcome = liveAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, liveCategoryName) } ?: SubmissionStatus.SUCCESS
         if (liveOutcome != SubmissionStatus.SUCCESS) {
-            val liveViolation = PolicyMockData.violationsForExpenseAmount(liveAmount, liveCategoryName).firstOrNull()
+            val liveViolation = liveAmount?.let { PolicyMockData.violationsForExpenseAmount(it, liveCategoryName).firstOrNull() }
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
                 shape = DesignTokens.Shape.roundedSm,

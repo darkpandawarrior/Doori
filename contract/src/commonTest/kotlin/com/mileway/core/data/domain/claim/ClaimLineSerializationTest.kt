@@ -44,6 +44,18 @@ class ClaimLineSerializationTest {
     }
 
     @Test
+    fun fxPinRoundTripsThroughTheSameDetailsJsonAndOldRowsHaveNoPin() {
+        val old: ClaimLine = ExpenseLine("old", 1000, "USD", merchant = "Cafe", category = "FOOD")
+        val decodedOld = json.decodeFromString<ClaimLine>(json.encodeToString(old)) as ExpenseLine
+        assertEquals(null, decodedOld.fxRate)
+        assertEquals(null, decodedOld.fxRatePinnedAt)
+        val pinned: ClaimLine = decodedOld.copy(fxRate = FxRate(95.82, "USD", sourceDate = "2026-09-25"), fxRatePinnedAt = 123L)
+        assertEquals(pinned, json.decodeFromString<ClaimLine>(json.encodeToString(pinned)))
+        val report = Report("fx-report", "employee", listOf(pinned))
+        assertEquals(report, json.decodeFromString<Report>(json.encodeToString(report)))
+    }
+
+    @Test
     fun mileageLineDiscriminatorIsMileage() {
         val line: ClaimLine = MileageLine(id = "line-2", amountMinor = 12000, currency = "INR", distanceKm = 12.5, vehicleKey = "twoWheeler")
         val expectedJson =

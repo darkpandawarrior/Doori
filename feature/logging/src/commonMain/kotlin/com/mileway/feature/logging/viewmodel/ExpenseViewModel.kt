@@ -1,6 +1,11 @@
 package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRate
+import com.mileway.core.data.domain.claim.FxRateSource
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
+import com.mileway.core.network.fx.FxRatePinner
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
 import com.mileway.core.forms.ExpenseFieldContext
@@ -60,13 +65,12 @@ data class ExpenseFormState(
     val step: Int = 1,
     val category: ExpenseCategory? = null,
     val amountText: String = "",
-    /**
-     * P27.E.15: currency the amount above was entered in (static local conversion table only —
-     * no live FX backend, see [com.mileway.feature.logging.currency.CurrencyConverter]).
-     * [submitExpense] stores [ExpenseRecord.amountRupees] unchanged (still the literal figure
-     * typed in) — this only drives the picker and the entry screen's "≈ ₹" preview.
-     */
+    /** Currency of the captured amount; FX is pinned separately at save time. */
     val currencyCode: String = "INR",
+    val manualFxRateText: String = "",
+    val fxRate: FxRate? = null,
+    val fxRatePinnedAt: Long? = null,
+    val cardFxRate: FxRate? = null,
     val merchantName: String = "",
     val note: String = "",
     /** Local URI/path of an optional attached receipt photo (P1.4); null when none was attached. */
@@ -105,6 +109,8 @@ data class ExpenseFormState(
 data class ExpenseUiState(
     val listState: ScreenState<ExpenseListData> = ScreenState.Loading,
     val form: ExpenseFormState = ExpenseFormState(),
+    val fxLoading: Boolean = false,
+    val fxMessage: String? = null,
     val lastSubmittedId: String = "",
     val lastSubmittedAmount: Double = 0.0,
     val detailState: ScreenState<ExpenseRecord> = ScreenState.Empty,
@@ -167,6 +173,11 @@ sealed interface ExpenseAction {
     data class SetCurrency(
         val code: String,
     ) : ExpenseAction
+
+    data class SetManualFxRate(val text: String) : ExpenseAction
+
+    /** The card importer supplies the matched pair and statement date. */
+    data class SetCardFxRate(val rate: FxRate) : ExpenseAction
 
     data class SetMerchant(
         val name: String,
@@ -351,6 +362,7 @@ class ExpenseViewModel(
     // PLAN_V24 P12.3: creating an expense is a meaningful engagement signal for the review gate.
     // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
     private val reviewTracker: ReviewTracker? = null,
+    private val fxPinner: FxRatePinner = FxRatePinner(),
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
     private var policyWarningForm: ExpenseFormState? = null
     private var duplicateWarningForm: ExpenseFormState? = null
@@ -381,7 +393,12 @@ class ExpenseViewModel(
             ExpenseAction.RetreatStep -> setState { copy(form = form.copy(step = 1)) }
             is ExpenseAction.SetFormValue -> setState { copy(form = form.copy(formValues = form.formValues + (action.key to action.value))) }
             is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
-            is ExpenseAction.SetCurrency -> setState { copy(form = form.copy(currencyCode = action.code)) }
+            is ExpenseAction.SetCurrency ->
+                setState { copy(form = form.copy(currencyCode = action.code, fxRate = null, fxRatePinnedAt = null, cardFxRate = null), fxMessage = null) }
+            is ExpenseAction.SetManualFxRate ->
+                setState { copy(form = form.copy(manualFxRateText = action.text, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
+            is ExpenseAction.SetCardFxRate ->
+                setState { copy(form = form.copy(cardFxRate = action.rate, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
             is ExpenseAction.SetMerchant -> setState { copy(form = form.copy(merchantName = action.name)) }
             is ExpenseAction.SetNote -> setState { copy(form = form.copy(note = action.note)) }
             is ExpenseAction.SetReceiptImage -> setState { copy(form = form.copy(receiptImagePath = action.path)) }
@@ -477,6 +494,44 @@ class ExpenseViewModel(
      * A SUCCESS outcome submits straight through, unchanged from before P27.E.3.
      */
     private fun submitExpense(policyConfirmed: Boolean = false) {
+        if (currentState.fxLoading) return
+        val form = currentState.form
+        if (form.currencyCode == "INR") {
+            validateAndSubmit(policyConfirmed)
+            return
+        }
+        val manual = form.manualFxRateText.toDoubleOrNull()
+        if (form.manualFxRateText.isNotBlank() && (manual == null || !manual.isFinite() || manual <= 0)) {
+            setState { copy(fxMessage = "Enter a finite manual rate greater than zero (approximate)") }
+            return
+        }
+        if (parseMinorAmount(form.amountText) == null || form.category == null) {
+            validateAndSubmit(policyConfirmed)
+            return
+        }
+        setState { copy(fxLoading = true) }
+        viewModelScope.launch {
+            try {
+                val date = kotlin.time.Instant.fromEpochMilliseconds(form.dateMs ?: kotlin.time.Clock.System.now().toEpochMilliseconds())
+                    .toString().take(10)
+                val pinned = fxPinner.pin(form.fxLine(), date, form.cardFxRate, manual)
+                // Do not apply a response to a form edited while the GET was pending.
+                if (currentState.form != form) return@launch
+                setState {
+                    copy(
+                        form = form.copy(fxRate = pinned.fxRate, fxRatePinnedAt = pinned.fxRatePinnedAt),
+                        fxMessage = pinned.fxRate?.let { "${it.source}: 1 ${form.currencyCode} = ${it.rate} INR; rate date ${it.sourceDate ?: "unavailable (manual)"}" }
+                            ?: "No FX rate available. Enter a manual INR rate (approximate). Amount policy checks are skipped.",
+                    )
+                }
+                validateAndSubmit(policyConfirmed)
+            } finally {
+                setState { copy(fxLoading = false) }
+            }
+        }
+    }
+
+    private fun validateAndSubmit(policyConfirmed: Boolean = false) {
         val form = currentState.form
         val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == form.category }
         val fieldErrors = ExpenseFormValidator.validate(form, catalogDef)
@@ -486,14 +541,15 @@ class ExpenseViewModel(
             setState { copy(form = form.copy(errors = errors)) }
             return
         }
-        val amount = form.amountText.toDoubleOrNull() ?: 0.0
+        val amount = form.fxLine().amountInCurrencyMinor("INR")?.toDouble()?.div(100)
         val category = form.category ?: ExpenseCategory.OTHER
-        val outcome = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
+        val outcome = amount?.let { PolicyMockData.outcomeForExpenseAmount(it, category.name) } ?: SubmissionStatus.NEEDS_APPROVAL
         val blocksOnPolicy =
             outcome == SubmissionStatus.POLICY_VIOLATION || outcome == SubmissionStatus.NEEDS_APPROVAL || outcome == SubmissionStatus.HARD_STOP
         val context = form.expenseFieldContext()
         val attendeeCount = (form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names?.size ?: 0
-        val perHeadWarning = context?.policy?.perHeadViolation(context.anchorAmountMinor, attendeeCount, context.submittedAtMillis)
+        val policyAnchor = context?.let { form.fxLine().copy(amountMinor = it.anchorAmountMinor).amountInCurrencyMinor("INR") }
+        val perHeadWarning = policyAnchor?.let { expenseReportPolicy().perHeadViolation(it, attendeeCount, context?.submittedAtMillis ?: 0) }
         if (!policyConfirmed && (blocksOnPolicy || perHeadWarning != null)) {
             policyWarningForm = form
             val perHeadViolations =
@@ -509,7 +565,9 @@ class ExpenseViewModel(
                         ),
                     )
                 }
-            emitEffect(ExpenseEffect.ShowPolicySheet(PolicyMockData.violationsForExpenseAmount(amount, category.name) + perHeadViolations))
+            val amountViolations = amount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
+                ?: listOf(PolicyViolation("FX_POLICY_SKIPPED", "FX rate unavailable", "Amount checks skipped; enter a manual rate (approximate)", com.mileway.core.network.model.ViolationSeverity.VIOLATION))
+            emitEffect(ExpenseEffect.ShowPolicySheet(amountViolations + perHeadViolations))
             return
         }
         performSubmit()
@@ -558,6 +616,8 @@ class ExpenseViewModel(
                 officeCode = form.officeCode,
                 currencyCode = form.currencyCode,
                 amountMinor = parseMinorAmount(form.amountText),
+                fxRate = form.fxRate,
+                fxRatePinnedAt = form.fxRatePinnedAt,
                 splits = form.splitDetails(),
                 attendees = attendeeDetails((form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names.orEmpty()),
                 itemized = itemizedDetails((form.formValues[ExpenseCustomFormCatalog.ITEMIZED] as? FormFieldValue.ItemizedLines)?.entries.orEmpty()).orEmpty(),
@@ -565,8 +625,10 @@ class ExpenseViewModel(
                 cardMatchedAmountMinor = form.expenseFieldContext()?.cardMatchedAmountMinor,
             )
         // P1.6: same tiered policy engine as Log Miles, keyed off the expense amount.
-        val submissionStatus = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
-        val violations = PolicyMockData.violationsForExpenseAmount(amount, category.name)
+        val policyAmount = form.fxLine().amountInCurrencyMinor("INR")?.toDouble()?.div(100)
+        val submissionStatus = policyAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, category.name) } ?: SubmissionStatus.NEEDS_APPROVAL
+        val violations = policyAmount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
+            ?: listOf(PolicyViolation("FX_POLICY_SKIPPED", "FX rate unavailable", "Amount checks skipped; manual FX is approximate", com.mileway.core.network.model.ViolationSeverity.VIOLATION))
         viewModelScope.launch {
             if (form.isEditing) repository.update(record) else repository.insert(record)
             reviewTracker?.recordInteraction()
@@ -602,6 +664,9 @@ class ExpenseViewModel(
                         category = record.category,
                         amountText = record.amountMinor?.toAmountText() ?: record.amountRupees.toAmountText(),
                         currencyCode = record.currencyCode,
+                        fxRate = record.fxRate,
+                        fxRatePinnedAt = record.fxRatePinnedAt,
+                        manualFxRateText = record.fxRate?.takeIf { it.source == FxRateSource.MANUAL_APPROXIMATE }?.rate?.toString().orEmpty(),
                         merchantName = record.merchantName,
                         note = record.note,
                         receiptImagePath = record.receiptImagePath,
@@ -679,6 +744,10 @@ class ExpenseViewModel(
 
     private fun saveDraft() {
         val form = currentState.form
+        if (form.currencyCode != "INR" || form.manualFxRateText.isNotBlank() || form.fxRate != null) {
+            emitEffect(ExpenseEffect.ShowToast(UiText.of("Draft storage cannot retain FX rates. Submit the expense to pin the rate.")))
+            return
+        }
         if (form.formValues.any { (key, value) ->
                 key in setOf(ExpenseCustomFormCatalog.SPLITS, ExpenseCustomFormCatalog.ATTENDEES, ExpenseCustomFormCatalog.ITEMIZED) &&
                     !com.mileway.core.forms
@@ -915,7 +984,7 @@ internal fun ExpenseFormState.expenseFieldContext(): ExpenseFieldContext? {
         receiptAmountMinor = receipt,
         currencyCode = currencyCode,
         cardMatchedAmountMinor = cardAmount ?: cardMatchedAmountMinor,
-        policy = expenseReportPolicy(),
+        policy = if (currencyCode == "INR") expenseReportPolicy() else null,
         submittedAtMillis =
             kotlin.time.Clock.System
                 .now()
@@ -951,3 +1020,12 @@ private fun ExpenseFormState.cardSplitErrors(): Map<FieldId, UiText> {
         emptyMap()
     }
 }
+
+/** Policy conversion uses the captured amount and the saved pin, never the static preview table. */
+internal fun ExpenseFormState.fxLine(): ExpenseLine =
+    ExpenseLine(
+        id = editingId ?: "capture", amountMinor = parseMinorAmount(amountText) ?: 0,
+        currency = currencyCode, merchant = merchantName, category = category?.name.orEmpty(),
+        fxRate = fxRate, fxRatePinnedAt = fxRatePinnedAt,
+        cardMatchId = (sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: cardMatchId,
+    )
