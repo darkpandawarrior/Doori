@@ -8,6 +8,7 @@ import com.mileway.core.ai.model.ExtractedValue
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class DuplicateDetectorTest {
     private val detector = DuplicateDetector(windowMinutes = 5)
@@ -103,4 +104,54 @@ class DuplicateDetectorTest {
 
         assertEquals(DuplicateVerdict.Confirmed("ref-1"), verdict)
     }
+    @Test
+    fun `image match catches changed OCR and names the image reason`() {
+        val candidates = listOf(DedupCandidate("saved", "Other Shop", "99.00", 0L, imageHash = 42L))
+        val verdict = detector.check(fields(), 60_000L, candidates, imageHash = 42L)
+        assertIs<DuplicateVerdict.Possible>(verdict)
+        assertEquals("saved", verdict.ref)
+        assertTrue(verdict.reason.contains("image match"))
+    }
+
+    @Test
+    fun `image match with no OCR fields is possible`() {
+        val candidates = listOf(DedupCandidate("saved", null, null, 0L, imageHash = 42L))
+        assertIs<DuplicateVerdict.Possible>(detector.check(emptyMap(), 60_000L, candidates, imageHash = 42L))
+    }
+
+    @Test
+    fun `image and field match confirms even at different timestamps`() {
+        val candidates = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L, imageHash = 42L))
+        assertEquals(DuplicateVerdict.Confirmed("saved"), detector.check(fields(), 60_000L, candidates, imageHash = 42L))
+    }
+
+    @Test
+    fun `image match beyond window remains unique`() {
+        val candidates = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L, imageHash = 42L))
+        assertEquals(DuplicateVerdict.Unique, detector.check(fields(), 300_001L, candidates, imageHash = 42L))
+    }
+
+    @Test
+    fun `missing hash on either side retains field rule`() {
+        val noHash = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L))
+        assertIs<DuplicateVerdict.Possible>(detector.check(fields(), 60_000L, noHash, imageHash = 42L))
+        val hash = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L, imageHash = 42L))
+        assertIs<DuplicateVerdict.Possible>(detector.check(fields(), 60_000L, hash))
+    }
+
+    @Test
+    fun `distant images are unique even when OCR values agree`() {
+        val candidates = listOf(DedupCandidate("saved", "Cafe Roma", "12.50", 0L, imageHash = -1L))
+        assertEquals(DuplicateVerdict.Unique, detector.check(fields(), 60_000L, candidates, imageHash = 0L))
+    }
+
+    @Test
+    fun `image threshold is inclusive and counts all 64 bits`() {
+        assertEquals(64, DuplicateDetector.hammingDistance(0L, -1L))
+        val near = listOf(DedupCandidate("near", null, null, 0L, imageHash = 255L))
+        assertIs<DuplicateVerdict.Possible>(detector.check(emptyMap(), 1L, near, imageHash = 0L))
+        val far = listOf(DedupCandidate("far", null, null, 0L, imageHash = 511L))
+        assertEquals(DuplicateVerdict.Unique, detector.check(emptyMap(), 1L, far, imageHash = 0L))
+    }
+
 }

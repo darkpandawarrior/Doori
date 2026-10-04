@@ -25,6 +25,8 @@ import com.mileway.core.media.model.AttachmentItem
 import com.mileway.core.media.model.AttachmentSource
 import com.mileway.core.media.model.CaptureMode
 import com.mileway.core.media.model.MediaCaptureConfig
+import com.mileway.core.media.ocr.ReceiptHistorySource
+import com.mileway.core.media.ocr.analyzeReceiptCapture
 import com.mileway.core.media.model.MediaCaptureResult
 import com.mileway.core.media.watermark.burnWatermark
 import com.mileway.core.media.watermark.shouldWatermark
@@ -90,6 +92,7 @@ actual fun rememberMediaCaptureLauncher(
     val mode = config.allowedModes.firstOrNull() ?: CaptureMode.Gallery
 
     val documentIntelligence = remember { androidDocumentIntelligence() }
+    val receiptHistory = remember { KoinPlatform.getKoin().get<ReceiptHistorySource>() }
     val textRecognizer = remember { KoinPlatform.getKoin().getOrNull<TextRecognizer>() }
     val scanner = remember { KoinPlatform.getKoin().getOrNull<DocumentScanBackend>() }
     val expectedDocType =
@@ -130,7 +133,7 @@ actual fun rememberMediaCaptureLauncher(
                 return@launch
             }
             if (watermarked.size == 1) {
-                val analysis = documentIntelligence.analyzeOrNull(watermarked[0].uri, ocrPrompt)
+                val analysis = documentIntelligence.analyzeOrNull(watermarked[0].uri, ocrPrompt, receiptHistory)
                 if (analysis == null) {
                     // OCR itself failed (not a duplicate/wrong-doc-type verdict) — still attach the
                     // photo rather than blocking the user on an OCR-plumbing error.
@@ -142,7 +145,7 @@ actual fun rememberMediaCaptureLauncher(
             } else {
                 batchItems =
                     watermarked.map { item ->
-                        val analysis = documentIntelligence.analyzeOrNull(item.uri, ocrPrompt)
+                        val analysis = documentIntelligence.analyzeOrNull(item.uri, ocrPrompt, receiptHistory)
                         BatchOcrItem(label = item.uri.substringAfterLast('/'), status = analysis.toBatchStatus(expectedDocType))
                     }
                 pendingItems = watermarked
@@ -362,9 +365,10 @@ private fun DocumentAnalysis?.toBatchStatus(expectedDocType: DocType): BatchOcrS
 private suspend fun DocumentIntelligence.analyzeOrNull(
     uri: String,
     prompt: DocPrompt,
+    history: ReceiptHistorySource,
 ): DocumentAnalysis? =
     try {
-        analyze(uri, prompt)
+        analyzeReceiptCapture(this, uri, prompt, System.currentTimeMillis(), history)
     } catch (cancellation: CancellationException) {
         throw cancellation
     } catch (ignored: Exception) {

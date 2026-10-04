@@ -31,6 +31,10 @@ interface TripAttachmentDao {
         type: AttachmentType,
     ): Flow<List<TripAttachmentEntity>>
 
+    /** Recent saved receipt images for the capture duplicate check; no schema change. */
+    @Query("SELECT * FROM trip_attachments WHERE type = 'RECEIPT' AND created_at BETWEEN :sinceMillis AND :untilMillis ORDER BY created_at DESC")
+    suspend fun getRecentReceipts(sinceMillis: Long, untilMillis: Long): List<TripAttachmentEntity>
+
     @Query("DELETE FROM trip_attachments WHERE id = :id")
     suspend fun delete(id: Long)
 

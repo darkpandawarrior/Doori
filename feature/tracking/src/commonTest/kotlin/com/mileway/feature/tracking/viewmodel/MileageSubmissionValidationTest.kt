@@ -45,6 +45,8 @@ private object FakeSubmissionConfigProvider : ConfigProvider {
 }
 
 private class NoOpTripAttachmentDao : TripAttachmentDao {
+    override suspend fun getRecentReceipts(sinceMillis: Long, untilMillis: Long): List<TripAttachmentEntity> = emptyList()
+
     override suspend fun insert(attachment: TripAttachmentEntity): Long = 0L
 
     override fun observeForTrack(trackToken: String): Flow<List<TripAttachmentEntity>> = MutableStateFlow(emptyList())

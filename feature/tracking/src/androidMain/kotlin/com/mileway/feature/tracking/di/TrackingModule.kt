@@ -1,6 +1,8 @@
 package com.mileway.feature.tracking.di
 
 import com.mileway.core.data.search.SearchProvider
+import com.mileway.core.media.ocr.ReceiptHistorySource
+import com.mileway.feature.tracking.repository.RecentReceiptHistory
 import com.mileway.core.network.NetworkMonitor
 import com.mileway.core.network.config.ConfigProvider
 import com.mileway.core.network.netlog.NetworkLogStore
@@ -239,6 +241,7 @@ val trackingModule =
         viewModelOf(::LiveTrackViewModel)
         viewModelOf(::HardwareEventsViewModel)
         viewModelOf(::TrackInsightsViewModel)
+        single<ReceiptHistorySource> { RecentReceiptHistory(get(), get()) }
         viewModelOf(::ExportViewModel)
         // PLAN_V24 P3.5: SOS sheet — explicit (not viewModelOf) so the Clock default is honored;
         // EmergencyContactsRepository + NotificationDao resolve from core:data's graph.

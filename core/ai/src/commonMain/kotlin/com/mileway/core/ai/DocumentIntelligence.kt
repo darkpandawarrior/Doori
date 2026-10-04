@@ -23,6 +23,7 @@ class DocumentIntelligence(
         prompt: DocPrompt,
         dedupCandidates: List<DedupCandidate> = emptyList(),
         timestampMillis: Long = 0L,
+        imageHash: Long? = null,
     ): DocumentAnalysis {
         // textRecognizer must resolve before aiAnalyzer.extract now: the AI prompt folds in
         // PromptGuard-wrapped OCR text as grounding (see DocumentAiAnalyzer.extract's ocrText
@@ -46,7 +47,7 @@ class DocumentIntelligence(
                 rawText = rawText,
                 textFields = textFields,
             )
-        val duplicate = dedup.check(combined.fields, timestampMillis, dedupCandidates)
+        val duplicate = dedup.check(combined.fields, timestampMillis, dedupCandidates, imageHash)
 
         return DocumentAnalysis(
             docType = combined.docType,

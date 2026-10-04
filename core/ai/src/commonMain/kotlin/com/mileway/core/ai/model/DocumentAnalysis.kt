@@ -58,3 +58,10 @@ data class DocumentAnalysis(
     val overallConfidence: Float,
     val contributingSources: Set<AnalyzerSource>,
 )
+
+/** Fields below this score need review before their values are accepted. */
+const val LOW_CONFIDENCE_THRESHOLD = 0.6f
+
+/** Returns only extracted fields below [threshold]; missing fields have no score. */
+fun DocumentAnalysis.lowConfidenceFields(threshold: Float = LOW_CONFIDENCE_THRESHOLD): Set<DocField> =
+    fields.filterValues { it.confidence < threshold }.keys

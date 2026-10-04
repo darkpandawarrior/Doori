@@ -1,7 +1,9 @@
 package com.mileway.feature.tracking.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.platform.ShareSheet
+import com.mileway.feature.tracking.export.RedactionDefaults
 import com.mileway.feature.tracking.export.TrackExportContent
 import com.mileway.feature.tracking.repository.HardwareEventRepository
 import com.mileway.feature.tracking.repository.LocationRepository
@@ -10,6 +12,7 @@ import com.mileway.feature.tracking.ui.components.ExportFormat
 import com.mileway.feature.tracking.ui.components.LocationDataFilter
 import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 data class ExportUiState(
     val isExporting: Boolean = false,
@@ -27,6 +30,7 @@ class ExportViewModel(
     private val locationRepository: LocationRepository,
     private val hardwareEventRepository: HardwareEventRepository,
     private val shareSheet: ShareSheet,
+    private val savedPlaceDao: SavedPlaceDao,
 ) : BaseViewModel<ExportUiState, ExportEffect, ExportAction>(ExportUiState()) {
     override fun onAction(action: ExportAction) {
         when (action) {
@@ -65,8 +69,14 @@ class ExportViewModel(
 
                 val events = hardwareEventRepository.getEventsForRoute(routeId).getOrElse { emptyList() }
 
-                val content = TrackExportContent.build(format, track, locations, events)
-                val subject = "Track export: ${track.name}"
+                val home = if (filter.redactHome) {
+                    savedPlaceDao.observeAll().first().firstOrNull { it.type == RedactionDefaults.HOME_TYPE }
+                } else null
+                val redactedLocations = RedactionDefaults.locations(locations, home, filter.redactHome)
+                val redactedTrack = RedactionDefaults.track(track, redactedLocations, home, filter.redactHome)
+                val redactedEvents = RedactionDefaults.events(events, home, filter.redactHome)
+                val content = TrackExportContent.build(format, redactedTrack, redactedLocations, redactedEvents)
+                val subject = "Track export: ${redactedTrack.name}"
 
                 shareSheet.share(text = content, subject = subject)
                 setState { copy(isExporting = false) }
