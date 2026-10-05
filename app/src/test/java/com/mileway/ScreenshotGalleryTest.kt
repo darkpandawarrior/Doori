@@ -335,6 +335,7 @@ import com.siddharth.kmp.common.CrashReporter
 import com.siddharth.kmp.designsystem.ai.AiSettingsState
 import com.siddharth.kmp.llmchat.ProviderId
 import dev.tmapps.konnection.Konnection
+import com.siddharth.kmp.offlineoutbox.OpOutbox
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -1143,6 +1144,7 @@ class ScreenshotGalleryTest {
                 single<DataStore<Preferences>> { Phase3RatePreferences() }
                 single<LocationTracker> { NoOpLocationTracker }
                 single<LocationNameResolver> { OfflineLocationNameResolver() }
+                single<OpOutbox> { mockk(relaxed = true) }
                 single<ShareSheet> { mockk(relaxed = true) }
                 single<SessionRepository> { mockk(relaxed = true) { every { sessionState } returns session } }
                 single<SessionSource> {
