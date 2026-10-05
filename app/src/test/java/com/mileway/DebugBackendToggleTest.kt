@@ -17,7 +17,8 @@ import kotlin.test.assertFalse
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [33], application = Application::class)
 class DebugBackendToggleTest {
-    private val context: Context get() = ApplicationProvider.getApplicationContext()
+    private val context: Context
+        get() = ApplicationProvider.getApplicationContext()
 
     @Before
     @After

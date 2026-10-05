@@ -48,6 +48,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import com.mileway.BuildConfig
 import com.mileway.R
 import com.mileway.core.common.deeplink.DeepLinkRouter
 import com.mileway.core.data.banner.Banner
@@ -433,7 +434,12 @@ fun MilewayAppRoot(
                                                 com.mileway.debug.WormaCeptorHelper
                                                     .getLaunchIntent(ctx)
                                                     ?.let { intent -> { ctx.startActivity(intent) } },
-                                            onOpenNetworkLog = { navController.navigate(AppRoutes.NETWORK_LOG) },
+                                            onOpenNetworkLog =
+                                                if (BuildConfig.DEBUG) {
+                                                    { navController.navigate(AppRoutes.NETWORK_LOG) }
+                                                } else {
+                                                    null
+                                                },
                                             onOpenShowcase =
                                                 com.mileway.debug.ShowcaseLauncher
                                                     .getLaunchIntent(ctx)
@@ -443,10 +449,12 @@ fun MilewayAppRoot(
                                 }
                             }
                             // V21 §3 Wave 4: local network log screen, reached from the debug menu.
-                            composable(AppRoutes.NETWORK_LOG) {
-                                com.mileway.feature.tracking.debug.NetworkLogScreen(
-                                    onBack = { navController.popBackStack() },
-                                )
+                            if (BuildConfig.DEBUG) {
+                                composable(AppRoutes.NETWORK_LOG) {
+                                    com.mileway.feature.tracking.debug.NetworkLogScreen(
+                                        onBack = { navController.popBackStack() },
+                                    )
+                                }
                             }
                             // Global master-search destination, full-screen, outside bottom-nav graphs. A tapped
                             // result routes to the section graph that owns the entity (best-effort; some types have
