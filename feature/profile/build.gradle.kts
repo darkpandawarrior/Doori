@@ -1,5 +1,6 @@
 plugins {
     id("shared.cmp.feature")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -27,6 +28,8 @@ kotlin {
             implementation(project(":core:media"))
             // PLAN_V24 P3.3: render the picked profile photo (same loader other feature modules use).
             implementation(libs.coil3.compose)
+            implementation(libs.datastore.preferences.core)
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             implementation("androidx.appcompat:appcompat:1.8.0")

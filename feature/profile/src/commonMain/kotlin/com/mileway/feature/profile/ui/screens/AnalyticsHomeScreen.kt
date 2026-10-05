@@ -93,6 +93,8 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.dataStyle
+import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
+import com.mileway.feature.profile.analytics.ClaimAnalyticsPanel
 import com.mileway.feature.profile.analytics.AnalyticsMetric
 import com.mileway.feature.profile.analytics.DateRangePreset
 import com.mileway.feature.profile.analytics.InsightCard
@@ -117,6 +119,9 @@ fun AnalyticsHomeScreen(
     onOpenDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: AnalyticsViewModel = koinViewModel(),
+    onOpenReimbursements: () -> Unit = {},
+    onOpenRates: () -> Unit = {},
+    claimAnalyticsViewModel: ClaimAnalyticsViewModel? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -180,6 +185,7 @@ fun AnalyticsHomeScreen(
                     stringResource(Res.string.profile_analytics_tab_my_spend),
                     stringResource(Res.string.profile_analytics_tab_team),
                     stringResource(Res.string.profile_analytics_tab_insights),
+                    "Reports",
                 ).forEachIndexed { idx, title ->
                     val icon =
                         when (idx) {
@@ -200,6 +206,7 @@ fun AnalyticsHomeScreen(
                 0 -> MySpendTab(state, viewModel, onOpenDetail)
                 1 -> TeamTab(state, viewModel)
                 2 -> InsightsTab(state)
+                3 -> ClaimAnalyticsPanel(onOpenReimbursements, onOpenRates, viewModel = claimAnalyticsViewModel ?: koinViewModel())
             }
         }
     }

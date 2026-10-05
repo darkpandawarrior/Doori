@@ -184,6 +184,21 @@ import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.ui.screens.CreatePaymentScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
 import com.mileway.feature.profile.di.profileAndroidModule
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
+import com.mileway.core.data.dao.ReportDao
+import com.mileway.core.data.dao.PolicyViolationDao
+import com.mileway.core.data.model.db.ReportEntity
+import com.mileway.core.data.model.db.PolicyViolationEntity
+import com.mileway.feature.profile.admin.RateTableEditorScreen
+import com.mileway.feature.profile.admin.RateTableEditorViewModel
+import com.mileway.feature.profile.admin.RateTableStore
+import com.mileway.feature.profile.analytics.ClaimAnalyticsView
+import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
+import com.mileway.feature.profile.status.ReimbursementStatusScreen
+import com.mileway.feature.profile.status.ReimbursementStatusViewModel
+import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
 import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
@@ -1104,6 +1119,123 @@ class ScreenshotGalleryTest {
         } finally {
             application.close()
         }
+    }
+
+    @Test
+    fun phase3CaptureEmployeeReimbursements() {
+        val reports = MutableStateFlow(listOf(phase1ExpenseReport().copy(state = ReportLifecycleState.APPROVED_FOR_PAYMENT)))
+        val application = phase3ProfileApplication(reports)
+        val viewModel = application.koin.get<ReimbursementStatusViewModel>()
+        try {
+            composeRule.setContent { MilewayTheme { ReimbursementStatusScreen(onBack = {}, viewModel = viewModel) } }
+            composeRule.onNodeWithText("Processing payment (simulated)").assertIsDisplayed()
+            capture("phase3_reimbursement_processing")
+            reports.value = reports.value.map { it.copy(state = ReportLifecycleState.PAID) }
+            composeRule.onNodeWithText("Paid (simulated)").assertIsDisplayed()
+            capture("phase3_reimbursement_paid")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase3CaptureLocalRateEditor() {
+        val application = phase3ProfileApplication()
+        val viewModel = application.koin.get<RateTableEditorViewModel>()
+        try {
+            composeRule.setContent { MilewayTheme { RateTableEditorScreen(onBack = {}, viewModel = viewModel) } }
+            composeRule.onNodeWithText("Effective date (YYYY-MM-DD)").performTextInput("2027-01-01")
+            composeRule.onNodeWithText("Rate per km (INR)").performTextInput("8.50")
+            composeRule.onNodeWithText("Vehicle key").performScrollTo().performTextInput("car")
+            composeRule.onNodeWithText("Add dated version").performScrollTo().performClick()
+            composeRule.onNodeWithText("Dated version saved locally").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("car: ${formatMinorCurrency(850, "INR")} / km").performScrollTo().assertIsDisplayed()
+            capture("phase3_local_rate_editor_saved")
+            kotlinx.coroutines.runBlocking {
+                org.junit.Assert.assertEquals(850L, application.koin.get<RateTableStore>().read().mileage.policy.single().ratesMinorPerKm["car"])
+            }
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase3CaptureReportSpendAnalytics() = phase3AnalyticsCapture(ClaimAnalyticsView.SPEND, "Claimed spend by currency", "phase3_report_spend")
+
+    @Test
+    fun phase3CaptureReportViolationAnalytics() = phase3AnalyticsCapture(ClaimAnalyticsView.VIOLATIONS, "Distinct policy flags", "phase3_report_violations")
+
+    @Test
+    fun phase3CaptureReportCycleAnalytics() = phase3AnalyticsCapture(ClaimAnalyticsView.CYCLE_TIME, "Completed submission-to-paid cycles", "phase3_report_cycle_time")
+
+    private fun phase3AnalyticsCapture(view: ClaimAnalyticsView, expected: String, name: String) {
+        val application = phase3ProfileApplication()
+        val analytics = application.koin.get<AnalyticsViewModel>()
+        val claims = application.koin.get<ClaimAnalyticsViewModel>()
+        claims.selectView(view)
+        try {
+            composeRule.setContent {
+                MilewayTheme {
+                    AnalyticsHomeScreen(onBack = {}, onOpenDetail = {}, viewModel = analytics, claimAnalyticsViewModel = claims)
+                }
+            }
+            composeRule.onNodeWithText("Reports").performClick()
+            composeRule.onNodeWithText(expected).performScrollTo().assertIsDisplayed()
+            capture(name)
+        } finally {
+            application.close()
+        }
+    }
+
+    private class Phase3RatePreferences : DataStore<Preferences> {
+        override val data = MutableStateFlow(emptyPreferences())
+        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences =
+            transform(data.value).also { data.value = it }
+    }
+
+    private fun phase3ProfileApplication(
+        reports: MutableStateFlow<List<Report>> = MutableStateFlow(listOf(phase1ExpenseReport().copy(state = ReportLifecycleState.PAID))),
+    ) = koinApplication {
+        val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+        modules(
+            profileModule,
+            module {
+                single<DataStore<Preferences>> { Phase3RatePreferences() }
+                single<ShareSheet> { mockk(relaxed = true) }
+                single<SessionSource> {
+                    object : SessionSource {
+                        override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = "employee"))
+                    }
+                }
+                single<ReportRepository> {
+                    mockk {
+                        every { observeAll() } returns reports
+                        every { observeByEmployee(any()) } answers { reports }
+                    }
+                }
+                single<ReportDao> {
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(
+                            reports.value.map { ReportEntity(it.id, it.employeeId, it.state.name, 1, now - 86_400_000, now, now - 43_200_000) },
+                        )
+                    }
+                }
+                single<PolicyViolationDao> {
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(
+                            listOf(PolicyViolationEntity(reportId = "report-demo", claimLineId = "EXP-001", code = "RECEIPT_RECOMMENDED", message = "Retain the receipt", createdAtMs = now)),
+                        )
+                    }
+                }
+                single<PerDiemRateDao> {
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(
+                            listOf(PerDiemRateEntity("pune_lead", "Pune", "Lead", 12_500, "INR", 0)),
+                        )
+                    }
+                }
+            },
+        )
     }
 
     private fun phase1ExpenseReport(): Report {

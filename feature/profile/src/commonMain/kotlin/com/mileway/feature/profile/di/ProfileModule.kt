@@ -1,5 +1,9 @@
 package com.mileway.feature.profile.di
 
+import com.mileway.feature.profile.admin.RateTableEditorViewModel
+import com.mileway.feature.profile.admin.RateTableStore
+import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
+import com.mileway.feature.profile.status.ReimbursementStatusViewModel
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.profile.repository.ActiveSessionsRepository
 import com.mileway.feature.profile.repository.AdvanceRepository
@@ -80,6 +84,10 @@ val profileModule =
         single { MockAccountRepository(get()) }
         single<ProfileRepository> { FakeProfileRepository(get()) }
         single { AdvanceRepository() }
+        single { RateTableStore(get(), get()) }
+        viewModel { RateTableEditorViewModel(get(), get()) }
+        viewModel { ClaimAnalyticsViewModel(get(), get(), get()) }
+        viewModel { ReimbursementStatusViewModel(get<com.mileway.core.data.claim.ReportRepository>(), get()) }
         // P6.2: Vehicle/Passport tiles' Room-backed repositories.
         single { VehicleDetailsRepository(get()) }
         single { PassportDetailsRepository(get()) }
