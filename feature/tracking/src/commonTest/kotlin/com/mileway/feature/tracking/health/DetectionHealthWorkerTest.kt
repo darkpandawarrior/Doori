@@ -23,9 +23,10 @@ import kotlin.time.Instant
 class DetectionHealthWorkerTest {
     private val now = Instant.parse("2026-10-05T12:00:00Z").toEpochMilliseconds()
     private val day = DetectionHealthNudges.MIN_HEALTH_GAP_MS
-    private val clock = object : Clock {
-        override fun now(): Instant = Instant.fromEpochMilliseconds(now)
-    }
+    private val clock =
+        object : Clock {
+            override fun now(): Instant = Instant.fromEpochMilliseconds(now)
+        }
 
     private fun history(
         count: Int = DetectionHealthNudges.MIN_COMPLETED_TRIPS,
@@ -147,9 +148,10 @@ class DetectionHealthWorkerTest {
     fun `repeated worker runs preserve read state for both stable ids`() =
         runTest {
             val trips = history().mapIndexed { index, trip -> trip.copy(notes = if (index == 0) "-" else "PERSONAL", endTime = now - 4 * day) }
-            val tracks = object : SavedTrackDao by FakeSavedTrackDao() {
-                override fun getCompletedTracks() = flowOf(trips)
-            }
+            val tracks =
+                object : SavedTrackDao by FakeSavedTrackDao() {
+                    override fun getCompletedTracks() = flowOf(trips)
+                }
             val inbox = NudgeNotificationDao()
             val worker = DetectionHealthWorker(tracks, inbox, clock)
             val env = WorkerEnvironment(progressListener = null, isCancelled = { false })

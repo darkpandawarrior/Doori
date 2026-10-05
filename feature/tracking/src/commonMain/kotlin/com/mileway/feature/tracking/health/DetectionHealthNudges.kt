@@ -23,8 +23,10 @@ class DetectionHealthNudges(
         val nudges =
             completed
                 .filter {
-                    it.trackingActivity != "Submitted" && it.notes != "PERSONAL" &&
-                        it.endTime > 0 && now - it.endTime > UNCLAIMED_AGE_MS &&
+                    it.trackingActivity != "Submitted" &&
+                        it.notes != "PERSONAL" &&
+                        it.endTime > 0 &&
+                        now - it.endTime > UNCLAIMED_AGE_MS &&
                         "nudge-unclaimed-${it.routeId}" !in existingIds
                 }.sortedBy { it.endTime }
                 .take(MAX_UNCLAIMED_PER_RUN)
@@ -37,7 +39,12 @@ class DetectionHealthNudges(
                         deeplink = "mileway://track/detail/${track.routeId}",
                     )
                 }
-        val starts = completed.map { it.startTime }.filter { it > 0 }.sortedDescending().take(ROLLING_TRIP_COUNT)
+        val starts =
+            completed
+                .map { it.startTime }
+                .filter { it > 0 }
+                .sortedDescending()
+                .take(ROLLING_TRIP_COUNT)
         if (starts.size < MIN_COMPLETED_TRIPS) return nudges
         val averageGap = starts.zipWithNext { newer, older -> (newer - older).toDouble() }.average()
         if (averageGap <= 0) return nudges

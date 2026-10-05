@@ -77,9 +77,10 @@ class NotificationRepositoryTest {
     fun `nudges before first opening do not suppress seed or lose read state`() =
         runTest {
             val dao = FakeNotificationDao()
-            val clock = object : Clock {
-                override fun now(): Instant = Instant.fromEpochMilliseconds(10_000)
-            }
+            val clock =
+                object : Clock {
+                    override fun now(): Instant = Instant.fromEpochMilliseconds(10_000)
+                }
             val nudge = entity("nudge-health-2026-10-05", false).copy(createdAtMs = 5_000)
             dao.upsertAll(listOf(nudge))
             val repo = NotificationRepository(dao, clock)

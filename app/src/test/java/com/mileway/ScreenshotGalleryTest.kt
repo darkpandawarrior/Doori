@@ -3115,9 +3115,10 @@ class ScreenshotGalleryTest {
     fun phase4CaptureNotificationNudges() {
         val notifications = FakeNotificationDao()
         val instant = kotlin.time.Instant.parse("2026-10-05T12:00:00Z")
-        val clock = object : kotlin.time.Clock {
-            override fun now(): kotlin.time.Instant = instant
-        }
+        val clock =
+            object : kotlin.time.Clock {
+                override fun now(): kotlin.time.Instant = instant
+            }
         val now = instant.toEpochMilliseconds()
         val day = com.mileway.feature.tracking.health.DetectionHealthNudges.MIN_HEALTH_GAP_MS
         val trips =
@@ -3141,7 +3142,9 @@ class ScreenshotGalleryTest {
             }
         val tracks = mockk<SavedTrackDao>()
         every { tracks.getCompletedTracks() } returns MutableStateFlow(trips)
-        val repository = com.mileway.feature.profile.repository.NotificationRepository(notifications, clock)
+        val repository =
+            com.mileway.feature.profile.repository
+                .NotificationRepository(notifications, clock)
         kotlinx.coroutines.runBlocking {
             com.mileway.feature.tracking.worker
                 .DetectionHealthWorker(tracks, notifications, clock)
@@ -3155,7 +3158,9 @@ class ScreenshotGalleryTest {
             check(rows.take(2).all { it.id.startsWith("nudge-") })
             check(rows.size == com.mileway.feature.profile.data.NotificationData.all.size + 2)
         }
-        val viewModel = com.mileway.feature.profile.viewmodel.NotificationViewModel(repository)
+        val viewModel =
+            com.mileway.feature.profile.viewmodel
+                .NotificationViewModel(repository)
         composeRule.setContent {
             MilewayTheme {
                 NotificationCentreScreen(onBack = {}, viewModel = viewModel)
