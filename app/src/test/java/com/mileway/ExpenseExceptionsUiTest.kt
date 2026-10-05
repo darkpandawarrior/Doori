@@ -140,7 +140,14 @@ class ExpenseExceptionsUiTest {
         composeRule.onNodeWithText("Justification note (required for Other)").performScrollTo().performTextInput("Urgent client visit")
         composeRule.onNodeWithText("Submit report").assertIsNotEnabled()
         composeRule.onNode(isToggleable()).assertIsOn()
-        composeRule.onNodeWithText("Save exception details").performScrollTo().performClick()
+        val saveButton = composeRule.onNodeWithText("Save exception details").performScrollTo()
+        val saveBounds = saveButton.fetchSemanticsNode().boundsInRoot
+        val submitBounds = composeRule.onNodeWithText("Submit report").fetchSemanticsNode().boundsInRoot
+        assertFalse("Save $saveBounds overlaps sticky submit $submitBounds", submitBounds.contains(saveBounds.center))
+        saveButton.performClick()
+        composeRule.runOnIdle {
+            assertTrue("Save action did not run: ${vm.state.value}", vm.state.value.busy || row.value.recordVersion > 0 || vm.state.value.error != null)
+        }
         composeRule.waitUntil { row.value.recordVersion > 0 && !vm.state.value.busy }
         composeRule.runOnIdle {
             val saved = row.value.lines.single() as ExpenseLine
