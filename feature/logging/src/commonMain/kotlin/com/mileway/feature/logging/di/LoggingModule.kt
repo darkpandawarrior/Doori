@@ -43,10 +43,14 @@ val loggingModule =
             com.mileway.core.network.fx
                 .FxRatePinner(reference = client::rate)
         }
-        single { com.mileway.core.network.holiday.NagerDateClient() }
+        single {
+            com.mileway.core.network.holiday
+                .NagerDateClient()
+        }
         single {
             val client = get<com.mileway.core.network.holiday.NagerDateClient>()
-            com.mileway.feature.logging.policy.HolidayFlagUseCase(check = client::check)
+            com.mileway.feature.logging.policy
+                .HolidayFlagUseCase(check = client::check)
         }
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }

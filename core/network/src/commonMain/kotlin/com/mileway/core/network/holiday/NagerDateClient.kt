@@ -29,7 +29,9 @@ data class PublicHoliday(
 
 /** Coverage absence and failed requests must never be mistaken for a working-day observation. */
 sealed interface HolidayCheck {
-    data class Holiday(val holidays: List<PublicHoliday>) : HolidayCheck
+    data class Holiday(
+        val holidays: List<PublicHoliday>,
+    ) : HolidayCheck
 
     data object NotHoliday : HolidayCheck
 
@@ -49,7 +51,10 @@ class NagerDateClient(
     private val years = mutableMapOf<String, List<PublicHoliday>?>()
 
     /** Uses the claim's calendar date, preserves provider dates and never changes claim amounts. */
-    suspend fun check(date: String, countryCode: String): HolidayCheck {
+    suspend fun check(
+        date: String,
+        countryCode: String,
+    ): HolidayCheck {
         if (!isFxSourceDate(date) || !countryCode.matches(Regex("[A-Z]{2}"))) return HolidayCheck.InvalidInput
         val year = date.take(IsoYearLength)
         val key = "$countryCode/$year"

@@ -228,7 +228,9 @@ sealed interface ExpenseAction {
     data object ResetForm : ExpenseAction
 
     /** Country is supplied by the reviewer, never inferred from the expense currency. */
-    data class CheckHoliday(val countryCode: String) : ExpenseAction
+    data class CheckHoliday(
+        val countryCode: String,
+    ) : ExpenseAction
 
     data class OpenDetail(
         val id: String,
@@ -711,15 +713,21 @@ class ExpenseViewModel(
 
     private fun checkHoliday(countryCode: String) {
         val record = (currentState.detailState as? ScreenState.Content)?.data ?: return
-        val date = Instant.fromEpochMilliseconds(record.dateMs).toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()
+        val date =
+            Instant
+                .fromEpochMilliseconds(record.dateMs)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+                .toString()
         holidayJob?.cancel()
         setState { copy(holidayCountry = countryCode, holidayDate = date, holidayCheck = null) }
-        holidayJob = viewModelScope.launch {
-            val result = holidayFlags(date, countryCode)
-            if ((currentState.detailState as? ScreenState.Content)?.data?.id == record.id && currentState.holidayCountry == countryCode) {
-                setState { copy(holidayCheck = result) }
+        holidayJob =
+            viewModelScope.launch {
+                val result = holidayFlags(date, countryCode)
+                if ((currentState.detailState as? ScreenState.Content)?.data?.id == record.id && currentState.holidayCountry == countryCode) {
+                    setState { copy(holidayCheck = result) }
+                }
             }
-        }
     }
 
     /** P1.8: loads [id] into the form pre-filled for editing/resubmission; a no-op if unknown. */

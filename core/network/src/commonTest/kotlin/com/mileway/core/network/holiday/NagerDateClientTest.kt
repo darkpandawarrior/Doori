@@ -16,12 +16,19 @@ class NagerDateClientTest {
     fun publicDatesAndRegionalScopeArePreservedAndCachedPerCountryYear() =
         runTest {
             var requests = 0
-            val http = createHttpClient(engine = MockEngine { request ->
-                requests++
-                assertEquals("date.nager.at", request.url.host)
-                assertEquals("/api/v3/PublicHolidays/2026/GB", request.url.encodedPath)
-                respond("""[{"date":"2026-01-02","name":"2 January","countryCode":"GB","global":false,"counties":["GB-SCT"],"types":["Public"],"localName":"ignored"},{"date":"2026-01-03","name":"Observance","countryCode":"GB","global":true,"types":["Observance"]}]""")
-            }, retry = false)
+            val http =
+                createHttpClient(
+                    engine =
+                        MockEngine { request ->
+                            requests++
+                            assertEquals("date.nager.at", request.url.host)
+                            assertEquals("/api/v3/PublicHolidays/2026/GB", request.url.encodedPath)
+                            respond(
+                                """[{"date":"2026-01-02","name":"2 January","countryCode":"GB","global":false,"counties":["GB-SCT"],"types":["Public"],"localName":"ignored"},{"date":"2026-01-03","name":"Observance","countryCode":"GB","global":true,"types":["Observance"]}]""",
+                            )
+                        },
+                    retry = false,
+                )
             try {
                 val client = NagerDateClient(http)
                 val result = assertIs<HolidayCheck.Holiday>(client.check("2026-01-02", "GB"))
@@ -40,10 +47,15 @@ class NagerDateClientTest {
         runTest {
             for (status in listOf(HttpStatusCode.NoContent, HttpStatusCode.NotFound)) {
                 var requests = 0
-                val http = createHttpClient(engine = MockEngine {
-                    requests++
-                    respond("", status)
-                }, retry = false)
+                val http =
+                    createHttpClient(
+                        engine =
+                            MockEngine {
+                                requests++
+                                respond("", status)
+                            },
+                        retry = false,
+                    )
                 try {
                     val client = NagerDateClient(http)
                     assertEquals(HolidayCheck.NoData, client.check("2026-01-26", "IN"))
@@ -62,11 +74,16 @@ class NagerDateClientTest {
     fun invalidInputDoesNotCallNetworkAndFailedRequestsCanRetry() =
         runTest {
             var requests = 0
-            val http = createHttpClient(engine = MockEngine {
-                requests++
-                if (requests == 1) throw IllegalStateException("offline")
-                respond("[]")
-            }, retry = false)
+            val http =
+                createHttpClient(
+                    engine =
+                        MockEngine {
+                            requests++
+                            if (requests == 1) throw IllegalStateException("offline")
+                            respond("[]")
+                        },
+                    retry = false,
+                )
             try {
                 val client = NagerDateClient(http)
                 assertEquals(HolidayCheck.InvalidInput, client.check("2026-02-30", "GB"))
@@ -83,13 +100,14 @@ class NagerDateClientTest {
     @Test
     fun serverErrorsMalformedDatesAndWrongCountryAreUnavailableAndCancellationPropagates() =
         runTest {
-            val responses = listOf(
-                "{}" to HttpStatusCode.OK,
-                """[{"date":"2025-01-01","name":"New Year","countryCode":"GB","global":true,"types":["Public"]}]""" to HttpStatusCode.OK,
-                """[{"date":"2026-01-01","name":"New Year","countryCode":"US","global":true,"types":["Public"]}]""" to HttpStatusCode.OK,
-                """[{"date":"2026-02-30","name":"Invalid","countryCode":"GB","global":true,"types":["Public"]}]""" to HttpStatusCode.OK,
-                "unavailable" to HttpStatusCode.ServiceUnavailable,
-            )
+            val responses =
+                listOf(
+                    "{}" to HttpStatusCode.OK,
+                    """[{"date":"2025-01-01","name":"New Year","countryCode":"GB","global":true,"types":["Public"]}]""" to HttpStatusCode.OK,
+                    """[{"date":"2026-01-01","name":"New Year","countryCode":"US","global":true,"types":["Public"]}]""" to HttpStatusCode.OK,
+                    """[{"date":"2026-02-30","name":"Invalid","countryCode":"GB","global":true,"types":["Public"]}]""" to HttpStatusCode.OK,
+                    "unavailable" to HttpStatusCode.ServiceUnavailable,
+                )
             for ((body, status) in responses) {
                 val http = createHttpClient(engine = MockEngine { respond(body, status) }, retry = false)
                 try {

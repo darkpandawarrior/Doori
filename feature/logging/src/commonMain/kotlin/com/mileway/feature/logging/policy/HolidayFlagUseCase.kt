@@ -6,11 +6,17 @@ import com.mileway.core.network.holiday.HolidayCheck
 class HolidayFlagUseCase(
     private val check: suspend (String, String) -> HolidayCheck = { _, _ -> HolidayCheck.Offline },
 ) {
-    suspend operator fun invoke(date: String, countryCode: String): HolidayCheck = check(date, countryCode)
+    suspend operator fun invoke(
+        date: String,
+        countryCode: String,
+    ): HolidayCheck = check(date, countryCode)
 }
 
 /** Shows the check's scope and the provider's own date, including gaps and regional uncertainty. */
-fun HolidayCheck.reviewMessage(date: String, countryCode: String): String {
+fun HolidayCheck.reviewMessage(
+    date: String,
+    countryCode: String,
+): String {
     val country = if (countryCode == "IN") "India (IN)" else countryCode
     val scope = "$country on $date (Nager.Date)"
     return when (this) {

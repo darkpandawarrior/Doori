@@ -1042,9 +1042,17 @@ class ScreenshotGalleryTest {
     }
 
     @Test
-    fun phase4CaptureHolidayReview() = phase4CaptureHolidayState("GB", com.mileway.core.network.holiday.HolidayCheck.Holiday(
-        listOf(com.mileway.core.network.holiday.PublicHoliday("2026-04-03", "Good Friday", "GB", true, types = listOf("Public"))),
-    ), "phase4_holiday_review")
+    fun phase4CaptureHolidayReview() =
+        phase4CaptureHolidayState(
+            "GB",
+            com.mileway.core.network.holiday.HolidayCheck.Holiday(
+                listOf(
+                    com.mileway.core.network.holiday
+                        .PublicHoliday("2026-04-03", "Good Friday", "GB", true, types = listOf("Public")),
+                ),
+            ),
+            "phase4_holiday_review",
+        )
 
     @Test
     fun phase4CaptureHolidayNoData() = phase4CaptureHolidayState("IN", com.mileway.core.network.holiday.HolidayCheck.NoData, "phase4_holiday_no_data")
@@ -1052,11 +1060,21 @@ class ScreenshotGalleryTest {
     @Test
     fun phase4CaptureHolidayOffline() = phase4CaptureHolidayState("IN", com.mileway.core.network.holiday.HolidayCheck.Offline, "phase4_holiday_offline")
 
-    private fun phase4CaptureHolidayState(country: String, result: com.mileway.core.network.holiday.HolidayCheck, name: String) {
+    private fun phase4CaptureHolidayState(
+        country: String,
+        result: com.mileway.core.network.holiday.HolidayCheck,
+        name: String,
+    ) {
         val records = ExpenseRepository(FakeDraftExpenseDao())
         val record = phase4CaptureForeignRecord()
         kotlinx.coroutines.runBlocking { records.insert(record) }
-        val vm = ExpenseViewModel(records, holidayFlags = com.mileway.feature.logging.policy.HolidayFlagUseCase { _, _ -> result })
+        val vm =
+            ExpenseViewModel(
+                records,
+                holidayFlags =
+                    com.mileway.feature.logging.policy
+                        .HolidayFlagUseCase { _, _ -> result },
+            )
         composeRule.setContent { MilewayTheme { ExpenseDetailScreen(record.id, onBack = {}, viewModel = vm) } }
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Claim country (two-letter ISO code)").performScrollTo().performTextReplacement(country)
@@ -1084,7 +1102,11 @@ class ScreenshotGalleryTest {
         val vm = ExpenseViewModel(records)
         composeRule.setContent { MilewayTheme { ExpenseHistoryScreen(onBack = {}, onOpenDetail = {}, viewModel = vm) } }
         composeRule.onNodeWithText(record.fxRate!!.description()).assertIsDisplayed()
-        composeRule.onNodeWithText(com.mileway.core.data.domain.claim.formatMinorCurrency(1_000, "USD")).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                com.mileway.core.data.domain.claim
+                    .formatMinorCurrency(1_000, "USD"),
+            ).assertIsDisplayed()
         capture("phase4_fx_history")
     }
 
@@ -1095,13 +1117,17 @@ class ScreenshotGalleryTest {
         kotlinx.coroutines.runBlocking { records.insert(record) }
         val application = phase2ReportApplication(Report("holiday-group", "employee"))
         try {
-            val vm = com.mileway.feature.logging.report.ReportGroupingViewModel(
-                records,
-                application.koin.get<com.mileway.feature.logging.report.ReportJourneyStore>(),
-                application.koin.get<SessionSource>(),
-            )
+            val vm =
+                com.mileway.feature.logging.report.ReportGroupingViewModel(
+                    records,
+                    application.koin.get<com.mileway.feature.logging.report.ReportJourneyStore>(),
+                    application.koin.get<SessionSource>(),
+                )
             composeRule.setContent {
-                MilewayTheme { com.mileway.feature.logging.report.ReportGroupingScreen(vm, onBack = {}, onOpenReport = {}) }
+                MilewayTheme {
+                    com.mileway.feature.logging.report
+                        .ReportGroupingScreen(vm, onBack = {}, onOpenReport = {})
+                }
             }
             composeRule.onNodeWithText(record.fxRate!!.description()).assertIsDisplayed()
             capture("phase4_fx_grouping")
@@ -1110,18 +1136,25 @@ class ScreenshotGalleryTest {
         }
     }
 
-    private fun phase4CaptureForeignRecord() = com.mileway.feature.logging.model.ExpenseRecord(
-        id = "EXP-001",
-        category = com.mileway.feature.logging.model.ExpenseCategory.FOOD,
-        merchantName = "Foreign Cafe",
-        amountRupees = 10.0,
-        status = com.mileway.feature.logging.model.ExpenseStatus.PENDING,
-        dateMs = kotlin.time.Instant.parse("2026-04-03T12:00:00Z").toEpochMilliseconds(),
-        currencyCode = "USD",
-        amountMinor = 1_000,
-        fxRate = FxRate(90.0, "USD", sourceDate = "2026-04-02"),
-        fxRatePinnedAt = kotlin.time.Instant.parse("2026-04-05T12:00:00Z").toEpochMilliseconds(),
-    )
+    private fun phase4CaptureForeignRecord() =
+        com.mileway.feature.logging.model.ExpenseRecord(
+            id = "EXP-001",
+            category = com.mileway.feature.logging.model.ExpenseCategory.FOOD,
+            merchantName = "Foreign Cafe",
+            amountRupees = 10.0,
+            status = com.mileway.feature.logging.model.ExpenseStatus.PENDING,
+            dateMs =
+                kotlin.time.Instant
+                    .parse("2026-04-03T12:00:00Z")
+                    .toEpochMilliseconds(),
+            currencyCode = "USD",
+            amountMinor = 1_000,
+            fxRate = FxRate(90.0, "USD", sourceDate = "2026-04-02"),
+            fxRatePinnedAt =
+                kotlin.time.Instant
+                    .parse("2026-04-05T12:00:00Z")
+                    .toEpochMilliseconds(),
+        )
 
     @Test
     fun phase3CaptureIosSpendsReportsAndPerDiem() {

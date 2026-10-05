@@ -27,14 +27,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,6 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
@@ -81,7 +79,6 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
-import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.feature.logging.policy.fxProvenanceLabel
 import com.mileway.feature.logging.policy.reviewMessage
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -173,7 +170,10 @@ fun ExpenseDetailScreen(
                                 singleLine = true,
                             )
                             OutlinedButton(onClick = { viewModel.onAction(ExpenseAction.CheckHoliday(country)) }) { Text("Check holiday") }
-                            Text(ui.holidayCheck?.reviewMessage(ui.holidayDate, ui.holidayCountry) ?: "Holiday check: checking ${ui.holidayCountry} on ${ui.holidayDate} (Nager.Date)")
+                            Text(
+                                ui.holidayCheck?.reviewMessage(ui.holidayDate, ui.holidayCountry)
+                                    ?: "Holiday check: checking ${ui.holidayCountry} on ${ui.holidayDate} (Nager.Date)",
+                            )
                         }
                     }
 
@@ -367,7 +367,11 @@ private fun LineItemsCard(expense: ExpenseRecord) {
                     Text(item.description, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
                     Text("${item.qty}", style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.size(DesignTokens.Spacing.l))
-                    Text(formatMinorCurrency((item.amount * 100).toLong(), expense.currencyCode), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                    Text(
+                        formatMinorCurrency((item.amount * 100).toLong(), expense.currencyCode),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Medium,
+                    )
                 }
             }
 

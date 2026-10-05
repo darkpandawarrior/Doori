@@ -35,10 +35,15 @@ class HolidayReviewTest {
                 records.insert(record)
                 val holiday = HolidayCheck.Holiday(listOf(PublicHoliday("2026-04-03", "Good Friday", "GB", true, types = listOf("Public"))))
                 val calls = mutableListOf<Pair<String, String>>()
-                val vm = ExpenseViewModel(records, holidayFlags = HolidayFlagUseCase { date, country ->
-                    calls += date to country
-                    if (country == "IN") HolidayCheck.NoData else holiday
-                })
+                val vm =
+                    ExpenseViewModel(
+                        records,
+                        holidayFlags =
+                            HolidayFlagUseCase { date, country ->
+                                calls += date to country
+                                if (country == "IN") HolidayCheck.NoData else holiday
+                            },
+                    )
                 vm.onAction(ExpenseAction.OpenDetail(record.id))
                 assertEquals(HolidayCheck.NoData, vm.state.value.holidayCheck)
                 assertTrue(HolidayCheck.NoData.reviewMessage("2026-04-03", "IN").contains("no public-holiday data for India"))
@@ -80,16 +85,17 @@ class HolidayReviewTest {
         assertTrue(manual.fxProvenanceLabel()!!.contains("rate date unavailable (manual)"))
     }
 
-    private fun foreignRecord() = ExpenseRecord(
-        id = "holiday-foreign",
-        category = ExpenseCategory.FOOD,
-        merchantName = "Cafe",
-        amountRupees = 10.0,
-        status = ExpenseStatus.PENDING,
-        dateMs = Instant.parse("2026-04-03T12:00:00Z").toEpochMilliseconds(),
-        currencyCode = "USD",
-        amountMinor = 1_000,
-        fxRate = FxRate(90.0, "USD", sourceDate = "2026-04-02"),
-        fxRatePinnedAt = Instant.parse("2026-04-05T12:00:00Z").toEpochMilliseconds(),
-    )
+    private fun foreignRecord() =
+        ExpenseRecord(
+            id = "holiday-foreign",
+            category = ExpenseCategory.FOOD,
+            merchantName = "Cafe",
+            amountRupees = 10.0,
+            status = ExpenseStatus.PENDING,
+            dateMs = Instant.parse("2026-04-03T12:00:00Z").toEpochMilliseconds(),
+            currencyCode = "USD",
+            amountMinor = 1_000,
+            fxRate = FxRate(90.0, "USD", sourceDate = "2026-04-02"),
+            fxRatePinnedAt = Instant.parse("2026-04-05T12:00:00Z").toEpochMilliseconds(),
+        )
 }
