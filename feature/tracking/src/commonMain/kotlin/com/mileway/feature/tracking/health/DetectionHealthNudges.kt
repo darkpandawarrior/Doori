@@ -2,7 +2,9 @@ package com.mileway.feature.tracking.health
 
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.model.db.SavedTrack
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 
@@ -10,7 +12,10 @@ import kotlin.time.Clock
 class DetectionHealthNudges(
     private val clock: Clock,
 ) {
-    fun evaluate(tracks: List<SavedTrack>): List<NotificationEntity> {
+    fun evaluate(
+        tracks: List<SavedTrack>,
+        existing: List<NotificationEntity> = emptyList(),
+    ): List<NotificationEntity> {
         val instant = clock.now()
         val now = instant.toEpochMilliseconds()
         val completed = tracks.filter { it.isCompleted }
@@ -33,6 +38,13 @@ class DetectionHealthNudges(
         val averageGap = starts.zipWithNext { newer, older -> (newer - older).toDouble() }.average()
         val sinceLatest = now - starts.first()
         if (sinceLatest < MIN_HEALTH_GAP_MS || sinceLatest <= averageGap * HEALTH_GAP_MULTIPLIER) return nudges
+        val today = instant.toLocalDateTime(TimeZone.UTC).date
+        val hasRecentHealthNudge =
+            existing.filter { it.id.startsWith("nudge-health-") }.any { row ->
+                val date = runCatching { LocalDate.parse(row.id.removePrefix("nudge-health-")) }.getOrNull()
+                row.isUnread || (date != null && date.daysUntil(today) <= HEALTH_COOLDOWN_DAYS)
+            }
+        if (hasRecentHealthNudge) return nudges
         return nudges +
             notification(
                 id = "nudge-health-${instant.toLocalDateTime(TimeZone.UTC).date}",
@@ -64,6 +76,7 @@ class DetectionHealthNudges(
         const val ROLLING_TRIP_COUNT = 10
         const val MIN_COMPLETED_TRIPS = 5
         const val HEALTH_GAP_MULTIPLIER = 2
+        const val HEALTH_COOLDOWN_DAYS = 7
         const val MIN_HEALTH_GAP_MS = 24L * 60 * 60 * 1000
         const val UNCLAIMED_AGE_MS = 3L * 24 * 60 * 60 * 1000
     }

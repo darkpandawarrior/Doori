@@ -104,6 +104,19 @@ class DetectionHealthWorkerTest {
     }
 
     @Test
+    fun `health reminder waits for read state and more than seven days`() {
+        val evaluator = DetectionHealthNudges(clock)
+        val reminder = health(history()).single()
+        listOf(
+            reminder.copy(id = "nudge-health-2026-09-01", isUnread = true),
+            reminder.copy(id = "nudge-health-2026-09-28", isUnread = false),
+            reminder.copy(id = "nudge-health-2026-10-05", isUnread = false),
+        ).forEach { assertTrue(evaluator.evaluate(history(), listOf(it)).isEmpty()) }
+        val olderReadReminder = reminder.copy(id = "nudge-health-2026-09-27", isUnread = false)
+        assertEquals(listOf(reminder), evaluator.evaluate(history(), listOf(olderReadReminder)))
+    }
+
+    @Test
     fun `repeated worker runs preserve read state for both stable ids`() =
         runTest {
             val trips = history().map { it.copy(notes = "-", endTime = now - 4 * day) }

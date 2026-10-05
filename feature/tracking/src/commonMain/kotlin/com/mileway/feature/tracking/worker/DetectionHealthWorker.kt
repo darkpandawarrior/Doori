@@ -21,8 +21,9 @@ class DetectionHealthWorker(
         input: String?,
         env: WorkerEnvironment,
     ): WorkerResult {
-        val candidates = nudges.evaluate(savedTrackDao.getCompletedTracks().first())
-        val existingIds = notificationDao.observeAll().first().map { it.id }.toSet()
+        val existing = notificationDao.observeAll().first()
+        val candidates = nudges.evaluate(savedTrackDao.getCompletedTracks().first(), existing)
+        val existingIds = existing.map { it.id }.toSet()
         val newRows = candidates.filterNot { it.id in existingIds }
         if (newRows.isNotEmpty()) notificationDao.upsertAll(newRows)
         return WorkerResult.Success()
