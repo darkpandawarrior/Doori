@@ -45,7 +45,7 @@ class OsrmClient(
         return try {
             val url = Url(base)
             if (url.protocol !in listOf(URLProtocol.HTTP, URLProtocol.HTTPS) || url.host.isBlank() ||
-                url.user.isNotEmpty() || url.password.isNotEmpty() || url.parameters.names().isNotEmpty() || url.fragment.isNotEmpty()
+                !url.user.isNullOrEmpty() || !url.password.isNullOrEmpty() || url.parameters.names().isNotEmpty() || url.fragment.isNotEmpty()
             ) return RouteEstimate.ManualRequired("Invalid routing server; enter distance manually (approximate)")
             val points = listOf(origin, destination) + if (roundTrip) listOf(origin) else emptyList()
             val coordinates = points.joinToString(";") { "${it.longitude},${it.latitude}" }
