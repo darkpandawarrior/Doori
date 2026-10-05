@@ -52,7 +52,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 </details>
 
 <!-- AUTOGEN:stats -->
-> **At a glance**, **52-module** clean architecture: **36 local** (13 feature · 12 core) + **16 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v50**, **383** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
+> **At a glance**, **52-module** clean architecture: **36 local** (13 feature · 12 core) + **16 composed** via `includeBuild(external/kmp-toolkit)`, Room schema **v50**, **412** host-rendered Roborazzi screenshots (JVM, no emulator). *Numbers auto-generated from `settings.gradle.kts` by `scripts/gen-readme.sh`.*
 <!-- /AUTOGEN:stats -->
 
 ## Why Doori
