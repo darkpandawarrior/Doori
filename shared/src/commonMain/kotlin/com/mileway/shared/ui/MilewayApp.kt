@@ -2,6 +2,7 @@ package com.mileway.shared.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,10 +23,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +39,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import com.mileway.core.ui.components.LanguageSelectionSheet
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.advances_home_title
@@ -75,12 +84,19 @@ import com.mileway.core.ui.theme.MilewayDomain
 import com.mileway.core.ui.theme.MilewayDomainTheme
 import com.mileway.feature.advances.ui.AdvancesHomeScreen
 import com.mileway.feature.agent.ui.screens.AgentChatScreen
+import com.mileway.feature.approvals.ui.screens.ApprovalDetailsScreen
 import com.mileway.feature.approvals.ui.screens.ApprovalsScreen
+import com.mileway.feature.approvals.ui.screens.ReportApprovalScreen
 import com.mileway.feature.cards.ui.CardsHomeScreen
 import com.mileway.feature.events.ui.screens.EventsHistoryScreen
+import com.mileway.feature.logging.perdiem.PerDiemSheet
+import com.mileway.feature.logging.report.ReportGroupingScreen
+import com.mileway.feature.logging.report.ReportSubmitScreen
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.payables.ui.screens.PayablesHomeScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
+import com.mileway.feature.profile.admin.RateTableEditorScreen
+import com.mileway.feature.profile.status.ReimbursementStatusScreen
 import com.mileway.feature.profile.ui.screens.EcoDashboardScreen
 import com.mileway.feature.profile.ui.screens.FavouriteRoutesScreen
 import com.mileway.feature.profile.ui.screens.OffersHubScreen
@@ -97,6 +113,7 @@ import com.mileway.feature.whatsnew.ui.WhatsNewListScreen
 import com.mileway.ui.home.HomeScreen
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
 private data class ShellTab(
     val label: StringResource,
@@ -104,22 +121,9 @@ private data class ShellTab(
 )
 
 /**
- * PLAN_V36 P8 (spec §10) — the overlay state for the reduced iOS shell, which has no Navigation-3
- * host (that graph is Android-only, see `whatsNewGraph`'s KDoc). A simple `remember` (not
- * `rememberSaveable`) — same choice this file already makes for `tab`/`showLanguage`, process death
- * just re-lands on the tab scaffold.
- *
- * Widened from the original four What's New states once feature:profile's screens and the
- * profile/media Koin modules reached commonMain: every branch below renders a real screen whose
- * whole dependency chain — screen, ViewModel, repository, Koin definition — now lives in
- * commonMain. What is still Android-only is listed on the More tab as an explicit, labelled row
- * with the reason, rather than silently omitted; see [AndroidOnlyEntry].
- *
- * One level deep by design. Every entry screen's "open a detail" callback is left at a no-op here:
- * a detail needs a back stack, and a back stack on iOS is exactly the Navigation-3 host this shell
- * deliberately does not have. The two pairs that are wired ([WhatsNew] → [WhatsNewEntry],
- * [VehicleGarage] → [VehicleSelfAudit]) each carry their own origin in the state, which is how the
- * original What's New overlay already handled its one push.
+ * Destinations layered over the shared tab shell. Claim details carry their origin so Back returns
+ * to the entry that opened them. Each visible overlay owns a ViewModel store, cleared on exit.
+ * The shell keeps its existing in-memory navigation state; restoring a process opens Home.
  */
 private sealed interface ShellScreen {
     data object None : ShellScreen
@@ -136,6 +140,26 @@ private sealed interface ShellScreen {
     data object Agent : ShellScreen
 
     data object Approvals : ShellScreen
+
+    data class ApprovalDetail(
+        val id: String,
+    ) : ShellScreen
+
+    data class ReportGrouping(
+        val reportId: String? = null,
+        val returnTo: ShellScreen = None,
+    ) : ShellScreen
+
+    data object PerDiem : ShellScreen
+
+    data class ReportSubmit(
+        val reportId: String,
+        val origin: ShellScreen,
+    ) : ShellScreen
+
+    data object Reimbursements : ShellScreen
+
+    data object Rates : ShellScreen
 
     data object Cards : ShellScreen
 
@@ -303,6 +327,8 @@ fun MilewayApp() {
                             onAddExpense = {},
                             onMileageHistory = {},
                             onExpenseHistory = {},
+                            onExpenseReports = { screen = ShellScreen.ReportGrouping() },
+                            onPerDiem = { screen = ShellScreen.PerDiem },
                         )
                     TRAVEL_TAB -> TravelHomeScreen()
                     else -> MoreTab(onOpen = { screen = it })
@@ -310,10 +336,22 @@ fun MilewayApp() {
             }
         }
 
-        // Full-screen overlay above the tab scaffold. Back always lands on ShellScreen.None (the
-        // tab the user came from is still selected underneath), except for the two wired pairs,
-        // which pop to their origin — mirroring Android's NavHost backstack pop.
-        ShellOverlay(screen = screen, onNavigate = { screen = it })
+        if (screen != ShellScreen.None) {
+            key(screen) {
+                val owner =
+                    remember {
+                        object : ViewModelStoreOwner {
+                            override val viewModelStore = ViewModelStore()
+                        }
+                    }
+                DisposableEffect(owner) { onDispose { owner.viewModelStore.clear() } }
+                CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
+                    Surface(Modifier.fillMaxSize()) {
+                        ShellOverlay(screen = screen, onNavigate = { screen = it })
+                    }
+                }
+            }
+        }
     }
     if (showLanguage) {
         LanguageSelectionSheet(onDismiss = { showLanguage = false })
@@ -331,6 +369,16 @@ private fun MoreTab(onOpen: (ShellScreen) -> Unit) {
             )
             HorizontalDivider()
             SectionHeader(Res.string.shell_more_section_shared)
+        }
+        item {
+            ListItem(
+                headlineContent = { Text("Reimbursements") },
+                modifier = Modifier.clickable { onOpen(ShellScreen.Reimbursements) },
+            )
+            ListItem(
+                headlineContent = { Text("Local rate editor") },
+                modifier = Modifier.clickable { onOpen(ShellScreen.Rates) },
+            )
         }
         items(moreEntries) { entry ->
             ListItem(
@@ -363,19 +411,9 @@ private fun SectionHeader(label: StringResource) {
     )
 }
 
-/**
- * Every shared screen the iOS shell can reach. One branch per destination, and
- * [ShellScreen.None] renders nothing so the tab scaffold shows through.
- *
- * The `{}` callbacks are not oversights: each opens a DETAIL screen, which needs a back stack, and
- * the back stack is the Navigation-3 host this shell does not have on iOS. They stay no-ops until
- * that host exists on both platforms.
- */
+/** Shared screen dispatch, assembled above the features without feature dependencies. */
 @Composable
-// A flat dispatch table over a sealed interface: 19 branches, zero nesting, no conditional logic.
-// CyclomaticComplexity counts branches, so exhaustive `when` dispatch always trips it; splitting
-// this into sub-functions would hide the one place that maps a destination to its screen, which is
-// the opposite of readable. The compiler already enforces exhaustiveness.
+// Exhaustive destination dispatch is deliberately kept in one place.
 @Suppress("CyclomaticComplexMethod")
 private fun ShellOverlay(
     screen: ShellScreen,
@@ -407,8 +445,52 @@ private fun ShellOverlay(
             AgentChatScreen(onBack = back, onOpenHistory = {})
         ShellScreen.Approvals ->
             MilewayDomainTheme(MilewayDomain.APPROVALS) {
-                ApprovalsScreen(onOpenDetail = {})
+                Column(Modifier.fillMaxSize()) {
+                    TextButton(onClick = back) { Text("Back") }
+                    Box(Modifier.weight(1f)) {
+                        ApprovalsScreen(onOpenDetail = { onNavigate(ShellScreen.ApprovalDetail(it)) })
+                    }
+                }
             }
+        is ShellScreen.ApprovalDetail ->
+            MilewayDomainTheme(MilewayDomain.APPROVALS) {
+                val backToApprovals = { onNavigate(ShellScreen.Approvals) }
+                if (screen.id.startsWith("report:")) {
+                    ReportApprovalScreen(screen.id.removePrefix("report:"), onBack = backToApprovals)
+                } else {
+                    ApprovalDetailsScreen(approvalId = screen.id, onBack = backToApprovals)
+                }
+            }
+        is ShellScreen.ReportGrouping ->
+            MilewayDomainTheme(MilewayDomain.EXPENSES) {
+                ReportGroupingScreen(
+                    viewModel = koinViewModel(),
+                    reportId = screen.reportId,
+                    onBack = { onNavigate(screen.returnTo) },
+                    onOpenReport = { id ->
+                        onNavigate(if (id == screen.reportId) screen.returnTo else ShellScreen.ReportSubmit(id, screen))
+                    },
+                )
+            }
+        ShellScreen.PerDiem ->
+            MilewayDomainTheme(MilewayDomain.EXPENSES) {
+                PerDiemSheet(
+                    viewModel = koinViewModel(),
+                    onBack = back,
+                    onOpenReport = { onNavigate(ShellScreen.ReportSubmit(it, ShellScreen.PerDiem)) },
+                )
+            }
+        is ShellScreen.ReportSubmit ->
+            MilewayDomainTheme(MilewayDomain.EXPENSES) {
+                ReportSubmitScreen(
+                    reportId = screen.reportId,
+                    viewModel = koinViewModel(),
+                    onBack = { onNavigate(screen.origin) },
+                    onEdit = { onNavigate(ShellScreen.ReportGrouping(screen.reportId, returnTo = screen)) },
+                )
+            }
+        ShellScreen.Reimbursements -> ReimbursementStatusScreen(onBack = back)
+        ShellScreen.Rates -> RateTableEditorScreen(onBack = back)
         ShellScreen.Cards ->
             MilewayDomainTheme(MilewayDomain.CARDS) {
                 CardsHomeScreen(onOpenCard = {}, onRequestCard = {})
