@@ -74,7 +74,16 @@ class ReportSubmitViewModelTest {
     ) = PolicyEngine(listOf(PolicyVersion(0, PolicyRateTable(emptyMap()), max, receipt)))
 
     private fun report(amounts: List<Long> = listOf(500, 2_000)) =
-        Report("report", "employee", amounts.mapIndexed { index, amount -> ExpenseLine("line-$index", amount, "INR", merchant = "Cafe", category = "FOOD", receiptImagePath = "receipt-$index") })
+        Report(
+            "report",
+            "employee",
+            amounts.mapIndexed {
+                index,
+                amount,
+                ->
+                ExpenseLine("line-$index", amount, "INR", merchant = "Cafe", category = "FOOD", receiptImagePath = "receipt-$index")
+            },
+        )
 
     @Test
     fun `group two logged expenses by date then submit and recall with inbox rows`() =
@@ -376,128 +385,234 @@ class ReportSubmitViewModelTest {
         }
 
     @Test
-    fun everyMissingRequiredReceiptNeedsConsentAndNoteThenSubmitBlockClears() = runTest(dispatcher) {
-        val categoryRequired = ExpenseLine("category", 500, "INR", merchant = "Taxi", category = "TRAVEL")
-        val amountRequired = categoryRequired.copy(id = "amount", category = "FOOD", amountMinor = 2_000)
-        val store = MemoryReports(listOf(Report("report", "employee", listOf(categoryRequired, amountRequired))))
-        val vm = ReportSubmitViewModel(store, session, policy(), clock)
-        vm.open("report")
-        advanceUntilIdle()
-        assertEquals(setOf("category", "amount"), vm.state.value.screen.dataOrNull!!.requiredAffidavitIds)
-        vm.acceptWarnings(true)
-        vm.submit()
-        advanceUntilIdle()
-        assertEquals(ReportLifecycleState.DRAFT, store.rows.value.single().state)
-        vm.saveExceptionDetails("category", false, "Lost", null, "")
-        advanceUntilIdle()
-        assertEquals(2, vm.state.value.screen.dataOrNull!!.hardFlags.size)
-        vm.saveExceptionDetails("category", true, " ", null, "")
-        advanceUntilIdle()
-        assertEquals(2, vm.state.value.screen.dataOrNull!!.hardFlags.size)
-        vm.saveExceptionDetails("category", true, "Lost", JustificationReason.OTHER, "Client visit")
-        advanceUntilIdle()
-        assertEquals(1, vm.state.value.screen.dataOrNull!!.hardFlags.size)
-        vm.saveExceptionDetails("amount", true, "Vendor gave no receipt", JustificationReason.CLIENT_REQUEST, "")
-        advanceUntilIdle()
-        vm.acceptWarnings(true)
-        assertTrue(vm.state.value.screen.dataOrNull!!.canSubmit)
-        vm.submit()
-        advanceUntilIdle()
-        assertEquals(ReportLifecycleState.SUBMITTED, store.rows.value.single().state)
-        assertTrue(store.rows.value.single().lines.filterIsInstance<ExpenseLine>().all { it.affidavitAccepted })
-    }
+    fun everyMissingRequiredReceiptNeedsConsentAndNoteThenSubmitBlockClears() =
+        runTest(dispatcher) {
+            val categoryRequired = ExpenseLine("category", 500, "INR", merchant = "Taxi", category = "TRAVEL")
+            val amountRequired = categoryRequired.copy(id = "amount", category = "FOOD", amountMinor = 2_000)
+            val store = MemoryReports(listOf(Report("report", "employee", listOf(categoryRequired, amountRequired))))
+            val vm = ReportSubmitViewModel(store, session, policy(), clock)
+            vm.open("report")
+            advanceUntilIdle()
+            assertEquals(
+                setOf("category", "amount"),
+                vm.state.value.screen.dataOrNull!!
+                    .requiredAffidavitIds,
+            )
+            vm.acceptWarnings(true)
+            vm.submit()
+            advanceUntilIdle()
+            assertEquals(
+                ReportLifecycleState.DRAFT,
+                store.rows.value
+                    .single()
+                    .state,
+            )
+            vm.saveExceptionDetails("category", false, "Lost", null, "")
+            advanceUntilIdle()
+            assertEquals(
+                2,
+                vm.state.value.screen.dataOrNull!!
+                    .hardFlags.size,
+            )
+            vm.saveExceptionDetails("category", true, " ", null, "")
+            advanceUntilIdle()
+            assertEquals(
+                2,
+                vm.state.value.screen.dataOrNull!!
+                    .hardFlags.size,
+            )
+            vm.saveExceptionDetails("category", true, "Lost", JustificationReason.OTHER, "Client visit")
+            advanceUntilIdle()
+            assertEquals(
+                1,
+                vm.state.value.screen.dataOrNull!!
+                    .hardFlags.size,
+            )
+            vm.saveExceptionDetails("amount", true, "Vendor gave no receipt", JustificationReason.CLIENT_REQUEST, "")
+            advanceUntilIdle()
+            vm.acceptWarnings(true)
+            assertTrue(
+                vm.state.value.screen.dataOrNull!!
+                    .canSubmit,
+            )
+            vm.submit()
+            advanceUntilIdle()
+            assertEquals(
+                ReportLifecycleState.SUBMITTED,
+                store.rows.value
+                    .single()
+                    .state,
+            )
+            assertTrue(
+                store.rows.value
+                    .single()
+                    .lines
+                    .filterIsInstance<ExpenseLine>()
+                    .all { it.affidavitAccepted },
+            )
+        }
 
     @Test
-    fun receiptOptionalAndAttachedLinesNeedNoAffidavitButOtherStillNeedsText() = runTest(dispatcher) {
-        val optional = ExpenseLine("optional", 500, "INR", merchant = "Cafe", category = "FOOD")
-        val attached = optional.copy(id = "attached", category = "TRAVEL", amountMinor = 2_000, receiptImagePath = "receipt.jpg")
-        val store = MemoryReports(listOf(Report("report", "employee", listOf(optional, attached))))
-        val vm = ReportSubmitViewModel(store, session, policy(), clock)
-        vm.open("report")
-        advanceUntilIdle()
-        assertTrue(vm.state.value.screen.dataOrNull!!.requiredAffidavitIds.isEmpty())
-        vm.saveExceptionDetails("optional", false, "", JustificationReason.OTHER, " ")
-        advanceUntilIdle()
-        assertEquals(listOf("JUSTIFICATION_REQUIRED"), vm.state.value.screen.dataOrNull!!.hardFlags.map { it.code })
-        vm.saveExceptionDetails("optional", false, "", JustificationReason.OTHER, "Client visit")
-        advanceUntilIdle()
-        vm.acceptWarnings(true)
-        assertTrue(vm.state.value.screen.dataOrNull!!.canSubmit)
-        vm.markExceptionChanged("optional")
-        vm.submit()
-        advanceUntilIdle()
-        assertEquals(ReportLifecycleState.DRAFT, store.rows.value.single().state)
-    }
+    fun receiptOptionalAndAttachedLinesNeedNoAffidavitButOtherStillNeedsText() =
+        runTest(dispatcher) {
+            val optional = ExpenseLine("optional", 500, "INR", merchant = "Cafe", category = "FOOD")
+            val attached = optional.copy(id = "attached", category = "TRAVEL", amountMinor = 2_000, receiptImagePath = "receipt.jpg")
+            val store = MemoryReports(listOf(Report("report", "employee", listOf(optional, attached))))
+            val vm = ReportSubmitViewModel(store, session, policy(), clock)
+            vm.open("report")
+            advanceUntilIdle()
+            assertTrue(
+                vm.state.value.screen.dataOrNull!!
+                    .requiredAffidavitIds
+                    .isEmpty(),
+            )
+            vm.saveExceptionDetails("optional", false, "", JustificationReason.OTHER, " ")
+            advanceUntilIdle()
+            assertEquals(
+                listOf("JUSTIFICATION_REQUIRED"),
+                vm.state.value.screen.dataOrNull!!
+                    .hardFlags
+                    .map { it.code },
+            )
+            vm.saveExceptionDetails("optional", false, "", JustificationReason.OTHER, "Client visit")
+            advanceUntilIdle()
+            vm.acceptWarnings(true)
+            assertTrue(
+                vm.state.value.screen.dataOrNull!!
+                    .canSubmit,
+            )
+            vm.markExceptionChanged("optional")
+            vm.submit()
+            advanceUntilIdle()
+            assertEquals(
+                ReportLifecycleState.DRAFT,
+                store.rows.value
+                    .single()
+                    .state,
+            )
+        }
 
     @Test
-    fun suggestionIsOnlyAHintAndCanBeOverriddenWithoutWeakeningHardPolicy() = runTest(dispatcher) {
-        val line = ExpenseLine("line", 60_000, "INR", merchant = "Private merchant", category = "FOOD", affidavitNote = "Private note")
-        val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
-        var calls = 0
-        val suggester = JustificationReasonSuggester({ "fake-key" }) { calls++; Result.Success("client_request") }
-        val vm = ReportSubmitViewModel(store, session, policy(), clock, reasonSuggester = suggester)
-        vm.open("report")
-        advanceUntilIdle()
-        vm.suggestReasons()
-        vm.suggestReasons()
-        advanceUntilIdle()
-        assertEquals(1, calls)
-        assertEquals(JustificationReason.CLIENT_REQUEST, vm.state.value.suggestions["line"])
-        assertNull((vm.state.value.screen.dataOrNull!!.report.lines.single() as ExpenseLine).justificationReason)
-        vm.saveExceptionDetails("line", true, "Receipt lost", JustificationReason.OTHER, "Urgent business visit")
-        advanceUntilIdle()
-        vm.acceptWarnings(true)
-        assertEquals(listOf("EXPENSE_OVER_MAX"), vm.state.value.screen.dataOrNull!!.hardFlags.map { it.code })
-        assertFalse(vm.state.value.screen.dataOrNull!!.canSubmit)
-        assertEquals(JustificationReason.OTHER, (store.rows.value.single().lines.single() as ExpenseLine).justificationReason)
-    }
-
-    @Test
-    fun capturedReceiptFlagAlsoRequiresAffidavitWhenCurrentPolicyDoesNotFlagIt() = runTest(dispatcher) {
-        val line = ExpenseLine("line", 500, "INR", merchant = "Cafe", category = "FOOD", policyFlags = listOf("RECEIPT_RECOMMENDED"))
-        val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
-        val vm = ReportSubmitViewModel(store, session, policy(), clock)
-        vm.open("report")
-        advanceUntilIdle()
-        assertEquals(setOf("line"), vm.state.value.screen.dataOrNull!!.requiredAffidavitIds)
-    }
-
-    @Test
-    fun originalCaptureReceiptUpdatesReevaluateOlderReportJson() = runTest(dispatcher) {
-        val record = ExpenseRecord("receipt", ExpenseCategory.TRAVEL, "Taxi", 5.0, ExpenseStatus.PENDING, 1_000, receiptImagePath = "receipt.jpg")
-        assertEquals("receipt.jpg", record.toClaimLine().receiptImagePath)
-        val line = record.toClaimLine().copy(receiptImagePath = null)
-        val expenses = ExpenseRepository()
-        expenses.insert(record)
-        val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
-        val vm = ReportSubmitViewModel(store, session, policy(), clock, expenses = expenses)
-        vm.open("report")
-        advanceUntilIdle()
-        assertTrue(vm.state.value.screen.dataOrNull!!.requiredAffidavitIds.isEmpty())
-        expenses.update(record.copy(receiptImagePath = null))
-        advanceUntilIdle()
-        assertEquals(setOf("receipt"), vm.state.value.screen.dataOrNull!!.requiredAffidavitIds)
-    }
-
-    @Test
-    fun absentKeyAndGarbageSuggestionLeaveNoErrorOrSelectedReason() = runTest(dispatcher) {
-        val line = ExpenseLine("line", 2_000, "INR", merchant = "Cafe", category = "FOOD")
-        val suggesters = listOf(
-            JustificationReasonSuggester({ null }) { error("Must not call a provider") },
-            JustificationReasonSuggester({ "fake-key" }) { Result.Success("garbage") },
-        )
-        for (suggester in suggesters) {
+    fun suggestionIsOnlyAHintAndCanBeOverriddenWithoutWeakeningHardPolicy() =
+        runTest(dispatcher) {
+            val line = ExpenseLine("line", 60_000, "INR", merchant = "Private merchant", category = "FOOD", affidavitNote = "Private note")
             val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
+            var calls = 0
+            val suggester =
+                JustificationReasonSuggester({ "fake-key" }) {
+                    calls++
+                    Result.Success("client_request")
+                }
             val vm = ReportSubmitViewModel(store, session, policy(), clock, reasonSuggester = suggester)
             vm.open("report")
             advanceUntilIdle()
             vm.suggestReasons()
+            vm.suggestReasons()
             advanceUntilIdle()
-            assertTrue(vm.state.value.suggestions.isEmpty())
-            assertNull(vm.state.value.error)
-            assertNull((vm.state.value.screen.dataOrNull!!.report.lines.single() as ExpenseLine).justificationReason)
+            assertEquals(1, calls)
+            assertEquals(JustificationReason.CLIENT_REQUEST, vm.state.value.suggestions["line"])
+            assertNull(
+                (
+                    vm.state.value.screen.dataOrNull!!
+                        .report.lines
+                        .single() as ExpenseLine
+                ).justificationReason,
+            )
+            vm.saveExceptionDetails("line", true, "Receipt lost", JustificationReason.OTHER, "Urgent business visit")
+            advanceUntilIdle()
+            vm.acceptWarnings(true)
+            assertEquals(
+                listOf("EXPENSE_OVER_MAX"),
+                vm.state.value.screen.dataOrNull!!
+                    .hardFlags
+                    .map { it.code },
+            )
+            assertFalse(
+                vm.state.value.screen.dataOrNull!!
+                    .canSubmit,
+            )
+            assertEquals(
+                JustificationReason.OTHER,
+                (
+                    store.rows.value
+                        .single()
+                        .lines
+                        .single() as ExpenseLine
+                ).justificationReason,
+            )
         }
-    }
+
+    @Test
+    fun capturedReceiptFlagAlsoRequiresAffidavitWhenCurrentPolicyDoesNotFlagIt() =
+        runTest(dispatcher) {
+            val line = ExpenseLine("line", 500, "INR", merchant = "Cafe", category = "FOOD", policyFlags = listOf("RECEIPT_RECOMMENDED"))
+            val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
+            val vm = ReportSubmitViewModel(store, session, policy(), clock)
+            vm.open("report")
+            advanceUntilIdle()
+            assertEquals(
+                setOf("line"),
+                vm.state.value.screen.dataOrNull!!
+                    .requiredAffidavitIds,
+            )
+        }
+
+    @Test
+    fun originalCaptureReceiptUpdatesReevaluateOlderReportJson() =
+        runTest(dispatcher) {
+            val record = ExpenseRecord("receipt", ExpenseCategory.TRAVEL, "Taxi", 5.0, ExpenseStatus.PENDING, 1_000, receiptImagePath = "receipt.jpg")
+            assertEquals("receipt.jpg", record.toClaimLine().receiptImagePath)
+            val line = record.toClaimLine().copy(receiptImagePath = null)
+            val expenses = ExpenseRepository()
+            expenses.insert(record)
+            val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
+            val vm = ReportSubmitViewModel(store, session, policy(), clock, expenses = expenses)
+            vm.open("report")
+            advanceUntilIdle()
+            assertTrue(
+                vm.state.value.screen.dataOrNull!!
+                    .requiredAffidavitIds
+                    .isEmpty(),
+            )
+            expenses.update(record.copy(receiptImagePath = null))
+            advanceUntilIdle()
+            assertEquals(
+                setOf("receipt"),
+                vm.state.value.screen.dataOrNull!!
+                    .requiredAffidavitIds,
+            )
+        }
+
+    @Test
+    fun absentKeyAndGarbageSuggestionLeaveNoErrorOrSelectedReason() =
+        runTest(dispatcher) {
+            val line = ExpenseLine("line", 2_000, "INR", merchant = "Cafe", category = "FOOD")
+            val suggesters =
+                listOf(
+                    JustificationReasonSuggester({ null }) { error("Must not call a provider") },
+                    JustificationReasonSuggester({ "fake-key" }) { Result.Success("garbage") },
+                )
+            for (suggester in suggesters) {
+                val store = MemoryReports(listOf(Report("report", "employee", listOf(line))))
+                val vm = ReportSubmitViewModel(store, session, policy(), clock, reasonSuggester = suggester)
+                vm.open("report")
+                advanceUntilIdle()
+                vm.suggestReasons()
+                advanceUntilIdle()
+                assertTrue(
+                    vm.state.value.suggestions
+                        .isEmpty(),
+                )
+                assertNull(vm.state.value.error)
+                assertNull(
+                    (
+                        vm.state.value.screen.dataOrNull!!
+                            .report.lines
+                            .single() as ExpenseLine
+                    ).justificationReason,
+                )
+            }
+        }
 
     /** Fake local persistence uses the same transition/notifier contracts as the Room adapter. */
     private class MemoryReports(

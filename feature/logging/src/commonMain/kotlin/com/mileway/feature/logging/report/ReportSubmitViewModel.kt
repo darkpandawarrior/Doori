@@ -134,7 +134,11 @@ class ReportSubmitViewModel(
             viewModelScope.launch {
                 runCatching {
                     val employee = requireNotNull(session.sessionState.first().employeeCode) { "Sign in to review reports" }
-                    combine(reports.observe(id), reports.observeByEmployee(employee), expenses?.recordsFlow ?: flowOf(emptyList())) { report, _, _ -> report }.collect { report ->
+                    combine(
+                        reports.observe(id),
+                        reports.observeByEmployee(employee),
+                        expenses?.recordsFlow ?: flowOf(emptyList()),
+                    ) { report, _, _ -> report }.collect { report ->
                         require(report == null || report.employeeId == employee) { "This report belongs to another employee" }
                         val review = report?.let { review(it) }
                         mutableState.update { current ->
@@ -173,22 +177,24 @@ class ReportSubmitViewModel(
         justificationNote: String,
     ) = perform { review ->
         require(review.report.isEditable) { "EXCEPTIONS_EDITABLE_ONLY" }
-        val saved = reports.save(
-            review.report.copy(
-                lines = review.report.lines.map { line ->
-                    if (line is ExpenseLine && line.id == lineId) {
-                        line.copy(
-                            affidavitAccepted = accepted,
-                            affidavitNote = affidavitNote,
-                            justificationReason = reason,
-                            justificationNote = justificationNote,
-                        )
-                    } else {
-                        line
-                    }
-                },
-            ),
-        )
+        val saved =
+            reports.save(
+                review.report.copy(
+                    lines =
+                        review.report.lines.map { line ->
+                            if (line is ExpenseLine && line.id == lineId) {
+                                line.copy(
+                                    affidavitAccepted = accepted,
+                                    affidavitNote = affidavitNote,
+                                    justificationReason = reason,
+                                    justificationNote = justificationNote,
+                                )
+                            } else {
+                                line
+                            }
+                        },
+                ),
+            )
         mutableState.update { it.copy(pendingExceptionIds = it.pendingExceptionIds - lineId) }
         saved
     }
@@ -263,6 +269,31 @@ class ReportSubmitViewModel(
             }
             exceptionCodes[line.id] = codes + if (receiptFlag && "RECEIPT_RECOMMENDED" !in codes) listOf("RECEIPT_RECOMMENDED") else emptyList()
         }
+        flags += reportAmountFlags(report)
+        return Review(
+            report =
+                report.copy(
+                    lines =
+                        report.lines.map { line ->
+                            val captured = expenses?.recordsFlow?.value?.find { it.id == line.id }
+                            if (line is ExpenseLine && captured != null) line.copy(receiptImagePath = captured.receiptImagePath) else line
+                        },
+                ),
+            requiredAffidavitIds = requiredAffidavits,
+            exceptionFlagCodes = exceptionCodes,
+            hardFlags = flags.filter { it.severity == PolicySeverity.HARD_BLOCK },
+            softFlags = flags.filter { it.severity == PolicySeverity.SOFT_WARN },
+            reconciliation =
+                if (report.lines.any { it is AdvanceLine }) {
+                    reconciliation?.invoke(report, reports.observeByEmployee(report.employeeId).first())
+                } else {
+                    null
+                },
+        )
+    }
+
+    private fun reportAmountFlags(report: Report): List<PolicyViolation> {
+        val flags = mutableListOf<PolicyViolation>()
         if (report.lines.isEmpty() ||
             report.lines.any { it.amountMinor <= 0 } ||
             report.lines
@@ -280,22 +311,7 @@ class ReportSubmitViewModel(
             }
             total += line.amountMinor
         }
-        return Review(
-            report = report.copy(lines = report.lines.map { line ->
-                val captured = expenses?.recordsFlow?.value?.find { it.id == line.id }
-                if (line is ExpenseLine && captured != null) line.copy(receiptImagePath = captured.receiptImagePath) else line
-            }),
-            requiredAffidavitIds = requiredAffidavits,
-            exceptionFlagCodes = exceptionCodes,
-            hardFlags = flags.filter { it.severity == PolicySeverity.HARD_BLOCK },
-            softFlags = flags.filter { it.severity == PolicySeverity.SOFT_WARN },
-            reconciliation =
-                if (report.lines.any { it is AdvanceLine }) {
-                    reconciliation?.invoke(report, reports.observeByEmployee(report.employeeId).first())
-                } else {
-                    null
-                },
-        )
+        return flags
     }
 
     private fun perform(action: suspend (Review) -> Report) {

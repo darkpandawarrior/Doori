@@ -51,9 +51,19 @@ fun ReportSubmitScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(reportId) { viewModel.open(reportId) }
-    LaunchedEffect(state.screen.dataOrNull?.report?.id) { viewModel.suggestReasons() }
+    LaunchedEffect(
+        state.screen.dataOrNull
+            ?.report
+            ?.id,
+    ) { viewModel.suggestReasons() }
     ReportSubmitContent(
-        state, onBack, viewModel::submit, viewModel::recall, viewModel::acceptWarnings, viewModel::retry, onEdit,
+        state,
+        onBack,
+        viewModel::submit,
+        viewModel::recall,
+        viewModel::acceptWarnings,
+        viewModel::retry,
+        onEdit,
         onSaveException = viewModel::saveExceptionDetails,
         onExceptionChanged = viewModel::markExceptionChanged,
     )
@@ -96,14 +106,7 @@ private fun ReportSubmitContent(
                 if (content.report.isEditable && content.report.lines.all { it is ExpenseLine } && onEdit != null) {
                     TextButton(onClick = onEdit, enabled = !state.busy) { Text("Edit grouped items") }
                 }
-                state.error?.let { error ->
-                    val message = when (error) {
-                        "EXCEPTIONS_EDITABLE_ONLY" -> stringResource(Res.string.logging_exceptions_editable_only)
-                        "EXCEPTIONS_UNSAVED" -> stringResource(Res.string.logging_exceptions_unsaved)
-                        else -> error
-                    }
-                    Text(message, color = MaterialTheme.colorScheme.error)
-                }
+                state.error?.let { ReportActionError(it) }
                 ReportClaimItems(content.report.lines)
                 content.report.lines.filterIsInstance<ExpenseLine>().forEach { line ->
                     ExpenseExceptionEditor(
@@ -115,27 +118,48 @@ private fun ReportSubmitContent(
                         onChanged = onExceptionChanged,
                     )
                 }
-                Text("Report policy", style = MaterialTheme.typography.titleMedium)
-                if (content.hardFlags.isEmpty() && content.softFlags.isEmpty()) Text("No policy flags")
-                content.hardFlags.forEach { flag ->
-                    val message = when (flag.code) {
-                        "AFFIDAVIT_REQUIRED" -> stringResource(Res.string.logging_affidavit_required, flag.message)
-                        "JUSTIFICATION_REQUIRED" -> stringResource(Res.string.logging_justification_required, flag.message)
-                        else -> "Blocked: ${flag.message}"
-                    }
-                    Text(message, color = MaterialTheme.colorScheme.error)
-                }
-                content.softFlags.forEach { flag -> Text("Warning: ${flag.message}") }
-                if (content.softFlags.isNotEmpty() && content.report.isEditable) {
-                    Row {
-                        Checkbox(checked = content.warningsAccepted, onCheckedChange = onAcceptWarnings, enabled = !state.busy)
-                        Text("I have reviewed the policy warnings", modifier = Modifier.padding(top = 12.dp))
-                    }
-                }
+                ReportPolicyReview(content, state.busy, onAcceptWarnings)
                 if (submitted) {
                     Text(if (content.canRecall) "You can recall before an approver acts" else "An approval action has been recorded; recall is unavailable")
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ReportActionError(error: String) {
+    val message =
+        when (error) {
+            "EXCEPTIONS_EDITABLE_ONLY" -> stringResource(Res.string.logging_exceptions_editable_only)
+            "EXCEPTIONS_UNSAVED" -> stringResource(Res.string.logging_exceptions_unsaved)
+            else -> error
+        }
+    Text(message, color = MaterialTheme.colorScheme.error)
+}
+
+@Composable
+private fun ReportPolicyReview(
+    content: ReportSubmitViewModel.Review,
+    busy: Boolean,
+    onAcceptWarnings: (Boolean) -> Unit,
+) {
+    Text("Report policy", style = MaterialTheme.typography.titleMedium)
+    if (content.hardFlags.isEmpty() && content.softFlags.isEmpty()) Text("No policy flags")
+    content.hardFlags.forEach { flag ->
+        val message =
+            when (flag.code) {
+                "AFFIDAVIT_REQUIRED" -> stringResource(Res.string.logging_affidavit_required, flag.message)
+                "JUSTIFICATION_REQUIRED" -> stringResource(Res.string.logging_justification_required, flag.message)
+                else -> "Blocked: ${flag.message}"
+            }
+        Text(message, color = MaterialTheme.colorScheme.error)
+    }
+    content.softFlags.forEach { flag -> Text("Warning: ${flag.message}") }
+    if (content.softFlags.isNotEmpty() && content.report.isEditable) {
+        Row {
+            Checkbox(checked = content.warningsAccepted, onCheckedChange = onAcceptWarnings, enabled = !busy)
+            Text("I have reviewed the policy warnings", modifier = Modifier.padding(top = 12.dp))
         }
     }
 }
@@ -157,16 +181,30 @@ private fun ExpenseExceptionEditor(
         Text(line.merchant, style = MaterialTheme.typography.titleSmall)
         if (requiresAffidavit) {
             AffidavitField(
-                accepted, affidavitNote,
-                onAcceptedChange = { accepted = it; onChanged(line.id) },
-                onNoteChange = { affidavitNote = it; onChanged(line.id) },
+                accepted,
+                affidavitNote,
+                onAcceptedChange = {
+                    accepted = it
+                    onChanged(line.id)
+                },
+                onNoteChange = {
+                    affidavitNote = it
+                    onChanged(line.id)
+                },
                 enabled = enabled,
             )
         }
         JustificationReasonPicker(
-            reason, justificationNote,
-            onReasonChange = { reason = it; onChanged(line.id) },
-            onNoteChange = { justificationNote = it; onChanged(line.id) },
+            reason,
+            justificationNote,
+            onReasonChange = {
+                reason = it
+                onChanged(line.id)
+            },
+            onNoteChange = {
+                justificationNote = it
+                onChanged(line.id)
+            },
             suggestion = suggestion,
             enabled = enabled,
         )

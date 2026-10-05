@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -70,14 +71,28 @@ class ExpenseExceptionsUiTest {
             MaterialTheme {
                 Column(Modifier.verticalScroll(rememberScrollState())) {
                     AffidavitField(
-                        value.affidavitAccepted, value.affidavitNote,
-                        onAcceptedChange = { value = value.copy(affidavitAccepted = it); line = value },
-                        onNoteChange = { value = value.copy(affidavitNote = it); line = value },
+                        value.affidavitAccepted,
+                        value.affidavitNote,
+                        onAcceptedChange = {
+                            value = value.copy(affidavitAccepted = it)
+                            line = value
+                        },
+                        onNoteChange = {
+                            value = value.copy(affidavitNote = it)
+                            line = value
+                        },
                     )
                     JustificationReasonPicker(
-                        value.justificationReason, value.justificationNote,
-                        onReasonChange = { value = value.copy(justificationReason = it); line = value },
-                        onNoteChange = { value = value.copy(justificationNote = it); line = value },
+                        value.justificationReason,
+                        value.justificationNote,
+                        onReasonChange = {
+                            value = value.copy(justificationReason = it)
+                            line = value
+                        },
+                        onNoteChange = {
+                            value = value.copy(justificationNote = it)
+                            line = value
+                        },
                     )
                 }
             }
@@ -88,25 +103,33 @@ class ExpenseExceptionsUiTest {
         composeRule.onNodeWithText("Other").performScrollTo().performClick()
         composeRule.runOnIdle { assertFalse(line.hasValidJustification()) }
         composeRule.onNodeWithText("Justification note (required for Other)").performScrollTo().performTextInput("Urgent client visit")
-        composeRule.runOnIdle { assertTrue(line.hasValidJustification()); assertEquals(JustificationReason.OTHER, line.justificationReason) }
+        composeRule.runOnIdle {
+            assertTrue(line.hasValidJustification())
+            assertEquals(JustificationReason.OTHER, line.justificationReason)
+        }
     }
 
     @Test
     fun reportScreenSavesAffidavitAndOfflineReasonBeforeSubmitting() {
         val row = MutableStateFlow(Report("report", "employee", listOf(ExpenseLine("line", 500, "INR", merchant = "Taxi", category = "TRAVEL"))))
-        val store = object : ReportJourneyStore {
-            override fun observe(id: String) = row.map { it.takeIf { report -> report.id == id } }
-            override fun observeByEmployee(employeeId: String) = row.map { listOf(it).filter { report -> report.employeeId == employeeId } }
-            override suspend fun save(report: Report): Report {
-                val saved = report.copy(recordVersion = report.recordVersion + 1)
-                row.value = saved
-                return saved
+        val store =
+            object : ReportJourneyStore {
+                override fun observe(id: String) = row.map { it.takeIf { report -> report.id == id } }
+
+                override fun observeByEmployee(employeeId: String) = row.map { listOf(it).filter { report -> report.employeeId == employeeId } }
+
+                override suspend fun save(report: Report): Report {
+                    val saved = report.copy(recordVersion = report.recordVersion + 1)
+                    row.value = saved
+                    return saved
+                }
+
+                override suspend fun recall(id: String) = row.value
             }
-            override suspend fun recall(id: String) = row.value
-        }
-        val session = object : SessionSource {
-            override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.GUEST, employeeCode = "employee"))
-        }
+        val session =
+            object : SessionSource {
+                override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.GUEST, employeeCode = "employee"))
+            }
         val vm = ReportSubmitViewModel(store, session)
         composeRule.setContent { MaterialTheme { ReportSubmitScreen("report", vm, {}) } }
         composeRule.waitForIdle()
@@ -116,16 +139,17 @@ class ExpenseExceptionsUiTest {
         composeRule.onNodeWithText("Other").performScrollTo().performClick()
         composeRule.onNodeWithText("Justification note (required for Other)").performScrollTo().performTextInput("Urgent client visit")
         composeRule.onNodeWithText("Submit report").assertIsNotEnabled()
+        composeRule.onNode(isToggleable()).assertIsOn()
         composeRule.onNodeWithText("Save exception details").performScrollTo().performClick()
-        composeRule.waitForIdle()
+        composeRule.waitUntil { row.value.recordVersion > 0 && !vm.state.value.busy }
         composeRule.runOnIdle {
             val saved = row.value.lines.single() as ExpenseLine
-            assertTrue(saved.hasCompleteAffidavit())
+            assertTrue("Saved affidavit: $saved; error: ${vm.state.value.error}", saved.hasCompleteAffidavit())
             assertEquals(JustificationReason.OTHER, saved.justificationReason)
             assertEquals("Urgent client visit", saved.justificationNote)
         }
         composeRule.onNodeWithText("Submit report").assertIsEnabled().performClick()
-        composeRule.waitForIdle()
+        composeRule.waitUntil { row.value.state == ReportLifecycleState.SUBMITTED }
         composeRule.runOnIdle { assertEquals(ReportLifecycleState.SUBMITTED, row.value.state) }
     }
 
