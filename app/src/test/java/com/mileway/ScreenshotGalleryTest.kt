@@ -163,6 +163,7 @@ import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.perdiem.PerDiemSheet
+import com.mileway.feature.logging.policy.reviewMessage
 import com.mileway.feature.logging.report.ReportGroupingScreen
 import com.mileway.feature.logging.report.ReportGroupingViewModel
 import com.mileway.feature.logging.report.ReportSubmitScreen
@@ -1079,7 +1080,7 @@ class ScreenshotGalleryTest {
         composeRule.waitForIdle()
         composeRule.onNodeWithText("Claim country (two-letter ISO code)").performScrollTo().performTextReplacement(country)
         composeRule.onNodeWithText("Check holiday").performClick()
-        composeRule.onNodeWithText("Holiday check:", substring = true).performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText(result.reviewMessage("2026-04-03", country)).performScrollTo().assertIsDisplayed()
         capture(name)
     }
 
