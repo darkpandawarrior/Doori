@@ -304,6 +304,7 @@ import com.mileway.feature.travel.ui.screens.TravelHomeScreen
 import com.mileway.feature.travel.ui.screens.TripHistoryScreen
 import com.mileway.feature.whatsnew.data.WhatsNewCatalog
 import com.mileway.feature.whatsnew.di.whatsNewFeatureModule
+import com.mileway.shared.ui.MilewayApp
 import com.mileway.stub.di.stubModule
 import com.mileway.ui.AssistantHomeSheet
 import com.mileway.ui.ShellPlaceholderScreen
@@ -1032,7 +1033,7 @@ class ScreenshotGalleryTest {
         try {
             composeRule.setContent {
                 org.koin.compose.KoinIsolatedContext(application) {
-                    MilewayTheme { com.mileway.shared.ui.MilewayApp() }
+                    MilewayTheme { MilewayApp() }
                 }
             }
             composeRule.onNodeWithText("Spends").performClick()
@@ -1073,7 +1074,7 @@ class ScreenshotGalleryTest {
         try {
             composeRule.setContent {
                 org.koin.compose.KoinIsolatedContext(application) {
-                    MilewayTheme { com.mileway.shared.ui.MilewayApp() }
+                    MilewayTheme { MilewayApp() }
                 }
             }
             composeRule.onNodeWithText("More").performClick()
@@ -1150,7 +1151,7 @@ class ScreenshotGalleryTest {
                             reports.map { all -> all.firstOrNull { it.id == id } }
                         }
                         every { observeAll() } returns reports
-                        every { observeReviewQueue() } returns reports
+                        every { observeReviewQueue() } returns reports.map { all -> all.map(::approvalReviewOf) }
                         every { observeByEmployee(any()) } answers { reports }
                         coEvery { review(any()) } answers { reports.value.firstOrNull { it.id == firstArg<String>() }?.let(::approvalReviewOf) }
                         coEvery { save(any()) } answers {
