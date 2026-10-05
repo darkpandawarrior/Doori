@@ -253,7 +253,10 @@ class TravelRequestViewModel(
         }
     }
 
-    private fun showFailure(startedRevision: Long, detail: String?) {
+    private fun showFailure(
+        startedRevision: Long,
+        detail: String?,
+    ) {
         if (revision == startedRevision) {
             setState { copy(message = detail ?: "Travel request failed", estimate = null) }
         }

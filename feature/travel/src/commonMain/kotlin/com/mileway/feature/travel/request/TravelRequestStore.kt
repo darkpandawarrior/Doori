@@ -124,16 +124,16 @@ class TravelRequestStore(
         notification?.let {
             runCatching {
                 notify(
-                it.copy(
-                    id = "travel:${after.id}:${after.recordVersion}",
-                    title = if (before.state == after.state) "Travel request: finance review required" else it.title.replace("Report", "Travel request"),
-                    body = "${after.purpose}: ${formatMinorCurrency(
-                        after.estimate.amountMinor,
-                        after.estimate.currency,
-                    )}${if (after.estimate.approximate) " (approximate)" else " (OSRM route)"}. Session only.",
-                    // Session-only requests have no persisted report detail route.
-                    deeplink = "",
-                ),
+                    it.copy(
+                        id = "travel:${after.id}:${after.recordVersion}",
+                        title = if (before.state == after.state) "Travel request: finance review required" else it.title.replace("Report", "Travel request"),
+                        body = "${after.purpose}: ${formatMinorCurrency(
+                            after.estimate.amountMinor,
+                            after.estimate.currency,
+                        )}${if (after.estimate.approximate) " (approximate)" else " (OSRM route)"}. Session only.",
+                        // Session-only requests have no persisted report detail route.
+                        deeplink = "",
+                    ),
                 )
             }.onFailure { failure ->
                 if (failure is CancellationException || failure !is Exception) throw failure
