@@ -78,6 +78,7 @@ import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.db.VoucherEntity
 import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.data.model.network.PolicyViolation
+import com.mileway.core.data.popup.PopupAckRepository
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.core.data.session.CurrentTrackDataSource
 import com.mileway.core.data.session.CurrentTrackDataStore
@@ -1146,6 +1147,7 @@ class ScreenshotGalleryTest {
                 single<LocationTracker> { NoOpLocationTracker }
                 single<LocationNameResolver> { OfflineLocationNameResolver() }
                 single<OpOutbox> { mockk(relaxed = true) }
+                single<PopupAckRepository> { mockk { every { observeAcknowledged() } returns MutableStateFlow(emptySet()) } }
                 single<ShareSheet> { mockk(relaxed = true) }
                 single<SessionRepository> { mockk(relaxed = true) { every { sessionState } returns session } }
                 single<SessionSource> {
