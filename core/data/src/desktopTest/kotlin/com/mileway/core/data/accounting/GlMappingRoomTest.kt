@@ -15,10 +15,12 @@ class GlMappingRoomTest {
     @Test
     fun realMappingTableRoundTripsAndUpsertReplacesOnlyItsCategory() =
         runTest {
-            val database = Room.databaseBuilder<MilewayDatabase>(name = ":memory:")
-                .setDriver(BundledSQLiteDriver())
-                .setQueryCoroutineContext(Dispatchers.Default)
-                .build()
+            val database =
+                Room
+                    .inMemoryDatabaseBuilder<MilewayDatabase>()
+                    .setDriver(BundledSQLiteDriver())
+                    .setQueryCoroutineContext(Dispatchers.Default)
+                    .build()
             try {
                 val dao = database.glMappingDao()
                 assertNull(dao.get("FOOD"))
