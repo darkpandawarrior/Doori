@@ -9,6 +9,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
+import org.koin.dsl.module
 
 /** Sends validated line-level CSV. The accounting endpoint is not implemented by this lane. */
 class AccountingExportClient(
@@ -30,3 +31,9 @@ class AccountingExportClient(
         }
     }
 }
+
+/** Keeps toolkit and Ktor constructor types inside the module which declares those dependencies. */
+val accountingExportModule =
+    module {
+        single { AccountingExportClient(get()) }
+    }

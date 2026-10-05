@@ -2,6 +2,7 @@ package com.mileway.feature.profile.di
 
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.network.accounting.AccountingExportClient
+import com.mileway.core.network.accounting.accountingExportModule
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
 import com.mileway.feature.profile.admin.RateTableStore
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
@@ -89,7 +90,7 @@ val profileModule =
         single { RateTableStore(get(), get()) }
         viewModel { RateTableEditorViewModel(get(), get()) }
         viewModel { ClaimAnalyticsViewModel(get(), get(), get()) }
-        single { AccountingExportClient(get()) }
+        includes(accountingExportModule)
         viewModel {
             GlExportViewModel(
                 get<com.mileway.core.data.claim.ReportRepository>(),
