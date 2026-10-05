@@ -105,11 +105,13 @@ slice the same way this repo goes deep on location and offline-first. All three 
   `commonMain`: all thirteen `:feature:*` modules and every `:core:*` module bar the Android-only
   `:core:maps-krossmap` compile for `iosArm64`/`iosSimulatorArm64`, that's real compile parity, not
   an Android app with a port pending. What differs today is the *navigation surface*: iOS renders
-  `MilewayApp()`, a four-tab shell (Home · Track · Spends · Travel, plus a What's New overlay),
-  while the full thirteen-graph JetBrains Compose Navigation host lives in
-  `:app` and is Android-only. So approvals, payables, cards, payments, events, advances, media,
-  agent and profile compile for iOS but have no iOS entry point yet, the shell's remaining
-  callbacks (`onOpenAccount`, `onOpenMap`, `onAddExpense`, `onExpenseHistory`, …) are no-ops there.
+  `MilewayApp()`, a Home, Track, Spends and Travel shell with a More tab and shared overlays.
+  Spends opens expense reports, report review and submit, and per-diem entry. More opens
+  approvals with report review and delegation, reimbursements with the payout status stepper,
+  the local rate editor, and the other shared feature entry screens. Travel opens the existing
+  travel-request form. The full Compose Navigation host remains Android-only; several detail
+  callbacks, map navigation, expense entry and expense history are still unwired on iOS. The
+  More tab labels screens that require Android platform APIs as unavailable.
   Background scheduling uses [kmpworkmanager](https://github.com/brewkits/kmpworkmanager)
   (BGTask dispatcher + AppDelegate); platform services sit behind `expect`/`actual`.
 - 🔀 **One codebase, two distributions.** A `gms` Play build and a FOSS `noGms` / F-Droid build, with
@@ -620,10 +622,12 @@ roadmap reflects direction rather than commitments.
       feature screen lives in `commonMain` and compiles for iOS; background scheduling via
       kmpworkmanager; AppDelegate + BGTask dispatcher; iOS builds and passes all CI gates.
       The iOS *app shell* is still a subset:
-      `ContentView` hosts `MilewayApp()`, a four-tab scaffold (Home · Track · Spends · Travel + a
-      What's New overlay), because the JetBrains Compose Navigation graph that reaches the other nine feature
-      modules lives in `:app` and is Android-only. Standing up that navigation surface on iOS is
-      open work.
+      `ContentView` hosts `MilewayApp()` with Home, Track, Spends, Travel and More. Shared overlays
+      reach report grouping and submit, per diem, approval details and report delegation,
+      reimbursement status and the local rate editor. Travel requests open from Travel.
+      The full Compose Navigation graph remains Android-only. Remaining detail callbacks,
+      map navigation, expense entry and expense history still need shell wiring; Android-only
+      platform screens are labelled on More.
 - [x] Napier structured logging across all modules
 - [x] **AI assistant / "agent" feature (V20).** Offline, retrieval-grounded chat over real local
       trip/expense/card data; Room-backed persistent history + 5-minute session resume; on-device
