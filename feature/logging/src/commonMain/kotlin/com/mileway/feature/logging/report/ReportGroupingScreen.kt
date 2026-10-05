@@ -22,6 +22,7 @@ import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
 import com.mileway.core.ui.mvi.dataOrNull
+import com.mileway.feature.logging.policy.fxProvenanceLabel
 
 /** Spends entry point for date suggestions, manual grouping and reopening persisted reports. */
 @Composable
@@ -80,6 +81,7 @@ private fun ReportGroupingContent(
                             Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
                                 Text(expense.merchantName)
                                 Text(formatMinorCurrency(expense.toClaimLine().amountMinor, expense.currencyCode), style = MaterialTheme.typography.bodySmall)
+                                expense.fxProvenanceLabel()?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
                             }
                         }
                     }
