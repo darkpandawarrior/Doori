@@ -1125,7 +1125,8 @@ class ScreenshotGalleryTest {
     fun phase3CapturePointToPointOffline() {
         composeRule.setContent {
             MilewayTheme {
-                com.mileway.feature.tracking.route.PointToPointScreen(onBack = {})
+                com.mileway.feature.tracking.route
+                    .PointToPointScreen(onBack = {})
             }
         }
         composeRule.onNodeWithText("Origin latitude").performScrollTo().performTextInput("12.0")

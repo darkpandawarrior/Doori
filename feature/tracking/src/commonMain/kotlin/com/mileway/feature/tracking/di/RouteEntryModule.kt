@@ -8,9 +8,10 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 /** Routing config is deliberately empty until a self-hosted server is entered. */
-val routeEntryModule = module {
-    single { OsrmConfiguration() }
-    single { OsrmClient(get()) }
-    single { SavedPlacesRepository(get(), get()) }
-    viewModel { PointToPointViewModel(get(), get(), get(), get(), get()) }
-}
+val routeEntryModule =
+    module {
+        single { OsrmConfiguration() }
+        single { OsrmClient(get()) }
+        single { SavedPlacesRepository(get(), get()) }
+        viewModel { PointToPointViewModel(get(), get(), get(), get(), get()) }
+    }

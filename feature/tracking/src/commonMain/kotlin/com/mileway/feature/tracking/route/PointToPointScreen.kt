@@ -34,7 +34,10 @@ import kotlin.uuid.Uuid
 
 /** Reachable from Saved Tracks on every platform; routing needs an explicit user action. */
 @Composable
-fun PointToPointScreen(onBack: () -> Unit, viewModel: PointToPointViewModel = koinViewModel()) {
+fun PointToPointScreen(
+    onBack: () -> Unit,
+    viewModel: PointToPointViewModel = koinViewModel(),
+) {
     val state by viewModel.state.collectAsState()
     val places by viewModel.places.savedPlaces.collectAsState(emptyList())
     val favourites by viewModel.places.favouriteRoutes.collectAsState(emptyList())
@@ -50,10 +53,12 @@ fun PointToPointScreen(onBack: () -> Unit, viewModel: PointToPointViewModel = ko
     var favourite by remember { mutableStateOf(false) }
     val input = origin?.let { start -> destination?.let { end -> RouteInput(start, end, roundTrip, vehicle, server, vehicleRule, hours) } }
     FormSubmissionScaffold(
-        title = "Point-to-point route", onBack = onBack,
+        title = "Point-to-point route",
+        onBack = onBack,
         subtitle = "Route estimates are saved as drafts for review",
         onSubmit = { input?.let { viewModel.save(it, manual.toDoubleOrNull(), override, favourite) } },
-        submitLabel = "Save route draft", canSubmit = input != null && state.estimate != null && state.savedRouteId == null,
+        submitLabel = "Save route draft",
+        canSubmit = input != null && state.estimate != null && state.savedRouteId == null,
         isSubmitting = state.busy,
     ) { padding ->
         Column(
@@ -61,14 +66,26 @@ fun PointToPointScreen(onBack: () -> Unit, viewModel: PointToPointViewModel = ko
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SectionCard(title = "Endpoints") {
-                EndpointEntry("Origin", places, origin) { origin = it; viewModel.invalidate() }
-                EndpointEntry("Destination", places, destination) { destination = it; viewModel.invalidate() }
+                EndpointEntry("Origin", places, origin) {
+                    origin = it
+                    viewModel.invalidate()
+                }
+                EndpointEntry("Destination", places, destination) {
+                    destination = it
+                    viewModel.invalidate()
+                }
                 Text("Home is protected. Its coordinates stay on this device.")
-                RouteCheck("Round trip", roundTrip, !state.busy) { roundTrip = it; viewModel.invalidate() }
+                RouteCheck("Round trip", roundTrip, !state.busy) {
+                    roundTrip = it
+                    viewModel.invalidate()
+                }
                 if (state.returnAlreadyRecorded) Text("Return leg already recorded; no extra return distance will be added")
             }
             SectionCard(title = "Distance") {
-                OutlinedTextField(server, { server = it; viewModel.invalidate() }, label = { Text("Self-hosted OSRM server (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(server, {
+                    server = it
+                    viewModel.invalidate()
+                }, label = { Text("Self-hosted OSRM server (optional)") }, modifier = Modifier.fillMaxWidth())
                 TextButton(onClick = { input?.let(viewModel::estimate) }, enabled = input != null && !state.busy) { Text("Estimate route") }
                 when (val estimate = state.estimate) {
                     is RouteEstimate.Routed -> Text("OSRM routed distance: ${estimate.distanceKm} km")
@@ -80,10 +97,19 @@ fun PointToPointScreen(onBack: () -> Unit, viewModel: PointToPointViewModel = ko
                 }
             }
             SectionCard(title = "Classification") {
-                OutlinedTextField(vehicle, { vehicle = it; viewModel.invalidate() }, label = { Text("Vehicle key") })
+                OutlinedTextField(vehicle, {
+                    vehicle = it
+                    viewModel.invalidate()
+                }, label = { Text("Vehicle key") })
                 Text("Vehicle rule")
-                ClassificationChoices(vehicleRule) { vehicleRule = it; viewModel.invalidate() }
-                RouteCheck("Working hours rule (09:00-18:00)", hours, !state.busy) { hours = it; viewModel.invalidate() }
+                ClassificationChoices(vehicleRule) {
+                    vehicleRule = it
+                    viewModel.invalidate()
+                }
+                RouteCheck("Working hours rule (09:00-18:00)", hours, !state.busy) {
+                    hours = it
+                    viewModel.invalidate()
+                }
                 Text("Automatic order: vehicle, place, hours, last trip")
                 state.decision?.let { Text("Suggested: ${it.classification.name.lowercase()} (${it.source.name.lowercase()})") }
                 Text("Your override")
@@ -93,14 +119,16 @@ fun PointToPointScreen(onBack: () -> Unit, viewModel: PointToPointViewModel = ko
             SectionCard(title = "Saved places") {
                 SavedPlaceEditor(places, viewModel::savePlace)
             }
-            if (favourites.isNotEmpty()) SectionCard(title = "Favourite routes") {
-                favourites.forEach { route ->
-                    TextButton(onClick = {
-                        manual = route.distanceKm.toString()
-                        override = TripClassification.entries.firstOrNull { it.name.equals(route.purpose, ignoreCase = true) }
-                    }) { Text("Use favourite: ${route.name} (${route.distanceKm} km)") }
+            if (favourites.isNotEmpty()) {
+                SectionCard(title = "Favourite routes") {
+                    favourites.forEach { route ->
+                        TextButton(onClick = {
+                            manual = route.distanceKm.toString()
+                            override = TripClassification.entries.firstOrNull { it.name.equals(route.purpose, ignoreCase = true) }
+                        }) { Text("Use favourite: ${route.name} (${route.distanceKm} km)") }
+                    }
+                    Text("Favourites keep distance and purpose; Home endpoints are never shared")
                 }
-                Text("Favourites keep distance and purpose; Home endpoints are never shared")
             }
             state.message?.let { Text(it) }
         }
@@ -108,26 +136,61 @@ fun PointToPointScreen(onBack: () -> Unit, viewModel: PointToPointViewModel = ko
 }
 
 @Composable
-private fun EndpointEntry(label: String, places: List<SavedPlaceEntity>, selected: SavedPlaceEntity?, onSelect: (SavedPlaceEntity?) -> Unit) {
+private fun EndpointEntry(
+    label: String,
+    places: List<SavedPlaceEntity>,
+    selected: SavedPlaceEntity?,
+    onSelect: (SavedPlaceEntity?) -> Unit,
+) {
     var lat by remember { mutableStateOf("") }
     var lng by remember { mutableStateOf("") }
     Text(label)
     places.forEach { place ->
-        FilterChip(selected = selected?.id == place.id, onClick = { onSelect(place) }, label = { Text(if (place.type == "HOME") "Home (protected)" else place.label) })
+        FilterChip(selected = selected?.id == place.id, onClick = { onSelect(place) }, label = {
+            Text(
+                if (place.type ==
+                    "HOME"
+                ) {
+                    "Home (protected)"
+                } else {
+                    place.label
+                },
+            )
+        })
     }
+
     fun update() {
         val latitude = lat.toDoubleOrNull()
         val longitude = lng.toDoubleOrNull()
-        onSelect(if (latitude != null && latitude.isFinite() && latitude in -90.0..90.0 && longitude != null && longitude.isFinite() && longitude in -180.0..180.0) {
-            SavedPlaceEntity(label, "OTHER", label, "", latitude, longitude, 0L)
-        } else null)
+        onSelect(
+            if (latitude != null &&
+                latitude.isFinite() &&
+                latitude in -90.0..90.0 &&
+                longitude != null &&
+                longitude.isFinite() &&
+                longitude in -180.0..180.0
+            ) {
+                SavedPlaceEntity(label, "OTHER", label, "", latitude, longitude, 0L)
+            } else {
+                null
+            },
+        )
     }
-    OutlinedTextField(lat, { lat = it; update() }, label = { Text("$label latitude") }, modifier = Modifier.fillMaxWidth())
-    OutlinedTextField(lng, { lng = it; update() }, label = { Text("$label longitude") }, modifier = Modifier.fillMaxWidth())
+    OutlinedTextField(lat, {
+        lat = it
+        update()
+    }, label = { Text("$label latitude") }, modifier = Modifier.fillMaxWidth())
+    OutlinedTextField(lng, {
+        lng = it
+        update()
+    }, label = { Text("$label longitude") }, modifier = Modifier.fillMaxWidth())
 }
 
 @Composable
-private fun ClassificationChoices(selected: TripClassification?, onSelect: (TripClassification?) -> Unit) {
+private fun ClassificationChoices(
+    selected: TripClassification?,
+    onSelect: (TripClassification?) -> Unit,
+) {
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         FilterChip(selected == null, { onSelect(null) }, label = { Text("Automatic") })
         TripClassification.entries.forEach { value ->
@@ -137,12 +200,23 @@ private fun ClassificationChoices(selected: TripClassification?, onSelect: (Trip
 }
 
 @Composable
-private fun RouteCheck(label: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
-    Row { Checkbox(checked, onChange, enabled = enabled); Text(label, Modifier.padding(top = 12.dp)) }
+private fun RouteCheck(
+    label: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    Row {
+        Checkbox(checked, onChange, enabled = enabled)
+        Text(label, Modifier.padding(top = 12.dp))
+    }
 }
 
 @Composable
-private fun SavedPlaceEditor(places: List<SavedPlaceEntity>, onSave: (SavedPlaceEntity) -> Unit) {
+private fun SavedPlaceEditor(
+    places: List<SavedPlaceEntity>,
+    onSave: (SavedPlaceEntity) -> Unit,
+) {
     var label by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("OTHER") }
@@ -155,8 +229,12 @@ private fun SavedPlaceEditor(places: List<SavedPlaceEntity>, onSave: (SavedPlace
     OutlinedTextField(address, { address = it }, label = { Text("Address (device only for Home)") })
     OutlinedTextField(lat, { lat = it }, label = { Text("Place latitude (optional)") })
     OutlinedTextField(lng, { lng = it }, label = { Text("Place longitude (optional)") })
-    val validCoordinates = (lat.isBlank() && lng.isBlank()) ||
-        (lat.toDoubleOrNull()?.let { it.isFinite() && it in -90.0..90.0 } == true && lng.toDoubleOrNull()?.let { it.isFinite() && it in -180.0..180.0 } == true)
+    val validCoordinates =
+        (lat.isBlank() && lng.isBlank()) ||
+            (
+                lat.toDoubleOrNull()?.let { it.isFinite() && it in -90.0..90.0 } == true &&
+                    lng.toDoubleOrNull()?.let { it.isFinite() && it in -180.0..180.0 } == true
+            )
     TextButton(onClick = {
         val id = if (type == "HOME") places.firstOrNull { it.type == "HOME" }?.id ?: Uuid.random().toString() else Uuid.random().toString()
         onSave(SavedPlaceEntity(id, type, label, address, lat.toDoubleOrNull(), lng.toDoubleOrNull(), Clock.System.now().toEpochMilliseconds()))

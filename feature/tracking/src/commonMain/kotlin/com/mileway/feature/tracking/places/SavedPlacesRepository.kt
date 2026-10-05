@@ -14,7 +14,10 @@ import kotlinx.coroutines.flow.map
 val SavedPlaceEntity.isProtected: Boolean get() = type == "HOME"
 
 /** Existing saved_places and favourite_routes persistence, with a privacy boundary for external use. */
-class SavedPlacesRepository(private val places: SavedPlaceDao, private val routes: FavouriteRouteDao) {
+class SavedPlacesRepository(
+    private val places: SavedPlaceDao,
+    private val routes: FavouriteRouteDao,
+) {
     val savedPlaces = places.observeAll()
     val favouriteRoutes = routes.observeAll()
     val approverPlaces = savedPlaces.map { rows -> rows.filterNot { it.isProtected } }
@@ -40,10 +43,13 @@ class SavedPlacesRepository(private val places: SavedPlaceDao, private val route
     suspend fun routePoint(place: SavedPlaceEntity): RoutePoint? {
         val lat = place.latitude ?: return null
         val lng = place.longitude ?: return null
-        val nearHome = savedPlaces.first().any {
-            it.isProtected && it.latitude != null && it.longitude != null &&
-                haversineMeters(lat, lng, it.latitude, it.longitude) <= RedactionDefaults.HOME_RADIUS_METERS
-        }
+        val nearHome =
+            savedPlaces.first().any {
+                it.isProtected &&
+                    it.latitude != null &&
+                    it.longitude != null &&
+                    haversineMeters(lat, lng, it.latitude, it.longitude) <= RedactionDefaults.HOME_RADIUS_METERS
+            }
         return RoutePoint(lat, lng, place.isProtected || nearHome)
     }
 

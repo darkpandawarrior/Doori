@@ -65,50 +65,68 @@ class PointToPointViewModel(
 
     fun estimate(input: RouteInput) {
         invalidate()
-        routing = viewModelScope.launch {
-            mutableState.value = PointToPointState(busy = true)
-            try {
-                val at = now()
-                val accountId = accounts.activeAccountId.first()
-                val recorded = tracks.rawTracksFlow().first().filter { it.startedByAccountId == accountId }
-                val origin = places.routePoint(input.origin)
-                val destination = places.routePoint(input.destination)
-                val paired = origin != null && destination != null && RoundTripGuard.hasRecordedReturn(origin, destination, at, recorded)
-                configuration.baseUrl = input.server
-                val estimate = if (origin == null || destination == null) {
-                    RouteEstimate.ManualRequired("Coordinates are missing; enter distance manually (approximate)")
-                } else {
-                    osrm.route(origin, destination, input.roundTrip && !paired)
-                }
-                val rows = places.savedPlaces.first()
-                val rules = AutoClassificationRules(
-                    vehicles = input.vehicleRule?.let { mapOf(input.vehicleKey to it) }.orEmpty(),
-                    places = rows.mapNotNull { row ->
-                        when (row.type) {
-                            "HOME" -> row.id to TripClassification.PERSONAL
-                            "WORK" -> row.id to TripClassification.BUSINESS
-                            else -> null
+        routing =
+            viewModelScope.launch {
+                mutableState.value = PointToPointState(busy = true)
+                try {
+                    val at = now()
+                    val accountId = accounts.activeAccountId.first()
+                    val recorded = tracks.rawTracksFlow().first().filter { it.startedByAccountId == accountId }
+                    val origin = places.routePoint(input.origin)
+                    val destination = places.routePoint(input.destination)
+                    val paired = origin != null && destination != null && RoundTripGuard.hasRecordedReturn(origin, destination, at, recorded)
+                    configuration.baseUrl = input.server
+                    val estimate =
+                        if (origin == null || destination == null) {
+                            RouteEstimate.ManualRequired("Coordinates are missing; enter distance manually (approximate)")
+                        } else {
+                            osrm.route(origin, destination, input.roundTrip && !paired)
                         }
-                    }.toMap(),
-                    hours = if (input.useWorkingHours) ClassificationHours(9, 18, TripClassification.BUSINESS) else null,
-                )
-                val last = recorded.filter { it.isCompleted && !it.isDiscarded && it.endTime <= at }
-                    .maxByOrNull { it.endTime }?.notes?.let { value -> TripClassification.entries.firstOrNull { it.name == value } }
-                val hour = kotlin.time.Instant.fromEpochMilliseconds(at).toLocalDateTime(TimeZone.currentSystemDefault()).hour
-                val decision = policy.classifyTrip(rules, input.vehicleKey, listOf(input.destination.id, input.origin.id), hour, last)
-                quotedInput = input
-                quotedAccountId = accountId
-                mutableState.value = PointToPointState(estimate = estimate, returnAlreadyRecorded = paired, decision = decision)
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                mutableState.value = PointToPointState(message = "Could not read trip data; try again")
+                    val rows = places.savedPlaces.first()
+                    val rules =
+                        AutoClassificationRules(
+                            vehicles = input.vehicleRule?.let { mapOf(input.vehicleKey to it) }.orEmpty(),
+                            places =
+                                rows
+                                    .mapNotNull { row ->
+                                        when (row.type) {
+                                            "HOME" -> row.id to TripClassification.PERSONAL
+                                            "WORK" -> row.id to TripClassification.BUSINESS
+                                            else -> null
+                                        }
+                                    }.toMap(),
+                            hours = if (input.useWorkingHours) ClassificationHours(9, 18, TripClassification.BUSINESS) else null,
+                        )
+                    val last =
+                        recorded
+                            .filter { it.isCompleted && !it.isDiscarded && it.endTime <= at }
+                            .maxByOrNull { it.endTime }
+                            ?.notes
+                            ?.let { value -> TripClassification.entries.firstOrNull { it.name == value } }
+                    val hour =
+                        kotlin.time.Instant
+                            .fromEpochMilliseconds(at)
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                            .hour
+                    val decision = policy.classifyTrip(rules, input.vehicleKey, listOf(input.destination.id, input.origin.id), hour, last)
+                    quotedInput = input
+                    quotedAccountId = accountId
+                    mutableState.value = PointToPointState(estimate = estimate, returnAlreadyRecorded = paired, decision = decision)
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    mutableState.value = PointToPointState(message = "Could not read trip data; try again")
+                }
             }
-        }
     }
 
     /** Manual distance is the total entered by the user, never doubled silently. */
-    fun save(input: RouteInput, manualTotalKm: Double?, override: TripClassification? = null, favourite: Boolean = false) {
+    fun save(
+        input: RouteInput,
+        manualTotalKm: Double?,
+        override: TripClassification? = null,
+        favourite: Boolean = false,
+    ) {
         if (mutableState.value.busy || mutableState.value.savedRouteId != null) return
         val quote = mutableState.value
         mutableState.value = quote.copy(busy = true, message = null)
@@ -132,18 +150,30 @@ class PointToPointViewModel(
                 val approximate = quote.estimate !is RouteEstimate.Routed
                 val id = Uuid.random().toString()
                 val name = if (approximate) "Manual route (approximate)" else "OSRM route estimate"
-                tracks.insert(SavedTrack(
-                    routeId = id, name = name, isDraft = true, draftSavedAt = at,
-                    startedByAccountId = accountId,
-                    startLatitude = origin?.latitude ?: 0.0, startLongitude = origin?.longitude ?: 0.0,
-                    endLatitude = if (roundTrip) origin?.latitude ?: 0.0 else destination?.latitude ?: 0.0,
-                    endLongitude = if (roundTrip) origin?.longitude ?: 0.0 else destination?.longitude ?: 0.0,
-                    pausedLatitude = 0.0, pausedLongitude = 0.0, startTime = at, endTime = at,
-                    distance = km * 1_000.0, duration = 0L, createdAt = at,
-                    selectedVehicleType = input.vehicleKey, roundTrip = roundTrip,
-                    notes = classification?.name ?: "-",
-                    violationRemarks = if (approximate) "MANUAL_APPROXIMATE" else "OSRM_ESTIMATE",
-                ))
+                tracks.insert(
+                    SavedTrack(
+                        routeId = id,
+                        name = name,
+                        isDraft = true,
+                        draftSavedAt = at,
+                        startedByAccountId = accountId,
+                        startLatitude = origin?.latitude ?: 0.0,
+                        startLongitude = origin?.longitude ?: 0.0,
+                        endLatitude = if (roundTrip) origin?.latitude ?: 0.0 else destination?.latitude ?: 0.0,
+                        endLongitude = if (roundTrip) origin?.longitude ?: 0.0 else destination?.longitude ?: 0.0,
+                        pausedLatitude = 0.0,
+                        pausedLongitude = 0.0,
+                        startTime = at,
+                        endTime = at,
+                        distance = km * 1_000.0,
+                        duration = 0L,
+                        createdAt = at,
+                        selectedVehicleType = input.vehicleKey,
+                        roundTrip = roundTrip,
+                        notes = classification?.name ?: "-",
+                        violationRemarks = if (approximate) "MANUAL_APPROXIMATE" else "OSRM_ESTIMATE",
+                    ),
+                )
                 savedId = id
                 if (favourite) places.pin(FavouriteRouteEntity(id, id, name, classification?.name ?: "", km, at))
                 mutableState.value = quote.copy(savedRouteId = id, message = "Route draft saved")
@@ -155,16 +185,17 @@ class PointToPointViewModel(
         }
     }
 
-    fun savePlace(place: SavedPlaceEntity) = viewModelScope.launch {
-        try {
-            places.save(place)
-            invalidate()
-            mutableState.value = mutableState.value.copy(message = "Place saved")
-        } catch (failure: Exception) {
-            if (failure is CancellationException) throw failure
-            mutableState.value = mutableState.value.copy(message = failure.message ?: "Could not save place")
+    fun savePlace(place: SavedPlaceEntity) =
+        viewModelScope.launch {
+            try {
+                places.save(place)
+                invalidate()
+                mutableState.value = mutableState.value.copy(message = "Place saved")
+            } catch (failure: Exception) {
+                if (failure is CancellationException) throw failure
+                mutableState.value = mutableState.value.copy(message = failure.message ?: "Could not save place")
+            }
         }
-    }
 }
 
 /** Immutable snapshot used to reject stale quotes. */

@@ -77,12 +77,23 @@ object SubmitMilesRequestBuilder {
         )
     }
 
-    private fun returnAlreadyRecorded(track: SavedTrack?, recordedTracks: List<SavedTrack>, submittedAtMillis: Long): Boolean {
+    private fun returnAlreadyRecorded(
+        track: SavedTrack?,
+        recordedTracks: List<SavedTrack>,
+        submittedAtMillis: Long,
+    ): Boolean {
         if (track == null) return false
-        if (track.roundTrip || RoundTripClassifier.isRoundTrip(
-                track.startLatitude, track.startLongitude, track.endLatitude, track.endLongitude, track.distance / 1_000.0,
+        if (track.roundTrip ||
+            RoundTripClassifier.isRoundTrip(
+                track.startLatitude,
+                track.startLongitude,
+                track.endLatitude,
+                track.endLongitude,
+                track.distance / 1_000.0,
             )
-        ) return true
+        ) {
+            return true
+        }
         return RoundTripGuard.hasRecordedReturnForTrip(track, submittedAtMillis, recordedTracks)
     }
 
