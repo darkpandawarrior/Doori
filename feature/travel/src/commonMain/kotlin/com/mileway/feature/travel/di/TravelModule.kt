@@ -1,5 +1,10 @@
 package com.mileway.feature.travel.di
 
+import com.mileway.core.data.database.MilewayDatabase
+import com.mileway.core.data.model.db.NotificationEntity
+import com.mileway.core.data.session.ActiveAccountSource
+import com.mileway.feature.travel.request.TravelRequestStore
+import com.mileway.feature.travel.request.TravelRequestViewModel
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.travel.repository.TravelCreateRepository
 import com.mileway.feature.travel.repository.TravelHistoryRepository
@@ -21,6 +26,14 @@ import org.koin.dsl.module
 val travelModule =
     module {
         single { TravelRepository() }
+        single {
+            TravelRequestStore(notify = { row ->
+                get<MilewayDatabase>().notificationDao().upsertAll(
+                    listOf(NotificationEntity(row.id, row.title, row.body, "Just now", true, row.type, row.createdAtMs, row.deeplink)),
+                )
+            })
+        }
+        viewModel { TravelRequestViewModel(get(), get<ActiveAccountSource>().activeAccountId) }
         // TR.2+: shared offline rotating-status create store for the travel create suite.
         single { TravelCreateRepository() }
         // TR.8: offline trip + booking history store (also the TR.9 search source).
