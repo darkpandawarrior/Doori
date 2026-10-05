@@ -1651,7 +1651,7 @@ class ScreenshotGalleryTest {
                         id = "delegate-preview",
                         delegatorAccountId = "manager",
                         delegateAccountId = "delegate-approver",
-                        scope = "reports",
+                        scope = "approvals",
                         startsAtMs = screenshotNowMs - 60_000,
                         expiresAtMs = screenshotNowMs + 60_000,
                         isActive = true,
