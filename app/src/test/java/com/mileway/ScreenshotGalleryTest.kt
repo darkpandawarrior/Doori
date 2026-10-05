@@ -334,8 +334,8 @@ import com.siddharth.kmp.appshell.PermissionsProvider
 import com.siddharth.kmp.common.CrashReporter
 import com.siddharth.kmp.designsystem.ai.AiSettingsState
 import com.siddharth.kmp.llmchat.ProviderId
-import dev.tmapps.konnection.Konnection
 import com.siddharth.kmp.offlineoutbox.OpOutbox
+import dev.tmapps.konnection.Konnection
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -1121,6 +1121,7 @@ class ScreenshotGalleryTest {
         report: Report,
         employeeCode: String = "employee",
     ) = koinApplication {
+        androidContext(ApplicationProvider.getApplicationContext())
         val reports = MutableStateFlow(listOf(report.copy(employeeId = employeeCode)))
         val session = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = employeeCode, whatsNewLastSeenVersion = Int.MAX_VALUE))
         modules(
