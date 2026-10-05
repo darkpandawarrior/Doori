@@ -93,6 +93,7 @@ import com.mileway.core.maps.MapSurface
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.payout.PayoutBeneficiaryStore
+import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.platform.ReferralData
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
@@ -324,7 +325,10 @@ import com.siddharth.kmp.ai.UnavailableOnDeviceLlm
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
+import com.siddharth.kmp.appshell.LocationNameResolver
+import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
+import com.siddharth.kmp.appshell.NoOpLocationTracker
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.PermissionsProvider
 import com.siddharth.kmp.common.CrashReporter
@@ -1137,6 +1141,8 @@ class ScreenshotGalleryTest {
             fakeOverrides,
             module {
                 single<DataStore<Preferences>> { Phase3RatePreferences() }
+                single<LocationTracker> { NoOpLocationTracker }
+                single<LocationNameResolver> { OfflineLocationNameResolver() }
                 single<ShareSheet> { mockk(relaxed = true) }
                 single<SessionRepository> { mockk(relaxed = true) { every { sessionState } returns session } }
                 single<SessionSource> {
