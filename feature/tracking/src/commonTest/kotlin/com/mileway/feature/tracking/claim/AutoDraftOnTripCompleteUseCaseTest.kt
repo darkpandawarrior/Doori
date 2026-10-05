@@ -121,6 +121,7 @@ class AutoDraftOnTripCompleteUseCaseTest {
             val ineligible =
                 listOf(
                     trip.copy(isCompleted = false),
+                    trip.copy(isDraft = true),
                     trip.copy(isDiscarded = true),
                     trip.copy(wasMockOn = true),
                     trip.copy(wasMockLocationUsed = true),

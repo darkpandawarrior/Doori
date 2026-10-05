@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.core.content.FileProvider
 import com.mileway.core.data.model.db.HardwareEvent
 import com.mileway.core.data.model.db.LocationData
+import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.feature.tracking.ui.components.ExportFormat
 import java.io.File
@@ -24,15 +25,11 @@ object TrackExportManager {
         track: SavedTrack,
         locations: List<LocationData>,
         events: List<HardwareEvent>,
-    ): String =
-        when (format) {
-            ExportFormat.CSV -> CsvExporter.export(track, locations, events)
-            ExportFormat.GPX -> GpxExporter.export(track, locations, events)
-            ExportFormat.KML -> KmlExporter.export(track, locations, events)
-            ExportFormat.GEOJSON -> GeoJsonExporter.export(track, locations, events)
-            ExportFormat.JSON -> JsonExporter.export(track, locations, events)
-            ExportFormat.EXCEL -> ExcelExporter.export(track, locations, events)
-        }
+        homes: List<SavedPlaceEntity>,
+    ): String {
+        val safe = RedactionDefaults.protect(track, locations, events, homes)
+        return TrackExportContent.build(format, safe.track, safe.points, safe.events, safe.omitEndpointCoordinates)
+    }
 
     /**
      * Write [content] to a cache file and return a chooser Intent ready to pass to
