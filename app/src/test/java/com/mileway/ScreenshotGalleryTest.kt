@@ -314,7 +314,6 @@ import dev.tmapps.konnection.Konnection
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -332,6 +331,7 @@ import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import java.io.File
 
 // ---------------------------------------------------------------------------
 // Full Roborazzi screen gallery for the docs/ screenshot catalogue.
