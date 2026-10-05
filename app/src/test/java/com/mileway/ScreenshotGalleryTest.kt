@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -44,6 +45,7 @@ import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.DelegationDao
 import com.mileway.core.data.dao.DraftExpenseDao
+import com.mileway.core.data.dao.GlMappingDao
 import com.mileway.core.data.dao.HardwareEventDao
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.LogMilesDraftDao
@@ -68,11 +70,13 @@ import com.mileway.core.data.domain.claim.ApprovalStep
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.FxRate
 import com.mileway.core.data.domain.claim.JustificationReason
+import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
+import com.mileway.core.data.model.db.GlMappingEntity
 import com.mileway.core.data.model.db.PerDiemRateEntity
 import com.mileway.core.data.model.db.PolicyViolationEntity
 import com.mileway.core.data.model.db.ReportEntity
@@ -207,6 +211,8 @@ import com.mileway.feature.profile.analytics.ClaimAnalyticsView
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
 import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
+import com.mileway.feature.profile.export.GlExportValidationScreen
+import com.mileway.feature.profile.export.GlExportViewModel
 import com.mileway.feature.profile.status.ReimbursementStatusScreen
 import com.mileway.feature.profile.status.ReimbursementStatusViewModel
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
@@ -348,6 +354,7 @@ import dev.tmapps.konnection.Konnection
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -366,7 +373,6 @@ import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
-import java.io.File
 
 // ---------------------------------------------------------------------------
 // Full Roborazzi screen gallery for the docs/ screenshot catalogue.
@@ -1502,6 +1508,99 @@ class ScreenshotGalleryTest {
                         .ratesMinorPerKm["car"],
                 )
             }
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase4CaptureGlExportValidation() {
+        val previousBackend = NetworkBackendFlags.useRealBackend
+        NetworkBackendFlags.useRealBackend = false
+        val reports = MutableStateFlow(
+            listOf(
+                Report(
+                    "report-1",
+                    "employee",
+                    listOf(
+                        ExpenseLine("meal-1", 1250, "INR", merchant = "Cafe", category = "FOOD"),
+                        ExpenseLine("meal-2", 2500, "INR", merchant = "Cafe", category = "FOOD"),
+                        MileageLine("trip-1", 5000, "INR", distanceKm = 10.0, vehicleKey = "car"),
+                    ),
+                    ReportLifecycleState.APPROVED,
+                ),
+            ),
+        )
+        val mappings = MutableStateFlow(listOf(GlMappingEntity("MILEAGE", "6200", null, 0)))
+        var sharedCsv = ""
+        val application = koinApplication {
+            modules(
+                profileModule,
+                module {
+                    single<ReportRepository> { mockk { every { observeAll() } returns reports } }
+                    single<GlMappingDao> {
+                        object : GlMappingDao {
+                            override fun observeAll() = mappings
+
+                            override suspend fun get(category: String) = mappings.value.firstOrNull { it.category == category }
+
+                            override suspend fun upsert(entity: GlMappingEntity) {
+                                mappings.value = mappings.value.filterNot { it.category == entity.category } + entity
+                            }
+                        }
+                    }
+                    single<ShareSheet> {
+                        mockk { every { share(any(), any(), any()) } answers { sharedCsv = firstArg() } }
+                    }
+                },
+            )
+        }
+        try {
+            val viewModel = application.koin.get<GlExportViewModel>()
+            composeRule.setContent { MilewayTheme { GlExportValidationScreen(onBack = {}, viewModel = viewModel) } }
+            composeRule.onNodeWithText("2 unmapped lines. Export is blocked.").assertIsDisplayed()
+            composeRule.onNodeWithText("Share accounting CSV").assertIsNotEnabled()
+            composeRule.onNodeWithText(formatMinorCurrency(1250, "INR")).assertIsDisplayed()
+            capture("phase4_gl_export_unmapped")
+            composeRule.onNodeWithText("GL code for FOOD").performScrollTo().performTextInput("6100")
+            composeRule.onNodeWithText("Cost center for FOOD (optional)").performScrollTo().performTextInput("CC-1")
+            composeRule.onNodeWithText("Save FOOD mapping").performScrollTo().performClick()
+            composeRule.onNodeWithText("All 3 lines have GL codes").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Share accounting CSV").assertIsEnabled()
+            capture("phase4_gl_export_mapped")
+            composeRule.onNodeWithText("Share accounting CSV").performClick()
+            composeRule.onNodeWithText("CSV shared. No accounting upload was attempted.").performScrollTo().assertIsDisplayed()
+            org.junit.Assert.assertTrue(sharedCsv.contains("\"meal-1\",\"FOOD\",1250,\"INR\",\"6100\",\"CC-1\""))
+            org.junit.Assert.assertEquals("6100", mappings.value.single { it.category == "FOOD" }.glAccountCode)
+        } finally {
+            application.close()
+            NetworkBackendFlags.useRealBackend = previousBackend
+        }
+    }
+
+    @Test
+    fun phase4CaptureAccountingExportEntry() {
+        val application = phase3ProfileApplication()
+        var opened = false
+        try {
+            val analytics = application.koin.get<AnalyticsViewModel>()
+            val claims = application.koin.get<ClaimAnalyticsViewModel>()
+            composeRule.setContent {
+                MilewayTheme {
+                    AnalyticsHomeScreen(
+                        onBack = {},
+                        onOpenDetail = {},
+                        viewModel = analytics,
+                        claimAnalyticsViewModel = claims,
+                        onOpenAccountingExport = { opened = true },
+                    )
+                }
+            }
+            composeRule.onNodeWithText("Reports").performClick()
+            composeRule.onNodeWithText("Accounting export").performScrollTo().assertIsDisplayed()
+            capture("phase4_accounting_export_entry")
+            composeRule.onNodeWithText("Accounting export").performClick()
+            org.junit.Assert.assertTrue(opened)
         } finally {
             application.close()
         }

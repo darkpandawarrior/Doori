@@ -122,6 +122,7 @@ fun AnalyticsHomeScreen(
     onOpenReimbursements: () -> Unit = {},
     onOpenRates: () -> Unit = {},
     claimAnalyticsViewModel: ClaimAnalyticsViewModel? = null,
+    onOpenAccountingExport: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -206,7 +207,13 @@ fun AnalyticsHomeScreen(
                 0 -> MySpendTab(state, viewModel, onOpenDetail)
                 1 -> TeamTab(state, viewModel)
                 2 -> InsightsTab(state)
-                3 -> ClaimAnalyticsPanel(onOpenReimbursements, onOpenRates, viewModel = claimAnalyticsViewModel ?: koinViewModel())
+                3 ->
+                    ClaimAnalyticsPanel(
+                        onOpenReimbursements,
+                        onOpenRates,
+                        viewModel = claimAnalyticsViewModel ?: koinViewModel(),
+                        onOpenAccountingExport = onOpenAccountingExport,
+                    )
             }
         }
     }
