@@ -54,6 +54,7 @@ import com.mileway.core.data.dao.VoucherDao
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
 import com.mileway.core.data.model.db.SavedTrack
@@ -1045,8 +1046,12 @@ class ScreenshotGalleryTest {
                     ReportSubmitScreen(report.id, viewModel = viewModel, onBack = {}, onEdit = {})
                 }
             }
-            composeRule.onNodeWithText("Blocked: Amount 2600000 exceeds policy max 2500000").assertIsDisplayed()
-            composeRule.onNodeWithText("Warning: Amount 185000 exceeds 100000; attach a receipt").assertIsDisplayed()
+            val blockedText =
+                "Blocked: Amount ${formatMinorCurrency(2_600_000, "INR")} exceeds policy max ${formatMinorCurrency(2_500_000, "INR")}"
+            val warningText =
+                "Warning: Amount ${formatMinorCurrency(185_000, "INR")} exceeds ${formatMinorCurrency(100_000, "INR")}; attach a receipt"
+            composeRule.onNodeWithText(blockedText).performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText(warningText).performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Submit report").assertIsNotEnabled()
             capture("report_submit_screen_filled")
         } finally {
@@ -1100,6 +1105,7 @@ class ScreenshotGalleryTest {
     ) = koinApplication {
         modules(
             loggingModule,
+            advancesModule,
             approvalsModule,
             paymentsModule,
             module {
