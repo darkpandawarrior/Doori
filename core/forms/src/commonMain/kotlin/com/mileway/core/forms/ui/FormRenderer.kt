@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.mileway.core.forms.ExpenseFieldContext
 import com.mileway.core.forms.FieldId
 import com.mileway.core.forms.FormFieldType
 import com.mileway.core.forms.FormFieldValue
@@ -120,9 +121,10 @@ fun FormRenderer(
     onValueChange: (FieldId, FormFieldValue) -> Unit,
     modifier: Modifier = Modifier,
     onReset: (() -> Unit)? = null,
+    expenseContext: ExpenseFieldContext? = null,
 ) {
     val computed = computedFields(schema, values)
-    val errors = validationErrors(schema, values)
+    val errors = validationErrors(schema, values, expenseContext)
     val amountRows = schema.filter { it.relationType in AMOUNT_ROW_RELATIONS }
 
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.l)) {
@@ -133,6 +135,7 @@ fun FormRenderer(
                 value = computed[field.fieldKey] ?: values[field.fieldKey],
                 error = errors[field.fieldKey]?.asString(),
                 onValueChange = { onValueChange(field.fieldKey, it) },
+                expenseContext = expenseContext,
             )
         }
         if (amountRows.isNotEmpty()) {
@@ -150,6 +153,7 @@ private fun FormFieldRow(
     value: FormFieldValue?,
     error: String?,
     onValueChange: (FormFieldValue) -> Unit,
+    expenseContext: ExpenseFieldContext?,
 ) {
     val enabled = field.editable
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -172,6 +176,25 @@ private fun FormFieldRow(
             FormFieldType.DECLARATION -> DeclarationControl(field, value as? FormFieldValue.Declaration, enabled, onValueChange)
             FormFieldType.CITY_AIRPORT, FormFieldType.IRN, FormFieldType.EMPLOYEE_DEPARTMENT, FormFieldType.MASTER ->
                 EnterpriseControl(field, value, enabled, onValueChange)
+            FormFieldType.PERCENTAGE_SPLIT ->
+                PercentageSplitField(
+                    (value as? FormFieldValue.PercentageSplit)?.entries.orEmpty(),
+                    expenseContext,
+                    enabled,
+                ) { onValueChange(FormFieldValue.PercentageSplit(it)) }
+            FormFieldType.ATTENDEE_LIST ->
+                AttendeeListField(
+                    (value as? FormFieldValue.AttendeeList)?.names.orEmpty(),
+                    expenseContext,
+                    enabled,
+                ) { onValueChange(FormFieldValue.AttendeeList(it)) }
+            FormFieldType.ITEMIZED_LINES ->
+                ItemizedLineHost(
+                    (value as? FormFieldValue.ItemizedLines)?.entries.orEmpty(),
+                    expenseContext,
+                    field.defaultValue == "hotel",
+                    enabled,
+                ) { onValueChange(FormFieldValue.ItemizedLines(it)) }
             FormFieldType.FILE_PDF -> AttachmentControl(value as? FormFieldValue.FileRef, enabled, onValueChange)
         }
         if (error != null) FieldError(error)

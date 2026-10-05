@@ -30,4 +30,5 @@ data class DedupCandidate(
     val merchant: String?,
     val total: String?,
     val timestampMillis: Long,
+    val imageHash: Long? = null,
 )

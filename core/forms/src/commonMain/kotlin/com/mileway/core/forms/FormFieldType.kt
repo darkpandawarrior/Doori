@@ -1,8 +1,7 @@
 package com.mileway.core.forms
 
 /**
- * The 16 field types dynamic form schemas can describe (V27 renders these; this module only
- * carries the shape + pure logic). A few DiCE field kinds collapse into one Mileway type where
+ * The dynamic field types dynamic form schemas can describe. A few DiCE field kinds collapse into one Mileway type where
  * they share rendering/validation shape:
  * - [MASTER] covers master / multimaster / multiselect lookups.
  * - [FILE_PDF] covers file / pdf / multiattachments uploads.
@@ -25,4 +24,7 @@ enum class FormFieldType {
     MASTER,
     FILE_PDF,
     EMPLOYEE_DEPARTMENT,
+    PERCENTAGE_SPLIT,
+    ATTENDEE_LIST,
+    ITEMIZED_LINES,
 }

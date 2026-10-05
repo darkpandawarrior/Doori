@@ -6,11 +6,7 @@ import com.mileway.core.ai.model.DuplicateVerdict
 import com.mileway.core.ai.model.ExtractedValue
 import kotlin.math.abs
 
-/**
- * Pure local heuristic: same merchant + amount within [windowMinutes] of an existing record →
- * a duplicate. No network/backend lookup — matches the "offline-first" contract everywhere else
- * in this repo.
- */
+/** Local receipt comparison, with image matches adding evidence without excluding field matches. */
 class DuplicateDetector(
     private val windowMinutes: Int = DEFAULT_WINDOW_MINUTES,
 ) {
@@ -18,30 +14,49 @@ class DuplicateDetector(
         fields: Map<DocField, ExtractedValue>,
         timestampMillis: Long,
         candidates: List<DedupCandidate>,
+        imageHash: Long? = null,
     ): DuplicateVerdict {
         val merchant = fields[DocField.MERCHANT]?.value?.trim()?.lowercase()
         val total = fields[DocField.TOTAL]?.value?.trim()
-        // Can't compare without both signals — never flag a duplicate on a partial read.
-        if (merchant.isNullOrEmpty() || total.isNullOrEmpty()) return DuplicateVerdict.Unique
+        val recent = candidates.filter { abs(timestampMillis - it.timestampMillis) <= windowMinutes * MILLIS_PER_MINUTE }
 
-        val windowMillis = windowMinutes * MILLIS_PER_MINUTE
-        val matches =
-            candidates.filter { candidate ->
+        fun fieldsMatch(candidate: DedupCandidate): Boolean =
+            !merchant.isNullOrEmpty() &&
+                !total.isNullOrEmpty() &&
                 candidate.merchant?.trim()?.lowercase() == merchant &&
-                    candidate.total?.trim() == total &&
-                    abs(timestampMillis - candidate.timestampMillis) <= windowMillis
+                candidate.total?.trim() == total
+
+        val imageMatches =
+            recent.filter { candidate ->
+                imageHash != null && candidate.imageHash?.let { hammingDistance(imageHash, it) <= IMAGE_MATCH_THRESHOLD } == true
             }
-        if (matches.isEmpty()) return DuplicateVerdict.Unique
+        val imageMatch =
+            imageMatches.firstOrNull { fieldsMatch(it) }
+                ?: imageMatches.minByOrNull { abs(timestampMillis - it.timestampMillis) }
+        if (imageMatch != null) {
+            return if (fieldsMatch(imageMatch)) {
+                DuplicateVerdict.Confirmed(imageMatch.ref)
+            } else {
+                DuplicateVerdict.Possible(imageMatch.ref, "receipt image match within ${windowMinutes}min")
+            }
+        }
 
-        val exact = matches.firstOrNull { it.timestampMillis == timestampMillis }
-        if (exact != null) return DuplicateVerdict.Confirmed(exact.ref)
-
-        val nearest = matches.minBy { abs(timestampMillis - it.timestampMillis) }
+        val fieldMatches = recent.filter { fieldsMatch(it) }
+        fieldMatches.firstOrNull { it.timestampMillis == timestampMillis }?.let { return DuplicateVerdict.Confirmed(it.ref) }
+        val nearest = fieldMatches.minByOrNull { abs(timestampMillis - it.timestampMillis) } ?: return DuplicateVerdict.Unique
         return DuplicateVerdict.Possible(nearest.ref, "same merchant and amount within ${windowMinutes}min")
     }
 
-    private companion object {
+    companion object {
         const val DEFAULT_WINDOW_MINUTES = 5
         const val MILLIS_PER_MINUTE = 60_000L
+        const val WINDOW_MILLIS = DEFAULT_WINDOW_MINUTES * MILLIS_PER_MINUTE
+        const val IMAGE_MATCH_THRESHOLD = 8
+
+        /** Number of differing bits in two 64-bit receipt dHashes. */
+        fun hammingDistance(
+            first: Long,
+            second: Long,
+        ): Int = (first xor second).countOneBits()
     }
 }

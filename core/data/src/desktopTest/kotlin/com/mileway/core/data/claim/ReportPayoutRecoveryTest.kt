@@ -63,7 +63,8 @@ class ReportPayoutRecoveryTest {
                         }
                     val draft = reports.save(Report(id, "employee", lines = listOf(line)))
                     val submitted = reports.save(draft.copy(state = ReportLifecycleState.SUBMITTED))
-                    reports.act(id, submitted.recordVersion, "manager", ApprovalAction.APPROVE, "Checked")
+                    val manager = reports.act(id, submitted.recordVersion, "manager", ApprovalAction.APPROVE, "Checked")
+                    reports.act(id, manager.recordVersion, "finance", ApprovalAction.APPROVE, "Finance checked", FINANCE_ROLE)
                     reports.transition(id, ReportLifecycleEvent.RELEASE_FOR_PAYMENT)
                     val pending = firstProcess.pendingPaymentJournalDao().getByReport(id).single()
                     assertEquals(PaymentStatus.PENDING.name, pending.status) // committed BEFORE any call
@@ -88,12 +89,12 @@ class ReportPayoutRecoveryTest {
                             .observeAll()
                             .first()
                             .filter { it.id.startsWith("report:$id:") }
-                    assertEquals(4, notifications.size) // submitted, approved, ready, paid, once each
+                    assertEquals(5, notifications.size) // submitted, manager review, approved, ready, paid, once each
                     val step =
                         restored
                             .get(id)!!
                             .approvalChain.steps
-                            .single()
+                            .first()
                     assertEquals("manager", step.actedBy)
                     assertEquals("Checked", step.comment)
                     secondProcess.close()

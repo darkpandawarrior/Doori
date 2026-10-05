@@ -16,6 +16,7 @@ kotlin {
             implementation(project(":core:common"))
             implementation(project(":core:data"))
             implementation(project(":core:ui"))
+            implementation(project(":core:maps"))
             // PLAN_V28 P28.8: AuditFlags.receiptVerified can read a real core:ai DocumentAnalysis
             // when the approval's receipt was actually scanned.
             implementation(project(":core:ai"))

@@ -37,3 +37,29 @@ private fun FormRendererExpensePreview() {
         )
     }
 }
+
+/** New typed fields share the renderer and show their real money/policy context in preview. */
+@PreviewLightDark
+@Composable
+private fun ExpenseDetailFieldsPreview() {
+    val schema =
+        listOf(
+            com.mileway.core.forms
+                .MockFormSchema("split", "split", "Split", com.mileway.core.forms.FormFieldType.PERCENTAGE_SPLIT),
+            com.mileway.core.forms
+                .MockFormSchema("attendees", "attendees", "Attendees", com.mileway.core.forms.FormFieldType.ATTENDEE_LIST),
+            com.mileway.core.forms
+                .MockFormSchema("items", "items", "Itemization", com.mileway.core.forms.FormFieldType.ITEMIZED_LINES, defaultValue = "hotel"),
+        )
+    var values by remember { mutableStateOf(defaultFormValues(schema)) }
+    PreviewSurface {
+        FormRenderer(
+            schema,
+            values,
+            { key, value -> values = values + (key to value) },
+            expenseContext =
+                com.mileway.core.forms
+                    .ExpenseFieldContext(1001),
+        )
+    }
+}

@@ -43,8 +43,8 @@ class MockFormSchemaTest {
     }
 
     @Test
-    fun all_16_field_types_are_distinct() {
-        assertEquals(16, FormFieldType.entries.size)
+    fun all_19_field_types_are_distinct() {
+        assertEquals(19, FormFieldType.entries.size)
         assertEquals(FormFieldType.entries.toSet().size, FormFieldType.entries.size)
     }
 }

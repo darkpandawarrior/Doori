@@ -9,6 +9,11 @@ import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.mileway.core.data.domain.claim.Attendee
+import com.mileway.core.data.domain.claim.CostSplit
+import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.ItemizedLine
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.stub.PolicyMockData
 
@@ -93,12 +98,16 @@ data class ExpenseRecord(
      * of a static placeholder string. Null for any non-rejected record.
      */
     val rejectionReason: String? = null,
-    /**
-     * P27.E.15: the currency [amountRupees] was originally entered in (static local conversion
-     * table only — no live FX backend). [amountRupees] itself is always the rupee figure used for
-     * settlement/policy checks unchanged from before this field existed; this is display metadata.
-     */
+    /** Capture currency; amountMinor and the legacy amountRupees field both retain this currency. */
     val currencyCode: String = "INR",
+    val amountMinor: Long? = null,
+    val fxRate: com.mileway.core.data.domain.claim.FxRate? = null,
+    val fxRatePinnedAt: Long? = null,
+    val splits: List<CostSplit> = emptyList(),
+    val attendees: List<Attendee> = emptyList(),
+    val itemized: List<ItemizedLine> = emptyList(),
+    val cardMatchId: String? = null,
+    val cardMatchedAmountMinor: Long? = null,
 ) {
     /**
      * P27.E.14: computed from [com.mileway.stub.PolicyMockData]'s tiered expense-amount policy
@@ -108,7 +117,17 @@ data class ExpenseRecord(
      */
     val requiresApproval: Boolean
         get() {
-            val outcome = PolicyMockData.outcomeForExpenseAmount(amountRupees, category.name)
+            val policyAmount =
+                ExpenseLine(
+                    id,
+                    amountMinor ?: (amountRupees * 100).toLong(),
+                    currencyCode,
+                    fxRatePinnedAt = fxRatePinnedAt,
+                    fxRate = fxRate,
+                    merchant = merchantName,
+                    category = category.name,
+                ).amountInCurrencyMinor("INR") ?: return true
+            val outcome = PolicyMockData.outcomeForExpenseAmount(policyAmount.toDouble() / 100, category.name)
             return outcome == SubmissionStatus.POLICY_VIOLATION ||
                 outcome == SubmissionStatus.NEEDS_APPROVAL ||
                 outcome == SubmissionStatus.HARD_STOP

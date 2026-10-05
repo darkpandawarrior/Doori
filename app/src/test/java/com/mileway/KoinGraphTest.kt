@@ -12,6 +12,7 @@ import com.mileway.core.data.dao.LogMilesFrequentRouteDao
 import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
+import com.mileway.core.data.dao.PerDiemRateDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.TripAttachmentDao
@@ -26,6 +27,7 @@ import com.mileway.core.data.session.PinHashSource
 import com.mileway.core.data.session.SessionRepository
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
+import com.mileway.core.media.ocr.ReceiptHistorySource
 import com.mileway.core.platform.ShareSheet
 import com.mileway.core.platform.UrlOpener
 import com.mileway.core.ui.di.coreUiModule
@@ -43,6 +45,7 @@ import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.events.viewmodel.CreateEventViewModel
 import com.mileway.feature.events.viewmodel.EventsHistoryViewModel
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.LogMilesViewModel
 import com.mileway.feature.media.di.androidMediaModule
@@ -123,7 +126,10 @@ class KoinGraphTest : KoinTest {
     private val fakeRoomLayer =
         module {
             single<com.mileway.core.data.claim.ReportRepository> {
-                mockk { every { observeAll() } returns MutableStateFlow(emptyList()) }
+                mockk {
+                    every { observeAll() } returns MutableStateFlow(emptyList())
+                    every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                }
             }
             single<com.mileway.core.data.claim.ReportPayoutProcessor> { mockk(relaxed = true) }
             single<com.mileway.core.data.session.SessionSource> { get<SessionRepository>() }
@@ -146,6 +152,7 @@ class KoinGraphTest : KoinTest {
             // ExpensesSearchProvider's VoucherHistoryRepository needs this to build.
             single<VoucherDao> { mockk(relaxed = true) }
             single<DraftExpenseDao> { mockk(relaxed = true) }
+            single<PerDiemRateDao> { mockk { every { observeAll() } returns MutableStateFlow(emptyList()) } }
             single<MediaLibraryDao> { mockk(relaxed = true) }
             single<AgentDao> { FakeAgentDao() }
             single<MockAccountDao> { FakeMockAccountDao() }
@@ -367,7 +374,12 @@ class KoinGraphTest : KoinTest {
                 authModule,
                 pinModule,
                 // Override platform-backed agent services last so fakes win over agentPlatformModule
-                module { single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() } },
+                module {
+                    single<AgentAnalyticsStore> { FakeAgentAnalyticsStore() }
+                    single<com.mileway.core.network.payout.PayoutBeneficiaryStore> {
+                        mockk { every { read() } returns null }
+                    }
+                },
             )
         }
     }
@@ -392,9 +404,12 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<HardwareEventsViewModel>())
         assertNotNull(get<TrackInsightsViewModel>())
         assertNotNull(get<ExportViewModel>())
+        assertNotNull(get<ReceiptHistorySource>())
         assertNotNull(get<DebugMenuComposeViewModel>())
         assertNotNull(get<LogMilesViewModel>())
         assertNotNull(get<ExpenseViewModel>())
+        assertNotNull(get<PerDiemEntryViewModel>())
+        assertNotNull(get<com.mileway.feature.logging.report.ReportSubmitViewModel>())
         assertNotNull(get<MediaViewModel>())
         assertNotNull(get<CloudLibraryViewModel>())
         assertNotNull(get<ProfileViewModel>())
@@ -428,6 +443,7 @@ class KoinGraphTest : KoinTest {
         assertNotNull(get<com.mileway.feature.profile.viewmodel.IncentiveViewModel>())
         assertNotNull(get<com.mileway.feature.profile.viewmodel.AccountDeletionViewModel>())
         assertNotNull(get<com.mileway.feature.cards.viewmodel.CardKycViewModel>())
+        assertNotNull(get<com.mileway.feature.cards.import.StatementImportViewModel>())
         assertNotNull(get<CheckInViewModel>())
         assertNotNull(get<ApprovalsViewModel>())
         assertNotNull(get<com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel>())

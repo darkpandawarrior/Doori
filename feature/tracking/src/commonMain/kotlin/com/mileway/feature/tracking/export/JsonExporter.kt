@@ -30,6 +30,7 @@ object JsonExporter {
         track: SavedTrack,
         locations: List<LocationData>,
         events: List<HardwareEvent>,
+        omitEndpointCoordinates: Boolean = false,
     ): String =
         buildString {
             appendLine("{")
@@ -46,10 +47,10 @@ object JsonExporter {
             appendLine("""    "durationMs": ${track.duration},""")
             appendLine("""    "startTime": ${track.startTime},""")
             appendLine("""    "endTime": ${track.endTime},""")
-            appendLine("""    "startLat": ${track.startLatitude},""")
-            appendLine("""    "startLng": ${track.startLongitude},""")
-            appendLine("""    "endLat": ${track.endLatitude},""")
-            appendLine("""    "endLng": ${track.endLongitude},""")
+            appendLine("""    "startLat": ${if (omitEndpointCoordinates) "null" else track.startLatitude},""")
+            appendLine("""    "startLng": ${if (omitEndpointCoordinates) "null" else track.startLongitude},""")
+            appendLine("""    "endLat": ${if (omitEndpointCoordinates) "null" else track.endLatitude},""")
+            appendLine("""    "endLng": ${if (omitEndpointCoordinates) "null" else track.endLongitude},""")
             appendLine("""    "avgSpeedMps": ${track.avgSpeed},""")
             appendLine("""    "maxSpeedMps": ${track.maxSpeed},""")
             appendLine("""    "vehicleType": ${js(track.selectedVehicleType)},""")

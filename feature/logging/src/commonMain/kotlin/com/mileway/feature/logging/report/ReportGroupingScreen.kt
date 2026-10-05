@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mileway.core.data.domain.claim.Report
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.ui.components.scaffold.FormSubmissionScaffold
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.mvi.ScreenStateContent
@@ -78,7 +79,7 @@ private fun ReportGroupingContent(
                             Checkbox(checked = expense.id in grouping.selectedIds, onCheckedChange = { onToggle(expense.id) }, enabled = !state.busy)
                             Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
                                 Text(expense.merchantName)
-                                Text("${expense.currencyCode} ${expense.amountRupees}", style = MaterialTheme.typography.bodySmall)
+                                Text(formatMinorCurrency(expense.toClaimLine().amountMinor, expense.currencyCode), style = MaterialTheme.typography.bodySmall)
                             }
                         }
                     }

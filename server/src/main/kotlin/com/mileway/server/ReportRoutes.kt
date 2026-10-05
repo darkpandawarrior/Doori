@@ -201,6 +201,11 @@ private fun loadReport(id: String): Report? =
  * ReportLifecycleHardeningTest.recordVersionIncrementsOnEveryAcceptedWrite.
  */
 private fun persistReport(report: Report): Report {
+    check(
+        report.lines.filterIsInstance<ExpenseLine>().none {
+            it.splits.isNotEmpty() || it.attendees.isNotEmpty() || it.itemized.isNotEmpty()
+        },
+    ) { "Persisting typed expense splits, attendees and itemization is not yet implemented on the server" }
     val persisted = report.copy(recordVersion = report.recordVersion + 1)
     transaction {
         ReportsTable.deleteWhere { ReportsTable.id eq persisted.id }

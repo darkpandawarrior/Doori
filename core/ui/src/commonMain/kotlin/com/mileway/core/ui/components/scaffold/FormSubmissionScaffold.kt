@@ -144,9 +144,10 @@ fun FormSubmissionScaffold(
                 modifier =
                     Modifier
                         .fillMaxSize()
+                        .padding(innerPadding)
                         .verticalScroll(rememberScrollState()),
             ) {
-                content(innerPadding)
+                content(PaddingValues(0.dp))
             }
             if (isSubmitting) {
                 Box(

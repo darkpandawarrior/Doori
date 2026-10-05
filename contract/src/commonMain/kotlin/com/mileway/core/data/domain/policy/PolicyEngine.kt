@@ -3,8 +3,11 @@ package com.mileway.core.data.domain.policy
 import com.mileway.core.data.domain.claim.AdvanceLine
 import com.mileway.core.data.domain.claim.ClaimLine
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.ledger.PolicyRateEngine
 import com.mileway.core.data.ledger.PolicyRateTable
 
@@ -33,6 +36,8 @@ data class PolicyVersion(
     val rateTable: PolicyRateTable,
     val maxExpenseAmountMinor: Long? = null,
     val receiptRequiredAboveMinor: Long? = null,
+    val perHeadLimitMinor: Long? = null,
+    val currency: String = "INR",
 )
 
 /**
@@ -76,34 +81,82 @@ class PolicyEngine(
         line: ExpenseLine,
         version: PolicyVersion,
     ): List<PolicyViolation> {
+        val amount =
+            line.amountInCurrencyMinor(version.currency)
+                ?: return listOf(
+                    PolicyViolation(
+                        "FX_POLICY_SKIPPED",
+                        PolicySeverity.SOFT_WARN,
+                        "Amount checks skipped: no pinned ${line.currency} to ${version.currency} rate. Enter a manual rate (approximate).",
+                    ),
+                )
         val violations = mutableListOf<PolicyViolation>()
+        if (line.currency != version.currency && line.fxRate?.source == FxRateSource.MANUAL_APPROXIMATE) {
+            violations += PolicyViolation("FX_APPROXIMATE", PolicySeverity.SOFT_WARN, "Amount checks use an approximate manual FX rate")
+        }
         version.maxExpenseAmountMinor?.let { max ->
-            if (line.amountMinor > max) {
+            if (amount > max) {
                 violations +=
                     PolicyViolation(
                         code = "EXPENSE_OVER_MAX",
                         severity = PolicySeverity.HARD_BLOCK,
-                        message = "Amount ${line.amountMinor} exceeds policy max $max",
+                        message = "Amount ${formatMinorCurrency(amount, version.currency)} exceeds policy max ${formatMinorCurrency(max, version.currency)}",
                     )
             }
         }
         version.receiptRequiredAboveMinor?.let { threshold ->
-            if (line.amountMinor > threshold) {
+            if (amount > threshold) {
                 violations +=
                     PolicyViolation(
                         code = "RECEIPT_RECOMMENDED",
                         severity = PolicySeverity.SOFT_WARN,
-                        message = "Amount ${line.amountMinor} exceeds $threshold; attach a receipt",
+                        message =
+                            "Amount ${formatMinorCurrency(amount, version.currency)} exceeds " +
+                                "${formatMinorCurrency(threshold, version.currency)}; attach a receipt",
                     )
             }
         }
+        perHeadViolation(amount, line.attendees.size, version)?.let { violations += it }
         return violations
+    }
+
+    /** Evaluates the live attendee divisor against the policy in effect at submission time. */
+    fun perHeadViolation(
+        amountMinor: Long,
+        attendeeCount: Int,
+        submittedAtMillis: Long,
+    ): PolicyViolation? = perHeadViolation(amountMinor, attendeeCount, versionFor(submittedAtMillis))
+
+    private fun perHeadViolation(
+        amountMinor: Long,
+        attendeeCount: Int,
+        version: PolicyVersion,
+    ): PolicyViolation? {
+        val limit = version.perHeadLimitMinor ?: return null
+        if (attendeeCount <= 0 || amountMinor < 0 || limit < 0) return null
+        // Compare the exact rational per-head amount, without overflow or rounding a cent away.
+        val quotient = amountMinor / attendeeCount
+        val overLimit = quotient > limit || (quotient == limit && amountMinor % attendeeCount != 0L)
+        return if (overLimit) {
+            PolicyViolation("EXPENSE_PER_HEAD_OVER_LIMIT", PolicySeverity.SOFT_WARN, "Per-head expense exceeds the policy limit")
+        } else {
+            null
+        }
     }
 
     private fun evaluateMileage(
         line: MileageLine,
         version: PolicyVersion,
     ): List<PolicyViolation> {
+        if (line.currency != version.currency) {
+            return listOf(
+                PolicyViolation(
+                    "FX_POLICY_SKIPPED",
+                    PolicySeverity.SOFT_WARN,
+                    "Mileage amount checks skipped: no pinned ${line.currency} to ${version.currency} rate",
+                ),
+            )
+        }
         val result = PolicyRateEngine(version.rateTable).reimbursement(line.vehicleKey, line.distanceKm)
         val violations = mutableListOf<PolicyViolation>()
         if (line.amountMinor > result.cappedAmount) {
@@ -111,7 +164,9 @@ class PolicyEngine(
                 PolicyViolation(
                     code = "MILEAGE_OVER_POLICY_RATE",
                     severity = PolicySeverity.HARD_BLOCK,
-                    message = "Claimed ${line.amountMinor} exceeds policy-computed ${result.cappedAmount}",
+                    message =
+                        "Claimed ${formatMinorCurrency(line.amountMinor, version.currency)} exceeds policy-computed " +
+                            formatMinorCurrency(result.cappedAmount, version.currency),
                 )
         } else if (result.appliedCapReason != null) {
             violations +=

@@ -99,7 +99,7 @@ class AnalysisCombinerTest {
         val text =
             mapOf(
                 DocField.TOTAL to ExtractedValue("1", 0.2f, AnalyzerSource.TEXT_RECOGNITION),
-                DocField.DATE to ExtractedValue("2", 0.4f, AnalyzerSource.TEXT_RECOGNITION),
+                DocField.DATE to ExtractedValue("2026-10-05", 0.4f, AnalyzerSource.TEXT_RECOGNITION),
             )
 
         val result = combiner.combine(null, DocType.OTHER, "text", textFields = text)

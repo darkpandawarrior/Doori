@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.UploadFile
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -75,6 +76,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.mileway.core.ai.model.DocumentAnalysis
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.forms.ui.FormFieldWithSuggestions
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.model.PolicyViolation
@@ -146,9 +148,10 @@ import com.mileway.feature.logging.viewmodel.ExpenseEffect
 import com.mileway.feature.logging.viewmodel.ExpenseFormState
 import com.mileway.feature.logging.viewmodel.ExpenseUiState
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
+import com.mileway.feature.logging.viewmodel.expenseFieldContext
+import com.mileway.feature.logging.viewmodel.fxLine
 import com.mileway.stub.PolicyMockData
 import com.siddharth.kmp.common.asString
-import com.siddharth.kmp.common.formatDecimal
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -179,6 +182,7 @@ fun ExpenseScreen(
     viewModel: ExpenseViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    var duplicateIds by remember { mutableStateOf<List<String>?>(null) }
     var bulkMode by remember { mutableStateOf(false) }
     var policyViolations by remember { mutableStateOf<List<PolicyViolation>?>(null) }
     // Whatever the step-1 receipt scan last read (core:ai's DocumentIntelligence output) — feeds
@@ -195,6 +199,7 @@ fun ExpenseScreen(
                 // Was a silent no-op — Save Draft (and a failed CSV import) fired this and the user
                 // never saw any confirmation. Same Snackbar idiom the rest of the app uses.
                 is ExpenseEffect.ShowToast -> snackbarHostState.showSnackbar(effect.message.asString())
+                is ExpenseEffect.ShowDuplicateWarning -> duplicateIds = effect.matchingIds
                 is ExpenseEffect.ShowPolicySheet -> policyViolations = effect.violations
             }
         }
@@ -259,6 +264,7 @@ fun ExpenseScreen(
                         } else {
                             Button(
                                 onClick = { viewModel.onAction(ExpenseAction.SubmitExpense) },
+                                enabled = !ui.fxLoading,
                                 modifier = Modifier.fillMaxWidth(),
                                 shape = DesignTokens.Shape.button,
                             ) {
@@ -308,6 +314,24 @@ fun ExpenseScreen(
         }
     }
 
+    duplicateIds?.let { ids ->
+        val dismiss = {
+            duplicateIds = null
+            viewModel.onAction(ExpenseAction.DismissDuplicateWarning)
+        }
+        AlertDialog(
+            onDismissRequest = dismiss,
+            title = { Text("Possible duplicate expense") },
+            text = { Text("The amount, merchant and date match ${ids.joinToString()}. Review before saving.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    duplicateIds = null
+                    viewModel.onAction(ExpenseAction.ConfirmDuplicateExpense)
+                }) { Text("Save anyway") }
+            },
+            dismissButton = { TextButton(onClick = dismiss) { Text("Review expense") } },
+        )
+    }
     policyViolations?.let { violations ->
         ExpensePolicyViolationSheet(
             violations = violations,
@@ -332,7 +356,7 @@ private fun Step1Content(
     modifier: Modifier = Modifier,
 ) {
     val form = ui.form
-    val categoryLocked = ExpenseFormValidator.FIELD_CATEGORY in ExpenseFormValidator.lockedFieldKeys(form.sourceContext)
+    val categoryLocked = form.category != null && ExpenseFormValidator.FIELD_CATEGORY in ExpenseFormValidator.lockedFieldKeys(form.sourceContext)
     // Scoped to this composable (not hoisted to ExpenseScreen) so it's only composed while step 1
     // is actually on screen — mirrors how the bulk-grid's per-row launcher is scoped to each row.
     val launchReceiptPicker =
@@ -535,6 +559,7 @@ private fun Step2Content(
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s),
         ) {
             OutlinedTextField(
+                readOnly = form.cardMatchedAmountMinor != null,
                 value = form.amountText,
                 onValueChange = { viewModel.onAction(ExpenseAction.SetAmount(it)) },
                 label = { Text(stringResource(Res.string.logging_amount_rupees_label)) },
@@ -547,22 +572,32 @@ private fun Step2Content(
                 modifier = Modifier.weight(1f),
             )
             CurrencyPickerField(
+                enabled = form.cardMatchedAmountMinor == null,
                 selectedCode = form.currencyCode,
                 onSelect = { code -> viewModel.onAction(ExpenseAction.SetCurrency(code)) },
                 modifier = Modifier.width(110.dp),
             )
         }
 
-        // P27.E.15: local, static-table conversion preview — informational only, never applied
-        // to the amount actually stored/checked against policy (see ExpenseFormState.currencyCode).
         if (form.currencyCode != "INR") {
-            val liveAmountForConversion = form.amountText.toDoubleOrNull() ?: 0.0
-            val convertedRupees = CurrencyConverter.toRupees(liveAmountForConversion, form.currencyCode)
-            Text(
-                text = "≈ ₹${convertedRupees.formatDecimal(2)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            OutlinedTextField(
+                value = form.manualFxRateText,
+                onValueChange = { viewModel.onAction(ExpenseAction.SetManualFxRate(it)) },
+                label = { Text("Manual INR rate (approximate, used if ECB unavailable)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
             )
+            Text(
+                text =
+                    if (ui.fxLoading) {
+                        "Fetching ECB reference rate…"
+                    } else {
+                        ui.fxMessage ?: "FX rate is pinned when you save. Offline: enter a manual rate (approximate)."
+                    },
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text("INR amount and per-head policy checks use the pinned rate. Without a rate, those checks are skipped.")
         }
 
         val merchantError = form.errors[ExpenseFormValidator.FIELD_MERCHANT_NAME]
@@ -614,6 +649,7 @@ private fun Step2Content(
                 values = form.formValues,
                 onValueChange = { key, value -> viewModel.onAction(ExpenseAction.SetFormValue(key, value)) },
                 analysis = scannedAnalysis,
+                expenseContext = form.expenseFieldContext(),
             )
         }
 
@@ -621,11 +657,16 @@ private fun Step2Content(
         // the amount would resolve to on submit. Preserved unchanged from before P27.E.1/E.3: the
         // submit-time policy-violation ModalBottomSheet (see ExpenseScreen) is a second, separate
         // channel, not a replacement for this preview.
-        val liveAmount = form.amountText.toDoubleOrNull() ?: 0.0
+        val liveAmount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
         val liveCategoryName = (form.category ?: ExpenseCategory.OTHER).name
-        val liveOutcome = PolicyMockData.outcomeForExpenseAmount(liveAmount, liveCategoryName)
+        val liveOutcome = liveAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, liveCategoryName) } ?: SubmissionStatus.SUCCESS
         if (liveOutcome != SubmissionStatus.SUCCESS) {
-            val liveViolation = PolicyMockData.violationsForExpenseAmount(liveAmount, liveCategoryName).firstOrNull()
+            val liveViolation = liveAmount?.let { PolicyMockData.violationsForExpenseAmount(it, liveCategoryName).firstOrNull() }
             Surface(
                 color = MaterialTheme.colorScheme.errorContainer,
                 shape = DesignTokens.Shape.roundedSm,
@@ -1075,6 +1116,7 @@ private fun OfficePickerField(
 @Composable
 private fun CurrencyPickerField(
     selectedCode: String,
+    enabled: Boolean = true,
     onSelect: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -1082,10 +1124,11 @@ private fun CurrencyPickerField(
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = { expanded = it },
+        onExpandedChange = { if (enabled) expanded = it },
         modifier = modifier,
     ) {
         OutlinedTextField(
+            enabled = enabled,
             value = selectedCode,
             onValueChange = {},
             readOnly = true,

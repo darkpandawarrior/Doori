@@ -1,7 +1,10 @@
 package com.mileway.core.data.domain.policy
 
 import com.mileway.core.data.domain.claim.AdvanceLine
+import com.mileway.core.data.domain.claim.Attendee
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRate
+import com.mileway.core.data.domain.claim.FxRateSource
 import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.PerDiemLine
 import com.mileway.core.data.ledger.PolicyRateTable
@@ -27,6 +30,46 @@ class PolicyEngineTest {
             receiptRequiredAboveMinor = 80_00L,
         )
     private val engine = PolicyEngine(listOf(v1, v2))
+
+    @Test
+    fun monetaryMessagesUseThePolicyCurrencyAndMajorUnits() {
+        val policy = PolicyEngine(listOf(v1.copy(maxExpenseAmountMinor = 2500000, receiptRequiredAboveMinor = 100000)))
+        val line = ExpenseLine("over", 2600000, "INR", merchant = "Cafe", category = "FOOD")
+        val messages = policy.evaluate(listOf(line), 0).getValue(line.id).associate { it.code to it.message }
+        assertEquals("Amount ₹ 26,000.00 exceeds policy max ₹ 25,000.00", messages["EXPENSE_OVER_MAX"])
+        assertEquals("Amount ₹ 26,000.00 exceeds ₹ 1,000.00; attach a receipt", messages["RECEIPT_RECOMMENDED"])
+        val mileage = MileageLine("mileage", 50000, "INR", distanceKm = 10.0, vehicleKey = "car")
+        assertEquals(
+            "Claimed ₹ 500.00 exceeds policy-computed ₹ 1.00",
+            policy
+                .evaluate(listOf(mileage), 0)
+                .getValue(mileage.id)
+                .single()
+                .message,
+        )
+    }
+
+    @Test
+    fun foreignMoneyChecksConvertThroughThePinOrSkipWithAReason() {
+        val policy = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = 5000L)))
+        val foreign = ExpenseLine("fx", 200L, "USD", merchant = "Cafe", category = "FOOD", attendees = listOf(Attendee("Alex")))
+        assertEquals(listOf("FX_POLICY_SKIPPED"), policy.evaluate(listOf(foreign), 0)["fx"]?.map { it.code })
+        val pinned = foreign.copy(fxRate = FxRate(90.0, "USD", sourceDate = "2026-09-25"), fxRatePinnedAt = 123)
+        val flags = policy.evaluate(listOf(pinned), 0)["fx"].orEmpty().map { it.code }
+        assertTrue("EXPENSE_OVER_MAX" in flags)
+        assertTrue("EXPENSE_PER_HEAD_OVER_LIMIT" in flags)
+        val manual = pinned.copy(fxRate = FxRate(90.0, "USD", source = FxRateSource.MANUAL_APPROXIMATE))
+        assertTrue(policy.evaluate(listOf(manual), 0)["fx"].orEmpty().any { it.code == "FX_APPROXIMATE" })
+        val wrongPair = pinned.copy(fxRate = pinned.fxRate?.copy(baseCurrency = "EUR"))
+        assertEquals("FX_POLICY_SKIPPED", policy.evaluate(listOf(wrongPair), 0)["fx"]?.single()?.code)
+    }
+
+    @Test
+    fun foreignMileageNeverComparesWithAnInrRateTable() {
+        val line = MileageLine("foreign-mileage", 50000, "USD", distanceKm = 10.0, vehicleKey = "car")
+        val flags = engine.evaluate(listOf(line), 0)[line.id].orEmpty()
+        assertEquals("FX_POLICY_SKIPPED", flags.single().code)
+    }
 
     @Test
     fun `versionFor resolves the version effective at a given date, not the latest`() {
@@ -84,6 +127,20 @@ class PolicyEngineTest {
         val violations = engine.evaluate(listOf(line), submittedAtMillis = 50 * DAY_MILLIS)["m3"].orEmpty()
 
         assertEquals(emptyList(), violations)
+    }
+
+    @Test
+    fun `per-head check uses dated limit exact fractions and attendee count`() {
+        val policy = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = 500), v2.copy(perHeadLimitMinor = 1000)))
+        val line = ExpenseLine("meal", 1001, "INR", merchant = "Cafe", category = "FOOD", attendees = listOf(Attendee("Alex"), Attendee("Jordan")))
+        val first = policy.evaluate(listOf(line), 0).getValue("meal").single { it.code == "EXPENSE_PER_HEAD_OVER_LIMIT" }
+        assertEquals(PolicySeverity.SOFT_WARN, first.severity)
+        assertTrue(policy.evaluate(listOf(line), 150 * DAY_MILLIS).getValue("meal").none { it.code == first.code })
+        assertEquals(null, policy.perHeadViolation(1000, 2, 0))
+        assertEquals(null, policy.perHeadViolation(1001, 3, 0))
+        assertEquals(null, policy.perHeadViolation(1001, 0, 0))
+        val huge = PolicyEngine(listOf(v1.copy(perHeadLimitMinor = Long.MAX_VALUE)))
+        assertEquals(null, huge.perHeadViolation(Long.MAX_VALUE, 2, 0))
     }
 
     @Test

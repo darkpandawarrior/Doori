@@ -1,22 +1,36 @@
 package com.mileway.feature.logging.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRate
+import com.mileway.core.data.domain.claim.FxRateSource
+import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.data.model.db.DraftExpenseEntity
+import com.mileway.core.forms.ExpenseFieldContext
 import com.mileway.core.forms.FieldId
 import com.mileway.core.forms.FormFieldValue
+import com.mileway.core.forms.field.PercentageSplitInput
+import com.mileway.core.forms.field.attendeeDetails
+import com.mileway.core.forms.field.percentageAllocations
+import com.mileway.core.forms.itemization.ItemizedLineInput
+import com.mileway.core.forms.itemization.itemizedDetails
+import com.mileway.core.forms.parseMinorAmount
 import com.mileway.core.forms.validationErrors
+import com.mileway.core.network.fx.FxRatePinner
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.feature.logging.catalog.ExpenseCategoryCatalog
 import com.mileway.feature.logging.catalog.ExpenseCustomFormCatalog
+import com.mileway.feature.logging.dedup.DuplicateExpenseCheck
 import com.mileway.feature.logging.import.ExpenseCsvImporter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseDraftRow
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.feature.logging.report.expenseReportPolicy
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.stub.PolicyMockData
@@ -51,13 +65,12 @@ data class ExpenseFormState(
     val step: Int = 1,
     val category: ExpenseCategory? = null,
     val amountText: String = "",
-    /**
-     * P27.E.15: currency the amount above was entered in (static local conversion table only —
-     * no live FX backend, see [com.mileway.feature.logging.currency.CurrencyConverter]).
-     * [submitExpense] stores [ExpenseRecord.amountRupees] unchanged (still the literal figure
-     * typed in) — this only drives the picker and the entry screen's "≈ ₹" preview.
-     */
+    /** Currency of the captured amount; FX is pinned separately at save time. */
     val currencyCode: String = "INR",
+    val manualFxRateText: String = "",
+    val fxRate: FxRate? = null,
+    val fxRatePinnedAt: Long? = null,
+    val cardFxRate: FxRate? = null,
     val merchantName: String = "",
     val note: String = "",
     /** Local URI/path of an optional attached receipt photo (P1.4); null when none was attached. */
@@ -81,6 +94,8 @@ data class ExpenseFormState(
     val sourceContext: ExpenseSourceContext = ExpenseSourceContext.None,
     /** P27.E.4: Scanner-context prefill of the OCR-detected date; null uses submit-time `now()`. */
     val dateMs: Long? = null,
+    val cardMatchId: String? = null,
+    val cardMatchedAmountMinor: Long? = null,
     /**
      * V27 P27.E.1: step-2's custom-form field values, keyed to whatever
      * [ExpenseCustomFormCatalog.schemaFor] returns for [category] — rendered through `core:forms`'
@@ -94,6 +109,8 @@ data class ExpenseFormState(
 data class ExpenseUiState(
     val listState: ScreenState<ExpenseListData> = ScreenState.Loading,
     val form: ExpenseFormState = ExpenseFormState(),
+    val fxLoading: Boolean = false,
+    val fxMessage: String? = null,
     val lastSubmittedId: String = "",
     val lastSubmittedAmount: Double = 0.0,
     val detailState: ScreenState<ExpenseRecord> = ScreenState.Empty,
@@ -157,6 +174,15 @@ sealed interface ExpenseAction {
         val code: String,
     ) : ExpenseAction
 
+    data class SetManualFxRate(
+        val text: String,
+    ) : ExpenseAction
+
+    /** The card importer supplies the matched pair and statement date. */
+    data class SetCardFxRate(
+        val rate: FxRate,
+    ) : ExpenseAction
+
     data class SetMerchant(
         val name: String,
     ) : ExpenseAction
@@ -176,6 +202,11 @@ sealed interface ExpenseAction {
     ) : ExpenseAction
 
     data object SubmitExpense : ExpenseAction
+
+    /** Confirms only the unchanged form shown in the duplicate warning. */
+    data object ConfirmDuplicateExpense : ExpenseAction
+
+    data object DismissDuplicateWarning : ExpenseAction
 
     /**
      * V27 P27.E.3: the second validation channel — confirms submission after
@@ -286,6 +317,11 @@ sealed interface ExpenseEffect {
 
     data object NavigateBack : ExpenseEffect
 
+    /** No repository write has happened when this warning is emitted. */
+    data class ShowDuplicateWarning(
+        val matchingIds: List<String>,
+    ) : ExpenseEffect
+
     /**
      * V27 P27.E.3: the tiered-policy outcome for the current submit attempt requires
      * acknowledgement — shown as a `ModalBottomSheet` (mirrors DiCE's `PolicyViolationBottomSheet`),
@@ -310,6 +346,8 @@ private fun ExpenseFormState.toDraftEntity(updatedAt: Long): DraftExpenseEntity 
     )
 
 /** Round-trips a rupee amount to its plain-text form (no trailing `.0` for whole rupees). */
+private fun Long.toAmountText(): String = "${this / 100}.${(this % 100).toString().padStart(2, '0')}"
+
 private fun Double.toAmountText(): String = if (this == toLong().toDouble()) toLong().toString() else toString()
 
 private fun DraftExpenseEntity.toFormState(): ExpenseFormState =
@@ -328,7 +366,11 @@ class ExpenseViewModel(
     // PLAN_V24 P12.3: creating an expense is a meaningful engagement signal for the review gate.
     // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
     private val reviewTracker: ReviewTracker? = null,
+    private val fxPinner: FxRatePinner = FxRatePinner(),
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
+    private var policyWarningForm: ExpenseFormState? = null
+    private var duplicateWarningForm: ExpenseFormState? = null
+
     init {
         refresh(ExpenseFilter.ALL, ExpenseSort.DATE, emptySet())
         viewModelScope.launch {
@@ -338,6 +380,7 @@ class ExpenseViewModel(
     }
 
     override fun onAction(action: ExpenseAction) {
+        if (currentState.form.cardMatchedAmountMinor != null && action.isMoneyEdit()) return
         when (action) {
             ExpenseAction.Refresh ->
                 refresh(currentState.listState.activeFilter(), currentState.listState.activeSort(), currentState.listState.activeCategories())
@@ -355,13 +398,32 @@ class ExpenseViewModel(
             ExpenseAction.RetreatStep -> setState { copy(form = form.copy(step = 1)) }
             is ExpenseAction.SetFormValue -> setState { copy(form = form.copy(formValues = form.formValues + (action.key to action.value))) }
             is ExpenseAction.SetAmount -> setState { copy(form = form.copy(amountText = action.text)) }
-            is ExpenseAction.SetCurrency -> setState { copy(form = form.copy(currencyCode = action.code)) }
+            is ExpenseAction.SetCurrency ->
+                setState { copy(form = form.copy(currencyCode = action.code, fxRate = null, fxRatePinnedAt = null, cardFxRate = null), fxMessage = null) }
+            is ExpenseAction.SetManualFxRate ->
+                setState { copy(form = form.copy(manualFxRateText = action.text, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
+            is ExpenseAction.SetCardFxRate ->
+                setState { copy(form = form.copy(cardFxRate = action.rate, fxRate = null, fxRatePinnedAt = null), fxMessage = null) }
             is ExpenseAction.SetMerchant -> setState { copy(form = form.copy(merchantName = action.name)) }
             is ExpenseAction.SetNote -> setState { copy(form = form.copy(note = action.note)) }
             is ExpenseAction.SetReceiptImage -> setState { copy(form = form.copy(receiptImagePath = action.path)) }
             is ExpenseAction.SetOfficeCode -> setState { copy(form = form.copy(officeCode = action.code)) }
             ExpenseAction.SubmitExpense -> submitExpense()
-            ExpenseAction.ConfirmSubmitDespitePolicy -> performSubmit()
+            ExpenseAction.ConfirmSubmitDespitePolicy -> {
+                val warnedForm = policyWarningForm
+                policyWarningForm = null
+                submitExpense(policyConfirmed = warnedForm != null && warnedForm == currentState.form)
+            }
+            ExpenseAction.ConfirmDuplicateExpense -> {
+                val warnedForm = duplicateWarningForm
+                duplicateWarningForm = null
+                if (warnedForm != null && warnedForm == currentState.form) {
+                    performSubmit(duplicateConfirmed = true)
+                } else {
+                    submitExpense()
+                }
+            }
+            ExpenseAction.DismissDuplicateWarning -> duplicateWarningForm = null
             ExpenseAction.ResetForm ->
                 setState {
                     copy(
@@ -436,35 +498,135 @@ class ExpenseViewModel(
      * "Submit Anyway" dispatches [ExpenseAction.ConfirmSubmitDespitePolicy] -> [performSubmit].
      * A SUCCESS outcome submits straight through, unchanged from before P27.E.3.
      */
-    private fun submitExpense() {
+    private fun submitExpense(policyConfirmed: Boolean = false) {
+        if (currentState.fxLoading) return
+        val form = currentState.form
+        if (form.currencyCode == "INR") {
+            validateAndSubmit(policyConfirmed)
+            return
+        }
+        val manual = form.manualFxRateText.toDoubleOrNull()
+        val validManualRate = manual != null && manual.isFinite() && manual > 0
+        if (form.manualFxRateText.isNotBlank() && !validManualRate) {
+            setState { copy(fxMessage = "Enter a finite manual rate greater than zero (approximate)") }
+            return
+        }
+        if (parseMinorAmount(form.amountText) == null || form.category == null) {
+            validateAndSubmit(policyConfirmed)
+            return
+        }
+        setState { copy(fxLoading = true) }
+        viewModelScope.launch {
+            try {
+                val date =
+                    kotlin.time.Instant
+                        .fromEpochMilliseconds(
+                            form.dateMs ?: kotlin.time.Clock.System
+                                .now()
+                                .toEpochMilliseconds(),
+                        ).toString()
+                        .substringBefore('T')
+                val pinned = fxPinner.pin(form.fxLine(), date, form.cardFxRate, manual)
+                // Do not apply a response to a form edited while the GET was pending.
+                if (currentState.form != form) return@launch
+                setState {
+                    copy(
+                        form = form.copy(fxRate = pinned.fxRate, fxRatePinnedAt = pinned.fxRatePinnedAt),
+                        fxMessage =
+                            pinned.fxRate?.let { it.description() }
+                                ?: "No FX rate available. Enter a manual INR rate (approximate). Amount policy checks are skipped.",
+                    )
+                }
+                validateAndSubmit(policyConfirmed)
+            } finally {
+                setState { copy(fxLoading = false) }
+            }
+        }
+    }
+
+    private fun validateAndSubmit(policyConfirmed: Boolean = false) {
         val form = currentState.form
         val catalogDef = ExpenseCategoryCatalog.default().firstOrNull { it.category == form.category }
         val fieldErrors = ExpenseFormValidator.validate(form, catalogDef)
-        val customFormErrors = validationErrors(ExpenseCustomFormCatalog.schemaFor(catalogDef), form.formValues)
-        val errors = fieldErrors + customFormErrors
+        val customFormErrors = validationErrors(ExpenseCustomFormCatalog.schemaFor(catalogDef), form.formValues, form.expenseFieldContext())
+        val errors = fieldErrors + customFormErrors + form.cardSplitErrors()
         if (errors.isNotEmpty()) {
             setState { copy(form = form.copy(errors = errors)) }
             return
         }
-        val amount = form.amountText.toDoubleOrNull() ?: 0.0
+        val amount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
         val category = form.category ?: ExpenseCategory.OTHER
-        val outcome = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
+        val outcome = amount?.let { PolicyMockData.outcomeForExpenseAmount(it, category.name) } ?: SubmissionStatus.NEEDS_APPROVAL
         val blocksOnPolicy =
             outcome == SubmissionStatus.POLICY_VIOLATION || outcome == SubmissionStatus.NEEDS_APPROVAL || outcome == SubmissionStatus.HARD_STOP
-        if (blocksOnPolicy) {
-            emitEffect(ExpenseEffect.ShowPolicySheet(PolicyMockData.violationsForExpenseAmount(amount, category.name)))
+        val context = form.expenseFieldContext()
+        val attendeeCount = (form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names?.size ?: 0
+        val policyAnchor = context?.let { form.fxLine().copy(amountMinor = it.anchorAmountMinor).amountInCurrencyMinor("INR") }
+        val perHeadWarning = policyAnchor?.let { expenseReportPolicy().perHeadViolation(it, attendeeCount, context?.submittedAtMillis ?: 0) }
+        if (!policyConfirmed && (blocksOnPolicy || perHeadWarning != null)) {
+            policyWarningForm = form
+            val perHeadViolations =
+                if (perHeadWarning == null) {
+                    emptyList()
+                } else {
+                    listOf(
+                        PolicyViolation(
+                            id = perHeadWarning.code,
+                            title = "Per-head policy limit exceeded",
+                            message = perHeadWarning.message,
+                            severity = com.mileway.core.network.model.ViolationSeverity.VIOLATION,
+                        ),
+                    )
+                }
+            val amountViolations =
+                amount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
+                    ?: listOf(
+                        PolicyViolation(
+                            "FX_POLICY_SKIPPED",
+                            "FX rate unavailable",
+                            "Amount checks skipped; enter a manual rate (approximate)",
+                            com.mileway.core.network.model.ViolationSeverity.VIOLATION,
+                        ),
+                    )
+            emitEffect(ExpenseEffect.ShowPolicySheet(amountViolations + perHeadViolations))
             return
         }
         performSubmit()
     }
 
     /** The actual insert/update + navigate-to-success, unconditional once field + policy gates have passed. */
-    private fun performSubmit() {
+    private fun performSubmit(duplicateConfirmed: Boolean = false) {
         val form = currentState.form
         val amount = form.amountText.toDoubleOrNull() ?: 0.0
         val category = form.category ?: ExpenseCategory.OTHER
+        val dateMs =
+            form.dateMs ?: kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds()
+        if (!duplicateConfirmed) {
+            val matches =
+                DuplicateExpenseCheck.matches(
+                    amount,
+                    form.merchantName,
+                    dateMs,
+                    form.currencyCode,
+                    repository.getAll(),
+                    form.editingId,
+                    amountMinor = parseMinorAmount(form.amountText),
+                )
+            if (matches.isNotEmpty()) {
+                duplicateWarningForm = form
+                emitEffect(ExpenseEffect.ShowDuplicateWarning(matches.map { it.id }))
+                return
+            }
+        }
         // P1.8: editing an existing record keeps its id (resubmit), instead of minting a new one.
-        val id = form.editingId ?: "EXP-NEW-${(form.merchantName.hashCode() and 0x7FFF_FFFF) % 9000 + 1000}"
+        val id = form.editingId ?: "EXP-NEW-${kotlin.random.Random.nextLong().toString(16)}"
         val record =
             ExpenseRecord(
                 id = id,
@@ -474,18 +636,38 @@ class ExpenseViewModel(
                 status = ExpenseStatus.PENDING,
                 // P27.E.4: a Scanner-context form carries the OCR-detected date; every other source
                 // stamps the actual submit time, same as before this task.
-                dateMs =
-                    form.dateMs ?: kotlin.time.Clock.System
-                        .now()
-                        .toEpochMilliseconds(),
+                dateMs = dateMs,
                 note = form.note,
                 receiptImagePath = form.receiptImagePath,
                 officeCode = form.officeCode,
                 currencyCode = form.currencyCode,
+                amountMinor = parseMinorAmount(form.amountText),
+                fxRate = form.fxRate,
+                fxRatePinnedAt = form.fxRatePinnedAt,
+                splits = form.splitDetails(),
+                attendees = attendeeDetails((form.formValues[ExpenseCustomFormCatalog.ATTENDEES] as? FormFieldValue.AttendeeList)?.names.orEmpty()),
+                itemized = itemizedDetails((form.formValues[ExpenseCustomFormCatalog.ITEMIZED] as? FormFieldValue.ItemizedLines)?.entries.orEmpty()).orEmpty(),
+                cardMatchId = (form.sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: form.cardMatchId,
+                cardMatchedAmountMinor = form.expenseFieldContext()?.cardMatchedAmountMinor,
             )
         // P1.6: same tiered policy engine as Log Miles, keyed off the expense amount.
-        val submissionStatus = PolicyMockData.outcomeForExpenseAmount(amount, category.name)
-        val violations = PolicyMockData.violationsForExpenseAmount(amount, category.name)
+        val policyAmount =
+            form
+                .fxLine()
+                .amountInCurrencyMinor("INR")
+                ?.toDouble()
+                ?.div(100)
+        val submissionStatus = policyAmount?.let { PolicyMockData.outcomeForExpenseAmount(it, category.name) } ?: SubmissionStatus.NEEDS_APPROVAL
+        val violations =
+            policyAmount?.let { PolicyMockData.violationsForExpenseAmount(it, category.name) }
+                ?: listOf(
+                    PolicyViolation(
+                        "FX_POLICY_SKIPPED",
+                        "FX rate unavailable",
+                        "Amount checks skipped; manual FX is approximate",
+                        com.mileway.core.network.model.ViolationSeverity.VIOLATION,
+                    ),
+                )
         viewModelScope.launch {
             if (form.isEditing) repository.update(record) else repository.insert(record)
             reviewTracker?.recordInteraction()
@@ -519,14 +701,33 @@ class ExpenseViewModel(
                     ExpenseFormState(
                         step = 2,
                         category = record.category,
-                        amountText = record.amountRupees.toAmountText(),
+                        amountText = record.amountMinor?.toAmountText() ?: record.amountRupees.toAmountText(),
                         currencyCode = record.currencyCode,
+                        fxRate = record.fxRate,
+                        fxRatePinnedAt = record.fxRatePinnedAt,
+                        manualFxRateText =
+                            record.fxRate
+                                ?.takeIf { it.source == FxRateSource.MANUAL_APPROXIMATE }
+                                ?.rate
+                                ?.toString()
+                                .orEmpty(),
                         merchantName = record.merchantName,
                         note = record.note,
                         receiptImagePath = record.receiptImagePath,
                         officeCode = record.officeCode,
                         isEditing = true,
                         editingId = record.id,
+                        formValues = record.detailFormValues(),
+                        dateMs = record.dateMs,
+                        cardMatchId = record.cardMatchId,
+                        cardMatchedAmountMinor =
+                            if (record.cardMatchId ==
+                                null
+                            ) {
+                                null
+                            } else {
+                                record.amountMinor ?: parseMinorAmount(record.amountRupees.toAmountText())
+                            },
                         sourceContext = ExpenseSourceContext.Edit(record.id),
                     ),
             )
@@ -587,6 +788,21 @@ class ExpenseViewModel(
 
     private fun saveDraft() {
         val form = currentState.form
+        if (form.currencyCode != "INR" || form.manualFxRateText.isNotBlank() || form.fxRate != null) {
+            emitEffect(ExpenseEffect.ShowToast(UiText.of("Draft storage cannot retain FX rates. Submit the expense to pin the rate.")))
+            return
+        }
+        if (form.formValues.any { (key, value) ->
+                key in setOf(ExpenseCustomFormCatalog.SPLITS, ExpenseCustomFormCatalog.ATTENDEES, ExpenseCustomFormCatalog.ITEMIZED) &&
+                    !com.mileway.core.forms
+                        .isFieldValueBlank(value)
+            }
+        ) {
+            emitEffect(
+                ExpenseEffect.ShowToast(UiText.of("Draft storage cannot retain splits, attendees or itemization. Submit the expense or remove these details.")),
+            )
+            return
+        }
         viewModelScope.launch {
             val updatedAt =
                 kotlin.time.Clock.System
@@ -703,7 +919,19 @@ class ExpenseViewModel(
         if (errors.isNotEmpty()) {
             return DraftStatus.ERROR to errors.values.joinToString("; ") { it.asString() }
         }
-        return runCatching { repository.insert(row.toRecord()) }
+        val record = row.toRecord()
+        val matches =
+            DuplicateExpenseCheck.matches(
+                record.amountRupees,
+                record.merchantName,
+                record.dateMs,
+                record.currencyCode,
+                repository.getAll(),
+            )
+        if (matches.isNotEmpty()) {
+            return DraftStatus.ERROR to "Possible duplicate of ${matches.joinToString { it.id }}. Review or save through single expense entry."
+        }
+        return runCatching { repository.insert(record) }
             .fold(
                 onSuccess = { DraftStatus.SUCCESS to null },
                 onFailure = { DraftStatus.ERROR to "Couldn't save this row — try again" },
@@ -791,3 +1019,72 @@ class ExpenseViewModel(
         setState { copy(rows = rows + imported) }
     }
 }
+
+/** Card-matched amount is the anchor; receipt total remains separate for itemized reconciliation. */
+internal fun ExpenseFormState.expenseFieldContext(): ExpenseFieldContext? {
+    val receipt = parseMinorAmount(amountText) ?: return null
+    val cardInrMinor = (sourceContext as? ExpenseSourceContext.Card)?.transactionAmountRupees?.let { parseMinorAmount(it.toAmountText()) }
+    val cardAmount =
+        if (currencyCode == "INR") {
+            cardInrMinor
+        } else {
+            val rate = fxRate?.takeIf { fxLine().amountInCurrencyMinor("INR") != null }?.rate
+            val converted = cardInrMinor?.let { minor -> rate?.let { minor.toDouble() / it } }
+            converted?.takeIf { it.isFinite() && it > 0 && it < Long.MAX_VALUE.toDouble() }?.let { kotlin.math.round(it).toLong() }
+        }
+    return ExpenseFieldContext(
+        receiptAmountMinor = receipt,
+        currencyCode = currencyCode,
+        cardMatchedAmountMinor = cardAmount ?: cardMatchedAmountMinor,
+        policy = if (currencyCode == "INR") expenseReportPolicy() else null,
+        submittedAtMillis =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds(),
+    )
+}
+
+private fun ExpenseFormState.splitDetails(): List<com.mileway.core.data.domain.claim.CostSplit> {
+    val entries = (formValues[ExpenseCustomFormCatalog.SPLITS] as? FormFieldValue.PercentageSplit)?.entries.orEmpty()
+    if (entries.isEmpty()) return emptyList()
+    return requireNotNull(percentageAllocations(requireNotNull(expenseFieldContext()).anchorAmountMinor, entries))
+}
+
+private fun ExpenseRecord.detailFormValues(): Map<FieldId, FormFieldValue> =
+    mapOf(
+        ExpenseCustomFormCatalog.SPLITS to
+            FormFieldValue.PercentageSplit(
+                splits.map { PercentageSplitInput(it.target, it.targetId, it.percentageBasisPoints.toLong().toAmountText()) },
+            ),
+        ExpenseCustomFormCatalog.ATTENDEES to FormFieldValue.AttendeeList(attendees.map { it.name }),
+        ExpenseCustomFormCatalog.ITEMIZED to
+            FormFieldValue.ItemizedLines(
+                itemized.map { ItemizedLineInput(it.description, it.amountMinor.toAmountText()) },
+            ),
+    )
+
+private fun ExpenseFormState.cardSplitErrors(): Map<FieldId, UiText> {
+    val entries = (formValues[ExpenseCustomFormCatalog.SPLITS] as? FormFieldValue.PercentageSplit)?.entries.orEmpty()
+    val context = expenseFieldContext() ?: return emptyMap()
+    return if (entries.isNotEmpty() && context.cardMatchedAmountMinor != null && context.anchorAmountMinor != context.receiptAmountMinor) {
+        mapOf(ExpenseFormValidator.FIELD_AMOUNT to UiText.of("A split card expense must use the full matched amount"))
+    } else {
+        emptyMap()
+    }
+}
+
+/** Policy conversion uses the captured amount and the saved pin, never the static preview table. */
+internal fun ExpenseFormState.fxLine(): ExpenseLine =
+    ExpenseLine(
+        id = editingId ?: "capture",
+        amountMinor = parseMinorAmount(amountText) ?: 0,
+        currency = currencyCode,
+        merchant = merchantName,
+        category = category?.name.orEmpty(),
+        fxRate = fxRate,
+        fxRatePinnedAt = fxRatePinnedAt,
+        cardMatchId = (sourceContext as? ExpenseSourceContext.Card)?.transactionId ?: cardMatchId,
+    )
+
+private fun ExpenseAction.isMoneyEdit(): Boolean =
+    this is ExpenseAction.SetAmount || this is ExpenseAction.SetCurrency || this is ExpenseAction.SetManualFxRate || this is ExpenseAction.SetCardFxRate

@@ -23,19 +23,25 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mileway.core.data.claim.FINANCE_ROLE
 import com.mileway.core.data.domain.claim.ApprovalAction
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
+import com.mileway.feature.approvals.delegate.DelegateBanner
 import com.mileway.feature.approvals.model.ApprovalItem
 import com.mileway.feature.approvals.model.ApprovalStatus
 import com.mileway.feature.approvals.model.ApprovalType
 import com.mileway.feature.approvals.model.toDetailActionFlags
 import com.mileway.feature.approvals.ui.sheets.SeekClarificationSheet
 import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.viewmodel.koinViewModel
+import kotlin.time.Instant
 
 /** Persisted report review, reached from the approvals queue and lifecycle inbox links. */
 @Composable
@@ -45,26 +51,34 @@ fun ReportApprovalScreen(
     viewModel: ReportApprovalViewModel = koinViewModel(),
 ) {
     val ui by viewModel.state.collectAsState()
+    var selectedLineId by remember(reportId) { mutableStateOf<String?>(null) }
     var showRoom by remember(reportId) { mutableStateOf(false) }
     LaunchedEffect(reportId) { viewModel.open(reportId) }
     TransactionDetailScaffold(
-        title = "Report $reportId",
+        title = reportApprovalTitle(ui.review?.accountingPeriodKey),
         subtitle = "Local review · Simulated payout",
         tabs = listOf(DetailSection.Details),
         selectedTab = DetailSection.Details,
         onSelectTab = {},
-        onBack = onBack,
+        onBack = { if (selectedLineId != null) selectedLineId = null else onBack() },
     ) {
-        ReportApprovalContent(
-            ui = ui,
-            onComment = viewModel::comment,
-            onAct = viewModel::act,
-            onRetry = viewModel::retryPayout,
-            onClarify = {
-                viewModel.openClarification()
-                showRoom = true
-            },
-        )
+        val lineId = selectedLineId
+        if (lineId != null) {
+            PerLineReviewPanel(reportId, lineId, ui.onBehalfOf, onBack = { selectedLineId = null })
+        } else {
+            ReportApprovalContent(
+                ui = ui,
+                onDelegate = viewModel::delegate,
+                onLine = { selectedLineId = it },
+                onComment = viewModel::comment,
+                onAct = viewModel::act,
+                onRetry = viewModel::retryPayout,
+                onClarify = {
+                    viewModel.openClarification()
+                    showRoom = true
+                },
+            )
+        }
     }
     if (showRoom) {
         SeekClarificationSheet(
@@ -88,6 +102,8 @@ private fun ReportApprovalContent(
     onAct: (ApprovalAction) -> Unit,
     onRetry: () -> Unit,
     onClarify: () -> Unit,
+    onDelegate: (String?) -> Unit = {},
+    onLine: (String) -> Unit = {},
 ) {
     val report = ui.report
     var acknowledged by remember(report?.id, report?.recordVersion) { mutableStateOf(false) }
@@ -102,10 +118,17 @@ private fun ReportApprovalContent(
         }
         Text("Employee: ${report.employeeId}")
         Text("Status: ${report.state.name.replace('_', ' ')}")
-        report.lines.forEach { line -> Text("${line.id}: ${formatReportAmount(line.amountMinor, line.currency)}") }
-        Text("Total: ${formatReportAmount(report.totalAmountMinor(), report.currency())}")
+        ReportDelegateControls(ui, onDelegate)
+        ReportReviewMetadata(ui)
+        report.lines.forEach { line ->
+            OutlinedButton(onClick = { onLine(line.id) }, enabled = !ui.busy) {
+                val rejected = line.id in ui.review?.rejectedLineIds.orEmpty()
+                Text("${line.id}: ${formatMinorCurrency(line.amountMinor, line.currency)}${if (rejected) " · Rejected" else " · Review line"}")
+            }
+        }
+        Text("Total: ${formatMinorCurrency(report.totalAmountMinor(), report.currency())}")
         report.approvalChain.steps.forEach { step ->
-            Text("${step.action}: ${step.actedBy} (${step.role}) · ${step.comment.orEmpty()}")
+            Text("${step.action}: ${step.actedBy} (${step.role})${step.onBehalfOf?.let { " on behalf of $it" }.orEmpty()} · ${step.comment.orEmpty()}")
         }
         OutlinedButton(onClick = onClarify, enabled = !ui.busy) { Text("Clarification room") }
         if (report.state == ReportLifecycleState.SUBMITTED) {
@@ -135,8 +158,11 @@ private fun ReportApprovalContent(
                 enabled = !ui.busy,
             )
             val canAct = !ui.busy && ui.comment.isNotBlank()
-            Button(onClick = { onAct(ApprovalAction.APPROVE) }, enabled = canAct && (!flags.requiresAck || acknowledged)) {
-                Text("Approve and simulate payout")
+            Button(
+                onClick = { onAct(ApprovalAction.APPROVE) },
+                enabled = canAct && (ui.review?.canBulkApprove != false) && (!flags.requiresAck || acknowledged),
+            ) {
+                Text(if (ui.review?.nextRole == FINANCE_ROLE) "Finance approve and simulate payout" else "Approve for finance review")
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = { onAct(ApprovalAction.SEND_BACK) }, enabled = canAct) { Text("Send back") }
@@ -146,6 +172,37 @@ private fun ReportApprovalContent(
         if (report.state == ReportLifecycleState.APPROVED || report.state == ReportLifecycleState.APPROVED_FOR_PAYMENT) {
             Button(onClick = onRetry, enabled = !ui.busy) { Text("Retry simulated payout") }
         }
+    }
+}
+
+@Composable
+private fun ReportDelegateControls(
+    ui: ReportApprovalViewModel.State,
+    onDelegate: (String?) -> Unit,
+) {
+    ui.onBehalfOf?.let { DelegateBanner(it) }
+    if (ui.delegates.isNotEmpty()) {
+        OutlinedButton(onClick = { onDelegate(null) }, enabled = !ui.busy) { Text("Act as myself") }
+        ui.delegates.forEach { grant ->
+            OutlinedButton(onClick = { onDelegate(grant.delegatorAccountId) }, enabled = !ui.busy) {
+                Text("Delegate for ${grant.delegatorAccountId}")
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReportReviewMetadata(ui: ReportApprovalViewModel.State) {
+    ui.review?.let { review ->
+        Text("Next review: ${review.nextRole}")
+        val originalDate = review.submittedAtMs?.let { Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.UTC).date }
+        review.accountingPeriodKey?.let { Text("Accounting period: $it · Original submission: $originalDate") }
+        Text(
+            "Payable total: ${formatMinorCurrency(
+                review.payableLines.sumOf { it.amountMinor },
+                review.payableLines.firstOrNull()?.currency ?: ui.report?.currency().orEmpty(),
+            )}",
+        )
     }
 }
 
@@ -181,15 +238,4 @@ private fun ReportApprovalPreview() {
     }
 }
 
-private const val ReportFractionDigits = 2
-
-// ponytail: current report currencies have two fraction digits; add currency fraction metadata
-// when zero- or three-digit currencies enter the claim flow. String math preserves every cent.
-internal fun formatReportAmount(
-    minor: Long,
-    currency: String,
-): String {
-    val digits = minor.toString().removePrefix("-").padStart(ReportFractionDigits + 1, '0')
-    val sign = if (minor < 0) "-" else ""
-    return "$currency $sign${digits.dropLast(ReportFractionDigits)}.${digits.takeLast(ReportFractionDigits)}"
-}
+internal fun reportApprovalTitle(period: String?): String = period?.let { "Report for $it" } ?: "Expense report"

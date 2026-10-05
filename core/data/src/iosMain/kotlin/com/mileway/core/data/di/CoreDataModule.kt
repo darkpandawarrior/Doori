@@ -68,6 +68,7 @@ val coreDataModule =
         single<OpOutbox> { RoomOpOutbox(get()) }
         single { get<MilewayDatabase>().agentDao() }
         single { get<MilewayDatabase>().draftExpenseDao() }
+        single { get<MilewayDatabase>().perDiemRateDao() }
         single { get<MilewayDatabase>().voucherDao() }
         single { get<MilewayDatabase>().mockAccountDao() }
         single { get<MilewayDatabase>().vehicleDetailsDao() }

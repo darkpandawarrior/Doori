@@ -11,6 +11,7 @@ import androidx.savedstate.read
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.core.ui.theme.MilewayDomain
 import com.mileway.core.ui.theme.MilewayDomainTheme
+import com.mileway.feature.cards.import.StatementImportScreen
 import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardKycScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
@@ -24,6 +25,7 @@ object CardRoutes {
     const val HOME = "cards_home"
     const val REQUEST = "cards_request"
     const val DETAIL = "cards_detail/{cardId}"
+    const val IMPORT = "cards_statement_import"
     const val KYC = "cards_kyc"
 
     fun detail(cardId: Long): String = "cards_detail/$cardId"
@@ -48,7 +50,13 @@ fun NavGraphBuilder.cardsGraph(
                 onOpenCard = { navController.navigate(CardRoutes.detail(it)) },
                 onRequestCard = { navController.navigate(CardRoutes.REQUEST) },
                 onStartKyc = { navController.navigate(CardRoutes.KYC) },
+                onImportStatement = { navController.navigate(CardRoutes.IMPORT) },
             )
+        }
+    }
+    composable(CardRoutes.IMPORT) {
+        MilewayDomainTheme(MilewayDomain.CARDS) {
+            StatementImportScreen(onBack = { navController.popBackStack() })
         }
     }
     composable(CardRoutes.REQUEST) {

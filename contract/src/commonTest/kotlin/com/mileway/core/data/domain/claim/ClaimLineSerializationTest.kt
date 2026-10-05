@@ -26,6 +26,58 @@ class ClaimLineSerializationTest {
     }
 
     @Test
+    fun typedExpenseDetailsRoundTripAndOldPayloadDefaultsStayEmpty() {
+        val oldJson = """{"type":"expense","id":"old","amountMinor":1001,"currency":"INR","merchant":"Cafe","category":"FOOD"}"""
+        val old = json.decodeFromString<ClaimLine>(oldJson) as ExpenseLine
+        assertEquals(null, old.incurredOn)
+        assertEquals(null, old.receiptImagePath)
+        assertEquals(false, old.affidavitAccepted)
+        assertEquals("", old.affidavitNote)
+        assertEquals(null, old.justificationReason)
+        assertEquals("", old.justificationNote)
+        assertEquals(emptyList(), old.splits)
+        assertEquals(emptyList(), old.attendees)
+        assertEquals(emptyList(), old.itemized)
+        val detailed: ClaimLine =
+            old.copy(
+                receiptImagePath = "file:///receipt.jpg",
+                affidavitAccepted = true,
+                affidavitNote = "Receipt was lost",
+                justificationReason = JustificationReason.OTHER,
+                justificationNote = "Required for the client visit",
+                splits = listOf(CostSplit(SplitTarget.PROJECT, "A", 10000, 1001)),
+                incurredOn = "2026-09-25",
+                attendees = listOf(Attendee("Alex")),
+                itemized = listOf(ItemizedLine("Meals", 1001)),
+            )
+        assertEquals(detailed, json.decodeFromString<ClaimLine>(json.encodeToString(detailed)))
+        val report = Report("r", "employee", listOf(detailed))
+        assertEquals(report, json.decodeFromString<Report>(json.encodeToString(report)))
+    }
+
+    @Test
+    fun reasonWireNamesAreStable() {
+        val codes = listOf("business_necessity", "client_request", "no_alternative", "other")
+        assertEquals(codes, JustificationReason.entries.map { it.wireName })
+        JustificationReason.entries.zip(codes).forEach { (reason, code) ->
+            assertEquals("\"$code\"", json.encodeToString(reason))
+            assertEquals(reason, json.decodeFromString<JustificationReason>("\"$code\""))
+        }
+    }
+
+    @Test
+    fun fxPinRoundTripsThroughTheSameDetailsJsonAndOldRowsHaveNoPin() {
+        val old: ClaimLine = ExpenseLine("old", 1000, "USD", merchant = "Cafe", category = "FOOD")
+        val decodedOld = json.decodeFromString<ClaimLine>(json.encodeToString(old)) as ExpenseLine
+        assertEquals(null, decodedOld.fxRate)
+        assertEquals(null, decodedOld.fxRatePinnedAt)
+        val pinned: ClaimLine = decodedOld.copy(fxRate = FxRate(95.82, "USD", sourceDate = "2026-09-25"), fxRatePinnedAt = 123L)
+        assertEquals(pinned, json.decodeFromString<ClaimLine>(json.encodeToString(pinned)))
+        val report = Report("fx-report", "employee", listOf(pinned))
+        assertEquals(report, json.decodeFromString<Report>(json.encodeToString(report)))
+    }
+
+    @Test
     fun mileageLineDiscriminatorIsMileage() {
         val line: ClaimLine = MileageLine(id = "line-2", amountMinor = 12000, currency = "INR", distanceKm = 12.5, vehicleKey = "twoWheeler")
         val expectedJson =

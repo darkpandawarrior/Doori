@@ -64,6 +64,7 @@ fun SpendsHomeScreen(
     onExpenseHistory: () -> Unit,
     modifier: Modifier = Modifier,
     onExpenseReports: (() -> Unit)? = null,
+    onPerDiem: (() -> Unit)? = null,
 ) {
     val scrollState = rememberScrollState()
 
@@ -134,6 +135,10 @@ fun SpendsHomeScreen(
                     onClick = onAddExpense,
                     modifier = Modifier.weight(1f),
                 )
+            }
+
+            onPerDiem?.let { openPerDiem ->
+                TextButton(onClick = openPerDiem) { Text("Add per diem") }
             }
 
             onExpenseReports?.let { openReports ->

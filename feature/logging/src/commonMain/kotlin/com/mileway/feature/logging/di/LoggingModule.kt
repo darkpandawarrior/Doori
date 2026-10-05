@@ -2,6 +2,9 @@ package com.mileway.feature.logging.di
 
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.core.platform.OfflineLocationNameResolver
+import com.mileway.feature.logging.justification.JustificationReasonSuggester
+import com.mileway.feature.logging.justification.justificationKeys
+import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.report.LocalReportJourneyStore
 import com.mileway.feature.logging.report.ReportGroupingViewModel
 import com.mileway.feature.logging.report.ReportJourneyStore
@@ -31,9 +34,27 @@ val loggingModule =
         single { LogMilesDraftRepository(get()) }
         single { LogMilesFrequentRouteRepository(get()) }
         single { ExpenseRepository(get()) }
+        single {
+            com.mileway.core.network.fx
+                .FrankfurterFxClient()
+        }
+        single {
+            val client = get<com.mileway.core.network.fx.FrankfurterFxClient>()
+            com.mileway.core.network.fx
+                .FxRatePinner(reference = client::rate)
+        }
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }
-        viewModel { ReportSubmitViewModel(get(), get()) }
+        viewModel {
+            ReportSubmitViewModel(
+                get(),
+                get(),
+                reconciliation = get(),
+                reasonSuggester = JustificationReasonSuggester(justificationKeys(getKoin())),
+                expenses = get(),
+            )
+        }
+        viewModel { PerDiemEntryViewModel(get(), get(), get()) }
         // SP.1/SP.2/SP.3: voucher + settlement + cards-txn history (offline fakes + MVI VMs).
         single { VoucherHistoryRepository(get()) }
         single { SettlementHistoryRepository() }
@@ -41,7 +62,7 @@ val loggingModule =
         factory { LogMilesSubmitUseCase(get(), get()) }
         viewModel { LogMilesViewModel(get(), get(), get(), get(), get()) }
         // P12.3: reviewTracker is optional (getOrNull) — bound in the app/iOS graph, absent in tests.
-        viewModel { ExpenseViewModel(get(), getOrNull()) }
+        viewModel { ExpenseViewModel(get(), getOrNull(), get()) }
         viewModel { VoucherHistoryViewModel(get(), get()) }
         // P27.E.12: voucher drill-down — VoucherDao directly (a read, no derived history fields needed).
         viewModel { VoucherDetailsViewModel(get()) }

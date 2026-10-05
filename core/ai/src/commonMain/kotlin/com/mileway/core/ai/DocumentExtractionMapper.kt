@@ -59,6 +59,7 @@ object DocumentExtractionMapper {
         rawValue: String?,
     ) {
         if (rawValue.isNullOrBlank()) return
-        this[field] = ExtractedValue(rawValue, RESPONSE_CONFIDENCE, AnalyzerSource.ON_DEVICE_AI)
+        val confidence = if (FieldConfidence.valid(field, rawValue)) RESPONSE_CONFIDENCE else FieldConfidence.INVALID_CONFIDENCE
+        this[field] = ExtractedValue(rawValue, confidence, AnalyzerSource.ON_DEVICE_AI)
     }
 }

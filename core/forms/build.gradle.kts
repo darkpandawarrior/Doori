@@ -17,6 +17,7 @@ kotlin {
         commonMain.dependencies {
             // UiText (validation error messages) lives in core:common.
             api(project(":core:common"))
+            api(project(":contract"))
             implementation(libs.runtime)
             implementation(libs.foundation)
             implementation(libs.material3)

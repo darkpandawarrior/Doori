@@ -21,4 +21,6 @@ data class ReportEntity(
     val recordVersion: Long,
     val createdAtMs: Long,
     val updatedAtMs: Long,
+    val submittedAtMs: Long? = null,
+    val accountingPeriodKey: String? = null,
 )

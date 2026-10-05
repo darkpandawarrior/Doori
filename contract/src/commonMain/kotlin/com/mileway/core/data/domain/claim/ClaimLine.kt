@@ -36,8 +36,20 @@ data class ExpenseLine(
     override val policyFlags: List<String> = emptyList(),
     override val cardMatchId: String? = null,
     override val sourceTripId: String? = null,
+    val fxRate: FxRate? = null,
     val merchant: String,
     val category: String,
+    @SerialName("splits") val splits: List<CostSplit> = emptyList(),
+    @SerialName("attendees") val attendees: List<Attendee> = emptyList(),
+    @SerialName("itemized") val itemized: List<ItemizedLine> = emptyList(),
+    /** ISO capture date. Older claims without a date cannot be automatically card matched. */
+    @SerialName("incurredOn") val incurredOn: String? = null,
+    /** Receipt evidence copied from capture so report review survives an app restart. */
+    @SerialName("receiptImagePath") val receiptImagePath: String? = null,
+    @SerialName("affidavitAccepted") val affidavitAccepted: Boolean = false,
+    @SerialName("affidavitNote") val affidavitNote: String = "",
+    @SerialName("justificationReason") val justificationReason: JustificationReason? = null,
+    @SerialName("justificationNote") val justificationNote: String = "",
 ) : ClaimLine
 
 @Serializable
@@ -66,6 +78,8 @@ data class PerDiemLine(
     override val sourceTripId: String? = null,
     val days: Int,
     val dailyRateMinor: Long,
+    /** Local calendar date; older persisted lines without a date remain readable. */
+    @SerialName("incurredOn") val incurredOn: String? = null,
 ) : ClaimLine
 
 @Serializable
@@ -81,3 +95,56 @@ data class AdvanceLine(
     val advanceId: String,
     val reconciled: Boolean = false,
 ) : ClaimLine
+
+/** Typed expense details use the existing ClaimLine serializer and require no Room columns. */
+@Serializable
+enum class SplitTarget {
+    @SerialName("cost_center")
+    COST_CENTER,
+
+    @SerialName("project")
+    PROJECT,
+
+    @SerialName("person")
+    PERSON,
+}
+
+/** An allocation in integer minor units; percentages use basis points (10000 = 100%). */
+@Serializable
+data class CostSplit(
+    @SerialName("target") val target: SplitTarget,
+    @SerialName("targetId") val targetId: String,
+    @SerialName("percentageBasisPoints") val percentageBasisPoints: Int,
+    @SerialName("amountMinor") val amountMinor: Long,
+)
+
+/** One named attendee; the list length is the per-head divisor. */
+@Serializable
+data class Attendee(
+    @SerialName("name") val name: String,
+)
+
+/** One receipt child line, in the parent expense's currency. */
+@Serializable
+data class ItemizedLine(
+    @SerialName("description") val description: String,
+    @SerialName("amountMinor") val amountMinor: Long,
+)
+
+/** Stable expense-exception codes. A reason records context and never overrides hard policy. */
+@Serializable
+enum class JustificationReason(
+    val wireName: String,
+) {
+    @SerialName("business_necessity")
+    BUSINESS_NECESSITY("business_necessity"),
+
+    @SerialName("client_request")
+    CLIENT_REQUEST("client_request"),
+
+    @SerialName("no_alternative")
+    NO_ALTERNATIVE("no_alternative"),
+
+    @SerialName("other")
+    OTHER("other"),
+}
