@@ -71,4 +71,8 @@ fun glExportCsv(
     return "report_id,line_id,category,amount_minor,currency,gl_account_code,cost_center\r\n" + rows.joinToString("\r\n") + "\r\n"
 }
 
-private fun csvText(value: String): String = "\"${value.replace("\"", "\"\"")}\""
+private fun csvText(value: String): String {
+    val formulaLike = value.firstOrNull() in listOf('\t', '\r') || value.trimStart().firstOrNull() in listOf('=', '+', '-', '@')
+    val safe = if (formulaLike) "'$value" else value
+    return "\"${safe.replace("\"", "\"\"")}\""
+}

@@ -74,15 +74,28 @@ class GlExportTest {
         }
 
     @Test
-    fun csvQuotesNewlinesAndPreservesMappingValuesExactly() {
-        val line = GlExportLine("=report", "line", "Food,\"team\"\nmeal", 123, "INR")
-        val csv = requireNotNull(glExportCsv(listOf(line), listOf(GlMappingEntity(line.key, "-6100", "@center", 0))))
+    fun csvQuotesNewlinesAndPreservesOrdinaryMappingValues() {
+        val line = GlExportLine("report", "line", "Food,\"team\"\nmeal", 123, "INR")
+        val csv = requireNotNull(glExportCsv(listOf(line), listOf(GlMappingEntity(line.key, "6100-A", "center", 0))))
         val row = parseCsv(csv).last()
-        assertEquals("=report", row[0])
+        assertEquals("report", row[0])
         assertEquals(line.key, row[2])
-        assertEquals("-6100", row[5])
-        assertEquals("@center", row[6])
+        assertEquals("6100-A", row[5])
+        assertEquals("center", row[6])
         assertTrue(csv.endsWith("\r\n"))
+    }
+
+    @Test
+    fun csvPrefixesFormulaMarkersAndRawLeadingTabOrCarriageReturn() {
+        for (unsafe in listOf("=SUM(1)", "+code", "-code", "@code", " =code", "\t=code", "\r=code", "\tplain", "\rplain")) {
+            val line = GlExportLine(unsafe, "line", "FOOD", -123, "INR")
+            val csv = requireNotNull(glExportCsv(listOf(line), listOf(GlMappingEntity("FOOD", unsafe, unsafe, 0))))
+            val row = parseCsv(csv).last()
+            assertEquals("'$unsafe", row[0])
+            assertEquals("'$unsafe", row[5])
+            assertEquals("'$unsafe", row[6])
+            assertEquals(-123L, row[3].toLong())
+        }
     }
 }
 
