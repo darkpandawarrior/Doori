@@ -76,9 +76,10 @@ fun estimateTravel(
     val distanceMm = floor(scaledDistance + HALF_MINOR_UNIT).toLong()
     require(distanceMm > 0) { "Distance must be at least one millimetre" }
     val mmPerUnit = if (schedule.distanceUnit == MileageDistanceUnit.MILE) MILLIMETRES_PER_MILE else MILLIMETRES_PER_KM
-    val firstDistanceMm = schedule.firstBandDistanceUnits?.let {
-        minOf(distanceMm, checkedRateProduct((it - before).coerceAtLeast(0), mmPerUnit))
-    } ?: distanceMm
+    val firstDistanceMm =
+        schedule.firstBandDistanceUnits?.let {
+            minOf(distanceMm, checkedRateProduct((it - before).coerceAtLeast(0), mmPerUnit))
+        } ?: distanceMm
     val firstAmount = checkedRateProduct(firstDistanceMm, schedule.firstRateThousandthsMinor)
     val aboveAmount = checkedRateProduct(distanceMm - firstDistanceMm, schedule.aboveBandRateThousandthsMinor ?: schedule.firstRateThousandthsMinor)
     val total = checkedRateSum(firstAmount, aboveAmount)

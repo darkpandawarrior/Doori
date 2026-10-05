@@ -1139,26 +1139,35 @@ class ScreenshotGalleryTest {
         val reports = mockk<ReportRepository>()
         val claims = mockk<com.mileway.core.data.dao.ClaimLineDao>()
         val payouts = mockk<com.mileway.core.data.dao.PendingPaymentJournalDao>()
-        val application = koinApplication {
-            modules(
-                travelModule,
-                module {
-                    single<NotificationDao> { notifications }
-                    single { reports }
-                    single { claims }
-                    single { payouts }
-                    single<ActiveAccountSource> {
-                        object : ActiveAccountSource {
-                            override val activeAccountId = kotlinx.coroutines.flow.MutableStateFlow<String?>("alex")
-                            override suspend fun setActiveAccountId(accountId: String) { activeAccountId.value = accountId }
+        val application =
+            koinApplication {
+                modules(
+                    travelModule,
+                    module {
+                        single<NotificationDao> { notifications }
+                        single { reports }
+                        single { claims }
+                        single { payouts }
+                        single<ActiveAccountSource> {
+                            object : ActiveAccountSource {
+                                override val activeAccountId = kotlinx.coroutines.flow.MutableStateFlow<String?>("alex")
+
+                                override suspend fun setActiveAccountId(accountId: String) {
+                                    activeAccountId.value = accountId
+                                }
+                            }
                         }
-                    }
-                },
-            )
-        }
+                    },
+                )
+            }
         val viewModel = application.koin.get<com.mileway.feature.travel.request.TravelRequestViewModel>()
         try {
-            composeRule.setContent { MilewayTheme { com.mileway.feature.travel.request.TravelRequestScreen(onBack = {}, viewModel = viewModel) } }
+            composeRule.setContent {
+                MilewayTheme {
+                    com.mileway.feature.travel.request
+                        .TravelRequestScreen(onBack = {}, viewModel = viewModel)
+                }
+            }
             composeRule.onNodeWithText("Business purpose").performScrollTo().performTextInput("Client visit")
             composeRule.onNodeWithText("Travel date YYYY-MM-DD").performScrollTo().performTextInput("2026-07-01")
             composeRule.onNodeWithText("Estimate route").performScrollTo().performClick()
@@ -1178,24 +1187,41 @@ class ScreenshotGalleryTest {
             composeRule.onNodeWithText("Status: APPROVED").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Travel requests are kept for this session only").performScrollTo()
             capture("phase3_travel_request_approved")
-            val approved = application.koin.get<com.mileway.feature.travel.request.TravelRequestStore>().requests.value.single()
+            val approved =
+                application.koin
+                    .get<com.mileway.feature.travel.request.TravelRequestStore>()
+                    .requests.value
+                    .single()
             check(approved.lifecycleReport().lines.isEmpty())
             kotlinx.coroutines.runBlocking { check(notifications.count() == 3) }
             io.mockk.coVerify(exactly = 0) { reports.save(any()) }
             io.mockk.coVerify(exactly = 0) { claims.upsert(any()) }
             io.mockk.coVerify(exactly = 0) { payouts.upsert(any()) }
-        } finally { application.close() }
+        } finally {
+            application.close()
+        }
     }
 
     @Test
     fun phase3CaptureTravelRequestRouted() {
-        val store = com.mileway.feature.travel.request.TravelRequestStore({})
-        val viewModel = com.mileway.feature.travel.request.TravelRequestViewModel(
-            store,
-            kotlinx.coroutines.flow.flowOf("alex"),
-            route = { _, _, _, _ -> com.mileway.core.network.routing.RouteEstimate.Routed(16.09344) },
-        )
-        composeRule.setContent { MilewayTheme { com.mileway.feature.travel.request.TravelRequestScreen(onBack = {}, viewModel = viewModel) } }
+        val store =
+            com.mileway.feature.travel.request
+                .TravelRequestStore({})
+        val viewModel =
+            com.mileway.feature.travel.request.TravelRequestViewModel(
+                store,
+                kotlinx.coroutines.flow.flowOf("alex"),
+                route = { _, _, _, _ ->
+                    com.mileway.core.network.routing.RouteEstimate
+                        .Routed(16.09344)
+                },
+            )
+        composeRule.setContent {
+            MilewayTheme {
+                com.mileway.feature.travel.request
+                    .TravelRequestScreen(onBack = {}, viewModel = viewModel)
+            }
+        }
         composeRule.onNodeWithText("Business purpose").performScrollTo().performTextInput("Client visit")
         composeRule.onNodeWithText("Travel date YYYY-MM-DD").performScrollTo().performTextInput("2026-07-01")
         composeRule.onNodeWithText("Origin latitude").performScrollTo().performTextInput("12.0")

@@ -82,7 +82,16 @@ class TravelRequestStore(
                 } else {
                     request.transition(event)
                 }
-            val step = ApprovalStep(request.approvalChain.steps.size, role, request.estimate.amountMinor, actor.trim(), action = action, comment = comment.trim(), actedAtMillis = now())
+            val step =
+                ApprovalStep(
+                    request.approvalChain.steps.size,
+                    role,
+                    request.estimate.amountMinor,
+                    actor.trim(),
+                    action = action,
+                    comment = comment.trim(),
+                    actedAtMillis = now(),
+                )
             save(request, reviewed.copy(approvalChain = ApprovalChain(request.approvalChain.steps + step)))
         }
 
@@ -92,7 +101,9 @@ class TravelRequestStore(
         event: ReportLifecycleEvent,
     ): TravelRequest =
         mutex.withLock {
-            require(event in setOf(ReportLifecycleEvent.RECALL, ReportLifecycleEvent.RESUBMIT, ReportLifecycleEvent.SUBMIT)) { "Use review actions for approval" }
+            require(
+                event in setOf(ReportLifecycleEvent.RECALL, ReportLifecycleEvent.RESUBMIT, ReportLifecycleEvent.SUBMIT),
+            ) { "Use review actions for approval" }
             val request = requireNotNull(rows.value.find { it.id == id })
             require(request.recordVersion == expectedVersion) { "Request changed; reload before acting" }
             save(request, request.transition(event))
@@ -114,7 +125,10 @@ class TravelRequestStore(
                 it.copy(
                     id = "travel:${after.id}:${after.recordVersion}",
                     title = if (before.state == after.state) "Travel request: finance review required" else it.title.replace("Report", "Travel request"),
-                    body = "${after.purpose}: ${formatMinorCurrency(after.estimate.amountMinor, after.estimate.currency)}${if (after.estimate.approximate) " (approximate)" else " (OSRM route)"}. Session only.",
+                    body = "${after.purpose}: ${formatMinorCurrency(
+                        after.estimate.amountMinor,
+                        after.estimate.currency,
+                    )}${if (after.estimate.approximate) " (approximate)" else " (OSRM route)"}. Session only.",
                     // Session-only requests have no persisted report detail route.
                     deeplink = "",
                 ),

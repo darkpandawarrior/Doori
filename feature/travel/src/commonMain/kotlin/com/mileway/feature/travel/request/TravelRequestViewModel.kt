@@ -18,9 +18,9 @@ import com.mileway.core.network.routing.RoutePoint
 import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
@@ -44,22 +44,55 @@ data class TravelRequestUiState(
     val comment: String = "",
 ) {
     fun field(key: TravelRequestField): String = fields[key].orEmpty()
+
     val canSubmit: Boolean get() = !busy && owner != null && estimate != null && field(TravelRequestField.PURPOSE).isNotBlank() && selected == null
 }
 
 sealed interface TravelRequestAction {
-    data class Edit(val field: TravelRequestField, val value: String) : TravelRequestAction
-    data class Home(val origin: Boolean, val enabled: Boolean) : TravelRequestAction
-    data class Hmrc(val enabled: Boolean) : TravelRequestAction
-    data class RoundTrip(val enabled: Boolean) : TravelRequestAction
-    data class Reviewer(val value: String) : TravelRequestAction
-    data class Comment(val value: String) : TravelRequestAction
-    data class Review(val action: ApprovalAction) : TravelRequestAction
-    data class Transition(val event: ReportLifecycleEvent) : TravelRequestAction
-    data class Open(val request: TravelRequest) : TravelRequestAction
+    data class Edit(
+        val field: TravelRequestField,
+        val value: String,
+    ) : TravelRequestAction
+
+    data class Home(
+        val origin: Boolean,
+        val enabled: Boolean,
+    ) : TravelRequestAction
+
+    data class Hmrc(
+        val enabled: Boolean,
+    ) : TravelRequestAction
+
+    data class RoundTrip(
+        val enabled: Boolean,
+    ) : TravelRequestAction
+
+    data class Reviewer(
+        val value: String,
+    ) : TravelRequestAction
+
+    data class Comment(
+        val value: String,
+    ) : TravelRequestAction
+
+    data class Review(
+        val action: ApprovalAction,
+    ) : TravelRequestAction
+
+    data class Transition(
+        val event: ReportLifecycleEvent,
+    ) : TravelRequestAction
+
+    data class Open(
+        val request: TravelRequest,
+    ) : TravelRequestAction
+
     data object Estimate : TravelRequestAction
+
     data object Manual : TravelRequestAction
+
     data object Submit : TravelRequestAction
+
     data object New : TravelRequestAction
 }
 
@@ -80,15 +113,14 @@ class TravelRequestViewModel(
             combine(accounts, store.requests) { account, requests ->
                 val owner = account?.takeIf { it.isNotBlank() }
                 owner to requests.filter { it.employeeId == owner }
-            }
-                .collect { (owner, requests) ->
-                    if (owner != currentState.owner) {
-                        revision++
-                        work?.cancel()
-                        setState { TravelRequestUiState(owner = owner?.takeIf { it.isNotBlank() }) }
-                    }
-                    setState { copy(requests = requests, selected = selected?.let { old -> requests.find { it.id == old.id } }) }
+            }.collect { (owner, requests) ->
+                if (owner != currentState.owner) {
+                    revision++
+                    work?.cancel()
+                    setState { TravelRequestUiState(owner = owner?.takeIf { it.isNotBlank() }) }
                 }
+                setState { copy(requests = requests, selected = selected?.let { old -> requests.find { it.id == old.id } }) }
+            }
         }
     }
 
@@ -132,7 +164,13 @@ class TravelRequestViewModel(
         val at = travelDateMillis(input.field(TravelRequestField.DATE))
         val before = input.field(TravelRequestField.ANNUAL_DISTANCE).ifBlank { "0" }.toLongOrNull()
         require(before != null && before >= 0) { "Enter nonnegative whole annual distance units" }
-        return estimateTravel(distance, approximate, input.field(TravelRequestField.DATE), mirror, AnnualMileageDistance(mirror.annualPeriod.startFor(at), before))
+        return estimateTravel(
+            distance,
+            approximate,
+            input.field(TravelRequestField.DATE),
+            mirror,
+            AnnualMileageDistance(mirror.annualPeriod.startFor(at), before),
+        )
     }
 
     private fun estimate() {
@@ -156,7 +194,10 @@ class TravelRequestViewModel(
         }
     }
 
-    private fun point(input: TravelRequestUiState, origin: Boolean): RoutePoint? {
+    private fun point(
+        input: TravelRequestUiState,
+        origin: Boolean,
+    ): RoutePoint? {
         val latKey = if (origin) TravelRequestField.ORIGIN_LAT else TravelRequestField.DESTINATION_LAT
         val lonKey = if (origin) TravelRequestField.ORIGIN_LON else TravelRequestField.DESTINATION_LON
         val lat = input.field(latKey)
