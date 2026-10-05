@@ -29,6 +29,15 @@ kotlin {
             // hook (a DocumentAnalysis) so ExpenseScreen can wire it into FormFieldWithSuggestions —
             // core:media only depends on core:ai as `implementation`, so this needs its own line.
             implementation(project(":core:ai"))
+            // Existing substituted toolkit modules for the optional BYOK reason hint.
+            val fdroidBuild = providers.gradleProperty("fdroid").isPresent
+            implementation("com.siddharth.kmp:ai:1.0.0") {
+                if (fdroidBuild) {
+                    exclude(group = "com.google.mediapipe", module = "tasks-genai")
+                }
+            }
+            implementation("com.siddharth.kmp:llm-chat:1.0.0")
+            implementation("com.siddharth.kmp:result:1.0.0")
             // V27 P27.F.6: LogMilesStep2Screen's "Additional Details" card routes through the
             // shared core:forms FormRenderer/validationErrors instead of a hand-rolled duplicate.
             implementation(project(":core:forms"))

@@ -3329,4 +3329,19 @@
     <string name="shell_more_unavailable_debug_why">Restarts the Android process and reads app storage</string>
     <string name="shell_more_unavailable_signature">Signature pad</string>
     <string name="shell_more_unavailable_signature_why">Writes a PNG through the Android bitmap encoder</string>
+    <string name="logging_affidavit_confirm">I confirm this business expense has no receipt</string>
+    <string name="logging_affidavit_note">Why is the receipt missing? (required)</string>
+    <string name="logging_affidavit_required">%1$s: confirm the missing receipt and add an affidavit note</string>
+    <string name="logging_justification_required">%1$s: add a note for the Other reason</string>
+    <string name="logging_exceptions_editable_only">Only draft or recalled reports can change exception details</string>
+    <string name="logging_reason_business_necessity">Business necessity</string>
+    <string name="logging_reason_client_request">Client request</string>
+    <string name="logging_reason_no_alternative">No available alternative</string>
+    <string name="logging_reason_other">Other</string>
+    <string name="logging_reason_clear">No reason selected</string>
+    <string name="logging_reason_title">Business justification</string>
+    <string name="logging_reason_note">Justification note (required for Other)</string>
+    <string name="logging_reason_hint">Suggested: %1$s. Tap to use.</string>
+    <string name="logging_exceptions_save">Save exception details</string>
+    <string name="logging_exceptions_unsaved">Save your exception details before submitting</string>
 </resources>
