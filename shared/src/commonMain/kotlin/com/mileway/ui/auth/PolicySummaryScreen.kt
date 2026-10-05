@@ -50,7 +50,7 @@ fun signupPolicySummary(
             val effectivePolicy = PolicyEngine(effectiveVersions.map { it.policyVersion() }).versionFor(atMillis)
             val selected = effectiveVersions.first { it.policyVersion().effectiveFrom == effectivePolicy.effectiveFrom }
             add("Effective from ${selected.effectiveFrom} (INR).")
-            selected.ratesMinorPerKm.toSortedMap().forEach { (vehicle, rateMinor) ->
+            selected.ratesMinorPerKm.entries.sortedBy { it.key }.forEach { (vehicle, rateMinor) ->
                 add("$vehicle: ${formatMinorCurrency(rateMinor, effectivePolicy.currency)} / km")
             }
         }
