@@ -72,6 +72,25 @@ object RedactionDefaults {
         )
     }
 
+    /** Shared export boundary for both the normal share flow and the debug export path. */
+    fun protect(
+        track: SavedTrack,
+        points: List<LocationData>,
+        events: List<HardwareEvent>,
+        homes: List<SavedPlaceEntity>,
+    ): ProtectedTrackExport {
+        var safePoints = points
+        var safeTrack = track
+        var safeEvents = events
+        val protectedHomes = homes.filter { it.type == HOME_TYPE }
+        for (home in protectedHomes) {
+            safePoints = locations(safePoints, home)
+            safeTrack = track(safeTrack, safePoints, home)
+            safeEvents = events(safeEvents, home)
+        }
+        return ProtectedTrackExport(safeTrack, safePoints, safeEvents, protectedHomes.isNotEmpty() && safePoints.isEmpty())
+    }
+
     private fun nearHome(
         lat: Double?,
         lng: Double?,
@@ -84,3 +103,11 @@ object RedactionDefaults {
         return haversineMeters(lat, lng, homeLat, homeLng) <= HOME_RADIUS_METERS
     }
 }
+
+/** Redacted snapshot; no persisted source row is modified. */
+data class ProtectedTrackExport(
+    val track: SavedTrack,
+    val points: List<LocationData>,
+    val events: List<HardwareEvent>,
+    val omitEndpointCoordinates: Boolean,
+)

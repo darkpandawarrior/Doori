@@ -25,6 +25,8 @@ kotlin {
             // V21 §3 Wave 4: NetworkLogPlugin is a createClientPlugin for whatever HttpClient the
             // app installs it on (see core/network/netlog); no HTTP calls made from this module.
             implementation(libs.ktor.client.core)
+            // The factory's Logger parameter is used to keep private route coordinates out of logs.
+            implementation("io.ktor:ktor-client-logging:${libs.versions.ktor.get()}")
             implementation(project(":core:data"))
             // V15 PF.5: ConfigProvider exposes UpdateConfig (defined in core:platform).
             implementation(project(":core:platform"))

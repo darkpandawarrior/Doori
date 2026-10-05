@@ -71,23 +71,9 @@ class ExportViewModel(
 
                 // Protected Home places are excluded even when an older caller disables the default.
                 val homes = savedPlaceDao.observeAll().first().filter { it.type == RedactionDefaults.HOME_TYPE }
-                var redactedLocations = locations
-                var redactedTrack = track
-                var redactedEvents = events
-                for (home in homes) {
-                    redactedLocations = RedactionDefaults.locations(redactedLocations, home)
-                    redactedTrack = RedactionDefaults.track(redactedTrack, redactedLocations, home)
-                    redactedEvents = RedactionDefaults.events(redactedEvents, home)
-                }
-                val content =
-                    TrackExportContent.build(
-                        format,
-                        redactedTrack,
-                        redactedLocations,
-                        redactedEvents,
-                        omitEndpointCoordinates = homes.isNotEmpty() && redactedLocations.isEmpty(),
-                    )
-                val subject = "Track export: ${redactedTrack.name}"
+                val safe = RedactionDefaults.protect(track, locations, events, homes)
+                val content = TrackExportContent.build(format, safe.track, safe.points, safe.events, safe.omitEndpointCoordinates)
+                val subject = "Track export: ${safe.track.name}"
 
                 shareSheet.share(text = content, subject = subject)
                 setState { copy(isExporting = false) }

@@ -28,11 +28,15 @@ object RoundTripGuard {
                 )
         }
 
-    private fun sameOwner(first: SavedTrack, second: SavedTrack): Boolean =
+    private fun sameOwner(
+        first: SavedTrack,
+        second: SavedTrack,
+    ): Boolean =
         if (!first.startedByAccountId.isNullOrBlank() && !second.startedByAccountId.isNullOrBlank()) {
             first.startedByAccountId == second.startedByAccountId
         } else {
-            first.startedByEmployeeCode.isNotBlank() && first.startedByEmployeeCode == second.startedByEmployeeCode &&
+            first.startedByEmployeeCode.isNotBlank() &&
+                first.startedByEmployeeCode == second.startedByEmployeeCode &&
                 first.startedByTenant == second.startedByTenant
         }
 
