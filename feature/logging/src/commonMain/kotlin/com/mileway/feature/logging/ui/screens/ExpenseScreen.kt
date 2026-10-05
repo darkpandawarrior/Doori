@@ -75,7 +75,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.mileway.core.ai.model.DocField
 import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.forms.ui.FormFieldWithSuggestions
@@ -190,6 +189,8 @@ fun ExpenseScreen(
     // Whatever the step-1 receipt scan last read (core:ai's DocumentIntelligence output) — feeds
     // step 2's custom-form suggestions (e.g. a GST invoice number) via FormFieldWithSuggestions.
     var scannedReceiptAnalysis by remember { mutableStateOf<DocumentAnalysis?>(null) }
+    var ocrAmountEdited by remember { mutableStateOf(false) }
+    val policyReceiptAnalysis = scannedReceiptAnalysis.takeUnless { ocrAmountEdited }
     val form = ui.form
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -304,7 +305,10 @@ fun ExpenseScreen(
                     viewModel = viewModel,
                     bulkMode = bulkMode,
                     onBulkModeChange = { bulkMode = it },
-                    onOcrAnalysis = { scannedReceiptAnalysis = it },
+                    onOcrAnalysis = {
+                        scannedReceiptAnalysis = it
+                        ocrAmountEdited = false
+                    },
                 )
             else ->
                 Step2Content(
@@ -312,9 +316,8 @@ fun ExpenseScreen(
                     ui = ui,
                     viewModel = viewModel,
                     scannedAnalysis = scannedReceiptAnalysis,
-                    onOcrAmountEdited = {
-                        scannedReceiptAnalysis = scannedReceiptAnalysis?.let { it.copy(fields = it.fields - DocField.TOTAL) }
-                    },
+                    policyAnalysis = policyReceiptAnalysis,
+                    onOcrAmountEdited = { ocrAmountEdited = true },
                 )
         }
     }
@@ -347,7 +350,7 @@ fun ExpenseScreen(
                                 violation,
                                 form.amountText,
                                 form.currencyCode,
-                                scannedReceiptAnalysis,
+                                policyReceiptAnalysis,
                                 form.expenseFieldContext()?.anchorAmountMinor,
                             ),
                     )
@@ -553,6 +556,7 @@ private fun Step2Content(
     ui: ExpenseUiState,
     viewModel: ExpenseViewModel,
     scannedAnalysis: DocumentAnalysis?,
+    policyAnalysis: DocumentAnalysis?,
     onOcrAmountEdited: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -700,7 +704,7 @@ private fun Step2Content(
                         "⚠ " +
                             (
                                 liveViolation?.let {
-                                    ExplainableViolation.message(it, form.amountText, form.currencyCode, scannedAnalysis)
+                                    ExplainableViolation.message(it, form.amountText, form.currencyCode, policyAnalysis)
                                 } ?: stringResource(Res.string.logging_amount_requires_approval)
                             ),
                     style = MaterialTheme.typography.bodySmall,

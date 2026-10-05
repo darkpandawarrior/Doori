@@ -49,9 +49,9 @@ class ExplainableViolationTest {
     }
 
     @Test
-    fun amountEditInvalidatesProvenanceEvenWhenValueMatchesAgain() {
-        val editedAnalysis = scan().let { it.copy(fields = it.fields - DocField.TOTAL) }
-        assertEquals(violation.message, ExplainableViolation.message(violation, "5200", "INR", editedAnalysis))
+    fun missingTotalKeepsOriginalMessage() {
+        val withoutTotal = scan().let { it.copy(fields = it.fields - DocField.TOTAL) }
+        assertEquals(violation.message, ExplainableViolation.message(violation, "5200", "INR", withoutTotal))
     }
 
     @Test
