@@ -9,6 +9,19 @@ object RoundTripGuard {
     private const val PAIR_WINDOW_MS = 24L * 60 * 60 * 1_000
     private const val ENDPOINT_RADIUS_METRES = 200.0
 
+    fun hasRecordedReturnForTrip(outbound: SavedTrack, submittedAtMillis: Long, tracks: List<SavedTrack>): Boolean =
+        tracks.any { candidate ->
+            candidate.routeId != outbound.routeId && candidate.startedByAccountId == outbound.startedByAccountId &&
+                candidate.endTime <= submittedAtMillis && candidate.endTime >= outbound.startTime - PAIR_WINDOW_MS &&
+                candidate.startTime <= outbound.endTime + PAIR_WINDOW_MS &&
+                hasRecordedReturn(
+                    RoutePoint(outbound.startLatitude, outbound.startLongitude),
+                    RoutePoint(outbound.endLatitude, outbound.endLongitude),
+                    candidate.endTime,
+                    listOf(candidate),
+                )
+        }
+
     fun hasRecordedReturn(origin: RoutePoint, destination: RoutePoint, atMillis: Long, tracks: List<SavedTrack>): Boolean =
         tracks.any { track ->
             track.isCompleted && !track.isDraft && !track.isDiscarded && track.endTime <= atMillis &&

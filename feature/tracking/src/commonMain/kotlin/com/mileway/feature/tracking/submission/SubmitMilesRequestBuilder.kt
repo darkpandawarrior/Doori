@@ -4,7 +4,6 @@ import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.SubmitMilesRequestK
-import com.mileway.core.network.routing.RoutePoint
 import com.mileway.feature.tracking.checkin.RoundTripClassifier
 import com.mileway.feature.tracking.route.RoundTripGuard
 import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
@@ -56,7 +55,7 @@ object SubmitMilesRequestBuilder {
             // Reference builder appends the marker to violationRemarks, NOT notes.
             violationRemarks = if (odometerFallbackActive) ODOMETER_NOT_WORKING_REMARK else null,
             // A recorded closed loop or paired return is already in the mileage ledger.
-            roundTrip = form.roundTrip && !returnAlreadyRecorded(track, recordedTracks),
+            roundTrip = form.roundTrip && !returnAlreadyRecorded(track, recordedTracks, submissionTime),
             startLabel = odometerLabel(hasRealOdometerSource, form.isManualStartOdo),
             endLabel = odometerLabel(hasRealOdometerSource, form.isManualEndOdo),
             startReading = odometerReading(odometerFallbackActive, form.simulatedStartOdo),
@@ -78,18 +77,13 @@ object SubmitMilesRequestBuilder {
         )
     }
 
-    private fun returnAlreadyRecorded(track: SavedTrack?, recordedTracks: List<SavedTrack>): Boolean {
+    private fun returnAlreadyRecorded(track: SavedTrack?, recordedTracks: List<SavedTrack>, submittedAtMillis: Long): Boolean {
         if (track == null) return false
         if (track.roundTrip || RoundTripClassifier.isRoundTrip(
                 track.startLatitude, track.startLongitude, track.endLatitude, track.endLongitude, track.distance / 1_000.0,
             )
         ) return true
-        return RoundTripGuard.hasRecordedReturn(
-            RoutePoint(track.startLatitude, track.startLongitude),
-            RoutePoint(track.endLatitude, track.endLongitude),
-            track.endTime,
-            recordedTracks.filter { it.routeId != track.routeId && it.startedByAccountId == track.startedByAccountId },
-        )
+        return RoundTripGuard.hasRecordedReturnForTrip(track, submittedAtMillis, recordedTracks)
     }
 
     /** ocr -> "OCR", manual -> "MANUAL", na/no-reading -> null (dropped, not sent as literal "NA"). */

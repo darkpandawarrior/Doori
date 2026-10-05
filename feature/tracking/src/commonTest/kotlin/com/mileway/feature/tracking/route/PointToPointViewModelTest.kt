@@ -83,6 +83,7 @@ class PointToPointViewModelTest {
         val input = RouteInput(origin, destination, roundTrip = true, server = "http://route.test")
         try {
             vm.estimate(input)
+            vm.state.first { !it.busy }
             assertTrue(vm.state.value.returnAlreadyRecorded)
             vm.save(input, null)
             val row = repository.getByRouteId(requireNotNull(vm.state.value.savedRouteId))
@@ -151,6 +152,7 @@ class PointToPointViewModelTest {
         assertTrue(build(outbound, listOf(trip().copy(isDraft = true))).roundTrip)
         assertTrue(build(outbound, listOf(trip().copy(startedByAccountId = "other"))).roundTrip)
         assertTrue(build(outbound, listOf(trip().copy(endTime = at + 1L))).roundTrip)
+        assertFalse(build(outbound.copy(endTime = 60_000L), listOf(trip())).roundTrip)
     }
 
     @Test
