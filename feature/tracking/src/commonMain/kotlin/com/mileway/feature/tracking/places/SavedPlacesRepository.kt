@@ -47,10 +47,12 @@ class SavedPlacesRepository(
         val lng = place.longitude ?: return null
         val nearHome =
             savedPlaces.first().any {
+                val homeLat = it.latitude
+                val homeLng = it.longitude
+                val hasCoordinates = homeLat != null && homeLng != null
                 it.isProtected &&
-                    it.latitude != null &&
-                    it.longitude != null &&
-                    haversineMeters(lat, lng, it.latitude, it.longitude) <= RedactionDefaults.HOME_RADIUS_METERS
+                    hasCoordinates &&
+                    haversineMeters(lat, lng, requireNotNull(homeLat), requireNotNull(homeLng)) <= RedactionDefaults.HOME_RADIUS_METERS
             }
         return RoutePoint(lat, lng, place.isProtected || nearHome)
     }

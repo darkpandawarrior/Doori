@@ -50,7 +50,9 @@ class PointToPointViewModel(
     private val policy: PolicyEngine = PolicyEngine(emptyList()),
     private val now: () -> Long = { Clock.System.now().toEpochMilliseconds() },
 ) : ViewModel() {
-    private companion object { const val MetresPerKm = 1_000.0 }
+    private companion object {
+        const val MetresPerKm = 1_000.0
+    }
 
     private val mutableState = MutableStateFlow(PointToPointState())
     val state = mutableState.asStateFlow()
@@ -167,32 +169,54 @@ class PointToPointViewModel(
     private fun draftName(approximate: Boolean): String = if (approximate) "Manual route (approximate)" else "OSRM route estimate"
 
     private fun createDraft(
-        id: String, input: RouteInput, origin: RoutePoint?, destination: RoutePoint?, km: Double,
-        roundTrip: Boolean, classification: TripClassification?, approximate: Boolean, at: Long, accountId: String,
+        id: String,
+        input: RouteInput,
+        origin: RoutePoint?,
+        destination: RoutePoint?,
+        km: Double,
+        roundTrip: Boolean,
+        classification: TripClassification?,
+        approximate: Boolean,
+        at: Long,
+        accountId: String,
     ): SavedTrack {
         val end = if (roundTrip) origin else destination
         return SavedTrack(
-            routeId = id, name = draftName(approximate), isCompleted = true, isDraft = true, draftSavedAt = at,
+            routeId = id,
+            name = draftName(approximate),
+            isCompleted = true,
+            isDraft = true,
+            draftSavedAt = at,
             startedByAccountId = accountId,
-            startLatitude = origin?.latitude ?: 0.0, startLongitude = origin?.longitude ?: 0.0,
-            endLatitude = end?.latitude ?: 0.0, endLongitude = end?.longitude ?: 0.0,
-            pausedLatitude = 0.0, pausedLongitude = 0.0, startTime = at, endTime = at,
-            distance = km * MetresPerKm, duration = 0L, createdAt = at,
-            selectedVehicleType = input.vehicleKey, roundTrip = roundTrip,
-            notes = classification?.name ?: "-", violationRemarks = if (approximate) "MANUAL_APPROXIMATE" else "OSRM_ESTIMATE",
+            startLatitude = origin?.latitude ?: 0.0,
+            startLongitude = origin?.longitude ?: 0.0,
+            endLatitude = end?.latitude ?: 0.0,
+            endLongitude = end?.longitude ?: 0.0,
+            pausedLatitude = 0.0,
+            pausedLongitude = 0.0,
+            startTime = at,
+            endTime = at,
+            distance = km * MetresPerKm,
+            duration = 0L,
+            createdAt = at,
+            selectedVehicleType = input.vehicleKey,
+            roundTrip = roundTrip,
+            notes = classification?.name ?: "-",
+            violationRemarks = if (approximate) "MANUAL_APPROXIMATE" else "OSRM_ESTIMATE",
         )
     }
 
-    fun savePlace(place: SavedPlaceEntity) = viewModelScope.launch {
-        runCatching {
-            places.save(place)
-            invalidate()
-            mutableState.value = mutableState.value.copy(message = "Place saved")
-        }.onFailure { failure ->
-            if (failure is CancellationException || failure !is Exception) throw failure
-            mutableState.value = mutableState.value.copy(message = failure.message ?: "Could not save place")
+    fun savePlace(place: SavedPlaceEntity) =
+        viewModelScope.launch {
+            runCatching {
+                places.save(place)
+                invalidate()
+                mutableState.value = mutableState.value.copy(message = "Place saved")
+            }.onFailure { failure ->
+                if (failure is CancellationException || failure !is Exception) throw failure
+                mutableState.value = mutableState.value.copy(message = failure.message ?: "Could not save place")
+            }
         }
-    }
 }
 
 /** Immutable snapshot used to reject stale quotes. */

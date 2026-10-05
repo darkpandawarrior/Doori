@@ -92,6 +92,7 @@ class OsrmClient(
             RouteEstimate.ManualRequired("Routing is unavailable; enter distance manually (approximate)")
         }
     }
+
     private fun validServer(base: String): Boolean {
         if (!(base.startsWith("http://") || base.startsWith("https://"))) return false
         val url = Url(base)
@@ -99,7 +100,6 @@ class OsrmClient(
         if (!url.user.isNullOrEmpty() || !url.password.isNullOrEmpty()) return false
         return url.parameters.names().isEmpty() && url.fragment.isEmpty()
     }
-
 }
 
 @Serializable

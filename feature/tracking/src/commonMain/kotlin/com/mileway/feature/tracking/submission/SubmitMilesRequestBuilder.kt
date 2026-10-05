@@ -24,6 +24,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
  */
 object SubmitMilesRequestBuilder {
     private const val MetresPerKm = 1_000.0
+
     /** Audit-trail marker recorded when distance is sourced from GPS because the odometer wasn't usable. */
     const val ODOMETER_NOT_WORKING_REMARK = "ODOMETER_NOT_WORKING"
 
