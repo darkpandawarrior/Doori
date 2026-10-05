@@ -8,12 +8,15 @@ import com.mileway.core.data.domain.claim.ReportLifecycleStateMachine
 import com.mileway.core.data.domain.policy.AnnualMileageDistance
 import com.mileway.core.data.domain.policy.MileageDistanceUnit
 import com.mileway.core.data.domain.policy.MileageRateMirror
+import com.mileway.core.data.domain.policy.checkedRateProduct
+import com.mileway.core.data.domain.policy.checkedRateSum
 import kotlinx.serialization.Serializable
 import kotlin.math.floor
 import kotlin.time.Instant
 
-private const val KM_PER_MILE = 1.609344
-private const val RATE_SCALE = 1_000.0
+private const val MILLIMETRES_PER_KM = 1_000_000L
+private const val MILLIMETRES_PER_MILE = 1_609_344L
+private const val RATE_SCALE = 1_000L
 private const val ISO_DATE_LENGTH = 10
 private const val HALF_MINOR_UNIT = 0.5
 
@@ -48,7 +51,8 @@ fun travelDateMillis(date: String): Long {
 
 /**
  * Prices fractional route distance with the travel-date version of the existing rate mirror.
- * Converts kilometres explicitly, splits annual bands, then rounds half-up once to minor units.
+ * Rounds route distance to millimetres, converts units explicitly and splits annual bands.
+ * Checked integer products round half-up once to minor units, without floating-point money math.
  */
 fun estimateTravel(
     distanceKm: Double,
@@ -67,16 +71,23 @@ fun estimateTravel(
         require(it.periodStart <= period) { "Annual distance belongs to a future period" }
     }
     val before = annualDistance?.takeIf { it.periodStart == period }?.distanceUnits ?: 0
-    val units = if (schedule.distanceUnit == MileageDistanceUnit.MILE) distanceKm / KM_PER_MILE else distanceKm
-    val firstUnits = schedule.firstBandDistanceUnits?.let { minOf(units, (it - before).coerceAtLeast(0).toDouble()) } ?: units
-    val amount =
-        (firstUnits * schedule.firstRateThousandthsMinor +
-            (units - firstUnits) * (schedule.aboveBandRateThousandthsMinor ?: schedule.firstRateThousandthsMinor)) / RATE_SCALE
-    require(amount.isFinite() && amount >= 0 && amount < Long.MAX_VALUE.toDouble()) { "Estimate is too large" }
+    val scaledDistance = distanceKm * MILLIMETRES_PER_KM
+    require(scaledDistance.isFinite() && scaledDistance < Long.MAX_VALUE.toDouble()) { "Distance is too large" }
+    val distanceMm = floor(scaledDistance + HALF_MINOR_UNIT).toLong()
+    require(distanceMm > 0) { "Distance must be at least one millimetre" }
+    val mmPerUnit = if (schedule.distanceUnit == MileageDistanceUnit.MILE) MILLIMETRES_PER_MILE else MILLIMETRES_PER_KM
+    val firstDistanceMm = schedule.firstBandDistanceUnits?.let {
+        minOf(distanceMm, checkedRateProduct((it - before).coerceAtLeast(0), mmPerUnit))
+    } ?: distanceMm
+    val firstAmount = checkedRateProduct(firstDistanceMm, schedule.firstRateThousandthsMinor)
+    val aboveAmount = checkedRateProduct(distanceMm - firstDistanceMm, schedule.aboveBandRateThousandthsMinor ?: schedule.firstRateThousandthsMinor)
+    val total = checkedRateSum(firstAmount, aboveAmount)
+    val denominator = mmPerUnit * RATE_SCALE
+    val amountMinor = total / denominator + if (total % denominator >= denominator / 2) 1 else 0
     return TravelEstimate(
-        distanceKm,
+        distanceMm.toDouble() / MILLIMETRES_PER_KM,
         approximate,
-        floor(amount + HALF_MINOR_UNIT).toLong(),
+        amountMinor,
         mirror.currency,
         version.effectiveFrom,
         version.authority,
