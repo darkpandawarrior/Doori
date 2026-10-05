@@ -204,7 +204,7 @@ class PointToPointViewModelTest {
     }
 
     @Test
-    fun exportCannotDisableProtectedHomeRedaction() =
+    fun userExportDefaultsToRedactionAndHonoursExplicitOptOut() =
         runTest {
             val track = trip().copy(name = "Private road")
             val home = origin.copy(type = "HOME", address = "Private road")
@@ -237,9 +237,12 @@ class PointToPointViewModelTest {
                     share,
                     places,
                 )
-            vm.export(track.routeId, ExportFormat.JSON, LocationDataFilter(redactHome = false))
+            vm.export(track.routeId, ExportFormat.JSON, LocationDataFilter())
             assertFalse(exported.contains("Private road"))
             assertFalse(exported.contains("\"startLat\": 12.0"))
             assertTrue(exported.contains("\"startLat\": null"))
+            vm.export(track.routeId, ExportFormat.JSON, LocationDataFilter(redactHome = false))
+            assertTrue(exported.contains("Private road"))
+            assertTrue(exported.contains("\"startLat\": 13.0"))
         }
 }

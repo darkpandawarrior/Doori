@@ -2,9 +2,11 @@ package com.mileway.feature.tracking.submission
 
 import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
+import com.mileway.core.data.model.db.SavedPlaceEntity
 import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.feature.tracking.checkin.RoundTripClassifier
+import com.mileway.feature.tracking.export.RedactionDefaults
 import com.mileway.feature.tracking.route.RoundTripGuard
 import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
 
@@ -39,6 +41,7 @@ object SubmitMilesRequestBuilder {
         track: SavedTrack? = null,
         routePoints: List<LocationData> = emptyList(),
         recordedTracks: List<SavedTrack> = emptyList(),
+        homes: List<SavedPlaceEntity> = emptyList(),
     ): SubmitMilesRequestK {
         val odometerFallbackActive = form.config.calculateExpenseViaOdometer && form.odometerNotWorking
         val odometerCaptured = form.simulatedStartOdo != null && form.simulatedEndOdo != null
@@ -66,8 +69,8 @@ object SubmitMilesRequestBuilder {
             // Reference semantics preserved as-is (parity, not re-derived): true exactly when the
             // GPS-fallback path was used, i.e. when the odometer itself couldn't be trusted.
             milesAmountByOdometer = odometerFallbackActive,
-            origin = routePoints.firstOrNull()?.let { CoordsV2(lat = it.lat, lng = it.lng) },
-            destination = routePoints.lastOrNull()?.let { CoordsV2(lat = it.lat, lng = it.lng) },
+            origin = approverEndpoint(routePoints.firstOrNull(), homes),
+            destination = approverEndpoint(routePoints.lastOrNull(), homes),
             tripId = track?.tripId,
             tripV2Id = track?.tripV2Id,
             // v1/v2 split: prefer the v2 id, fall back to v1 — Mileway's DTO has no separate
@@ -77,6 +80,12 @@ object SubmitMilesRequestBuilder {
             officeId = track?.officeId,
             entityId = track?.entityId,
         )
+    }
+
+    private fun approverEndpoint(point: LocationData?, homes: List<SavedPlaceEntity>): CoordsV2? {
+        if (point == null) return null
+        val retained = homes.fold(listOf(point)) { points, home -> RedactionDefaults.locations(points, home) }
+        return retained.singleOrNull()?.let { CoordsV2(lat = it.lat, lng = it.lng) }
     }
 
     private fun returnAlreadyRecorded(

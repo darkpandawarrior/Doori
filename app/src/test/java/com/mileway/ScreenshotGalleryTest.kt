@@ -1149,14 +1149,14 @@ class ScreenshotGalleryTest {
     }
 
     @Test
-    fun phase3CaptureProtectedHomeExport() {
+    fun phase3CaptureHomeExportDefault() {
         composeRule.setContent {
             MilewayTheme {
                 ExportOptionsDialog(onDismiss = {}, onExport = { _, _ -> }, trackName = "Office journey")
             }
         }
-        composeRule.onNodeWithText("Home is always protected in exports").assertIsDisplayed()
-        capture("phase3_protected_home_export")
+        composeRule.onNodeWithText("Redact Home location").performScrollTo().assertIsDisplayed()
+        capture("phase3_home_export_default")
     }
 
     @Test
