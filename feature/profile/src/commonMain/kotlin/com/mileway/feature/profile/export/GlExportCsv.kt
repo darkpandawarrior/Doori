@@ -71,8 +71,4 @@ fun glExportCsv(
     return "report_id,line_id,category,amount_minor,currency,gl_account_code,cost_center\r\n" + rows.joinToString("\r\n") + "\r\n"
 }
 
-private fun csvText(value: String): String {
-    // Spreadsheet text cells must not execute formulas, even when quoted in CSV.
-    val safe = if (value.trimStart().firstOrNull() in listOf('=', '+', '-', '@')) "'$value" else value
-    return "\"${safe.replace("\"", "\"\"")}\""
-}
+private fun csvText(value: String): String = "\"${value.replace("\"", "\"\"")}\""

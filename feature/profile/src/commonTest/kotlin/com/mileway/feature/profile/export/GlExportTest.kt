@@ -74,13 +74,14 @@ class GlExportTest {
         }
 
     @Test
-    fun csvQuotesNewlinesAndNeutralizesSpreadsheetFormulas() {
+    fun csvQuotesNewlinesAndPreservesMappingValuesExactly() {
         val line = GlExportLine("=report", "line", "Food,\"team\"\nmeal", 123, "INR")
-        val csv = requireNotNull(glExportCsv(listOf(line), listOf(GlMappingEntity(line.key, "6100", "@formula", 0))))
+        val csv = requireNotNull(glExportCsv(listOf(line), listOf(GlMappingEntity(line.key, "-6100", "@center", 0))))
         val row = parseCsv(csv).last()
-        assertEquals("'=report", row[0])
+        assertEquals("=report", row[0])
         assertEquals(line.key, row[2])
-        assertEquals("'@formula", row[6])
+        assertEquals("-6100", row[5])
+        assertEquals("@center", row[6])
         assertTrue(csv.endsWith("\r\n"))
     }
 }
