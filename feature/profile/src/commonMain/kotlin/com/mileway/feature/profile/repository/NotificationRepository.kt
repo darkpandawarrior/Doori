@@ -6,6 +6,7 @@ import com.mileway.feature.profile.data.NotifType
 import com.mileway.feature.profile.data.NotificationData
 import com.mileway.feature.profile.data.NotificationRecord
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 
@@ -27,11 +28,12 @@ class NotificationRepository(
 
     /** Seeds [NotificationData.all] on first run only; a no-op on every subsequent launch. */
     suspend fun seedIfEmpty() {
-        if (dao.count() > 0) return
+        if (dao.countNonNudge() > 0) return
         val now = clock.now().toEpochMilliseconds()
+        val seedTime = minOf(now, dao.observeAll().first().minOfOrNull { it.createdAtMs } ?: now) - 1
         dao.upsertAll(
             NotificationData.all.mapIndexed { index, record ->
-                record.toEntity(createdAtMs = now - index)
+                record.toEntity(createdAtMs = seedTime - index)
             },
         )
     }
@@ -52,7 +54,7 @@ class NotificationRepository(
             body = body,
             relativeTime = relativeTime,
             isUnread = isUnread,
-            type = NotifType.valueOf(type),
+            type = NotifType.entries.firstOrNull { it.name == type } ?: NotifType.SYSTEM,
             deeplink = deeplink,
         )
 

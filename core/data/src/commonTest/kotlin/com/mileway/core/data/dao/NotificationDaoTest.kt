@@ -111,6 +111,8 @@ private class FakeNotificationDao : NotificationDao {
 
     override suspend fun count(): Int = rows.size
 
+    override suspend fun countNonNudge(): Int = rows.keys.count { !it.startsWith("nudge-") }
+
     override suspend fun upsertAll(entities: List<NotificationEntity>) {
         entities.forEach { rows[it.id] = it }
         flush()
