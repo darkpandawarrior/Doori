@@ -3339,6 +3339,39 @@ class ScreenshotGalleryTest {
     // ── Security ───────────────────────────────────────────────────────────────────
 
     @Test
+    fun phase4CaptureDebugBackendToggle() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val previousChoice = com.mileway.debug.DebugBackendToggle.readEnabled(context)
+        val previousBackend = com.mileway.core.network.api.NetworkBackendFlags.useRealBackend
+        com.mileway.debug.DebugBackendToggle.setEnabled(context, false)
+        com.mileway.core.network.api.NetworkBackendFlags.useRealBackend = false
+        try {
+            composeRule.setContent {
+                ThemedBackground {
+                    androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
+                        com.mileway.debug.DebugBackendToggle.Entry()
+                        androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.weight(1f)) {
+                            DebugMenuScreen(onBack = {}, heapUsedMb = 128L, heapTotalMb = 512L)
+                        }
+                    }
+                }
+            }
+            composeRule.onNodeWithContentDescription("Use real backend").assertIsDisplayed()
+            capture("phase4_debug_backend_offline")
+            composeRule.onNodeWithContentDescription("Use real backend").performClick()
+            org.junit.Assert.assertTrue(com.mileway.debug.DebugBackendToggle.readEnabled(context))
+            org.junit.Assert.assertFalse(com.mileway.core.network.api.NetworkBackendFlags.useRealBackend)
+            composeRule
+                .onNodeWithText("Current backend: Offline mock. Close the app process and reopen it to apply changes.")
+                .assertIsDisplayed()
+            capture("phase4_debug_backend_pending_restart")
+        } finally {
+            com.mileway.debug.DebugBackendToggle.setEnabled(context, previousChoice)
+            com.mileway.core.network.api.NetworkBackendFlags.useRealBackend = previousBackend
+        }
+    }
+
+    @Test
     fun debugMenuScreen() {
         composeRule.setContent {
             MilewayTheme {

@@ -12,6 +12,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -72,6 +73,7 @@ import com.mileway.core.ui.support.ShakeReportHost
 import com.mileway.core.ui.theme.MilewayTheme
 import com.mileway.core.ui.theme.ThemeController
 import com.mileway.core.ui.toast.AppToastHost
+import com.mileway.debug.DebugBackendToggle
 import com.mileway.feature.advances.ui.navigation.AdvancesRoutes
 import com.mileway.feature.advances.ui.navigation.advancesGraph
 import com.mileway.feature.agent.ui.AssistantEntryMode
@@ -422,18 +424,23 @@ fun MilewayAppRoot(
                             // full-screen without the bottom bar.
                             composable(AppRoutes.DEBUG_MENU) {
                                 val ctx = androidx.compose.ui.platform.LocalContext.current
-                                DebugMenuScreen(
-                                    onBack = { navController.popBackStack() },
-                                    onOpenHttpInspector =
-                                        com.mileway.debug.WormaCeptorHelper
-                                            .getLaunchIntent(ctx)
-                                            ?.let { intent -> { ctx.startActivity(intent) } },
-                                    onOpenNetworkLog = { navController.navigate(AppRoutes.NETWORK_LOG) },
-                                    onOpenShowcase =
-                                        com.mileway.debug.ShowcaseLauncher
-                                            .getLaunchIntent(ctx)
-                                            ?.let { intent -> { ctx.startActivity(intent) } },
-                                )
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    DebugBackendToggle.Entry()
+                                    Box(modifier = Modifier.weight(1f)) {
+                                        DebugMenuScreen(
+                                            onBack = { navController.popBackStack() },
+                                            onOpenHttpInspector =
+                                                com.mileway.debug.WormaCeptorHelper
+                                                    .getLaunchIntent(ctx)
+                                                    ?.let { intent -> { ctx.startActivity(intent) } },
+                                            onOpenNetworkLog = { navController.navigate(AppRoutes.NETWORK_LOG) },
+                                            onOpenShowcase =
+                                                com.mileway.debug.ShowcaseLauncher
+                                                    .getLaunchIntent(ctx)
+                                                    ?.let { intent -> { ctx.startActivity(intent) } },
+                                        )
+                                    }
+                                }
                             }
                             // V21 §3 Wave 4: local network log screen, reached from the debug menu.
                             composable(AppRoutes.NETWORK_LOG) {
