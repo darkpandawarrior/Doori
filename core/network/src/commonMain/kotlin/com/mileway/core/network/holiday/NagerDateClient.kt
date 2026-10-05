@@ -13,6 +13,9 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
+private const val CachedYearLimit = 16
+private const val IsoYearLength = 4
+
 /** A regional holiday is a possible review flag until the reviewer confirms its subdivision. */
 @Serializable
 data class PublicHoliday(
@@ -48,7 +51,7 @@ class NagerDateClient(
     /** Uses the claim's calendar date, preserves provider dates and never changes claim amounts. */
     suspend fun check(date: String, countryCode: String): HolidayCheck {
         if (!isFxSourceDate(date) || !countryCode.matches(Regex("[A-Z]{2}"))) return HolidayCheck.InvalidInput
-        val year = date.take(4)
+        val year = date.take(IsoYearLength)
         val key = "$countryCode/$year"
         return mutex.withLock {
             try {
@@ -69,7 +72,7 @@ class NagerDateClient(
                                 }
                             }
                         }
-                    if (years.size >= 16) years.remove(years.keys.first())
+                    if (years.size >= CachedYearLimit) years.remove(years.keys.first())
                     years[key] = holidays
                 }
                 val holidays = years[key] ?: return@withLock HolidayCheck.NoData
