@@ -60,7 +60,10 @@ class NagerDateClient(
                             else -> {
                                 if (!response.status.isSuccess()) return@withLock HolidayCheck.Offline
                                 json.decodeFromString<List<PublicHoliday>>(response.bodyAsText()).also { rows ->
-                                    if (rows.any { !isFxSourceDate(it.date) || !it.date.startsWith(year) || it.countryCode != countryCode || it.name.isBlank() }) {
+                                    if (rows.any {
+                                            !isFxSourceDate(it.date) || !it.date.startsWith(year) || it.countryCode != countryCode || it.name.isBlank()
+                                        }
+                                    ) {
                                         return@withLock HolidayCheck.Offline
                                     }
                                 }

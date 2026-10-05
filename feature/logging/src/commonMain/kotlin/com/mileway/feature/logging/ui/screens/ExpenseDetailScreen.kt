@@ -367,7 +367,7 @@ private fun LineItemsCard(expense: ExpenseRecord) {
                     Text(item.description, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
                     Text("${item.qty}", style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.size(DesignTokens.Spacing.l))
-                    Text("₹${item.amount.toLong()}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                    Text(formatMinorCurrency((item.amount * 100).toLong(), expense.currencyCode), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
                 }
             }
 
