@@ -1132,6 +1132,7 @@ class ScreenshotGalleryTest {
             profileModule,
             trackingModule,
             travelModule,
+            appModule,
             fakeOverrides,
             module {
                 single<DataStore<Preferences>> { Phase3RatePreferences() }
