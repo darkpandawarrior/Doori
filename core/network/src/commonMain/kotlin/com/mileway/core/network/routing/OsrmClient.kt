@@ -65,7 +65,8 @@ class OsrmClient(
         if (base.isNullOrBlank()) return RouteEstimate.ManualRequired("Routing is unconfigured; enter distance manually (approximate)")
         return try {
             val url = Url(base)
-            if (url.protocol !in listOf(URLProtocol.HTTP, URLProtocol.HTTPS) ||
+            if (!(base.startsWith("http://") || base.startsWith("https://")) ||
+                url.protocol !in listOf(URLProtocol.HTTP, URLProtocol.HTTPS) ||
                 url.host.isBlank() ||
                 !url.user.isNullOrEmpty() ||
                 !url.password.isNullOrEmpty() ||

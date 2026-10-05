@@ -110,6 +110,14 @@ class OsrmClientTest {
         }
 
     @Test
+    fun invalidConfigurationNeverCreatesHttpClient() = runTest {
+        for (base in listOf("route.test", "http://route.test?token=example", "http://user:example@route.test", "ftp://route.test")) {
+            val client = OsrmClient(OsrmConfiguration(base)) { error("Invalid server must not create HTTP client") }
+            assertIs<RouteEstimate.ManualRequired>(client.route(a, b))
+        }
+    }
+
+    @Test
     fun coordinateValidationRejectsNonFiniteAndOutOfRangeValues() {
         assertFailsWith<IllegalArgumentException> { RoutePoint(Double.NaN, 0.0) }
         assertFailsWith<IllegalArgumentException> { RoutePoint(91.0, 0.0) }

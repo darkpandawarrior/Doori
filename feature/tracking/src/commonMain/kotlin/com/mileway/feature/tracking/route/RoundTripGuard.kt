@@ -16,7 +16,7 @@ object RoundTripGuard {
     ): Boolean =
         tracks.any { candidate ->
             candidate.routeId != outbound.routeId &&
-                candidate.startedByAccountId == outbound.startedByAccountId &&
+                sameOwner(candidate, outbound) &&
                 candidate.endTime <= submittedAtMillis &&
                 candidate.endTime >= outbound.startTime - PAIR_WINDOW_MS &&
                 candidate.startTime <= outbound.endTime + PAIR_WINDOW_MS &&
@@ -26,6 +26,14 @@ object RoundTripGuard {
                     candidate.endTime,
                     listOf(candidate),
                 )
+        }
+
+    private fun sameOwner(first: SavedTrack, second: SavedTrack): Boolean =
+        if (!first.startedByAccountId.isNullOrBlank() && !second.startedByAccountId.isNullOrBlank()) {
+            first.startedByAccountId == second.startedByAccountId
+        } else {
+            first.startedByEmployeeCode.isNotBlank() && first.startedByEmployeeCode == second.startedByEmployeeCode &&
+                first.startedByTenant == second.startedByTenant
         }
 
     fun hasRecordedReturn(

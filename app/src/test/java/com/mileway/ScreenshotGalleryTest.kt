@@ -1149,6 +1149,17 @@ class ScreenshotGalleryTest {
     }
 
     @Test
+    fun phase3CaptureProtectedHomeExport() {
+        composeRule.setContent {
+            MilewayTheme {
+                ExportOptionsDialog(onDismiss = {}, onExport = { _, _ -> }, trackName = "Office journey")
+            }
+        }
+        composeRule.onNodeWithText("Home is always protected in exports").assertIsDisplayed()
+        capture("phase3_protected_home_export")
+    }
+
+    @Test
     fun phase3CaptureEmployeeReimbursements() {
         val reports = MutableStateFlow(listOf(phase1ExpenseReport().copy(state = ReportLifecycleState.APPROVED_FOR_PAYMENT)))
         val application = phase3ProfileApplication(reports)

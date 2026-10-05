@@ -197,8 +197,6 @@ fun ExportOptionsDialog(
     var maxAccuracy by remember { mutableFloatStateOf(0f) }
     var minBatteryText by remember { mutableStateOf("") }
 
-    var redactHome by remember { mutableStateOf(true) }
-
     var showAdvancedFilters by remember { mutableStateOf(false) }
 
     AppActionSheet(
@@ -295,12 +293,8 @@ fun ExportOptionsDialog(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            FilterCheckbox(
-                checked = redactHome,
-                onCheckedChange = { redactHome = it },
-                text = "Redact Home location",
-                description = "Hide points within 200 m of Home and replace the saved Home address with its label.",
-            )
+            Text("Home is always protected in exports")
+            Text("Points within 200 m of Home and the saved Home address are excluded.")
 
             // Basic filters
             FilterCheckbox(
@@ -412,7 +406,7 @@ fun ExportOptionsDialog(
                         LocationDataFilter(
                             minAccuracy = if (minAccuracy > 0) minAccuracy else null,
                             maxAccuracy = if (maxAccuracy > 0) maxAccuracy else null,
-                            redactHome = redactHome,
+                            redactHome = true,
                             excludePaused = excludePaused,
                             excludeMock = excludeMock,
                             excludeAbnormal = excludeAbnormal,
