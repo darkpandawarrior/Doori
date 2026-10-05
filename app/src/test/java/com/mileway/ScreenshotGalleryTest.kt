@@ -190,9 +190,11 @@ import com.mileway.feature.payables.ui.screens.PurchaseRequestDetailsScreen
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.ui.screens.CreatePaymentScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
+import com.mileway.feature.profile.admin.LocalMileageRates
 import com.mileway.feature.profile.admin.RateTableEditorScreen
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
 import com.mileway.feature.profile.admin.RateTableStore
+import com.mileway.feature.profile.admin.RateTables
 import com.mileway.feature.profile.analytics.ClaimAnalyticsView
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
 import com.mileway.feature.profile.di.profileAndroidModule
@@ -307,6 +309,7 @@ import com.mileway.ui.ShellPlaceholderScreen
 import com.mileway.ui.auth.LoginScreen
 import com.mileway.ui.auth.OnboardingFormConfig
 import com.mileway.ui.auth.SignupOnboardingScreen
+import com.mileway.ui.auth.SignupOnboardingViewModel
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.auth.authModule
 import com.mileway.ui.home.HomeScreenContent
@@ -1368,10 +1371,14 @@ class ScreenshotGalleryTest {
                     },
                 )
             }
-        val viewModel = application.koin.get<com.mileway.ui.auth.SignupOnboardingViewModel>()
+        val viewModel = application.koin.get<SignupOnboardingViewModel>()
         var completions = 0
         try {
-            kotlinx.coroutines.runBlocking { application.koin.get<RateTableStore>().addPolicyVersion("2025-01-01", "car", 850) }
+            kotlinx.coroutines.runBlocking {
+                val store = application.koin.get<RateTableStore>()
+                store.read()
+                store.addPolicyVersion("2025-01-01", "car", 850)
+            }
             composeRule.setContent {
                 MilewayTheme { SignupOnboardingScreen(OnboardingFormConfig(), onComplete = { completions++ }, viewModel = viewModel) }
             }
@@ -1400,17 +1407,21 @@ class ScreenshotGalleryTest {
     @Test
     fun phase3CaptureSignupPolicyLoadFailure() {
         val session = mockk<SessionRepository>(relaxed = true)
-        val readRates = mockk<suspend () -> com.mileway.feature.profile.admin.RateTables>()
+        val readRates = mockk<suspend () -> RateTables>()
         coEvery { readRates.invoke() } throws IllegalStateException("Unreadable local rates")
-        val viewModel = com.mileway.ui.auth.SignupOnboardingViewModel(session, readRates)
+        val viewModel = SignupOnboardingViewModel(session, readRates)
         composeRule.setContent {
             MilewayTheme { SignupOnboardingScreen(OnboardingFormConfig(), onComplete = {}, viewModel = viewModel) }
         }
         composeRule.onNodeWithText("Skip for now").performScrollTo().performClick()
         composeRule.onNodeWithText("Unable to read local policy rates. Please retry.").assertIsDisplayed()
         composeRule.onNodeWithText("I understand, continue").assertIsNotEnabled()
+        composeRule.onNodeWithText("Review policy summary").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Step 2 of 2").assertIsDisplayed()
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.waitForIdle()
         capture("phase3_signup_policy_load_failure")
-        coEvery { readRates.invoke() } returns com.mileway.feature.profile.admin.RateTables(com.mileway.feature.profile.admin.LocalMileageRates(), emptyList())
+        coEvery { readRates.invoke() } returns RateTables(LocalMileageRates(), emptyList())
         composeRule.onNodeWithText("Retry policy load").performClick()
         composeRule.onNodeWithText("No employer mileage rate is effective on this device yet.").assertIsDisplayed()
         composeRule.onNodeWithText("I understand, continue").performScrollTo().performClick()

@@ -108,7 +108,8 @@ class SignupOnboardingViewModel(
 
     fun skip() {
         val current = _state.value
-        if (!current.config.showSkip || current.saving || current.done || current.reviewingPolicy) return
+        if (!current.config.showSkip) return
+        if (current.saving || current.done || current.reviewingPolicy) return
         _state.value = current.copy(errors = emptySet(), reviewingPolicy = true, skipProfile = true, saveError = null)
         loadPolicy()
     }
@@ -116,7 +117,9 @@ class SignupOnboardingViewModel(
     /** Reads the existing local rate store; a failed read can be retried without completing signup. */
     @Suppress("TooGenericExceptionCaught")
     fun loadPolicy() {
-        if (!_state.value.reviewingPolicy || _state.value.policyLoading || _state.value.saving || _state.value.done) return
+        val current = _state.value
+        if (!current.reviewingPolicy || current.done) return
+        if (current.policyLoading || current.saving) return
         _state.value = _state.value.copy(policyLoading = true, policySummary = null, policyError = null)
         viewModelScope.launch {
             try {
@@ -141,7 +144,8 @@ class SignupOnboardingViewModel(
     @Suppress("TooGenericExceptionCaught")
     fun confirmPolicy() {
         val current = _state.value
-        if (!current.reviewingPolicy || current.policySummary == null || current.policyLoading || current.saving || current.done) return
+        if (!current.reviewingPolicy || current.done) return
+        if (current.policySummary == null || current.policyLoading || current.saving) return
         _state.value = current.copy(saving = true, saveError = null)
         viewModelScope.launch {
             try {
