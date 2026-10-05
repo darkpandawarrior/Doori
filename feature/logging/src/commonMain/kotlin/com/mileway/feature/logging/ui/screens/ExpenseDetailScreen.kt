@@ -44,7 +44,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.scaffold.DetailSection
 import com.mileway.core.ui.components.scaffold.TransactionDetailScaffold
@@ -79,6 +78,7 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.feature.logging.model.formatExpenseAmount
 import com.mileway.feature.logging.policy.fxProvenanceLabel
 import com.mileway.feature.logging.policy.reviewMessage
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -289,7 +289,7 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = formatMinorCurrency(expense.amountMinor ?: (expense.amountRupees * 100).toLong(), expense.currencyCode),
+                text = formatExpenseAmount(expense.amountRupees, expense.currencyCode, expense.amountMinor),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -368,7 +368,7 @@ private fun LineItemsCard(expense: ExpenseRecord) {
                     Text("${item.qty}", style = MaterialTheme.typography.bodySmall)
                     Spacer(Modifier.size(DesignTokens.Spacing.l))
                     Text(
-                        formatMinorCurrency((item.amount * 100).toLong(), expense.currencyCode),
+                        formatExpenseAmount(item.amount, expense.currencyCode),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Medium,
                     )
@@ -382,7 +382,7 @@ private fun LineItemsCard(expense: ExpenseRecord) {
             ) {
                 Text(stringResource(Res.string.logging_total), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    formatMinorCurrency(expense.amountMinor ?: (expense.amountRupees * 100).toLong(), expense.currencyCode),
+                    formatExpenseAmount(expense.amountRupees, expense.currencyCode, expense.amountMinor),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                 )

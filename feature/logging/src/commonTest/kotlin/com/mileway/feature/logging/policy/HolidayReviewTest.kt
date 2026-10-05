@@ -2,12 +2,14 @@ package com.mileway.feature.logging.policy
 
 import com.mileway.core.data.domain.claim.FxRate
 import com.mileway.core.data.domain.claim.FxRateSource
+import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.network.holiday.HolidayCheck
 import com.mileway.core.network.holiday.PublicHoliday
 import com.mileway.core.ui.mvi.dataOrNull
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.feature.logging.model.formatExpenseAmount
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
@@ -69,6 +71,14 @@ class HolidayReviewTest {
         assertTrue(message.contains("GB-SCT; confirm claim location"))
         assertTrue(message.contains("2 January, 2026-01-02"))
         assertTrue(message.contains("Advisory only; amount unchanged"))
+    }
+
+    @Test
+    fun legacyMoneyDisplayRoundsFractionalCentsAndSavedMinorUnitsWin() {
+        for ((major, minor) in listOf(0.29 to 29L, 4.35 to 435L)) {
+            assertEquals(formatMinorCurrency(minor, "USD"), formatExpenseAmount(major, "USD"))
+        }
+        assertEquals(formatMinorCurrency(29, "USD"), formatExpenseAmount(4.35, "USD", amountMinor = 29))
     }
 
     @Test
