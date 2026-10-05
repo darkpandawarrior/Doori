@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -95,6 +96,7 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.feature.travel.model.BookingRecord
 import com.mileway.feature.travel.model.TransportMode
+import com.mileway.feature.travel.request.TravelRequestScreen
 import com.mileway.feature.travel.viewmodel.TravelAction
 import com.mileway.feature.travel.viewmodel.TravelEffect
 import com.mileway.feature.travel.viewmodel.TravelViewModel
@@ -219,6 +221,11 @@ private fun itineraryTypeColor(type: ItineraryType): Color =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TravelHomeScreen(viewModel: TravelViewModel = koinViewModel()) {
+    var requestOpen by remember { mutableStateOf(false) }
+    if (requestOpen) {
+        TravelRequestScreen(onBack = { requestOpen = false })
+        return
+    }
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -246,6 +253,12 @@ fun TravelHomeScreen(viewModel: TravelViewModel = koinViewModel()) {
         ) { data ->
             Column(modifier = Modifier.fillMaxSize()) {
                 TravelHeader()
+                OutlinedButton(
+                    onClick = { requestOpen = true },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = DesignTokens.Spacing.l),
+                ) {
+                    Text("Request pre-trip authorization")
+                }
                 SummaryStrip(
                     activeTripCount = if (data.activeBooking != null) 1 else 0,
                     upcomingCount = data.upcoming.size,

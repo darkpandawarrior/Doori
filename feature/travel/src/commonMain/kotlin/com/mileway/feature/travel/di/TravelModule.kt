@@ -1,9 +1,14 @@
 package com.mileway.feature.travel.di
 
+import com.mileway.core.data.dao.NotificationDao
+import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.search.SearchProvider
+import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.feature.travel.repository.TravelCreateRepository
 import com.mileway.feature.travel.repository.TravelHistoryRepository
 import com.mileway.feature.travel.repository.TravelRepository
+import com.mileway.feature.travel.request.TravelRequestStore
+import com.mileway.feature.travel.request.TravelRequestViewModel
 import com.mileway.feature.travel.search.TravelSearchProvider
 import com.mileway.feature.travel.viewmodel.BookingHistoryViewModel
 import com.mileway.feature.travel.viewmodel.CreateBusViewModel
@@ -14,6 +19,7 @@ import com.mileway.feature.travel.viewmodel.CreateTripViewModel
 import com.mileway.feature.travel.viewmodel.CreateVisaViewModel
 import com.mileway.feature.travel.viewmodel.TravelViewModel
 import com.mileway.feature.travel.viewmodel.TripHistoryViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -21,6 +27,14 @@ import org.koin.dsl.module
 val travelModule =
     module {
         single { TravelRepository() }
+        single {
+            TravelRequestStore(notify = { row ->
+                get<NotificationDao>().upsertAll(
+                    listOf(NotificationEntity(row.id, row.title, row.body, "Just now", true, row.type, row.createdAtMs, row.deeplink)),
+                )
+            })
+        }
+        viewModel { TravelRequestViewModel(get(), get<ActiveAccountSource>().activeAccountId) }
         // TR.2+: shared offline rotating-status create store for the travel create suite.
         single { TravelCreateRepository() }
         // TR.8: offline trip + booking history store (also the TR.9 search source).

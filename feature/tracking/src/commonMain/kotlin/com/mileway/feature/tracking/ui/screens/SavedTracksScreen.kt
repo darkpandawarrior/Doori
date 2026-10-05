@@ -113,6 +113,7 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayColors
 import com.mileway.core.ui.theme.dataStyle
 import com.mileway.feature.tracking.model.toLinkedContext
+import com.mileway.feature.tracking.route.PointToPointScreen
 import com.mileway.feature.tracking.ui.components.CreateVoucherButton
 import com.mileway.feature.tracking.ui.components.LinkedContextCard
 import com.mileway.feature.tracking.ui.components.NoJourneysThisWeekState
@@ -164,6 +165,11 @@ fun SavedTracksScreen(
     viewModel: SavedTracksViewModel = koinViewModel(),
     syncStatusViewModel: SyncStatusViewModel = koinViewModel(),
 ) {
+    var showRouteEntry by remember { mutableStateOf(false) }
+    if (showRouteEntry) {
+        PointToPointScreen(onBack = { showRouteEntry = false })
+        return
+    }
     val uiState by viewModel.state.collectAsState()
     val syncChipText by syncStatusViewModel.chipText.collectAsState()
     val hasPendingBacklog by syncStatusViewModel.hasPendingBacklog.collectAsState()
@@ -230,6 +236,7 @@ fun SavedTracksScreen(
                         }
                     }
                 }
+                TextButton(onClick = { showRouteEntry = true }) { Text("Enter point-to-point route") }
                 SavedTracksBody(
                     uiState = uiState,
                     bottomPadding = padding.calculateBottomPadding(),

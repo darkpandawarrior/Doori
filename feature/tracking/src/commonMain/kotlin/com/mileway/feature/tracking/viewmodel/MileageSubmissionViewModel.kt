@@ -2,6 +2,7 @@ package com.mileway.feature.tracking.viewmodel
 
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.model.db.CurrentTrackData
 import com.mileway.core.data.model.display.OdometerCaptureResult
 import com.mileway.core.data.model.display.OdometerReadingSource
@@ -37,6 +38,7 @@ import com.mileway.feature.tracking.submission.SubmitMilesRequestBuilder
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.mvi.BaseViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
@@ -298,6 +300,7 @@ class MileageSubmissionViewModel(
     // Koin already registers CurrentTrackRepository as a single for the other tracking VMs, so no
     // DI-module change is needed for it to resolve here too).
     private val currentTrackRepository: CurrentTrackRepository? = null,
+    private val savedPlaceDao: SavedPlaceDao? = null,
 ) : BaseViewModel<MileageSubmissionUiState, MileageSubmissionEffect, MileageSubmissionAction>(
         MileageSubmissionUiState(
             form =
@@ -491,7 +494,7 @@ class MileageSubmissionViewModel(
                             endAddress = endAddr,
                             vehicleName = vehicle?.vehicleName ?: vehicleKey,
                             vehicleRatePerKm = vehicle?.vehiclePricing ?: 0.0,
-                            roundTrip = roundTrip,
+                            roundTrip = track?.roundTrip == true || roundTrip,
                         ),
                 )
             }
@@ -573,6 +576,8 @@ class MileageSubmissionViewModel(
                     form = currentState.form,
                     track = track,
                     routePoints = routePoints,
+                    recordedTracks = trackRepository.rawTracksFlow().first(),
+                    homes = savedPlaceDao?.observeAll()?.first().orEmpty(),
                 )
 
             val syncer = milesSyncer

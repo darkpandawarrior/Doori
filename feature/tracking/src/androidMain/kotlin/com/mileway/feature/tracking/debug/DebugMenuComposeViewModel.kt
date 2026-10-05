@@ -2,6 +2,7 @@ package com.mileway.feature.tracking.debug
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.mileway.core.data.dao.SavedPlaceDao
 import com.mileway.core.data.plugin.PluginCategory
 import com.mileway.core.data.plugin.PluginRegistry
 import com.mileway.feature.tracking.export.TrackExportManager
@@ -88,6 +89,7 @@ class DebugMenuComposeViewModel(
     // debug menu reads their resolved values for display (the editor itself lives on the Master
     // Plugin page). Nullable so graphs that omit core:data (e.g. the screenshot harness) still build.
     private val pluginRegistry: PluginRegistry? = null,
+    private val savedPlaceDao: SavedPlaceDao,
 ) : BaseViewModel<DebugMenuComposeUiState, DebugMenuComposeEffect, DebugMenuComposeAction>(DebugMenuComposeUiState()) {
     companion object {
         private const val TAG = "DebugMenuViewModel"
@@ -289,6 +291,7 @@ class DebugMenuComposeViewModel(
                         track = track,
                         locations = locations,
                         events = emptyList(),
+                        homes = savedPlaceDao.observeAll().first(),
                     )
                 val intent =
                     TrackExportManager.buildShareIntent(

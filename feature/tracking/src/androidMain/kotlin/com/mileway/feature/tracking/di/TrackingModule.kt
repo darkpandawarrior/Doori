@@ -71,6 +71,7 @@ import kotlin.time.Clock
 
 val trackingModule =
     module {
+        includes(routeEntryModule)
         single {
             TrackingConfigManager(
                 configProvider = get<ConfigProvider>(),
@@ -248,7 +249,7 @@ val trackingModule =
         viewModel { SosViewModel(get(), get()) }
         // P10.3: PluginRegistry (core:data) resolved for the fine-tuning readout; getOrNull() keeps
         // graphs that omit core:data (screenshot harness) building.
-        viewModel { DebugMenuComposeViewModel(get(), get(), getOrNull()) }
+        viewModel { DebugMenuComposeViewModel(get(), get(), getOrNull(), get()) }
         // No HttpClient wired yet (app is offline/:stub) — getOrNull() keeps the tester graceful.
         viewModel { NetworkLogViewModel(store = get(), httpClient = getOrNull()) }
         viewModelOf(::CreateVoucherViewModel)

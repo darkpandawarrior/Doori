@@ -67,6 +67,7 @@ import kotlin.time.Clock
 /** P-B.3: iOS Koin tracking module — mirrors the Android trackingModule DI bindings. */
 val trackingModule =
     module {
+        includes(routeEntryModule)
         // ── Core tracking plumbing ─────────────────────────────────────────────
         single {
             TrackingConfigManager(
