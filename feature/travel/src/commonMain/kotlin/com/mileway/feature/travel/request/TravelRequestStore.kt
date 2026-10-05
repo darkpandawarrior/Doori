@@ -12,6 +12,7 @@ import com.mileway.core.data.domain.notify.ReportLifecycleNotification
 import com.mileway.core.data.domain.notify.ReportLifecycleNotifier
 import com.mileway.core.data.domain.travel.TravelRequest
 import com.mileway.core.data.model.db.ApprovalStepEntity
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.sync.Mutex
@@ -121,7 +122,8 @@ class TravelRequestStore(
                     null
                 }
         notification?.let {
-            notify(
+            runCatching {
+                notify(
                 it.copy(
                     id = "travel:${after.id}:${after.recordVersion}",
                     title = if (before.state == after.state) "Travel request: finance review required" else it.title.replace("Report", "Travel request"),
@@ -132,7 +134,11 @@ class TravelRequestStore(
                     // Session-only requests have no persisted report detail route.
                     deeplink = "",
                 ),
-            )
+                )
+            }.onFailure { failure ->
+                if (failure is CancellationException || failure !is Exception) throw failure
+                throw IllegalStateException("The local inbox could not be updated; retry the request", failure)
+            }
         }
         rows.value = rows.value.filterNot { it.id == after.id } + after
         return after

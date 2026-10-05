@@ -253,6 +253,12 @@ class TravelRequestViewModel(
         }
     }
 
+    private fun showFailure(startedRevision: Long, detail: String?) {
+        if (revision == startedRevision) {
+            setState { copy(message = detail ?: "Travel request failed", estimate = null) }
+        }
+    }
+
     private fun execute(block: suspend () -> Unit) {
         if (currentState.busy) return
         val startedRevision = revision
@@ -263,10 +269,10 @@ class TravelRequestViewModel(
                     block()
                 } catch (cancelled: CancellationException) {
                     throw cancelled
-                } catch (failure: Exception) {
-                    if (revision == startedRevision) {
-                        setState { copy(message = failure.message ?: "Travel request failed", estimate = null) }
-                    }
+                } catch (invalid: IllegalArgumentException) {
+                    showFailure(startedRevision, invalid.message)
+                } catch (unavailable: IllegalStateException) {
+                    showFailure(startedRevision, unavailable.message)
                 } finally {
                     if (revision == startedRevision) setState { copy(busy = false) }
                 }
