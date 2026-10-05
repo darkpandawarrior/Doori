@@ -326,12 +326,15 @@ import com.siddharth.kmp.ai.UnavailableOnDeviceLlm
 import com.siddharth.kmp.appshell.AnalyticsHelper
 import com.siddharth.kmp.appshell.AppReviewManagerFactory
 import com.siddharth.kmp.appshell.AppUpdateManagerFactory
+import com.siddharth.kmp.appshell.InMemoryReviewStateStore
 import com.siddharth.kmp.appshell.LocationNameResolver
 import com.siddharth.kmp.appshell.LocationTracker
 import com.siddharth.kmp.appshell.LoggingAnalyticsHelper
 import com.siddharth.kmp.appshell.NoOpLocationTracker
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.PermissionsProvider
+import com.siddharth.kmp.appshell.ReviewGateConfig
+import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.common.CrashReporter
 import com.siddharth.kmp.designsystem.ai.AiSettingsState
 import com.siddharth.kmp.llmchat.ProviderId
@@ -1144,6 +1147,14 @@ class ScreenshotGalleryTest {
             fakeOverrides,
             module {
                 single<DataStore<Preferences>> { Phase3RatePreferences() }
+                // Home's review store opens its own Context DataStore, outside the binding above.
+                single {
+                    ReviewTracker(
+                        store = InMemoryReviewStateStore(),
+                        config = ReviewGateConfig(minAccountAgeDays = 7),
+                        now = { screenshotNowMs },
+                    )
+                }
                 single<LocationTracker> { NoOpLocationTracker }
                 single<LocationNameResolver> { OfflineLocationNameResolver() }
                 single<OpOutbox> { mockk(relaxed = true) }
