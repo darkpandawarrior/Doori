@@ -75,6 +75,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.mileway.core.ai.model.DocField
 import com.mileway.core.ai.model.DocumentAnalysis
 import com.mileway.core.data.domain.claim.amountInCurrencyMinor
 import com.mileway.core.forms.ui.FormFieldWithSuggestions
@@ -141,6 +142,7 @@ import com.mileway.feature.logging.currency.CurrencyConverter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseDraftRow
+import com.mileway.feature.logging.policy.ExplainableViolation
 import com.mileway.feature.logging.ui.sheets.ExpensePolicyViolationSheet
 import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -310,6 +312,9 @@ fun ExpenseScreen(
                     ui = ui,
                     viewModel = viewModel,
                     scannedAnalysis = scannedReceiptAnalysis,
+                    onOcrAmountEdited = {
+                        scannedReceiptAnalysis = scannedReceiptAnalysis?.let { it.copy(fields = it.fields - DocField.TOTAL) }
+                    },
                 )
         }
     }
@@ -334,7 +339,19 @@ fun ExpenseScreen(
     }
     policyViolations?.let { violations ->
         ExpensePolicyViolationSheet(
-            violations = violations,
+            violations =
+                violations.map { violation ->
+                    violation.copy(
+                        message =
+                            ExplainableViolation.message(
+                                violation,
+                                form.amountText,
+                                form.currencyCode,
+                                scannedReceiptAnalysis,
+                                form.expenseFieldContext()?.anchorAmountMinor,
+                            ),
+                    )
+                },
             onSubmitAnyway = {
                 policyViolations = null
                 viewModel.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
@@ -536,6 +553,7 @@ private fun Step2Content(
     ui: ExpenseUiState,
     viewModel: ExpenseViewModel,
     scannedAnalysis: DocumentAnalysis?,
+    onOcrAmountEdited: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val form = ui.form
@@ -561,7 +579,10 @@ private fun Step2Content(
             OutlinedTextField(
                 readOnly = form.cardMatchedAmountMinor != null,
                 value = form.amountText,
-                onValueChange = { viewModel.onAction(ExpenseAction.SetAmount(it)) },
+                onValueChange = {
+                    onOcrAmountEdited()
+                    viewModel.onAction(ExpenseAction.SetAmount(it))
+                },
                 label = { Text(stringResource(Res.string.logging_amount_rupees_label)) },
                 placeholder = { Text("0.00") },
                 prefix = { Text(CurrencyConverter.symbolFor(form.currencyCode)) },
@@ -574,7 +595,10 @@ private fun Step2Content(
             CurrencyPickerField(
                 enabled = form.cardMatchedAmountMinor == null,
                 selectedCode = form.currencyCode,
-                onSelect = { code -> viewModel.onAction(ExpenseAction.SetCurrency(code)) },
+                onSelect = { code ->
+                    onOcrAmountEdited()
+                    viewModel.onAction(ExpenseAction.SetCurrency(code))
+                },
                 modifier = Modifier.width(110.dp),
             )
         }
@@ -672,7 +696,13 @@ private fun Step2Content(
                 shape = DesignTokens.Shape.roundedSm,
             ) {
                 Text(
-                    text = "⚠ " + (liveViolation?.message ?: stringResource(Res.string.logging_amount_requires_approval)),
+                    text =
+                        "⚠ " +
+                            (
+                                liveViolation?.let {
+                                    ExplainableViolation.message(it, form.amountText, form.currencyCode, scannedAnalysis)
+                                } ?: stringResource(Res.string.logging_amount_requires_approval)
+                            ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.padding(DesignTokens.Spacing.m),
