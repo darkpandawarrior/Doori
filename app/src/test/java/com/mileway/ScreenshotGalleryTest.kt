@@ -1045,8 +1045,8 @@ class ScreenshotGalleryTest {
                     ReportSubmitScreen(report.id, viewModel = viewModel, onBack = {}, onEdit = {})
                 }
             }
-            composeRule.onNodeWithText("Blocked: Amount 2600000 exceeds policy max 2500000").assertIsDisplayed()
-            composeRule.onNodeWithText("Warning: Amount 185000 exceeds 100000; attach a receipt").assertIsDisplayed()
+            composeRule.onNodeWithText("Blocked: Amount 2600000 exceeds policy max 2500000").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Warning: Amount 185000 exceeds 100000; attach a receipt").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Submit report").assertIsNotEnabled()
             capture("report_submit_screen_filled")
         } finally {
