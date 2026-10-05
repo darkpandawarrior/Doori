@@ -1,6 +1,6 @@
 package com.mileway.feature.travel.di
 
-import com.mileway.core.data.database.MilewayDatabase
+import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.model.db.NotificationEntity
 import com.mileway.core.data.session.ActiveAccountSource
 import com.mileway.feature.travel.request.TravelRequestStore
@@ -28,7 +28,7 @@ val travelModule =
         single { TravelRepository() }
         single {
             TravelRequestStore(notify = { row ->
-                get<MilewayDatabase>().notificationDao().upsertAll(
+                get<NotificationDao>().upsertAll(
                     listOf(NotificationEntity(row.id, row.title, row.body, "Just now", true, row.type, row.createdAtMs, row.deeplink)),
                 )
             })

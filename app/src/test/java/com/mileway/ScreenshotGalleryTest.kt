@@ -1129,16 +1129,24 @@ class ScreenshotGalleryTest {
         composeRule.setContent { MilewayTheme { TravelHomeScreen() } }
         composeRule.onNodeWithText("Request pre-trip authorization").assertIsDisplayed()
         capture("phase3_travel_hub_authorization")
+        composeRule.onNodeWithText("Request pre-trip authorization").performClick()
+        composeRule.onNodeWithText("Travel requests are kept for this session only").assertIsDisplayed()
     }
 
     @Test
     fun phase3CaptureTravelRequestManual() {
-        val notifications = mutableListOf<com.mileway.core.data.domain.notify.ReportLifecycleNotification>()
+        val notifications = FakeNotificationDao()
+        val reports = mockk<ReportRepository>()
+        val claims = mockk<com.mileway.core.data.dao.ClaimLineDao>()
+        val payouts = mockk<com.mileway.core.data.dao.PendingPaymentJournalDao>()
         val application = koinApplication {
             modules(
                 travelModule,
                 module {
-                    single { com.mileway.feature.travel.request.TravelRequestStore({ notifications += it }, { screenshotNowMs }) }
+                    single<NotificationDao> { notifications }
+                    single { reports }
+                    single { claims }
+                    single { payouts }
                     single<ActiveAccountSource> {
                         object : ActiveAccountSource {
                             override val activeAccountId = kotlinx.coroutines.flow.MutableStateFlow<String?>("alex")
@@ -1172,7 +1180,10 @@ class ScreenshotGalleryTest {
             capture("phase3_travel_request_approved")
             val approved = application.koin.get<com.mileway.feature.travel.request.TravelRequestStore>().requests.value.single()
             check(approved.lifecycleReport().lines.isEmpty())
-            check(notifications.size == 3 && notifications.all { it.type == "APPROVAL" })
+            kotlinx.coroutines.runBlocking { check(notifications.count() == 3) }
+            io.mockk.coVerify(exactly = 0) { reports.save(any()) }
+            io.mockk.coVerify(exactly = 0) { claims.upsert(any()) }
+            io.mockk.coVerify(exactly = 0) { payouts.upsert(any()) }
         } finally { application.close() }
     }
 

@@ -75,6 +75,7 @@ class TravelRequestStore(
                     ApprovalAction.SEND_BACK -> ReportLifecycleEvent.SEND_BACK
                     ApprovalAction.REJECT -> ReportLifecycleEvent.REJECT
                 }
+            require(request.recordVersion < Long.MAX_VALUE) { "Request version exhausted" }
             val reviewed =
                 if (action == ApprovalAction.APPROVE && role != FINANCE_ROLE) {
                     request.copy(recordVersion = request.recordVersion + 1)

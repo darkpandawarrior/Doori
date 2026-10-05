@@ -19,6 +19,8 @@ import com.siddharth.kmp.mvi.BaseViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlin.uuid.Uuid
@@ -71,12 +73,17 @@ class TravelRequestViewModel(
     private val mirrors: Map<Boolean, MileageRateMirror> = mapOf(false to IrsMileageRates.mirror, true to HmrcMileageRates.mirror),
 ) : BaseViewModel<TravelRequestUiState, Unit, TravelRequestAction>(TravelRequestUiState()) {
     private var work: Job? = null
+    private var revision = 0L
 
     init {
         viewModelScope.launch {
-            combine(accounts, store.requests) { owner, requests -> owner to requests.filter { it.employeeId == owner } }
+            combine(accounts, store.requests) { account, requests ->
+                val owner = account?.takeIf { it.isNotBlank() }
+                owner to requests.filter { it.employeeId == owner }
+            }
                 .collect { (owner, requests) ->
                     if (owner != currentState.owner) {
+                        revision++
                         work?.cancel()
                         setState { TravelRequestUiState(owner = owner?.takeIf { it.isNotBlank() }) }
                     }
@@ -93,7 +100,11 @@ class TravelRequestViewModel(
             is TravelRequestAction.RoundTrip -> invalidate { copy(roundTrip = action.enabled) }
             is TravelRequestAction.Reviewer -> setState { copy(reviewer = action.value) }
             is TravelRequestAction.Comment -> setState { copy(comment = action.value) }
-            is TravelRequestAction.Open -> setState { copy(selected = action.request, reviewer = "", comment = "", message = null) }
+            is TravelRequestAction.Open -> {
+                if (!currentState.busy) {
+                    setState { copy(selected = requests.find { it.id == action.request.id }, reviewer = "", comment = "", message = null) }
+                }
+            }
             is TravelRequestAction.Review -> review(action.action)
             is TravelRequestAction.Transition -> transition(action.event)
             TravelRequestAction.Estimate -> estimate()
@@ -107,6 +118,7 @@ class TravelRequestViewModel(
 
     private fun invalidate(edit: TravelRequestUiState.() -> TravelRequestUiState) {
         if (currentState.busy && currentState.selected != null) return
+        revision++
         work?.cancel()
         setState { edit().copy(estimate = null, busy = false, message = null) }
     }
@@ -136,6 +148,7 @@ class TravelRequestViewModel(
                 } else {
                     route(a, b, input.roundTrip, input.field(TravelRequestField.SERVER).takeIf { it.isNotBlank() })
                 }
+            currentCoroutineContext().ensureActive()
             when (result) {
                 is RouteEstimate.Routed -> setState { copy(estimate = quote(input, result.distanceKm, false), manualReason = null) }
                 is RouteEstimate.ManualRequired -> setState { copy(estimate = null, manualReason = result.reason) }
@@ -201,6 +214,7 @@ class TravelRequestViewModel(
 
     private fun execute(block: suspend () -> Unit) {
         if (currentState.busy) return
+        val startedRevision = revision
         setState { copy(busy = true, message = null) }
         work =
             viewModelScope.launch {
@@ -209,9 +223,11 @@ class TravelRequestViewModel(
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (failure: Exception) {
-                    setState { copy(message = failure.message ?: "Travel request failed", estimate = null) }
+                    if (revision == startedRevision) {
+                        setState { copy(message = failure.message ?: "Travel request failed", estimate = null) }
+                    }
                 } finally {
-                    setState { copy(busy = false) }
+                    if (revision == startedRevision) setState { copy(busy = false) }
                 }
             }
     }
