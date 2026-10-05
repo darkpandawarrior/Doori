@@ -14,6 +14,10 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.ui.components.WizardProgressBar
 
+private const val APPROVED_MILESTONE = 3
+private const val PROCESSING_MILESTONE = 4
+private const val PAID_MILESTONE = 5
+
 /** Maps persisted states to the five employee milestones without inventing payout completion. */
 data class ReimbursementProgress(
     val milestone: Int,
@@ -24,9 +28,9 @@ fun reimbursementProgress(state: ReportLifecycleState): ReimbursementProgress =
     when (state) {
         ReportLifecycleState.DRAFT -> ReimbursementProgress(1, "Draft")
         ReportLifecycleState.SUBMITTED -> ReimbursementProgress(2, "Submitted for approval")
-        ReportLifecycleState.APPROVED -> ReimbursementProgress(3, "Approved; awaiting payment release")
-        ReportLifecycleState.APPROVED_FOR_PAYMENT -> ReimbursementProgress(4, "Processing payment (simulated)")
-        ReportLifecycleState.PAID -> ReimbursementProgress(5, "Paid (simulated)")
+        ReportLifecycleState.APPROVED -> ReimbursementProgress(APPROVED_MILESTONE, "Approved; awaiting payment release")
+        ReportLifecycleState.APPROVED_FOR_PAYMENT -> ReimbursementProgress(PROCESSING_MILESTONE, "Processing payment (simulated)")
+        ReportLifecycleState.PAID -> ReimbursementProgress(PAID_MILESTONE, "Paid (simulated)")
         ReportLifecycleState.SENT_BACK -> ReimbursementProgress(1, "Sent back; revise and resubmit")
         ReportLifecycleState.RECALLED -> ReimbursementProgress(1, "Recalled; ready to edit")
         ReportLifecycleState.REJECTED -> ReimbursementProgress(2, "Rejected; payment will not proceed")

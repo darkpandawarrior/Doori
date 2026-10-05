@@ -12,12 +12,20 @@ import kotlin.test.assertTrue
 
 class ClaimAnalyticsTest {
     private val now = 100 * 86_400_000L
-    private val paid = Report("paid", "employee", listOf(ExpenseLine("l1", 12_500, "INR", policyFlags = listOf("RECEIPT"), merchant = "Cafe", category = "FOOD")), ReportLifecycleState.PAID)
-    private val pending = Report("pending", "employee", listOf(MileageLine("l2", 725, "USD", distanceKm = 10.0, vehicleKey = "car")), ReportLifecycleState.SUBMITTED)
-    private val rows = listOf(
-        ReportEntity("paid", "employee", "PAID", 4, now - 1_000, now, submittedAtMs = now - 500),
-        ReportEntity("pending", "employee", "SUBMITTED", 2, now - 1_000, now, submittedAtMs = now - 500),
-    )
+    private val paid =
+        Report(
+            "paid",
+            "employee",
+            listOf(ExpenseLine("l1", 12_500, "INR", policyFlags = listOf("RECEIPT"), merchant = "Cafe", category = "FOOD")),
+            ReportLifecycleState.PAID,
+        )
+    private val pending =
+        Report("pending", "employee", listOf(MileageLine("l2", 725, "USD", distanceKm = 10.0, vehicleKey = "car")), ReportLifecycleState.SUBMITTED)
+    private val rows =
+        listOf(
+            ReportEntity("paid", "employee", "PAID", 4, now - 1_000, now, submittedAtMs = now - 500),
+            ReportEntity("pending", "employee", "SUBMITTED", 2, now - 1_000, now, submittedAtMs = now - 500),
+        )
 
     @Test
     fun `currencies stay separate duplicate flags count once and only completed cycles count`() {
@@ -38,7 +46,10 @@ class ClaimAnalyticsTest {
         val missing = rows.first().copy(submittedAtMs = null)
         assertTrue(summarizeClaims(listOf(paid), listOf(missing), emptyList(), ClaimAnalyticsFilter(), now).completedCyclesMillis.isEmpty())
         listOf(now - 31 * 86_400_000L, now + 1).forEach { created ->
-            assertEquals(0, summarizeClaims(listOf(paid), listOf(rows.first().copy(createdAtMs = created)), emptyList(), ClaimAnalyticsFilter(), now).reportCount)
+            assertEquals(
+                0,
+                summarizeClaims(listOf(paid), listOf(rows.first().copy(createdAtMs = created)), emptyList(), ClaimAnalyticsFilter(), now).reportCount,
+            )
         }
     }
 }

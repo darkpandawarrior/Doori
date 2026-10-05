@@ -1,10 +1,9 @@
 package com.mileway.feature.profile.di
 
+import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
 import com.mileway.feature.profile.admin.RateTableStore
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
-import com.mileway.feature.profile.status.ReimbursementStatusViewModel
-import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.profile.repository.ActiveSessionsRepository
 import com.mileway.feature.profile.repository.AdvanceRepository
 import com.mileway.feature.profile.repository.ConnectedAccountsRepository
@@ -25,6 +24,7 @@ import com.mileway.feature.profile.repository.SyncDiagnosticsRepository
 import com.mileway.feature.profile.repository.VehicleDetailsRepository
 import com.mileway.feature.profile.repository.WalletRepository
 import com.mileway.feature.profile.search.AdvanceSearchProvider
+import com.mileway.feature.profile.status.ReimbursementStatusViewModel
 import com.mileway.feature.profile.viewmodel.AccountDeletionViewModel
 import com.mileway.feature.profile.viewmodel.ActiveSessionsViewModel
 import com.mileway.feature.profile.viewmodel.AdvanceViewModel

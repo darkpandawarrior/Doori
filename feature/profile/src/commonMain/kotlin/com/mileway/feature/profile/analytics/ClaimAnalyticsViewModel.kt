@@ -53,7 +53,8 @@ fun summarizeClaims(
     val filtered =
         reports.filter { report ->
             val created = metadata[report.id]?.createdAtMs
-            created != null && created in (nowMillis - filter.days * DAY_MILLIS)..nowMillis &&
+            created != null &&
+                created in (nowMillis - filter.days * DAY_MILLIS)..nowMillis &&
                 (filter.status == null || report.state == filter.status) &&
                 report.lines.any { filter.category == null || it.category() == filter.category }
         }
@@ -69,7 +70,8 @@ fun summarizeClaims(
             types[line.category()] = (types[line.category()] ?: 0L) + line.amountMinor
             line.policyFlags.forEach { flags.add(Triple(report.id, line.id, it)) }
         }
-        violations.filter { it.reportId == report.id && (it.claimLineId == null || lines.any { line -> line.id == it.claimLineId }) }
+        violations
+            .filter { it.reportId == report.id && (it.claimLineId == null || lines.any { line -> line.id == it.claimLineId }) }
             .forEach { flags.add(Triple(report.id, it.claimLineId, it.code)) }
         val row = metadata.getValue(report.id)
         val submitted = row.submittedAtMs

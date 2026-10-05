@@ -130,7 +130,11 @@ private fun RateHistory(
                 }
                 RateTableKind.PER_DIEM -> {
                     if (tables.perDiem.isEmpty()) Text("No per-diem rate cards yet")
-                    tables.perDiem.forEach { Text("${it.effectiveFrom} · ${it.region}/${it.grade}: ${formatMinorCurrency(it.dailyRateMinor, it.currency)} / day") }
+                    tables.perDiem.forEach {
+                        Text(
+                            "${it.effectiveFrom} · ${it.region}/${it.grade}: ${formatMinorCurrency(it.dailyRateMinor, it.currency)} / day",
+                        )
+                    }
                 }
                 RateTableKind.IRS, RateTableKind.HMRC -> {
                     val mirror = tables.mileage.mirrors.getValue(kind.name)
@@ -142,7 +146,11 @@ private fun RateHistory(
                         Text("100 miles: ${formatMinorCurrency(version.schedule.amountMinor(100), mirror.currency)}")
                         version.schedule.firstBandDistanceUnits?.let { Text("Step down after $it annual miles") }
                     }
-                    mirror.favrCostLimits.forEach { Text("FAVR cap ${it.effectiveFrom}: ${formatMinorCurrency(it.maxStandardAutomobileCostMinor, mirror.currency)}") }
+                    mirror.favrCostLimits.forEach {
+                        Text(
+                            "FAVR cap ${it.effectiveFrom}: ${formatMinorCurrency(it.maxStandardAutomobileCostMinor, mirror.currency)}",
+                        )
+                    }
                 }
             }
         }

@@ -57,7 +57,8 @@ data class RateTables(
         currency: String,
     ): PerDiemRateTable =
         PerDiemRateTable(
-            perDiem.filter { it.region == region && it.grade == grade && it.currency == currency }
+            perDiem
+                .filter { it.region == region && it.grade == grade && it.currency == currency }
                 .map { PerDiemRate(effectiveDateMillis(it.effectiveFrom), it.dailyRateMinor) },
         )
 }
@@ -123,7 +124,12 @@ class RateTableStore(
             val rates = decode(values).mileage
             val mirror = rates.mirrors.getValue(mirrorKey)
             requireLater(version.effectiveFrom, mirror.versions.map { it.effectiveFrom })
-            require(version.schedule.distanceUnit == mirror.versions.first().schedule.distanceUnit) { "Distance unit must stay unchanged" }
+            require(
+                version.schedule.distanceUnit ==
+                    mirror.versions
+                        .first()
+                        .schedule.distanceUnit,
+            ) { "Distance unit must stay unchanged" }
             val updated = mirror.copy(versions = mirror.versions + version)
             values[mileageKey] = json.encodeToString(rates.copy(mirrors = rates.mirrors + (mirrorKey to updated)))
         }
@@ -138,7 +144,11 @@ class RateTableStore(
         preferences.edit { values ->
             val rates = decode(values).mileage
             requireLater(date, rates.policy.map { it.effectiveFrom })
-            val previous = rates.policy.maxByOrNull { it.effectiveFrom }?.ratesMinorPerKm.orEmpty()
+            val previous =
+                rates.policy
+                    .maxByOrNull { it.effectiveFrom }
+                    ?.ratesMinorPerKm
+                    .orEmpty()
             val version = LocalPolicyRateVersion(date, previous + (vehicle.trim() to rateMinorPerKm))
             values[mileageKey] = json.encodeToString(rates.copy(policy = rates.policy + version))
         }

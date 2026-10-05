@@ -55,13 +55,19 @@ fun ClaimAnalyticsPanel(
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(state.filter.status == null, { viewModel.filter(state.filter.copy(status = null)) }, label = { Text("All statuses") })
                 ReportLifecycleState.entries.forEach { status ->
-                    FilterChip(state.filter.status == status, { viewModel.filter(state.filter.copy(status = status)) }, label = { Text(status.name.replace('_', ' ').lowercase()) })
+                    FilterChip(
+                        state.filter.status == status,
+                        { viewModel.filter(state.filter.copy(status = status)) },
+                        label = { Text(status.name.replace('_', ' ').lowercase()) },
+                    )
                 }
             }
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(state.filter.category == null, { viewModel.filter(state.filter.copy(category = null)) }, label = { Text("All claim types") })
                 ClaimCategory.entries.forEach { category ->
-                    FilterChip(state.filter.category == category, { viewModel.filter(state.filter.copy(category = category)) }, label = { Text(category.name.replace('_', ' ').lowercase()) })
+                    FilterChip(state.filter.category == category, {
+                        viewModel.filter(state.filter.copy(category = category))
+                    }, label = { Text(category.name.replace('_', ' ').lowercase()) })
                 }
             }
         }
@@ -105,7 +111,10 @@ private fun ClaimMetrics(
         ClaimAnalyticsView.VIOLATIONS -> {
             Text("Distinct policy flags")
             if (summary.violationsByCode.isEmpty()) Text("No policy flags")
-            val largest = summary.violationsByCode.values.maxOrNull()?.coerceAtLeast(1) ?: 1
+            val largest =
+                summary.violationsByCode.values
+                    .maxOrNull()
+                    ?.coerceAtLeast(1) ?: 1
             summary.violationsByCode.toList().sortedBy { it.first }.forEach { (code, count) ->
                 Text("$code: $count")
                 MetricBar(count.toFloat() / largest)

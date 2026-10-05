@@ -83,7 +83,14 @@ class RateTableEditorViewModel(
             draft.kind.name,
             MileageRateVersion(
                 draft.effectiveFrom,
-                AnnualDistanceStepDown(decimalRate(draft.rate, places = 5), mirror.versions.first().schedule.distanceUnit, band, above),
+                AnnualDistanceStepDown(
+                    decimalRate(draft.rate, places = 5),
+                    mirror.versions
+                        .first()
+                        .schedule.distanceUnit,
+                    band,
+                    above,
+                ),
                 "Local employer rate: ${draft.note.trim()}",
             ),
         )

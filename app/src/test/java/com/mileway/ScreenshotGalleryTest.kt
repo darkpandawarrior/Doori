@@ -28,6 +28,9 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -45,6 +48,8 @@ import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
 import com.mileway.core.data.dao.PerDiemRateDao
+import com.mileway.core.data.dao.PolicyViolationDao
+import com.mileway.core.data.dao.ReportDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.SignatureDao
@@ -65,6 +70,8 @@ import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
 import com.mileway.core.data.model.db.PerDiemRateEntity
+import com.mileway.core.data.model.db.PolicyViolationEntity
+import com.mileway.core.data.model.db.ReportEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.db.VoucherEntity
@@ -183,23 +190,15 @@ import com.mileway.feature.payables.ui.screens.PurchaseRequestDetailsScreen
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.ui.screens.CreatePaymentScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
-import com.mileway.feature.profile.di.profileAndroidModule
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.emptyPreferences
-import com.mileway.core.data.dao.ReportDao
-import com.mileway.core.data.dao.PolicyViolationDao
-import com.mileway.core.data.model.db.ReportEntity
-import com.mileway.core.data.model.db.PolicyViolationEntity
 import com.mileway.feature.profile.admin.RateTableEditorScreen
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
 import com.mileway.feature.profile.admin.RateTableStore
 import com.mileway.feature.profile.analytics.ClaimAnalyticsView
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
+import com.mileway.feature.profile.di.profileAndroidModule
+import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.status.ReimbursementStatusScreen
 import com.mileway.feature.profile.status.ReimbursementStatusViewModel
-import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
-import com.mileway.feature.profile.di.profileModule
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
 import com.mileway.feature.profile.ui.screens.AdvanceHistoryScreen
@@ -243,6 +242,7 @@ import com.mileway.feature.profile.ui.screens.SupportHubScreen
 import com.mileway.feature.profile.ui.screens.TrainingTourScreen
 import com.mileway.feature.profile.ui.screens.VehicleGarageScreen
 import com.mileway.feature.profile.ui.screens.VerificationCentreScreen
+import com.mileway.feature.profile.viewmodel.AnalyticsViewModel
 import com.mileway.feature.tracking.debug.DebugMenuScreen
 import com.mileway.feature.tracking.di.trackingModule
 import com.mileway.feature.tracking.ui.components.DiscardJourneyDialog
@@ -1152,7 +1152,15 @@ class ScreenshotGalleryTest {
             composeRule.onNodeWithText("car: ${formatMinorCurrency(850, "INR")} / km").performScrollTo().assertIsDisplayed()
             capture("phase3_local_rate_editor_saved")
             kotlinx.coroutines.runBlocking {
-                org.junit.Assert.assertEquals(850L, application.koin.get<RateTableStore>().read().mileage.policy.single().ratesMinorPerKm["car"])
+                org.junit.Assert.assertEquals(
+                    850L,
+                    application.koin
+                        .get<RateTableStore>()
+                        .read()
+                        .mileage.policy
+                        .single()
+                        .ratesMinorPerKm["car"],
+                )
             }
         } finally {
             application.close()
@@ -1166,9 +1174,14 @@ class ScreenshotGalleryTest {
     fun phase3CaptureReportViolationAnalytics() = phase3AnalyticsCapture(ClaimAnalyticsView.VIOLATIONS, "Distinct policy flags", "phase3_report_violations")
 
     @Test
-    fun phase3CaptureReportCycleAnalytics() = phase3AnalyticsCapture(ClaimAnalyticsView.CYCLE_TIME, "Completed submission-to-paid cycles", "phase3_report_cycle_time")
+    fun phase3CaptureReportCycleAnalytics() =
+        phase3AnalyticsCapture(ClaimAnalyticsView.CYCLE_TIME, "Completed submission-to-paid cycles", "phase3_report_cycle_time")
 
-    private fun phase3AnalyticsCapture(view: ClaimAnalyticsView, expected: String, name: String) {
+    private fun phase3AnalyticsCapture(
+        view: ClaimAnalyticsView,
+        expected: String,
+        name: String,
+    ) {
         val application = phase3ProfileApplication()
         val analytics = application.koin.get<AnalyticsViewModel>()
         val claims = application.koin.get<ClaimAnalyticsViewModel>()
@@ -1189,14 +1202,17 @@ class ScreenshotGalleryTest {
 
     private class Phase3RatePreferences : DataStore<Preferences> {
         override val data = MutableStateFlow(emptyPreferences())
-        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences =
-            transform(data.value).also { data.value = it }
+
+        override suspend fun updateData(transform: suspend (Preferences) -> Preferences): Preferences = transform(data.value).also { data.value = it }
     }
 
     private fun phase3ProfileApplication(
         reports: MutableStateFlow<List<Report>> = MutableStateFlow(listOf(phase1ExpenseReport().copy(state = ReportLifecycleState.PAID))),
     ) = koinApplication {
-        val now = kotlin.time.Clock.System.now().toEpochMilliseconds()
+        val now =
+            kotlin.time.Clock.System
+                .now()
+                .toEpochMilliseconds()
         modules(
             profileModule,
             module {
@@ -1215,23 +1231,34 @@ class ScreenshotGalleryTest {
                 }
                 single<ReportDao> {
                     mockk {
-                        every { observeAll() } returns MutableStateFlow(
-                            reports.value.map { ReportEntity(it.id, it.employeeId, it.state.name, 1, now - 86_400_000, now, now - 43_200_000) },
-                        )
+                        every { observeAll() } returns
+                            MutableStateFlow(
+                                reports.value.map { ReportEntity(it.id, it.employeeId, it.state.name, 1, now - 86_400_000, now, now - 43_200_000) },
+                            )
                     }
                 }
                 single<PolicyViolationDao> {
                     mockk {
-                        every { observeAll() } returns MutableStateFlow(
-                            listOf(PolicyViolationEntity(reportId = "report-demo", claimLineId = "EXP-001", code = "RECEIPT_RECOMMENDED", message = "Retain the receipt", createdAtMs = now)),
-                        )
+                        every { observeAll() } returns
+                            MutableStateFlow(
+                                listOf(
+                                    PolicyViolationEntity(
+                                        reportId = "report-demo",
+                                        claimLineId = "EXP-001",
+                                        code = "RECEIPT_RECOMMENDED",
+                                        message = "Retain the receipt",
+                                        createdAtMs = now,
+                                    ),
+                                ),
+                            )
                     }
                 }
                 single<PerDiemRateDao> {
                     mockk {
-                        every { observeAll() } returns MutableStateFlow(
-                            listOf(PerDiemRateEntity("pune_lead", "Pune", "Lead", 12_500, "INR", 0)),
-                        )
+                        every { observeAll() } returns
+                            MutableStateFlow(
+                                listOf(PerDiemRateEntity("pune_lead", "Pune", "Lead", 12_500, "INR", 0)),
+                            )
                     }
                 }
             },
