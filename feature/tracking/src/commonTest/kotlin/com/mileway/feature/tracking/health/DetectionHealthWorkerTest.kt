@@ -104,6 +104,19 @@ class DetectionHealthWorkerTest {
     }
 
     @Test
+    fun `trip reminders are capped at three oldest new routes per run`() {
+        val trips =
+            List(40) { index ->
+                completedTrip().copy(routeId = "route-$index", endTime = now - (4 + index) * day)
+            }
+        val evaluator = DetectionHealthNudges(clock)
+        val firstBatch = evaluator.evaluate(trips).filter { it.id.startsWith("nudge-unclaimed-") }
+        assertEquals(listOf("nudge-unclaimed-route-39", "nudge-unclaimed-route-38", "nudge-unclaimed-route-37"), firstBatch.map { it.id })
+        val nextBatch = evaluator.evaluate(trips, firstBatch).filter { it.id.startsWith("nudge-unclaimed-") }
+        assertEquals(listOf("nudge-unclaimed-route-36", "nudge-unclaimed-route-35", "nudge-unclaimed-route-34"), nextBatch.map { it.id })
+    }
+
+    @Test
     fun `health reminder waits for read state and more than seven days`() {
         val evaluator = DetectionHealthNudges(clock)
         val reminder = health(history()).single()
@@ -119,7 +132,7 @@ class DetectionHealthWorkerTest {
     @Test
     fun `repeated worker runs preserve read state for both stable ids`() =
         runTest {
-            val trips = history().map { it.copy(notes = "-", endTime = now - 4 * day) }
+            val trips = history().mapIndexed { index, trip -> trip.copy(notes = if (index == 0) "-" else "PERSONAL", endTime = now - 4 * day) }
             val tracks = object : SavedTrackDao by FakeSavedTrackDao() {
                 override fun getCompletedTracks() = flowOf(trips)
             }
@@ -127,7 +140,7 @@ class DetectionHealthWorkerTest {
             val worker = DetectionHealthWorker(tracks, inbox, clock)
             val env = WorkerEnvironment(progressListener = null, isCancelled = { false })
             assertIs<WorkerResult.Success>(worker.doWork(null, env))
-            assertEquals(6, inbox.rows.value.size)
+            assertEquals(2, inbox.rows.value.size)
             assertEquals(1, inbox.writes)
             inbox.markAllRead()
             val readRows = inbox.rows.value

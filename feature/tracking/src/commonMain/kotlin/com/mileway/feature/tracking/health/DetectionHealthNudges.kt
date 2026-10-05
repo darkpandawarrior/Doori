@@ -19,12 +19,16 @@ class DetectionHealthNudges(
         val instant = clock.now()
         val now = instant.toEpochMilliseconds()
         val completed = tracks.filter { it.isCompleted }
+        val existingIds = existing.map { it.id }.toSet()
         val nudges =
             completed
                 .filter {
                     it.trackingActivity != "Submitted" && it.notes != "PERSONAL" &&
-                        it.endTime > 0 && now - it.endTime > UNCLAIMED_AGE_MS
-                }.map { track ->
+                        it.endTime > 0 && now - it.endTime > UNCLAIMED_AGE_MS &&
+                        "nudge-unclaimed-${it.routeId}" !in existingIds
+                }.sortedBy { it.endTime }
+                .take(MAX_UNCLAIMED_PER_RUN)
+                .map { track ->
                     notification(
                         id = "nudge-unclaimed-${track.routeId}",
                         title = "Trip not yet claimed",
@@ -73,6 +77,7 @@ class DetectionHealthNudges(
     )
 
     companion object {
+        const val MAX_UNCLAIMED_PER_RUN = 3
         const val ROLLING_TRIP_COUNT = 10
         const val MIN_COMPLETED_TRIPS = 5
         const val HEALTH_GAP_MULTIPLIER = 2
