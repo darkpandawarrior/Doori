@@ -82,6 +82,8 @@ import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.core.data.domain.claim.formatMinorCurrency
+import com.mileway.feature.logging.policy.fxProvenanceLabel
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseFilter
 import com.mileway.feature.logging.viewmodel.ExpenseListData
@@ -339,11 +341,14 @@ private fun ExpenseCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                expense.fxProvenanceLabel()?.let {
+                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
 
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    text = "${expense.currencyCode} ${expense.amountRupees.toLong()}",
+                    text = formatMinorCurrency(expense.amountMinor ?: (expense.amountRupees * 100).toLong(), expense.currencyCode),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                 )

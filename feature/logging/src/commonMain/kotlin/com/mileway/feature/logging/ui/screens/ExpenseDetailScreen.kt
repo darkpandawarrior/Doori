@@ -29,8 +29,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -77,9 +81,11 @@ import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.core.data.domain.claim.formatMinorCurrency
+import com.mileway.feature.logging.policy.fxProvenanceLabel
+import com.mileway.feature.logging.policy.reviewMessage
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
-import com.siddharth.kmp.common.formatDecimal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -154,6 +160,22 @@ fun ExpenseDetailScreen(
                     )
                 else -> {
                     ReceiptPlaceholder(expense)
+
+                    var country by remember(expense.id) { mutableStateOf("IN") }
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(DesignTokens.Spacing.l), verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
+                            Text("Public holiday review", style = MaterialTheme.typography.titleSmall)
+                            Text("Confirm the claim country. Default: India (IN). This selection is for this review only.")
+                            OutlinedTextField(
+                                value = country,
+                                onValueChange = { country = it },
+                                label = { Text("Claim country (two-letter ISO code)") },
+                                singleLine = true,
+                            )
+                            OutlinedButton(onClick = { viewModel.onAction(ExpenseAction.CheckHoliday(country)) }) { Text("Check holiday") }
+                            Text(ui.holidayCheck?.reviewMessage(ui.holidayDate, ui.holidayCountry) ?: "Holiday check: checking ${ui.holidayCountry} on ${ui.holidayDate} (Nager.Date)")
+                        }
+                    }
 
                     LineItemsCard(expense)
 
@@ -267,19 +289,12 @@ private fun ReceiptPlaceholder(expense: ExpenseRecord) {
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "${expense.currencyCode} ${expense.amountRupees.formatDecimal(2)}",
+                text = formatMinorCurrency(expense.amountMinor ?: (expense.amountRupees * 100).toLong(), expense.currencyCode),
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
             )
-            if (expense.currencyCode != "INR") {
-                Text(
-                    expense.fxRate?.let {
-                        it.description()
-                    }
-                        ?: "No FX pin: amount policy checks skipped. Manual rates are approximate.",
-                )
-            }
+            expense.fxProvenanceLabel()?.let { Text(it) }
             Text(
                 text = formatFullDate(expense.dateMs),
                 style = MaterialTheme.typography.bodySmall,
@@ -363,7 +378,7 @@ private fun LineItemsCard(expense: ExpenseRecord) {
             ) {
                 Text(stringResource(Res.string.logging_total), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "${expense.currencyCode} ${expense.amountRupees.formatDecimal(2)}",
+                    formatMinorCurrency(expense.amountMinor ?: (expense.amountRupees * 100).toLong(), expense.currencyCode),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                 )
