@@ -156,7 +156,7 @@ class SignupOnboardingViewModel(
                         dateOfBirthMillis = current.dateOfBirthMillis,
                     )
                 }
-                _state.value = current.copy(done = true, saving = false)
+                _state.value = current.copy(done = true, saving = false, saveError = null)
             } catch (failure: Exception) {
                 if (failure is CancellationException) throw failure
                 _state.value = current.copy(saving = false, saveError = "Unable to save onboarding. Please retry.")

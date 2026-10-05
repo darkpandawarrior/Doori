@@ -190,6 +190,7 @@ class SignupOnboardingViewModelTest {
             advanceUntilIdle()
             vm.confirmPolicy()
             assertTrue(vm.state.value.done)
+            assertEquals(null, vm.state.value.saveError)
             coVerify(exactly = 2) { session.skipOnboarding() }
         }
 }
