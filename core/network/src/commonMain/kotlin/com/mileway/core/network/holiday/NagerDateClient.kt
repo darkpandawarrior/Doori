@@ -80,7 +80,7 @@ class NagerDateClient(
                     if (years.size >= CachedYearLimit) years.remove(years.keys.first())
                     years[key] = holidays
                 }
-                val holidays = years[key] ?: return@withLock HolidayCheck.NoData
+                val holidays = years[key]?.takeIf { it.isNotEmpty() } ?: return@withLock HolidayCheck.NoData
                 val matching = holidays.filter { it.date == date && "Public" in it.types }
                 if (matching.isEmpty()) HolidayCheck.NotHoliday else HolidayCheck.Holiday(matching)
             } catch (cancelled: CancellationException) {

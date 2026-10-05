@@ -43,16 +43,16 @@ class NagerDateClientTest {
         }
 
     @Test
-    fun unsupported204And404AreVisibleNoDataAndCacheByCountryAndYear() =
+    fun empty200AndUnsupportedCountriesAreVisibleNoDataAndCacheByCountryAndYear() =
         runTest {
-            for (status in listOf(HttpStatusCode.NoContent, HttpStatusCode.NotFound)) {
+            for (status in listOf(HttpStatusCode.OK, HttpStatusCode.NoContent, HttpStatusCode.NotFound)) {
                 var requests = 0
                 val http =
                     createHttpClient(
                         engine =
                             MockEngine {
                                 requests++
-                                respond("", status)
+                                respond(if (status == HttpStatusCode.OK) "[]" else "", status)
                             },
                         retry = false,
                     )
@@ -90,7 +90,7 @@ class NagerDateClientTest {
                 assertEquals(HolidayCheck.InvalidInput, client.check("2026-01-01", "../IN"))
                 assertEquals(0, requests)
                 assertEquals(HolidayCheck.Offline, client.check("2026-01-01", "GB"))
-                assertEquals(HolidayCheck.NotHoliday, client.check("2026-01-01", "GB"))
+                assertEquals(HolidayCheck.NoData, client.check("2026-01-01", "GB"))
                 assertEquals(2, requests)
             } finally {
                 http.close()
