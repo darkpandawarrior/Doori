@@ -1100,6 +1100,7 @@ class ScreenshotGalleryTest {
     ) = koinApplication {
         modules(
             loggingModule,
+            advancesModule,
             approvalsModule,
             paymentsModule,
             module {
