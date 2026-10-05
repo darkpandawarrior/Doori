@@ -3,6 +3,8 @@ package com.mileway
 import android.app.Application
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -16,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -91,6 +94,7 @@ import com.mileway.core.data.session.SessionState
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
+import com.mileway.core.network.api.NetworkBackendFlags
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.payout.PayoutBeneficiaryStore
@@ -121,6 +125,7 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.support.BugReportSheet
 import com.mileway.core.ui.theme.MilewayTheme
+import com.mileway.debug.DebugBackendToggle
 import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.di.agentModule
@@ -3341,16 +3346,16 @@ class ScreenshotGalleryTest {
     @Test
     fun phase4CaptureDebugBackendToggle() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        val previousChoice = com.mileway.debug.DebugBackendToggle.readEnabled(context)
-        val previousBackend = com.mileway.core.network.api.NetworkBackendFlags.useRealBackend
-        com.mileway.debug.DebugBackendToggle.setEnabled(context, false)
-        com.mileway.core.network.api.NetworkBackendFlags.useRealBackend = false
+        val previousChoice = DebugBackendToggle.readEnabled(context)
+        val previousBackend = NetworkBackendFlags.useRealBackend
+        DebugBackendToggle.setEnabled(context, false)
+        NetworkBackendFlags.useRealBackend = false
         try {
             composeRule.setContent {
                 ThemedBackground {
-                    androidx.compose.foundation.layout.Column(modifier = androidx.compose.ui.Modifier.fillMaxSize()) {
-                        com.mileway.debug.DebugBackendToggle.Entry()
-                        androidx.compose.foundation.layout.Box(modifier = androidx.compose.ui.Modifier.weight(1f)) {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        DebugBackendToggle.Entry()
+                        Box(modifier = Modifier.weight(1f)) {
                             DebugMenuScreen(onBack = {}, heapUsedMb = 128L, heapTotalMb = 512L)
                         }
                     }
@@ -3359,15 +3364,15 @@ class ScreenshotGalleryTest {
             composeRule.onNodeWithContentDescription("Use real backend").assertIsDisplayed()
             capture("phase4_debug_backend_offline")
             composeRule.onNodeWithContentDescription("Use real backend").performClick()
-            org.junit.Assert.assertTrue(com.mileway.debug.DebugBackendToggle.readEnabled(context))
-            org.junit.Assert.assertFalse(com.mileway.core.network.api.NetworkBackendFlags.useRealBackend)
+            org.junit.Assert.assertTrue(DebugBackendToggle.readEnabled(context))
+            org.junit.Assert.assertFalse(NetworkBackendFlags.useRealBackend)
             composeRule
                 .onNodeWithText("Current backend: Offline mock. Close the app process and reopen it to apply changes.")
                 .assertIsDisplayed()
             capture("phase4_debug_backend_pending_restart")
         } finally {
-            com.mileway.debug.DebugBackendToggle.setEnabled(context, previousChoice)
-            com.mileway.core.network.api.NetworkBackendFlags.useRealBackend = previousBackend
+            DebugBackendToggle.setEnabled(context, previousChoice)
+            NetworkBackendFlags.useRealBackend = previousBackend
         }
     }
 

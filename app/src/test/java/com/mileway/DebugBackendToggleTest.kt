@@ -23,7 +23,11 @@ class DebugBackendToggleTest {
     @Before
     @After
     fun resetBackendChoice() {
-        context.getSharedPreferences("debug_backend", Context.MODE_PRIVATE).edit().clear().commit()
+        context
+            .getSharedPreferences("debug_backend", Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
         NetworkBackendFlags.useRealBackend = false
     }
 
@@ -53,7 +57,11 @@ class DebugBackendToggleTest {
 
     @Test
     fun `release ignores a persisted opt in and resets the flag before Koin`() {
-        context.getSharedPreferences("debug_backend", Context.MODE_PRIVATE).edit().putBoolean("use_real_backend", true).commit()
+        context
+            .getSharedPreferences("debug_backend", Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean("use_real_backend", true)
+            .commit()
         NetworkBackendFlags.useRealBackend = true
         DebugBackendToggle.applyBeforeKoin(context)
         assertEquals(BuildConfig.DEBUG, DebugBackendToggle.readEnabled(context))

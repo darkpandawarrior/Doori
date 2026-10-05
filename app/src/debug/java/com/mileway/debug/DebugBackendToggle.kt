@@ -20,14 +20,17 @@ object DebugBackendToggle {
     private const val PREFERENCES = "debug_backend"
     private const val USE_REAL_BACKEND = "use_real_backend"
 
-    fun readEnabled(context: Context): Boolean =
-        context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(USE_REAL_BACKEND, false)
+    fun readEnabled(context: Context): Boolean = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).getBoolean(USE_REAL_BACKEND, false)
 
     fun setEnabled(
         context: Context,
         enabled: Boolean,
     ) {
-        context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit().putBoolean(USE_REAL_BACKEND, enabled).apply()
+        context
+            .getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(USE_REAL_BACKEND, enabled)
+            .apply()
     }
 
     fun applyBeforeKoin(context: Context) {
