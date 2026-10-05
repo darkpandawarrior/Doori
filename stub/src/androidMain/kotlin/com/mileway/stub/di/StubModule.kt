@@ -12,9 +12,11 @@ import com.mileway.core.network.config.ConfigProvider
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.FakeTrackingNetworkApi
 import com.mileway.stub.StubPersonaPresetProvider
+import com.siddharth.kmp.network.BaseUrlProvider
 import com.siddharth.kmp.network.createHttpClient
 import com.siddharth.kmp.settings.SecureSettingsFactory
 import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 // NetworkBackendFlags lives in :core:network (core/network/.../api/NetworkBackendFlags.kt) so the iOS
@@ -24,7 +26,7 @@ val stubModule =
     module {
         single { DemoConfigManager() }
         single<ConfigProvider> { get<DemoConfigManager>() }
-        single { DataStoreBaseUrlProvider(androidContext()) }
+        single { DataStoreBaseUrlProvider(androidContext()) } bind BaseUrlProvider::class
         // PLAN_V34 P2/A6: refresh token in the toolkit's encrypted Settings (EncryptedSharedPreferences
         // on Android); AuthApi is the login()/refresh()/logout() seam built on a bare (non-bearer) client.
         single { AuthTokenStore(SecureSettingsFactory(androidContext()).create()) }
