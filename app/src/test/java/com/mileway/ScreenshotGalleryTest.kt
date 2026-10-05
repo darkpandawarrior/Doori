@@ -98,6 +98,7 @@ import com.mileway.core.ui.components.sheet.FilterSelectionMode
 import com.mileway.core.ui.components.sheet.OdometerDiscrepancySheet
 import com.mileway.core.ui.components.sheet.OdometerRejectionSheet
 import com.mileway.core.ui.di.coreUiModule
+import com.mileway.core.ui.mvi.ScreenState
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.support.BugReportSheet
 import com.mileway.core.ui.theme.MilewayTheme
@@ -1045,6 +1046,8 @@ class ScreenshotGalleryTest {
                     ReportSubmitScreen(report.id, viewModel = viewModel, onBack = {}, onEdit = {})
                 }
             }
+            composeRule.waitUntil { viewModel.state.value.screen !is ScreenState.Loading }
+            check(viewModel.state.value.screen is ScreenState.Content) { "Report review did not load: ${viewModel.state.value.screen}" }
             composeRule.onNodeWithText("Blocked: Amount 2600000 exceeds policy max 2500000").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Warning: Amount 185000 exceeds 100000; attach a receipt").performScrollTo().assertIsDisplayed()
             composeRule.onNodeWithText("Submit report").assertIsNotEnabled()
