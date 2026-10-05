@@ -11,6 +11,7 @@ import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.shared_signin_step_done
 import com.mileway.core.ui.resources.shared_signin_step_preparing
 import com.mileway.core.ui.resources.shared_signin_step_validating
+import com.mileway.feature.profile.admin.RateTableStore
 import com.mileway.feature.profile.repository.MockAccountRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -191,5 +193,5 @@ val authModule =
         // PLAN_V24 P1.2: the shared OTP entry screen's ViewModel (LocalOtpEngine-backed).
         viewModelOf(::OtpVerificationViewModel)
         // PLAN_V24 P2.1: the config-driven signup onboarding form ViewModel.
-        viewModelOf(::SignupOnboardingViewModel)
+        viewModel { SignupOnboardingViewModel(get(), { get<RateTableStore>().read() }) }
     }
