@@ -35,7 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -158,7 +158,7 @@ fun ExpenseDetailScreen(
                 else -> {
                     ReceiptPlaceholder(expense)
 
-                    var country by remember(expense.id) { mutableStateOf("IN") }
+                    var country by rememberSaveable(expense.id, ui.holidayCountry) { mutableStateOf(ui.holidayCountry) }
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(DesignTokens.Spacing.l), verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.s)) {
                             Text("Public holiday review", style = MaterialTheme.typography.titleSmall)
