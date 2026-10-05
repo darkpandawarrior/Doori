@@ -15,12 +15,17 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":contract"))
+            implementation(project(":core:network"))
             implementation(project(":core:common"))
             implementation(project(":core:data"))
             implementation(project(":core:ui"))
         }
 
         commonTest.dependencies {
+            implementation(libs.ktor.client.mock)
+            implementation(libs.ktor.client.core)
+            implementation("com.siddharth.kmp:network:1.0.0")
             implementation(kotlin("test"))
             implementation(libs.kotlinx.coroutines.test)
         }

@@ -1125,6 +1125,117 @@ class ScreenshotGalleryTest {
     }
 
     @Test
+    fun phase3CaptureTravelHubAuthorizationEntry() {
+        composeRule.setContent { MilewayTheme { TravelHomeScreen() } }
+        composeRule.onNodeWithText("Request pre-trip authorization").assertIsDisplayed()
+        capture("phase3_travel_hub_authorization")
+        composeRule.onNodeWithText("Request pre-trip authorization").performClick()
+        composeRule.onNodeWithText("Travel requests are kept for this session only").assertIsDisplayed()
+    }
+
+    @Test
+    fun phase3CaptureTravelRequestManual() {
+        val notifications = FakeNotificationDao()
+        val reports = mockk<ReportRepository>()
+        val claims = mockk<com.mileway.core.data.dao.ClaimLineDao>()
+        val payouts = mockk<com.mileway.core.data.dao.PendingPaymentJournalDao>()
+        val application =
+            koinApplication {
+                modules(
+                    travelModule,
+                    module {
+                        single<NotificationDao> { notifications }
+                        single { reports }
+                        single { claims }
+                        single { payouts }
+                        single<ActiveAccountSource> {
+                            object : ActiveAccountSource {
+                                override val activeAccountId = kotlinx.coroutines.flow.MutableStateFlow<String?>("alex")
+
+                                override suspend fun setActiveAccountId(accountId: String) {
+                                    activeAccountId.value = accountId
+                                }
+                            }
+                        }
+                    },
+                )
+            }
+        val viewModel = application.koin.get<com.mileway.feature.travel.request.TravelRequestViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme {
+                    com.mileway.feature.travel.request
+                        .TravelRequestScreen(onBack = {}, viewModel = viewModel)
+                }
+            }
+            composeRule.onNodeWithText("Business purpose").performScrollTo().performTextInput("Client visit")
+            composeRule.onNodeWithText("Travel date YYYY-MM-DD").performScrollTo().performTextInput("2026-07-01")
+            composeRule.onNodeWithText("Estimate route").performScrollTo().performClick()
+            composeRule.onNodeWithText("Total distance km (approximate)").performScrollTo().performTextInput("16.09344")
+            composeRule.onNodeWithText("Estimate manual distance").performScrollTo().performClick()
+            composeRule.onNodeWithText("Estimated authorization: ${formatMinorCurrency(760L, "USD")}").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Travel requests are kept for this session only").performScrollTo()
+            capture("phase3_travel_request_approximate")
+            composeRule.onNodeWithText("Submit for authorization").performScrollTo().performClick()
+            composeRule.onNodeWithText("Status: SUBMITTED").assertIsDisplayed()
+            composeRule.onNodeWithText("Reviewer account").performScrollTo().performTextInput("jordan")
+            composeRule.onNodeWithText("Review comment").performScrollTo().performTextInput("Business visit reviewed")
+            composeRule.onNodeWithText("Approve manager step").performScrollTo().performClick()
+            composeRule.onNodeWithText("Reviewer account").performScrollTo().performTextInput("finance")
+            composeRule.onNodeWithText("Review comment").performScrollTo().performTextInput("Estimate authorized")
+            composeRule.onNodeWithText("Approve FINANCE step").performScrollTo().performClick()
+            composeRule.onNodeWithText("Status: APPROVED").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Travel requests are kept for this session only").performScrollTo()
+            capture("phase3_travel_request_approved")
+            val approved =
+                application.koin
+                    .get<com.mileway.feature.travel.request.TravelRequestStore>()
+                    .requests.value
+                    .single()
+            check(approved.lifecycleReport().lines.isEmpty())
+            kotlinx.coroutines.runBlocking { check(notifications.count() == 3) }
+            io.mockk.coVerify(exactly = 0) { reports.save(any()) }
+            io.mockk.coVerify(exactly = 0) { claims.upsert(any()) }
+            io.mockk.coVerify(exactly = 0) { payouts.upsert(any()) }
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase3CaptureTravelRequestRouted() {
+        val store =
+            com.mileway.feature.travel.request
+                .TravelRequestStore({})
+        val viewModel =
+            com.mileway.feature.travel.request.TravelRequestViewModel(
+                store,
+                kotlinx.coroutines.flow.flowOf("alex"),
+                route = { _, _, _, _ ->
+                    com.mileway.core.network.routing.RouteEstimate
+                        .Routed(16.09344)
+                },
+            )
+        composeRule.setContent {
+            MilewayTheme {
+                com.mileway.feature.travel.request
+                    .TravelRequestScreen(onBack = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.onNodeWithText("Business purpose").performScrollTo().performTextInput("Client visit")
+        composeRule.onNodeWithText("Travel date YYYY-MM-DD").performScrollTo().performTextInput("2026-07-01")
+        composeRule.onNodeWithText("Origin latitude").performScrollTo().performTextInput("12.0")
+        composeRule.onNodeWithText("Origin longitude").performScrollTo().performTextInput("34.0")
+        composeRule.onNodeWithText("Destination latitude").performScrollTo().performTextInput("13.0")
+        composeRule.onNodeWithText("Destination longitude").performScrollTo().performTextInput("35.0")
+        composeRule.onNodeWithText("Estimate route").performScrollTo().performClick()
+        composeRule.onNodeWithText("Estimated authorization: ${formatMinorCurrency(760L, "USD")}").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("16.09344 km (OSRM route-ahead)").assertIsDisplayed()
+        composeRule.onNodeWithText("Travel requests are kept for this session only").performScrollTo()
+        capture("phase3_travel_request_routed")
+    }
+
+    @Test
     fun phase3CapturePointToPointOffline() {
         composeRule.setContent {
             MilewayTheme {
