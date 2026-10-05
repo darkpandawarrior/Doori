@@ -4,6 +4,9 @@ import com.mileway.core.data.model.db.LocationData
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.SubmitMilesRequestK
+import com.mileway.core.network.routing.RoutePoint
+import com.mileway.feature.tracking.checkin.RoundTripClassifier
+import com.mileway.feature.tracking.route.RoundTripGuard
 import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
 
 /**
@@ -34,6 +37,7 @@ object SubmitMilesRequestBuilder {
         form: SubmissionFormUi,
         track: SavedTrack? = null,
         routePoints: List<LocationData> = emptyList(),
+        recordedTracks: List<SavedTrack> = emptyList(),
     ): SubmitMilesRequestK {
         val odometerFallbackActive = form.config.calculateExpenseViaOdometer && form.odometerNotWorking
         val odometerCaptured = form.simulatedStartOdo != null && form.simulatedEndOdo != null
@@ -51,7 +55,8 @@ object SubmitMilesRequestBuilder {
             odometerNotWorking = odometerFallbackActive,
             // Reference builder appends the marker to violationRemarks, NOT notes.
             violationRemarks = if (odometerFallbackActive) ODOMETER_NOT_WORKING_REMARK else null,
-            roundTrip = form.roundTrip,
+            // A recorded closed loop or paired return is already in the mileage ledger.
+            roundTrip = form.roundTrip && !returnAlreadyRecorded(track, recordedTracks),
             startLabel = odometerLabel(hasRealOdometerSource, form.isManualStartOdo),
             endLabel = odometerLabel(hasRealOdometerSource, form.isManualEndOdo),
             startReading = odometerReading(odometerFallbackActive, form.simulatedStartOdo),
@@ -70,6 +75,20 @@ object SubmitMilesRequestBuilder {
             petty = track?.pettyId?.takeIf { it >= 0 },
             officeId = track?.officeId,
             entityId = track?.entityId,
+        )
+    }
+
+    private fun returnAlreadyRecorded(track: SavedTrack?, recordedTracks: List<SavedTrack>): Boolean {
+        if (track == null) return false
+        if (track.roundTrip || RoundTripClassifier.isRoundTrip(
+                track.startLatitude, track.startLongitude, track.endLatitude, track.endLongitude, track.distance / 1_000.0,
+            )
+        ) return true
+        return RoundTripGuard.hasRecordedReturn(
+            RoutePoint(track.startLatitude, track.startLongitude),
+            RoutePoint(track.endLatitude, track.endLongitude),
+            track.endTime,
+            recordedTracks.filter { it.routeId != track.routeId && it.startedByAccountId == track.startedByAccountId },
         )
     }
 

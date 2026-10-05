@@ -71,6 +71,7 @@ import kotlin.time.Clock
 
 val trackingModule =
     module {
+        includes(routeEntryModule)
         single {
             TrackingConfigManager(
                 configProvider = get<ConfigProvider>(),

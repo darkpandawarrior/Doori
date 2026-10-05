@@ -69,22 +69,23 @@ class ExportViewModel(
 
                 val events = hardwareEventRepository.getEventsForRoute(routeId).getOrElse { emptyList() }
 
-                val home =
-                    if (filter.redactHome) {
-                        savedPlaceDao.observeAll().first().firstOrNull { it.type == RedactionDefaults.HOME_TYPE }
-                    } else {
-                        null
-                    }
-                val redactedLocations = RedactionDefaults.locations(locations, home, filter.redactHome)
-                val redactedTrack = RedactionDefaults.track(track, redactedLocations, home, filter.redactHome)
-                val redactedEvents = RedactionDefaults.events(events, home, filter.redactHome)
+                // Protected Home places are excluded even when an older caller disables the default.
+                val homes = savedPlaceDao.observeAll().first().filter { it.type == RedactionDefaults.HOME_TYPE }
+                var redactedLocations = locations
+                var redactedTrack = track
+                var redactedEvents = events
+                for (home in homes) {
+                    redactedLocations = RedactionDefaults.locations(redactedLocations, home)
+                    redactedTrack = RedactionDefaults.track(redactedTrack, redactedLocations, home)
+                    redactedEvents = RedactionDefaults.events(redactedEvents, home)
+                }
                 val content =
                     TrackExportContent.build(
                         format,
                         redactedTrack,
                         redactedLocations,
                         redactedEvents,
-                        omitEndpointCoordinates = filter.redactHome && home != null && redactedLocations.isEmpty(),
+                        omitEndpointCoordinates = homes.isNotEmpty() && redactedLocations.isEmpty(),
                     )
                 val subject = "Track export: ${redactedTrack.name}"
 

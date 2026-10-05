@@ -1122,6 +1122,32 @@ class ScreenshotGalleryTest {
     }
 
     @Test
+    fun phase3CapturePointToPointOffline() {
+        composeRule.setContent {
+            MilewayTheme {
+                com.mileway.feature.tracking.route.PointToPointScreen(onBack = {})
+            }
+        }
+        composeRule.onNodeWithText("Origin latitude").performScrollTo().performTextInput("12.0")
+        composeRule.onNodeWithText("Origin longitude").performScrollTo().performTextInput("34.0")
+        composeRule.onNodeWithText("Destination latitude").performScrollTo().performTextInput("13.0")
+        composeRule.onNodeWithText("Destination longitude").performScrollTo().performTextInput("35.0")
+        composeRule.onNodeWithText("Estimate route").performScrollTo().performClick()
+        composeRule.onNodeWithText("Total distance km (approximate)").performScrollTo().performTextInput("14.5")
+        capture("phase3_point_to_point_approximate")
+    }
+
+    @Test
+    fun phase3CaptureTrackingRouteEntry() {
+        composeRule.setContent { MilewayTheme { SavedTracksScreen(onTrackClick = {}, onStartNew = {}) } }
+        composeRule.onNodeWithText("Enter point-to-point route").assertIsDisplayed()
+        capture("phase3_saved_tracks_route_entry")
+        composeRule.onNodeWithText("Enter point-to-point route").performClick()
+        composeRule.onNodeWithText("Point-to-point route").assertIsDisplayed()
+        capture("phase3_point_to_point_entry")
+    }
+
+    @Test
     fun phase3CaptureEmployeeReimbursements() {
         val reports = MutableStateFlow(listOf(phase1ExpenseReport().copy(state = ReportLifecycleState.APPROVED_FOR_PAYMENT)))
         val application = phase3ProfileApplication(reports)

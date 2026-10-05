@@ -37,6 +37,7 @@ import com.mileway.feature.tracking.submission.SubmitMilesRequestBuilder
 import com.siddharth.kmp.appshell.NotificationScheduler
 import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.mvi.BaseViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
@@ -491,7 +492,7 @@ class MileageSubmissionViewModel(
                             endAddress = endAddr,
                             vehicleName = vehicle?.vehicleName ?: vehicleKey,
                             vehicleRatePerKm = vehicle?.vehiclePricing ?: 0.0,
-                            roundTrip = roundTrip,
+                            roundTrip = track?.roundTrip == true || roundTrip,
                         ),
                 )
             }
@@ -573,6 +574,7 @@ class MileageSubmissionViewModel(
                     form = currentState.form,
                     track = track,
                     routePoints = routePoints,
+                    recordedTracks = trackRepository.rawTracksFlow().first(),
                 )
 
             val syncer = milesSyncer

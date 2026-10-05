@@ -25,14 +25,14 @@ object RedactionDefaults {
             }
         }
 
-    /** Exact address text becomes the Home label; unrelated text remains unchanged. */
+    /** Home address text becomes the Home label, including addresses embedded in event text. */
     fun address(
         text: String,
         home: SavedPlaceEntity?,
         enabled: Boolean = true,
     ): String {
         if (!enabled || home?.type != HOME_TYPE) return text
-        return if (home.address.isNotBlank() && text == home.address) "Home" else text
+        return if (home.address.isNotBlank()) text.replace(home.address, "Home") else text
     }
 
     /** Scrubs event coordinates too, since JSON/CSV can export them independently of track points. */
