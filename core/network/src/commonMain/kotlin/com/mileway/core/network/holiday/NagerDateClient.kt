@@ -3,6 +3,7 @@ package com.mileway.core.network.holiday
 import com.mileway.core.data.domain.claim.isFxSourceDate
 import com.siddharth.kmp.network.createHttpClient
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.expectSuccess
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
@@ -61,7 +62,11 @@ class NagerDateClient(
         return mutex.withLock {
             try {
                 if (key !in years) {
-                    val response = client.get("https://date.nager.at/api/v3/PublicHolidays/$year/$countryCode")
+                    val response =
+                        client.get("https://date.nager.at/api/v3/PublicHolidays/$year/$countryCode") {
+                            // Unsupported-country responses are data states, so inspect status before validation throws.
+                            expectSuccess = false
+                        }
                     val holidays =
                         when (response.status) {
                             HttpStatusCode.NoContent, HttpStatusCode.NotFound -> null
@@ -69,7 +74,8 @@ class NagerDateClient(
                                 if (!response.status.isSuccess()) return@withLock HolidayCheck.Offline
                                 json.decodeFromString<List<PublicHoliday>>(response.bodyAsText()).also { rows ->
                                     if (rows.any {
-                                            !isFxSourceDate(it.date) || !it.date.startsWith(year) || it.countryCode != countryCode || it.name.isBlank()
+                                            val validDate = isFxSourceDate(it.date) && it.date.startsWith(year)
+                                            !validDate || it.countryCode != countryCode || it.name.isBlank()
                                         }
                                     ) {
                                         return@withLock HolidayCheck.Offline
