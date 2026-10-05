@@ -84,7 +84,12 @@ fun GlExportValidationScreen(
             }
             items(state.lines.map { it.key }.distinct(), key = { it }) { key ->
                 val mapping = state.mappings.firstOrNull { it.category == key }
-                GlMappingEditor(key, mapping?.glAccountCode.orEmpty(), mapping?.costCenter.orEmpty(), state.busy) { code, costCenter ->
+                GlMappingEditor(
+                    key,
+                    mapping?.glAccountCode.orEmpty(),
+                    mapping?.costCenter.orEmpty(),
+                    state.busy || !state.dataReady,
+                ) { code, costCenter ->
                     viewModel.saveMapping(key, code, costCenter)
                 }
             }
@@ -97,7 +102,7 @@ private fun GlMappingEditor(
     key: String,
     savedCode: String,
     savedCostCenter: String,
-    busy: Boolean,
+    disabled: Boolean,
     onSave: (String, String) -> Unit,
 ) {
     var code by rememberSaveable(key, savedCode) { mutableStateOf(savedCode) }
@@ -105,9 +110,9 @@ private fun GlMappingEditor(
     Card(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Mapping: $key", style = MaterialTheme.typography.titleMedium)
-            OutlinedTextField(code, { code = it }, label = { Text("GL code for $key") }, enabled = !busy, singleLine = true)
-            OutlinedTextField(costCenter, { costCenter = it }, label = { Text("Cost center for $key (optional)") }, enabled = !busy, singleLine = true)
-            Button(onClick = { onSave(code, costCenter) }, enabled = !busy && code.isNotBlank()) { Text("Save $key mapping") }
+            OutlinedTextField(code, { code = it }, label = { Text("GL code for $key") }, enabled = !disabled, singleLine = true)
+            OutlinedTextField(costCenter, { costCenter = it }, label = { Text("Cost center for $key (optional)") }, enabled = !disabled, singleLine = true)
+            Button(onClick = { onSave(code, costCenter) }, enabled = !disabled && code.isNotBlank()) { Text("Save $key mapping") }
         }
     }
 }
