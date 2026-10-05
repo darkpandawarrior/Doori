@@ -37,7 +37,7 @@ class DetectionHealthNudges(
                         deeplink = "mileway://track/detail/${track.routeId}",
                     )
                 }
-        val starts = completed.map { it.startTime }.sortedDescending().take(ROLLING_TRIP_COUNT)
+        val starts = completed.map { it.startTime }.filter { it > 0 }.sortedDescending().take(ROLLING_TRIP_COUNT)
         if (starts.size < MIN_COMPLETED_TRIPS) return nudges
         val averageGap = starts.zipWithNext { newer, older -> (newer - older).toDouble() }.average()
         if (averageGap <= 0) return nudges

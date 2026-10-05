@@ -74,6 +74,14 @@ class DetectionHealthWorkerTest {
     }
 
     @Test
+    fun `invalid starts are excluded before counting and averaging health history`() {
+        val trips = history()
+        assertTrue(health(trips.drop(1) + trips.first().copy(startTime = 0)).isEmpty())
+        assertTrue(health(trips.drop(1) + trips.first().copy(startTime = -1)).isEmpty())
+        assertEquals(health(trips), health(trips + trips.first().copy(routeId = "invalid", startTime = 0)))
+    }
+
+    @Test
     fun `health average uses the latest ten starts regardless of input order`() {
         val recent = history(count = 10)
         val oldOutlier = completedTrip().copy(startTime = now - 365 * day, notes = "PERSONAL")
