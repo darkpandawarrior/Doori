@@ -162,18 +162,10 @@ private fun EndpointEntry(
     fun update() {
         val latitude = lat.toDoubleOrNull()
         val longitude = lng.toDoubleOrNull()
+        val validLatitude = latitude != null && latitude.isFinite() && latitude in -90.0..90.0
+        val validLongitude = longitude != null && longitude.isFinite() && longitude in -180.0..180.0
         onSelect(
-            if (latitude != null &&
-                latitude.isFinite() &&
-                latitude in -90.0..90.0 &&
-                longitude != null &&
-                longitude.isFinite() &&
-                longitude in -180.0..180.0
-            ) {
-                SavedPlaceEntity(label, "OTHER", label, "", latitude, longitude, 0L)
-            } else {
-                null
-            },
+            if (validLatitude && validLongitude) SavedPlaceEntity(label, "OTHER", label, "", latitude, longitude, 0L) else null,
         )
     }
     OutlinedTextField(lat, {

@@ -26,7 +26,9 @@ class SavedPlacesRepository(
         require(place.id.isNotBlank() && place.label.isNotBlank())
         require(place.type in setOf("HOME", "WORK", "OTHER"))
         require((place.latitude == null) == (place.longitude == null))
-        if (place.latitude != null && place.longitude != null) RoutePoint(place.latitude, place.longitude)
+        val latitude = place.latitude
+        val longitude = place.longitude
+        if (latitude != null && longitude != null) RoutePoint(latitude, longitude)
         val old = savedPlaces.first().firstOrNull { it.id == place.id }
         require(old?.isProtected != true || place.type == "HOME") { "Home cannot be retyped" }
         val home = savedPlaces.first().firstOrNull { it.isProtected }

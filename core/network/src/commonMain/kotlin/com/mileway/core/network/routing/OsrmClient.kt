@@ -10,6 +10,10 @@ import io.ktor.http.Url
 import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.Serializable
 
+private const val MaximumLatitude = 90.0
+private const val MaximumLongitude = 180.0
+private const val MetresPerKm = 1_000.0
+
 /** Session configuration. No public routing host is selected automatically. */
 class OsrmConfiguration(
     var baseUrl: String? = null,
@@ -22,8 +26,8 @@ data class RoutePoint(
     val protected: Boolean = false,
 ) {
     init {
-        require(latitude.isFinite() && latitude in -90.0..90.0)
-        require(longitude.isFinite() && longitude in -180.0..180.0)
+        require(latitude.isFinite() && latitude in -MaximumLatitude..MaximumLatitude)
+        require(longitude.isFinite() && longitude in -MaximumLongitude..MaximumLongitude)
     }
 }
 
@@ -64,17 +68,7 @@ class OsrmClient(
         val base = configuration.baseUrl?.trim()?.trimEnd('/')
         if (base.isNullOrBlank()) return RouteEstimate.ManualRequired("Routing is unconfigured; enter distance manually (approximate)")
         return try {
-            val url = Url(base)
-            if (!(base.startsWith("http://") || base.startsWith("https://")) ||
-                url.protocol !in listOf(URLProtocol.HTTP, URLProtocol.HTTPS) ||
-                url.host.isBlank() ||
-                !url.user.isNullOrEmpty() ||
-                !url.password.isNullOrEmpty() ||
-                url.parameters.names().isNotEmpty() ||
-                url.fragment.isNotEmpty()
-            ) {
-                return RouteEstimate.ManualRequired("Invalid routing server; enter distance manually (approximate)")
-            }
+            if (!validServer(base)) return RouteEstimate.ManualRequired("Invalid routing server; enter distance manually (approximate)")
             val points = listOf(origin, destination) + if (roundTrip) listOf(origin) else emptyList()
             val coordinates = points.joinToString(";") { "${it.longitude},${it.latitude}" }
             val response =
@@ -86,8 +80,9 @@ class OsrmClient(
                         }
                     }.body<OsrmResponse>()
             val metres = response.routes.firstOrNull()?.distance
-            if (response.code == "Ok" && metres != null && metres.isFinite() && metres > 0.0) {
-                RouteEstimate.Routed(metres / 1_000.0)
+            val distance = metres?.takeIf { it.isFinite() && it > 0.0 }
+            if (response.code == "Ok" && distance != null) {
+                RouteEstimate.Routed(distance / MetresPerKm)
             } else {
                 RouteEstimate.ManualRequired("No route match; enter distance manually (approximate)")
             }
@@ -97,6 +92,14 @@ class OsrmClient(
             RouteEstimate.ManualRequired("Routing is unavailable; enter distance manually (approximate)")
         }
     }
+    private fun validServer(base: String): Boolean {
+        if (!(base.startsWith("http://") || base.startsWith("https://"))) return false
+        val url = Url(base)
+        if (url.protocol !in listOf(URLProtocol.HTTP, URLProtocol.HTTPS) || url.host.isBlank()) return false
+        if (!url.user.isNullOrEmpty() || !url.password.isNullOrEmpty()) return false
+        return url.parameters.names().isEmpty() && url.fragment.isEmpty()
+    }
+
 }
 
 @Serializable

@@ -1,5 +1,7 @@
 package com.mileway.core.data.domain.policy
 
+private const val LastHourOfDay = 23
+
 /** Automatic suggestions do not replace an explicit user classification. */
 enum class TripClassification { BUSINESS, PERSONAL }
 
@@ -17,7 +19,7 @@ data class ClassificationHours(
     val classification: TripClassification,
 ) {
     init {
-        require(startHour in 0..23 && endHour in 0..23 && startHour != endHour)
+        require(startHour in 0..LastHourOfDay && endHour in 0..LastHourOfDay && startHour != endHour)
     }
 
     fun contains(hour: Int): Boolean = if (startHour < endHour) hour in startHour until endHour else hour >= startHour || hour < endHour
@@ -37,7 +39,7 @@ data class AutoClassificationRules(
     ): ClassificationDecision? {
         vehicles[vehicleKey]?.let { return ClassificationDecision(it, ClassificationSource.VEHICLE) }
         placeIds.firstNotNullOfOrNull { places[it] }?.let { return ClassificationDecision(it, ClassificationSource.PLACE) }
-        if (localHour != null && localHour in 0..23 && hours?.contains(localHour) == true) {
+        if (localHour != null && localHour in 0..LastHourOfDay && hours?.contains(localHour) == true) {
             return ClassificationDecision(hours.classification, ClassificationSource.HOURS)
         }
         return lastTrip?.let { ClassificationDecision(it, ClassificationSource.LAST_TRIP) }

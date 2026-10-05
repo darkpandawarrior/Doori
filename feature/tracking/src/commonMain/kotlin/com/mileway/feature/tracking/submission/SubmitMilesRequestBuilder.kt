@@ -23,6 +23,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
  *   path); [SavedTrack] (the Track Miles trip record) has no MJP-linkage field to source from.
  */
 object SubmitMilesRequestBuilder {
+    private const val MetresPerKm = 1_000.0
     /** Audit-trail marker recorded when distance is sourced from GPS because the odometer wasn't usable. */
     const val ODOMETER_NOT_WORKING_REMARK = "ODOMETER_NOT_WORKING"
 
@@ -89,7 +90,7 @@ object SubmitMilesRequestBuilder {
                 track.startLongitude,
                 track.endLatitude,
                 track.endLongitude,
-                track.distance / 1_000.0,
+                track.distance / MetresPerKm,
             )
         ) {
             return true

@@ -31,11 +31,21 @@ class RedactionDefaultsTest {
 
     @Test
     fun `shared export boundary protects all formats and embedded Home addresses`() {
-        val source = SavedTrack(
-            routeId = "protected", name = "Arrival at ${home.address}", startLatitude = near.lat, startLongitude = near.lng,
-            endLatitude = far.lat, endLongitude = far.lng, pausedLatitude = 0.0, pausedLongitude = 0.0,
-            startTime = 1L, endTime = 2L, distance = 1000.0, duration = 1L,
-        )
+        val source =
+            SavedTrack(
+                routeId = "protected",
+                name = "Arrival at ${home.address}",
+                startLatitude = near.lat,
+                startLongitude = near.lng,
+                endLatitude = far.lat,
+                endLongitude = far.lng,
+                pausedLatitude = 0.0,
+                pausedLongitude = 0.0,
+                startTime = 1L,
+                endTime = 2L,
+                distance = 1000.0,
+                duration = 1L,
+            )
         val safe = RedactionDefaults.protect(source, listOf(near, far), emptyList(), listOf(home))
         for (format in ExportFormat.entries) {
             val content = TrackExportContent.build(format, safe.track, safe.points, safe.events, safe.omitEndpointCoordinates)

@@ -85,8 +85,8 @@ object RedactionDefaults {
         val protectedHomes = homes.filter { it.type == HOME_TYPE }
         for (home in protectedHomes) {
             safePoints = locations(safePoints, home)
-            safeTrack = track(safeTrack, safePoints, home)
-            safeEvents = events(safeEvents, home)
+            safeTrack = this.track(safeTrack, safePoints, home)
+            safeEvents = this.events(safeEvents, home)
         }
         return ProtectedTrackExport(safeTrack, safePoints, safeEvents, protectedHomes.isNotEmpty() && safePoints.isEmpty())
     }

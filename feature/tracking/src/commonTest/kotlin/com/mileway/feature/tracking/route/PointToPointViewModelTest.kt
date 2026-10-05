@@ -120,7 +120,7 @@ class PointToPointViewModelTest {
                 assertEquals(15_000.0, row.distance)
                 assertFalse(row.roundTrip)
                 assertTrue(row.isDraft)
-                assertFalse(row.isCompleted)
+                assertTrue(row.isCompleted)
             } finally {
                 http.close()
             }
