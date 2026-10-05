@@ -44,6 +44,7 @@ import com.mileway.core.data.dao.LogMilesFrequentRouteDao
 import com.mileway.core.data.dao.MockAccountDao
 import com.mileway.core.data.dao.NotificationDao
 import com.mileway.core.data.dao.PassportDetailsDao
+import com.mileway.core.data.dao.PerDiemRateDao
 import com.mileway.core.data.dao.SavedTrackDao
 import com.mileway.core.data.dao.SessionDao
 import com.mileway.core.data.dao.SignatureDao
@@ -51,12 +52,19 @@ import com.mileway.core.data.dao.SupportTicketDao
 import com.mileway.core.data.dao.TripAttachmentDao
 import com.mileway.core.data.dao.VehicleDetailsDao
 import com.mileway.core.data.dao.VoucherDao
+import com.mileway.core.data.domain.claim.AdvanceLine
+import com.mileway.core.data.domain.claim.ApprovalAction
+import com.mileway.core.data.domain.claim.ApprovalChain
+import com.mileway.core.data.domain.claim.ApprovalStep
 import com.mileway.core.data.domain.claim.ExpenseLine
+import com.mileway.core.data.domain.claim.FxRate
+import com.mileway.core.data.domain.claim.JustificationReason
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
+import com.mileway.core.data.model.db.PerDiemRateEntity
 import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.VoucherCategory
 import com.mileway.core.data.model.db.VoucherEntity
@@ -76,6 +84,7 @@ import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
+import com.mileway.core.network.payout.PayoutBeneficiaryStore
 import com.mileway.core.platform.ReferralData
 import com.mileway.core.platform.ReferralManager
 import com.mileway.core.platform.ShareSheet
@@ -125,6 +134,9 @@ import com.mileway.feature.approvals.ui.screens.ReportApprovalScreen
 import com.mileway.feature.approvals.ui.sheets.ClaimantHistorySheet
 import com.mileway.feature.approvals.viewmodel.ReportApprovalViewModel
 import com.mileway.feature.cards.di.cardsModule
+import com.mileway.feature.cards.import.StatementImportScreen
+import com.mileway.feature.cards.import.StatementImportViewModel
+import com.mileway.feature.cards.import.StatementImporter
 import com.mileway.feature.cards.ui.CardDetailScreen
 import com.mileway.feature.cards.ui.CardRequestScreen
 import com.mileway.feature.cards.ui.CardsHomeScreen
@@ -132,6 +144,9 @@ import com.mileway.feature.events.di.eventsModule
 import com.mileway.feature.events.ui.screens.CreateEventScreen
 import com.mileway.feature.events.ui.screens.EventsHistoryScreen
 import com.mileway.feature.logging.di.loggingModule
+import com.mileway.feature.logging.model.ExpenseCategory
+import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
+import com.mileway.feature.logging.perdiem.PerDiemSheet
 import com.mileway.feature.logging.report.ReportGroupingScreen
 import com.mileway.feature.logging.report.ReportGroupingViewModel
 import com.mileway.feature.logging.report.ReportSubmitScreen
@@ -148,6 +163,8 @@ import com.mileway.feature.logging.ui.screens.SettlementHistoryScreen
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.logging.ui.screens.VoucherDetailsScreen
 import com.mileway.feature.logging.ui.screens.VoucherHistoryScreen
+import com.mileway.feature.logging.viewmodel.ExpenseAction
+import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
 import com.mileway.feature.media.di.androidMediaModule
 import com.mileway.feature.media.di.mediaModule
@@ -1129,6 +1146,232 @@ class ScreenshotGalleryTest {
                 single<SessionSource> {
                     object : SessionSource {
                         override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = "employee"))
+                    }
+                }
+                single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
+                single<ReportPayoutProcessor> { mockk(relaxed = true) }
+            },
+        )
+    }
+
+    // Phase-2 captures use isolated graphs and the same production screens as the gallery.
+
+    @Test
+    fun phase2CapturePerDiemRange() {
+        val application = phase2ReportApplication(Report("per-diem-preview", "employee"))
+        val viewModel = application.koin.get<PerDiemEntryViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme { PerDiemSheet(viewModel, onBack = {}, onOpenReport = {}) }
+            }
+            composeRule.onNodeWithText("Start date (YYYY-MM-DD)").performScrollTo().performTextInput("2026-09-01")
+            composeRule.onNodeWithText("End date (YYYY-MM-DD)").performScrollTo().performTextInput("2026-09-03")
+            composeRule.onNodeWithText("2026-09-03 · ₹ 100.00").performScrollTo().assertIsDisplayed()
+            capture("phase2_per_diem_range")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase2CaptureReportAffidavit() {
+        val report =
+            Report(
+                "report-affidavit",
+                "employee",
+                listOf(
+                    ExpenseLine(
+                        "taxi",
+                        50_000,
+                        "INR",
+                        merchant = "Client visit taxi",
+                        category = "TRAVEL",
+                        affidavitAccepted = true,
+                        affidavitNote = "Vendor gave no receipt for the client visit.",
+                        justificationReason = JustificationReason.CLIENT_REQUEST,
+                        justificationNote = "Client requested an urgent site visit.",
+                    ),
+                ),
+            )
+        val application = phase2ReportApplication(report)
+        val viewModel = application.koin.get<ReportSubmitViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme { ReportSubmitScreen(report.id, viewModel, onBack = {}) }
+            }
+            composeRule.onNodeWithText("Why is the receipt missing? (required)").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Client request").assertIsDisplayed()
+            capture("phase2_report_affidavit")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase2CaptureReportAdvanceNet() {
+        val draft = phase1ExpenseReport()
+        val report = draft.copy(lines = draft.lines + AdvanceLine("advance-1", 500_000, "INR", advanceId = "1"))
+        val application = phase2ReportApplication(report)
+        val viewModel = application.koin.get<ReportSubmitViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme { ReportSubmitScreen(report.id, viewModel, onBack = {}) }
+            }
+            composeRule.onNodeWithText("Applied advances · ₹ 5,000.00").assertIsDisplayed()
+            composeRule.onNodeWithText("Owed to employee · ₹ 9,350.00").assertIsDisplayed()
+            capture("phase2_report_advance_net")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase2CaptureCardImport() {
+        val line = ExpenseLine("cafe", 12_000, "INR", merchant = "Cafe Orchard", category = "FOOD", incurredOn = "2026-09-25")
+        val importer =
+            StatementImporter(
+                loadReports = { listOf(Report("report-card", "employee", listOf(line))) },
+                batchExists = { false },
+                saveMatches = { _, _, _ -> true },
+            )
+        val beneficiary = mockk<PayoutBeneficiaryStore> { every { read() } returns null }
+        val application = phase2ReportApplication(Report("report-card", "employee", listOf(line)))
+        val viewModel = StatementImportViewModel(importer, beneficiary, application.koin.get(), importDispatcher = Dispatchers.Unconfined)
+        try {
+            composeRule.setContent {
+                MilewayTheme { StatementImportScreen(onBack = {}, viewModel = viewModel) }
+            }
+            composeRule
+                .onNodeWithText("Paste CSV or OFX text")
+                .performScrollTo()
+                .performTextInput("id,date,merchant,amount,currency\ntx,2026-09-25,Cafe Orchard,120.00,INR")
+            composeRule.onNodeWithText("Import and match").performScrollTo().performClick()
+            composeRule.onNodeWithText("1 matched; 0 unmatched. Matched amounts are locked.").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Row 1: matched to cafe").assertIsDisplayed()
+            capture("phase2_card_import")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase2CaptureApprovalFinance() {
+        val report =
+            phase1ExpenseReport().copy(
+                state = ReportLifecycleState.SUBMITTED,
+                approvalChain =
+                    ApprovalChain(
+                        listOf(
+                            ApprovalStep(
+                                0,
+                                actedBy = "manager",
+                                action = ApprovalAction.APPROVE,
+                                comment = "Receipts checked; ready for finance.",
+                                actedAtMillis = screenshotNowMs,
+                            ),
+                        ),
+                    ),
+            )
+        val application = phase2ReportApplication(report, employeeCode = "finance")
+        val viewModel = application.koin.get<ReportApprovalViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme { ReportApprovalScreen(report.id, onBack = {}, viewModel = viewModel) }
+            }
+            composeRule.onNodeWithText("Next review: FINANCE").assertIsDisplayed()
+            composeRule.onNodeWithText("Approval comment (required)").performScrollTo().performTextInput("Finance checked the report and funded advance.")
+            composeRule.onNodeWithText("Finance approve and simulate payout").performScrollTo().assertIsDisplayed()
+            capture("phase2_approval_finance")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase2CaptureFxPin() {
+        val rate = FxRate(90.0, "USD", sourceDate = "2026-09-25")
+        val report =
+            Report(
+                "report-fx",
+                "employee",
+                listOf(
+                    ExpenseLine(
+                        "foreign-cafe",
+                        1_000,
+                        "USD",
+                        fxRatePinnedAt = screenshotNowMs,
+                        fxRate = rate,
+                        merchant = "Foreign Cafe",
+                        category = "FOOD",
+                        justificationReason = JustificationReason.BUSINESS_NECESSITY,
+                    ),
+                ),
+            )
+        val application = phase2ReportApplication(report)
+        val viewModel = application.koin.get<ReportSubmitViewModel>()
+        try {
+            composeRule.setContent {
+                MilewayTheme { ReportSubmitScreen(report.id, viewModel, onBack = {}) }
+            }
+            composeRule.onNodeWithText(rate.description()).assertIsDisplayed()
+            composeRule.onNodeWithText("Foreign Cafe · $ 10.00").assertIsDisplayed()
+            capture("phase2_fx_pin")
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase2CaptureExpenseSplits() {
+        val application = phase2ReportApplication(Report("report-splits", "employee"))
+        val viewModel = application.koin.get<ExpenseViewModel>()
+        viewModel.onAction(ExpenseAction.SelectCategory(ExpenseCategory.FOOD))
+        viewModel.onAction(ExpenseAction.AdvanceStep)
+        viewModel.onAction(ExpenseAction.SetAmount("6000.00"))
+        viewModel.onAction(ExpenseAction.SetMerchant("New Cafe"))
+        try {
+            composeRule.setContent {
+                MilewayTheme { ExpenseScreen(onBack = {}, onSubmitted = {}, viewModel = viewModel) }
+            }
+            composeRule.onNodeWithText("Add split").performScrollTo().performClick()
+            composeRule.onNodeWithText("Cost centre name or ID").performScrollTo().performTextInput("Sales")
+            composeRule.onNodeWithText("INR 6000.00").performScrollTo().assertIsDisplayed()
+            capture("phase2_expense_splits")
+        } finally {
+            application.close()
+        }
+    }
+
+    private fun phase2ReportApplication(
+        report: Report,
+        employeeCode: String = "employee",
+    ) = koinApplication {
+        modules(
+            loggingModule,
+            advancesModule,
+            approvalsModule,
+            paymentsModule,
+            module {
+                single { ExpenseRepository(FakeDraftExpenseDao()) }
+                single<ReportRepository> {
+                    mockk {
+                        every { observe(any()) } returns MutableStateFlow(report)
+                        every { observeAll() } returns MutableStateFlow(listOf(report))
+                        every { observeReviewQueue() } returns MutableStateFlow(emptyList())
+                        every { observeByEmployee(any()) } returns MutableStateFlow(listOf(report))
+                        coEvery { review(any()) } returns approvalReviewOf(report)
+                        coEvery { delegates(any(), any()) } returns emptyList()
+                    }
+                }
+                single<SessionSource> {
+                    object : SessionSource {
+                        override val sessionState = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = employeeCode))
+                    }
+                }
+                single<PerDiemRateDao> {
+                    mockk {
+                        every { observeAll() } returns
+                            MutableStateFlow(listOf(PerDiemRateEntity("Pune_Standard", "Pune", "Standard", 10_000, "INR", 0)))
                     }
                 }
                 single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
