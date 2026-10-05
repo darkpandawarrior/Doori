@@ -23,6 +23,7 @@ import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -336,6 +337,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -1021,6 +1023,162 @@ class ScreenshotGalleryTest {
             Konnection.createInstance(ApplicationProvider.getApplicationContext())
             konnectionInitialized = true
         }
+    }
+
+    @Test
+    fun phase3CaptureIosSpendsReportsAndPerDiem() {
+        val report = phase1ExpenseReport()
+        val application = phase3IosShellApplication(report)
+        try {
+            composeRule.setContent {
+                org.koin.compose.KoinIsolatedContext(application) {
+                    MilewayTheme { com.mileway.shared.ui.MilewayApp() }
+                }
+            }
+            composeRule.onNodeWithText("Spends").performClick()
+            composeRule.onNodeWithText("Group expenses into a report").performScrollTo().assertIsDisplayed()
+            capture("phase3_ios_spends_claim_entries")
+            composeRule.onNodeWithText("Group expenses into a report").performClick()
+            composeRule.onNodeWithText("Expense reports").assertIsDisplayed()
+            capture("phase3_ios_report_grouping")
+            composeRule.onNodeWithText(report.id.take(8), substring = true).performScrollTo().performClick()
+            composeRule.onNodeWithText("Review expense report").assertIsDisplayed()
+            capture("phase3_ios_report_review")
+            composeRule.onNodeWithText("Edit grouped items").performScrollTo().performClick()
+            composeRule.onNodeWithText("Save grouping").assertIsDisplayed()
+            composeRule.onNodeWithContentDescription("Back").performClick()
+            composeRule.onNodeWithText("Review expense report").assertIsDisplayed()
+            composeRule.onNodeWithContentDescription("Back").performClick()
+            composeRule.onNodeWithText("Expense reports").assertIsDisplayed()
+            composeRule.onNodeWithContentDescription("Back").performClick()
+            composeRule.onNodeWithText("Add per diem").performScrollTo().performClick()
+            composeRule.onNodeWithText("Start date (YYYY-MM-DD)").assertIsDisplayed()
+            capture("phase3_ios_per_diem_entry")
+            composeRule.onNodeWithText("Start date (YYYY-MM-DD)").performTextInput("2026-10-05")
+            composeRule.onNodeWithText("End date (YYYY-MM-DD)").performTextInput("2026-10-06")
+            composeRule.onNodeWithText("Create report and review").performClick()
+            composeRule.onNodeWithText("Review expense report").assertIsDisplayed()
+            composeRule.onNodeWithContentDescription("Back").performClick()
+            composeRule.onNodeWithText("Start date (YYYY-MM-DD)").assertIsDisplayed()
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase3CaptureIosMoreAndTravelRoutes() {
+        val report = phase1ExpenseReport().copy(state = ReportLifecycleState.SUBMITTED)
+        val application = phase3IosShellApplication(report, employeeCode = "delegate-approver")
+        val banner = "Acting on behalf of manager. Your identity will also be recorded."
+        try {
+            composeRule.setContent {
+                org.koin.compose.KoinIsolatedContext(application) {
+                    MilewayTheme { com.mileway.shared.ui.MilewayApp() }
+                }
+            }
+            composeRule.onNodeWithText("More").performClick()
+            composeRule.onNodeWithText("Local rate editor").assertIsDisplayed()
+            capture("phase3_ios_more_claim_entries")
+            composeRule.onNodeWithText("Approvals").performScrollTo().performClick()
+            composeRule.onNodeWithText("Report ${report.id}", substring = true).performScrollTo().assertIsDisplayed()
+            capture("phase3_ios_approval_queue")
+            composeRule.onNodeWithText("Report ${report.id}", substring = true).performClick()
+            composeRule.onNodeWithText("Delegate for manager").performScrollTo().performClick()
+            composeRule.onNodeWithText(banner).assertIsDisplayed()
+            capture("phase3_ios_delegate_review")
+            composeRule.onNodeWithContentDescription("Back").performClick()
+            composeRule.onNodeWithText("Report ${report.id}", substring = true).performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Back").performClick()
+            kotlinx.coroutines.runBlocking {
+                application.koin.get<ReportRepository>().save(report.copy(employeeId = "delegate-approver", state = ReportLifecycleState.APPROVED_FOR_PAYMENT))
+            }
+            composeRule.onNodeWithText("Reimbursements").performClick()
+            composeRule.onNodeWithText("Processing payment (simulated)").performScrollTo().assertIsDisplayed()
+            capture("phase3_ios_reimbursement_stepper")
+            composeRule.onNodeWithText("Back").performScrollTo().performClick()
+            composeRule.onNodeWithText("Local rate editor").performClick()
+            composeRule.onNodeWithText("Unauthenticated local admin. These versions are stored on this device.").assertIsDisplayed()
+            capture("phase3_ios_local_rates")
+            composeRule.onNodeWithText("Back").performClick()
+            composeRule.onNodeWithText("Travel").performClick()
+            composeRule.onNodeWithText("Request pre-trip authorization").performClick()
+            composeRule.onNodeWithText("Business purpose").assertIsDisplayed()
+            capture("phase3_ios_travel_request")
+            composeRule.onNodeWithText("Back").performClick()
+            composeRule.onNodeWithText("Request pre-trip authorization").assertIsDisplayed()
+        } finally {
+            application.close()
+        }
+    }
+
+    private fun phase3IosShellApplication(
+        report: Report,
+        employeeCode: String = "employee",
+    ) = koinApplication {
+        val reports = MutableStateFlow(listOf(report.copy(employeeId = employeeCode)))
+        val session = MutableStateFlow(SessionState(kind = SessionKind.CREDENTIALS, employeeCode = employeeCode, whatsNewLastSeenVersion = Int.MAX_VALUE))
+        modules(
+            fakeRoomLayer,
+            coreUiModule,
+            stubModule,
+            homeModule,
+            com.mileway.ui.home.firstLoginBannerModule,
+            com.mileway.ui.home.whatsNewModule,
+            whatsNewFeatureModule,
+            loggingModule,
+            advancesModule,
+            approvalsModule,
+            paymentsModule,
+            profileModule,
+            trackingModule,
+            travelModule,
+            fakeOverrides,
+            module {
+                single<DataStore<Preferences>> { Phase3RatePreferences() }
+                single<ShareSheet> { mockk(relaxed = true) }
+                single<SessionRepository> { mockk(relaxed = true) { every { sessionState } returns session } }
+                single<SessionSource> {
+                    object : SessionSource {
+                        override val sessionState = session
+                    }
+                }
+                single<ReportRepository> {
+                    mockk {
+                        every { observe(any()) } answers {
+                            val id = firstArg<String>()
+                            reports.map { all -> all.firstOrNull { it.id == id } }
+                        }
+                        every { observeAll() } returns reports
+                        every { observeReviewQueue() } returns reports
+                        every { observeByEmployee(any()) } answers { reports }
+                        coEvery { review(any()) } answers { reports.value.firstOrNull { it.id == firstArg<String>() }?.let(::approvalReviewOf) }
+                        coEvery { save(any()) } answers {
+                            firstArg<Report>().also { saved -> reports.value = reports.value.filterNot { it.id == saved.id } + saved }
+                        }
+                        coEvery { delegates(any(), any()) } returns
+                            listOf(
+                                com.mileway.core.data.model.db.DelegateAssignmentEntity(
+                                    id = "ios-delegate",
+                                    delegatorAccountId = "manager",
+                                    delegateAccountId = employeeCode,
+                                    scope = "approvals",
+                                    startsAtMs = screenshotNowMs - 60_000,
+                                    expiresAtMs = screenshotNowMs + 60_000,
+                                    isActive = true,
+                                    createdAtMs = screenshotNowMs,
+                                ),
+                            )
+                    }
+                }
+                single<PerDiemRateDao> {
+                    mockk {
+                        every { observeAll() } returns MutableStateFlow(listOf(PerDiemRateEntity("pune_standard", "Pune", "Standard", 10_000, "INR", 0)))
+                    }
+                }
+                single<com.mileway.core.data.dao.ClarificationDao> { FakeClarificationDao() }
+                single<ReportPayoutProcessor> { mockk(relaxed = true) }
+            },
+        )
     }
 
     // ── Phase-1 reports ────────────────────────────────────────────────────────
