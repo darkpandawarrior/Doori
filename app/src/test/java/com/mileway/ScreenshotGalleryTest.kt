@@ -352,6 +352,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -3108,6 +3109,61 @@ class ScreenshotGalleryTest {
             }
         }
         capture("my_tickets_screen")
+    }
+
+    @Test
+    fun phase4CaptureNotificationNudges() {
+        val notifications = FakeNotificationDao()
+        val instant = kotlin.time.Instant.parse("2026-10-05T12:00:00Z")
+        val clock = object : kotlin.time.Clock {
+            override fun now(): kotlin.time.Instant = instant
+        }
+        val now = instant.toEpochMilliseconds()
+        val day = com.mileway.feature.tracking.health.DetectionHealthNudges.MIN_HEALTH_GAP_MS
+        val trips =
+            List(5) { index ->
+                com.mileway.core.data.model.db.SavedTrack(
+                    routeId = "nudge-trip-$index",
+                    name = "Client visit",
+                    isCompleted = true,
+                    startLatitude = 0.0,
+                    startLongitude = 0.0,
+                    endLatitude = 0.0,
+                    endLongitude = 0.0,
+                    pausedLatitude = 0.0,
+                    pausedLongitude = 0.0,
+                    startTime = now - (4 + index) * day,
+                    endTime = now - (4 + index) * day + 1,
+                    distance = 1_000.0,
+                    duration = 1L,
+                    notes = if (index == 0) "-" else "PERSONAL",
+                )
+            }
+        val tracks = mockk<SavedTrackDao>()
+        every { tracks.getCompletedTracks() } returns MutableStateFlow(trips)
+        val repository = com.mileway.feature.profile.repository.NotificationRepository(notifications, clock)
+        kotlinx.coroutines.runBlocking {
+            com.mileway.feature.tracking.worker
+                .DetectionHealthWorker(tracks, notifications, clock)
+                .doWork(
+                    null,
+                    dev.brewkits.kmpworkmanager.background.domain
+                        .WorkerEnvironment(progressListener = null, isCancelled = { false }),
+                )
+            repository.seedIfEmpty()
+            val rows = notifications.observeAll().first()
+            check(rows.take(2).all { it.id.startsWith("nudge-") })
+            check(rows.size == com.mileway.feature.profile.data.NotificationData.all.size + 2)
+        }
+        val viewModel = com.mileway.feature.profile.viewmodel.NotificationViewModel(repository)
+        composeRule.setContent {
+            MilewayTheme {
+                NotificationCentreScreen(onBack = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.onNodeWithText("Trip not yet claimed").assertIsDisplayed()
+        composeRule.onNodeWithText("Check trip detection").assertIsDisplayed()
+        capture("phase4_notification_nudges")
     }
 
     @Test

@@ -33,6 +33,9 @@ class MilewayWorkerFactory :
                     currentTrackRepository = get<CurrentTrackRepository>(),
                 )
 
+            DetectionHealthWorker.WORKER_CLASS ->
+                DetectionHealthWorker(savedTrackDao = get(), notificationDao = get())
+
             else -> null
         }
 }

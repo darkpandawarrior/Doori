@@ -36,6 +36,7 @@ import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
 import com.mileway.feature.tracking.worker.AutoDiscardTask
+import com.mileway.feature.tracking.worker.DetectionHealthWorker
 import com.mileway.feature.tracking.worker.MileageMaintenanceTask
 import com.mileway.feature.tracking.worker.MilewayWorkerFactory
 import com.mileway.feature.travel.di.travelModule
@@ -345,6 +346,11 @@ class MilewayApplication :
             AutoDiscardTask.TASK_ID,
             AutoDiscardTask.WORKER_CLASS,
             AutoDiscardTask.INTERVAL_MINUTES.minutes.inWholeMilliseconds,
+        )
+        scheduler.enqueuePeriodic(
+            DetectionHealthWorker.TASK_ID,
+            DetectionHealthWorker.WORKER_CLASS,
+            DetectionHealthWorker.INTERVAL_MINUTES.minutes.inWholeMilliseconds,
         )
     }
 }

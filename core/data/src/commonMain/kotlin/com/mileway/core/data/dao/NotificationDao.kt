@@ -16,6 +16,9 @@ interface NotificationDao {
     @Query("SELECT COUNT(*) FROM notifications")
     suspend fun count(): Int
 
+    @Query("SELECT COUNT(*) FROM notifications WHERE id NOT LIKE 'nudge-%'")
+    suspend fun countNonNudge(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(entities: List<NotificationEntity>)
 
