@@ -60,6 +60,17 @@ fun SignupOnboardingScreen(
     LaunchedEffect(config) { viewModel.configure(config) }
     LaunchedEffect(state.done) { if (state.done) onComplete() }
 
+    if (state.reviewingPolicy) {
+        PolicySummaryScreen(
+            state = state,
+            onContinue = viewModel::confirmPolicy,
+            onBack = viewModel::backToProfile,
+            onRetry = viewModel::loadPolicy,
+            modifier = modifier,
+        )
+        return
+    }
+
     Surface(modifier = modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
             modifier =
@@ -71,6 +82,7 @@ fun SignupOnboardingScreen(
                     .padding(DesignTokens.Spacing.xl),
             verticalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.m),
         ) {
+            Text("Step 1 of 2", style = MaterialTheme.typography.labelLarge)
             Text(
                 text = ob("onboarding_title", "Complete your profile"),
                 style = MaterialTheme.typography.headlineSmall,

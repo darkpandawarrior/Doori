@@ -190,9 +190,11 @@ import com.mileway.feature.payables.ui.screens.PurchaseRequestDetailsScreen
 import com.mileway.feature.payments.di.paymentsModule
 import com.mileway.feature.payments.ui.screens.CreatePaymentScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
+import com.mileway.feature.profile.admin.LocalMileageRates
 import com.mileway.feature.profile.admin.RateTableEditorScreen
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
 import com.mileway.feature.profile.admin.RateTableStore
+import com.mileway.feature.profile.admin.RateTables
 import com.mileway.feature.profile.analytics.ClaimAnalyticsView
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
 import com.mileway.feature.profile.di.profileAndroidModule
@@ -307,6 +309,7 @@ import com.mileway.ui.ShellPlaceholderScreen
 import com.mileway.ui.auth.LoginScreen
 import com.mileway.ui.auth.OnboardingFormConfig
 import com.mileway.ui.auth.SignupOnboardingScreen
+import com.mileway.ui.auth.SignupOnboardingViewModel
 import com.mileway.ui.auth.SplashScreen
 import com.mileway.ui.auth.authModule
 import com.mileway.ui.home.HomeScreenContent
@@ -1353,6 +1356,78 @@ class ScreenshotGalleryTest {
     }
 
     // Phase-2 captures use isolated graphs and the same production screens as the gallery.
+
+    @Test
+    fun phase3CaptureSignupPolicySummary() {
+        val application =
+            koinApplication {
+                modules(
+                    authModule,
+                    profileModule,
+                    module {
+                        single<SessionRepository> { mockk(relaxed = true) }
+                        single<DataStore<Preferences>> { Phase3RatePreferences() }
+                        single<PerDiemRateDao> { mockk { every { observeAll() } returns MutableStateFlow(emptyList()) } }
+                    },
+                )
+            }
+        val viewModel = application.koin.get<SignupOnboardingViewModel>()
+        var completions = 0
+        try {
+            kotlinx.coroutines.runBlocking {
+                val store = application.koin.get<RateTableStore>()
+                store.read()
+                store.addPolicyVersion("2025-01-01", "car", 850)
+            }
+            composeRule.setContent {
+                MilewayTheme { SignupOnboardingScreen(OnboardingFormConfig(), onComplete = { completions++ }, viewModel = viewModel) }
+            }
+            composeRule.onNodeWithText("First name").performTextInput("Asha")
+            capture("phase3_signup_profile")
+            composeRule.onNodeWithText("Continue").performScrollTo().performClick()
+            composeRule.onNodeWithText("Review policy summary").assertIsDisplayed()
+            composeRule.onNodeWithText("car: ${formatMinorCurrency(850, "INR")} / km").assertIsDisplayed()
+            org.junit.Assert.assertEquals(0, completions)
+            io.mockk.coVerify(exactly = 0) { application.koin.get<SessionRepository>().saveOnboarding(any(), any(), any(), any()) }
+            capture("phase3_signup_policy_summary")
+            composeRule.onNodeWithText("Back to profile").performScrollTo().performClick()
+            composeRule.onNodeWithText("Asha").assertIsDisplayed()
+            composeRule.onNodeWithText("Continue").performScrollTo().performClick()
+            composeRule.onNodeWithText("I understand, continue").performScrollTo().performClick()
+            composeRule.waitForIdle()
+            org.junit.Assert.assertEquals(1, completions)
+            io.mockk.coVerify(exactly = 1) {
+                application.koin.get<SessionRepository>().saveOnboarding(displayName = "Asha", email = null, gender = "", dateOfBirthMillis = null)
+            }
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase3CaptureSignupPolicyLoadFailure() {
+        val session = mockk<SessionRepository>(relaxed = true)
+        val readRates = mockk<suspend () -> RateTables>()
+        coEvery { readRates.invoke() } throws IllegalStateException("Unreadable local rates")
+        val viewModel = SignupOnboardingViewModel(session, readRates)
+        composeRule.setContent {
+            MilewayTheme { SignupOnboardingScreen(OnboardingFormConfig(), onComplete = {}, viewModel = viewModel) }
+        }
+        composeRule.onNodeWithText("Skip for now").performScrollTo().performClick()
+        composeRule.onNodeWithText("Unable to read local policy rates. Please retry.").assertIsDisplayed()
+        composeRule.onNodeWithText("I understand, continue").assertIsNotEnabled()
+        composeRule.onNodeWithText("Review policy summary").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Step 2 of 2").assertIsDisplayed()
+        composeRule.mainClock.advanceTimeByFrame()
+        composeRule.waitForIdle()
+        capture("phase3_signup_policy_load_failure")
+        coEvery { readRates.invoke() } returns RateTables(LocalMileageRates(), emptyList())
+        composeRule.onNodeWithText("Retry policy load").performClick()
+        composeRule.onNodeWithText("No employer mileage rate is effective on this device yet.").assertIsDisplayed()
+        composeRule.onNodeWithText("I understand, continue").performScrollTo().performClick()
+        composeRule.waitForIdle()
+        io.mockk.coVerify(exactly = 1) { session.skipOnboarding() }
+    }
 
     @Test
     fun phase2CapturePerDiemRange() {

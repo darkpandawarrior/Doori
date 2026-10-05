@@ -1,9 +1,12 @@
 package com.mileway
 
 import com.mileway.core.data.session.SessionRepository
+import com.mileway.feature.profile.admin.LocalMileageRates
+import com.mileway.feature.profile.admin.RateTables
 import com.mileway.ui.auth.OnboardingField
 import com.mileway.ui.auth.OnboardingFormConfig
 import com.mileway.ui.auth.SignupOnboardingViewModel
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -21,7 +24,10 @@ class SignupOnboardingViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun vm(session: SessionRepository = mockk(relaxed = true)) = SignupOnboardingViewModel(session)
+    private fun vm(
+        session: SessionRepository = mockk(relaxed = true),
+        readRates: suspend () -> RateTables = { RateTables(LocalMileageRates(), emptyList()) },
+    ) = SignupOnboardingViewModel(session, readRates)
 
     @Test
     fun `first name is always required`() {
@@ -67,7 +73,7 @@ class SignupOnboardingViewModelTest {
     }
 
     @Test
-    fun `valid submit persists and completes`() =
+    fun `valid submit reviews policy before persisting and completing`() =
         runTest {
             val session = mockk<SessionRepository>(relaxed = true)
             val vm = vm(session)
@@ -76,24 +82,115 @@ class SignupOnboardingViewModelTest {
             vm.submit()
             advanceUntilIdle()
 
+            assertTrue(vm.state.value.reviewingPolicy)
+            assertTrue(!vm.state.value.done)
+            coVerify(exactly = 0) { session.saveOnboarding(any(), any(), any(), any()) }
+            vm.confirmPolicy()
+            advanceUntilIdle()
             assertTrue(vm.state.value.done)
             coVerify { session.saveOnboarding(displayName = "Asha", email = null, gender = "", dateOfBirthMillis = null) }
         }
 
     @Test
-    fun `skip marks onboarding done only when allowed`() =
+    fun `skip reviews policy only when allowed and completes after confirmation`() =
         runTest {
             val session = mockk<SessionRepository>(relaxed = true)
             val vm = vm(session)
             vm.configure(OnboardingFormConfig(showSkip = false))
             vm.skip()
             advanceUntilIdle()
+            assertTrue(!vm.state.value.reviewingPolicy)
             assertTrue(!vm.state.value.done, "skip is a no-op when the persona hides it")
 
             vm.configure(OnboardingFormConfig(showSkip = true))
             vm.skip()
             advanceUntilIdle()
+            assertTrue(vm.state.value.reviewingPolicy)
+            assertTrue(!vm.state.value.done)
+            coVerify(exactly = 0) { session.skipOnboarding() }
+            vm.confirmPolicy()
+            advanceUntilIdle()
             assertTrue(vm.state.value.done)
             coVerify { session.skipOnboarding() }
+        }
+
+    @Test
+    fun `invalid submit and direct confirmation cannot complete onboarding`() =
+        runTest {
+            val session = mockk<SessionRepository>(relaxed = true)
+            val vm = vm(session)
+            vm.submit()
+            vm.confirmPolicy()
+            advanceUntilIdle()
+            assertEquals(setOf(OnboardingField.FIRST_NAME), vm.state.value.errors)
+            assertTrue(!vm.state.value.reviewingPolicy)
+            assertTrue(!vm.state.value.done)
+            coVerify(exactly = 0) { session.saveOnboarding(any(), any(), any(), any()) }
+        }
+
+    @Test
+    fun `back from policy retains profile and clears skip`() =
+        runTest {
+            val vm = vm()
+            vm.onFirstNameChange("Asha")
+            vm.skip()
+            advanceUntilIdle()
+            vm.backToProfile()
+            assertTrue(!vm.state.value.reviewingPolicy)
+            assertTrue(!vm.state.value.skipProfile)
+            assertEquals("Asha", vm.state.value.firstName)
+            vm.submit()
+            advanceUntilIdle()
+            assertTrue(vm.state.value.reviewingPolicy)
+            assertTrue(!vm.state.value.skipProfile)
+        }
+
+    @Test
+    fun `failed policy load blocks completion and retries the existing source`() =
+        runTest {
+            val session = mockk<SessionRepository>(relaxed = true)
+            var attempts = 0
+            val vm =
+                vm(session) {
+                    if (++attempts == 1) error("Cannot read local rates")
+                    RateTables(LocalMileageRates(), emptyList())
+                }
+            vm.skip()
+            vm.confirmPolicy()
+            advanceUntilIdle()
+            vm.confirmPolicy()
+            assertTrue(vm.state.value.policyError != null)
+            assertTrue(!vm.state.value.done)
+            coVerify(exactly = 0) { session.skipOnboarding() }
+            vm.loadPolicy()
+            advanceUntilIdle()
+            assertTrue(vm.state.value.policySummary != null)
+            assertEquals(null, vm.state.value.policyError)
+            vm.confirmPolicy()
+            advanceUntilIdle()
+            assertTrue(vm.state.value.done)
+        }
+
+    @Test
+    fun `failed save stays on policy and repeated confirmation saves once`() =
+        runTest {
+            val session = mockk<SessionRepository>(relaxed = true)
+            coEvery { session.skipOnboarding() } throws IllegalStateException("Cannot save")
+            val vm = vm(session)
+            vm.skip()
+            advanceUntilIdle()
+            vm.confirmPolicy()
+            advanceUntilIdle()
+            assertTrue(vm.state.value.reviewingPolicy)
+            assertTrue(vm.state.value.saveError != null)
+            assertTrue(!vm.state.value.done)
+            coEvery { session.skipOnboarding() } returns Unit
+            vm.confirmPolicy()
+            vm.confirmPolicy()
+            advanceUntilIdle()
+            vm.confirmPolicy()
+            assertTrue(vm.state.value.done)
+            assertEquals(null, vm.state.value.saveError)
+            coVerify(exactly = 2) { session.skipOnboarding() }
         }
 }
