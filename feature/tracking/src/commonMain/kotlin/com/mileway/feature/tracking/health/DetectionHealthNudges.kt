@@ -40,6 +40,7 @@ class DetectionHealthNudges(
         val starts = completed.map { it.startTime }.sortedDescending().take(ROLLING_TRIP_COUNT)
         if (starts.size < MIN_COMPLETED_TRIPS) return nudges
         val averageGap = starts.zipWithNext { newer, older -> (newer - older).toDouble() }.average()
+        if (averageGap <= 0) return nudges
         val sinceLatest = now - starts.first()
         if (sinceLatest < MIN_HEALTH_GAP_MS || sinceLatest <= averageGap * HEALTH_GAP_MULTIPLIER) return nudges
         val today = instant.toLocalDateTime(TimeZone.UTC).date

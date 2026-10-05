@@ -68,6 +68,12 @@ class DetectionHealthWorkerTest {
     }
 
     @Test
+    fun `equal trip start timestamps do not produce a health reminder`() {
+        assertTrue(health(history(gap = 0, sinceLatest = day)).isEmpty())
+        assertTrue(health(history(gap = 0, sinceLatest = 10 * day)).isEmpty())
+    }
+
+    @Test
     fun `health average uses the latest ten starts regardless of input order`() {
         val recent = history(count = 10)
         val oldOutlier = completedTrip().copy(startTime = now - 365 * day, notes = "PERSONAL")
