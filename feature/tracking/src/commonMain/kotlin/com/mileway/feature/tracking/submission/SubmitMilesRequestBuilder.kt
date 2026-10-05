@@ -1,8 +1,8 @@
 package com.mileway.feature.tracking.submission
 
 import com.mileway.core.data.model.db.LocationData
-import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SavedPlaceEntity
+import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.network.CoordsV2
 import com.mileway.core.data.model.network.SubmitMilesRequestK
 import com.mileway.feature.tracking.checkin.RoundTripClassifier
@@ -82,7 +82,10 @@ object SubmitMilesRequestBuilder {
         )
     }
 
-    private fun approverEndpoint(point: LocationData?, homes: List<SavedPlaceEntity>): CoordsV2? {
+    private fun approverEndpoint(
+        point: LocationData?,
+        homes: List<SavedPlaceEntity>,
+    ): CoordsV2? {
         if (point == null) return null
         val retained = homes.fold(listOf(point)) { points, home -> RedactionDefaults.locations(points, home) }
         return retained.singleOrNull()?.let { CoordsV2(lat = it.lat, lng = it.lng) }

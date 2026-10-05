@@ -1,8 +1,8 @@
 package com.mileway.feature.tracking.submission
 
 import com.mileway.core.data.model.db.LocationData
-import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.db.SavedPlaceEntity
+import com.mileway.core.data.model.db.SavedTrack
 import com.mileway.core.data.model.state.TrackMilesPluginConfig
 import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
 import kotlin.test.Test
@@ -65,19 +65,33 @@ class SubmitMilesRequestBuilderTest {
     @Test
     fun `approver mileage payload excludes Home endpoints without changing distance`() {
         val home = SavedPlaceEntity("home", "HOME", "Home", "Private road", 12.0, 34.0, 0L)
-        val request = SubmitMilesRequestBuilder.build(
-            routeId = "private-route", vehicleKey = "CAR", distanceKm = 12.5,
-            startTime = 100L, endTime = 200L, submissionTime = 300L, form = SubmissionFormUi(),
-            routePoints = listOf(point(12.0, 34.0), point(13.0, 35.0)), homes = listOf(home),
-        )
+        val request =
+            SubmitMilesRequestBuilder.build(
+                routeId = "private-route",
+                vehicleKey = "CAR",
+                distanceKm = 12.5,
+                startTime = 100L,
+                endTime = 200L,
+                submissionTime = 300L,
+                form = SubmissionFormUi(),
+                routePoints = listOf(point(12.0, 34.0), point(13.0, 35.0)),
+                homes = listOf(home),
+            )
         assertNull(request.origin)
         assertEquals(13.0, request.destination?.lat)
         assertEquals(12.5, request.distance)
-        val returning = SubmitMilesRequestBuilder.build(
-            routeId = "return-route", vehicleKey = "CAR", distanceKm = 12.5,
-            startTime = 100L, endTime = 200L, submissionTime = 300L, form = SubmissionFormUi(),
-            routePoints = listOf(point(13.0, 35.0), point(12.0, 34.0)), homes = listOf(home),
-        )
+        val returning =
+            SubmitMilesRequestBuilder.build(
+                routeId = "return-route",
+                vehicleKey = "CAR",
+                distanceKm = 12.5,
+                startTime = 100L,
+                endTime = 200L,
+                submissionTime = 300L,
+                form = SubmissionFormUi(),
+                routePoints = listOf(point(13.0, 35.0), point(12.0, 34.0)),
+                homes = listOf(home),
+            )
         assertNull(returning.destination)
     }
 

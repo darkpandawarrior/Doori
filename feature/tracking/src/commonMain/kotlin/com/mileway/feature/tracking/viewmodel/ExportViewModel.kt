@@ -70,11 +70,12 @@ class ExportViewModel(
                 val events = hardwareEventRepository.getEventsForRoute(routeId).getOrElse { emptyList() }
 
                 // User-owned exports redact Home by default and retain the explicit user opt-out.
-                val homes = if (filter.redactHome) {
-                    savedPlaceDao.observeAll().first().filter { it.type == RedactionDefaults.HOME_TYPE }
-                } else {
-                    emptyList()
-                }
+                val homes =
+                    if (filter.redactHome) {
+                        savedPlaceDao.observeAll().first().filter { it.type == RedactionDefaults.HOME_TYPE }
+                    } else {
+                        emptyList()
+                    }
                 val safe = RedactionDefaults.protect(track, locations, events, homes)
                 val content = TrackExportContent.build(format, safe.track, safe.points, safe.events, safe.omitEndpointCoordinates)
                 val subject = "Track export: ${safe.track.name}"

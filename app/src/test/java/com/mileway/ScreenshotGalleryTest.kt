@@ -1155,7 +1155,8 @@ class ScreenshotGalleryTest {
                 ExportOptionsDialog(onDismiss = {}, onExport = { _, _ -> }, trackName = "Office journey")
             }
         }
-        composeRule.onNodeWithText("Redact Home location").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("Hide points within 200 m of Home and replace the saved Home address with its label.").performScrollTo()
+        composeRule.onNodeWithText("Redact Home location").assertIsDisplayed()
         capture("phase3_home_export_default")
     }
 
