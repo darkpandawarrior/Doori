@@ -1639,6 +1639,45 @@ class ScreenshotGalleryTest {
     }
 
     @Test
+    fun phase3CaptureDelegateApproverBanner() {
+        val report = phase1ExpenseReport().copy(state = ReportLifecycleState.SUBMITTED)
+        val application = phase2ReportApplication(report, employeeCode = "delegate-approver")
+        val banner = "Acting on behalf of manager. Your identity will also be recorded."
+        try {
+            val reports = application.koin.get<ReportRepository>()
+            coEvery { reports.delegates(report.id, "delegate-approver") } returns
+                listOf(
+                    com.mileway.core.data.model.db.DelegateAssignmentEntity(
+                        id = "delegate-preview",
+                        delegatorAccountId = "manager",
+                        delegateAccountId = "delegate-approver",
+                        scope = "reports",
+                        startsAtMs = screenshotNowMs - 60_000,
+                        expiresAtMs = screenshotNowMs + 60_000,
+                        isActive = true,
+                        createdAtMs = screenshotNowMs,
+                    ),
+                )
+            val viewModel = application.koin.get<ReportApprovalViewModel>()
+            composeRule.setContent {
+                MilewayTheme { ReportApprovalScreen(report.id, onBack = {}, viewModel = viewModel) }
+            }
+            composeRule.onNodeWithText("Delegate for manager").assertIsDisplayed()
+            composeRule.onNodeWithText(banner).assertDoesNotExist()
+            capture("phase3_approval_as_myself")
+            composeRule.onNodeWithText("Delegate for manager").performClick()
+            composeRule.onNodeWithText(banner).assertIsDisplayed()
+            org.junit.Assert.assertEquals("manager", viewModel.state.value.onBehalfOf)
+            capture("phase3_delegate_approver_banner")
+            composeRule.onNodeWithText("Act as myself").performClick()
+            composeRule.onNodeWithText(banner).assertDoesNotExist()
+            org.junit.Assert.assertNull(viewModel.state.value.onBehalfOf)
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
     fun phase2CaptureApprovalFinance() {
         val report =
             phase1ExpenseReport().copy(
