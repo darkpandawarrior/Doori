@@ -19,6 +19,7 @@ import com.mileway.feature.travel.viewmodel.CreateTripViewModel
 import com.mileway.feature.travel.viewmodel.CreateVisaViewModel
 import com.mileway.feature.travel.viewmodel.TravelViewModel
 import com.mileway.feature.travel.viewmodel.TripHistoryViewModel
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
