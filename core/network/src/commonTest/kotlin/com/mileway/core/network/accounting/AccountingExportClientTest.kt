@@ -29,7 +29,7 @@ class AccountingExportClientTest {
                     assertEquals("https://accounting.example/api/accounting/exports", request.url.toString())
                     val body = request.body as OutgoingContent.ByteArrayContent
                     assertEquals(csv, body.bytes().decodeToString())
-                    assertEquals(ContentType.Text.CSV, body.contentType)
+                    assertEquals(ContentType.Text.CSV, body.contentType?.withoutParameters())
                     respond("", HttpStatusCode.Accepted)
                 }, retry = false)
             try {

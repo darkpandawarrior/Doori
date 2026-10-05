@@ -8,7 +8,6 @@ import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.model.db.GlMappingEntity
 import com.mileway.core.network.api.NetworkBackendFlags
 import com.mileway.core.platform.ShareSheet
-import kotlin.time.Clock
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 class GlExportViewModel(
     private val observeReports: () -> Flow<List<Report>>,
