@@ -309,6 +309,10 @@ fun ExpenseScreen(
                         scannedReceiptAnalysis = it
                         ocrAmountEdited = false
                     },
+                    onReceiptChanged = {
+                        scannedReceiptAnalysis = null
+                        ocrAmountEdited = false
+                    },
                 )
             else ->
                 Step2Content(
@@ -373,6 +377,7 @@ private fun Step1Content(
     bulkMode: Boolean,
     onBulkModeChange: (Boolean) -> Unit,
     onOcrAnalysis: (DocumentAnalysis) -> Unit,
+    onReceiptChanged: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val form = ui.form
@@ -413,8 +418,15 @@ private fun Step1Content(
 
         ReceiptAttachmentRow(
             receiptImagePath = form.receiptImagePath,
-            onAttach = launchReceiptPicker,
-            onRemove = { viewModel.onAction(ExpenseAction.SetReceiptImage(null)) },
+            onAttach = {
+                // The launcher delivers accepted OCR before onPicked, so invalidate at launch.
+                onReceiptChanged()
+                launchReceiptPicker()
+            },
+            onRemove = {
+                onReceiptChanged()
+                viewModel.onAction(ExpenseAction.SetReceiptImage(null))
+            },
         )
         Spacer(Modifier.height(DesignTokens.Spacing.l))
 

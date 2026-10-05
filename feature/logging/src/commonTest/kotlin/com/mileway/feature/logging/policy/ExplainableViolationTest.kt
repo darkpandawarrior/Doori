@@ -61,7 +61,9 @@ class ExplainableViolationTest {
 
     @Test
     fun unrelatedChecksNeverCiteReceiptTotal() {
-        for (id in listOf("MILEAGE_OVER_POLICY_RATE", "MILEAGE_RATE_CAPPED", "FX_POLICY_SKIPPED", "FX_APPROXIMATE")) {
+        val unrelatedIds =
+            listOf("MILEAGE_OVER_POLICY_RATE", "MILEAGE_RATE_CAPPED", "FX_POLICY_SKIPPED", "FX_APPROXIMATE", "EXPENSE_OVER_MAX", "RECEIPT_RECOMMENDED")
+        for (id in unrelatedIds) {
             val unrelated = violation.copy(id = id)
             assertEquals(unrelated.message, ExplainableViolation.message(unrelated, "5200", "INR", scan()))
         }
@@ -69,7 +71,7 @@ class ExplainableViolationTest {
 
     @Test
     fun allAmountChecksCanCiteTotal() {
-        for (id in listOf("expense-amount-hard-stop", "EXPENSE_OVER_MAX", "RECEIPT_RECOMMENDED", "EXPENSE_PER_HEAD_OVER_LIMIT")) {
+        for (id in listOf("expense-amount-hard-stop", "EXPENSE_PER_HEAD_OVER_LIMIT")) {
             assertEquals(
                 "OCR read the total as ${formatMinorCurrency(520000, "INR")}, 92% confidence. ${violation.message}",
                 ExplainableViolation.message(violation.copy(id = id), "5200", "INR", scan(), 520000),
@@ -91,12 +93,60 @@ class ExplainableViolationTest {
         }
     }
 
-    private fun scan(confidence: Float = 0.92f) =
+    @Test
+    fun commaDecimalTotalMatchesExactMinorUnits() {
+        assertEquals(
+            "OCR read the total as ${formatMinorCurrency(1250, "INR")}, 92% confidence. ${violation.message}",
+            ExplainableViolation.message(violation, "12.50", "INR", scan(total = " 12,50 ")),
+        )
+    }
+
+    @Test
+    fun oneDecimalTotalMatchesExactMinorUnits() {
+        assertEquals(
+            "OCR read the total as ${formatMinorCurrency(520000, "INR")}, 92% confidence. ${violation.message}",
+            ExplainableViolation.message(violation, "5200", "INR", scan(total = "5200.0")),
+        )
+    }
+
+    @Test
+    fun differentCommaDecimalTotalKeepsOriginalMessage() {
+        assertEquals(violation.message, ExplainableViolation.message(violation, "13.50", "INR", scan(total = "12,50")))
+    }
+
+    @Test
+    fun groupedOrCurrencyPrefixedTotalsAreNotNormalized() {
+        for (total in listOf("5,200.00", "5,200", "INR 5200", "₹5200")) {
+            assertEquals(violation.message, ExplainableViolation.message(violation, "5200", "INR", scan(total = total)))
+        }
+    }
+
+    @Test
+    fun lowConfidencePercentNeverRoundsUpToThreshold() {
+        assertEquals(
+            "OCR read the total as ${formatMinorCurrency(520000, "INR")}, low confidence 59%: check it. ${violation.message}",
+            ExplainableViolation.message(violation, "5200", "INR", scan(0.596f)),
+        )
+    }
+
+    @Test
+    fun missingCurrencyDoesNotAttributeCurrencyToOcr() {
+        val withoutCurrency = scan().let { it.copy(fields = it.fields - DocField.CURRENCY) }
+        assertEquals(
+            "OCR read the total as ${formatMinorCurrency(520000, "").trim()}, 92% confidence. ${violation.message}",
+            ExplainableViolation.message(violation, "5200", "INR", withoutCurrency),
+        )
+    }
+
+    private fun scan(
+        confidence: Float = 0.92f,
+        total: String = "5200",
+    ) =
         DocumentAnalysis(
             docType = DocType.RECEIPT,
             fields =
                 mapOf(
-                    DocField.TOTAL to ExtractedValue("5200", confidence, AnalyzerSource.TEXT_RECOGNITION),
+                    DocField.TOTAL to ExtractedValue(total, confidence, AnalyzerSource.TEXT_RECOGNITION),
                     DocField.CURRENCY to ExtractedValue("INR", 0.9f, AnalyzerSource.TEXT_RECOGNITION),
                 ),
             rawText = "Total INR 5200",

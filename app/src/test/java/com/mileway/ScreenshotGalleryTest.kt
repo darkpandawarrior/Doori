@@ -3477,6 +3477,12 @@ class ScreenshotGalleryTest {
                                     0.92f,
                                     com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
                                 ),
+                            com.mileway.core.ai.model.DocField.CURRENCY to
+                                com.mileway.core.ai.model.ExtractedValue(
+                                    "INR",
+                                    0.9f,
+                                    com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
+                                ),
                         ),
                     rawText = "Total INR 5200",
                     duplicate = com.mileway.core.ai.model.DuplicateVerdict.Unique,

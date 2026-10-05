@@ -7,7 +7,6 @@ import com.mileway.core.ai.model.LOW_CONFIDENCE_THRESHOLD
 import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.forms.parseMinorAmount
 import com.mileway.core.network.model.PolicyViolation
-import kotlin.math.roundToInt
 
 /** Capture-time explanations only; OCR provenance is not stored on expenses or reports. */
 object ExplainableViolation {
@@ -25,14 +24,16 @@ object ExplainableViolation {
         if (violation.id == "EXPENSE_PER_HEAD_OVER_LIMIT" && perHeadAnchorMinor != null && perHeadAnchorMinor != amountMinor) {
             return violation.message
         }
-        val percent = (total.confidence * ConfidencePercentScale).roundToInt()
+        val percent = (total.confidence * ConfidencePercentScale).toInt()
         val confidence =
             if (total.confidence < LOW_CONFIDENCE_THRESHOLD) {
                 "low confidence $percent%: check it"
             } else {
                 "$percent% confidence"
             }
-        return "OCR read the total as ${formatMinorCurrency(amountMinor, currencyCode)}, $confidence. ${violation.message}"
+        val scannedCurrency = analysis?.fields?.get(DocField.CURRENCY)?.value.orEmpty()
+        val money = formatMinorCurrency(amountMinor, scannedCurrency).trim()
+        return "OCR read the total as $money, $confidence. ${violation.message}"
     }
 
     private fun matchingTotal(
@@ -41,21 +42,25 @@ object ExplainableViolation {
         analysis: DocumentAnalysis?,
     ): ExtractedValue? {
         val total = analysis?.fields?.get(DocField.TOTAL) ?: return null
-        if (parseMinorAmount(total.value) != amountMinor) return null
+        if (parseMinorAmount(normalizeTotal(total.value)) != amountMinor) return null
         val scannedCurrency = analysis.fields[DocField.CURRENCY]?.value
         if (scannedCurrency != null && scannedCurrency != currencyCode) return null
         if (!total.confidence.isFinite() || total.confidence !in 0f..1f) return null
         return total
     }
 
+    private fun normalizeTotal(value: String): String {
+        val trimmed = value.trim()
+        return if (CommaDecimal.matches(trimmed)) trimmed.replace(',', '.') else trimmed
+    }
+
     private const val ConfidencePercentScale = 100
+    private val CommaDecimal = Regex("^\\d+,\\d{1,2}$")
 
     private val AmountViolationIds =
         setOf(
             "expense-amount-threshold",
             "expense-amount-hard-stop",
-            "EXPENSE_OVER_MAX",
-            "RECEIPT_RECOMMENDED",
             "EXPENSE_PER_HEAD_OVER_LIMIT",
         )
 }
