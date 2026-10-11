@@ -29,7 +29,7 @@ jobs:
       # Prevents "tagged a stale fingerprint, published a differently-stamped APK" silent drift.
       - name: Set up JDK 21
         uses: actions/setup-java@v6
-        with: { java-version: '21', distribution: 'temurin' }
+        with: { java-version: '25', distribution: corretto }
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Verify tag matches computed FINGERPRINT
@@ -227,7 +227,7 @@ jobs:
       - name: Set up JDK 21
         if: steps.detect.outputs.found == 'true'
         uses: actions/setup-java@v6
-        with: { java-version: '21', distribution: 'temurin' }
+        with: { java-version: '25', distribution: corretto }
       - name: Set up Gradle
         if: steps.detect.outputs.found == 'true'
         uses: gradle/actions/setup-gradle@v6

@@ -46,8 +46,8 @@ jobs:
         if: env.HAS_SECRET == 'true'
         uses: actions/setup-java@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: '25'
+          distribution: corretto
 
       - name: Set up Gradle
         if: env.HAS_SECRET == 'true'

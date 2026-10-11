@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: corretto
 
       # gradle/actions/setup-gradle manages ~/.gradle caching automatically with
       # intelligent eviction. Do NOT add a separate actions/cache for ~/.gradle.
@@ -125,7 +125,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: corretto
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
@@ -180,7 +180,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: corretto
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6

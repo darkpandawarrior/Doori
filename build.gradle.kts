@@ -116,7 +116,7 @@ kover {
 val archLeafPattern = Regex("(Arm64|X64|X86)")
 
 subprojects {
-    // AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled
+    // AGP 9.5.0-alpha08 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled
     // variant and hard-fails when that variant has no unit-test component. AGP itself drops the
     // component on library release variants, and Roborazzi drops it on every non-debug variant, so
     // this bit three separate modules one at a time (:wear, :widget, :core:maps-krossmap) across

@@ -23,8 +23,8 @@ class MilewayAndroidLibraryConventionPlugin : Plugin<Project> {
             compileSdk = 37
             defaultConfig { minSdk = 30 }
             compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_11
-                targetCompatibility = JavaVersion.VERSION_11
+                sourceCompatibility = JavaVersion.VERSION_25
+                targetCompatibility = JavaVersion.VERSION_25
             }
             buildFeatures {
                 compose = true

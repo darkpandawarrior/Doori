@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: corretto
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6

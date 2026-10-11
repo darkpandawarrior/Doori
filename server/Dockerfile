@@ -20,7 +20,7 @@
 #
 # A .dockerignore is committed alongside this as defence in depth, so a future edit that
 # reintroduces a broad COPY still cannot pick up .ralph/ or local.properties.
-FROM eclipse-temurin:21-jre
+FROM amazoncorretto:25
 
 # Non-root. The temurin images are Ubuntu-based, so useradd is available.
 RUN useradd --system --create-home --shell /usr/sbin/nologin mileway

@@ -41,7 +41,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           java-version: '25'
-          distribution: 'temurin'
+          distribution: corretto
 
       # Obj-C category / CEnum import guard. Pure text analysis over iosMain sources, so it runs
       # here on Linux in under a second instead of surfacing minutes into a Mac Kotlin/Native link.

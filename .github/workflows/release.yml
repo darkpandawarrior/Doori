@@ -45,8 +45,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: '25'
+          distribution: corretto
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Set up Ruby (fastlane)
@@ -152,8 +152,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: '25'
+          distribution: corretto
       # This job used to end at `./gradlew assembleNoGmsRelease -Pfdroid`, which built the APK and
       # threw it away on runner teardown — the checkbox says "Publish", and nothing was ever
       # published. publish-fdroid.yml is the workflow that actually signs and attaches the APK +
@@ -185,8 +185,8 @@ jobs:
       - name: Set up JDK 21
         uses: actions/setup-java@v6
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: '25'
+          distribution: corretto
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
       - name: Build the Wear AAB

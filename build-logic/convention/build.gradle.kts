@@ -6,8 +6,8 @@ group = "com.mileway.buildlogic"
 
 java {
     // Convention plugin code itself targets Java 17, not the Android modules it configures.
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 dependencies {

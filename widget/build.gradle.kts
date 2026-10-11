@@ -42,7 +42,7 @@ dependencies {
     testImplementation(libs.androidx.test.ext.junit)
 }
 
-// AGP 9.5.0-alpha06 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled
+// AGP 9.5.0-alpha08 registers generate<Variant>ComposePreviewRunfiles for every Compose-enabled
 // variant and hard-fails when that variant has no unit-test component, while the Roborazzi plugin
 // disables that component on non-debug variants. This MUST live in the module build script rather
 // than a convention plugin: beforeVariants callbacks run in registration order, and Roborazzi
