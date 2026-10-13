@@ -445,11 +445,11 @@ Doori/
 | On-device AI | kmp-toolkit's `InjectableNativeLlm`/`OnDeviceLlm` seam, ML Kit GenAI (Gemini Nano, Android) / Apple Foundation Models (iOS, one shared Swift bridge) behind `LlmGateway` (streaming chat) and `DocumentAiAnalyzer` (typed extraction); a BYOK cloud fallback (Anthropic/OpenAI/Gemini via `SecureKeyStore`) on every platform including desktop, which has no on-device tier at all; text recognition + barcode scanning; degrading to an offline heuristic engine where no model is available. Neither on-device tier is device-verified here (no Gemini Nano / Foundation Models hardware) |
 | Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.68.0** screenshots |
 | Quality | detekt **2.0.0-alpha.5**, ktlint, Kover, dependency-guard |
-| SDK | compileSdk **37**, minSdk **30**, JDK 21 |
+| SDK | compileSdk **37**, minSdk **30**, JDK 25 |
 
 ## Getting started
 
-**Prerequisites:** JDK 21+ (CI builds on 25), the Android SDK (API 35), and, for iOS/watchOS
+**Prerequisites:** JDK 25, the Android SDK (API 35), and, for iOS/watchOS
 targets, a Mac with Xcode 16+. Point Gradle at your SDK via `local.properties`
 (`sdk.dir=/path/to/Android/sdk`) or the `ANDROID_HOME` env var.
 

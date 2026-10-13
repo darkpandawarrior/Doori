@@ -39,7 +39,7 @@ jobs:
           # here already does this.
           submodules: recursive
       - uses: actions/setup-java@v6
-        with: { distribution: temurin, java-version: '21' }
+        with: { distribution: corretto, java-version: '25' }
       # The broken-capture check decodes pixels with Pillow. It throws when Pillow is missing
       # rather than reporting zero findings — a blank-capture check that silently finds nothing is
       # how a pure-black screenshot stayed shipped for weeks — so the install is not optional.
