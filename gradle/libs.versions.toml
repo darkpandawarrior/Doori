@@ -1,5 +1,5 @@
 [versions]
-agp = "9.5.0-alpha06"
+agp = "9.5.0-alpha08"
 kotlin = "2.4.20"
 material = "1.14.0"
 # NOT on the Compose Multiplatform train. org.jetbrains.compose.material:material-icons-extended is
