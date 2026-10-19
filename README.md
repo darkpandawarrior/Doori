@@ -14,8 +14,8 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 <!-- AUTOGEN:badges -->
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white)
 ![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.13.0--alpha01-4285F4?logo=jetpackcompose&logoColor=white)
-![AGP](https://img.shields.io/badge/AGP-9.5.0--alpha06-3DDC84?logo=android&logoColor=white)
-![Gradle](https://img.shields.io/badge/Gradle-9.8.0--rc--2-02303A?logo=gradle&logoColor=white)
+![AGP](https://img.shields.io/badge/AGP-9.5.0--alpha08-3DDC84?logo=android&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-9.8.0-02303A?logo=gradle&logoColor=white)
 <!-- /AUTOGEN:badges -->
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop%20preview-3DDC84)
 ![Backend](https://img.shields.io/badge/backend-Kotlin%2FKtor%20(opt--in)-success)
@@ -445,11 +445,11 @@ Doori/
 | On-device AI | kmp-toolkit's `InjectableNativeLlm`/`OnDeviceLlm` seam, ML Kit GenAI (Gemini Nano, Android) / Apple Foundation Models (iOS, one shared Swift bridge) behind `LlmGateway` (streaming chat) and `DocumentAiAnalyzer` (typed extraction); a BYOK cloud fallback (Anthropic/OpenAI/Gemini via `SecureKeyStore`) on every platform including desktop, which has no on-device tier at all; text recognition + barcode scanning; degrading to an offline heuristic engine where no model is available. Neither on-device tier is device-verified here (no Gemini Nano / Foundation Models hardware) |
 | Testing | JUnit, MockK, Turbine, Robolectric, Koin-Test, **Roborazzi 1.68.0** screenshots |
 | Quality | detekt **2.0.0-alpha.5**, ktlint, Kover, dependency-guard |
-| SDK | compileSdk **37**, minSdk **30**, JDK 21 |
+| SDK | compileSdk **37**, minSdk **30**, JDK 25 |
 
 ## Getting started
 
-**Prerequisites:** JDK 21+ (CI builds on 25), the Android SDK (API 35), and, for iOS/watchOS
+**Prerequisites:** JDK 25, the Android SDK (API 35), and, for iOS/watchOS
 targets, a Mac with Xcode 16+. Point Gradle at your SDK via `local.properties`
 (`sdk.dir=/path/to/Android/sdk`) or the `ANDROID_HOME` env var.
 

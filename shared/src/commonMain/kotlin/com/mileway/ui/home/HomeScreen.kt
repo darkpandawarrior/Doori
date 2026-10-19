@@ -42,6 +42,8 @@ import com.mileway.core.ui.resources.home_banner_club_title
 import com.mileway.core.ui.resources.home_banner_offers_badge
 import com.mileway.core.ui.resources.home_banner_offers_subtitle
 import com.mileway.core.ui.resources.home_banner_offers_title
+import com.mileway.core.ui.resources.home_snackbar_detail_full_version
+import com.mileway.core.ui.resources.home_snackbar_payments_network
 import com.mileway.core.ui.resources.popup_signature_body
 import com.mileway.core.ui.resources.popup_signature_confirm
 import com.mileway.core.ui.resources.popup_signature_later
@@ -384,8 +386,10 @@ fun HomeScreenContent(
     val scrollState = rememberScrollState()
     val snackbarState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val illustrativeSnackbar: suspend () -> Unit = { snackbarState.showSnackbar("Detail view available in full version.") }
-    val paymentsSnackbar: suspend () -> Unit = { snackbarState.showSnackbar("Payments require network in production.") }
+    val illustrativeMessage = stringResource(Res.string.home_snackbar_detail_full_version)
+    val paymentsMessage = stringResource(Res.string.home_snackbar_payments_network)
+    val illustrativeSnackbar: suspend () -> Unit = { snackbarState.showSnackbar(illustrativeMessage) }
+    val paymentsSnackbar: suspend () -> Unit = { snackbarState.showSnackbar(paymentsMessage) }
 
     Box(
         modifier =
@@ -426,7 +430,7 @@ fun HomeScreenContent(
             // Depth cue at the sheet edge: content clipping at the top boundary must read as
             // "sliding under a raised surface", not as a rendering cut — the shadow projects
             // onto the header band above the rounded corners.
-            shadowElevation = 12.dp,
+            shadowElevation = DesignTokens.Elevation.sheet,
             modifier =
                 Modifier
                     .fillMaxSize()

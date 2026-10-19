@@ -8,58 +8,46 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.mileway.core.ui.mvi.DefaultEmptyState
+import com.mileway.core.ui.mvi.DefaultErrorState
+import com.mileway.core.ui.mvi.ShimmerList
 import com.mileway.core.ui.resources.Res
-import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_error_generic
 import com.mileway.core.ui.resources.core_loading
 import com.mileway.core.ui.theme.DesignTokens
+import com.siddharth.kmp.common.UiText
 import org.jetbrains.compose.resources.stringResource
 
+/** Thin delegate to the designed skeleton; [message] is kept as the accessible label. */
 @Composable
 fun LoadingScreen(message: String = stringResource(Res.string.core_loading)) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-            Spacer(Modifier.height(16.dp))
-            Text(message, style = MaterialTheme.typography.bodyMedium)
-        }
+    Box(Modifier.fillMaxSize().semantics { contentDescription = message }) {
+        ShimmerList()
     }
 }
 
+/** Thin delegate to [DefaultErrorState]; keeps the generic title above the specific [message]. */
 @Composable
 fun ErrorScreen(
     message: String,
     onRetry: (() -> Unit)? = null,
 ) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
-            Text(stringResource(Res.string.core_error_generic), style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                message,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            if (onRetry != null) {
-                Spacer(Modifier.height(16.dp))
-                MilewayPrimaryButton(text = stringResource(Res.string.action_retry), onClick = onRetry)
-            }
-        }
-    }
+    DefaultErrorState(
+        message = UiText.of(message),
+        onRetry = onRetry,
+        title = stringResource(Res.string.core_error_generic),
+    )
 }
 
 @Composable
@@ -112,22 +100,20 @@ fun TwoButtonRow(
     }
 }
 
+/** Thin delegate to [DefaultEmptyState]; pass [ctaLabel] and [onCta] to give the empty screen an action. */
 @Composable
 fun EmptyState(
     title: String,
     subtitle: String,
     modifier: Modifier = Modifier,
+    ctaLabel: String? = null,
+    onCta: (() -> Unit)? = null,
 ) {
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
+    DefaultEmptyState(
+        modifier = modifier,
+        title = title,
+        subtitle = subtitle,
+        ctaLabel = ctaLabel,
+        onCta = onCta,
+    )
 }

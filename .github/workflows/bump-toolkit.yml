@@ -82,8 +82,8 @@ jobs:
       - uses: actions/setup-java@v6
         if: steps.move.outputs.changed == 'true'
         with:
-          distribution: zulu
-          java-version: '21'
+          distribution: corretto
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v6
         if: steps.move.outputs.changed == 'true'
 

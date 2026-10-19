@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -49,14 +50,42 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.display.TrackingSystemFlags
 import com.mileway.core.maps.MapCoordinate
 import com.mileway.core.maps.MapSurface
 import com.mileway.core.ui.components.StatusTone
+import com.mileway.core.ui.resources.Res
+import com.mileway.core.ui.resources.livedrive_cd_collapse_stats
+import com.mileway.core.ui.resources.livedrive_cd_distance
+import com.mileway.core.ui.resources.livedrive_cd_expand_stats
+import com.mileway.core.ui.resources.livedrive_check_in
+import com.mileway.core.ui.resources.livedrive_gps_signal
+import com.mileway.core.ui.resources.livedrive_hold_to_stop
+import com.mileway.core.ui.resources.livedrive_pause
+import com.mileway.core.ui.resources.livedrive_recenter
+import com.mileway.core.ui.resources.livedrive_recenter_map
+import com.mileway.core.ui.resources.livedrive_resume
+import com.mileway.core.ui.resources.livedrive_signal_fair
+import com.mileway.core.ui.resources.livedrive_signal_strong
+import com.mileway.core.ui.resources.livedrive_signal_weak
+import com.mileway.core.ui.resources.livedrive_speed_unit
+import com.mileway.core.ui.resources.livedrive_stat_avg_speed
+import com.mileway.core.ui.resources.livedrive_stat_battery
+import com.mileway.core.ui.resources.livedrive_stat_charging
+import com.mileway.core.ui.resources.livedrive_stat_max_speed
+import com.mileway.core.ui.resources.livedrive_stat_pause_reason
+import com.mileway.core.ui.resources.livedrive_stat_points
+import com.mileway.core.ui.resources.livedrive_stat_quality
+import com.mileway.core.ui.resources.livedrive_stat_speed
+import com.mileway.core.ui.resources.livedrive_stat_unsynced
+import com.mileway.core.ui.resources.livedrive_stop_tracking
 import com.mileway.core.ui.theme.DesignTokens
 import com.mileway.core.ui.theme.MilewayRoles
 import com.mileway.core.ui.theme.MilewayType
@@ -65,6 +94,7 @@ import com.mileway.feature.tracking.viewmodel.TrackMilesPhase
 import com.mileway.feature.tracking.viewmodel.TrackSignal
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 /**
@@ -329,7 +359,7 @@ private fun GlanceStatusLine(
     modifier: Modifier = Modifier,
 ) {
     val message = degradedState.message()
-    val label = message?.title ?: "GPS ${state.signal.glanceLabel()}"
+    val label = message?.title ?: stringResource(Res.string.livedrive_gps_signal, state.signal.glanceLabel())
     Row(
         modifier =
             modifier
@@ -356,12 +386,15 @@ private fun GlanceStatusLine(
     }
 }
 
+@Composable
 private fun TrackSignal.glanceLabel(): String =
-    when (this) {
-        TrackSignal.GOOD -> "Strong"
-        TrackSignal.FAIR -> "Fair"
-        TrackSignal.POOR -> "Weak"
-    }
+    stringResource(
+        when (this) {
+            TrackSignal.GOOD -> Res.string.livedrive_signal_strong
+            TrackSignal.FAIR -> Res.string.livedrive_signal_fair
+            TrackSignal.POOR -> Res.string.livedrive_signal_weak
+        },
+    )
 
 // ── Metric slab ──────────────────────────────────────────────────────────────────────
 
@@ -372,6 +405,7 @@ private fun MetricSlab(
     initiallyExpanded: Boolean = false,
 ) {
     var expanded by remember { mutableStateOf(initiallyExpanded) }
+    val distanceDescription = stringResource(Res.string.livedrive_cd_distance, formatKm2(state.distanceKm))
     Surface(
         modifier =
             modifier
@@ -400,7 +434,7 @@ private fun MetricSlab(
                 modifier =
                     Modifier.semantics {
                         liveRegion = LiveRegionMode.Polite
-                        contentDescription = "Distance ${formatKm2(state.distanceKm)} kilometres"
+                        contentDescription = distanceDescription
                     },
             )
             // Elapsed time is the only other thing worth a glance while driving (a sanity check
@@ -418,15 +452,22 @@ private fun MetricSlab(
             // the surface behind it (this was previously decorative only, unreachable by TalkBack).
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
-                contentDescription = if (expanded) "Collapse trip stats" else "Expand trip stats",
+                contentDescription =
+                    stringResource(if (expanded) Res.string.livedrive_cd_collapse_stats else Res.string.livedrive_cd_expand_stats),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier =
                     Modifier
                         .padding(top = DesignTokens.Spacing.xs)
                         .rotate(if (expanded) 180f else 0f)
                         .clip(CircleShape)
-                        .pointerInput(Unit) { detectTapGestures(onTap = { expanded = !expanded }) }
-                        .padding(4.dp),
+                        // clickable (not a raw tap detector) so TalkBack gets Role.Button plus an
+                        // onClick action; the 48dp touch area comes from the padding below.
+                        .clickable(
+                            role = Role.Button,
+                            onClickLabel = stringResource(if (expanded) Res.string.livedrive_cd_collapse_stats else Res.string.livedrive_cd_expand_stats),
+                        ) { expanded = !expanded }
+                        // 24dp glyph + 12dp each side = the 48dp minimum touch target.
+                        .padding((DesignTokens.IconSize.minTouchTarget - 24.dp) / 2),
             )
 
             AnimatedVisibility(visible = expanded, enter = fadeIn(), exit = fadeOut()) {
@@ -434,17 +475,23 @@ private fun MetricSlab(
                     modifier = Modifier.padding(top = DesignTokens.Spacing.s),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    ExpansionRow("Speed", "${formatSpeed1(state.speedKmh)} km/h")
-                    ExpansionRow("Avg speed", "${formatSpeed1(state.avgSpeedKmh)} km/h")
-                    ExpansionRow("Max speed", "${formatSpeed1(state.maxSpeedKmh)} km/h")
-                    ExpansionRow("Points", "${state.pointsCount}")
-                    ExpansionRow("Quality", "${state.qualityScore}%")
+                    ExpansionRow(stringResource(Res.string.livedrive_stat_speed), stringResource(Res.string.livedrive_speed_unit, formatSpeed1(state.speedKmh)))
                     ExpansionRow(
-                        "Battery",
-                        "${state.batteryPct}%" + if (state.isCharging) " (charging)" else "",
+                        stringResource(Res.string.livedrive_stat_avg_speed),
+                        stringResource(Res.string.livedrive_speed_unit, formatSpeed1(state.avgSpeedKmh)),
                     )
-                    if (state.unsyncedPoints > 0) ExpansionRow("Unsynced", "${state.unsyncedPoints}")
-                    state.pauseReason?.let { ExpansionRow("Pause reason", it) }
+                    ExpansionRow(
+                        stringResource(Res.string.livedrive_stat_max_speed),
+                        stringResource(Res.string.livedrive_speed_unit, formatSpeed1(state.maxSpeedKmh)),
+                    )
+                    ExpansionRow(stringResource(Res.string.livedrive_stat_points), "${state.pointsCount}")
+                    ExpansionRow(stringResource(Res.string.livedrive_stat_quality), "${state.qualityScore}%")
+                    ExpansionRow(
+                        stringResource(Res.string.livedrive_stat_battery),
+                        "${state.batteryPct}%" + if (state.isCharging) stringResource(Res.string.livedrive_stat_charging) else "",
+                    )
+                    if (state.unsyncedPoints > 0) ExpansionRow(stringResource(Res.string.livedrive_stat_unsynced), "${state.unsyncedPoints}")
+                    state.pauseReason?.let { ExpansionRow(stringResource(Res.string.livedrive_stat_pause_reason), it) }
                 }
             }
         }
@@ -515,6 +562,7 @@ private fun RecenterChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val recenterLabel = stringResource(Res.string.livedrive_recenter_map)
     Surface(
         modifier = modifier,
         shape = DesignTokens.Shape.chip,
@@ -526,12 +574,19 @@ private fun RecenterChip(
                 Modifier
                     .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) }
                     .padding(horizontal = DesignTokens.Spacing.m, vertical = DesignTokens.Spacing.s)
-                    .semantics { contentDescription = "Recenter map" },
+                    .semantics {
+                        contentDescription = recenterLabel
+                        role = Role.Button
+                        onClick(label = recenterLabel) {
+                            onClick()
+                            true
+                        }
+                    },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
         ) {
             Icon(Icons.Filled.MyLocation, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
-            Text("Recenter", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimary)
+            Text(stringResource(Res.string.livedrive_recenter), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimary)
         }
     }
 }
@@ -553,7 +608,7 @@ private fun ControlBar(
     ) {
         RoundIconButton(
             icon = if (isPaused) Icons.Filled.PlayArrow else Icons.Filled.Pause,
-            contentDescription = if (isPaused) "Resume tracking" else "Pause tracking",
+            contentDescription = stringResource(if (isPaused) Res.string.livedrive_resume else Res.string.livedrive_pause),
             size = PauseFlagButtonSize,
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -567,7 +622,7 @@ private fun ControlBar(
 
         RoundIconButton(
             icon = Icons.Filled.Flag,
-            contentDescription = "Check in now",
+            contentDescription = stringResource(Res.string.livedrive_check_in),
             size = PauseFlagButtonSize,
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -597,7 +652,16 @@ private fun RoundIconButton(
                             onClick()
                         },
                     )
-                }.semantics { this.contentDescription = contentDescription },
+                }.semantics {
+                    this.contentDescription = contentDescription
+                    role = Role.Button
+                    // Accessibility activation: pointerInput is invisible to TalkBack.
+                    onClick(label = contentDescription) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onClick()
+                        true
+                    }
+                },
         shape = CircleShape,
         color = containerColor,
     ) {
@@ -626,6 +690,8 @@ private fun HoldToStopButton(
     val scope = rememberCoroutineScope()
     val progress = remember { Animatable(0f) }
     val stopColor = MilewayRoles.destructive
+    val holdToStopLabel = stringResource(Res.string.livedrive_hold_to_stop)
+    val stopActionLabel = stringResource(Res.string.livedrive_stop_tracking)
 
     Box(
         modifier =
@@ -649,7 +715,16 @@ private fun HoldToStopButton(
                             }
                         },
                     )
-                }.semantics { contentDescription = "Hold to stop tracking" },
+                }.semantics {
+                    contentDescription = holdToStopLabel
+                    role = Role.Button
+                    // A deliberate TalkBack double-tap is itself the confirmation; touch keeps the hold.
+                    onClick(label = stopActionLabel) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onCommitted()
+                        true
+                    }
+                },
         contentAlignment = Alignment.Center,
     ) {
         androidx.compose.foundation.Canvas(modifier = Modifier.size(StopButtonSize)) {

@@ -68,6 +68,7 @@ import com.mileway.core.platform.OfflineLocationNameResolver
 import com.mileway.core.ui.components.ConfettiBurst
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.LoadingScreen
+import com.mileway.core.ui.components.listItemMotion
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_cd_collapse
 import com.mileway.core.ui.resources.tracking_cd_exit_selection
@@ -459,7 +460,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.journeysSection(
         }
         else ->
             items(journeys, key = { it.token }) { track ->
-                JourneyCard(track = track, onClick = { onTrackClick(track.token) })
+                Box(listItemMotion()) {
+                    JourneyCard(track = track, onClick = { onTrackClick(track.token) })
+                }
             }
     }
 }

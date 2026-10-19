@@ -1,12 +1,5 @@
 package com.mileway.feature.approvals.ui.screens
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -69,14 +62,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.ExpandableText
+import com.mileway.core.ui.components.listItemMotion
 import com.mileway.core.ui.components.sheet.BulkActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.BulkActionType
 import com.mileway.core.ui.components.sheet.FilterBottomSheet
@@ -92,8 +84,22 @@ import com.mileway.core.ui.resources.approvals_action_cancel
 import com.mileway.core.ui.resources.approvals_action_reject
 import com.mileway.core.ui.resources.approvals_approve_all
 import com.mileway.core.ui.resources.approvals_cd_clarification_history
+import com.mileway.core.ui.resources.approvals_cd_clear_type_filter
 import com.mileway.core.ui.resources.approvals_cd_filter
+import com.mileway.core.ui.resources.approvals_empty_all_subtitle
+import com.mileway.core.ui.resources.approvals_empty_all_title
+import com.mileway.core.ui.resources.approvals_empty_mine_subtitle
+import com.mileway.core.ui.resources.approvals_empty_mine_title
+import com.mileway.core.ui.resources.approvals_empty_saved_subtitle
+import com.mileway.core.ui.resources.approvals_empty_saved_title
+import com.mileway.core.ui.resources.approvals_empty_team_subtitle
+import com.mileway.core.ui.resources.approvals_empty_team_title
+import com.mileway.core.ui.resources.approvals_empty_type_subtitle
+import com.mileway.core.ui.resources.approvals_empty_type_title
+import com.mileway.core.ui.resources.approvals_filter_all_types
 import com.mileway.core.ui.resources.approvals_filter_saved
+import com.mileway.core.ui.resources.approvals_filter_section_type
+import com.mileway.core.ui.resources.approvals_filter_title
 import com.mileway.core.ui.resources.approvals_plural_days_ago
 import com.mileway.core.ui.resources.approvals_plural_hours_ago
 import com.mileway.core.ui.resources.approvals_policy_violation
@@ -109,6 +115,10 @@ import com.mileway.core.ui.resources.approvals_tab_to_approve
 import com.mileway.core.ui.resources.approvals_time_just_now
 import com.mileway.core.ui.resources.approvals_title
 import com.mileway.core.ui.resources.approvals_title_select_items
+import com.mileway.core.ui.resources.approvals_type_advance
+import com.mileway.core.ui.resources.approvals_type_expense
+import com.mileway.core.ui.resources.approvals_type_mileage
+import com.mileway.core.ui.resources.approvals_type_travel
 import com.mileway.core.ui.state.ShellBottomBarState
 import com.mileway.core.ui.text.getText
 import com.mileway.core.ui.theme.DesignTokens
@@ -274,7 +284,13 @@ fun ApprovalsScreen(
                                 selected = true,
                                 onClick = { typeFilter = null },
                                 label = { Text(typeLabel(active)) },
-                                trailingIcon = { Icon(Icons.Default.Close, contentDescription = "Clear type filter", modifier = Modifier.size(16.dp)) },
+                                trailingIcon = {
+                                    Icon(
+                                        Icons.Default.Close,
+                                        contentDescription = stringResource(Res.string.approvals_cd_clear_type_filter),
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                },
                             )
                         }
                     }
@@ -294,15 +310,15 @@ fun ApprovalsScreen(
                             // same literal "No items" text.
                             emptyTitle =
                                 when {
-                                    ui.savedFilterOn -> "No saved conversations"
-                                    typeFilter != null -> "No ${typeLabel(typeFilter!!).lowercase()} requests pending"
-                                    else -> "You're all caught up"
+                                    ui.savedFilterOn -> stringResource(Res.string.approvals_empty_saved_title)
+                                    typeFilter != null -> stringResource(Res.string.approvals_empty_type_title, typeLabel(typeFilter!!).lowercase())
+                                    else -> stringResource(Res.string.approvals_empty_all_title)
                                 },
                             emptySubtitle =
                                 when {
-                                    ui.savedFilterOn -> "Approvals you save from the clarification chat will show up here."
-                                    typeFilter != null -> "Try a different type, or clear the filter to see everything pending."
-                                    else -> "Nothing is waiting for your approval right now."
+                                    ui.savedFilterOn -> stringResource(Res.string.approvals_empty_saved_subtitle)
+                                    typeFilter != null -> stringResource(Res.string.approvals_empty_type_subtitle)
+                                    else -> stringResource(Res.string.approvals_empty_all_subtitle)
                                 },
                             onOpenDetail = onOpenDetail,
                             selectionMode = selectionMode,
@@ -318,8 +334,8 @@ fun ApprovalsScreen(
                 1 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.teamItems,
-                        emptyTitle = "No team activity yet",
-                        emptySubtitle = "Approvals submitted by your team will appear here.",
+                        emptyTitle = stringResource(Res.string.approvals_empty_team_title),
+                        emptySubtitle = stringResource(Res.string.approvals_empty_team_subtitle),
                         onOpenDetail = onOpenDetail,
                         selectionMode = false,
                         selectedIds = emptySet(),
@@ -329,8 +345,8 @@ fun ApprovalsScreen(
                 2 ->
                     ApprovalListTab(
                         items = ApprovalsRepository.myRequests,
-                        emptyTitle = "No requests yet",
-                        emptySubtitle = "Submit a mileage log, expense, or travel request and its approval status will show up here.",
+                        emptyTitle = stringResource(Res.string.approvals_empty_mine_title),
+                        emptySubtitle = stringResource(Res.string.approvals_empty_mine_subtitle),
                         onOpenDetail = onOpenDetail,
                         selectionMode = false,
                         selectedIds = emptySet(),
@@ -378,11 +394,11 @@ fun ApprovalsScreen(
                 listOf(
                     FilterSection(
                         key = "type",
-                        title = "Request type",
+                        title = stringResource(Res.string.approvals_filter_section_type),
                         icon = Icons.Default.FilterList,
                         mode = FilterSelectionMode.SINGLE,
                         options =
-                            listOf(FilterOption(TYPE_FILTER_ALL, "All types")) +
+                            listOf(FilterOption(TYPE_FILTER_ALL, stringResource(Res.string.approvals_filter_all_types))) +
                                 ApprovalType.entries.map { FilterOption(it.name, typeLabel(it)) },
                     ),
                 ),
@@ -393,20 +409,23 @@ fun ApprovalsScreen(
                 showTypeFilterSheet = false
             },
             onDismiss = { showTypeFilterSheet = false },
-            title = "Filter requests",
+            title = stringResource(Res.string.approvals_filter_title),
         )
     }
 }
 
 private const val TYPE_FILTER_ALL = "ALL"
 
+@Composable
 private fun typeLabel(type: ApprovalType): String =
-    when (type) {
-        ApprovalType.MILEAGE -> "Mileage"
-        ApprovalType.EXPENSE -> "Expense"
-        ApprovalType.TRAVEL -> "Travel"
-        ApprovalType.ADVANCE -> "Advance"
-    }
+    stringResource(
+        when (type) {
+            ApprovalType.MILEAGE -> Res.string.approvals_type_mileage
+            ApprovalType.EXPENSE -> Res.string.approvals_type_expense
+            ApprovalType.TRAVEL -> Res.string.approvals_type_travel
+            ApprovalType.ADVANCE -> Res.string.approvals_type_advance
+        },
+    )
 
 // internal, not private: reused as-is by ApprovalsPreviews.kt so the filled/empty capture states
 // render the real production list, not a reimplemented approximation.
@@ -434,13 +453,15 @@ internal fun ApprovalListTab(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(items, key = { it.id }) { item ->
-            ApprovalCard(
-                item = item,
-                selectionMode = selectionMode,
-                isSelected = item.id in selectedIds,
-                onClick = { if (selectionMode) onToggleSelect(item.id) else onOpenDetail(item.id) },
-                onLongClick = { onLongPress(item.id) },
-            )
+            Box(listItemMotion()) {
+                ApprovalCard(
+                    item = item,
+                    selectionMode = selectionMode,
+                    isSelected = item.id in selectedIds,
+                    onClick = { if (selectionMode) onToggleSelect(item.id) else onOpenDetail(item.id) },
+                    onLongClick = { onLongPress(item.id) },
+                )
+            }
         }
     }
 }
@@ -457,16 +478,6 @@ private fun ApprovalsGradientHeader(
     // this previously hardcoded a fixed purple brush, so the header rendered identically under
     // every theme instead of following it.
     val gradient = DesignTokens.topBarGradientBrush()
-    val shimmerProgress by rememberInfiniteTransition(label = "shimmer").animateFloat(
-        initialValue = -1f,
-        targetValue = 2f,
-        animationSpec =
-            infiniteRepeatable(
-                tween(durationMillis = 2000, easing = LinearEasing),
-                RepeatMode.Restart,
-            ),
-        label = "shimmerPos",
-    )
     Box(
         modifier =
             Modifier
@@ -474,24 +485,6 @@ private fun ApprovalsGradientHeader(
                 .background(gradient)
                 .padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
-        // Animated shimmer sweep across the header
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val sweepWidth = size.width * 0.35f
-            val startX = shimmerProgress * (size.width + sweepWidth) - sweepWidth
-            drawRect(
-                brush =
-                    Brush.linearGradient(
-                        colors =
-                            listOf(
-                                Color.Transparent,
-                                Color.White.copy(alpha = 0.18f),
-                                Color.Transparent,
-                            ),
-                        start = Offset(startX, 0f),
-                        end = Offset(startX + sweepWidth, size.height),
-                    ),
-            )
-        }
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
