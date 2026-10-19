@@ -31,6 +31,7 @@ private const val MILLIS_PER_HOUR = 3_600_000.0
 fun ClaimAnalyticsPanel(
     onOpenReimbursements: () -> Unit,
     onOpenRates: () -> Unit,
+    onOpenGlExport: () -> Unit = {},
     viewModel: ClaimAnalyticsViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -40,6 +41,7 @@ fun ClaimAnalyticsPanel(
             Text("All local employees. Dates filter report creation time. Payments are simulated.")
             TextButton(onClick = onOpenReimbursements) { Text("My reimbursements") }
             TextButton(onClick = onOpenRates) { Text("Local rate editor") }
+            TextButton(onClick = onOpenGlExport) { Text("GL export check") }
         }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

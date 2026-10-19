@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.mileway.core.data.model.ExpenseSourceContext
 import com.mileway.feature.profile.admin.RateTableEditorScreen
+import com.mileway.feature.profile.export.GlExportValidationScreen
 import com.mileway.feature.profile.status.ReimbursementStatusScreen
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
 import com.mileway.feature.profile.ui.screens.ActiveSessionsScreen
@@ -68,6 +69,7 @@ object ProfileRoutes {
     const val ADVANCE_DETAILS = "profile/advance/{advanceId}"
     const val REIMBURSEMENTS = "profile/reimbursements"
     const val RATE_EDITOR = "profile/rate_editor"
+    const val GL_EXPORT = "profile/gl_export"
     const val ANALYTICS_HOME = "profile/analytics"
     const val ANALYTICS_DETAIL = "profile/analytics/{category}"
     const val DELEGATION = "profile/delegation"
@@ -399,12 +401,16 @@ fun NavGraphBuilder.profileGraph(
     composable(ProfileRoutes.RATE_EDITOR) {
         RateTableEditorScreen(onBack = { navController.popBackStack() })
     }
+    composable(ProfileRoutes.GL_EXPORT) {
+        GlExportValidationScreen(onBack = { navController.popBackStack() })
+    }
     composable(ProfileRoutes.ANALYTICS_HOME) {
         AnalyticsHomeScreen(
             onBack = { navController.popBackStack() },
             onOpenDetail = { category -> navController.navigate(ProfileRoutes.analyticsDetailRoute(category)) },
             onOpenReimbursements = { navController.navigate(ProfileRoutes.REIMBURSEMENTS) },
             onOpenRates = { navController.navigate(ProfileRoutes.RATE_EDITOR) },
+            onOpenGlExport = { navController.navigate(ProfileRoutes.GL_EXPORT) },
         )
     }
     composable(

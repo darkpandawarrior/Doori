@@ -96,6 +96,7 @@ import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.payables.ui.screens.PayablesHomeScreen
 import com.mileway.feature.payments.ui.screens.PaymentsHistoryScreen
 import com.mileway.feature.profile.admin.RateTableEditorScreen
+import com.mileway.feature.profile.export.GlExportValidationScreen
 import com.mileway.feature.profile.status.ReimbursementStatusScreen
 import com.mileway.feature.profile.ui.screens.EcoDashboardScreen
 import com.mileway.feature.profile.ui.screens.FavouriteRoutesScreen
@@ -160,6 +161,8 @@ private sealed interface ShellScreen {
     data object Reimbursements : ShellScreen
 
     data object Rates : ShellScreen
+
+    data object GlExport : ShellScreen
 
     data object Cards : ShellScreen
 
@@ -379,6 +382,10 @@ private fun MoreTab(onOpen: (ShellScreen) -> Unit) {
                 headlineContent = { Text("Local rate editor") },
                 modifier = Modifier.clickable { onOpen(ShellScreen.Rates) },
             )
+            ListItem(
+                headlineContent = { Text("GL export check") },
+                modifier = Modifier.clickable { onOpen(ShellScreen.GlExport) },
+            )
         }
         items(moreEntries) { entry ->
             ListItem(
@@ -491,6 +498,7 @@ private fun ShellOverlay(
             }
         ShellScreen.Reimbursements -> ReimbursementStatusScreen(onBack = back)
         ShellScreen.Rates -> RateTableEditorScreen(onBack = back)
+        ShellScreen.GlExport -> GlExportValidationScreen(onBack = back)
         ShellScreen.Cards ->
             MilewayDomainTheme(MilewayDomain.CARDS) {
                 CardsHomeScreen(onOpenCard = {}, onRequestCard = {})

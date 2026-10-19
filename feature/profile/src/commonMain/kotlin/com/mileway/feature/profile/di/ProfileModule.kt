@@ -2,6 +2,7 @@ package com.mileway.feature.profile.di
 
 import com.mileway.core.data.search.SearchProvider
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
+import com.mileway.feature.profile.export.GlExportViewModel
 import com.mileway.feature.profile.admin.RateTableStore
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
 import com.mileway.feature.profile.repository.ActiveSessionsRepository
@@ -86,6 +87,16 @@ val profileModule =
         single { AdvanceRepository() }
         single { RateTableStore(get(), get()) }
         viewModel { RateTableEditorViewModel(get(), get()) }
+        // L25: GL export check. The DAO is read off the database because only Android binds it as a single.
+        single { com.mileway.core.network.accounting.AccountingExportClient() }
+        viewModel {
+            GlExportViewModel(
+                get<com.mileway.core.data.claim.ReportRepository>().observeAll(),
+                get<com.mileway.core.data.database.MilewayDatabase>().glMappingDao(),
+                get(),
+                get(),
+            )
+        }
         viewModel { ClaimAnalyticsViewModel(get(), get(), get()) }
         viewModel { ReimbursementStatusViewModel(get<com.mileway.core.data.claim.ReportRepository>(), get()) }
         // P6.2: Vehicle/Passport tiles' Room-backed repositories.

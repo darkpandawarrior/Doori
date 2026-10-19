@@ -121,6 +121,7 @@ fun AnalyticsHomeScreen(
     viewModel: AnalyticsViewModel = koinViewModel(),
     onOpenReimbursements: () -> Unit = {},
     onOpenRates: () -> Unit = {},
+    onOpenGlExport: () -> Unit = {},
     claimAnalyticsViewModel: ClaimAnalyticsViewModel? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -206,7 +207,7 @@ fun AnalyticsHomeScreen(
                 0 -> MySpendTab(state, viewModel, onOpenDetail)
                 1 -> TeamTab(state, viewModel)
                 2 -> InsightsTab(state)
-                3 -> ClaimAnalyticsPanel(onOpenReimbursements, onOpenRates, viewModel = claimAnalyticsViewModel ?: koinViewModel())
+                3 -> ClaimAnalyticsPanel(onOpenReimbursements, onOpenRates, onOpenGlExport, viewModel = claimAnalyticsViewModel ?: koinViewModel())
             }
         }
     }
