@@ -89,7 +89,7 @@ dependencies {
     implementation(libs.wear.complications.datasource)
     implementation(libs.wear.ongoing)
     implementation(libs.core.ktx)
-    implementation("com.google.guava:guava:33.7.1-android")
+    implementation("com.google.guava:guava:33.7.2-android")
 
     // Koin — WearAppGraph boots the same coreDataModule/trackingModule/stubModule graph the phone uses.
     implementation(libs.koin.android)
