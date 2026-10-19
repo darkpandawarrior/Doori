@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,6 +34,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Badge
@@ -74,6 +76,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -649,26 +652,35 @@ fun DraggableFloatingFab(
             }
         }
         if (showCollapseAffordance && !isDragging && onCollapseClick != null) {
-            Spacer(modifier = Modifier.height(6.dp))
+            // 48dp hit area around an 18dp visual; the outer box owns the click and the role.
             Box(
                 modifier =
                     Modifier
-                        .size(18.dp)
-                        .clip(DesignTokens.Shape.button)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f))
+                        .size(DesignTokens.IconSize.minTouchTarget)
+                        .clip(CircleShape)
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
+                            role = Role.Button,
                             onClick = onCollapseClick,
                         ),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = stringResource(Res.string.core_cd_collapse_nav),
-                    modifier = Modifier.size(12.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Box(
+                    modifier =
+                        Modifier
+                            .size(18.dp)
+                            .clip(DesignTokens.Shape.button)
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.KeyboardArrowDown,
+                        contentDescription = stringResource(Res.string.core_cd_collapse_nav),
+                        modifier = Modifier.size(12.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
@@ -718,8 +730,8 @@ fun CollapsedBottomPuck(
     val puckSize = 56.dp
     val wheelDiameter = 176.dp
     val wheelRadius = 74.dp
-    val chipSize = 38.dp
-    val hoveredChipSize = 44.dp
+    val chipSize = DesignTokens.IconSize.minTouchTarget
+    val hoveredChipSize = 52.dp
     val wheelOffset = (wheelDiameter - puckSize) / 2
     val wheelSweepAngle = COLLAPSED_WHEEL_END_ANGLE_DEGREES - COLLAPSED_WHEEL_START_ANGLE_DEGREES
     val hoverActivationRadiusPx = with(density) { 18.dp.toPx() }
@@ -1133,7 +1145,7 @@ fun DynamicNavItem(
     // Make items narrower when we have many
     val itemWidth =
         when {
-            hasLotsOfItems -> if (isCompact) 46.dp else 52.dp
+            hasLotsOfItems -> if (isCompact) 48.dp else 52.dp
             isCompact -> 52.dp
             else -> 60.dp
         }
@@ -1146,7 +1158,8 @@ fun DynamicNavItem(
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
-                ).padding(
+                ).defaultMinSize(minHeight = DesignTokens.IconSize.minTouchTarget)
+                .padding(
                     horizontal = if (hasLotsOfItems) 1.dp else 2.dp,
                     vertical = if (hasLotsOfItems) 5.dp else 6.dp,
                 ).width(itemWidth),

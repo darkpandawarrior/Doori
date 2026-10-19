@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -54,7 +55,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -64,14 +65,16 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mileway.core.data.util.DateUtils
-import com.mileway.core.ui.components.ConfettiBurst
+import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.tracking_insights_distance
 import com.mileway.core.ui.resources.tracking_plural_issues_found
@@ -93,6 +96,7 @@ import com.mileway.core.ui.theme.DesignTokens
 import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.abs
 import kotlin.math.round
 
 /**
@@ -116,9 +120,9 @@ import kotlin.math.round
  *  8. A bottom action bar with the primary "Track New Journey" CTA and an
  *     optional secondary "View Expense" button.
  *
- * Cards animate in with a small stagger so the screen assembles itself, and a
- * one-shot [ConfettiBurst] fires on first composition unless the submission was
- * a hard stop.
+ * Cards animate in with a small stagger so the screen assembles itself, and one
+ * Confirm haptic fires on first composition (Reject for a hard stop). No confetti:
+ * the check badge is the celebration.
  *
  * @param distanceKm Tracked distance in kilometres (drives the animated counter).
  * @param reimbursableAmount Reimbursable portion of the expense; a value > 0 shows the row.
@@ -128,7 +132,7 @@ import kotlin.math.round
  * @param transactionId Ledger transaction id, or null when none was issued.
  * @param submissionStatus Name of the submission status enum (e.g. "POLICY_VIOLATION",
  *   "HARD_STOP", "SUCCESS"). Anything other than a hard stop is treated as a
- *   celebratory outcome and triggers the confetti.
+ *   celebratory outcome and gets the Confirm haptic.
  * @param violationCount Number of policy issues; > 0 reveals the chip and red card.
  * @param violationMessage First violation's message, or null.
  * @param voucherNumber Voucher number; non-null reveals the voucher section and switches
@@ -163,8 +167,12 @@ fun TrackingSuccessScreen(
     val hasViolations = violationCount > 0
     val hasTransaction = !transactionId.isNullOrBlank()
     val hasVoucher = voucherNumber != null
-    // A hard stop is the only non-celebratory outcome, every other status earns confetti.
+    // A hard stop is the only non-celebratory outcome, every other status earns the Confirm haptic.
     val isHardStop = submissionStatus.equals("HARD_STOP", ignoreCase = true)
+    val haptic = LocalHapticFeedback.current
+    LaunchedEffect(isHardStop) {
+        haptic.performHapticFeedback(if (isHardStop) HapticFeedbackType.Reject else HapticFeedbackType.Confirm)
+    }
 
     // Date line: prefer the journey window when both ends are present, else fall back
     // to whichever timestamp we have.
@@ -410,18 +418,13 @@ fun TrackingSuccessScreen(
                 }
             }
         }
-
-        // Confetti overlay, fires once on first composition for any non-hard-stop
-        // outcome. It draws above the Scaffold so particles fall across the whole
-        // screen, and removes itself after the burst.
-        if (!isHardStop) {
-            ConfettiBurst(
-                modifier = Modifier.fillMaxSize(),
-                particleCount = 50,
-                durationMs = 1800,
-            )
-        }
     }
+}
+
+/** Always two decimals ("12.30", not "12.3"); KMP common has no String.format. */
+private fun fixed2(v: Double): String {
+    val cents = round(abs(v) * 100).toLong()
+    return "${if (v < 0 && cents != 0L) "-" else ""}${cents / 100}.${(cents % 100).toString().padStart(2, '0')}"
 }
 
 /** Animated, gently pulsing circular badge with a primary-tinted check mark. */
@@ -568,24 +571,22 @@ private fun DistanceCard(distanceKm: Double) {
 
             Spacer(modifier = Modifier.height(DesignTokens.Spacing.s))
 
-            // Count-up: ramp from 0 to the final value over ~1.5s for a lively reveal.
-            var animatedDistance by remember { mutableDoubleStateOf(0.0) }
-            LaunchedEffect(distanceKm) {
-                val steps = 100
-                val stepDuration = 1500L / steps
-                for (i in 0..steps) {
-                    animatedDistance = distanceKm * i / steps
-                    delay(stepDuration)
-                }
-                animatedDistance = distanceKm
-            }
+            // Count-up: one tween to the final value; snaps straight there under reduced motion.
+            val reducedMotion = LocalReducedMotion.current
+            var reveal by remember { mutableStateOf(reducedMotion) }
+            LaunchedEffect(distanceKm) { reveal = true }
+            val animatedDistance by animateFloatAsState(
+                targetValue = if (reveal) distanceKm.toFloat() else 0f,
+                animationSpec = if (reducedMotion) snap() else tween(DesignTokens.Motion.DELIBERATE * 3),
+                label = "distanceCountUp",
+            )
 
             Row(
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = (round(animatedDistance * 100).toLong() / 100.0).toString(),
+                    text = fixed2(animatedDistance.toDouble()),
                     style =
                         MaterialTheme.typography.displayLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
@@ -694,7 +695,7 @@ private fun TransactionCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            text = "₹${round(reimbursableAmount * 100).toLong() / 100.0}",
+                            text = "₹${fixed2(reimbursableAmount)}",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.primary,
@@ -900,7 +901,7 @@ private fun VoucherCard(
             }
             if (voucherAmount > 0.0) {
                 Text(
-                    text = "₹${round(voucherAmount * 100).toLong() / 100.0}",
+                    text = "₹${fixed2(voucherAmount)}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.ExtraBold,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
