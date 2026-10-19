@@ -77,28 +77,12 @@ napier = "2.7.1"
 coil3 = "3.6.3"
 markdownRenderer = "0.45.0"
 webviewMultiplatform = "2.0.3"
-# HELD at 0.15.0 -- 0.17.0 exists and was rejected on purpose, not missed. 0.16.0 AND 0.17.0 are
-# both breaking, and together they rewrite every API MapLibreSurface.kt uses. Read from the
-# published 0.17.0 sources jar, not from release-note prose:
-#   * MaplibreMap(modifier, state, cameraPadding, cameraConstraints, renderOptions, interactions,
-#     uiOptions, overlay) -- it no longer takes baseStyle, cameraState, options, or a trailing
-#     content lambda. Sources and layers move into rememberMapState(runtime, baseStyle,
-#     initialCameraPosition, content).
-#   * rememberCameraState / CameraState are gone. Camera lives on MapState:
-#     setCameraPosition(), stopCameraMovement(), and suspend animateCameraPosition() /
-#     animateCameraAround() / animateCameraToBounds() with a CameraAnimation (Ease | Fly).
-#   * MapOptions -> MapUiOptions + MapInteractions. MapState is closeable (close()/awaitClosed())
-#     and owned by a MapRuntime, so the surface gains a lifecycle it does not have today.
-#   * 0.17 overlay controls read LocalMapState/LocalViewport/LocalCameraPadding instead of a
-#     MapOverlayScope receiver, and custom overlays no longer get automatic padding.
-# Separately, 0.15.0 already made an Android render runtime mandatory, and that gap is now CLOSED
-# (it was open and shipping): maplibre-compose-android's pom brings maplibre-native-ffi-android,
-# the FFI bindings, but no maplibre-native-ffi-runtime-* to implement them, and the MapLibre
-# Android SDK stopped being a transitive dep -- so the Android map had no renderer at all. The
-# OpenGL runtime is declared below and wired in core/maps-maplibre/build.gradle.kts.
-# The 0.17 bump itself is still a day of work with a device check at the end, not a version bump,
-# and it touches the native iOS MapLibre SDK too.
-maplibreCompose = "0.15.0"
+# 0.16/0.17 rewrote the API MapLibreSurface.kt uses (MaplibreMap takes a MapState from
+# rememberMapState, layers live in its content lambda, camera moves are MapState methods, the
+# overlay is a MapOverlayScope lambda); the surface was migrated in the 0.20 bump.
+# An Android render runtime is mandatory (maplibre-compose-android brings the FFI bindings but no
+# renderer): the OpenGL runtime is declared below and wired in core/maps-maplibre/build.gradle.kts.
+maplibreCompose = "0.20.0"
 ktor = "3.6.0"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
