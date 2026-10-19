@@ -3622,6 +3622,65 @@ class ScreenshotGalleryTest {
 
     // ── Security ───────────────────────────────────────────────────────────────────
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun phase4CapturePolicyOcrExplanation() {
+        val previousBackend = NetworkBackendFlags.useRealBackend
+        NetworkBackendFlags.useRealBackend = false
+        try {
+            val analysis =
+                com.mileway.core.ai.model.DocumentAnalysis(
+                    docType = com.mileway.core.ai.model.DocType.RECEIPT,
+                    fields =
+                        mapOf(
+                            com.mileway.core.ai.model.DocField.TOTAL to
+                                com.mileway.core.ai.model.ExtractedValue(
+                                    "5200",
+                                    0.92f,
+                                    com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
+                                ),
+                            com.mileway.core.ai.model.DocField.CURRENCY to
+                                com.mileway.core.ai.model.ExtractedValue(
+                                    "INR",
+                                    0.9f,
+                                    com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
+                                ),
+                        ),
+                    rawText = "Total INR 5200",
+                    duplicate = com.mileway.core.ai.model.DuplicateVerdict.Unique,
+                    overallConfidence = 0.99f,
+                    contributingSources = setOf(com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION),
+                )
+            val violation =
+                com.mileway.stub.PolicyMockData
+                    .violationsForExpenseAmount(5200.0, "FOOD")
+                    .single()
+            val explained =
+                violation.copy(
+                    message =
+                        com.mileway.feature.logging.policy.ExplainableViolation
+                            .message(violation, "5200", "INR", analysis),
+                )
+            composeRule.setContent {
+                MilewayTheme {
+                    com.mileway.feature.logging.ui.sheets.ExpensePolicyViolationSheet(
+                        violations = listOf(explained),
+                        onSubmitAnyway = {},
+                        onReview = {},
+                        onDismiss = {},
+                    )
+                }
+            }
+            composeRule
+                .onNodeWithText("OCR read the total as ${formatMinorCurrency(520000, "INR")}, 92% confidence. ${violation.message}")
+                .assertIsDisplayed()
+            org.junit.Assert.assertFalse(NetworkBackendFlags.useRealBackend)
+            capture("phase4_policy_ocr_explanation")
+        } finally {
+            NetworkBackendFlags.useRealBackend = previousBackend
+        }
+    }
+
     @Test
     fun phase4CaptureDebugBackendToggle() {
         val context = ApplicationProvider.getApplicationContext<Context>()
