@@ -1571,13 +1571,13 @@ fun HomeMileageCard(
                         text = stringResource(Res.string.shared_home_mileage),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onPrimary,
                     )
                     Text(
                         text = stringResource(Res.string.shared_home_km_total, WEEK_KM_DEMO.formatDecimal(0)),
                         style = MaterialTheme.typography.bodyLarge.dataStyle(),
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.White.copy(alpha = 0.9f),
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f),
                     )
                 }
             }

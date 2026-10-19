@@ -142,6 +142,7 @@ private fun ManagerHeader(
     subtitle: String,
     onBack: () -> Unit,
 ) {
+    val onPrimary = MaterialTheme.colorScheme.onPrimary
     Box(
         modifier =
             Modifier
@@ -155,13 +156,13 @@ private fun ManagerHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = mrv("manager_view_back", "Back"), tint = Color.White)
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = mrv("manager_view_back", "Back"), tint = onPrimary)
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Color.White)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = 0.8f))
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = onPrimary)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = onPrimary.copy(alpha = 0.8f))
             }
-            Icon(Icons.Default.SupervisorAccount, contentDescription = null, tint = Color.White.copy(alpha = 0.9f))
+            Icon(Icons.Default.SupervisorAccount, contentDescription = null, tint = onPrimary.copy(alpha = 0.9f))
         }
     }
 }
