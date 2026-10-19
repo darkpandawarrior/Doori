@@ -30,7 +30,11 @@ class GlExportViewModelTest {
                 val dao = MemoryGlMappingDao()
                 val share = RecordingShareSheet()
                 var uploads = 0
-                val viewModel = GlExportViewModel({ reports }, dao, share, { uploads++; true })
+                val viewModel =
+                    GlExportViewModel({ reports }, dao, share, {
+                        uploads++
+                        true
+                    })
                 runCurrent()
                 assertEquals(4, viewModel.state.value.unmapped.size)
                 viewModel.export()
@@ -80,7 +84,11 @@ class GlExportViewModelTest {
                 val share = RecordingShareSheet()
                 var accepted = false
                 var uploaded = ""
-                val viewModel = GlExportViewModel({ reports }, dao, share, { csv -> uploaded = csv; accepted })
+                val viewModel =
+                    GlExportViewModel({ reports }, dao, share, { csv ->
+                        uploaded = csv
+                        accepted
+                    })
                 runCurrent()
                 viewModel.export()
                 runCurrent()
@@ -107,20 +115,34 @@ class GlExportViewModelTest {
                 accountingReport().lines.forEach { dao.upsert(GlMappingEntity(it.glMappingKey(), "6100", null, 0)) }
                 val share = RecordingShareSheet()
                 var current = accountingReport()
-                val viewModel = GlExportViewModel(
-                    observeReports = { MutableStateFlow(listOf(current)) },
-                    mappings = dao,
-                    shareSheet = share,
-                    uploadCsv = { error("must not upload") },
-                )
+                val viewModel =
+                    GlExportViewModel(
+                        observeReports = { MutableStateFlow(listOf(current)) },
+                        mappings = dao,
+                        shareSheet = share,
+                        uploadCsv = { error("must not upload") },
+                    )
                 runCurrent()
                 assertTrue(viewModel.state.value.canExport)
-                current = current.copy(lines = current.lines + com.mileway.core.data.domain.claim.ExpenseLine(
-                    "new", 100, "INR", merchant = "Cafe", category = "NEW_CATEGORY",
-                ))
+                current =
+                    current.copy(
+                        lines =
+                            current.lines +
+                                com.mileway.core.data.domain.claim.ExpenseLine(
+                                    "new",
+                                    100,
+                                    "INR",
+                                    merchant = "Cafe",
+                                    category = "NEW_CATEGORY",
+                                ),
+                    )
                 viewModel.export()
                 runCurrent()
-                assertEquals(listOf("new"), viewModel.state.value.unmapped.map { it.lineId })
+                assertEquals(
+                    listOf("new"),
+                    viewModel.state.value.unmapped
+                        .map { it.lineId },
+                )
                 assertTrue(share.csv.isEmpty())
                 assertFalse(viewModel.state.value.canExport)
             } finally {
@@ -134,12 +156,13 @@ class GlExportViewModelTest {
             Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
             try {
                 var fail = true
-                val viewModel = GlExportViewModel(
-                    observeReports = { flow { if (fail) error("unreadable") else emit(listOf(accountingReport())) } },
-                    mappings = MemoryGlMappingDao(),
-                    shareSheet = RecordingShareSheet(),
-                    uploadCsv = { error("must not upload") },
-                )
+                val viewModel =
+                    GlExportViewModel(
+                        observeReports = { flow { if (fail) error("unreadable") else emit(listOf(accountingReport())) } },
+                        mappings = MemoryGlMappingDao(),
+                        shareSheet = RecordingShareSheet(),
+                        uploadCsv = { error("must not upload") },
+                    )
                 runCurrent()
                 assertFalse(viewModel.state.value.canExport)
                 assertFalse(viewModel.state.value.dataReady)
@@ -158,7 +181,11 @@ class GlExportViewModelTest {
 private class RecordingShareSheet : ShareSheet {
     val csv = mutableListOf<String>()
 
-    override fun share(text: String, subject: String?, fileUri: String?) {
+    override fun share(
+        text: String,
+        subject: String?,
+        fileUri: String?,
+    ) {
         csv.add(text)
     }
 }

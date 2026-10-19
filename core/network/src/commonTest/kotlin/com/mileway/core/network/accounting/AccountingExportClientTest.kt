@@ -23,15 +23,19 @@ class AccountingExportClientTest {
             val csv = "report_id,line_id,amount_minor,currency,gl_account_code\r\nr1,l1,100,INR,6100\r\n"
             var requests = 0
             val http =
-                createHttpClient(engine = MockEngine { request ->
-                    requests++
-                    assertEquals(HttpMethod.Post, request.method)
-                    assertEquals("https://accounting.example/api/accounting/exports", request.url.toString())
-                    val body = request.body as OutgoingContent.ByteArrayContent
-                    assertEquals(csv, body.bytes().decodeToString())
-                    assertEquals(ContentType.Text.CSV, body.contentType?.withoutParameters())
-                    respond("", HttpStatusCode.Accepted)
-                }, retry = false)
+                createHttpClient(
+                    engine =
+                        MockEngine { request ->
+                            requests++
+                            assertEquals(HttpMethod.Post, request.method)
+                            assertEquals("https://accounting.example/api/accounting/exports", request.url.toString())
+                            val body = request.body as OutgoingContent.ByteArrayContent
+                            assertEquals(csv, body.bytes().decodeToString())
+                            assertEquals(ContentType.Text.CSV, body.contentType?.withoutParameters())
+                            respond("", HttpStatusCode.Accepted)
+                        },
+                    retry = false,
+                )
             try {
                 val client = AccountingExportClient(BaseUrlProvider { "https://accounting.example/" }, http)
                 assertTrue(client.export(csv))
@@ -46,10 +50,15 @@ class AccountingExportClientTest {
     fun serverFailureAndOfflineReturnFalseWithoutRetry() =
         runTest {
             var requests = 0
-            val http = createHttpClient(engine = MockEngine {
-                requests++
-                respond("missing endpoint", HttpStatusCode.NotFound)
-            }, retry = false)
+            val http =
+                createHttpClient(
+                    engine =
+                        MockEngine {
+                            requests++
+                            respond("missing endpoint", HttpStatusCode.NotFound)
+                        },
+                    retry = false,
+                )
             val offline = createHttpClient(engine = MockEngine { throw IllegalStateException("offline") }, retry = false)
             try {
                 assertFalse(AccountingExportClient(BaseUrlProvider { "https://accounting.example" }, http).export("csv"))

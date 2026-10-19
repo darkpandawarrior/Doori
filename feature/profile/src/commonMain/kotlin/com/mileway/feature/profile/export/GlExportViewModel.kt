@@ -63,13 +63,14 @@ class GlExportViewModel(
                 try {
                     combine(observeReports(), mappings.observeAll()) { claims, codes -> glExportLines(claims) to codes }
                         .collect { (lines, codes) ->
-                            mutableState.value = state.value.copy(
-                                lines = lines,
-                                mappings = codes,
-                                unmapped = unmappedGlLines(lines, codes),
-                                loading = false,
-                                dataReady = true,
-                            )
+                            mutableState.value =
+                                state.value.copy(
+                                    lines = lines,
+                                    mappings = codes,
+                                    unmapped = unmappedGlLines(lines, codes),
+                                    loading = false,
+                                    dataReady = true,
+                                )
                         }
                 } catch (failure: Exception) {
                     if (failure is CancellationException) throw failure

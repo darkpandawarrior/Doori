@@ -1635,44 +1635,46 @@ class ScreenshotGalleryTest {
     fun phase4CaptureGlExportValidation() {
         val previousBackend = NetworkBackendFlags.useRealBackend
         NetworkBackendFlags.useRealBackend = false
-        val reports = MutableStateFlow(
-            listOf(
-                Report(
-                    "report-1",
-                    "employee",
-                    listOf(
-                        ExpenseLine("meal-1", 1250, "INR", merchant = "Cafe", category = "FOOD"),
-                        ExpenseLine("meal-2", 2500, "INR", merchant = "Cafe", category = "FOOD"),
-                        MileageLine("trip-1", 5000, "INR", distanceKm = 10.0, vehicleKey = "car"),
+        val reports =
+            MutableStateFlow(
+                listOf(
+                    Report(
+                        "report-1",
+                        "employee",
+                        listOf(
+                            ExpenseLine("meal-1", 1250, "INR", merchant = "Cafe", category = "FOOD"),
+                            ExpenseLine("meal-2", 2500, "INR", merchant = "Cafe", category = "FOOD"),
+                            MileageLine("trip-1", 5000, "INR", distanceKm = 10.0, vehicleKey = "car"),
+                        ),
+                        ReportLifecycleState.APPROVED,
                     ),
-                    ReportLifecycleState.APPROVED,
                 ),
-            ),
-        )
+            )
         val mappings = MutableStateFlow(listOf(GlMappingEntity("MILEAGE", "6200", null, 0)))
         var sharedCsv = ""
-        val application = koinApplication {
-            modules(
-                profileModule,
-                module {
-                    single<ReportRepository> { mockk { every { observeAll() } returns reports } }
-                    single<GlMappingDao> {
-                        object : GlMappingDao {
-                            override fun observeAll() = mappings
+        val application =
+            koinApplication {
+                modules(
+                    profileModule,
+                    module {
+                        single<ReportRepository> { mockk { every { observeAll() } returns reports } }
+                        single<GlMappingDao> {
+                            object : GlMappingDao {
+                                override fun observeAll() = mappings
 
-                            override suspend fun get(category: String) = mappings.value.firstOrNull { it.category == category }
+                                override suspend fun get(category: String) = mappings.value.firstOrNull { it.category == category }
 
-                            override suspend fun upsert(entity: GlMappingEntity) {
-                                mappings.value = mappings.value.filterNot { it.category == entity.category } + entity
+                                override suspend fun upsert(entity: GlMappingEntity) {
+                                    mappings.value = mappings.value.filterNot { it.category == entity.category } + entity
+                                }
                             }
                         }
-                    }
-                    single<ShareSheet> {
-                        mockk { every { share(any(), any(), any()) } answers { sharedCsv = firstArg() } }
-                    }
-                },
-            )
-        }
+                        single<ShareSheet> {
+                            mockk { every { share(any(), any(), any()) } answers { sharedCsv = firstArg() } }
+                        }
+                    },
+                )
+            }
         try {
             val viewModel = application.koin.get<GlExportViewModel>()
             composeRule.setContent { MilewayTheme { GlExportValidationScreen(onBack = {}, viewModel = viewModel) } }

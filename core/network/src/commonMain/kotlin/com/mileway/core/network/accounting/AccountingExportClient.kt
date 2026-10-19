@@ -20,10 +20,12 @@ class AccountingExportClient(
     suspend fun export(csv: String): Boolean {
         if (csv.isBlank()) return false
         return try {
-            client.post("${baseUrlProvider.baseUrl().trimEnd('/')}/api/accounting/exports") {
-                contentType(ContentType.Text.CSV)
-                setBody(csv)
-            }.status.isSuccess()
+            client
+                .post("${baseUrlProvider.baseUrl().trimEnd('/')}/api/accounting/exports") {
+                    contentType(ContentType.Text.CSV)
+                    setBody(csv)
+                }.status
+                .isSuccess()
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {
