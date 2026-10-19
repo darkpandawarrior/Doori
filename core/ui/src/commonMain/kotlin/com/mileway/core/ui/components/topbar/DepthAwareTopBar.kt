@@ -1,7 +1,6 @@
 package com.mileway.core.ui.components.topbar
 
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
@@ -39,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
@@ -299,7 +297,6 @@ fun DepthAwareTopBar(
                                 } else {
                                     colorScheme.surfaceVariant.copy(alpha = 0.6f)
                                 },
-                            showGlow = !isCollapsed,
                         )
                     }
                     actions()
@@ -313,8 +310,6 @@ fun DepthAwareTopBar(
  * Animated circular search action used by [DepthAwareTopBar].
  *
  * Visual behaviour:
- * - subtle breathing pulse while idle (scale 1.0 -> 1.08, 2000ms ease-in-out, reversing)
- * - soft glow ring behind the container whose opacity cycles 0.3 -> 0.7 (1500ms linear)
  * - press feedback: scale to 0.88 plus an -8 degree tilt on a medium-bouncy spring
  * - haptic feedback on click
  */
@@ -324,36 +319,10 @@ private fun AnimatedSearchAction(
     modifier: Modifier = Modifier,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     containerColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
-    showGlow: Boolean = true,
 ) {
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-
-    // Infinite breathing animation (subtle scale pulse).
-    val infiniteTransition = rememberInfiniteTransition(label = "searchBreathing")
-    val breathingScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.08f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(durationMillis = 2000, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "breathingScale",
-    )
-
-    // Glow opacity animation.
-    val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.3f,
-        targetValue = 0.7f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(durationMillis = 1500, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "glowAlpha",
-    )
 
     // Press scale animation.
     val scale by animateFloatAsState(
@@ -385,19 +354,6 @@ private fun AnimatedSearchAction(
                 .rotate(rotation),
         contentAlignment = Alignment.Center,
     ) {
-        // Glow layer (blurred circle behind the container).
-        if (showGlow) {
-            Box(
-                modifier =
-                    Modifier
-                        .size(42.dp * breathingScale)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = glowAlpha * 0.25f),
-                            shape = DesignTokens.Shape.button,
-                        ).blur(12.dp),
-            )
-        }
-
         // Main circular container.
         Box(
             modifier =
@@ -413,15 +369,14 @@ private fun AnimatedSearchAction(
                     },
             contentAlignment = Alignment.Center,
         ) {
-            // Search glyph with the breathing pulse (paused while pressed).
+            // Search glyph; static at rest (DESIGN.md: nothing animates just to decorate).
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = stringResource(Res.string.core_cd_search),
                 tint = tint,
                 modifier =
                     Modifier
-                        .size(DesignTokens.IconSize.actionTile)
-                        .scale(if (!isPressed) breathingScale else 1f),
+                        .size(DesignTokens.IconSize.actionTile),
             )
         }
     }

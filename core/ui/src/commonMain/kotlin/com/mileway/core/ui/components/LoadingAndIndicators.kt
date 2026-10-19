@@ -44,6 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -57,6 +58,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mileway.core.ui.platform.LocalReducedMotion
 import com.mileway.core.ui.resources.Res
 import com.mileway.core.ui.resources.action_retry
 import com.mileway.core.ui.resources.core_cd_error
@@ -118,25 +120,34 @@ fun ShimmerBar(
             )
         }
 
-    val transition = rememberInfiniteTransition(label = "shimmer")
+    // Reduced motion: a static fill, no infinite transition at all.
+    val reducedMotion = LocalReducedMotion.current
     val xShimmer =
-        transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1000f,
-            animationSpec =
-                infiniteRepeatable(
-                    animation = tween(durationMillis = 1200, easing = FastOutLinearInEasing),
-                    repeatMode = RepeatMode.Restart,
-                ),
-            label = "x",
-        )
+        if (reducedMotion) {
+            null
+        } else {
+            rememberInfiniteTransition(label = "shimmer").animateFloat(
+                initialValue = 0f,
+                targetValue = 1000f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(durationMillis = 1200, easing = FastOutLinearInEasing),
+                        repeatMode = RepeatMode.Restart,
+                    ),
+                label = "x",
+            )
+        }
 
     val brush =
-        Brush.linearGradient(
-            colors = colors,
-            start = Offset.Zero,
-            end = Offset(xShimmer.value, xShimmer.value),
-        )
+        if (xShimmer == null) {
+            SolidColor(surfaceVariant.copy(alpha = 0.45f))
+        } else {
+            Brush.linearGradient(
+                colors = colors,
+                start = Offset.Zero,
+                end = Offset(xShimmer.value, xShimmer.value),
+            )
+        }
 
     Box(
         modifier =
