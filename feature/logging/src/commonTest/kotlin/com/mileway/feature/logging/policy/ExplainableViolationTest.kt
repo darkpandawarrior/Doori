@@ -141,17 +141,16 @@ class ExplainableViolationTest {
     private fun scan(
         confidence: Float = 0.92f,
         total: String = "5200",
-    ) =
-        DocumentAnalysis(
-            docType = DocType.RECEIPT,
-            fields =
-                mapOf(
-                    DocField.TOTAL to ExtractedValue(total, confidence, AnalyzerSource.TEXT_RECOGNITION),
-                    DocField.CURRENCY to ExtractedValue("INR", 0.9f, AnalyzerSource.TEXT_RECOGNITION),
-                ),
-            rawText = "Total INR 5200",
-            duplicate = DuplicateVerdict.Unique,
-            overallConfidence = 0.99f,
-            contributingSources = setOf(AnalyzerSource.TEXT_RECOGNITION),
-        )
+    ) = DocumentAnalysis(
+        docType = DocType.RECEIPT,
+        fields =
+            mapOf(
+                DocField.TOTAL to ExtractedValue(total, confidence, AnalyzerSource.TEXT_RECOGNITION),
+                DocField.CURRENCY to ExtractedValue("INR", 0.9f, AnalyzerSource.TEXT_RECOGNITION),
+            ),
+        rawText = "Total INR 5200",
+        duplicate = DuplicateVerdict.Unique,
+        overallConfidence = 0.99f,
+        contributingSources = setOf(AnalyzerSource.TEXT_RECOGNITION),
+    )
 }

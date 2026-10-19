@@ -31,7 +31,12 @@ object ExplainableViolation {
             } else {
                 "$percent% confidence"
             }
-        val scannedCurrency = analysis?.fields?.get(DocField.CURRENCY)?.value.orEmpty()
+        val scannedCurrency =
+            analysis
+                ?.fields
+                ?.get(DocField.CURRENCY)
+                ?.value
+                .orEmpty()
         val money = formatMinorCurrency(amountMinor, scannedCurrency).trim()
         return "OCR read the total as $money, $confidence. ${violation.message}"
     }

@@ -3550,7 +3550,10 @@ class ScreenshotGalleryTest {
                     overallConfidence = 0.99f,
                     contributingSources = setOf(com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION),
                 )
-            val violation = com.mileway.stub.PolicyMockData.violationsForExpenseAmount(5200.0, "FOOD").single()
+            val violation =
+                com.mileway.stub.PolicyMockData
+                    .violationsForExpenseAmount(5200.0, "FOOD")
+                    .single()
             val explained =
                 violation.copy(
                     message =
