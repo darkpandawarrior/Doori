@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.ui.components.EmptyState
 import com.mileway.core.ui.components.ExpandableText
+import com.mileway.core.ui.components.listItemMotion
 import com.mileway.core.ui.components.sheet.BulkActionConfirmationBottomSheet
 import com.mileway.core.ui.components.sheet.BulkActionType
 import com.mileway.core.ui.components.sheet.FilterBottomSheet
@@ -434,13 +435,15 @@ internal fun ApprovalListTab(
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(items, key = { it.id }) { item ->
-            ApprovalCard(
-                item = item,
-                selectionMode = selectionMode,
-                isSelected = item.id in selectedIds,
-                onClick = { if (selectionMode) onToggleSelect(item.id) else onOpenDetail(item.id) },
-                onLongClick = { onLongPress(item.id) },
-            )
+            Box(listItemMotion()) {
+                ApprovalCard(
+                    item = item,
+                    selectionMode = selectionMode,
+                    isSelected = item.id in selectedIds,
+                    onClick = { if (selectionMode) onToggleSelect(item.id) else onOpenDetail(item.id) },
+                    onLongClick = { onLongPress(item.id) },
+                )
+            }
         }
     }
 }

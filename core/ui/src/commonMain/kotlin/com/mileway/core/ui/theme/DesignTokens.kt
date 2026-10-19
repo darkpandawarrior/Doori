@@ -79,6 +79,9 @@ object DesignTokens {
         val card = 2.dp
         val raised = 4.dp
         val prominent = 8.dp
+
+        /** Bottom sheet that slides under a header band (Home body sheet). */
+        val sheet = 12.dp
     }
 
     /**
