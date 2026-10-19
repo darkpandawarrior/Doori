@@ -141,6 +141,7 @@ import com.mileway.feature.logging.currency.CurrencyConverter
 import com.mileway.feature.logging.model.DraftStatus
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseDraftRow
+import com.mileway.feature.logging.policy.ExplainableViolation
 import com.mileway.feature.logging.ui.sheets.ExpensePolicyViolationSheet
 import com.mileway.feature.logging.validation.ExpenseFormValidator
 import com.mileway.feature.logging.viewmodel.ExpenseAction
@@ -334,7 +335,8 @@ fun ExpenseScreen(
     }
     policyViolations?.let { violations ->
         ExpensePolicyViolationSheet(
-            violations = violations,
+            // Offline OCR citation (L20): only while the amount still holds the scanned value.
+            violations = ExplainableViolation.explainAll(violations, form.amountText, form.currencyCode, scannedReceiptAnalysis),
             onSubmitAnyway = {
                 policyViolations = null
                 viewModel.onAction(ExpenseAction.ConfirmSubmitDespitePolicy)
@@ -672,7 +674,12 @@ private fun Step2Content(
                 shape = DesignTokens.Shape.roundedSm,
             ) {
                 Text(
-                    text = "⚠ " + (liveViolation?.message ?: stringResource(Res.string.logging_amount_requires_approval)),
+                    text =
+                        "⚠ " +
+                            (
+                                liveViolation?.let { ExplainableViolation.explain(it, form.amountText, form.currencyCode, scannedAnalysis) }
+                                    ?: stringResource(Res.string.logging_amount_requires_approval)
+                            ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.padding(DesignTokens.Spacing.m),

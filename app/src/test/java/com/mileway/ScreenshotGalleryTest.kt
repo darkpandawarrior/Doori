@@ -163,6 +163,7 @@ import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.perdiem.PerDiemSheet
+import com.mileway.feature.logging.policy.ExplainableViolation
 import com.mileway.feature.logging.policy.reviewMessage
 import com.mileway.feature.logging.report.ReportGroupingScreen
 import com.mileway.feature.logging.report.ReportGroupingViewModel
@@ -180,6 +181,7 @@ import com.mileway.feature.logging.ui.screens.SettlementHistoryScreen
 import com.mileway.feature.logging.ui.screens.SpendsHomeScreen
 import com.mileway.feature.logging.ui.screens.VoucherDetailsScreen
 import com.mileway.feature.logging.ui.screens.VoucherHistoryScreen
+import com.mileway.feature.logging.ui.sheets.ExpensePolicyViolationSheet
 import com.mileway.feature.logging.viewmodel.ExpenseAction
 import com.mileway.feature.logging.viewmodel.ExpenseViewModel
 import com.mileway.feature.logging.viewmodel.VoucherDetailsViewModel
@@ -1427,6 +1429,40 @@ class ScreenshotGalleryTest {
         } finally {
             application.close()
         }
+    }
+
+    @Test
+    fun phase4CapturePolicySheetCitesOcrConfidence() {
+        val scan =
+            com.mileway.core.ai.model.DocumentAnalysis(
+                docType = com.mileway.core.ai.model.DocType.RECEIPT,
+                fields =
+                    mapOf(
+                        com.mileway.core.ai.model.DocField.TOTAL to
+                            com.mileway.core.ai.model.ExtractedValue(
+                                "5,200.00",
+                                0.92f,
+                                com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
+                            ),
+                    ),
+                rawText = "",
+                duplicate = com.mileway.core.ai.model.DuplicateVerdict.Unique,
+                overallConfidence = 0.92f,
+                contributingSources = setOf(com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION),
+            )
+        val violations =
+            ExplainableViolation.explainAll(
+                com.mileway.stub.PolicyMockData.violationsForExpenseAmount(5_200.0, "TRAVEL"),
+                amountText = "5200.00",
+                currencyCode = "INR",
+                analysis = scan,
+            )
+        composeRule.setContent {
+            MilewayTheme {
+                ExpensePolicyViolationSheet(violations = violations, onSubmitAnyway = {}, onReview = {}, onDismiss = {})
+            }
+        }
+        capture("phase4_policy_sheet_ocr_confidence")
     }
 
     @Test
