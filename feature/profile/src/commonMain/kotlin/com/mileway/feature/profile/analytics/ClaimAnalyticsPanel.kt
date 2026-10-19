@@ -32,6 +32,7 @@ fun ClaimAnalyticsPanel(
     onOpenReimbursements: () -> Unit,
     onOpenRates: () -> Unit,
     viewModel: ClaimAnalyticsViewModel = koinViewModel(),
+    onOpenAccountingExport: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LazyColumn(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -40,6 +41,7 @@ fun ClaimAnalyticsPanel(
             Text("All local employees. Dates filter report creation time. Payments are simulated.")
             TextButton(onClick = onOpenReimbursements) { Text("My reimbursements") }
             TextButton(onClick = onOpenRates) { Text("Local rate editor") }
+            onOpenAccountingExport?.let { callback -> TextButton(onClick = callback) { Text("Accounting export") } }
         }
         item {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

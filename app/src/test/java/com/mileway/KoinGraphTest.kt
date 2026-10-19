@@ -394,6 +394,7 @@ class KoinGraphTest : KoinTest {
 
     @Test
     fun `every ViewModel in the app graph is constructible`() {
+        assertNotNull(get<com.mileway.core.network.accounting.AccountingExportClient>())
         // One line per registered ViewModel, a new viewModelOf() without a matching
         // entry here should be added when the screen is added.
         assertNotNull(get<SavedTracksViewModel>())
