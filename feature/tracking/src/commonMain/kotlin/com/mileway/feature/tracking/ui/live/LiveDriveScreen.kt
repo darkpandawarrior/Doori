@@ -49,8 +49,11 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.mileway.core.data.model.display.TrackingSystemFlags
@@ -426,7 +429,8 @@ private fun MetricSlab(
                         .rotate(if (expanded) 180f else 0f)
                         .clip(CircleShape)
                         .pointerInput(Unit) { detectTapGestures(onTap = { expanded = !expanded }) }
-                        .padding(4.dp),
+                        // 24dp glyph + 12dp each side = the 48dp minimum touch target.
+                        .padding((DesignTokens.IconSize.minTouchTarget - 24.dp) / 2),
             )
 
             AnimatedVisibility(visible = expanded, enter = fadeIn(), exit = fadeOut()) {
@@ -526,7 +530,14 @@ private fun RecenterChip(
                 Modifier
                     .pointerInput(Unit) { detectTapGestures(onTap = { onClick() }) }
                     .padding(horizontal = DesignTokens.Spacing.m, vertical = DesignTokens.Spacing.s)
-                    .semantics { contentDescription = "Recenter map" },
+                    .semantics {
+                        contentDescription = "Recenter map"
+                        role = Role.Button
+                        onClick(label = "Recenter map") {
+                            onClick()
+                            true
+                        }
+                    },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(DesignTokens.Spacing.xs),
         ) {
@@ -597,7 +608,16 @@ private fun RoundIconButton(
                             onClick()
                         },
                     )
-                }.semantics { this.contentDescription = contentDescription },
+                }.semantics {
+                    this.contentDescription = contentDescription
+                    role = Role.Button
+                    // Accessibility activation: pointerInput is invisible to TalkBack.
+                    onClick(label = contentDescription) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onClick()
+                        true
+                    }
+                },
         shape = CircleShape,
         color = containerColor,
     ) {
@@ -649,7 +669,16 @@ private fun HoldToStopButton(
                             }
                         },
                     )
-                }.semantics { contentDescription = "Hold to stop tracking" },
+                }.semantics {
+                    contentDescription = "Hold to stop tracking"
+                    role = Role.Button
+                    // A deliberate TalkBack double-tap is itself the confirmation; touch keeps the hold.
+                    onClick(label = "Stop tracking") {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onCommitted()
+                        true
+                    }
+                },
         contentAlignment = Alignment.Center,
     ) {
         androidx.compose.foundation.Canvas(modifier = Modifier.size(StopButtonSize)) {
