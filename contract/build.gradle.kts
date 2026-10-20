@@ -24,7 +24,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.contract"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Runs commonTest (the serialization round-trip test) on the JVM host too, mirroring
         // core:network's rationale — a pure-serialization module's tests should count on the host

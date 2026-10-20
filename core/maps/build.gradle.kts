@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.core.maps"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Enable JVM host execution of commonTest (CanvasRouteSurface's pure projection math)
         // via testAndroidHostTest — mirrors core:security's setup.

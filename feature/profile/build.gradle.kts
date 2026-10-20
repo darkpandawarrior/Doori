@@ -6,7 +6,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.profile"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // P4.2: Enable JVM host execution of commonTest for the AdvanceViewModel detail-load test.
         withHostTest {}

@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.advances"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // PLAN_V35.P3: run commonTest (validators/UPI parser/mock repos) on the JVM host.
         withHostTest {}

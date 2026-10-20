@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.media"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Enable JVM host execution of commonTest so the filter/sort logic test runs in the gradle gate.
         withHostTest {}

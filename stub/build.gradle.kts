@@ -6,7 +6,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.stub"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         withHostTest {}
     }

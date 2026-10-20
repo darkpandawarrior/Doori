@@ -13,7 +13,9 @@ room {
 kotlin {
     android {
         namespace = "com.mileway.core.data"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         withHostTest {}
     }

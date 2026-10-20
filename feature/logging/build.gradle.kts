@@ -6,7 +6,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.logging"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Enable JVM host execution of commonTest so catalog/validator tests run in the gradle gate.
         withHostTest { isIncludeAndroidResources = true }
