@@ -7,7 +7,7 @@ import org.gradle.kotlin.dsl.configure
 /**
  * Convention plugin for an Android (non-KMP) Compose library module.
  *
- * Applies the AGP library + Compose-compiler plugins and the shared android config (compileSdk 37,
+ * Applies the AGP library + Compose-compiler plugins and the shared android config (compileSdk 37.1,
  * minSdk 30, Java 11, Compose enabled). Consuming modules declare only `android { namespace = "..." }`
  * + their dependencies. Used by the `:feature:*` modules until they move to KMP in Phase 3.
  */
@@ -20,7 +20,9 @@ class MilewayAndroidLibraryConventionPlugin : Plugin<Project> {
         // B.2a: opt-in Compose compiler metrics/reports (-Pcompose.metrics).
         configureComposeCompilerMetrics()
         extensions.configure<LibraryExtension> {
-            compileSdk = 37
+            compileSdk {
+                version = release(37) { minorApiLevel = 1 }
+            }
             defaultConfig { minSdk = 30 }
             compileOptions {
                 sourceCompatibility = JavaVersion.VERSION_25
