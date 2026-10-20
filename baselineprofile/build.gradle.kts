@@ -10,7 +10,9 @@ plugins {
 
 android {
     namespace = "com.mileway.baselineprofile"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) { minorApiLevel = 1 }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_25

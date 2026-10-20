@@ -12,7 +12,9 @@ compose.resources {
 kotlin {
     android {
         namespace = "com.mileway.feature.whatsnew"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // PLAN_V36 P1: catalog invariant tests run on the JVM host.
         withHostTest {}

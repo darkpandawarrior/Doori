@@ -1,0 +1,10 @@
+# Decisions log
+
+Settled choices for this repo, one line each, so a new session does not re-open them. Read before proposing an architectural change, and append a line when a decision is made.
+
+- 2026-06-23: One codebase ships two distributions, gms for Play and noGms for F-Droid, guarded by a dependency-prefix check and a dependencyGuard baseline of the noGms classpath. Why: any new proprietary dependency should show up as a failing diff. noGms is not yet GMS-free, because ML Kit for OCR and scanning is deliberately allowlisted. (source: 38a545f1, README.md trade-offs table)
+- 2026-07-16: Room and DataStore stay the source of truth, and the real Ktor backend is opt-in behind NetworkBackendFlags.useRealBackend, off by default. Why: the screenshot and test suite must stay reproducible on the JVM with no live dependency, and the shared :contract DTOs stop the wire format drifting. (source: 7c111db1, README.md trade-offs table)
+- 2026-07-17: The desktop installer packageVersion is MILESTONE.0.commitCount instead of the MARKETING version. Why: Compose Desktop validates the installer version as MAJOR.MINOR.BUILD with MAJOR at most 255, and MARKETING's major is the year. (source: 74515bb3, docs/RELEASE.md)
+- 2026-08-10: The default theme direction is Paper, chosen from a five-direction comparison. Why: it is the only direction with a hand-built opposite-luminance face, so it follows the device and a night driver never gets a white page. (source: DESIGN.md, bb324131)
+- 2026-09-28: The v48 Room schema is frozen (exportSchema on, 48.json committed) and CI fails any PR that edits a shipped migration with M at most 48. Why: future additive migrations are checked against that baseline, and mutating a shipped migration strands installed databases. (source: 95881b96, scripts/check-frozen-migrations.sh)
+- 2026-09-28: Wire-contract golden fixtures live under contract/src/commonTest/resources/golden and :server reads the same bytes. Why: a Kotlin rename must not silently change the wire form, and a contract break should fail the client and server modules together. (source: f7378e7f)

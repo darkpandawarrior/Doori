@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.travel"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Run this module's commonTest (repository + SearchProvider suites) on the JVM host,
         // same as :feature:approvals and :feature:events. Without it the commonTest source set

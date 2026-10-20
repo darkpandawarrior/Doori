@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.events"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // V29 P29.E: enable JVM host execution of commonTest for EventsRepository/EventDetailViewModel tests.
         withHostTest {}
