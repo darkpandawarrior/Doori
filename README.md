@@ -12,9 +12,9 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 [![CI](https://github.com/darkpandawarrior/Doori/actions/workflows/ci.yml/badge.svg)](https://github.com/darkpandawarrior/Doori/actions/workflows/ci.yml)
 [![Quality](https://github.com/darkpandawarrior/Doori/actions/workflows/quality.yml/badge.svg)](https://github.com/darkpandawarrior/Doori/actions/workflows/quality.yml)
 <!-- AUTOGEN:badges -->
-![Kotlin](https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white)
-![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.13.0--alpha01-4285F4?logo=jetpackcompose&logoColor=white)
-![AGP](https://img.shields.io/badge/AGP-9.5.0--alpha08-3DDC84?logo=android&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-7F52FF?logo=kotlin&logoColor=white)
+![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.13.0--alpha02-4285F4?logo=jetpackcompose&logoColor=white)
+![AGP](https://img.shields.io/badge/AGP-9.5.0--alpha10-3DDC84?logo=android&logoColor=white)
 ![Gradle](https://img.shields.io/badge/Gradle-9.8.0-02303A?logo=gradle&logoColor=white)
 <!-- /AUTOGEN:badges -->
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20watchOS%20%7C%20Wear%20OS%20%7C%20Desktop%20preview-3DDC84)
