@@ -6,7 +6,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.core.platform"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Run commonTest on the JVM host so the LocationNameResolver tests count toward the
         // ./gradlew test gate (the AGP KMP library plugin disables host tests by default).

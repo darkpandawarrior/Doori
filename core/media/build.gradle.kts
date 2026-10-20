@@ -9,7 +9,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.core.media"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // V26 P26.CONV: enable JVM host execution of commonTest so the odometer OCR
         // characterization tests (ocr/) run in the gradle gate.

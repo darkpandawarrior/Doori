@@ -6,7 +6,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.core.network"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // V31 Z.5a: run commonTest on the JVM host so NetworkLogStore/NetworkLogEntry tests count
         // toward the ./gradlew testAndroidHostTest quality-gate aggregate (AGP KMP library plugin

@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.approvals"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // PLAN_V28 P28.2: run commonTest (ClarificationRepository/ViewModel tests) on the JVM host.
         withHostTest {}

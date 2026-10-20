@@ -5,7 +5,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.feature.cards"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // P29.C.1: run commonTest (CardDetailViewModel KYC-completion test) on the JVM host.
         withHostTest {}

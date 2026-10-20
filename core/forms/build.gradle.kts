@@ -6,7 +6,9 @@ plugins {
 kotlin {
     android {
         namespace = "com.mileway.core.forms"
-        compileSdk = 37
+        compileSdk {
+            version = release(37) { minorApiLevel = 1 }
+        }
         minSdk = 30
         // Run commonTest on the Android JVM host (not desktopTest — now that this module depends on
         // core:ui, desktopTest drags in the JCEF webview desktop artifact, which doesn't resolve).
