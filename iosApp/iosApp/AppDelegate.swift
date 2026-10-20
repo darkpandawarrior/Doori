@@ -70,6 +70,20 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
             req.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
             try? BGTaskScheduler.shared.submit(req)
         }
+
+        // Detection-health check runs as a BGAppRefreshTask (daily local inbox check).
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.mileway.detectionhealth",
+            using: nil
+        ) { task in
+            IosBgTaskDispatcher.shared.runTask(taskId: task.identifier) { success in
+                task.setTaskCompleted(success: success.boolValue)
+            }
+            // Reschedule next daily check.
+            let req = BGAppRefreshTaskRequest(identifier: "com.mileway.detectionhealth")
+            req.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
+            try? BGTaskScheduler.shared.submit(req)
+        }
     }
 
     func application(

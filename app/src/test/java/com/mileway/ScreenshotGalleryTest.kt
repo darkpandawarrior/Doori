@@ -3,6 +3,8 @@ package com.mileway
 import android.app.Application
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FilterList
@@ -16,8 +18,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -29,6 +33,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.emptyPreferences
@@ -41,6 +46,7 @@ import com.mileway.core.data.dao.AgentDao
 import com.mileway.core.data.dao.ConnectedAccountDao
 import com.mileway.core.data.dao.DelegationDao
 import com.mileway.core.data.dao.DraftExpenseDao
+import com.mileway.core.data.dao.GlMappingDao
 import com.mileway.core.data.dao.HardwareEventDao
 import com.mileway.core.data.dao.LocationDao
 import com.mileway.core.data.dao.LogMilesDraftDao
@@ -65,11 +71,13 @@ import com.mileway.core.data.domain.claim.ApprovalStep
 import com.mileway.core.data.domain.claim.ExpenseLine
 import com.mileway.core.data.domain.claim.FxRate
 import com.mileway.core.data.domain.claim.JustificationReason
+import com.mileway.core.data.domain.claim.MileageLine
 import com.mileway.core.data.domain.claim.Report
 import com.mileway.core.data.domain.claim.ReportLifecycleState
 import com.mileway.core.data.domain.claim.formatMinorCurrency
 import com.mileway.core.data.library.MediaLibraryDao
 import com.mileway.core.data.library.MediaLibraryEntry
+import com.mileway.core.data.model.db.GlMappingEntity
 import com.mileway.core.data.model.db.PerDiemRateEntity
 import com.mileway.core.data.model.db.PolicyViolationEntity
 import com.mileway.core.data.model.db.ReportEntity
@@ -91,6 +99,7 @@ import com.mileway.core.data.session.SessionState
 import com.mileway.core.data.settings.AgentSessionStore
 import com.mileway.core.data.settings.DemoSettingsRepository
 import com.mileway.core.maps.MapSurface
+import com.mileway.core.network.api.NetworkBackendFlags
 import com.mileway.core.network.model.BusinessEntity
 import com.mileway.core.network.model.Office
 import com.mileway.core.network.payout.PayoutBeneficiaryStore
@@ -121,6 +130,7 @@ import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.platform.LocalNowMs
 import com.mileway.core.ui.support.BugReportSheet
 import com.mileway.core.ui.theme.MilewayTheme
+import com.mileway.debug.DebugBackendToggle
 import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.analytics.AgentAnalyticsStore
 import com.mileway.feature.agent.di.agentModule
@@ -157,6 +167,7 @@ import com.mileway.feature.logging.di.loggingModule
 import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.perdiem.PerDiemEntryViewModel
 import com.mileway.feature.logging.perdiem.PerDiemSheet
+import com.mileway.feature.logging.policy.reviewMessage
 import com.mileway.feature.logging.report.ReportGroupingScreen
 import com.mileway.feature.logging.report.ReportGroupingViewModel
 import com.mileway.feature.logging.report.ReportSubmitScreen
@@ -202,6 +213,8 @@ import com.mileway.feature.profile.analytics.ClaimAnalyticsView
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
 import com.mileway.feature.profile.di.profileAndroidModule
 import com.mileway.feature.profile.di.profileModule
+import com.mileway.feature.profile.export.GlExportValidationScreen
+import com.mileway.feature.profile.export.GlExportViewModel
 import com.mileway.feature.profile.status.ReimbursementStatusScreen
 import com.mileway.feature.profile.status.ReimbursementStatusViewModel
 import com.mileway.feature.profile.ui.screens.AccountDeletionScreen
@@ -347,6 +360,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -1036,6 +1050,121 @@ class ScreenshotGalleryTest {
     }
 
     @Test
+    fun phase4CaptureHolidayReview() =
+        phase4CaptureHolidayState(
+            "GB",
+            com.mileway.core.network.holiday.HolidayCheck.Holiday(
+                listOf(
+                    com.mileway.core.network.holiday
+                        .PublicHoliday("2026-04-03", "Good Friday", "GB", true, types = listOf("Public")),
+                ),
+            ),
+            "phase4_holiday_review",
+        )
+
+    @Test
+    fun phase4CaptureHolidayNoData() = phase4CaptureHolidayState("IN", com.mileway.core.network.holiday.HolidayCheck.NoData, "phase4_holiday_no_data")
+
+    @Test
+    fun phase4CaptureHolidayOffline() = phase4CaptureHolidayState("IN", com.mileway.core.network.holiday.HolidayCheck.Offline, "phase4_holiday_offline")
+
+    private fun phase4CaptureHolidayState(
+        country: String,
+        result: com.mileway.core.network.holiday.HolidayCheck,
+        name: String,
+    ) {
+        val records = ExpenseRepository(FakeDraftExpenseDao())
+        val record = phase4CaptureForeignRecord()
+        kotlinx.coroutines.runBlocking { records.insert(record) }
+        val vm =
+            ExpenseViewModel(
+                records,
+                holidayFlags =
+                    com.mileway.feature.logging.policy
+                        .HolidayFlagUseCase { _, _ -> result },
+            )
+        composeRule.setContent { MilewayTheme { ExpenseDetailScreen(record.id, onBack = {}, viewModel = vm) } }
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText("Claim country (two-letter ISO code)").performScrollTo().performTextReplacement(country)
+        composeRule.onNodeWithText("Check holiday").performClick()
+        composeRule.onNodeWithText(result.reviewMessage("2026-04-03", country)).performScrollTo().assertIsDisplayed()
+        capture(name)
+    }
+
+    @Test
+    fun phase4CaptureFxLine() {
+        val records = ExpenseRepository(FakeDraftExpenseDao())
+        val record = phase4CaptureForeignRecord()
+        kotlinx.coroutines.runBlocking { records.insert(record) }
+        val vm = ExpenseViewModel(records)
+        composeRule.setContent { MilewayTheme { ExpenseDetailScreen(record.id, onBack = {}, viewModel = vm) } }
+        composeRule.onNodeWithText(record.fxRate!!.description()).assertIsDisplayed()
+        capture("phase4_fx_line")
+    }
+
+    @Test
+    fun phase4CaptureFxHistory() {
+        val records = ExpenseRepository(FakeDraftExpenseDao())
+        val record = phase4CaptureForeignRecord()
+        kotlinx.coroutines.runBlocking { records.insert(record) }
+        val vm = ExpenseViewModel(records)
+        composeRule.setContent { MilewayTheme { ExpenseHistoryScreen(onBack = {}, onOpenDetail = {}, viewModel = vm) } }
+        composeRule.onNodeWithText(record.fxRate!!.description()).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                com.mileway.core.data.domain.claim
+                    .formatMinorCurrency(1_000, "USD"),
+            ).assertIsDisplayed()
+        capture("phase4_fx_history")
+    }
+
+    @Test
+    fun phase4CaptureFxGrouping() {
+        val records = ExpenseRepository(FakeDraftExpenseDao())
+        val record = phase4CaptureForeignRecord()
+        kotlinx.coroutines.runBlocking { records.insert(record) }
+        val application = phase2ReportApplication(Report("holiday-group", "employee"))
+        try {
+            val vm =
+                com.mileway.feature.logging.report.ReportGroupingViewModel(
+                    records,
+                    application.koin.get<com.mileway.feature.logging.report.ReportJourneyStore>(),
+                    application.koin.get<SessionSource>(),
+                )
+            composeRule.setContent {
+                MilewayTheme {
+                    com.mileway.feature.logging.report
+                        .ReportGroupingScreen(vm, onBack = {}, onOpenReport = {})
+                }
+            }
+            composeRule.onNodeWithText(record.fxRate!!.description()).assertIsDisplayed()
+            capture("phase4_fx_grouping")
+        } finally {
+            application.close()
+        }
+    }
+
+    private fun phase4CaptureForeignRecord() =
+        com.mileway.feature.logging.model.ExpenseRecord(
+            id = "EXP-001",
+            category = com.mileway.feature.logging.model.ExpenseCategory.FOOD,
+            merchantName = "Foreign Cafe",
+            amountRupees = 10.0,
+            status = com.mileway.feature.logging.model.ExpenseStatus.PENDING,
+            dateMs =
+                kotlin.time.Instant
+                    .parse("2026-04-03T12:00:00Z")
+                    .toEpochMilliseconds(),
+            currencyCode = "USD",
+            amountMinor = 1_000,
+            fxRate = FxRate(90.0, "USD", sourceDate = "2026-04-02"),
+            fxRatePinnedAt =
+                kotlin.time.Instant
+                    .parse("2026-04-05T12:00:00Z")
+                    .toEpochMilliseconds(),
+        )
+
+    @Test
     fun phase3CaptureIosSpendsReportsAndPerDiem() {
         val report = phase1ExpenseReport()
         val application = phase3IosShellApplication(report)
@@ -1497,6 +1626,101 @@ class ScreenshotGalleryTest {
                         .ratesMinorPerKm["car"],
                 )
             }
+        } finally {
+            application.close()
+        }
+    }
+
+    @Test
+    fun phase4CaptureGlExportValidation() {
+        val previousBackend = NetworkBackendFlags.useRealBackend
+        NetworkBackendFlags.useRealBackend = false
+        val reports =
+            MutableStateFlow(
+                listOf(
+                    Report(
+                        "report-1",
+                        "employee",
+                        listOf(
+                            ExpenseLine("meal-1", 1250, "INR", merchant = "Cafe", category = "FOOD"),
+                            ExpenseLine("meal-2", 2500, "INR", merchant = "Cafe", category = "FOOD"),
+                            MileageLine("trip-1", 5000, "INR", distanceKm = 10.0, vehicleKey = "car"),
+                        ),
+                        ReportLifecycleState.APPROVED,
+                    ),
+                ),
+            )
+        val mappings = MutableStateFlow(listOf(GlMappingEntity("MILEAGE", "6200", null, 0)))
+        var sharedCsv = ""
+        val application =
+            koinApplication {
+                modules(
+                    profileModule,
+                    module {
+                        single<ReportRepository> { mockk { every { observeAll() } returns reports } }
+                        single<GlMappingDao> {
+                            object : GlMappingDao {
+                                override fun observeAll() = mappings
+
+                                override suspend fun get(category: String) = mappings.value.firstOrNull { it.category == category }
+
+                                override suspend fun upsert(entity: GlMappingEntity) {
+                                    mappings.value = mappings.value.filterNot { it.category == entity.category } + entity
+                                }
+                            }
+                        }
+                        single<ShareSheet> {
+                            mockk { every { share(any(), any(), any()) } answers { sharedCsv = firstArg() } }
+                        }
+                    },
+                )
+            }
+        try {
+            val viewModel = application.koin.get<GlExportViewModel>()
+            composeRule.setContent { MilewayTheme { GlExportValidationScreen(onBack = {}, viewModel = viewModel) } }
+            composeRule.onNodeWithText("2 unmapped lines. Export is blocked.").assertIsDisplayed()
+            composeRule.onNodeWithText("Share accounting CSV").assertIsNotEnabled()
+            composeRule.onNodeWithText(formatMinorCurrency(1250, "INR")).assertIsDisplayed()
+            capture("phase4_gl_export_unmapped")
+            composeRule.onNodeWithText("GL code for FOOD").performScrollTo().performTextInput("6100")
+            composeRule.onNodeWithText("Cost center for FOOD (optional)").performScrollTo().performTextInput("CC-1")
+            composeRule.onNodeWithText("Save FOOD mapping").performScrollTo().performClick()
+            composeRule.onNodeWithText("All 3 lines have GL codes").performScrollTo().assertIsDisplayed()
+            composeRule.onNodeWithText("Share accounting CSV").assertIsEnabled()
+            capture("phase4_gl_export_mapped")
+            composeRule.onNodeWithText("Share accounting CSV").performClick()
+            composeRule.onNodeWithText("CSV shared. No accounting upload was attempted.").performScrollTo().assertIsDisplayed()
+            org.junit.Assert.assertTrue(sharedCsv.contains("\"meal-1\",\"FOOD\",1250,\"INR\",\"6100\",\"CC-1\""))
+            org.junit.Assert.assertEquals("6100", mappings.value.single { it.category == "FOOD" }.glAccountCode)
+        } finally {
+            application.close()
+            NetworkBackendFlags.useRealBackend = previousBackend
+        }
+    }
+
+    @Test
+    fun phase4CaptureAccountingExportEntry() {
+        val application = phase3ProfileApplication()
+        var opened = false
+        try {
+            val analytics = application.koin.get<AnalyticsViewModel>()
+            val claims = application.koin.get<ClaimAnalyticsViewModel>()
+            composeRule.setContent {
+                MilewayTheme {
+                    AnalyticsHomeScreen(
+                        onBack = {},
+                        onOpenDetail = {},
+                        viewModel = analytics,
+                        claimAnalyticsViewModel = claims,
+                        onOpenAccountingExport = { opened = true },
+                    )
+                }
+            }
+            composeRule.onNodeWithText("Reports").performClick()
+            composeRule.onNodeWithText("Accounting export").performScrollTo().assertIsDisplayed()
+            capture("phase4_accounting_export_entry")
+            composeRule.onNodeWithText("Accounting export").performClick()
+            org.junit.Assert.assertTrue(opened)
         } finally {
             application.close()
         }
@@ -3106,6 +3330,66 @@ class ScreenshotGalleryTest {
     }
 
     @Test
+    fun phase4CaptureNotificationNudges() {
+        val notifications = FakeNotificationDao()
+        val instant = kotlin.time.Instant.parse("2026-10-05T12:00:00Z")
+        val clock =
+            object : kotlin.time.Clock {
+                override fun now(): kotlin.time.Instant = instant
+            }
+        val now = instant.toEpochMilliseconds()
+        val day = com.mileway.feature.tracking.health.DetectionHealthNudges.MIN_HEALTH_GAP_MS
+        val trips =
+            List(5) { index ->
+                com.mileway.core.data.model.db.SavedTrack(
+                    routeId = "nudge-trip-$index",
+                    name = "Client visit",
+                    isCompleted = true,
+                    startLatitude = 0.0,
+                    startLongitude = 0.0,
+                    endLatitude = 0.0,
+                    endLongitude = 0.0,
+                    pausedLatitude = 0.0,
+                    pausedLongitude = 0.0,
+                    startTime = now - (4 + index) * day,
+                    endTime = now - (4 + index) * day + 1,
+                    distance = 1_000.0,
+                    duration = 1L,
+                    notes = if (index == 0) "-" else "PERSONAL",
+                )
+            }
+        val tracks = mockk<SavedTrackDao>()
+        every { tracks.getCompletedTracks() } returns MutableStateFlow(trips)
+        val repository =
+            com.mileway.feature.profile.repository
+                .NotificationRepository(notifications, clock)
+        kotlinx.coroutines.runBlocking {
+            com.mileway.feature.tracking.worker
+                .DetectionHealthWorker(tracks, notifications, clock)
+                .doWork(
+                    null,
+                    dev.brewkits.kmpworkmanager.background.domain
+                        .WorkerEnvironment(progressListener = null, isCancelled = { false }),
+                )
+            repository.seedIfEmpty()
+            val rows = notifications.observeAll().first()
+            check(rows.take(2).all { it.id.startsWith("nudge-") })
+            check(rows.size == com.mileway.feature.profile.data.NotificationData.all.size + 2)
+        }
+        val viewModel =
+            com.mileway.feature.profile.viewmodel
+                .NotificationViewModel(repository)
+        composeRule.setContent {
+            MilewayTheme {
+                NotificationCentreScreen(onBack = {}, viewModel = viewModel)
+            }
+        }
+        composeRule.onNodeWithText("Trip not yet claimed").assertIsDisplayed()
+        composeRule.onNodeWithText("Check trip detection").assertIsDisplayed()
+        capture("phase4_notification_nudges")
+    }
+
+    @Test
     fun notificationCentreScreen() {
         composeRule.setContent {
             MilewayTheme {
@@ -3337,6 +3621,98 @@ class ScreenshotGalleryTest {
     }
 
     // ── Security ───────────────────────────────────────────────────────────────────
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun phase4CapturePolicyOcrExplanation() {
+        val previousBackend = NetworkBackendFlags.useRealBackend
+        NetworkBackendFlags.useRealBackend = false
+        try {
+            val analysis =
+                com.mileway.core.ai.model.DocumentAnalysis(
+                    docType = com.mileway.core.ai.model.DocType.RECEIPT,
+                    fields =
+                        mapOf(
+                            com.mileway.core.ai.model.DocField.TOTAL to
+                                com.mileway.core.ai.model.ExtractedValue(
+                                    "5200",
+                                    0.92f,
+                                    com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
+                                ),
+                            com.mileway.core.ai.model.DocField.CURRENCY to
+                                com.mileway.core.ai.model.ExtractedValue(
+                                    "INR",
+                                    0.9f,
+                                    com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION,
+                                ),
+                        ),
+                    rawText = "Total INR 5200",
+                    duplicate = com.mileway.core.ai.model.DuplicateVerdict.Unique,
+                    overallConfidence = 0.99f,
+                    contributingSources = setOf(com.mileway.core.ai.model.AnalyzerSource.TEXT_RECOGNITION),
+                )
+            val violation =
+                com.mileway.stub.PolicyMockData
+                    .violationsForExpenseAmount(5200.0, "FOOD")
+                    .single()
+            val explained =
+                violation.copy(
+                    message =
+                        com.mileway.feature.logging.policy.ExplainableViolation
+                            .message(violation, "5200", "INR", analysis),
+                )
+            composeRule.setContent {
+                MilewayTheme {
+                    com.mileway.feature.logging.ui.sheets.ExpensePolicyViolationSheet(
+                        violations = listOf(explained),
+                        onSubmitAnyway = {},
+                        onReview = {},
+                        onDismiss = {},
+                    )
+                }
+            }
+            composeRule
+                .onNodeWithText("OCR read the total as ${formatMinorCurrency(520000, "INR")}, 92% confidence. ${violation.message}")
+                .assertIsDisplayed()
+            org.junit.Assert.assertFalse(NetworkBackendFlags.useRealBackend)
+            capture("phase4_policy_ocr_explanation")
+        } finally {
+            NetworkBackendFlags.useRealBackend = previousBackend
+        }
+    }
+
+    @Test
+    fun phase4CaptureDebugBackendToggle() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val previousChoice = DebugBackendToggle.readEnabled(context)
+        val previousBackend = NetworkBackendFlags.useRealBackend
+        DebugBackendToggle.setEnabled(context, false)
+        NetworkBackendFlags.useRealBackend = false
+        try {
+            composeRule.setContent {
+                ThemedBackground {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        DebugBackendToggle.Entry()
+                        Box(modifier = Modifier.weight(1f)) {
+                            DebugMenuScreen(onBack = {}, heapUsedMb = 128L, heapTotalMb = 512L)
+                        }
+                    }
+                }
+            }
+            composeRule.onNodeWithContentDescription("Use real backend").assertIsDisplayed()
+            capture("phase4_debug_backend_offline")
+            composeRule.onNodeWithContentDescription("Use real backend").performClick()
+            org.junit.Assert.assertTrue(DebugBackendToggle.readEnabled(context))
+            org.junit.Assert.assertFalse(NetworkBackendFlags.useRealBackend)
+            composeRule
+                .onNodeWithText("Current backend: Offline mock. Close the app process and reopen it to apply changes.")
+                .assertIsDisplayed()
+            capture("phase4_debug_backend_pending_restart")
+        } finally {
+            DebugBackendToggle.setEnabled(context, previousChoice)
+            NetworkBackendFlags.useRealBackend = previousBackend
+        }
+    }
 
     @Test
     fun debugMenuScreen() {

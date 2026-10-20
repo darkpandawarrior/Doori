@@ -13,8 +13,10 @@ import com.mileway.core.platform.FeatureFlags
 import com.mileway.stub.DemoConfigManager
 import com.mileway.stub.FakeTrackingNetworkApi
 import com.mileway.stub.StubPersonaPresetProvider
+import com.siddharth.kmp.network.BaseUrlProvider
 import com.siddharth.kmp.network.createHttpClient
 import com.siddharth.kmp.settings.SecureSettingsFactory
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 /**
@@ -36,7 +38,7 @@ val stubModule =
         // all (only Android's app-level `appModule` constructs it) — would have thrown the moment
         // HomeScreen resolved it. Mirrors that same construction (ConfigProvider.getFeatureFlags()).
         single { FeatureFlags(get<ConfigProvider>().getFeatureFlags()) }
-        single { DataStoreBaseUrlProvider() }
+        single { DataStoreBaseUrlProvider() } bind BaseUrlProvider::class
         // PLAN_V34 P2/A6: refresh token in the toolkit's encrypted Settings (Keychain on iOS);
         // AuthApi is the login()/refresh()/logout() seam built on a bare (non-bearer) client.
         single { AuthTokenStore(SecureSettingsFactory().create()) }

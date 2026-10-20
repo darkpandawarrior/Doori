@@ -43,6 +43,15 @@ val loggingModule =
             com.mileway.core.network.fx
                 .FxRatePinner(reference = client::rate)
         }
+        single {
+            com.mileway.core.network.holiday
+                .NagerDateClient()
+        }
+        single {
+            val client = get<com.mileway.core.network.holiday.NagerDateClient>()
+            com.mileway.feature.logging.policy
+                .HolidayFlagUseCase(check = client::check)
+        }
         single<ReportJourneyStore> { LocalReportJourneyStore(get()) }
         viewModel { ReportGroupingViewModel(get(), get(), get()) }
         viewModel {
@@ -62,7 +71,7 @@ val loggingModule =
         factory { LogMilesSubmitUseCase(get(), get()) }
         viewModel { LogMilesViewModel(get(), get(), get(), get(), get()) }
         // P12.3: reviewTracker is optional (getOrNull) — bound in the app/iOS graph, absent in tests.
-        viewModel { ExpenseViewModel(get(), getOrNull(), get()) }
+        viewModel { ExpenseViewModel(get(), getOrNull(), get(), get()) }
         viewModel { VoucherHistoryViewModel(get(), get()) }
         // P27.E.12: voucher drill-down — VoucherDao directly (a read, no derived history fields needed).
         viewModel { VoucherDetailsViewModel(get()) }

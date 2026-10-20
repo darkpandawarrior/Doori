@@ -1,9 +1,12 @@
 package com.mileway.feature.profile.di
 
 import com.mileway.core.data.search.SearchProvider
+import com.mileway.core.network.accounting.AccountingExportClient
+import com.mileway.core.network.accounting.accountingExportModule
 import com.mileway.feature.profile.admin.RateTableEditorViewModel
 import com.mileway.feature.profile.admin.RateTableStore
 import com.mileway.feature.profile.analytics.ClaimAnalyticsViewModel
+import com.mileway.feature.profile.export.GlExportViewModel
 import com.mileway.feature.profile.repository.ActiveSessionsRepository
 import com.mileway.feature.profile.repository.AdvanceRepository
 import com.mileway.feature.profile.repository.ConnectedAccountsRepository
@@ -87,6 +90,15 @@ val profileModule =
         single { RateTableStore(get(), get()) }
         viewModel { RateTableEditorViewModel(get(), get()) }
         viewModel { ClaimAnalyticsViewModel(get(), get(), get()) }
+        includes(accountingExportModule)
+        viewModel {
+            GlExportViewModel(
+                get<com.mileway.core.data.claim.ReportRepository>(),
+                get(),
+                get(),
+                uploadCsv = { csv -> get<AccountingExportClient>().export(csv) },
+            )
+        }
         viewModel { ReimbursementStatusViewModel(get<com.mileway.core.data.claim.ReportRepository>(), get()) }
         // P6.2: Vehicle/Passport tiles' Room-backed repositories.
         single { VehicleDetailsRepository(get()) }

@@ -15,6 +15,7 @@ import com.mileway.core.data.di.coreDataModule
 import com.mileway.core.data.watch.PhoneSnapshotSync
 import com.mileway.core.ui.di.coreUiModule
 import com.mileway.core.ui.di.initKoin
+import com.mileway.debug.DebugBackendToggle
 import com.mileway.debug.WormaCeptorHelper
 import com.mileway.feature.advances.di.advancesModule
 import com.mileway.feature.agent.di.agentModule
@@ -35,6 +36,7 @@ import com.mileway.feature.tracking.service.ReconciliationResultHolder
 import com.mileway.feature.tracking.service.SessionReconciliationPolicy
 import com.mileway.feature.tracking.viewmodel.CheckInViewModel
 import com.mileway.feature.tracking.worker.AutoDiscardTask
+import com.mileway.feature.tracking.worker.DetectionHealthWorker
 import com.mileway.feature.tracking.worker.MileageMaintenanceTask
 import com.mileway.feature.tracking.worker.MilewayWorkerFactory
 import com.mileway.feature.travel.di.travelModule
@@ -210,6 +212,7 @@ class MilewayApplication :
         // LocationTracker/NotificationScheduler/TextRecognizer/BackgroundScheduler on Android) to the list,
         // wiring it into the Android graph for the first time. The NotificationScheduler it adds duplicates
         // trackingModule's binding; Koin override keeps the last one (same AndroidNotificationScheduler impl).
+        DebugBackendToggle.applyBeforeKoin(this)
         initKoin(
             modules =
                 listOf(
@@ -343,6 +346,11 @@ class MilewayApplication :
             AutoDiscardTask.TASK_ID,
             AutoDiscardTask.WORKER_CLASS,
             AutoDiscardTask.INTERVAL_MINUTES.minutes.inWholeMilliseconds,
+        )
+        scheduler.enqueuePeriodic(
+            DetectionHealthWorker.TASK_ID,
+            DetectionHealthWorker.WORKER_CLASS,
+            DetectionHealthWorker.INTERVAL_MINUTES.minutes.inWholeMilliseconds,
         )
     }
 }

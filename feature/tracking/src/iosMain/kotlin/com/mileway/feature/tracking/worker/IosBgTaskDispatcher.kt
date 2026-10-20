@@ -41,6 +41,7 @@ object IosBgTaskDispatcher {
         when (taskId) {
             MileageMaintenanceTask.TASK_ID -> MileageMaintenanceTask.WORKER_CLASS
             AutoDiscardTask.TASK_ID -> AutoDiscardTask.WORKER_CLASS
+            DetectionHealthWorker.TASK_ID -> DetectionHealthWorker.WORKER_CLASS
             else -> null
         }
 

@@ -18,6 +18,7 @@ import com.mileway.core.forms.itemization.itemizedDetails
 import com.mileway.core.forms.parseMinorAmount
 import com.mileway.core.forms.validationErrors
 import com.mileway.core.network.fx.FxRatePinner
+import com.mileway.core.network.holiday.HolidayCheck
 import com.mileway.core.network.model.PolicyViolation
 import com.mileway.core.network.model.SubmissionStatus
 import com.mileway.core.ui.mvi.ScreenState
@@ -30,6 +31,7 @@ import com.mileway.feature.logging.model.ExpenseCategory
 import com.mileway.feature.logging.model.ExpenseDraftRow
 import com.mileway.feature.logging.model.ExpenseRecord
 import com.mileway.feature.logging.model.ExpenseStatus
+import com.mileway.feature.logging.policy.HolidayFlagUseCase
 import com.mileway.feature.logging.report.expenseReportPolicy
 import com.mileway.feature.logging.repository.ExpenseRepository
 import com.mileway.feature.logging.validation.ExpenseFormValidator
@@ -38,12 +40,16 @@ import com.siddharth.kmp.appshell.ReviewTracker
 import com.siddharth.kmp.common.UiText
 import com.siddharth.kmp.common.asString
 import com.siddharth.kmp.mvi.BaseViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 /** P27.E.11: max rows a bulk submit sends to the repo at once (mirrors the reference app's throttle). */
 private const val BULK_SUBMIT_CONCURRENCY = 4
@@ -114,6 +120,9 @@ data class ExpenseUiState(
     val lastSubmittedId: String = "",
     val lastSubmittedAmount: Double = 0.0,
     val detailState: ScreenState<ExpenseRecord> = ScreenState.Empty,
+    val holidayCountry: String = "IN",
+    val holidayDate: String = "",
+    val holidayCheck: HolidayCheck? = null,
     /** P1.5: a persisted draft exists from a previous session — offer "Resume draft" on entry. */
     val resumableDraft: DraftExpenseEntity? = null,
     /** P1.6: [PolicyMockData]'s tiered outcome for the last submitted amount (SUCCESS by default). */
@@ -217,6 +226,11 @@ sealed interface ExpenseAction {
     data object ConfirmSubmitDespitePolicy : ExpenseAction
 
     data object ResetForm : ExpenseAction
+
+    /** Country is supplied by the reviewer, never inferred from the expense currency. */
+    data class CheckHoliday(
+        val countryCode: String,
+    ) : ExpenseAction
 
     data class OpenDetail(
         val id: String,
@@ -367,7 +381,9 @@ class ExpenseViewModel(
     // Nullable-defaulted so direct-construction tests need no change; Koin supplies the real single.
     private val reviewTracker: ReviewTracker? = null,
     private val fxPinner: FxRatePinner = FxRatePinner(),
+    private val holidayFlags: HolidayFlagUseCase = HolidayFlagUseCase(),
 ) : BaseViewModel<ExpenseUiState, ExpenseEffect, ExpenseAction>(ExpenseUiState()) {
+    private var holidayJob: Job? = null
     private var policyWarningForm: ExpenseFormState? = null
     private var duplicateWarningForm: ExpenseFormState? = null
 
@@ -435,6 +451,7 @@ class ExpenseViewModel(
                     )
                 }
             is ExpenseAction.OpenDetail -> openDetail(action.id)
+            is ExpenseAction.CheckHoliday -> checkHoliday(action.countryCode.trim().uppercase())
             is ExpenseAction.OpenEdit -> openEdit(action.id)
             is ExpenseAction.OpenWithContext -> openWithContext(action.context)
             ExpenseAction.SaveDraft -> saveDraft()
@@ -689,7 +706,28 @@ class ExpenseViewModel(
 
     private fun openDetail(id: String) {
         val record = repository.getById(id)
-        setState { copy(detailState = record?.let { ScreenState.Content(it) } ?: ScreenState.Empty) }
+        holidayJob?.cancel()
+        setState { copy(detailState = record?.let { ScreenState.Content(it) } ?: ScreenState.Empty, holidayCountry = "IN", holidayCheck = null) }
+        if (record != null) checkHoliday("IN")
+    }
+
+    private fun checkHoliday(countryCode: String) {
+        val record = (currentState.detailState as? ScreenState.Content)?.data ?: return
+        val date =
+            Instant
+                .fromEpochMilliseconds(record.dateMs)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+                .toString()
+        holidayJob?.cancel()
+        setState { copy(holidayCountry = countryCode, holidayDate = date, holidayCheck = null) }
+        holidayJob =
+            viewModelScope.launch {
+                val result = holidayFlags(date, countryCode)
+                if ((currentState.detailState as? ScreenState.Content)?.data?.id == record.id && currentState.holidayCountry == countryCode) {
+                    setState { copy(holidayCheck = result) }
+                }
+            }
     }
 
     /** P1.8: loads [id] into the form pre-filled for editing/resubmission; a no-op if unknown. */
