@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
-// ponytail: no real app-version source is wired into core:data yet (that lives in :app's
+// no real app-version source is wired into core:data yet (that lives in :app's
 // BuildConfig, not reachable from a KMP commonMain module without a new expect/actual seam).
 // Shake-to-report is a debug/demo capture path today, so a fixed label is enough context in the
 // saved row; wire a real per-platform appVersionName() when this graduates past demo.

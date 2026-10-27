@@ -11,7 +11,7 @@ import kotlin.time.Clock
  * op to the durable [OpOutbox] instead of firing a network call. [Clock.System] is read here (the
  * runtime call site), never in the catalog — the determinism rule only binds catalog content.
  *
- * // ponytail: no drain wired — backend phase owns replay
+ * // no drain wired — backend phase owns replay
  */
 class WhatsNewEngagementRecorder(
     private val outbox: OpOutbox,

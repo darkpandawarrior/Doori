@@ -218,7 +218,7 @@ Registered in root `build.gradle.kts`. `:app:screenshotTestNoGmsDebug` is always
 dependency. Every other subproject is auto-discovered after project evaluation: it walks each
 subproject's `src/` tree for `.kt` files containing `captureRoboImage` or `ImageIO`, and if found,
 wires in whichever of that module's tasks is named `desktopTest` or matches `test*UnitTest` (noGms
-variant only — the gms flavor crashes Robolectric, per `AGENTS.md`). This is discovery, not a
+variant only — the gms flavor crashes Robolectric, per the project guidelines). This is discovery, not a
 hardcoded module list, specifically so a new screenshot suite gets picked up the day it's written —
 see the verified gap above for the one place that discovery currently misses
 (`:app-web-preview`, whose task isn't named either pattern).

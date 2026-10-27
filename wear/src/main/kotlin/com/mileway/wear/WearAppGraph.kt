@@ -29,7 +29,7 @@ import org.koin.mp.KoinPlatform
  * incomplete: the first watch-side caller that starts the tracking service gets
  * `NoDefinitionFound` at runtime rather than a compile error.
  *
- * ponytail: intentionally not a classifier — the IMU MotionState fusion (`core:platform`) is the
+ * intentionally not a classifier — the IMU MotionState fusion (`core:platform`) is the
  * real signal on the watch too. If Wear ever needs coarse activity, bind a gms-flavor
  * `ActivityRecognition`-backed impl under `wear/src/gms` (where play-services is already
  * available), not here.

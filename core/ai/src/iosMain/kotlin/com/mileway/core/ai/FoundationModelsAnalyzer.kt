@@ -19,7 +19,7 @@ import com.siddharth.kmp.result.Result
  * building (via [DocumentExtractionMapper], shared with the Android actual), not the model-client
  * plumbing or the StructuredOutput<DocumentExtractionFields> reply parse.
  *
- * ponytail: [FoundationModelsOnDeviceLlm]'s bridge is text-only — `NativeLlm.generate(prompt:
+ * [FoundationModelsOnDeviceLlm]'s bridge is text-only — `NativeLlm.generate(prompt:
  * String)` carries no image parameter at all (Apple's on-device Foundation Models framework has no
  * vision input on this bridge), so [image] is accepted (interface parity with the Android
  * multimodal actual) but never read. [ocrText] is what actually grounds this tier now — before

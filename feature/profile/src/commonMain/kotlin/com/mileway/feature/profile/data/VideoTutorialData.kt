@@ -4,7 +4,7 @@ package com.mileway.feature.profile.data
  * PLAN_V22 P6.8: a single "Video Tutorials" card on `HelpScreen` — Mileway's own local equivalent
  * of a reference-app video-tutorial library, minus any bundled video asset or codec dependency
  * (no `Media3`/`ExoPlayer` in this app's dependency graph yet, and pulling one in for a demo-data
- * feature would be exactly the kind of unnecessary dependency CLAUDE.md's guardrails call out).
+ * feature would be exactly the kind of unnecessary dependency the project's guardrails call out).
  * [durationLabel] is the card's static runtime readout; actual "playback" is a locally simulated
  * progress state (see `VideoTutorialPlaybackState` in `HelpScreen.kt`), not a real video stream.
  */

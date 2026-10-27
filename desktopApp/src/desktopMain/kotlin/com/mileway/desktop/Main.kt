@@ -36,7 +36,7 @@ import kotlin.time.ExperimentalTime
 
 /**
  * PLAN_V23 D.2: `:desktopApp`'s entry point — a thin Compose Desktop window rendering the
- * dashboard + trip list over mock data (Option b: no live backend, see CLAUDE.md "The backend").
+ * dashboard + trip list over mock data (Option b: no live backend, see the project guidelines "The backend").
  *
  * Reuses [AppHost]/[MilewayTheme]/[SectionCard] from `core:ui` (D.1's opted-in desktop target) —
  * same Matrix/terminal design language as the phone app, no bespoke desktop skin.
@@ -63,7 +63,7 @@ fun main() {
             onDeviceLlm = UnavailableOnDeviceLlm,
             getKey = keyStore::getKey,
             setKey = keyStore::setKey,
-            // ponytail: process-lifetime scope — this app has no shorter-lived owner to tie it to
+            // process-lifetime scope — this app has no shorter-lived owner to tie it to
             // (see Main.kt's own single-window, no-navigation shape); same tradeoff
             // ProfileModule.kt's AiSettingsState binding documents on Android.
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
@@ -77,7 +77,7 @@ fun main() {
     val hotReloadCanvas = System.getProperty("compose.reload.isActive").toBoolean()
 
     application {
-        // ponytail: ~9:19.5 portrait, the standard phone frame. Still resizable — drag a corner to
+        // ~9:19.5 portrait, the standard phone frame. Still resizable — drag a corner to
         // check compact → foldable → tablet breakpoints without a second AVD.
         val windowState = rememberWindowState(size = if (hotReloadCanvas) PhoneCanvasSize else DpSize(1280.dp, 800.dp))
         Window(

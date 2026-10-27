@@ -24,7 +24,7 @@ class MileageClaimPolicyProvider(
                 rates = rupeeTable.rates.mapValues { (_, rate) -> rate * MINOR_UNIT_SCALE },
                 defaultRatePerKm = rupeeTable.defaultRatePerKm * MINOR_UNIT_SCALE,
             )
-        // ponytail: the offline dataset has one undated rate table. Add dated versions when
+        // the offline dataset has one undated rate table. Add dated versions when
         // the policy backend supplies them; TripToClaimMapper already selects by trip end time.
         return TripToClaimMapper(PolicyEngine(listOf(PolicyVersion(effectiveFrom = 0L, rateTable = minorTable))))
     }

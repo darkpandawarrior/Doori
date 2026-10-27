@@ -141,7 +141,7 @@ fun CloudLibraryScreen(
                 selectedIds.add(entry.id)
             }
             selectedIds.size < selectionConfig.maxCount -> selectedIds.add(entry.id)
-            // ponytail: silently ignores taps past maxCount; add a "max N selected" snackbar if
+            // silently ignores taps past maxCount; add a "max N selected" snackbar if
             // this becomes a real complaint.
         }
     }

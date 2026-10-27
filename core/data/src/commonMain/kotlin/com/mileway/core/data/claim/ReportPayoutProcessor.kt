@@ -20,7 +20,7 @@ class ReportPayoutProcessor(
 ) {
     private val simulator = SimulatedPayoutBackend()
 
-    // ponytail: one local payout at a time; per-report locks if queue throughput matters.
+    // one local payout at a time; per-report locks if queue throughput matters.
     private val mutex = Mutex()
 
     suspend fun pay(reportId: String): Report =

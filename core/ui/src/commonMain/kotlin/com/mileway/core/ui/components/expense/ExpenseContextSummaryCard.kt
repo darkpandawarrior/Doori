@@ -50,7 +50,7 @@ fun ExpenseSourceContext.hasSummary(): Boolean = this !is ExpenseSourceContext.N
 
 /**
  * P25.A5.2/P27.E.2: Mileway's own skin (DiCE's `ExpenseContextCard` is a structural blueprint
- * only, never copied visually — see project CLAUDE.md). Renders nothing for
+ * only, never copied visually — see the project guidelines). Renders nothing for
  * [ExpenseSourceContext.None]/[ExpenseSourceContext.Regular] (see [hasSummary]); every other
  * variant renders a title ([summaryTitle]) plus its per-variant label/value rows ([summaryRows]).
  * Pure presentation of a context (+ whatever small display fields the context itself carries, see

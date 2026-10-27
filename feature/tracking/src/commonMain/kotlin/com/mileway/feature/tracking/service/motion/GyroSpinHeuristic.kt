@@ -9,7 +9,7 @@ import kotlin.math.sqrt
  * not proof by itself). Pure threshold check on the raw gyro vector (rad/s).
  */
 object GyroSpinHeuristic {
-    // ponytail: ~3.5 rad/s (~200 deg/s) is well above normal hand-jitter/turn rates for a phone
+    // ~3.5 rad/s (~200 deg/s) is well above normal hand-jitter/turn rates for a phone
     // resting in a mount; loosen if real-world driving turns start tripping it.
     const val SPIN_THRESHOLD_RAD_S = 3.5f
 

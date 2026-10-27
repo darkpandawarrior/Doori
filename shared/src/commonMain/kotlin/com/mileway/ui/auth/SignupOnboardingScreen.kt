@@ -43,7 +43,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * from the onboarding plugins by the host). Submit persists via the ViewModel; Skip is offered
  * only when the persona allows it.
  *
- * ponytail: DOB uses a "today minus 25y" demo value on tap rather than a full date-picker dialog —
+ * DOB uses a "today minus 25y" demo value on tap rather than a full date-picker dialog —
  * the config-driven validation (dob present-or-not) is what matters here; a real picker is a
  * follow-up. Referral redemption via LocalReferralManager is deferred to the referral phase (P5).
  */

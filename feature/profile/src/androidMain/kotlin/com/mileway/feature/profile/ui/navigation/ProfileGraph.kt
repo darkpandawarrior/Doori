@@ -136,7 +136,7 @@ fun NavGraphBuilder.profileGraph(
     onLogExpenseFromAdvance: (ExpenseSourceContext) -> Unit = {},
     onSignedOut: () -> Unit = {},
     // PLAN_V29 P29.S.6: Notification Centre card taps route through the app-level DeepLinkRouter
-    // (feature modules never depend on :app or each other — see CLAUDE.md's module-boundary rule).
+    // (feature modules never depend on :app or each other — see the project's module-boundary rule).
     onOpenDeepLink: (String) -> Unit = {},
     // PLAN_V36 P3: Settings' "What's new" row now opens the full list (feature:profile can't
     // depend on feature:whatsnew directly — same cross-feature-boundary reason as [onOpenCards]).

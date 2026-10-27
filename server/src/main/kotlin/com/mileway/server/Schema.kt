@@ -227,7 +227,7 @@ fun seedLogMilesServices() {
     }
 }
 
-// ponytail: stub/DemoMockData.kt has no tagged-expense fixture to mirror (unlike vehicles/
+// stub/DemoMockData.kt has no tagged-expense fixture to mirror (unlike vehicles/
 // check-ins/log-miles-services above) — these two rows are a small sensible fixture invented for
 // B4 so GET /api/expenses/{tagged,pending} has something real to return. Replace with real data
 // once expense tagging has its own submission flow.

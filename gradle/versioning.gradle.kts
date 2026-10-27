@@ -46,7 +46,7 @@ extra["mileway.fingerprint"] =
 extra["doori.marketing"] = "${dooriToday.year}.${dooriToday.monthValue}.$mileawayMilestone"
 extra["doori.buildCode"] = dooriVersionCodeBase + dooriCommitCount
 
-// ponytail: Compose Desktop validates the native-installer packageVersion at CONFIGURE time as
+// Compose Desktop validates the native-installer packageVersion at CONFIGURE time as
 // MAJOR.MINOR.BUILD with MAJOR ≤ 255 — MARKETING (YYYY.M.MILESTONE, MAJOR=year>255) throws and
 // fails ALL Doori CI (Gradle configures every project). This desktop-only value keeps the
 // milestone visible while staying legal: valid until MILESTONE>255 or commitCount>65535, years out.

@@ -160,7 +160,7 @@ class ApprovalsViewModel(
     private val clarificationRepository: ClarificationRepository,
     private val commentRepository: ApprovalCommentRepository,
 ) : BaseViewModel<ApprovalsUiState, ApprovalsEffect, ApprovalsAction>(ApprovalsUiState()) {
-    // ponytail: in-flight id guard debounces a double-tapped approve/reject/pay; cleared once the
+    // in-flight id guard debounces a double-tapped approve/reject/pay; cleared once the
     // resolve completes (synchronous today — this local mock data has no suspend/network hop).
     private val inFlightIds = mutableSetOf<String>()
 
@@ -285,7 +285,7 @@ class ApprovalsViewModel(
         if (!ApprovalTransitions.isAllowed(from, status.toFsmStatus())) return
 
         inFlightIds += id
-        // ponytail: derive from the *current* listState, not ApprovalsRepository.approve/reject
+        // derive from the *current* listState, not ApprovalsRepository.approve/reject
         // (which always re-maps the static seed list). Deriving from the seed meant a second
         // resolve() in the same session silently reverted whatever the first one had just changed
         // in listState — invisible with one action at a time, but exactly what bulk actions need

@@ -86,7 +86,7 @@ private fun geoTypeRowToResponse(row: ResultRow) =
 
 private fun submittedCheckIns(): SubmittedCheckInResponseV2 =
     transaction {
-        // ponytail: no join — a plain id->name lookup map is enough for one small reference table,
+        // no join — a plain id->name lookup map is enough for one small reference table,
         // and skips guessing at this Exposed version's Join DSL for a one-off query.
         val typeNamesById = GeoTypesTable.selectAll().associate { it[GeoTypesTable.id] to it[GeoTypesTable.name] }
         SubmittedCheckInResponseV2(

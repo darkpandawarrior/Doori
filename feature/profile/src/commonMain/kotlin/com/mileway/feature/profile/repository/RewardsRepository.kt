@@ -16,7 +16,7 @@ private const val SEED_SPACING_MILLIS = 1_000L
  * PLAN_V24 P5.3: Room-backed scratch-card store. Seeded once from [RewardsMockData]. [scratch]
  * flips an UNSCRATCHED card to SCRATCHED (the reveal) and returns the credits it granted.
  *
- * ponytail: a separate credits ledger is out of scope — the granted credits live on the card row;
+ * a separate credits ledger is out of scope — the granted credits live on the card row;
  * the total is derived from scratched cards. Noted in PROGRESS.
  */
 class RewardsRepository(

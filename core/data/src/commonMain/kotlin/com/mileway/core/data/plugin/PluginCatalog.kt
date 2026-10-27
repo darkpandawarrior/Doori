@@ -375,7 +375,7 @@ object PluginCatalog {
      * Mileage-sync settings (P10.2) — the reference app's mileage-sync settings card. Each toggle gates a real
      * local behavior in [SyncDiagnosticsRepository][com.mileway.feature.profile.repository.SyncDiagnosticsRepository]'s
      * force-sync drain (which local staging buckets get moved to the synced counters); the interval
-     * VALUE drives the displayed next-auto-sync-due time. No backend — see CLAUDE.md "The backend".
+     * VALUE drives the displayed next-auto-sync-due time. No backend — see the project guidelines "The backend".
      */
     val syncSettingsPlugins: List<PluginDescriptor> =
         listOf(

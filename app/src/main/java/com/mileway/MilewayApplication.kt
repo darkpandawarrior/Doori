@@ -333,7 +333,7 @@ class MilewayApplication :
     }
 
     private suspend fun scheduleWeeklyMaintenance() {
-        // ponytail: read straight off the registry — this is the only BackgroundTaskScheduler
+        // read straight off the registry — this is the only BackgroundTaskScheduler
         // consumer in the repo, so re-binding it into Koin just to keep a `get()` here would be
         // indirection for one call site.
         val scheduler = KmpWorkManager.getInstance().backgroundTaskScheduler

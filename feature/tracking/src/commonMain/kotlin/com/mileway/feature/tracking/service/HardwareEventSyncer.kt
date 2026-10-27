@@ -19,7 +19,7 @@ import com.mileway.core.data.dao.HardwareEventDao
  * With the default `:stub` binding the POST is a no-op that never throws, so nothing leaves the
  * device until `NetworkBackendFlags.useRealBackend` is flipped — but the graph is now complete.
  *
- * ponytail: unlike [LocationDataSyncer] there's no MAX_BATCHES_PER_DRAIN paging loop — journey
+ * unlike [LocationDataSyncer] there's no MAX_BATCHES_PER_DRAIN paging loop — journey
  * lifecycle events are a handful per trip (not a GPS-fix stream), so "every unsynced event for this
  * token in one batch" is enough. Add paging if that assumption ever breaks.
  */
@@ -28,7 +28,7 @@ class HardwareEventSyncer(
     private val outbox: HardwareEventBatchOutbox,
     private val send: suspend (HardwareEventBatch) -> SendOutcome = { SendOutcome.SUCCESS },
 ) {
-    // ponytail: plain Boolean, not a Mutex — same single-dispatcher assumption as
+    // plain Boolean, not a Mutex — same single-dispatcher assumption as
     // LocationDataSyncer.isDraining (every current/intended caller is AppSyncTrigger's
     // main-dispatcher-bound scope); upgrade if a background-thread caller is ever added.
     private var isDraining = false

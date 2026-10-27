@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.first
  * shaped like a real post-login response. This is the local, no-network stand-in for that:
  * shaped like the reference app's `profile/me` bootstrap response, but synthesized entirely from
  * static demo constants keyed off [MockAccountDao]'s seeded personas (P1.1) — never a network
- * call, per CLAUDE.md's "no backend, ever" rule.
+ * call, per the project's "no backend, ever" rule.
  *
  * If [email] matches a seeded [com.mileway.core.data.model.db.MockAccountEntity] (by
  * [com.mileway.core.data.model.db.MockAccountEntity.employeeCode] derived the same deterministic

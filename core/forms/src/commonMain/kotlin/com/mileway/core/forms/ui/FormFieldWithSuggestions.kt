@@ -51,7 +51,7 @@ import org.jetbrains.compose.resources.stringResource
 private const val SUGGESTION_DEBOUNCE_MILLIS = 400L
 
 /**
- * ponytail: EXPERIMENTAL — on-device-AI form field suggestions (V27 P27.F.5, consumes core:ai's
+ * EXPERIMENTAL — on-device-AI form field suggestions (V27 P27.F.5, consumes core:ai's
  * DocumentIntelligence output). Compile/logic-verified only; on-device inference quality is
  * whatever `MlKitGenAiAnalyzer`/`FoundationModelsAnalyzer` already ship as EXPERIMENTAL. Revisit
  * chip copy/thresholds once real scanned-document suggestions get device QA.

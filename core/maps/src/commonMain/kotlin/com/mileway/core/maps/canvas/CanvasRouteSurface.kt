@@ -189,7 +189,7 @@ class CanvasRouteSurface : MapSurface {
     }
 
     private companion object {
-        // core:maps has no dependency on core:ui/DesignTokens (module boundary — see AGENTS.md),
+        // core:maps has no dependency on core:ui/DesignTokens (module boundary — see the project guidelines),
         // so these are plain dp constants rather than DesignTokens.Spacing/*. Colours still come
         // from MaterialTheme per the theming requirement above.
         const val PADDING_DP = 16

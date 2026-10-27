@@ -10,7 +10,7 @@ package com.mileway.core.data.util
  * They live in `:contract` because that is the one module every data and feature module already
  * sees — `:core:data` exposes it with `api`.
  *
- * ponytail: plain `Long`s, not `kotlin.time.Duration`. Every call site here divides or multiplies
+ * plain `Long`s, not `kotlin.time.Duration`. Every call site here divides or multiplies
  * a raw epoch-millis `Long` that comes off a DTO or a DAO row. Upgrade path: swap for
  * `1.days.inWholeMilliseconds` when those boundaries carry `Instant`/`Duration` instead of `Long`.
  */

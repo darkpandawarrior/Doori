@@ -46,7 +46,7 @@ final class MilewayFoundationModelsBridge: NSObject, NativeLlm {
         }
         Task {
             do {
-                // ponytail: a fresh session per call — no cross-turn context/history threaded
+                // a fresh session per call — no cross-turn context/history threaded
                 // through this bridge yet, same simplification this repo's own prior Foundation
                 // Models bridges made. Upgrade to one retained LanguageModelSession (carrying call
                 // history) if multi-turn on-device context turns out to matter.

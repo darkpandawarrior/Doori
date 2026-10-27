@@ -49,7 +49,7 @@ class MilesSubmitSyncer(
     private val now: () -> Long,
     private val send: suspend (TripDraft) -> SubmitOutcome = { SubmitOutcome.Success(ExpenseSubmissionResponse()) },
 ) {
-    // ponytail: same single-dispatcher assumption as LocationDataSyncer's isDraining guard — every
+    // same single-dispatcher assumption as LocationDataSyncer's isDraining guard — every
     // current caller (ViewModel submit, SyncStatusViewModel's connectivity trigger) runs on the same
     // main/viewModelScope dispatcher, so a plain Boolean is enough; upgrade if that changes.
     private var isDraining = false

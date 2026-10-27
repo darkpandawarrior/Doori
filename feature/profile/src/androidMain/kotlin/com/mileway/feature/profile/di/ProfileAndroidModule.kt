@@ -40,7 +40,7 @@ val profileAndroidModule =
                 onDeviceLlm = get(),
                 getKey = keyStore::getKey,
                 setKey = keyStore::setKey,
-                // ponytail: process-lifetime scope, same lifecycle as every other `single` in this
+                // process-lifetime scope, same lifecycle as every other `single` in this
                 // module — AiSettingsState has no per-screen state to tear down (downloads survive
                 // navigating away by design, see its pauseDownload KDoc).
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),

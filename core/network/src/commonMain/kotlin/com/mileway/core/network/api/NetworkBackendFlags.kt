@@ -15,7 +15,7 @@ package com.mileway.core.network.api
  * bound, which is this module's concern — and both readers (`:stub`'s Koin modules and
  * `feature:tracking`'s debug switch) already depend on `:core:network`. Putting it in `:stub` would
  * have forced `feature:tracking` to depend on the mock-data module just to read a flag, which is the
- * kind of edge CLAUDE.md's architecture rules exist to prevent.
+ * kind of edge the project's architecture rules exist to prevent.
  */
 object NetworkBackendFlags {
     var useRealBackend: Boolean = false

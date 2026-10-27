@@ -314,7 +314,7 @@ private data class OutcomeCopy(
     val body: String,
 )
 
-// ponytail: copy is plain Kotlin strings, not string-resource IDs — matches the existing precedent
+// copy is plain Kotlin strings, not string-resource IDs — matches the existing precedent
 // set by PermissionTier.rationale/skipImpact and OemBatteryHints (core/platform), which this screen
 // reads from directly. Localizing the whole permission-primer surface is a follow-up, not new debt
 // introduced here.

@@ -10,7 +10,7 @@ import androidx.room.PrimaryKey
  * sealed interface's `@SerialName` declares ("expense"/"mileage"/"per_diem"/"advance"); [detailsJson]
  * is the *entire* [com.mileway.core.data.domain.claim.ClaimLine] round-tripped through its own
  * polymorphic `kotlinx.serialization` codec — one JSON column instead of a column per subtype per
- * field (ponytail: sparse per-subtype columns would mean N-1 always-null columns per row). The
+ * field (sparse per-subtype columns would mean N-1 always-null columns per row). The
  * flat columns alongside it (amountMinor/currency/.../sourceTripId/cardMatchId) are indexed/queryable
  * projections of that same JSON, not a second source of truth — [ReportRepository] always writes
  * both from the one domain object.

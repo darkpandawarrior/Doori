@@ -1,7 +1,7 @@
 // P7.1: iOS App Intent — Siri/Spotlight/Shortcuts entry point for starting a mileage trip.
 // Calls straight through to the shared KMP `IosIntentEntry.startTracking()` (feature:logging/
 // iosMain), the same offline `WatchFacade` seam Android's AppFunctions (P7.5) and the Wear OS
-// tile already bind to. No network — Room/DataStore only, per CLAUDE.md.
+// tile already bind to. No network — Room/DataStore only, per the project guidelines.
 
 import AppIntents
 import Mileway

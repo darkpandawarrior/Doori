@@ -22,7 +22,7 @@ import kotlin.test.assertTrue
  * No Compose test harness is used: no `core:*`/`feature:*` KMP library module in this repo has one
  * wired up yet (only `:app`, a classic Android application module, does — see
  * `WelcomeDisclaimerSheetTest`), and standing one up from scratch for this module's `androidHostTest`
- * target is a real, unverified Gradle-wiring risk this lane didn't take on. See
+ * target is a real, unverified Gradle-wiring risk this change didn't take on. See
  * [SuggestionDismissalState]'s KDoc for why extracting the state this way makes that an honest
  * trade rather than a coverage gap.
  */

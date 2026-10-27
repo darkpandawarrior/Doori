@@ -21,7 +21,7 @@ plugins {
 // Wave-2 §A: native-installer version, computed by gradle/versioning.gradle.kts. NOT MARKETING —
 // Compose Desktop validates packageVersion at configure time as MAJOR.MINOR.BUILD with MAJOR ≤ 255,
 // and MARKETING's MAJOR is the year (>255). desktopPackageVersion (MILESTONE.0.commitCount) is the
-// desktop-legal form; see that file's ponytail comment.
+// desktop-legal form; see that file's shortcut comment.
 apply(from = rootProject.file("gradle/versioning.gradle.kts"))
 
 // Read once at project scope — inside the compose.desktop { } DSL, `extra[...]` would resolve

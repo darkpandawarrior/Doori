@@ -25,7 +25,7 @@ class DocumentIntelligenceFrameRecognizer(
 }
 
 /**
- * ponytail: density-based proxy (no per-platform sharpness/contrast signal available from plain
+ * density-based proxy (no per-platform sharpness/contrast signal available from plain
  * text) — swap for real pixel-level sharpness/contrast if false-accepts show up in the field.
  */
 private fun String.toDensityMetrics(): FrameQualityAnalyzer.FrameMetrics {

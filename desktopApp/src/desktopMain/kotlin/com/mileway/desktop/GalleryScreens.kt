@@ -43,7 +43,7 @@ import com.mileway.core.ui.theme.DesignTokens
 /**
  * showcase/T.2: curated desktop screenshot gallery — hand-rolled screen shells over shared
  * `core:ui` widgets, mirroring [DashboardScreenForScreenshot]'s pattern in `Main.kt`. `desktopApp`
- * has no `feature:*` dependency (Option b, see D.2's kdoc + CLAUDE.md module boundaries), so every
+ * has no `feature:*` dependency (Option b, see D.2's kdoc + the project guidelines module boundaries), so every
  * screen here is composed directly from `core:ui` components + `core:data` mock models rather than
  * a real feature screen. Internal (not private): shared with `DesktopScreenshotGalleryTest`.
  */

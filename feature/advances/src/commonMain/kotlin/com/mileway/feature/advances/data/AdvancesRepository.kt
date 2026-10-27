@@ -85,7 +85,7 @@ internal class MockAdvancesRepository(
         amount: Double,
         remarks: String,
     ): Result<Unit> {
-        // ponytail: mock-only — no balance mutation persisted (no local card store to write back
+        // mock-only — no balance mutation persisted (no local card store to write back
         // to yet); UI treats success as the refresh signal. Add persistence when :stub gains one.
         return if (amount > 0.0) {
             Result.success(Unit)

@@ -3,7 +3,7 @@ plugins {
     // on the AGP KMP-library base), so :contract publishes a target superset of every consumer —
     // core:data reaches watchOS/desktop, core:network doesn't, and a project dependency needs the
     // dependency to publish every target the consumer builds for.
-    // ponytail: the task brief assumed `shared.kmp.pure` (external/kmp-build-logic), but that
+    // the task brief assumed `shared.kmp.pure` (external/kmp-build-logic), but that
     // convention deliberately has no android target (see its kdoc — "no Android or Compose
     // dependency"); applying it here would break core:data's Android compile classpath resolution
     // against this module (no matching variant). `shared.kmp.library`'s own kdoc calls out a plain

@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.onStart
  * (its stillness check). This is a strictly weaker classifier than Play Services' `DetectedActivity`, which
  * fuses the IMU with a trained model; the gms flavor keeps using that via [GmsActivityRecognizer].
  *
- * ponytail: telling ON_FOOT from IN_VEHICLE needs a speed signal (GPS ground speed), which nothing hands
+ * telling ON_FOOT from IN_VEHICLE needs a speed signal (GPS ground speed), which nothing hands
  * to this seam today — add it as a second [MotionActivityMapper] input once the tracking pipeline can
  * supply one, rather than inventing a travel mode from the accelerometer alone.
  *

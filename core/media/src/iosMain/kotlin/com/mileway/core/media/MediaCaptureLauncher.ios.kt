@@ -69,7 +69,7 @@ import platform.darwin.NSObject
  * unified odometer pipeline, cloud-library browsing) — each throws a clear "not yet wired" error,
  * the same shape Android's own out-of-scope modes use.
  *
- * ponytail: `config.enableOcr`/[onOcrAnalysis] aren't wired here yet — `core:ai`'s
+ * `config.enableOcr`/[onOcrAnalysis] aren't wired here yet — `core:ai`'s
  * `DocumentAiAnalyzer` has a real iOS actual (`FoundationModelsAnalyzer`), but threading it
  * through Peekaboo's byte-array callbacks is real follow-up work (V26 P-IOS.2), not this task's
  * Android-only real path (see `MediaCaptureLauncher.android.kt`).
@@ -107,7 +107,7 @@ actual fun rememberMediaCaptureLauncher(
 
     // QRCode/Barcode (V26 P26.IOS.3): same image-then-decode shape as the Android actual — pick a
     // still image via Peekaboo, decode it with Vision's VNDetectBarcodesRequest.
-    // ponytail: not a live viewfinder scanner, same ceiling as the Android actual (see its
+    // not a live viewfinder scanner, same ceiling as the Android actual (see its
     // scanBarcode doc) — upgrade both together if a live scan is ever needed.
     val qrLauncher =
         rememberImagePickerLauncher(
@@ -151,7 +151,7 @@ actual fun rememberMediaCaptureLauncher(
                 CaptureMode.Odometer,
                 CaptureMode.CloudLibrary,
                 ->
-                    // ponytail: V26 P-IOS.2 follow-up — iOS file picker, the unified odometer
+                    // V26 P-IOS.2 follow-up — iOS file picker, the unified odometer
                     // pipeline, cloud-library browsing. Document scanning is real now (see above).
                     error(
                         "rememberMediaCaptureLauncher: $mode is not wired on iOS yet " +

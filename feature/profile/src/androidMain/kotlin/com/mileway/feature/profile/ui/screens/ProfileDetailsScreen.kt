@@ -614,8 +614,7 @@ private fun PayoutDetailsCard(
 
 /**
  * A compact, illustrative QR whose module pattern is derived deterministically from [data] (so a
- * different UPI handle draws a different code). Reuses `QrHomeScreen`'s Canvas idiom — ponytail:
- * this is a demo QR, not a spec-compliant encoder (upgrade path: a real QR library if scanning is
+ * different UPI handle draws a different code). Reuses `QrHomeScreen`'s Canvas idiom —  * this is a demo QR, not a spec-compliant encoder (upgrade path: a real QR library if scanning is
  * ever needed).
  */
 @Composable

@@ -7,8 +7,8 @@ package com.mileway.feature.logging.currency
  * "≈ ₹X" preview in the UI, never the amount actually stored on [com.mileway.feature.logging
  * .model.ExpenseRecord.amountRupees].
  *
- * ponytail: hardcoded static table, upgrade path is a real FX-rate source once a backend phase
- * exists (see CLAUDE.md "The backend").
+ * hardcoded static table, upgrade path is a real FX-rate source once a backend phase
+ * exists (see the project guidelines "The backend").
  */
 object CurrencyConverter {
     /** 1 unit of the key currency, expressed in rupees. Approximate, fixed — no live FX. */

@@ -23,7 +23,7 @@ private object FakeConfigProvider : ConfigProvider {
 }
 
 /**
- * Regression guard (CLAUDE.md: capture current behavior before refactoring) — DEFAULT must stay
+ * Regression guard (the project guidelines: capture current behavior before refactoring) — DEFAULT must stay
  * byte-for-byte equal to the thresholds LocationProcessor used to hardcode as private consts.
  */
 class AbnormalDetectionConfigTest {

@@ -35,7 +35,7 @@ data class TripSummary(
  * Lives in `feature:tracking` (not `core:data`, despite the plan's original file hint) because both
  * of its non-snapshot dependencies — [SavedTrackRepository] and [TrackingController] — are
  * `feature:tracking` types; `core:data` cannot depend on a feature module (feature modules depend on
- * `core:*`, never the reverse — see CLAUDE.md "Architecture discipline"). `:wear` already depends on
+ * `core:*`, never the reverse — see the project guidelines "Architecture discipline"). `:wear` already depends on
  * `feature:tracking` (P2.1), so this is the correct, boundary-respecting home for the seam.
  */
 class WatchFacade(

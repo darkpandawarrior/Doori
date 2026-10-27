@@ -174,7 +174,7 @@ class DriveReviewPhaseTest {
 
     @Test
     fun ledger_balances_against_the_distance_pipelines_own_invariant() {
-        // With no bucket deductions surfaced at this layer (see DriveReviewLedger.kt's ponytail
+        // With no bucket deductions surfaced at this layer (see DriveReviewLedger.kt's shortcut
         // note), raw/cleaned/claimed are all the same tracked figure — that must still balance.
         val form = SubmissionFormUi()
         assertTrue(form.toDistanceLedger(33.3).balances())

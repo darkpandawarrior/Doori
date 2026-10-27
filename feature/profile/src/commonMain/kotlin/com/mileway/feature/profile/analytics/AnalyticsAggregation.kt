@@ -39,7 +39,7 @@ data class PeriodDelta(
     val isIncrease: Boolean,
 )
 
-// ponytail: String.format is JVM-only; commonMain needs its own fixed-decimal formatter.
+// String.format is JVM-only; commonMain needs its own fixed-decimal formatter.
 internal fun Double.toFixed(decimals: Int): String {
     val factor = List(decimals) { 10 }.fold(1) { acc, ten -> acc * ten }
     val scaled = (this * factor).roundToInt()

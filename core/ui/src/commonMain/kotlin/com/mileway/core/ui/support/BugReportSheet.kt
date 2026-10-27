@@ -23,7 +23,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * P31.MISC.1: the shake-to-report quick-actions sheet — a title field plus the standard
  * [ActionConfirmationBottomSheet] remarks field for the description, saved to the local
  * `bug_reports` table via [BugReportViewModel]. Debug/demo surface: no backend, "saved locally"
- * only (see CLAUDE.md "The backend"), so labels are plain strings rather than the shared
+ * only (see the project guidelines "The backend"), so labels are plain strings rather than the shared
  * localizable string table other user-facing sheets use.
  */
 @Composable

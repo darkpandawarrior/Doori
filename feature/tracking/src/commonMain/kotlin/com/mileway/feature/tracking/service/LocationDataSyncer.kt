@@ -59,7 +59,7 @@ class LocationDataSyncer(
     // 3 triggers can call drain: init, connectivity edge, ON_START). The try/finally below always
     // clears this even on an unexpected exception; the early-return skips a second overlapping
     // drain outright instead of letting them race on the same outbox rows.
-    // ponytail: plain Boolean, not a Mutex — every current caller runs on the same ViewModel/main
+    // plain Boolean, not a Mutex — every current caller runs on the same ViewModel/main
     // dispatcher, so there's no real concurrent-write race; upgrade if a background-thread caller
     // is ever added.
     private var isDraining = false

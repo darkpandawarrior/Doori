@@ -84,7 +84,7 @@ class MileageAppFunctions(
      *
      * @param appFunctionContext The execution context.
      *
-     * ponytail: appFunctionContext is unused here but mandated by the AppFunctions contract — it
+     * appFunctionContext is unused here but mandated by the AppFunctions contract — it
      * MUST be the first parameter of every @AppFunction method (see the appfunctions skill).
      */
     @Suppress("UnusedParameter")

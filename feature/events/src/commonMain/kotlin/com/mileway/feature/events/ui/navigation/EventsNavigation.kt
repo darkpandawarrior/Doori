@@ -34,7 +34,7 @@ object EventsRoutes {
  * @param onLogExpense V27 P27.E.6's deferred events→expense CTA: [EventDetailScreen] hands back an
  * [ExpenseSourceContext.Event] the same way `cardsGraph`'s `onClaimTransaction` does — `:app`'s
  * composition root threads it to `LoggingRoutes.expenseEntryRoute`, keeping feature:events off of
- * feature:logging (module-boundary rule, CLAUDE.md).
+ * feature:logging (module-boundary rule, the project guidelines).
  */
 fun NavGraphBuilder.eventsGraph(
     navController: NavHostController,

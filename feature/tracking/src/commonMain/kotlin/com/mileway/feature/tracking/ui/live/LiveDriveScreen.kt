@@ -204,7 +204,7 @@ fun LiveDriveScreen(
     val bearingDisplay = deriveBearingDisplay(state.speedKmh, state.bearingDegrees, lastValidBearing)
 
     // Zoom-for-speed ([zoomForSpeed], animated over an 800ms tween per spec) is ready to wire in
-    // once MapSurface exposes a zoom parameter — see the ponytail note on [zoomForSpeed] itself.
+    // once MapSurface exposes a zoom parameter — see the shortcut note on [zoomForSpeed] itself.
 
     // ── Camera mode ──────────────────────────────────────────────────────────────────
     var cameraMode by remember { mutableStateOf(CameraMode.FOLLOW) }
@@ -258,7 +258,7 @@ fun LiveDriveScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    // ponytail: MapSurface exposes no tap/pan callback of its own, so this is the
+                    // MapSurface exposes no tap/pan callback of its own, so this is the
                     // only place to detect the "tap to cycle camera" gesture the spec asks for.
                     // It necessarily sits over the map's own gesture layer — fine for a drop-in
                     // screen; revisit once MapSurface grows a real onTap/onUserPan hook.

@@ -11,7 +11,7 @@ import kotlin.time.Clock
 
 /**
  * PLAN_V22 P6.7 / PLAN_V24 P10.2: local staging store backing Settings' `SyncDiagnosticsCard` — no
- * network call (Mileway has no backend to sync against yet, see CLAUDE.md "The backend"). It holds
+ * network call (Mileway has no backend to sync against yet, see the project guidelines "The backend"). It holds
  * three real staging buckets (`pendingLocations`/`pendingEvents`/`pendingDebugEvents`); [forceSync]
  * runs a local upload-simulation job that *moves rows* from the enabled buckets into the synced
  * counters (real arithmetic, deterministic — not random). Which buckets drain is gated by the passed

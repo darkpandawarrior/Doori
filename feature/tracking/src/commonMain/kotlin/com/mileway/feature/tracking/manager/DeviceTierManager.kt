@@ -10,7 +10,7 @@ enum class DeviceTier { LOW, MID, HIGH }
  * plugging this in changes nothing on default/high-end hardware.
  */
 object DeviceTierManager {
-    // ponytail: round-number RAM cutoffs, not measured against real low-end hardware —
+    // round-number RAM cutoffs, not measured against real low-end hardware —
     // tighten if a specific device model misclassifies.
     private const val LOW_RAM_MAX_BYTES = 3L * 1024 * 1024 * 1024 // < 3 GB
     private const val MID_RAM_MAX_BYTES = 6L * 1024 * 1024 * 1024 // < 6 GB

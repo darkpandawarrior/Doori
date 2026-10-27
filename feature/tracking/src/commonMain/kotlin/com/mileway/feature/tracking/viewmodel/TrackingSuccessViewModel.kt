@@ -116,7 +116,7 @@ class TrackingSuccessViewModel(
      * threaded here, so it doubles as [ExpenseSourceContext.Trip.tripId]. A no-op when no
      * transaction was issued (e.g. a hard-stop submission), mirroring the existing
      * `hasTransaction` gate the screen already uses for its "View Expense" CTA.
-     * ponytail: reusing transactionId keeps this a same-screen change; thread a real routeId
+     * reusing transactionId keeps this a same-screen change; thread a real routeId
      * through TrackingSuccessArgs instead once a per-trip detail screen (V29) needs one.
      */
     private fun addExpense() {
@@ -165,7 +165,7 @@ class TrackingSuccessViewModel(
     }
 
     companion object {
-        // ponytail: single flat fallback ₹/km until per-tenant server config lands.
+        // single flat fallback ₹/km until per-tenant server config lands.
         const val DEFAULT_RATE_PER_KM = MileageClaimPolicyProvider.DEFAULT_RATE_PER_KM
     }
 }

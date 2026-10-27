@@ -5,7 +5,7 @@ package com.mileway.ui.auth
  * phone-login rules on Mileway's own foundation: strip non-digits, drop a leading zero, and
  * require a 10-digit national number. Pure + platform-agnostic so it unit-tests without a UI.
  *
- * ponytail: the small country list lives here as static UI data rather than in :stub — a picker
+ * the small country list lives here as static UI data rather than in :stub — a picker
  * list isn't backend mock data and shared doesn't depend on :stub; noted in PROGRESS.
  */
 

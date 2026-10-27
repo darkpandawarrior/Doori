@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
  * fixed local seed (see [SEEDED_COMPLIMENTS]/[SEEDED_RATING]).
  *
  * `SavedTrack.distance` is stored in metres (converted to km); the streak buckets each trip's
- * `createdAt` into a UTC day. ponytail: UTC-day buckets, not the device's calendar day — good enough
+ * `createdAt` into a UTC day. UTC-day buckets, not the device's calendar day — good enough
  * for a demo streak; swap for a timezone-aware bucket if streaks ever gate real rewards.
  *
  * [BadgeId.TOUR_COMPLETE] is the one non-trip badge: it lights up once the active account finishes

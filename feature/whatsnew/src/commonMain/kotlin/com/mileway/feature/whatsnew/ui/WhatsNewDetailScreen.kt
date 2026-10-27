@@ -288,7 +288,7 @@ private fun buildShareText(entry: WhatsNewEntry): String =
         }
     }
 
-// ponytail: space-only escaping — catalog subjects are short marketing titles, not free-form text.
+// space-only escaping — catalog subjects are short marketing titles, not free-form text.
 // Upgrade to full percent-encoding if a title ever needs other reserved mailto/URI characters.
 private fun mailtoUri(
     email: String,

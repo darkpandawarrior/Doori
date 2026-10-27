@@ -41,7 +41,7 @@ import kotlin.time.Clock
  * L2: the local-first store for the whole claim domain (a [Report], its [ClaimLine]s and its
  * [ApprovalStep] chain), backed by [ReportDao]/[ClaimLineDao]/[ApprovalStepDao].
  *
- * ponytail: no real backend client is wired for reports yet — that is a later lane's job (see
+ * no real backend client is wired for reports yet — that is a later lane's job (see
  * [com.mileway.core.network.api.NetworkBackendFlags.useRealBackend], which this repository does not
  * branch on). Every read/write here always goes through Room, which already satisfies "returns
  * local data when useRealBackend=false" since there is no other path to diverge from.

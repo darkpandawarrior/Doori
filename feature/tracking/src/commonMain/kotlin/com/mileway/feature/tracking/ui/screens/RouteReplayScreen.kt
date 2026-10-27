@@ -233,7 +233,7 @@ fun RouteReplayScreen(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         CircularProgressIndicator()
-                        // ponytail: reused copy from the live screen ("Getting location…") — this path is
+                        // reused copy from the live screen ("Getting location…") — this path is
                         // really "loading the recorded route", but no dedicated string exists yet and the
                         // wording gap is cosmetic only.
                         Text(

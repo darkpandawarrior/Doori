@@ -134,7 +134,7 @@ fun WearMilewayTheme(content: @Composable () -> Unit) {
  *
  * Devices.WEAR_OS_SMALL_ROUND is deprecated in favour of androidx.wear:wear-tooling-preview's
  * WearDevices.SMALL_ROUND — not worth a new dependency for a preview-only device string constant
- * (CLAUDE.md: no dependencies beyond what a task genuinely needs); the deprecated constant still
+ * (the project guidelines: no dependencies beyond what a task genuinely needs); the deprecated constant still
  * resolves correctly.
  * UnusedPrivateMember: only called by the Compose/Android Studio preview renderer via
  * reflection on the @Preview annotation, never from Kotlin call sites — a known detekt false

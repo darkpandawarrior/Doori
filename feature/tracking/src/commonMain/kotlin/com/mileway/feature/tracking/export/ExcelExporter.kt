@@ -8,7 +8,7 @@ import com.mileway.core.data.model.db.SavedTrack
  * Pure-Kotlin Excel exporter, matching the other exporters' `object.export(...): String` shape so
  * it plugs straight into [TrackExportContent] and the existing text/ShareSheet path.
  *
- * ponytail: emits SpreadsheetML 2003 (`.xls` XML), NOT a real `.xlsx`. A true xlsx is a ZIP of
+ * emits SpreadsheetML 2003 (`.xls` XML), NOT a real `.xlsx`. A true xlsx is a ZIP of
  * OOXML parts, which would drag a zip/compression dependency (or a hand-rolled deflate) into a
  * previously String-only export pipeline for no functional gain — Excel, LibreOffice and Numbers
  * all open SpreadsheetML natively. Upgrade path: if a consumer requires a strict `.xlsx`, swap this

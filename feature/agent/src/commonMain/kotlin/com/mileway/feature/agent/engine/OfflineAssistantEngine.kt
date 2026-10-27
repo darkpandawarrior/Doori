@@ -107,8 +107,8 @@ class OfflineAssistantEngine(
             Intent.ADVANCE_STATUS -> latestAdvanceStatus()
             Intent.CARD_BALANCE -> cardBalances()
             Intent.PENDING_APPROVALS -> pendingApprovalsSummary()
-            // ponytail: travel itinerary has no real per-user data source wired here — the brief
-            // for this lane named approvals/cards/advances/expense only. Upgrade the same way:
+            // travel itinerary has no real per-user data source wired here — the brief
+            // for this change named approvals/cards/advances/expense only. Upgrade the same way:
             // inject feature:travel's real itinerary repository and query it here.
             Intent.TRIP_SUMMARY ->
                 "Active trip: PNQ → BOM, IndiGo 6E-401, Gate B7, boarding 14:30. 3 upcoming trips in the next 35 days."

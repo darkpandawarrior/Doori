@@ -11,7 +11,7 @@ import kotlinx.datetime.TimeZone
  * D.2: hardcoded mock trips for the desktop dashboard — Option b is a thin app with no
  * `feature:tracking`/Room-repository dependency, so (mirroring `:sharedWatch`'s `WatchDomainFacade`
  * pattern of building directly on `core:data` types) the trip list here is a fixed `SavedTrack` list
- * rather than a live query. Real persistence is a later phase per CLAUDE.md "The backend".
+ * rather than a live query. Real persistence is a later phase per the project guidelines "The backend".
  */
 private const val DAY_MS = 86_400_000L
 
