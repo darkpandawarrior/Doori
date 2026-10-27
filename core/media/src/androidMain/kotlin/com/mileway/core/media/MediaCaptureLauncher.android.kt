@@ -183,7 +183,7 @@ actual fun rememberMediaCaptureLauncher(
     // Gallery, decode it with the flavor-bound BarcodeDecoder (ML Kit on gms, ZXing on noGms —
     // see BarcodeDecoder.kt), deliver the first hit as QrPayload directly (no OCR/watermark pass
     // — those are attachment-flow concerns).
-    // ponytail: image-then-decode, not a live viewfinder scanner — CaptureMode.Camera itself
+    // image-then-decode, not a live viewfinder scanner — CaptureMode.Camera itself
     // isn't wired through this launcher either (feature:media owns the live preview screen);
     // upgrade to a live scan when that seam moves into core:media.
     val qrLauncher =
@@ -215,7 +215,7 @@ actual fun rememberMediaCaptureLauncher(
         OcrResultHost(
             analysis = singleAnalysis,
             expectedDocType = expectedDocType,
-            // ponytail: forwards the original DocumentAnalysis, not the sheet's edited field
+            // forwards the original DocumentAnalysis, not the sheet's edited field
             // strings — OcrReviewSheet's edits are UI-local for now. Threading a corrected
             // DocumentAnalysis back through onOcrAnalysis is straightforward (rebuild `fields`
             // from the edited map, keep everything else) but no caller needs it yet; do it when

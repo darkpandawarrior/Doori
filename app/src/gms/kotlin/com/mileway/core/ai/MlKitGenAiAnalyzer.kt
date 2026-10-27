@@ -16,7 +16,7 @@ import com.siddharth.kmp.result.Result
 import kotlinx.coroutines.CancellationException
 import java.io.File
 
-// ponytail: EXPERIMENTAL — delegates the ML Kit GenAI Prompt API call (Gemini Nano) to
+// EXPERIMENTAL — delegates the ML Kit GenAI Prompt API call (Gemini Nano) to
 // kmp-toolkit's :ai OnDeviceLlm seam (MlKitGenAiOnDeviceLlm) instead of re-deriving
 // Generation.getClient()/FeatureStatus/GenerateContentRequest here (#11 consume), and the reply
 // parse to kmp-toolkit's StructuredOutput<DocumentExtractionFields> instead of a hand-rolled regex
@@ -31,7 +31,7 @@ class MlKitGenAiAnalyzer(
 ) : DocumentAiAnalyzer {
     override fun isAvailable(): Boolean = llm.isAvailable()
 
-    // SwallowedException: AiResult/AiFailure is design-frozen (see AGENTS.md) with no free-text/
+    // SwallowedException: AiResult/AiFailure is design-frozen (see the project guidelines) with no free-text/
     // cause slot for `failure` — the comment above already explains why EmptyReply is the reason.
     @Suppress("SwallowedException")
     override suspend fun extract(

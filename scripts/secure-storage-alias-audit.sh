@@ -7,7 +7,7 @@
 # alias" here means literal residue from an earlier migration, not a runtime
 # concept this app currently has any live use for.
 #
-# ponytail: this script IS the cleanup for P7.2 — there is no real Keystore
+# this script IS the cleanup for P7.2 — there is no real Keystore
 # alias infra in this repo to reclaim, so closing the acceptance criterion
 # means proving that in a repeatable way rather than inventing fake Keystore
 # code just to delete it. Upgrade path: if a future task actually introduces

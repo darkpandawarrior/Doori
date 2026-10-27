@@ -39,7 +39,7 @@ import kotlin.math.abs
  * so the explanation cannot drift away from the computation. If they ever disagree, the invariant
  * that governs both is already broken and that is the real bug.
  *
- * ponytail: a Canvas and some Rows — no chart library, no animation, no new dependency. This reads
+ * a Canvas and some Rows — no chart library, no animation, no new dependency. This reads
  * as a receipt, and a receipt that animates is a receipt you trust less.
  */
 @Composable

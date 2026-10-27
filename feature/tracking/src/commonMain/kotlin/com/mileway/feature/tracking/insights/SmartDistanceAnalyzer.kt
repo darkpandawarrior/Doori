@@ -10,7 +10,7 @@ import com.mileway.core.data.model.db.LocationData
  * proposes a menu of per-category reduction options the user can selectively apply. Nothing here
  * mutates state: [analyze] only suggests, [applyReductions] only sums what the caller selected.
  *
- * ponytail: reduction amounts are the existing bucket values (mock/abnormal/spike already measure
+ * reduction amounts are the existing bucket values (mock/abnormal/spike already measure
  * exactly these problems); walking/pause-drift are estimated from point-level signals since no
  * dedicated bucket exists for them. Confidence is a simple point-coverage ratio, not a model.
  */
@@ -156,7 +156,7 @@ object SmartDistanceAnalyzer {
         total: Int,
     ): Double = if (total > 0) count / total.toDouble() else 0.0
 
-    /** ponytail: confidence is just affected-point coverage — more supporting points, higher confidence. */
+    /** confidence is just affected-point coverage — more supporting points, higher confidence. */
     private fun confidenceFor(
         count: Int,
         total: Int,

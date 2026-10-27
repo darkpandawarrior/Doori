@@ -37,7 +37,7 @@ data class PhoneChangeUiState(
  * commits it. A relaunch with a pending target resumes the verify step (re-sending a fresh code,
  * since the in-memory challenge doesn't survive process death). Cancel leaves the old number.
  *
- * ponytail: minimal inline phone validation (digits, 10-length) rather than pulling
+ * minimal inline phone validation (digits, 10-length) rather than pulling
  * shared's PhoneNumberValidator across the module boundary — noted in PROGRESS.
  */
 class PhoneChangeViewModel(

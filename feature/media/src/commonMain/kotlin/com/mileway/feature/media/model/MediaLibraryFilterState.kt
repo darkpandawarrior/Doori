@@ -39,9 +39,9 @@ internal fun applyLibraryFilterAndSort(
  * the library as a multi-select source (e.g. an expense attachment picker) rather than the default
  * "tap to preview" browse mode. `null` `allowedMimeTypes` allows every mime type.
  *
- * ponytail: this is a feature:media-local config, not `core:media`'s `MediaCaptureConfig` —
+ * this is a feature:media-local config, not `core:media`'s `MediaCaptureConfig` —
  * wiring `CaptureMode.CloudLibrary` through the generic `rememberMediaCaptureLauncher` would need
- * `core:media` to reach into `feature:media`'s nav graph, which the module boundaries (CLAUDE.md
+ * `core:media` to reach into `feature:media`'s nav graph, which the module boundaries (the project guidelines
  * "feature modules never depend on each other") don't allow. That's a P-SITE-shaped nav-integration
  * task, not this one; `MediaGraph.kt`'s CLOUD_LIBRARY route is the real integration point today.
  */

@@ -42,7 +42,7 @@ private const val JWT_REALM = "mileway"
 private const val ACCESS_TOKEN_TTL_MS = 15 * 60 * 1000L
 private const val REFRESH_TOKEN_TTL_MS = 30L * 24 * 60 * 60 * 1000L
 
-// ponytail: dev-only fallback secret, clearly marked, never committed as a real secret — the root
+// dev-only fallback secret, clearly marked, never committed as a real secret — the root
 // docker-compose.yml requires JWT_SECRET (JWT_SECRET:?...) so a real deploy fails loudly instead of
 // silently falling back to this; it only ever backs an unconfigured local/H2 run.
 private const val DEV_JWT_SECRET_DEFAULT = "mileway-dev-secret"
@@ -54,7 +54,7 @@ internal val jwtAlgorithm: Algorithm
 // of truth instead of duplicating the demo credential as a second magic string.
 internal const val DEMO_EMAIL = "demo@mileway.app"
 
-// ponytail: one hardcoded demo password for the single seeded dev user — this is a portfolio/dev
+// one hardcoded demo password for the single seeded dev user — this is a portfolio/dev
 // server, not a production auth system. Still never stored plaintext (see [sha256] below).
 internal const val DEMO_PASSWORD = "mileway-demo-2026"
 

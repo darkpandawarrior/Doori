@@ -125,7 +125,7 @@ fun SignaturePadSheet(
     val strokes = remember { mutableStateListOf<List<Offset>>() }
     var current by remember { mutableStateOf<List<Offset>>(emptyList()) }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    // ponytail: signature ink is a legal artefact captured at a fixed colour — genuinely-raw
+    // signature ink is a legal artefact captured at a fixed colour — genuinely-raw
     // exception, see theme/LAYERS.md.
     val inkColor = Color(0xFF111111)
 

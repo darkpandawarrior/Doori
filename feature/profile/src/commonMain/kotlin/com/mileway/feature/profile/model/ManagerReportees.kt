@@ -43,7 +43,7 @@ data class ReporteeTrip(
  * (delegated trips stamp identity but aren't queried back per-reportee), so summaries and trip
  * lists are derived purely from the reportee code — stable across runs and testable.
  *
- * ponytail: seeded mock; the upgrade path is real aggregation from SavedTracks-per-delegate once
+ * seeded mock; the upgrade path is real aggregation from SavedTracks-per-delegate once
  * delegated trips persist to Room. Behavior (list + drill-in) is real; only the numbers are seeded.
  */
 object ManagerReportees {

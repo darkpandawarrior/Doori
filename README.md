@@ -43,7 +43,7 @@ exists too, sharing `:contract` DTOs with the client, off by default behind a fl
 - [Getting started](#getting-started)
 - [Build flavors](#build-flavors)
 - [Owner actions (secrets, store accounts)](docs/OWNER_ACTIONS.md)
-- [Ralph-loop development](#ralph-loop-development)
+- [Verification gate](#verification-gate)
 - [Testing and quality](#testing-and-quality)
 - [Roadmap](#roadmap)
 - [iOS, Wear OS and watchOS](#ios-wear-os-and-watchos)
@@ -233,7 +233,7 @@ interactive App-Intent Start/Stop button on iOS.
 | ![Android Glance home-screen widget with today/week distance and a red live-tracking indicator](docs/screenshots/widget_glance.png) | ![iOS home-screen widget with today/week distance and a Stop button](docs/screenshots/widget_ios_home.png) |
 
 <!-- The iOS Lock Screen accessory widget had a third column here pointing at
-     docs/screenshots/widget_ios_lockscreen.png, which has never existed in this repo — it
+     docs/screenshots/widget_ios_lockscreen.png, which has never existed in this repo, it
      rendered as a broken image. Capturing it needs the watchOS/iOS XCTest suite under Xcode,
      which no CI job runs today (see docs/ARTEFACT_INDEX.md). Restore the column with the
      screenshot, not before it. -->
@@ -362,7 +362,6 @@ choices here were deliberate, and each one closed off an easier alternative on p
 | **`SearchProvider` registry instead of a central search index** | Each feature binds its own `SearchProvider` into Koin; the master-search aggregator resolves `getAll<SearchProvider>()` and fans out. Adding a searchable feature is a one-line Koin binding, no edit to a shared switch statement, no feature-to-feature dependency. | Search is only as good as each provider, and cross-feature ranking is naive (per-provider, then merged). Fine for the scale here; the decoupling is worth more than global relevance tuning. |
 | **One codebase, two distributions (`gms` / `noGms`) with a FOSS purity guard** | The same app ships to Play (Google Maps/Firebase via `gms`) and to F-Droid (MapLibre + offline MBTiles via `noGms`). A dependency-prefix guard fails the build when an unlisted proprietary prefix reaches the `noGms` classpath, and `dependencyGuard` baselines that classpath so any *new* arrival is a failing diff. **Honest status: `noGms` is not GMS-free today.** Its baseline carries 19 proprietary entries, 15 `com.google.android.gms`/`com.google.mlkit` plus 4 transitive `com.google.firebase`, because ML Kit powers OCR and document scanning and is deliberately allowlisted. So the guard means *"nothing new leaked in"*, not *"this build is FOSS"*, and F-Droid submission is blocked until that set reaches zero. | Every platform integration needs a FOSS fallback (maps being the big one), and CI has to build/verify both flavors. The guard is what makes "it's really FOSS" a checkable claim rather than a README promise. |
 | **Shared Gradle logic in a separate `includeBuild` repo** | The convention plugins live in [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic), not inlined here, so AGP/Kotlin/Compose/test config is reused across projects (PaymentsLab-KMP too) instead of drifting per-repo. | One more repo to keep in sync, and a composite build to reason about. Worth it the moment a second KMP project exists. |
-| **Autonomous Ralph-loop development with a revert-on-uncommitted guard** | The app is built through versioned `.ralph/PLAN_Vxx.md` phases, each iteration editing → building → committing in one turn. A Stop hook reverts uncommitted tracked edits between turns, which *forces* small, self-contained, individually-revertable commits. | The workflow is unforgiving, a build that fails to commit in-turn is lost. That constraint is the point: it makes every change atomic and the history clean to bisect. |
 
 ### Module map
 
@@ -409,7 +408,7 @@ Doori/
 │   ├── ai/                    # on-device document-intelligence pipeline
 │   └── forms/                 # dynamic form engine (16 field types, validation, GST)
 ├── contract/                 # shared DTOs + PolicyRateEngine (client + server)
-├── server/                   # Kotlin/Ktor backend (Netty + Exposed) — opt-in, off by default
+├── server/                   # Kotlin/Ktor backend (Netty + Exposed), opt-in, off by default
 ├── feature/                  # tracking · logging · media · profile · approvals · payables
 │                             # travel · agent · cards · advances · payments · events · whatsnew
 ├── stub/                     # deterministic mock data for every repository
@@ -417,7 +416,7 @@ Doori/
 ├── sharedWatch/              # headless KMP framework for the native SwiftUI watchOS app
 ├── shared/                   # iOS umbrella framework (re-exports core:ui, feature:tracking, feature:agent, feature:logging)
 ├── widget/                   # Glance home-screen widget + quick start/stop
-├── desktopApp/               # Compose Desktop preview — single mock-data dashboard window
+├── desktopApp/               # Compose Desktop preview, single mock-data dashboard window
 ├── app-web-preview/          # wasmJs browser preview shell (theme + curated demo screens)
 ├── baselineprofile/          # macrobenchmark module for Baseline Profile generation
 ├── build-logic/              # Gradle convention plugins
@@ -499,7 +498,7 @@ DataStore. A real Kotlin/Ktor backend ships too but is **off by default**: see
 ./gradlew :app:koverXmlReportNoGmsDebugCoverage   # coverage report (the name quality.yml uses;
                                       # bare :app:koverXmlReport is not a real task here)
 
-# Backend (opt-in — off by default)
+# Backend (opt-in, off by default)
 ./gradlew :server:run                 # start the Ktor server on :8080 (H2 in-memory)
 ./gradlew :server:test                # server route / auth / opId-dedup tests
 # then set NetworkBackendFlags.useRealBackend = true and point BaseUrlProvider at the server
@@ -507,7 +506,7 @@ DataStore. A real Kotlin/Ktor backend ships too but is **off by default**: see
 # Or run it containerised against real Postgres instead of in-memory H2:
 ./gradlew :server:installDist         # the image packages a built distribution, it doesn't compile
 JWT_SECRET=dev-secret docker compose up --build    # server on :8080 + postgres:16
-# JWT_SECRET is required by design — compose aborts rather than silently using the dev default.
+# JWT_SECRET is required by design, compose aborts rather than silently using the dev default.
 
 # Other targets
 ./gradlew :desktopApp:assemble        # Compose Desktop (single mock-data dashboard window)
@@ -540,24 +539,18 @@ grep -cE 'play-services|com\.google\.mlkit|firebase' app/dependencies/noGmsRelea
 Getting that to zero means replacing ML Kit in the FOSS flavor, see
 [`docs/OWNER_ACTIONS.md`](docs/OWNER_ACTIONS.md) § Tier 6 for the decision that blocks F-Droid.
 
-## Ralph-loop development
+## Verification gate
 
-This repo is built and evolved almost entirely through autonomous Ralph-loop iteration
-(`.ralph/PLAN.md` plus versioned plans `PLAN_V3` … `PLAN_V20`, each one migration phase, KMP
-hoisting, iOS parity, the AI assistant rebuild, etc.). Progress is tracked per iteration in
-`.ralph/PROGRESS.md`.
+The flavored build is the gate:
 
-- **Verification gate (current, flavored build):**
-  ```bash
-  ./gradlew assembleNoGmsDebug && ./gradlew testNoGmsDebugUnitTest
-  ```
-  (the `gms` flavor crashes Robolectric, so unit tests only run on `noGms`.)
-- **Guardrail:** the Ralph Stop hook reverts uncommitted *tracked* edits between turns, each
-  iteration must edit, build/test, and commit within the same turn, or the change is lost.
-- Historical note: earlier plan revisions reference the original, pre-flavor bootstrap commands
-  `assembleDebug` / `testDebugUnitTest` from when this repo was a bare single-variant extraction of
-  the mileage feature; those tasks are long complete and the flavored commands above are what CI
-  and current Ralph runs actually use.
+```bash
+./gradlew assembleNoGmsDebug && ./gradlew testNoGmsDebugUnitTest
+```
+
+The `gms` flavor crashes Robolectric, so unit tests only run on `noGms`. Earlier plan revisions
+reference the original pre-flavor commands `assembleDebug` / `testDebugUnitTest`, from when this repo
+was a bare single-variant extraction of the mileage feature; the flavored commands above are what CI
+uses.
 
 ## Testing and quality
 

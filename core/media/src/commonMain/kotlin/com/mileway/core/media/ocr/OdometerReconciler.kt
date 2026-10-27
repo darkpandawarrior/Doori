@@ -15,7 +15,7 @@ object OdometerReconciler {
     const val TOLERANCE = 3
 
     /**
-     * ponytail: a gap this many times [TOLERANCE] means the sources aren't reading the same odometer
+     * a gap this many times [TOLERANCE] means the sources aren't reading the same odometer
      * at all (glare/wrong object/etc.) — reject and ask for a retake instead of asking the user to
      * arbitrate between numbers that aren't even close.
      */

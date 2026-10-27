@@ -75,7 +75,7 @@ object WearPresentation {
      * the cached [SurfaceSnapshot] (P2.6's cache-only, cold-process-safe read), which carries
      * [SurfaceSnapshot.isPaused] but none of the GPS/permission/policy flags the mapper keys off, so
      * calling the mapper here would mean fabricating flags the tile doesn't actually know — see
-     * AGENTS.md "report the gap, don't fork the vocabulary."
+     * the project guidelines "report the gap, don't fork the vocabulary."
      */
     fun toTileStatusLabel(snapshot: SurfaceSnapshot): String? =
         when {

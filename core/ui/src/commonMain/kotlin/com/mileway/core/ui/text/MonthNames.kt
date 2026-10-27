@@ -11,7 +11,7 @@ package com.mileway.core.ui.text
  * `implementation` dependency of `:core:ui`, so keeping the type out of the signature means no
  * consumer inherits a transitive API surface for three words of formatting.
  *
- * ponytail: English-only, matching every call site it replaced. Upgrade path: when Mileway ships a
+ * English-only, matching every call site it replaced. Upgrade path: when Mileway ships a
  * second locale this becomes a `stringArrayResource` lookup, and it is now one place to change.
  */
 private val MonthNames = listOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")

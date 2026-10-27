@@ -22,7 +22,7 @@ import kotlin.time.Clock
  *
  * The default is the real clock, so production behaviour is unchanged.
  *
- * ponytail: a `staticCompositionLocalOf` rather than a threaded parameter because the readers are
+ * a `staticCompositionLocalOf` rather than a threaded parameter because the readers are
  * private composables several levels down a list item — threading it would touch a chain of
  * signatures to inject one ambient value. Matches the existing `LocalReducedMotion` /
  * `LocalManagerProviders` idiom in this package. `static` because the value changes rarely (never, in

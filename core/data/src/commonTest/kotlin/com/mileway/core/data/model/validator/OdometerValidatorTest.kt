@@ -17,7 +17,7 @@ class OdometerValidatorTest {
 
     @Test
     fun `equal readings is an implausible jump of zero distance not a decrement`() {
-        // ponytail: OdometerValidator treats end == start as a (valid, zero-distance) trip;
+        // OdometerValidator treats end == start as a (valid, zero-distance) trip;
         // LogMilesUiState layers the "must be greater than start" business rule on top.
         val result = OdometerValidator.validate(start = 1000, end = 1000, source = OdometerReadingSource.MANUAL)
 

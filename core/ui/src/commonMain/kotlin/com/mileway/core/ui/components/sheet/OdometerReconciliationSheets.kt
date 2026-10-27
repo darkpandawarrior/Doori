@@ -82,7 +82,7 @@ fun OdometerRejectionSheet(
         // "Use typed value" is the safe, non-destructive fallback, not the rejection itself — it
         // should never render red. The Danger tone stays on the header (nothing else was usable).
         confirmMatchesTone = false,
-        // ponytail: no typed value to fall back to — the confirm button no-ops rather than plumbing
+        // no typed value to fall back to — the confirm button no-ops rather than plumbing
         // an `enabled` override through the shared ActionConfirmationBottomSheet for this one caller.
         onConfirm = { userReading?.let(onAccept) },
         onDismiss = onRetake,

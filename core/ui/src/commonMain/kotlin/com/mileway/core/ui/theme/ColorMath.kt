@@ -18,7 +18,7 @@ import kotlin.math.pow
  */
 
 /**
- * ponytail: hand-rolled instead of `Color.toArgb()` — that extension's availability varies across
+ * hand-rolled instead of `Color.toArgb()` — that extension's availability varies across
  * Compose Multiplatform targets and this is four lines. Upgrade path: delete in favour of
  * `toArgb()` once it is common on every target Mileway ships.
  */

@@ -1,9 +1,8 @@
 # Doori DESIGN.md
 
-> Inherits: house design standard (AgentHarness skill `design-md`). This file wins on conflict.
 > Also inherits the shared token layer: kmp-toolkit `DESIGN.md` (present in `external/kmp-toolkit` once its pin includes it: 4dp rhythm, adaptive
 > ladder, motion buckets). This file records only what Doori adds or overrides.
-> Agents: read this before creating or changing UI. Values live in
+> Contributors: read this before creating or changing UI. Values live in
 > `core/ui/src/commonMain/kotlin/com/mileway/core/ui/theme/` (the code still uses the old
 > `Mileway*` symbol names; the product is Doori).
 > Dial: ENERGY 3 / RHYTHM 4 / MOTION 2
@@ -137,7 +136,7 @@ accelerate. Motion is quiet; nothing animates just to decorate a number.
 
 | Date | Change | Why | Source |
 |---|---|---|---|
-| 2026-10-09 | Initial version, distilled from the code token files and existing design docs | Establish design direction for agents | DESIGN.md rollout |
+| 2026-10-09 | Initial version, distilled from the code token files and existing design docs | Establish design direction for contributors | DESIGN.md rollout |
 
 ## Open questions
 
@@ -145,4 +144,4 @@ accelerate. Motion is quiet; nothing animates just to decorate a number.
 
 ## Evolving this file
 
-Agents: when you change UI and find this file wrong or silent, fix it in the same change and add a Changelog row. Code token files win over this file; when they disagree, correct the doc. A user correction of a visual choice with a stated reason becomes a rule here immediately. Lessons that apply beyond this repo go to the LEARNINGS log of the `design-md` skill in AgentHarness.
+Contributors: when you change UI and find this file wrong or silent, fix it in the same change and add a Changelog row. Code token files win over this file; when they disagree, correct the doc. A user correction of a visual choice with a stated reason becomes a rule here immediately. Lessons that apply beyond this repo go to the LEARNINGS log of the `design-md` skill in AgentHarness.

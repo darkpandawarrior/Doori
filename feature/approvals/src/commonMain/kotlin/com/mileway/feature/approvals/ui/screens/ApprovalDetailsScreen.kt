@@ -188,7 +188,7 @@ fun ApprovalDetailsScreen(
     val actionFlags = remember(item, effectiveStatus) { item.toDetailActionFlags(effectiveStatus) }
     val auditFlags = remember(item) { item.toAuditFlags() }
 
-    // ponytail: which tab is showing is pure UI navigation state, not ViewModel-worthy (see the
+    // which tab is showing is pure UI navigation state, not ViewModel-worthy (see the
     // same note on ExpenseDetailScreen / PurchaseRequestDetailsScreen).
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
     var showRejectSheet by remember { mutableStateOf(false) }

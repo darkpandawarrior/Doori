@@ -18,7 +18,7 @@ class EventThrottler(
     private val now: () -> Long,
 ) {
     companion object {
-        // ponytail: named per-type minimum intervals for known-noisy event types (parity §2.8).
+        // named per-type minimum intervals for known-noisy event types (parity §2.8).
         // Types absent from this map are never throttled.
         const val MOCK_LOCATION_INTERVAL_MS = 30_000L
         const val ABNORMAL_LOCATION_INTERVAL_MS = 30_000L

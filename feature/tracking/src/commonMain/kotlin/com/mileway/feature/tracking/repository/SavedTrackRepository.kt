@@ -65,8 +65,8 @@ class SavedTrackRepository(
     }
 
     /**
-     * ponytail: business/personal classification has no dedicated Room column — adding one is a
-     * schema change to a shipped table (AGENTS.md guardrail, and `SavedTrack` lives in
+     * business/personal classification has no dedicated Room column — adding one is a
+     * schema change to a shipped table (the project guidelines guardrail, and `SavedTrack` lives in
      * :core:data, outside this module's ownership). `notes` is a declared-but-never-read column
      * on the same row, so it doubles as the classification tag instead of a migration. Upgrade
      * path: a real `isPersonal` column + migration once core:data work is in scope.
@@ -165,7 +165,7 @@ sealed interface LocalDataResolution {
         val routeId: String,
     ) : LocalDataResolution
 
-    // ponytail: no real backend yet — this is the honest stub the "has_local_data" flag exists to
+    // no real backend yet — this is the honest stub the "has_local_data" flag exists to
     // enable; the future server-fetch call slots in here without touching any caller.
     data class WouldFetchFromServer(
         val routeId: String,

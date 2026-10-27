@@ -26,7 +26,7 @@ sealed interface ReadState<out T> {
  * re-emitting). Offline with no cached value yet surfaces as [ReadState.Error]; offline with a
  * cached value serves it as stale.
  *
- * // ponytail: single policy, add an enum at the 2nd — no FetchPolicy variants (cache-first vs
+ * // single policy, add an enum at the 2nd — no FetchPolicy variants (cache-first vs
  * network-first vs cache-only) until a second real caller needs one.
  */
 fun <T> screenStateStream(

@@ -65,7 +65,7 @@ private data class ChatMessage(
  * PLAN_V24 P12.2: the in-app support chat channel. A deterministic canned-response bot — the user's
  * message is classified by [SupportChatResponder] and answered with the matching localized reply.
  *
- * ponytail: chat history lives in composable state (ephemeral) and there is no real agent — the bot
+ * chat history lives in composable state (ephemeral) and there is no real agent — the bot
  * is a keyword matcher (see [SupportChatResponder]'s doc for the ceiling + upgrade path). For a
  * persisted transcript, back this with a Room table; for real answers, swap the classifier.
  */

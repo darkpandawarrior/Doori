@@ -56,6 +56,6 @@ fun DeepLinkConfirmationDialog(
                 onConfirm = { onConfirm() },
                 onDismiss = onDismiss,
             )
-        else -> Unit // ponytail: only destructive actions ever route here (see requiresConfirmation).
+        else -> Unit // only destructive actions ever route here (see requiresConfirmation).
     }
 }

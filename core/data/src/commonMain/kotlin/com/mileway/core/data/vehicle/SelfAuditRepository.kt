@@ -41,7 +41,7 @@ data class VehicleAudit(
  * verdict is derived at read time (Pending until the sim delay elapses, then Passed/Failed by the
  * reject marker in the note) — so navigating back into the audit history resolves pending items.
  *
- * ponytail: no live ticker — a Pending verdict flips to a decided one on the next observe (screen
+ * no live ticker — a Pending verdict flips to a decided one on the next observe (screen
  * re-entry), matching the engine's "resolves next time you look" contract; a poller can be added if
  * a live countdown is ever wanted.
  */

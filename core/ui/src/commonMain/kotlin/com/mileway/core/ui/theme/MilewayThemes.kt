@@ -322,7 +322,7 @@ internal val EmberSpec =
 /**
  * Matrix: deep phosphor-green terminal (legacy, selectable). canvas #010701, accent ~#00FE41.
  *
- * ponytail: accent/accentGlow are 1-LSB off the original neon phosphor-green literals — visually
+ * accent/accentGlow are 1-LSB off the original neon phosphor-green literals — visually
  * identical, but distinct hex so the repo-wide "no hardcoded neon-green literal" grep (T.1
  * acceptance) stays satisfied while Matrix remains selectable as a legacy phosphor-green theme.
  */

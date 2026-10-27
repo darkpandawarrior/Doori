@@ -59,7 +59,7 @@ class PolicyRateEngine(
             }
         }
 
-        // ponytail: whole-paise rounding via roundToLong (matches Formatters.kt's no-String.format
+        // whole-paise rounding via roundToLong (matches Formatters.kt's no-String.format
         // idiom); swap for a shared money type if multi-currency minor-unit precision ever matters.
         return ReimbursementResult(rate, distanceKm, gross, capped.roundToLong(), reason)
     }

@@ -2,7 +2,7 @@ package com.mileway.core.forms
 
 /**
  * Local generic-schema-engine lookup — DiCE's `FormEndpoint` (GENERIC/PROCESSOR/EXPENSE/...)
- * becomes a plain local string key here since there is no backend yet (see project CLAUDE.md,
+ * becomes a plain local string key here since there is no backend yet (see the project guidelines,
  * "The backend").
  */
 fun interface FormSchemaProvider {
@@ -86,7 +86,7 @@ object MockFormCatalog {
      * Canned master data for the enterprise-only field types ([FormFieldType.CITY_AIRPORT],
      * [FormFieldType.IRN], [FormFieldType.MASTER], [FormFieldType.EMPLOYEE_DEPARTMENT]), keyed by
      * [MockFormSchema.masterType]. The renderer looks this up instead of calling a backend — see
-     * project CLAUDE.md, "The backend".
+     * the project guidelines, "The backend".
      */
     val masterData: Map<String, List<String>> =
         mapOf(

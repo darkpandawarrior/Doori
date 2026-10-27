@@ -14,7 +14,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
  * PLAN_V33 C5: pure (KMP-clean, no android.* / java.* deps) builder that fills in the
  * [SubmitMilesRequestK] fields `MileageSubmissionViewModel.submit()` previously left at their
  * defaults. Structure only — reimplemented against Mileway's own DTO/domain shapes (see
- * CLAUDE.md's "reference app" section: the field set/transforms are the blueprint, this code
+ * the project's "reference app" section: the field set/transforms are the blueprint, this code
  * and its DTO are Mileway's own).
  *
  * Fields the blueprint populates that have **no** Mileway DTO equivalent are deliberately left

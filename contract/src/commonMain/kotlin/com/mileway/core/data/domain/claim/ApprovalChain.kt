@@ -36,7 +36,7 @@ data class ApprovalStep(
 
 /**
  * The ordered approval history for a [Report]. Single-step in this backend slice (one approver,
- * no delegate/finance escalation) — ponytail: the full spec's multi-level routing (L1a/L11) widens
+ * no delegate/finance escalation) — the full spec's multi-level routing (L1a/L11) widens
  * [steps] to more than one role; nothing here forecloses that, it just isn't built yet.
  */
 @Serializable

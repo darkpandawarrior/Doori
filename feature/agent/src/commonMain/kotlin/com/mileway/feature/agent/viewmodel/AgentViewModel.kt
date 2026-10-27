@@ -71,7 +71,7 @@ class AgentViewModel(
             // LlmAssistantEngine rethrows it rather than turning it into an AssistantChunk.Error,
             // so this never surfaces as a user-facing failure.
             //
-            // ponytail: discards whatever streamed so far instead of keeping it as a partial
+            // discards whatever streamed so far instead of keeping it as a partial
             // assistant message — simplest correct Stop; upgrade to persisting streamedText via
             // repository.appendMessage if product wants a stopped answer kept rather than cleared.
             is AgentAction.StopStreaming -> {

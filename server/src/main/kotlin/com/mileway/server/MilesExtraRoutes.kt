@@ -29,7 +29,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
-// ponytail: no policy-configured log-miles cap exists yet (no config table) — a fixed 50km/month
+// no policy-configured log-miles cap exists yet (no config table) — a fixed 50km/month
 // fixture stands in. Upgrade to a real per-tenant limit once log-miles policy config lands.
 private const val DEFAULT_LOG_MILES_LIMIT_KM = 50.0
 
@@ -155,7 +155,7 @@ private fun haversineKm(
     b: CoordsV2,
 ): Double = haversineMeters(a.lat ?: 0.0, a.lng ?: 0.0, b.lat ?: 0.0, b.lng ?: 0.0) / METRES_PER_KM
 
-// ponytail: no geocoder is wired up — returns the input coordinates plus a placeholder address
+// no geocoder is wired up — returns the input coordinates plus a placeholder address
 // string. Swap for a real reverse-geocoding call (or an offline tile-based lookup) when one
 // exists; this is enough to unblock the client's map-preview screen without a live dependency.
 private fun mapResponse(

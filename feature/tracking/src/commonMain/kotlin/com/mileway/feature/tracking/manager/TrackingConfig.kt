@@ -37,7 +37,7 @@ data class TrackingConfig(
 /**
  * Bundled default config JSON — the local stand-in for a server plugin-config response (this
  * defines the wire shape). A commonMain string constant, not a resource file: no expect/actual
- * file IO needed for a handful of fields (ponytail: file-based resource loading only if this
+ * file IO needed for a handful of fields (file-based resource loading only if this
  * grows past a hand-editable constant).
  */
 const val DEFAULT_TRACKING_CONFIG_JSON: String =

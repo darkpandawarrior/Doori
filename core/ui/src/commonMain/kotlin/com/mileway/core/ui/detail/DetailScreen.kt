@@ -122,7 +122,7 @@ private fun DetailFieldContent(field: DetailField) {
         is DetailField.DateField -> DetailInfoRow(field.label.text(), field.value.text())
         is DetailField.AttachmentList -> DetailAttachmentsRow(field)
         is DetailField.Slot -> field.content()
-        // ponytail: no LazyListScope reaches this eager path (detailSection routes every
+        // no LazyListScope reaches this eager path (detailSection routes every
         // top-level PagedSlot around it); a nested one has nothing valid to render.
         is DetailField.PagedSlot -> Unit
         is DetailField.Expandable -> DetailExpandableRow(field)

@@ -77,7 +77,7 @@ private const val HIGHWAY_SPEED_KMH = 100.0
  * road ahead at highway speed. Monotone by construction (linear interpolation of a clamped input),
  * which is what keeps the camera from ever appearing to "breathe".
  *
- * ponytail: [MapSurface][com.mileway.core.maps.MapSurface] has no zoom parameter yet, so this
+ * [MapSurface][com.mileway.core.maps.MapSurface] has no zoom parameter yet, so this
  * value is computed and ready but not yet fed to the map — wire it in once that contract grows one.
  */
 fun zoomForSpeed(speedKmh: Double): Float {

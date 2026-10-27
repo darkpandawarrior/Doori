@@ -15,7 +15,7 @@
 #  2. `COPY . .` would ingest the whole monorepo — including `.ralph/`, which holds REFERENCE.md
 #     (the proprietary reference app's name and local path). Docker obeys `.dockerignore`, NOT
 #     `.gitignore`, so gitignoring it does not help: the name would land in a published image layer,
-#     violating CLAUDE.md's "no proprietary references, even by accident" guardrail. Copying only
+#     violating the project's "no proprietary references, even by accident" guardrail. Copying only
 #     the built distribution makes that structurally impossible rather than merely discouraged.
 #
 # A .dockerignore is committed alongside this as defence in depth, so a future edit that

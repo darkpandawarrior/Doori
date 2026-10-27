@@ -78,7 +78,7 @@ class LegacyMileageBackfillWorker(
                 createdAtMs = track.createdAt.takeIf { it > 0 } ?: now,
                 updatedAtMs = now,
             )
-        // ponytail: amountMinor is a crude rupees->paise cast of whatever was recorded at
+        // amountMinor is a crude rupees->paise cast of whatever was recorded at
         // submission time (often 0 for older rows that predate a reliable submittedAmount write) —
         // good enough for a shell record a later lane can re-price; not a payout-accurate figure.
         val line =

@@ -92,7 +92,7 @@ fun Route.reportRoutes() {
  *   guard that makes a retry never complete twice (Y03): the journal's own persisted status, not
  *   the report's lifecycle state, is what decides whether the backend gets called.
  *
- * ponytail: exactly-once against a REAL payment rail needs the backend's own idempotency key, not
+ * exactly-once against a REAL payment rail needs the backend's own idempotency key, not
  * just journal-state inspection — that gap doesn't exist here because [SimulatedPayoutBackend] is
  * synchronous in-process (no network hop for a crash to land inside mid-call). Upgrade this if a
  * real rail is ever wired in behind [PayoutBackend].
@@ -241,10 +241,10 @@ private fun insertClaimLine(
                 it[distanceKm] = line.distanceKm
                 it[vehicleKey] = line.vehicleKey
             }
-            // ponytail: PerDiemLine/AdvanceLine are new in L1a (contract-only so far); no feature
+            // PerDiemLine/AdvanceLine are new in L1a (contract-only so far); no feature
             // module or route constructs one yet, and ClaimLinesTable has no columns for their
             // fields. Persisting them is a real schema change (Room/Exposed migration territory,
-            // out of this lane's file list) — fail loudly instead of silently dropping fields the
+            // out of this change's file list) — fail loudly instead of silently dropping fields the
             // instant a caller does start sending one.
             is PerDiemLine, is AdvanceLine ->
                 error("Persisting ${line::class.simpleName} is not yet implemented")

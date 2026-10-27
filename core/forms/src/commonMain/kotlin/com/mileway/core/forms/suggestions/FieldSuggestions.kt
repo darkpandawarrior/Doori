@@ -88,7 +88,7 @@ private fun toFormFieldValue(
         FormFieldType.TEXT, FormFieldType.TEXTAREA, FormFieldType.EMAIL -> FormFieldValue.Text(raw)
         FormFieldType.NUMBER -> raw.toCleanDouble()?.let { FormFieldValue.Number(it) }
         FormFieldType.CURRENCY -> raw.toCleanDouble()?.let { FormFieldValue.Currency(it, currencyCode) }
-        // ponytail: assumes core:ai already normalizes DATE to ISO-8601 (matches FormFieldValue.Date's
+        // assumes core:ai already normalizes DATE to ISO-8601 (matches FormFieldValue.Date's
         // contract); revisit if a raw unnormalized OCR date format shows up in practice.
         FormFieldType.DATE -> FormFieldValue.Date(raw)
         FormFieldType.SELECT, FormFieldType.MASTER, FormFieldType.IRN -> FormFieldValue.Select(raw)

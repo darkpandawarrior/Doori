@@ -247,7 +247,7 @@ fun QrHomeScreen(
                         modifier = Modifier.fillMaxSize().background(Color.White).padding(16.dp),
                         contentAlignment = Alignment.Center,
                     ) {
-                        // ponytail: QR modules must be near-black on near-white to scan reliably —
+                        // QR modules must be near-black on near-white to scan reliably —
                         // theme-blind by requirement, see theme/LAYERS.md's genuinely-raw exceptions.
                         val darkColor = Color(0xFF1A1A1A)
                         androidx.compose.foundation.Canvas(modifier = Modifier.size(200.dp)) {

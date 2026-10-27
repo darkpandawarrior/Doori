@@ -17,7 +17,7 @@ import kotlin.test.assertTrue
  * When you migrate a batch, drop [BASELINE] to the number the failure message prints. It only ever
  * goes down. Reaching 0 means the ban is real and this test can become an equality assertion.
  *
- * ponytail: a grep-based ratchet, not a detekt rule. A custom detekt rule needs type resolution and
+ * a grep-based ratchet, not a detekt rule. A custom detekt rule needs type resolution and
  * its own module to be worth anything; this is 40 lines and catches the same class of regression.
  * Upgrade path: if the ratchet starts producing false positives (generated code, a legitimate
  * platform-boundary literal), promote it to a detekt `ForbiddenMethodCall` on the Color constructor

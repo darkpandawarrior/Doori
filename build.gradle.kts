@@ -89,7 +89,7 @@ kover {
         total {
             verify {
                 rule {
-                    // ponytail: placeholder floor. This is the FIRST run of the expanded aggregation
+                    // placeholder floor. This is the FIRST run of the expanded aggregation
                     // (:app + core:data + core:network + contract + feature:tracking + feature:logging)
                     // — nobody has measured the real percentage yet, so this is deliberately set low
                     // enough to certainly clear rather than guessed. NOTE: neither `fullCheck` nor
@@ -477,7 +477,7 @@ gradle.projectsEvaluated {
             sub.tasks
                 .matching {
                     // :desktopApp's test task is "desktopTest", not "test*UnitTest".
-                    // noGms only. AGENTS.md: "the gms flavor crashes Robolectric" — pulling in the gms
+                    // noGms only. the project guidelines: "the gms flavor crashes Robolectric" — pulling in the gms
                     // variant here would make the unified task fail for a reason that has nothing to do
                     // with the screenshots it is meant to guard.
                     (it.name == "desktopTest" || (it.name.startsWith("test") && it.name.endsWith("UnitTest"))) &&

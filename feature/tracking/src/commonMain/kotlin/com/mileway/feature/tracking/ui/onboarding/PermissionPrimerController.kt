@@ -79,7 +79,7 @@ class PermissionPrimerController(
     private val _stage = MutableStateFlow<PrimerStage>(PrimerStage.Intro)
     val stage: StateFlow<PrimerStage> = _stage.asStateFlow()
 
-    // ponytail: PermissionOnboardingFlow/TierOutcome (core/platform) collapses the platform's
+    // PermissionOnboardingFlow/TierOutcome (core/platform) collapses the platform's
     // PermissionResult.DeniedAlways into plain TierOutcome.Denied, so the real "don't ask again" signal
     // never reaches this class — and AndroidPermissionsProvider (external/kmp-toolkit) never returns
     // DeniedAlways in the first place. Consecutive-denial counting is the best proxy without editing

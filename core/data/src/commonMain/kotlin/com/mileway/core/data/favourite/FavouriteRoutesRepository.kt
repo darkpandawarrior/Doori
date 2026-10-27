@@ -33,7 +33,7 @@ data class PinnableTrack(
  * depending on feature:tracking. Pure/offline over Room. `SavedTrack.distance` is metres → km, the
  * same conversion the badge board uses (tracking units preserved).
  *
- * ponytail: favourite ROUTES only — the reference "blocked zones" half is skipped because it needs
+ * favourite ROUTES only — the reference "blocked zones" half is skipped because it needs
  * real geofence wiring into the live auto-track engine (cross-module, no cheap seam today); noted in
  * PROGRESS. The stored [FavouriteRoute.purpose] is the quick-start classification default; consuming
  * it to actually pre-seed a new trip is a cross-module hook that lands when tracking exposes one.

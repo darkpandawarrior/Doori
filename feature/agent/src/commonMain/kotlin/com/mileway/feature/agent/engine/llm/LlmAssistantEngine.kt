@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 class LlmAssistantEngine(
     private val gateway: LlmGateway,
 ) : AssistantEngine {
-    // SwallowedException: AiFailure (design-frozen, see AGENTS.md) has no free-text/cause slot to
+    // SwallowedException: AiFailure (design-frozen, see the project guidelines) has no free-text/cause slot to
     // carry `failure` into — the catch below already explains why Network is the closest reason.
     @Suppress("SwallowedException")
     override fun respond(

@@ -53,7 +53,7 @@ import platform.UIKit.UIViewController
  * `FakeMediaRepository` that already ships in commonMain, so the media screens resolve and run
  * against canned OCR/upload results rather than crashing on a missing definition.
  *
- * ponytail: a Fake, not a Vision/PHPicker-backed iOS implementation. Writing that is a real feature,
+ * a Fake, not a Vision/PHPicker-backed iOS implementation. Writing that is a real feature,
  * not a parity move, and nothing on the iOS shell reaches the camera capture path yet — the screens
  * that do (`CameraCaptureScreen`, `AttachmentSelectionScreen`, `DocumentScanLauncher`) are still
  * androidMain-only. Swap this binding when the iOS capture path lands.

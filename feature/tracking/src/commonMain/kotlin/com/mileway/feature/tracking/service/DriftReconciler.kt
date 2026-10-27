@@ -15,7 +15,7 @@ class DriftReconciler(
     private val now: () -> Long,
 ) {
     companion object {
-        // ponytail: named per spec — 120s drift reconciliation cadence.
+        // named per spec — 120s drift reconciliation cadence.
         const val RECONCILE_INTERVAL_MS = 120_000L
     }
 

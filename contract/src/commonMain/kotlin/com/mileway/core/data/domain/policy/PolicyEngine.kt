@@ -71,7 +71,7 @@ class PolicyEngine(
         when (line) {
             is ExpenseLine -> evaluateExpense(line, version)
             is MileageLine -> evaluateMileage(line, version)
-            // ponytail: per-diem/advance checks are narrow by design (no high-confidence rule
+            // per-diem/advance checks are narrow by design (no high-confidence rule
             // for them yet); wire PerDiemRateTable in here once claim capture needs it.
             is PerDiemLine -> emptyList()
             is AdvanceLine -> emptyList()

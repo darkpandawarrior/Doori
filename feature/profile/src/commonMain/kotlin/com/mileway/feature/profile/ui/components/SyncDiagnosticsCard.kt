@@ -87,7 +87,7 @@ data class SyncSettingsCallbacks(
  * PLAN_V22 P6.7 / PLAN_V24 P10.2: Settings' "Mileage Sync" card — the local staging/synced metrics
  * plus the sync-settings surface (per-bucket toggles, auto-sync interval, apply-target switch, and a
  * simulated pre-enable connectivity self-test). All local; no network call — Mileway has no backend
- * to sync against yet (see CLAUDE.md "The backend").
+ * to sync against yet (see the project guidelines "The backend").
  */
 @Composable
 fun SyncDiagnosticsCard(viewModel: SyncDiagnosticsViewModel = koinViewModel()) {

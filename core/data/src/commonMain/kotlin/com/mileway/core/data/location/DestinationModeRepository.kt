@@ -18,7 +18,7 @@ const val DESTINATION_GUEST_KEY: String = "guest"
 /**
  * PLAN_V24 P11.3 — the seeded region-preference options. A pure preference list (id → display
  * name); selecting them stores a set per account with no routing behaviour attached.
- * ponytail: preference store only — there is no region-based routing/dispatch engine to feed, so
+ * preference store only — there is no region-based routing/dispatch engine to feed, so
  * these are stored and shown as chips and nothing more (ceiling noted in PROGRESS).
  */
 data class DestinationRegion(

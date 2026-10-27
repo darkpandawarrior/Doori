@@ -72,7 +72,7 @@ internal fun Confidence.toMeterState(): ConfidenceMeterState =
  * this" into either extreme would misrepresent the data as more certain than it actually is, in
  * whichever direction happens to be convenient for the caller.
  *
- * ponytail: a Canvas bar, no chart library — same call as [DistanceLedgerBar] and for the same
+ * a Canvas bar, no chart library — same call as [DistanceLedgerBar] and for the same
  * reason: a receipt-style figure doesn't need one, and per [DesignTokens.Motion]'s rule it must
  * not animate while it's being read, so there's no animation state to justify one either.
  */

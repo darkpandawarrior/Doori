@@ -62,7 +62,7 @@ data class JourneyValidationResult(
 object JourneyValidator {
     private const val MISSING_VEHICLE_TYPE = "NONE"
 
-    /** ponytail: clock skew/timezone edge cases are common on real devices; don't block on them. */
+    /** clock skew/timezone edge cases are common on real devices; don't block on them. */
     private const val FUTURE_CLOCK_DRIFT_BUFFER_MS = 24 * 60 * 60 * 1000L
     private const val STALE_RESTORATION_MS = 7 * 24 * 60 * 60 * 1000L
 

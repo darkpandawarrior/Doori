@@ -28,7 +28,7 @@ object OdometerValidator {
     const val MAX_ODOMETER: Int = 999_999
 
     /**
-     * ponytail: a genuine trip won't rack up more than a few thousand km between start and end
+     * a genuine trip won't rack up more than a few thousand km between start and end
      * capture; anything past this (whether same-direction or wrapped) is an implausible jump
      * rather than a real rollover. Bump if a real fleet use case needs longer single trips.
      */

@@ -109,7 +109,7 @@ fun PurchaseRequestDetailsScreen(
 
     val po = ui.detailState.dataOrNull
 
-    // ponytail: which tab is showing is pure UI navigation state, not ViewModel-worthy (see the
+    // which tab is showing is pure UI navigation state, not ViewModel-worthy (see the
     // same note on ExpenseDetailScreen).
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
 

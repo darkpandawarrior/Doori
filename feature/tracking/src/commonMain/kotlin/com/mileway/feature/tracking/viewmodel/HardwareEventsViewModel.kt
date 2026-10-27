@@ -251,7 +251,7 @@ class HardwareEventsViewModel(
                 }
                 Pair(sb.toString(), "hardware_events.csv")
             }
-            // ponytail: hardware-events export only offers CSV/JSON in its dialog; every other
+            // hardware-events export only offers CSV/JSON in its dialog; every other
             // ExportFormat (JSON, and any future one like EXCEL) falls through to the JSON payload,
             // matching prepareExportPayload's own "CSV else JSON" mime assumption above.
             else -> {

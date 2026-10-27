@@ -3,7 +3,7 @@ package com.mileway.feature.whatsnew.model
 /*
  * In-app update domain model. Behaviour ported from the reference app's force/soft-update flow
  * (remote-authored min-supported version + release notes, gated behind the platform store's own
- * availability check) — never its code or package names, see AGENTS.md's reference-app rule.
+ * availability check) — never its code or package names, see the project's reference-app rule.
  *
  * Mileway already has a 2-state (FORCED/FLEXIBLE) gate wired end to end — core/ui's UpdateGate.kt +
  * MaintenanceGate.kt, core/network's ConfigProvider.getUpdateConfig(), :stub's DemoConfigManager,

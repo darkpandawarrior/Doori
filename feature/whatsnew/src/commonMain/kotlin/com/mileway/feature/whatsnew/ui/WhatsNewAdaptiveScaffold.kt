@@ -31,7 +31,7 @@ import com.mileway.core.ui.resources.whatsnew_two_pane_placeholder_title
 import com.mileway.core.ui.theme.DesignTokens
 import org.jetbrains.compose.resources.stringResource
 
-// ponytail: hand-rolled two-pane; migrate to org.jetbrains material3-adaptive when it's in the
+// hand-rolled two-pane; migrate to org.jetbrains material3-adaptive when it's in the
 // catalog — no new dependency for one breakpoint check (spec §6.2).
 private val TwoPaneBreakpoint = 840.dp
 private const val LIST_PANE_WEIGHT = 0.4f

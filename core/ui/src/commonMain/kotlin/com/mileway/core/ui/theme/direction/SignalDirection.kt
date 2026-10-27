@@ -42,7 +42,7 @@ import com.mileway.core.ui.theme.MilewayTypography
  * unambiguously (emerald primary vs. red destructive) without a legend. That's the screen this
  * direction was built to answer for.
  *
- * SCOPE NOTE: per the multi-agent file-ownership rule, this pass only registers the
+ * SCOPE NOTE: this change only registers the
  * [MilewayThemeVariant.SIGNAL] colour scheme. The typography ([SignalTypography], [SignalType]),
  * shape ([SignalShapes], [SignalCorners]), elevation ([SignalElevation]) and spacing
  * ([SignalSpacing]) tokens below are the complete direction, ready to be wired into

@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
  * from [BadgeRepository] (real completed trips, no fabricated totals), and fires a one-shot confetti
  * signal ([justEarned]) when a badge becomes newly earned while the section is on screen.
  *
- * ponytail: [justEarned] diffs against the badges seen since this ViewModel started — a milestone
+ * [justEarned] diffs against the badges seen since this ViewModel started — a milestone
  * crossed while the app was in the foreground confettis; one crossed while the app was closed simply
  * shows earned on next open (no persisted "already-celebrated" set). Enough for the demo; add a
  * DataStore celebrated-set if confetti must survive process death.

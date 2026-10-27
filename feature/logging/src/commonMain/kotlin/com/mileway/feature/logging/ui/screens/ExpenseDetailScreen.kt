@@ -104,7 +104,7 @@ fun ExpenseDetailScreen(
     LaunchedEffect(expenseId) { viewModel.onAction(ExpenseAction.OpenDetail(expenseId)) }
     val expense = ui.detailState.dataOrNull
 
-    // ponytail: which tab is showing is pure UI navigation state — no side effects, no need to
+    // which tab is showing is pure UI navigation state — no side effects, no need to
     // round-trip it through the ViewModel (unlike HistoryListScaffold's tab, which re-filters data).
     var selectedSection by remember { mutableStateOf<DetailSection>(DetailSection.Details) }
 

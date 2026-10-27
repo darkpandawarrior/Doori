@@ -9,7 +9,7 @@ import kotlin.math.sqrt
  * pipeline needs (both harden jitter suppression + shorten the GPS interval the same way).
  */
 object HarshAccelDetector {
-    // ponytail: single magnitude threshold, not accel-vs-brake specific. ~1g of linear
+    // single magnitude threshold, not accel-vs-brake specific. ~1g of linear
     // acceleration (excluding gravity) reads as a hard stop/launch on a phone in a cupholder.
     // Tighten/split if false positives show up on real driving data.
     const val HARSH_THRESHOLD_MPS2 = 4.0f

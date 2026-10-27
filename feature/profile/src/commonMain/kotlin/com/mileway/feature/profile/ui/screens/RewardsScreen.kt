@@ -61,7 +61,7 @@ private const val SCRATCH_THRESHOLD = 0.6f
  * PLAN_V24 P5.3: scratch-card rewards — a grid of earned cards. An unscratched card reveals when
  * dragged over; the cover fades with drag coverage and the reward scales in.
  *
- * ponytail: a genuine drag-to-fade reveal (cover alpha driven by accumulated drag), not a
+ * a genuine drag-to-fade reveal (cover alpha driven by accumulated drag), not a
  * clear-blend erase shader — the erase-mask fights Compose Multiplatform's software layer on the
  * noGms target. Noted in PROGRESS; the shipped interaction reveals reliably on every platform.
  */

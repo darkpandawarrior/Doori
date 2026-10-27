@@ -250,7 +250,7 @@ private fun NumberControl(
     onValueChange: (FormFieldValue) -> Unit,
 ) {
     OutlinedTextField(
-        // ponytail: round-tripping through toDoubleOrNull loses an in-progress trailing "." on
+        // round-tripping through toDoubleOrNull loses an in-progress trailing "." on
         // every keystroke; acceptable for a first-pass renderer, revisit with a text-buffer state
         // if that UX rough edge shows up in Wave 2 QA.
         value = value?.value?.toDisplayString().orEmpty(),
@@ -514,7 +514,7 @@ private fun EnterpriseControl(
 /**
  * "Attach file" button + a wrap-row of currently attached items, each removable (P27.F.2).
  *
- * ponytail: [CaptureMode.Gallery] only — the one `core:media` capture mode with a real actual on
+ * [CaptureMode.Gallery] only — the one `core:media` capture mode with a real actual on
  * both Android and iOS (`ReceiptAttachmentLauncher` in feature:logging uses the same mode for the
  * same reason). Camera needs `feature:media`'s full-screen `CameraCaptureScreen`, which core:forms
  * can't reach without a feature dependency; Files/Document both throw "not wired" on iOS today

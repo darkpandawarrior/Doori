@@ -15,7 +15,7 @@ private const val ID_SUFFIX_DIGITS = 10
  * PLAN_V24 P3.4: Room-backed store for `SavedPlacesScreen`'s home/work/other places. Persists
  * across navigation and process death (unlike a `mutableStateListOf` seed).
  *
- * ponytail: `EmployeeProfile.homeLocation` is a read-only free-text field on the mock network
+ * `EmployeeProfile.homeLocation` is a read-only free-text field on the mock network
  * model with no write path (same situation as P2.1 onboarding / P3.1 phone) — so the sync is
  * one-way: the HOME saved place is the canonical, editable home location surfaced going forward,
  * and write-back to `EmployeeProfile.homeLocation` is deferred until a real profile write path

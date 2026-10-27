@@ -16,7 +16,7 @@ data class MediaLibraryEntry(
     val isDeleted: Boolean = false,
     val deletedAt: Long? = null,
     val lastAccessedAt: Long? = null,
-    // ponytail: one column beyond the task's literal 4 — the WithOcr filter chip (P26.LIB.1) has
+    // one column beyond the task's literal 4 — the WithOcr filter chip (P26.LIB.1) has
     // nothing to filter on without it; adding it here (same migration, same owner) beats shipping
     // a filter that always shows zero results.
     val hasOcr: Boolean = false,

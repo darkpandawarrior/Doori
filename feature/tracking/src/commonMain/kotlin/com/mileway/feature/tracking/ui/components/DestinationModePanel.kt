@@ -51,7 +51,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * plugin is on. Pick a saved place → active state shows the destination + a live countdown → Disable
  * (or auto-expire). Trips started while active are auto-classified toward the destination (see
  * [com.mileway.feature.tracking.viewmodel.TrackMilesViewModel]). The region chips are a preference
- * store only — selecting them persists a set, with no routing behaviour (ponytail ceiling).
+ * store only — selecting them persists a set, with no routing behaviour (deliberate ceiling).
  */
 @Composable
 fun DestinationModePanel(

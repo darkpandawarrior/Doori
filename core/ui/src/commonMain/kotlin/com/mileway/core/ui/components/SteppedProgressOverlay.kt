@@ -68,7 +68,7 @@ fun SteppedProgressOverlay(
             modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.6f))
-                // ponytail: consume touches so the scrim is inert; no dismiss callback exists at all.
+                // consume touches so the scrim is inert; no dismiss callback exists at all.
                 .pointerInput(Unit) {},
         contentAlignment = Alignment.Center,
     ) {

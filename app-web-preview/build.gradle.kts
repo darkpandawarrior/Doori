@@ -6,7 +6,7 @@
  * package only, via srcDir + include filter) and rebuilds a curated demo subset of screens
  * (dashboard / tracking / expense log) over in-memory fakes.
  *
- * ponytail: source-inclusion over a module split — extracting a `:core:designsystem` module just
+ * source-inclusion over a module split — extracting a `:core:designsystem` module just
  * for wasm would touch 20+ consumers; the theme package is dependency-clean (compose +
  * materialkolor only), so an explicit file allowlist below buys the same reuse for zero refactor.
  * Upgrade path: if a real designsystem module ever gets split out, swap the srcDir for a project

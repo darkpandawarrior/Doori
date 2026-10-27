@@ -252,7 +252,7 @@ fun DemoSettingsScreen(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                // ponytail: no custom colors override — ButtonDefaults already defaults to the
+                // no custom colors override — ButtonDefaults already defaults to the
                 // theme accent, which is what the removed hardcoded indigo was trying to be.
                 Text(stringResource(Res.string.profile_demo_test_biometric))
             }

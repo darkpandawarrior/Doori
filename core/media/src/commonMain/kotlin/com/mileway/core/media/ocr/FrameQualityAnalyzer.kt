@@ -20,7 +20,7 @@ object FrameQualityAnalyzer {
         val textConfidence: Float,
     )
 
-    // ponytail: flat weighted average — swap for a learned model only if false-accepts show up in the field.
+    // flat weighted average — swap for a learned model only if false-accepts show up in the field.
     private const val SHARPNESS_WEIGHT = 0.4f
     private const val CONTRAST_WEIGHT = 0.2f
     private const val CONFIDENCE_WEIGHT = 0.4f

@@ -12,7 +12,7 @@ import com.mileway.core.media.BarcodeDecoder
  * noGms/F-Droid flavor [BarcodeDecoder]: ZXing (Apache-2.0, no Play Services), the FOSS
  * equivalent of the gms flavor's [MlKitBarcodeDecoder]. Same still-image decode shape as the
  * picked-image flow in `MediaCaptureLauncher.android.kt` — not a live CameraX viewfinder scan
- * (that upgrade is already flagged as a separate seam there, ponytail comment on `qrLauncher`).
+ * (that upgrade is already flagged as a separate seam there, shortcut comment on `qrLauncher`).
  */
 class ZxingBarcodeDecoder : BarcodeDecoder {
     override suspend fun decode(imageBytes: ByteArray): String? {

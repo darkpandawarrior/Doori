@@ -202,7 +202,7 @@ private fun createLedgerTables(connection: SQLiteConnection) {
  * the `com.siddharth.kmp:offline-outbox` toolkit module (RoomSubmitOutbox/RoomChangeBus went with it
  * — see [com.mileway.core.data.di.coreDataModule]). Drop the now-orphaned table from MilewayDatabase;
  * any in-flight drafts are re-created fresh in the new outbox.db on next enqueue (mock/local data
- * only, no backend to reconcile against — see CLAUDE.md "The backend").
+ * only, no backend to reconcile against — see the project guidelines "The backend").
  */
 val MIGRATION_47_48 =
     object : Migration(47, 48) {
@@ -213,7 +213,7 @@ val MIGRATION_47_48 =
 
 /**
  * Migration 46 → 47 (PLAN_V31 P31.MISC.1): additive `bug_reports` table — the shake-to-report
- * capture store. Saved locally only, no backend (see CLAUDE.md "The backend"); empty on first run,
+ * capture store. Saved locally only, no backend (see the project guidelines "The backend"); empty on first run,
  * a row is appended per submitted report, never edited.
  */
 val MIGRATION_46_47 =
@@ -875,7 +875,7 @@ val MIGRATION_19_20 =
  * no seed, since "no user overrides" is the correct initial state (PRESET/DEFAULT resolve
  * everything). See [com.mileway.core.data.model.db.PluginOverrideEntity].
  *
- * ponytail: later V24 phases add their own additive migrations (20, 21, …) as each lands, rather
+ * later V24 phases add their own additive migrations (20, 21, …) as each lands, rather
  * than the one mega-batch PLAN_V24 P0.6 sketched — keeps one-task-one-commit rollback clean.
  */
 val MIGRATION_18_19 =

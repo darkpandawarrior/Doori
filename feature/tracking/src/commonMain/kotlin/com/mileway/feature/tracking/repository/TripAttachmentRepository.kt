@@ -91,7 +91,7 @@ class TripAttachmentRepository(
      * Prefers the real [typedReading]/[typedSource] from the capture path; falls back to parsing
      * [ocrText] (as [OdometerReadingSource.DEVICE_OCR]) only when the typed reading is genuinely
      * absent. Null when neither is available (nothing to analyze).
-     * ponytail: this is a per-attachment snapshot, not the paired start→end trip validation — that
+     * this is a per-attachment snapshot, not the paired start→end trip validation — that
      * still happens where both readings are compared (LogMilesUiState.odometerValidationError).
      */
     private fun analysisJsonFor(

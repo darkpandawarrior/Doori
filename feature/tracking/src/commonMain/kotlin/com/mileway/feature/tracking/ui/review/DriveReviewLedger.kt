@@ -8,7 +8,7 @@ import com.mileway.feature.tracking.viewmodel.SubmissionFormUi
  * [SubmissionFormUi] plus the tracked [distanceKm] the screen was opened with — never from a
  * parallel/made-up figure.
  *
- * ponytail: [SubmissionFormUi] does not (yet) carry the distance pipeline's raw/mock/abnormal/
+ * [SubmissionFormUi] does not (yet) carry the distance pipeline's raw/mock/abnormal/
  * spike buckets that [SavedTrack][com.mileway.core.data.model.db.SavedTrack] already computes
  * (`originalDistance`/`mockDistance`/`abnormalDistance`/`spikeDistance`/`cleanedDistance`) — this
  * file only owns new code under `ui/review`, not the ViewModel those live behind, so raw and

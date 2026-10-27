@@ -2,7 +2,7 @@
 # Regenerates ONLY the <!-- AUTOGEN:x --> … <!-- /AUTOGEN:x --> spans in README.md from
 # source-of-truth in code. Hand-written prose outside the markers is never touched.
 # Run locally (./scripts/gen-readme.sh) or in CI; edits README.md in place.
-# ponytail: awk block-replace over a couple of markers — no templating engine.
+# awk block-replace over a couple of markers — no templating engine.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

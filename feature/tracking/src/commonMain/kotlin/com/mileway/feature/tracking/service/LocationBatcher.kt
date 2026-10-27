@@ -23,7 +23,7 @@ class LocationBatcher(
     private val now: () -> Long,
 ) {
     companion object {
-        // ponytail: named consts per spec — 10pt/30s batching cadence.
+        // named consts per spec — 10pt/30s batching cadence.
         const val MAX_BATCH_SIZE = 10
         const val MAX_BATCH_AGE_MS = 30_000L
     }

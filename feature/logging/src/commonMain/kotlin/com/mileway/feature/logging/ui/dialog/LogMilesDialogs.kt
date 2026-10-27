@@ -114,7 +114,7 @@ fun VerifyDistanceDialog(
             value = text,
             onValueChange = { text = it },
             label = { Text(stringResource(Res.string.logging_update_distance_label)) },
-            // ponytail: inline literal placeholder — see OdometerCaptureSheet for why (not a
+            // inline literal placeholder — see OdometerCaptureSheet for why (not a
             // stringResource here; core:ui's strings.xml is outside this module's ownership).
             placeholder = { Text("e.g. 12.5") },
             singleLine = true,
@@ -361,7 +361,7 @@ private fun PolicyViolationContent(
             value = remarks,
             onValueChange = { remarks = it },
             label = { Text(stringResource(Res.string.logging_remarks_label)) },
-            // ponytail: inline literal placeholder — see OdometerCaptureSheet for why.
+            // inline literal placeholder — see OdometerCaptureSheet for why.
             placeholder = { Text("e.g. Corrected the odometer photo and re-attached the receipt") },
             minLines = 2,
             maxLines = 4,

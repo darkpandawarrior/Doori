@@ -75,7 +75,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * delete. Reachable from the Account hub's plugin-gated Emergency tile. The contacts feed the
  * tracking SOS sheet.
  *
- * ponytail: device-contacts picker deferred (manual entry only, both platforms) — noted in
+ * device-contacts picker deferred (manual entry only, both platforms) — noted in
  * PROGRESS; iOS is manual-only by design anyway, and standing up the Android picker needs a first
  * iosMain source set in this module. Manual entry is a complete local implementation, not a stub.
  */

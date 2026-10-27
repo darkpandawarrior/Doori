@@ -1,4 +1,4 @@
 package com.mileway.core.platform
 
-// ponytail: desktop target has no OEM battery-management concept — always no hint.
+// desktop target has no OEM battery-management concept — always no hint.
 actual fun currentDeviceManufacturer(): String? = null

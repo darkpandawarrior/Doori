@@ -5,7 +5,7 @@ package com.mileway.feature.profile.support
  * was a live agent bridge; Mileway has no backend, so this is a pure keyword classifier that maps a
  * user message to a canned-reply [SupportChatTopic]. The UI renders each topic's localized reply.
  *
- * ponytail: rule-based first-keyword-wins matcher — no NLP, no history/context, no persistence. It is
+ * rule-based first-keyword-wins matcher — no NLP, no history/context, no persistence. It is
  * intentionally shallow: enough for a believable offline help bot. Upgrade path if this ever needs to
  * be smart: swap this classifier for an on-device model behind the same [classify] seam.
  */

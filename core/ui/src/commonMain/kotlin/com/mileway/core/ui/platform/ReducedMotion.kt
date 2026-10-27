@@ -15,7 +15,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * (desktop, previews, tests, commonTest) so a read outside a provider degrades to "animate
  * normally" instead of crashing.
  *
- * // ponytail: no core:platform expect/actual for the OS read itself (unlike e.g.
+ * // no core:platform expect/actual for the OS read itself (unlike e.g.
  * // `currentDeviceManufacturer()`) — the two platform roots already own their own bootstrap code,
  * // so reading Settings.Global/UIAccessibility right there is the smaller diff, and it's a
  * // one-shot read (not observed for live changes mid-session). Promote to a proper

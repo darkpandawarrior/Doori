@@ -68,7 +68,7 @@ class WhatsNewListViewModelTest {
         assertFalse("stale" in vm.uiState.value.newEntryIds)
     }
 
-    // ponytail: no "empty catalog" case here — BundledWhatsNewRepository.currentVersion is
+    // no "empty catalog" case here — BundledWhatsNewRepository.currentVersion is
     // maxOf { version } over the catalog, which throws on an empty list (and WhatsNewCatalogTest
     // already asserts the real catalog is never empty), so an empty-repository fixture would be
     // testing a state the repository itself can't produce.

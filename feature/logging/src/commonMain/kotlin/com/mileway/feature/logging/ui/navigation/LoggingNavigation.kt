@@ -103,7 +103,7 @@ object LoggingRoutes {
      * P27.E.5/7/8: encodes [context] onto [EXPENSE_ENTRY]'s query params — the shared seam that
      * lets feature:tracking/cards/profile CTAs hand an [ExpenseSourceContext] to the expense flow
      * through a plain route string, so every feature still meets feature:logging only at :app's
-     * composition root (never a direct feature→feature dependency; see CLAUDE.md's module-
+     * composition root (never a direct feature→feature dependency; see the project's module-
      * boundary rule). The P27.E.5/7/8 variants (Trip/Card/Advance) plus, since P27.E.1 merged the
      * old edit-details route into this single one, [ExpenseSourceContext.Edit] and
      * [ExpenseSourceContext.Event] are encoded richly; every other variant (including the default

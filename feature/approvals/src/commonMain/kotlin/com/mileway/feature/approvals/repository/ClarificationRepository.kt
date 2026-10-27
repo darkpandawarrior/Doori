@@ -143,7 +143,7 @@ class RoomClarificationRepository(
                 attachmentUrl = attachmentUrl,
             ),
         )
-        // ponytail: no status check here — sending into a CLOSED room shouldn't silently reopen
+        // no status check here — sending into a CLOSED room shouldn't silently reopen
         // it (P28.3's whole point is a real terminal state); the ViewModel/UI already disables
         // the input once closed, so this is a defence-in-depth no-op, not the primary gate.
         dao.touchUpdatedAt(roomId, now)
@@ -191,7 +191,7 @@ class RoomClarificationRepository(
         roomId: String,
         reducer: ClarificationRoomMeta.() -> ClarificationRoomMeta,
     ) {
-        // ponytail: no suspend "get" query on the dao — one-shot read of the observe-Flow's first
+        // no suspend "get" query on the dao — one-shot read of the observe-Flow's first
         // value instead of adding a parallel @Query just for this read-modify-write.
         val existing = dao.observeMeta(roomId).first()?.toDomain(roomId) ?: ClarificationRoomMeta(roomId)
         dao.upsertMeta(existing.reducer().toEntity())

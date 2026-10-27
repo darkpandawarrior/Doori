@@ -6,7 +6,7 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 /**
- * ponytail: one throwaway table proving the Exposed wiring end-to-end (connect + schema create +
+ * one throwaway table proving the Exposed wiring end-to-end (connect + schema create +
  * a query from [Application.module]'s `/health` handler). No real domain table yet — that lands
  * with the miles/expense routes in a later PLAN_V33 task.
  */

@@ -11,7 +11,7 @@ import io.ktor.http.isSuccess
 import kotlinx.coroutines.CancellationException
 import org.koin.dsl.module
 
-/** Sends validated line-level CSV. The accounting endpoint is not implemented by this lane. */
+/** Sends validated line-level CSV. The accounting endpoint is not implemented by this change. */
 class AccountingExportClient(
     private val baseUrlProvider: BaseUrlProvider,
     private val client: HttpClient = createHttpClient(retry = false, requestTimeoutMillis = 5_000),

@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
  * G9: the app's first instrumented integration test — the offline tracking lifecycle on a real device DB.
  *
  * Runs on a device or the Gradle Managed Device (`pixel6Api34noGmsDebugAndroidTest`), NOT the JVM unit-test
- * gate. It exercises the headline offline promise from CLAUDE.md ("track a trip, kill and relaunch, confirm
+ * gate. It exercises the headline offline promise from the project guidelines ("track a trip, kill and relaunch, confirm
  * the record persisted"):
  *
  *  1. A **FusedLocation test double** (`setMockMode` + `setMockLocation`) produces a sequence of GPS fixes.

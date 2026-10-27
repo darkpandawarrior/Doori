@@ -23,7 +23,7 @@ import kotlin.coroutines.resume
 class MlKitTextRecognizer(
     private val context: Context,
 ) : TextRecognizer {
-    // ponytail: lazy, not eager — this class is constructed unconditionally at Compose
+    // lazy, not eager — this class is constructed unconditionally at Compose
     // composition time by every rememberMediaCaptureLauncher call (core:media), whether or not
     // OCR is ever used. TextRecognition.getClient() touches MlKitContext.getInstance(), which
     // isn't initialized in every host (e.g. Robolectric screenshot tests) — deferring construction
