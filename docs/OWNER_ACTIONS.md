@@ -191,18 +191,14 @@ Tier 3.1 signing secrets.
 ## Tier 6 — F-Droid (optional, FOSS distribution)
 
 ### 6.1 Publish the FOSS build
-- [ ] **Prerequisite, and it is a real one:** the `noGms` build is **not currently GMS-free**. Its
-      dependency-guard baseline (`app/dependencies/noGmsReleaseRuntimeClasspath.txt`) contains **15**
-      `com.google.android.gms`/`com.google.mlkit` entries plus **4** `com.google.firebase` — 19
-      proprietary entries. F-Droid's inclusion policy will reject that.
-- [ ] **The blocking decision is yours** (I've flagged it repeatedly and not decided it for you):
-      ML Kit powers OCR and document scanning — the app's prime capture feature — and is currently
-      *allowlisted into* the FOSS build. Pick one:
-      1. **Ship FOSS without OCR/doc-scan** (degraded FOSS flavor, ~40h to replace with tesseract4android)
-      2. **Keep ML Kit and stop calling it FOSS** — rename the flavor's claim honestly, drop F-Droid
-      3. **Drop the F-Droid track** entirely
-- [ ] Only after that: `publish-fdroid.yml` needs the Tier 3.1 signing secrets, then submit the
-      metadata to [fdroiddata](https://gitlab.com/fdroid/fdroiddata).
+- [x] **Dependency prerequisite resolved by L13:** the checked-in dependency-guard baseline
+      (`app/dependencies/noGmsReleaseRuntimeClasspath.txt`) contains **0** Play Services/ML Kit
+      entries and **0** `com.google.firebase` entries. The former 19-entry blocker is resolved.
+      `app/build.gradle.kts` keeps ML Kit OCR/document scanning and Firebase in `gmsImplementation`;
+      `noGmsImplementation` uses ZXing for barcode/QR decoding. The ML Kit flavor choice is settled.
+- [ ] `publish-fdroid.yml` still needs the Tier 3.1 signing secrets, then submit the
+      metadata to [fdroiddata](https://gitlab.com/fdroid/fdroiddata). The baseline check alone does
+      not prove F-Droid acceptance.
 - [ ] **Verify:** `grep -cE 'play-services|com\.google\.mlkit' app/dependencies/noGmsReleaseRuntimeClasspath.txt`
       should read **0** before you submit.
 
