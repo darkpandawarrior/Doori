@@ -86,7 +86,7 @@ maplibreCompose = "0.20.0"
 ktor = "3.6.0"
 # PLAN_V33 B1: :server (JVM-only Ktor backend) — Exposed/JDBC drivers/logging pinned fresh, no
 # prior catalog entry existed for any of these.
-exposed = "1.5.0"
+exposed = "1.5.1"
 postgresql = "42.7.13"
 h2 = "2.5.250"
 logback = "1.6.4"
