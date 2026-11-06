@@ -32,7 +32,7 @@ git submodule update --init --recursive    # if you already cloned without the f
 adb install app/build/outputs/apk/noGms/debug/app-noGms-debug.apk
 ```
 
-You need JDK 25 (`ci.yml` pins it, and the convention plugins compile at Java 25) and an Android SDK. `minSdk` is 30 and the plugins use `compileSdk` 37. For the iOS and watchOS targets you also need a Mac with Xcode. Only the optional backend and the cloud assistant key path touch a network. To check the offline claim, switch on airplane mode, track a trip, kill the app, relaunch, and confirm the trip is still there.
+You need JDK 25 (`ci.yml` pins it, and the convention plugins compile at Java 25) and an Android SDK. `minSdk` is 30 and the plugins use `compileSdk` 37. For the iOS and watchOS targets you also need a Mac with Xcode. In the noGms build only the optional backend and the cloud assistant key path touch a network. To check the offline claim, switch on airplane mode, track a trip, kill the app, relaunch, and confirm the trip is still there.
 
 The same build as a gate, which is what CI runs:
 
