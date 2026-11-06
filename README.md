@@ -2,7 +2,7 @@
 
 # Doori
 
-Doori turns a recorded drive into a mileage reimbursement claim, and handles the expenses, travel requests and approvals around it. It is a Kotlin Multiplatform app for Android, iOS, Wear OS, watchOS and desktop that works fully offline.
+Doori turns a recorded drive into a mileage reimbursement claim, and handles the expenses, travel requests and approvals around it. It is a Kotlin Multiplatform app for Android, iOS, Wear OS, watchOS and desktop. It runs on local data with no network.
 
 I wrote it to put the location engineering, offline-first design and module structure I care about into one app you can run. Every company, booking, card and amount in it is mock data. The part I care about most is the location pipeline, which has to cope with GPS jitter, spikes and spoofed fixes and still produce a distance you can defend.
 
@@ -32,7 +32,7 @@ git submodule update --init --recursive    # if you already cloned without the f
 adb install app/build/outputs/apk/noGms/debug/app-noGms-debug.apk
 ```
 
-You need JDK 25 (`ci.yml` pins it, and the convention plugins compile at Java 25) and an Android SDK. `minSdk` is 30 and the plugins use `compileSdk` 37. For the iOS and watchOS targets you also need a Mac with Xcode. Nothing needs a network connection. To check the offline claim, switch on airplane mode, track a trip, kill the app, relaunch, and confirm the trip is still there.
+You need JDK 25 (`ci.yml` pins it, and the convention plugins compile at Java 25) and an Android SDK. `minSdk` is 30 and the plugins use `compileSdk` 37. For the iOS and watchOS targets you also need a Mac with Xcode. Only the optional backend and the cloud assistant key path touch a network. To check the offline claim, switch on airplane mode, track a trip, kill the app, relaunch, and confirm the trip is still there.
 
 The same build as a gate, which is what CI runs:
 
@@ -72,7 +72,7 @@ This is where most of the effort went.
 - **Jitter.** Drift while you are stationary is filtered out and the anchor point is kept.
 - **Spikes.** An implied-speed check flags fixes that teleport instead of silently dropping them.
 - **Four buckets.** Each track stores `original`, `cleaned`, `abnormal` and `mock` distances, so you can see what was removed and why.
-- **Mock locations** are flagged, not just blocked.
+- **Mock locations** are flagged and counted in their own bucket.
 - **Sampling** adapts to device tier, and the spike thresholds come from one config object, not numbers scattered through the code.
 - **Recompute.** Distances can be rebuilt from the stored points, so a fix to the maths re-derives old trips instead of leaving them on the old numbers.
 
@@ -94,7 +94,8 @@ Feature modules never depend on one another. They meet in `:app`, wired with Koi
 app/ desktopApp/ wear/ widget/ iosApp/ sharedWatch/   entry points per platform
 feature/   tracking logging media profile approvals payables travel agent
            cards advances payments events whatsnew
-core/      ui common data network platform security ai forms media maps
+core/      ui common data network platform security ai forms media
+           maps maps-maplibre maps-krossmap
 contract/  DTOs and PolicyRateEngine shared by app and server
 server/    Ktor + Exposed backend, opt-in
 stub/      deterministic mock data behind every repository
@@ -103,7 +104,7 @@ external/  kmp-build-logic, kmp-toolkit (submodules)
 
 [kmp-toolkit](https://github.com/darkpandawarrior/kmp-toolkit) supplies `mvi-core`, `result`, `common`, `location`, `offline-outbox`, `security`, `network`, `ai` and other modules; this repo takes 16 of them through dependency substitution rather than copying them. [kmp-build-logic](https://github.com/darkpandawarrior/kmp-build-logic) holds the convention plugins. The server and client share `:contract`, including the `PolicyRateEngine` that computes reimbursement on both sides, and the server dedups location events by `opId` against a unique index.
 
-The `maps` flavor dimension makes two builds. `gms` uses Google Maps and Firebase. `noGms` uses MapLibre with offline MBTiles and no Firebase, and a `dependencyGuard` baseline fails CI if a Google or Play Services artifact reaches its release classpath. `docs/OWNER_ACTIONS.md` records that the baseline now holds none, and that the F-Droid listing still waits on signing secrets. Design rules are in [DESIGN.md](DESIGN.md), settled choices in [docs/DECISIONS.md](docs/DECISIONS.md), and every generated artefact in [docs/ARTEFACT_INDEX.md](docs/ARTEFACT_INDEX.md). The code still says `Mileway` in package and class names; that was the project's earlier name.
+The `maps` flavor dimension makes two builds. `gms` uses Google Maps and Firebase. `noGms` uses MapLibre with offline MBTiles and no Firebase, and a Gradle check fails the build if a Play Services, ML Kit, Firebase or Google Maps artifact reaches its release classpath. A `dependencyGuard` baseline pins the rest. `docs/OWNER_ACTIONS.md` records that the baseline now holds none, and that the F-Droid listing still waits on signing secrets. Design rules are in [DESIGN.md](DESIGN.md), settled choices in [docs/DECISIONS.md](docs/DECISIONS.md), and every generated artefact in [docs/ARTEFACT_INDEX.md](docs/ARTEFACT_INDEX.md). The code still says `Mileway` in package and class names; that was the project's earlier name.
 
 ## What is verified, and what is not
 
