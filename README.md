@@ -19,7 +19,7 @@ I wrote it to put the location engineering, offline-first design and module stru
 
 ![Tracking a trip, from the start screen to the submitted summary](docs/gifs/track_a_trip.gif)
 
-## Run it
+## Build and run
 
 Gradle convention plugins and the shared libraries live in two submodules under `external/`, wired in with `includeBuild`. A plain clone leaves them empty and the build stops with `Included build 'external/kmp-build-logic' does not exist`, so clone with them:
 
@@ -69,12 +69,7 @@ JWT_SECRET=dev-secret docker compose up --build
 
 This is where most of the effort went.
 
-- **Jitter.** Drift while you are stationary is filtered out and the anchor point is kept.
-- **Spikes.** An implied-speed check flags fixes that teleport instead of silently dropping them.
-- **Four buckets.** Each track stores `original`, `cleaned`, `abnormal` and `mock` distances, so you can see what was removed and why.
-- **Mock locations** are flagged and counted in their own bucket.
-- **Sampling** adapts to device tier, and the spike thresholds come from one config object, not numbers scattered through the code.
-- **Recompute.** Distances can be rebuilt from the stored points, so a fix to the maths re-derives old trips instead of leaving them on the old numbers.
+Drift while you are stationary is filtered out and the anchor point is kept. An implied-speed check flags fixes that teleport instead of silently dropping them, and mock locations are flagged too. Each track stores four distances, `original`, `cleaned`, `abnormal` and `mock`, so you can see what was removed and why. Sampling adapts to device tier, and the spike thresholds come from one config object, not numbers scattered through the code. Distances can be rebuilt from the stored points, so a fix to the maths re-derives old trips instead of leaving them on the old numbers.
 
 `SIMULATE_LOCATION = true` (in `LocationTrackingService`) feeds a simulated drive through the same pipeline, so tracking works on an emulator with no GPS.
 
@@ -82,11 +77,11 @@ This is where most of the effort went.
 
 Tracking on a foreground service with geofenced check-in. Manual trip logging and a two-step expense wizard whose submissions go through a durable Room outbox that survives a kill. Approvals with policy-violation badges and delegation, payables, travel requests, cards, advances, events and payments. A plugin registry that turns features on and off per persona, so one account can reshape the app. A dynamic form engine, on-device document extraction for receipts, and an expense assistant that streams replies through `LlmGateway`: ML Kit GenAI on Android, Apple Foundation Models on iOS, and a bring-your-own-key cloud fallback (Anthropic, OpenAI or Gemini) stored through `SecureKeyStore`. The default theme is Paper, picked from a five-way comparison on 2026-08-10 (`docs/DECISIONS.md`).
 
-Beyond the phone: a Wear OS app with a tile, a SwiftUI watchOS app over a headless `:sharedWatch` framework, iOS widgets and a Live Activity, an Android Glance widget, App Intents and AppFunctions, a Compose Desktop dashboard and a wasmJs preview. [Phone journeys](docs/gifs) and [the screenshot catalogue](docs/screenshots) are all rendered from mock data on the JVM.
+Beyond the phone: a Wear OS app with a tile, a SwiftUI watchOS app over a headless `:sharedWatch` framework, iOS widgets and a Live Activity, an Android Glance widget, App Intents and AppFunctions, a Compose Desktop dashboard and a wasmJs preview. [Phone flows](docs/gifs) and [the screenshot catalogue](docs/screenshots) are all rendered from mock data on the JVM.
 
 ![Logging miles and an expense](docs/gifs/log_and_expense.gif)
 
-## How it is put together
+## Modules and flavors
 
 Feature modules never depend on one another. They meet in `:app`, wired with Koin. Each screen has one immutable state exposed as a `StateFlow` and rendered through a shared `ScreenState` that covers loading, empty, error and content. Room and DataStore are the source of truth; reads come from Room and writes queue.
 
@@ -106,7 +101,7 @@ external/  kmp-build-logic, kmp-toolkit (submodules)
 
 The `maps` flavor dimension makes two builds. `gms` uses Google Maps and Firebase. `noGms` uses MapLibre with offline MBTiles and no Firebase, and a Gradle check fails the build if a Play Services, ML Kit, Firebase or Google Maps artifact reaches its release classpath. A `dependencyGuard` baseline pins the rest. `docs/OWNER_ACTIONS.md` records that the baseline now holds none, and that the F-Droid listing still waits on signing secrets. Design rules are in [DESIGN.md](DESIGN.md), settled choices in [docs/DECISIONS.md](docs/DECISIONS.md), and every generated artefact in [docs/ARTEFACT_INDEX.md](docs/ARTEFACT_INDEX.md). The code still says `Mileway` in package and class names; that was the project's earlier name.
 
-## What is verified, and what is not
+## Tests, and what has no test
 
 Counted today outside `external/`: **3,315 `@Test` methods in 485 files** (`grep -rho '@Test' --include='*.kt' --exclude-dir=external .`) and 425 screenshot PNGs.
 
@@ -117,4 +112,4 @@ Counted today outside `external/`: **3,315 `@Test` methods in 485 files** (`grep
 - The iOS app is a subset: it hosts `MilewayApp()` with Home, Track, Spends, Travel and More. The full Compose navigation host is Android-only, and a few detail screens are not wired on iOS.
 - Store workflows (Play, F-Droid, Amazon, Huawei, Samsung, Indus, Aptoide) exist and do nothing until their secrets are set. Uptodown has no submission API.
 
-Related: [PaymentsLab-KMP](https://github.com/darkpandawarrior/PaymentsLab-KMP), [Gaddi](https://github.com/darkpandawarrior/Gaddi), and the [case study](https://cv-siddharth.vercel.app/project/doori). A project page is built from `site/` by `pages.yml`.
+The same toolkit sits under [PaymentsLab-KMP](https://github.com/darkpandawarrior/PaymentsLab-KMP) and [Gaddi](https://github.com/darkpandawarrior/Gaddi). There is a [case study](https://cv-siddharth.vercel.app/project/doori), and `pages.yml` builds a project page from `site/`.
