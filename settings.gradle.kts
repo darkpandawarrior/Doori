@@ -12,7 +12,7 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         // Storytale (multiplatform component gallery) publishes dev builds here, not yet on Maven Central.
-        maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+        maven { url = uri("https://packages.jetbrains.team/maven/p/cmp/dev") }
     }
 }
 
@@ -25,8 +25,8 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        // Storytale runtime artifacts (org.jetbrains.compose.storytale) resolve from JetBrains Space.
-        maven { url = uri("https://maven.pkg.jetbrains.space/public/p/compose/dev") }
+        // Storytale runtime artifacts (org.jetbrains.compose.storytale) resolve from packages.jetbrains.team.
+        maven { url = uri("https://packages.jetbrains.team/maven/p/cmp/dev") }
         // Node.js / Yarn / Binaryen distributions for the Kotlin/Wasm toolchain (wasmJs browser()).
         ivy {
             name = "Node.js Distributions"
