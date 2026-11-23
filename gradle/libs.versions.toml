@@ -75,7 +75,7 @@ datetimeWheelPicker = "1.4.0"
 napier = "2.7.1"
 # V11 KMP/CMP migration (verified coords in .ralph/kmp-migration-map.md)
 coil3 = "3.6.3"
-markdownRenderer = "0.45.0"
+markdownRenderer = "0.46.0"
 webviewMultiplatform = "2.0.3"
 # 0.16/0.17 rewrote the API MapLibreSurface.kt uses (MaplibreMap takes a MapState from
 # rememberMapState, layers live in its content lambda, camera moves are MapState methods, the
